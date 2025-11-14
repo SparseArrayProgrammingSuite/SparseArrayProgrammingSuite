@@ -68,8 +68,8 @@ def solve_block_jacobi_cg(xp, M, r):
         j = i + L_i.shape[0]
         r_i = r[i:j]
 
-        y_i = xp.solve(L_i, r_i)
-        z_i = xp.solve(L_i.T, y_i)
+        y_i = xp.linalg.solve(L_i, r_i)
+        z_i = xp.linalg.solve(L_i.T, y_i)
 
         z_parts.append(z_i)
         i = j
