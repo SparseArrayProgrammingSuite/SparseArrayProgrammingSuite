@@ -28,14 +28,61 @@ AI was used to debug code. This statement was written by hand.
 """
 
 
-def benchmark_cg(
-    xp, A_bench, M_bench, b_bench, x_bench, rel_tol=1e-8, abs_tol=1e-20, max_iters=10000
+def benchmark_block_jacobi_cg(
+    xp, A_bench, b_bench, x_bench, rel_tol=1e-8, abs_tol=1e-20, max_iters=10000
 ):
     A = xp.lazy(xp.from_benchmark(A_bench))
-    M = xp.lazy(xp.from_benchmark(M_bench))
     b = xp.lazy(xp.from_benchmark(b_bench))
     x = xp.lazy(xp.from_benchmark(x_bench))
+    n = A.shape[0]
+    block_size = 2
+    while block_size <= 8:
+        blocks = []
+        i = 0
+        while i < n:
+            j = min(i + block_size, n)
+            A_ii = A[i:j, i:j]
+            L_i = xp.linalg.cholesky(A_ii)
+            blocks.append(L_i)
+            i = j
+        preconditioned_cg(
+            xp, A, b, x, blocks, solve_block_jacobi_cg, rel_tol, abs_tol, max_iters
+        )
+        block_size *= 2
 
+
+def benchmark_jacobi_cg(
+    xp, A_bench, b_bench, x_bench, rel_tol=1e-8, abs_tol=1e-20, max_iters=10000
+):
+    A = xp.lazy(xp.from_benchmark(A_bench))
+    b = xp.lazy(xp.from_benchmark(b_bench))
+    x = xp.lazy(xp.from_benchmark(x_bench))
+    M = xp.diagonal(A)
+    preconditioned_cg(xp, A, b, x, M, solve_jacobi_cg, rel_tol, abs_tol, max_iters)
+
+
+def solve_block_jacobi_cg(xp, M, r):
+    z_parts = []
+    i = 0
+    for L_i in M:
+        j = i + L_i.shape[0]
+        r_i = r[i:j]
+
+        y_i = xp.solve(L_i, r_i)
+        z_i = xp.solve(L_i.T, y_i)
+
+        z_parts.append(z_i)
+        i = j
+    return xp.concat(z_parts)
+
+
+def solve_jacobi_cg(xp, M, r):
+    return r / M
+
+
+def preconditioned_cg(
+    xp, A, b, x, M, solve_cg, rel_tol=1e-8, abs_tol=1e-20, max_iters=10000
+):
     tolerance = max(
         xp.compute(xp.lazy(rel_tol) * xp.sqrt(xp.vecdot(b, b)))[()], abs_tol
     )
@@ -43,7 +90,7 @@ def benchmark_cg(
     tol_sq = tolerance * tolerance
 
     r = b - A @ x
-    z = solve_block_jacobi_cg(M, r)
+    z = solve_cg(xp, M, r)
     rho = xp.vecdot(r, z)
     p = z
     it = 0
@@ -70,7 +117,7 @@ def benchmark_cg(
             if new_rr < tol_sq:
                 break
 
-            z = solve_block_jacobi_cg(M, r)
+            z = solve_cg(xp, M, r)
             new_rho = xp.vecdot(r, z)
             beta = new_rho / rho
             p = z + beta * p
@@ -79,10 +126,6 @@ def benchmark_cg(
 
     x_solution = xp.compute(x)
     return xp.to_benchmark(x_solution)
-
-
-def solve_block_jacobi_cg():
-    return
 
 
 def generate_cg_data(source, has_b_file=False):
