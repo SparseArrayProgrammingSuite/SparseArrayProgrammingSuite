@@ -165,33 +165,33 @@ def generate_cg_data(source, has_b_file=False):
     return (A_bin, b_bin, x_bin)
 
 
-def dg_cg_sparse_1():
+def dg_precond_cg_sparse_1():
     return generate_cg_data("mesh3em5")
 
 
-def dg_cg_sparse_2():
+def dg_precond_cg_sparse_2():
     return generate_cg_data("bcsstm02")
 
 
-def dg_cg_sparse_3():
+def dg_precond_cg_sparse_3():
     return generate_cg_data("fv1")
 
 
-def dg_cg_sparse_4():
+def dg_precond_cg_sparse_4():
     return generate_cg_data("Muu")
 
 
-def dg_cg_sparse_5():
+def dg_precond_cg_sparse_5():
     return generate_cg_data("Chem97ZtZ")
 
 
-def dg_cg_sparse_6():
+def dg_precond_cg_sparse_6():
     return generate_cg_data("Dubcova1")
 
 
-def dg_cg_sparse_7():
+def dg_precond_cg_sparse_7():
     return generate_cg_data("t3dl_e")
 
 
-def dg_cg_sparse_8():
+def dg_precond_cg_sparse_8():
     return generate_cg_data("bcsstk09")
