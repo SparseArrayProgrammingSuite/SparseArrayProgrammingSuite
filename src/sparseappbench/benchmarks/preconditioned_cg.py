@@ -2,6 +2,7 @@ import os
 
 import numpy as np
 from scipy.io import mmread
+from scipy.linalg import block_diag
 from scipy.sparse import random
 
 import ssgetpy
@@ -29,26 +30,31 @@ AI was used to debug code. This statement was written by hand.
 
 
 def benchmark_block_jacobi_cg(
-    xp, A_bench, b_bench, x_bench, rel_tol=1e-8, abs_tol=1e-20, max_iters=10000
+    xp, A_bench, b_bench, x_bench, rel_tol=1e-8, abs_tol=1e-20, max_iters=10000, p=100
 ):
     A = xp.lazy(xp.from_benchmark(A_bench))
     b = xp.lazy(xp.from_benchmark(b_bench))
     x = xp.lazy(xp.from_benchmark(x_bench))
     n = A.shape[0]
-    block_size = 2
-    while block_size <= 8:
-        blocks = []
-        i = 0
-        while i < n:
-            j = min(i + block_size, n)
-            A_ii = A[i:j, i:j]
-            L_i = xp.linalg.cholesky(A_ii)
-            blocks.append(L_i)
-            i = j
-        preconditioned_cg(
-            xp, A, b, x, blocks, solve_block_jacobi_cg, rel_tol, abs_tol, max_iters
-        )
-        block_size *= 2
+    # Create one block for every processor modelled after
+    # this example: https://petsc.org/main/src/ksp/ksp/tutorials/ex7.c.html
+    p = min(p, n)
+    block_size = n // p
+    blocks = []
+    i = 0
+    while i < n:
+        j = min(i + block_size, n)
+        A_ii = A[i:j, i:j]
+        # L_i = xp.linalg.cholesky(A_ii)
+        # blocks.append(L_i)
+        blocks.append(A_ii)
+        i = j
+    # B = block_diag(blocks, format="csr")
+    B = block_diag(*blocks)
+    L = xp.linalg.cholesky(B)
+    preconditioned_cg(
+        xp, A, b, x, L, solve_block_jacobi_cg, rel_tol, abs_tol, max_iters
+    )
 
 
 def benchmark_jacobi_cg(
@@ -62,18 +68,8 @@ def benchmark_jacobi_cg(
 
 
 def solve_block_jacobi_cg(xp, M, r):
-    z_parts = []
-    i = 0
-    for L_i in M:
-        j = i + L_i.shape[0]
-        r_i = r[i:j]
-
-        y_i = xp.linalg.solve(L_i, r_i)
-        z_i = xp.linalg.solve(L_i.T, y_i)
-
-        z_parts.append(z_i)
-        i = j
-    return xp.concat(z_parts)
+    y = xp.linalg.solve(M, r)
+    return xp.linalg.solve(M.T, y)
 
 
 def solve_jacobi_cg(xp, M, r):
@@ -98,18 +94,14 @@ def preconditioned_cg(
 
     if rr >= tol_sq:
         while it < max_iters:
-            x = xp.lazy(x)
-            r = xp.lazy(r)
-            p = xp.lazy(p)
+            x, r, p = xp.lazy((x, r, p))
 
             Ap = A @ p
             alpha = rho / xp.vecdot(p, Ap)
             x += alpha * p
             r -= alpha * Ap
 
-            x = xp.compute(x)
-            r = xp.compute(r)
-            p = xp.compute(p)
+            x, r, p = xp.compute((x, r, p))
             new_rr = xp.compute(xp.vecdot(r, r))[()]
 
             it += 1
