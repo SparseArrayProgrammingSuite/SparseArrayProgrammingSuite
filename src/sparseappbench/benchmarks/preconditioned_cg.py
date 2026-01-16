@@ -1,9 +1,8 @@
 import os
 
 import numpy as np
+import scipy.sparse as sp
 from scipy.io import mmread
-from scipy.linalg import block_diag
-from scipy.sparse import random
 
 import ssgetpy
 
@@ -29,44 +28,6 @@ AI was used to debug code. This statement was written by hand.
 """
 
 
-def benchmark_block_jacobi_cg(
-    xp, A_bench, b_bench, x_bench, rel_tol=1e-8, abs_tol=1e-20, max_iters=10000, p=100
-):
-    A = xp.lazy(xp.from_benchmark(A_bench))
-    b = xp.lazy(xp.from_benchmark(b_bench))
-    x = xp.lazy(xp.from_benchmark(x_bench))
-    n = A.shape[0]
-    # Create one block for every processor modelled after
-    # this example: https://petsc.org/main/src/ksp/ksp/tutorials/ex7.c.html
-    p = min(p, n)
-    block_size = n // p
-    blocks = []
-    i = 0
-    while i < n:
-        j = min(i + block_size, n)
-        A_ii = A[i:j, i:j]
-        # L_i = xp.linalg.cholesky(A_ii)
-        # blocks.append(L_i)
-        blocks.append(A_ii)
-        i = j
-    # B = block_diag(blocks, format="csr")
-    B = block_diag(*blocks)
-    L = xp.linalg.cholesky(B)
-    preconditioned_cg(
-        xp, A, b, x, L, solve_block_jacobi_cg, rel_tol, abs_tol, max_iters
-    )
-
-
-def benchmark_jacobi_cg(
-    xp, A_bench, b_bench, x_bench, rel_tol=1e-8, abs_tol=1e-20, max_iters=10000
-):
-    A = xp.lazy(xp.from_benchmark(A_bench))
-    b = xp.lazy(xp.from_benchmark(b_bench))
-    x = xp.lazy(xp.from_benchmark(x_bench))
-    M = xp.diagonal(A)
-    preconditioned_cg(xp, A, b, x, M, solve_jacobi_cg, rel_tol, abs_tol, max_iters)
-
-
 def solve_block_jacobi_cg(xp, M, r):
     y = xp.linalg.solve(M, r)
     return xp.linalg.solve(M.T, y)
@@ -77,8 +38,20 @@ def solve_jacobi_cg(xp, M, r):
 
 
 def preconditioned_cg(
-    xp, A, b, x, M, solve_cg, rel_tol=1e-8, abs_tol=1e-20, max_iters=10000
+    xp,
+    A_bench,
+    b_bench,
+    x_bench,
+    M_bench,
+    solve_cg,
+    rel_tol=1e-8,
+    abs_tol=1e-20,
+    max_iters=10000,
 ):
+    A = xp.lazy(xp.from_benchmark(A_bench))
+    b = xp.lazy(xp.from_benchmark(b_bench))
+    x = xp.lazy(xp.from_benchmark(x_bench))
+    M = xp.lazy(xp.from_benchmark(M_bench))
     tolerance = max(
         xp.compute(xp.lazy(rel_tol) * xp.sqrt(xp.vecdot(b, b)))[()], abs_tol
     )
@@ -120,7 +93,7 @@ def preconditioned_cg(
     return xp.to_benchmark(x_solution)
 
 
-def generate_cg_data(source, has_b_file=False):
+def generate_cg_data(source, has_b_file):
     matrices = ssgetpy.search(name=source)
     if not matrices:
         raise ValueError(f"No matrix found with name '{source}'")
@@ -144,46 +117,109 @@ def generate_cg_data(source, has_b_file=False):
             b = b.toarray() if hasattr(b, "toarray") else np.asarray(b)
         b = b.flatten()
     else:
-        x = random(
+        x = sp.random(
             A.shape[1], 1, density=0.1, format="coo", dtype=np.float64, random_state=rng
         )
         b = A @ x
         b = b.toarray().flatten()
     x = np.zeros(A.shape[1])
+    return (A, b, x)
 
+
+def generate_block_cg_data(source, has_b_file=False):
+    A, b, x = generate_cg_data(source, has_b_file)
+    A_csr = A.tocsr()
+    n = A_csr.shape[0]
+    # Create one block for every processor modelled after
+    # this example: https://petsc.org/main/src/ksp/ksp/tutorials/ex7.c.html
+    p = min(10, n)
+    block_size = n // p
+    blocks = []
+    i = 0
+    while i < n:
+        j = min(i + block_size, n)
+        A_ii = A_csr[i:j, i:j].toarray()
+        L_i = np.linalg.cholesky(A_ii)
+        blocks.append(L_i)
+        i = j
+    M = sp.block_diag(blocks).tocoo()
+    M_bin = BinsparseFormat.from_coo((M.row, M.col), M.data, M.shape)
     A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
     b_bin = BinsparseFormat.from_numpy(b)
     x_bin = BinsparseFormat.from_numpy(x)
-    return (A_bin, b_bin, x_bin)
+    return (A_bin, b_bin, x_bin, M_bin, solve_block_jacobi_cg)
 
 
-def dg_precond_cg_sparse_1():
-    return generate_cg_data("mesh3em5")
+def generate_jacobi_cg_data(source, has_b_file=False):
+    A, b, x = generate_cg_data(source, has_b_file)
+    M = A.diagonal()
+    M_bin = BinsparseFormat.from_numpy(M)
+    A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
+    b_bin = BinsparseFormat.from_numpy(b)
+    x_bin = BinsparseFormat.from_numpy(x)
+    return (A_bin, b_bin, x_bin, M_bin, solve_jacobi_cg)
 
 
-def dg_precond_cg_sparse_2():
-    return generate_cg_data("bcsstm02")
+def dg_block_cg_sparse_1():
+    return generate_block_cg_data("mesh3em5")
 
 
-def dg_precond_cg_sparse_3():
-    return generate_cg_data("fv1")
+def dg_block_cg_sparse_2():
+    return generate_block_cg_data("bcsstm02")
 
 
-def dg_precond_cg_sparse_4():
-    return generate_cg_data("Muu")
+def dg_block_cg_sparse_3():
+    return generate_block_cg_data("Chem97ZtZ")
 
 
-def dg_precond_cg_sparse_5():
-    return generate_cg_data("Chem97ZtZ")
+def dg_block_cg_sparse_4():
+    return generate_block_cg_data("bcsstk09")
 
 
-def dg_precond_cg_sparse_6():
-    return generate_cg_data("Dubcova1")
+def dg_jacobi_cg_sparse_1():
+    return generate_jacobi_cg_data("mesh3em5")
 
 
-def dg_precond_cg_sparse_7():
-    return generate_cg_data("t3dl_e")
+def dg_jacobi_cg_sparse_2():
+    return generate_jacobi_cg_data("bcsstm02")
 
 
-def dg_precond_cg_sparse_8():
-    return generate_cg_data("bcsstk09")
+def dg_jacobi_cg_sparse_3():
+    return generate_jacobi_cg_data("fv1")
+
+
+def dg_jacobi_cg_sparse_4():
+    return generate_jacobi_cg_data("Muu")
+
+
+def dg_jacobi_cg_sparse_5():
+    return generate_jacobi_cg_data("Chem97ZtZ")
+
+
+def dg_jacobi_cg_sparse_6():
+    return generate_jacobi_cg_data("Dubcova1")
+
+
+def dg_jacobi_cg_sparse_7():
+    return generate_jacobi_cg_data("t3dl_e")
+
+
+def dg_jacobi_cg_sparse_8():
+    return generate_jacobi_cg_data("bcsstk09")
+
+
+# Too slow for dense frameworks like numpy:
+# def dg_block_cg_sparse_5():
+#     return generate_block_cg_data("fv1")
+
+
+# def dg_block_cg_sparse_6():
+#     return generate_block_cg_data("Muu")
+
+
+# def dg_block_cg_sparse_7():
+#     return generate_block_cg_data("Dubcova1")
+
+
+# def dg_block_cg_sparse_8():
+#     return generate_block_cg_data("t3dl_e")

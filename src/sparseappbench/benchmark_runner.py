@@ -31,16 +31,19 @@ from .benchmarks.matmul import (
     dg_matmul_sparse_small,
 )
 from .benchmarks.preconditioned_cg import (
-    benchmark_block_jacobi_cg,
-    benchmark_jacobi_cg,
-    dg_precond_cg_sparse_1,
-    dg_precond_cg_sparse_2,
-    dg_precond_cg_sparse_3,
-    dg_precond_cg_sparse_4,
-    dg_precond_cg_sparse_5,
-    dg_precond_cg_sparse_6,
-    dg_precond_cg_sparse_7,
-    dg_precond_cg_sparse_8,
+    dg_block_cg_sparse_1,
+    dg_block_cg_sparse_2,
+    dg_block_cg_sparse_3,
+    dg_block_cg_sparse_4,
+    dg_jacobi_cg_sparse_1,
+    dg_jacobi_cg_sparse_2,
+    dg_jacobi_cg_sparse_3,
+    dg_jacobi_cg_sparse_4,
+    dg_jacobi_cg_sparse_5,
+    dg_jacobi_cg_sparse_6,
+    dg_jacobi_cg_sparse_7,
+    dg_jacobi_cg_sparse_8,
+    preconditioned_cg,
 )
 from .frameworks.checker_framework import CheckerFramework
 from .frameworks.numpy_framework import NumpyFramework
@@ -50,8 +53,7 @@ BENCHMARK_DICT = {
     "matmul": benchmark_matmul,
     "jacobi": benchmark_jacobi,
     "cg": benchmark_cg,
-    "jacobi_cg": benchmark_jacobi_cg,
-    "block_jacobi_cg": benchmark_block_jacobi_cg,
+    "preconditioned_cg": preconditioned_cg,
 }
 DATA_GENERATOR_DICT = {
     "matmul": {
@@ -80,25 +82,19 @@ DATA_GENERATOR_DICT = {
         "cg_sparse_7": dg_cg_sparse_7,
         "cg_sparse_8": dg_cg_sparse_8,
     },
-    "jacobi_cg": {
-        "jacobi_cg_sparse_1": dg_precond_cg_sparse_1,
-        "jacobi_cg_sparse_2": dg_precond_cg_sparse_2,
-        "jacobi_cg_sparse_3": dg_precond_cg_sparse_3,
-        "jacobi_cg_sparse_4": dg_precond_cg_sparse_4,
-        "jacobi_cg_sparse_5": dg_precond_cg_sparse_5,
-        "jacobi_cg_sparse_6": dg_precond_cg_sparse_6,
-        "jacobi_cg_sparse_7": dg_precond_cg_sparse_7,
-        "jacobi_cg_sparse_8": dg_precond_cg_sparse_8,
-    },
-    "block_jacobi_cg": {
-        "block_jacobi_cg_sparse_1": dg_precond_cg_sparse_1,
-        "block_jacobi_cg_sparse_2": dg_precond_cg_sparse_2,
-        "block_jacobi_cg_sparse_3": dg_precond_cg_sparse_3,
-        "block_jacobi_cg_sparse_4": dg_precond_cg_sparse_4,
-        "block_jacobi_cg_sparse_5": dg_precond_cg_sparse_5,
-        "block_jacobi_cg_sparse_6": dg_precond_cg_sparse_6,
-        "block_jacobi_cg_sparse_7": dg_precond_cg_sparse_7,
-        "block_jacobi_cg_sparse_8": dg_precond_cg_sparse_8,
+    "preconditioned_cg": {
+        "jacobi_cg_sparse_1": dg_jacobi_cg_sparse_1,
+        "jacobi_cg_sparse_2": dg_jacobi_cg_sparse_2,
+        "jacobi_cg_sparse_3": dg_jacobi_cg_sparse_3,
+        "jacobi_cg_sparse_4": dg_jacobi_cg_sparse_4,
+        "jacobi_cg_sparse_5": dg_jacobi_cg_sparse_5,
+        "jacobi_cg_sparse_6": dg_jacobi_cg_sparse_6,
+        "jacobi_cg_sparse_7": dg_jacobi_cg_sparse_7,
+        "jacobi_cg_sparse_8": dg_jacobi_cg_sparse_8,
+        "block_jacobi_cg_sparse_1": dg_block_cg_sparse_1,
+        "block_jacobi_cg_sparse_2": dg_block_cg_sparse_2,
+        "block_jacobi_cg_sparse_3": dg_block_cg_sparse_3,
+        "block_jacobi_cg_sparse_4": dg_block_cg_sparse_4,
     },
 }
 
