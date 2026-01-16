@@ -12,16 +12,32 @@ from ..binsparse_format import BinsparseFormat
 Name: Preconditioned Conjugate Gradient (Block Jacobi)
 Author: Benjamin Berol
 Email: bberol3@gatech.edu
+
 Motivation:
+"The preconditioned conjugate gradient method is well established for
+solving linear systems of equations that arise from the discretization of
+partial differential equations. Point and block Jacobi preconditioning
+are both common preconditioning techniques."
+M. Hegland and P. E. Saylor, "Block Jacobi Preconditioning of the Conjugate Gradient
+Method on a Vector Processor," International Journal of Computer Mathematics,
+vol. 44, no. 1-4, pp. 71-89, Jan. 1992.
 
 Role of Sparsity:
+Sparsity enhances the functionality of both the solver and the preconditioner.
+Similar to normal conjugate gradient, the SpMV done once per iteration
+reduces complexity from O(n^2) to O(nnz). Furthermore, the sparse block
+Jacobi preconditioner avoids filling in all the 0s around the blocks, which prevents
+memory overhead and keeps the per-iteration block solve cost proportional to the
+block size instead of the full matrix dimension.
 
 Implementation:
 Hand-written code modelling the algorithm structure outlined in:
 https://www.netlib.org/templates/templates.pdf Page 13
+
 Data Generation:
 Data collected from SuiteSparse Matrix Collection consisting of symmetric
 positive definite matrices, particularly those with a low convergence criteria.
+
 Statement on the use of Generative AI:
 No generative AI was used to write the benchmark function itself. Generative
 AI was used to debug code. This statement was written by hand.
