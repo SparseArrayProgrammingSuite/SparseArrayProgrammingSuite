@@ -67,9 +67,9 @@ def check_jacobi_iteration_matrix_convergence(A):
 
 
 def check_cg_iteration_matrix_convergence_speed(A, M=None):
-    max_eig = sp.sparse.linalg.eigsh(
-        A, M=M, k=1, return_eigenvectors=False, tol=0.001
-    )[0]
+    max_eig = sp.sparse.linalg.eigsh(A, M=M, k=1, return_eigenvectors=False, tol=0.001)[
+        0
+    ]
     min_eig = sp.sparse.linalg.eigsh(
         A, M=M, k=1, sigma=0, return_eigenvectors=False, tol=0.001
     )[0]
