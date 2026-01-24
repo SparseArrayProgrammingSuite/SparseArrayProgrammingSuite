@@ -35,14 +35,12 @@ from .benchmarks.preconditioned_cg import (
     dg_block_cg_sparse_2,
     dg_block_cg_sparse_3,
     dg_block_cg_sparse_4,
+    dg_block_cg_sparse_5,
     dg_jacobi_cg_sparse_1,
     dg_jacobi_cg_sparse_2,
     dg_jacobi_cg_sparse_3,
     dg_jacobi_cg_sparse_4,
     dg_jacobi_cg_sparse_5,
-    dg_jacobi_cg_sparse_6,
-    dg_jacobi_cg_sparse_7,
-    dg_jacobi_cg_sparse_8,
     preconditioned_cg,
 )
 from .frameworks.checker_framework import CheckerFramework
@@ -88,13 +86,11 @@ DATA_GENERATOR_DICT = {
         "jacobi_cg_sparse_3": dg_jacobi_cg_sparse_3,
         "jacobi_cg_sparse_4": dg_jacobi_cg_sparse_4,
         "jacobi_cg_sparse_5": dg_jacobi_cg_sparse_5,
-        "jacobi_cg_sparse_6": dg_jacobi_cg_sparse_6,
-        "jacobi_cg_sparse_7": dg_jacobi_cg_sparse_7,
-        "jacobi_cg_sparse_8": dg_jacobi_cg_sparse_8,
         "block_jacobi_cg_sparse_1": dg_block_cg_sparse_1,
         "block_jacobi_cg_sparse_2": dg_block_cg_sparse_2,
         "block_jacobi_cg_sparse_3": dg_block_cg_sparse_3,
         "block_jacobi_cg_sparse_4": dg_block_cg_sparse_4,
+        "block_jacobi_cg_sparse_5": dg_block_cg_sparse_5,
     },
 }
 
