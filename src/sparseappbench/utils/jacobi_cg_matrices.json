@@ -1,0 +1,730 @@
+[
+  {
+    "matrix_name": "plat1919",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": -1.3908082635119944e+18,
+    "n": 1919,
+    "nnz": 32399
+  },
+  {
+    "matrix_name": "gr_30_30",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 0.0,
+    "n": 900,
+    "nnz": 7744
+  },
+  {
+    "matrix_name": "bibd_81_2",
+    "matrix_group": "JGD_BIBD",
+    "jacobi_cg convergence criteria": 1.0,
+    "n": 3240,
+    "nnz": 3240
+  },
+  {
+    "matrix_name": "bcsstm02",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 1.0000000000000002,
+    "n": 66,
+    "nnz": 66
+  },
+  {
+    "matrix_name": "bcsstm09",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 1.0000000000000002,
+    "n": 1083,
+    "nnz": 1083
+  },
+  {
+    "matrix_name": "bcsstm06",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 1.0000000000000002,
+    "n": 420,
+    "nnz": 420
+  },
+  {
+    "matrix_name": "bcsstm08",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 1.0000000000000002,
+    "n": 1074,
+    "nnz": 1074
+  },
+  {
+    "matrix_name": "bcsstm23",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 1.0000000000000002,
+    "n": 3134,
+    "nnz": 3134
+  },
+  {
+    "matrix_name": "bcsstm26",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 1.0000000000000002,
+    "n": 1922,
+    "nnz": 1922
+  },
+  {
+    "matrix_name": "bcsstm20",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 1.0000000000000002,
+    "n": 485,
+    "nnz": 485
+  },
+  {
+    "matrix_name": "t2dal_e",
+    "matrix_group": "Oberwolfach",
+    "jacobi_cg convergence criteria": 1.0000000000000002,
+    "n": 4257,
+    "nnz": 4257
+  },
+  {
+    "matrix_name": "bcsstm05",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 1.0000000000000002,
+    "n": 153,
+    "nnz": 153
+  },
+  {
+    "matrix_name": "bcsstm21",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 1.0000000000000002,
+    "n": 3600,
+    "nnz": 3600
+  },
+  {
+    "matrix_name": "bcsstm19",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 1.0000000000000002,
+    "n": 817,
+    "nnz": 817
+  },
+  {
+    "matrix_name": "bcsstm22",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 1.0000000000000002,
+    "n": 138,
+    "nnz": 138
+  },
+  {
+    "matrix_name": "bcsstm11",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 1.0000000000000002,
+    "n": 1473,
+    "nnz": 1473
+  },
+  {
+    "matrix_name": "t3dl_e",
+    "matrix_group": "Oberwolfach",
+    "jacobi_cg convergence criteria": 1.0000000000000004,
+    "n": 20360,
+    "nnz": 20360
+  },
+  {
+    "matrix_name": "bcsstm39",
+    "matrix_group": "Boeing",
+    "jacobi_cg convergence criteria": 1.0000000000000004,
+    "n": 46772,
+    "nnz": 46772
+  },
+  {
+    "matrix_name": "bcsstm25",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 1.0000000000000004,
+    "n": 15439,
+    "nnz": 15439
+  },
+  {
+    "matrix_name": "bcsstm24",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 1.0000000000000004,
+    "n": 3562,
+    "nnz": 3562
+  },
+  {
+    "matrix_name": "Trefethen_200b",
+    "matrix_group": "JGD_Trefethen",
+    "jacobi_cg convergence criteria": 1.902295833942408,
+    "n": 199,
+    "nnz": 2873
+  },
+  {
+    "matrix_name": "Trefethen_20b",
+    "matrix_group": "JGD_Trefethen",
+    "jacobi_cg convergence criteria": 2.0210513409372295,
+    "n": 19,
+    "nnz": 147
+  },
+  {
+    "matrix_name": "Trefethen_300",
+    "matrix_group": "JGD_Trefethen",
+    "jacobi_cg convergence criteria": 2.199205274582577,
+    "n": 300,
+    "nnz": 4678
+  },
+  {
+    "matrix_name": "Trefethen_700",
+    "matrix_group": "JGD_Trefethen",
+    "jacobi_cg convergence criteria": 2.2165069407776903,
+    "n": 700,
+    "nnz": 12654
+  },
+  {
+    "matrix_name": "Trefethen_2000",
+    "matrix_group": "JGD_Trefethen",
+    "jacobi_cg convergence criteria": 2.2303800654948827,
+    "n": 2000,
+    "nnz": 41906
+  },
+  {
+    "matrix_name": "Trefethen_500",
+    "matrix_group": "JGD_Trefethen",
+    "jacobi_cg convergence criteria": 2.2325954145501328,
+    "n": 500,
+    "nnz": 8478
+  },
+  {
+    "matrix_name": "Trefethen_200",
+    "matrix_group": "JGD_Trefethen",
+    "jacobi_cg convergence criteria": 2.388469132534989,
+    "n": 200,
+    "nnz": 2890
+  },
+  {
+    "matrix_name": "Trefethen_20",
+    "matrix_group": "JGD_Trefethen",
+    "jacobi_cg convergence criteria": 2.4662229901402446,
+    "n": 20,
+    "nnz": 158
+  },
+  {
+    "matrix_name": "Trefethen_150",
+    "matrix_group": "JGD_Trefethen",
+    "jacobi_cg convergence criteria": 2.491771352471587,
+    "n": 150,
+    "nnz": 2040
+  },
+  {
+    "matrix_name": "mesh1e1",
+    "matrix_group": "Pothen",
+    "jacobi_cg convergence criteria": 4.15614320450255,
+    "n": 48,
+    "nnz": 306
+  },
+  {
+    "matrix_name": "mesh3em5",
+    "matrix_group": "Pothen",
+    "jacobi_cg convergence criteria": 4.876982730373005,
+    "n": 289,
+    "nnz": 1889
+  },
+  {
+    "matrix_name": "mesh1em6",
+    "matrix_group": "Pothen",
+    "jacobi_cg convergence criteria": 4.89278409926069,
+    "n": 48,
+    "nnz": 306
+  },
+  {
+    "matrix_name": "Chem97ZtZ",
+    "matrix_group": "Bates",
+    "jacobi_cg convergence criteria": 8.475465443327636,
+    "n": 2541,
+    "nnz": 7361
+  },
+  {
+    "matrix_name": "mesh3e1",
+    "matrix_group": "Pothen",
+    "jacobi_cg convergence criteria": 8.56410446627056,
+    "n": 289,
+    "nnz": 1889
+  },
+  {
+    "matrix_name": "fv1",
+    "matrix_group": "Norris",
+    "jacobi_cg convergence criteria": 8.804902434261221,
+    "n": 9604,
+    "nnz": 85264
+  },
+  {
+    "matrix_name": "fv2",
+    "matrix_group": "Norris",
+    "jacobi_cg convergence criteria": 8.807110133081427,
+    "n": 9801,
+    "nnz": 87025
+  },
+  {
+    "matrix_name": "mesh1em1",
+    "matrix_group": "Pothen",
+    "jacobi_cg convergence criteria": 11.60366539676125,
+    "n": 48,
+    "nnz": 306
+  },
+  {
+    "matrix_name": "Journals",
+    "matrix_group": "Pajek",
+    "jacobi_cg convergence criteria": 12.321918593978776,
+    "n": 124,
+    "nnz": 12068
+  },
+  {
+    "matrix_name": "bcsstm07",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 27.321081682410636,
+    "n": 420,
+    "nnz": 7252
+  },
+  {
+    "matrix_name": "mhd4800b",
+    "matrix_group": "Bai",
+    "jacobi_cg convergence criteria": 69.5344246759381,
+    "n": 4800,
+    "nnz": 27520
+  },
+  {
+    "matrix_name": "mhd3200b",
+    "matrix_group": "Bai",
+    "jacobi_cg convergence criteria": 69.5427523946374,
+    "n": 3200,
+    "nnz": 18316
+  },
+  {
+    "matrix_name": "mhdb416",
+    "matrix_group": "Bai",
+    "jacobi_cg convergence criteria": 69.72418078138408,
+    "n": 416,
+    "nnz": 2312
+  },
+  {
+    "matrix_name": "mhd1280b",
+    "matrix_group": "Bai",
+    "jacobi_cg convergence criteria": 86.34781365863661,
+    "n": 1280,
+    "nnz": 22778
+  },
+  {
+    "matrix_name": "mesh2e1",
+    "matrix_group": "Pothen",
+    "jacobi_cg convergence criteria": 120.96016697382322,
+    "n": 306,
+    "nnz": 2018
+  },
+  {
+    "matrix_name": "mesh2em5",
+    "matrix_group": "Pothen",
+    "jacobi_cg convergence criteria": 127.45465599806602,
+    "n": 306,
+    "nnz": 2018
+  },
+  {
+    "matrix_name": "lund_b",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 144.22399410021777,
+    "n": 147,
+    "nnz": 2441
+  },
+  {
+    "matrix_name": "LFAT5",
+    "matrix_group": "Oberwolfach",
+    "jacobi_cg convergence criteria": 151.3146023717947,
+    "n": 14,
+    "nnz": 46
+  },
+  {
+    "matrix_name": "bcsstk34",
+    "matrix_group": "Boeing",
+    "jacobi_cg convergence criteria": 377.8409570011914,
+    "n": 588,
+    "nnz": 21418
+  },
+  {
+    "matrix_name": "nasa2146",
+    "matrix_group": "Nasa",
+    "jacobi_cg convergence criteria": 933.8338078825167,
+    "n": 2146,
+    "nnz": 72250
+  },
+  {
+    "matrix_name": "nos4",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 995.1214566282355,
+    "n": 100,
+    "nnz": 594
+  },
+  {
+    "matrix_name": "msc00726",
+    "matrix_group": "Boeing",
+    "jacobi_cg convergence criteria": 1160.473630124421,
+    "n": 726,
+    "nnz": 34518
+  },
+  {
+    "matrix_name": "bcsstk01",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 1360.7070892868987,
+    "n": 48,
+    "nnz": 400
+  },
+  {
+    "matrix_name": "bcsstk02",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 1812.1251147066516,
+    "n": 66,
+    "nnz": 4356
+  },
+  {
+    "matrix_name": "bcsstk04",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 1817.9387494326832,
+    "n": 132,
+    "nnz": 3648
+  },
+  {
+    "matrix_name": "nos5",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 1953.691456620841,
+    "n": 468,
+    "nnz": 5172
+  },
+  {
+    "matrix_name": "fv3",
+    "matrix_group": "Norris",
+    "jacobi_cg convergence criteria": 2026.5585106451772,
+    "n": 9801,
+    "nnz": 87025
+  },
+  {
+    "matrix_name": "bcsstk27",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 2064.4016762278407,
+    "n": 1224,
+    "nnz": 56126
+  },
+  {
+    "matrix_name": "bcsstm12",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 3159.57045235439,
+    "n": 1473,
+    "nnz": 19659
+  },
+  {
+    "matrix_name": "LF10",
+    "matrix_group": "Oberwolfach",
+    "jacobi_cg convergence criteria": 3363.4600647089005,
+    "n": 18,
+    "nnz": 82
+  },
+  {
+    "matrix_name": "bcsstk22",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 3723.6519193604618,
+    "n": 138,
+    "nnz": 696
+  },
+  {
+    "matrix_name": "bcsstk08",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 3772.0112933422392,
+    "n": 1074,
+    "nnz": 12960
+  },
+  {
+    "matrix_name": "bcsstk05",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 4256.473712236452,
+    "n": 153,
+    "nnz": 2423
+  },
+  {
+    "matrix_name": "sts4098",
+    "matrix_group": "Cannizzo",
+    "jacobi_cg convergence criteria": 6718.678444473817,
+    "n": 4098,
+    "nnz": 72356
+  },
+  {
+    "matrix_name": "plbuckle",
+    "matrix_group": "TKK",
+    "jacobi_cg convergence criteria": 6923.362860448537,
+    "n": 1282,
+    "nnz": 30644
+  },
+  {
+    "matrix_name": "bcsstk14",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 7235.567021198638,
+    "n": 1806,
+    "nnz": 63454
+  },
+  {
+    "matrix_name": "685_bus",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 8397.969298433627,
+    "n": 685,
+    "nnz": 3249
+  },
+  {
+    "matrix_name": "lund_a",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 10264.219860801515,
+    "n": 147,
+    "nnz": 2449
+  },
+  {
+    "matrix_name": "bcsstk09",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 10444.083608750245,
+    "n": 1083,
+    "nnz": 18437
+  },
+  {
+    "matrix_name": "msc01440",
+    "matrix_group": "Boeing",
+    "jacobi_cg convergence criteria": 12678.226400890588,
+    "n": 1440,
+    "nnz": 46270
+  },
+  {
+    "matrix_name": "bcsstk03",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 14710.473463836235,
+    "n": 112,
+    "nnz": 640
+  },
+  {
+    "matrix_name": "bcsstk10",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 16119.603867288846,
+    "n": 1086,
+    "nnz": 22070
+  },
+  {
+    "matrix_name": "bcsstk21",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 30978.48328503182,
+    "n": 3600,
+    "nnz": 26600
+  },
+  {
+    "matrix_name": "bcsstk06",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 31812.573641714072,
+    "n": 420,
+    "nnz": 7860
+  },
+  {
+    "matrix_name": "bcsstk07",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 31812.65886325378,
+    "n": 420,
+    "nnz": 7860
+  },
+  {
+    "matrix_name": "nos3",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 32824.676304468965,
+    "n": 960,
+    "nnz": 15844
+  },
+  {
+    "matrix_name": "662_bus",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 44636.347766465326,
+    "n": 662,
+    "nnz": 2474
+  },
+  {
+    "matrix_name": "494_bus",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 78931.50814645224,
+    "n": 494,
+    "nnz": 1666
+  },
+  {
+    "matrix_name": "bcsstk26",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 96212.36958068633,
+    "n": 1922,
+    "nnz": 30336
+  },
+  {
+    "matrix_name": "nasa1824",
+    "matrix_group": "Nasa",
+    "jacobi_cg convergence criteria": 171844.65802371252,
+    "n": 1824,
+    "nnz": 39208
+  },
+  {
+    "matrix_name": "1138_bus",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 490282.9115849339,
+    "n": 1138,
+    "nnz": 4054
+  },
+  {
+    "matrix_name": "bcsstk13",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 563637.0939409061,
+    "n": 2003,
+    "nnz": 83883
+  },
+  {
+    "matrix_name": "msc04515",
+    "matrix_group": "Boeing",
+    "jacobi_cg convergence criteria": 2725759.6895997003,
+    "n": 4515,
+    "nnz": 97707
+  },
+  {
+    "matrix_name": "nos6",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 3485049.588278037,
+    "n": 675,
+    "nnz": 3255
+  },
+  {
+    "matrix_name": "nos1",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 3929139.556621168,
+    "n": 237,
+    "nnz": 1017
+  },
+  {
+    "matrix_name": "bcsstk12",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 5906961.1583310235,
+    "n": 1473,
+    "nnz": 34241
+  },
+  {
+    "matrix_name": "bcsstk11",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 5907004.990409323,
+    "n": 1473,
+    "nnz": 34241
+  },
+  {
+    "matrix_name": "bcsstk23",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 35121423.565175205,
+    "n": 3134,
+    "nnz": 45178
+  },
+  {
+    "matrix_name": "ex5",
+    "matrix_group": "FIDAP",
+    "jacobi_cg convergence criteria": 65764347.17711199,
+    "n": 27,
+    "nnz": 279
+  },
+  {
+    "matrix_name": "nos7",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 129339389.98693974,
+    "n": 729,
+    "nnz": 4617
+  },
+  {
+    "matrix_name": "bcsstk20",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 180430426.24003315,
+    "n": 485,
+    "nnz": 3135
+  },
+  {
+    "matrix_name": "bcsstk19",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 191160477.97749338,
+    "n": 817,
+    "nnz": 6853
+  },
+  {
+    "matrix_name": "nos2",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 1005468896.2317873,
+    "n": 957,
+    "nnz": 4137
+  },
+  {
+    "matrix_name": "ex3",
+    "matrix_group": "FIDAP",
+    "jacobi_cg convergence criteria": 6370727993.742929,
+    "n": 1821,
+    "nnz": 52685
+  },
+  {
+    "matrix_name": "ex10hs",
+    "matrix_group": "FIDAP",
+    "jacobi_cg convergence criteria": 10712190907.469948,
+    "n": 2548,
+    "nnz": 57308
+  },
+  {
+    "matrix_name": "ex10",
+    "matrix_group": "FIDAP",
+    "jacobi_cg convergence criteria": 13312710109.109793,
+    "n": 2410,
+    "nnz": 54840
+  },
+  {
+    "matrix_name": "ex9",
+    "matrix_group": "FIDAP",
+    "jacobi_cg convergence criteria": 45303824466.6091,
+    "n": 3363,
+    "nnz": 99471
+  },
+  {
+    "matrix_name": "ex33",
+    "matrix_group": "FIDAP",
+    "jacobi_cg convergence criteria": 151473031327.27115,
+    "n": 1733,
+    "nnz": 22189
+  },
+  {
+    "matrix_name": "plat362",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 184945297049.08548,
+    "n": 362,
+    "nnz": 5786
+  },
+  {
+    "matrix_name": "ex15",
+    "matrix_group": "FIDAP",
+    "jacobi_cg convergence criteria": 265369001848.90982,
+    "n": 6867,
+    "nnz": 98671
+  },
+  {
+    "matrix_name": "msc01050",
+    "matrix_group": "Boeing",
+    "jacobi_cg convergence criteria": 56008332392918.67,
+    "n": 1050,
+    "nnz": 29156
+  },
+  {
+    "matrix_name": "ex13",
+    "matrix_group": "FIDAP",
+    "jacobi_cg convergence criteria": 72942699425755.25,
+    "n": 2568,
+    "nnz": 75628
+  },
+  {
+    "matrix_name": "LFAT5000",
+    "matrix_group": "Oberwolfach",
+    "jacobi_cg convergence criteria": 308193825052848.4,
+    "n": 19994,
+    "nnz": 79966
+  },
+  {
+    "matrix_name": "LF10000",
+    "matrix_group": "Oberwolfach",
+    "jacobi_cg convergence criteria": 4636381208181916.0,
+    "n": 19998,
+    "nnz": 99982
+  },
+  {
+    "matrix_name": "bloweybq",
+    "matrix_group": "GHS_indef",
+    "jacobi_cg convergence criteria": 5117938530081724.0,
+    "n": 10001,
+    "nnz": 69991
+  }
+]
