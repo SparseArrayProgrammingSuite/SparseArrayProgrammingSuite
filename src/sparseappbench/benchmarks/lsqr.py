@@ -120,15 +120,19 @@ def benchmark_lsqr(
 
         reltol = btol + atol * Anorm * xnorm / bnorm
 
+        # Exits if the condition number grows too high
         if test3 <= ctol:
             exit = 3
+        # Exits if the gradient is small so the min has been found
         if test2 <= atol:
             exit = 2
+        # Exits if the residual is small so we have found the solution
         if test1 <= reltol:
             exit = 1
 
         if exit > 0:
             break
+
     return x, exit, it
 
 
@@ -136,7 +140,7 @@ def normof2(xp, x, y):
     return xp.sqrt(xp.sum(xp.multiply(x, y)))
 
 
-def generate_lsqr_data(source, has_b_file=False):
+def generate_lsqr_data(source, has_b_file=False, noise_amt=0.1):
     matrices = ssgetpy.search(name=source)
     if not matrices:
         raise ValueError(f"No matrix found with name '{source}'")
@@ -166,7 +170,8 @@ def generate_lsqr_data(source, has_b_file=False):
         b = A @ x_true
         b = b.toarray().flatten()
 
-        noise_level = 0.1 * np.linalg.norm(b)
+        # Adds a small amount of noise so that Ax != b
+        noise_level = noise_amt * np.linalg.norm(b)
         noise = rng.standard_normal(b.shape) * noise_level
         b += noise
 
