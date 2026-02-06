@@ -5,7 +5,16 @@ def benchmark_particle_sum(xp, x, y, vx, vy, ax, ay, size, steps):
     min_r = cutoff / 100
     dt = 0.0005
 
+    x = xp.from_benchmark(x)
+    y = xp.from_benchmark(y)
+    vx = xp.from_benchmark(vx)
+    vy = xp.from_benchmark(vy)
+    ax = xp.from_benchmark(ax)
+    ay = xp.from_benchmark(ay)
+
     for _ in range(steps):
+        x, y, vx, vy, ax, ay = xp.lazy([x, y, vx, vy, ax, ay])
+
         # compute forces
         dx = x - x.reshape(-1, 1)
         dy = y - y.reshape(-1, 1)
@@ -49,3 +58,14 @@ def benchmark_particle_sum(xp, x, y, vx, vy, ax, ay, size, steps):
         y1 = xp.abs(y)
         y2 = 2 * size - y
         y = xp.where(y > size, y2, y1)
+
+        x, y, vx, vy, ax, ay = xp.compute([x, y, vx, vy, ax, ay])
+
+    x = xp.to_benchmark(x)
+    y = xp.to_benchmark(y)
+    vx = xp.to_benchmark(vx)
+    vy = xp.to_benchmark(vy)
+    ax = xp.to_benchmark(ax)
+    ay = xp.to_benchmark(ay)
+
+    return (x, y, vx, vy, ax, ay)
