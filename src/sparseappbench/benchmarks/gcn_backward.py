@@ -1,5 +1,5 @@
 """
-Graph Convolutional Network Training (Backward Pass)
+Name: Graph Convolutional Network Training (Backward Pass)
 Author: Tarun Devi
 Email: tdevi3@gatech.edu
 Motivation: "Graphs are widely used for abstracting systems of interacting objects,
@@ -22,9 +22,11 @@ Convolutional Networks using Matrix Calculus and its Application to Explainable
 Artificial Intelligence," arXiv, vol. 2408.01408, Aug. 2024,
 doi: 10.48550/arXiv.2408.01408.
 Data Generation:
-Data generators have not been implemented yet - using random weights for the matrix
-Generative AI: No generative AI was used to construct the benchmark function
-itself. Generative AI might have been used to construct tests. This statement
+Data generators create degree prediction tasks where the GCN learns to predict
+node degrees from graph structure using constant features.
+Statement on the use of Generative AI:
+No generative AI was used to construct the benchmark function itself.
+Generative AI might have been used to construct tests. This statement
 was written by hand.
 """
 
@@ -66,7 +68,7 @@ def benchmark_gcn_backward(
             dW2 = Z2.T @ dY
             db2 = sum(dY, axis=0)
             dZ2 = dY @ W2.T
-            dH1 = A.T @ dZ2        
+            dH1 = A.T @ dZ2
             dH1_pre = dH1 * (H1_pre > 0)
             dW1 = Z1.T @ dH1_pre
             db1 = sum(dH1_pre, axis=0)
@@ -105,7 +107,7 @@ def benchmark_gcn_backward(
     Returns:
     -------
     tuple
-        (final_loss, final_W1, final_b1, final_W2, final_b2) - loss and weights after training
+        (final_loss, final_W1, final_b1, final_W2, final_b2)
     """
     adjacency = xp.lazy(xp.from_benchmark(adjacency_bench))
     adjacency_T = xp.lazy(xp.from_benchmark(adjacency_T_bench))
@@ -120,11 +122,11 @@ def benchmark_gcn_backward(
 
     for _ in range(num_iterations):
         # Forward pass
-        Z1 = adjacency @ features              # (N × F)
-        H1_pre = Z1 @ weights1 + bias1         # (N × H)
-        H1 = xp.maximum(H1_pre, 0)             # (N × H) ReLU
-        Z2 = adjacency @ H1                    # (N × H)
-        Y = Z2 @ weights2 + bias2              # (N × O)
+        Z1 = adjacency @ features  # (N × F)
+        H1_pre = Z1 @ weights1 + bias1  # (N × H)
+        H1 = xp.maximum(H1_pre, 0)  # (N × H) ReLU
+        Z2 = adjacency @ H1  # (N × H)
+        Y = Z2 @ weights2 + bias2  # (N × O)
 
         # MSE loss
         N = Y.shape[0]
@@ -135,19 +137,19 @@ def benchmark_gcn_backward(
         dY = (2 / N) * diff
 
         # Layer 2 gradients
-        dW2 = Z2.T @ dY                        # (H × O)
-        db2 = xp.sum(dY, axis=0)               # (O,)
-        dZ2 = dY @ weights2.T                  # (N × H)
+        dW2 = Z2.T @ dY  # (H × O)
+        db2 = xp.sum(dY, axis=0)  # (O,)
+        dZ2 = dY @ weights2.T  # (N × H)
 
         # Backprop through adjacency
-        dH1 = adjacency_T @ dZ2                # (N × H)
+        dH1 = adjacency_T @ dZ2  # (N × H)
 
         # Backprop through ReLU
-        dH1_pre = dH1 * (H1_pre > 0)           # (N × H)
+        dH1_pre = dH1 * (H1_pre > 0)  # (N × H)
 
         # Layer 1 gradients
-        dW1 = Z1.T @ dH1_pre                   # (F × H)
-        db1 = xp.sum(dH1_pre, axis=0)          # (H,)
+        dW1 = Z1.T @ dH1_pre  # (F × H)
+        db1 = xp.sum(dH1_pre, axis=0)  # (H,)
 
         weights1 = weights1 - learning_rate * dW1
         bias1 = bias1 - learning_rate * db1
@@ -168,3 +170,112 @@ def benchmark_gcn_backward(
         xp.to_benchmark(weights2_out),
         xp.to_benchmark(bias2_out),
     )
+
+
+def generate_gcn_backward_data(source, hidden_dim=4):
+    """Generate degree prediction training data from a SuiteSparse matrix.
+
+    Creates a GCN training task where the network learns to predict normalized
+    node degrees from graph structure using constant features (all 1s).
+
+    Args:
+        source: Name of matrix in SuiteSparse collection
+        hidden_dim: Hidden layer dimension (default 4)
+
+    Returns:
+        Tuple of (A, A_T, features, W1, b1, W2, b2, targets) in BinsparseFormat
+    """
+    matrices = ssgetpy.search(name=source)
+    if not matrices:
+        raise ValueError(f"No matrix found with name '{source}'")
+    matrix = matrices[0]
+    (path, _) = matrix.download(extract=True)
+    matrix_path = os.path.join(path, matrix.name + ".mtx")
+    if not (matrix_path and os.path.exists(matrix_path)):
+        raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
+
+    A = mmread(matrix_path)
+    A = A.tocoo()
+
+    # Make adjacency binary (unweighted graph)
+    A_binary = A.copy()
+    A_binary.data = np.ones_like(A_binary.data)
+
+    # Compute node degrees and normalize as targets
+    n = A.shape[0]
+    degrees = np.array(A_binary.sum(axis=1)).flatten()
+    max_degree = degrees.max() if degrees.max() > 0 else 1
+    targets = (degrees / max_degree).reshape(-1, 1)
+
+    # Constant features (force learning from structure)
+    features = np.ones((n, 1))
+
+    # Initialize weights deterministically
+    rng = np.random.default_rng(42)
+    weights1 = rng.standard_normal((1, hidden_dim)) * 0.5
+    bias1 = np.zeros(hidden_dim)
+    weights2 = rng.standard_normal((hidden_dim, 1)) * 0.5
+    bias2 = np.zeros(1)
+
+    # Create transpose
+    A_T = A_binary.T.tocoo()
+
+    # Convert to BinsparseFormat
+    A_bin = BinsparseFormat.from_coo(
+        (A_binary.row, A_binary.col), A_binary.data.astype(np.float64), A_binary.shape
+    )
+    A_T_bin = BinsparseFormat.from_coo(
+        (A_T.row, A_T.col), A_T.data.astype(np.float64), A_T.shape
+    )
+    features_bin = BinsparseFormat.from_numpy(features)
+    weights1_bin = BinsparseFormat.from_numpy(weights1)
+    bias1_bin = BinsparseFormat.from_numpy(bias1)
+    weights2_bin = BinsparseFormat.from_numpy(weights2)
+    bias2_bin = BinsparseFormat.from_numpy(bias2)
+    targets_bin = BinsparseFormat.from_numpy(targets)
+
+    return (
+        A_bin,
+        A_T_bin,
+        features_bin,
+        weights1_bin,
+        bias1_bin,
+        weights2_bin,
+        bias2_bin,
+        targets_bin,
+    )
+
+
+def dg_gcn_backward_small_1():
+    """Small graph - Zachary's karate club (34 nodes)."""
+    return generate_gcn_backward_data("karate", hidden_dim=4)
+
+
+def dg_gcn_backward_small_2():
+    """Small graph - Dolphins social network (62 nodes)."""
+    return generate_gcn_backward_data("dolphins", hidden_dim=4)
+
+
+def dg_gcn_backward_small_3():
+    """Small graph - Les Miserables character network (77 nodes)."""
+    return generate_gcn_backward_data("lesmis", hidden_dim=4)
+
+
+def dg_gcn_backward_medium_1():
+    """Medium graph - Football network (115 nodes)."""
+    return generate_gcn_backward_data("football", hidden_dim=8)
+
+
+def dg_gcn_backward_medium_2():
+    """Medium graph - Political books network (105 nodes)."""
+    return generate_gcn_backward_data("polbooks", hidden_dim=8)
+
+
+def dg_gcn_backward_large_1():
+    """Larger graph - Email network (~1K nodes)."""
+    return generate_gcn_backward_data("email", hidden_dim=16)
+
+
+def dg_gcn_backward_large_2():
+    """Larger graph - ca-GrQc collaboration network (~5K nodes)."""
+    return generate_gcn_backward_data("ca-GrQc", hidden_dim=16)
