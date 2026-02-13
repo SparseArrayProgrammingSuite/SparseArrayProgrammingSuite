@@ -1,3 +1,32 @@
+"""
+Name: Particule Simulation Algorithm
+Author: Richard Wan
+Email: rwan41@gatech.edu
+
+Motivation:
+The particle simulation is used to model particle interaction
+present in mechanics, biology, astronomy, and other fields on
+a simplitic level.
+
+Role of sparsity:
+The number of particles within the cutoff distance of particle
+interaction is sparse.
+
+Implementation Reference:
+https://github.com/Berkeley-CS267/hw2-1/blob/master/serial.cpp
+
+Data Generation:
+The position, velocity, and acceleration vectors for the
+particles may be created manually or generated randomly
+using the generation function in the benchmark test.
+
+Statement on the use of Generative AI: No generative AI was
+used for the benchmark function itself. Generative AI might
+have been used to construct tests. This statement was written
+by hand.
+"""
+
+
 def benchmark_particle_sum(xp, x, y, vx, vy, ax, ay, size, steps):
     # CONSTANTS
     mass = 0.01
