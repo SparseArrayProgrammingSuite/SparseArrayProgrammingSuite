@@ -70,9 +70,18 @@ def benchmark_lsqr(
     # An approximation of the condition number of A found by multiplying
     # Anorm by sqrt(ddnorm)
     Acond = 0
-
+    (u, v, x, w, phi_bar, rho_bar, Anorm_sq, xnorm_sq, dnorm_sq) = xp.compute(
+        (u, v, x, w, phi_bar, rho_bar, Anorm_sq, xnorm_sq, dnorm_sq)
+    )
+    (u, v, x, w, phi_bar, rho_bar, Anorm_sq, xnorm_sq, dnorm_sq) = xp.lazy(
+        (u, v, x, w, phi_bar, rho_bar, Anorm_sq, xnorm_sq, dnorm_sq)
+    )
     while it < max_iters and not solution_is_zero:
         it += 1
+
+        (u, v, x, w, phi_bar, rho_bar, Anorm_sq, xnorm_sq, dnorm_sq) = xp.lazy(
+            (u, v, x, w, phi_bar, rho_bar, Anorm_sq, xnorm_sq, dnorm_sq)
+        )
 
         u = A @ v - alpha * u
 
@@ -117,23 +126,27 @@ def benchmark_lsqr(
         test2 = Arnorm / (Anorm * rnorm)
         test3 = 1 / Acond
 
-        reltol = btol + atol * Anorm * xnorm / bnorm
+        (u, v, x, w, phi_bar, rho_bar, Anorm_sq, xnorm_sq, dnorm_sq) = xp.compute(
+            (u, v, x, w, phi_bar, rho_bar, Anorm_sq, xnorm_sq, dnorm_sq)
+        )
+
+        reltol = xp.compute(atol * Anorm * xnorm / bnorm + btol)[()]
 
         # Exits if the condition number grows too high
-        if test3 <= ctol:
+        if xp.compute(test3) <= ctol:
             exit = 3
         # Exits if the gradient is small so the min has been found
-        if test2 <= atol:
+        if xp.compute(test2) <= atol:
             exit = 2
         # Exits if the residual is small so we have found the solution
-        if test1 <= reltol:
+        if xp.compute(test1) <= reltol:
             exit = 1
 
         if exit > 0:
             print(exit)
             break
 
-    return x, exit, it
+    return xp.to_benchmark(x), exit, it
 
 
 def normof2(xp, x, y):
