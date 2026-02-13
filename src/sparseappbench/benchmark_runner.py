@@ -26,6 +26,8 @@ from .benchmarks.jacobi import (
 from .benchmarks.lsqr import (
     benchmark_lsqr,
     dg_lsqr_sparse_1,
+    dg_lsqr_sparse_2,
+    dg_lsqr_sparse_3,
 )
 from .benchmarks.matmul import (
     benchmark_matmul,
@@ -99,6 +101,8 @@ DATA_GENERATOR_DICT = {
     },
     "lsqr": {
         "lsqr_sparse_1": dg_lsqr_sparse_1,
+        "lsqr_sparse_2": dg_lsqr_sparse_2,
+        "lsqr_sparse_3": dg_lsqr_sparse_3,
     },
 }
 

@@ -27,7 +27,7 @@ AI was used to debug code. This statement was written by hand.
 
 
 def benchmark_lsqr(
-    xp, A_bench, b_bench, atol=1e-9, btol=1e-9, conlim=1.0e8, max_iters=1000
+    xp, A_bench, b_bench, atol=1e-9, btol=1e-9, conlim=1.0e8, max_iters=10000
 ):
     A = xp.lazy(xp.from_benchmark(A_bench))
     b = xp.lazy(xp.from_benchmark(b_bench))
@@ -46,7 +46,7 @@ def benchmark_lsqr(
     ctol = 1 / conlim
 
     Arnorm = alpha * beta
-    if Arnorm == 0:
+    if xp.compute(Arnorm) == 0:
         solution_is_zero = True
 
     w = v
@@ -104,7 +104,6 @@ def benchmark_lsqr(
 
         # Estimate of the norm of the gradient ATr
         Arnorm = alpha * abs(phi_bar * c)
-        print(Arnorm)
 
         Anorm_sq += alpha**2 + beta**2
         Anorm = xp.sqrt(Anorm_sq)
@@ -131,6 +130,7 @@ def benchmark_lsqr(
             exit = 1
 
         if exit > 0:
+            print(exit)
             break
 
     return x, exit, it
@@ -182,3 +182,11 @@ def generate_lsqr_data(source, has_b_file=False, noise_amt=0.1):
 
 def dg_lsqr_sparse_1():
     return generate_lsqr_data("abb313")
+
+
+def dg_lsqr_sparse_2():
+    return generate_lsqr_data("lp_ship08s")
+
+
+def dg_lsqr_sparse_3():
+    return generate_lsqr_data("west0067")

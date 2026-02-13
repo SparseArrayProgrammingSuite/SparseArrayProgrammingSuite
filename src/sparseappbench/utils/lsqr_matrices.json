@@ -1,0 +1,3082 @@
+[
+  {
+    "matrix_name": "ch5-5-b4",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 1.0,
+    "n": 600,
+    "nnz": 600
+  },
+  {
+    "matrix_name": "ch4-4-b3",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 1.0000000000000002,
+    "n": 96,
+    "nnz": 96
+  },
+  {
+    "matrix_name": "mk10-b4",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 1.0000000000000004,
+    "n": 4725,
+    "nnz": 4725
+  },
+  {
+    "matrix_name": "n3c6-b11",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 1.2247448713915894,
+    "n": 675,
+    "nnz": 720
+  },
+  {
+    "matrix_name": "bibd_15_3",
+    "matrix_group": "JGD_BIBD",
+    "lsqr convergence criteria": 1.882937743382542,
+    "n": 455,
+    "nnz": 1365
+  },
+  {
+    "matrix_name": "n3c5-b7",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 2.23606797749979,
+    "n": 120,
+    "nnz": 240
+  },
+  {
+    "matrix_name": "lpi_galenet",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 2.8863726628848636,
+    "n": 14,
+    "nnz": 22
+  },
+  {
+    "matrix_name": "gams10a",
+    "matrix_group": "Meszaros",
+    "lsqr convergence criteria": 2.9671916124815083,
+    "n": 171,
+    "nnz": 407
+  },
+  {
+    "matrix_name": "ash331",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 3.0965084334408215,
+    "n": 104,
+    "nnz": 662
+  },
+  {
+    "matrix_name": "bibd_12_4",
+    "matrix_group": "JGD_BIBD",
+    "lsqr convergence criteria": 3.1052950170405964,
+    "n": 495,
+    "nnz": 2970
+  },
+  {
+    "matrix_name": "ash958",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 3.2013582250024406,
+    "n": 292,
+    "nnz": 1916
+  },
+  {
+    "matrix_name": "mycielskian3",
+    "matrix_group": "Mycielski",
+    "lsqr convergence criteria": 3.23606797749979,
+    "n": 5,
+    "nnz": 10
+  },
+  {
+    "matrix_name": "ash608",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 3.3729621564629975,
+    "n": 188,
+    "nnz": 1216
+  },
+  {
+    "matrix_name": "gams30a",
+    "matrix_group": "Meszaros",
+    "lsqr convergence criteria": 3.6320948219564833,
+    "n": 531,
+    "nnz": 1287
+  },
+  {
+    "matrix_name": "cage",
+    "matrix_group": "AG-Monien",
+    "lsqr convergence criteria": 3.882901373576606,
+    "n": 366,
+    "nnz": 5124
+  },
+  {
+    "matrix_name": "gams30am",
+    "matrix_group": "Meszaros",
+    "lsqr convergence criteria": 3.9723803990958126,
+    "n": 531,
+    "nnz": 1287
+  },
+  {
+    "matrix_name": "lpi_itest2",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 4.226048087352505,
+    "n": 13,
+    "nnz": 26
+  },
+  {
+    "matrix_name": "Trec4",
+    "matrix_group": "JGD_Kocay",
+    "lsqr convergence criteria": 4.441518440112253,
+    "n": 3,
+    "nnz": 3
+  },
+  {
+    "matrix_name": "nemsafm",
+    "matrix_group": "Meszaros",
+    "lsqr convergence criteria": 4.77319366928247,
+    "n": 2348,
+    "nnz": 2826
+  },
+  {
+    "matrix_name": "klein-b2",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 5.018582699329598,
+    "n": 30,
+    "nnz": 60
+  },
+  {
+    "matrix_name": "mesh1em6",
+    "matrix_group": "Pothen",
+    "lsqr convergence criteria": 6.108582603364989,
+    "n": 48,
+    "nnz": 306
+  },
+  {
+    "matrix_name": "bcsstm04",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 8.752170469913192,
+    "n": 132,
+    "nnz": 132
+  },
+  {
+    "matrix_name": "fv1",
+    "matrix_group": "Norris",
+    "lsqr convergence criteria": 8.806042321252669,
+    "n": 9604,
+    "nnz": 85264
+  },
+  {
+    "matrix_name": "bcsstm05",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 12.698147818471494,
+    "n": 153,
+    "nnz": 153
+  },
+  {
+    "matrix_name": "cage7",
+    "matrix_group": "vanHeukelum",
+    "lsqr convergence criteria": 13.071297209477423,
+    "n": 340,
+    "nnz": 3084
+  },
+  {
+    "matrix_name": "flower_5_4",
+    "matrix_group": "JGD_Margulies",
+    "lsqr convergence criteria": 14.909980971174397,
+    "n": 14721,
+    "nnz": 43942
+  },
+  {
+    "matrix_name": "lp_sc50b",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 16.937166445707803,
+    "n": 78,
+    "nnz": 148
+  },
+  {
+    "matrix_name": "model1",
+    "matrix_group": "Meszaros",
+    "lsqr convergence criteria": 17.573862490250733,
+    "n": 798,
+    "nnz": 3028
+  },
+  {
+    "matrix_name": "bfwb782",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 18.07241738016246,
+    "n": 782,
+    "nnz": 5982
+  },
+  {
+    "matrix_name": "cage3",
+    "matrix_group": "vanHeukelum",
+    "lsqr convergence criteria": 18.84546546313394,
+    "n": 5,
+    "nnz": 19
+  },
+  {
+    "matrix_name": "cage4",
+    "matrix_group": "vanHeukelum",
+    "lsqr convergence criteria": 19.36310585927903,
+    "n": 9,
+    "nnz": 49
+  },
+  {
+    "matrix_name": "divorce",
+    "matrix_group": "Pajek",
+    "lsqr convergence criteria": 19.390849654061036,
+    "n": 9,
+    "nnz": 225
+  },
+  {
+    "matrix_name": "lp_scsd1",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 21.212147186122028,
+    "n": 760,
+    "nnz": 2388
+  },
+  {
+    "matrix_name": "bcsstm21",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 23.715415019757284,
+    "n": 3600,
+    "nnz": 3600
+  },
+  {
+    "matrix_name": "mycielskian5",
+    "matrix_group": "Mycielski",
+    "lsqr convergence criteria": 27.64242481573105,
+    "n": 23,
+    "nnz": 142
+  },
+  {
+    "matrix_name": "can_73",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 35.63370203983926,
+    "n": 73,
+    "nnz": 377
+  },
+  {
+    "matrix_name": "pde225",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 39.063813575232004,
+    "n": 225,
+    "nnz": 1065
+  },
+  {
+    "matrix_name": "lp_modszk1",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 40.2546886928554,
+    "n": 1620,
+    "nnz": 3168
+  },
+  {
+    "matrix_name": "qiulp",
+    "matrix_group": "Meszaros",
+    "lsqr convergence criteria": 40.760791186840336,
+    "n": 1900,
+    "nnz": 4492
+  },
+  {
+    "matrix_name": "gre_115",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 49.67094127552012,
+    "n": 115,
+    "nnz": 421
+  },
+  {
+    "matrix_name": "will57",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 51.50454617932708,
+    "n": 57,
+    "nnz": 281
+  },
+  {
+    "matrix_name": "Stranke94",
+    "matrix_group": "Pajek",
+    "lsqr convergence criteria": 51.73299564939817,
+    "n": 10,
+    "nnz": 90
+  },
+  {
+    "matrix_name": "cdde2",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 54.7870781338326,
+    "n": 961,
+    "nnz": 4681
+  },
+  {
+    "matrix_name": "lp_scagr25",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 59.650554934647666,
+    "n": 671,
+    "nnz": 1725
+  },
+  {
+    "matrix_name": "Trefethen_20",
+    "matrix_group": "JGD_Trefethen",
+    "lsqr convergence criteria": 63.08860089386154,
+    "n": 20,
+    "nnz": 158
+  },
+  {
+    "matrix_name": "WorldCities",
+    "matrix_group": "Pajek",
+    "lsqr convergence criteria": 65.99990446928554,
+    "n": 100,
+    "nnz": 7518
+  },
+  {
+    "matrix_name": "cdde4",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 68.21841903296102,
+    "n": 961,
+    "nnz": 4681
+  },
+  {
+    "matrix_name": "Trec9",
+    "matrix_group": "JGD_Kocay",
+    "lsqr convergence criteria": 75.06572949913293,
+    "n": 201,
+    "nnz": 2147
+  },
+  {
+    "matrix_name": "mycielskian6",
+    "matrix_group": "Mycielski",
+    "lsqr convergence criteria": 76.56956217658829,
+    "n": 47,
+    "nnz": 472
+  },
+  {
+    "matrix_name": "lp_ship12s",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 86.67108326449099,
+    "n": 2869,
+    "nnz": 8284
+  },
+  {
+    "matrix_name": "rosen8",
+    "matrix_group": "Meszaros",
+    "lsqr convergence criteria": 100.29688182264407,
+    "n": 1544,
+    "nnz": 16058
+  },
+  {
+    "matrix_name": "dwt_87",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 101.20776371338633,
+    "n": 87,
+    "nnz": 541
+  },
+  {
+    "matrix_name": "pivtol",
+    "matrix_group": "MathWorks",
+    "lsqr convergence criteria": 109.60700199614054,
+    "n": 102,
+    "nnz": 306
+  },
+  {
+    "matrix_name": "gre_343",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 111.97625234034513,
+    "n": 343,
+    "nnz": 1435
+  },
+  {
+    "matrix_name": "lp_ship04s",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 113.29817538493056,
+    "n": 1506,
+    "nnz": 4400
+  },
+  {
+    "matrix_name": "dwt_59",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 118.10230607326625,
+    "n": 59,
+    "nnz": 267
+  },
+  {
+    "matrix_name": "poisson2D",
+    "matrix_group": "FEMLAB",
+    "lsqr convergence criteria": 132.7581114365929,
+    "n": 367,
+    "nnz": 2417
+  },
+  {
+    "matrix_name": "lpi_itest6",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 150.2696465909796,
+    "n": 17,
+    "nnz": 29
+  },
+  {
+    "matrix_name": "IG5-6",
+    "matrix_group": "JGD_G5",
+    "lsqr convergence criteria": 156.44854731132912,
+    "n": 77,
+    "nnz": 251
+  },
+  {
+    "matrix_name": "gre_512",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 158.31833907959748,
+    "n": 512,
+    "nnz": 2192
+  },
+  {
+    "matrix_name": "lp_ship08s",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 161.62915671367608,
+    "n": 2467,
+    "nnz": 7194
+  },
+  {
+    "matrix_name": "well1033",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 166.13333975542665,
+    "n": 320,
+    "nnz": 4732
+  },
+  {
+    "matrix_name": "cdde6",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 177.0822250710403,
+    "n": 961,
+    "nnz": 4681
+  },
+  {
+    "matrix_name": "mycielskian7",
+    "matrix_group": "Mycielski",
+    "lsqr convergence criteria": 208.24303824848977,
+    "n": 95,
+    "nnz": 1510
+  },
+  {
+    "matrix_name": "wm3",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 236.2895971867389,
+    "n": 260,
+    "nnz": 2948
+  },
+  {
+    "matrix_name": "IG5-7",
+    "matrix_group": "JGD_G5",
+    "lsqr convergence criteria": 260.7637497248973,
+    "n": 150,
+    "nnz": 549
+  },
+  {
+    "matrix_name": "p0201",
+    "matrix_group": "Meszaros",
+    "lsqr convergence criteria": 287.41851934031695,
+    "n": 334,
+    "nnz": 2056
+  },
+  {
+    "matrix_name": "QRpivot",
+    "matrix_group": "MathWorks",
+    "lsqr convergence criteria": 291.1015795195399,
+    "n": 749,
+    "nnz": 3808
+  },
+  {
+    "matrix_name": "dwt_234",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 322.8257897166255,
+    "n": 234,
+    "nnz": 834
+  },
+  {
+    "matrix_name": "rdb200",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 345.13455712692337,
+    "n": 200,
+    "nnz": 1120
+  },
+  {
+    "matrix_name": "deter4",
+    "matrix_group": "Meszaros",
+    "lsqr convergence criteria": 370.5906577109957,
+    "n": 9133,
+    "nnz": 19231
+  },
+  {
+    "matrix_name": "young2c",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 415.01450386643353,
+    "n": 841,
+    "nnz": 4089
+  },
+  {
+    "matrix_name": "Trefethen_200b",
+    "matrix_group": "JGD_Trefethen",
+    "lsqr convergence criteria": 521.8292086556003,
+    "n": 199,
+    "nnz": 2873
+  },
+  {
+    "matrix_name": "mycielskian8",
+    "matrix_group": "Mycielski",
+    "lsqr convergence criteria": 559.6571766614325,
+    "n": 191,
+    "nnz": 4720
+  },
+  {
+    "matrix_name": "lp_80bau3b",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 567.2253137647265,
+    "n": 12061,
+    "nnz": 23264
+  },
+  {
+    "matrix_name": "can_62",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 603.8236712419858,
+    "n": 62,
+    "nnz": 218
+  },
+  {
+    "matrix_name": "breasttissue_10NN",
+    "matrix_group": "ML_Graph",
+    "lsqr convergence criteria": 643.9617201396754,
+    "n": 106,
+    "nnz": 1412
+  },
+  {
+    "matrix_name": "iris_dataset_30NN",
+    "matrix_group": "ML_Graph",
+    "lsqr convergence criteria": 679.476055549111,
+    "n": 150,
+    "nnz": 5518
+  },
+  {
+    "matrix_name": "G12",
+    "matrix_group": "Gset",
+    "lsqr convergence criteria": 681.3359756767662,
+    "n": 800,
+    "nnz": 3200
+  },
+  {
+    "matrix_name": "rdb450",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 685.1665130399209,
+    "n": 450,
+    "nnz": 2580
+  },
+  {
+    "matrix_name": "Trefethen_150",
+    "matrix_group": "JGD_Trefethen",
+    "lsqr convergence criteria": 769.9215089870613,
+    "n": 150,
+    "nnz": 2040
+  },
+  {
+    "matrix_name": "lp_blend",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 924.830508131318,
+    "n": 114,
+    "nnz": 522
+  },
+  {
+    "matrix_name": "bcsstm22",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 941.2946476722151,
+    "n": 138,
+    "nnz": 138
+  },
+  {
+    "matrix_name": "lp_scsd8",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 993.2016124042591,
+    "n": 2750,
+    "nnz": 8584
+  },
+  {
+    "matrix_name": "lshp_406",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1108.9035771670142,
+    "n": 406,
+    "nnz": 2716
+  },
+  {
+    "matrix_name": "lpi_bgprtr",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 1205.7981590192533,
+    "n": 40,
+    "nnz": 70
+  },
+  {
+    "matrix_name": "lshp_265",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1387.9912100692334,
+    "n": 265,
+    "nnz": 1753
+  },
+  {
+    "matrix_name": "Trefethen_300",
+    "matrix_group": "JGD_Trefethen",
+    "lsqr convergence criteria": 1772.694780925323,
+    "n": 300,
+    "nnz": 4678
+  },
+  {
+    "matrix_name": "fv3",
+    "matrix_group": "Norris",
+    "lsqr convergence criteria": 2026.8402552070677,
+    "n": 9801,
+    "nnz": 87025
+  },
+  {
+    "matrix_name": "sherman4",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 2178.6307934378833,
+    "n": 1104,
+    "nnz": 3786
+  },
+  {
+    "matrix_name": "lp_standata",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 2248.556371681889,
+    "n": 1274,
+    "nnz": 3230
+  },
+  {
+    "matrix_name": "young4c",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 2371.568961870977,
+    "n": 841,
+    "nnz": 4089
+  },
+  {
+    "matrix_name": "cz148",
+    "matrix_group": "CPM",
+    "lsqr convergence criteria": 2472.40403349294,
+    "n": 148,
+    "nnz": 1527
+  },
+  {
+    "matrix_name": "poli_large",
+    "matrix_group": "Grund",
+    "lsqr convergence criteria": 2512.0107324333303,
+    "n": 15575,
+    "nnz": 33074
+  },
+  {
+    "matrix_name": "G11",
+    "matrix_group": "Gset",
+    "lsqr convergence criteria": 3582.932234521832,
+    "n": 800,
+    "nnz": 3200
+  },
+  {
+    "matrix_name": "lp_standmps",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 4150.412141498011,
+    "n": 1274,
+    "nnz": 3878
+  },
+  {
+    "matrix_name": "bcsstk02",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 4324.971460132073,
+    "n": 66,
+    "nnz": 4356
+  },
+  {
+    "matrix_name": "cdde3",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 4407.920255850935,
+    "n": 961,
+    "nnz": 4681
+  },
+  {
+    "matrix_name": "fs_541_1",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 4467.844764891891,
+    "n": 541,
+    "nnz": 4285
+  },
+  {
+    "matrix_name": "p0040",
+    "matrix_group": "Meszaros",
+    "lsqr convergence criteria": 6027.46621724256,
+    "n": 63,
+    "nnz": 133
+  },
+  {
+    "matrix_name": "G13",
+    "matrix_group": "Gset",
+    "lsqr convergence criteria": 6961.007589939483,
+    "n": 800,
+    "nnz": 3200
+  },
+  {
+    "matrix_name": "lp_stocfor1",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 7266.527280304295,
+    "n": 165,
+    "nnz": 501
+  },
+  {
+    "matrix_name": "scrs8-2c",
+    "matrix_group": "Meszaros",
+    "lsqr convergence criteria": 7287.788713745311,
+    "n": 3499,
+    "nnz": 7367
+  },
+  {
+    "matrix_name": "scrs8-2b",
+    "matrix_group": "Meszaros",
+    "lsqr convergence criteria": 7287.788713745322,
+    "n": 3499,
+    "nnz": 7367
+  },
+  {
+    "matrix_name": "lp_czprob",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 8810.66285144115,
+    "n": 3562,
+    "nnz": 10708
+  },
+  {
+    "matrix_name": "bcsstm09",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 9999.999999999995,
+    "n": 1083,
+    "nnz": 1083
+  },
+  {
+    "matrix_name": "rail_1357",
+    "matrix_group": "Oberwolfach",
+    "lsqr convergence criteria": 13294.845808125483,
+    "n": 1357,
+    "nnz": 8985
+  },
+  {
+    "matrix_name": "tub100",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 13343.055141480016,
+    "n": 100,
+    "nnz": 396
+  },
+  {
+    "matrix_name": "cz308",
+    "matrix_group": "CPM",
+    "lsqr convergence criteria": 14050.195242158512,
+    "n": 308,
+    "nnz": 3182
+  },
+  {
+    "matrix_name": "impcol_c",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 17681.40892277547,
+    "n": 137,
+    "nnz": 411
+  },
+  {
+    "matrix_name": "lp_ganges",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 21332.19041067775,
+    "n": 1706,
+    "nnz": 6937
+  },
+  {
+    "matrix_name": "netz4504_dual",
+    "matrix_group": "AG-Monien",
+    "lsqr convergence criteria": 30008.10302898854,
+    "n": 615,
+    "nnz": 2342
+  },
+  {
+    "matrix_name": "bcsstm03",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 52233.083962688754,
+    "n": 112,
+    "nnz": 112
+  },
+  {
+    "matrix_name": "lpi_bgetam",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 52544.802421053595,
+    "n": 816,
+    "nnz": 2537
+  },
+  {
+    "matrix_name": "lp_etamacro",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 52544.806666036115,
+    "n": 816,
+    "nnz": 2537
+  },
+  {
+    "matrix_name": "lpi_reactor",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 61201.97646192418,
+    "n": 808,
+    "nnz": 2591
+  },
+  {
+    "matrix_name": "rw136",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 252211.87712211395,
+    "n": 136,
+    "nnz": 479
+  },
+  {
+    "matrix_name": "LF10",
+    "matrix_group": "Oberwolfach",
+    "lsqr convergence criteria": 3855238.8664396876,
+    "n": 18,
+    "nnz": 82
+  },
+  {
+    "matrix_name": "kleemin",
+    "matrix_group": "Meszaros",
+    "lsqr convergence criteria": 20202020.202019453,
+    "n": 16,
+    "nnz": 44
+  },
+  {
+    "matrix_name": "LFAT5",
+    "matrix_group": "Oberwolfach",
+    "lsqr convergence criteria": 143091909.43439987,
+    "n": 14,
+    "nnz": 46
+  },
+  {
+    "matrix_name": "shl_200",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 862227353.696915,
+    "n": 663,
+    "nnz": 1726
+  },
+  {
+    "matrix_name": "lnsp_131",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 10849489285.193758,
+    "n": 131,
+    "nnz": 536
+  },
+  {
+    "matrix_name": "lns_131",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 13700902090.421814,
+    "n": 131,
+    "nnz": 536
+  },
+  {
+    "matrix_name": "p2p-Gnutella08",
+    "matrix_group": "SNAP",
+    "lsqr convergence criteria": 34846748010664.63,
+    "n": 6301,
+    "nnz": 20777
+  },
+  {
+    "matrix_name": "N_pid",
+    "matrix_group": "Schulthess",
+    "lsqr convergence criteria": 43822585393912.07,
+    "n": 3923,
+    "nnz": 8054
+  },
+  {
+    "matrix_name": "cell2",
+    "matrix_group": "Lucifora",
+    "lsqr convergence criteria": 50609373310937.8,
+    "n": 7055,
+    "nnz": 34855
+  },
+  {
+    "matrix_name": "EX2",
+    "matrix_group": "JGD_SPG",
+    "lsqr convergence criteria": 114440269348858.5,
+    "n": 560,
+    "nnz": 8736
+  },
+  {
+    "matrix_name": "GD00_c",
+    "matrix_group": "Pajek",
+    "lsqr convergence criteria": 139732467207075.03,
+    "n": 638,
+    "nnz": 1041
+  },
+  {
+    "matrix_name": "lp_ken_07",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 164166328533925.47,
+    "n": 3602,
+    "nnz": 8404
+  },
+  {
+    "matrix_name": "Harvard500",
+    "matrix_group": "MathWorks",
+    "lsqr convergence criteria": 204257660626451.44,
+    "n": 500,
+    "nnz": 2636
+  },
+  {
+    "matrix_name": "lutz30-23-b6",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 258332234878193.12,
+    "n": 3003,
+    "nnz": 12012
+  },
+  {
+    "matrix_name": "will199",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 263741718873677.62,
+    "n": 199,
+    "nnz": 701
+  },
+  {
+    "matrix_name": "grid1_dual",
+    "matrix_group": "AG-Monien",
+    "lsqr convergence criteria": 303325682620504.94,
+    "n": 224,
+    "nnz": 840
+  },
+  {
+    "matrix_name": "GD01_a",
+    "matrix_group": "Pajek",
+    "lsqr convergence criteria": 336505323795171.25,
+    "n": 311,
+    "nnz": 645
+  },
+  {
+    "matrix_name": "EVA",
+    "matrix_group": "Pajek",
+    "lsqr convergence criteria": 345425692643396.2,
+    "n": 8497,
+    "nnz": 6726
+  },
+  {
+    "matrix_name": "problem1",
+    "matrix_group": "FEMLAB",
+    "lsqr convergence criteria": 346685870023775.3,
+    "n": 415,
+    "nnz": 2779
+  },
+  {
+    "matrix_name": "lp_pds_02",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 399907696201026.94,
+    "n": 7716,
+    "nnz": 16571
+  },
+  {
+    "matrix_name": "lp_pds_06",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 485031712665528.1,
+    "n": 29351,
+    "nnz": 63220
+  },
+  {
+    "matrix_name": "Sandi_authors",
+    "matrix_group": "Pajek",
+    "lsqr convergence criteria": 663231735831709.4,
+    "n": 86,
+    "nnz": 248
+  },
+  {
+    "matrix_name": "can_61",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 678345079711448.1,
+    "n": 61,
+    "nnz": 557
+  },
+  {
+    "matrix_name": "lp_shell",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 768213009067993.6,
+    "n": 1777,
+    "nnz": 3558
+  },
+  {
+    "matrix_name": "netz4504",
+    "matrix_group": "AG-Monien",
+    "lsqr convergence criteria": 830999373057208.6,
+    "n": 1961,
+    "nnz": 5156
+  },
+  {
+    "matrix_name": "sphere2",
+    "matrix_group": "Pothen",
+    "lsqr convergence criteria": 883026652229254.8,
+    "n": 66,
+    "nnz": 450
+  },
+  {
+    "matrix_name": "SmallW",
+    "matrix_group": "Pajek",
+    "lsqr convergence criteria": 933890611235045.5,
+    "n": 396,
+    "nnz": 994
+  },
+  {
+    "matrix_name": "dwt_72",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 934952894481475.6,
+    "n": 72,
+    "nnz": 222
+  },
+  {
+    "matrix_name": "D_6",
+    "matrix_group": "JGD_SL6",
+    "lsqr convergence criteria": 941798971145526.2,
+    "n": 435,
+    "nnz": 6491
+  },
+  {
+    "matrix_name": "curtis54",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1168167300067967.2,
+    "n": 54,
+    "nnz": 291
+  },
+  {
+    "matrix_name": "bips07_1693",
+    "matrix_group": "Rommes",
+    "lsqr convergence criteria": 1225715426127440.8,
+    "n": 13275,
+    "nnz": 49044
+  },
+  {
+    "matrix_name": "relat6",
+    "matrix_group": "JGD_Relat",
+    "lsqr convergence criteria": 1355083494604136.2,
+    "n": 157,
+    "nnz": 8108
+  },
+  {
+    "matrix_name": "mimo46x46_system",
+    "matrix_group": "Rommes",
+    "lsqr convergence criteria": 1365639171325442.2,
+    "n": 13250,
+    "nnz": 48735
+  },
+  {
+    "matrix_name": "laser",
+    "matrix_group": "GHS_indef",
+    "lsqr convergence criteria": 1372450166699694.0,
+    "n": 3002,
+    "nnz": 9000
+  },
+  {
+    "matrix_name": "lpi_mondou2",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 1418766463464457.8,
+    "n": 604,
+    "nnz": 1208
+  },
+  {
+    "matrix_name": "D_10",
+    "matrix_group": "JGD_SL6",
+    "lsqr convergence criteria": 1610692134156169.5,
+    "n": 816,
+    "nnz": 7614
+  },
+  {
+    "matrix_name": "Franz6",
+    "matrix_group": "JGD_Franz",
+    "lsqr convergence criteria": 1649286465005040.0,
+    "n": 3016,
+    "nnz": 45456
+  },
+  {
+    "matrix_name": "cat_ears_4_1",
+    "matrix_group": "JGD_Margulies",
+    "lsqr convergence criteria": 1751925818001893.5,
+    "n": 313,
+    "nnz": 938
+  },
+  {
+    "matrix_name": "GL6_D_9",
+    "matrix_group": "JGD_GL6",
+    "lsqr convergence criteria": 1827678693546203.8,
+    "n": 545,
+    "nnz": 4349
+  },
+  {
+    "matrix_name": "n3c6-b5",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 2070040320246140.5,
+    "n": 3003,
+    "nnz": 30030
+  },
+  {
+    "matrix_name": "rel5",
+    "matrix_group": "JGD_Relat",
+    "lsqr convergence criteria": 2084275707471292.5,
+    "n": 35,
+    "nnz": 656
+  },
+  {
+    "matrix_name": "Franz1",
+    "matrix_group": "JGD_Franz",
+    "lsqr convergence criteria": 2135278684725575.0,
+    "n": 768,
+    "nnz": 5120
+  },
+  {
+    "matrix_name": "bcspwr02",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 2164709099764773.8,
+    "n": 49,
+    "nnz": 167
+  },
+  {
+    "matrix_name": "GD00_a",
+    "matrix_group": "Pajek",
+    "lsqr convergence criteria": 2611889931052691.5,
+    "n": 352,
+    "nnz": 458
+  },
+  {
+    "matrix_name": "GD96_c",
+    "matrix_group": "Pajek",
+    "lsqr convergence criteria": 2722508412836499.5,
+    "n": 65,
+    "nnz": 250
+  },
+  {
+    "matrix_name": "ch5-5-b1",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 2728201989054912.5,
+    "n": 25,
+    "nnz": 400
+  },
+  {
+    "matrix_name": "wheel_6_1",
+    "matrix_group": "JGD_Margulies",
+    "lsqr convergence criteria": 2832385749071303.5,
+    "n": 85,
+    "nnz": 254
+  },
+  {
+    "matrix_name": "relat5",
+    "matrix_group": "JGD_Relat",
+    "lsqr convergence criteria": 3067320884826795.5,
+    "n": 35,
+    "nnz": 1058
+  },
+  {
+    "matrix_name": "wheel_5_1",
+    "matrix_group": "JGD_Margulies",
+    "lsqr convergence criteria": 3092632245408068.0,
+    "n": 61,
+    "nnz": 182
+  },
+  {
+    "matrix_name": "n3c6-b4",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 3311693327303344.0,
+    "n": 1365,
+    "nnz": 15015
+  },
+  {
+    "matrix_name": "GD98_b",
+    "matrix_group": "Pajek",
+    "lsqr convergence criteria": 3398169125661571.5,
+    "n": 121,
+    "nnz": 207
+  },
+  {
+    "matrix_name": "n2c6-b9",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 3534886130269874.0,
+    "n": 1470,
+    "nnz": 3060
+  },
+  {
+    "matrix_name": "D_5",
+    "matrix_group": "JGD_SL6",
+    "lsqr convergence criteria": 3630626167080360.5,
+    "n": 115,
+    "nnz": 1832
+  },
+  {
+    "matrix_name": "n3c5-b4",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 3656584472597153.5,
+    "n": 210,
+    "nnz": 1260
+  },
+  {
+    "matrix_name": "n4c5-b3",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 3721760179646017.0,
+    "n": 455,
+    "nnz": 5400
+  },
+  {
+    "matrix_name": "n4c5-b1",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 3864173299818721.0,
+    "n": 15,
+    "nnz": 210
+  },
+  {
+    "matrix_name": "ch4-4-b1",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 3913631294230766.5,
+    "n": 16,
+    "nnz": 144
+  },
+  {
+    "matrix_name": "ch6-6-b2",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 3980617823157915.0,
+    "n": 450,
+    "nnz": 7200
+  },
+  {
+    "matrix_name": "cis-n4c6-b3",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 4102141708975306.0,
+    "n": 1330,
+    "nnz": 23880
+  },
+  {
+    "matrix_name": "mk10-b2",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 4348897002767235.5,
+    "n": 630,
+    "nnz": 9450
+  },
+  {
+    "matrix_name": "ch5-5-b3",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 4431187917802195.5,
+    "n": 600,
+    "nnz": 2400
+  },
+  {
+    "matrix_name": "mk9-b1",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 4618626700213846.0,
+    "n": 36,
+    "nnz": 756
+  },
+  {
+    "matrix_name": "ch5-5-b2",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 4632802663473989.0,
+    "n": 200,
+    "nnz": 1800
+  },
+  {
+    "matrix_name": "mk11-b1",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 4804810369357176.0,
+    "n": 55,
+    "nnz": 1980
+  },
+  {
+    "matrix_name": "GD99_c",
+    "matrix_group": "Pajek",
+    "lsqr convergence criteria": 4875753824113850.0,
+    "n": 105,
+    "nnz": 149
+  },
+  {
+    "matrix_name": "cis-n4c6-b2",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 4881076591090108.0,
+    "n": 210,
+    "nnz": 3990
+  },
+  {
+    "matrix_name": "n2c6-b8",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 4929773601631227.0,
+    "n": 3990,
+    "nnz": 13230
+  },
+  {
+    "matrix_name": "n3c4-b4",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 5028634011869620.0,
+    "n": 15,
+    "nnz": 30
+  },
+  {
+    "matrix_name": "mk12-b1",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 5176151995936169.0,
+    "n": 66,
+    "nnz": 2970
+  },
+  {
+    "matrix_name": "lp_nug07",
+    "matrix_group": "Qaplib",
+    "lsqr convergence criteria": 5192086649809937.0,
+    "n": 931,
+    "nnz": 4214
+  },
+  {
+    "matrix_name": "n3c6-b2",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 5367892081716532.0,
+    "n": 105,
+    "nnz": 1365
+  },
+  {
+    "matrix_name": "mk9-b3",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 5422014341354857.0,
+    "n": 1260,
+    "nnz": 3780
+  },
+  {
+    "matrix_name": "n4c6-b2",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 5459129152023264.0,
+    "n": 210,
+    "nnz": 3990
+  },
+  {
+    "matrix_name": "ch7-6-b1",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 5515760546423088.0,
+    "n": 42,
+    "nnz": 1260
+  },
+  {
+    "matrix_name": "n2c6-b3",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 5584746944947143.0,
+    "n": 455,
+    "nnz": 5460
+  },
+  {
+    "matrix_name": "karate",
+    "matrix_group": "Newman",
+    "lsqr convergence criteria": 5732838282871371.0,
+    "n": 34,
+    "nnz": 156
+  },
+  {
+    "matrix_name": "lp_nug08",
+    "matrix_group": "Qaplib",
+    "lsqr convergence criteria": 5847468145734110.0,
+    "n": 1632,
+    "nnz": 7296
+  },
+  {
+    "matrix_name": "GD95_a",
+    "matrix_group": "Pajek",
+    "lsqr convergence criteria": 5873533094449684.0,
+    "n": 36,
+    "nnz": 57
+  },
+  {
+    "matrix_name": "ch7-8-b1",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 6186318729309760.0,
+    "n": 56,
+    "nnz": 2352
+  },
+  {
+    "matrix_name": "n3c5-b3",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 6229433165437746.0,
+    "n": 120,
+    "nnz": 840
+  },
+  {
+    "matrix_name": "n4c5-b2",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 6661368985916362.0,
+    "n": 105,
+    "nnz": 1365
+  },
+  {
+    "matrix_name": "lp_nug05",
+    "matrix_group": "Qaplib",
+    "lsqr convergence criteria": 7042215930030994.0,
+    "n": 225,
+    "nnz": 1050
+  },
+  {
+    "matrix_name": "GD96_d",
+    "matrix_group": "Pajek",
+    "lsqr convergence criteria": 8165387536615087.0,
+    "n": 180,
+    "nnz": 229
+  },
+  {
+    "matrix_name": "n4c5-b10",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 8850324265596537.0,
+    "n": 630,
+    "nnz": 1320
+  },
+  {
+    "matrix_name": "GD06_theory",
+    "matrix_group": "Pajek",
+    "lsqr convergence criteria": 1.0870688466704654e+16,
+    "n": 101,
+    "nnz": 380
+  },
+  {
+    "matrix_name": "lap_25",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.3527419973796968e+16,
+    "n": 25,
+    "nnz": 169
+  },
+  {
+    "matrix_name": "Tina_DisCog",
+    "matrix_group": "Pajek",
+    "lsqr convergence criteria": 1.5407870762487646e+16,
+    "n": 11,
+    "nnz": 48
+  },
+  {
+    "matrix_name": "Maragal_1",
+    "matrix_group": "NYPA",
+    "lsqr convergence criteria": 1.5494201942959866e+16,
+    "n": 14,
+    "nnz": 234
+  },
+  {
+    "matrix_name": "GD95_b",
+    "matrix_group": "Pajek",
+    "lsqr convergence criteria": 1.6207982863622056e+16,
+    "n": 73,
+    "nnz": 96
+  },
+  {
+    "matrix_name": "GL7d26",
+    "matrix_group": "JGD_GL7d",
+    "lsqr convergence criteria": 1.866387905641829e+16,
+    "n": 2798,
+    "nnz": 7412
+  },
+  {
+    "matrix_name": "n3c5-b1",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 1.898884332263514e+16,
+    "n": 10,
+    "nnz": 90
+  },
+  {
+    "matrix_name": "football",
+    "matrix_group": "Pajek",
+    "lsqr convergence criteria": 1.987897615228372e+16,
+    "n": 35,
+    "nnz": 118
+  },
+  {
+    "matrix_name": "Ragusa18",
+    "matrix_group": "Pajek",
+    "lsqr convergence criteria": 2.227594597455562e+16,
+    "n": 23,
+    "nnz": 64
+  },
+  {
+    "matrix_name": "GD96_b",
+    "matrix_group": "Pajek",
+    "lsqr convergence criteria": 2.9957732211874748e+16,
+    "n": 111,
+    "nnz": 193
+  },
+  {
+    "matrix_name": "jgl009",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 3.6138526768402856e+16,
+    "n": 9,
+    "nnz": 50
+  },
+  {
+    "matrix_name": "relat3",
+    "matrix_group": "JGD_Relat",
+    "lsqr convergence criteria": 4.4126084371384696e+16,
+    "n": 5,
+    "nnz": 24
+  },
+  {
+    "matrix_name": "rel3",
+    "matrix_group": "JGD_Relat",
+    "lsqr convergence criteria": 4.412608437138472e+16,
+    "n": 5,
+    "nnz": 18
+  },
+  {
+    "matrix_name": "lp_fit1p",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1677,
+    "nnz": 9868
+  },
+  {
+    "matrix_name": "fpga_trans_01",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1220,
+    "nnz": 7382
+  },
+  {
+    "matrix_name": "bcspwr08",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1624,
+    "nnz": 6050
+  },
+  {
+    "matrix_name": "cavity04",
+    "matrix_group": "DRIVCAV",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 317,
+    "nnz": 7327
+  },
+  {
+    "matrix_name": "tols90",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 90,
+    "nnz": 1746
+  },
+  {
+    "matrix_name": "olm500",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 500,
+    "nnz": 1996
+  },
+  {
+    "matrix_name": "rdb200l",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 200,
+    "nnz": 1120
+  },
+  {
+    "matrix_name": "utm300",
+    "matrix_group": "TOKAMAK",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 300,
+    "nnz": 3155
+  },
+  {
+    "matrix_name": "bp_600",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 822,
+    "nnz": 4172
+  },
+  {
+    "matrix_name": "jagmesh7",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1138,
+    "nnz": 7450
+  },
+  {
+    "matrix_name": "oscil_dcop_17",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 430,
+    "nnz": 1544
+  },
+  {
+    "matrix_name": "dwt_209",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 209,
+    "nnz": 1743
+  },
+  {
+    "matrix_name": "fpga_dcop_16",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1220,
+    "nnz": 5892
+  },
+  {
+    "matrix_name": "bcspwr05",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 443,
+    "nnz": 1623
+  },
+  {
+    "matrix_name": "rajat05",
+    "matrix_group": "Rajat",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 301,
+    "nnz": 1384
+  },
+  {
+    "matrix_name": "gent113",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 113,
+    "nnz": 655
+  },
+  {
+    "matrix_name": "jagmesh4",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1440,
+    "nnz": 9504
+  },
+  {
+    "matrix_name": "epb0",
+    "matrix_group": "Averous",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1794,
+    "nnz": 7764
+  },
+  {
+    "matrix_name": "robot",
+    "matrix_group": "Morandini",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 120,
+    "nnz": 870
+  },
+  {
+    "matrix_name": "fpga_dcop_09",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1220,
+    "nnz": 5888
+  },
+  {
+    "matrix_name": "fpga_dcop_47",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1220,
+    "nnz": 5892
+  },
+  {
+    "matrix_name": "oscil_dcop_16",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 430,
+    "nnz": 1544
+  },
+  {
+    "matrix_name": "rdb450l",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 450,
+    "nnz": 2580
+  },
+  {
+    "matrix_name": "oscil_dcop_02",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 430,
+    "nnz": 1544
+  },
+  {
+    "matrix_name": "oscil_dcop_41",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 430,
+    "nnz": 1544
+  },
+  {
+    "matrix_name": "fs_760_3",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 760,
+    "nnz": 5976
+  },
+  {
+    "matrix_name": "bcsstm24",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 3562,
+    "nnz": 3562
+  },
+  {
+    "matrix_name": "oscil_dcop_30",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 430,
+    "nnz": 1544
+  },
+  {
+    "matrix_name": "can_268",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 268,
+    "nnz": 3082
+  },
+  {
+    "matrix_name": "lp_lotfi",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 366,
+    "nnz": 1136
+  },
+  {
+    "matrix_name": "oscil_dcop_52",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 430,
+    "nnz": 1544
+  },
+  {
+    "matrix_name": "lp_e226",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 472,
+    "nnz": 2768
+  },
+  {
+    "matrix_name": "lp_israel",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 316,
+    "nnz": 2443
+  },
+  {
+    "matrix_name": "mhdb416",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 416,
+    "nnz": 2312
+  },
+  {
+    "matrix_name": "494_bus",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 494,
+    "nnz": 1666
+  },
+  {
+    "matrix_name": "lp_agg3",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 758,
+    "nnz": 4756
+  },
+  {
+    "matrix_name": "jagmesh9",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1349,
+    "nnz": 9101
+  },
+  {
+    "matrix_name": "fpga_dcop_48",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1220,
+    "nnz": 5892
+  },
+  {
+    "matrix_name": "S20PI_n",
+    "matrix_group": "Rommes",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1182,
+    "nnz": 2881
+  },
+  {
+    "matrix_name": "olm2000",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 2000,
+    "nnz": 7996
+  },
+  {
+    "matrix_name": "dwt_592",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 592,
+    "nnz": 5104
+  },
+  {
+    "matrix_name": "tumorAntiAngiogenesis_4",
+    "matrix_group": "VDOL",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 455,
+    "nnz": 4593
+  },
+  {
+    "matrix_name": "fpga_dcop_01",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1220,
+    "nnz": 5892
+  },
+  {
+    "matrix_name": "steam1",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 240,
+    "nnz": 3762
+  },
+  {
+    "matrix_name": "fs_183_4",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 183,
+    "nnz": 1069
+  },
+  {
+    "matrix_name": "can_144",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 144,
+    "nnz": 1296
+  },
+  {
+    "matrix_name": "lp_share1b",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 253,
+    "nnz": 1179
+  },
+  {
+    "matrix_name": "dwt_221",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 221,
+    "nnz": 1629
+  },
+  {
+    "matrix_name": "dwg961a",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 961,
+    "nnz": 3405
+  },
+  {
+    "matrix_name": "oscil_dcop_34",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 430,
+    "nnz": 1544
+  },
+  {
+    "matrix_name": "nos6",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 675,
+    "nnz": 3255
+  },
+  {
+    "matrix_name": "M10PI_n",
+    "matrix_group": "Rommes",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 682,
+    "nnz": 1633
+  },
+  {
+    "matrix_name": "tols2000",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 2000,
+    "nnz": 5184
+  },
+  {
+    "matrix_name": "qh768",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 768,
+    "nnz": 2934
+  },
+  {
+    "matrix_name": "M10PI_n1",
+    "matrix_group": "Rommes",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 528,
+    "nnz": 1317
+  },
+  {
+    "matrix_name": "bcspwr07",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1612,
+    "nnz": 5824
+  },
+  {
+    "matrix_name": "oscil_dcop_08",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 430,
+    "nnz": 1544
+  },
+  {
+    "matrix_name": "Spectro_10NN",
+    "matrix_group": "ML_Graph",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 531,
+    "nnz": 7422
+  },
+  {
+    "matrix_name": "rajat04",
+    "matrix_group": "Rajat",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1041,
+    "nnz": 9642
+  },
+  {
+    "matrix_name": "oscil_dcop_42",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 430,
+    "nnz": 1544
+  },
+  {
+    "matrix_name": "circuit204",
+    "matrix_group": "YZhou",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1020,
+    "nnz": 5883
+  },
+  {
+    "matrix_name": "lung1",
+    "matrix_group": "Norris",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1650,
+    "nnz": 7419
+  },
+  {
+    "matrix_name": "west0497",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 497,
+    "nnz": 1727
+  },
+  {
+    "matrix_name": "662_bus",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 662,
+    "nnz": 2474
+  },
+  {
+    "matrix_name": "illc1850",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 712,
+    "nnz": 8758
+  },
+  {
+    "matrix_name": "tols1090",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1090,
+    "nnz": 3546
+  },
+  {
+    "matrix_name": "bcsstk05",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 153,
+    "nnz": 2423
+  },
+  {
+    "matrix_name": "fpga_dcop_06",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1220,
+    "nnz": 5860
+  },
+  {
+    "matrix_name": "oscil_dcop_03",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 430,
+    "nnz": 1544
+  },
+  {
+    "matrix_name": "oscil_dcop_44",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 430,
+    "nnz": 1544
+  },
+  {
+    "matrix_name": "fpga_dcop_34",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1220,
+    "nnz": 5892
+  },
+  {
+    "matrix_name": "tumorAntiAngiogenesis_7",
+    "matrix_group": "VDOL",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 475,
+    "nnz": 4597
+  },
+  {
+    "matrix_name": "lp_recipe",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 204,
+    "nnz": 687
+  },
+  {
+    "matrix_name": "bcsstk01",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 48,
+    "nnz": 400
+  },
+  {
+    "matrix_name": "nsic",
+    "matrix_group": "Meszaros",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 897,
+    "nnz": 3449
+  },
+  {
+    "matrix_name": "de063157",
+    "matrix_group": "Meszaros",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1908,
+    "nnz": 5119
+  },
+  {
+    "matrix_name": "n3c6-b1",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 105,
+    "nnz": 210
+  },
+  {
+    "matrix_name": "hor_131",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 434,
+    "nnz": 4710
+  },
+  {
+    "matrix_name": "lpi_pang",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 741,
+    "nnz": 2933
+  },
+  {
+    "matrix_name": "dwt_607",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 607,
+    "nnz": 5131
+  },
+  {
+    "matrix_name": "can_187",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 187,
+    "nnz": 1491
+  },
+  {
+    "matrix_name": "iiasa",
+    "matrix_group": "Meszaros",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 3639,
+    "nnz": 7317
+  },
+  {
+    "matrix_name": "G33",
+    "matrix_group": "Gset",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 2000,
+    "nnz": 8000
+  },
+  {
+    "matrix_name": "oscil_dcop_38",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 430,
+    "nnz": 1544
+  },
+  {
+    "matrix_name": "G20",
+    "matrix_group": "Gset",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 800,
+    "nnz": 9344
+  },
+  {
+    "matrix_name": "G16",
+    "matrix_group": "Gset",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 800,
+    "nnz": 9344
+  },
+  {
+    "matrix_name": "nnc1374",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1374,
+    "nnz": 8606
+  },
+  {
+    "matrix_name": "gre_1107",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1107,
+    "nnz": 5664
+  },
+  {
+    "matrix_name": "Hamrle1",
+    "matrix_group": "Hamrle",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 32,
+    "nnz": 98
+  },
+  {
+    "matrix_name": "hangGlider_1",
+    "matrix_group": "VDOL",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 360,
+    "nnz": 3477
+  },
+  {
+    "matrix_name": "oscil_dcop_27",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 430,
+    "nnz": 1544
+  },
+  {
+    "matrix_name": "ex1",
+    "matrix_group": "FIDAP",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 216,
+    "nnz": 4352
+  },
+  {
+    "matrix_name": "oscil_dcop_05",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 430,
+    "nnz": 1544
+  },
+  {
+    "matrix_name": "relat4",
+    "matrix_group": "JGD_Relat",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 12,
+    "nnz": 172
+  },
+  {
+    "matrix_name": "jagmesh1",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 936,
+    "nnz": 6264
+  },
+  {
+    "matrix_name": "fpga_dcop_29",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1220,
+    "nnz": 5892
+  },
+  {
+    "matrix_name": "bcsstm23",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 3134,
+    "nnz": 3134
+  },
+  {
+    "matrix_name": "lesmis",
+    "matrix_group": "Newman",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 77,
+    "nnz": 508
+  },
+  {
+    "matrix_name": "lshp1270",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1270,
+    "nnz": 8668
+  },
+  {
+    "matrix_name": "qh1484",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1484,
+    "nnz": 6110
+  },
+  {
+    "matrix_name": "oscil_dcop_55",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 430,
+    "nnz": 1544
+  },
+  {
+    "matrix_name": "fpga_dcop_18",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1220,
+    "nnz": 5892
+  },
+  {
+    "matrix_name": "Chebyshev1",
+    "matrix_group": "Muite",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 261,
+    "nnz": 2319
+  },
+  {
+    "matrix_name": "jagmesh8",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1141,
+    "nnz": 7465
+  },
+  {
+    "matrix_name": "mesh2e1",
+    "matrix_group": "Pothen",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 306,
+    "nnz": 2018
+  },
+  {
+    "matrix_name": "dwt_878",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 878,
+    "nnz": 7448
+  },
+  {
+    "matrix_name": "steam2",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 600,
+    "nnz": 13760
+  },
+  {
+    "matrix_name": "ww_36_pmec_36",
+    "matrix_group": "Rommes",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 66,
+    "nnz": 1194
+  },
+  {
+    "matrix_name": "bp_400",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 822,
+    "nnz": 4028
+  },
+  {
+    "matrix_name": "stufe",
+    "matrix_group": "AG-Monien",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1036,
+    "nnz": 3736
+  },
+  {
+    "matrix_name": "progas",
+    "matrix_group": "Meszaros",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1900,
+    "nnz": 8897
+  },
+  {
+    "matrix_name": "ck400",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 400,
+    "nnz": 2860
+  },
+  {
+    "matrix_name": "G18",
+    "matrix_group": "Gset",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 800,
+    "nnz": 9388
+  },
+  {
+    "matrix_name": "dwt_419",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 419,
+    "nnz": 3563
+  },
+  {
+    "matrix_name": "d_dyn",
+    "matrix_group": "Grund",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 87,
+    "nnz": 238
+  },
+  {
+    "matrix_name": "S20PI_n1",
+    "matrix_group": "Rommes",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1028,
+    "nnz": 2547
+  },
+  {
+    "matrix_name": "impcol_e",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 225,
+    "nnz": 1308
+  },
+  {
+    "matrix_name": "tumorAntiAngiogenesis_6",
+    "matrix_group": "VDOL",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 465,
+    "nnz": 4795
+  },
+  {
+    "matrix_name": "fpga_dcop_41",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1220,
+    "nnz": 5892
+  },
+  {
+    "matrix_name": "orsirr_2",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 886,
+    "nnz": 5970
+  },
+  {
+    "matrix_name": "spaceShuttleEntry_1",
+    "matrix_group": "VDOL",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 560,
+    "nnz": 6891
+  },
+  {
+    "matrix_name": "spaceStation_2",
+    "matrix_group": "VDOL",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 329,
+    "nnz": 5817
+  },
+  {
+    "matrix_name": "fpga_dcop_49",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1220,
+    "nnz": 5892
+  },
+  {
+    "matrix_name": "dwt_758",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 758,
+    "nnz": 5994
+  },
+  {
+    "matrix_name": "L",
+    "matrix_group": "AG-Monien",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 956,
+    "nnz": 3640
+  },
+  {
+    "matrix_name": "goddardRocketProblem_2",
+    "matrix_group": "VDOL",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 867,
+    "nnz": 9058
+  },
+  {
+    "matrix_name": "ch6-6-b5",
+    "matrix_group": "JGD_Homology",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 4320,
+    "nnz": 4320
+  },
+  {
+    "matrix_name": "fpga_dcop_44",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1220,
+    "nnz": 5892
+  },
+  {
+    "matrix_name": "b_dyn",
+    "matrix_group": "Grund",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1089,
+    "nnz": 4264
+  },
+  {
+    "matrix_name": "dwt_307",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 307,
+    "nnz": 2523
+  },
+  {
+    "matrix_name": "lp_capri",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 482,
+    "nnz": 1896
+  },
+  {
+    "matrix_name": "can_229",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 229,
+    "nnz": 1777
+  },
+  {
+    "matrix_name": "str_600",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 363,
+    "nnz": 3279
+  },
+  {
+    "matrix_name": "Ecoli_10NN",
+    "matrix_group": "ML_Graph",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 336,
+    "nnz": 4560
+  },
+  {
+    "matrix_name": "spaceStation_1",
+    "matrix_group": "VDOL",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 99,
+    "nnz": 927
+  },
+  {
+    "matrix_name": "b2_ss",
+    "matrix_group": "Grund",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1089,
+    "nnz": 4228
+  },
+  {
+    "matrix_name": "small",
+    "matrix_group": "Meszaros",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1400,
+    "nnz": 3207
+  },
+  {
+    "matrix_name": "ck104",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 104,
+    "nnz": 992
+  },
+  {
+    "matrix_name": "Erdos971",
+    "matrix_group": "Pajek",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 472,
+    "nnz": 2628
+  },
+  {
+    "matrix_name": "1138_bus",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1138,
+    "nnz": 4054
+  },
+  {
+    "matrix_name": "oscil_dcop_47",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 430,
+    "nnz": 1544
+  },
+  {
+    "matrix_name": "de080285",
+    "matrix_group": "Meszaros",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1908,
+    "nnz": 5082
+  },
+  {
+    "matrix_name": "GD97_b",
+    "matrix_group": "Pajek",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 47,
+    "nnz": 264
+  },
+  {
+    "matrix_name": "fs_541_2",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 541,
+    "nnz": 4285
+  },
+  {
+    "matrix_name": "rdb1250l",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1250,
+    "nnz": 7300
+  },
+  {
+    "matrix_name": "fpga_dcop_33",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1220,
+    "nnz": 5892
+  },
+  {
+    "matrix_name": "nos2",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 957,
+    "nnz": 4137
+  },
+  {
+    "matrix_name": "S40PI_n1",
+    "matrix_group": "Rommes",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 2028,
+    "nnz": 5007
+  },
+  {
+    "matrix_name": "saylr1",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 238,
+    "nnz": 1128
+  },
+  {
+    "matrix_name": "M80PI_n1",
+    "matrix_group": "Rommes",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 4028,
+    "nnz": 9927
+  },
+  {
+    "matrix_name": "tub1000",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1000,
+    "nnz": 3996
+  },
+  {
+    "matrix_name": "oscil_dcop_14",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 430,
+    "nnz": 1544
+  },
+  {
+    "matrix_name": "gre_216b",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 216,
+    "nnz": 876
+  },
+  {
+    "matrix_name": "can_256",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 256,
+    "nnz": 2916
+  },
+  {
+    "matrix_name": "bcsstm26",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1922,
+    "nnz": 1922
+  },
+  {
+    "matrix_name": "fpga_dcop_27",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1220,
+    "nnz": 5892
+  },
+  {
+    "matrix_name": "fpga_dcop_31",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1220,
+    "nnz": 5892
+  },
+  {
+    "matrix_name": "micromass_10NN",
+    "matrix_group": "ML_Graph",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 571,
+    "nnz": 9668
+  },
+  {
+    "matrix_name": "cavity01",
+    "matrix_group": "DRIVCAV",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 317,
+    "nnz": 7327
+  },
+  {
+    "matrix_name": "bwm2000",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 2000,
+    "nnz": 7996
+  },
+  {
+    "matrix_name": "oscil_dcop_35",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 430,
+    "nnz": 1544
+  },
+  {
+    "matrix_name": "S10PI_n",
+    "matrix_group": "Rommes",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 682,
+    "nnz": 1633
+  },
+  {
+    "matrix_name": "SmaGri",
+    "matrix_group": "Pajek",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1059,
+    "nnz": 4919
+  },
+  {
+    "matrix_name": "fpga_dcop_23",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1220,
+    "nnz": 5892
+  },
+  {
+    "matrix_name": "oscil_dcop_10",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 430,
+    "nnz": 1544
+  },
+  {
+    "matrix_name": "bcsstm19",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 817,
+    "nnz": 817
+  },
+  {
+    "matrix_name": "G17",
+    "matrix_group": "Gset",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 800,
+    "nnz": 9334
+  },
+  {
+    "matrix_name": "bcsstk22",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 138,
+    "nnz": 696
+  },
+  {
+    "matrix_name": "minnesota",
+    "matrix_group": "Gleich",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 2642,
+    "nnz": 6606
+  },
+  {
+    "matrix_name": "model2",
+    "matrix_group": "Meszaros",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1321,
+    "nnz": 7607
+  },
+  {
+    "matrix_name": "olm1000",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1000,
+    "nnz": 3996
+  },
+  {
+    "matrix_name": "west0132",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 132,
+    "nnz": 414
+  },
+  {
+    "matrix_name": "S10PI_n1",
+    "matrix_group": "Rommes",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 528,
+    "nnz": 1317
+  },
+  {
+    "matrix_name": "ch",
+    "matrix_group": "Meszaros",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 8291,
+    "nnz": 24102
+  },
+  {
+    "matrix_name": "lp_sctap2",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 2500,
+    "nnz": 7334
+  },
+  {
+    "matrix_name": "descriptor_xingo6u",
+    "matrix_group": "Rommes",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 20738,
+    "nnz": 73916
+  },
+  {
+    "matrix_name": "dataset20mfeatpixel_10NN",
+    "matrix_group": "ML_Graph",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 2000,
+    "nnz": 27932
+  },
+  {
+    "matrix_name": "G52",
+    "matrix_group": "Gset",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1000,
+    "nnz": 11832
+  },
+  {
+    "matrix_name": "spaceStation_5",
+    "matrix_group": "VDOL",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1019,
+    "nnz": 15219
+  },
+  {
+    "matrix_name": "kineticBatchReactor_2",
+    "matrix_group": "VDOL",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 4361,
+    "nnz": 44840
+  },
+  {
+    "matrix_name": "eurqsa",
+    "matrix_group": "Marini",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 7245,
+    "nnz": 46142
+  },
+  {
+    "matrix_name": "lp_sctap1",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 660,
+    "nnz": 1872
+  },
+  {
+    "matrix_name": "S40PI_n",
+    "matrix_group": "Rommes",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 2182,
+    "nnz": 5341
+  },
+  {
+    "matrix_name": "freeFlyingRobot_12",
+    "matrix_group": "VDOL",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 5578,
+    "nnz": 41940
+  },
+  {
+    "matrix_name": "illc1033",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 320,
+    "nnz": 4732
+  },
+  {
+    "matrix_name": "TF12",
+    "matrix_group": "JGD_Forest",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 552,
+    "nnz": 4231
+  },
+  {
+    "matrix_name": "sctap1-2c",
+    "matrix_group": "Meszaros",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 7458,
+    "nnz": 21854
+  },
+  {
+    "matrix_name": "ex18",
+    "matrix_group": "FIDAP",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 5773,
+    "nnz": 71805
+  },
+  {
+    "matrix_name": "gemat12",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 4929,
+    "nnz": 33111
+  },
+  {
+    "matrix_name": "adder_dcop_26",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1813,
+    "nnz": 11246
+  },
+  {
+    "matrix_name": "freeFlyingRobot_13",
+    "matrix_group": "VDOL",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 5718,
+    "nnz": 43994
+  },
+  {
+    "matrix_name": "steam3",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 80,
+    "nnz": 928
+  },
+  {
+    "matrix_name": "ex3",
+    "matrix_group": "FIDAP",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1821,
+    "nnz": 52685
+  },
+  {
+    "matrix_name": "adder_dcop_41",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1813,
+    "nnz": 11246
+  },
+  {
+    "matrix_name": "nl",
+    "matrix_group": "Meszaros",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 15325,
+    "nnz": 47035
+  },
+  {
+    "matrix_name": "dwt_245",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 245,
+    "nnz": 1461
+  },
+  {
+    "matrix_name": "nopoly",
+    "matrix_group": "Gaertner",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 10774,
+    "nnz": 70842
+  },
+  {
+    "matrix_name": "G51",
+    "matrix_group": "Gset",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1000,
+    "nnz": 11818
+  },
+  {
+    "matrix_name": "rdb968",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 968,
+    "nnz": 5632
+  },
+  {
+    "matrix_name": "IG5-12",
+    "matrix_group": "JGD_G5",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 2875,
+    "nnz": 46260
+  },
+  {
+    "matrix_name": "coupled",
+    "matrix_group": "IBM_Austin",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 11341,
+    "nnz": 98523
+  },
+  {
+    "matrix_name": "S80PI_n1",
+    "matrix_group": "Rommes",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 4028,
+    "nnz": 9927
+  },
+  {
+    "matrix_name": "kineticBatchReactor_9",
+    "matrix_group": "VDOL",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 8115,
+    "nnz": 86183
+  },
+  {
+    "matrix_name": "rdist3a",
+    "matrix_group": "Zitney",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 2398,
+    "nnz": 61896
+  },
+  {
+    "matrix_name": "bcsstk34",
+    "matrix_group": "Boeing",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 588,
+    "nnz": 21418
+  },
+  {
+    "matrix_name": "fs_183_3",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 183,
+    "nnz": 1069
+  },
+  {
+    "matrix_name": "M20PI_n1",
+    "matrix_group": "Rommes",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1028,
+    "nnz": 2547
+  },
+  {
+    "matrix_name": "bwm200",
+    "matrix_group": "Bai",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 200,
+    "nnz": 796
+  },
+  {
+    "matrix_name": "ukerbe1",
+    "matrix_group": "AG-Monien",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 5981,
+    "nnz": 15704
+  },
+  {
+    "matrix_name": "lhr02",
+    "matrix_group": "Mallya",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 2954,
+    "nnz": 37206
+  },
+  {
+    "matrix_name": "lp_bore3d",
+    "matrix_group": "LPnetlib",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 334,
+    "nnz": 1448
+  },
+  {
+    "matrix_name": "G14",
+    "matrix_group": "Gset",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 800,
+    "nnz": 9388
+  },
+  {
+    "matrix_name": "adder_dcop_10",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1813,
+    "nnz": 11232
+  },
+  {
+    "matrix_name": "yeast_30NN",
+    "matrix_group": "ML_Graph",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1484,
+    "nnz": 62350
+  },
+  {
+    "matrix_name": "CollegeMsg",
+    "matrix_group": "SNAP",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1899,
+    "nnz": 20296
+  },
+  {
+    "matrix_name": "c-36",
+    "matrix_group": "Schenk_IBMNA",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 7479,
+    "nnz": 65941
+  },
+  {
+    "matrix_name": "G58",
+    "matrix_group": "Gset",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 5000,
+    "nnz": 59140
+  },
+  {
+    "matrix_name": "adder_dcop_58",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1813,
+    "nnz": 11246
+  },
+  {
+    "matrix_name": "dynamicSoaringProblem_5",
+    "matrix_group": "VDOL",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 3271,
+    "nnz": 36789
+  },
+  {
+    "matrix_name": "crack",
+    "matrix_group": "AG-Monien",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 10240,
+    "nnz": 60760
+  },
+  {
+    "matrix_name": "G62",
+    "matrix_group": "Gset",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 7000,
+    "nnz": 28000
+  },
+  {
+    "matrix_name": "oscil_dcop_31",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 430,
+    "nnz": 1544
+  },
+  {
+    "matrix_name": "large",
+    "matrix_group": "Meszaros",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 8617,
+    "nnz": 20635
+  },
+  {
+    "matrix_name": "oscil_dcop_54",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 430,
+    "nnz": 1544
+  },
+  {
+    "matrix_name": "fpga_dcop_07",
+    "matrix_group": "Sandia",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1220,
+    "nnz": 5855
+  },
+  {
+    "matrix_name": "lshp1882",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 1.7976931348623157e+308,
+    "n": 1882,
+    "nnz": 12904
+  }
+]
