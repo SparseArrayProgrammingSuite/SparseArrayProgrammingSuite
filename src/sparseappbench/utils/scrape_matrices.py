@@ -190,21 +190,22 @@ def main():
 
             # Calculate the convergence criteria
             try:
-                convergence_value = SOLVER_DICT[args.solver](A)
-                if np.isinf(convergence_value) or np.isnan(convergence_value):
-                    convergence_value = sys.float_info.max
+                if A.shape[0] > 1 and A.shape[1] > 1:
+                    convergence_value = SOLVER_DICT[args.solver](A)
+                    if np.isinf(convergence_value) or np.isnan(convergence_value):
+                        convergence_value = sys.float_info.max
 
-                # Write to JSON file
-                append_to_json(
-                    output_file,
-                    matrix.name,
-                    matrix.group,
-                    float(convergence_value),
-                    n,
-                    A.nnz,
-                    args.solver,
-                )
-                print(f"Saved {matrix.name} convergence criteria to {output_file}")
+                    # Write to JSON file
+                    append_to_json(
+                        output_file,
+                        matrix.name,
+                        matrix.group,
+                        float(convergence_value),
+                        n,
+                        A.nnz,
+                        args.solver,
+                    )
+                    print(f"Saved {matrix.name} convergence criteria to {output_file}")
 
             except ArpackError as e:
                 print(f"Error computing convergence criteria for {matrix.name}: {e}")

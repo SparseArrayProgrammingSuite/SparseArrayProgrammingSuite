@@ -198,8 +198,20 @@ def dg_lsqr_sparse_1():
 
 
 def dg_lsqr_sparse_2():
-    return generate_lsqr_data("lp_ship08s")
+    return generate_lsqr_data("ash958")
 
 
 def dg_lsqr_sparse_3():
-    return generate_lsqr_data("west0067")
+    return generate_lsqr_data("well1033")
+
+
+def dg_lsqr_sparse_4():
+    return generate_lsqr_data("Maragal_5")
+
+
+def dg_lsqr_sparse_5():
+    return generate_lsqr_data("illc1850")
+
+
+def dg_lsqr_sparse_6():
+    return generate_lsqr_data("bayer06")

@@ -28,6 +28,9 @@ from .benchmarks.lsqr import (
     dg_lsqr_sparse_1,
     dg_lsqr_sparse_2,
     dg_lsqr_sparse_3,
+    dg_lsqr_sparse_4,
+    dg_lsqr_sparse_5,
+    dg_lsqr_sparse_6,
 )
 from .benchmarks.matmul import (
     benchmark_matmul,
@@ -103,6 +106,9 @@ DATA_GENERATOR_DICT = {
         "lsqr_sparse_1": dg_lsqr_sparse_1,
         "lsqr_sparse_2": dg_lsqr_sparse_2,
         "lsqr_sparse_3": dg_lsqr_sparse_3,
+        "lsqr_sparse_4": dg_lsqr_sparse_4,
+        "lsqr_sparse_5": dg_lsqr_sparse_5,
+        "lsqr_sparse_6": dg_lsqr_sparse_6,
     },
 }
 
