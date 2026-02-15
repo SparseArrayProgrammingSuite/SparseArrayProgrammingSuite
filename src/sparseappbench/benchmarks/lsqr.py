@@ -12,13 +12,33 @@ from ..binsparse_format import BinsparseFormat
 Name: LSQR Iterative Solver
 Author: Benjamin Berol
 Email: bberol3@gatech.edu
+
 Motivation:
+"[LSQR] is analytically equivalent to the standard method of conjugate gradients,
+but possesses more favorable numerical properties...  Numerical tests are described
+comparing LSQR with several other conjugate-gradient algorithms,
+indicating that LSQR is the most reliable algorithm when A is ill-conditioned."
+C. C. Paige and M. A. Saunders,
+"LSQR: An Algorithm for Sparse Linear Equations and Sparse Least Squares,"
+ACM Transactions on Mathematical Software, vol. 8, no. 1, 1982, p. 43.
 
 Role of Sparsity:
+The main computation of the algorithm is 2 SpMVs per iteration Av and ATu.
+Through sparsity the computation is lowered from two operations of O(n^2) to
+two O(nnz). This efficiency allows the algorithm to handle massive,
+ill-conditioned systems with very low storage requirements.
 
 Implementation:
+Hand written code based on the algorithm defined in:
+https://web.stanford.edu/group/SOL/software/lsqr/lsqr-toms82a.pdf
+Implementation structure was also based around the work of
+Michael Friedlander and Dominique Orban:
+https://github.com/PythonOptimizers/pykrylov/blob/master/pykrylov/lls/lsqr.py#L293
 
 Data Generation:
+Data collected from SuiteSparse Matrix Collection consisting of square and
+rectangular matrices. Following the methodology of Paige and Saunders the problems
+span a range of convergence criteria from well-conditioned to extremely ill-conditioned.
 
 Statement on the use of Generative AI:
 No generative AI was used to write the benchmark function itself. Generative
