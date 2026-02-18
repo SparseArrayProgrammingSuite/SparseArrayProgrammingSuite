@@ -1,16 +1,17 @@
 import pytest
-import numpy as np 
+
+import numpy as np
+
 from sparseappbench.benchmarks.quantum import (
+    QGates,
+    apply_single_qubit_gate,
     benchmark_rqc_statevector,
     dg_single_layer_small,
-    dg_single_layer_tiny,
-    apply_single_qubit_gate,
-    QGates
 )
-
 from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
 from sparseappbench.frameworks.checker_framework import CheckerFramework
+from sparseappbench.frameworks.numpy_framework import NumpyFramework
+
 
 @pytest.mark.parametrize("xp", [NumpyFramework(), CheckerFramework()])
 def test_quantum_statevector_basic(xp):
@@ -28,20 +29,23 @@ def test_quantum_statevector_basic(xp):
 
     # Very basic sanity: norm should be close to 1 (unitary evolution)
     vals = final_state_bin.data["values"]
-    norm = np.sqrt(np.sum(np.abs(vals)**2))
+    norm = np.sqrt(np.sum(np.abs(vals) ** 2))
     assert abs(norm - 1.0) < 1e-4, f"Final state norm not preserved: {norm:.6f}"
 
     print(f"RQC statevector basic test passed with {xp.__class__.__name__}")
 
 
-@pytest.mark.parametrize("gate_np, gate_name", [
-    (QGates.H, "H"),
-    (QGates.X, "X"),
-    (QGates.Y, "Y"),
-    (QGates.Z, "Z"),
-    (QGates.S, "S"),
-    (QGates.T, "T"),
-])
+@pytest.mark.parametrize(
+    "gate_np, gate_name",
+    [
+        (QGates.H, "H"),
+        (QGates.X, "X"),
+        (QGates.Y, "Y"),
+        (QGates.Z, "Z"),
+        (QGates.S, "S"),
+        (QGates.T, "T"),
+    ],
+)
 @pytest.mark.parametrize("qubit", [0, 1, 2, 3])
 def test_every_gate_on_zero_state(gate_np, gate_name, qubit):
     nqubits = 4
@@ -61,21 +65,24 @@ def test_every_gate_on_zero_state(gate_np, gate_name, qubit):
 
     computed = xp.compute(state_after)
     bench = xp.to_benchmark(computed)
-    result = np.array(bench.data["values"], dtype=np.complex128).reshape(bench.data["shape"])
+    result = np.array(bench.data["values"], dtype=np.complex128).reshape(
+        bench.data["shape"]
+    )
 
     expected = np.zeros(dim, dtype=np.complex128)
     flipped_idx = 1 << (nqubits - 1 - qubit)
-    expected[0]          = gate_np[0, 0]   # new=0, old=0
-    expected[flipped_idx] = gate_np[1, 0]   # new=1, old=0
+    expected[0] = gate_np[0, 0]  # new=0, old=0
+    expected[flipped_idx] = gate_np[1, 0]  # new=1, old=0
 
     np.testing.assert_allclose(
         result,
         expected,
         atol=1e-13,
         rtol=1e-13,
-        err_msg=f"Gate {gate_name} on qubit {qubit} failed (n={nqubits})"
+        err_msg=f"Gate {gate_name} on qubit {qubit} failed (n={nqubits})",
     )
-    
+
+
 def test_H_twice_returns_to_original():
     nqubits = 5
     xp = NumpyFramework()
@@ -92,6 +99,8 @@ def test_H_twice_returns_to_original():
 
     computed = xp.compute(back)
     bench = xp.to_benchmark(computed)
-    result = np.array(bench.data["values"], dtype=np.complex128).reshape(bench.data["shape"])
+    result = np.array(bench.data["values"], dtype=np.complex128).reshape(
+        bench.data["shape"]
+    )
 
     np.testing.assert_allclose(result, state_np, atol=1e-13)
