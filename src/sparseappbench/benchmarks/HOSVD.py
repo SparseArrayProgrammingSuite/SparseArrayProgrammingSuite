@@ -122,13 +122,18 @@ def benchmark_hosvd(xp, X_bench, ranks_bench, max_iter=50, tolerance=1e-8):
 
 def dg_hosvd_random_small():
     """
-    Generate a small dense random 3D tensor for HOSVD testing.
+    Generate a dense low-rank 3D tensor using random factor matrices.
     """
     dim1, dim2, dim3 = 10, 10, 10
     ranks = (3, 3, 3)
     rng = np.random.default_rng(42)
 
-    X_dense = rng.random((dim1, dim2, dim3)).astype(np.float64)
+    G = rng.random(ranks).astype(np.float64)
+    A = rng.random((dim1, ranks[0])).astype(np.float64)
+    B = rng.random((dim2, ranks[1])).astype(np.float64)
+    C = rng.random((dim3, ranks[2])).astype(np.float64)
+
+    X_dense = np.einsum("pqr,ip,jq,kr->ijk", G, A, B, C)
 
     indices = np.nonzero(np.ones_like(X_dense))
     values = X_dense[indices]
@@ -140,18 +145,32 @@ def dg_hosvd_random_small():
 
 def dg_hosvd_sparse_small():
     """
-    Generate a small sparse 3D tensor for HOSVD testing.
+    Generate a sparse low-rank 3D tensor using random factor matrices.
     """
     dim1, dim2, dim3 = 20, 20, 20
     ranks = (3, 3, 3)
-    nnz = int(0.01 * dim1 * dim2 * dim3)
-
     rng = np.random.default_rng(42)
-    all_indices = rng.choice(dim1 * dim2 * dim3, size=nnz, replace=False)
-    i_idx, j_idx, k_idx = np.unravel_index(all_indices, (dim1, dim2, dim3))
 
-    values = rng.random(nnz).astype(np.float64)
-    X_bin = BinsparseFormat.from_coo((i_idx, j_idx, k_idx), values, (dim1, dim2, dim3))
+    def get_sparse_factor(rows, cols, density=0.2):
+        nnz = int(rows * cols * density)
+        if nnz < 1:
+            nnz = 1
+        indices = rng.choice(rows * cols, nnz, replace=False)
+        mat = np.zeros(rows * cols)
+        mat[indices] = rng.random(nnz)
+        return mat.reshape((rows, cols)).astype(np.float64)
+
+    G = get_sparse_factor(ranks[0], ranks[1] * ranks[2], density=0.5).reshape(ranks)
+    A = get_sparse_factor(dim1, ranks[0], density=0.2)
+    B = get_sparse_factor(dim2, ranks[1], density=0.2)
+    C = get_sparse_factor(dim3, ranks[2], density=0.2)
+
+    X_dense = np.einsum("pqr,ip,jq,kr->ijk", G, A, B, C)
+
+    indices = np.nonzero(X_dense)
+    values = X_dense[indices]
+
+    X_bin = BinsparseFormat.from_coo(indices, values, (dim1, dim2, dim3))
 
     ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
     return (X_bin, ranks_bin)

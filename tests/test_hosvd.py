@@ -4,6 +4,7 @@ import numpy as np
 
 from sparseappbench.benchmarks.HOSVD import (
     benchmark_hosvd,
+    dg_hosvd_random_small,
     dg_hosvd_sparse_small,
 )
 from sparseappbench.binsparse_format import BinsparseFormat
@@ -33,6 +34,34 @@ def reconstruct_tensor(core, factors):
 
     subscripts = f"{','.join(terms)}->{result_idx}"
     return np.einsum(subscripts, *operands)
+
+
+def test_hosvd_vs_tensorly(xp_numpy):
+    """
+    Compare against tensorly Tucker decomposition.
+    """
+    tensorly = pytest.importorskip("tensorly")
+    tucker = pytest.importorskip("tensorly.decomposition")
+
+    X_bin, ranks_bin = dg_hosvd_random_small()
+    X_dense = xp_numpy.from_benchmark(X_bin)
+    ranks = tuple(xp_numpy.from_benchmark(ranks_bin).astype(int))
+
+    core_bin, factors_bin = benchmark_hosvd(xp_numpy, X_bin, ranks_bin, max_iter=50)
+    core_bench = xp_numpy.from_benchmark(core_bin)
+    factors_bench = [xp_numpy.from_benchmark(f) for f in factors_bin]
+    X_rec_bench = reconstruct_tensor(core_bench, factors_bench)
+    error_bench = np.linalg.norm(X_dense - X_rec_bench) / np.linalg.norm(X_dense)
+
+    core_tl, factors_tl = tucker.tucker(
+        X_dense, rank=list(ranks), n_iter_max=50, tol=1e-8
+    )
+    X_rec_tl = tensorly.tucker_to_tensor((core_tl, factors_tl))
+    error_tl = np.linalg.norm(X_dense - X_rec_tl) / np.linalg.norm(X_dense)
+
+    print(f"Benchmark Error: {error_bench}, Tensorly Error: {error_tl}")
+
+    assert abs(error_bench - error_tl) < 1e-4
 
 
 def test_manual_example_1_diagonal(xp_numpy):
