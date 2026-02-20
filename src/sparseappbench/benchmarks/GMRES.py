@@ -54,8 +54,12 @@ def gmres(
 
     itcount = 0
     r0 = b - A @ x0
-    beta = xp.compute(xp.linalg.norm(r0))[()]
-    rcurr = r0 / beta
+    initial_beta = xp.compute(xp.linalg.norm(r0))[()]
+    if initial_beta < tol:
+        return xp.to_benchmark(xp.compute(x0))
+
+    rcurr = r0 / initial_beta
+    beta = initial_beta
 
     while itcount < max_iter:
         Q = xp.zeros((A.shape[0], restart + 1), dtype=float)
@@ -67,19 +71,10 @@ def gmres(
             x0 = xp.lazy((x0, rcurr))
             rcurr = A @ Q[:, i]
 
-            # Orthogonalization process without extra loop.
             H[: i + 1, i] = xp.compute(xp.vecdot(Q[:, : i + 1].T, rcurr))
             rcurr = rcurr - Q[:, : i + 1] @ H[: i + 1, i]
             H[i + 1, i] = xp.compute(xp.linalg.norm(rcurr))[()]
             Q[:, i + 1] = rcurr / H[i + 1, i]
-
-            # Orthogonalization with looping. Unsure if my above method works.
-            # for j in range(i + 1):
-            #     H[j, i] = xp.compute(xp.vecdot(Q[:, j], rcurr))
-            #     rcurr = rcurr - H[j, i] * Q[:, j]
-
-            # H[i + 1, i] = xp.compute(xp.linalg.norm(rcurr))[()]
-            # Q[:, i + 1] = rcurr / H[i + 1, i]
 
             e1 = xp.zeros((i + 2,), dtype=float)
             e1[0] = beta
@@ -91,12 +86,14 @@ def gmres(
             r0 = b - A @ x0
             r0_norm = xp.compute(xp.linalg.norm(r0))[()]
             rcurr = r0 / r0_norm
-            if r0_norm / beta < tol:
+            if r0_norm / initial_beta < tol:
                 return xp.to_benchmark(xp.compute(x0))
 
             itcount += 1
             if itcount >= max_iter:
                 break
+
+        beta = r0_norm
 
     xsol = xp.compute(x0)
     return xp.to_benchmark(xsol)
@@ -144,28 +141,28 @@ def dg_gmres_sparse_1():
 
 
 def dg_gmres_sparse_2():
-    return generate_gmres_data("Trefethen_200")
+    return generate_gmres_data("bcsstm02")
 
 
 def dg_gmres_sparse_3():
-    return generate_gmres_data("Chem97ZtZ")
-
-
-def dg_gmres_sparse_4():
-    return generate_gmres_data("Trefethen_500")
-
-
-def dg_gmres_sparse_5():
-    return generate_gmres_data("Trefethen_700")
-
-
-def dg_gmres_sparse_6():
     return generate_gmres_data("fv1")
 
 
+def dg_gmres_sparse_4():
+    return generate_gmres_data("Muu")
+
+
+def dg_gmres_sparse_5():
+    return generate_gmres_data("Chem97ZtZ")
+
+
+def dg_gmres_sparse_6():
+    return generate_gmres_data("Dubcova1")
+
+
 def dg_gmres_sparse_7():
-    return generate_gmres_data("fv2")
+    return generate_gmres_data("t3dl_e")
 
 
 def dg_gmres_sparse_8():
-    return generate_gmres_data("Trefethen_20000")
+    return generate_gmres_data("bcsstk09")
