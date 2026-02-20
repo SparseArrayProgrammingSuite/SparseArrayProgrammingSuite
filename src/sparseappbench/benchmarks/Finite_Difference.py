@@ -49,16 +49,13 @@ def linear_advection_flux(c):
 
 def lax_friedrichs_solver(xp, u0_bench, dt, dx, flux, timesteps):
     u_0 = xp.lazy(u0_bench)
-    flux_0 = flux(u_0)
 
     Nt = timesteps + 1
 
     # Intializes the space-time grid
     u = xp.zeros((Nt, int(u_0.shape[0])))
-    fluxes = xp.zeros((Nt, int(flux_0.shape[0])))
 
     u[0] = u_0
-    fluxes[0] = flux_0
 
     alpha = dt / (2 * dx)
     for n in range(Nt - 1):
@@ -74,7 +71,6 @@ def lax_friedrichs_solver(xp, u0_bench, dt, dx, flux, timesteps):
         )
 
         u[n + 1] = u_next
-        fluxes[n + 1] = flux(u_next)
     return xp.to_benchmark(u)
 
 
