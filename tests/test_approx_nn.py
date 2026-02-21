@@ -1,5 +1,3 @@
-import pytest
-
 import numpy as np
 
 from sparseappbench.benchmarks.approx_nn import (
@@ -33,10 +31,8 @@ def test_jl_preserves_distance(rng):
     diff = xp.einsum("X[i, j, k] = Q[i, k] - D[j, k]", Q=query_bench, D=data_bench)
     orig_distances = np.sqrt(np.sum(diff**2, axis=-1))
 
-
     # Checks if the returned nearest neighbors are a similar distance as the
     # true nearest neighbors
     true_nearest = np.min(orig_distances, axis=1)
-    approx_nearest = orig_distances[xp.arange(n_queries),nearest_ind[:,0]]
+    approx_nearest = orig_distances[xp.arange(n_queries), nearest_ind[:, 0]]
     assert np.all(approx_nearest <= (1 + eps) * true_nearest)
-

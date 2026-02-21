@@ -53,7 +53,9 @@ def benchmark_johnson_lindenstrauss_nn(
     # -----K Nearest Neighbour from here on out--------
 
     # Euclidean distances
-    diff = xp.einsum("X[i, j, k] = Q[i, k] - D[j, k]", Q=projected_query, D=projected_data)
+    diff = xp.einsum(
+        "X[i, j, k] = Q[i, k] - D[j, k]", Q=projected_query, D=projected_data
+    )
     distances = xp.sqrt(xp.sum(diff**2, axis=-1))
 
     # Get nearest k neighbors.
@@ -65,7 +67,6 @@ def benchmark_johnson_lindenstrauss_nn(
 
     nearest_indices = xp.compute(nearest_indices)
     nearest_distances = xp.compute(nearest_distances)
-
 
     return xp.to_benchmark(nearest_indices), xp.to_benchmark(nearest_distances)
 
@@ -79,13 +80,12 @@ def data_knn_rla_generator(xp, data_bench, seed=40, eps=0.1):
     target_dim = np.ceil(np.log(n_samples) / (eps * eps)).astype(int)
 
     rng = np.random.default_rng(seed)
-    #return rng.standard_normal((n_features, np.round(target_dim).astype(int)))
+    # return rng.standard_normal((n_features, np.round(target_dim).astype(int)))
 
     s = np.sqrt(n_features)  # s = 1/density
     density = 1.0 / s  # probability of a nonzero entry = density.
     density_half = density / 2.0  # probability for + or -
     scale = np.sqrt(s / target_dim)  # scale = sqrt(s / n_components)
-
 
     U_Neg = sp.sparse.random(
         n_features,
