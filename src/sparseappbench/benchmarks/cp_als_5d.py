@@ -40,7 +40,7 @@ benchmark_cp_als(xp, X_bench, rank, max_iter)
 
 Computes the CP decomposition using Alternating Least Squares (ALS).
 Factorizes a 5th-order tensor X into factor matrices A, B, C, D, E such that:
-$X \approx \\sum_{r=1}^{R} \\lambda_r \\cdot a_r \\circ b_r \\circ c_r \\circ d_r \\circ e_r$
+$X \approx \\sum_{r=1}^{R} \\lambda_r \\cdot a_r ... \\circ e_r$
 where $\\circ$ denotes the outeer product, R is the rank, and $\\lambda$
 are the weights.
 
@@ -53,7 +53,7 @@ max_iter: Maximum number of ALS iterations
 
 Returns:
 -------
-Tuple of (A_bench, B_bench, C_bench, D_bench, E_bench, lambda_bench) in binsparse format where:
+Tuple of (A_bench, ..., E_bench, lambda_bench) in binsparse format where:
 - A, B, C, D and E are the normalized factor matrices
 - lambda are the component weights
 """
@@ -97,7 +97,8 @@ def benchmark_cp_als(xp, X_bench, rank, max_iter=100):
         (A, B, C, D, E) = xp.lazy((A, B, C, D, E))
         # Update A
         mttkrp_result = xp.einsum(
-            "mttkrp_result[i, r] += X[i, j, k, l, m] * B[j, r] * C[k, r] * D[l, r] * E[m, r]",
+            "mttkrp_result[i, r] += X[i, j, k, l, m] * "
+            "B[j, r] * C[k, r] * D[l, r] * E[m, r]",
             X=X,
             B=B,
             C=C,
@@ -116,7 +117,8 @@ def benchmark_cp_als(xp, X_bench, rank, max_iter=100):
 
         # Update B
         mttkrp_result = xp.einsum(
-            "mttkrp_result[j, r] += X[i, j, k, l, m] * A[i, r] * C[k, r] * D[l, r] * E[m, r]",
+            "mttkrp_result[j, r] += X[i, j, k, l, m] * "
+            "A[i, r] * C[k, r] * D[l, r] * E[m, r]",
             X=X,
             A=A,
             C=C,
@@ -131,7 +133,8 @@ def benchmark_cp_als(xp, X_bench, rank, max_iter=100):
 
         # Update C
         mttkrp_result = xp.einsum(
-            "mttkrp_result[k, r] += X[i, j, k, l, m] * A[i, r] * B[j, r] * D[l, r] * E[m, r]",
+            "mttkrp_result[k, r] += X[i, j, k, l, m] * "
+            "A[i, r] * B[j, r] * D[l, r] * E[m, r]",
             X=X,
             A=A,
             B=B,
@@ -146,7 +149,8 @@ def benchmark_cp_als(xp, X_bench, rank, max_iter=100):
 
         # Update D
         mttkrp_result = xp.einsum(
-            "mttkrp_result[l, r] += X[i, j, k, l, m] * A[i, r] * B[j, r] * C[k, r] * E[m, r]",
+            "mttkrp_result[l, r] += X[i, j, k, l, m] * "
+            "A[i, r] * B[j, r] * C[k, r] * E[m, r]",
             X=X,
             A=A,
             B=B,
@@ -161,7 +165,8 @@ def benchmark_cp_als(xp, X_bench, rank, max_iter=100):
 
         # Update E
         mttkrp_result = xp.einsum(
-            "mttkrp_result[m, r] += X[i, j, k, l, m] * A[i, r] * B[j, r] * C[k, r] * D[l, r]",
+            "mttkrp_result[m, r] += X[i, j, k, l, m] * "
+            "A[i, r] * B[j, r] * C[k, r] * D[l, r]",
             X=X,
             A=A,
             B=B,
@@ -193,7 +198,8 @@ def benchmark_cp_als(xp, X_bench, rank, max_iter=100):
 
     # Computing lambda
     lambda_vals = xp.multiply(
-        xp.multiply(xp.multiply(xp.multiply(A_norms, B_norms), C_norms), D_norms), E_norms
+        xp.multiply(xp.multiply(xp.multiply(A_norms, B_norms), C_norms), D_norms),
+        E_norms,
     )
 
     A_norms_2d = xp.expand_dims(A_norms, 0)
@@ -228,7 +234,14 @@ def benchmark_cp_als(xp, X_bench, rank, max_iter=100):
     E_bench_out = xp.to_benchmark(E)
     lambda_bench_out = xp.to_benchmark(lambda_vals)
 
-    return (A_bench_out, B_bench_out, C_bench_out, D_bench_out, E_bench_out, lambda_bench_out)
+    return (
+        A_bench_out,
+        B_bench_out,
+        C_bench_out,
+        D_bench_out,
+        E_bench_out,
+        lambda_bench_out,
+    )
 
 
 # Data generators
@@ -240,7 +253,9 @@ def dg_cp_als_sparse_small():
     all_indices = np.random.default_rng(0).choice(
         dim1 * dim2 * dim3 * dim4 * dim5, size=nnz, replace=False
     )
-    i_idx, j_idx, k_idx, l_idx, m_idx = np.unravel_index(all_indices, (dim1, dim2, dim3, dim4, dim5))
+    i_idx, j_idx, k_idx, l_idx, m_idx = np.unravel_index(
+        all_indices, (dim1, dim2, dim3, dim4, dim5)
+    )
 
     values = np.random.default_rng(0).random(nnz).astype(np.float32)
     X_bin = BinsparseFormat.from_coo(
