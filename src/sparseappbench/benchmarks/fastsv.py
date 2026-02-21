@@ -22,23 +22,27 @@ AI might have been used to construct tests. This statement was written by hand.
 
 
 def benchmark_fastsv(xp, adjacency_matrix):
-    edges = xp.from_benchmark(adjacency_matrix)
+    A = xp.from_benchmark(adjacency_matrix)
+    A = A != 0
 
-    (n, m) = edges.shape
+    (n, m) = A.shape
     assert n == m
 
     f = xp.arange(n)
     gf = xp.asarray(f, copy=True)
 
+    int_max = xp.iinfo(f.dtype).max
+
     while True:
         dup = gf
 
-        edges, f, gf = xp.lazy([edges, f, gf])
+        A, f, gf = xp.lazy([A, f, gf])
 
         # step 1: stochastic hooking
-        gf_row = xp.expand_dims(gf, 0)
-        neighbor_gp = xp.where(edges != 0, gf_row, n)
-        mngf = xp.min(neighbor_gp, axis=1)
+        mngf = xp.min(xp.where(A, xp.expand_dims(gf, 0), int_max), axis=1)
+        B = xp.zeros((n, n), dtype=bool)
+        B[f, xp.arange(n)] = True
+        f = xp.min(xp.where(B, xp.expand_dims(mngf, 0), int_max), axis=1)
 
         # step 2: aggressive hooking
         f = xp.minimum(f, mngf)
@@ -48,8 +52,6 @@ def benchmark_fastsv(xp, adjacency_matrix):
 
         # step 4: calculate grandparents
         gf = xp.take(f, f)
-
-        dup, gf = xp.compute([dup, gf])
 
         # step 5: check termination
         stop = xp.all(dup == gf)
