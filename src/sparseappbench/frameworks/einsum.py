@@ -345,7 +345,7 @@ def _parse_einsum_expr(t: Tree) -> EinsumExpr:
 
 def parse_einsum(expr: str) -> Einsum:
     tree = lark_parser.parse(expr)
-    print(f"Parsed tree: {tree.pretty()}")
+    #print(f"Parsed tree: {tree.pretty()}")
 
     match tree:
         case Tree(
