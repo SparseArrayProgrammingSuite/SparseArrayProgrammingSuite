@@ -51,18 +51,21 @@ def benchmark_johnson_lindenstrauss_nn(
     # -----K Nearest Neighbour from here on out--------
 
     # Euclidean distances
-    diff = projected_data - projected_query
-    distances = xp.sqrt(xp.sum(diff**2, axis=1))
+    diff = xp.einsum("X[i, j, k] = Q[i, k] - D[j, k]", Q=projected_query, D=projected_data)
+    distances = xp.sqrt(xp.sum(diff**2, axis=-1))
+    print("Distances:", distances.shape)
 
     # Get nearest k neighbors.
     sorted_indices = xp.argsort(distances)
 
     # Get nearest indices and associated distances.
-    nearest_indices = xp.take(sorted_indices, xp.arange(k))
-    nearest_distances = xp.take(xp.sort(distances), xp.arange(k))
+    nearest_indices = xp.take(sorted_indices, xp.arange(k), axis=1)
+    nearest_distances = xp.take(xp.sort(distances), xp.arange(k), axis=1)
 
     nearest_indices = xp.compute(nearest_indices)
     nearest_distances = xp.compute(nearest_distances)
+
+    print("Nearest indices:", nearest_indices)
 
     return xp.to_benchmark(nearest_indices), xp.to_benchmark(nearest_distances)
 
