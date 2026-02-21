@@ -1,7 +1,7 @@
 """
 Name: CP-ALS for Tensor Decomposition
-Author: Kseniia Suleimanova
-Email: kseniiasuleimanova@gmail.com
+Author: Willow Ahrens
+Email: ahrens@gatech.edu
 Motivation:
 "The Alternating Least Squares (ALS) algorithm for CANDECOMP/PARAFAC (CP) plays a
 critical role in tensor decomposition, which has applications in various fields such as
@@ -39,22 +39,22 @@ from ..binsparse_format import BinsparseFormat
 benchmark_cp_als(xp, X_bench, rank, max_iter)
 
 Computes the CP decomposition using Alternating Least Squares (ALS).
-Factorizes a 4th-order tensor X into factor matrices A, B, C, D such that:
-$X \approx \\sum_{r=1}^{R} \\lambda_r \\cdot a_r \\circ b_r \\circ c_r \\circ d_r$
+Factorizes a 5th-order tensor X into factor matrices A, B, C, D, E such that:
+$X \approx \\sum_{r=1}^{R} \\lambda_r \\cdot a_r \\circ b_r \\circ c_r \\circ d_r \\circ e_r$
 where $\\circ$ denotes the outeer product, R is the rank, and $\\lambda$
 are the weights.
 
 Args:
 ----
 xp: The array API module to use
-X_bench: The input 4th-order sparse tensor in binsparse format
+X_bench: The input 5th-order sparse tensor in binsparse format
 rank: Number of components (rank) for the decomposition
 max_iter: Maximum number of ALS iterations
 
 Returns:
 -------
-Tuple of (A_bench, B_bench, C_bench, D_bench, lambda_bench) in binsparse format where:
-- A, B, C and D are the normalized factor matrices
+Tuple of (A_bench, B_bench, C_bench, D_bench, E_bench, lambda_bench) in binsparse format where:
+- A, B, C, D and E are the normalized factor matrices
 - lambda are the component weights
 """
 
@@ -63,7 +63,7 @@ def benchmark_cp_als(xp, X_bench, rank, max_iter=100):
     X_eager = xp.from_benchmark(X_bench)
     X = xp.lazy(X_eager)
 
-    dim1, dim2, dim3, dim4 = X_bench.data["shape"]
+    dim1, dim2, dim3, dim4, dim5 = X_bench.data["shape"]
     dtype = X_bench.data["values"].dtype
 
     A = xp.from_benchmark(
@@ -86,93 +86,121 @@ def benchmark_cp_als(xp, X_bench, rank, max_iter=100):
             np.random.default_rng(0).random((dim4, rank)).astype(dtype)
         )
     )
+    E = xp.from_benchmark(
+        BinsparseFormat.from_numpy(
+            np.random.default_rng(0).random((dim5, rank)).astype(dtype)
+        )
+    )
 
     for _iteration in range(max_iter):
         print(_iteration, "/", max_iter)
-        (A, B, C, D) = xp.lazy((A, B, C, D))
+        (A, B, C, D, E) = xp.lazy((A, B, C, D, E))
         # Update A
         mttkrp_result = xp.einsum(
-            "mttkrp_result[i, r] += X[i, j, k, l] * B[j, r] * C[k, r] * D[l, r]",
+            "mttkrp_result[i, r] += X[i, j, k, l, m] * B[j, r] * C[k, r] * D[l, r] * E[m, r]",
             X=X,
             B=B,
             C=C,
             D=D,
+            E=E,
         )
+        EtE = xp.einsum("EtE[r, s] += E[m, r] * E[m, s]", E=E)
         DtD = xp.einsum("DtD[r, s] += D[l, r] * D[l, s]", D=D)
         CtC = xp.einsum("CtC[r, s] += C[k, r] * C[k, s]", C=C)
         BtB = xp.einsum("BtB[r, s] += B[j, r] * B[j, s]", B=B)
 
-        G = xp.multiply(xp.multiply(DtD, CtC), BtB)
+        G = xp.multiply(xp.multiply(xp.multiply(EtE, DtD), CtC), BtB)
         # G = G + xp.eye(rank, dtype=dtype) * epsilon2
         G_pinv = xp.linalg.pinv(G)
         A = xp.matmul(mttkrp_result, G_pinv)
 
         # Update B
         mttkrp_result = xp.einsum(
-            "mttkrp_result[j, r] += X[i, j, k, l] * A[i, r] * C[k, r] * D[l, r]",
+            "mttkrp_result[j, r] += X[i, j, k, l, m] * A[i, r] * C[k, r] * D[l, r] * E[m, r]",
             X=X,
             A=A,
             C=C,
             D=D,
+            E=E,
         )
         AtA = xp.einsum("AtA[r, s] += A[i, r] * A[i, s]", A=A)
-        G = xp.multiply(xp.multiply(DtD, CtC), AtA)
+        G = xp.multiply(xp.multiply(xp.multiply(EtE, DtD), CtC), AtA)
         # G = G + xp.eye(rank, dtype=dtype) * epsilon2
         G_pinv = xp.linalg.pinv(G)
         B = xp.matmul(mttkrp_result, G_pinv)
 
         # Update C
         mttkrp_result = xp.einsum(
-            "mttkrp_result[k, r] += X[i, j, k, l] * A[i, r] * B[j, r] * D[l, r]",
+            "mttkrp_result[k, r] += X[i, j, k, l, m] * A[i, r] * B[j, r] * D[l, r] * E[m, r]",
             X=X,
             A=A,
             B=B,
             D=D,
+            E=E,
         )
         BtB = xp.einsum("BtB[r, s] += B[j, r] * B[j, s]", B=B)
-        G = xp.multiply(xp.multiply(DtD, BtB), AtA)
+        G = xp.multiply(xp.multiply(xp.multiply(EtE, DtD), BtB), AtA)
         # G = G + xp.eye(rank, dtype=dtype) * epsilon2
         G_pinv = xp.linalg.pinv(G)
         C = xp.matmul(mttkrp_result, G_pinv)
 
         # Update D
         mttkrp_result = xp.einsum(
-            "mttkrp_result[l, r] += X[i, j, k, l] * A[i, r] * B[j, r] * C[k, r]",
+            "mttkrp_result[l, r] += X[i, j, k, l, m] * A[i, r] * B[j, r] * C[k, r] * E[m, r]",
             X=X,
             A=A,
             B=B,
             C=C,
+            E=E,
         )
         CtC = xp.einsum("CtC[r, s] += C[k, r] * C[k, s]", C=C)
-        G = xp.multiply(xp.multiply(CtC, BtB), AtA)
+        G = xp.multiply(xp.multiply(xp.multiply(EtE, CtC), BtB), AtA)
         # G = G + xp.eye(rank, dtype=dtype) * epsilon2
         G_pinv = xp.linalg.pinv(G)
         D = xp.matmul(mttkrp_result, G_pinv)
 
-        A, B, C, D = xp.compute((A, B, C, D))
+        # Update E
+        mttkrp_result = xp.einsum(
+            "mttkrp_result[m, r] += X[i, j, k, l, m] * A[i, r] * B[j, r] * C[k, r] * D[l, r]",
+            X=X,
+            A=A,
+            B=B,
+            C=C,
+            D=D,
+        )
+        DtD = xp.einsum("DtD[r, s] += D[l, r] * D[l, s]", D=D)
+        G = xp.multiply(xp.multiply(xp.multiply(DtD, CtC), BtB), AtA)
+        # G = G + xp.eye(rank, dtype=dtype) * epsilon2
+        G_pinv = xp.linalg.pinv(G)
+        E = xp.matmul(mttkrp_result, G_pinv)
 
-    (A, B, C, D) = xp.lazy((A, B, C, D))
+        A, B, C, D, E = xp.compute((A, B, C, D, E))
+
+    (A, B, C, D, E) = xp.lazy((A, B, C, D, E))
 
     # Normalizing factors
     A_norms_sq = xp.einsum("norms[r] += A[i, r] * A[i, r]", A=A)
     B_norms_sq = xp.einsum("norms[r] += B[j, r] * B[j, r]", B=B)
     C_norms_sq = xp.einsum("norms[r] += C[k, r] *C[k, r]", C=C)
     D_norms_sq = xp.einsum("norms[r] += D[l, r] *D[l, r]", D=D)
+    E_norms_sq = xp.einsum("norms[r] += E[m, r] *E[m, r]", E=E)
 
     A_norms = xp.sqrt(A_norms_sq)
     B_norms = xp.sqrt(B_norms_sq)
     C_norms = xp.sqrt(C_norms_sq)
     D_norms = xp.sqrt(D_norms_sq)
+    E_norms = xp.sqrt(E_norms_sq)
 
     # Computing lambda
     lambda_vals = xp.multiply(
-        xp.multiply(xp.multiply(A_norms, B_norms), C_norms), D_norms
+        xp.multiply(xp.multiply(xp.multiply(A_norms, B_norms), C_norms), D_norms), E_norms
     )
 
     A_norms_2d = xp.expand_dims(A_norms, 0)
     B_norms_2d = xp.expand_dims(B_norms, 0)
     C_norms_2d = xp.expand_dims(C_norms, 0)
     D_norms_2d = xp.expand_dims(D_norms, 0)
+    E_norms_2d = xp.expand_dims(E_norms, 0)
 
     # Case: avoiding division by zero
     eps = 1e-10
@@ -180,40 +208,43 @@ def benchmark_cp_als(xp, X_bench, rank, max_iter=100):
     B_norms_safe = xp.maximum(B_norms_2d, eps)
     C_norms_safe = xp.maximum(C_norms_2d, eps)
     D_norms_safe = xp.maximum(D_norms_2d, eps)
+    E_norms_safe = xp.maximum(E_norms_2d, eps)
 
     A = xp.divide(A, A_norms_safe)
     B = xp.divide(B, B_norms_safe)
     C = xp.divide(C, C_norms_safe)
     D = xp.divide(D, D_norms_safe)
+    E = xp.divide(E, E_norms_safe)
 
     # Now compute everything at once
 
-    (A, B, C, D, lambda_vals) = xp.compute((A, B, C, D, lambda_vals))
+    (A, B, C, D, E, lambda_vals) = xp.compute((A, B, C, D, E, lambda_vals))
 
     # Convert to binsparse format
     A_bench_out = xp.to_benchmark(A)
     B_bench_out = xp.to_benchmark(B)
     C_bench_out = xp.to_benchmark(C)
     D_bench_out = xp.to_benchmark(D)
+    E_bench_out = xp.to_benchmark(E)
     lambda_bench_out = xp.to_benchmark(lambda_vals)
 
-    return (A_bench_out, B_bench_out, C_bench_out, D_bench_out, lambda_bench_out)
+    return (A_bench_out, B_bench_out, C_bench_out, D_bench_out, E_bench_out, lambda_bench_out)
 
 
 # Data generators
 def dg_cp_als_sparse_small():
-    dim1, dim2, dim3, dim4 = 20, 20, 20, 20
+    dim1, dim2, dim3, dim4, dim5 = 10, 10, 10, 10, 10
     rank = 4
-    nnz = int(0.01 * dim1 * dim2 * dim3 * dim4)
+    nnz = int(0.01 * dim1 * dim2 * dim3 * dim4 * dim5)
 
     all_indices = np.random.default_rng(0).choice(
-        dim1 * dim2 * dim3 * dim4, size=nnz, replace=False
+        dim1 * dim2 * dim3 * dim4 * dim5, size=nnz, replace=False
     )
-    i_idx, j_idx, k_idx, l_idx = np.unravel_index(all_indices, (dim1, dim2, dim3, dim4))
+    i_idx, j_idx, k_idx, l_idx, m_idx = np.unravel_index(all_indices, (dim1, dim2, dim3, dim4, dim5))
 
     values = np.random.default_rng(0).random(nnz).astype(np.float32)
     X_bin = BinsparseFormat.from_coo(
-        (i_idx, j_idx, k_idx, l_idx), values, (dim1, dim2, dim3, dim4)
+        (i_idx, j_idx, k_idx, l_idx, m_idx), values, (dim1, dim2, dim3, dim4, dim5)
     )
     max_iter = 50
 
@@ -226,7 +257,7 @@ def dg_cp_als_factorizable_small():
     and reconstructing the tensor from them (tensor should decompose easily
     with low reconstruction error).
     """
-    dim1, dim2, dim3, dim4 = 20, 20, 20, 20
+    dim1, dim2, dim3, dim4, dim5 = 10, 10, 10, 10, 10
     rank = 4
 
     rng = np.random.default_rng(0)
@@ -236,19 +267,21 @@ def dg_cp_als_factorizable_small():
     B = rng.random((dim2, rank)).astype(np.float32)
     C = rng.random((dim3, rank)).astype(np.float32)
     D = rng.random((dim4, rank)).astype(np.float32)
+    E = rng.random((dim5, rank)).astype(np.float32)
 
     A = A / np.linalg.norm(A, axis=0, keepdims=True)
     B = B / np.linalg.norm(B, axis=0, keepdims=True)
     C = C / np.linalg.norm(C, axis=0, keepdims=True)
     D = D / np.linalg.norm(D, axis=0, keepdims=True)
+    E = E / np.linalg.norm(E, axis=0, keepdims=True)
     lambdas = np.array([1.0, 0.8, 0.6, 0.4], dtype=np.float32)
     A = A * lambdas
 
-    X_dense = np.einsum("ir,jr,kr,lr->ijkl", A, B, C, D)
+    X_dense = np.einsum("ir,jr,kr,lr,mr->ijklm", A, B, C, D, E)
 
     indices = np.nonzero(np.ones_like(X_dense))
     values = X_dense[indices]
-    X_bin = BinsparseFormat.from_coo(indices, values, (dim1, dim2, dim3, dim4))
+    X_bin = BinsparseFormat.from_coo(indices, values, (dim1, dim2, dim3, dim4, dim5))
     max_iter = 100
 
     return (X_bin, rank, max_iter)
