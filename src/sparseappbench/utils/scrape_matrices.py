@@ -99,6 +99,8 @@ def check_block_jacobi_cg_iteration_matrix_convergence_speed(A):
         i = j
     M = sp.sparse.block_diag(blocks)
     return check_cg_iteration_matrix_convergence_speed(A, M)
+
+
 def check_lsqr_condition_number(A):
     try:
         # Compute the largest singular value
