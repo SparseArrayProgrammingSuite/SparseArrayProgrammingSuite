@@ -66,10 +66,12 @@ def check_jacobi_iteration_matrix_convergence(A):
     return sr_value
 
 
-def check_cg_iteration_matrix_convergence_speed(A):
-    max_eig = sp.sparse.linalg.eigsh(A, k=1, return_eigenvectors=False, tol=0.001)[0]
+def check_cg_iteration_matrix_convergence_speed(A, M=None):
+    max_eig = sp.sparse.linalg.eigsh(A, M=M, k=1, return_eigenvectors=False, tol=0.001)[
+        0
+    ]
     min_eig = sp.sparse.linalg.eigsh(
-        A, k=1, sigma=0, return_eigenvectors=False, tol=0.001
+        A, M=M, k=1, sigma=0, return_eigenvectors=False, tol=0.001
     )[0]
 
     condition_num = max_eig / min_eig
@@ -77,9 +79,32 @@ def check_cg_iteration_matrix_convergence_speed(A):
     return condition_num
 
 
+def check_jacobi_cg_iteration_matrix_convergence_speed(A):
+    M = sp.sparse.diags(A.diagonal())
+    return check_cg_iteration_matrix_convergence_speed(A, M)
+
+
+def check_block_jacobi_cg_iteration_matrix_convergence_speed(A):
+    A_csr = A.tocsr()
+    n = A_csr.shape[0]
+    p = min(10, n)
+    block_size = n // p
+    blocks = []
+    i = 0
+    while i < n:
+        j = min(i + block_size, n)
+        A_ii = A_csr[i:j, i:j].toarray()
+        blocks.append(A_ii)
+        i = j
+    M = sp.sparse.block_diag(blocks)
+    return check_cg_iteration_matrix_convergence_speed(A, M)
+
+
 SOLVER_DICT = {
     "jacobi": check_jacobi_iteration_matrix_convergence,
     "cg": check_cg_iteration_matrix_convergence_speed,
+    "jacobi_cg": check_jacobi_cg_iteration_matrix_convergence_speed,
+    "block_jacobi_cg": check_block_jacobi_cg_iteration_matrix_convergence_speed,
 }
 
 
@@ -106,7 +131,7 @@ def main():
         "--solver",
         type=str,
         default="jacobi",
-        choices=["jacobi", "cg"],
+        choices=["jacobi", "cg", "jacobi_cg", "block_jacobi_cg"],
         help="Solver to check convergence for",
     )
     args = parser.parse_args()
