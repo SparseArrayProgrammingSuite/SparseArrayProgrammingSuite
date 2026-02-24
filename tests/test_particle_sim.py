@@ -24,30 +24,24 @@ def generate_test_data(num_particles, size, step):
     y = rng.random(num_particles) * size
     vx = (rng.random(num_particles) - 0.5) * 0.1
     vy = (rng.random(num_particles) - 0.5) * 0.1
-    ax = np.zeros(num_particles)
-    ay = np.zeros(num_particles)
     return (
         x,
         y,
         vx,
         vy,
-        ax,
-        ay,
         size,
         step,
     )  # 10 steps is usually enough for a unit test
 
 
 @pytest.mark.parametrize(
-    "x,y,vx,vy,ax,ay,size,steps",
+    "x,y,vx,vy,size,steps",
     [
         # Scenario 1: Manual - Two particles within cutoff
         (
             np.array([0.001, 0.002]),
             np.array([0.001, 0.001]),
             np.array([0.1, 0.0]),
-            np.array([0.0, 0.0]),
-            np.array([0.0, 0.0]),
             np.array([0.0, 0.0]),
             2,
             1,
@@ -58,8 +52,6 @@ def generate_test_data(num_particles, size, step):
             np.array([0.05]),
             np.array([-0.1]),
             np.array([0.0]),
-            np.array([0.0]),
-            np.array([0.0]),
             2,
             5,
         ),
@@ -69,37 +61,33 @@ def generate_test_data(num_particles, size, step):
         generate_test_data(50, 2, 20),
     ],
 )
-def test_particle_sim(x, y, vx, vy, ax, ay, size, steps):
+def test_particle_sim(x, y, vx, vy, size, steps):
     xp = NumpyFramework()
 
     ref_particles = [
-        Particle(xi, yi, vxi, vyi, axi, ayi)
-        for xi, yi, vxi, vyi, axi, ayi in zip(x, y, vx, vy, ax, ay, strict=True)
+        Particle(xi, yi, vxi, vyi, 0, 0)
+        for xi, yi, vxi, vyi in zip(x, y, vx, vy, strict=True)
     ]
 
     x_bin = BinsparseFormat.from_numpy(x)
     y_bin = BinsparseFormat.from_numpy(y)
     vx_bin = BinsparseFormat.from_numpy(vx)
     vy_bin = BinsparseFormat.from_numpy(vy)
-    ax_bin = BinsparseFormat.from_numpy(ax)
-    ay_bin = BinsparseFormat.from_numpy(ay)
 
-    (x, y, vx, vy, ax, ay) = benchmark_particle_sum(
-        xp, x_bin, y_bin, vx_bin, vy_bin, ax_bin, ay_bin, size, steps
+    (x, y, vx, vy) = benchmark_particle_sum(
+        xp, x_bin, y_bin, vx_bin, vy_bin, size, steps
     )
 
     x = xp.from_benchmark(x)
     y = xp.from_benchmark(y)
     vx = xp.from_benchmark(vx)
     vy = xp.from_benchmark(vy)
-    ax = xp.from_benchmark(ax)
-    ay = xp.from_benchmark(ay)
 
     init_simulation(ref_particles, len(ref_particles), size, steps)
 
     for i, p_ref in enumerate(ref_particles):
-        actual = (x[i], y[i], vx[i], vy[i], ax[i], ay[i])
-        expected = (p_ref.x, p_ref.y, p_ref.vx, p_ref.vy, p_ref.ax, p_ref.ay)
+        actual = (x[i], y[i], vx[i], vy[i])
+        expected = (p_ref.x, p_ref.y, p_ref.vx, p_ref.vy)
 
         msg = f"Mismatch at particle {i}:\n  Expected: {expected}\n  Actual:   {actual}"
         assert actual == expected, msg
