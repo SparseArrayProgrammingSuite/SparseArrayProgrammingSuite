@@ -7,6 +7,7 @@ import argparse
 import json
 import os
 import random
+import sys
 
 import numpy as np
 import scipy as sp
@@ -100,11 +101,36 @@ def check_block_jacobi_cg_iteration_matrix_convergence_speed(A):
     return check_cg_iteration_matrix_convergence_speed(A, M)
 
 
+def check_lsqr_condition_number(A):
+    try:
+        # Compute the largest singular value
+        max_s = sp.sparse.linalg.svds(
+            A, k=1, which="LM", return_singular_vectors=False
+        )[0]
+    except ArpackError:
+        print("Could not compute largest singular value for matrix.")
+        return np.inf
+
+    try:
+        # Compute the smallest singular value
+        min_s = sp.sparse.linalg.svds(
+            A, k=1, which="SM", return_singular_vectors=False
+        )[0]
+    except ArpackError:
+        print("Could not compute smallest singular value for matrix.")
+        return np.inf
+
+    condition_num = max_s / min_s if min_s != 0 else np.inf
+    print(f"Condition number of A (LSQR): {condition_num}")
+    return condition_num
+
+
 SOLVER_DICT = {
     "jacobi": check_jacobi_iteration_matrix_convergence,
     "cg": check_cg_iteration_matrix_convergence_speed,
     "jacobi_cg": check_jacobi_cg_iteration_matrix_convergence_speed,
     "block_jacobi_cg": check_block_jacobi_cg_iteration_matrix_convergence_speed,
+    "lsqr": check_lsqr_condition_number,
 }
 
 
@@ -131,13 +157,15 @@ def main():
         "--solver",
         type=str,
         default="jacobi",
-        choices=["jacobi", "cg", "jacobi_cg", "block_jacobi_cg"],
+        choices=["jacobi", "cg", "jacobi_cg", "block_jacobi_cg", "lsqr"],
         help="Solver to check convergence for",
     )
     args = parser.parse_args()
 
-    # Get all matrices (use a large limit to get the full collection)
-    matrices = ssgetpy.search(isspd=True, nzbounds=(0, args.maxsize), limit=args.limit)
+    search_params = {"nzbounds": (0, args.maxsize), "limit": args.limit}
+    if args.solver == "cg" or args.solver == "jacobi":
+        search_params["isspd"] = True
+    matrices = ssgetpy.search(**search_params)
 
     # Take a random permutation
     matrices = random.sample(list(matrices), len(matrices))
@@ -152,8 +180,11 @@ def main():
                 continue
             A = mmread(matrix_path)  # This is the full sparse matrix
             (m, n) = A.shape
-            if m != n:
-                print(f"Skipping non-square matrix {matrix.name} of shape {A.shape}")
+            if args.solver != "lsqr" and m != n:
+                print(
+                    f"Skipping non-square matrix {matrix.name}"
+                    f" of shape {A.shape} for {args.solver}"
+                )
                 continue
             # Convert to CSR format if needed for better diagonal access
             if not hasattr(A, "diagonal"):
@@ -161,19 +192,22 @@ def main():
 
             # Calculate the convergence criteria
             try:
-                convergence_value = SOLVER_DICT[args.solver](A)
+                if A.shape[0] > 1 and A.shape[1] > 1:
+                    convergence_value = SOLVER_DICT[args.solver](A)
+                    if np.isinf(convergence_value) or np.isnan(convergence_value):
+                        convergence_value = sys.float_info.max
 
-                # Write to JSON file
-                append_to_json(
-                    output_file,
-                    matrix.name,
-                    matrix.group,
-                    float(convergence_value),
-                    n,
-                    A.nnz,
-                    args.solver,
-                )
-                print(f"Saved {matrix.name} convergence criteria to {output_file}")
+                    # Write to JSON file
+                    append_to_json(
+                        output_file,
+                        matrix.name,
+                        matrix.group,
+                        float(convergence_value),
+                        n,
+                        A.nnz,
+                        args.solver,
+                    )
+                    print(f"Saved {matrix.name} convergence criteria to {output_file}")
 
             except ArpackError as e:
                 print(f"Error computing convergence criteria for {matrix.name}: {e}")
