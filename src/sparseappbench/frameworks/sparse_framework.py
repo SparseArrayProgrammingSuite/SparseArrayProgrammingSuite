@@ -1,8 +1,26 @@
+import numpy as np
+import scipy.sparse.linalg as spla
+
 import sparse as sp
 
 from ..binsparse_format import BinsparseFormat
 from .abstract_framework import AbstractFramework
 from .einsum import einsum
+
+
+class PyDataSparseLinalg:
+    @staticmethod
+    def solve(A, b):
+        if hasattr(A, "to_scipy_sparse"):
+            A = A.to_scipy_sparse()
+
+        if hasattr(b, "todense"):
+            b = np.asarray(b.todense()).ravel()
+        else:
+            b = np.asarray(b).ravel()
+
+        x = spla.spsolve(A, b)
+        return sp.asarray(x)
 
 
 class PyDataSparseFramework(AbstractFramework):
@@ -46,6 +64,10 @@ class PyDataSparseFramework(AbstractFramework):
             res.fill_value = array.dtype.type(value)
             return res
         return array
+
+    @property
+    def linalg(self):
+        return PyDataSparseLinalg
 
     def __getattr__(self, name):
         return getattr(sp, name)

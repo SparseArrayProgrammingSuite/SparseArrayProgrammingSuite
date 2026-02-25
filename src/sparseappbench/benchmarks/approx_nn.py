@@ -11,6 +11,8 @@ Specifically, I will first show the application of the JL Lemma for NN.
 My goal is to write benchmarks on applications of RNLA,
 for graph algorithms, PDEs, and Scientific Machine Learning
 
+https://github.com/scikit-learn/scikit-learn/blob/d3898d9d57aeb1e960d266613a2e31b07bca39d7/sklearn/random_projection.py#L615
+
 Murray, R., Demmel, J., Mahoney, M. W., Erichson, N. B.,
 Melnichenko, M., Malik, O. A., ... & Dongarra, J. (2023).
 Randomized numerical linear algebra: A perspective on the field with an eye to software.
@@ -51,15 +53,17 @@ def benchmark_johnson_lindenstrauss_nn(
     # -----K Nearest Neighbour from here on out--------
 
     # Euclidean distances
-    diff = projected_data - projected_query
-    distances = xp.sqrt(xp.sum(diff**2, axis=1))
+    diff = xp.einsum(
+        "X[i, j, k] = Q[i, k] - D[j, k]", Q=projected_query, D=projected_data
+    )
+    distances = xp.sqrt(xp.sum(diff**2, axis=-1))
 
     # Get nearest k neighbors.
     sorted_indices = xp.argsort(distances)
 
     # Get nearest indices and associated distances.
-    nearest_indices = xp.take(sorted_indices, xp.arange(k))
-    nearest_distances = xp.take(xp.sort(distances), xp.arange(k))
+    nearest_indices = xp.take(sorted_indices, xp.arange(k), axis=1)
+    nearest_distances = xp.take(xp.sort(distances), xp.arange(k), axis=1)
 
     nearest_indices = xp.compute(nearest_indices)
     nearest_distances = xp.compute(nearest_distances)
@@ -73,16 +77,15 @@ def data_knn_rla_generator(xp, data_bench, seed=40, eps=0.1):
     #  Johnson Lindenstrauss Theorem Lemmna.
     # The eps represents the disortion of distance by epsilon,
     # between the the original space and the reduced subspace
-    target_dim = np.log(n_samples) / (eps * eps)
-    if target_dim > n_features:
-        target_dim = n_features
+    target_dim = np.ceil(np.log(n_samples) / (eps * eps)).astype(int)
+
+    rng = np.random.default_rng(seed)
+    # return rng.standard_normal((n_features, np.round(target_dim).astype(int)))
 
     s = np.sqrt(n_features)  # s = 1/density
     density = 1.0 / s  # probability of a nonzero entry = density.
     density_half = density / 2.0  # probability for + or -
     scale = np.sqrt(s / target_dim)  # scale = sqrt(s / n_components)
-
-    rng = np.random.default_rng(seed)
 
     U_Neg = sp.sparse.random(
         n_features,

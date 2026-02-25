@@ -23,12 +23,34 @@ from .benchmarks.jacobi import (
     dg_jacobi_sparse_7,
     dg_jacobi_sparse_8,
 )
+from .benchmarks.lsqr import (
+    benchmark_lsqr,
+    dg_lsqr_sparse_1,
+    dg_lsqr_sparse_2,
+    dg_lsqr_sparse_3,
+    dg_lsqr_sparse_4,
+    dg_lsqr_sparse_5,
+    dg_lsqr_sparse_6,
+)
 from .benchmarks.matmul import (
     benchmark_matmul,
     dg_matmul_dense_large,
     dg_matmul_dense_small,
     dg_matmul_sparse_large,
     dg_matmul_sparse_small,
+)
+from .benchmarks.preconditioned_cg import (
+    dg_block_cg_sparse_1,
+    dg_block_cg_sparse_2,
+    dg_block_cg_sparse_3,
+    dg_block_cg_sparse_4,
+    dg_block_cg_sparse_5,
+    dg_jacobi_cg_sparse_1,
+    dg_jacobi_cg_sparse_2,
+    dg_jacobi_cg_sparse_3,
+    dg_jacobi_cg_sparse_4,
+    dg_jacobi_cg_sparse_5,
+    preconditioned_cg,
 )
 from .frameworks.checker_framework import CheckerFramework
 from .frameworks.numpy_framework import NumpyFramework
@@ -38,6 +60,8 @@ BENCHMARK_DICT = {
     "matmul": benchmark_matmul,
     "jacobi": benchmark_jacobi,
     "cg": benchmark_cg,
+    "preconditioned_cg": preconditioned_cg,
+    "lsqr": benchmark_lsqr,
 }
 DATA_GENERATOR_DICT = {
     "matmul": {
@@ -65,6 +89,26 @@ DATA_GENERATOR_DICT = {
         "cg_sparse_6": dg_cg_sparse_6,
         "cg_sparse_7": dg_cg_sparse_7,
         "cg_sparse_8": dg_cg_sparse_8,
+    },
+    "preconditioned_cg": {
+        "jacobi_cg_sparse_1": dg_jacobi_cg_sparse_1,
+        "jacobi_cg_sparse_2": dg_jacobi_cg_sparse_2,
+        "jacobi_cg_sparse_3": dg_jacobi_cg_sparse_3,
+        "jacobi_cg_sparse_4": dg_jacobi_cg_sparse_4,
+        "jacobi_cg_sparse_5": dg_jacobi_cg_sparse_5,
+        "block_jacobi_cg_sparse_1": dg_block_cg_sparse_1,
+        "block_jacobi_cg_sparse_2": dg_block_cg_sparse_2,
+        "block_jacobi_cg_sparse_3": dg_block_cg_sparse_3,
+        "block_jacobi_cg_sparse_4": dg_block_cg_sparse_4,
+        "block_jacobi_cg_sparse_5": dg_block_cg_sparse_5,
+    },
+    "lsqr": {
+        "lsqr_sparse_1": dg_lsqr_sparse_1,
+        "lsqr_sparse_2": dg_lsqr_sparse_2,
+        "lsqr_sparse_3": dg_lsqr_sparse_3,
+        "lsqr_sparse_4": dg_lsqr_sparse_4,
+        "lsqr_sparse_5": dg_lsqr_sparse_5,
+        "lsqr_sparse_6": dg_lsqr_sparse_6,
     },
 }
 
