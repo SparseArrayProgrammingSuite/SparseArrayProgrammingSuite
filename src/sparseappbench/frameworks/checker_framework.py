@@ -294,6 +294,20 @@ class CheckerOperator:
         return EagerCheckerTensor(self.xp, self.operator(*args, **kwargs))
 
 
+class CheckerLinalg:
+    """
+    Allows use of linalg operations without associating new tensors
+    with the linalg checker framework.
+    """
+
+    def __init__(self, framework, linalg):
+        self.framework = framework
+        self.linalg = linalg
+
+    def __getattr__(self, name):
+        return CheckerOperator(self.framework, getattr(self.linalg, name))
+
+
 class CheckerFramework(AbstractFramework):
     """
     This framework uses numpy to perform operations, but checks that lazy and compute
@@ -349,5 +363,5 @@ class CheckerFramework(AbstractFramework):
 
     def __getattr__(self, name):
         if name == "linalg":
-            return CheckerFramework(self.xp.linalg)
+            return CheckerLinalg(self, self.xp.linalg)
         return CheckerOperator(self, getattr(self.xp, name))

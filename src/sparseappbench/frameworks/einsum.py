@@ -195,7 +195,7 @@ class Einsum:
         arg = self.arg.run(xp, loops, kwargs)
         axis = tuple(i for i in range(len(loops)) if loops[i] not in self.idxs)
         if self.op is not None:
-            op = getattr(xp, reduction_ops.get(self.op, None))
+            op = getattr(xp, reduction_ops.get(self.op))
             val = op(arg, axis=axis)
         else:
             assert set(self.idxs) == set(loops)
@@ -345,7 +345,7 @@ def _parse_einsum_expr(t: Tree) -> EinsumExpr:
 
 def parse_einsum(expr: str) -> Einsum:
     tree = lark_parser.parse(expr)
-    print(f"Parsed tree: {tree.pretty()}")
+    # print(f"Parsed tree: {tree.pretty()}")
 
     match tree:
         case Tree(
