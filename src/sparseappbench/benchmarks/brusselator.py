@@ -54,13 +54,13 @@ def dg_brusselator():
             # print(f"i={i}, j={j}, ip1={ip1}, im1={im1}, jp1={jp1}, jm1={jm1}")
 
             # (alpha*nabla^2)
-            # du[(i*n + j) * 2] = alpha*(u[(im1* n + j)*2] + u[(ip1* n + j)*2] + 
+            # du[(i*n + j) * 2] = alpha*(u[(im1* n + j)*2] + u[(ip1* n + j)*2] +
             # u[(i* n + jp1)*2] + u[(i* n + jm1)*2] - 4*u[(i* n + j)*2])
-            A[(i*n + j)*2, (im1 * n + j)*2] += alpha 
-            A[(i*n + j)*2, (ip1 * n + j)*2] += alpha
-            A[(i*n + j)*2, (i * n + jp1)*2] += alpha 
-            A[(i*n + j)*2, (i * n + jm1)*2] += alpha
-            A[(i*n + j)*2, (i * n + j)*2] -= 4 * alpha
+            A[(i * n + j) * 2, (im1 * n + j) * 2] += alpha
+            A[(i * n + j) * 2, (ip1 * n + j) * 2] += alpha
+            A[(i * n + j) * 2, (i * n + jp1) * 2] += alpha
+            A[(i * n + j) * 2, (i * n + jm1) * 2] += alpha
+            A[(i * n + j) * 2, (i * n + j) * 2] -= 4 * alpha
 
             # (alpha*nabla^2)
             # du[(i*n + j) * 2+1] = alpha*(u[(im1* n + j)*2+1] + 
