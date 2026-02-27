@@ -63,14 +63,14 @@ def dg_brusselator():
             A[(i * n + j) * 2, (i * n + j) * 2] -= 4 * alpha
 
             # (alpha*nabla^2)
-            # du[(i*n + j) * 2+1] = alpha*(u[(im1* n + j)*2+1] + 
+            # du[(i*n + j) * 2+1] = alpha*(u[(im1* n + j)*2+1] +
             # u[(ip1* n + j)*2+1] + u[(i* n + jp1)*2+1]
             # + u[(i* n + jm1)*2+1] - 4*u[(i* n + j)*2+1])
-            A[(i*n + j)*2+1, (im1 * n + j)*2+1] += alpha 
-            A[(i*n + j)*2+1, (ip1 * n + j)*2+1] += alpha
-            A[(i*n + j)*2+1, (i * n + jp1)*2+1] += alpha 
-            A[(i*n + j)*2+1, (i * n + jm1)*2+1] += alpha
-            A[(i*n + j)*2+1, (i * n + j)*2+1] -= 4 * alpha + a + 1
+            A[(i * n + j) * 2 + 1, (im1 * n + j) * 2 + 1] += alpha
+            A[(i * n + j) * 2 + 1, (ip1 * n + j) * 2 + 1] += alpha
+            A[(i * n + j) * 2 + 1, (i * n + jp1) * 2 + 1] += alpha
+            A[(i * n + j) * 2 + 1, (i * n + jm1) * 2 + 1] += alpha
+            A[(i * n + j) * 2 + 1, (i * n + j) * 2 + 1] -= 4 * alpha + a + 1
 
             A1[(i * n + j) * 2, (i * n + j) * 2] = 1
             A1[(i * n + j) * 2 + 1, (i * n + j) * 2] = -1
