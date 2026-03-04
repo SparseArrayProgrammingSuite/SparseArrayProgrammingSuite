@@ -1,0 +1,240 @@
+import os
+
+import numpy as np
+import scipy.sparse as sp
+from scipy.io import mmread
+
+import ssgetpy
+
+from ..binsparse_format import BinsparseFormat
+
+"""
+Name: Preconditioned Conjugate Gradient (Block Jacobi)
+Author: Benjamin Berol
+Email: bberol3@gatech.edu
+
+Motivation:
+"The preconditioned conjugate gradient method is well established for
+solving linear systems of equations that arise from the discretization of
+partial differential equations. Point and block Jacobi preconditioning
+are both common preconditioning techniques."
+M. Hegland and P. E. Saylor, "Block Jacobi Preconditioning of the Conjugate Gradient
+Method on a Vector Processor," International Journal of Computer Mathematics,
+vol. 44, no. 1-4, pp. 71-89, Jan. 1992.
+
+Role of Sparsity:
+Sparsity enhances the functionality of both the solver and the preconditioner.
+Similar to normal conjugate gradient, the SpMV done once per iteration
+reduces complexity from O(n^2) to O(nnz). Furthermore, the sparse block
+Jacobi preconditioner avoids filling in all the 0s around the blocks, which prevents
+memory overhead and keeps the per-iteration block solve cost proportional to the
+block size instead of the full matrix dimension.
+
+Implementation:
+Hand-written code modelling the algorithm structure outlined in:
+https://www.netlib.org/templates/templates.pdf Page 13
+
+Data Generation:
+Data collected from SuiteSparse Matrix Collection consisting of symmetric
+positive definite matrices, particularly those with a low convergence criteria.
+
+Statement on the use of Generative AI:
+No generative AI was used to write the benchmark function itself. Generative
+AI was used to debug code. This statement was written by hand.
+"""
+
+
+def solve_block_jacobi_cg(xp, M, r):
+    y = xp.linalg.solve(M, r)
+    return xp.linalg.solve(M.T, y)
+
+
+def solve_jacobi_cg(xp, M, r):
+    output = r / M
+    return xp.with_fill_value(output, 0) if hasattr(xp, "with_fill_value") else output
+
+
+def preconditioned_cg(
+    xp,
+    A_bench,
+    b_bench,
+    x_bench,
+    M_bench,
+    solve_cg,
+    rel_tol=1e-8,
+    abs_tol=1e-20,
+    max_iters=10000,
+):
+    A = xp.lazy(xp.from_benchmark(A_bench))
+    b = xp.lazy(xp.from_benchmark(b_bench))
+    x = xp.lazy(xp.from_benchmark(x_bench))
+    M = xp.lazy(xp.from_benchmark(M_bench))
+    tolerance = max(
+        xp.compute(xp.lazy(rel_tol) * xp.sqrt(xp.vecdot(b, b)))[()], abs_tol
+    )
+    # tol_sq used to avoid having to sqrt dot products when checking tolerance
+    tol_sq = tolerance * tolerance
+
+    r = b - A @ x
+    z = solve_cg(xp, M, r)
+    rho = xp.vecdot(r, z)
+    p = z
+    it = 0
+    rr = xp.compute(xp.vecdot(r, r))[()]
+
+    if rr >= tol_sq:
+        while it < max_iters:
+            x, r, p = xp.lazy((x, r, p))
+
+            Ap = A @ p
+            alpha = rho / xp.vecdot(p, Ap)
+            x += alpha * p
+            r -= alpha * Ap
+
+            x, r, p = xp.compute((x, r, p))
+            new_rr = xp.compute(xp.vecdot(r, r))[()]
+
+            it += 1
+
+            if new_rr < tol_sq:
+                break
+
+            z = solve_cg(xp, M, r)
+            new_rho = xp.vecdot(r, z)
+            beta = new_rho / rho
+            p = z + beta * p
+            rho = new_rho
+            rr = new_rr
+
+    x_solution = xp.compute(x)
+    return xp.to_benchmark(x_solution)
+
+
+def generate_cg_data(source, has_b_file):
+    matrices = ssgetpy.search(name=source)
+    if not matrices:
+        raise ValueError(f"No matrix found with name '{source}'")
+    matrix = matrices[0]
+    (path, archive) = matrix.download(extract=True)
+    matrix_path = os.path.join(path, matrix.name + ".mtx")
+    if matrix_path and os.path.exists(matrix_path):
+        A = mmread(matrix_path)
+    else:
+        raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
+    rng = np.random.default_rng(0)
+
+    if has_b_file:
+        matrix_path = os.path.join(path, matrix.name + "_b.mtx")
+        if matrix_path and os.path.exists(matrix_path):
+            b = mmread(matrix_path)
+        else:
+            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
+        if not isinstance(b, np.ndarray):
+            b = b.toarray() if hasattr(b, "toarray") else np.asarray(b)
+        b = b.flatten()
+    else:
+        x = sp.random(
+            A.shape[1], 1, density=0.1, format="coo", dtype=np.float64, random_state=rng
+        )
+        b = A @ x
+        b = b.toarray().flatten()
+    x = np.zeros(A.shape[1])
+    return (A, b, x)
+
+
+def generate_block_cg_data(source, has_b_file=False):
+    A, b, x = generate_cg_data(source, has_b_file)
+    M = generate_block_jacobi_M(A)
+    M_bin = BinsparseFormat.from_coo((M.row, M.col), M.data, M.shape)
+    A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
+    b_bin = BinsparseFormat.from_numpy(b)
+    x_bin = BinsparseFormat.from_numpy(x)
+    return (A_bin, b_bin, x_bin, M_bin, solve_block_jacobi_cg)
+
+
+def generate_block_jacobi_M(A):
+    A_csr = A.tocsr()
+    n = A_csr.shape[0]
+    # Create one block for every processor modelled after
+    # this example: https://petsc.org/main/src/ksp/ksp/tutorials/ex7.c.html
+    p = min(10, n)
+    block_size = n // p
+    blocks = []
+    i = 0
+    while i < n:
+        j = min(i + block_size, n)
+        A_ii = A_csr[i:j, i:j].toarray()
+        L_i = np.linalg.cholesky(A_ii)
+        blocks.append(L_i)
+        i = j
+    return sp.block_diag(blocks).tocoo()
+
+
+def generate_jacobi_cg_data(source, has_b_file=False):
+    A, b, x = generate_cg_data(source, has_b_file)
+    M = A.diagonal()
+    M_bin = BinsparseFormat.from_numpy(M)
+    A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
+    b_bin = BinsparseFormat.from_numpy(b)
+    x_bin = BinsparseFormat.from_numpy(x)
+    return (A_bin, b_bin, x_bin, M_bin, solve_jacobi_cg)
+
+
+def dg_block_cg_sparse_1():
+    return generate_block_cg_data(
+        "mhdb416"
+    )  # Condition Number With Preconditioner: 3994223509->6.24
+
+
+def dg_block_cg_sparse_2():
+    return generate_block_cg_data(
+        "lund_b"
+    )  # Condition Number With Preconditioner: 30036->36.3
+
+
+def dg_block_cg_sparse_3():
+    return generate_block_cg_data(
+        "Chem97ZtZ"
+    )  # Condition Number With Preconditioner: 247->8.48
+
+
+def dg_block_cg_sparse_4():
+    return generate_block_cg_data(
+        "bcsstm12"
+    )  # Condition Number With Preconditioner: 633194->7.14
+
+
+def dg_block_cg_sparse_5():
+    return generate_block_cg_data(
+        "mesh1em1"
+    )  # Condition Number With Preconditioner: 19->11.4
+
+
+def dg_jacobi_cg_sparse_1():
+    return generate_jacobi_cg_data(
+        "mhdb416"
+    )  # Condition Number With Preconditioner: 3994223509->69.7
+
+
+def dg_jacobi_cg_sparse_2():
+    return generate_jacobi_cg_data(
+        "lund_b"
+    )  # Condition Number With Preconditioner: 30036->144
+
+
+def dg_jacobi_cg_sparse_3():
+    return generate_jacobi_cg_data(
+        "Chem97ZtZ"
+    )  # Condition Number With Preconditioner: 247->8.48
+
+
+def dg_jacobi_cg_sparse_4():
+    return generate_jacobi_cg_data(
+        "bcsstm12"
+    )  # Condition Number With Preconditioner 633194->3160
+
+
+def dg_jacobi_cg_sparse_5():
+    return generate_block_cg_data(
+        "mesh1em1"
+    )  # Condition Number With Preconditioner: 19->11.6
