@@ -54,8 +54,13 @@ from .benchmarks.preconditioned_cg import (
 )
 from .frameworks.checker_framework import CheckerFramework
 from .frameworks.numpy_framework import NumpyFramework
+from .frameworks.scipy_framework import SciPyFramework
 
-FRAMEWORK_DICT = {"numpy": NumpyFramework(), "checker": CheckerFramework()}
+FRAMEWORK_DICT = {
+    "numpy": NumpyFramework(),
+    "checker": CheckerFramework(),
+    "scipy": SciPyFramework(),
+}
 BENCHMARK_DICT = {
     "matmul": benchmark_matmul,
     "jacobi": benchmark_jacobi,
