@@ -144,10 +144,19 @@ class Access(EinsumExpr):
         assert len(self.idxs) == len(set(self.idxs))
         perm = [self.idxs.index(idx) for idx in loops if idx in self.idxs]
         tns = kwargs[self.tns]
-        tns = xp.transpose(tns, perm)
-        return xp.expand_dims(
-            tns, [i for i in range(len(loops)) if loops[i] not in self.idxs]
-        )
+        
+        if getattr(xp, '__name__') == 'sparse':
+            tns = xp.permute_dims(tns, perm)
+            # We need to assert self.idxs is a subset of loops
+            for i in range(len(loops)):
+                if loops[i] not in self.idxs:
+                    tns = xp.expand_dims(tns, axis=i)
+            return tns
+        else:
+            tns = xp.transpose(tns, perm)
+            return xp.expand_dims(
+                tns, [i for i in range(len(loops)) if loops[i] not in self.idxs]
+            )
 
 
 @dataclass
@@ -202,7 +211,13 @@ class Einsum:
             val = arg
         dropped = [idx for idx in loops if idx in self.idxs]
         axis = [dropped.index(idx) for idx in self.idxs]
-        return xp.transpose(val, axis)
+        if getattr(xp, '__name__') == 'sparse':
+            if len(axis) == 0:
+                return val
+            else:
+                return xp.permute_dims(val, axis)
+        else:
+            return xp.transpose(val, axis)
 
 
 lark_parser = Lark("""
