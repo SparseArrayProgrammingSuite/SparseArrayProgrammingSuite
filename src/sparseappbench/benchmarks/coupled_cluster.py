@@ -20,7 +20,6 @@ def benchmark_ccsd(
     T2_bench,  # (nv, nv, no, no)
     D1_bench,
     D2_bench,
-    eps_bench,  # (no + nv,)
 ):
 
     Vme = xp.from_benchmark(Vme_bench)
@@ -45,72 +44,90 @@ def benchmark_ccsd(
     D2 = xp.from_benchmark(D2_bench)
 
     T21 = xp.copy(T2)
-    T21 += xp.einsum("abij += 0.5 * T1[a,i] * T1[b,j]", T1=T1)
+    T21 += xp.einsum("T21[a,b,i,j] += 0.5 * T1[a,i] * T1[b,j]", T1=T1)
 
     # Fme intermediate
-    Fme = xp.einsum("me += Vme[m,e]", Vme=Vme)
-    Fme += xp.einsum("me += Vmnef[m,n,e,f] * T1[f,n]", Vmnef=Vmnef, T1=T1)
+    Fme = xp.einsum("Fme[m,e] = Vme[m,e]", Vme=Vme)
+    Fme += xp.einsum("Fme[m,e] += Vmnef[m,n,e,f] * T1[f,n]", Vmnef=Vmnef, T1=T1)
 
     # Fae intermediate
-    Fae = xp.einsum("ae += Vae[a,e]", Vae=Vae)
-    Fae -= xp.einsum("ae += Fme[m,e] * T1[a,m]", Fme=Fme, T1=T1)
-    Fae -= xp.einsum("ae += 0.5 * Vmnef[m,n,e,f] * T2[a,f,m,n]", Vmnef=Vmnef, T2=T2)
-    Fae += xp.einsum("ae += Vanef[a,n,e,f] * T1[f,n]", Vanef=Vanef, T1=T1)
+    Fae = xp.einsum("Fae[a,e] = Vae[a,e]", Vae=Vae)
+    Fae -= xp.einsum("Fae[a,e] += Fme[m,e] * T1[a,m]", Fme=Fme, T1=T1)
+    Fae -= xp.einsum(
+        "Fae[a,e] += 0.5 * Vmnef[m,n,e,f] * T2[a,f,m,n]", Vmnef=Vmnef, T2=T2
+    )
+    Fae += xp.einsum("Fae[a,e] += Vanef[a,n,e,f] * T1[f,n]", Vanef=Vanef, T1=T1)
 
     # Fmi intermediate
-    Fmi = xp.einsum("mi += Vmi[m,i]", Vmi=Vmi)
-    Fmi += xp.einsum("mi += Fme[m,e] * T1[e,i]", Fme=Fme, T1=T1)
-    Fmi += xp.einsum("mi += 0.5 * Vmnef[m,n,e,f] * T2[e,f,i,n]", Vmnef=Vmnef, T2=T2)
-    Fmi += xp.einsum("mi += Vmnfi[m,n,f,i] * T1[f,n]", Vmnfi=Vmnfi, T1=T1)
+    Fmi = xp.einsum("Fmi[m,i] = Vmi[m,i]", Vmi=Vmi)
+    Fmi += xp.einsum("Fmi[m,i] += Fme[m,e] * T1[e,i]", Fme=Fme, T1=T1)
+    Fmi += xp.einsum(
+        "Fmi[m,i] += 0.5 * Vmnef[m,n,e,f] * T2[e,f,i,n]", Vmnef=Vmnef, T2=T2
+    )
+    Fmi += xp.einsum("Fmi[m,i] += Vmnfi[m,n,f,i] * T1[f,n]", Vmnfi=Vmnfi, T1=T1)
 
     # Wmnei intermediate
-    Wmnei = xp.einsum("mnei += Vmnei[m,n,e,i]", Vmnei=Vmnei)
+    Wmnei = xp.einsum("Wmnei[m,n,e,i] = Vmnei[m,n,e,i]", Vmnei=Vmnei)
     Wmnei += xp.einsum(
-        "mnei += Vmnei[m,n,e,i]", Vmnei=Vmnei
+        "Wmnei[m,n,e,i] += Vmnei[m,n,e,i]", Vmnei=Vmnei
     )  # Replicating the double addition from C++
-    Wmnei += xp.einsum("mnei += Vmnef[m,n,e,f] * T1[f,i]", Vmnef=Vmnef, T1=T1)
+    Wmnei += xp.einsum("Wmnei[m,n,e,i] += Vmnef[m,n,e,f] * T1[f,i]", Vmnef=Vmnef, T1=T1)
 
     # Wmnij intermediate
-    Wmnij = xp.einsum("mnij += Vmnij[m,n,i,j]", Vmnij=Vmnij)
-    Wmnij -= xp.einsum("mnij += Vmnei[m,n,e,i] * T1[e,j]", Vmnei=Vmnei, T1=T1)
-    Wmnij += xp.einsum("mnij += Vmnef[m,n,e,f] * T21[e,f,i,j]", Vmnef=Vmnef, T21=T21)
+    Wmnij = xp.einsum("Wmnij[m,n,i,j] = Vmnij[m,n,i,j]", Vmnij=Vmnij)
+    Wmnij -= xp.einsum("Wmnij[m,n,i,j] += Wmnei[m,n,e,i] * T1[e,j]", Wmnei=Wmnei, T1=T1)
+    Wmnij += xp.einsum(
+        "Wmnij[m,n,i,j] += Vmnef[m,n,e,f] * T21[e,f,i,j]", Vmnef=Vmnef, T21=T21
+    )
 
     # Wamei intermediate
-    Wamei = xp.einsum("amei += Vamei[a,m,e,i]", Vamei=Vamei)
-    Wamei -= xp.einsum("amei += Wmnei[m,n,e,i] * T1[a,n]", Wmnei=Wmnei, T1=T1)
-    Wamei += xp.einsum("amei += Vamef[a,m,e,f] * T1[f,i]", Vamef=Vamef, T1=T1)
-    Wamei += xp.einsum("amei += 0.5 * Vmnef[m,n,e,f] * T2[a,f,i,n]", Vmnef=Vmnef, T2=T2)
+    Wamei = xp.einsum("Wamei[a,m,e,i] = Vamei[a,m,e,i]", Vamei=Vamei)
+    Wamei -= xp.einsum("Wamei[a,m,e,i] += Wmnei[m,n,e,i] * T1[a,n]", Wmnei=Wmnei, T1=T1)
+    Wamei += xp.einsum("Wamei[a,m,e,i] += Vamef[a,m,e,f] * T1[f,i]", Vamef=Vamef, T1=T1)
+    Wamei += xp.einsum(
+        "Wamei[a,m,e,i] += 0.5 * Vmnef[m,n,e,f] * T2[a,f,i,n]", Vmnef=Vmnef, T2=T2
+    )
 
     # Wamij intermediate
-    Wamij = xp.einsum("amij += Vamij[a,m,i,j]", Vamij=Vamij)
-    Wamij += xp.einsum("amij += Vamei[a,m,e,i] * T1[e,j]", Vamei=Vamei, T1=T1)
-    Wamij += xp.einsum("amij += Vamef[a,m,e,f] * T2[e,f,i,j]", Vamef=Vamef, T2=T2)
+    Wamij = xp.einsum("Wamij[a,m,i,j] = Vamij[a,m,i,j]", Vamij=Vamij)
+    Wamij += xp.einsum("Wamij[a,m,i,j] += Wamei[a,m,e,i] * T1[e,j]", Wamei=Wamei, T1=T1)
+    Wamij += xp.einsum(
+        "Wamij[a,m,i,j] += Vamef[a,m,e,f] * T2[e,f,i,j]", Vamef=Vamef, T2=T2
+    )
 
     # Zai (T1 update)
-    T1_new = xp.einsum("ai += Vai[a,i]", Vai=Vai)
-    T1_new -= xp.einsum("ai += Fmi[m,i] * T1[a,m]", Fmi=Fmi, T1=T1)
-    T1_new += xp.einsum("ai += Vae[a,e] * T1[e,i]", Vae=Vae, T1=T1)
-    T1_new += xp.einsum("ai += Vamei[a,m,e,i] * T1[e,m]", Vamei=Vamei, T1=T1)
-    T1_new += xp.einsum("ai += Vaeim[a,e,i,m] * Fme[m,e]", Vaeim=Vaeim, Fme=Fme)
+    T1_new = xp.einsum("T1_new[a,i] = Vai[a,i]", Vai=Vai)
+    T1_new -= xp.einsum("T1_new[a,i] += Fmi[m,i] * T1[a,m]", Fmi=Fmi, T1=T1)
+    T1_new += xp.einsum("T1_new[a,i] += Vae[a,e] * T1[e,i]", Vae=Vae, T1=T1)
+    T1_new += xp.einsum("T1_new[a,i] += Vamei[a,m,e,i] * T1[e,m]", Vamei=Vamei, T1=T1)
     T1_new += xp.einsum(
-        "ai += 0.5 * Vamef[a,m,e,f] * T21[e,f,i,m]", Vamef=Vamef, T21=T21
+        "T1_new[a,i] += Vaeim[a,e,i,m] * Fme[m,e]", Vaeim=Vaeim, Fme=Fme
+    )
+    T1_new += xp.einsum(
+        "T1_new[a,i] += 0.5 * Vamef[a,m,e,f] * T21[e,f,i,m]", Vamef=Vamef, T21=T21
     )
     T1_new -= xp.einsum(
-        "ai += 0.5 * Wmnei[m,n,e,i] * T21[e,a,m,n]", Wmnei=Wmnei, T21=T21
+        "T1_new[a,i] += 0.5 * Wmnei[m,n,e,i] * T21[e,a,m,n]", Wmnei=Wmnei, T21=T21
     )
 
     # Zabij (T2 update)
-    T2_new = xp.einsum("abij += Vabij[a,b,i,j]", Vabij=Vabij)
-    T2_new += xp.einsum("abij += Vabei[a,b,e,i] * T1[e,j]", Vabei=Vabei, T1=T1)
-    T2_new += xp.einsum("abij += Wamei[a,m,e,i] * T2[e,b,m,j]", Wamei=Wamei, T2=T2)
-    T2_new -= xp.einsum("abij += Wamij[a,m,i,j] * T1[b,m]", Wamij=Wamij, T1=T1)
-    T2_new += xp.einsum("abij += Fae[a,e] * T2[e,b,i,j]", Fae=Fae, T2=T2)
-    T2_new -= xp.einsum("abij += Fmi[m,i] * T2[a,b,m,j]", Fmi=Fmi, T2=T2)
+    T2_new = xp.einsum("T2_new[a,b,i,j] = Vabij[a,b,i,j]", Vabij=Vabij)
     T2_new += xp.einsum(
-        "abij += 0.5 * Vabef[a,b,e,f] * T21[e,f,i,j]", Vabef=Vabef, T21=T21
+        "T2_new[a,b,i,j] += Vabei[a,b,e,i] * T1[e,j]", Vabei=Vabei, T1=T1
     )
     T2_new += xp.einsum(
-        "abij += 0.5 * Wmnij[m,n,i,j] * T21[a,b,m,n]", Wmnij=Wmnij, T21=T21
+        "T2_new[a,b,i,j] += Wamei[a,m,e,i] * T2[e,b,m,j]", Wamei=Wamei, T2=T2
+    )
+    T2_new -= xp.einsum(
+        "T2_new[a,b,i,j] += Wamij[a,m,i,j] * T1[b,m]", Wamij=Wamij, T1=T1
+    )
+    T2_new += xp.einsum("T2_new[a,b,i,j] += Fae[a,e] * T2[e,b,i,j]", Fae=Fae, T2=T2)
+    T2_new -= xp.einsum("T2_new[a,b,i,j] += Fmi[m,i] * T2[a,b,m,j]", Fmi=Fmi, T2=T2)
+    T2_new += xp.einsum(
+        "T2_new[a,b,i,j] += 0.5 * Vabef[a,b,e,f] * T21[e,f,i,j]", Vabef=Vabef, T21=T21
+    )
+    T2_new += xp.einsum(
+        "T2_new[a,b,i,j] += 0.5 * Wmnij[m,n,i,j] * T21[a,b,m,n]", Wmnij=Wmnij, T21=T21
     )
 
     # Apply denominators (D1, D2)
