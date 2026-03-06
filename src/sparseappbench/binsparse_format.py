@@ -18,7 +18,7 @@ class BinsparseFormat:
 
     @staticmethod
     def from_scipy(sparse_array: sp.sparse.spmatrix) -> "BinsparseFormat":
-        if sp.issparse(sparse_array):
+        if sp.sparse.issparse(sparse_array):
             coo = sparse_array.tocoo()
             I_tuple = (coo.row, coo.col)
             V = coo.data
