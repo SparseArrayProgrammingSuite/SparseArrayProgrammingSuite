@@ -47,11 +47,11 @@ def benchmark_ccsd(
     T21 += xp.einsum("T21[a,b,i,j] += 0.5 * T1[a,i] * T1[b,j]", T1=T1)
 
     # Fme intermediate
-    Fme = xp.einsum("Fme[m,e] = Vme[m,e]", Vme=Vme)
+    Fme = xp.copy(Vme)
     Fme += xp.einsum("Fme[m,e] += Vmnef[m,n,e,f] * T1[f,n]", Vmnef=Vmnef, T1=T1)
 
     # Fae intermediate
-    Fae = xp.einsum("Fae[a,e] = Vae[a,e]", Vae=Vae)
+    Fae = xp.copy(Vae)
     Fae -= xp.einsum("Fae[a,e] += Fme[m,e] * T1[a,m]", Fme=Fme, T1=T1)
     Fae -= xp.einsum(
         "Fae[a,e] += 0.5 * Vmnef[m,n,e,f] * T2[a,f,m,n]", Vmnef=Vmnef, T2=T2
@@ -59,7 +59,7 @@ def benchmark_ccsd(
     Fae += xp.einsum("Fae[a,e] += Vanef[a,n,e,f] * T1[f,n]", Vanef=Vanef, T1=T1)
 
     # Fmi intermediate
-    Fmi = xp.einsum("Fmi[m,i] = Vmi[m,i]", Vmi=Vmi)
+    Fmi = xp.copy(Vmi)
     Fmi += xp.einsum("Fmi[m,i] += Fme[m,e] * T1[e,i]", Fme=Fme, T1=T1)
     Fmi += xp.einsum(
         "Fmi[m,i] += 0.5 * Vmnef[m,n,e,f] * T2[e,f,i,n]", Vmnef=Vmnef, T2=T2
@@ -67,21 +67,19 @@ def benchmark_ccsd(
     Fmi += xp.einsum("Fmi[m,i] += Vmnfi[m,n,f,i] * T1[f,n]", Vmnfi=Vmnfi, T1=T1)
 
     # Wmnei intermediate
-    Wmnei = xp.einsum("Wmnei[m,n,e,i] = Vmnei[m,n,e,i]", Vmnei=Vmnei)
-    Wmnei += xp.einsum(
-        "Wmnei[m,n,e,i] += Vmnei[m,n,e,i]", Vmnei=Vmnei
-    )  # Replicating the double addition from C++
+    Wmnei = xp.copy(Vmnei)
+    Wmnei += xp.copy(Vmnei)  # Replicating the double addition from C++
     Wmnei += xp.einsum("Wmnei[m,n,e,i] += Vmnef[m,n,e,f] * T1[f,i]", Vmnef=Vmnef, T1=T1)
 
     # Wmnij intermediate
-    Wmnij = xp.einsum("Wmnij[m,n,i,j] = Vmnij[m,n,i,j]", Vmnij=Vmnij)
-    Wmnij -= xp.einsum("Wmnij[m,n,i,j] += Wmnei[m,n,e,i] * T1[e,j]", Wmnei=Wmnei, T1=T1)
+    Wmnij = xp.copy(Vmnij)
+    Wmnij -= xp.einsum("Wmnij[m,n,i,j] += Vmnei[m,n,e,i] * T1[e,j]", Vmnei=Vmnei, T1=T1)
     Wmnij += xp.einsum(
         "Wmnij[m,n,i,j] += Vmnef[m,n,e,f] * T21[e,f,i,j]", Vmnef=Vmnef, T21=T21
     )
 
     # Wamei intermediate
-    Wamei = xp.einsum("Wamei[a,m,e,i] = Vamei[a,m,e,i]", Vamei=Vamei)
+    Wamei = xp.copy(Vamei)
     Wamei -= xp.einsum("Wamei[a,m,e,i] += Wmnei[m,n,e,i] * T1[a,n]", Wmnei=Wmnei, T1=T1)
     Wamei += xp.einsum("Wamei[a,m,e,i] += Vamef[a,m,e,f] * T1[f,i]", Vamef=Vamef, T1=T1)
     Wamei += xp.einsum(
@@ -89,14 +87,14 @@ def benchmark_ccsd(
     )
 
     # Wamij intermediate
-    Wamij = xp.einsum("Wamij[a,m,i,j] = Vamij[a,m,i,j]", Vamij=Vamij)
-    Wamij += xp.einsum("Wamij[a,m,i,j] += Wamei[a,m,e,i] * T1[e,j]", Wamei=Wamei, T1=T1)
+    Wamij = xp.copy(Vamij)
+    Wamij += xp.einsum("Wamij[a,m,i,j] += Vamei[a,m,e,i] * T1[e,j]", Vamei=Vamei, T1=T1)
     Wamij += xp.einsum(
         "Wamij[a,m,i,j] += Vamef[a,m,e,f] * T2[e,f,i,j]", Vamef=Vamef, T2=T2
     )
 
     # Zai (T1 update)
-    T1_new = xp.einsum("T1_new[a,i] = Vai[a,i]", Vai=Vai)
+    T1_new = xp.copy(Vai)
     T1_new -= xp.einsum("T1_new[a,i] += Fmi[m,i] * T1[a,m]", Fmi=Fmi, T1=T1)
     T1_new += xp.einsum("T1_new[a,i] += Vae[a,e] * T1[e,i]", Vae=Vae, T1=T1)
     T1_new += xp.einsum("T1_new[a,i] += Vamei[a,m,e,i] * T1[e,m]", Vamei=Vamei, T1=T1)
@@ -111,7 +109,7 @@ def benchmark_ccsd(
     )
 
     # Zabij (T2 update)
-    T2_new = xp.einsum("T2_new[a,b,i,j] = Vabij[a,b,i,j]", Vabij=Vabij)
+    T2_new = xp.copy(Vabij)
     T2_new += xp.einsum(
         "T2_new[a,b,i,j] += Vabei[a,b,e,i] * T1[e,j]", Vabei=Vabei, T1=T1
     )
