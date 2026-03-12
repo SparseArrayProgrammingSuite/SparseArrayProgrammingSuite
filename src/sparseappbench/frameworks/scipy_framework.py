@@ -6,6 +6,7 @@ import scipy.sparse.linalg as spla
 
 from ..binsparse_format import BinsparseFormat
 from .abstract_framework import AbstractFramework
+from .einsum import einsum
 
 
 class ScipyLinalg:
@@ -61,7 +62,13 @@ class SciPyFramework(AbstractFramework):
         return np.diagonal(array, **kwargs)
 
     def einsum(self, prgm, **kwargs):
-        pass
+        dense_kwargs = {}
+        for key, value in kwargs.items():
+            if hasattr(value, "toarray"):
+                dense_kwargs[key] = value.toarray()
+            else:
+                dense_kwargs[key] = value
+        return einsum(np, prgm, **dense_kwargs)
 
     def with_fill_value(self, array, value):
         return array
