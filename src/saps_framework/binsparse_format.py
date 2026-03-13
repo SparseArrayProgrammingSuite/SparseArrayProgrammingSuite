@@ -2,6 +2,7 @@ import json
 import numpy as np
 import scipy as sp
 
+import torch
 from pyparsing import Any
 
 
@@ -18,20 +19,15 @@ class BinsparseFormat:
         return BinsparseFormat(data)
 
     @staticmethod
-    def from_scipy(sparse_array: sp.sparse.spmatrix) -> "BinsparseFormat":
-        if sp.sparse.issparse(sparse_array):
-            coo = sparse_array.tocoo()
-            I_tuple = (coo.row, coo.col)
-            V = coo.data
-            shape = coo.shape
-            return BinsparseFormat.from_coo(I_tuple, V, shape)
-        if isinstance(sparse_array, np.ndarray):
-            return BinsparseFormat.from_numpy(sparse_array)
-        if isinstance(sparse_array, np.matrix):
-            return BinsparseFormat.from_numpy(np.array(sparse_array))
-        raise TypeError(
-            f"Type {type(sparse_array)} is not a recognized SciPy/NumPy format."
-        )
+    def from_pytorch(tensor: torch.Tensor) -> "BinsparseFormat":
+        t = tensor.detach().cpu()
+        if t.layout == torch.sparse_coo:
+            indices_tuple = tuple(t.indices().numpy())
+            return BinsparseFormat.from_coo(
+                indices_tuple, t.values().numpy(), tuple(t.shape)
+            )
+
+        return BinsparseFormat.from_numpy(t.resolve_conj().numpy())
 
     @staticmethod
     def from_coo(
