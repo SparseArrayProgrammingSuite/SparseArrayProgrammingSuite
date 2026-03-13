@@ -59,8 +59,9 @@ def floyd_warshall(xp, edges_binsparse):
     n, m = edges.shape
     assert n == m
     G = edges
-    for _ in range(n):
-        G = xp.einsum("G[i,j] min= G[i,k] + G[k,j]", G=G)
+    for k in range(n):
+        G_k = xp.expand_dims(G[:, k], axis=1) + xp.expand_dims(G[k, :], axis=0)
+        G = xp.minimum(G, G_k)
     return xp.to_benchmark(G)
 
 
