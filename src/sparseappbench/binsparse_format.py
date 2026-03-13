@@ -1,5 +1,6 @@
 import numpy as np
 
+import torch
 from pyparsing import Any
 
 
@@ -14,6 +15,17 @@ class BinsparseFormat:
         data["shape"] = array.shape
         data["values"] = array.flatten()
         return BinsparseFormat(data)
+
+    @staticmethod
+    def from_pytorch(tensor: torch.Tensor) -> "BinsparseFormat":
+        t = tensor.detach().cpu()
+        if t.layout == torch.sparse_coo:
+            indices_tuple = tuple(t.indices().numpy())
+            return BinsparseFormat.from_coo(
+                indices_tuple, t.values().numpy(), tuple(t.shape)
+            )
+
+        return BinsparseFormat.from_numpy(t.resolve_conj().numpy())
 
     @staticmethod
     def from_coo(
