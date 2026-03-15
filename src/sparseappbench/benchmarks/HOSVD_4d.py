@@ -1,5 +1,5 @@
 """
-Name: High-Order SVD (Tucker Decomposition)
+Name: High-Order SVD (Tucker Decomposition) for 4D Tensors
 
 Author: Aadharsh Rajkumar
 
@@ -68,24 +68,36 @@ def benchmark_hosvd(xp, X_bench, ranks_bench, max_iter=50, tolerance=1e-8):
 
             if mode == 0:
                 update = xp.einsum(
-                    "Y[i, r1, r2] += X[i, j, k] * B[j, r1] * C[k, r2]",
+                    "Y[i, r1, r2, r3] += X[i, j, k, l] * B[j, r1] "
+                    "* C[k, r2] * D[l, r3]",
                     X=X,
                     B=initial_factors[1],
                     C=initial_factors[2],
+                    D=initial_factors[3],
                 )
             elif mode == 1:
                 update = xp.einsum(
-                    "Y[r0, j, r2] += X[i, j, k] * A[i, r0] * C[k, r2]",
+                    "Y[r0, j, r2, r3] += X[i, j, k, l] * A[i, r0]* C[k, r2] * D[l, r3]",
                     X=X,
                     A=initial_factors[0],
                     C=initial_factors[2],
+                    D=initial_factors[3],
                 )
             elif mode == 2:
                 update = xp.einsum(
-                    "Y[r0, r1, k] += X[i, j, k] * A[i, r0] * B[j, r1]",
+                    "Y[r0, r1, k, r3] += X[i, j, k, l] * A[i, r0]* B[j, r1] * D[l, r3]",
                     X=X,
                     A=initial_factors[0],
                     B=initial_factors[1],
+                    D=initial_factors[3],
+                )
+            elif mode == 3:
+                update = xp.einsum(
+                    "Y[r0, r1, r2, l] += X[i, j, k, l] * A[i, r0]* B[j, r1] * C[k, r2]",
+                    X=X,
+                    A=initial_factors[0],
+                    B=initial_factors[1],
+                    C=initial_factors[2],
                 )
 
             perm = [mode] + list(range(mode)) + list(range(mode + 1, num_modes))
@@ -103,16 +115,18 @@ def benchmark_hosvd(xp, X_bench, ranks_bench, max_iter=50, tolerance=1e-8):
             xp.linalg.norm(initial_factors[0] - prev_factors[0])
             + xp.linalg.norm(initial_factors[1] - prev_factors[1])
             + xp.linalg.norm(initial_factors[2] - prev_factors[2])
+            + xp.linalg.norm(initial_factors[3] - prev_factors[3])
         )
         if xp.compute(change)[()] < tolerance:
             break
 
     core_tensor = xp.einsum(
-        "G[p, q, r] += X[i, j, k] * A[i, p] * B[j, q] * C[k, r]",
+        "G[p, q, r, s] += X[i, j, k, l] * A[i, p]* B[j, q] * C[k, r] * D[l, s]",
         X=X,
         A=initial_factors[0],
         B=initial_factors[1],
         C=initial_factors[2],
+        D=initial_factors[3],
     )
     core_tensor = xp.compute(core_tensor)
     core_bench = xp.to_benchmark(core_tensor)
@@ -120,28 +134,30 @@ def benchmark_hosvd(xp, X_bench, ranks_bench, max_iter=50, tolerance=1e-8):
         xp.to_benchmark(initial_factors[0]),
         xp.to_benchmark(initial_factors[1]),
         xp.to_benchmark(initial_factors[2]),
+        xp.to_benchmark(initial_factors[3]),
     ]
     return core_bench, factors_bench
 
 
 def dg_hosvd_random_small():
     """
-    Generate a dense low-rank 3D tensor using random factor matrices.
+    Generate a dense low-rank 4D tensor using random factor matrices.
     """
-    dim1, dim2, dim3 = 10, 10, 10
-    ranks = (3, 3, 3)
+    dim1, dim2, dim3, dim4 = 10, 10, 10, 10
+    ranks = (3, 3, 3, 3)
     rng = np.random.default_rng(42)
 
     G = rng.random(ranks).astype(np.float64)
     A = rng.random((dim1, ranks[0])).astype(np.float64)
     B = rng.random((dim2, ranks[1])).astype(np.float64)
     C = rng.random((dim3, ranks[2])).astype(np.float64)
+    D = rng.random((dim4, ranks[3])).astype(np.float64)
 
-    X_dense = np.einsum("pqr,ip,jq,kr->ijk", G, A, B, C)
+    X_dense = np.einsum("pqrs,ip,jq,kr,ls->ijkl", G, A, B, C, D)
 
     indices = np.nonzero(np.ones_like(X_dense))
     values = X_dense[indices]
-    X_bin = BinsparseFormat.from_coo(indices, values, (dim1, dim2, dim3))
+    X_bin = BinsparseFormat.from_coo(indices, values, (dim1, dim2, dim3, dim4))
 
     ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
     return (X_bin, ranks_bin)
@@ -149,10 +165,10 @@ def dg_hosvd_random_small():
 
 def dg_hosvd_sparse_small():
     """
-    Generate a sparse low-rank 3D tensor using random factor matrices.
+    Generate a sparse low-rank 4D tensor using random factor matrices.
     """
-    dim1, dim2, dim3 = 20, 20, 20
-    ranks = (3, 3, 3)
+    dim1, dim2, dim3, dim4 = 20, 20, 20, 20
+    ranks = (3, 3, 3, 3)
     rng = np.random.default_rng(42)
 
     def get_sparse_factor(rows, cols, density=0.2):
@@ -164,17 +180,20 @@ def dg_hosvd_sparse_small():
         mat[indices] = rng.random(nnz)
         return mat.reshape((rows, cols)).astype(np.float64)
 
-    G = get_sparse_factor(ranks[0], ranks[1] * ranks[2], density=0.5).reshape(ranks)
+    G = get_sparse_factor(
+        ranks[0], ranks[1] * ranks[2] * ranks[3], density=0.5
+    ).reshape(ranks)
     A = get_sparse_factor(dim1, ranks[0], density=0.2)
     B = get_sparse_factor(dim2, ranks[1], density=0.2)
     C = get_sparse_factor(dim3, ranks[2], density=0.2)
+    D = get_sparse_factor(dim4, ranks[3], density=0.2)
 
-    X_dense = np.einsum("pqr,ip,jq,kr->ijk", G, A, B, C)
+    X_dense = np.einsum("pqrs,ip,jq,kr,ls->ijkl", G, A, B, C, D)
 
     indices = np.nonzero(X_dense)
     values = X_dense[indices]
 
-    X_bin = BinsparseFormat.from_coo(indices, values, (dim1, dim2, dim3))
+    X_bin = BinsparseFormat.from_coo(indices, values, (dim1, dim2, dim3, dim4))
 
     ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
     return (X_bin, ranks_bin)
