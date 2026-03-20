@@ -1,6 +1,39 @@
+"""
+Name: Model Counting Algorithm
+Author: Richard Wan
+Email: rwan41@gatech.edu
+
+Motivation:
+Model Counting is used to determine the total number of
+satisfying assignments for a SAT problem. This problem is
+fundamental in probabilistic reasoning, combinatorial
+design, etc.
+
+Role of sparsity:
+The relationship between variables and clauses can be sparse.
+Each clause can contain only a tiny fraction of the
+variables.
+
+Implementation Reference:
+Implementation provided by Willow Ahrens
+
+Data Generation:
+SAT formulas are provided using the DIMACS CNF format. Input
+strings can be provided manually.
+
+Statement on the use of Generative AI: No generative AI was
+used for the benchmark function itself. Generative AI might
+have been used to construct tests. This statement was written
+by hand.
+"""
+
+
 def benchmark_model_counting(xp, dimacs_text):
-    clauses = parse_dimacs(dimacs_text)
+    num_vars, clauses = parse_dimacs(dimacs_text)
     einsum_input = clauses_to_einsum(clauses)
+
+    if einsum_input is None:
+        return 2**num_vars
 
     B = xp.array([0, 1])
     return xp.einsum(einsum_input, B=B)
@@ -12,12 +45,14 @@ def parse_dimacs(text):
 
     clauses = []
 
+    num_vars = 0
     num_clauses = 0
     rest = []
 
     for i, line in enumerate(cleaned):
         if line.startswith("p cnf"):
             parts = line.split()
+            num_vars = int(parts[2])
             num_clauses = int(parts[3])
 
             rest = " ".join(cleaned[i + 1 :]).split()
@@ -38,12 +73,15 @@ def parse_dimacs(text):
 
         idx += 1
 
-    return clauses
+    return num_vars, clauses
 
 
 def clauses_to_einsum(clauses):
-    clause_strings = []
+    if len(clauses) == 0:
+        print("IS  NON sd as dsa dasdsaE")
+        return None
 
+    clause_strings = []
     for clause in clauses:
         literal_strings = []
         for val in clause:
