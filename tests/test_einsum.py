@@ -3,11 +3,17 @@ import pytest
 import numpy as np
 
 from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.frameworks.scipy_framework import SciPyFramework
 
 
 @pytest.fixture
 def xp():
     return NumpyFramework()
+
+
+@pytest.fixture
+def sp():
+    return SciPyFramework()
 
 
 @pytest.fixture
@@ -26,12 +32,23 @@ def test_basic_addition_with_transpose(xp, rng):
     assert np.allclose(C, C_ref)
 
 
-def test_matrix_multiplication(xp, rng):
+def test_matrix_multiplication_np(xp, rng):
     """Test matrix multiplication using += (increment/accumulation)"""
     A = rng.random((3, 4))
     B = rng.random((4, 5))
 
     C = xp.einsum("C[i,j] += A[i,k] * B[k,j]", A=A, B=B)
+    C_ref = A @ B
+
+    assert np.allclose(C, C_ref)
+
+
+def test_matrix_multiplication_sp(sp, rng):
+    """Test matrix multiplication using += (increment/accumulation)"""
+    A = rng.random((3, 4))
+    B = rng.random((4, 5))
+
+    C = sp.einsum("C[i,k] += A[i,k] * B[k,j]", A=A, B=B)
     C_ref = A @ B
 
     assert np.allclose(C, C_ref)

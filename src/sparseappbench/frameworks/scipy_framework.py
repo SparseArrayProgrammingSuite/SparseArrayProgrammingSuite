@@ -6,7 +6,7 @@ import scipy.sparse.linalg as spla
 
 from ..binsparse_format import BinsparseFormat
 from .abstract_framework import AbstractFramework
-from .einsum import einsum
+from .einsum import Access, Call, parse_einsum
 
 
 class ScipyLinalg:
@@ -62,13 +62,38 @@ class SciPyFramework(AbstractFramework):
         return np.diagonal(array, **kwargs)
 
     def einsum(self, prgm, **kwargs):
-        dense_kwargs = {}
-        for key, value in kwargs.items():
-            if hasattr(value, "toarray"):
-                dense_kwargs[key] = value.toarray()
-            else:
-                dense_kwargs[key] = value
-        return einsum(np, prgm, **dense_kwargs)
+        expr = parse_einsum(prgm)
+        return self._einsum_sparse_2d(expr, prgm, **kwargs)
+
+    def _einsum_sparse_2d(self, expr, prgm, **kwargs):
+        expr = parse_einsum(prgm)
+
+        # Detects matmul
+        if (
+            expr.op in {"+", "add"}
+            and len(expr.idxs) == 2
+            and isinstance(expr.arg, Call)
+            and expr.arg.func in {"*", "mul", "multiply"}
+            and len(expr.arg.args) == 2
+            and isinstance(expr.arg.args[0], Access)
+            and isinstance(expr.arg.args[1], Access)
+        ):
+            a = expr.arg.args[0]
+            b = expr.arg.args[1]
+            A = kwargs[a.tns]
+            B = kwargs[b.tns]
+
+            if (
+                len(a.idxs) == 2
+                and len(b.idxs) == 2
+                and a.idxs[1] == b.idxs[0]
+                and expr.idxs == [a.idxs[0], b.idxs[1]]
+            ):
+                return A @ B
+
+        raise NotImplementedError(
+            f"SciPy sparse einsum does not support '{prgm}' without densifying."
+        )
 
     def with_fill_value(self, array, value):
         return array
