@@ -66,8 +66,6 @@ class SciPyFramework(AbstractFramework):
         return self._einsum_sparse_2d(expr, prgm, **kwargs)
 
     def _einsum_sparse_2d(self, expr, prgm, **kwargs):
-        expr = parse_einsum(prgm)
-
         # Detects matmul
         if (
             expr.op in {"+", "add"}
