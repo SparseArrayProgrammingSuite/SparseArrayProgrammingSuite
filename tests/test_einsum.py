@@ -48,7 +48,7 @@ def test_matrix_multiplication_sp(sp, rng):
     A = rng.random((3, 4))
     B = rng.random((4, 5))
 
-    C = sp.einsum("C[i,k] += A[i,k] * B[k,j]", A=A, B=B)
+    C = sp.einsum("C[i,j] += A[i,k] * B[k,j]", A=A, B=B)
     C_ref = A @ B
 
     assert np.allclose(C, C_ref)
