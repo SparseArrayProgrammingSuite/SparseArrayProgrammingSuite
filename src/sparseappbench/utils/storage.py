@@ -20,6 +20,10 @@ def download(url):
             with open(path, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=8192): 
                     f.write(chunk)
+        with open(path, 'rb') as f:
+            hash = hashlib.file_digest(f, 'sha256').hexdigest()
+        if hash not in filename:
+            raise ValueError(f"Hash mismatch for downloaded file {filename}. Expected hash in filename, got {hash}.")
 
 def upload(path):
     """
