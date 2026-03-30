@@ -32,6 +32,39 @@ was written by hand.
 """
 
 
+def linear_advection_flux_2D(cx, cy):
+    def flux_x(u):
+        return cx * u
+
+    def flux_y(u):
+        return cy * u
+
+    return flux_x, flux_y
+
+
+# Did it like this to see if there are mistakes in my stencil
+def aniso_burgers_flux_2D():
+    def burgers_x(u):
+        return 0.5 * u * u
+
+    def burgers_y(u):
+        return (1 / 3) * u * u
+
+    return burgers_x, burgers_y
+
+
+def buckley_leverett_flux_2D():
+    def buckley_leverett_flux_x(u):
+        sq = u * u
+        return sq / (sq + (0.25 * (1 - u) * (1 - u)))
+
+    def buckley_leverett_flux_y(u):
+        sq = u * u
+        return sq / (sq + (0.25 * (1 - u) * (1 - u)))
+
+    return buckley_leverett_flux_x, buckley_leverett_flux_y
+
+
 def lax_freidrichs_data_generator(xp, number_spatial_x, number_spatial_y, density):
     u_0 = xp.zeros(number_spatial_x * number_spatial_y)
     step = int(1 / density)
@@ -41,42 +74,85 @@ def lax_freidrichs_data_generator(xp, number_spatial_x, number_spatial_y, densit
     return xp.lazy(u_0)
 
 
-# This is based on 2D Lax-freidrichs In matrix form.
-# Since we would need to symbolically know the flux with the constant out front.
-def lax_freidrichs_matrix(
-    xp, number_spatial_x, number_spatial_y, dx, dt, dy, const_x=1, const_y=1
-):
+# This matrix formula assume Dirichlet BC instead of Periodic BC.
+def lax_freidrichs_matrix_no_flux(xp, number_spatial_x, number_spatial_y):
     N = number_spatial_x * number_spatial_y
     matrix = xp.zeros((N, N))
-    alpha = (const_x * dt) / (2 * dx)
-    beta = (const_y * dt) / (2 * dy)
-    for i in range(1, N):
-        if i % number_spatial_x != 0:
-            matrix[i, i - 1] = 0.25 + alpha
+    for i in range(N):
+        x = i % number_spatial_x
+        y = i // number_spatial_x
+        if x > 0:
+            matrix[i, i - 1] = 0.25
+        if x < number_spatial_x - 1:
+            matrix[i, i + 1] = 0.25
 
-    for i in range(N - 1):
-        if (i + 1) % number_spatial_x != 0:
-            matrix[i, i + 1] = 0.25 - alpha
-
-    for j in range(number_spatial_y, N):
-        matrix[j, j - number_spatial_y] = 0.25 + beta
-    for j in range(N - number_spatial_y):
-        matrix[j, j + number_spatial_y] = 0.25 + beta
-
-    # Ignore Periodic BC for now, will add later.
+        if y > 0:
+            matrix[i, i - number_spatial_x] = 0.25
+        if y < number_spatial_y - 1:
+            matrix[i, i + number_spatial_x] = 0.25
 
     return xp.lazy(matrix)
 
 
-def lax_friedrichs_solver_matrix(xp, u0_bench, matrix_bench, timesteps):
+def difference_matrix_x_direction(xp, number_spatial_x, number_spatial_y):
+    N = number_spatial_x * number_spatial_y
+    dif_x_matrix = xp.zeros((N, N))
+    for i in range(N):
+        x = i % number_spatial_x
+        if x > 0:
+            dif_x_matrix[i, i - 1] = -1
+        if x < number_spatial_x - 1:
+            dif_x_matrix[i, i + 1] = +1
+
+    return xp.lazy(dif_x_matrix)
+
+
+def difference_matrix_y_direction(xp, number_spatial_x, number_spatial_y):
+    N = number_spatial_x * number_spatial_y
+    dif_y_matrix = xp.zeros((N, N))
+    for i in range(N):
+        y = i // number_spatial_x
+        if y > 0:
+            dif_y_matrix[i, i - number_spatial_x] = -1
+        if y < number_spatial_y - 1:
+            dif_y_matrix[i, i + number_spatial_x] = +1
+
+    return xp.lazy(dif_y_matrix)
+
+
+def lax_friedrichs_solver_matrix_2d(
+    xp,
+    u0_bench,
+    matrix_bench,
+    diff_x_bench,
+    diff_y_bench,
+    timesteps,
+    flux_x,
+    flux_y,
+    dt,
+    dx,
+    dy,
+):
     u_0 = xp.lazy(u0_bench)
     matrix = xp.lazy(matrix_bench)
-    Nt = timesteps + 1
+    diff_x = xp.lazy(diff_x_bench)
+    diff_y = xp.lazy(diff_y_bench)
 
+    Nt = timesteps + 1
     u = xp.zeros((Nt, u_0.shape[0]))
     u[0] = u_0
+
+    alpha = dt / (2 * dx)
+    beta = dt / (2 * dy)
+
     for n in range(Nt - 1):
         u_n = u[n]
-        u_next = matrix @ u_n  # matrix multiply
+
+        fl_x = flux_x(u_n)
+        fl_y = flux_y(u_n)
+
+        u_next = matrix @ u_n - alpha * (diff_x @ fl_x) - beta * (diff_y @ fl_y)
+
         u[n + 1] = u_next
+
     return xp.to_benchmark(u)
