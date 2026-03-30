@@ -28,8 +28,6 @@ def test_euler_forward(dydt, t_span, y0, step, tolerance):
     # Internally solve_ivp does not use fixed step sizes, unlike forward_euler
     actual = solve_ivp(dydt, t_span, y0, t_eval=time)
     actual_vals = actual.y.T.real
-    print(y_euler)
-    print(actual_vals)
 
     error = np.max(np.abs(y_euler - actual_vals))
     assert error < tolerance, f"Exceeds error tolerance: {error}"

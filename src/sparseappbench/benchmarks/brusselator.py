@@ -1,5 +1,5 @@
 """
-Name: Circuit Simulation 
+Name: Brusselator PDE Solver
 Author: Akarsh Duddu
 Email: aduddu3@gatech.edu
 Motivation (Importance of problem with citation):
@@ -53,9 +53,6 @@ def forward_euler(
         # y_new = y + dy/dx * delta x
 
         dydt_vector = xp.array(dydx(inputs[i - 1], outputs[i - 1]), dtype=np.complex128).flatten()
-        if xp.any(xp.isnan(dydt_vector)):
-            print(f"NaN in derivative at step {i}, t={inputs[i-1]}, y={outputs[i-1]}")
-            break
         outputs[i] = [outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))]
 
     return (inputs, outputs)
@@ -121,7 +118,6 @@ def brusselator_dydx(t, u_vec, n, a, b, alpha):
     v_vals = u_arr[1::2]
     uv2 = u_vals**2 * v_vals
     
-    # Interleave the uv2 results back into the full vector size
     non_lin = np.zeros(size, dtype=float)
     non_lin[0::2] = uv2
     non_lin[1::2] = -uv2
@@ -134,5 +130,4 @@ def dg_forward_euler_bruss(n, a, b, alpha, t_max, y0, step):
     def dydx(t, u_vec):
         return brusselator_dydx(t, u_vec, n, a, b, alpha)
 
-    # dydx = lambda t, u_vec: brusselator_dydx(t, u_vec, n, a, b, alpha)
     return (np, dydx, (0, t_max), y0, step)
