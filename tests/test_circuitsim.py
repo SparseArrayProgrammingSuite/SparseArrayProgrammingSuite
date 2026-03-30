@@ -3,7 +3,7 @@ import pytest
 import numpy as np
 from scipy.integrate import solve_ivp
 
-from sparseappbench.benchmarks.circuitsim import (
+from src.sparseappbench.benchmarks.circuitsim import (
     forward_euler,
     lotka_volterra,
     rc,
