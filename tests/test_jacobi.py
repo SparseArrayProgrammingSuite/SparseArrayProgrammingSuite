@@ -6,6 +6,7 @@ from sparseappbench.benchmarks.jacobi import benchmark_jacobi
 from sparseappbench.binsparse_format import BinsparseFormat
 from sparseappbench.frameworks.checker_framework import CheckerFramework
 from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.frameworks.scipy_framework import SciPyFramework
 from sparseappbench.frameworks.sparse_framework import (
     PyDataSparseFramework,
 )
@@ -21,7 +22,7 @@ from sparseappbench.frameworks.sparse_framework import (
             np.zeros((3,)),
         ),
         (
-            NumpyFramework(),
+            SciPyFramework(),
             np.array([[4.0, 1.0, 0.0], [1.0, 5.0, 2.0], [0.0, 2.0, 6.0]]),
             np.array([5.0, 8.0, 8.0]),
             np.zeros((3,)),

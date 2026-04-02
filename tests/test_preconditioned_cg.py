@@ -10,8 +10,8 @@ from sparseappbench.benchmarks.preconditioned_cg import (
     solve_jacobi_cg,
 )
 from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.checker_framework import CheckerFramework
 from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.frameworks.scipy_framework import SciPyFramework
 from sparseappbench.frameworks.sparse_framework import (
     PyDataSparseFramework,
 )
@@ -75,7 +75,7 @@ A5 = np.array(
             solve_jacobi_cg,
         ),
         (
-            CheckerFramework(),
+            SciPyFramework(),
             A4,
             np.array([590.0, 580.0, 590.0]),  # b = Ad @ [5, 5, 5]
             np.zeros((3,)),
@@ -83,7 +83,7 @@ A5 = np.array(
             solve_block_jacobi_cg,
         ),
         (
-            CheckerFramework(),
+            SciPyFramework(),
             A5,
             np.array([6.0, 17.0, 34.0, 39.0, 72.0]),  # b = A @ [1, 2, 3, 4, 5]
             np.zeros((5,)),

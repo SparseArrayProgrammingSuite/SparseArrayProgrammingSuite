@@ -4,8 +4,8 @@ import numpy as np
 
 from sparseappbench.benchmarks.cg import benchmark_cg
 from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.checker_framework import CheckerFramework
 from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.frameworks.scipy_framework import SciPyFramework
 from sparseappbench.frameworks.sparse_framework import (
     PyDataSparseFramework,
 )
@@ -46,13 +46,13 @@ from sparseappbench.frameworks.sparse_framework import (
             np.zeros((3,)),
         ),
         (
-            CheckerFramework(),
+            SciPyFramework(),
             np.array([[120.0, -2.0, 0.0], [-2.0, 120.0, -2.0], [0.0, -2.0, 120.0]]),
             np.array([118.0, 116.0, 118.0]),  # b = A @ [1, 1, 1]
             np.zeros((3,)),
         ),
         (
-            CheckerFramework(),
+            SciPyFramework(),
             np.array(
                 [
                     [15.0, -2.0, 0.0, 0.0, -1.0],
