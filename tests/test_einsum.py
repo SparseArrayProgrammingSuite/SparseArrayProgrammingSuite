@@ -54,6 +54,50 @@ def test_matrix_multiplication_sp(sp, rng):
     assert np.allclose(C, C_ref)
 
 
+def test_vecdot_xp(xp, rng):
+    """Test vector dot product using += (increment/accumulation)"""
+    A = rng.random(3)
+    B = rng.random(3)
+
+    C = xp.einsum("C[] += A[i] * B[i]", A=A, B=B)
+    C_ref = np.sum(A * B)
+
+    assert np.allclose(C, C_ref)
+
+
+def test_vecdot_sp(sp, rng):
+    """Test vector dot product using += (increment/accumulation)"""
+    A = rng.random(3)
+    B = rng.random(3)
+
+    C = sp.einsum("C[] += A[i] * B[i]", A=A, B=B)
+    C_ref = np.sum(A * B)
+
+    assert np.allclose(C, C_ref)
+
+
+def test_matvec_xp(xp, rng):
+    """Test matrix-vector product using += (increment/accumulation)"""
+    A = rng.random((3, 4))
+    B = rng.random(4)
+
+    C = xp.einsum("C[i] += A[i, j] * B[j]", A=A, B=B)
+    C_ref = A @ B
+
+    assert np.allclose(C, C_ref)
+
+
+def test_matvec_sp(sp, rng):
+    """Test matrix-vector product using += (increment/accumulation)"""
+    A = rng.random((3, 4))
+    B = rng.random(4)
+
+    C = sp.einsum("C[i] += A[i, j] * B[j]", A=A, B=B)
+    C_ref = A @ B
+
+    assert np.allclose(C, C_ref)
+
+
 def test_element_wise_multiplication(xp, rng):
     """Test element-wise multiplication"""
     A = rng.random((4, 4))

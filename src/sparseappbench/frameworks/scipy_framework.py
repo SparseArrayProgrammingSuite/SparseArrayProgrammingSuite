@@ -66,10 +66,8 @@ class SciPyFramework(AbstractFramework):
         return self._einsum_sparse_2d(expr, prgm, **kwargs)
 
     def _einsum_sparse_2d(self, expr, prgm, **kwargs):
-        # Detects matmul
         if (
             expr.op in {"+", "add"}
-            and len(expr.idxs) == 2
             and isinstance(expr.arg, Call)
             and expr.arg.func in {"*", "mul", "multiply"}
             and len(expr.arg.args) == 2
@@ -81,11 +79,40 @@ class SciPyFramework(AbstractFramework):
             A = kwargs[a.tns]
             B = kwargs[b.tns]
 
-            if (
-                len(a.idxs) == 2
-                and len(b.idxs) == 2
-                and a.idxs[1] == b.idxs[0]
-                and expr.idxs == [a.idxs[0], b.idxs[1]]
+            # Detects matmul
+            if len(expr.idxs) == 2:
+                if (
+                    len(a.idxs) == 2
+                    and len(b.idxs) == 2
+                    and a.idxs[1] == b.idxs[0]
+                    and expr.idxs == [a.idxs[0], b.idxs[1]]
+                ):
+                    return A @ B
+
+            # Detects matvec
+            elif len(expr.idxs) == 1:
+                out = expr.idxs[0]
+                if (
+                    len(a.idxs) == 2
+                    and len(b.idxs) == 1
+                    and a.idxs[0] == out
+                    and a.idxs[1] == b.idxs[0]
+                ):
+                    return A @ B
+                if (
+                    len(a.idxs) == 1
+                    and len(b.idxs) == 2
+                    and b.idxs[1] == out
+                    and a.idxs[0] == b.idxs[0]
+                ):
+                    return A @ B
+
+            # Detects vecdot
+            elif (
+                len(expr.idxs) == 0
+                and len(a.idxs) == 1
+                and len(b.idxs) == 1
+                and a.idxs == b.idxs
             ):
                 return A @ B
 
