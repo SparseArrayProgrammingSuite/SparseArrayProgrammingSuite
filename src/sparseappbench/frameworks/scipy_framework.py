@@ -105,7 +105,7 @@ class SciPyFramework(AbstractFramework):
                     and b.idxs[1] == out
                     and a.idxs[0] == b.idxs[0]
                 ):
-                    return A @ B
+                    return A.T @ B
 
             # Detects vecdot
             elif (
@@ -114,7 +114,7 @@ class SciPyFramework(AbstractFramework):
                 and len(b.idxs) == 1
                 and a.idxs == b.idxs
             ):
-                return A @ B
+                return A.T @ B
 
         raise NotImplementedError(
             f"SciPy sparse einsum does not support '{prgm}' without densifying."
