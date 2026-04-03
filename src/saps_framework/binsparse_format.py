@@ -24,7 +24,13 @@ class BinsparseFormat:
         if t.layout == torch.sparse_coo:
             indices_tuple = tuple(t.indices().numpy())
             return BinsparseFormat.from_coo(
-                indices_tuple, t.values().numpy(), tuple(t.shape)
+                indices_tuple, t.values().resolve_conj().numpy(), tuple(t.shape)
+            )
+        if t.layout == torch.sparse_csr:
+            coo = t.to_sparse_coo().coalesce()
+            indices_tuple = tuple(coo.indices().numpy())
+            return BinsparseFormat.from_coo(
+                indices_tuple, coo.values().resolve_conj().numpy(), tuple(coo.shape)
             )
 
         return BinsparseFormat.from_numpy(t.resolve_conj().numpy())
