@@ -1,6 +1,12 @@
 import argparse
 import time
 
+from .benchmarks.lth_conv import (
+    benchmark_lth_conv,
+    dg_lth_conv_dummy,
+    dg_lth_conv_batch8,
+)
+
 from .benchmarks.cg import (
     benchmark_cg,
     dg_cg_sparse_1,
@@ -62,6 +68,7 @@ BENCHMARK_DICT = {
     "cg": benchmark_cg,
     "preconditioned_cg": preconditioned_cg,
     "lsqr": benchmark_lsqr,
+    "lth_conv": benchmark_lth_conv,    
 }
 DATA_GENERATOR_DICT = {
     "matmul": {
@@ -109,6 +116,10 @@ DATA_GENERATOR_DICT = {
         "lsqr_sparse_4": dg_lsqr_sparse_4,
         "lsqr_sparse_5": dg_lsqr_sparse_5,
         "lsqr_sparse_6": dg_lsqr_sparse_6,
+    },
+    "lth_conv": {
+        "lth_conv_dummy": dg_lth_conv_dummy,
+        "lth_conv_batch8": dg_lth_conv_batch8,
     },
 }
 
