@@ -78,7 +78,6 @@ def parse_dimacs(text):
 
 def clauses_to_einsum(clauses):
     if len(clauses) == 0:
-        print("IS  NON sd as dsa dasdsaE")
         return None
 
     clause_strings = []
