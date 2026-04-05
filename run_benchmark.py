@@ -15,6 +15,7 @@ from asv.machine import Machine
 from asv.repo import get_repo
 from asv.results import Results
 from asv.runner import run_benchmarks
+from asv.console import log
 
 
 def import_benchmark_modules(benchmark_dir: Path) -> list[str]:
@@ -49,6 +50,7 @@ def format_results(results: Results, benchmarks: Benchmarks) -> dict:
         "commit_hash": results.commit_hash,
         "date": results.date,
         "env_name": results.env_name,
+        "env_vars": results.env_vars,
         "params": results.params,
         "result_count": len(entries),
         "results": entries,
@@ -83,7 +85,14 @@ def main() -> int:
         action="store_true",
         help="Run each benchmark only once",
     )
+    parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        help="Enable verbose logging",
+    )
     args = parser.parse_args()
+
+    log.enable(args.verbose)
 
     conf = Config.load(args.config)
 
@@ -98,49 +107,50 @@ def main() -> int:
     )
     machine_params.save(conf.results_dir)
 
-    environments = list(get_environments(conf, ["existing:same"]))
+    environments = list(get_environments(conf, None))
     if not environments:
         raise RuntimeError("No ASV environments available")
-    env = environments[0]
-    Setup.perform_setup([env], parallel=1)
 
     repo = get_repo(conf)
     commit_hash = repo.get_hash_from_name("HEAD")
-
     benchmarks = Benchmarks.discover(
         conf=conf,
         repo=repo,
-        environments=[env],
+        environments=environments,
         commit_hash=[commit_hash],
         regex=args.bench,
     )
-
     print(f"Discovered {len(benchmarks)} benchmark entries")
+    print("Benchmark names:")
 
-    params = dict(machine_params.__dict__)
-    params["python"] = env.python
-    params.update(env.requirements)
+    for env in environments:
+        Setup.perform_setup([env], parallel=1)
 
-    results = Results(
-        params=params,
-        requirements=env.requirements,
-        commit_hash=commit_hash,
-        date=repo.get_date(commit_hash),
-        python=env.python,
-        env_name=env.name,
-        env_vars=env.env_vars,
-    )
 
-    run_benchmarks(
-        benchmarks=benchmarks,
-        env=env,
-        results=results,
-        show_stderr=args.show_stderr,
-        quick=args.quick,
-    )
+        params = dict(machine_params.__dict__)
+        params["python"] = env.python
+        params.update(env.requirements)
 
-    print("Results object:", results)
-    print(json.dumps(format_results(results, benchmarks), indent=2, default=str))
+        results = Results(
+            params=params,
+            requirements=env.requirements,
+            commit_hash=commit_hash,
+            date=repo.get_date(commit_hash),
+            python=env.python,
+            env_name=env.name,
+            env_vars=env.env_vars,
+        )
+
+        run_benchmarks(
+            benchmarks=benchmarks,
+            env=env,
+            results=results,
+            show_stderr=args.show_stderr,
+            quick=args.quick,
+        )
+
+        print("Results object:", results)
+        print(json.dumps(format_results(results, benchmarks), indent=2, default=str))
     return 0
 
 
