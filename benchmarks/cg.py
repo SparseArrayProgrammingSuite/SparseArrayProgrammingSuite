@@ -7,7 +7,7 @@ import saps
 
 import ssgetpy
 
-from ..src.saps.binsparse_format import BinsparseFormat
+from saps.binsparse_format import BinsparseFormat
 
 xp = saps.xp
 

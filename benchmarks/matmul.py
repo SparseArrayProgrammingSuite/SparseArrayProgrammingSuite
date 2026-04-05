@@ -25,7 +25,7 @@ import numpy as np
 import saps
 import scipy.sparse as sp
 
-from ..src.saps.binsparse_format import BinsparseFormat
+from saps.binsparse_format import BinsparseFormat
 
 xp = saps.xp
 

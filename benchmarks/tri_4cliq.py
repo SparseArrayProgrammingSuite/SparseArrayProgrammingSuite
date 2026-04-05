@@ -1,4 +1,4 @@
-from ..src.saps.frameworks.einsum import einsum
+from saps.frameworks.einsum import einsum
 import saps
 
 xp = saps.xp
