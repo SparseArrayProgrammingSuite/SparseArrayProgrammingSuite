@@ -1,14 +1,12 @@
 import numpy as np
 
-from benchmarks.approx_nn import (
-    benchmark_johnson_lindenstrauss_nn,
-    data_knn_rla_generator,
-)
+import benchmarks.approx_nn as approx_nn
 from saps.frameworks.numpy_framework import NumpyFramework
 
 
 def test_jl_preserves_distance(rng):
     xp = NumpyFramework()
+    approx_nn.xp = xp
     n_samples = 20
     n_features = 10
     n_queries = 4
@@ -18,10 +16,13 @@ def test_jl_preserves_distance(rng):
     data_bench = rng.standard_normal((n_samples, n_features))
     query_bench = rng.standard_normal((n_queries, n_features))
 
-    projection_matrix = data_knn_rla_generator(xp, data_bench, seed=13, eps=eps)
+    projection_matrix = approx_nn.data_knn_rla_generator(
+        xp, data_bench, seed=13, eps=eps
+    )
 
-    nearest_ind, _ = benchmark_johnson_lindenstrauss_nn(
-        xp, data_bench, query_bench, projection_matrix, k=k, eps=eps
+    benchmark = approx_nn.JLApproxNearestNeighbor()
+    nearest_ind, _ = benchmark.benchmark(
+        [data_bench, query_bench, projection_matrix], {"k": k, "eps": eps}
     )
 
     # Convert benchmark objects back into framework arrays

@@ -142,7 +142,7 @@ class Generator(Tagged, Attributed, Motivated):
             "references": [str(r) for r in self.references],
             "ai_disclosure": self.ai_disclosure,
             "motivation": self.motivation,
-            "datasets": [dataset.metadata() for dataset in self.datasets],
+            "datasets": [dataset.metadata for dataset in self.datasets],
         }
 
 @dataclass
@@ -173,7 +173,7 @@ class Benchmark(Tagged, Attributed, Motivated):
         except Exception:
             return
         
-        entry = instance.metadata()
+        entry = instance.metadata
 
         payload = json.loads(benchmark_metadata.read_text(encoding="utf-8"))
         existing = payload.get("benchmarks", [])
@@ -238,5 +238,5 @@ class Benchmark(Tagged, Attributed, Motivated):
             "references": [str(r) for r in self.references],
             "ai_disclosure": self.ai_disclosure,
             "motivation": self.motivation,
-            "generators": [generator.metadata() for generator in self.generators],
+            "generators": [generator.metadata for generator in self.generators],
         }
