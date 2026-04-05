@@ -1,3 +1,80 @@
 {
-  "benchmarks": []
+  "benchmarks": [
+    {
+      "name": "Random Numerical Linear Algenra",
+      "pretty_name": "Johnson-Lindenstrauss Approximate Nearest Neighbor",
+      "id": "benchmarks.approx_nn.JLApproxNearestNeighbor.Random Numerical Linear Algenra",
+      "description": "Benchmarks Johnson-Lindenstrauss projection followed by k-nearest-neighbor ranking in projected space.",
+      "tags": [
+        "rnla",
+        "approximate-nearest-neighbor",
+        "projection",
+        "sparse"
+      ],
+      "authors": [
+        "Vilohith Gokarakonda <vgokarakonda3@gatech.edu>"
+      ],
+      "references": [
+        "scikit-learn contributors. \"Random projection implementation reference\", URL: https://github.com/scikit-learn/scikit-learn/blob/d3898d9d57aeb1e960d266613a2e31b07bca39d7/sklearn/random_projection.py#L615.",
+        "Murray, R., Demmel, J., Mahoney, M. W., Erichson, N. B., Melnichenko, M., Malik, O. A., Dongarra, J.. \"Randomized numerical linear algebra: A perspective on the field with an eye to software\", 2023, URL: https://arxiv.org/abs/2302.11474."
+      ],
+      "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI might have been used to construct tests.",
+      "motivation": "The purpose of this is to create python tests that are for RLA methods. Specifically, I will first show the application of the JL Lemma for NN. My goal is to write benchmarks on applications of RNLA, for graph algorithms, PDEs, and Scientific Machine Learning",
+      "generators": [
+        {
+          "name": "jl_projection_inputs",
+          "pretty_name": "JL Projection Input Generator",
+          "description": "Generates random data/query matrices and sparse random projection matrices for JL approximate nearest-neighbor.",
+          "tags": [
+            "rnla",
+            "projection",
+            "approximate-nearest-neighbor",
+            "sparse"
+          ],
+          "authors": [
+            "Vilohith Gokarakonda <vgokarakonda3@gatech.edu>",
+            "Willow Ahrens <ahrens@gatech.edu>"
+          ],
+          "references": [
+            "Riley Murray, James Demmel, Michael W. Mahoney, N. Benjamin Erichson, Maksim Melnichenko, Osman Asif Malik, Laura Grigori, Piotr Luszczek, Micha\u0142 Derezi\u0144ski, Miles E. Lopes, Tianyu Liang, Hengrui Luo, Jack Dongarra. \"Randomized Numerical Linear Algebra : A Perspective on the Field With an Eye to Software\", 2023, URL: https://arxiv.org/abs/2302.11474.",
+            "scikit-learn contributors. \"Random projection implementation reference\", URL: https://github.com/scikit-learn/scikit-learn/blob/d3898d9d57aeb1e960d266613a2e31b07bca39d7/sklearn/random_projection.py#L615."
+          ],
+          "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI might have been used to construct tests.",
+          "motivation": "Sparse Johnson-Lindenstrauss projection is a fundamental primitive in randomized numerical linear algebra, and is used in many applications such as approximate nearest neighbor search.",
+          "datasets": [
+            {
+              "name": "small",
+              "pretty_name": "Small JL ANN",
+              "description": "Small random dense data and query matrices with sparse random projection.",
+              "tags": [
+                "small",
+                "rnla",
+                "sparse"
+              ]
+            },
+            {
+              "name": "medium",
+              "pretty_name": "Medium JL ANN",
+              "description": "Medium random dense data and query matrices with sparse random projection.",
+              "tags": [
+                "medium",
+                "rnla",
+                "sparse"
+              ]
+            },
+            {
+              "name": "large",
+              "pretty_name": "Large JL ANN",
+              "description": "Large random dense data and query matrices with sparse random projection.",
+              "tags": [
+                "large",
+                "rnla",
+                "sparse"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

@@ -1,37 +1,9 @@
 import numpy as np
+import scipy as sp
 import saps
 from saps.benchmark import Dataset, Generator, Benchmark, Contributor, Author, Ref
 
 xp = saps.xp
-
-"""
-Name: Random Numerical Linear Algenra
-Author: Vilohith Gokarakonda
-Email: vgokarakonda3@gatech.edu
-Motivation (Importance of problem with citation):
-The purpose of this is to create python tests that are for RLA methods.
-Specifically, I will first show the application of the JL Lemma for NN.
-My goal is to write benchmarks on applications of RNLA,
-for graph algorithms, PDEs, and Scientific Machine Learning
-
-https://github.com/scikit-learn/scikit-learn/blob/d3898d9d57aeb1e960d266613a2e31b07bca39d7/sklearn/random_projection.py#L615
-
-Murray, R., Demmel, J., Mahoney, M. W., Erichson, N. B.,
-Melnichenko, M., Malik, O. A., ... & Dongarra, J. (2023).
-Randomized numerical linear algebra: A perspective on the field with an eye to software.
-arXiv preprint arXiv:2302.11474.
-Role of sparsity (How sparsity is used in the problem):
-The inputs to the matrix multiply are sparse.
-Implementation (Where did the reference algorithm come from? With citation.):
-Hand-written, direct call to array api function
-https://data-apis.org/array-api/latest/API_specification/generated/array_api.matmul.html
-Data Generation (How is the data generated? Why is it realistic?):
-Sparse-sparse matrix multiplication is sensitive to sparsity patterns and their
-interaction. We use random sparsity patterns for now.  Statement on the use of
-Generative AI: No generative AI was used to construct the benchmark function
-itself. Generative AI might have been used to construct tests. This statement
-was written by hand.
-"""
 
 class JLApproxNNDataset(Dataset):
     def __init__(self, name, pretty_name, description, tags, n_samples, n_features, n_queries, k, eps, seed):
@@ -62,7 +34,6 @@ class JLApproxNNDataset(Dataset):
     def tags(self) -> list[str]:
         return self._tags
 
-
 class JLApproxNNGenerator(Generator):
     @property
     def name(self) -> str:
@@ -82,11 +53,34 @@ class JLApproxNNGenerator(Generator):
 
     @property
     def authors(self) -> list[Contributor]:
-        return [Contributor("Vilohith Gokarakonda", "vgokarakonda3@gatech.edu")]
+        return [
+            Contributor("Vilohith Gokarakonda", "vgokarakonda3@gatech.edu"),
+            Contributor("Willow Ahrens", "ahrens@gatech.edu")
+        ]
 
     @property
     def references(self) -> list[Ref]:
         return [
+            Ref(
+                title="Randomized Numerical Linear Algebra : A Perspective on the Field With an Eye to Software",
+                authors=[
+                    Author("Riley Murray"),
+                    Author("James Demmel"),
+                    Author("Michael W. Mahoney"),
+                    Author("N. Benjamin Erichson"),
+                    Author("Maksim Melnichenko"),
+                    Author("Osman Asif Malik"),
+                    Author("Laura Grigori"),
+                    Author("Piotr Luszczek"),
+                    Author("Michał Dereziński"),
+                    Author("Miles E. Lopes"),
+                    Author("Tianyu Liang"),
+                    Author("Hengrui Luo"),
+                    Author("Jack Dongarra"),
+                ],
+                year=2023,
+                url="https://arxiv.org/abs/2302.11474"
+            ),
             Ref(
                 title="Random projection implementation reference",
                 authors=[Author("scikit-learn contributors")],
@@ -100,7 +94,7 @@ class JLApproxNNGenerator(Generator):
 
     @property
     def motivation(self) -> str:
-        return "The purpose of this is to create python tests that are for RLA methods. Specifically, I will first show the application of the JL Lemma for NN."
+        return "Sparse Johnson-Lindenstrauss projection is a fundamental primitive in randomized numerical linear algebra, and is used in many applications such as approximate nearest neighbor search."
 
     @property
     def datasets(self) -> list[Dataset]:
@@ -184,7 +178,7 @@ class JLApproxNNGenerator(Generator):
         projection_matrix = (U_Neg + U_Pos).toarray()
 
         meta = {"k": dataset.k, "eps": dataset.eps}
-        return meta, [data, query, projection_matrix]
+        return [data, query, projection_matrix], meta
 
 
 class JLApproxNearestNeighbor(Benchmark):

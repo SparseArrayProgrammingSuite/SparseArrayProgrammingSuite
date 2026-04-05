@@ -206,9 +206,9 @@ class Benchmark(Tagged, Attributed, Motivated):
     param_names = ["dataset"]
 
     def setup(self, param):
-        meta, input = param.generate()
-        self._meta = meta
+        input, meta = param.generate()
         self._input = input
+        self._meta = meta
     
     def run(self, param):
         input = [xp.to_binsparse(d) for d in self._input]
@@ -232,6 +232,7 @@ class Benchmark(Tagged, Attributed, Motivated):
         return {
             "name": self.name,
             "pretty_name": self.pretty_name,
+            "id": f"{self.__class__.__module__}.{self.__class__.__name__}.{self.name}",
             "description": self.description,
             "tags": self.tags,
             "authors": [str(a) for a in self.authors],
