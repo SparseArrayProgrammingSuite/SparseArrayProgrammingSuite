@@ -103,7 +103,9 @@
              "ssgetpy": ["1.0rc2"],
          },
          //"env": {"ENV_VAR_1": ["val1", "val2"]},
-         //"env_nobuild": {"ENV_VAR_2": ["val3", null]},
+         "env_nobuild": {
+             "SAPS_FRAMEWORK": ["np", "sparse"]
+         },
     },
 
     // Combinations of libraries/python versions can be excluded/included

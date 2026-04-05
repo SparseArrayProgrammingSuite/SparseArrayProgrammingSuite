@@ -9,9 +9,9 @@ xp = saps.xp
 class Foo:
     @property
     def params(self):
-        return ([xp], self.data_generators)
-    
-    param_names = ["xp", "size"]
+        return (self.data_generators)
+
+    param_names = ["data_generator"]
 
 class TimeSuite(Foo):
     """
@@ -22,14 +22,14 @@ class TimeSuite(Foo):
     def data_generators(self):
         return [0, 1, 100]
 
-    def setup(self, xp, s):
+    def setup(self, data_generator):
         self.d = {}
-        for x in range(s):
+        for x in range(data_generator):
             self.d[x] = None
 
-    def time_range(self, xp, s):
+    def time_range(self, data_generator):
         d = self.d
-        for key in range(s):
+        for key in range(data_generator):
             d[key]
 
 
