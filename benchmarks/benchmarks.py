@@ -4,6 +4,8 @@ import saps
 
 xp = saps.xp
 
+#poetry run asv run --python=same -v --set-commit-hash $(git rev-parse HEAD) --record-samples
+
 class Foo:
     @property
     def params(self):
