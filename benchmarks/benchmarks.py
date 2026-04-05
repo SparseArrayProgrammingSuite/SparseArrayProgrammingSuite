@@ -123,6 +123,17 @@ class Benchmark(ABC):
 
     param_names = ["dataset"]
 
+    @abstractmethod
+    def setup(self, dataset): ...
+
+    @abstractmethod
+    def run(self, dataset): ...
+
+    def mem_run(self, dataset):
+        self.run(dataset)
+
+    def time_run(self, dataset):
+        self.run(dataset)
 
 class TimeSuite(Benchmark):
     @property
@@ -187,7 +198,7 @@ class TimeSuite(Benchmark):
         for x in range(dataset):
             self.d[x] = None
 
-    def time_range(self, dataset):
+    def run(self, dataset):
         d = self.d
         for key in range(dataset):
             d[key]
