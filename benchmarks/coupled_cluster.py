@@ -189,7 +189,7 @@ def benchmark_ccsd(
     T1_final = T1_new / D1
     T2_final = 2 * T2_new / D2
 
-    T1_out, T2_out = xp.compute((T1_final, T2_final))
+    T1_out, T2_out = (T1_final, T2_final)
 
     return xp.to_benchmark(T1_out), xp.to_benchmark(T2_out)
 

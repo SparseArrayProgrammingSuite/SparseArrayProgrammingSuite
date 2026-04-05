@@ -40,7 +40,7 @@ def benchmark_fastsv(xp, adjacency_matrix):
     while True:
         dup = gf
 
-        A, f, gf = xp.lazy([A, f, gf])
+        A, f, gf = [A, f, gf]
 
         # step 1: stochastic hooking
         mngf = xp.min(xp.where(A, xp.expand_dims(gf, 0), int_max), axis=1)
@@ -60,7 +60,7 @@ def benchmark_fastsv(xp, adjacency_matrix):
         # step 5: check termination
         stop = xp.all(dup == gf)
 
-        f, gf, stop = xp.compute([f, gf, stop])
+        f, gf, stop = [f, gf, stop]
 
         if stop:
             break

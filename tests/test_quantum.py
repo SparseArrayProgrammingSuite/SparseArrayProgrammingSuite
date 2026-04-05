@@ -63,7 +63,7 @@ def test_every_gate_on_zero_state(gate_np, gate_name, qubit):
     # Apply gate
     state_after = apply_single_qubit_gate(xp, state, gate_xp, qubit, nqubits)
 
-    computed = xp.compute(state_after)
+    computed = state_after
     bench = xp.to_benchmark(computed)
     result = np.array(bench.data["values"], dtype=np.complex128).reshape(
         bench.data["shape"]
@@ -97,7 +97,7 @@ def test_H_twice_returns_to_original():
     mid = apply_single_qubit_gate(xp, state, H_xp, 2, nqubits)
     back = apply_single_qubit_gate(xp, mid, H_xp, 2, nqubits)
 
-    computed = xp.compute(back)
+    computed = back
     bench = xp.to_benchmark(computed)
     result = np.array(bench.data["values"], dtype=np.complex128).reshape(
         bench.data["shape"]

@@ -48,15 +48,15 @@ This statement is written by hand.
 def gmres(
     xp, A_binsparse, b_binsparse, x0_binsparse, restart=50, tol=1e-8, max_iter=1000
 ):
-    A = xp.lazy(xp.from_benchmark(A_binsparse))
-    b = xp.lazy(xp.from_benchmark(b_binsparse))
-    x0 = xp.lazy(xp.from_benchmark(x0_binsparse))
+    A = xp.from_benchmark(A_binsparse)
+    b = xp.from_benchmark(b_binsparse)
+    x0 = xp.from_benchmark(x0_binsparse)
 
     itcount = 0
     r0 = b - A @ x0
-    initial_beta = xp.compute(xp.linalg.norm(r0))[()]
+    initial_beta = xp.linalg.norm(r0)[()]
     if initial_beta < tol:
-        return xp.to_benchmark(xp.compute(x0))
+        return xp.to_benchmark(x0)
 
     rcurr = r0 / initial_beta
     beta = initial_beta
@@ -68,12 +68,12 @@ def gmres(
 
         x_cycle_start = x0
         for i in range(restart):
-            x0 = xp.lazy((x0, rcurr))
+            x0 = (x0, rcurr)
             rcurr = A @ Q[:, i]
 
-            H[: i + 1, i] = xp.compute(xp.vecdot(Q[:, : i + 1].T, rcurr))
+            H[: i + 1, i] = xp.vecdot(Q[:, : i + 1].T, rcurr)
             rcurr = rcurr - Q[:, : i + 1] @ H[: i + 1, i]
-            H[i + 1, i] = xp.compute(xp.linalg.norm(rcurr))[()]
+            H[i + 1, i] = xp.linalg.norm(rcurr)[()]
             Q[:, i + 1] = rcurr / H[i + 1, i]
 
             e1 = xp.zeros((i + 2,), dtype=float)
@@ -84,10 +84,10 @@ def gmres(
             x0 = x_cycle_start + Q[:, : i + 1] @ coeffs
 
             r0 = b - A @ x0
-            r0_norm = xp.compute(xp.linalg.norm(r0))[()]
+            r0_norm = xp.linalg.norm(r0)[()]
             rcurr = r0 / r0_norm
             if r0_norm / initial_beta < tol:
-                return xp.to_benchmark(xp.compute(x0))
+                return xp.to_benchmark(x0)
 
             itcount += 1
             if itcount >= max_iter:
@@ -95,7 +95,7 @@ def gmres(
 
         beta = r0_norm
 
-    xsol = xp.compute(x0)
+    xsol = x0
     return xp.to_benchmark(xsol)
 
 

@@ -38,12 +38,12 @@ AI was used to debug code. This statement was written by hand.
 def benchmark_cg(
     xp, A_bench, b_bench, x_bench, rel_tol=1e-8, abs_tol=1e-20, max_iters=10_000
 ):
-    A = xp.lazy(xp.from_benchmark(A_bench))
-    b = xp.lazy(xp.from_benchmark(b_bench))
-    x = xp.lazy(xp.from_benchmark(x_bench))
+    A = xp.from_benchmark(A_bench)
+    b = xp.from_benchmark(b_bench)
+    x = xp.from_benchmark(x_bench)
 
     tolerance = max(
-        xp.compute(xp.lazy(rel_tol) * xp.sqrt(xp.vecdot(b, b)))[()], abs_tol
+        rel_tol * xp.sqrt(xp.vecdot(b, b))[()], abs_tol
     )
     # tol_sq used to avoid having to sqrt dot products when checking tolerance
     tol_sq = tolerance * tolerance
@@ -51,23 +51,23 @@ def benchmark_cg(
     r = b - A @ x
     p = r
     it = 0
-    rr = xp.compute(xp.vecdot(r, r))[()]
+    rr = xp.vecdot(r, r)[()]
 
     if rr >= tol_sq:
         while it < max_iters:
-            x = xp.lazy(x)
-            r = xp.lazy(r)
-            p = xp.lazy(p)
+            x = x
+            r = r
+            p = p
 
             Ap = A @ p
             alpha = rr / xp.vecdot(r, Ap)
             x += alpha * p
             r -= alpha * Ap
 
-            x = xp.compute(x)
-            r = xp.compute(r)
-            p = xp.compute(p)
-            new_rr = xp.compute(xp.vecdot(r, r))[()]
+            x = x
+            r = r
+            p = p
+            new_rr = xp.vecdot(r, r)[()]
 
             it += 1
 
@@ -78,7 +78,7 @@ def benchmark_cg(
             p = r + beta * p
             rr = new_rr
 
-    x_solution = xp.compute(x)
+    x_solution = x
     return xp.to_benchmark(x_solution)
 
 

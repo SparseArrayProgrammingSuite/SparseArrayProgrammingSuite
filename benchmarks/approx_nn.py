@@ -37,9 +37,9 @@ was written by hand.
 def benchmark_johnson_lindenstrauss_nn(
     xp, data_bench, query_bench, projection_matrix, k=5, eps=0.1
 ):
-    data = xp.lazy(data_bench)
-    query = xp.lazy(query_bench)
-    P = xp.lazy(projection_matrix)
+    data = data_bench
+    query = query_bench
+    P = projection_matrix
 
     n_samples, n_features = data.shape
     #  Johnson Lindenstrauss Theorem Lemmna.
@@ -68,14 +68,14 @@ def benchmark_johnson_lindenstrauss_nn(
     nearest_indices = xp.take(sorted_indices, xp.arange(k), axis=1)
     nearest_distances = xp.take(xp.sort(distances), xp.arange(k), axis=1)
 
-    nearest_indices = xp.compute(nearest_indices)
-    nearest_distances = xp.compute(nearest_distances)
+    nearest_indices = nearest_indices
+    nearest_distances = nearest_distances
 
     return xp.to_benchmark(nearest_indices), xp.to_benchmark(nearest_distances)
 
 
 def data_knn_rla_generator(xp, data_bench, seed=40, eps=0.1):
-    data = xp.lazy(data_bench)
+    data = data_bench
     n_samples, n_features = data.shape
     #  Johnson Lindenstrauss Theorem Lemmna.
     # The eps represents the disortion of distance by epsilon,
@@ -109,4 +109,4 @@ def data_knn_rla_generator(xp, data_bench, seed=40, eps=0.1):
         random_state=rng,
     )
     U_dense = (U_Neg + U_Pos).toarray()
-    return xp.lazy(U_dense)
+    return U_dense

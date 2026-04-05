@@ -43,30 +43,30 @@ AI was used to debug code. This statement was written by hand.
 def benchmark_jacobi(
     xp, A_bench, b_bench, x_bench, rel_tol=1e-6, abs_tol=1e-20, max_iters=1000
 ):
-    A = xp.lazy(xp.from_benchmark(A_bench))
-    b = xp.lazy(xp.from_benchmark(b_bench))
-    x = xp.lazy(xp.from_benchmark(x_bench))
+    A = xp.from_benchmark(A_bench)
+    b = xp.from_benchmark(b_bench)
+    x = xp.from_benchmark(x_bench)
 
-    tolerance = max(rel_tol * xp.compute(norm(xp, b))[()], abs_tol)
+    tolerance = max(rel_tol * norm(xp, b)[()], abs_tol)
     d = xp.with_fill_value(xp.diagonal(A), 1)
-    if xp.compute(xp.any(d == 0)):
+    if xp.any(d == 0):
         raise ValueError("Jacobi requires nonzero diagonal entries.")
 
     r = b - A @ x
     it = 0
 
-    while xp.compute(norm(xp, r))[()] >= tolerance and it < max_iters:
+    while norm(xp, r)[()] >= tolerance and it < max_iters:
         x = x + r / d
-        x = xp.lazy(xp.compute(x))
+        x = x
 
         r = b - A @ x
-        r = xp.lazy(xp.compute(r))
+        r = r
         it += 1
     if it >= max_iters:
         raise RuntimeError(
             "Jacobi did not converge within the maximum number of iterations"
         )
-    x_solution = xp.compute(x)
+    x_solution = x
     return xp.to_benchmark(x_solution)
 
 

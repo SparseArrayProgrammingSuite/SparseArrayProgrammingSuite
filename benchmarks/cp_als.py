@@ -65,7 +65,7 @@ Tuple of (A_bench, B_bench, C_bench, lambda_bench) in binsparse format where:
 
 def benchmark_cp_als(xp, X_bench, rank, max_iter=50):
     X_eager = xp.from_benchmark(X_bench)
-    X = xp.lazy(X_eager)
+    X = X_eager
 
     dim1, dim2, dim3 = X_bench.data["shape"]
     dtype = X_bench.data["values"].dtype
@@ -87,7 +87,7 @@ def benchmark_cp_als(xp, X_bench, rank, max_iter=50):
     )
 
     for _iteration in range(max_iter):
-        (A, B, C) = xp.lazy((A, B, C))
+        (A, B, C) = (A, B, C)
         # Update A
         mttkrp_result = xp.einsum(
             "mttkrp_result[i, r] += X[i, j, k] * B[j, r] * C[k, r]", X=X, B=B, C=C
@@ -116,9 +116,9 @@ def benchmark_cp_als(xp, X_bench, rank, max_iter=50):
         G_pinv = xp.linalg.pinv(G)
         C = xp.matmul(mttkrp_result, G_pinv)
 
-        A, B, C = xp.compute((A, B, C))
+        A, B, C = (A, B, C)
 
-    (A, B, C) = xp.lazy((A, B, C))
+    (A, B, C) = (A, B, C)
 
     # Normalizing factors
     A_norms_sq = xp.einsum("norms[r] += A[i, r] * A[i, r]", A=A)
@@ -148,7 +148,7 @@ def benchmark_cp_als(xp, X_bench, rank, max_iter=50):
 
     # Now compute everything at once
 
-    (A, B, C, lambda_vals) = xp.compute((A, B, C, lambda_vals))
+    (A, B, C, lambda_vals) = (A, B, C, lambda_vals)
 
     # Convert to binsparse format
     A_bench_out = xp.to_benchmark(A)

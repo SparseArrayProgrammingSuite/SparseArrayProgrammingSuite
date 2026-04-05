@@ -51,12 +51,12 @@ def benchmark_rqc_statevector(xp, state_bench, nqubits, num_layers=10):
     state = xp.from_benchmark(state_bench)
 
     # Single lazy chain: apply each gate to each qubit sequentially. (only one layer)
-    state = xp.lazy(state)
+    state = state
     for q in range(nqubits):
         state = apply_single_qubit_gate(xp, state, gates[q], q, nqubits)
 
     # Evaluate the lazy chain
-    state = xp.compute(state)
+    state = state
 
     return xp.to_benchmark(state)
 

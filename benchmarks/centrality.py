@@ -31,7 +31,7 @@ the benchmark function. This statement is written by hand.
 
 
 def betweenness_centrality(xp, A_binsparse):
-    G = xp.lazy(xp.from_benchmark(A_binsparse))
+    G = xp.from_benchmark(A_binsparse)
     n = G.shape[0]
     bc_scores = xp.zeros((n,), dtype=float)
 
@@ -45,24 +45,24 @@ def betweenness_centrality(xp, A_binsparse):
         layer_traversal = []
         depth = 0
 
-        neighbors = xp.lazy(neighbors)
-        node_count = xp.compute(xp.sum(neighbors))
+        neighbors = neighbors
+        node_count = xp.sum(neighbors)
 
         while node_count != 0:
             depth += 1
 
             layer_traversal.append(neighbors != 0)
 
-            number_of_paths, neighbors = xp.lazy((number_of_paths, neighbors))
+            number_of_paths, neighbors = (number_of_paths, neighbors)
 
             number_of_paths = number_of_paths + neighbors
 
             not_neighbors = xp.equal(number_of_paths, 0)
             next_neighbors = xp.matmul(neighbors, G) * not_neighbors
 
-            number_of_paths, next_neighbors, node_count = xp.compute(
+            number_of_paths, next_neighbors, node_count = 
                 (number_of_paths, next_neighbors, xp.sum(next_neighbors))
-            )
+            
 
             neighbors = next_neighbors
 
@@ -73,9 +73,9 @@ def betweenness_centrality(xp, A_binsparse):
 
             prev_layer = layer_traversal[depth - 2].astype(float)
 
-            score_update, neighbors_layer, prev_layer, number_of_paths = xp.lazy(
+            score_update, neighbors_layer, prev_layer, number_of_paths = 
                 (score_update, neighbors_layer, prev_layer, number_of_paths)
-            )
+            
 
             denom = xp.maximum(number_of_paths, 1e-10)
             update_val = neighbors_layer * (1.0 + score_update) / denom
@@ -84,7 +84,7 @@ def betweenness_centrality(xp, A_binsparse):
 
             update_val = update_val * prev_layer * number_of_paths
 
-            score_update, update_val = xp.compute((score_update, update_val))
+            score_update, update_val = (score_update, update_val)
             score_update = score_update + update_val
 
             depth -= 1

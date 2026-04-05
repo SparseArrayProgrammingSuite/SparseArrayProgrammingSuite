@@ -32,11 +32,11 @@ def bellman_ford(xp, edges, src):
 
     for _ in range(n):
         D_prev = D
-        D = xp.lazy(D)
+        D = D
         candidates = xp.expand_dims(D, 1) + G
         D = xp.minimum(D, candidates.min(axis=0))
         stop = xp.all(D_prev == D)
-        D, stop = xp.compute((D, stop))
+        D, stop = (D, stop)
         if stop:
             break
 

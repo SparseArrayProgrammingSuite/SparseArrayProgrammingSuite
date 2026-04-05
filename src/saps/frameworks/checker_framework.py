@@ -150,7 +150,7 @@ class CheckerTensor:
         if self.ndim != 0:
             raise ValueError("Cannot convert non-scalar tensor to complex.")
         # dispatch to the scalar value's `__complex__` method
-        return complex(self.xp.compute(self)[()])
+        return complex(self[()])
 
     def __float__(self):
         """
@@ -159,7 +159,7 @@ class CheckerTensor:
         if self.ndim != 0:
             raise ValueError("Cannot convert non-scalar tensor to float.")
         # dispatch to the scalar value's `__float__` method
-        return float(self.xp.compute(self)[()])
+        return float(self[()])
 
     def __int__(self):
         """
@@ -168,7 +168,7 @@ class CheckerTensor:
         if self.ndim != 0:
             raise ValueError("Cannot convert non-scalar tensor to int.")
         # dispatch to the scalar value's `__int__` method
-        return int(self.xp.compute(self)[()])
+        return int(self[()])
 
     def __bool__(self):
         """
@@ -177,7 +177,7 @@ class CheckerTensor:
         if self.ndim != 0:
             raise ValueError("Cannot convert non-scalar tensor to bool.")
         # dispatch to the scalar value's `__bool__` method
-        return bool(self.xp.compute(self)[()])
+        return bool(self[()])
 
     def __log__(self):
         return self.xp.log(self)

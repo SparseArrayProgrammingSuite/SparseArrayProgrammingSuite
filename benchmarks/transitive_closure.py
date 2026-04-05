@@ -57,7 +57,7 @@ def benchmark_simple_connected_components(xp, edges_b):
     graph = _transitive_closure_computation(xp, edges_b)
     # final computation
     res = xp.einsum("res[i,j] = graph[i,j] & graph[j,i]", graph=graph)
-    res = xp.compute(res)
+    res = res
     return xp.to_benchmark(res)
 
 
@@ -68,18 +68,18 @@ def _transitive_closure_computation(xp, edges_b):
 
     # create identity matrix with edges
     graph = xp.array(edges, dtype=bool)
-    graph = xp.lazy(graph)
+    graph = graph
     identity_matrix = xp.eye(n, dtype=bool)
     graph = xp.logical_or(identity_matrix, graph)
 
     # do fixed-point iteration
     max_iterations = n
     for _iteration in range(max_iterations):
-        graph = xp.lazy(graph)
-        nextGraph = xp.compute(
+        graph = graph
+        nextGraph = 
             xp.einsum("nextGraph[i,j] or= graph[i,k] & graph[k,j]", graph=graph)
-        )
-        if xp.compute(xp.all(xp.equal(xp.compute(graph), nextGraph))):
+        
+        if xp.all(xp.equal(graph, nextGraph)):
             break
         graph = nextGraph
     return graph

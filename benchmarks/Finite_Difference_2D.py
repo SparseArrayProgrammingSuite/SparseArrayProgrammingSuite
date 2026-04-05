@@ -71,7 +71,7 @@ def lax_freidrichs_data_generator(xp, number_spatial_x, number_spatial_y, densit
     indices = xp.arange(0, number_spatial_x * number_spatial_y, step)
 
     u_0[indices] = 1
-    return xp.lazy(u_0)
+    return u_0
 
 
 # This matrix formula assume Dirichlet BC instead of Periodic BC.
@@ -91,7 +91,7 @@ def lax_freidrichs_matrix_no_flux(xp, number_spatial_x, number_spatial_y):
         if y < number_spatial_y - 1:
             matrix[i, i + number_spatial_x] = 0.25
 
-    return xp.lazy(matrix)
+    return matrix
 
 
 def difference_matrix_x_direction(xp, number_spatial_x, number_spatial_y):
@@ -104,7 +104,7 @@ def difference_matrix_x_direction(xp, number_spatial_x, number_spatial_y):
         if x < number_spatial_x - 1:
             dif_x_matrix[i, i + 1] = +1
 
-    return xp.lazy(dif_x_matrix)
+    return dif_x_matrix
 
 
 def difference_matrix_y_direction(xp, number_spatial_x, number_spatial_y):
@@ -117,7 +117,7 @@ def difference_matrix_y_direction(xp, number_spatial_x, number_spatial_y):
         if y < number_spatial_y - 1:
             dif_y_matrix[i, i + number_spatial_x] = +1
 
-    return xp.lazy(dif_y_matrix)
+    return dif_y_matrix
 
 
 def lax_friedrichs_solver_matrix_2d(
@@ -133,10 +133,10 @@ def lax_friedrichs_solver_matrix_2d(
     dx,
     dy,
 ):
-    u_0 = xp.lazy(u0_bench)
-    matrix = xp.lazy(matrix_bench)
-    diff_x = xp.lazy(diff_x_bench)
-    diff_y = xp.lazy(diff_y_bench)
+    u_0 = u0_bench
+    matrix = matrix_bench
+    diff_x = diff_x_bench
+    diff_y = diff_y_bench
 
     Nt = timesteps + 1
     u = xp.zeros((Nt, u_0.shape[0]))

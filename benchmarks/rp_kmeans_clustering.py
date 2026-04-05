@@ -53,7 +53,7 @@ def rp_kmeans_clustering(xp, A_benchmark, k, eps, c=1, max_iter=100):
     assert eps > 0 and eps < 1 / 3
     assert k > 0
     A = xp.from_benchmark(A_benchmark)
-    A = xp.lazy(A)
+    A = A
     n, d = A.shape
     t = int(c * math.ceil(k / eps**2))
     value = 1 / (t**0.5)

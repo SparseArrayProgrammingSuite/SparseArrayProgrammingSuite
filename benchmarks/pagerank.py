@@ -31,7 +31,7 @@ tests. This statement was written by hand.
 
 def pagerank(xp, A_binsparse, alpha=0.85, max_iter=100, tol=1e-8):
     A = xp.from_benchmark(A_binsparse)
-    A = xp.lazy(A)
+    A = A
     out_degree = xp.sum(A, axis=0)
     M = xp.array(A, dtype=float)
     N = A.shape[0]
@@ -41,13 +41,13 @@ def pagerank(xp, A_binsparse, alpha=0.85, max_iter=100, tol=1e-8):
     M = M / safe_out
     M = M * (1 - zero_deg) + (1.0 / N) * zero_deg
 
-    M = xp.compute(M)
+    M = M
     x = xp.full((N,), 1.0 / N)
     u = xp.full((N,), 1.0 / N)
     for _ in range(max_iter):
         x_new = alpha * xp.matmul(M, x) + (1 - alpha) * u
         diff = norm(xp, x_new - x)
-        (x_new, diff) = xp.compute((x_new, diff))
+        (x_new, diff) = (x_new, diff)
         if diff < tol:
             break
         x = x_new
