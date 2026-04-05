@@ -9,18 +9,18 @@
         "version": "abe86bab484550a681c61d7bb6eb081fbd37eb6d5009eba1df85c935530577b9"
     },
     "benchmarks.TimeSuite.time_range": {
-        "code": "class TimeSuite:\n    def time_range(self, data_generator):\n        d = self.d\n        for key in range(data_generator):\n            d[key]\n\n    def setup(self, data_generator):\n        self.d = {}\n        for x in range(data_generator):\n            self.d[x] = None",
+        "code": "class TimeSuite:\n    def time_range(self, dataset):\n        d = self.d\n        for key in range(dataset):\n            d[key]\n\n    def setup(self, dataset):\n        self.d = {}\n        for x in range(dataset):\n            self.d[x] = None",
         "min_run_count": 2,
         "name": "benchmarks.TimeSuite.time_range",
         "number": 0,
         "param_names": [
-            "data_generator"
+            "dataset"
         ],
         "params": [
             [
                 "0",
-                "1",
-                "100"
+                "2",
+                "3"
             ]
         ],
         "repeat": 0,
@@ -28,7 +28,7 @@
         "sample_time": 0.01,
         "type": "time",
         "unit": "seconds",
-        "version": "b47e6da848b637977f37362da493ab6e3188294f6c4b4d06b5a9adf1f08d2cba",
+        "version": "8f2a6a1d6bf4739422332f439242470c0f16343aa36b5e638c05cff3102224e7",
         "warmup_time": -1
     },
     "version": 2
