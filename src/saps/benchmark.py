@@ -16,6 +16,14 @@ class Author:
         return f"{self.name} <{self.email}>"
 
 @dataclass
+class Contributor:
+    name: str
+    email: str
+
+    def __str__(self):
+        return f"{self.name} <{self.email}>"
+
+@dataclass
 class Ref:
     title: str
     authors: list[Author]
@@ -50,6 +58,11 @@ class Ref:
             f"{volume_str}{number_str}{pages_str}{year_str}{url_str}{doi_str}."
         )
 
+saps_root = Path(os.getenv("SAPS_DATA_PATH", Path(__file__).parent.parent.parent))
+benchmark_metadata = saps_root / "benchmark_metadata.json"
+benchmark_metadata.parent.mkdir(parents=True, exist_ok=True)
+benchmark_metadata.unlink(missing_ok=True)
+benchmark_metadata.write_text(json.dumps({"benchmarks": []}, indent=2), encoding="utf-8")
 
 class Benchmark(ABC):
     _ASV_METHOD_PREFIXES = ("time_", "mem_", "track_", "peakmem_", "timeraw_")
@@ -64,14 +77,11 @@ class Benchmark(ABC):
         except Exception:
             return
 
-        root = Path(os.getenv("SAPS_DATA_PATH", Path(__file__).parent.parent))
-        sidecar = root / "saps_benchmarks.json"
-        sidecar.parent.mkdir(parents=True, exist_ok=True)
-
         entry = {
-            "id": f"{cls.__module__}.{cls.__name__}",
             "module": cls.__module__,
             "class_name": cls.__name__,
+            "tag": instance.tag,
+            "id": f"{cls.__module__}.{cls.__name__}.{instance.tag}",
             "dataset_names": list(instance.dataset_names),
             "param_names": list(getattr(instance, "param_names", [])),
             "authors": [str(a) for a in instance.authors],
@@ -86,21 +96,28 @@ class Benchmark(ABC):
             ],
         }
 
-        payload = {"benchmarks": []}
-        if sidecar.exists():
-            try:
-                payload = json.loads(sidecar.read_text(encoding="utf-8"))
-            except json.JSONDecodeError:
-                payload = {"benchmarks": []}
-
+        payload = json.loads(benchmark_metadata.read_text(encoding="utf-8"))
         existing = payload.get("benchmarks", [])
         by_id = {item.get("id"): item for item in existing if isinstance(item, dict)}
         by_id[entry["id"]] = entry
         payload["benchmarks"] = sorted(by_id.values(), key=lambda item: item["id"])
 
-        tmp_path = sidecar.with_suffix(".tmp")
+        tmp_path = benchmark_metadata.with_suffix(".tmp")
         tmp_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-        tmp_path.replace(sidecar)
+        tmp_path.replace(benchmark_metadata)
+
+        def _mem_run(self, dataset):
+            self.run(dataset)
+
+        def _time_run(self, dataset):
+            self.run(dataset)
+
+        setattr(cls, f"mem_{instance.tag}", _mem_run)
+        setattr(getattr(cls, f"mem_{instance.tag}"), "pretty_source", inspect.getsource(cls.run))
+        
+        setattr(cls, f"time_{instance.tag}", _time_run)
+        setattr(getattr(cls, f"time_{instance.tag}"), "pretty_source", inspect.getsource(cls.run))
+
 
     @property
     def params(self):
@@ -113,7 +130,17 @@ class Benchmark(ABC):
 
     @property
     @abstractmethod
-    def authors(self) -> list[Author]:
+    def name(self) -> str:
+        pass
+
+    @property
+    @abstractmethod
+    def tag(self) -> str:
+        pass
+
+    @property
+    @abstractmethod
+    def authors(self) -> list[Contributor]:
         pass
 
     @property
@@ -143,9 +170,3 @@ class Benchmark(ABC):
 
     @abstractmethod
     def run(self, dataset): ...
-
-    def mem_run(self, dataset):
-        self.run(dataset)
-
-    def time_run(self, dataset):
-        self.run(dataset)

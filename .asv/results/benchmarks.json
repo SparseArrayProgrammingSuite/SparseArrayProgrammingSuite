@@ -1,16 +1,7 @@
 {
-    "benchmarks.MemSuite.mem_list": {
-        "code": "class MemSuite:\n    def mem_list(self):\n        return [0] * 256",
-        "name": "benchmarks.MemSuite.mem_list",
-        "param_names": [],
-        "params": [],
-        "type": "memory",
-        "unit": "bytes",
-        "version": "abe86bab484550a681c61d7bb6eb081fbd37eb6d5009eba1df85c935530577b9"
-    },
-    "benchmarks.TimeSuite.mem_run": {
-        "code": "class Benchmark:\n    def mem_run(self, dataset):\n        self.run(dataset)\n\nclass TimeSuite:\n    def setup(self, dataset):\n        self.d = {}\n        for x in range(dataset):\n            self.d[x] = None",
-        "name": "benchmarks.TimeSuite.mem_run",
+    "benchmarks.JLApproxNearestNeighbor.mem_jl_approx_nn": {
+        "code": "class <locals>:\n    def run(self, dataset):\n        d = self.d\n        for key in range(dataset):\n            d[key]\n    \n\nclass JLApproxNearestNeighbor:\n    def setup(self, dataset):\n        self.d = {}\n        for x in range(dataset):\n            self.d[x] = None",
+        "name": "benchmarks.JLApproxNearestNeighbor.mem_jl_approx_nn",
         "param_names": [
             "dataset"
         ],
@@ -23,12 +14,12 @@
         ],
         "type": "memory",
         "unit": "bytes",
-        "version": "d05796d746b42a93bb42ff58c61cabe9e8c1fc6fca4a810452b7befd7d1054ea"
+        "version": "9977ceb80866c0d1c74830ee0f345467ab0f23eb0566cd52083c8c2478d54954"
     },
-    "benchmarks.TimeSuite.time_run": {
-        "code": "class Benchmark:\n    def time_run(self, dataset):\n        self.run(dataset)\n\nclass TimeSuite:\n    def setup(self, dataset):\n        self.d = {}\n        for x in range(dataset):\n            self.d[x] = None",
+    "benchmarks.JLApproxNearestNeighbor.time_jl_approx_nn": {
+        "code": "class <locals>:\n    def run(self, dataset):\n        d = self.d\n        for key in range(dataset):\n            d[key]\n    \n\nclass JLApproxNearestNeighbor:\n    def setup(self, dataset):\n        self.d = {}\n        for x in range(dataset):\n            self.d[x] = None",
         "min_run_count": 2,
-        "name": "benchmarks.TimeSuite.time_run",
+        "name": "benchmarks.JLApproxNearestNeighbor.time_jl_approx_nn",
         "number": 0,
         "param_names": [
             "dataset"
@@ -45,8 +36,17 @@
         "sample_time": 0.01,
         "type": "time",
         "unit": "seconds",
-        "version": "4df1c0c10ff378c5364bde2912e5dab4ed63c73303c104301f420935557d8f66",
+        "version": "9977ceb80866c0d1c74830ee0f345467ab0f23eb0566cd52083c8c2478d54954",
         "warmup_time": -1
+    },
+    "benchmarks.MemSuite.mem_list": {
+        "code": "class MemSuite:\n    def mem_list(self):\n        return [0] * 256",
+        "name": "benchmarks.MemSuite.mem_list",
+        "param_names": [],
+        "params": [],
+        "type": "memory",
+        "unit": "bytes",
+        "version": "abe86bab484550a681c61d7bb6eb081fbd37eb6d5009eba1df85c935530577b9"
     },
     "version": 2
 }

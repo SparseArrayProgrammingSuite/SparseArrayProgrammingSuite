@@ -6,18 +6,22 @@ xp = saps.xp
 
 #poetry run asv run --python=same -v --set-commit-hash $(git rev-parse HEAD) --record-samples
 
-class TimeSuite(saps.Benchmark):
+class JLApproxNearestNeighbor(saps.Benchmark):
     @property
     def dataset_names(self):
         return [0, 2, 3]
-
+    
     @property
-    def pretty_name(self):
+    def name(self):
         return "Random Numerical Linear Algebra: JL Approximate NN"
+    
+    @property
+    def tag(self):
+        return "jl_approx_nn"
 
     @property
     def authors(self):
-        return [saps.Author("Vilohith Gokarakonda", "vgokarakonda3@gatech.edu")]
+        return [saps.Contributor("Vilohith Gokarakonda", "vgokarakonda3@gatech.edu")]
 
     @property
     def description(self):
