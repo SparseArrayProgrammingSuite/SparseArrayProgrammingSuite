@@ -2,14 +2,14 @@ import numpy as np
 
 import sparse as sp
 
-from sparseappbench.benchmarks.matmul import (
+from saps.benchmarks.matmul import (
     benchmark_matmul,
     dg_matmul_dense_small,
 )
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.checker_framework import CheckerFramework
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
-from sparseappbench.frameworks.sparse_framework import (
+from saps.binsparse_format import BinsparseFormat
+from saps.frameworks.checker_framework import CheckerFramework
+from saps.frameworks.numpy_framework import NumpyFramework
+from saps.frameworks.sparse_framework import (
     PyDataSparseFramework,
 )
 

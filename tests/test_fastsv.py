@@ -1,8 +1,8 @@
 import numpy as np
 
-from sparseappbench.benchmarks.fastsv import benchmark_fastsv
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from saps.benchmarks.fastsv import benchmark_fastsv
+from saps.binsparse_format import BinsparseFormat
+from saps.frameworks.numpy_framework import NumpyFramework
 
 
 def _run_fastsv_case(A, expected):

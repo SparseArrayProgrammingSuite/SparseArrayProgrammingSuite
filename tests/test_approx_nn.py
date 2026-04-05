@@ -1,10 +1,10 @@
 import numpy as np
 
-from sparseappbench.benchmarks.approx_nn import (
+from saps.benchmarks.approx_nn import (
     benchmark_johnson_lindenstrauss_nn,
     data_knn_rla_generator,
 )
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from saps.frameworks.numpy_framework import NumpyFramework
 
 
 def test_jl_preserves_distance(rng):

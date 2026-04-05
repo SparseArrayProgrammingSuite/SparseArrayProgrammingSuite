@@ -1,3 +1,3 @@
-import sparseappbench as autobench
+import saps as autobench
 
 autobench.main()

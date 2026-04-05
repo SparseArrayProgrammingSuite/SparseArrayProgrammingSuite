@@ -2,12 +2,12 @@ import pytest
 
 import numpy as np
 
-from sparseappbench.benchmarks.tri_4cliq import (
+from saps.benchmarks.tri_4cliq import (
     benchmark_4clique_count,
     benchmark_triangle_count,
 )
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from saps.binsparse_format import BinsparseFormat
+from saps.frameworks.numpy_framework import NumpyFramework
 
 
 @pytest.mark.parametrize(

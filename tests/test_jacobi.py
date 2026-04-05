@@ -2,11 +2,11 @@ import pytest
 
 import numpy as np
 
-from sparseappbench.benchmarks.jacobi import benchmark_jacobi
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.checker_framework import CheckerFramework
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
-from sparseappbench.frameworks.sparse_framework import (
+from saps.benchmarks.jacobi import benchmark_jacobi
+from saps.binsparse_format import BinsparseFormat
+from saps.frameworks.checker_framework import CheckerFramework
+from saps.frameworks.numpy_framework import NumpyFramework
+from saps.frameworks.sparse_framework import (
     PyDataSparseFramework,
 )
 

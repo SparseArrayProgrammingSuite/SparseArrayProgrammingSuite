@@ -2,10 +2,10 @@ import pytest
 
 import numpy as np
 
-from sparseappbench.benchmarks.matmul import benchmark_matmul
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.checker_framework import CheckerFramework
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from saps.benchmarks.matmul import benchmark_matmul
+from saps.binsparse_format import BinsparseFormat
+from saps.frameworks.checker_framework import CheckerFramework
+from saps.frameworks.numpy_framework import NumpyFramework
 
 
 @pytest.mark.parametrize(
