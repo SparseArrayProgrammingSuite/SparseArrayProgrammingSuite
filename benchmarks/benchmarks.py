@@ -1,21 +1,31 @@
 # Write the benchmarking functions here.
 # See "Writing benchmarks" in the asv docs for more information.
+import saps
+
+xp = saps.xp
 
 class Foo:
-    params = [1, 10, 100]
-    param_names = ["size"]
+    @property
+    def params(self):
+        return ([xp], self.data_generators)
+    
+    param_names = ["xp", "size"]
 
 class TimeSuite(Foo):
     """
     An example benchmark that times the performance of various kinds
     of iterating over dictionaries in Python.
     """
-    def setup(self, s):
+    @property
+    def data_generators(self):
+        return [0, 1, 100]
+
+    def setup(self, xp, s):
         self.d = {}
         for x in range(s):
             self.d[x] = None
 
-    def time_range(self, s):
+    def time_range(self, xp, s):
         d = self.d
         for key in range(s):
             d[key]
