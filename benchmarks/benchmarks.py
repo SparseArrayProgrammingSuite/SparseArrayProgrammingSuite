@@ -1,5 +1,6 @@
 import json
 import os
+import inspect
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
@@ -45,6 +46,30 @@ class Ref:
 
 
 class Benchmark(ABC):
+    _ASV_METHOD_PREFIXES = ("time_", "mem_", "track_", "peakmem_", "timeraw_")
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if inspect.isabstract(cls):
+            return
+
+        try:
+            instance = cls()
+            source_text = instance.pretty_source
+        except Exception:
+            return
+
+        for name, attr in cls.__dict__.items():
+            if callable(attr) and any(name.startswith(p) for p in cls._ASV_METHOD_PREFIXES):
+                setattr(attr, "pretty_source", source_text)
+
+        # Prevent ASV from appending setup method source into the exported
+        # `code` field, so the benchmark source is fully controlled by
+        # `pretty_source`.
+        setup = cls.__dict__.get("setup")
+        if callable(setup):
+            setattr(setup, "pretty_source", "")
+
     @property
     def params(self):
         return (self.dataset_names,)
@@ -156,8 +181,6 @@ class TimeSuite(Benchmark):
             "No generative AI was used to construct the benchmark function itself. "
             "Generative AI might have been used to construct tests."
         )
-
-    pretty_source = "foo"
 
     def setup(self, dataset):
         self.d = {}
