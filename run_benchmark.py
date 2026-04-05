@@ -60,10 +60,16 @@ def main() -> int:
         help="Machine name to use (default: host name)",
     )
     parser.add_argument(
-        "--bench",
+        "--re",
         action="append",
         default=None,
         help="Regex benchmark filter (can be passed more than once)",
+    )
+    parser.add_argument(
+        "--no-re",
+        action="append",
+        default=None,
+        help="Regex benchmark exclude filter (can be passed more than once)",
     )
     parser.add_argument(
         "--tag",
@@ -98,8 +104,6 @@ def main() -> int:
 
     conf = Config.load(args.config)
 
-    benchmark_dir = Path(conf.benchmark_dir)
-
     machine_params = Machine.load(
         machine_name=args.machine,
         interactive=True,
@@ -131,17 +135,44 @@ def main() -> int:
 
     include_set = {tag.strip().lower() for tag in args.tag if tag and tag.strip()}
     exclude_set = {tag.strip().lower() for tag in args.no_tag if tag and tag.strip()}
+    def is_include(obj) -> bool:
+        if args.re and re.search(args.re, obj['id']):
+            return False
+        if include_set and not include_set.intersection(obj["tags"]):
+            return False
+        return True
+    def is_exclude(obj) -> bool:
+        if args.no_re and re.search(args.no_re, obj.id):
+            return True
+        if exclude_set and exclude_set.intersection(obj["tags"]):
+            return True
+        return False
     skips = []
+    extra_params = {}
     for name in benchmarks.keys():
-        if args.bench and re.search(args.bench, name) is None:
-            skips.append(name)
         if name not in metadata:
             log.warning(f"No SAPS metadata found for benchmark '{name}', skipping SAPS tag filtering for this benchmark")
             skips.append(name)
-        if include_set and not include_set.intersection(metadata[name]["tags"]):
+            continue
+        if is_exclude(metadata[name]):
             skips.append(name)
-        if exclude_set and exclude_set.intersection(metadata[name]["tags"]):
-            skips.append(name)
+            continue
+        params = []
+        for generator in metadata[name]["generators"]:
+            if is_exclude(generator):
+                continue
+            for dataset in generator["datasets"]:
+                if is_exclude(dataset):
+                    continue
+                if not (
+                    is_include(metadata[name]) or
+                    is_include(generator) or 
+                    is_include(dataset)):
+                    continue
+                params.append(f"{generator['name']}.{dataset['name']}")
+        extra_params[name] = params
+        print(params)
+
     benchmarks = benchmarks.filter_out(set(skips))
 
     results_dir = Path(conf.results_dir)
@@ -151,7 +182,6 @@ def main() -> int:
         json.dumps(metadata, indent=2, sort_keys=True),
         encoding="utf-8",
     )
-
 
     print(f"Discovered {len(benchmarks)} benchmark entries")
 
@@ -179,6 +209,7 @@ def main() -> int:
             results=results,
             show_stderr=args.show_stderr,
             quick=args.quick,
+            extra_params=extra_params,
         )
 
         print("Results object:", results)
