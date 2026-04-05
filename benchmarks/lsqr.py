@@ -140,7 +140,7 @@ def benchmark_lsqr(
         test2 = Arnorm / (Anorm * rnorm)
         test3 = 1 / Acond
 
-        reltol = atol * Anorm * xnorm / bnorm + btol[()]
+        reltol = atol * Anorm * xnorm / bnorm + btol
 
         # Exits if the condition number grows too high
         if test3 <= ctol:

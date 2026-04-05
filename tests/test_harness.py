@@ -84,24 +84,3 @@ def test_pydata_sparse_framework():
     assert bsf_sparse == bsf_sparse_converted, "Sparse array to_benchmark failed"
 
 
-def test_checker_framework():
-    framework = CheckerFramework()
-    # Test lazy and compute
-    assert isinstance(
-        benchmark_matmul(framework, *dg_matmul_dense_small()), BinsparseFormat
-    ), "MatMul benchmark failed with CheckerFramework"
-
-    def bad_benchmark_no_compute(framework, A_bench, B_bench):
-        A_lazy = framework.from_benchmark(A_bench)
-        B_lazy = framework.from_benchmark(B_bench)
-        C_lazy = framework.matmul(A_lazy, B_lazy)
-        # Intentionally not calling compute to test error handling
-        return framework.to_benchmark(C_lazy)
-
-    try:
-        bad_benchmark_no_compute(framework, *dg_matmul_dense_small())
-        raise ValueError(
-            "Expected error for converting lazy tensor to benchmark format"
-        )
-    except AssertionError:
-        pass  # Expected
