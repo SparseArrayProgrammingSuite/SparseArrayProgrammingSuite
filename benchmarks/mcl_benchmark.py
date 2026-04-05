@@ -21,12 +21,15 @@ itself. Generative AI was used to debug code. This statement was written by hand
 """
 
 import os
+import saps
 
 from scipy.io import mmread
 
 import ssgetpy
 
 from ..src.saps.binsparse_format import BinsparseFormat
+
+xp = saps.xp
 
 
 def _normalize(array_api, matrix):
@@ -81,7 +84,6 @@ The final converged matrix in binsparse format
 
 
 def benchmark_mcl(
-    array_api,
     graph_binsparse,
     expansion=2,
     inflation=2,
@@ -91,6 +93,7 @@ def benchmark_mcl(
     pruning_frequency=1,
     convergence_check_frequency=1,
 ):
+    array_api = xp
     # begin region 1
     graph_lazy = array_api.lazy(array_api.from_benchmark(graph_binsparse))
 

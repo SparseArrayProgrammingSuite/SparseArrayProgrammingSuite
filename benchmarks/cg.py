@@ -3,10 +3,13 @@ import os
 import numpy as np
 from scipy.io import mmread
 from scipy.sparse import random
+import saps
 
 import ssgetpy
 
 from ..src.saps.binsparse_format import BinsparseFormat
+
+xp = saps.xp
 
 """
 Name: Conjugate Gradient Iterative Solver
@@ -33,7 +36,7 @@ AI was used to debug code. This statement was written by hand.
 
 
 def benchmark_cg(
-    xp, A_bench, b_bench, x_bench, rel_tol=1e-8, abs_tol=1e-20, max_iters=10_000
+    A_bench, b_bench, x_bench, rel_tol=1e-8, abs_tol=1e-20, max_iters=10_000
 ):
     A = xp.lazy(xp.from_benchmark(A_bench))
     b = xp.lazy(xp.from_benchmark(b_bench))

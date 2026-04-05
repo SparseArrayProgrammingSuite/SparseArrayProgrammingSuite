@@ -33,8 +33,11 @@ used to debug some parts of the code. This statement was written by hand.
 """
 
 import numpy as np
+import saps
 
 from ..src.saps.binsparse_format import BinsparseFormat
+
+xp = saps.xp
 
 """
 benchmark_cp_als(xp, X_bench, rank, max_iter)
@@ -60,7 +63,7 @@ Tuple of (A_bench, B_bench, C_bench, lambda_bench) in binsparse format where:
 """
 
 
-def benchmark_cp_als(xp, X_bench, rank, max_iter=50):
+def benchmark_cp_als(X_bench, rank, max_iter=50):
     X_eager = xp.from_benchmark(X_bench)
     X = xp.lazy(X_eager)
 

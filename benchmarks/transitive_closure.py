@@ -43,13 +43,17 @@ itself. Generative AI might have been used to construct tests. This statement
 was written by hand.
 """
 
+import saps
 
-def benchmark_transitive_closure(xp, edges_b):
+xp = saps.xp
+
+
+def benchmark_transitive_closure(edges_b):
     graph = _transitive_closure_computation(xp, edges_b)
     return xp.to_benchmark(graph)
 
 
-def benchmark_simple_connected_components(xp, edges_b):
+def benchmark_simple_connected_components(edges_b):
     graph = _transitive_closure_computation(xp, edges_b)
     # final computation
     res = xp.einsum("res[i,j] = graph[i,j] & graph[j,i]", graph=graph)

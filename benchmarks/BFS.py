@@ -29,8 +29,12 @@ the benchmark function itself. Generative AI might have been used to construct
 tests. This statement was written by hand.
 """
 
+import saps
 
-def benchmark_bfs(xp, adjacency_matrix, source):
+xp = saps.xp
+
+
+def benchmark_bfs(adjacency_matrix, source):
     """
     Returns level id of vertices in a graph during BFS from
     a given source vertex.

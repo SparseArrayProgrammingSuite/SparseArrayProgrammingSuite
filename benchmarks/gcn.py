@@ -26,11 +26,14 @@ was written by hand.
 import os
 
 import numpy as np
+import saps
 from scipy.io import mmread
 
 import ssgetpy
 
 from ..src.saps.binsparse_format import BinsparseFormat
+
+xp = saps.xp
 
 """
     benchmark_gcn(xp, adjacency_bench, features_bench, weights1_bench,
@@ -65,7 +68,6 @@ BinsparseFormat
 
 
 def benchmark_gcn(
-    xp,
     adjacency_bench,
     features_bench,
     weights1_bench,

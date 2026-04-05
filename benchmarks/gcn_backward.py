@@ -33,15 +33,17 @@ was written by hand.
 import os
 
 import numpy as np
+import saps
 from scipy.io import mmread
 
 import ssgetpy
 
 from ..src.saps.binsparse_format import BinsparseFormat
 
+xp = saps.xp
+
 
 def benchmark_gcn_backward(
-    xp,
     adjacency_bench,
     adjacency_T_bench,
     features_bench,

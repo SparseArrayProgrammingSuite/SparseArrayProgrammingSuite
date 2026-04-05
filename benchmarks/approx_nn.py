@@ -1,5 +1,8 @@
 import numpy as np
 import scipy as sp
+import saps
+
+xp = saps.xp
 
 """
 Name: Random Numerical Linear Algenra
@@ -32,7 +35,7 @@ was written by hand.
 
 
 def benchmark_johnson_lindenstrauss_nn(
-    xp, data_bench, query_bench, projection_matrix, k=5, eps=0.1
+    data_bench, query_bench, projection_matrix, k=5, eps=0.1
 ):
     data = xp.lazy(data_bench)
     query = xp.lazy(query_bench)

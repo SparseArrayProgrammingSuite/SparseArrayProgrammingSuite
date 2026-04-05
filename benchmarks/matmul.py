@@ -22,9 +22,12 @@ was written by hand.
 """
 
 import numpy as np
+import saps
 import scipy.sparse as sp
 
 from ..src.saps.binsparse_format import BinsparseFormat
+
+xp = saps.xp
 
 r"""
     benchmark_matmul(xp, A_bench, B_bench)
@@ -42,7 +45,7 @@ Returns:
 """
 
 
-def benchmark_matmul(xp, A_bench, B_bench):
+def benchmark_matmul(A_bench, B_bench):
     A_lazy = xp.lazy(xp.from_benchmark(A_bench))
     B_lazy = xp.lazy(xp.from_benchmark(B_bench))
     C_lazy = xp.matmul(A_lazy, B_lazy)

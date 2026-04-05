@@ -20,8 +20,12 @@ the benchmark function itself. Generative AI was used for debugging. Generative
 AI might have been used to construct tests. This statement was written by hand.
 """
 
+import saps
 
-def benchmark_fastsv(xp, adjacency_matrix):
+xp = saps.xp
+
+
+def benchmark_fastsv(adjacency_matrix):
     A = xp.from_benchmark(adjacency_matrix)
     A = A != 0
 

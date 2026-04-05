@@ -30,12 +30,14 @@ This statement was written by hand.
 """
 
 import numpy as np
+import saps
 
 from ..src.saps.binsparse_format import BinsparseFormat
 
+xp = saps.xp
+
 
 def benchmark_ccsd(
-    xp,
     Vme_bench,  # (no, nv)
     Vae_bench,  # (nv, nv)
     Vmi_bench,  # (no, no)
