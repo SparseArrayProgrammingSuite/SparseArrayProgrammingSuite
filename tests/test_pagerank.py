@@ -4,7 +4,7 @@ import numpy as np
 
 import networkx as nx
 
-from saps.benchmarks.pagerank import pagerank
+from benchmarks.pagerank import pagerank
 from saps.binsparse_format import BinsparseFormat
 from saps.frameworks.numpy_framework import NumpyFramework
 

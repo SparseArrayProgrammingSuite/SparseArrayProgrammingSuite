@@ -6,7 +6,7 @@ from scipy.sparse import random
 
 import ssgetpy
 
-from ..binsparse_format import BinsparseFormat
+from ..src.saps.binsparse_format import BinsparseFormat
 
 """
 Name: LSQR Iterative Solver

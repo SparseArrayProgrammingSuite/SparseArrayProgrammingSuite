@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 
-from saps.benchmarks.coupled_cluster import benchmark_ccsd, make_ccsd_inputs
+from benchmarks.coupled_cluster import benchmark_ccsd, make_ccsd_inputs
 from saps.binsparse_format import BinsparseFormat
 from saps.frameworks.checker_framework import CheckerFramework
 from saps.frameworks.numpy_framework import NumpyFramework

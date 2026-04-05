@@ -3,7 +3,7 @@ import pytest
 import numpy as np
 import scipy.sparse as sp
 
-from saps.benchmarks.preconditioned_cg import (
+from benchmarks.preconditioned_cg import (
     generate_block_jacobi_M,
     preconditioned_cg,
     solve_block_jacobi_cg,

@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 
-from saps.benchmarks.gcn import (
+from benchmarks.gcn import (
     benchmark_gcn,
     dg_gcn_social_1,
     gcn_reference_np,

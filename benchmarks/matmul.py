@@ -24,7 +24,7 @@ was written by hand.
 import numpy as np
 import scipy.sparse as sp
 
-from ..binsparse_format import BinsparseFormat
+from ..src.saps.binsparse_format import BinsparseFormat
 
 r"""
     benchmark_matmul(xp, A_bench, B_bench)

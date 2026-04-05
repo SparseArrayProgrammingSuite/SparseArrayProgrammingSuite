@@ -6,7 +6,7 @@ from scipy.io import mmread
 
 import ssgetpy
 
-from ..binsparse_format import BinsparseFormat
+from ..src.saps.binsparse_format import BinsparseFormat
 
 """
 Name: Preconditioned Conjugate Gradient (Block Jacobi)

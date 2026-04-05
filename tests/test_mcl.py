@@ -3,7 +3,7 @@ import pytest
 import numpy as np
 import scipy.sparse as sp
 
-from saps.benchmarks.mcl_benchmark import benchmark_mcl
+from benchmarks.mcl_benchmark import benchmark_mcl
 from saps.binsparse_format import BinsparseFormat
 from saps.frameworks.numpy_framework import NumpyFramework
 from saps.frameworks.sparse_framework import PyDataSparseFramework

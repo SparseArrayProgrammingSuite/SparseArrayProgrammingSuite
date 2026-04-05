@@ -4,7 +4,7 @@ import numpy as np
 import scipy.sparse
 import scipy.sparse.linalg
 
-from saps.benchmarks.GMRES import (
+from benchmarks.GMRES import (
     dg_gmres_sparse_1,
     dg_gmres_sparse_2,
     dg_gmres_sparse_3,

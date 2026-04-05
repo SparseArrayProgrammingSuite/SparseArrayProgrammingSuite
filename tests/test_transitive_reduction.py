@@ -1,6 +1,6 @@
 import numpy as np
 
-from saps.benchmarks.transitive_reduction import (
+from benchmarks.transitive_reduction import (
     transitive_reduction,
 )
 from saps.frameworks.numpy_framework import NumpyFramework

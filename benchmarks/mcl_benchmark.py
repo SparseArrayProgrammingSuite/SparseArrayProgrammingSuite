@@ -26,7 +26,7 @@ from scipy.io import mmread
 
 import ssgetpy
 
-from ..binsparse_format import BinsparseFormat
+from ..src.saps.binsparse_format import BinsparseFormat
 
 
 def _normalize(array_api, matrix):

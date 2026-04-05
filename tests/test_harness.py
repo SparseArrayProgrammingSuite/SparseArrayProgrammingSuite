@@ -2,7 +2,7 @@ import numpy as np
 
 import sparse as sp
 
-from saps.benchmarks.matmul import (
+from benchmarks.matmul import (
     benchmark_matmul,
     dg_matmul_dense_small,
 )

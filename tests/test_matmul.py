@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 
-from saps.benchmarks.matmul import benchmark_matmul
+from benchmarks.matmul import benchmark_matmul
 from saps.binsparse_format import BinsparseFormat
 from saps.frameworks.checker_framework import CheckerFramework
 from saps.frameworks.numpy_framework import NumpyFramework

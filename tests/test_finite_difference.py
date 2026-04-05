@@ -1,6 +1,6 @@
 import pytest
 
-from saps.benchmarks.Finite_Difference import (
+from benchmarks.Finite_Difference import (
     buckley_leverett_flux,
     burgers_flux,
     difference_matrix,

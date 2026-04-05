@@ -1,6 +1,6 @@
 import numpy as np
 
-from ..binsparse_format import BinsparseFormat
+from ..src.saps.binsparse_format import BinsparseFormat
 
 
 def apply_single_qubit_gate(xp, state, gate, qubit, nqubits):

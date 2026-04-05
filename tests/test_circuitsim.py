@@ -3,7 +3,7 @@ import pytest
 import numpy as np
 from scipy.integrate import solve_ivp
 
-from saps.benchmarks.circuitsim import (
+from benchmarks.circuitsim import (
     forward_euler,
     lotka_volterra,
     rc,

@@ -1,6 +1,6 @@
 import numpy as np
 
-from saps.benchmarks.approx_nn import (
+from benchmarks.approx_nn import (
     benchmark_johnson_lindenstrauss_nn,
     data_knn_rla_generator,
 )

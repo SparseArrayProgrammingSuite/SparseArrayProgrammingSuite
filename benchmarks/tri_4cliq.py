@@ -1,4 +1,4 @@
-from ..frameworks.einsum import einsum
+from ..src.saps.frameworks.einsum import einsum
 
 """
 Name: Triangle, 4-Clique Counting

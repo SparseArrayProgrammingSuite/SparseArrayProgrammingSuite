@@ -30,7 +30,7 @@ from scipy.io import mmread
 
 import ssgetpy
 
-from ..binsparse_format import BinsparseFormat
+from ..src.saps.binsparse_format import BinsparseFormat
 
 """
     benchmark_gcn(xp, adjacency_bench, features_bench, weights1_bench,

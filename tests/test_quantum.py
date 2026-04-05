@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 
-from saps.benchmarks.quantum import (
+from benchmarks.quantum import (
     QGates,
     apply_single_qubit_gate,
     benchmark_rqc_statevector,

@@ -40,7 +40,7 @@ This statement is written by hand.
 
 import numpy as np
 
-from ..binsparse_format import BinsparseFormat
+from ..src.saps.binsparse_format import BinsparseFormat
 
 
 def benchmark_hosvd(xp, X_bench, ranks_bench, max_iter=50, tolerance=1e-8):

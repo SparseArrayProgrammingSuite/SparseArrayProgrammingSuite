@@ -1,6 +1,6 @@
 import numpy as np
 
-from saps.benchmarks.floyd_warshall import floyd_warshall
+from benchmarks.floyd_warshall import floyd_warshall
 from saps.binsparse_format import BinsparseFormat
 from saps.frameworks.checker_framework import CheckerFramework
 from saps.frameworks.numpy_framework import NumpyFramework
