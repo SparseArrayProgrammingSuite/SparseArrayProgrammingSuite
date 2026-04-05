@@ -68,24 +68,9 @@ class Benchmark(ABC):
         except Exception:
             return
 
-        conf_dir = os.environ.get("ASV_CONF_DIR")
-        if not conf_dir:
-            return None
-
-        config_path = Path(conf_dir) / "asv.conf.json"
-        if not config_path.exists():
-            return None
-
-        try:
-            config = json.loads(config_path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            return None
-
-        results_dir = config.get("results_dir", "results")
-        if not isinstance(results_dir, str) or not results_dir:
-            return None
-
-        sidecar = Path(conf_dir) / results_dir / "benchmarks_extra.json"
+        root = Path(os.getenv("SAPS_DATA_PATH", Path(__file__).parent.parent))
+        sidecar = root / "saps_benchmarks.json"
+        sidecar.parent.mkdir(parents=True, exist_ok=True)
 
         entry = {
             "id": f"{cls.__module__}.{cls.__name__}",
@@ -95,19 +80,15 @@ class Benchmark(ABC):
             "param_names": list(getattr(instance, "param_names", [])),
             "authors": [str(a) for a in instance.authors],
             "references": [str(r) for r in instance.references],
-            "pretty_name": instance.pretty_name,
             "description": instance.description,
             "motivation": instance.motivation,
             "ai_disclosure": instance.ai_disclosure,
-            "pretty_source": instance.pretty_source,
             "benchmark_methods": [
                 name
                 for name, _ in inspect.getmembers(cls, inspect.isfunction)
                 if any(name.startswith(p) for p in cls._ASV_METHOD_PREFIXES)
             ],
         }
-
-        sidecar.parent.mkdir(parents=True, exist_ok=True)
 
         payload = {"benchmarks": []}
         if sidecar.exists():
@@ -132,11 +113,6 @@ class Benchmark(ABC):
     @property
     @abstractmethod
     def dataset_names(self) -> list[str]:
-        pass
-
-    @property
-    @abstractmethod
-    def pretty_name(self) -> str:
         pass
 
     @property
