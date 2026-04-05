@@ -57,6 +57,75 @@ def format_results(results: Results, benchmarks: Benchmarks) -> dict:
     }
 
 
+def _load_saps_tags(metadata_path: Path) -> dict[str, set[str]]:
+    """Load SAPS benchmark tags keyed by '<module>.<class>' from metadata."""
+    if not metadata_path.exists():
+        return {}
+
+    payload = json.loads(metadata_path.read_text(encoding="utf-8"))
+    out: dict[str, set[str]] = {}
+    for item in payload.get("benchmarks", []):
+        if not isinstance(item, dict):
+            continue
+        benchmark_id = item.get("id")
+        if not isinstance(benchmark_id, str):
+            continue
+        parts = benchmark_id.split(".")
+        if len(parts) < 3:
+            continue
+
+        # SAPS ids are typically 'benchmarks.<module>.<class>.<name>'
+        # and ASV benchmark names are '<module>.<class>.<method>'.
+        if parts[0] == "benchmarks":
+            key = f"{parts[1]}.{parts[2]}"
+        else:
+            key = f"{parts[0]}.{parts[1]}"
+
+        tags = item.get("tags", [])
+        if isinstance(tags, list):
+            out[key] = {str(tag).lower() for tag in tags}
+    return out
+
+
+def filter_benchmarks_by_saps_tags(
+    benchmarks: Benchmarks,
+    include_tags: list[str],
+    exclude_tags: list[str],
+    metadata_path: Path,
+) -> Benchmarks:
+    """Filter ASV benchmarks using SAPS class-level tags from metadata.
+
+    Include semantics: keep benchmark if it has any include tag.
+    Exclude semantics: drop benchmark if it has any exclude tag.
+    """
+    include_set = {tag.strip().lower() for tag in include_tags if tag and tag.strip()}
+    exclude_set = {tag.strip().lower() for tag in exclude_tags if tag and tag.strip()}
+
+    if not include_set and not exclude_set:
+        return benchmarks
+
+    saps_tags = _load_saps_tags(metadata_path)
+    skip: set[str] = set()
+
+    for asv_name in benchmarks.keys():
+        parts = asv_name.split(".")
+        if len(parts) < 3:
+            skip.add(asv_name)
+            continue
+
+        class_key = f"{parts[0]}.{parts[1]}"
+        tags = saps_tags.get(class_key, set())
+
+        if include_set and not (tags & include_set):
+            skip.add(asv_name)
+            continue
+
+        if exclude_set and (tags & exclude_set):
+            skip.add(asv_name)
+
+    return benchmarks.filter_out(skip)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run ASV benchmarks directly via asv.runner.run_benchmarks")
     parser.add_argument(
@@ -74,6 +143,24 @@ def main() -> int:
         action="append",
         default=None,
         help="Regex benchmark filter (can be passed more than once)",
+    )
+    parser.add_argument(
+        "--tag",
+        action="append",
+        default=None,
+        help="SAPS tag include filter (can be passed more than once)",
+    )
+    parser.add_argument(
+        "--include-tag",
+        action="append",
+        default=None,
+        help="Include SAPS benchmarks that have any of these tags (can be passed more than once)",
+    )
+    parser.add_argument(
+        "--exclude-tag",
+        action="append",
+        default=None,
+        help="Exclude SAPS benchmarks that have any of these tags (can be passed more than once)",
     )
     parser.add_argument(
         "--show-stderr",
@@ -120,8 +207,34 @@ def main() -> int:
         commit_hash=[commit_hash],
         regex=args.bench,
     )
+
+    include_tags = []
+    if args.tag:
+        include_tags.extend(args.tag)
+    if args.include_tag:
+        include_tags.extend(args.include_tag)
+    exclude_tags = args.exclude_tag or []
+
+    if include_tags or exclude_tags:
+        metadata_path = Path("benchmark_metadata.json")
+        before = len(benchmarks)
+        benchmarks = filter_benchmarks_by_saps_tags(
+            benchmarks,
+            include_tags=include_tags,
+            exclude_tags=exclude_tags,
+            metadata_path=metadata_path,
+        )
+        print(
+            "Filtered by SAPS tags "
+            f"(include={include_tags or []}, exclude={exclude_tags or []}): "
+            f"{before} -> {len(benchmarks)} benchmark entries"
+        )
+
+    if len(benchmarks) == 0:
+        print("No benchmarks selected after applying filters")
+        return 1
+
     print(f"Discovered {len(benchmarks)} benchmark entries")
-    print("Benchmark names:")
 
     for env in environments:
         Setup.perform_setup([env], parallel=1)
