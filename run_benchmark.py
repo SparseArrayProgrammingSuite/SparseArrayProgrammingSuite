@@ -16,18 +16,8 @@ from asv.repo import get_repo
 from asv.results import Results
 from asv.runner import run_benchmarks
 from asv.console import log
-
-
-def import_benchmark_modules(benchmark_dir: Path) -> list[str]:
-    """Import all modules in benchmarks/ so Benchmark.__init_subclass__ runs."""
-    imported: list[str] = []
-    for module_info in pkgutil.iter_modules([str(benchmark_dir)]):
-        if module_info.ispkg:
-            continue
-        module_name = module_info.name
-        importlib.import_module(f"{benchmark_dir.name}.{module_name}")
-        imported.append(module_name)
-    return imported
+import saps
+import re
 
 
 def format_results(results: Results, benchmarks: Benchmarks) -> dict:
@@ -57,75 +47,6 @@ def format_results(results: Results, benchmarks: Benchmarks) -> dict:
     }
 
 
-def _load_saps_tags(metadata_path: Path) -> dict[str, set[str]]:
-    """Load SAPS benchmark tags keyed by '<module>.<class>' from metadata."""
-    if not metadata_path.exists():
-        return {}
-
-    payload = json.loads(metadata_path.read_text(encoding="utf-8"))
-    out: dict[str, set[str]] = {}
-    for item in payload.get("benchmarks", []):
-        if not isinstance(item, dict):
-            continue
-        benchmark_id = item.get("id")
-        if not isinstance(benchmark_id, str):
-            continue
-        parts = benchmark_id.split(".")
-        if len(parts) < 3:
-            continue
-
-        # SAPS ids are typically 'benchmarks.<module>.<class>.<name>'
-        # and ASV benchmark names are '<module>.<class>.<method>'.
-        if parts[0] == "benchmarks":
-            key = f"{parts[1]}.{parts[2]}"
-        else:
-            key = f"{parts[0]}.{parts[1]}"
-
-        tags = item.get("tags", [])
-        if isinstance(tags, list):
-            out[key] = {str(tag).lower() for tag in tags}
-    return out
-
-
-def filter_benchmarks_by_saps_tags(
-    benchmarks: Benchmarks,
-    include_tags: list[str],
-    exclude_tags: list[str],
-    metadata_path: Path,
-) -> Benchmarks:
-    """Filter ASV benchmarks using SAPS class-level tags from metadata.
-
-    Include semantics: keep benchmark if it has any include tag.
-    Exclude semantics: drop benchmark if it has any exclude tag.
-    """
-    include_set = {tag.strip().lower() for tag in include_tags if tag and tag.strip()}
-    exclude_set = {tag.strip().lower() for tag in exclude_tags if tag and tag.strip()}
-
-    if not include_set and not exclude_set:
-        return benchmarks
-
-    saps_tags = _load_saps_tags(metadata_path)
-    skip: set[str] = set()
-
-    for asv_name in benchmarks.keys():
-        parts = asv_name.split(".")
-        if len(parts) < 3:
-            skip.add(asv_name)
-            continue
-
-        class_key = f"{parts[0]}.{parts[1]}"
-        tags = saps_tags.get(class_key, set())
-
-        if include_set and not (tags & include_set):
-            skip.add(asv_name)
-            continue
-
-        if exclude_set and (tags & exclude_set):
-            skip.add(asv_name)
-
-    return benchmarks.filter_out(skip)
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run ASV benchmarks directly via asv.runner.run_benchmarks")
     parser.add_argument(
@@ -147,19 +68,13 @@ def main() -> int:
     parser.add_argument(
         "--tag",
         action="append",
-        default=None,
+        default=[],
         help="SAPS tag include filter (can be passed more than once)",
     )
     parser.add_argument(
-        "--include-tag",
+        "--no-tag",
         action="append",
-        default=None,
-        help="Include SAPS benchmarks that have any of these tags (can be passed more than once)",
-    )
-    parser.add_argument(
-        "--exclude-tag",
-        action="append",
-        default=None,
+        default=[],
         help="Exclude SAPS benchmarks that have any of these tags (can be passed more than once)",
     )
     parser.add_argument(
@@ -184,8 +99,6 @@ def main() -> int:
     conf = Config.load(args.config)
 
     benchmark_dir = Path(conf.benchmark_dir)
-    imported_modules = import_benchmark_modules(benchmark_dir)
-    print(f"Imported {len(imported_modules)} benchmark modules via saps hook discovery")
 
     machine_params = Machine.load(
         machine_name=args.machine,
@@ -205,34 +118,40 @@ def main() -> int:
         repo=repo,
         environments=environments,
         commit_hash=[commit_hash],
-        regex=args.bench,
     )
 
-    include_tags = []
-    if args.tag:
-        include_tags.extend(args.tag)
-    if args.include_tag:
-        include_tags.extend(args.include_tag)
-    exclude_tags = args.exclude_tag or []
+    metadata: dict[str, dict] = {}
 
-    if include_tags or exclude_tags:
-        metadata_path = Path("benchmark_metadata.json")
-        before = len(benchmarks)
-        benchmarks = filter_benchmarks_by_saps_tags(
-            benchmarks,
-            include_tags=include_tags,
-            exclude_tags=exclude_tags,
-            metadata_path=metadata_path,
-        )
-        print(
-            "Filtered by SAPS tags "
-            f"(include={include_tags or []}, exclude={exclude_tags or []}): "
-            f"{before} -> {len(benchmarks)} benchmark entries"
-        )
+    for name in benchmarks.keys():
+        module_name, class_name, _method_name = name.rsplit(".", 2)
+        benchmark_module = importlib.import_module(f"benchmarks.{module_name}")
+        benchmark = getattr(benchmark_module, class_name)()
+        assert isinstance(benchmark, saps.Benchmark)
+        metadata[name] = benchmark.metadata
 
-    if len(benchmarks) == 0:
-        print("No benchmarks selected after applying filters")
-        return 1
+    include_set = {tag.strip().lower() for tag in args.tag if tag and tag.strip()}
+    exclude_set = {tag.strip().lower() for tag in args.no_tag if tag and tag.strip()}
+    skips = []
+    for name in benchmarks.keys():
+        if args.bench and re.search(args.bench, name) is None:
+            skips.append(name)
+        if name not in metadata:
+            log.warning(f"No SAPS metadata found for benchmark '{name}', skipping SAPS tag filtering for this benchmark")
+            skips.append(name)
+        if include_set and not include_set.intersection(metadata[name]["tags"]):
+            skips.append(name)
+        if exclude_set and exclude_set.intersection(metadata[name]["tags"]):
+            skips.append(name)
+    benchmarks = benchmarks.filter_out(set(skips))
+
+    results_dir = Path(conf.results_dir)
+    results_dir.mkdir(parents=True, exist_ok=True)
+    metadata_path = results_dir / "benchmarks_meta.json"
+    metadata_path.write_text(
+        json.dumps(metadata, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+
 
     print(f"Discovered {len(benchmarks)} benchmark entries")
 
