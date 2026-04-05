@@ -6,6 +6,10 @@ from dataclasses import dataclass
 from pathlib import Path    
 from typing import Any
 
+import saps
+from saps.binsparse_format import BinsparseFormat
+
+xp = saps.xp
 @dataclass
 class Author:
     name: str

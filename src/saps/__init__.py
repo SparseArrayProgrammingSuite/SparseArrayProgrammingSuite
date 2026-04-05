@@ -1,9 +1,8 @@
+from .framework import xp
 from .frameworks import einsum
-import os
 import numpy as np
 from .benchmark import Author, Ref, Benchmark, Contributor
-
-xp = os.environ.get("SAPS_FRAMEWORK", "np")
+from .binsparse_format import BinsparseFormat
 
 __all__ = [
     "xp",
@@ -12,4 +11,5 @@ __all__ = [
     "Contributor",
     "Ref",
     "Benchmark",
+    "BinsparseFormat"
 ]
