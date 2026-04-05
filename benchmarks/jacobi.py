@@ -41,7 +41,7 @@ AI was used to debug code. This statement was written by hand.
 
 
 def benchmark_jacobi(
-    A_bench, b_bench, x_bench, rel_tol=1e-6, abs_tol=1e-20, max_iters=1000
+    xp, A_bench, b_bench, x_bench, rel_tol=1e-6, abs_tol=1e-20, max_iters=1000
 ):
     A = xp.lazy(xp.from_benchmark(A_bench))
     b = xp.lazy(xp.from_benchmark(b_bench))

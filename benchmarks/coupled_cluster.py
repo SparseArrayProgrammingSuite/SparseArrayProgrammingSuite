@@ -38,6 +38,7 @@ xp = saps.xp
 
 
 def benchmark_ccsd(
+    xp,
     Vme_bench,  # (no, nv)
     Vae_bench,  # (nv, nv)
     Vmi_bench,  # (no, no)

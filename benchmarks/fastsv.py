@@ -25,7 +25,7 @@ import saps
 xp = saps.xp
 
 
-def benchmark_fastsv(adjacency_matrix):
+def benchmark_fastsv(xp, adjacency_matrix):
     A = xp.from_benchmark(adjacency_matrix)
     A = A != 0
 

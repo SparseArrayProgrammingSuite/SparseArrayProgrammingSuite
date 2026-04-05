@@ -84,6 +84,7 @@ The final converged matrix in binsparse format
 
 
 def benchmark_mcl(
+    xp,
     graph_binsparse,
     expansion=2,
     inflation=2,

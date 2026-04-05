@@ -44,6 +44,7 @@ xp = saps.xp
 
 
 def benchmark_gcn_backward(
+    xp,
     adjacency_bench,
     adjacency_T_bench,
     features_bench,

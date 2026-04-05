@@ -60,13 +60,13 @@ AI was used to debug code. This statement was written by hand.
 """
 
 
-def benchmark_triangle_count(A_bench):
+def benchmark_triangle_count(xp, A_bench):
     A = xp.lazy(xp.from_benchmark(A_bench))
     triangles = einsum(xp, "S[] += A[i,j] * A[j,k] * A[k,i]", A=A) / 6
     return xp.to_benchmark(xp.compute(triangles))
 
 
-def benchmark_4clique_count(A_bench):
+def benchmark_4clique_count(xp, A_bench):
     A = xp.lazy(xp.from_benchmark(A_bench))
     cliq_4 = (
         einsum(xp, "S[] += A[i,j] * A[i,k] * A[i,l] * A[j,k] * A[j,l] * A[k,l]", A=A)

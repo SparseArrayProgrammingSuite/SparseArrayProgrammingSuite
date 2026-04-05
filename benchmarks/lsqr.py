@@ -50,7 +50,7 @@ AI was used to debug code. This statement was written by hand.
 
 
 def benchmark_lsqr(
-    A_bench, b_bench, atol=1e-9, btol=1e-9, conlim=1.0e8, max_iters=10000
+    xp, A_bench, b_bench, atol=1e-9, btol=1e-9, conlim=1.0e8, max_iters=10000
 ):
     A = xp.lazy(xp.from_benchmark(A_bench))
     b = xp.lazy(xp.from_benchmark(b_bench))

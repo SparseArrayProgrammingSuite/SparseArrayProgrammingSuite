@@ -68,6 +68,7 @@ BinsparseFormat
 
 
 def benchmark_gcn(
+    xp,
     adjacency_bench,
     features_bench,
     weights1_bench,

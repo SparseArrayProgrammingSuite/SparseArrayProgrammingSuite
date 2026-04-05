@@ -62,7 +62,7 @@ Tuple of (A_bench, ..., E_bench, lambda_bench) in binsparse format where:
 """
 
 
-def benchmark_cp_als(X_bench, rank, max_iter=100):
+def benchmark_cp_als(xp, X_bench, rank, max_iter=100):
     X_eager = xp.from_benchmark(X_bench)
     X = xp.lazy(X_eager)
 

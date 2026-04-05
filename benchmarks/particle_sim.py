@@ -31,7 +31,7 @@ import saps
 xp = saps.xp
 
 
-def benchmark_particle_sum(x, y, vx, vy, size, steps):
+def benchmark_particle_sum(xp, x, y, vx, vy, size, steps):
     # CONSTANTS
     mass = 0.01
     cutoff = 0.01

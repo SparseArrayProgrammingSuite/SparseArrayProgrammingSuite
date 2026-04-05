@@ -34,7 +34,7 @@ import saps
 xp = saps.xp
 
 
-def benchmark_bfs(adjacency_matrix, source):
+def benchmark_bfs(xp, adjacency_matrix, source):
     """
     Returns level id of vertices in a graph during BFS from
     a given source vertex.

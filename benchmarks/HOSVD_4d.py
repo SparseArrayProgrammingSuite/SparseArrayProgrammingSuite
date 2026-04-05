@@ -46,7 +46,7 @@ from saps.binsparse_format import BinsparseFormat
 xp = saps.xp
 
 
-def benchmark_hosvd(X_bench, ranks_bench, max_iter=50, tolerance=1e-8):
+def benchmark_hosvd(xp, X_bench, ranks_bench, max_iter=50, tolerance=1e-8):
     X = xp.lazy(xp.from_benchmark(X_bench))
     ranks = xp.lazy(xp.from_benchmark(ranks_bench))
 

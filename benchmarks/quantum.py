@@ -35,7 +35,7 @@ class QGates:
     all_gates = [H, X, Y, Z, S, T]
 
 
-def benchmark_rqc_statevector(state_bench, nqubits, num_layers=10):
+def benchmark_rqc_statevector(xp, state_bench, nqubits, num_layers=10):
     rng = np.random.default_rng(seed=42)
     single_qubit_gates = QGates.all_gates
 
