@@ -93,34 +93,9 @@ def benchmark_lsqr(
     # An approximation of the condition number of A found by multiplying
     # Anorm by sqrt(ddnorm)
     Acond = 0
-    (u, v, x, w, alpha, beta, phi_bar, rho_bar, Anorm_sq, xnorm_sq, dnorm_sq) = (
-        
-            (u, v, x, w, alpha, beta, phi_bar, rho_bar, Anorm_sq, xnorm_sq, dnorm_sq)
-        
-    )
-    (u, v, x, w, alpha, beta, phi_bar, rho_bar, Anorm_sq, xnorm_sq, dnorm_sq) = 
-        (u, v, x, w, alpha, beta, phi_bar, rho_bar, Anorm_sq, xnorm_sq, dnorm_sq)
     
     while it < max_iters and not solution_is_zero:
         it += 1
-
-        (u, v, x, w, alpha, beta, phi_bar, rho_bar, Anorm_sq, xnorm_sq, dnorm_sq) = (
-            
-                (
-                    u,
-                    v,
-                    x,
-                    w,
-                    alpha,
-                    beta,
-                    phi_bar,
-                    rho_bar,
-                    Anorm_sq,
-                    xnorm_sq,
-                    dnorm_sq,
-                )
-            
-        )
 
         u = A @ v - alpha * u
 
@@ -164,24 +139,6 @@ def benchmark_lsqr(
         test1 = rnorm / bnorm
         test2 = Arnorm / (Anorm * rnorm)
         test3 = 1 / Acond
-
-        (u, v, x, w, alpha, beta, phi_bar, rho_bar, Anorm_sq, xnorm_sq, dnorm_sq) = (
-            
-                (
-                    u,
-                    v,
-                    x,
-                    w,
-                    alpha,
-                    beta,
-                    phi_bar,
-                    rho_bar,
-                    Anorm_sq,
-                    xnorm_sq,
-                    dnorm_sq,
-                )
-            
-        )
 
         reltol = atol * Anorm * xnorm / bnorm + btol[()]
 

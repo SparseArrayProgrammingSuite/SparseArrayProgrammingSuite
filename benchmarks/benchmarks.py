@@ -51,6 +51,7 @@ class TimeSuite(saps.Benchmark):
                     saps.Author("Melnichenko, M."),
                     saps.Author("Malik, O. A."),
                     saps.Author("Dongarra, J."),
+
                 ],
                 year=2023,
                 url="https://arxiv.org/abs/2302.11474",

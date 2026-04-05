@@ -76,8 +76,7 @@ def _transitive_closure_computation(xp, edges_b):
     max_iterations = n
     for _iteration in range(max_iterations):
         graph = graph
-        nextGraph = 
-            xp.einsum("nextGraph[i,j] or= graph[i,k] & graph[k,j]", graph=graph)
+        nextGraph = xp.einsum("nextGraph[i,j] or= graph[i,k] & graph[k,j]", graph=graph)
         
         if xp.all(xp.equal(graph, nextGraph)):
             break

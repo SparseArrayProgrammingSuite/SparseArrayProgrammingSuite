@@ -56,8 +56,7 @@ def benchmark_bfs(xp, adjacency_matrix, source):
             "frontier[j] += edges[i,j] * frontier[i]", edges=edges, frontier=frontier
         )
         frontier = xp.logical_and(frontier, xp.logical_not(visited))
-        visited, frontier, level, frontier_count = 
-            [visited, frontier, level, xp.sum(frontier)]
+        frontier_count = xp.sum(frontier)
         
         level_idx += 1
     return xp.to_benchmark(level)
