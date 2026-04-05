@@ -55,16 +55,16 @@ def test_every_gate_on_zero_state(gate_np, gate_name, qubit):
     dim = 1 << nqubits
     state_np = np.zeros(dim, dtype=np.complex128)
     state_np[0] = 1.0
-    state = xp.from_benchmark(BinsparseFormat.from_numpy(state_np))
+    state = xp.from_binsparse(BinsparseFormat.from_numpy(state_np))
 
     # Prepare gate
-    gate_xp = xp.from_benchmark(BinsparseFormat.from_numpy(gate_np))
+    gate_xp = xp.from_binsparse(BinsparseFormat.from_numpy(gate_np))
 
     # Apply gate
     state_after = apply_single_qubit_gate(xp, state, gate_xp, qubit, nqubits)
 
     computed = state_after
-    bench = xp.to_benchmark(computed)
+    bench = xp.to_binsparse(computed)
     result = np.array(bench.data["values"], dtype=np.complex128).reshape(
         bench.data["shape"]
     )
@@ -90,15 +90,15 @@ def test_H_twice_returns_to_original():
     dim = 1 << nqubits
     state_np = np.zeros(dim, dtype=np.complex128)
     state_np[0] = 1.0
-    state = xp.from_benchmark(BinsparseFormat.from_numpy(state_np))
+    state = xp.from_binsparse(BinsparseFormat.from_numpy(state_np))
 
-    H_xp = xp.from_benchmark(BinsparseFormat.from_numpy(QGates.H))
+    H_xp = xp.from_binsparse(BinsparseFormat.from_numpy(QGates.H))
 
     mid = apply_single_qubit_gate(xp, state, H_xp, 2, nqubits)
     back = apply_single_qubit_gate(xp, mid, H_xp, 2, nqubits)
 
     computed = back
-    bench = xp.to_benchmark(computed)
+    bench = xp.to_binsparse(computed)
     result = np.array(bench.data["values"], dtype=np.complex128).reshape(
         bench.data["shape"]
     )

@@ -319,7 +319,7 @@ class CheckerFramework(AbstractFramework):
             xp = NumpyFramework()
         self.xp = xp
 
-    def from_benchmark(self, array):
+    def from_binsparse(self, array):
         if array.data["format"] == "dense":
             return EagerCheckerTensor(
                 self, self.xp.array(array.data["values"]).reshape(array.data["shape"])
@@ -337,7 +337,7 @@ class CheckerFramework(AbstractFramework):
             return EagerCheckerTensor(self, data)
         raise ValueError("Unsupported format: " + array.data["format"])
 
-    def to_benchmark(self, array: CheckerTensor):
+    def to_binsparse(self, array: CheckerTensor):
         if isinstance(array, LazyCheckerTensor):
             raise AssertionError(
                 "Lazy Tensors should always be computed before being converted to"

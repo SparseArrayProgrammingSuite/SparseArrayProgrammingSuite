@@ -112,16 +112,16 @@ def benchmark_gcn_backward(
     tuple
         (final_loss, final_W1, final_b1, final_W2, final_b2)
     """
-    adjacency = xp.from_benchmark(adjacency_bench)
-    adjacency_T = xp.from_benchmark(adjacency_T_bench)
-    features = xp.from_benchmark(features_bench)
-    targets = xp.from_benchmark(targets_bench)
+    adjacency = xp.from_binsparse(adjacency_bench)
+    adjacency_T = xp.from_binsparse(adjacency_T_bench)
+    features = xp.from_binsparse(features_bench)
+    targets = xp.from_binsparse(targets_bench)
 
     # Initialize weights
-    weights1 = xp.from_benchmark(weights1_bench)
-    bias1 = xp.from_benchmark(bias1_bench)
-    weights2 = xp.from_benchmark(weights2_bench)
-    bias2 = xp.from_benchmark(bias2_bench)
+    weights1 = xp.from_binsparse(weights1_bench)
+    bias1 = xp.from_binsparse(bias1_bench)
+    weights2 = xp.from_binsparse(weights2_bench)
+    bias2 = xp.from_binsparse(bias2_bench)
 
     for _ in range(num_iterations):
         # Forward pass
@@ -168,10 +168,10 @@ def benchmark_gcn_backward(
 
     return (
         loss_out,
-        xp.to_benchmark(weights1_out),
-        xp.to_benchmark(bias1_out),
-        xp.to_benchmark(weights2_out),
-        xp.to_benchmark(bias2_out),
+        xp.to_binsparse(weights1_out),
+        xp.to_binsparse(bias1_out),
+        xp.to_binsparse(weights2_out),
+        xp.to_binsparse(bias2_out),
     )
 
 

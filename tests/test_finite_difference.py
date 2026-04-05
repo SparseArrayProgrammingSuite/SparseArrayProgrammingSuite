@@ -47,7 +47,7 @@ def test_linear_advection_cfl_check(xp, c, dx, dt):
         dx=dx,
     )
 
-    result = xp.from_benchmark(result_bench)
+    result = xp.from_binsparse(result_bench)
     cfl = (c * dt) / dx
 
     norm_initial = xp.linalg.norm(u0)
@@ -92,7 +92,7 @@ def test_mass_conservation_nonlinear_flux(xp, dx, dt, flux):
         dx=dx,
     )
 
-    result_bench_inter = xp.from_benchmark(result_bench)
+    result_bench_inter = xp.from_binsparse(result_bench)
 
     inital_mass = xp.sum(result_bench_inter[0])
     final_mass = xp.sum(result_bench_inter[-1])
@@ -138,7 +138,7 @@ def test_nonlinear_matrix_stencil_check(xp, dx, dt, flux):
         flux=flux,
         timesteps=timesteps,
     )
-    result_matrix = xp.from_benchmark(result_bench_matrix)
-    result_bench_inter = xp.from_benchmark(result_bench_interative)
+    result_matrix = xp.from_binsparse(result_bench_matrix)
+    result_bench_inter = xp.from_binsparse(result_bench_interative)
 
     assert xp.linalg.norm(result_bench_inter - result_matrix) <= 1e-6

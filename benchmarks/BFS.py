@@ -39,7 +39,7 @@ def benchmark_bfs(xp, adjacency_matrix, source):
     Returns level id of vertices in a graph during BFS from
     a given source vertex.
     """
-    edges = xp.from_benchmark(adjacency_matrix)
+    edges = xp.from_binsparse(adjacency_matrix)
     (n, m) = edges.shape
     assert n == m
     visited = xp.zeros((n,), dtype=bool)
@@ -59,4 +59,4 @@ def benchmark_bfs(xp, adjacency_matrix, source):
         frontier_count = xp.sum(frontier)
         
         level_idx += 1
-    return xp.to_benchmark(level)
+    return xp.to_binsparse(level)

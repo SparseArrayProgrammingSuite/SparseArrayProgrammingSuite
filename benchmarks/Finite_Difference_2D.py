@@ -155,4 +155,4 @@ def lax_friedrichs_solver_matrix_2d(
 
         u[n + 1] = u_next
 
-    return xp.to_benchmark(u)
+    return xp.to_binsparse(u)

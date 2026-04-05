@@ -61,26 +61,26 @@ def benchmark_ccsd(
     D2_bench,
 ):
 
-    Vme = xp.from_benchmark(Vme_bench)
-    Vae = xp.from_benchmark(Vae_bench)
-    Vmi = xp.from_benchmark(Vmi_bench)
-    Vai = xp.from_benchmark(Vai_bench)
-    Vmnef = xp.from_benchmark(Vmnef_bench)
-    Vabef = xp.from_benchmark(Vabef_bench)
-    Vabij = xp.from_benchmark(Vabij_bench)
-    Vabei = xp.from_benchmark(Vabei_bench)
-    Vmnij = xp.from_benchmark(Vmnij_bench)
-    Vmnei = xp.from_benchmark(Vmnei_bench)
-    Vamei = xp.from_benchmark(Vamei_bench)
-    Vamij = xp.from_benchmark(Vamij_bench)
-    Vanef = xp.from_benchmark(Vanef_bench)
-    Vmnfi = xp.from_benchmark(Vmnfi_bench)
-    Vamef = xp.from_benchmark(Vamef_bench)
-    Vaeim = xp.from_benchmark(Vaeim_bench)
-    T1 = xp.from_benchmark(T1_bench)
-    T2 = xp.from_benchmark(T2_bench)
-    D1 = xp.from_benchmark(D1_bench)
-    D2 = xp.from_benchmark(D2_bench)
+    Vme = xp.from_binsparse(Vme_bench)
+    Vae = xp.from_binsparse(Vae_bench)
+    Vmi = xp.from_binsparse(Vmi_bench)
+    Vai = xp.from_binsparse(Vai_bench)
+    Vmnef = xp.from_binsparse(Vmnef_bench)
+    Vabef = xp.from_binsparse(Vabef_bench)
+    Vabij = xp.from_binsparse(Vabij_bench)
+    Vabei = xp.from_binsparse(Vabei_bench)
+    Vmnij = xp.from_binsparse(Vmnij_bench)
+    Vmnei = xp.from_binsparse(Vmnei_bench)
+    Vamei = xp.from_binsparse(Vamei_bench)
+    Vamij = xp.from_binsparse(Vamij_bench)
+    Vanef = xp.from_binsparse(Vanef_bench)
+    Vmnfi = xp.from_binsparse(Vmnfi_bench)
+    Vamef = xp.from_binsparse(Vamef_bench)
+    Vaeim = xp.from_binsparse(Vaeim_bench)
+    T1 = xp.from_binsparse(T1_bench)
+    T2 = xp.from_binsparse(T2_bench)
+    D1 = xp.from_binsparse(D1_bench)
+    D2 = xp.from_binsparse(D2_bench)
 
     outer = xp.einsum("outer[a,b,i,j] += 0.5 * T1[a,i] * T1[b,j]", T1=T1)
     T21 = T2 + _asas_full(xp, outer)
@@ -191,7 +191,7 @@ def benchmark_ccsd(
 
     T1_out, T2_out = (T1_final, T2_final)
 
-    return xp.to_benchmark(T1_out), xp.to_benchmark(T2_out)
+    return xp.to_binsparse(T1_out), xp.to_binsparse(T2_out)
 
 
 def _as2d_full(xp, F):

@@ -10,7 +10,7 @@ def _run_fastsv_case(A, expected):
     xp = NumpyFramework()
     A_bin = BinsparseFormat.from_numpy(A)
     bench_result = benchmark_fastsv(xp, A_bin)
-    result = xp.from_benchmark(bench_result).ravel()
+    result = xp.from_binsparse(bench_result).ravel()
     assert np.array_equal(result, expected), (
         f"fastsv output mismatch.\nGot {result}, expected {expected}"
     )

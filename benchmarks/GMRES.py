@@ -48,15 +48,15 @@ This statement is written by hand.
 def gmres(
     xp, A_binsparse, b_binsparse, x0_binsparse, restart=50, tol=1e-8, max_iter=1000
 ):
-    A = xp.from_benchmark(A_binsparse)
-    b = xp.from_benchmark(b_binsparse)
-    x0 = xp.from_benchmark(x0_binsparse)
+    A = xp.from_binsparse(A_binsparse)
+    b = xp.from_binsparse(b_binsparse)
+    x0 = xp.from_binsparse(x0_binsparse)
 
     itcount = 0
     r0 = b - A @ x0
     initial_beta = xp.linalg.norm(r0)[()]
     if initial_beta < tol:
-        return xp.to_benchmark(x0)
+        return xp.to_binsparse(x0)
 
     rcurr = r0 / initial_beta
     beta = initial_beta
@@ -87,7 +87,7 @@ def gmres(
             r0_norm = xp.linalg.norm(r0)[()]
             rcurr = r0 / r0_norm
             if r0_norm / initial_beta < tol:
-                return xp.to_benchmark(x0)
+                return xp.to_binsparse(x0)
 
             itcount += 1
             if itcount >= max_iter:
@@ -96,7 +96,7 @@ def gmres(
         beta = r0_norm
 
     xsol = x0
-    return xp.to_benchmark(xsol)
+    return xp.to_binsparse(xsol)
 
 
 def generate_gmres_data(source, has_b_file=False):

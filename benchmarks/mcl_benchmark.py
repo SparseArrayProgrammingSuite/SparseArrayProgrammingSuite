@@ -96,7 +96,7 @@ def benchmark_mcl(
 ):
     array_api = xp
     # begin region 1
-    graph_lazy = array_api.from_benchmark(graph_binsparse)
+    graph_lazy = array_api.from_binsparse(graph_binsparse)
 
     loops_matrix = array_api.eye(graph_lazy.shape[0], dtype=graph_lazy.dtype)
     current_matrix = graph_lazy + loop_value * loops_matrix
@@ -128,7 +128,7 @@ def benchmark_mcl(
         ) and _sparse_allclose(array_api, current_matrix, previous_matrix):
             break
 
-    return array_api.to_benchmark(current_matrix)
+    return array_api.to_binsparse(current_matrix)
 
 
 def generate_mcl_data(source):

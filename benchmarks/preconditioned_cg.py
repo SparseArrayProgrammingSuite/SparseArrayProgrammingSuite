@@ -65,10 +65,10 @@ def preconditioned_cg(
     abs_tol=1e-20,
     max_iters=10000,
 ):
-    A = xp.from_benchmark(A_bench)
-    b = xp.from_benchmark(b_bench)
-    x = xp.from_benchmark(x_bench)
-    M = xp.from_benchmark(M_bench)
+    A = xp.from_binsparse(A_bench)
+    b = xp.from_binsparse(b_bench)
+    x = xp.from_binsparse(x_bench)
+    M = xp.from_binsparse(M_bench)
     tolerance = max(
         rel_tol * xp.sqrt(xp.vecdot(b, b))[()], abs_tol
     )
@@ -107,7 +107,7 @@ def preconditioned_cg(
             rr = new_rr
 
     x_solution = x
-    return xp.to_benchmark(x_solution)
+    return xp.to_binsparse(x_solution)
 
 
 def generate_cg_data(source, has_b_file):

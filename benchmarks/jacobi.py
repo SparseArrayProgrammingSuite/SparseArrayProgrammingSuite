@@ -43,9 +43,9 @@ AI was used to debug code. This statement was written by hand.
 def benchmark_jacobi(
     xp, A_bench, b_bench, x_bench, rel_tol=1e-6, abs_tol=1e-20, max_iters=1000
 ):
-    A = xp.from_benchmark(A_bench)
-    b = xp.from_benchmark(b_bench)
-    x = xp.from_benchmark(x_bench)
+    A = xp.from_binsparse(A_bench)
+    b = xp.from_binsparse(b_bench)
+    x = xp.from_binsparse(x_bench)
 
     tolerance = max(rel_tol * norm(xp, b)[()], abs_tol)
     d = xp.with_fill_value(xp.diagonal(A), 1)
@@ -67,7 +67,7 @@ def benchmark_jacobi(
             "Jacobi did not converge within the maximum number of iterations"
         )
     x_solution = x
-    return xp.to_benchmark(x_solution)
+    return xp.to_binsparse(x_solution)
 
 
 def norm(xp, v):

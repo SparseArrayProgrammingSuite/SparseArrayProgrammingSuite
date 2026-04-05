@@ -46,11 +46,11 @@ Returns:
 
 
 def benchmark_matmul(xp, A_bench, B_bench):
-    A_lazy = xp.from_benchmark(A_bench)
-    B_lazy = xp.from_benchmark(B_bench)
+    A_lazy = xp.from_binsparse(A_bench)
+    B_lazy = xp.from_binsparse(B_bench)
     C_lazy = xp.matmul(A_lazy, B_lazy)
     C_eager = C_lazy
-    return xp.to_benchmark(C_eager)
+    return xp.to_binsparse(C_eager)
 
 
 def dg_matmul_dense_small():

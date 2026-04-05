@@ -71,7 +71,7 @@ def benchmark_johnson_lindenstrauss_nn(
     nearest_indices = nearest_indices
     nearest_distances = nearest_distances
 
-    return xp.to_benchmark(nearest_indices), xp.to_benchmark(nearest_distances)
+    return xp.to_binsparse(nearest_indices), xp.to_binsparse(nearest_distances)
 
 
 def data_knn_rla_generator(xp, data_bench, seed=40, eps=0.1):

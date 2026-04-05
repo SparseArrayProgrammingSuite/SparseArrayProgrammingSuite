@@ -38,9 +38,9 @@ AI was used to debug code. This statement was written by hand.
 def benchmark_cg(
     xp, A_bench, b_bench, x_bench, rel_tol=1e-8, abs_tol=1e-20, max_iters=10_000
 ):
-    A = xp.from_benchmark(A_bench)
-    b = xp.from_benchmark(b_bench)
-    x = xp.from_benchmark(x_bench)
+    A = xp.from_binsparse(A_bench)
+    b = xp.from_binsparse(b_bench)
+    x = xp.from_binsparse(x_bench)
 
     tolerance = max(
         rel_tol * xp.sqrt(xp.vecdot(b, b))[()], abs_tol
@@ -79,7 +79,7 @@ def benchmark_cg(
             rr = new_rr
 
     x_solution = x
-    return xp.to_benchmark(x_solution)
+    return xp.to_binsparse(x_solution)
 
 
 def generate_cg_data(source, has_b_file=False):

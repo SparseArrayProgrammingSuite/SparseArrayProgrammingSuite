@@ -52,8 +52,8 @@ AI was used to debug code. This statement was written by hand.
 def benchmark_lsqr(
     xp, A_bench, b_bench, atol=1e-9, btol=1e-9, conlim=1.0e8, max_iters=10000
 ):
-    A = xp.from_benchmark(A_bench)
-    b = xp.from_benchmark(b_bench)
+    A = xp.from_binsparse(A_bench)
+    b = xp.from_binsparse(b_bench)
     exit = 0
 
     u = b
@@ -156,7 +156,7 @@ def benchmark_lsqr(
             print(exit)
             break
 
-    return xp.to_benchmark(x), exit, it
+    return xp.to_binsparse(x), exit, it
 
 
 def normof2(xp, x, y):

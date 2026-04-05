@@ -76,12 +76,12 @@ def benchmark_gcn(
     weights2_bench,
     bias2_bench,
 ):
-    adjacency = xp.from_benchmark(adjacency_bench)
-    features = xp.from_benchmark(features_bench)
-    weights1 = xp.from_benchmark(weights1_bench)
-    bias1 = xp.from_benchmark(bias1_bench)
-    weights2 = xp.from_benchmark(weights2_bench)
-    bias2 = xp.from_benchmark(bias2_bench)
+    adjacency = xp.from_binsparse(adjacency_bench)
+    features = xp.from_binsparse(features_bench)
+    weights1 = xp.from_binsparse(weights1_bench)
+    bias1 = xp.from_binsparse(bias1_bench)
+    weights2 = xp.from_binsparse(weights2_bench)
+    bias2 = xp.from_binsparse(bias2_bench)
 
     # Layer 1: adjacency @ features -> linear transform -> ReLU
     h1 = adjacency @ features
@@ -93,7 +93,7 @@ def benchmark_gcn(
     output = h2 @ weights2 + bias2
 
     solution = output
-    return xp.to_benchmark(solution)
+    return xp.to_binsparse(solution)
 
 
 def gcn_reference_np(adjacency, features, weights1, bias1, weights2, bias2):

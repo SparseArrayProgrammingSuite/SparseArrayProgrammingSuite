@@ -4,6 +4,7 @@ import inspect
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path    
+from typing import Any
 
 @dataclass
 class Author:
@@ -64,8 +65,99 @@ benchmark_metadata.parent.mkdir(parents=True, exist_ok=True)
 benchmark_metadata.unlink(missing_ok=True)
 benchmark_metadata.write_text(json.dumps({"benchmarks": []}, indent=2), encoding="utf-8")
 
-class Benchmark(ABC):
-    _ASV_METHOD_PREFIXES = ("time_", "mem_", "track_", "peakmem_", "timeraw_")
+class Metadata(ABC):
+    @property
+    @abstractmethod
+    def metadata(self) -> dict[str, Any]:...
+
+class Tagged(Metadata):
+    @property
+    @abstractmethod
+    def name(self) -> str:...
+
+    @property
+    @abstractmethod
+    def pretty_name(self) -> str:...
+
+    @property
+    @abstractmethod
+    def description(self) -> str:...
+
+    @property
+    @abstractmethod
+    def tags(self) -> list[str]:...
+
+class Attributed(ABC):
+    @property
+    @abstractmethod
+    def authors(self) -> list[Contributor]:...
+
+    @property
+    @abstractmethod
+    def references(self) -> list[Ref]:...
+
+    @property
+    @abstractmethod
+    def ai_disclosure(self) -> str:...
+
+class Motivated(ABC):
+    @property
+    @abstractmethod
+    def motivation(self) -> str:...
+
+class Dataset(Tagged):
+    @property
+    def metadata(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "pretty_name": self.pretty_name,
+            "description": self.description,
+            "tags": self.tags,
+        }
+
+class Generator(Tagged, Attributed, Motivated):
+    @property
+    @abstractmethod
+    def datasets(self) -> list[Dataset]:...
+
+    @property
+    def dataset_names(self) -> list[str]:
+        return [dataset.name for dataset in self.datasets]
+    
+    @abstractmethod
+    def generate(self, dataset: Dataset) -> Any:...
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "pretty_name": self.pretty_name,
+            "description": self.description,
+            "tags": self.tags,
+            "authors": [str(a) for a in self.authors],
+            "references": [str(r) for r in self.references],
+            "ai_disclosure": self.ai_disclosure,
+            "motivation": self.motivation,
+            "datasets": [dataset.metadata() for dataset in self.datasets],
+        }
+
+@dataclass
+class Param:
+    generator: Generator
+    dataset: Dataset
+    def __repr__(self):
+        return f"{self.generator.name}.{self.dataset.name}"
+
+    def generate(self):
+        return self.generator.generate(self.dataset)
+
+class Benchmark(Tagged, Attributed, Motivated):
+    @property
+    @abstractmethod
+    def generators(self) -> list[Generator]:...
+
+    @abstractmethod
+    def benchmark(self, data: list[Any], meta:Any) -> Any:...
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -76,25 +168,8 @@ class Benchmark(ABC):
             instance = cls()
         except Exception:
             return
-
-        entry = {
-            "module": cls.__module__,
-            "class_name": cls.__name__,
-            "tag": instance.tag,
-            "id": f"{cls.__module__}.{cls.__name__}.{instance.tag}",
-            "dataset_names": list(instance.dataset_names),
-            "param_names": list(getattr(instance, "param_names", [])),
-            "authors": [str(a) for a in instance.authors],
-            "references": [str(r) for r in instance.references],
-            "description": instance.description,
-            "motivation": instance.motivation,
-            "ai_disclosure": instance.ai_disclosure,
-            "benchmark_methods": [
-                name
-                for name, _ in inspect.getmembers(cls, inspect.isfunction)
-                if any(name.startswith(p) for p in cls._ASV_METHOD_PREFIXES)
-            ],
-        }
+        
+        entry = instance.metadata()
 
         payload = json.loads(benchmark_metadata.read_text(encoding="utf-8"))
         existing = payload.get("benchmarks", [])
@@ -106,67 +181,58 @@ class Benchmark(ABC):
         tmp_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
         tmp_path.replace(benchmark_metadata)
 
-        def _mem_run(self, dataset):
-            self.run(dataset)
+        def _mem_run(self, param):
+            self.run(param)
 
-        def _time_run(self, dataset):
-            self.run(dataset)
+        def _time_run(self, param):
+            self.run(param)
 
         setattr(cls, f"mem_{instance.tag}", _mem_run)
-        setattr(getattr(cls, f"mem_{instance.tag}"), "pretty_source", inspect.getsource(cls.run))
+        setattr(getattr(cls, f"mem_{instance.tag}"), "pretty_source", inspect.getsource(cls.benchmark))
         
         setattr(cls, f"time_{instance.tag}", _time_run)
-        setattr(getattr(cls, f"time_{instance.tag}"), "pretty_source", inspect.getsource(cls.run))
+        setattr(getattr(cls, f"time_{instance.tag}"), "pretty_source", inspect.getsource(cls.benchmark))
 
-
+        setattr(cls.setup, "pretty_source", "\n".join(inspect.getsource(generator.generate) for generator in instance.generators))
+    
     @property
     def params(self):
-        return (self.dataset_names,)
-
-    @property
-    @abstractmethod
-    def dataset_names(self) -> list[str]:
-        pass
-
-    @property
-    @abstractmethod
-    def name(self) -> str:
-        pass
-
-    @property
-    @abstractmethod
-    def tag(self) -> str:
-        pass
-
-    @property
-    @abstractmethod
-    def authors(self) -> list[Contributor]:
-        pass
-
-    @property
-    @abstractmethod
-    def description(self) -> str:
-        pass
-
-    @property
-    @abstractmethod
-    def motivation(self) -> str:
-        pass
-
-    @property
-    @abstractmethod
-    def references(self) -> list[Ref]:
-        pass
-
-    @property
-    @abstractmethod
-    def ai_disclosure(self) -> str:
-        pass
+        return [Param(generator, dataset) for generator in self.generators for dataset in generator.datasets]
 
     param_names = ["dataset"]
 
-    @abstractmethod
-    def setup(self, dataset): ...
+    def setup(self, param):
+        meta, input = param.generate()
+        self._meta = meta
+        self._input = input
+    
+    def run(self, param):
+        input = [xp.to_binsparse(d) for d in self._input]
+        output = self.benchmark(input, self._meta)
+        output = [xp.from_binsparse(o) for o in output]
+        self._output = output
+    
+    def teardown(self, param):
+        self.check_correct(param)
+        del self._meta
+        del self._input
+        del self._output
+    
+    def check_correct(self, param):
+        #TODO do better than this
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), "Output must be in binsparse format"
 
-    @abstractmethod
-    def run(self, dataset): ...
+    @property
+    def metadata(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "pretty_name": self.pretty_name,
+            "description": self.description,
+            "tags": self.tags,
+            "authors": [str(a) for a in self.authors],
+            "references": [str(r) for r in self.references],
+            "ai_disclosure": self.ai_disclosure,
+            "motivation": self.motivation,
+            "generators": [generator.metadata() for generator in self.generators],
+        }

@@ -30,7 +30,7 @@ tests. This statement was written by hand.
 
 
 def pagerank(xp, A_binsparse, alpha=0.85, max_iter=100, tol=1e-8):
-    A = xp.from_benchmark(A_binsparse)
+    A = xp.from_binsparse(A_binsparse)
     A = A
     out_degree = xp.sum(A, axis=0)
     M = xp.array(A, dtype=float)
@@ -51,7 +51,7 @@ def pagerank(xp, A_binsparse, alpha=0.85, max_iter=100, tol=1e-8):
         if diff < tol:
             break
         x = x_new
-    return xp.to_benchmark(x)
+    return xp.to_binsparse(x)
 
 
 def norm(xp, v):

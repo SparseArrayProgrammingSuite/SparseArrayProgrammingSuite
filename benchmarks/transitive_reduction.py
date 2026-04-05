@@ -39,7 +39,7 @@ def transitive_reduction(xp, R_bench, x=1, max_iters=10):
     A binsparse tensor of the transitively reduced graph S
     """
 
-    R = xp.from_benchmark(R_bench)
+    R = xp.from_binsparse(R_bench)
     R = R
     R_nnz_prev_tensor = xp.sum(np.inf != R)
     R, R_nnz_prev_tensor = (R, R_nnz_prev_tensor)
@@ -90,7 +90,7 @@ def transitive_reduction(xp, R_bench, x=1, max_iters=10):
         R_nnz_prev = R_nnz_new
         # R = R_computed
 
-    return xp.to_benchmark(R)
+    return xp.to_binsparse(R)
 
 
 # TO-DO: add data generator functions

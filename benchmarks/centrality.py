@@ -31,7 +31,7 @@ the benchmark function. This statement is written by hand.
 
 
 def betweenness_centrality(xp, A_binsparse):
-    G = xp.from_benchmark(A_binsparse)
+    G = xp.from_binsparse(A_binsparse)
     n = G.shape[0]
     bc_scores = xp.zeros((n,), dtype=float)
 
@@ -86,4 +86,4 @@ def betweenness_centrality(xp, A_binsparse):
 
         bc_scores = bc_scores + score_update
 
-    return xp.to_benchmark(bc_scores)
+    return xp.to_binsparse(bc_scores)

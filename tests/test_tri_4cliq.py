@@ -58,7 +58,7 @@ def test_triangle_count(A, expected):
     A_bin = BinsparseFormat.from_numpy(A)
 
     bench_result = benchmark_triangle_count(xp, A_bin)
-    result = xp.from_benchmark(bench_result).item()
+    result = xp.from_binsparse(bench_result).item()
 
     assert np.allclose(result, expected)
 
@@ -113,6 +113,6 @@ def test_4clique_count(A, expected):
     A_bin = BinsparseFormat.from_numpy(A)
 
     bench_result = benchmark_4clique_count(xp, A_bin)
-    result = xp.from_benchmark(bench_result).item()
+    result = xp.from_binsparse(bench_result).item()
 
     assert np.allclose(result, expected)

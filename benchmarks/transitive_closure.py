@@ -50,7 +50,7 @@ xp = saps.xp
 
 def benchmark_transitive_closure(xp, edges_b):
     graph = _transitive_closure_computation(xp, edges_b)
-    return xp.to_benchmark(graph)
+    return xp.to_binsparse(graph)
 
 
 def benchmark_simple_connected_components(xp, edges_b):
@@ -58,11 +58,11 @@ def benchmark_simple_connected_components(xp, edges_b):
     # final computation
     res = xp.einsum("res[i,j] = graph[i,j] & graph[j,i]", graph=graph)
     res = res
-    return xp.to_benchmark(res)
+    return xp.to_binsparse(res)
 
 
 def _transitive_closure_computation(xp, edges_b):
-    edges = xp.from_benchmark(edges_b)
+    edges = xp.from_binsparse(edges_b)
     (n, m) = edges.shape
     assert m == n
 

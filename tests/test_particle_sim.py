@@ -78,10 +78,10 @@ def test_particle_sim(x, y, vx, vy, size, steps):
         xp, x_bin, y_bin, vx_bin, vy_bin, size, steps
     )
 
-    x = xp.from_benchmark(x)
-    y = xp.from_benchmark(y)
-    vx = xp.from_benchmark(vx)
-    vy = xp.from_benchmark(vy)
+    x = xp.from_binsparse(x)
+    y = xp.from_binsparse(y)
+    vx = xp.from_binsparse(vx)
+    vy = xp.from_binsparse(vy)
 
     init_simulation(ref_particles, len(ref_particles), size, steps)
 

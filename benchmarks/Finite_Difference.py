@@ -71,7 +71,7 @@ def lax_friedrichs_solver(xp, u0_bench, dt, dx, flux, timesteps):
         )
 
         u[n + 1] = u_next
-    return xp.to_benchmark(u)
+    return xp.to_binsparse(u)
 
 
 # I made this deterministic
@@ -126,4 +126,4 @@ def lax_friedrichs_solver_matrix_general(
         f = flux(u_n)
         u_next = matrix @ u_n - alpha * (dif @ f)
         u[n + 1] = u_next
-    return xp.to_benchmark(u)
+    return xp.to_binsparse(u)

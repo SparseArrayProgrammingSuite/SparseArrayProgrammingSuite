@@ -26,7 +26,7 @@ xp = saps.xp
 
 
 def benchmark_fastsv(xp, adjacency_matrix):
-    A = xp.from_benchmark(adjacency_matrix)
+    A = xp.from_binsparse(adjacency_matrix)
     A = A != 0
 
     (n, m) = A.shape
@@ -65,4 +65,4 @@ def benchmark_fastsv(xp, adjacency_matrix):
         if stop:
             break
 
-    return xp.to_benchmark(f)
+    return xp.to_binsparse(f)

@@ -47,8 +47,8 @@ xp = saps.xp
 
 
 def benchmark_hosvd(xp, X_bench, ranks_bench, max_iter=50, tolerance=1e-8):
-    X = xp.from_benchmark(X_bench)
-    ranks = xp.from_benchmark(ranks_bench)
+    X = xp.from_binsparse(X_bench)
+    ranks = xp.from_binsparse(ranks_bench)
 
     dimensions = X.shape
     num_modes = len(dimensions)
@@ -152,13 +152,13 @@ def benchmark_hosvd(xp, X_bench, ranks_bench, max_iter=50, tolerance=1e-8):
         E=initial_factors[4],
     )
     core_tensor = core_tensor
-    core_bench = xp.to_benchmark(core_tensor)
+    core_bench = xp.to_binsparse(core_tensor)
     factors_bench = [
-        xp.to_benchmark(initial_factors[0]),
-        xp.to_benchmark(initial_factors[1]),
-        xp.to_benchmark(initial_factors[2]),
-        xp.to_benchmark(initial_factors[3]),
-        xp.to_benchmark(initial_factors[4]),
+        xp.to_binsparse(initial_factors[0]),
+        xp.to_binsparse(initial_factors[1]),
+        xp.to_binsparse(initial_factors[2]),
+        xp.to_binsparse(initial_factors[3]),
+        xp.to_binsparse(initial_factors[4]),
     ]
     return core_bench, factors_bench
 

@@ -25,7 +25,7 @@ def test_jl_preserves_distance(rng):
     )
 
     # Convert benchmark objects back into framework arrays
-    nearest_ind = xp.from_benchmark(nearest_ind)
+    nearest_ind = xp.from_binsparse(nearest_ind)
 
     # True distances
     diff = xp.einsum("X[i, j, k] = Q[i, k] - D[j, k]", Q=query_bench, D=data_bench)

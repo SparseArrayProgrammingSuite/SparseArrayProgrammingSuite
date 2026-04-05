@@ -217,6 +217,6 @@ def test_bellman_ford_networks(matrix_builder, src):
     A = matrix_builder()
     bench = BinsparseFormat.from_numpy(A)
     result_bin = bellman_ford(xp, bench, src)
-    result = xp.from_benchmark(result_bin).ravel()
+    result = xp.from_binsparse(result_bin).ravel()
     ref = bellman_ford_reference(A, src)
     assert np.allclose(result, ref, equal_nan=True)

@@ -55,14 +55,14 @@ def floyd_warshall(xp, edges_binsparse):
     Returns the all pair shortest path i.e. A[i,j] is the shortest
     path from i to j
     """
-    edges = xp.from_benchmark(edges_binsparse)
+    edges = xp.from_binsparse(edges_binsparse)
     n, m = edges.shape
     assert n == m
     G = edges
     for k in range(n):
         G_k = xp.expand_dims(G[:, k], axis=1) + xp.expand_dims(G[k, :], axis=0)
         G = xp.minimum(G, G_k)
-    return xp.to_benchmark(G)
+    return xp.to_binsparse(G)
 
 
 def generate_floyd_warshall_data(source, symmetrize=False):

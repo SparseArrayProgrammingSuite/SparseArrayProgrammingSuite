@@ -64,23 +64,23 @@ Tuple of (A_bench, B_bench, C_bench, lambda_bench) in binsparse format where:
 
 
 def benchmark_cp_als(xp, X_bench, rank, max_iter=50):
-    X_eager = xp.from_benchmark(X_bench)
+    X_eager = xp.from_binsparse(X_bench)
     X = X_eager
 
     dim1, dim2, dim3 = X_bench.data["shape"]
     dtype = X_bench.data["values"].dtype
 
-    A = xp.from_benchmark(
+    A = xp.from_binsparse(
         BinsparseFormat.from_numpy(
             np.random.default_rng(0).random((dim1, rank)).astype(dtype)
         )
     )
-    B = xp.from_benchmark(
+    B = xp.from_binsparse(
         BinsparseFormat.from_numpy(
             np.random.default_rng(0).random((dim2, rank)).astype(dtype)
         )
     )
-    C = xp.from_benchmark(
+    C = xp.from_binsparse(
         BinsparseFormat.from_numpy(
             np.random.default_rng(0).random((dim3, rank)).astype(dtype)
         )
@@ -151,10 +151,10 @@ def benchmark_cp_als(xp, X_bench, rank, max_iter=50):
     (A, B, C, lambda_vals) = (A, B, C, lambda_vals)
 
     # Convert to binsparse format
-    A_bench_out = xp.to_benchmark(A)
-    B_bench_out = xp.to_benchmark(B)
-    C_bench_out = xp.to_benchmark(C)
-    lambda_bench_out = xp.to_benchmark(lambda_vals)
+    A_bench_out = xp.to_binsparse(A)
+    B_bench_out = xp.to_binsparse(B)
+    C_bench_out = xp.to_binsparse(C)
+    lambda_bench_out = xp.to_binsparse(lambda_vals)
 
     return (A_bench_out, B_bench_out, C_bench_out, lambda_bench_out)
 

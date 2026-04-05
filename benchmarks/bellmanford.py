@@ -23,7 +23,7 @@ the benchmark function itself. This statement was written by hand.
 
 
 def bellman_ford(xp, edges, src):
-    edges = xp.from_benchmark(edges)
+    edges = xp.from_binsparse(edges)
     n = edges.shape[0]
 
     G = xp.asarray(edges, dtype=float)
@@ -40,4 +40,4 @@ def bellman_ford(xp, edges, src):
         if stop:
             break
 
-    return xp.to_benchmark(D)
+    return xp.to_binsparse(D)

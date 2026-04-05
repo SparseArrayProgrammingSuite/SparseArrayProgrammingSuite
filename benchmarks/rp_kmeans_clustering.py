@@ -52,7 +52,7 @@ def rp_kmeans_clustering(xp, A_benchmark, k, eps, c=1, max_iter=100):
     assert c > 0
     assert eps > 0 and eps < 1 / 3
     assert k > 0
-    A = xp.from_benchmark(A_benchmark)
+    A = xp.from_binsparse(A_benchmark)
     A = A
     n, d = A.shape
     t = int(c * math.ceil(k / eps**2))

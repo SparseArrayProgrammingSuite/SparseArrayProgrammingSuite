@@ -84,7 +84,7 @@ def test_mcl_solver(xp, A, expected_count):
 
     result_bin = benchmark_mcl(xp, A_bin, expansion=2, inflation=2, loop_value=1)
 
-    result_matrix = xp.from_benchmark(result_bin)
+    result_matrix = xp.from_binsparse(result_bin)
 
     actual_count = get_cluster_count(result_matrix)
 

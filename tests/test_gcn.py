@@ -102,7 +102,7 @@ def test_gcn_simple_2node():
     output_b = benchmark_gcn(
         xp, adjacency_b, features_b, weights1_b, bias1_b, weights2_b, bias2_b
     )
-    output_np = xp.from_benchmark(output_b)
+    output_np = xp.from_binsparse(output_b)
     np.testing.assert_allclose(output_np, expected, rtol=1e-10)
 
 
@@ -152,7 +152,7 @@ def test_gcn_simple_3node_line():
     output_b = benchmark_gcn(
         xp, adjacency_b, features_b, weights1_b, bias1_b, weights2_b, bias2_b
     )
-    output_np = xp.from_benchmark(output_b)
+    output_np = xp.from_binsparse(output_b)
     np.testing.assert_allclose(output_np, expected, rtol=1e-10)
 
 
@@ -202,5 +202,5 @@ def test_gcn_with_relu_activation():
     output_b = benchmark_gcn(
         xp, adjacency_b, features_b, weights1_b, bias1_b, weights2_b, bias2_b
     )
-    output_np = xp.from_benchmark(output_b)
+    output_np = xp.from_binsparse(output_b)
     np.testing.assert_allclose(output_np, expected, rtol=1e-10)
