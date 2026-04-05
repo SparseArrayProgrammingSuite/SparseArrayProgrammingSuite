@@ -157,6 +157,8 @@ class TimeSuite(Benchmark):
             "Generative AI might have been used to construct tests."
         )
 
+    pretty_source = "foo"
+
     def setup(self, dataset):
         self.d = {}
         for x in range(dataset):
