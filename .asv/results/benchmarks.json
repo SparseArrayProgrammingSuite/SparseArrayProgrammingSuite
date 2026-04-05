@@ -8,10 +8,27 @@
         "unit": "bytes",
         "version": "abe86bab484550a681c61d7bb6eb081fbd37eb6d5009eba1df85c935530577b9"
     },
-    "benchmarks.TimeSuite.time_range": {
-        "code": "class TimeSuite:\n    def time_range(self, dataset):\n        d = self.d\n        for key in range(dataset):\n            d[key]\n\n    def setup(self, dataset):\n        self.d = {}\n        for x in range(dataset):\n            self.d[x] = None",
+    "benchmarks.TimeSuite.mem_run": {
+        "code": "class Benchmark:\n    def mem_run(self, dataset):\n        self.run(dataset)\n\nclass TimeSuite:\n    def setup(self, dataset):\n        self.d = {}\n        for x in range(dataset):\n            self.d[x] = None",
+        "name": "benchmarks.TimeSuite.mem_run",
+        "param_names": [
+            "dataset"
+        ],
+        "params": [
+            [
+                "0",
+                "2",
+                "3"
+            ]
+        ],
+        "type": "memory",
+        "unit": "bytes",
+        "version": "d05796d746b42a93bb42ff58c61cabe9e8c1fc6fca4a810452b7befd7d1054ea"
+    },
+    "benchmarks.TimeSuite.time_run": {
+        "code": "class Benchmark:\n    def time_run(self, dataset):\n        self.run(dataset)\n\nclass TimeSuite:\n    def setup(self, dataset):\n        self.d = {}\n        for x in range(dataset):\n            self.d[x] = None",
         "min_run_count": 2,
-        "name": "benchmarks.TimeSuite.time_range",
+        "name": "benchmarks.TimeSuite.time_run",
         "number": 0,
         "param_names": [
             "dataset"
@@ -28,7 +45,7 @@
         "sample_time": 0.01,
         "type": "time",
         "unit": "seconds",
-        "version": "8f2a6a1d6bf4739422332f439242470c0f16343aa36b5e638c05cff3102224e7",
+        "version": "4df1c0c10ff378c5364bde2912e5dab4ed63c73303c104301f420935557d8f66",
         "warmup_time": -1
     },
     "version": 2
