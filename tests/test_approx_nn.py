@@ -21,14 +21,14 @@ def test_jl_preserves_distance(rng):
         seed=42,
     )
     ((data, query, projection_matrix), meta) = approx_nn.JLApproxNNGenerator().generate(dataset)
+    data = xp.from_binsparse(data)
+    query = xp.from_binsparse(query)
+    projection_matrix = xp.from_binsparse(projection_matrix)
 
     benchmark = approx_nn.JLApproxNearestNeighbor()
     nearest_ind, _ = benchmark.benchmark(
         [data, query, projection_matrix], meta
     )
-
-    # Convert benchmark objects back into framework arrays
-    nearest_ind = xp.from_binsparse(nearest_ind)
 
     # True distances
     diff = xp.einsum("X[i, j, k] = Q[i, k] - D[j, k]", Q=query, D=data)

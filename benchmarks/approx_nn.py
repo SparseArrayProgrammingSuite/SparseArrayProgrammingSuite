@@ -2,6 +2,8 @@ import numpy as np
 import scipy as sp
 import saps
 from saps.benchmark import Dataset, Generator, Benchmark, Contributor, Author, Ref
+from saps.benchmark import BinsparseFormat
+
 
 xp = saps.xp
 
@@ -175,10 +177,19 @@ class JLApproxNNGenerator(Generator):
             ),  # specified dtype to see of that made a difference
             random_state=rng,
         )
-        projection_matrix = (U_Neg + U_Pos).toarray()
+        projection_matrix = (U_Neg + U_Pos).tocoo()
 
         meta = {"k": dataset.k, "eps": dataset.eps}
-        return [data, query, projection_matrix], meta
+        P = BinsparseFormat.from_coo(
+            (
+                projection_matrix.row,
+                projection_matrix.col,
+            ),
+            projection_matrix.data,
+            projection_matrix.shape,
+        )
+
+        return [BinsparseFormat.from_numpy(data), BinsparseFormat.from_numpy(query), P], meta
 
 
 class JLApproxNearestNeighbor(Benchmark):
@@ -288,6 +299,4 @@ class JLApproxNearestNeighbor(Benchmark):
         nearest_indices = xp.take(sorted_indices, xp.arange(k), axis=1)
         nearest_distances = xp.take(xp.sort(distances), xp.arange(k), axis=1)
 
-        nearest_indices = xp.to_binsparse(nearest_indices)
-        nearest_distances = xp.to_binsparse(nearest_distances)
         return [nearest_indices, nearest_distances]

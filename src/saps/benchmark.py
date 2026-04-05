@@ -129,7 +129,7 @@ class Generator(Tagged, Attributed, Motivated):
         return [dataset.name for dataset in self.datasets]
     
     @abstractmethod
-    def generate(self, dataset: Dataset) -> Any:...
+    def generate(self, dataset: Dataset) -> tuple[list[BinsparseFormat], Any]:...
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -211,16 +211,20 @@ class Benchmark(Tagged, Attributed, Motivated):
         self._meta = meta
     
     def run(self, param):
-        input = [xp.to_binsparse(d) for d in self._input]
+        input = [xp.from_binsparse(d) for d in self._input]
         output = self.benchmark(input, self._meta)
-        output = [xp.from_binsparse(o) for o in output]
+        output = [xp.to_binsparse(o) for o in output]
         self._output = output
     
     def teardown(self, param):
-        self.check_correct(param)
-        del self._meta
-        del self._input
-        del self._output
+        if hasattr(self, "_output"):
+            self.check_correct(param)
+            del self._output
+        if hasattr(self, "_meta"):
+            del self._meta
+        if hasattr(self, "_input"):
+            del self._input
+       
     
     def check_correct(self, param):
         #TODO do better than this
