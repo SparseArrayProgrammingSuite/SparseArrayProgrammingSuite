@@ -1,0 +1,35 @@
+{
+    "benchmarks.MemSuite.mem_list": {
+        "code": "class MemSuite:\n    def mem_list(self):\n        return [0] * 256",
+        "name": "benchmarks.MemSuite.mem_list",
+        "param_names": [],
+        "params": [],
+        "type": "memory",
+        "unit": "bytes",
+        "version": "abe86bab484550a681c61d7bb6eb081fbd37eb6d5009eba1df85c935530577b9"
+    },
+    "benchmarks.TimeSuite.time_range": {
+        "code": "class TimeSuite:\n    def time_range(self, s):\n        d = self.d\n        for key in range(s):\n            d[key]\n\n    def setup(self, s):\n        self.d = {}\n        for x in range(s):\n            self.d[x] = None",
+        "min_run_count": 2,
+        "name": "benchmarks.TimeSuite.time_range",
+        "number": 0,
+        "param_names": [
+            "size"
+        ],
+        "params": [
+            [
+                "1",
+                "10",
+                "100"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "type": "time",
+        "unit": "seconds",
+        "version": "6314985d5009994156cfbb58508427700af41d27dffee7117a7d16f65849f7be",
+        "warmup_time": -1
+    },
+    "version": 2
+}

@@ -1,28 +1,23 @@
 # Write the benchmarking functions here.
 # See "Writing benchmarks" in the asv docs for more information.
 
+class Foo:
+    params = [1, 10, 100]
+    param_names = ["size"]
 
-class TimeSuite:
+class TimeSuite(Foo):
     """
     An example benchmark that times the performance of various kinds
     of iterating over dictionaries in Python.
     """
-    def setup(self):
+    def setup(self, s):
         self.d = {}
-        for x in range(500):
+        for x in range(s):
             self.d[x] = None
 
-    def time_keys(self):
-        for key in self.d.keys():
-            pass
-
-    def time_values(self):
-        for value in self.d.values():
-            pass
-
-    def time_range(self):
+    def time_range(self, s):
         d = self.d
-        for key in range(500):
+        for key in range(s):
             d[key]
 
 
