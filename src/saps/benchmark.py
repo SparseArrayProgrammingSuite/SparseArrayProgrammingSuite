@@ -1,9 +1,6 @@
 import inspect
-import json
-import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 
 import saps
@@ -66,15 +63,6 @@ class Ref:
             f"{journal_str}{conference_str}{booktitle_str}{publisher_str}{institution_str}"
             f"{volume_str}{number_str}{pages_str}{year_str}{url_str}{doi_str}."
         )
-
-
-saps_root = Path(os.getenv("SAPS_DATA_PATH", Path(__file__).parent.parent.parent))
-benchmark_metadata = saps_root / "benchmark_metadata.json"
-benchmark_metadata.parent.mkdir(parents=True, exist_ok=True)
-benchmark_metadata.unlink(missing_ok=True)
-benchmark_metadata.write_text(
-    json.dumps({"benchmarks": []}, indent=2), encoding="utf-8"
-)
 
 
 class Metadata(ABC):
@@ -188,18 +176,6 @@ class Benchmark(Tagged, Attributed, Motivated):
             instance = cls()
         except (TypeError, ValueError):
             return
-
-        entry = instance.metadata
-
-        payload = json.loads(benchmark_metadata.read_text(encoding="utf-8"))
-        existing = payload.get("benchmarks", [])
-        by_id = {item.get("id"): item for item in existing if isinstance(item, dict)}
-        by_id[entry["id"]] = entry
-        payload["benchmarks"] = sorted(by_id.values(), key=lambda item: item["id"])
-
-        tmp_path = benchmark_metadata.with_suffix(".tmp")
-        tmp_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-        tmp_path.replace(benchmark_metadata)
 
         def _mem_run(self, param):
             self.run(param)
