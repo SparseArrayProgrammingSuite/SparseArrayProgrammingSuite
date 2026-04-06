@@ -186,7 +186,7 @@ class Benchmark(Tagged, Attributed, Motivated):
 
         try:
             instance = cls()
-        except Exception:
+        except (TypeError, ValueError):
             return
 
         entry = instance.metadata

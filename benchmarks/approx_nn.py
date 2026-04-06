@@ -68,7 +68,10 @@ class JLApproxNNGenerator(Generator):
 
     @property
     def description(self) -> str:
-        return "Generates random data/query matrices and sparse random projection matrices for JL approximate nearest-neighbor."
+        return (
+            "Generates random data/query matrices and sparse random projection "
+            "matrices for JL approximate nearest-neighbor."
+        )
 
     @property
     def tags(self) -> list[str]:
@@ -85,7 +88,10 @@ class JLApproxNNGenerator(Generator):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title="Randomized Numerical Linear Algebra : A Perspective on the Field With an Eye to Software",
+                title=(
+                    "Randomized Numerical Linear Algebra : "
+                    "A Perspective on the Field With an Eye to Software"
+                ),
                 authors=[
                     Author("Riley Murray"),
                     Author("James Demmel"),
@@ -113,11 +119,18 @@ class JLApproxNNGenerator(Generator):
 
     @property
     def ai_disclosure(self) -> str:
-        return "No generative AI was used to construct the benchmark function itself. Generative AI might have been used to construct tests."
+        return (
+            "No generative AI was used to construct the benchmark function "
+            "itself. Generative AI might have been used to construct tests."
+        )
 
     @property
     def motivation(self) -> str:
-        return "Sparse Johnson-Lindenstrauss projection is a fundamental primitive in randomized numerical linear algebra, and is used in many applications such as approximate nearest neighbor search."
+        return (
+            "Sparse Johnson-Lindenstrauss projection is a fundamental primitive "
+            "in randomized numerical linear algebra, and is used in many "
+            "applications such as approximate nearest neighbor search."
+        )
 
     @property
     def datasets(self) -> list[Dataset]:
@@ -125,7 +138,10 @@ class JLApproxNNGenerator(Generator):
             JLApproxNNDataset(
                 name="small",
                 pretty_name="Small JL ANN",
-                description="Small random dense data and query matrices with sparse random projection.",
+                description=(
+                    "Small random dense data and query matrices with sparse "
+                    "random projection."
+                ),
                 tags=["small", "rnla", "sparse"],
                 n_samples=256,
                 n_features=128,
@@ -137,7 +153,10 @@ class JLApproxNNGenerator(Generator):
             JLApproxNNDataset(
                 name="medium",
                 pretty_name="Medium JL ANN",
-                description="Medium random dense data and query matrices with sparse random projection.",
+                description=(
+                    "Medium random dense data and query matrices with sparse "
+                    "random projection."
+                ),
                 tags=["medium", "rnla", "sparse"],
                 n_samples=1024,
                 n_features=256,
@@ -149,7 +168,10 @@ class JLApproxNNGenerator(Generator):
             JLApproxNNDataset(
                 name="large",
                 pretty_name="Large JL ANN",
-                description="Large random dense data and query matrices with sparse random projection.",
+                description=(
+                    "Large random dense data and query matrices with sparse "
+                    "random projection."
+                ),
                 tags=["large", "rnla", "sparse"],
                 n_samples=4096,
                 n_features=512,
@@ -233,7 +255,8 @@ class JLApproxNearestNeighbor(Benchmark):
     @property
     def description(self):
         return (
-            "Benchmarks Johnson-Lindenstrauss projection followed by k-nearest-neighbor "
+            "Benchmarks Johnson-Lindenstrauss projection followed by "
+            "k-nearest-neighbor "
             "ranking in projected space."
         )
 
@@ -254,7 +277,10 @@ class JLApproxNearestNeighbor(Benchmark):
                 url="https://github.com/scikit-learn/scikit-learn/blob/d3898d9d57aeb1e960d266613a2e31b07bca39d7/sklearn/random_projection.py#L615",
             ),
             Ref(
-                title="Randomized numerical linear algebra: A perspective on the field with an eye to software",
+                title=(
+                    "Randomized numerical linear algebra: "
+                    "A perspective on the field with an eye to software"
+                ),
                 authors=[
                     Author("Murray, R."),
                     Author("Demmel, J."),

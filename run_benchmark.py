@@ -65,25 +65,38 @@ def main() -> int:
         "--re",
         action="append",
         default=None,
-        help="Regex benchmark filter (can be passed more than once, applies to datasets, generators, and benchmarks)",
+        help=(
+            "Regex benchmark filter (can be passed more than once, "
+            "applies to datasets, generators, and benchmarks)"
+        ),
     )
     parser.add_argument(
         "--no-re",
         action="append",
         default=None,
-        help="Regex benchmark exclude filter (can be passed more than once, applies to datasets, generators, and benchmarks)",
+        help=(
+            "Regex benchmark exclude filter (can be passed more than once, "
+            "applies to datasets, generators, and benchmarks)"
+        ),
     )
     parser.add_argument(
         "--tag",
         action="append",
         default=[],
-        help="SAPS tag include filter (can be passed more than once, applies to datasets, generators, and benchmarks)",
+        help=(
+            "SAPS tag include filter (can be passed more than once, "
+            "applies to datasets, generators, and benchmarks)"
+        ),
     )
     parser.add_argument(
         "--no-tag",
         action="append",
         default=[],
-        help="Exclude SAPS benchmarks that have any of these tags (can be passed more than once, applies to datasets, generators, and benchmarks)",
+        help=(
+            "Exclude SAPS benchmarks that have any of these tags "
+            "(can be passed more than once, applies to datasets, "
+            "generators, and benchmarks)"
+        ),
     )
     parser.add_argument(
         "--show-stderr",
@@ -129,7 +142,7 @@ def main() -> int:
 
     metadata: dict[str, dict] = {}
 
-    for name in benchmarks.keys():
+    for name in benchmarks:
         module_name, class_name, _method_name = name.rsplit(".", 2)
         benchmark_module = importlib.import_module(f"benchmarks.{module_name}")
         benchmark = getattr(benchmark_module, class_name)()
@@ -147,26 +160,30 @@ def main() -> int:
     include_set = {tag.strip().lower() for tag in args.tag if tag and tag.strip()}
     exclude_set = {tag.strip().lower() for tag in args.no_tag if tag and tag.strip()}
 
+    include_res = args.re or []
+    exclude_res = args.no_re or []
+
+    def regex_any_match(patterns: list[str], value: str) -> bool:
+        return any(re.search(pattern, value) for pattern in patterns)
+
     def is_include(obj) -> bool:
-        if args.re and re.search(args.re, obj["id"]):
+        if include_res and not regex_any_match(include_res, obj["id"]):
             return False
-        if include_set and not include_set.intersection(obj["tags"]):
-            return False
-        return True
+        return not (include_set and not include_set.intersection(obj["tags"]))
 
     def is_exclude(obj) -> bool:
-        if args.no_re and re.search(args.no_re, obj.id):
+        if exclude_res and regex_any_match(exclude_res, obj["id"]):
             return True
-        if exclude_set and exclude_set.intersection(obj["tags"]):
-            return True
-        return False
+        return bool(exclude_set and exclude_set.intersection(obj["tags"]))
 
     skips = []
     benchmarks._benchmark_selection = {}
-    for name in benchmarks.keys():
+    for name in benchmarks:
         if name not in metadata:
             log.warning(
-                f"No SAPS metadata found for benchmark '{name}', skipping SAPS tag filtering for this benchmark"
+                "No SAPS metadata found for benchmark "
+                f"'{name}', skipping SAPS tag filtering "
+                "for this benchmark"
             )
             skips.append(name)
             continue
