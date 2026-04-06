@@ -43,9 +43,9 @@ itself. Generative AI might have been used to construct tests. This statement
 was written by hand.
 """
 
-import saps
+import sparseappbench
 
-xp = saps.xp
+xp = sparseappbench.xp
 
 
 def benchmark_transitive_closure(xp, edges_b):

@@ -4,7 +4,7 @@ import numpy as np
 import scipy.sparse
 import scipy.sparse.linalg
 
-from saps.benchmarks.GMRES import (
+from sparseappbench.benchmarks.GMRES import (
     dg_gmres_sparse_1,
     dg_gmres_sparse_2,
     dg_gmres_sparse_3,
@@ -15,8 +15,8 @@ from saps.benchmarks.GMRES import (
     dg_gmres_sparse_8,
     gmres,
 )
-from saps.binsparse_format import BinsparseFormat
-from saps.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.binsparse_format import BinsparseFormat
+from sparseappbench.frameworks.numpy_framework import NumpyFramework
 
 
 def get_framework():

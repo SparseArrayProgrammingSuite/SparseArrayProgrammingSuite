@@ -3,16 +3,16 @@ import pytest
 import numpy as np
 import scipy.sparse as sp
 
-from saps.benchmarks.preconditioned_cg import (
+from sparseappbench.benchmarks.preconditioned_cg import (
     generate_block_jacobi_M,
     preconditioned_cg,
     solve_block_jacobi_cg,
     solve_jacobi_cg,
 )
-from saps.binsparse_format import BinsparseFormat
-from saps.frameworks.checker_framework import CheckerFramework
-from saps.frameworks.numpy_framework import NumpyFramework
-from saps.frameworks.sparse_framework import (
+from sparseappbench.binsparse_format import BinsparseFormat
+from sparseappbench.frameworks.checker_framework import CheckerFramework
+from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.frameworks.sparse_framework import (
     PyDataSparseFramework,
 )
 

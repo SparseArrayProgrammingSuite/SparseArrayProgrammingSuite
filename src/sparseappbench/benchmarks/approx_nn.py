@@ -1,8 +1,8 @@
 import numpy as np
 import scipy as sp
 
-import saps
-from saps.benchmark import (
+import sparseappbench
+from sparseappbench.benchmark import (
     Author,
     Benchmark,
     BinsparseFormat,
@@ -12,7 +12,7 @@ from saps.benchmark import (
     Ref,
 )
 
-xp = saps.xp
+xp = sparseappbench.xp
 
 
 class JLApproxNNDataset(Dataset):

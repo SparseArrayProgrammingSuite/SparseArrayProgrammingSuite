@@ -30,10 +30,10 @@ from scipy.io import mmread
 
 import ssgetpy
 
-import saps
-from saps.binsparse_format import BinsparseFormat
+import sparseappbench
+from sparseappbench.binsparse_format import BinsparseFormat
 
-xp = saps.xp
+xp = sparseappbench.xp
 
 """
     benchmark_gcn(xp, adjacency_bench, features_bench, weights1_bench,

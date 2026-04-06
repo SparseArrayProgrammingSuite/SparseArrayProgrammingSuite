@@ -1,6 +1,6 @@
 import pytest
 
-from saps.benchmarks.Finite_Difference import (
+from sparseappbench.benchmarks.Finite_Difference import (
     buckley_leverett_flux,
     burgers_flux,
     difference_matrix,
@@ -10,7 +10,7 @@ from saps.benchmarks.Finite_Difference import (
     lax_friedrichs_solver_matrix_general,
     linear_advection_flux,
 )
-from saps.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.frameworks.numpy_framework import NumpyFramework
 
 
 @pytest.fixture

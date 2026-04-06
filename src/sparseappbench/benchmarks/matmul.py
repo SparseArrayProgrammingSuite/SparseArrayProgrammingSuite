@@ -24,10 +24,10 @@ was written by hand.
 import numpy as np
 import scipy.sparse as sp
 
-import saps
-from saps.binsparse_format import BinsparseFormat
+import sparseappbench
+from sparseappbench.binsparse_format import BinsparseFormat
 
-xp = saps.xp
+xp = sparseappbench.xp
 
 r"""
     benchmark_matmul(xp, A_bench, B_bench)

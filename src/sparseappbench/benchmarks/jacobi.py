@@ -6,10 +6,10 @@ from scipy.sparse import random
 
 import ssgetpy
 
-import saps
-from saps.binsparse_format import BinsparseFormat
+import sparseappbench
+from sparseappbench.binsparse_format import BinsparseFormat
 
-xp = saps.xp
+xp = sparseappbench.xp
 
 """
 Name: Jacobi Iterative Solver

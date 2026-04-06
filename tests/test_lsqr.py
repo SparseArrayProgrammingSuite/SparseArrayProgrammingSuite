@@ -2,11 +2,11 @@ import pytest
 
 import numpy as np
 
-from saps.benchmarks.lsqr import benchmark_lsqr
-from saps.binsparse_format import BinsparseFormat
-from saps.frameworks.checker_framework import CheckerFramework
-from saps.frameworks.numpy_framework import NumpyFramework
-from saps.frameworks.sparse_framework import (
+from sparseappbench.benchmarks.lsqr import benchmark_lsqr
+from sparseappbench.binsparse_format import BinsparseFormat
+from sparseappbench.frameworks.checker_framework import CheckerFramework
+from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.frameworks.sparse_framework import (
     PyDataSparseFramework,
 )
 

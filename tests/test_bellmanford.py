@@ -2,9 +2,9 @@ import pytest
 
 import numpy as np
 
-from saps.benchmarks.bellmanford import bellman_ford
-from saps.binsparse_format import BinsparseFormat
-from saps.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.benchmarks.bellmanford import bellman_ford
+from sparseappbench.binsparse_format import BinsparseFormat
+from sparseappbench.frameworks.numpy_framework import NumpyFramework
 
 xp = NumpyFramework()
 

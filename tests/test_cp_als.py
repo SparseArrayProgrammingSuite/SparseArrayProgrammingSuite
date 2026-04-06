@@ -1,12 +1,12 @@
 import pytest
 
-from saps.benchmarks.cp_als import (
+from sparseappbench.benchmarks.cp_als import (
     benchmark_cp_als,
     dg_cp_als_factorizable_small,
     dg_cp_als_sparse_small,
 )
-from saps.frameworks.checker_framework import CheckerFramework
-from saps.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.frameworks.checker_framework import CheckerFramework
+from sparseappbench.frameworks.numpy_framework import NumpyFramework
 
 
 @pytest.mark.parametrize("xp", [NumpyFramework(), CheckerFramework()])

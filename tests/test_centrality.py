@@ -4,9 +4,9 @@ import numpy as np
 
 import networkx as nx
 
-from saps.benchmarks.centrality import betweenness_centrality
-from saps.binsparse_format import BinsparseFormat
-from saps.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.benchmarks.centrality import betweenness_centrality
+from sparseappbench.binsparse_format import BinsparseFormat
+from sparseappbench.frameworks.numpy_framework import NumpyFramework
 
 
 def run_bc(xp, A):

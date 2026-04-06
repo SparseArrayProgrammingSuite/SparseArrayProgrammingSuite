@@ -2,10 +2,10 @@ import pytest
 
 import numpy as np
 
-from saps.benchmarks.coupled_cluster import benchmark_ccsd, make_ccsd_inputs
-from saps.binsparse_format import BinsparseFormat
-from saps.frameworks.checker_framework import CheckerFramework
-from saps.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.benchmarks.coupled_cluster import benchmark_ccsd, make_ccsd_inputs
+from sparseappbench.binsparse_format import BinsparseFormat
+from sparseappbench.frameworks.checker_framework import CheckerFramework
+from sparseappbench.frameworks.numpy_framework import NumpyFramework
 
 # Ground truth from C++ CTF (tests/cpp_reference/coupled_cluster/ccsd.cxx):
 #   mpirun -n 1 ./ccsd -no 4 -nv 6 -niter 1  →  |T| = 380638.269079

@@ -3,10 +3,10 @@ import pytest
 import numpy as np
 import scipy.sparse as sp
 
-from saps.benchmarks.mcl_benchmark import benchmark_mcl
-from saps.binsparse_format import BinsparseFormat
-from saps.frameworks.numpy_framework import NumpyFramework
-from saps.frameworks.sparse_framework import PyDataSparseFramework
+from sparseappbench.benchmarks.mcl_benchmark import benchmark_mcl
+from sparseappbench.binsparse_format import BinsparseFormat
+from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.frameworks.sparse_framework import PyDataSparseFramework
 
 
 def get_cluster_count(matrix):

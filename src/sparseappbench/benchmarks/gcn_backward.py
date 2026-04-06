@@ -37,10 +37,10 @@ from scipy.io import mmread
 
 import ssgetpy
 
-import saps
-from saps.binsparse_format import BinsparseFormat
+import sparseappbench
+from sparseappbench.binsparse_format import BinsparseFormat
 
-xp = saps.xp
+xp = sparseappbench.xp
 
 
 def benchmark_gcn_backward(

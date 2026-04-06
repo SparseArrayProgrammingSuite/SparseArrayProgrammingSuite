@@ -4,9 +4,9 @@ import numpy as np
 
 import networkx as nx
 
-from saps.benchmarks.pagerank import pagerank
-from saps.binsparse_format import BinsparseFormat
-from saps.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.benchmarks.pagerank import pagerank
+from sparseappbench.binsparse_format import BinsparseFormat
+from sparseappbench.frameworks.numpy_framework import NumpyFramework
 
 
 @pytest.mark.parametrize(

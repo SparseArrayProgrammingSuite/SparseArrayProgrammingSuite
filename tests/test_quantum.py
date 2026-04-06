@@ -2,15 +2,15 @@ import pytest
 
 import numpy as np
 
-from saps.benchmarks.quantum import (
+from sparseappbench.benchmarks.quantum import (
     QGates,
     apply_single_qubit_gate,
     benchmark_rqc_statevector,
     dg_single_layer_small,
 )
-from saps.binsparse_format import BinsparseFormat
-from saps.frameworks.checker_framework import CheckerFramework
-from saps.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.binsparse_format import BinsparseFormat
+from sparseappbench.frameworks.checker_framework import CheckerFramework
+from sparseappbench.frameworks.numpy_framework import NumpyFramework
 
 
 @pytest.mark.parametrize("xp", [NumpyFramework(), CheckerFramework()])

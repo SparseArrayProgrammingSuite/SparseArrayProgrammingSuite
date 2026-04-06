@@ -1,7 +1,7 @@
-import saps
-from saps.frameworks.einsum import einsum
+import sparseappbench
+from sparseappbench.frameworks.einsum import einsum
 
-xp = saps.xp
+xp = sparseappbench.xp
 
 """
 Name: Triangle, 4-Clique Counting

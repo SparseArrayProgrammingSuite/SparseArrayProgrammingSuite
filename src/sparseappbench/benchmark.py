@@ -3,8 +3,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any
 
-from saps.binsparse_format import BinsparseFormat
-from saps.framework import xp
+from sparseappbench.binsparse_format import BinsparseFormat
+from sparseappbench.framework import xp
 
 
 @dataclass

@@ -1,9 +1,9 @@
 import numpy as np
 
-from saps.benchmarks.floyd_warshall import floyd_warshall
-from saps.binsparse_format import BinsparseFormat
-from saps.frameworks.checker_framework import CheckerFramework
-from saps.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.benchmarks.floyd_warshall import floyd_warshall
+from sparseappbench.binsparse_format import BinsparseFormat
+from sparseappbench.frameworks.checker_framework import CheckerFramework
+from sparseappbench.frameworks.numpy_framework import NumpyFramework
 
 
 def _run_fw_case(xp, A, expected):

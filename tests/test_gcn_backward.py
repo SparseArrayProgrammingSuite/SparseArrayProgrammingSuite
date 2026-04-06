@@ -1,8 +1,8 @@
 import numpy as np
 
-from saps.benchmarks.gcn_backward import benchmark_gcn_backward
-from saps.binsparse_format import BinsparseFormat
-from saps.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.benchmarks.gcn_backward import benchmark_gcn_backward
+from sparseappbench.binsparse_format import BinsparseFormat
+from sparseappbench.frameworks.numpy_framework import NumpyFramework
 
 
 def test_gcn_backward_2node():

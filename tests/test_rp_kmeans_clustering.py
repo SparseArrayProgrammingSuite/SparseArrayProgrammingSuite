@@ -1,10 +1,10 @@
 import numpy as np
 
-from saps.benchmarks.rp_kmeans_clustering import (
+from sparseappbench.benchmarks.rp_kmeans_clustering import (
     rp_kmeans_clustering,
 )
-from saps.binsparse_format import BinsparseFormat
-from saps.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.binsparse_format import BinsparseFormat
+from sparseappbench.frameworks.numpy_framework import NumpyFramework
 
 
 def test_rp_kmeans_sanity_check():

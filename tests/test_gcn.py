@@ -2,14 +2,14 @@ import pytest
 
 import numpy as np
 
-from saps.benchmarks.gcn import (
+from sparseappbench.benchmarks.gcn import (
     benchmark_gcn,
     dg_gcn_social_1,
     gcn_reference_np,
 )
-from saps.binsparse_format import BinsparseFormat
-from saps.frameworks.checker_framework import CheckerFramework
-from saps.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.binsparse_format import BinsparseFormat
+from sparseappbench.frameworks.checker_framework import CheckerFramework
+from sparseappbench.frameworks.numpy_framework import NumpyFramework
 
 
 @pytest.mark.parametrize(

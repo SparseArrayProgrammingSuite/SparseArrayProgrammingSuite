@@ -18,7 +18,7 @@ from asv.repo import get_repo
 from asv.results import Results
 from asv.runner import run_benchmarks
 
-import saps
+import sparseappbench
 
 
 def format_results(results: Results, benchmarks: Benchmarks) -> dict:
@@ -145,9 +145,9 @@ def main() -> int:
 
     for name in benchmarks:
         module_name, class_name, _method_name = name.rsplit(".", 2)
-        benchmark_module = importlib.import_module(f"saps.benchmarks.{module_name}")
+        benchmark_module = importlib.import_module(f"sparseappbench.benchmarks.{module_name}")
         benchmark = getattr(benchmark_module, class_name)()
-        assert isinstance(benchmark, saps.Benchmark)
+        assert isinstance(benchmark, sparseappbench.Benchmark)
         metadata[name] = benchmark.metadata
 
     results_dir = Path(conf.results_dir)

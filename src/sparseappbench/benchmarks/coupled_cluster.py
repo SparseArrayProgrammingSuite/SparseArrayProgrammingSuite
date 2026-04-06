@@ -31,10 +31,10 @@ This statement was written by hand.
 
 import numpy as np
 
-import saps
-from saps.binsparse_format import BinsparseFormat
+import sparseappbench
+from sparseappbench.binsparse_format import BinsparseFormat
 
-xp = saps.xp
+xp = sparseappbench.xp
 
 
 def benchmark_ccsd(

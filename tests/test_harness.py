@@ -2,9 +2,9 @@ import numpy as np
 
 import sparse as sp
 
-from saps.binsparse_format import BinsparseFormat
-from saps.frameworks.numpy_framework import NumpyFramework
-from saps.frameworks.sparse_framework import (
+from sparseappbench.binsparse_format import BinsparseFormat
+from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.frameworks.sparse_framework import (
     PyDataSparseFramework,
 )
 

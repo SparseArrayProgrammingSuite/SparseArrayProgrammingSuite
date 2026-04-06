@@ -2,13 +2,13 @@ import pytest
 
 import numpy as np
 
-from saps.benchmarks.HOSVD import (
+from sparseappbench.benchmarks.HOSVD import (
     benchmark_hosvd,
     dg_hosvd_random_small,
     dg_hosvd_sparse_small,
 )
-from saps.binsparse_format import BinsparseFormat
-from saps.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.binsparse_format import BinsparseFormat
+from sparseappbench.frameworks.numpy_framework import NumpyFramework
 
 
 @pytest.fixture

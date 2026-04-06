@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 
-from saps.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.frameworks.numpy_framework import NumpyFramework
 
 
 @pytest.fixture
