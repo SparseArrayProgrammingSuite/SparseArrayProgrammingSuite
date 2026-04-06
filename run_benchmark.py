@@ -147,8 +147,10 @@ def main() -> int:
         if exclude_set and exclude_set.intersection(obj["tags"]):
             return True
         return False
+
+
     skips = []
-    extra_params = {}
+    benchmarks._benchmark_selection = {}
     for name in benchmarks.keys():
         if name not in metadata:
             log.warning(f"No SAPS metadata found for benchmark '{name}', skipping SAPS tag filtering for this benchmark")
@@ -157,22 +159,19 @@ def main() -> int:
         if is_exclude(metadata[name]):
             skips.append(name)
             continue
-        params = []
-        for generator in metadata[name]["generators"]:
-            if is_exclude(generator):
+        benchmarks._benchmark_selection[name] = []
+        generators = {gen['name']: gen for gen in metadata[name]['generators']}
+        for idx, param in enumerate(benchmarks[name]['params']):
+            generator, dataset = param[0].split(".")[:2]
+            generator = generators.get(generator)
+            datasets = {ds['name']: ds for ds in generator['datasets']}
+            dataset = datasets.get(dataset)
+            if is_exclude(generator) or is_exclude(dataset) or not (
+                is_include(metadata[name]) or
+                is_include(generator) or
+                is_include(dataset)):
                 continue
-            for dataset in generator["datasets"]:
-                if is_exclude(dataset):
-                    continue
-                if not (
-                    is_include(metadata[name]) or
-                    is_include(generator) or 
-                    is_include(dataset)):
-                    continue
-                params.append(f"{generator['name']}.{dataset['name']}")
-        extra_params[name] = params
-        print(params)
-
+            benchmarks._benchmark_selection[name].append(idx)
     benchmarks = benchmarks.filter_out(set(skips))
 
     results_dir = Path(conf.results_dir)
@@ -209,7 +208,6 @@ def main() -> int:
             results=results,
             show_stderr=args.show_stderr,
             quick=args.quick,
-            extra_params=extra_params,
         )
 
         print("Results object:", results)
