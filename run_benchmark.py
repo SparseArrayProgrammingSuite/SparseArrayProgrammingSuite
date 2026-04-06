@@ -63,25 +63,25 @@ def main() -> int:
         "--re",
         action="append",
         default=None,
-        help="Regex benchmark filter (can be passed more than once)",
+        help="Regex benchmark filter (can be passed more than once, applies to datasets, generators, and benchmarks)",
     )
     parser.add_argument(
         "--no-re",
         action="append",
         default=None,
-        help="Regex benchmark exclude filter (can be passed more than once)",
+        help="Regex benchmark exclude filter (can be passed more than once, applies to datasets, generators, and benchmarks)",
     )
     parser.add_argument(
         "--tag",
         action="append",
         default=[],
-        help="SAPS tag include filter (can be passed more than once)",
+        help="SAPS tag include filter (can be passed more than once, applies to datasets, generators, and benchmarks)",
     )
     parser.add_argument(
         "--no-tag",
         action="append",
         default=[],
-        help="Exclude SAPS benchmarks that have any of these tags (can be passed more than once)",
+        help="Exclude SAPS benchmarks that have any of these tags (can be passed more than once, applies to datasets, generators, and benchmarks)",
     )
     parser.add_argument(
         "--show-stderr",
@@ -133,6 +133,14 @@ def main() -> int:
         assert isinstance(benchmark, saps.Benchmark)
         metadata[name] = benchmark.metadata
 
+    results_dir = Path(conf.results_dir)
+    results_dir.mkdir(parents=True, exist_ok=True)
+    metadata_path = results_dir / "benchmarks_meta.json"
+    metadata_path.write_text(
+        json.dumps(metadata, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+
     include_set = {tag.strip().lower() for tag in args.tag if tag and tag.strip()}
     exclude_set = {tag.strip().lower() for tag in args.no_tag if tag and tag.strip()}
     def is_include(obj) -> bool:
@@ -173,14 +181,6 @@ def main() -> int:
                 continue
             benchmarks._benchmark_selection[name].append(idx)
     benchmarks = benchmarks.filter_out(set(skips))
-
-    results_dir = Path(conf.results_dir)
-    results_dir.mkdir(parents=True, exist_ok=True)
-    metadata_path = results_dir / "benchmarks_meta.json"
-    metadata_path.write_text(
-        json.dumps(metadata, indent=2, sort_keys=True),
-        encoding="utf-8",
-    )
 
     print(f"Discovered {len(benchmarks)} benchmark entries")
 
