@@ -57,7 +57,7 @@ class JLApproxNNDataset(Dataset):
         return self._tags
 
 
-class JLApproxNNGenerator(Generator):
+class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
     @property
     def name(self) -> str:
         return "jl_projection_inputs"
@@ -133,7 +133,7 @@ class JLApproxNNGenerator(Generator):
         )
 
     @property
-    def datasets(self) -> list[Dataset]:
+    def datasets(self) -> list[JLApproxNNDataset]:
         return [
             JLApproxNNDataset(
                 name="small",

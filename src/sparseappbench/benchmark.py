@@ -1,7 +1,7 @@
 import inspect
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Generic, TypeVar
 
 from sparseappbench.binsparse_format import BinsparseFormat
 from sparseappbench.framework import xp
@@ -118,17 +118,20 @@ class Dataset(Tagged):
         }
 
 
-class Generator(Tagged, Attributed, Motivated):
+TDataset = TypeVar("TDataset", bound=Dataset)
+
+
+class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
     @property
     @abstractmethod
-    def datasets(self) -> list[Dataset]: ...
+    def datasets(self) -> list[TDataset]: ...
 
     @property
     def dataset_names(self) -> list[str]:
         return [dataset.name for dataset in self.datasets]
 
     @abstractmethod
-    def generate(self, dataset: Dataset) -> tuple[list[BinsparseFormat], Any]: ...
+    def generate(self, dataset: TDataset) -> tuple[list[BinsparseFormat], Any]: ...
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -146,9 +149,9 @@ class Generator(Tagged, Attributed, Motivated):
 
 
 @dataclass
-class Param:
-    generator: Generator
-    dataset: Dataset
+class Param(Generic[TDataset]):
+    generator: Generator[TDataset]
+    dataset: TDataset
 
     def __repr__(self):
         return f"{self.generator.name}.{self.dataset.name}"
@@ -160,7 +163,7 @@ class Param:
 class Benchmark(Tagged, Attributed, Motivated):
     @property
     @abstractmethod
-    def generators(self) -> list[Generator]: ...
+    def generators(self) -> list[Generator[Any]]: ...
 
     @abstractmethod
     def benchmark(self, data: list[Any], meta: Any) -> Any: ...
