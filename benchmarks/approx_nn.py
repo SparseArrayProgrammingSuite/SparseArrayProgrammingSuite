@@ -1,14 +1,34 @@
 import numpy as np
 import scipy as sp
-import saps
-from saps.benchmark import Dataset, Generator, Benchmark, Contributor, Author, Ref
-from saps.benchmark import BinsparseFormat
 
+import saps
+from saps.benchmark import (
+    Author,
+    Benchmark,
+    BinsparseFormat,
+    Contributor,
+    Dataset,
+    Generator,
+    Ref,
+)
 
 xp = saps.xp
 
+
 class JLApproxNNDataset(Dataset):
-    def __init__(self, name, pretty_name, description, tags, n_samples, n_features, n_queries, k, eps, seed):
+    def __init__(
+        self,
+        name,
+        pretty_name,
+        description,
+        tags,
+        n_samples,
+        n_features,
+        n_queries,
+        k,
+        eps,
+        seed,
+    ):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
@@ -36,6 +56,7 @@ class JLApproxNNDataset(Dataset):
     def tags(self) -> list[str]:
         return self._tags
 
+
 class JLApproxNNGenerator(Generator):
     @property
     def name(self) -> str:
@@ -57,7 +78,7 @@ class JLApproxNNGenerator(Generator):
     def authors(self) -> list[Contributor]:
         return [
             Contributor("Vilohith Gokarakonda", "vgokarakonda3@gatech.edu"),
-            Contributor("Willow Ahrens", "ahrens@gatech.edu")
+            Contributor("Willow Ahrens", "ahrens@gatech.edu"),
         ]
 
     @property
@@ -81,13 +102,13 @@ class JLApproxNNGenerator(Generator):
                     Author("Jack Dongarra"),
                 ],
                 year=2023,
-                url="https://arxiv.org/abs/2302.11474"
+                url="https://arxiv.org/abs/2302.11474",
             ),
             Ref(
                 title="Random projection implementation reference",
                 authors=[Author("scikit-learn contributors")],
                 url="https://github.com/scikit-learn/scikit-learn/blob/d3898d9d57aeb1e960d266613a2e31b07bca39d7/sklearn/random_projection.py#L615",
-            )
+            ),
         ]
 
     @property
@@ -189,7 +210,11 @@ class JLApproxNNGenerator(Generator):
             projection_matrix.shape,
         )
 
-        return [BinsparseFormat.from_numpy(data), BinsparseFormat.from_numpy(query), P], meta
+        return [
+            BinsparseFormat.from_numpy(data),
+            BinsparseFormat.from_numpy(query),
+            P,
+        ], meta
 
 
 class JLApproxNearestNeighbor(Benchmark):

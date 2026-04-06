@@ -21,12 +21,12 @@ itself. Generative AI was used to debug code. This statement was written by hand
 """
 
 import os
-import saps
 
 from scipy.io import mmread
 
 import ssgetpy
 
+import saps
 from saps.binsparse_format import BinsparseFormat
 
 xp = saps.xp

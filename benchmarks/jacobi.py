@@ -1,12 +1,12 @@
 import os
 
 import numpy as np
-import saps
 from scipy.io import mmread
 from scipy.sparse import random
 
 import ssgetpy
 
+import saps
 from saps.binsparse_format import BinsparseFormat
 
 xp = saps.xp

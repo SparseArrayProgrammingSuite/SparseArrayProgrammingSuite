@@ -61,7 +61,6 @@ def betweenness_centrality(xp, A_binsparse):
             next_neighbors = xp.matmul(neighbors, G) * not_neighbors
 
             node_count = xp.sum(next_neighbors)
-            
 
             neighbors = next_neighbors
 

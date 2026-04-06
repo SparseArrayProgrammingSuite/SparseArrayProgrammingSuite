@@ -69,9 +69,7 @@ def preconditioned_cg(
     b = xp.from_binsparse(b_bench)
     x = xp.from_binsparse(x_bench)
     M = xp.from_binsparse(M_bench)
-    tolerance = max(
-        rel_tol * xp.sqrt(xp.vecdot(b, b))[()], abs_tol
-    )
+    tolerance = max(rel_tol * xp.sqrt(xp.vecdot(b, b))[()], abs_tol)
     # tol_sq used to avoid having to sqrt dot products when checking tolerance
     tol_sq = tolerance * tolerance
 

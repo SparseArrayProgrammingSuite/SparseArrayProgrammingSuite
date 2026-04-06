@@ -3,10 +3,10 @@ import os
 import numpy as np
 from scipy.io import mmread
 from scipy.sparse import random
-import saps
 
 import ssgetpy
 
+import saps
 from saps.binsparse_format import BinsparseFormat
 
 xp = saps.xp
@@ -42,9 +42,7 @@ def benchmark_cg(
     b = xp.from_binsparse(b_bench)
     x = xp.from_binsparse(x_bench)
 
-    tolerance = max(
-        rel_tol * xp.sqrt(xp.vecdot(b, b))[()], abs_tol
-    )
+    tolerance = max(rel_tol * xp.sqrt(xp.vecdot(b, b))[()], abs_tol)
     # tol_sq used to avoid having to sqrt dot products when checking tolerance
     tol_sq = tolerance * tolerance
 

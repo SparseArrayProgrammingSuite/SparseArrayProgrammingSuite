@@ -1,12 +1,12 @@
 import os
 
 import numpy as np
-import saps
 from scipy.io import mmread
 from scipy.sparse import random
 
 import ssgetpy
 
+import saps
 from saps.binsparse_format import BinsparseFormat
 
 xp = saps.xp
@@ -93,7 +93,7 @@ def benchmark_lsqr(
     # An approximation of the condition number of A found by multiplying
     # Anorm by sqrt(ddnorm)
     Acond = 0
-    
+
     while it < max_iters and not solution_is_zero:
         it += 1
 

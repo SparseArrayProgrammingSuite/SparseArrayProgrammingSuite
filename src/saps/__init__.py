@@ -1,15 +1,16 @@
+import numpy as np
+
+from .benchmark import Author, Benchmark, Contributor, Ref
+from .binsparse_format import BinsparseFormat
 from .framework import xp
 from .frameworks import einsum
-import numpy as np
-from .benchmark import Author, Ref, Benchmark, Contributor
-from .binsparse_format import BinsparseFormat
 
 __all__ = [
-    "xp",
-    "einsum",
     "Author",
+    "Benchmark",
+    "BinsparseFormat",
     "Contributor",
     "Ref",
-    "Benchmark",
-    "BinsparseFormat"
+    "einsum",
+    "xp",
 ]

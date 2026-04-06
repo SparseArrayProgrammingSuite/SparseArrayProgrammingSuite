@@ -2,12 +2,7 @@ import numpy as np
 
 import sparse as sp
 
-from benchmarks.matmul import (
-    benchmark_matmul,
-    dg_matmul_dense_small,
-)
 from saps.binsparse_format import BinsparseFormat
-from saps.frameworks.checker_framework import CheckerFramework
 from saps.frameworks.numpy_framework import NumpyFramework
 from saps.frameworks.sparse_framework import (
     PyDataSparseFramework,
@@ -82,5 +77,3 @@ def test_pydata_sparse_framework():
         framework.to_binsparse(arr_sparse_converted)
     )
     assert bsf_sparse == bsf_sparse_converted, "Sparse array to_binsparse failed"
-
-

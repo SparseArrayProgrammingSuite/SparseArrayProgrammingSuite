@@ -4,20 +4,20 @@ from __future__ import annotations
 import argparse
 import importlib
 import json
-import pkgutil
+import re
 from pathlib import Path
 
 from asv.benchmarks import Benchmarks
 from asv.commands.setup import Setup
 from asv.config import Config
+from asv.console import log
 from asv.environment import get_environments
 from asv.machine import Machine
 from asv.repo import get_repo
 from asv.results import Results
 from asv.runner import run_benchmarks
-from asv.console import log
+
 import saps
-import re
 
 
 def format_results(results: Results, benchmarks: Benchmarks) -> dict:
@@ -48,7 +48,9 @@ def format_results(results: Results, benchmarks: Benchmarks) -> dict:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run ASV benchmarks directly via asv.runner.run_benchmarks")
+    parser = argparse.ArgumentParser(
+        description="Run ASV benchmarks directly via asv.runner.run_benchmarks"
+    )
     parser.add_argument(
         "--config",
         default="asv.conf.json",
@@ -94,7 +96,8 @@ def main() -> int:
         help="Run each benchmark only once",
     )
     parser.add_argument(
-        "-v", "--verbose",
+        "-v",
+        "--verbose",
         action="store_true",
         help="Enable verbose logging",
     )
@@ -143,12 +146,14 @@ def main() -> int:
 
     include_set = {tag.strip().lower() for tag in args.tag if tag and tag.strip()}
     exclude_set = {tag.strip().lower() for tag in args.no_tag if tag and tag.strip()}
+
     def is_include(obj) -> bool:
-        if args.re and re.search(args.re, obj['id']):
+        if args.re and re.search(args.re, obj["id"]):
             return False
         if include_set and not include_set.intersection(obj["tags"]):
             return False
         return True
+
     def is_exclude(obj) -> bool:
         if args.no_re and re.search(args.no_re, obj.id):
             return True
@@ -156,28 +161,34 @@ def main() -> int:
             return True
         return False
 
-
     skips = []
     benchmarks._benchmark_selection = {}
     for name in benchmarks.keys():
         if name not in metadata:
-            log.warning(f"No SAPS metadata found for benchmark '{name}', skipping SAPS tag filtering for this benchmark")
+            log.warning(
+                f"No SAPS metadata found for benchmark '{name}', skipping SAPS tag filtering for this benchmark"
+            )
             skips.append(name)
             continue
         if is_exclude(metadata[name]):
             skips.append(name)
             continue
         benchmarks._benchmark_selection[name] = []
-        generators = {gen['name']: gen for gen in metadata[name]['generators']}
-        for idx, param in enumerate(benchmarks[name]['params']):
+        generators = {gen["name"]: gen for gen in metadata[name]["generators"]}
+        for idx, param in enumerate(benchmarks[name]["params"]):
             generator, dataset = param[0].split(".")[:2]
             generator = generators.get(generator)
-            datasets = {ds['name']: ds for ds in generator['datasets']}
+            datasets = {ds["name"]: ds for ds in generator["datasets"]}
             dataset = datasets.get(dataset)
-            if is_exclude(generator) or is_exclude(dataset) or not (
-                is_include(metadata[name]) or
-                is_include(generator) or
-                is_include(dataset)):
+            if (
+                is_exclude(generator)
+                or is_exclude(dataset)
+                or not (
+                    is_include(metadata[name])
+                    or is_include(generator)
+                    or is_include(dataset)
+                )
+            ):
                 continue
             benchmarks._benchmark_selection[name].append(idx)
     benchmarks = benchmarks.filter_out(set(skips))
@@ -186,7 +197,6 @@ def main() -> int:
 
     for env in environments:
         Setup.perform_setup([env], parallel=1)
-
 
         params = dict(machine_params.__dict__)
         params["python"] = env.python

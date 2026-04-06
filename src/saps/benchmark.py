@@ -1,15 +1,17 @@
+import inspect
 import json
 import os
-import inspect
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from pathlib import Path    
+from pathlib import Path
 from typing import Any
 
 import saps
 from saps.binsparse_format import BinsparseFormat
 
 xp = saps.xp
+
+
 @dataclass
 class Author:
     name: str
@@ -20,6 +22,7 @@ class Author:
             return self.name
         return f"{self.name} <{self.email}>"
 
+
 @dataclass
 class Contributor:
     name: str
@@ -27,6 +30,7 @@ class Contributor:
 
     def __str__(self):
         return f"{self.name} <{self.email}>"
+
 
 @dataclass
 class Ref:
@@ -58,56 +62,64 @@ class Ref:
         url_str = f", URL: {self.url}" if self.url else ""
         doi_str = f", DOI: {self.doi}" if self.doi else ""
         return (
-            f"{author_str}. \"{self.title}\""
+            f'{author_str}. "{self.title}"'
             f"{journal_str}{conference_str}{booktitle_str}{publisher_str}{institution_str}"
             f"{volume_str}{number_str}{pages_str}{year_str}{url_str}{doi_str}."
         )
+
 
 saps_root = Path(os.getenv("SAPS_DATA_PATH", Path(__file__).parent.parent.parent))
 benchmark_metadata = saps_root / "benchmark_metadata.json"
 benchmark_metadata.parent.mkdir(parents=True, exist_ok=True)
 benchmark_metadata.unlink(missing_ok=True)
-benchmark_metadata.write_text(json.dumps({"benchmarks": []}, indent=2), encoding="utf-8")
+benchmark_metadata.write_text(
+    json.dumps({"benchmarks": []}, indent=2), encoding="utf-8"
+)
+
 
 class Metadata(ABC):
     @property
     @abstractmethod
-    def metadata(self) -> dict[str, Any]:...
+    def metadata(self) -> dict[str, Any]: ...
+
 
 class Tagged(Metadata):
     @property
     @abstractmethod
-    def name(self) -> str:...
+    def name(self) -> str: ...
 
     @property
     @abstractmethod
-    def pretty_name(self) -> str:...
+    def pretty_name(self) -> str: ...
 
     @property
     @abstractmethod
-    def description(self) -> str:...
+    def description(self) -> str: ...
 
     @property
     @abstractmethod
-    def tags(self) -> list[str]:...
+    def tags(self) -> list[str]: ...
+
 
 class Attributed(ABC):
     @property
     @abstractmethod
-    def authors(self) -> list[Contributor]:...
+    def authors(self) -> list[Contributor]: ...
 
     @property
     @abstractmethod
-    def references(self) -> list[Ref]:...
+    def references(self) -> list[Ref]: ...
 
     @property
     @abstractmethod
-    def ai_disclosure(self) -> str:...
+    def ai_disclosure(self) -> str: ...
+
 
 class Motivated(ABC):
     @property
     @abstractmethod
-    def motivation(self) -> str:...
+    def motivation(self) -> str: ...
+
 
 class Dataset(Tagged):
     @property
@@ -119,17 +131,18 @@ class Dataset(Tagged):
             "tags": self.tags,
         }
 
+
 class Generator(Tagged, Attributed, Motivated):
     @property
     @abstractmethod
-    def datasets(self) -> list[Dataset]:...
+    def datasets(self) -> list[Dataset]: ...
 
     @property
     def dataset_names(self) -> list[str]:
         return [dataset.name for dataset in self.datasets]
-    
+
     @abstractmethod
-    def generate(self, dataset: Dataset) -> tuple[list[BinsparseFormat], Any]:...
+    def generate(self, dataset: Dataset) -> tuple[list[BinsparseFormat], Any]: ...
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -145,23 +158,26 @@ class Generator(Tagged, Attributed, Motivated):
             "datasets": [dataset.metadata for dataset in self.datasets],
         }
 
+
 @dataclass
 class Param:
     generator: Generator
     dataset: Dataset
+
     def __repr__(self):
         return f"{self.generator.name}.{self.dataset.name}"
 
     def generate(self):
         return self.generator.generate(self.dataset)
 
+
 class Benchmark(Tagged, Attributed, Motivated):
     @property
     @abstractmethod
-    def generators(self) -> list[Generator]:...
+    def generators(self) -> list[Generator]: ...
 
     @abstractmethod
-    def benchmark(self, data: list[Any], meta:Any) -> Any:...
+    def benchmark(self, data: list[Any], meta: Any) -> Any: ...
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -172,7 +188,7 @@ class Benchmark(Tagged, Attributed, Motivated):
             instance = cls()
         except Exception:
             return
-        
+
         entry = instance.metadata
 
         payload = json.loads(benchmark_metadata.read_text(encoding="utf-8"))
@@ -192,16 +208,26 @@ class Benchmark(Tagged, Attributed, Motivated):
             self.run(param)
 
         setattr(cls, f"mem_{instance.tag}", _mem_run)
-        setattr(getattr(cls, f"mem_{instance.tag}"), "pretty_source", inspect.getsource(cls.benchmark))
-        
-        setattr(cls, f"time_{instance.tag}", _time_run)
-        setattr(getattr(cls, f"time_{instance.tag}"), "pretty_source", inspect.getsource(cls.benchmark))
+        getattr(cls, f"mem_{instance.tag}").pretty_source = inspect.getsource(
+            cls.benchmark
+        )
 
-        setattr(cls.setup, "pretty_source", "\n".join(inspect.getsource(generator.generate) for generator in instance.generators))
-    
+        setattr(cls, f"time_{instance.tag}", _time_run)
+        getattr(cls, f"time_{instance.tag}").pretty_source = inspect.getsource(
+            cls.benchmark
+        )
+
+        cls.setup.pretty_source = "\n".join(
+            inspect.getsource(generator.generate) for generator in instance.generators
+        )
+
     @property
     def params(self):
-        return [Param(generator, dataset) for generator in self.generators for dataset in generator.datasets]
+        return [
+            Param(generator, dataset)
+            for generator in self.generators
+            for dataset in generator.datasets
+        ]
 
     param_names = ["dataset"]
 
@@ -209,13 +235,13 @@ class Benchmark(Tagged, Attributed, Motivated):
         input, meta = param.generate()
         self._input = input
         self._meta = meta
-    
+
     def run(self, param):
         input = [xp.from_binsparse(d) for d in self._input]
         output = self.benchmark(input, self._meta)
         output = [xp.to_binsparse(o) for o in output]
         self._output = output
-    
+
     def teardown(self, param):
         if hasattr(self, "_output"):
             self.check_correct(param)
@@ -224,12 +250,13 @@ class Benchmark(Tagged, Attributed, Motivated):
             del self._meta
         if hasattr(self, "_input"):
             del self._input
-       
-    
+
     def check_correct(self, param):
-        #TODO do better than this
+        # TODO do better than this
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), "Output must be in binsparse format"
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
 
     @property
     def metadata(self) -> dict[str, Any]:

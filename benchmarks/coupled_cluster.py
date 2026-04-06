@@ -30,8 +30,8 @@ This statement was written by hand.
 """
 
 import numpy as np
-import saps
 
+import saps
 from saps.binsparse_format import BinsparseFormat
 
 xp = saps.xp

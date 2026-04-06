@@ -57,6 +57,6 @@ def benchmark_bfs(xp, adjacency_matrix, source):
         )
         frontier = xp.logical_and(frontier, xp.logical_not(visited))
         frontier_count = xp.sum(frontier)
-        
+
         level_idx += 1
     return xp.to_binsparse(level)

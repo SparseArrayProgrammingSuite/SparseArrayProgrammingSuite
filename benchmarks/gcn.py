@@ -26,11 +26,11 @@ was written by hand.
 import os
 
 import numpy as np
-import saps
 from scipy.io import mmread
 
 import ssgetpy
 
+import saps
 from saps.binsparse_format import BinsparseFormat
 
 xp = saps.xp

@@ -1,5 +1,5 @@
-from saps.frameworks.einsum import einsum
 import saps
+from saps.frameworks.einsum import einsum
 
 xp = saps.xp
 
