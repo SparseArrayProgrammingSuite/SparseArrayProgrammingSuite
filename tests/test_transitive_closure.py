@@ -1,6 +1,6 @@
 import numpy as np
 
-from benchmarks.transitive_closure import (
+from saps.benchmarks.transitive_closure import (
     benchmark_simple_connected_components,
     benchmark_transitive_closure,
 )

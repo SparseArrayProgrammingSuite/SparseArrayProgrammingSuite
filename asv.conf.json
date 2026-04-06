@@ -150,7 +150,7 @@
 
     // The directory (relative to the current directory) that benchmarks are
     // stored in.
-    "benchmark_dir": "benchmarks",
+    "benchmark_dir": "src/saps/benchmarks",
 
     // The directory (relative to the current directory) to cache the Python
     // environments in.  If not provided, defaults to "env"

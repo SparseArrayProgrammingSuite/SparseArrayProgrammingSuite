@@ -60,7 +60,7 @@
         ]
       }
     ],
-    "id": "benchmarks.approx_nn.JLApproxNearestNeighbor.Random Numerical Linear Algenra",
+    "id": "saps.benchmarks.approx_nn.JLApproxNearestNeighbor.Random Numerical Linear Algenra",
     "motivation": "The purpose of this is to create python tests that are for RLA methods. Specifically, I will first show the application of the JL Lemma for NN. My goal is to write benchmarks on applications of RNLA, for graph algorithms, PDEs, and Scientific Machine Learning",
     "name": "Random Numerical Linear Algenra",
     "pretty_name": "Johnson-Lindenstrauss Approximate Nearest Neighbor",
@@ -136,7 +136,7 @@
         ]
       }
     ],
-    "id": "benchmarks.approx_nn.JLApproxNearestNeighbor.Random Numerical Linear Algenra",
+    "id": "saps.benchmarks.approx_nn.JLApproxNearestNeighbor.Random Numerical Linear Algenra",
     "motivation": "The purpose of this is to create python tests that are for RLA methods. Specifically, I will first show the application of the JL Lemma for NN. My goal is to write benchmarks on applications of RNLA, for graph algorithms, PDEs, and Scientific Machine Learning",
     "name": "Random Numerical Linear Algenra",
     "pretty_name": "Johnson-Lindenstrauss Approximate Nearest Neighbor",

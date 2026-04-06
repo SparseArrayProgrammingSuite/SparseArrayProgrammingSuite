@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import importlib
 import json
+import os
 import re
 from pathlib import Path
 
@@ -144,7 +145,7 @@ def main() -> int:
 
     for name in benchmarks:
         module_name, class_name, _method_name = name.rsplit(".", 2)
-        benchmark_module = importlib.import_module(f"benchmarks.{module_name}")
+        benchmark_module = importlib.import_module(f"saps.benchmarks.{module_name}")
         benchmark = getattr(benchmark_module, class_name)()
         assert isinstance(benchmark, saps.Benchmark)
         metadata[name] = benchmark.metadata

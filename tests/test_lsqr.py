@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 
-from benchmarks.lsqr import benchmark_lsqr
+from saps.benchmarks.lsqr import benchmark_lsqr
 from saps.binsparse_format import BinsparseFormat
 from saps.frameworks.checker_framework import CheckerFramework
 from saps.frameworks.numpy_framework import NumpyFramework

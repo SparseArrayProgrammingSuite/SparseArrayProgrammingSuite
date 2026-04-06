@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 
-from benchmarks.HOSVD import (
+from saps.benchmarks.HOSVD import (
     benchmark_hosvd,
     dg_hosvd_random_small,
     dg_hosvd_sparse_small,

@@ -1,6 +1,6 @@
 import pytest
 
-from benchmarks.Finite_Difference_2D import (
+from saps.benchmarks.Finite_Difference_2D import (
     aniso_burgers_flux_2D,
     buckley_leverett_flux_2D,
     difference_matrix_x_direction,

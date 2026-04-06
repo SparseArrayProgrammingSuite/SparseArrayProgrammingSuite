@@ -1,6 +1,6 @@
 import numpy as np
 
-import benchmarks.approx_nn as approx_nn
+import saps.benchmarks.approx_nn as approx_nn
 from saps.frameworks.numpy_framework import NumpyFramework
 
 

@@ -4,7 +4,7 @@ import numpy as np
 
 import networkx as nx
 
-from benchmarks.centrality import betweenness_centrality
+from saps.benchmarks.centrality import betweenness_centrality
 from saps.binsparse_format import BinsparseFormat
 from saps.frameworks.numpy_framework import NumpyFramework
 

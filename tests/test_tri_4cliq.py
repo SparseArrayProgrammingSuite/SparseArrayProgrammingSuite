@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 
-from benchmarks.tri_4cliq import (
+from saps.benchmarks.tri_4cliq import (
     benchmark_4clique_count,
     benchmark_triangle_count,
 )

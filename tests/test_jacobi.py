@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 
-from benchmarks.jacobi import benchmark_jacobi
+from saps.benchmarks.jacobi import benchmark_jacobi
 from saps.binsparse_format import BinsparseFormat
 from saps.frameworks.checker_framework import CheckerFramework
 from saps.frameworks.numpy_framework import NumpyFramework

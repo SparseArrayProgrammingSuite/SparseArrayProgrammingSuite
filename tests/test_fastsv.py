@@ -1,6 +1,6 @@
 import numpy as np
 
-from benchmarks.fastsv import benchmark_fastsv
+from saps.benchmarks.fastsv import benchmark_fastsv
 from saps.binsparse_format import BinsparseFormat
 from saps.frameworks.numpy_framework import NumpyFramework
 

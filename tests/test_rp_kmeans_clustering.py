@@ -1,6 +1,6 @@
 import numpy as np
 
-from benchmarks.rp_kmeans_clustering import (
+from saps.benchmarks.rp_kmeans_clustering import (
     rp_kmeans_clustering,
 )
 from saps.binsparse_format import BinsparseFormat

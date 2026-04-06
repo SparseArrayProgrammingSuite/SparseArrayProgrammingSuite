@@ -4,7 +4,7 @@ import pytest
 
 import numpy as np
 
-from benchmarks.particle_sim import benchmark_particle_sum
+from saps.benchmarks.particle_sim import benchmark_particle_sum
 from saps.binsparse_format import BinsparseFormat
 from saps.frameworks.numpy_framework import NumpyFramework
 

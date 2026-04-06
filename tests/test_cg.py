@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 
-from benchmarks.cg import benchmark_cg
+from saps.benchmarks.cg import benchmark_cg
 from saps.binsparse_format import BinsparseFormat
 from saps.frameworks.checker_framework import CheckerFramework
 from saps.frameworks.numpy_framework import NumpyFramework

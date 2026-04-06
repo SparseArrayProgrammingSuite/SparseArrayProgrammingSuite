@@ -1,6 +1,6 @@
 import pytest
 
-from benchmarks.cp_als import (
+from saps.benchmarks.cp_als import (
     benchmark_cp_als,
     dg_cp_als_factorizable_small,
     dg_cp_als_sparse_small,

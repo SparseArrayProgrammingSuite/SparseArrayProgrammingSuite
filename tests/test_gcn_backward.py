@@ -1,6 +1,6 @@
 import numpy as np
 
-from benchmarks.gcn_backward import benchmark_gcn_backward
+from saps.benchmarks.gcn_backward import benchmark_gcn_backward
 from saps.binsparse_format import BinsparseFormat
 from saps.frameworks.numpy_framework import NumpyFramework
 

@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 
-from benchmarks.bellmanford import bellman_ford
+from saps.benchmarks.bellmanford import bellman_ford
 from saps.binsparse_format import BinsparseFormat
 from saps.frameworks.numpy_framework import NumpyFramework
 
