@@ -3,11 +3,14 @@ from pathlib import Path
 from sparseappbench.benchmarks.subgraph_matching import benchmark_subgraph_matching, gcare_human
 from sparseappbench.frameworks.numpy_framework import NumpyFramework
 from sparseappbench.frameworks.sparse_framework import PyDataSparseFramework
+from sparseappbench.binsparse_format import BinsparseFormat
 
-def run_test():
+
+def test_human_all():
     queries = gcare_human()
     xp = PyDataSparseFramework()
     results = benchmark_subgraph_matching(xp, queries)
+    results = xp.from_benchmark(results)
 
     ground_truth_dir = Path('./data/gcare/ground_truth') / 'human'
 
@@ -24,5 +27,4 @@ def run_test():
 
 
 if __name__ == '__main__':
-    run_test()
-
+    test_human_all()

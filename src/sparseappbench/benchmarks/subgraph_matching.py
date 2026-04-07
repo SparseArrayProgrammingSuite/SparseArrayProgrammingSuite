@@ -11,7 +11,7 @@ The graph structures from databases are usually much sparse,
 and naive approaches with adjacent matrices suffers from O(V^2) space requirements.
 
 Implementation:
-This code is hand written by mew with help and discussion with @kylebd99.
+This code is hand written by me with help and discussion with @kylebd99.
 
 Dataset:
 The G-CARE dataset is provided by https://github.com/yspark-dblab/gcare.
@@ -174,15 +174,12 @@ def run_one_match(xp, sp_mats: dict, expr: str):
 
 
 def benchmark_subgraph_matching(xp, queries):
-    counts = []
-    for _, (sp_mats, expr) in enumerate(queries):
+    counts = np.zeros((len(queries), ), dtype=np.int64)
+    for i, (sp_mats, expr) in enumerate(queries):
         for key, val in sp_mats.items():
             sp_mats[key] = xp.from_benchmark(val)
-
-        count = xp.einsum(expr, **sp_mats)
-        counts.append(count)
-
-    return counts
+        counts[i] = xp.einsum(expr, **sp_mats)
+    return xp.to_benchmark(counts)
 
 
 def download_gcare_data():
