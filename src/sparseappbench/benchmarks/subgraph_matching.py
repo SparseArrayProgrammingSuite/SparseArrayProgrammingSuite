@@ -72,8 +72,6 @@ def read_gcare_query(p: Path, continous_label=True):
                 e_label = int(vals[3])
                 exprs.append(f'E{e_label}[v_{qv_id1},v_{qv_id2}]')
                 sp_mats_name.add(f'E{e_label}')
-                # If e_label not existed. we should put an all-zero matrix Z here.
-                # But it doesn't appear in the queries.
 
         final_expr = 'S[] += ' + ' * '.join(exprs)
         return final_expr, qvs, sp_mats_name
@@ -82,9 +80,9 @@ def read_gcare_query(p: Path, continous_label=True):
 def read_gcare_data(p: Path):
     with p.open('r', encoding='utf-8') as f:
         max_vid = 0
-        # max_vlabel = 0
         num_nodes = 0
         num_edges = 0
+        all_verts = []
 
         V_dict = dict()
         E_dict = dict()
@@ -100,6 +98,7 @@ def read_gcare_data(p: Path):
                 v_id = int(vals[1])
                 if v_id > max_vid:
                     max_vid = v_id
+                all_verts.append(v_id)
 
                 # Read vertex labels
                 v_labels = [int(x) for x in vals[2:]]
@@ -140,7 +139,7 @@ def read_gcare_data(p: Path):
         for (label, verts) in V_dict.items():
             V_l = {}
             V_l['V'] = np.ones((len(verts), ), dtype=np.int64)
-            V_l['I_tuple'] = (verts, )
+            V_l['I_tuple'] = (np.array(verts), )
             V_l['shape'] = (max_vid+1, )
             # V_l = sp.coo_array((np.ones((len(verts), ), dtype=np.int64), (verts, )), shape=(max_vid+1, ))
             V[f'V{label}'] = V_l
@@ -152,18 +151,25 @@ def read_gcare_data(p: Path):
             l_num_edges = len(edges[0])
             E_l = {}
             E_l['V'] = np.ones((l_num_edges,), dtype=np.int64)
-            E_l['I_tuple'] = (edges[0], edges[1])
+            E_l['I_tuple'] = (np.array(edges[0]), np.array(edges[1]))
             E_l['shape'] = (max_vid+1, max_vid+1)
             # E_l = sp.coo_array((np.ones((l_num_edges,), dtype=np.int64), (edges[0], edges[1])),
             #                     shape=(max_vid+1, max_vid+1))
             E[f'E{label}'] = E_l
 
+        sp_mats = V | E
+
         if max_vid + 1 == num_nodes:
             continous_label = True
         else:
             continous_label = False
+            C = {}
+            C['V'] = np.ones((num_nodes, ), dtype=np.int64)
+            C['I_tuple'] = (all_verts, )
+            C['shape'] = (max_vid+1, )
+            sp_mats['C'] = C
 
-        return max_vid, continous_label, V | E
+        return max_vid, continous_label, sp_mats
 
 
 def run_one_match(xp, sp_mats: dict, expr: str):
@@ -231,42 +237,74 @@ def download_gcare_data():
     return (dataset_dir, queryset_dir)
 
 
+def process_one_query(query_path, all_sp_mats, max_vid, continous_label):
+    (expr, qvs, sp_mats_name) = read_gcare_query(
+        query_path, continous_label=continous_label)
+
+    sp_mats_needed = dict()
+    for sp_name in sp_mats_name:
+        if sp_name not in all_sp_mats:
+            if sp_name.startswith('P'):  # Node id
+                new_P = {}
+                new_P['V'] = np.array([1])
+                new_P['I_tuple'] = (
+                    np.array([0]), np.array([int(sp_name[1:])]))
+                new_P['shape'] = (max_vid+1, )
+                sp_mats_needed[sp_name] = BinsparseFormat.from_coo(
+                    new_P['I_tuple'], new_P['V'], new_P['shape'])
+            else:
+                # Some queried node / edge labels do not existed in the data graph. The output must be 0.
+                # In reality we can just skip it, but for benchmark let's create an all zero matrix
+                if sp_name.startswith('V'):
+                    zero_V = {}
+                    # for compatiblity with Binsparse
+                    zero_V['V'] = np.array([0])
+                    zero_V['I_tuple'] = (np.array([0]), )
+                    zero_V['shape'] = (max_vid+1, )
+                    sp_mats_needed[sp_name] = BinsparseFormat.from_coo(
+                        zero_V['I_tuple'], zero_V['V'], zero_V['shape'])
+                elif sp_name.startswith('E'):
+                    zero_E = {}
+                    zero_E['V'] = np.array([0])
+                    zero_E['I_tuple'] = (np.array([0]), np.array([0]))
+                    zero_E['shape'] = (max_vid+1, max_vid+1)
+                    sp_mats_needed[sp_name] = BinsparseFormat.from_coo(
+                        zero_E['I_tuple'], zero_E['V'], zero_E['shape'])
+        else:
+            sp_mat = all_sp_mats[sp_name]
+            sp_mats_needed[sp_name] = BinsparseFormat.from_coo(
+                sp_mat['I_tuple'], sp_mat['V'], sp_mat['shape'])
+
+    return (sp_mats_needed, expr)
+
+
 def process_queries(queryset_dir, all_sp_mats, max_vid, continous_label):
     ret_val = []
-    for query_file in queryset_dir.rglob('*.txt'):
-        (expr, qvs, sp_mats_name) = read_gcare_query(
-            query_file, continous_label=continous_label)
-
-        sp_mats_needed = dict()
-
-        for sp_name in sp_mats_name:
-            if sp_name not in all_sp_mats:
-                if sp_name.startswith('P'):  # Node id
-                    new_P = {}
-                    new_P['V'] = np.array([1])
-                    new_P['I_tuple'] = (
-                        np.array([0]), np.array([int(sp_name[1:])]))
-                    new_P['shape'] = (max_vid+1, )
-                    sp_mats_needed[sp_name] = BinsparseFormat.from_coo(
-                        new_P['I_tuple'], new_P['V'], new_P['shape'])
-                else:
-                    # Some queried node / edge labels not existed in the data graph. The output must be 0.
-                    continue
-            else:
-                sp_mat = all_sp_mats[sp_name]
-                sp_mats_needed[sp_name] = BinsparseFormat.from_coo(
-                    sp_mat['I_tuple'], sp_mat['V'], sp_mat['shape'])
-
-        ret_val.append((sp_mats_needed, expr))
+    for query_path in queryset_dir.rglob('*.txt'):
+        ret_val.append(process_one_query(
+            query_path, all_sp_mats, max_vid, continous_label))
 
     return ret_val
 
 
-def gcare_human():
+def gcare_human_all():
     (dataset_dir, queryset_dir) = download_gcare_data()
     (max_vid, continous_label, all_sp_mats) = read_gcare_data(
         dataset_dir / 'human' / 'human.txt')
     return process_queries(queryset_dir / 'human', all_sp_mats, max_vid, continous_label)
+
+
+def gcare_human_one(query_name: str):
+    (dataset_dir, queryset_dir) = download_gcare_data()
+    (max_vid, continous_label, all_sp_mats) = read_gcare_data(
+        dataset_dir / 'human' / 'human.txt')
+    
+    query_path = queryset_dir / query_name
+    if not query_path.exists():
+        raise Exception(f'Query {query_name} does not exist! Path {query_path}')
+
+    return process_one_query(query_path, all_sp_mats, max_vid, continous_label)
+
 
 # Commented because current framework supported cannot handle this large
 

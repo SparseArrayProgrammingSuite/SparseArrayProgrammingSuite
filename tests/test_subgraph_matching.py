@@ -1,13 +1,15 @@
 from pathlib import Path
+import pytest
 
-from sparseappbench.benchmarks.subgraph_matching import benchmark_subgraph_matching, gcare_human
+from sparseappbench.benchmarks.subgraph_matching import benchmark_subgraph_matching, gcare_human_all
 from sparseappbench.frameworks.numpy_framework import NumpyFramework
 from sparseappbench.frameworks.sparse_framework import PyDataSparseFramework
 from sparseappbench.binsparse_format import BinsparseFormat
 
 
+@pytest.mark.parametrize("xp", [PyDataSparseFramework()])
 def test_human_all():
-    queries = gcare_human()
+    queries = gcare_human_all()
     xp = PyDataSparseFramework()
     results = benchmark_subgraph_matching(xp, queries)
     results = xp.from_benchmark(results)
@@ -22,8 +24,9 @@ def test_human_all():
             gts.append(int(f.readline()))
 
     for i in range(len(results)):
-        print(
-            f'Test {test_names[i]}: Result = {results[i]}, Ground Truth = {gts[i]}, is_equal: {results[i] == gts[i]}')
+        res = results[i]
+        gt = gts[i]
+        assert res == gt, f'Test {test_names[i]} incorrect: Result = {res}, Ground Truth = {gt}'
 
 
 if __name__ == '__main__':
