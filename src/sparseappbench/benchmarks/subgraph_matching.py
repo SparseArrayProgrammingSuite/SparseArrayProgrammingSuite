@@ -176,7 +176,7 @@ def run_one_match(xp, sp_mats: dict, expr: str):
     for key, val in sp_mats.items():
         sp_mats[key] = xp.from_benchmark(val)
     count = xp.einsum(expr, **sp_mats)
-    return count
+    return xp.to_benchmark(np.array(count))
 
 
 def benchmark_subgraph_matching(xp, queries):
