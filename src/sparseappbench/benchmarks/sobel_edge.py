@@ -24,12 +24,27 @@ The redundancy of MRI makes them a good candidate for sparse processing.
 https://www.researchgate.net/publication/310464068_EDGE_DETECTION_OF_MRI_IMAGES_-A_REVIEW
 https://pmc.ncbi.nlm.nih.gov/articles/PMC4948115/
 
-Data Generation:
+Data Generation: I used MRI image data from this Kaggle set:
+https://www.kaggle.com/navoneel/brain-mri-images-for-brain-tumor-detection.
+I used a constant edge threshold of 150.0 with all of the images that I used.
 
 Statement on the use of Generative AI: No generative AI was used to construct
 the benchmark function. Generative AI might have been used to construct tests.
 This statement is written by hand.
 """
+
+import os
+
+import numpy as np
+
+from PIL import Image
+
+try:
+    import kagglehub
+except ImportError:
+    kagglehub = None
+
+from sparseappbench.binsparse_format import BinsparseFormat
 
 
 def benchmark_mri_edge(xp, image_bench, threshold_bench):
@@ -59,3 +74,39 @@ def benchmark_mri_edge(xp, image_bench, threshold_bench):
 
     result = xp.compute(edges)
     return xp.to_benchmark(result)
+
+
+def generate_mri_sobel_data(category, filename, threshold_val=100.0):
+    if kagglehub is None:
+        raise ImportError("kagglehub is required to download Kaggle datasets")
+    path = kagglehub.dataset_download(
+        "navoneel/brain-mri-images-for-brain-tumor-detection"
+    )
+    img_path = os.path.join(path, category, filename)
+    if not os.path.exists(img_path):
+        raise FileNotFoundError(f"Image not found at {img_path}")
+
+    img = Image.open(img_path).convert("L")
+    img_array = np.array(img, dtype=np.float32)
+
+    image_bin = BinsparseFormat.from_numpy(img_array)
+    threshold_bin = BinsparseFormat.from_numpy(
+        np.array(threshold_val, dtype=np.float32)
+    )
+    return image_bin, threshold_bin
+
+
+def dg_mri_sobel_1():
+    return generate_mri_sobel_data("yes", "Y157.JPG", 150.0)
+
+
+def dg_mri_sobel_2():
+    return generate_mri_sobel_data("yes", "Y6.jpg", 150.0)
+
+
+def dg_mri_sobel_3():
+    return generate_mri_sobel_data("yes", "Y194.jpg", 150.0)
+
+
+def dg_mri_sobel_4():
+    return generate_mri_sobel_data("yes", "Y180.jpg", 150.0)
