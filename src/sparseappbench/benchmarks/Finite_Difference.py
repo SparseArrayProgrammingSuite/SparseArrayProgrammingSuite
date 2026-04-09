@@ -84,33 +84,46 @@ def lax_freidrichs_data_generator(xp, number_spatial, density):
     return xp.lazy(u_0)
 
 
-# This can only work for when the flux  = const * u (linear advection)
-# Since we would need to symbolically know the flux with the constant out front.
-def lax_freidrichs_matrix(xp, number_spatial, dx, dt, const=1):
-    Nx = number_spatial
+def lax_freidrichs_matrix_no_flux(xp, Nx):
     matrix = xp.zeros((Nx, Nx))
-    alpha = (const * dt) / (2 * dx)
     for i in range(1, Nx):
-        matrix[i, i - 1] = 0.5 + alpha
+        matrix[i, i - 1] = 0.5
     for i in range(Nx - 1):
-        matrix[i, i + 1] = 0.5 - alpha
+        matrix[i, i + 1] = 0.5
 
     # periodic BC
-    matrix[0, -1] = 0.5 + alpha
-    matrix[-1, 0] = 0.5 - alpha
+    matrix[0, -1] = 0.5
+    matrix[-1, 0] = 0.5
 
     return xp.lazy(matrix)
 
 
-def lax_friedrichs_solver_matrix(xp, u0_bench, matrix_bench, timesteps):
+def difference_matrix(xp, Nx):
+    matrix = xp.zeros((Nx, Nx))
+    for i in range(1, Nx):
+        matrix[i, i - 1] = -1
+    for i in range(Nx - 1):
+        matrix[i, i + 1] = 1
+
+    # periodic BC
+    matrix[0, -1] = -1
+    matrix[-1, 0] = 1
+    return xp.lazy(matrix)
+
+
+def lax_friedrichs_solver_matrix_general(
+    xp, u0_bench, matrix_bench, difference_bench, timesteps, flux, dt, dx
+):
     u_0 = xp.lazy(u0_bench)
     matrix = xp.lazy(matrix_bench)
+    dif = xp.lazy(difference_bench)
     Nt = timesteps + 1
-
+    alpha = (dt) / (2 * dx)
     u = xp.zeros((Nt, u_0.shape[0]))
     u[0] = u_0
     for n in range(Nt - 1):
         u_n = u[n]
-        u_next = matrix @ u_n  # matrix multiply
+        f = flux(u_n)
+        u_next = matrix @ u_n - alpha * (dif @ f)
         u[n + 1] = u_next
     return xp.to_benchmark(u)
