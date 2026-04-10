@@ -4,9 +4,11 @@ import scipy.linalg as la
 import scipy.sparse as sps
 import scipy.sparse.linalg as spla
 
+import array_api_compat
+
 from ..binsparse_format import BinsparseFormat
 from .abstract_framework import AbstractFramework
-from .einsum import Access, Call, parse_einsum
+from .einsum import einsum
 
 
 class ScipyLinalg:
@@ -62,63 +64,8 @@ class SciPyFramework(AbstractFramework):
         return np.diagonal(array, **kwargs)
 
     def einsum(self, prgm, **kwargs):
-        expr = parse_einsum(prgm)
-        return self._einsum_sparse_2d(expr, prgm, **kwargs)
-
-    def _einsum_sparse_2d(self, expr, prgm, **kwargs):
-        if (
-            expr.op in {"+", "add"}
-            and isinstance(expr.arg, Call)
-            and expr.arg.func in {"*", "mul", "multiply"}
-            and len(expr.arg.args) == 2
-            and isinstance(expr.arg.args[0], Access)
-            and isinstance(expr.arg.args[1], Access)
-        ):
-            a = expr.arg.args[0]
-            b = expr.arg.args[1]
-            A = kwargs[a.tns]
-            B = kwargs[b.tns]
-
-            # Detects matmul
-            if len(expr.idxs) == 2:
-                if (
-                    len(a.idxs) == 2
-                    and len(b.idxs) == 2
-                    and a.idxs[1] == b.idxs[0]
-                    and expr.idxs == [a.idxs[0], b.idxs[1]]
-                ):
-                    return A @ B
-
-            # Detects matvec
-            elif len(expr.idxs) == 1:
-                out = expr.idxs[0]
-                if (
-                    len(a.idxs) == 2
-                    and len(b.idxs) == 1
-                    and a.idxs[0] == out
-                    and a.idxs[1] == b.idxs[0]
-                ):
-                    return A @ B
-                if (
-                    len(a.idxs) == 1
-                    and len(b.idxs) == 2
-                    and b.idxs[1] == out
-                    and a.idxs[0] == b.idxs[0]
-                ):
-                    return A.T @ B
-
-            # Detects vecdot
-            elif (
-                len(expr.idxs) == 0
-                and len(a.idxs) == 1
-                and len(b.idxs) == 1
-                and a.idxs == b.idxs
-            ):
-                return A.T @ B
-
-        raise NotImplementedError(
-            f"SciPy sparse einsum does not support '{prgm}' without densifying."
-        )
+        xp = array_api_compat.array_namespace(*kwargs.values(), use_compat=True)
+        return einsum(xp, prgm, **kwargs)
 
     def with_fill_value(self, array, value):
         return array
