@@ -74,5 +74,5 @@ def test_weighted_model_counting(input, expected):
 
     out = benchmark_weighted_model_counting(xp, input)
 
-    msg = f"Expected {expected} models, but found {out}"
+    msg = f"Expected weighted sum of {expected}, but found {out}"
     assert out == expected, msg
