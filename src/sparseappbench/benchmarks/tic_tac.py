@@ -6,8 +6,8 @@ Co-Authors: Aarav Jogekar & Prof. Ahrens
 What does this code do: Implement a fully  tensorized, non recursive minimax
 search over a tic-tac-toe game. Game states are represented as tensors.
 Game state is represented as S[n, i, j, p] of shape (N, 3, 3, 2) where n
-indexes boards, i,j are board positions and p is the player channel.
-
+indexes boards, i,j are board positions and p is the player channel. Given
+any board state within the game, it should return the result of the game.
 
 Statement on the use of Generative AI: No generative AI was used to construct
 the benchmark function itself.
@@ -16,7 +16,7 @@ Email: ajoglekar32@gatech.edu
 
 
 def build_win_masks(xp):
-    return xp.array(
+    return xp.asarray(
         [
             [[1, 1, 1], [0, 0, 0], [0, 0, 0]],
             [[0, 0, 0], [1, 1, 1], [0, 0, 0]],
@@ -199,6 +199,46 @@ def minimax_depth3(xp, S_initial, W):
         return xp.where(terminal, leaf_val, backed)
 
     val3 = xp.where(t3, val3, xp.zeros(c3.shape[0]))
+    val2 = backup(xp, c2, val3, v3, t2, val2)
+    val1 = backup(xp, c1, val2, v2, t1, val1)
+    return backup(xp, S_initial, val1, v1, t0, val0)
+
+
+def minimax_depth5(xp, S_initial, W):
+    c1, v1 = generate_child(xp, S_initial, W)
+    c2, v2 = generate_child(xp, c1, W)
+    c3, v3 = generate_child(xp, c2, W)
+    c4, v4 = generate_child(xp, c3, W)
+    c5, v5 = generate_child(xp, c4, W)
+
+    t0, val0 = is_terminal(xp, S_initial, W)
+    t1, val1 = is_terminal(xp, c1, W)
+    t2, val2 = is_terminal(xp, c2, W)
+    t3, val3 = is_terminal(xp, c3, W)
+    t4, val4 = is_terminal(xp, c4, W)
+    t5, val5 = is_terminal(xp, c5, W)
+
+    def backup(xp, S, val_children, valid, terminal, leaf_val):
+        N = S.shape[0]
+        turn = whose_turn(xp, S)
+        child_val = xp.where(valid > 0, val_children, xp.zeros(N * 9))
+        child_val_grid = xp.reshape(child_val, (N, 9))
+        valid_grid = xp.reshape(valid, (N, 9))
+        turn_exp = xp.reshape(turn, (N, 1))
+        sentinel = xp.where(
+            turn_exp > 0,
+            float("inf") * xp.ones((N, 9)),
+            float("-inf") * xp.ones((N, 9)),
+        )
+        child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+        backed_max = xp.max(child_val_masked, axis=1)
+        backed_min = xp.min(child_val_masked, axis=1)
+        backed = xp.where(turn > 0, backed_min, backed_max)
+        return xp.where(terminal, leaf_val, backed)
+
+    val5 = xp.where(t5, val5, xp.zeros(c5.shape[0]))
+    val4 = backup(xp, c4, val5, v5, t4, val4)
+    val3 = backup(xp, c3, val4, v4, t3, val3)
     val2 = backup(xp, c2, val3, v3, t2, val2)
     val1 = backup(xp, c1, val2, v2, t1, val1)
     return backup(xp, S_initial, val1, v1, t0, val0)
