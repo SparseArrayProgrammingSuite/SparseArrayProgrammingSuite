@@ -129,10 +129,10 @@ def test_gcn_backward_multidim():
     assert loss_100 < loss_1, f"Loss should decrease: {loss_100} < {loss_1}"
 
     # Check output shapes
-    w1_np = xp.from_benchmark(w1)
-    b1_np = xp.from_benchmark(b1)
-    w2_np = xp.from_benchmark(w2)
-    b2_np = xp.from_benchmark(b2)
+    w1_np = xp.from_binsparse(w1)
+    b1_np = xp.from_binsparse(b1)
+    w2_np = xp.from_binsparse(w2)
+    b2_np = xp.from_binsparse(b2)
 
     assert w1_np.shape == (2, 3)
     assert b1_np.shape == (3,)
@@ -228,10 +228,10 @@ def test_gcn_backward_degree_prediction():
     )
 
     # Get trained weights
-    w1_trained = xp.from_benchmark(w1_b)
-    b1_trained = xp.from_benchmark(b1_b)
-    w2_trained = xp.from_benchmark(w2_b)
-    b2_trained = xp.from_benchmark(b2_b)
+    w1_trained = xp.from_binsparse(w1_b)
+    b1_trained = xp.from_binsparse(b1_b)
+    w2_trained = xp.from_binsparse(w2_b)
+    b2_trained = xp.from_binsparse(b2_b)
 
     # Run forward pass on TEST graph with trained weights
     Z1 = test_adj @ test_features

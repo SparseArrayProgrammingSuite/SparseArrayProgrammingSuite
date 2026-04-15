@@ -44,12 +44,12 @@ def test_hosvd_vs_tensorly(xp_numpy):
     tucker = pytest.importorskip("tensorly.decomposition")
 
     X_bin, ranks_bin = dg_hosvd_random_small()
-    X_dense = xp_numpy.from_benchmark(X_bin)
-    ranks = tuple(xp_numpy.from_benchmark(ranks_bin).astype(int))
+    X_dense = xp_numpy.from_binsparse(X_bin)
+    ranks = tuple(xp_numpy.from_binsparse(ranks_bin).astype(int))
 
     core_bin, factors_bin = benchmark_hosvd(xp_numpy, X_bin, ranks_bin, max_iter=50)
-    core_bench = xp_numpy.from_benchmark(core_bin)
-    factors_bench = [xp_numpy.from_benchmark(f) for f in factors_bin]
+    core_bench = xp_numpy.from_binsparse(core_bin)
+    factors_bench = [xp_numpy.from_binsparse(f) for f in factors_bin]
     X_rec_bench = reconstruct_tensor(core_bench, factors_bench)
     error_bench = np.linalg.norm(X_dense - X_rec_bench) / np.linalg.norm(X_dense)
 
@@ -81,8 +81,8 @@ def test_manual_example_1_diagonal(xp_numpy):
     ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
 
     core_bin, factors_bin = benchmark_hosvd(xp_numpy, X_bin, ranks_bin, max_iter=10)
-    core_res = xp_numpy.from_benchmark(core_bin)
-    factors_res = [xp_numpy.from_benchmark(f) for f in factors_bin]
+    core_res = xp_numpy.from_binsparse(core_bin)
+    factors_res = [xp_numpy.from_binsparse(f) for f in factors_bin]
 
     X_rec = reconstruct_tensor(core_res, factors_res)
 
@@ -107,8 +107,8 @@ def test_manual_example_2_rank_one(xp_numpy):
     ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
 
     core_bin, factors_bin = benchmark_hosvd(xp_numpy, X_bin, ranks_bin, max_iter=10)
-    core_res = xp_numpy.from_benchmark(core_bin)
-    factors_res = [xp_numpy.from_benchmark(f) for f in factors_bin]
+    core_res = xp_numpy.from_binsparse(core_bin)
+    factors_res = [xp_numpy.from_binsparse(f) for f in factors_bin]
     X_rec = reconstruct_tensor(core_res, factors_res)
 
     assert np.allclose(X_dense, X_rec, atol=1e-5)
@@ -138,8 +138,8 @@ def test_manual_example_3_structured(xp_numpy):
     ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
 
     core_bin, factors_bin = benchmark_hosvd(xp_numpy, X_bin, ranks_bin, max_iter=20)
-    core_res = xp_numpy.from_benchmark(core_bin)
-    factors_res = [xp_numpy.from_benchmark(f) for f in factors_bin]
+    core_res = xp_numpy.from_binsparse(core_bin)
+    factors_res = [xp_numpy.from_binsparse(f) for f in factors_bin]
     X_rec = reconstruct_tensor(core_res, factors_res)
 
     assert np.allclose(X_dense, X_rec, atol=1e-5)
@@ -154,11 +154,11 @@ def test_hosvd_sparse_input(xp_numpy):
     Test with sparse input.
     """
     X_bin, ranks_bin = dg_hosvd_sparse_small()
-    ranks = tuple(xp_numpy.from_benchmark(ranks_bin).astype(int))
+    ranks = tuple(xp_numpy.from_binsparse(ranks_bin).astype(int))
 
     core_bin, factors_bin = benchmark_hosvd(xp_numpy, X_bin, ranks_bin, max_iter=5)
-    core_res = xp_numpy.from_benchmark(core_bin)
-    factors_res = [xp_numpy.from_benchmark(f) for f in factors_bin]
+    core_res = xp_numpy.from_binsparse(core_bin)
+    factors_res = [xp_numpy.from_binsparse(f) for f in factors_bin]
 
     assert core_res.shape == tuple(ranks)
     for i, f in enumerate(factors_res):

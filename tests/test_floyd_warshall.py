@@ -10,7 +10,7 @@ def _run_fw_case(xp, A, expected):
     """Run Floyd–Warshall and compare to an expected APSP distance matrix."""
     A_bin = BinsparseFormat.from_numpy(A)
     out_test = floyd_warshall(xp, A_bin)
-    out = xp.from_benchmark(out_test)
+    out = xp.from_binsparse(out_test)
 
     both_inf = np.isinf(out) & np.isinf(expected)
     both_finite = np.isfinite(out) & np.isfinite(expected)
@@ -178,7 +178,7 @@ def test_fw_chesapeake_invariants():
         A[v, u] = 1.0
 
     A_bin = BinsparseFormat.from_numpy(A)
-    out = xp.from_benchmark(floyd_warshall(xp, A_bin))
+    out = xp.from_binsparse(floyd_warshall(xp, A_bin))
 
     assert np.all(np.diag(out) == 0.0)
 

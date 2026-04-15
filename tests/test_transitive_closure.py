@@ -38,7 +38,7 @@ def test_transitive_closure():
 
     bench_input = BinsparseFormat.from_numpy(input_matrix)
     res = benchmark_transitive_closure(xp, bench_input)
-    res = xp.from_benchmark(res)
+    res = xp.from_binsparse(res)
     assert np.array_equal(res, expected)
 
 
@@ -63,7 +63,7 @@ def test_scc():
 
     bench_input = BinsparseFormat.from_numpy(input_matrix)
     res = benchmark_simple_connected_components(xp, bench_input)
-    res = xp.from_benchmark(res)
+    res = xp.from_binsparse(res)
 
     # count sccs
     visited_set = set()
@@ -92,7 +92,7 @@ def test_scc_cycle():
 
     bench_input = BinsparseFormat.from_numpy(input_matrix)
     res = benchmark_simple_connected_components(xp, bench_input)
-    res = xp.from_benchmark(res)
+    res = xp.from_binsparse(res)
     # clique matrix
     expected = np.ones((3, 3), dtype=bool)
     assert np.array_equal(res, expected)
@@ -105,7 +105,7 @@ def test_scc_one_node():
 
     bench_input = BinsparseFormat.from_numpy(input_matrix)
     res = benchmark_simple_connected_components(xp, bench_input)
-    res = xp.from_benchmark(res)
+    res = xp.from_binsparse(res)
 
     # simple 1x1 matrix with 1
     expected = np.array([[1]], dtype=bool)
@@ -119,7 +119,7 @@ def test_transitive_closure_one_node():
 
     bench_input = BinsparseFormat.from_numpy(input_matrix)
     res = benchmark_transitive_closure(xp, bench_input)
-    res = xp.from_benchmark(res)
+    res = xp.from_binsparse(res)
 
     # should be self loop, 1x1 matrix with 1
     expected = np.array([[1]], dtype=bool)

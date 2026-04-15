@@ -27,7 +27,7 @@ class PyDataSparseFramework(AbstractFramework):
     def __init__(self):
         pass
 
-    def from_benchmark(self, array):
+    def from_binsparse(self, array):
         if array.data["format"] == "dense":
             return sp.asarray(array.data["values"].reshape(array.data["shape"]))
         if array.data["format"] == "COO":
@@ -41,7 +41,7 @@ class PyDataSparseFramework(AbstractFramework):
             return sp.COO(tuple(indices), V, shape=shape, fill_value=0)
         raise ValueError("Unsupported format: " + array.data["format"])
 
-    def to_benchmark(self, array):
+    def to_binsparse(self, array):
         if isinstance(array, sp.COO):
             print(type(array))
             return BinsparseFormat.from_coo(array.coords, array.data, array.shape)

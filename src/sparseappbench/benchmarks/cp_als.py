@@ -34,7 +34,10 @@ used to debug some parts of the code. This statement was written by hand.
 
 import numpy as np
 
-from ..binsparse_format import BinsparseFormat
+import sparseappbench
+from sparseappbench.binsparse_format import BinsparseFormat
+
+xp = sparseappbench.xp
 
 """
 benchmark_cp_als(xp, X_bench, rank, max_iter)
@@ -61,30 +64,30 @@ Tuple of (A_bench, B_bench, C_bench, lambda_bench) in binsparse format where:
 
 
 def benchmark_cp_als(xp, X_bench, rank, max_iter=50):
-    X_eager = xp.from_benchmark(X_bench)
-    X = xp.lazy(X_eager)
+    X_eager = xp.from_binsparse(X_bench)
+    X = X_eager
 
     dim1, dim2, dim3 = X_bench.data["shape"]
     dtype = X_bench.data["values"].dtype
 
-    A = xp.from_benchmark(
+    A = xp.from_binsparse(
         BinsparseFormat.from_numpy(
             np.random.default_rng(0).random((dim1, rank)).astype(dtype)
         )
     )
-    B = xp.from_benchmark(
+    B = xp.from_binsparse(
         BinsparseFormat.from_numpy(
             np.random.default_rng(0).random((dim2, rank)).astype(dtype)
         )
     )
-    C = xp.from_benchmark(
+    C = xp.from_binsparse(
         BinsparseFormat.from_numpy(
             np.random.default_rng(0).random((dim3, rank)).astype(dtype)
         )
     )
 
     for _iteration in range(max_iter):
-        (A, B, C) = xp.lazy((A, B, C))
+        (A, B, C) = (A, B, C)
         # Update A
         mttkrp_result = xp.einsum(
             "mttkrp_result[i, r] += X[i, j, k] * B[j, r] * C[k, r]", X=X, B=B, C=C
@@ -113,9 +116,9 @@ def benchmark_cp_als(xp, X_bench, rank, max_iter=50):
         G_pinv = xp.linalg.pinv(G)
         C = xp.matmul(mttkrp_result, G_pinv)
 
-        A, B, C = xp.compute((A, B, C))
+        A, B, C = (A, B, C)
 
-    (A, B, C) = xp.lazy((A, B, C))
+    (A, B, C) = (A, B, C)
 
     # Normalizing factors
     A_norms_sq = xp.einsum("norms[r] += A[i, r] * A[i, r]", A=A)
@@ -145,13 +148,13 @@ def benchmark_cp_als(xp, X_bench, rank, max_iter=50):
 
     # Now compute everything at once
 
-    (A, B, C, lambda_vals) = xp.compute((A, B, C, lambda_vals))
+    (A, B, C, lambda_vals) = (A, B, C, lambda_vals)
 
     # Convert to binsparse format
-    A_bench_out = xp.to_benchmark(A)
-    B_bench_out = xp.to_benchmark(B)
-    C_bench_out = xp.to_benchmark(C)
-    lambda_bench_out = xp.to_benchmark(lambda_vals)
+    A_bench_out = xp.to_binsparse(A)
+    B_bench_out = xp.to_binsparse(B)
+    C_bench_out = xp.to_binsparse(C)
+    lambda_bench_out = xp.to_binsparse(lambda_vals)
 
     return (A_bench_out, B_bench_out, C_bench_out, lambda_bench_out)
 

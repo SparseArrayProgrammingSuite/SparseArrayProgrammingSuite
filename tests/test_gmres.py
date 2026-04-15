@@ -40,7 +40,7 @@ def scipy_gmres_test(seed):
     xp = get_framework()
 
     x_bench_bin = gmres(xp, A_bin, b_bin, x0_bin, restart=20, tol=1e-8, max_iter=1000)
-    x_bench = xp.from_benchmark(x_bench_bin)
+    x_bench = xp.from_binsparse(x_bench_bin)
 
     x_scipy, info = scipy.sparse.linalg.gmres(
         A, b, x0=x0, restart=20, tol=1e-8, atol=0, maxiter=1000
@@ -89,7 +89,7 @@ def test_gmres_sample_examples(A_dense, b, x0):
     x_bench_bin = gmres(
         xp, A_bin, b_bin, x0_bin, restart=A_dense.shape[0], tol=1e-8, max_iter=100
     )
-    x_bench = xp.from_benchmark(x_bench_bin)
+    x_bench = xp.from_binsparse(x_bench_bin)
 
     residual = np.linalg.norm(b - A_dense @ x_bench)
     assert residual < 1e-6, f"Residual too high: {residual}"
@@ -116,10 +116,10 @@ def test_gmres_sparse_generators(generator):
         pytest.skip(f"Failed to download/load data: {e}")
 
     x_bench_bin = gmres(xp, A_bin, b_bin, x0_bin, restart=100, tol=1e-5, max_iter=3000)
-    x_bench = xp.from_benchmark(x_bench_bin)
+    x_bench = xp.from_binsparse(x_bench_bin)
 
-    A = xp.from_benchmark(A_bin)
-    b = xp.from_benchmark(b_bin)
+    A = xp.from_binsparse(A_bin)
+    b = xp.from_binsparse(b_bin)
 
     b_norm = np.linalg.norm(b)
     if b_norm < 1e-12:

@@ -102,7 +102,7 @@ def test_lsqr_solver(xp, A, b, expected_exit_code):
     b_bin = BinsparseFormat.from_numpy(b)
 
     results = benchmark_lsqr(xp, A_bin, b_bin)
-    x_sol = xp.from_benchmark(results[0])
+    x_sol = xp.from_binsparse(results[0])
     actual_exit_code = results[1]
 
     residual = b - A @ x_sol

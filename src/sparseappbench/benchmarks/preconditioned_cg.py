@@ -6,7 +6,7 @@ from scipy.io import mmread
 
 import ssgetpy
 
-from ..binsparse_format import BinsparseFormat
+from sparseappbench.binsparse_format import BinsparseFormat
 
 """
 Name: Preconditioned Conjugate Gradient (Block Jacobi)
@@ -65,13 +65,11 @@ def preconditioned_cg(
     abs_tol=1e-20,
     max_iters=10000,
 ):
-    A = xp.lazy(xp.from_benchmark(A_bench))
-    b = xp.lazy(xp.from_benchmark(b_bench))
-    x = xp.lazy(xp.from_benchmark(x_bench))
-    M = xp.lazy(xp.from_benchmark(M_bench))
-    tolerance = max(
-        xp.compute(xp.lazy(rel_tol) * xp.sqrt(xp.vecdot(b, b)))[()], abs_tol
-    )
+    A = xp.from_binsparse(A_bench)
+    b = xp.from_binsparse(b_bench)
+    x = xp.from_binsparse(x_bench)
+    M = xp.from_binsparse(M_bench)
+    tolerance = max(rel_tol * xp.sqrt(xp.vecdot(b, b))[()], abs_tol)
     # tol_sq used to avoid having to sqrt dot products when checking tolerance
     tol_sq = tolerance * tolerance
 
@@ -80,19 +78,19 @@ def preconditioned_cg(
     rho = xp.vecdot(r, z)
     p = z
     it = 0
-    rr = xp.compute(xp.vecdot(r, r))[()]
+    rr = xp.vecdot(r, r)[()]
 
     if rr >= tol_sq:
         while it < max_iters:
-            x, r, p = xp.lazy((x, r, p))
+            x, r, p = (x, r, p)
 
             Ap = A @ p
             alpha = rho / xp.vecdot(p, Ap)
             x += alpha * p
             r -= alpha * Ap
 
-            x, r, p = xp.compute((x, r, p))
-            new_rr = xp.compute(xp.vecdot(r, r))[()]
+            x, r, p = (x, r, p)
+            new_rr = xp.vecdot(r, r)[()]
 
             it += 1
 
@@ -106,8 +104,8 @@ def preconditioned_cg(
             rho = new_rho
             rr = new_rr
 
-    x_solution = xp.compute(x)
-    return xp.to_benchmark(x_solution)
+    x_solution = x
+    return xp.to_binsparse(x_solution)
 
 
 def generate_cg_data(source, has_b_file):

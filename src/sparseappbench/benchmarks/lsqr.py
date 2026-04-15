@@ -1,12 +1,15 @@
 import os
 
 import numpy as np
+import sparseappbench
 from scipy.io import mmread
 from scipy.sparse import random
 
 import ssgetpy
 
-from ..binsparse_format import BinsparseFormat
+from sparseappbench.binsparse_format import BinsparseFormat
+
+xp = sparseappbench.xp
 
 """
 Name: LSQR Iterative Solver
@@ -49,8 +52,8 @@ AI was used to debug code. This statement was written by hand.
 def benchmark_lsqr(
     xp, A_bench, b_bench, atol=1e-9, btol=1e-9, conlim=1.0e8, max_iters=10000
 ):
-    A = xp.lazy(xp.from_benchmark(A_bench))
-    b = xp.lazy(xp.from_benchmark(b_bench))
+    A = xp.from_binsparse(A_bench)
+    b = xp.from_binsparse(b_bench)
     exit = 0
 
     u = b
@@ -66,7 +69,7 @@ def benchmark_lsqr(
     ctol = 1 / conlim
 
     Arnorm = alpha * beta
-    if xp.compute(Arnorm) == 0:
+    if Arnorm == 0:
         solution_is_zero = True
 
     w = v
@@ -90,34 +93,9 @@ def benchmark_lsqr(
     # An approximation of the condition number of A found by multiplying
     # Anorm by sqrt(ddnorm)
     Acond = 0
-    (u, v, x, w, alpha, beta, phi_bar, rho_bar, Anorm_sq, xnorm_sq, dnorm_sq) = (
-        xp.compute(
-            (u, v, x, w, alpha, beta, phi_bar, rho_bar, Anorm_sq, xnorm_sq, dnorm_sq)
-        )
-    )
-    (u, v, x, w, alpha, beta, phi_bar, rho_bar, Anorm_sq, xnorm_sq, dnorm_sq) = xp.lazy(
-        (u, v, x, w, alpha, beta, phi_bar, rho_bar, Anorm_sq, xnorm_sq, dnorm_sq)
-    )
+    
     while it < max_iters and not solution_is_zero:
         it += 1
-
-        (u, v, x, w, alpha, beta, phi_bar, rho_bar, Anorm_sq, xnorm_sq, dnorm_sq) = (
-            xp.lazy(
-                (
-                    u,
-                    v,
-                    x,
-                    w,
-                    alpha,
-                    beta,
-                    phi_bar,
-                    rho_bar,
-                    Anorm_sq,
-                    xnorm_sq,
-                    dnorm_sq,
-                )
-            )
-        )
 
         u = A @ v - alpha * u
 
@@ -162,41 +140,23 @@ def benchmark_lsqr(
         test2 = Arnorm / (Anorm * rnorm)
         test3 = 1 / Acond
 
-        (u, v, x, w, alpha, beta, phi_bar, rho_bar, Anorm_sq, xnorm_sq, dnorm_sq) = (
-            xp.compute(
-                (
-                    u,
-                    v,
-                    x,
-                    w,
-                    alpha,
-                    beta,
-                    phi_bar,
-                    rho_bar,
-                    Anorm_sq,
-                    xnorm_sq,
-                    dnorm_sq,
-                )
-            )
-        )
-
-        reltol = xp.compute(atol * Anorm * xnorm / bnorm + btol)[()]
+        reltol = atol * Anorm * xnorm / bnorm + btol
 
         # Exits if the condition number grows too high
-        if xp.compute(test3) <= ctol:
+        if test3 <= ctol:
             exit = 3
         # Exits if the gradient is small so the min has been found
-        if xp.compute(test2) <= atol:
+        if test2 <= atol:
             exit = 2
         # Exits if the residual is small so we have found the solution
-        if xp.compute(test1) <= reltol:
+        if test1 <= reltol:
             exit = 1
 
         if exit > 0:
             print(exit)
             break
 
-    return xp.to_benchmark(x), exit, it
+    return xp.to_binsparse(x), exit, it
 
 
 def normof2(xp, x, y):

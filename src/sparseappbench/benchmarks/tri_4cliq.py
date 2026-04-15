@@ -1,4 +1,7 @@
-from ..frameworks.einsum import einsum
+import sparseappbench
+from sparseappbench.frameworks.einsum import einsum
+
+xp = sparseappbench.xp
 
 """
 Name: Triangle, 4-Clique Counting
@@ -58,15 +61,15 @@ AI was used to debug code. This statement was written by hand.
 
 
 def benchmark_triangle_count(xp, A_bench):
-    A = xp.lazy(xp.from_benchmark(A_bench))
+    A = xp.from_binsparse(A_bench)
     triangles = einsum(xp, "S[] += A[i,j] * A[j,k] * A[k,i]", A=A) / 6
-    return xp.to_benchmark(xp.compute(triangles))
+    return xp.to_binsparse(triangles)
 
 
 def benchmark_4clique_count(xp, A_bench):
-    A = xp.lazy(xp.from_benchmark(A_bench))
+    A = xp.from_binsparse(A_bench)
     cliq_4 = (
         einsum(xp, "S[] += A[i,j] * A[i,k] * A[i,l] * A[j,k] * A[j,l] * A[k,l]", A=A)
         / 24
     )
-    return xp.to_benchmark(xp.compute(cliq_4))
+    return xp.to_binsparse(cliq_4)
