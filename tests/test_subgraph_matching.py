@@ -1,13 +1,10 @@
 from pathlib import Path
-import pytest
 
 from sparseappbench.benchmarks.subgraph_matching import benchmark_subgraph_matching, gcare_human_all
 from sparseappbench.frameworks.numpy_framework import NumpyFramework
 from sparseappbench.frameworks.sparse_framework import PyDataSparseFramework
 from sparseappbench.binsparse_format import BinsparseFormat
 
-
-@pytest.mark.parametrize("xp", [PyDataSparseFramework()])
 def test_human_all():
     queries = gcare_human_all()
     xp = PyDataSparseFramework()
