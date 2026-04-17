@@ -37,11 +37,11 @@ import os
 
 import numpy as np
 
-from PIL import Image
-
 try:
     import kagglehub
+    from PIL import Image
 except ImportError:
+    Image = None
     kagglehub = None
 
 from sparseappbench.binsparse_format import BinsparseFormat
@@ -51,22 +51,35 @@ def benchmark_mri_edge(xp, image_bench, threshold_bench):
     image = xp.lazy(xp.from_benchmark(image_bench))
     threshold = xp.lazy(xp.from_benchmark(threshold_bench))
 
+    Nx, Ny = image.shape
+
     # Shifts for X gradient
-    img_m1_m1 = xp.roll(xp.roll(image, 1, axis=0), 1, axis=1)  # (x-1, y-1)
-    img_m1_0 = xp.roll(image, 1, axis=0)  # (x-1, y)
-    img_m1_p1 = xp.roll(xp.roll(image, 1, axis=0), -1, axis=1)  # (x-1, y+1)
+    D_x = xp.zeros((Nx, Nx))
+    for i in range(Nx):
+        D_x[i, (i + 1) % Nx] = 1.0
+        D_x[i, (i - 1) % Nx] = -1.0
 
-    img_p1_m1 = xp.roll(xp.roll(image, -1, axis=0), 1, axis=1)  # (x+1, y-1)
-    img_p1_0 = xp.roll(image, -1, axis=0)  # (x+1, y)
-    img_p1_p1 = xp.roll(xp.roll(image, -1, axis=0), -1, axis=1)  # (x+1, y+1)
+    S_y = xp.zeros((Ny, Ny))
+    for j in range(Ny):
+        S_y[(j - 1) % Ny, j] = 1.0
+        S_y[j, j] = 2.0
+        S_y[(j + 1) % Ny, j] = 1.0
 
-    gx = (img_p1_m1 + 2 * img_p1_0 + img_p1_p1) - (img_m1_m1 + 2 * img_m1_0 + img_m1_p1)
+    gx = D_x @ image @ S_y
 
     # Shifts for Y gradient
-    img_0_m1 = xp.roll(image, 1, axis=1)  # (x, y-1)
-    img_0_p1 = xp.roll(image, -1, axis=1)  # (x, y+1)
+    S_x = xp.zeros((Nx, Nx))
+    for i in range(Nx):
+        S_x[i, (i - 1) % Nx] = 1.0
+        S_x[i, i] = 2.0
+        S_x[i, (i + 1) % Nx] = 1.0
 
-    gy = (img_m1_p1 + 2 * img_0_p1 + img_p1_p1) - (img_m1_m1 + 2 * img_0_m1 + img_p1_m1)
+    D_y = xp.zeros((Ny, Ny))
+    for j in range(Ny):
+        D_y[(j + 1) % Ny, j] = 1.0
+        D_y[(j - 1) % Ny, j] = -1.0
+
+    gy = S_x @ image @ D_y
 
     magnitude = xp.abs(gx) + xp.abs(gy)
 
@@ -77,8 +90,8 @@ def benchmark_mri_edge(xp, image_bench, threshold_bench):
 
 
 def generate_mri_sobel_data(category, filename, threshold_val=100.0):
-    if kagglehub is None:
-        raise ImportError("kagglehub is required to download Kaggle datasets")
+    if kagglehub is None or Image is None:
+        raise ImportError("kagglehub and Pillow are required.")
     path = kagglehub.dataset_download(
         "navoneel/brain-mri-images-for-brain-tumor-detection"
     )
@@ -110,3 +123,51 @@ def dg_mri_sobel_3():
 
 def dg_mri_sobel_4():
     return generate_mri_sobel_data("yes", "Y180.jpg", 150.0)
+
+
+def generate_sobel_matrix(height, width, axis):
+    H = height
+    W = width
+    row_indices = []
+    col_indices = []
+    values = []
+
+    r = np.arange(H).reshape(-1, 1).repeat(W, axis=1)
+    c = np.arange(W).reshape(1, -1).repeat(H, axis=0)
+
+    r_flat = r.flatten()
+    c_flat = c.flatten()
+    output_idx = r_flat * W + c_flat
+
+    def add_shift(dy, dx, val):
+        input_r = (r_flat - dy) % H
+        input_c = (c_flat - dx) % W
+        input_idx = input_r * W + input_c
+        row_indices.append(output_idx)
+        col_indices.append(input_idx)
+        values.append(np.full_like(output_idx, val, dtype=np.float32))
+
+    if axis == "x":
+        add_shift(-1, 1, 1.0)
+        add_shift(-1, 0, 2.0)
+        add_shift(-1, -1, 1.0)
+
+        add_shift(1, 1, -1.0)
+        add_shift(1, 0, -2.0)
+        add_shift(1, -1, -1.0)
+    elif axis == "y":
+        add_shift(1, -1, 1.0)
+        add_shift(0, -1, 2.0)
+        add_shift(-1, -1, 1.0)
+
+        add_shift(1, 1, -1.0)
+        add_shift(0, 1, -2.0)
+        add_shift(-1, 1, -1.0)
+    else:
+        raise ValueError("axis must be 'x' or 'y'")
+
+    R = np.concatenate(row_indices)
+    C = np.concatenate(col_indices)
+    V = np.concatenate(values)
+
+    return BinsparseFormat.from_coo((R, C), V, (H * W, H * W))
