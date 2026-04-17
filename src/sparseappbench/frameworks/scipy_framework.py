@@ -35,7 +35,7 @@ class SciPyFramework(AbstractFramework):
     def linalg(self):
         return ScipyLinalg
 
-    def from_benchmark(self, array):
+    def from_binsparse(self, array):
         if array.data["format"] == "dense":
             return array.data["values"].reshape(array.data["shape"])
         if array.data["format"] == "COO":
@@ -49,7 +49,7 @@ class SciPyFramework(AbstractFramework):
             ).tocsr()
         raise ValueError(f"Unsupported format: {array.data['format']}")
 
-    def to_benchmark(self, array):
+    def to_binsparse(self, array):
         return BinsparseFormat.from_scipy(array)
 
     def lazy(self, array):
