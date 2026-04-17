@@ -1,4 +1,5 @@
 import os
+from typing import Any
 
 import numpy as np
 from scipy.io import mmread
@@ -21,9 +22,10 @@ xp = sparseappbench.xp
 
 
 class JacobiDataset(Dataset):
-    def __init__(self, source_name: str, has_b_file: bool = False):
+    def __init__(self, source_name: str, has_b_file: bool = False, nnz: int = None):
         self.source_name = source_name
         self.has_b_file = has_b_file
+        self.nnz = nnz
 
     @property
     def name(self) -> str:
@@ -40,6 +42,13 @@ class JacobiDataset(Dataset):
     @property
     def tags(self) -> list[str]:
         return ["suitesparse", "sparse"]
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        data = super().metadata
+        data["nnz"] = self.nnz
+        data["has_b_file"] = self.has_b_file
+        return data
 
 
 class JacobiGenerator(Generator[JacobiDataset]):
@@ -88,14 +97,14 @@ class JacobiGenerator(Generator[JacobiDataset]):
     @property
     def datasets(self) -> list[JacobiDataset]:
         return [
-            JacobiDataset("mesh3em5"),  # nnz = 1,889
-            JacobiDataset("Trefethen_200"),  # nnz = 2,873
-            JacobiDataset("Chem97ZtZ"),  # nnz = 7,361
-            JacobiDataset("Trefethen_500"),  # nnz = 8,478
-            JacobiDataset("Trefethen_700"),  # nnz = 12,654
-            JacobiDataset("fv1"),  # nnz = 85,264
-            JacobiDataset("fv2"),  # nnz = 87,025
-            JacobiDataset("Trefethen_20000"),  # nnz = 554,466
+            JacobiDataset("mesh3em5", nnz=1889),
+            JacobiDataset("Trefethen_200", nnz=2873),
+            JacobiDataset("Chem97ZtZ", nnz=7361),
+            JacobiDataset("Trefethen_500", nnz=8478),
+            JacobiDataset("Trefethen_700", nnz=12654),
+            JacobiDataset("fv1", nnz=85264),
+            JacobiDataset("fv2", nnz=87025),
+            JacobiDataset("Trefethen_20000", nnz=554466),
         ]
 
     def generate(self, dataset: JacobiDataset):

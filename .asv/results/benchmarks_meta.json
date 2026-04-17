@@ -166,7 +166,9 @@
         "datasets": [
           {
             "description": "SuiteSparse matrix mesh3em5.",
+            "has_b_file": false,
             "name": "mesh3em5",
+            "nnz": 1889,
             "pretty_name": "Jacobi mesh3em5",
             "tags": [
               "suitesparse",
@@ -175,7 +177,9 @@
           },
           {
             "description": "SuiteSparse matrix Trefethen_200.",
+            "has_b_file": false,
             "name": "Trefethen_200",
+            "nnz": 2873,
             "pretty_name": "Jacobi Trefethen_200",
             "tags": [
               "suitesparse",
@@ -184,7 +188,9 @@
           },
           {
             "description": "SuiteSparse matrix Chem97ZtZ.",
+            "has_b_file": false,
             "name": "Chem97ZtZ",
+            "nnz": 7361,
             "pretty_name": "Jacobi Chem97ZtZ",
             "tags": [
               "suitesparse",
@@ -193,7 +199,9 @@
           },
           {
             "description": "SuiteSparse matrix Trefethen_500.",
+            "has_b_file": false,
             "name": "Trefethen_500",
+            "nnz": 8478,
             "pretty_name": "Jacobi Trefethen_500",
             "tags": [
               "suitesparse",
@@ -202,7 +210,9 @@
           },
           {
             "description": "SuiteSparse matrix Trefethen_700.",
+            "has_b_file": false,
             "name": "Trefethen_700",
+            "nnz": 12654,
             "pretty_name": "Jacobi Trefethen_700",
             "tags": [
               "suitesparse",
@@ -211,7 +221,9 @@
           },
           {
             "description": "SuiteSparse matrix fv1.",
+            "has_b_file": false,
             "name": "fv1",
+            "nnz": 85264,
             "pretty_name": "Jacobi fv1",
             "tags": [
               "suitesparse",
@@ -220,7 +232,9 @@
           },
           {
             "description": "SuiteSparse matrix fv2.",
+            "has_b_file": false,
             "name": "fv2",
+            "nnz": 87025,
             "pretty_name": "Jacobi fv2",
             "tags": [
               "suitesparse",
@@ -229,7 +243,9 @@
           },
           {
             "description": "SuiteSparse matrix Trefethen_20000.",
+            "has_b_file": false,
             "name": "Trefethen_20000",
+            "nnz": 554466,
             "pretty_name": "Jacobi Trefethen_20000",
             "tags": [
               "suitesparse",
@@ -278,7 +294,9 @@
         "datasets": [
           {
             "description": "SuiteSparse matrix mesh3em5.",
+            "has_b_file": false,
             "name": "mesh3em5",
+            "nnz": 1889,
             "pretty_name": "Jacobi mesh3em5",
             "tags": [
               "suitesparse",
@@ -287,7 +305,9 @@
           },
           {
             "description": "SuiteSparse matrix Trefethen_200.",
+            "has_b_file": false,
             "name": "Trefethen_200",
+            "nnz": 2873,
             "pretty_name": "Jacobi Trefethen_200",
             "tags": [
               "suitesparse",
@@ -296,7 +316,9 @@
           },
           {
             "description": "SuiteSparse matrix Chem97ZtZ.",
+            "has_b_file": false,
             "name": "Chem97ZtZ",
+            "nnz": 7361,
             "pretty_name": "Jacobi Chem97ZtZ",
             "tags": [
               "suitesparse",
@@ -305,7 +327,9 @@
           },
           {
             "description": "SuiteSparse matrix Trefethen_500.",
+            "has_b_file": false,
             "name": "Trefethen_500",
+            "nnz": 8478,
             "pretty_name": "Jacobi Trefethen_500",
             "tags": [
               "suitesparse",
@@ -314,7 +338,9 @@
           },
           {
             "description": "SuiteSparse matrix Trefethen_700.",
+            "has_b_file": false,
             "name": "Trefethen_700",
+            "nnz": 12654,
             "pretty_name": "Jacobi Trefethen_700",
             "tags": [
               "suitesparse",
@@ -323,7 +349,9 @@
           },
           {
             "description": "SuiteSparse matrix fv1.",
+            "has_b_file": false,
             "name": "fv1",
+            "nnz": 85264,
             "pretty_name": "Jacobi fv1",
             "tags": [
               "suitesparse",
@@ -332,7 +360,9 @@
           },
           {
             "description": "SuiteSparse matrix fv2.",
+            "has_b_file": false,
             "name": "fv2",
+            "nnz": 87025,
             "pretty_name": "Jacobi fv2",
             "tags": [
               "suitesparse",
@@ -341,7 +371,9 @@
           },
           {
             "description": "SuiteSparse matrix Trefethen_20000.",
+            "has_b_file": false,
             "name": "Trefethen_20000",
+            "nnz": 554466,
             "pretty_name": "Jacobi Trefethen_20000",
             "tags": [
               "suitesparse",
