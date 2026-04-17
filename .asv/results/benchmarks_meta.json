@@ -150,5 +150,229 @@
       "projection",
       "sparse"
     ]
+  },
+  "jacobi.JacobiBenchmark.mem_jacobi_solver": {
+    "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
+    "authors": [
+      "Benjamin Berol <bberol3@gatech.edu>"
+    ],
+    "description": "Solves linear systems using the Jacobi iterative method.",
+    "generators": [
+      {
+        "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
+        "authors": [
+          "Benjamin Berol <bberol3@gatech.edu>"
+        ],
+        "datasets": [
+          {
+            "description": "SuiteSparse matrix mesh3em5.",
+            "name": "mesh3em5",
+            "pretty_name": "Jacobi mesh3em5",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix Trefethen_200.",
+            "name": "Trefethen_200",
+            "pretty_name": "Jacobi Trefethen_200",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix Chem97ZtZ.",
+            "name": "Chem97ZtZ",
+            "pretty_name": "Jacobi Chem97ZtZ",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix Trefethen_500.",
+            "name": "Trefethen_500",
+            "pretty_name": "Jacobi Trefethen_500",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix Trefethen_700.",
+            "name": "Trefethen_700",
+            "pretty_name": "Jacobi Trefethen_700",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix fv1.",
+            "name": "fv1",
+            "pretty_name": "Jacobi fv1",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix fv2.",
+            "name": "fv2",
+            "pretty_name": "Jacobi fv2",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix Trefethen_20000.",
+            "name": "Trefethen_20000",
+            "pretty_name": "Jacobi Trefethen_20000",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          }
+        ],
+        "description": "Accesses and prepares symmetric positive definite matrices from SuiteSparse.",
+        "motivation": "Data collected from SuiteSparse Matrix Collection consisting of symmetric positive definite matrices whose Jacobi iteration matrices have spectral radius < 1.",
+        "name": "jacobi_inputs",
+        "pretty_name": "Jacobi SuiteSparse Data Generator",
+        "references": [],
+        "tags": [
+          "iterative",
+          "solver",
+          "suitesparse",
+          "sparse"
+        ]
+      }
+    ],
+    "id": "sparseappbench.benchmarks.jacobi.JacobiBenchmark.jacobi_solver",
+    "motivation": "Sparsity makes the Jacobi method efficient because each update only needs to access the nonzero entries, reducing complexity from O(mn) to O(nnz)",
+    "name": "jacobi_solver",
+    "pretty_name": "Jacobi Iterative Solver",
+    "references": [
+      "J. Cockayne, I. C. F. Ipsen, C. J. Oates, T. W. Reid. \"Probabilistic iterative methods for linear systems\", J. Mach. Learn. Res., Vol. 22, pp. 1-34, 2021, URL: https://www.jmlr.org/papers/volume22/21-0031/21-0031.pdf."
+    ],
+    "tags": [
+      "iterative",
+      "solver",
+      "sparse"
+    ]
+  },
+  "jacobi.JacobiBenchmark.time_jacobi_solver": {
+    "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
+    "authors": [
+      "Benjamin Berol <bberol3@gatech.edu>"
+    ],
+    "description": "Solves linear systems using the Jacobi iterative method.",
+    "generators": [
+      {
+        "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
+        "authors": [
+          "Benjamin Berol <bberol3@gatech.edu>"
+        ],
+        "datasets": [
+          {
+            "description": "SuiteSparse matrix mesh3em5.",
+            "name": "mesh3em5",
+            "pretty_name": "Jacobi mesh3em5",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix Trefethen_200.",
+            "name": "Trefethen_200",
+            "pretty_name": "Jacobi Trefethen_200",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix Chem97ZtZ.",
+            "name": "Chem97ZtZ",
+            "pretty_name": "Jacobi Chem97ZtZ",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix Trefethen_500.",
+            "name": "Trefethen_500",
+            "pretty_name": "Jacobi Trefethen_500",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix Trefethen_700.",
+            "name": "Trefethen_700",
+            "pretty_name": "Jacobi Trefethen_700",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix fv1.",
+            "name": "fv1",
+            "pretty_name": "Jacobi fv1",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix fv2.",
+            "name": "fv2",
+            "pretty_name": "Jacobi fv2",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix Trefethen_20000.",
+            "name": "Trefethen_20000",
+            "pretty_name": "Jacobi Trefethen_20000",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          }
+        ],
+        "description": "Accesses and prepares symmetric positive definite matrices from SuiteSparse.",
+        "motivation": "Data collected from SuiteSparse Matrix Collection consisting of symmetric positive definite matrices whose Jacobi iteration matrices have spectral radius < 1.",
+        "name": "jacobi_inputs",
+        "pretty_name": "Jacobi SuiteSparse Data Generator",
+        "references": [],
+        "tags": [
+          "iterative",
+          "solver",
+          "suitesparse",
+          "sparse"
+        ]
+      }
+    ],
+    "id": "sparseappbench.benchmarks.jacobi.JacobiBenchmark.jacobi_solver",
+    "motivation": "Sparsity makes the Jacobi method efficient because each update only needs to access the nonzero entries, reducing complexity from O(mn) to O(nnz)",
+    "name": "jacobi_solver",
+    "pretty_name": "Jacobi Iterative Solver",
+    "references": [
+      "J. Cockayne, I. C. F. Ipsen, C. J. Oates, T. W. Reid. \"Probabilistic iterative methods for linear systems\", J. Mach. Learn. Res., Vol. 22, pp. 1-34, 2021, URL: https://www.jmlr.org/papers/volume22/21-0031/21-0031.pdf."
+    ],
+    "tags": [
+      "iterative",
+      "solver",
+      "sparse"
+    ]
   }
 }
