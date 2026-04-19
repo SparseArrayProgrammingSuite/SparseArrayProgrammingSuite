@@ -56,3 +56,17 @@ class BinsparseFormat:
                     return False
 
         return all(key in self.data for key in value.data)
+
+    def save(self, path: str, key: str) -> None:
+        """Save this BinsparseFormat to a binsparse HDF5 file."""
+        from sparseappbench.io.binsparse_hdf5 import save_benchmark
+
+        save_benchmark(path, (self,), [key])
+
+    @staticmethod
+    def load(path: str, key: str) -> "BinsparseFormat":
+        """Load a BinsparseFormat from a binsparse HDF5 file."""
+        from sparseappbench.io.binsparse_hdf5 import load_benchmark
+
+        (result,) = load_benchmark(path, [key])
+        return result
