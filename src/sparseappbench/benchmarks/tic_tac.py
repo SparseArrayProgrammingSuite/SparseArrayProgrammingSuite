@@ -81,7 +81,7 @@ def generate_child(xp, S, W):
     delta = xp.concat([ch0, ch1], axis=4)
 
     valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
-    children = xp.reshape(S, (N, 1, 3, 3, 2)) + delta * valid_exp
+    children = (xp.reshape(S, (N, 1, 3, 3, 2)) + delta * valid_exp) * valid_exp
 
     return xp.reshape(children, (N * 9, 3, 3, 2)), xp.reshape(empty_flat, (N * 9,))
 

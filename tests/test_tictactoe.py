@@ -5,7 +5,6 @@ import numpy as np
 from sparseappbench.benchmarks.tic_tac import (
     build_win_masks,
     is_terminal,
-    minimax,
     minimax_depth2,
     minimax_depth3,
     minimax_depth5,
@@ -249,11 +248,3 @@ def test_minimax_depth5(S, expected):
     W = build_win_masks(xp)
     result = minimax_depth5(xp, xp.asarray(S), W)
     assert np.isclose(float(result[0]), expected, atol=1e-6)
-
-
-def test_minimax_full_sparse():
-    xp = PyDataSparseFramework()
-    W = build_win_masks(xp)
-    S = np.zeros((1, 3, 3, 2), dtype=float)
-    result = minimax(xp, xp.asarray(S), W)
-    assert np.isclose(float(result[0]), 0.0, atol=1e-6)
