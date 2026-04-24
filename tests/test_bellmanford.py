@@ -3,8 +3,8 @@ import pytest
 import numpy as np
 
 from sparseappbench.benchmarks.bellmanford import bellman_ford
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from saps_framework import BinsparseFormat 
+from frameworks.saps_numpy import NumpyFramework
 
 xp = NumpyFramework()
 

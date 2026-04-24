@@ -3,12 +3,10 @@ import pytest
 import numpy as np
 
 import sparseappbench.benchmarks.cg as cg
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
-from sparseappbench.frameworks.scipy_framework import SciPyFramework
-from sparseappbench.frameworks.sparse_framework import (
-    PyDataSparseFramework,
-)
+from saps_framework import BinsparseFormat 
+from frameworks.saps_numpy import NumpyFramework
+from frameworks.saps_scipy import SciPyFramework
+from frameworks.saps_sparse import PyDataSparseFramework
 
 
 @pytest.mark.parametrize(
