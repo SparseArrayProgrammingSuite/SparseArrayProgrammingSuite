@@ -151,6 +151,262 @@
       "sparse"
     ]
   },
+  "cg.CGBenchmark.mem_cg_solver": {
+    "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
+    "authors": [
+      "Benjamin Berol <bberol3@gatech.edu>"
+    ],
+    "description": "Solves sparse symmetric positive definite linear systems with CG.",
+    "generators": [
+      {
+        "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
+        "authors": [
+          "Benjamin Berol <bberol3@gatech.edu>"
+        ],
+        "datasets": [
+          {
+            "description": "SuiteSparse matrix mesh3em5.",
+            "has_b_file": false,
+            "name": "mesh3em5",
+            "nnz": 1889,
+            "pretty_name": "CG mesh3em5",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix bcsstm02.",
+            "has_b_file": false,
+            "name": "bcsstm02",
+            "nnz": 66,
+            "pretty_name": "CG bcsstm02",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix fv1.",
+            "has_b_file": false,
+            "name": "fv1",
+            "nnz": 85264,
+            "pretty_name": "CG fv1",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix Muu.",
+            "has_b_file": false,
+            "name": "Muu",
+            "nnz": 170134,
+            "pretty_name": "CG Muu",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix Chem97ZtZ.",
+            "has_b_file": false,
+            "name": "Chem97ZtZ",
+            "nnz": 7361,
+            "pretty_name": "CG Chem97ZtZ",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix Dubcova1.",
+            "has_b_file": false,
+            "name": "Dubcova1",
+            "nnz": 253009,
+            "pretty_name": "CG Dubcova1",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix t3dl_e.",
+            "has_b_file": false,
+            "name": "t3dl_e",
+            "nnz": 20360,
+            "pretty_name": "CG t3dl_e",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix bcsstk09.",
+            "has_b_file": false,
+            "name": "bcsstk09",
+            "nnz": 18437,
+            "pretty_name": "CG bcsstk09",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          }
+        ],
+        "description": "Accesses and prepares symmetric positive definite matrices from SuiteSparse for conjugate gradient.",
+        "motivation": "Data collected from SuiteSparse Matrix Collection consisting of symmetric positive definite matrices, particularly those with a low convergence criteria",
+        "name": "cg_inputs",
+        "pretty_name": "Conjugate Gradient SuiteSparse Data Generator",
+        "references": [],
+        "tags": [
+          "iterative",
+          "solver",
+          "suitesparse",
+          "sparse"
+        ]
+      }
+    ],
+    "id": "sparseappbench.benchmarks.cg.CGBenchmark.cg_solver",
+    "motivation": "Each iteration of the conjugate gradient requires a SpMV to compute Apwhich can be done in O(nnz) time rather than O(n^2) time for dense matrices.",
+    "name": "cg_solver",
+    "pretty_name": "Conjugate Gradient Iterative Solver",
+    "references": [
+      "Yousef Saad. \"Iterative Methods for Sparse Linear Systems\", SIAM, 2003."
+    ],
+    "tags": [
+      "iterative",
+      "solver",
+      "sparse"
+    ]
+  },
+  "cg.CGBenchmark.time_cg_solver": {
+    "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
+    "authors": [
+      "Benjamin Berol <bberol3@gatech.edu>"
+    ],
+    "description": "Solves sparse symmetric positive definite linear systems with CG.",
+    "generators": [
+      {
+        "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
+        "authors": [
+          "Benjamin Berol <bberol3@gatech.edu>"
+        ],
+        "datasets": [
+          {
+            "description": "SuiteSparse matrix mesh3em5.",
+            "has_b_file": false,
+            "name": "mesh3em5",
+            "nnz": 1889,
+            "pretty_name": "CG mesh3em5",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix bcsstm02.",
+            "has_b_file": false,
+            "name": "bcsstm02",
+            "nnz": 66,
+            "pretty_name": "CG bcsstm02",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix fv1.",
+            "has_b_file": false,
+            "name": "fv1",
+            "nnz": 85264,
+            "pretty_name": "CG fv1",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix Muu.",
+            "has_b_file": false,
+            "name": "Muu",
+            "nnz": 170134,
+            "pretty_name": "CG Muu",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix Chem97ZtZ.",
+            "has_b_file": false,
+            "name": "Chem97ZtZ",
+            "nnz": 7361,
+            "pretty_name": "CG Chem97ZtZ",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix Dubcova1.",
+            "has_b_file": false,
+            "name": "Dubcova1",
+            "nnz": 253009,
+            "pretty_name": "CG Dubcova1",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix t3dl_e.",
+            "has_b_file": false,
+            "name": "t3dl_e",
+            "nnz": 20360,
+            "pretty_name": "CG t3dl_e",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          },
+          {
+            "description": "SuiteSparse matrix bcsstk09.",
+            "has_b_file": false,
+            "name": "bcsstk09",
+            "nnz": 18437,
+            "pretty_name": "CG bcsstk09",
+            "tags": [
+              "suitesparse",
+              "sparse"
+            ]
+          }
+        ],
+        "description": "Accesses and prepares symmetric positive definite matrices from SuiteSparse for conjugate gradient.",
+        "motivation": "Data collected from SuiteSparse Matrix Collection consisting of symmetric positive definite matrices, particularly those with a low convergence criteria",
+        "name": "cg_inputs",
+        "pretty_name": "Conjugate Gradient SuiteSparse Data Generator",
+        "references": [],
+        "tags": [
+          "iterative",
+          "solver",
+          "suitesparse",
+          "sparse"
+        ]
+      }
+    ],
+    "id": "sparseappbench.benchmarks.cg.CGBenchmark.cg_solver",
+    "motivation": "Each iteration of the conjugate gradient requires a SpMV to compute Apwhich can be done in O(nnz) time rather than O(n^2) time for dense matrices.",
+    "name": "cg_solver",
+    "pretty_name": "Conjugate Gradient Iterative Solver",
+    "references": [
+      "Yousef Saad. \"Iterative Methods for Sparse Linear Systems\", SIAM, 2003."
+    ],
+    "tags": [
+      "iterative",
+      "solver",
+      "sparse"
+    ]
+  },
   "jacobi.JacobiBenchmark.mem_jacobi_solver": {
     "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
     "authors": [
