@@ -1,5 +1,6 @@
 import tarfile
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 
@@ -77,8 +78,8 @@ def read_gcare_data(p: Path):
         num_edges = 0
         all_verts = []
 
-        V_dict = {}
-        E_dict = {}
+        V_dict: dict[int, list[int]] = {}
+        E_dict: dict[int, tuple[list[int], list[int]]] = {}
 
         for line in f.readlines():
             if line.startswith("t"):
@@ -130,7 +131,7 @@ def read_gcare_data(p: Path):
         # V[label] is a vector of all vertices with this label
         V = {}
         for label, verts in V_dict.items():
-            V_l = {}
+            V_l: dict[str, Any] = {}
             V_l["V"] = np.ones((len(verts),), dtype=np.int64)
             V_l["I_tuple"] = (np.array(verts),)
             V_l["shape"] = (max_vid + 1,)
@@ -143,7 +144,7 @@ def read_gcare_data(p: Path):
         for label, edges in E_dict.items():
             assert len(edges[0]) == len(edges[1])
             l_num_edges = len(edges[0])
-            E_l = {}
+            E_l: dict[str, Any] = {}
             E_l["V"] = np.ones((l_num_edges,), dtype=np.int64)
             E_l["I_tuple"] = (np.array(edges[0]), np.array(edges[1]))
             E_l["shape"] = (max_vid + 1, max_vid + 1)
@@ -159,7 +160,7 @@ def read_gcare_data(p: Path):
             continous_label = True
         else:
             continous_label = False
-            C = {}
+            C: dict[str, Any] = {}
             C["V"] = np.ones((num_nodes,), dtype=np.int64)
             C["I_tuple"] = (all_verts,)
             C["shape"] = (max_vid + 1,)
@@ -404,7 +405,7 @@ class SubgraphGCareGenerator(Generator[SubgraphGCareDataset]):
                 queries[gt_path.stem]["ground_truth"] = int(f.readline())
 
         matrices = []
-        meta = {"exprs": [], "gts": [], "names": []}
+        meta: dict[str, list[Any]] = {"exprs": [], "gts": [], "names": []}
         for query_name, query_data in queries.items():
             matrices.append(query_data["matrices"])
             meta["exprs"].append(query_data["expr"])
