@@ -72,16 +72,8 @@ def init_brusselator_2d(n):
             u[(i * n + j) * 2 + 1] = float(np.real(27 * (fi * (1 - fi)) ** 1.5))
     return u
 
-def brusselator_dydx(t, u_vec, n, a, b, alpha):
+def compute_C(n, alpha, b):
     size = n * n * 2
-    brusselator_cb = [0.0] * size
-    for i in range(n):
-        for j in range(n):
-            x = i / (n - 1)
-            y = j / (n - 1)
-            if (x - 0.3) ** 2 + (y - 0.6) ** 2 <= 0.1**2:
-                brusselator_cb[(i * n + j) * 2] = 5
-
     C = np.zeros((size, size))
 
     for i in range(n):
@@ -104,6 +96,23 @@ def brusselator_dydx(t, u_vec, n, a, b, alpha):
             C[v_idx][v_idx] -= 4 * alpha
             C[v_idx][u_idx] += b
 
+    return C
+
+def compute_brusselator_cb(n):
+    size = n * n * 2
+    brusselator_cb = [0.0] * size
+    for i in range(n):
+        for j in range(n):
+            x = i / (n - 1)
+            y = j / (n - 1)
+            if (x - 0.3) ** 2 + (y - 0.6) ** 2 <= 0.1**2:
+                brusselator_cb[(i * n + j) * 2] = 5
+    return brusselator_cb
+
+
+def brusselator_dydx(t, u_vec, C, brusselator_cb, n, a, b, alpha):
+    size = n * n * 2
+    
     u_arr = np.array(u_vec, dtype=float)
     
     # Linear part
@@ -126,8 +135,13 @@ def brusselator_dydx(t, u_vec, n, a, b, alpha):
 
 def dg_forward_euler_bruss(n, a, b, alpha, t_max, y0, step):
     """Data Generator for Forward Euler with Brusselator."""
+    size = n * n * 2
+    C = compute_C(n, alpha, b)
+    brusselator_cb = compute_brusselator_cb(n)
+
 
     def dydx(t, u_vec):
-        return brusselator_dydx(t, u_vec, n, a, b, alpha)
+        return brusselator_dydx(t, u_vec, C, brusselator_cb, n, a, b, alpha)
+
 
     return (np, dydx, (0, t_max), y0, step)

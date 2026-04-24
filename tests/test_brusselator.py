@@ -8,11 +8,15 @@ from sparseappbench.benchmarks.brusselator import (
     brusselator_dydx,
     forward_euler,
     init_brusselator_2d,
-    
+    compute_C,
+    compute_brusselator_cb,
 )
 
+C = compute_C(4, 0.01, 1.0)
+brusselator_cb = compute_brusselator_cb(4)
+
 def dydx_brusselator(t, u_vec):
-    return brusselator_dydx(t, u_vec, 4, 3.4, 1.0, 0.01)
+    return brusselator_dydx(t, u_vec, C, brusselator_cb, 4, 3.4, 1.0, 0.01)
 
 @pytest.mark.parametrize(
     "dydt, t_span, y0, step, tolerance",
