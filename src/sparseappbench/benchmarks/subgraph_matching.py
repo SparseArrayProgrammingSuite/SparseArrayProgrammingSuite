@@ -77,12 +77,12 @@ def read_gcare_data(p: Path):
         num_edges = 0
         all_verts = []
 
-        V_dict = dict()
-        E_dict = dict()
+        V_dict = {}
+        E_dict = {}
 
         for line in f.readlines():
             if line.startswith("t"):
-                data_id = int(line.strip().split(" ")[-1])
+                pass
             elif line.startswith("v"):
                 vals = line.strip().split(" ")
                 num_nodes += 1
@@ -128,17 +128,18 @@ def read_gcare_data(p: Path):
                 pass
 
         # V[label] is a vector of all vertices with this label
-        V = dict()
+        V = {}
         for label, verts in V_dict.items():
             V_l = {}
             V_l["V"] = np.ones((len(verts),), dtype=np.int64)
             V_l["I_tuple"] = (np.array(verts),)
             V_l["shape"] = (max_vid + 1,)
-            # V_l = sp.coo_array((np.ones((len(verts), ), dtype=np.int64), (verts, )), shape=(max_vid+1, ))
+            # V_l = sp.coo_array((np.ones((len(verts), ), dtype=np.int64),
+            #                     (verts, )), shape=(max_vid+1, ))
             V[f"V{label}"] = V_l
 
         # E[label] is a sparse adjacency matrix of all edges with this label
-        E = dict()
+        E = {}
         for label, edges in E_dict.items():
             assert len(edges[0]) == len(edges[1])
             l_num_edges = len(edges[0])
@@ -146,8 +147,10 @@ def read_gcare_data(p: Path):
             E_l["V"] = np.ones((l_num_edges,), dtype=np.int64)
             E_l["I_tuple"] = (np.array(edges[0]), np.array(edges[1]))
             E_l["shape"] = (max_vid + 1, max_vid + 1)
-            # E_l = sp.coo_array((np.ones((l_num_edges,), dtype=np.int64), (edges[0], edges[1])),
-            #                     shape=(max_vid+1, max_vid+1))
+            # E_l = sp.coo_array(
+            #     (np.ones((l_num_edges,), dtype=np.int64), (edges[0], edges[1])),
+            #     shape=(max_vid+1, max_vid+1)
+            # )
             E[f"E{label}"] = E_l
 
         sp_mats = V | E
@@ -172,7 +175,7 @@ def read_gcare_query(p: Path, continous_label=True):
         sp_mats_name = set()
         for line in f.readlines():
             if line.startswith("t"):
-                query_id = int(line.strip().split(" ")[-1])
+                pass
             elif line.startswith("v"):
                 vals = line.strip().split(" ")
                 qv_id = int(vals[1])
@@ -190,9 +193,9 @@ def read_gcare_query(p: Path, continous_label=True):
                     sp_mats_name.add(f"V{v_label}")
 
                 if v_id == -1:
-                    # C should be a vector that for all v_id existed, C[v_id] = 1 and all else 0
-                    # i.e C = union of all U_{v_id}
-                    # If v_id is continous: [0, 1, ..., max_vid] then it's unnecessary
+                    # C should be a vector that for all v_id existed, C[v_id] = 1
+                    # and all else 0. i.e C = union of all U_{v_id}. If v_id
+                    # is continous: [0, 1, ..., max_vid] then it's unnecessary
                     if not continous_label:
                         exprs.append(f"C[v_{qv_id}]")
                         sp_mats_name.add("C")
@@ -218,7 +221,7 @@ def process_one_query(query_path, all_sp_mats, max_vid, continous_label):
         query_path, continous_label=continous_label
     )
 
-    sp_mats_needed = dict()
+    sp_mats_needed = {}
     for sp_name in sp_mats_name:
         if sp_name not in all_sp_mats:
             if sp_name.startswith("P"):  # Node id
@@ -230,8 +233,9 @@ def process_one_query(query_path, all_sp_mats, max_vid, continous_label):
                     new_P["I_tuple"], new_P["V"], new_P["shape"]
                 )
             else:
-                # Some queried node / edge labels do not existed in the data graph. The output must be 0.
-                # In reality we can just skip it, but for benchmark let's create an all zero matrix
+                # Some queried node / edge labels do not exist in the
+                # data graph. The output must be 0. In reality we can just
+                # skip it, but for benchmark let's create an all zero matrix
                 if sp_name.startswith("V"):
                     zero_V = {}
                     # for compatiblity with Binsparse
@@ -299,7 +303,10 @@ class SubgraphGCareGenerator(Generator[SubgraphGCareDataset]):
 
     @property
     def description(self) -> str:
-        return "Transforms the G-CARE dataset to the input of subgraph matching algorithms. "
+        return (
+            "Transforms the G-CARE dataset to the input of subgraph "
+            "matching algorithms."
+        )
 
     @property
     def tags(self) -> list[str]:
@@ -317,9 +324,8 @@ class SubgraphGCareGenerator(Generator[SubgraphGCareDataset]):
         return [
             Ref(
                 title=(
-                    "G-CARE: "
-                    "A Framework for Performance Benchmarking of Cardinality Estimation Techniques "
-                    "for Subgraph Matching "
+                    "G-CARE: A Framework for Performance Benchmarking of "
+                    "Cardinality Estimation Techniques for Subgraph Matching"
                 ),
                 authors=[
                     Author("Yeonsu Park"),
@@ -337,13 +343,17 @@ class SubgraphGCareGenerator(Generator[SubgraphGCareDataset]):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to write the algorithms for the benchmark function. "
-            "Generative AI might have been used to construct the definition of the framework."
+            "No generative AI was used to write the algorithms for the "
+            "benchmark function. Generative AI might have been used to "
+            "construct the definition of the framework."
         )
 
     @property
     def motivation(self) -> str:
-        return "Subgraph matching and counting are classic problems and widely used in query evaluations in database systems. "
+        return (
+            "Subgraph matching and counting are classic problems and widely "
+            "used in query evaluations in database systems."
+        )
 
     @property
     def datasets(self) -> list[SubgraphGCareDataset]:
@@ -439,13 +449,17 @@ class SubgraphMatching(Benchmark):
     @property
     def ai_disclosure(self):
         return (
-            "No generative AI was used to write the algorithms for the benchmark function. "
-            "Generative AI might have been used to construct the definition of the framework."
+            "No generative AI was used to write the algorithms for the "
+            "benchmark function. Generative AI might have been used to "
+            "construct the definition of the framework."
         )
 
     @property
     def motivation(self):
-        return "Subgraph matching and counting are classic problems and widely used in query evaluations in database systems. "
+        return (
+            "Subgraph matching and counting are classic problems and widely "
+            "used in query evaluations in database systems."
+        )
 
     @property
     def generators(self):
