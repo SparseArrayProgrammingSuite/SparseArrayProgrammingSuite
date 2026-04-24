@@ -16,6 +16,8 @@ from sparseappbench.benchmark import (
 
 xp = sparseappbench.xp
 
+# TODO add generator for https://github.com/arijitsh/mccomp-test-instances/tree/main/Track4_PWMC
+
 
 def parse_weight(s):
     s = s.strip()
@@ -261,7 +263,7 @@ class WMCGenerator(Generator[WMCDataset]):
                 expected=0.62,
             ),
             WMCDataset(
-                name="test_5",
+                name="test_6",
                 pretty_name="Test 6: 20-Var Formula",
                 description="""
                     (V1 or not V2 or V3) and (not V1 or V4 or V5) and
@@ -310,7 +312,7 @@ class WMCGenerator(Generator[WMCDataset]):
                     17 -18 19 0
                 """
                 ),
-                expected=1.1180836534707074,
+                expected=0.1180836534707074,
             ),
         ]
 
