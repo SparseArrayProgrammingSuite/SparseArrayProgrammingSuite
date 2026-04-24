@@ -4,8 +4,8 @@ from __future__ import annotations
 import argparse
 import importlib
 import json
-import os
 import re
+from itertools import product
 from pathlib import Path
 
 from asv.benchmarks import Benchmarks
@@ -145,7 +145,9 @@ def main() -> int:
 
     for name in benchmarks:
         module_name, class_name, _method_name = name.rsplit(".", 2)
-        benchmark_module = importlib.import_module(f"sparseappbench.benchmarks.{module_name}")
+        benchmark_module = importlib.import_module(
+            f"sparseappbench.benchmarks.{module_name}"
+        )
         benchmark = getattr(benchmark_module, class_name)()
         assert isinstance(benchmark, sparseappbench.Benchmark)
         metadata[name] = benchmark.metadata
@@ -167,13 +169,16 @@ def main() -> int:
     def regex_any_match(patterns: list[str], value: str) -> bool:
         return any(re.search(pattern, value) for pattern in patterns)
 
+    def match_target(obj: dict) -> str:
+        return obj.get("id", obj["name"])
+
     def is_include(obj) -> bool:
-        if include_res and not regex_any_match(include_res, obj["id"]):
+        if include_res and not regex_any_match(include_res, match_target(obj)):
             return False
         return not (include_set and not include_set.intersection(obj["tags"]))
 
     def is_exclude(obj) -> bool:
-        if exclude_res and regex_any_match(exclude_res, obj["id"]):
+        if exclude_res and regex_any_match(exclude_res, match_target(obj)):
             return True
         return bool(exclude_set and exclude_set.intersection(obj["tags"]))
 
@@ -193,7 +198,8 @@ def main() -> int:
             continue
         benchmarks._benchmark_selection[name] = []
         generators = {gen["name"]: gen for gen in metadata[name]["generators"]}
-        for idx, param in enumerate(benchmarks[name]["params"]):
+        param_combos = list(product(*benchmarks[name]["params"]))
+        for idx, param in enumerate(param_combos):
             generator, dataset = param[0].split(".")[:2]
             generator = generators.get(generator)
             datasets = {ds["name"]: ds for ds in generator["datasets"]}
@@ -209,6 +215,10 @@ def main() -> int:
             ):
                 continue
             benchmarks._benchmark_selection[name].append(idx)
+
+        if not benchmarks._benchmark_selection[name]:
+            skips.append(name)
+
     benchmarks = benchmarks.filter_out(set(skips))
 
     print(f"Discovered {len(benchmarks)} benchmark entries")
