@@ -10,7 +10,7 @@ def _run_bfs_case(A, source, expected):
     xp = NumpyFramework()
     A_bin = BinsparseFormat.from_numpy(A)
     bench_result = benchmark_bfs(xp, A_bin, source)
-    result = xp.from_benchmark(bench_result).ravel()
+    result = xp.from_binsparse(bench_result).ravel()
     assert np.array_equal(result, expected), (
         f"BFS output mismatch.\nGot {result}, expected {expected}"
     )

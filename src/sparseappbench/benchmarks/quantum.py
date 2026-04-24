@@ -1,6 +1,9 @@
 import numpy as np
 
-from ..binsparse_format import BinsparseFormat
+import sparseappbench
+from sparseappbench.binsparse_format import BinsparseFormat
+
+xp = sparseappbench.xp
 
 
 def apply_single_qubit_gate(xp, state, gate, qubit, nqubits):
@@ -41,21 +44,21 @@ def benchmark_rqc_statevector(xp, state_bench, nqubits, num_layers=10):
     for _ in range(nqubits):
         g_np = rng.choice(single_qubit_gates)
         g_bench = BinsparseFormat.from_numpy(g_np)
-        g_xp = xp.from_benchmark(g_bench)
+        g_xp = xp.from_binsparse(g_bench)
         gates.append(g_xp)
 
     # Load the initial state
-    state = xp.from_benchmark(state_bench)
+    state = xp.from_binsparse(state_bench)
 
     # Single lazy chain: apply each gate to each qubit sequentially. (only one layer)
-    state = xp.lazy(state)
+    state = state
     for q in range(nqubits):
         state = apply_single_qubit_gate(xp, state, gates[q], q, nqubits)
 
     # Evaluate the lazy chain
-    state = xp.compute(state)
+    state = state
 
-    return xp.to_benchmark(state)
+    return xp.to_binsparse(state)
 
 
 # Data gen

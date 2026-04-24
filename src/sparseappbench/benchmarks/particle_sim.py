@@ -26,6 +26,10 @@ have been used to construct tests. This statement was written
 by hand.
 """
 
+import sparseappbench
+
+xp = sparseappbench.xp
+
 
 def benchmark_particle_sum(xp, x, y, vx, vy, size, steps):
     # CONSTANTS
@@ -34,13 +38,13 @@ def benchmark_particle_sum(xp, x, y, vx, vy, size, steps):
     min_r = cutoff / 100
     dt = 0.0005
 
-    x = xp.from_benchmark(x)
-    y = xp.from_benchmark(y)
-    vx = xp.from_benchmark(vx)
-    vy = xp.from_benchmark(vy)
+    x = xp.from_binsparse(x)
+    y = xp.from_binsparse(y)
+    vx = xp.from_binsparse(vx)
+    vy = xp.from_binsparse(vy)
 
     for _ in range(steps):
-        x, y, vx, vy = xp.lazy([x, y, vx, vy])
+        x, y, vx, vy = [x, y, vx, vy]
 
         # compute forces
         dx = x - x.reshape(-1, 1)
@@ -86,11 +90,11 @@ def benchmark_particle_sum(xp, x, y, vx, vy, size, steps):
         y2 = 2 * size - y
         y = xp.where(y > size, y2, y1)
 
-        x, y, vx, vy = xp.compute([x, y, vx, vy])
+        x, y, vx, vy = [x, y, vx, vy]
 
-    x = xp.to_benchmark(x)
-    y = xp.to_benchmark(y)
-    vx = xp.to_benchmark(vx)
-    vy = xp.to_benchmark(vy)
+    x = xp.to_binsparse(x)
+    y = xp.to_binsparse(y)
+    vx = xp.to_binsparse(vx)
+    vy = xp.to_binsparse(vy)
 
     return (x, y, vx, vy)

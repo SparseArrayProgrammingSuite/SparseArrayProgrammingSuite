@@ -37,7 +37,10 @@ from scipy.io import mmread
 
 import ssgetpy
 
-from ..binsparse_format import BinsparseFormat
+import sparseappbench
+from sparseappbench.binsparse_format import BinsparseFormat
+
+xp = sparseappbench.xp
 
 
 def benchmark_gcn_backward(
@@ -109,16 +112,16 @@ def benchmark_gcn_backward(
     tuple
         (final_loss, final_W1, final_b1, final_W2, final_b2)
     """
-    adjacency = xp.lazy(xp.from_benchmark(adjacency_bench))
-    adjacency_T = xp.lazy(xp.from_benchmark(adjacency_T_bench))
-    features = xp.lazy(xp.from_benchmark(features_bench))
-    targets = xp.lazy(xp.from_benchmark(targets_bench))
+    adjacency = xp.from_binsparse(adjacency_bench)
+    adjacency_T = xp.from_binsparse(adjacency_T_bench)
+    features = xp.from_binsparse(features_bench)
+    targets = xp.from_binsparse(targets_bench)
 
     # Initialize weights
-    weights1 = xp.lazy(xp.from_benchmark(weights1_bench))
-    bias1 = xp.lazy(xp.from_benchmark(bias1_bench))
-    weights2 = xp.lazy(xp.from_benchmark(weights2_bench))
-    bias2 = xp.lazy(xp.from_benchmark(bias2_bench))
+    weights1 = xp.from_binsparse(weights1_bench)
+    bias1 = xp.from_binsparse(bias1_bench)
+    weights2 = xp.from_binsparse(weights2_bench)
+    bias2 = xp.from_binsparse(bias2_bench)
 
     for _ in range(num_iterations):
         # Forward pass
@@ -157,18 +160,18 @@ def benchmark_gcn_backward(
         bias2 = bias2 - learning_rate * db2
 
     # Compute final outputs
-    loss_out = xp.compute(loss)
-    weights1_out = xp.compute(weights1)
-    bias1_out = xp.compute(bias1)
-    weights2_out = xp.compute(weights2)
-    bias2_out = xp.compute(bias2)
+    loss_out = loss
+    weights1_out = weights1
+    bias1_out = bias1
+    weights2_out = weights2
+    bias2_out = bias2
 
     return (
         loss_out,
-        xp.to_benchmark(weights1_out),
-        xp.to_benchmark(bias1_out),
-        xp.to_benchmark(weights2_out),
-        xp.to_benchmark(bias2_out),
+        xp.to_binsparse(weights1_out),
+        xp.to_binsparse(bias1_out),
+        xp.to_binsparse(weights2_out),
+        xp.to_binsparse(bias2_out),
     )
 
 

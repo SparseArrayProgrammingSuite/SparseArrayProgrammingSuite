@@ -73,7 +73,7 @@ def test_jacobi_solver(xp, A, b, x):
     x_bin = BinsparseFormat.from_numpy(x)
 
     x_test = benchmark_cg(xp, A_bin, b_bin, x_bin)
-    x_sol = xp.from_benchmark(x_test)
+    x_sol = xp.from_binsparse(x_test)
     x_sol = np.round(x_sol, decimals=4)
 
     b_coo = BinsparseFormat.to_coo(b_bin)

@@ -103,7 +103,7 @@ def test_preconditioned_cg(xp, A, b, x, M, solve):
     x_bin = BinsparseFormat.from_numpy(x)
 
     x_sol = preconditioned_cg(xp, A_bin, b_bin, x_bin, M_bin, solve)
-    x_sol = xp.from_benchmark(x_sol)
+    x_sol = xp.from_binsparse(x_sol)
     x_sol = np.round(x_sol, decimals=4)
 
     b_coo = BinsparseFormat.to_coo(b_bin)

@@ -12,7 +12,7 @@ from sparseappbench.frameworks.numpy_framework import NumpyFramework
 def run_bc(xp, A):
     A_bin = BinsparseFormat.from_numpy(A)
     result_bin = betweenness_centrality(xp, A_bin)
-    return xp.from_benchmark(result_bin).ravel()
+    return xp.from_binsparse(result_bin).ravel()
 
 
 # Modified the intended results because I am calculating

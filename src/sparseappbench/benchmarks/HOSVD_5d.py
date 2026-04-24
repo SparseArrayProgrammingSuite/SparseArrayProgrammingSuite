@@ -40,12 +40,15 @@ This statement is written by hand.
 
 import numpy as np
 
-from ..binsparse_format import BinsparseFormat
+import sparseappbench
+from sparseappbench.binsparse_format import BinsparseFormat
+
+xp = sparseappbench.xp
 
 
 def benchmark_hosvd(xp, X_bench, ranks_bench, max_iter=50, tolerance=1e-8):
-    X = xp.lazy(xp.from_benchmark(X_bench))
-    ranks = xp.lazy(xp.from_benchmark(ranks_bench))
+    X = xp.from_binsparse(X_bench)
+    ranks = xp.from_binsparse(ranks_bench)
 
     dimensions = X.shape
     num_modes = len(dimensions)
@@ -64,7 +67,7 @@ def benchmark_hosvd(xp, X_bench, ranks_bench, max_iter=50, tolerance=1e-8):
     for _iteration in range(max_iter):
         prev_factors = initial_factors[:]
         for mode in range(num_modes):
-            initial_factors[mode] = xp.lazy(initial_factors[mode])
+            initial_factors[mode] = initial_factors[mode]
 
             if mode == 0:
                 update = xp.einsum(
@@ -125,7 +128,7 @@ def benchmark_hosvd(xp, X_bench, ranks_bench, max_iter=50, tolerance=1e-8):
             U, S, Vt = xp.linalg.svd(unfold_update, full_matrices=False)
             initial_factors[mode] = U[:, : ranks[mode]]
 
-            initial_factors[mode] = xp.compute(initial_factors[mode])
+            initial_factors[mode] = initial_factors[mode]
 
         # stop iterations when solutions stop changing significantly
         change = (
@@ -135,7 +138,7 @@ def benchmark_hosvd(xp, X_bench, ranks_bench, max_iter=50, tolerance=1e-8):
             + xp.linalg.norm(initial_factors[3] - prev_factors[3])
             + xp.linalg.norm(initial_factors[4] - prev_factors[4])
         )
-        if xp.compute(change)[()] < tolerance:
+        if change[()] < tolerance:
             break
 
     core_tensor = xp.einsum(
@@ -148,14 +151,14 @@ def benchmark_hosvd(xp, X_bench, ranks_bench, max_iter=50, tolerance=1e-8):
         D=initial_factors[3],
         E=initial_factors[4],
     )
-    core_tensor = xp.compute(core_tensor)
-    core_bench = xp.to_benchmark(core_tensor)
+    core_tensor = core_tensor
+    core_bench = xp.to_binsparse(core_tensor)
     factors_bench = [
-        xp.to_benchmark(initial_factors[0]),
-        xp.to_benchmark(initial_factors[1]),
-        xp.to_benchmark(initial_factors[2]),
-        xp.to_benchmark(initial_factors[3]),
-        xp.to_benchmark(initial_factors[4]),
+        xp.to_binsparse(initial_factors[0]),
+        xp.to_binsparse(initial_factors[1]),
+        xp.to_binsparse(initial_factors[2]),
+        xp.to_binsparse(initial_factors[3]),
+        xp.to_binsparse(initial_factors[4]),
     ]
     return core_bench, factors_bench
 
