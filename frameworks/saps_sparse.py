@@ -5,6 +5,7 @@ import sparse as sp
 
 from saps_framework import BinsparseFormat, Framework, einsum
 
+
 class PyDataSparseLinalg:
     @staticmethod
     def solve(A, b):
@@ -69,5 +70,6 @@ class PyDataSparseFramework(Framework):
 
     def __getattr__(self, name):
         return getattr(sp, name)
+
 
 xp = PyDataSparseFramework()

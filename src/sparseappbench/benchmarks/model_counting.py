@@ -1,4 +1,5 @@
 from typing import Any
+
 import numpy as np
 
 import sparseappbench
@@ -119,7 +120,10 @@ class MCGenerator(Generator[MCDataset]):
 
     @property
     def description(self) -> str:
-        return "Parses standard DIMACS CNF test strings into sparse arrays for model counting."
+        return (
+            "Parses standard DIMACS CNF test strings into sparse arrays for "
+            "model counting."
+        )
 
     @property
     def tags(self) -> list[str]:
@@ -135,7 +139,7 @@ class MCGenerator(Generator[MCDataset]):
 
     @property
     def ai_disclosure(self) -> str:
-        return """No generative AI was used to write the benchmark function itself. 
+        return """No generative AI was used to write the benchmark function itself.
         Generative AI was used to debug code. This statement was written by hand."""
 
     @property
@@ -203,7 +207,7 @@ class MCGenerator(Generator[MCDataset]):
 
         data_list: list[BinsparseFormat] = [xp.to_binsparse(xp.array([0, 1]))]
 
-        default_total = 2 ** num_vars
+        default_total = 2**num_vars
 
         meta = {
             "expr": expr,
@@ -246,12 +250,15 @@ class ModelCounting(Benchmark):
 
     @property
     def ai_disclosure(self) -> str:
-        return """No generative AI was used to write the benchmark function itself. 
+        return """No generative AI was used to write the benchmark function itself.
             Generative AI was used to debug code. This statement was written by hand."""
 
     @property
     def motivation(self):
-        return "Model Counting is used to determine the total number of satisfying assignments for a SAT problem."
+        return (
+            "Model Counting is used to determine the total number of satisfying "
+            "assignments for a SAT problem."
+        )
 
     @property
     def generators(self) -> list[Generator[Any]]:

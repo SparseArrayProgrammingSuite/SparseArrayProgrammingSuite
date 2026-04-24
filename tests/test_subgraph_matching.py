@@ -1,5 +1,6 @@
-import sparseappbench.benchmarks.subgraph_matching as subgraph_matching
 from sparseappbench.frameworks.sparse_framework import PyDataSparseFramework
+
+import sparseappbench.benchmarks.subgraph_matching as subgraph_matching
 
 
 def test_human_subset():

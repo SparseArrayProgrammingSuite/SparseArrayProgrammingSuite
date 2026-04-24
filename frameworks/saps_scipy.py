@@ -75,4 +75,5 @@ class SciPyFramework(Framework):
 
         raise AttributeError(f"'{self.__class__.__name__}' has no attribute '{name}'")
 
+
 xp = SciPyFramework()

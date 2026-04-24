@@ -1,5 +1,6 @@
-import sparseappbench.benchmarks.model_counting as mc
 from sparseappbench.frameworks.numpy_framework import NumpyFramework
+
+import sparseappbench.benchmarks.model_counting as mc
 
 
 def test_model_counting_datasets():

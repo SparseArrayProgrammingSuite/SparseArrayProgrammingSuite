@@ -1,5 +1,7 @@
 import numpy as np
+
 from saps_framework import BinsparseFormat, Framework, einsum
+
 
 class NumpyFramework(Framework):
     def __init__(self):
@@ -38,5 +40,6 @@ class NumpyFramework(Framework):
 
     def __getattr__(self, name):
         return getattr(np, name)
+
 
 xp = NumpyFramework()
