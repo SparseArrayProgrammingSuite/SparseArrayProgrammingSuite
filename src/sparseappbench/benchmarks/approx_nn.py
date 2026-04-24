@@ -1,11 +1,13 @@
 import numpy as np
 import scipy as sp
 
+
+from saps_framework import Framework, BinsparseFormat, einsum
+
 import sparseappbench
 from sparseappbench.benchmark import (
     Author,
     Benchmark,
-    BinsparseFormat,
     Contributor,
     Dataset,
     Generator,
