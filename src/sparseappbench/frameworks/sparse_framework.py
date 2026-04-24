@@ -45,7 +45,9 @@ class PyDataSparseFramework(AbstractFramework):
         if isinstance(array, sp.COO):
             return BinsparseFormat.from_coo(array.coords, array.data, array.shape)
         if isinstance(array, sp.SparseArray):
-            return self.to_binsparse(array.tocoo())
+            return self.to_benchmark(array.tocoo())
+        if isinstance(array, np.ndarray):
+            return BinsparseFormat.from_numpy(array)
         raise ValueError("Unsupported array type: " + str(type(array)))
 
     def lazy(self, array):
