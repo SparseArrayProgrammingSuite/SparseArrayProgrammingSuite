@@ -1,5 +1,5 @@
 """
-Name: MRI Edge Detection
+Name: Sobel Operator Edge Detection
 
 Author: Aadharsh Rajkumar
 
