@@ -43,7 +43,6 @@ class PyDataSparseFramework(AbstractFramework):
 
     def to_binsparse(self, array):
         if isinstance(array, sp.COO):
-            print(type(array))
             return BinsparseFormat.from_coo(array.coords, array.data, array.shape)
         if isinstance(array, sp.SparseArray):
             return self.to_benchmark(array.tocoo())

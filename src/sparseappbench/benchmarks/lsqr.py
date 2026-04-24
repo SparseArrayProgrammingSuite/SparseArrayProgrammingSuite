@@ -153,7 +153,6 @@ def benchmark_lsqr(
             exit = 1
 
         if exit > 0:
-            print(exit)
             break
 
     return xp.to_binsparse(x), exit, it
