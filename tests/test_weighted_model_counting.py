@@ -22,4 +22,4 @@ def test_weighted_model_counting_datasets():
         expected = meta["expected_result"]
 
         msg = f"Test '{dataset.name}' failed: Expected {expected}, got {res}"
-        assert np.isclose(res, expected), msg
+        assert np.isclose(res, expected, rtol = 10e-8), msg
