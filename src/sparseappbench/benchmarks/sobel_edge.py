@@ -47,38 +47,17 @@ except ImportError:
 from sparseappbench.binsparse_format import BinsparseFormat
 
 
-def benchmark_mri_edge(xp, image_bench, threshold_bench):
+def benchmark_mri_edge(
+    xp, image_bench, dx_bench, sy_bench, sx_bench, dy_bench, threshold_bench
+):
     image = xp.lazy(xp.from_benchmark(image_bench))
     threshold = xp.lazy(xp.from_benchmark(threshold_bench))
-
-    Nx, Ny = image.shape
-
-    # Shifts for X gradient
-    D_x = xp.zeros((Nx, Nx))
-    for i in range(Nx):
-        D_x[i, (i + 1) % Nx] = 1.0
-        D_x[i, (i - 1) % Nx] = -1.0
-
-    S_y = xp.zeros((Ny, Ny))
-    for j in range(Ny):
-        S_y[(j - 1) % Ny, j] = 1.0
-        S_y[j, j] = 2.0
-        S_y[(j + 1) % Ny, j] = 1.0
+    D_x = xp.lazy(xp.from_benchmark(dx_bench))
+    S_y = xp.lazy(xp.from_benchmark(sy_bench))
+    S_x = xp.lazy(xp.from_benchmark(sx_bench))
+    D_y = xp.lazy(xp.from_benchmark(dy_bench))
 
     gx = D_x @ image @ S_y
-
-    # Shifts for Y gradient
-    S_x = xp.zeros((Nx, Nx))
-    for i in range(Nx):
-        S_x[i, (i - 1) % Nx] = 1.0
-        S_x[i, i] = 2.0
-        S_x[i, (i + 1) % Nx] = 1.0
-
-    D_y = xp.zeros((Ny, Ny))
-    for j in range(Ny):
-        D_y[(j + 1) % Ny, j] = 1.0
-        D_y[(j - 1) % Ny, j] = -1.0
-
     gy = S_x @ image @ D_y
 
     magnitude = xp.abs(gx) + xp.abs(gy)
@@ -106,7 +85,10 @@ def generate_mri_sobel_data(category, filename, threshold_val=100.0):
     threshold_bin = BinsparseFormat.from_numpy(
         np.array(threshold_val, dtype=np.float32)
     )
-    return image_bin, threshold_bin
+
+    Nx, Ny = img_array.shape
+    dx_bin, sy_bin, sx_bin, dy_bin = generate_1d_sobel_matrices(Nx, Ny)
+    return image_bin, dx_bin, sy_bin, sx_bin, dy_bin, threshold_bin
 
 
 def dg_mri_sobel_1():
@@ -125,49 +107,47 @@ def dg_mri_sobel_4():
     return generate_mri_sobel_data("yes", "Y180.jpg", 150.0)
 
 
-def generate_sobel_matrix(height, width, axis):
-    H = height
-    W = width
-    row_indices = []
-    col_indices = []
-    values = []
+def generate_1d_sobel_matrices(Nx, Ny):
+    rows = np.arange(Nx)
+    cols1 = (rows + 1) % Nx
+    cols2 = (rows - 1) % Nx
+    D_x_R = np.concatenate([rows, rows])
+    D_x_C = np.concatenate([cols1, cols2])
+    D_x_V = np.concatenate([np.ones(Nx), -np.ones(Nx)])
+    dx_bin = BinsparseFormat.from_coo(
+        (D_x_R, D_x_C), D_x_V.astype(np.float32), (Nx, Nx)
+    )
 
-    r = np.arange(H).reshape(-1, 1).repeat(W, axis=1)
-    c = np.arange(W).reshape(1, -1).repeat(H, axis=0)
+    rows = np.arange(Ny)
+    cols1 = (rows - 1) % Ny
+    cols2 = rows
+    cols3 = (rows + 1) % Ny
+    S_y_R = np.concatenate([rows, rows, rows])
+    S_y_C = np.concatenate([cols1, cols2, cols3])
+    S_y_V = np.concatenate([np.ones(Ny), 2.0 * np.ones(Ny), np.ones(Ny)])
+    sy_bin = BinsparseFormat.from_coo(
+        (S_y_R, S_y_C), S_y_V.astype(np.float32), (Ny, Ny)
+    )
 
-    r_flat = r.flatten()
-    c_flat = c.flatten()
-    output_idx = r_flat * W + c_flat
+    rows = np.arange(Nx)
+    cols1 = (rows - 1) % Nx
+    cols2 = rows
+    cols3 = (rows + 1) % Nx
+    S_x_R = np.concatenate([rows, rows, rows])
+    S_x_C = np.concatenate([cols1, cols2, cols3])
+    S_x_V = np.concatenate([np.ones(Nx), 2.0 * np.ones(Nx), np.ones(Nx)])
+    sx_bin = BinsparseFormat.from_coo(
+        (S_x_R, S_x_C), S_x_V.astype(np.float32), (Nx, Nx)
+    )
 
-    def add_shift(dy, dx, val):
-        input_r = (r_flat - dy) % H
-        input_c = (c_flat - dx) % W
-        input_idx = input_r * W + input_c
-        row_indices.append(output_idx)
-        col_indices.append(input_idx)
-        values.append(np.full_like(output_idx, val, dtype=np.float32))
+    rows = np.arange(Ny)
+    cols1 = (rows + 1) % Ny
+    cols2 = (rows - 1) % Ny
+    D_y_R = np.concatenate([rows, rows])
+    D_y_C = np.concatenate([cols1, cols2])
+    D_y_V = np.concatenate([np.ones(Ny), -np.ones(Ny)])
+    dy_bin = BinsparseFormat.from_coo(
+        (D_y_R, D_y_C), D_y_V.astype(np.float32), (Ny, Ny)
+    )
 
-    if axis == "x":
-        add_shift(-1, 1, 1.0)
-        add_shift(-1, 0, 2.0)
-        add_shift(-1, -1, 1.0)
-
-        add_shift(1, 1, -1.0)
-        add_shift(1, 0, -2.0)
-        add_shift(1, -1, -1.0)
-    elif axis == "y":
-        add_shift(1, -1, 1.0)
-        add_shift(0, -1, 2.0)
-        add_shift(-1, -1, 1.0)
-
-        add_shift(1, 1, -1.0)
-        add_shift(0, 1, -2.0)
-        add_shift(-1, 1, -1.0)
-    else:
-        raise ValueError("axis must be 'x' or 'y'")
-
-    R = np.concatenate(row_indices)
-    C = np.concatenate(col_indices)
-    V = np.concatenate(values)
-
-    return BinsparseFormat.from_coo((R, C), V, (H * W, H * W))
+    return dx_bin, sy_bin, sx_bin, dy_bin

@@ -8,6 +8,7 @@ from sparseappbench.benchmarks.sobel_edge import (
     dg_mri_sobel_2,
     dg_mri_sobel_3,
     dg_mri_sobel_4,
+    generate_1d_sobel_matrices,
 )
 from sparseappbench.binsparse_format import BinsparseFormat
 from sparseappbench.frameworks.numpy_framework import NumpyFramework
@@ -77,7 +78,12 @@ def test_sobel_basic_cases(image, threshold):
     image_bin = BinsparseFormat.from_numpy(image)
     threshold_bin = BinsparseFormat.from_numpy(np.array(threshold))
 
-    result_bin = benchmark_mri_edge(xp, image_bin, threshold_bin)
+    Nx, Ny = image.shape
+    dx_bin, sy_bin, sx_bin, dy_bin = generate_1d_sobel_matrices(Nx, Ny)
+
+    result_bin = benchmark_mri_edge(
+        xp, image_bin, dx_bin, sy_bin, sx_bin, dy_bin, threshold_bin
+    )
     result = xp.from_benchmark(result_bin)
 
     assert result.shape == expected.shape
@@ -92,11 +98,13 @@ def test_sobel_basic_cases(image, threshold):
 def test_sobel_sparse_generators(generator):
     xp = get_framework()
     try:
-        image_bin, threshold_bin = generator()
+        image_bin, dx_bin, sy_bin, sx_bin, dy_bin, threshold_bin = generator()
     except (FileNotFoundError, ImportError, ValueError) as e:
         pytest.skip(f"Failed to generate data: {e}")
 
-    result_bin = benchmark_mri_edge(xp, image_bin, threshold_bin)
+    result_bin = benchmark_mri_edge(
+        xp, image_bin, dx_bin, sy_bin, sx_bin, dy_bin, threshold_bin
+    )
     result = xp.from_benchmark(result_bin)
 
     image = xp.from_benchmark(image_bin)
