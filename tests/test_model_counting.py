@@ -1,15 +1,13 @@
-import numpy as np
-
-import sparseappbench.benchmarks.weighted_model_counting as wmc
+import sparseappbench.benchmarks.model_counting as mc
 from sparseappbench.frameworks.numpy_framework import NumpyFramework
 
 
-def test_weighted_model_counting_datasets():
+def test_model_counting_datasets():
     xp = NumpyFramework()
-    wmc.xp = xp
+    mc.xp = xp
 
-    generator = wmc.WMCGenerator()
-    benchmark = wmc.WeightedModelCounting()
+    generator = mc.MCGenerator()
+    benchmark = mc.ModelCounting()
 
     for dataset in generator.datasets:
         raw_matrices, meta = generator.generate(dataset)
@@ -18,8 +16,9 @@ def test_weighted_model_counting_datasets():
 
         results = benchmark.benchmark(input_arrays, meta)
 
-        res = float(results[0])
+        res = int(results[0])
         expected = meta["expected_result"]
 
         msg = f"Test '{dataset.name}' failed: Expected {expected}, got {res}"
-        assert np.isclose(res, expected, rtol = 10e-8), msg
+
+        assert res == expected, msg
