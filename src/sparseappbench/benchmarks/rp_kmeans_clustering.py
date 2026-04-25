@@ -12,7 +12,6 @@ from sparseappbench.benchmark import (
 xp = sparseappbench.xp
 
 
-<<<<<<< HEAD
 class RPKMeansDataset(Dataset):
     def __int__(
         self,
@@ -35,22 +34,6 @@ class RPKMeansDataset(Dataset):
         self.c = c
         self.A = A
         self.max_iter = max_iter
-=======
-def rp_kmeans_clustering(xp, A_benchmark, k, eps, c=1, max_iter=100):
-    assert c > 0
-    assert eps > 0 and eps < 1 / 3
-    assert k > 0
-    A = xp.from_binsparse(A_benchmark)
-    A = A
-    n, d = A.shape
-    t = int(c * math.ceil(k / eps**2))
-    value = 1 / (t**0.5)
-    R = xp.random.rand(d, t)
-    R = R < 0.5
-    R = xp.where(R, value, -value)
-    A_prime = xp.matmul(A, R)
-    return kmeans(xp, A_prime, k, max_iter)
->>>>>>> 9b908f6c0a4ffbba951e801b1264e5af1828c9f2
 
     @property
     def name(self) -> str:
