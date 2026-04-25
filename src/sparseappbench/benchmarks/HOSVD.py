@@ -29,6 +29,10 @@ which are tensors with 3 or more dimensions.
 DOI: 10.36227/techrxiv.174417403.38431928/v1
 https://epubs.siam.org/doi/10.1137/07070111X
 
+Data Generation: The data for this benchmark was created by randomly generating
+factor matrices that were both sparse and dense. These factor matrices were
+used to construct a factorizable matrix.
+
 Statement on the use of Generative AI: No generative AI was used to construct
 the benchmark function. Generative AI might have been used to construct tests.
 This statement is written by hand.
@@ -36,12 +40,15 @@ This statement is written by hand.
 
 import numpy as np
 
-from ..binsparse_format import BinsparseFormat
+import sparseappbench
+from sparseappbench.binsparse_format import BinsparseFormat
+
+xp = sparseappbench.xp
 
 
 def benchmark_hosvd(xp, X_bench, ranks_bench, max_iter=50, tolerance=1e-8):
-    X = xp.lazy(xp.from_benchmark(X_bench))
-    ranks = xp.lazy(xp.from_benchmark(ranks_bench))
+    X = xp.from_binsparse(X_bench)
+    ranks = xp.from_binsparse(ranks_bench)
 
     dimensions = X.shape
     num_modes = len(dimensions)
@@ -60,7 +67,7 @@ def benchmark_hosvd(xp, X_bench, ranks_bench, max_iter=50, tolerance=1e-8):
     for _iteration in range(max_iter):
         prev_factors = initial_factors[:]
         for mode in range(num_modes):
-            initial_factors[mode] = xp.lazy(initial_factors[mode])
+            initial_factors[mode] = initial_factors[mode]
 
             if mode == 0:
                 update = xp.einsum(
@@ -92,7 +99,7 @@ def benchmark_hosvd(xp, X_bench, ranks_bench, max_iter=50, tolerance=1e-8):
             U, S, Vt = xp.linalg.svd(unfold_update, full_matrices=False)
             initial_factors[mode] = U[:, : ranks[mode]]
 
-            initial_factors[mode] = xp.compute(initial_factors[mode])
+            initial_factors[mode] = initial_factors[mode]
 
         # stop iterations when solutions stop changing significantly
         change = (
@@ -100,7 +107,7 @@ def benchmark_hosvd(xp, X_bench, ranks_bench, max_iter=50, tolerance=1e-8):
             + xp.linalg.norm(initial_factors[1] - prev_factors[1])
             + xp.linalg.norm(initial_factors[2] - prev_factors[2])
         )
-        if xp.compute(change)[()] < tolerance:
+        if change[()] < tolerance:
             break
 
     core_tensor = xp.einsum(
@@ -110,12 +117,12 @@ def benchmark_hosvd(xp, X_bench, ranks_bench, max_iter=50, tolerance=1e-8):
         B=initial_factors[1],
         C=initial_factors[2],
     )
-    core_tensor = xp.compute(core_tensor)
-    core_bench = xp.to_benchmark(core_tensor)
+    core_tensor = core_tensor
+    core_bench = xp.to_binsparse(core_tensor)
     factors_bench = [
-        xp.to_benchmark(initial_factors[0]),
-        xp.to_benchmark(initial_factors[1]),
-        xp.to_benchmark(initial_factors[2]),
+        xp.to_binsparse(initial_factors[0]),
+        xp.to_binsparse(initial_factors[1]),
+        xp.to_binsparse(initial_factors[2]),
     ]
     return core_bench, factors_bench
 

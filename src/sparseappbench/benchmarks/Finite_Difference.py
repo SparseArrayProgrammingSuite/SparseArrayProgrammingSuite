@@ -48,7 +48,7 @@ def linear_advection_flux(c):
 
 
 def lax_friedrichs_solver(xp, u0_bench, dt, dx, flux, timesteps):
-    u_0 = xp.lazy(u0_bench)
+    u_0 = u0_bench
 
     Nt = timesteps + 1
 
@@ -71,7 +71,7 @@ def lax_friedrichs_solver(xp, u0_bench, dt, dx, flux, timesteps):
         )
 
         u[n + 1] = u_next
-    return xp.to_benchmark(u)
+    return xp.to_binsparse(u)
 
 
 # I made this deterministic
@@ -81,7 +81,7 @@ def lax_freidrichs_data_generator(xp, number_spatial, density):
     indices = xp.arange(0, number_spatial, step)
 
     u_0[indices] = 1
-    return xp.lazy(u_0)
+    return u_0
 
 
 def lax_freidrichs_matrix_no_flux(xp, Nx):
@@ -95,7 +95,7 @@ def lax_freidrichs_matrix_no_flux(xp, Nx):
     matrix[0, -1] = 0.5
     matrix[-1, 0] = 0.5
 
-    return xp.lazy(matrix)
+    return matrix
 
 
 def difference_matrix(xp, Nx):
@@ -108,15 +108,15 @@ def difference_matrix(xp, Nx):
     # periodic BC
     matrix[0, -1] = -1
     matrix[-1, 0] = 1
-    return xp.lazy(matrix)
+    return matrix
 
 
 def lax_friedrichs_solver_matrix_general(
     xp, u0_bench, matrix_bench, difference_bench, timesteps, flux, dt, dx
 ):
-    u_0 = xp.lazy(u0_bench)
-    matrix = xp.lazy(matrix_bench)
-    dif = xp.lazy(difference_bench)
+    u_0 = u0_bench
+    matrix = matrix_bench
+    dif = difference_bench
     Nt = timesteps + 1
     alpha = (dt) / (2 * dx)
     u = xp.zeros((Nt, u_0.shape[0]))
@@ -126,4 +126,4 @@ def lax_friedrichs_solver_matrix_general(
         f = flux(u_n)
         u_next = matrix @ u_n - alpha * (dif @ f)
         u[n + 1] = u_next
-    return xp.to_benchmark(u)
+    return xp.to_binsparse(u)

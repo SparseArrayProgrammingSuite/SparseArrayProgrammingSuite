@@ -1,0 +1,9 @@
+{
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "machine": "Aspen.local",
+    "num_cpu": "12",
+    "os": "Darwin 24.6.0",
+    "ram": "51539607552",
+    "version": 1
+}

@@ -39,15 +39,15 @@ def transitive_reduction(xp, R_bench, x=1, max_iters=10):
     A binsparse tensor of the transitively reduced graph S
     """
 
-    R = xp.from_benchmark(R_bench)
-    R = xp.lazy(R)
+    R = xp.from_binsparse(R_bench)
+    R = R
     R_nnz_prev_tensor = xp.sum(np.inf != R)
-    R, R_nnz_prev_tensor = xp.compute((R, R_nnz_prev_tensor))
+    R, R_nnz_prev_tensor = (R, R_nnz_prev_tensor)
     R_nnz_prev = R_nnz_prev_tensor[()]
 
     for _i in range(max_iters):
         # R_plus = xp.with_fill_value(R, np.inf)
-        R = xp.lazy(R)
+        R = R
 
         # handle dense arrays (Numpy) where 0 must be converted to inf
         # without this, 0s act as valid edges with 0 weight
@@ -80,7 +80,7 @@ def transitive_reduction(xp, R_bench, x=1, max_iters=10):
         R_nnz_new_tensor = xp.sum(np.inf != R)
 
         # Compute R and its nnz at the same time
-        R, R_nnz_new_scalar = xp.compute((R, R_nnz_new_tensor))
+        R, R_nnz_new_scalar = (R, R_nnz_new_tensor)
         R_nnz_new = R_nnz_new_scalar[()]
 
         if R_nnz_new == R_nnz_prev:
@@ -88,9 +88,9 @@ def transitive_reduction(xp, R_bench, x=1, max_iters=10):
             break
 
         R_nnz_prev = R_nnz_new
-        # R = xp.lazy(R_computed)
+        # R = R_computed
 
-    return xp.to_benchmark(R)
+    return xp.to_binsparse(R)
 
 
 # TO-DO: add data generator functions

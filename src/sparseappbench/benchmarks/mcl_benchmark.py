@@ -26,7 +26,10 @@ from scipy.io import mmread
 
 import ssgetpy
 
-from ..binsparse_format import BinsparseFormat
+import sparseappbench
+from sparseappbench.binsparse_format import BinsparseFormat
+
+xp = sparseappbench.xp
 
 
 def _normalize(array_api, matrix):
@@ -36,12 +39,11 @@ def _normalize(array_api, matrix):
 
 
 def _sparse_allclose(array_api, matrix_a, matrix_b, rtol=1e-5, atol=1e-8):
-    matrix_a = array_api.lazy(matrix_a)
-    matrix_b = array_api.lazy(matrix_b)
-    c = array_api.all(
+    matrix_a = matrix_a
+    matrix_b = matrix_b
+    return array_api.all(
         array_api.abs(matrix_a - matrix_b) <= atol + rtol * array_api.abs(matrix_b)
     )
-    return array_api.compute(c)
 
 
 def _prune(array_api, matrix, threshold):
@@ -81,7 +83,7 @@ The final converged matrix in binsparse format
 
 
 def benchmark_mcl(
-    array_api,
+    xp,
     graph_binsparse,
     expansion=2,
     inflation=2,
@@ -91,20 +93,21 @@ def benchmark_mcl(
     pruning_frequency=1,
     convergence_check_frequency=1,
 ):
+    array_api = xp
     # begin region 1
-    graph_lazy = array_api.lazy(array_api.from_benchmark(graph_binsparse))
+    graph_lazy = array_api.from_binsparse(graph_binsparse)
 
     loops_matrix = array_api.eye(graph_lazy.shape[0], dtype=graph_lazy.dtype)
     current_matrix = graph_lazy + loop_value * loops_matrix
     current_matrix = _normalize(array_api, current_matrix)
     # end region 1
-    current_matrix = array_api.compute(current_matrix)
+    current_matrix = current_matrix
 
     for i in range(iterations):
         previous_matrix = current_matrix
 
         # begin region 2
-        current_matrix = array_api.lazy(current_matrix)
+        current_matrix = current_matrix
 
         expanded_matrix = current_matrix
         for _ in range(expansion - 1):
@@ -117,14 +120,14 @@ def benchmark_mcl(
             current_matrix = _prune(array_api, current_matrix, pruning_threshold)
 
         # end region 2
-        current_matrix = array_api.compute(current_matrix)
+        current_matrix = current_matrix
 
         if i % convergence_check_frequency == (
             convergence_check_frequency - 1
         ) and _sparse_allclose(array_api, current_matrix, previous_matrix):
             break
 
-    return array_api.to_benchmark(current_matrix)
+    return array_api.to_binsparse(current_matrix)
 
 
 def generate_mcl_data(source):

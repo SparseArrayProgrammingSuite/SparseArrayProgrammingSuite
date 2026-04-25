@@ -4,12 +4,12 @@ from abc import ABC, abstractmethod
 class AbstractFramework(ABC):
     # Benchmark Format -> Eager Tensor
     @abstractmethod
-    def from_benchmark(self, array):
+    def from_binsparse(self, array):
         pass
 
     # Eager Tensor -> Benchmark Format
     @abstractmethod
-    def to_benchmark(self, array):
+    def to_binsparse(self, array):
         pass
 
     # Eager Tensor -> Lazy Tensor

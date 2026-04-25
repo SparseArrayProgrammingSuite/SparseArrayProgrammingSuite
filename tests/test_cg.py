@@ -2,10 +2,10 @@ import pytest
 
 import numpy as np
 
-from sparseappbench.benchmarks.cg import benchmark_cg
+import sparseappbench.benchmarks.cg as cg
 from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.checker_framework import CheckerFramework
 from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.frameworks.scipy_framework import SciPyFramework
 from sparseappbench.frameworks.sparse_framework import (
     PyDataSparseFramework,
 )
@@ -46,13 +46,13 @@ from sparseappbench.frameworks.sparse_framework import (
             np.zeros((3,)),
         ),
         (
-            CheckerFramework(),
+            SciPyFramework(),
             np.array([[120.0, -2.0, 0.0], [-2.0, 120.0, -2.0], [0.0, -2.0, 120.0]]),
             np.array([118.0, 116.0, 118.0]),  # b = A @ [1, 1, 1]
             np.zeros((3,)),
         ),
         (
-            CheckerFramework(),
+            SciPyFramework(),
             np.array(
                 [
                     [15.0, -2.0, 0.0, 0.0, -1.0],
@@ -72,8 +72,16 @@ def test_jacobi_solver(xp, A, b, x):
     b_bin = BinsparseFormat.from_numpy(b)
     x_bin = BinsparseFormat.from_numpy(x)
 
-    x_test = benchmark_cg(xp, A_bin, b_bin, x_bin)
-    x_sol = xp.from_benchmark(x_test)
+    cg.xp = xp
+    benchmark = cg.CGBenchmark()
+    x_sol = benchmark.benchmark(
+        [
+            xp.from_binsparse(A_bin),
+            xp.from_binsparse(b_bin),
+            xp.from_binsparse(x_bin),
+        ],
+        {},
+    )[0]
     x_sol = np.round(x_sol, decimals=4)
 
     b_coo = BinsparseFormat.to_coo(b_bin)

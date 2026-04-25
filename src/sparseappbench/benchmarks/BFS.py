@@ -29,13 +29,17 @@ the benchmark function itself. Generative AI might have been used to construct
 tests. This statement was written by hand.
 """
 
+import sparseappbench
+
+xp = sparseappbench.xp
+
 
 def benchmark_bfs(xp, adjacency_matrix, source):
     """
     Returns level id of vertices in a graph during BFS from
     a given source vertex.
     """
-    edges = xp.from_benchmark(adjacency_matrix)
+    edges = xp.from_binsparse(adjacency_matrix)
     (n, m) = edges.shape
     assert n == m
     visited = xp.zeros((n,), dtype=bool)
@@ -45,15 +49,14 @@ def benchmark_bfs(xp, adjacency_matrix, source):
     level_idx = 1
     frontier_count = 1
     while frontier_count > 0:
-        visited, frontier, level = xp.lazy([visited, frontier, level])
+        visited, frontier, level = [visited, frontier, level]
         level = xp.where(frontier, level_idx, level)
         visited = xp.logical_or(visited, frontier)
         frontier = xp.einsum(
             "frontier[j] += edges[i,j] * frontier[i]", edges=edges, frontier=frontier
         )
         frontier = xp.logical_and(frontier, xp.logical_not(visited))
-        visited, frontier, level, frontier_count = xp.compute(
-            [visited, frontier, level, xp.sum(frontier)]
-        )
+        frontier_count = xp.sum(frontier)
+
         level_idx += 1
-    return xp.to_benchmark(level)
+    return xp.to_binsparse(level)

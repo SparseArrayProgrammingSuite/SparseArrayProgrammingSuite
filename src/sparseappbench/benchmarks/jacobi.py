@@ -1,4 +1,5 @@
 import os
+from typing import Any
 
 import numpy as np
 from scipy.io import mmread
@@ -6,138 +7,246 @@ from scipy.sparse import random
 
 import ssgetpy
 
-from ..binsparse_format import BinsparseFormat
+import sparseappbench
+from sparseappbench.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    Dataset,
+    Generator,
+    Ref,
+)
+from sparseappbench.binsparse_format import BinsparseFormat
 
-"""
-Name: Jacobi Iterative Solver
-Author: Benjamin Berol
-Email: bberol3@gatech.edu
-Motivation:
-"There exist a wide variety of iterative methods, with the two main classes being the
-stationary iterative methods (Young, 1971), such as Richardson's method and Jacobi's
-method, and Krylov subspace methods (Liesen and Strakos, 2012) such as the conjugate
-gradient method (CG; Hestenes and Stiefel, 1952)."
-J. Cockayne, I. C. F. Ipsen, C. J. Oates, and T. W. Reid,
-“Probabilistic iterative methods for linear systems,”
-J. Mach. Learn. Res., vol. 22, p. 1-34, 2021.
-[Online]. Available: https://www.jmlr.org/papers/volume22/21-0031/21-0031.pdf
-Role of Sparsity:
-Sparsity makes the Jacobi method efficient because each update only needs to
-access the nonzero entries, reducing complexity from O(mn) to O(nnz)
-Implementation:
-Hand-written code modelling the algorithm structure outlined in:
-https://www.cs.princeton.edu/~appel/papers/jacobi.pdf and
-https://courses.grainger.illinois.edu/cs357/su2014/lectures/lecture10.pdf
-Data Generation:
-Data collected from SuiteSparse Matrix Collection consisting of symmetric positive
-definite matrices whose Jacobi iteration matrices have spectral radius < 1.
-Statement on the use of Generative AI:
-No generative AI was used to write the benchmark function itself. Generative
-AI was used to debug code. This statement was written by hand.
-"""
+xp = sparseappbench.xp
 
 
-def benchmark_jacobi(
-    xp, A_bench, b_bench, x_bench, rel_tol=1e-6, abs_tol=1e-20, max_iters=1000
-):
-    A = xp.lazy(xp.from_benchmark(A_bench))
-    b = xp.lazy(xp.from_benchmark(b_bench))
-    x = xp.lazy(xp.from_benchmark(x_bench))
+class JacobiDataset(Dataset):
+    def __init__(
+        self, source_name: str, has_b_file: bool = False, nnz: int | None = None
+    ):
+        self.source_name = source_name
+        self.has_b_file = has_b_file
+        self.nnz = nnz
 
-    tolerance = max(rel_tol * xp.compute(norm(xp, b))[()], abs_tol)
-    d = xp.with_fill_value(xp.diagonal(A), 1)
-    if xp.compute(xp.any(d == 0)):
-        raise ValueError("Jacobi requires nonzero diagonal entries.")
+    @property
+    def name(self) -> str:
+        return self.source_name
 
-    r = b - A @ x
-    it = 0
+    @property
+    def pretty_name(self) -> str:
+        return f"Jacobi {self.source_name}"
 
-    while xp.compute(norm(xp, r))[()] >= tolerance and it < max_iters:
-        x = x + r / d
-        x = xp.lazy(xp.compute(x))
+    @property
+    def description(self) -> str:
+        return f"SuiteSparse matrix {self.source_name}."
 
-        r = b - A @ x
-        r = xp.lazy(xp.compute(r))
-        it += 1
-    if it >= max_iters:
-        raise RuntimeError(
-            "Jacobi did not converge within the maximum number of iterations"
+    @property
+    def tags(self) -> list[str]:
+        return ["suitesparse", "sparse"]
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        data = super().metadata
+        data["nnz"] = self.nnz
+        data["has_b_file"] = self.has_b_file
+        return data
+
+
+class JacobiGenerator(Generator[JacobiDataset]):
+    @property
+    def name(self) -> str:
+        return "jacobi_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Jacobi SuiteSparse Data Generator"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Accesses and prepares symmetric "
+            "positive definite matrices from SuiteSparse."
         )
-    x_solution = xp.compute(x)
-    return xp.to_benchmark(x_solution)
 
+    @property
+    def tags(self) -> list[str]:
+        return ["iterative", "solver", "suitesparse", "sparse"]
 
-def norm(xp, v):
-    return xp.sqrt(xp.sum(xp.multiply(v, v)))
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Benjamin Berol", "bberol3@gatech.edu")]
 
+    @property
+    def references(self) -> list[Ref]:
+        return []
 
-def generate_jacobi_data(source, has_b_file=False):
-    matrices = ssgetpy.search(name=source)
-    if not matrices:
-        raise ValueError(f"No matrix found with name '{source}'")
-    matrix = matrices[0]
-    (path, archive) = matrix.download(extract=True)
-    matrix_path = os.path.join(path, matrix.name + ".mtx")
-    if matrix_path and os.path.exists(matrix_path):
-        A = mmread(matrix_path)
-    else:
-        raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-    rng = np.random.default_rng(0)
-    A = A.tocoo()
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to write the benchmark function itself. "
+            "Generative AI was used to debug code. This statement was written by hand."
+        )
 
-    if has_b_file:
-        matrix_path = os.path.join(path, matrix.name + "_b.mtx")
+    @property
+    def motivation(self) -> str:
+        return (
+            "Data collected from SuiteSparse Matrix Collection consisting of symmetric "
+            "positive definite matrices whose Jacobi iteration matrices have spectral "
+            "radius < 1."
+        )
+
+    @property
+    def datasets(self) -> list[JacobiDataset]:
+        return [
+            JacobiDataset("mesh3em5", nnz=1889),
+            JacobiDataset("Trefethen_200", nnz=2873),
+            JacobiDataset("Chem97ZtZ", nnz=7361),
+            JacobiDataset("Trefethen_500", nnz=8478),
+            JacobiDataset("Trefethen_700", nnz=12654),
+            JacobiDataset("fv1", nnz=85264),
+            JacobiDataset("fv2", nnz=87025),
+            JacobiDataset("Trefethen_20000", nnz=554466),
+        ]
+
+    def generate(self, dataset: JacobiDataset):
+        matrices = ssgetpy.search(name=dataset.source_name)
+        if not matrices:
+            raise ValueError(f"No matrix found with name '{dataset.source_name}'")
+        matrix = matrices[0]
+        (path, archive) = matrix.download(extract=True)
+        matrix_path = os.path.join(path, matrix.name + ".mtx")
+
         if matrix_path and os.path.exists(matrix_path):
-            b = mmread(matrix_path)
+            A = mmread(matrix_path)
         else:
             raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-        if not isinstance(b, np.ndarray):
-            b = b.toarray() if hasattr(b, "toarray") else np.asarray(b)
-        b = b.flatten()
-    else:
-        x = random(
-            A.shape[1], 1, density=0.1, format="coo", dtype=np.float64, random_state=rng
+
+        rng = np.random.default_rng(0)
+        A = A.tocoo()
+
+        if dataset.has_b_file:
+            matrix_path_b = os.path.join(path, matrix.name + "_b.mtx")
+            if matrix_path_b and os.path.exists(matrix_path_b):
+                b = mmread(matrix_path_b)
+            else:
+                raise FileNotFoundError(f"Matrix file not found at {matrix_path_b}")
+            if not isinstance(b, np.ndarray):
+                b = b.toarray() if hasattr(b, "toarray") else np.asarray(b)
+            b = b.flatten()
+        else:
+            x_rand = random(
+                A.shape[1],
+                1,
+                density=0.1,
+                format="coo",
+                dtype=np.float64,
+                random_state=rng,
+            )
+            b = A @ x_rand
+            b = b.toarray().flatten()
+
+        x = np.zeros(A.shape[1])
+
+        A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
+        b_bin = BinsparseFormat.from_numpy(b)
+        x_bin = BinsparseFormat.from_numpy(x)
+
+        return ([A_bin, b_bin, x_bin], {})
+
+
+class JacobiBenchmark(Benchmark):
+    @property
+    def tag(self) -> str:
+        return "jacobi_solver"
+
+    @property
+    def name(self) -> str:
+        return "jacobi_solver"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Jacobi Iterative Solver"
+
+    @property
+    def description(self) -> str:
+        return "Solves linear systems using the Jacobi iterative method."
+
+    @property
+    def tags(self) -> list[str]:
+        return ["iterative", "solver", "sparse"]
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Benjamin Berol", "bberol3@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="Probabilistic iterative methods for linear systems",
+                authors=[
+                    Author("J. Cockayne"),
+                    Author("I. C. F. Ipsen"),
+                    Author("C. J. Oates"),
+                    Author("T. W. Reid"),
+                ],
+                journal="J. Mach. Learn. Res.",
+                volume="22",
+                pages="1-34",
+                year=2021,
+                url="https://www.jmlr.org/papers/volume22/21-0031/21-0031.pdf",
+            )
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to write the benchmark function itself. "
+            "Generative AI was used to debug code. This statement was written by hand."
         )
-        b = A @ x
-        b = b.toarray().flatten()
-    x = np.zeros(A.shape[1])
 
-    A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
-    b_bin = BinsparseFormat.from_numpy(b)
-    x_bin = BinsparseFormat.from_numpy(x)
-    return (A_bin, b_bin, x_bin)
+    @property
+    def motivation(self) -> str:
+        return (
+            "Sparsity makes the Jacobi method efficient because each update only needs "
+            "to access the nonzero entries, reducing complexity from O(mn) to O(nnz)"
+        )
 
+    @property
+    def generators(self):
+        return [JacobiGenerator()]
 
-def dg_jacobi_sparse_1():
-    return generate_jacobi_data("mesh3em5")  # nnz = 1,889
+    def _norm(self, xp, v):
+        return xp.sqrt(xp.sum(xp.multiply(v, v)))
 
+    def benchmark(self, data: list, meta: dict):
+        A, b, x = data
 
-def dg_jacobi_sparse_2():
-    return generate_jacobi_data("Trefethen_200")  # nnz = 2,873
+        rel_tol = 1e-6
+        abs_tol = 1e-20
+        max_iters = 1000
 
+        tolerance = max(rel_tol * self._norm(xp, b)[()], abs_tol)
+        d = xp.with_fill_value(xp.diagonal(A), 1)
+        if xp.any(d == 0):
+            raise ValueError("Jacobi requires nonzero diagonal entries.")
 
-def dg_jacobi_sparse_3():
-    return generate_jacobi_data("Chem97ZtZ")  # nnz = 7,361
+        r = b - A @ x
+        it = 0
 
+        while self._norm(xp, r)[()] >= tolerance and it < max_iters:
+            x = x + r / d
+            x = x
 
-def dg_jacobi_sparse_4():
-    return generate_jacobi_data("Trefethen_500")  # nnz = 8,478
-
-
-def dg_jacobi_sparse_5():
-    return generate_jacobi_data("Trefethen_700")  # nnz = 12,654
-
-
-def dg_jacobi_sparse_6():
-    return generate_jacobi_data("fv1")  # nnz = 85,264
-
-
-def dg_jacobi_sparse_7():
-    return generate_jacobi_data("fv2")  # nnz = 87,025
-
-
-def dg_jacobi_sparse_8():
-    return generate_jacobi_data("Trefethen_20000")  # nnz = 554,466
+            r = b - A @ x
+            r = r
+            it += 1
+        if it >= max_iters:
+            raise RuntimeError(
+                "Jacobi did not converge within the maximum number of iterations"
+            )
+        return [x]
 
 
 # Matrices below run extremely slowly on numpy framework (>1 minutes per convergence):

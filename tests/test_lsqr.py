@@ -4,8 +4,8 @@ import numpy as np
 
 from sparseappbench.benchmarks.lsqr import benchmark_lsqr
 from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.checker_framework import CheckerFramework
 from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.frameworks.scipy_framework import SciPyFramework
 from sparseappbench.frameworks.sparse_framework import (
     PyDataSparseFramework,
 )
@@ -68,13 +68,13 @@ from sparseappbench.frameworks.sparse_framework import (
             1,
         ),
         (
-            CheckerFramework(),  # Underdetermined
+            SciPyFramework(),  # Underdetermined
             np.array([[120.0, -2.0, 0.0], [-2.0, 120.0, -2.0]]),
             np.array([118.1, 116.1]),  # b = A @ [1, 1, 1] + noise
             1,
         ),
         (
-            CheckerFramework(),  # Overdetermined
+            SciPyFramework(),  # Overdetermined
             np.array(
                 [[1.0, 2.0, 0.0], [0.0, 3.0, 1.0], [1.0, 0.0, 4.0], [2.0, 1.0, 3.0]]
             ),
@@ -82,7 +82,7 @@ from sparseappbench.frameworks.sparse_framework import (
             2,
         ),
         (
-            CheckerFramework(),  # Exact Solution
+            SciPyFramework(),  # Exact Solution
             np.array(
                 [
                     [15.0, -2.0, 0.0, 0.0, -1.0],
@@ -102,7 +102,7 @@ def test_lsqr_solver(xp, A, b, expected_exit_code):
     b_bin = BinsparseFormat.from_numpy(b)
 
     results = benchmark_lsqr(xp, A_bin, b_bin)
-    x_sol = xp.from_benchmark(results[0])
+    x_sol = xp.from_binsparse(results[0])
     actual_exit_code = results[1]
 
     residual = b - A @ x_sol

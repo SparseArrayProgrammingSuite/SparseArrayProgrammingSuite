@@ -30,7 +30,10 @@ from scipy.io import mmread
 
 import ssgetpy
 
-from ..binsparse_format import BinsparseFormat
+import sparseappbench
+from sparseappbench.binsparse_format import BinsparseFormat
+
+xp = sparseappbench.xp
 
 """
     benchmark_gcn(xp, adjacency_bench, features_bench, weights1_bench,
@@ -73,12 +76,12 @@ def benchmark_gcn(
     weights2_bench,
     bias2_bench,
 ):
-    adjacency = xp.lazy(xp.from_benchmark(adjacency_bench))
-    features = xp.lazy(xp.from_benchmark(features_bench))
-    weights1 = xp.lazy(xp.from_benchmark(weights1_bench))
-    bias1 = xp.lazy(xp.from_benchmark(bias1_bench))
-    weights2 = xp.lazy(xp.from_benchmark(weights2_bench))
-    bias2 = xp.lazy(xp.from_benchmark(bias2_bench))
+    adjacency = xp.from_binsparse(adjacency_bench)
+    features = xp.from_binsparse(features_bench)
+    weights1 = xp.from_binsparse(weights1_bench)
+    bias1 = xp.from_binsparse(bias1_bench)
+    weights2 = xp.from_binsparse(weights2_bench)
+    bias2 = xp.from_binsparse(bias2_bench)
 
     # Layer 1: adjacency @ features -> linear transform -> ReLU
     h1 = adjacency @ features
@@ -89,8 +92,8 @@ def benchmark_gcn(
     h2 = adjacency @ h1
     output = h2 @ weights2 + bias2
 
-    solution = xp.compute(output)
-    return xp.to_benchmark(solution)
+    solution = output
+    return xp.to_binsparse(solution)
 
 
 def gcn_reference_np(adjacency, features, weights1, bias1, weights2, bias2):

@@ -24,7 +24,10 @@ was written by hand.
 import numpy as np
 import scipy.sparse as sp
 
-from ..binsparse_format import BinsparseFormat
+import sparseappbench
+from sparseappbench.binsparse_format import BinsparseFormat
+
+xp = sparseappbench.xp
 
 r"""
     benchmark_matmul(xp, A_bench, B_bench)
@@ -43,11 +46,11 @@ Returns:
 
 
 def benchmark_matmul(xp, A_bench, B_bench):
-    A_lazy = xp.lazy(xp.from_benchmark(A_bench))
-    B_lazy = xp.lazy(xp.from_benchmark(B_bench))
+    A_lazy = xp.from_binsparse(A_bench)
+    B_lazy = xp.from_binsparse(B_bench)
     C_lazy = xp.matmul(A_lazy, B_lazy)
-    C_eager = xp.compute(C_lazy)
-    return xp.to_benchmark(C_eager)
+    C_eager = C_lazy
+    return xp.to_binsparse(C_eager)
 
 
 def dg_matmul_dense_small():
