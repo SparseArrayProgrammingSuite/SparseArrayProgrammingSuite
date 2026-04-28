@@ -1,9 +1,8 @@
 import numpy as np
 
 from sparseappbench.benchmarks.floyd_warshall import floyd_warshall
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.checker_framework import CheckerFramework
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from saps_framework import BinsparseFormat
+from frameworks.saps_numpy import NumpyFramework
 
 
 def _run_fw_case(xp, A, expected):
@@ -60,7 +59,7 @@ def test_fw_tiny_cases():
             [np.inf, np.inf, 0.0],
         ]
     )
-    _run_fw_case(CheckerFramework(), A, expected)
+    _run_fw_case(NumpyFramework(), A, expected)
 
     A = np.array(
         [
@@ -71,7 +70,7 @@ def test_fw_tiny_cases():
         ]
     )
     expected = A.copy()
-    _run_fw_case(CheckerFramework(), A, expected)
+    _run_fw_case(NumpyFramework(), A, expected)
 
 
 def test_fw_chesapeake_invariants():

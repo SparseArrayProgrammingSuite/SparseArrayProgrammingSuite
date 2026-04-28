@@ -1,7 +1,7 @@
 import numpy as np
 
 import sparseappbench.benchmarks.approx_nn as approx_nn
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from frameworks.saps_numpy import NumpyFramework
 
 
 def test_jl_preserves_distance(rng):

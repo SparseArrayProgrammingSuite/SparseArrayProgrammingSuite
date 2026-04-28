@@ -1,8 +1,8 @@
 import numpy as np
 
 from sparseappbench.benchmarks.BFS import benchmark_bfs
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from saps_framework import BinsparseFormat 
+from frameworks.saps_numpy import NumpyFramework
 
 
 def _run_bfs_case(A, source, expected):

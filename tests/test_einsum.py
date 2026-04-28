@@ -2,8 +2,8 @@ import pytest
 
 import numpy as np
 
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
-from sparseappbench.frameworks.scipy_framework import SciPyFramework
+from frameworks.saps_numpy import NumpyFramework
+from frameworks.saps_scipy import SciPyFramework
 
 
 @pytest.fixture

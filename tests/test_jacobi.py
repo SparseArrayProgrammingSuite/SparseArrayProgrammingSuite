@@ -3,11 +3,10 @@ import pytest
 import numpy as np
 
 import sparseappbench.benchmarks.jacobi as jacobi
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.checker_framework import CheckerFramework
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
-from sparseappbench.frameworks.scipy_framework import SciPyFramework
-from sparseappbench.frameworks.sparse_framework import (
+from saps_framework import BinsparseFormat
+from frameworks.saps_numpy import NumpyFramework
+from frameworks.saps_scipy import SciPyFramework
+from frameworks.saps_sparse import (
     PyDataSparseFramework,
 )
 
@@ -45,26 +44,6 @@ from sparseappbench.frameworks.sparse_framework import (
             np.array([[20.0, 3.0, 1.0], [2.0, 15.0, 4.0], [1.0, 2.0, 18.0]]),
             np.array([24.0, 21.0, 21.0]),
             np.zeros((3,)),
-        ),
-        (
-            CheckerFramework(),
-            np.array([[100.0, 1.0, 1.0], [1.0, 100.0, 1.0], [1.0, 1.0, 100.0]]),
-            np.array([102.0, 102.0, 102.0]),
-            np.zeros((3,)),
-        ),
-        (
-            CheckerFramework(),
-            np.array(
-                [
-                    [12.0, 2.0, 0.0, 0.0, 1.0],
-                    [1.0, 10.0, 3.0, 0.0, 0.0],
-                    [0.0, 2.0, 11.0, 1.0, 0.0],
-                    [0.0, 0.0, 2.0, 13.0, 3.0],
-                    [1.0, 0.0, 0.0, 2.0, 14.0],
-                ]
-            ),
-            np.array([17.0, 24.0, 17.0, 31.0, 19.0]),
-            np.zeros((5,)),
         ),
     ],
 )

@@ -1,7 +1,8 @@
 import numpy as np
 
+from frameworks.saps_numpy import NumpyFramework
+
 import sparseappbench.benchmarks.weighted_model_counting as wmc
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
 
 
 def test_weighted_model_counting_datasets():
@@ -22,4 +23,4 @@ def test_weighted_model_counting_datasets():
         expected = meta["expected_result"]
 
         msg = f"Test '{dataset.name}' failed: Expected {expected}, got {res}"
-        assert np.isclose(res, expected, rtol = 10e-8), msg
+        assert np.isclose(res, expected, rtol=10e-8), msg
