@@ -1,3 +1,1 @@
-from .einsum import einsum
-
-__all__ = ["einsum"]
+"""Framework implementations for sparseappbench."""

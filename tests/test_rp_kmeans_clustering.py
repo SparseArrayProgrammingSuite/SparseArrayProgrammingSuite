@@ -1,7 +1,10 @@
 import numpy as np
 
-import sparseappbench.benchmarks.rp_kmeans_clustering as rp_kmeans_clustering
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.benchmarks.rp_kmeans_clustering import (
+    RPKmeansClustering,
+)
+from saps_framework import BinsparseFormat
+from frameworks.saps_numpy import NumpyFramework
 
 
 def test_rp_two_clusters():

@@ -1,5 +1,5 @@
 import sparseappbench
-from sparseappbench.frameworks.einsum import einsum
+from saps_framework import einsum
 
 xp = sparseappbench.xp
 

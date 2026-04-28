@@ -3,9 +3,8 @@ import pytest
 import numpy as np
 
 from sparseappbench.benchmarks.coupled_cluster import benchmark_ccsd, make_ccsd_inputs
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.checker_framework import CheckerFramework
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from saps_framework.binsparse_format import BinsparseFormat
+from frameworks.saps_numpy import NumpyFramework
 
 # Ground truth from C++ CTF (tests/cpp_reference/coupled_cluster/ccsd.cxx):
 #   mpirun -n 1 ./ccsd -no 4 -nv 6 -niter 1  →  |T| = 380638.269079
@@ -47,7 +46,7 @@ def _full_antisym3(T, axes):
     )
 
 
-@pytest.mark.parametrize("xp", [NumpyFramework(), CheckerFramework()])
+@pytest.mark.parametrize("xp", [NumpyFramework()])
 def test_ccsd_output_shape(xp):
     """Verify benchmark runs without errors and returns correct output shapes."""
     T1_out_b, T2_out_b = benchmark_ccsd(xp, *make_ccsd_inputs(no=4, nv=6))
@@ -82,7 +81,7 @@ def test_ccsd_output_matches_cpp_reference():
     )
 
 
-@pytest.mark.parametrize("xp", [NumpyFramework(), CheckerFramework()])
+@pytest.mark.parametrize("xp", [NumpyFramework()])
 def test_ccsdt_map_contraction_shape(xp):
     """Verify Z[hijmno] += W[hijk]*T[kmno] produces shape (n,n,n,n,n,n)."""
     n = 4

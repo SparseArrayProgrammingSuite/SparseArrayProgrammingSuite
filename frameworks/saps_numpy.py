@@ -1,11 +1,9 @@
 import numpy as np
 
-from ..binsparse_format import BinsparseFormat
-from .abstract_framework import AbstractFramework
-from .einsum import einsum
+from saps_framework import BinsparseFormat, Framework, einsum
 
 
-class NumpyFramework(AbstractFramework):
+class NumpyFramework(Framework):
     def __init__(self):
         pass
 
@@ -42,3 +40,6 @@ class NumpyFramework(AbstractFramework):
 
     def __getattr__(self, name):
         return getattr(np, name)
+
+
+xp = NumpyFramework()

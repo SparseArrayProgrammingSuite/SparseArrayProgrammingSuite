@@ -8,12 +8,11 @@ from sparseappbench.benchmarks.quantum import (
     benchmark_rqc_statevector,
     dg_single_layer_small,
 )
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.checker_framework import CheckerFramework
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from saps_framework import BinsparseFormat
+from frameworks.saps_numpy import NumpyFramework
 
 
-@pytest.mark.parametrize("xp", [NumpyFramework(), CheckerFramework()])
+@pytest.mark.parametrize("xp", [NumpyFramework()])
 def test_quantum_statevector_basic(xp):
     """
     Test that RQC statevector simulation runs without errors

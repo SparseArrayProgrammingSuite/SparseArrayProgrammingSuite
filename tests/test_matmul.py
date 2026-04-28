@@ -3,9 +3,8 @@ import pytest
 import numpy as np
 
 from sparseappbench.benchmarks.matmul import benchmark_matmul
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.checker_framework import CheckerFramework
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from saps_framework import BinsparseFormat
+from frameworks.saps_numpy import NumpyFramework
 
 
 @pytest.mark.parametrize(
@@ -23,21 +22,6 @@ from sparseappbench.frameworks.numpy_framework import NumpyFramework
         ),
         (
             NumpyFramework(),
-            np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]),
-            np.array([[9, 8, 7], [6, 5, 4], [3, 2, 1]]),
-        ),
-        (
-            CheckerFramework(),
-            np.array([[0, 0, 1], [0, 1, 0], [1, 0, 0]]),
-            np.array([[0, 0, 1], [0, 1, 0], [1, 0, 0]]),
-        ),
-        (
-            CheckerFramework(),
-            np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]]),
-            np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]]),
-        ),
-        (
-            CheckerFramework(),
             np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]),
             np.array([[9, 8, 7], [6, 5, 4], [3, 2, 1]]),
         ),

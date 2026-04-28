@@ -6,9 +6,7 @@ import scipy.sparse.linalg as spla
 
 import array_api_compat
 
-from ..binsparse_format import BinsparseFormat
-from .abstract_framework import AbstractFramework
-from .einsum import einsum
+from saps_framework import BinsparseFormat, Framework, einsum
 
 
 class ScipyLinalg:
@@ -27,7 +25,7 @@ class ScipyLinalg:
         return np.linalg.norm(x, **kwargs)
 
 
-class SciPyFramework(AbstractFramework):
+class SciPyFramework(Framework):
     def __init__(self):
         self._modules = [sp, sps, np]
 
@@ -76,3 +74,6 @@ class SciPyFramework(AbstractFramework):
                 return getattr(module, name)
 
         raise AttributeError(f"'{self.__class__.__name__}' has no attribute '{name}'")
+
+
+xp = SciPyFramework()

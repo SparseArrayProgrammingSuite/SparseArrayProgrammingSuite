@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class AbstractFramework(ABC):
+class Framework(ABC):
     # Benchmark Format -> Eager Tensor
     @abstractmethod
     def from_binsparse(self, array):

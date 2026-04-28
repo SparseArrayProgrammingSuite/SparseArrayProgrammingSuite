@@ -2,10 +2,10 @@ import numpy as np
 import scipy as sp
 
 import sparseappbench
+from saps_framework import BinsparseFormat
 from sparseappbench.benchmark import (
     Author,
     Benchmark,
-    BinsparseFormat,
     Contributor,
     Dataset,
     Generator,

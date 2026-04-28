@@ -104,8 +104,8 @@
          },
          //"env": {"ENV_VAR_1": ["val1", "val2"]},
          "env_nobuild": {
-             "SAPS_FRAMEWORK": ["np", "scipy", "sparse"]
-         },
+             "SAPS_FRAMEWORK": ["frameworks/saps_np.py", "frameworks/saps_scipy.py", "frameworks/saps_sparse.py"]
+         }
     },
 
     // Combinations of libraries/python versions can be excluded/included

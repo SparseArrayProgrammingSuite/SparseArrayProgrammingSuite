@@ -41,7 +41,7 @@ This statement is written by hand.
 import numpy as np
 
 import sparseappbench
-from sparseappbench.binsparse_format import BinsparseFormat
+from saps_framework import BinsparseFormat
 
 xp = sparseappbench.xp
 

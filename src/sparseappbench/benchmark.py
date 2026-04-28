@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Generic, TypeVar
 
-from sparseappbench.binsparse_format import BinsparseFormat
+from saps_framework.binsparse_format import BinsparseFormat
 from sparseappbench.framework import xp
 
 

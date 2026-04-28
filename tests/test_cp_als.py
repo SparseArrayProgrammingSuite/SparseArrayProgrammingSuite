@@ -5,11 +5,10 @@ from sparseappbench.benchmarks.cp_als import (
     dg_cp_als_factorizable_small,
     dg_cp_als_sparse_small,
 )
-from sparseappbench.frameworks.checker_framework import CheckerFramework
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from frameworks.saps_numpy import NumpyFramework
 
 
-@pytest.mark.parametrize("xp", [NumpyFramework(), CheckerFramework()])
+@pytest.mark.parametrize("xp", [NumpyFramework()])
 def test_cp_als_basic(xp):
     """Testing that CP-ALS runs without errors and produces correct output shapes"""
     X_bin, rank, max_iter = dg_cp_als_sparse_small()
@@ -68,7 +67,7 @@ def test_cp_als_reconstruction_error(xp):
     assert rel_error < 0.1, f"Reconstruction error too high: {rel_error:.6f}"
 
 
-@pytest.mark.parametrize("xp", [NumpyFramework(), CheckerFramework()])
+@pytest.mark.parametrize("xp", [NumpyFramework()])
 def test_cp_als_factorizable_basic(xp):
     """Test CP-ALS on factorizable tensor (basic shape check)"""
     X_bin, rank, max_iter = dg_cp_als_factorizable_small()

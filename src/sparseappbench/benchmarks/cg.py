@@ -16,13 +16,15 @@ from sparseappbench.benchmark import (
     Generator,
     Ref,
 )
-from sparseappbench.binsparse_format import BinsparseFormat
+from saps_framework.binsparse_format import BinsparseFormat
 
 xp = sparseappbench.xp
 
 
 class CGDataset(Dataset):
-    def __init__(self, source_name: str, has_b_file: bool = False, nnz: int | None = None):
+    def __init__(
+        self, source_name: str, has_b_file: bool = False, nnz: int | None = None
+    ):
         self.source_name = source_name
         self.has_b_file = has_b_file
         self.nnz = nnz

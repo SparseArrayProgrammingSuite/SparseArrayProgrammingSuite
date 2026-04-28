@@ -3,9 +3,7 @@ import scipy.sparse.linalg as spla
 
 import sparse as sp
 
-from ..binsparse_format import BinsparseFormat
-from .abstract_framework import AbstractFramework
-from .einsum import einsum
+from saps_framework import BinsparseFormat, Framework, einsum
 
 
 class PyDataSparseLinalg:
@@ -23,7 +21,7 @@ class PyDataSparseLinalg:
         return sp.asarray(x)
 
 
-class PyDataSparseFramework(AbstractFramework):
+class PyDataSparseFramework(Framework):
     def __init__(self):
         pass
 
@@ -72,3 +70,6 @@ class PyDataSparseFramework(AbstractFramework):
 
     def __getattr__(self, name):
         return getattr(sp, name)
+
+
+xp = PyDataSparseFramework()

@@ -15,8 +15,8 @@ from sparseappbench.benchmarks.GMRES import (
     dg_gmres_sparse_8,
     gmres,
 )
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from saps_framework import BinsparseFormat
+from frameworks.saps_numpy import NumpyFramework
 
 
 def get_framework():

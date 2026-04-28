@@ -31,7 +31,7 @@ from scipy.io import mmread
 import ssgetpy
 
 import sparseappbench
-from sparseappbench.binsparse_format import BinsparseFormat
+from saps_framework.binsparse_format import BinsparseFormat
 
 xp = sparseappbench.xp
 
