@@ -1,6 +1,6 @@
 import numpy as np
 
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from frameworks.saps_numpy import NumpyFramework
 
 import sparseappbench.benchmarks.weighted_model_counting as wmc
 

@@ -3,7 +3,7 @@ import numpy as np
 from sparseappbench.benchmarks.transitive_reduction import (
     transitive_reduction,
 )
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from frameworks.saps_numpy import NumpyFramework
 
 
 def create_graph(xp, edges, n):

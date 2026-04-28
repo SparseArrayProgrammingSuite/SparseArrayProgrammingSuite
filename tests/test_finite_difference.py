@@ -10,7 +10,7 @@ from sparseappbench.benchmarks.Finite_Difference import (
     lax_friedrichs_solver_matrix_general,
     linear_advection_flux,
 )
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from frameworks.saps_numpy import NumpyFramework
 
 
 @pytest.fixture

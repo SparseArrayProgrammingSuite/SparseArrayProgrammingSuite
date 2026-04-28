@@ -1,4 +1,4 @@
-from sparseappbench.frameworks.sparse_framework import PyDataSparseFramework
+from frameworks.saps_sparse import PyDataSparseFramework
 
 import sparseappbench.benchmarks.subgraph_matching as subgraph_matching
 

@@ -25,7 +25,7 @@ import numpy as np
 import scipy.sparse as sp
 
 import sparseappbench
-from sparseappbench.binsparse_format import BinsparseFormat
+from saps_framework import BinsparseFormat
 
 xp = sparseappbench.xp
 

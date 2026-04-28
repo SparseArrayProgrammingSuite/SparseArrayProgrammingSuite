@@ -1,4 +1,4 @@
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from frameworks.saps_numpy import NumpyFramework
 
 import sparseappbench.benchmarks.model_counting as mc
 

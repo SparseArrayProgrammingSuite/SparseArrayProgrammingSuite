@@ -4,8 +4,8 @@ from sparseappbench.benchmarks.transitive_closure import (
     benchmark_simple_connected_components,
     benchmark_transitive_closure,
 )
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from saps_framework import BinsparseFormat
+from frameworks.saps_numpy import NumpyFramework
 
 
 def test_transitive_closure():

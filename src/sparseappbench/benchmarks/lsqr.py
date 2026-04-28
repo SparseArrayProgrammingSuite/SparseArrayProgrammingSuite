@@ -7,7 +7,7 @@ from scipy.sparse import random
 import ssgetpy
 
 import sparseappbench
-from sparseappbench.binsparse_format import BinsparseFormat
+from saps_framework import BinsparseFormat
 
 xp = sparseappbench.xp
 

@@ -7,8 +7,8 @@ from sparseappbench.benchmarks.HOSVD_5d import (
     dg_hosvd_random_small,
     dg_hosvd_sparse_small,
 )
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from saps_framework import BinsparseFormat
+from frameworks.saps_numpy import NumpyFramework
 
 
 @pytest.fixture

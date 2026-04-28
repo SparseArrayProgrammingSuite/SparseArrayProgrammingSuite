@@ -6,7 +6,7 @@ from scipy.sparse import random
 
 import ssgetpy
 
-from sparseappbench.binsparse_format import BinsparseFormat
+from saps_framework import BinsparseFormat
 
 """
 Name: GMRES (Generalized Minimal Residual Method)

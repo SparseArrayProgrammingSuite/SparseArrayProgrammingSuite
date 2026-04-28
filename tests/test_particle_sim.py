@@ -5,8 +5,8 @@ import pytest
 import numpy as np
 
 from sparseappbench.benchmarks.particle_sim import benchmark_particle_sum
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from saps_framework import BinsparseFormat
+from frameworks.saps_numpy import NumpyFramework
 
 # CONSTANTS
 nsteps = 1000

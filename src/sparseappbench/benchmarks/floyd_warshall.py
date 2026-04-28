@@ -5,7 +5,7 @@ from scipy.io import mmread
 
 import ssgetpy
 
-from sparseappbench.binsparse_format import BinsparseFormat
+from saps_framework.binsparse_format import BinsparseFormat
 
 """
 Name: Floyd-Warshall algorithm

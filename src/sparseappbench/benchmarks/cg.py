@@ -16,7 +16,7 @@ from sparseappbench.benchmark import (
     Generator,
     Ref,
 )
-from sparseappbench.binsparse_format import BinsparseFormat
+from saps_framework.binsparse_format import BinsparseFormat
 
 xp = sparseappbench.xp
 
