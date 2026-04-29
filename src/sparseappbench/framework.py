@@ -13,8 +13,8 @@ if framework_path is not None:
     spec.loader.exec_module(custom_framework)
     xp = custom_framework.xp
     assert isinstance(xp, Framework), (
-        "The custom framework must define an 'xp' variable that is an "
-        "instance of Framework."
+        "The custom framework must define an 'xp' variable referring to an "
+        "instance of a sparseappbench.Framework subclass."
     )
 else:
     xp = None
