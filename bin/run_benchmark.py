@@ -120,7 +120,7 @@ def main() -> int:
         "--timeout",
         type=float,
         default=None,
-        help="Timeout in seconds for each benchmark (default: config timeout or 30 seconds)",
+        help="Timeout in seconds for each benchmark (default: config timeout or 5 seconds)",
     )
     args = parser.parse_args()
 
@@ -254,6 +254,7 @@ def main() -> int:
     benchmarks = benchmarks.filter_out(set(skips))
 
     print(f"Discovered {len(benchmarks)} benchmark entries")
+    print(f"Using timeout: {timeout} seconds")
 
     for env in environments:
         Setup.perform_setup([env], parallel=1)
