@@ -3,7 +3,7 @@
 */.python-version
 .python-version
 results/*
-.asv/results/**/machine.json
+.saps/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

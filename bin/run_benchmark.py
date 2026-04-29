@@ -51,12 +51,12 @@ def format_results(results: Results, benchmarks: Benchmarks) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Run ASV benchmarks directly via asv.runner.run_benchmarks"
+        description="Run SAPS benchmarks"
     )
     parser.add_argument(
         "--config",
-        default="asv.conf.json",
-        help="Path to asv config file (default: asv.conf.json)",
+        default=None,
+        help="Path to saps.conf.json (default: auto-detect)",
     )
     parser.add_argument(
         "--machine",
@@ -126,9 +126,74 @@ def main() -> int:
 
     log.enable(args.verbose)
 
-    conf = Config.load(args.config)
+    # Get repo root (parent of bin directory where this script is)
+    repo_root = Path(__file__).parent.parent
     
-    # Determine timeout with hierarchy: CLI arg > config > 30 seconds default
+    # Load SAPS configuration
+    saps_dir = Path(".saps")
+    saps_dir.mkdir(parents=True, exist_ok=True)
+    machine_files_dir = saps_dir / "machine_files"
+    machine_files_dir.mkdir(parents=True, exist_ok=True)
+    outputs_dir = saps_dir / "outputs"
+    outputs_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Load optional saps.conf.json
+    saps_config_data = {}
+    if args.config:
+        config_file = Path(args.config)
+        if config_file.exists():
+            with open(config_file) as f:
+                saps_config_data = json.load(f)
+    else:
+        saps_config_file = Path("saps.conf.json")
+        if saps_config_file.exists():
+            with open(saps_config_file) as f:
+                saps_config_data = json.load(f)
+    
+    # Construct ASV config dict with all fields visible
+    asv_config_dict = {
+        "version": 1,
+        "project": "sparseappbench",
+        "project_url": "https://github.com/SparseArrayProgrammingSuite/SparseArrayProgrammingSuite",
+        "repo": str(repo_root),
+        "branches": "HEAD",
+        "environment_type": saps_config_data.get("environment_type", "virtualenv"),
+        "install_command": saps_config_data.get(
+            "install_command",
+            ["in-dir={env_dir} python -mpip install {build_dir} --force-reinstall"],
+        ),
+        "benchmark_dir": str(repo_root / "src/sparseappbench/benchmarks"),
+        "env_dir": saps_config_data.get("env_dir", str(saps_dir / "results")),
+        "results_dir": saps_config_data.get("results_dir", str(outputs_dir / "results")),
+        "html_dir": str(outputs_dir / "html"),
+        "matrix": saps_config_data.get(
+            "matrix",
+            {
+                "req": {
+                    "numpy": ["2.3"],
+                    "scipy": ["1.16.2"],
+                    "sparse": ["0.17.0"],
+                    "lark": ["1.3.0"],
+                    "ssgetpy": ["1.0rc2"],
+                },
+                "env_nobuild": {
+                    "SAPS_FRAMEWORK": [
+                        "frameworks/saps_numpy.py",
+                        "frameworks/saps_scipy.py",
+                        "frameworks/saps_sparse.py",
+                    ]
+                },
+            },
+        ),
+    }
+    
+    # Create ASV config from dict
+    conf = Config.from_json(asv_config_dict)
+    
+    log.info(f"Using SAPS outputs directory: {outputs_dir}")
+    log.info(f"Using SAPS machine files directory: {machine_files_dir}")
+    
+    # Determine timeout with hierarchy: CLI arg > config > 5 seconds default
     if args.timeout is not None:
         timeout = args.timeout
     elif hasattr(conf, 'timeout') and conf.timeout is not None:
@@ -138,11 +203,6 @@ def main() -> int:
     
     # Convert relative SAPS_FRAMEWORK paths to absolute paths so child processes can find them
     cwd = os.getcwd()
-    for env_config in conf.matrix.get("env_nobuild", {}).get("SAPS_FRAMEWORK", []):
-        # This will be handled by updating the environment before discovery
-        pass
-    
-    # Update environment with absolute SAPS_FRAMEWORK paths
     if "env_nobuild" in conf.matrix and "SAPS_FRAMEWORK" in conf.matrix["env_nobuild"]:
         abs_paths = []
         for path in conf.matrix["env_nobuild"]["SAPS_FRAMEWORK"]:
@@ -158,7 +218,9 @@ def main() -> int:
         interactive=True,
         use_defaults=True,
     )
-    machine_params.save(conf.results_dir)
+    
+    # Save machine file to SAPS machine files directory
+    machine_params.save(str(machine_files_dir))
 
     environments = list(get_environments(conf, None))
     if not environments:
@@ -184,7 +246,8 @@ def main() -> int:
         assert isinstance(benchmark, sparseappbench.Benchmark)
         metadata[name] = benchmark.metadata
 
-    results_dir = Path(conf.results_dir)
+    # Store benchmark metadata in SAPS outputs directory
+    results_dir = outputs_dir / "results"
     results_dir.mkdir(parents=True, exist_ok=True)
     metadata_path = results_dir / "benchmarks_meta.json"
     metadata_path.write_text(
