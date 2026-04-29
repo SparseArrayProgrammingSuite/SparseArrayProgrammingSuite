@@ -116,11 +116,25 @@ def main() -> int:
         action="store_true",
         help="Enable verbose logging",
     )
+    parser.add_argument(
+        "--timeout",
+        type=float,
+        default=None,
+        help="Timeout in seconds for each benchmark (default: config timeout or 30 seconds)",
+    )
     args = parser.parse_args()
 
     log.enable(args.verbose)
 
     conf = Config.load(args.config)
+    
+    # Determine timeout with hierarchy: CLI arg > config > 30 seconds default
+    if args.timeout is not None:
+        timeout = args.timeout
+    elif hasattr(conf, 'timeout') and conf.timeout is not None:
+        timeout = conf.timeout
+    else:
+        timeout = 5
     
     # Convert relative SAPS_FRAMEWORK paths to absolute paths so child processes can find them
     cwd = os.getcwd()
@@ -264,6 +278,7 @@ def main() -> int:
             results=results,
             show_stderr=args.show_stderr,
             quick=args.quick,
+            extra_params={"timeout": timeout},
         )
 
         print("Results object:", results)
