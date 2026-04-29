@@ -662,5 +662,487 @@
       "solver",
       "sparse"
     ]
+  },
+  "model_counting.ModelCounting.mem_model_counting": {
+    "ai_disclosure": "No generative AI was used to write the benchmark function itself.\n            Generative AI was used to debug code. This statement was written by hand.",
+    "authors": [
+      "Richard Wan <rwan41@gatech.edu>"
+    ],
+    "description": "Benchmarks Model Counting Algorithm using einsum operations.",
+    "generators": [
+      {
+        "ai_disclosure": "No generative AI was used to write the benchmark function itself.\n        Generative AI was used to debug code. This statement was written by hand.",
+        "authors": [
+          "Richard Wan <rwan41@gatech.edu>"
+        ],
+        "datasets": [
+          {
+            "description": "3 variables, 2 clauses",
+            "name": "test_1",
+            "pretty_name": "Test 1: Standard SAT",
+            "tags": [
+              "small",
+              "test"
+            ]
+          },
+          {
+            "description": "V1 and not V1",
+            "name": "test_2",
+            "pretty_name": "Test 2: Contradiction",
+            "tags": [
+              "small",
+              "test"
+            ]
+          },
+          {
+            "description": "Forces all 3 variables to be true",
+            "name": "test_3",
+            "pretty_name": "Test 3: Single Solution",
+            "tags": [
+              "small",
+              "test"
+            ]
+          },
+          {
+            "description": "No clauses, 2 variables",
+            "name": "test_4",
+            "pretty_name": "Test 4: Empty Formula",
+            "tags": [
+              "small",
+              "test"
+            ]
+          }
+        ],
+        "description": "Parses standard DIMACS CNF test strings into sparse arrays for model counting.",
+        "motivation": "Uses a predefined set of formulas to verify correctness.",
+        "name": "mc_generator",
+        "pretty_name": "Model Counting Generator",
+        "references": [],
+        "tags": [
+          "generator",
+          "model-counting",
+          "cnf",
+          "sparse"
+        ]
+      }
+    ],
+    "id": "sparseappbench.benchmarks.model_counting.ModelCounting.Model Counting using einsum",
+    "motivation": "Model Counting is used to determine the total number of satisfying assignments for a SAT problem.",
+    "name": "Model Counting using einsum",
+    "pretty_name": "Model Counting using einsum",
+    "references": [],
+    "tags": [
+      "model-counting",
+      "SAT",
+      "sparse"
+    ]
+  },
+  "model_counting.ModelCounting.time_model_counting": {
+    "ai_disclosure": "No generative AI was used to write the benchmark function itself.\n            Generative AI was used to debug code. This statement was written by hand.",
+    "authors": [
+      "Richard Wan <rwan41@gatech.edu>"
+    ],
+    "description": "Benchmarks Model Counting Algorithm using einsum operations.",
+    "generators": [
+      {
+        "ai_disclosure": "No generative AI was used to write the benchmark function itself.\n        Generative AI was used to debug code. This statement was written by hand.",
+        "authors": [
+          "Richard Wan <rwan41@gatech.edu>"
+        ],
+        "datasets": [
+          {
+            "description": "3 variables, 2 clauses",
+            "name": "test_1",
+            "pretty_name": "Test 1: Standard SAT",
+            "tags": [
+              "small",
+              "test"
+            ]
+          },
+          {
+            "description": "V1 and not V1",
+            "name": "test_2",
+            "pretty_name": "Test 2: Contradiction",
+            "tags": [
+              "small",
+              "test"
+            ]
+          },
+          {
+            "description": "Forces all 3 variables to be true",
+            "name": "test_3",
+            "pretty_name": "Test 3: Single Solution",
+            "tags": [
+              "small",
+              "test"
+            ]
+          },
+          {
+            "description": "No clauses, 2 variables",
+            "name": "test_4",
+            "pretty_name": "Test 4: Empty Formula",
+            "tags": [
+              "small",
+              "test"
+            ]
+          }
+        ],
+        "description": "Parses standard DIMACS CNF test strings into sparse arrays for model counting.",
+        "motivation": "Uses a predefined set of formulas to verify correctness.",
+        "name": "mc_generator",
+        "pretty_name": "Model Counting Generator",
+        "references": [],
+        "tags": [
+          "generator",
+          "model-counting",
+          "cnf",
+          "sparse"
+        ]
+      }
+    ],
+    "id": "sparseappbench.benchmarks.model_counting.ModelCounting.Model Counting using einsum",
+    "motivation": "Model Counting is used to determine the total number of satisfying assignments for a SAT problem.",
+    "name": "Model Counting using einsum",
+    "pretty_name": "Model Counting using einsum",
+    "references": [],
+    "tags": [
+      "model-counting",
+      "SAT",
+      "sparse"
+    ]
+  },
+  "subgraph_matching.SubgraphMatching.mem_subgraph_matching": {
+    "ai_disclosure": "No generative AI was used to write the algorithms for the benchmark function. Generative AI might have been used to construct the definition of the framework.",
+    "authors": [
+      "Taishan Chen <utallow@bu.edu>",
+      "Kyle Deeds <kdeeds@bu.edu>"
+    ],
+    "description": "Benchmarks subgraph matching algorithms using einsum operations.",
+    "generators": [
+      {
+        "ai_disclosure": "No generative AI was used to write the algorithms for the benchmark function. Generative AI might have been used to construct the definition of the framework.",
+        "authors": [
+          "Taishan Chen <utallow@bu.edu>",
+          "Kyle Deeds <kdeeds@bu.edu>"
+        ],
+        "datasets": [
+          {
+            "description": "G-CARE Human Subset (Small)",
+            "name": "human",
+            "pretty_name": "G-CARE Human Subset (Small)",
+            "tags": [
+              "small",
+              "sparse"
+            ]
+          },
+          {
+            "description": "G-CARE AIDS Subset (Medium)",
+            "name": "aids",
+            "pretty_name": "G-CARE AIDS Subset (Medium)",
+            "tags": [
+              "medium",
+              "sparse"
+            ]
+          },
+          {
+            "description": "G-CARE LUBM80 Subset (Large)",
+            "name": "lubm80",
+            "pretty_name": "G-CARE LUBM80 Subset (Large)",
+            "tags": [
+              "large",
+              "sparse"
+            ]
+          },
+          {
+            "description": "G-CARE YAGO Subset (Huge)",
+            "name": "yago",
+            "pretty_name": "G-CARE YAGO Subset (Huge)",
+            "tags": [
+              "huge",
+              "sparse"
+            ]
+          }
+        ],
+        "description": "Transforms the G-CARE dataset to the input of subgraph matching algorithms.",
+        "motivation": "Subgraph matching and counting are classic problems and widely used in query evaluations in database systems.",
+        "name": "subgraph_gcare_inputs",
+        "pretty_name": "Subgraph G-CARE Input Generator",
+        "references": [
+          "Yeonsu Park, Seongyun Ko, Sourav S Bhowmick, Kyoungmin Kim, Kijae Hong, Wook-Shin Han. \"G-CARE: A Framework for Performance Benchmarking of Cardinality Estimation Techniques for Subgraph Matching\", 2020, URL: https://dl.acm.org/doi/10.1145/3318464.3389702."
+        ],
+        "tags": [
+          "subgraph matching",
+          "sparse"
+        ]
+      }
+    ],
+    "id": "sparseappbench.benchmarks.subgraph_matching.SubgraphMatching.Subgraph Matching Algorithm using einsum",
+    "motivation": "Subgraph matching and counting are classic problems and widely used in query evaluations in database systems.",
+    "name": "Subgraph Matching Algorithm using einsum",
+    "pretty_name": "Subgraph Matching Algorithm using einsum",
+    "references": [],
+    "tags": [
+      "subgraph-matching",
+      "sparse"
+    ]
+  },
+  "subgraph_matching.SubgraphMatching.time_subgraph_matching": {
+    "ai_disclosure": "No generative AI was used to write the algorithms for the benchmark function. Generative AI might have been used to construct the definition of the framework.",
+    "authors": [
+      "Taishan Chen <utallow@bu.edu>",
+      "Kyle Deeds <kdeeds@bu.edu>"
+    ],
+    "description": "Benchmarks subgraph matching algorithms using einsum operations.",
+    "generators": [
+      {
+        "ai_disclosure": "No generative AI was used to write the algorithms for the benchmark function. Generative AI might have been used to construct the definition of the framework.",
+        "authors": [
+          "Taishan Chen <utallow@bu.edu>",
+          "Kyle Deeds <kdeeds@bu.edu>"
+        ],
+        "datasets": [
+          {
+            "description": "G-CARE Human Subset (Small)",
+            "name": "human",
+            "pretty_name": "G-CARE Human Subset (Small)",
+            "tags": [
+              "small",
+              "sparse"
+            ]
+          },
+          {
+            "description": "G-CARE AIDS Subset (Medium)",
+            "name": "aids",
+            "pretty_name": "G-CARE AIDS Subset (Medium)",
+            "tags": [
+              "medium",
+              "sparse"
+            ]
+          },
+          {
+            "description": "G-CARE LUBM80 Subset (Large)",
+            "name": "lubm80",
+            "pretty_name": "G-CARE LUBM80 Subset (Large)",
+            "tags": [
+              "large",
+              "sparse"
+            ]
+          },
+          {
+            "description": "G-CARE YAGO Subset (Huge)",
+            "name": "yago",
+            "pretty_name": "G-CARE YAGO Subset (Huge)",
+            "tags": [
+              "huge",
+              "sparse"
+            ]
+          }
+        ],
+        "description": "Transforms the G-CARE dataset to the input of subgraph matching algorithms.",
+        "motivation": "Subgraph matching and counting are classic problems and widely used in query evaluations in database systems.",
+        "name": "subgraph_gcare_inputs",
+        "pretty_name": "Subgraph G-CARE Input Generator",
+        "references": [
+          "Yeonsu Park, Seongyun Ko, Sourav S Bhowmick, Kyoungmin Kim, Kijae Hong, Wook-Shin Han. \"G-CARE: A Framework for Performance Benchmarking of Cardinality Estimation Techniques for Subgraph Matching\", 2020, URL: https://dl.acm.org/doi/10.1145/3318464.3389702."
+        ],
+        "tags": [
+          "subgraph matching",
+          "sparse"
+        ]
+      }
+    ],
+    "id": "sparseappbench.benchmarks.subgraph_matching.SubgraphMatching.Subgraph Matching Algorithm using einsum",
+    "motivation": "Subgraph matching and counting are classic problems and widely used in query evaluations in database systems.",
+    "name": "Subgraph Matching Algorithm using einsum",
+    "pretty_name": "Subgraph Matching Algorithm using einsum",
+    "references": [],
+    "tags": [
+      "subgraph-matching",
+      "sparse"
+    ]
+  },
+  "weighted_model_counting.WeightedModelCounting.mem_weighted_model_counting": {
+    "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
+    "authors": [
+      "Richard Wan <rwan41@gatech.edu>"
+    ],
+    "description": "Benchmarks Weighted Model Counting Algorithm using einsum operations.",
+    "generators": [
+      {
+        "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
+        "authors": [
+          "Richard Wan <rwan41@gatech.edu>"
+        ],
+        "datasets": [
+          {
+            "description": "(V1 or V2) and (not V1 or V2)",
+            "name": "test_1",
+            "pretty_name": "Test 1: Satisfiable",
+            "tags": [
+              "small",
+              "test"
+            ]
+          },
+          {
+            "description": "V1 and not V1",
+            "name": "test_2",
+            "pretty_name": "Test 2: Unsatisfiable",
+            "tags": [
+              "small",
+              "test"
+            ]
+          },
+          {
+            "description": "p cnf 2 0",
+            "name": "test_3",
+            "pretty_name": "Test 3: No Clauses",
+            "tags": [
+              "small",
+              "test"
+            ]
+          },
+          {
+            "description": "V1 or V2 (default weights)",
+            "name": "test_4",
+            "pretty_name": "Test 4: Default Weights",
+            "tags": [
+              "small",
+              "test"
+            ]
+          },
+          {
+            "description": "(V1 or V2) and (not V2 or V3)",
+            "name": "test_5",
+            "pretty_name": "Test 5: 3-Var Formula",
+            "tags": [
+              "small",
+              "test"
+            ]
+          },
+          {
+            "description": "\n                    (V1 or not V2 or V3) and (not V1 or V4 or V5) and\n                    (V2 or not V5 or V6) and (not V3 or V7 or not V8)\n                    and (V4 or not V9 or V10) and (not V6 or V11 or V12)\n                    and (V8 or not V13 or V14) and (V10 or V15 or not V16)\n                    and (not V12 or not V17 or V18) and (V14 or V19 or not V20)\n                    and (not V15 or V16 or V20) and (V17 or not V18 or V19)\n                ",
+            "name": "test_6",
+            "pretty_name": "Test 6: 20-Var Formula",
+            "tags": [
+              "medium",
+              "test"
+            ]
+          }
+        ],
+        "description": "Parses DIMACS CNF test strings into sparse arrays.",
+        "motivation": "Uses a predefined set of formulas to verify correctness.",
+        "name": "wmc_generator",
+        "pretty_name": "Weighted Model Counting Generator",
+        "references": [],
+        "tags": [
+          "generator",
+          "wmc",
+          "cnf",
+          "sparse"
+        ]
+      }
+    ],
+    "id": "sparseappbench.benchmarks.weighted_model_counting.WeightedModelCounting.Weighted Model Counting using einsum",
+    "motivation": "Weighted Model Counting extends model counting\n                by assigning specific weights to the variables.",
+    "name": "Weighted Model Counting using einsum",
+    "pretty_name": "Weighted Model Counting using einsum",
+    "references": [],
+    "tags": [
+      "weighted-model-counting",
+      "SAT",
+      "sparse"
+    ]
+  },
+  "weighted_model_counting.WeightedModelCounting.time_weighted_model_counting": {
+    "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
+    "authors": [
+      "Richard Wan <rwan41@gatech.edu>"
+    ],
+    "description": "Benchmarks Weighted Model Counting Algorithm using einsum operations.",
+    "generators": [
+      {
+        "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
+        "authors": [
+          "Richard Wan <rwan41@gatech.edu>"
+        ],
+        "datasets": [
+          {
+            "description": "(V1 or V2) and (not V1 or V2)",
+            "name": "test_1",
+            "pretty_name": "Test 1: Satisfiable",
+            "tags": [
+              "small",
+              "test"
+            ]
+          },
+          {
+            "description": "V1 and not V1",
+            "name": "test_2",
+            "pretty_name": "Test 2: Unsatisfiable",
+            "tags": [
+              "small",
+              "test"
+            ]
+          },
+          {
+            "description": "p cnf 2 0",
+            "name": "test_3",
+            "pretty_name": "Test 3: No Clauses",
+            "tags": [
+              "small",
+              "test"
+            ]
+          },
+          {
+            "description": "V1 or V2 (default weights)",
+            "name": "test_4",
+            "pretty_name": "Test 4: Default Weights",
+            "tags": [
+              "small",
+              "test"
+            ]
+          },
+          {
+            "description": "(V1 or V2) and (not V2 or V3)",
+            "name": "test_5",
+            "pretty_name": "Test 5: 3-Var Formula",
+            "tags": [
+              "small",
+              "test"
+            ]
+          },
+          {
+            "description": "\n                    (V1 or not V2 or V3) and (not V1 or V4 or V5) and\n                    (V2 or not V5 or V6) and (not V3 or V7 or not V8)\n                    and (V4 or not V9 or V10) and (not V6 or V11 or V12)\n                    and (V8 or not V13 or V14) and (V10 or V15 or not V16)\n                    and (not V12 or not V17 or V18) and (V14 or V19 or not V20)\n                    and (not V15 or V16 or V20) and (V17 or not V18 or V19)\n                ",
+            "name": "test_6",
+            "pretty_name": "Test 6: 20-Var Formula",
+            "tags": [
+              "medium",
+              "test"
+            ]
+          }
+        ],
+        "description": "Parses DIMACS CNF test strings into sparse arrays.",
+        "motivation": "Uses a predefined set of formulas to verify correctness.",
+        "name": "wmc_generator",
+        "pretty_name": "Weighted Model Counting Generator",
+        "references": [],
+        "tags": [
+          "generator",
+          "wmc",
+          "cnf",
+          "sparse"
+        ]
+      }
+    ],
+    "id": "sparseappbench.benchmarks.weighted_model_counting.WeightedModelCounting.Weighted Model Counting using einsum",
+    "motivation": "Weighted Model Counting extends model counting\n                by assigning specific weights to the variables.",
+    "name": "Weighted Model Counting using einsum",
+    "pretty_name": "Weighted Model Counting using einsum",
+    "references": [],
+    "tags": [
+      "weighted-model-counting",
+      "SAT",
+      "sparse"
+    ]
   }
 }

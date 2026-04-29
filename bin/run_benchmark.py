@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import importlib
 import json
+import os
 import re
 from itertools import product
 from pathlib import Path
@@ -120,6 +121,23 @@ def main() -> int:
     log.enable(args.verbose)
 
     conf = Config.load(args.config)
+    
+    # Convert relative SAPS_FRAMEWORK paths to absolute paths so child processes can find them
+    cwd = os.getcwd()
+    for env_config in conf.matrix.get("env_nobuild", {}).get("SAPS_FRAMEWORK", []):
+        # This will be handled by updating the environment before discovery
+        pass
+    
+    # Update environment with absolute SAPS_FRAMEWORK paths
+    if "env_nobuild" in conf.matrix and "SAPS_FRAMEWORK" in conf.matrix["env_nobuild"]:
+        abs_paths = []
+        for path in conf.matrix["env_nobuild"]["SAPS_FRAMEWORK"]:
+            path_obj = Path(path)
+            if path_obj.is_absolute():
+                abs_paths.append(path)
+            else:
+                abs_paths.append(str(Path(cwd) / path_obj))
+        conf.matrix["env_nobuild"]["SAPS_FRAMEWORK"] = abs_paths
 
     machine_params = Machine.load(
         machine_name=args.machine,

@@ -104,7 +104,7 @@
          },
          //"env": {"ENV_VAR_1": ["val1", "val2"]},
          "env_nobuild": {
-             "SAPS_FRAMEWORK": ["frameworks/saps_np.py", "frameworks/saps_scipy.py", "frameworks/saps_sparse.py"]
+             "SAPS_FRAMEWORK": ["frameworks/saps_numpy.py", "frameworks/saps_scipy.py", "frameworks/saps_sparse.py"]
          }
     },
 
