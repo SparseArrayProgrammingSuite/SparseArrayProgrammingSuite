@@ -4,6 +4,16 @@ from scipy.integrate import solve_ivp
 from sparseappbench.benchmarks.rk4 import rk4
 from sparseappbench.benchmarks.circuitsim import rc, rlc, lotka_volterra, step_input
 
+def dVdt_rc(t, Vc):
+    return rc(t, Vc, 1000, 0.001, step_input)
+
+def dVdt_rlc(t, y):
+    return rlc(t, y, 100, 10e-3, 1e-7, step_input)
+
+def dydt_lv(t, y):
+    return lotka_volterra(t, y, 0.1, 0.02, 0.3, 0.01)
+
+
 @pytest.mark.parametrize(
     "dydt, t_span, y0, step, tolerance, second_order",
     [
