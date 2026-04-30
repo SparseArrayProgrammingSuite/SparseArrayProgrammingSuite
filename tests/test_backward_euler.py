@@ -1,30 +1,18 @@
 import pytest
-
 import numpy as np
 from scipy.integrate import solve_ivp
-
-from sparseappbench.benchmarks.circuitsim import (
-    backward_euler,
-    forward_euler,
-    rk4,
-    lotka_volterra,
-    rc,
-    rlc,
-    step_input,
-)
+from sparseappbench.benchmarks.backward_euler import backward_euler
+from sparseappbench.benchmarks.circuitsim import rc, rlc, lotka_volterra, step_input
 
 
 def dVdt_rc(t, Vc):
     return rc(t, Vc, 1000, 0.001, step_input)
 
-
 def dVdt_rlc(t, y):
     return rlc(t, y, 100, 10e-3, 1e-7, step_input)
 
-
 def dydt_lv(t, y):
     return lotka_volterra(t, y, 0.1, 0.02, 0.3, 0.01)
-
 
 @pytest.mark.parametrize(
     "dydt, t_span, y0, step, tolerance, second_order",
@@ -34,9 +22,9 @@ def dydt_lv(t, y):
         (dydt_lv, (0, 100), [40, 9], 0.00001, 0.5, False),
     ],
 )
-def test_euler_forward(dydt, t_span, y0, step, tolerance, second_order):
-    """Test function for Forward Euler."""
-    (time, y_euler) = forward_euler(np, dydt, t_span, y0, step)
+def test_euler_backward(dydt, t_span, y0, step, tolerance, second_order):
+    """Test function for Backward Euler."""
+    (time, y_euler) = backward_euler(np, dydt, t_span, y0, step)
     y_euler = np.array(y_euler)
 
     # Internally solve_ivp does not use fixed step sizes, unlike forward_euler
