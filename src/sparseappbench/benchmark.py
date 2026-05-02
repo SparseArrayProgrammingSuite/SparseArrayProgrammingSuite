@@ -184,13 +184,13 @@ class Benchmark(Tagged, Attributed, Motivated):
         def _time_run(self, param):
             self.run(param)
 
-        setattr(cls, f"mem_{instance.tag}", _mem_run)
-        getattr(cls, f"mem_{instance.tag}").pretty_source = inspect.getsource(
+        setattr(cls, f"mem_{instance.name}", _mem_run)
+        getattr(cls, f"mem_{instance.name}").pretty_source = inspect.getsource(
             cls.benchmark
         )
 
-        setattr(cls, f"time_{instance.tag}", _time_run)
-        getattr(cls, f"time_{instance.tag}").pretty_source = inspect.getsource(
+        setattr(cls, f"time_{instance.name}", _time_run)
+        getattr(cls, f"time_{instance.name}").pretty_source = inspect.getsource(
             cls.benchmark
         )
 

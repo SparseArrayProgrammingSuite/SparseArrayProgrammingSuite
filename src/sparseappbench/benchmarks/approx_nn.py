@@ -69,7 +69,7 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
     @property
     def description(self) -> str:
         return (
-            "Generates random data/query matrices and sparse random projection "
+            "Generates uniformly random data/query matrices and sparse random projection "
             "matrices for JL approximate nearest-neighbor."
         )
 
@@ -241,12 +241,8 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
 
 class JLApproxNearestNeighbor(Benchmark):
     @property
-    def tag(self):
-        return "jl_approx_nn"
-
-    @property
     def name(self):
-        return "Random Numerical Linear Algenra"
+        return "jl_approx_nn"
 
     @property
     def pretty_name(self):

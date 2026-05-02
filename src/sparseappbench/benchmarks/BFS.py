@@ -4,7 +4,7 @@ Co-Authors: Aarav Joglekar, Joel Mathew Cherian
 Email: ajoglekar32@gatech.edu
 
 Motivation: The Breadth-First Search algorithm is an important graph traversal technique
-used to epxlore vertices by layers. It is a fundamental building block for more complex
+used to explore vertices by layers. It is a fundamental building block for more complex
 graph algorithms, especially in areas like parallel processing and high-performance
 computing. It is often parallelized to run on GPUs for speed.
 
