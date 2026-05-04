@@ -4,6 +4,14 @@ import numpy as np
 
 import sparseappbench
 from saps_framework.binsparse_format import BinsparseFormat
+from sparseappbench.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    Dataset,
+    Generator,
+    Ref,
+)
 
 xp = sparseappbench.xp
 
@@ -117,21 +125,6 @@ def _make_nsns_asns(shape, tensor_id, multiplier=16):
     return BinsparseFormat.from_numpy(result)
 
 
-def dg_ccsd_small():
-    """no=4, nv=6 — matches the C++ CTF reference (ccsd.cxx)."""
-    return make_ccsd_inputs(no=4, nv=6)
-
-
-def dg_ccsd_medium():
-    """no=8, nv=12."""
-    return make_ccsd_inputs(no=8, nv=12)
-
-
-def dg_ccsd_large():
-    """no=16, nv=24."""
-    return make_ccsd_inputs(no=16, nv=24)
-
-
 def make_ccsd_inputs(no, nv):
     """Generate deterministic antisymmetric CCSD inputs matching ccsd.cxx fill_rand."""
     Vae_b = _make_as2d((nv, nv), 2)
@@ -189,189 +182,347 @@ def make_ccsd_inputs(no, nv):
         BinsparseFormat.from_numpy(D2),
     )
 
-"""
-Name: Coupled Cluster Singles and Doubles (CCSD)
-Author: Tarun Devi
-Motivation:
-"Coupled cluster theory is one of the most accurate and widely used methods in
-quantum chemistry for computing ground-state energies of molecular systems."
-G. D. Purvis and R. J. Bartlett, "A full coupled-cluster singles and doubles
-model: The inclusion of disconnected triples," J. Chem. Phys., vol. 76, no. 4,
-pp. 1910-1918, 1982, doi: 10.1063/1.443164.
-Role of sparsity:
-The two-electron integral tensors (Vabef, Vabij, etc.) are antisymmetric, which
-means roughly 3/4 of entries are redundant. Exploiting this antisymmetry reduces
-both storage and compute by up to 8x for 4-index tensors.
-Here antisymmetry means swapping an antisymmetric index pair flips the sign, for
-example T[a,b,i,j] = -T[b,a,i,j] and T[a,b,i,j] = -T[a,b,j,i].
-Implementation (Where did the reference algorithm come from? With citation.):
-Ported from the CTF (Cyclops Tensor Framework) CCSD reference implementation:
-E. Solomonik, D. Matthews, J. R. Hammond, J. F. Stanton, and J. Demmel,
-"A massively parallel tensor contraction framework for coupled-cluster
-computations," J. Parallel Distrib. Comput., vol. 74, no. 12, pp. 3176-3190,
-2014, doi: 10.1016/j.jpdc.2014.06.002.
-Data Generation (How is the data generated? Why is it realistic?):
-Inputs are generated using the same deterministic pseudorandom fill as the C++
-CTF reference (ccsd.cxx): canonical antisymmetric elements are set to
-((flat_index * multiplier + tensor_id) % 13077) / 13077 - 0.5, then reflected
-via antisymmetry. This exactly reproduces the C++ reference output |T| = 380638.
-Statement on the use of Generative AI:
-Generative AI was used to assist in debugging the benchmark.
-This statement was written by hand.
-"""
+class CCSDDataset(Dataset):
+    def __init__(self, name, pretty_name, description, tags, no, nv):
+        self._name = name
+        self._pretty_name = pretty_name
+        self._description = description
+        self._tags = tags
+        self.no = no
+        self.nv = nv
 
-def benchmark_ccsd(
-    xp,
-    Vme_bench,  # (no, nv)
-    Vae_bench,  # (nv, nv)
-    Vmi_bench,  # (no, no)
-    Vai_bench,  # (nv, no)
-    Vmnef_bench,  # (no, no, nv, nv)
-    Vabef_bench,  # (nv, nv, nv, nv)
-    Vabij_bench,  # (nv, nv, no, no)
-    Vabei_bench,  # (nv, nv, nv, no)
-    Vmnij_bench,  # (no, no, no, no)
-    Vmnei_bench,  # (no, no, nv, no)
-    Vamei_bench,  # (nv, no, nv, no)
-    Vamij_bench,  # (nv, no, no, no)
-    Vanef_bench,  # (nv, no, nv, nv)
-    Vmnfi_bench,  # (no, no, nv, no)
-    Vamef_bench,  # (nv, no, nv, nv)
-    Vaeim_bench,  # (nv, nv, no, no)
-    T1_bench,  # (nv, no)
-    T2_bench,  # (nv, nv, no, no)
-    D1_bench,
-    D2_bench,
-):
+    @property
+    def name(self) -> str:
+        return self._name
 
-    Vme = xp.from_binsparse(Vme_bench)
-    Vae = xp.from_binsparse(Vae_bench)
-    Vmi = xp.from_binsparse(Vmi_bench)
-    Vai = xp.from_binsparse(Vai_bench)
-    Vmnef = xp.from_binsparse(Vmnef_bench)
-    Vabef = xp.from_binsparse(Vabef_bench)
-    Vabij = xp.from_binsparse(Vabij_bench)
-    Vabei = xp.from_binsparse(Vabei_bench)
-    Vmnij = xp.from_binsparse(Vmnij_bench)
-    Vmnei = xp.from_binsparse(Vmnei_bench)
-    Vamei = xp.from_binsparse(Vamei_bench)
-    Vamij = xp.from_binsparse(Vamij_bench)
-    Vanef = xp.from_binsparse(Vanef_bench)
-    Vmnfi = xp.from_binsparse(Vmnfi_bench)
-    Vamef = xp.from_binsparse(Vamef_bench)
-    Vaeim = xp.from_binsparse(Vaeim_bench)
-    T1 = xp.from_binsparse(T1_bench)
-    T2 = xp.from_binsparse(T2_bench)
-    D1 = xp.from_binsparse(D1_bench)
-    D2 = xp.from_binsparse(D2_bench)
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
 
-    outer = xp.einsum("outer[a,b,i,j] += 0.5 * T1[a,i] * T1[b,j]", T1=T1)
-    T21 = T2 + _asas_full(xp, outer)
+    @property
+    def description(self) -> str:
+        return self._description
 
-    # CTF initializes each intermediate via copy constructor (adds 1x integral)
-    # plus explicit "+=" lines.  Fme: 1 copy + 1 "+=" = 2x Vme.
-    Fme = 2 * Vme + xp.einsum(
-        "Fme[m,e] += Vmnef[m,n,e,f] * T1[f,n]", Vmnef=Vmnef, T1=T1
-    )
+    @property
+    def tags(self) -> list[str]:
+        return self._tags
 
-    rest_Fae = (
-        -xp.einsum("Fae[a,e] += Fme[m,e] * T1[a,m]", Fme=Fme, T1=T1)
-        - xp.einsum(
-            "Fae[a,e] += 0.5 * Vmnef[m,n,e,f] * T2[a,f,m,n]", Vmnef=Vmnef, T2=T2
+
+class CCSDGenerator(Generator[CCSDDataset]):
+    @property
+    def name(self) -> str:
+        return "ccsd_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "CCSD Input Generator"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Inputs are generated using the same deterministic pseudorandom fill as the C++"
+            "CTF reference (ccsd.cxx): canonical antisymmetric elements are set to"
+            "((flat_index * multiplier + tensor_id) % 13077) / 13077 - 0.5, then reflected"
+            "via antisymmetry. This exactly reproduces the C++ reference output |T| = 380638."
         )
-        + xp.einsum("Fae[a,e] += Vanef[a,n,e,f] * T1[f,n]", Vanef=Vanef, T1=T1)
-    )
-    Fae = 2 * Vae + _as2d_full(xp, rest_Fae)
 
-    rest_Fmi = (
-        xp.einsum("Fmi[m,i] += Fme[m,e] * T1[e,i]", Fme=Fme, T1=T1)
-        + xp.einsum(
-            "Fmi[m,i] += 0.5 * Vmnef[m,n,e,f] * T2[e,f,i,n]", Vmnef=Vmnef, T2=T2
+    @property
+    def tags(self) -> list[str]:
+        return ["quantum-chemistry", "ccsd", "antisymmetric", "tensor-contraction"]
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Tarun Devi", "tdevi3@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title = "A full coupled-cluster singles and doubles model: The inclusion of disconnected triples",
+                authors = [
+                    Author("G. D. Purvis"),
+                    Author("R. J. Bartlett")
+                ],
+                year = 1982,
+                url = "https://doi.org/10.1063/1.443164",
+                journal = "J. Chem. Phys.",
+                volume = 76,
+                number = 4,
+                pages = "1910-1918",
+            ),
+            Ref(
+                title = "A massively parallel tensor contraction framework for coupled-cluster computations,"
+                authors = [
+                    Author("E. Solomonik"),
+                    Author("D. Matthews"),
+                    Author("J. R. Hammond"),
+                    Author("J. F. Stanton"),
+                    Author("J. Demmel")
+                ],
+                year = 2014,
+                url = "https://doi.org/10.1016/j.jpdc.2014.06.002",
+                journal = "J. Parallel Distrib. Comput.",
+                volume = 74,
+                number = 12,
+                pages = "3176-3190",
+            )
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to assist in debugging the benchmark. "
+            "This statement was written by hand."
         )
-        + xp.einsum("Fmi[m,i] += Vmnfi[m,n,f,i] * T1[f,n]", Vmnfi=Vmnfi, T1=T1)
-    )
-    Fmi = 2 * Vmi + _as2d_full(xp, rest_Fmi)
 
-    R_Wmnei = xp.einsum(
-        "Wmnei[m,n,e,i] += Vmnef[m,n,e,f] * T1[f,i]", Vmnef=Vmnef, T1=T1
-    )
-    Wmnei = 3 * Vmnei + R_Wmnei
-
-    R_Wmnij = xp.einsum(
-        "Wmnij[m,n,i,j] += Vmnei[m,n,e,i] * T1[e,j]", Vmnei=Vmnei, T1=T1
-    )
-    S_Wmnij = xp.einsum(
-        "Wmnij[m,n,i,j] += Vmnef[m,n,e,f] * T21[e,f,i,j]", Vmnef=Vmnef, T21=T21
-    )
-    Wmnij = 2 * Vmnij - _antisym_dims23(xp, R_Wmnij) + S_Wmnij
-
-    Wamei = (
-        2 * Vamei
-        - xp.einsum("Wamei[a,m,e,i] += Wmnei[m,n,e,i] * T1[a,n]", Wmnei=Wmnei, T1=T1)
-        + xp.einsum("Wamei[a,m,e,i] += Vamef[a,m,e,f] * T1[f,i]", Vamef=Vamef, T1=T1)
-        + xp.einsum(
-            "Wamei[a,m,e,i] += 0.5 * Vmnef[m,n,e,f] * T2[a,f,i,n]",
-            Vmnef=Vmnef,
-            T2=T2,
+    @property
+    def motivation(self) -> str:
+        return (
+            ""
         )
-    )
 
-    R1_Wamij = xp.einsum(
-        "Wamij[a,m,i,j] += Vamei[a,m,e,i] * T1[e,j]", Vamei=Vamei, T1=T1
-    )
-    R2_Wamij = xp.einsum(
-        "Wamij[a,m,i,j] += Vamef[a,m,e,f] * T2[e,f,i,j]", Vamef=Vamef, T2=T2
-    )
-    Wamij = 2 * Vamij + _antisym_dims23(xp, R1_Wamij) + R2_Wamij
+    @property
+    def datasets(self) -> list[CCSDDataset]:
+        return [
+            CCSDDataset(
+                name="ccsd_small",
+                pretty_name="CCSD Small",
+                description="no=4, nv=6 — matches the C++ CTF reference.",
+                tags=["small"],
+                no=4,
+                nv=6,
+            ),
+            CCSDDataset(
+                name="ccsd_medium",
+                pretty_name="CCSD Medium",
+                description="no=8, nv=12.",
+                tags=["medium"],
+                no=8,
+                nv=12,
+            ),
+            CCSDDataset(
+                name="ccsd_large",
+                pretty_name="CCSD Large",
+                description="no=16, nv=24.",
+                tags=["large"],
+                no=16,
+                nv=24,
+            ),
+        ]
 
-    T1_new = (
-        2 * Vai
-        - xp.einsum("T1_new[a,i] += Fmi[m,i] * T1[a,m]", Fmi=Fmi, T1=T1)
-        + xp.einsum("T1_new[a,i] += Vae[a,e] * T1[e,i]", Vae=Vae, T1=T1)
-        + xp.einsum("T1_new[a,i] += Vamei[a,m,e,i] * T1[e,m]", Vamei=Vamei, T1=T1)
-        + xp.einsum("T1_new[a,i] += Vaeim[a,e,i,m] * Fme[m,e]", Vaeim=Vaeim, Fme=Fme)
-        + xp.einsum(
-            "T1_new[a,i] += 0.5 * Vamef[a,m,e,f] * T21[e,f,i,m]",
-            Vamef=Vamef,
+    def generate(self, dataset: CCSDDataset):
+        return make_ccsd_inputs(dataset.no, dataset.nv), {}
+
+class CCSD(Benchmark):
+    @property
+    def name(self) -> str:
+        return "ccsd"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Coupled Cluster Singles and Doubles (CCSD)"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Computes T1 and T2 amplitudes for CCSD."
+            "Ported from the CTF (Cyclops Tensor Framework) CCSD reference implementation"
+        )
+
+    @property
+    def tags(self) -> list[str]:
+        return ["quantum-chemistry", "ccsd", "tensor-contraction"]
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Tarun Devi", "tdevi3@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title = "A full coupled-cluster singles and doubles model: The inclusion of disconnected triples",
+                authors = [
+                    Author("G. D. Purvis"),
+                    Author("R. J. Bartlett")
+                ],
+                year = 1982,
+                url = "https://doi.org/10.1063/1.443164",
+                journal = "J. Chem. Phys.",
+                volume = 76,
+                number = 4,
+                pages = "1910-1918",
+            ),
+            Ref(
+                title = "A massively parallel tensor contraction framework for coupled-cluster computations,"
+                authors = [
+                    Author("E. Solomonik"),
+                    Author("D. Matthews"),
+                    Author("J. R. Hammond"),
+                    Author("J. F. Stanton"),
+                    Author("J. Demmel")
+                ],
+                year = 2014,
+                url = "https://doi.org/10.1016/j.jpdc.2014.06.002",
+                journal = "J. Parallel Distrib. Comput.",
+                volume = 74,
+                number = 12,
+                pages = "3176-3190",
+            )
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to assist in debugging the benchmark. "
+            "This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return (
+            "Coupled cluster theory is one of the most accurate and widely used methods in"
+            "quantum chemistry for computing ground-state energies of molecular systems."
+            "The two-electron integral tensors (Vabef, Vabij, etc.) are antisymmetric, which"
+            "means roughly 3/4 of entries are redundant. Exploiting this antisymmetry reduces"
+            "both storage and compute by up to 8x for 4-index tensors."
+            "Here antisymmetry means swapping an antisymmetric index pair flips the sign, for"
+            "example T[a,b,i,j] = -T[b,a,i,j] and T[a,b,i,j] = -T[a,b,j,i]."
+        )
+
+    @property
+    def generators(self):
+        return [CCSDGenerator()]
+
+    def benchmark(self, data, meta):
+        (
+            Vme,  # (no, nv)
+            Vae,  # (nv, nv)
+            Vmi,  # (no, no)
+            Vai,  # (nv, no)
+            Vmnef,  # (no, no, nv, nv)
+            Vabef,  # (nv, nv, nv, nv)
+            Vabij,  # (nv, nv, no, no)
+            Vabei,  # (nv, nv, nv, no)
+            Vmnij,  # (no, no, no, no)
+            Vmnei,  # (no, no, nv, no)
+            Vamei,  # (nv, no, nv, no)
+            Vamij,  # (nv, no, no, no)
+            Vanef,  # (nv, no, nv, nv)
+            Vmnfi,  # (no, no, nv, no)
+            Vamef,  # (nv, no, nv, nv)
+            Vaeim,  # (nv, nv, no, no)
+            T1,  # (nv, no)
+            T2,  # (nv, nv, no, no)
+            D1,
+            D2,
+        ) = data
+
+        outer = xp.einsum("outer[a,b,i,j] += 0.5 * T1[a,i] * T1[b,j]", T1=T1)
+        T21 = T2 + _asas_full(xp, outer)
+
+        # CTF initializes each intermediate via copy constructor (adds 1x integral)
+        # plus explicit "+=" lines.  Fme: 1 copy + 1 "+=" = 2x Vme.
+        Fme = 2 * Vme + xp.einsum(
+            "Fme[m,e] += Vmnef[m,n,e,f] * T1[f,n]", Vmnef=Vmnef, T1=T1
+        )
+
+        rest_Fae = (
+            -xp.einsum("Fae[a,e] += Fme[m,e] * T1[a,m]", Fme=Fme, T1=T1)
+            - xp.einsum(
+                "Fae[a,e] += 0.5 * Vmnef[m,n,e,f] * T2[a,f,m,n]", Vmnef=Vmnef, T2=T2
+            )
+            + xp.einsum("Fae[a,e] += Vanef[a,n,e,f] * T1[f,n]", Vanef=Vanef, T1=T1)
+        )
+        Fae = 2 * Vae + _as2d_full(xp, rest_Fae)
+
+        rest_Fmi = (
+            xp.einsum("Fmi[m,i] += Fme[m,e] * T1[e,i]", Fme=Fme, T1=T1)
+            + xp.einsum(
+                "Fmi[m,i] += 0.5 * Vmnef[m,n,e,f] * T2[e,f,i,n]", Vmnef=Vmnef, T2=T2
+            )
+            + xp.einsum("Fmi[m,i] += Vmnfi[m,n,f,i] * T1[f,n]", Vmnfi=Vmnfi, T1=T1)
+        )
+        Fmi = 2 * Vmi + _as2d_full(xp, rest_Fmi)
+
+        R_Wmnei = xp.einsum(
+            "Wmnei[m,n,e,i] += Vmnef[m,n,e,f] * T1[f,i]", Vmnef=Vmnef, T1=T1
+        )
+        Wmnei = 3 * Vmnei + R_Wmnei
+
+        R_Wmnij = xp.einsum(
+            "Wmnij[m,n,i,j] += Vmnei[m,n,e,i] * T1[e,j]", Vmnei=Vmnei, T1=T1
+        )
+        S_Wmnij = xp.einsum(
+            "Wmnij[m,n,i,j] += Vmnef[m,n,e,f] * T21[e,f,i,j]", Vmnef=Vmnef, T21=T21
+        )
+        Wmnij = 2 * Vmnij - _antisym_dims23(xp, R_Wmnij) + S_Wmnij
+
+        Wamei = (
+            2 * Vamei
+            - xp.einsum("Wamei[a,m,e,i] += Wmnei[m,n,e,i] * T1[a,n]", Wmnei=Wmnei, T1=T1)
+            + xp.einsum("Wamei[a,m,e,i] += Vamef[a,m,e,f] * T1[f,i]", Vamef=Vamef, T1=T1)
+            + xp.einsum(
+                "Wamei[a,m,e,i] += 0.5 * Vmnef[m,n,e,f] * T2[a,f,i,n]",
+                Vmnef=Vmnef,
+                T2=T2,
+            )
+        )
+
+        R1_Wamij = xp.einsum(
+            "Wamij[a,m,i,j] += Vamei[a,m,e,i] * T1[e,j]", Vamei=Vamei, T1=T1
+        )
+        R2_Wamij = xp.einsum(
+            "Wamij[a,m,i,j] += Vamef[a,m,e,f] * T2[e,f,i,j]", Vamef=Vamef, T2=T2
+        )
+        Wamij = 2 * Vamij + _antisym_dims23(xp, R1_Wamij) + R2_Wamij
+
+        T1_new = (
+            2 * Vai
+            - xp.einsum("T1_new[a,i] += Fmi[m,i] * T1[a,m]", Fmi=Fmi, T1=T1)
+            + xp.einsum("T1_new[a,i] += Vae[a,e] * T1[e,i]", Vae=Vae, T1=T1)
+            + xp.einsum("T1_new[a,i] += Vamei[a,m,e,i] * T1[e,m]", Vamei=Vamei, T1=T1)
+            + xp.einsum("T1_new[a,i] += Vaeim[a,e,i,m] * Fme[m,e]", Vaeim=Vaeim, Fme=Fme)
+            + xp.einsum(
+                "T1_new[a,i] += 0.5 * Vamef[a,m,e,f] * T21[e,f,i,m]",
+                Vamef=Vamef,
+                T21=T21,
+            )
+            - xp.einsum(
+                "T1_new[a,i] += 0.5 * Wmnei[m,n,e,i] * T21[e,a,m,n]",
+                Wmnei=Wmnei,
+                T21=T21,
+            )
+        )
+        R1_Z = xp.einsum("T2_new[a,b,i,j] += Vabei[a,b,e,i] * T1[e,j]", Vabei=Vabei, T1=T1)
+        R2_Z = xp.einsum(
+            "T2_new[a,b,i,j] += Wamei[a,m,e,i] * T2[e,b,m,j]", Wamei=Wamei, T2=T2
+        )
+        R3_Z = xp.einsum("T2_new[a,b,i,j] += Wamij[a,m,i,j] * T1[b,m]", Wamij=Wamij, T1=T1)
+        R4_Z = xp.einsum("T2_new[a,b,i,j] += Fae[a,e] * T2[e,b,i,j]", Fae=Fae, T2=T2)
+        R5_Z = xp.einsum("T2_new[a,b,i,j] += Fmi[m,i] * T2[a,b,m,j]", Fmi=Fmi, T2=T2)
+        R6_Z = xp.einsum(
+            "T2_new[a,b,i,j] += 0.5 * Vabef[a,b,e,f] * T21[e,f,i,j]",
+            Vabef=Vabef,
             T21=T21,
         )
-        - xp.einsum(
-            "T1_new[a,i] += 0.5 * Wmnei[m,n,e,i] * T21[e,a,m,n]",
-            Wmnei=Wmnei,
+        R7_Z = xp.einsum(
+            "T2_new[a,b,i,j] += 0.5 * Wmnij[m,n,i,j] * T21[a,b,m,n]",
+            Wmnij=Wmnij,
             T21=T21,
         )
-    )
-    R1_Z = xp.einsum("T2_new[a,b,i,j] += Vabei[a,b,e,i] * T1[e,j]", Vabei=Vabei, T1=T1)
-    R2_Z = xp.einsum(
-        "T2_new[a,b,i,j] += Wamei[a,m,e,i] * T2[e,b,m,j]", Wamei=Wamei, T2=T2
-    )
-    R3_Z = xp.einsum("T2_new[a,b,i,j] += Wamij[a,m,i,j] * T1[b,m]", Wamij=Wamij, T1=T1)
-    R4_Z = xp.einsum("T2_new[a,b,i,j] += Fae[a,e] * T2[e,b,i,j]", Fae=Fae, T2=T2)
-    R5_Z = xp.einsum("T2_new[a,b,i,j] += Fmi[m,i] * T2[a,b,m,j]", Fmi=Fmi, T2=T2)
-    R6_Z = xp.einsum(
-        "T2_new[a,b,i,j] += 0.5 * Vabef[a,b,e,f] * T21[e,f,i,j]",
-        Vabef=Vabef,
-        T21=T21,
-    )
-    R7_Z = xp.einsum(
-        "T2_new[a,b,i,j] += 0.5 * Wmnij[m,n,i,j] * T21[a,b,m,n]",
-        Wmnij=Wmnij,
-        T21=T21,
-    )
-    T2_new = (
-        2 * Vabij
-        + _antisym_dims23(xp, R1_Z)
-        + _asas_full(xp, R2_Z)
-        - _antisym_dims01(xp, R3_Z)
-        + _antisym_dims01(xp, R4_Z)
-        - _antisym_dims23(xp, R5_Z)
-        + R6_Z
-        + R7_Z
-    )
+        T2_new = (
+            2 * Vabij
+            + _antisym_dims23(xp, R1_Z)
+            + _asas_full(xp, R2_Z)
+            - _antisym_dims01(xp, R3_Z)
+            + _antisym_dims01(xp, R4_Z)
+            - _antisym_dims23(xp, R5_Z)
+            + R6_Z
+            + R7_Z
+        )
 
-    T1_final = T1_new / D1
-    T2_final = 2 * T2_new / D2
+        T1_final = T1_new / D1
+        T2_final = 2 * T2_new / D2
 
-    T1_out, T2_out = (T1_final, T2_final)
-
-    return xp.to_binsparse(T1_out), xp.to_binsparse(T2_out)
+        return (T1_final, T2_final)
