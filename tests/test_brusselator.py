@@ -5,29 +5,65 @@ from scipy.integrate import solve_ivp
 
 
 from sparseappbench.benchmarks.ode import (
-    brusselator_dydx,
-    forward_euler,
-    init_brusselator_2d,
+    ForwardEuler,
+    BackwardEuler,
+    RK4,
+    BrusselatorGenerator,
+)
+
+
+def test_forward_euler_brusselator():
+    """Test Forward Euler with Brusselator."""
+    benchmark = ForwardEuler()
+    generator = BrusselatorGenerator()
+    dataset = generator.datasets[0]  # brusselator_4
+    data, meta = generator.generate(dataset)
     
-)
+    dydx, span, y0, step = data
+    
+    time, y_fe = benchmark.benchmark(data, meta)
+    y_fe = np.array(y_fe).real
 
-def dydx_brusselator(t, u_vec):
-    return brusselator_dydx(t, u_vec, 4, 3.4, 1.0, 0.01)
+    # Reference solution
+    actual = solve_ivp(dydx, span, y0, t_eval=time)
+    
+    error = np.max(np.abs(y_fe - actual.y.T))
+    assert error < 0.5, f"Exceeds error tolerance: {error}"
 
-@pytest.mark.parametrize(
-    "dydt, t_span, y0, step, tolerance",
-    [
-        (dydx_brusselator, (0, 1), init_brusselator_2d(4), 0.01, 0.5),
-    ],
-)
-def test_euler_forward(dydt, t_span, y0, step, tolerance):
-    """Test function for Forward Euler."""
-    (time, y_euler) = forward_euler(np, dydt, t_span, y0, step)
-    y_euler = np.array(y_euler).real
 
-    # Internally solve_ivp does not use fixed step sizes, unlike forward_euler
-    actual = solve_ivp(dydt, t_span, y0, t_eval=time)
-    actual_vals = actual.y.T.real
+def test_backward_euler_brusselator():
+    """Test Backward Euler with Brusselator."""
+    benchmark = BackwardEuler()
+    generator = BrusselatorGenerator()
+    dataset = generator.datasets[0]  # brusselator_4
+    data, meta = generator.generate(dataset)
+    
+    dydx, span, y0, step = data
+    
+    time, y_be = benchmark.benchmark(data, meta)
+    y_be = np.array(y_be).real
 
-    error = np.max(np.abs(y_euler - actual_vals))
-    assert error < tolerance, f"Exceeds error tolerance: {error}"
+    # Reference solution
+    actual = solve_ivp(dydx, span, y0, t_eval=time)
+    
+    error = np.max(np.abs(y_be - actual.y.T))
+    assert error < 0.5, f"Exceeds error tolerance: {error}"
+
+
+def test_rk4_brusselator():
+    """Test RK4 with Brusselator."""
+    benchmark = RK4()
+    generator = BrusselatorGenerator()
+    dataset = generator.datasets[0]  # brusselator_4
+    data, meta = generator.generate(dataset)
+    
+    dydx, span, y0, step = data
+    
+    time, y_rk4 = benchmark.benchmark(data, meta)
+    y_rk4 = np.array(y_rk4).real
+
+    # Reference solution
+    actual = solve_ivp(dydx, span, y0, t_eval=time)
+    
+    error = np.max(np.abs(y_rk4 - actual.y.T))
+    assert error < 0.5, f"Exceeds error tolerance: {error}"

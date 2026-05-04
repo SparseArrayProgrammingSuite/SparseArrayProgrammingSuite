@@ -43,21 +43,15 @@ def _lotka_volterra_derivatives(t, state, a, b, c, d):
     return (dxdt, dydt)
 
 
-def dydx_brusselator(t, u_vec):
-    return brusselator_dydx(t, u_vec, 4, 3.4, 1.0, 0.01)
-
-@pytest.mark.parametrize(
-    "dydt, t_span, y0, step, tolerance",
-    [
-        (dydx_brusselator, (0, 1), init_brusselator_2d(4), 0.01, 0.5),
-    ],
-)
-
-def limit(a, N):
+def _limit(a, N):
+    """Periodic boundary condition wrapper."""
     return a % N
 
-# y0 = init_brusselator_2d()
-def init_brusselator_2d(n):
+
+
+
+def _init_brusselator_2d(n):
+    """Initialize 2D Brusselator state."""
     u = [0.0] * (n * n * 2)
     for i in range(n):
         for j in range(n):
@@ -67,16 +61,10 @@ def init_brusselator_2d(n):
             u[(i * n + j) * 2 + 1] = float(np.real(27 * (fi * (1 - fi)) ** 1.5))
     return u
 
-def brusselator_dydx(t, u_vec, n, a, b, alpha):
-    size = n * n * 2
-    brusselator_cb = [0.0] * size
-    for i in range(n):
-        for j in range(n):
-            x = i / (n - 1)
-            y = j / (n - 1)
-            if (x - 0.3) ** 2 + (y - 0.6) ** 2 <= 0.1**2:
-                brusselator_cb[(i * n + j) * 2] = 5
 
+def _construct_brusselator_matrix(n, alpha, b):
+    """Construct the diffusion/reaction matrix for Brusselator."""
+    size = n * n * 2
     C = np.zeros((size, size))
 
     for i in range(n):
@@ -85,10 +73,10 @@ def brusselator_dydx(t, u_vec, n, a, b, alpha):
             v_idx = u_idx + 1
 
             ip1, im1, jp1, jm1 = (
-                limit(i + 1, n),
-                limit(i - 1, n),
-                limit(j + 1, n),
-                limit(j - 1, n),
+                _limit(i + 1, n),
+                _limit(i - 1, n),
+                _limit(j + 1, n),
+                _limit(j - 1, n),
             )
 
             for ni, nj in [(ip1, j), (im1, j), (i, jp1), (i, jm1)]:
@@ -99,6 +87,11 @@ def brusselator_dydx(t, u_vec, n, a, b, alpha):
             C[v_idx][v_idx] -= 4 * alpha
             C[v_idx][u_idx] += b
 
+    return C
+
+
+def _brusselator_derivatives(t, u_vec, n, a, alpha, C, brusselator_cb):
+    """Brusselator derivatives with diffusion on 2D grid."""
     u_arr = np.array(u_vec, dtype=float)
     
     # Linear part
@@ -106,28 +99,18 @@ def brusselator_dydx(t, u_vec, n, a, b, alpha):
     lin[0::2] += a
 
     if t >= 1.1:
-        lin += brusselator_cb
+        lin += np.array(brusselator_cb)
 
     # Non-linear part: u^2 * v
     u_vals = u_arr[0::2]
     v_vals = u_arr[1::2]
     uv2 = u_vals**2 * v_vals
     
-    non_lin = np.zeros(size, dtype=float)
+    non_lin = np.zeros(len(u_vec), dtype=float)
     non_lin[0::2] = uv2
     non_lin[1::2] = -uv2
     
     return (lin + non_lin).tolist()
-
-def dg_forward_euler_bruss(n, a, b, alpha, t_max, y0, step):
-    """Data Generator for Forward Euler with Brusselator."""
-
-    def dydx(t, u_vec):
-        return brusselator_dydx(t, u_vec, n, a, b, alpha)
-
-    return (np, dydx, (0, t_max), y0, step)
-
-
 
 
 class RCDataset(Dataset):
@@ -204,6 +187,50 @@ class LotkaVolterraDataset(Dataset):
         self.t_max = t_max
         self.y0 = y0
         self.step = step
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @property
+    def tags(self) -> list[str]:
+        return self._tags
+
+
+class BrusselatorDataset(Dataset):
+    def __init__(self, name, pretty_name, description, tags, n, a, b, alpha, t_max, step):
+        self._name = name
+        self._pretty_name = pretty_name
+        self._description = description
+        self._tags = tags
+        self.n = n
+        self.a = a
+        self.b = b
+        self.alpha = alpha
+        self.t_max = t_max
+        self.step = step
+        self.y0 = _init_brusselator_2d(n)
+        
+        # Pre-construct matrix and forcing term
+        self.C = _construct_brusselator_matrix(n, alpha, b)
+        
+        # Construct forcing term
+        size = n * n * 2
+        self.brusselator_cb = [0.0] * size
+        for i in range(n):
+            for j in range(n):
+                x = i / (n - 1)
+                y = j / (n - 1)
+                if (x - 0.3) ** 2 + (y - 0.6) ** 2 <= 0.1**2:
+                    self.brusselator_cb[(i * n + j) * 2] = 5
 
     @property
     def name(self) -> str:
@@ -420,6 +447,71 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
         ), {}
 
 
+class BrusselatorGenerator(Generator[BrusselatorDataset]):
+    @property
+    def name(self) -> str:
+        return "brusselator"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Brusselator"
+
+    @property
+    def description(self) -> str:
+        return "2D Brusselator ODE with diffusion."
+
+    @property
+    def tags(self) -> list[str]:
+        return ["ode", "brusselator"]
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Akarsh Duddu", "aduddu3@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to write the benchmark function itself. Generative"
+            "AI was used for debugging. This statement was written by hand"
+        )
+
+    @property
+    def motivation(self) -> str:
+        return ""
+
+    @property
+    def datasets(self) -> list[BrusselatorDataset]:
+        return [
+            BrusselatorDataset(
+                name="brusselator_4",
+                pretty_name="Brusselator 4x4",
+                description="2D Brusselator with 4x4 grid",
+                tags=["small"],
+                n=4,
+                a=3.4,
+                b=1.0,
+                alpha=0.01,
+                t_max=1.0,
+                step=0.01,
+            ),
+        ]
+
+    def generate(self, dataset: BrusselatorDataset):
+        def dudt(t, state):
+            return _brusselator_derivatives(t, state, dataset.n, dataset.a, dataset.alpha, dataset.C, dataset.brusselator_cb)
+
+        return (
+            dudt,
+            (0, dataset.t_max),
+            dataset.y0,
+            dataset.step,
+        ), {}
+
+
 class ForwardEuler(Benchmark):
     @property
     def name(self):
@@ -463,6 +555,7 @@ class ForwardEuler(Benchmark):
             RCGenerator(),
             RLCGenerator(),
             LotkaVolterraGenerator(),
+            BrusselatorGenerator(),
         ]
 
     def benchmark(self, data, meta):
@@ -533,6 +626,7 @@ class BackwardEuler(Benchmark):
             RCGenerator(),
             RLCGenerator(),
             LotkaVolterraGenerator(),
+            BrusselatorGenerator(),
         ]
 
     def benchmark(self, data, meta):
@@ -606,6 +700,7 @@ class RK4(Benchmark):
             RCGenerator(),
             RLCGenerator(),
             LotkaVolterraGenerator(),
+            BrusselatorGenerator(),
         ]
 
     def benchmark(self, data, meta):
