@@ -42,7 +42,7 @@ def test_transitive_closure():
     assert np.array_equal(res, expected)
 
 
-def test_stc.):
+def test_stc():
     # 8 node graph with 4 Stc.
     xp = NumpyFramework()
     input_matrix = np.array(
@@ -68,17 +68,17 @@ def test_stc.):
 
     # count stc.
     visited_set = set()
-    stc.count = 0
+    count = 0
     for i in range(res.shape[0]):
         comp = tuple(res[i, :])
         if comp not in visited_set:
-            stc.count += 1
+            count += 1
             visited_set.add(comp)
 
-    assert stc.count == expected
+    assert count == expected
 
 
-def test_stc.cycle():
+def test_stc_cycle():
     # one stc. one cycle
     xp = NumpyFramework()
 
@@ -100,7 +100,7 @@ def test_stc.cycle():
     assert np.array_equal(res, expected)
 
 
-def test_stc.one_node():
+def test_stc_one_node():
     # one node
     xp = NumpyFramework()
     input_matrix = np.array([[0]], dtype=bool)

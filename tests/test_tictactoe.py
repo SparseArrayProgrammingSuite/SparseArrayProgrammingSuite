@@ -9,7 +9,7 @@ from sparseappbench.benchmarks.tic_tac import (
     minimax_depth3,
     minimax_depth5,
 )
-from sparseappbench.frameworks.sparse_framework import PyDataSparseFramework
+from frameworks.saps_sparse import PyDataSparseFramework
 
 
 @pytest.mark.parametrize(

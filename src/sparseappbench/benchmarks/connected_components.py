@@ -31,6 +31,7 @@ class SimplyConnectedComponentsBenchmark(Benchmark):
     @property
     def authors(self):
         return [
+            Contributor("Willow Ahrens", "ahrens@gatech.edu"),
             Contributor("Rithvik Reddygari", "rreddygari3@gatech.edu"),
             Contributor("Joel Mathew Cherian", "jcherian32@gatech.edu"),
         ]
@@ -81,11 +82,12 @@ class SimplyConnectedComponentsBenchmark(Benchmark):
         identity_matrix = xp.eye(n, dtype=bool)
         graph = xp.logical_or(identity_matrix, graph)
         labels = xp.arange(n)
+        int_max = xp.iinfo(labels.dtype).max
 
         # do fixed-point iteration
         max_iterations = n
         for _iteration in range(max_iterations):
-            nextLabels = xp.einsum("nextLabels[i] max= graph[i,j] & labels[j]", graph=graph, labels=labels)
+            nextLabels = xp.min(xp.where(graph, labels, int_max), axis=1)
 
             if xp.all(xp.equal(labels, nextLabels)):
                 break

@@ -4,7 +4,7 @@ import pytest
 
 import numpy as np
 
-from sparseappbench.benchmarks.particle_sim import benchmark_particle_sum
+import sparseappbench.benchmarks.particle_sim as ps
 from saps_framework import BinsparseFormat
 from frameworks.saps_numpy import NumpyFramework
 
@@ -74,8 +74,9 @@ def test_particle_sim(x, y, vx, vy, size, steps):
     vx_bin = BinsparseFormat.from_numpy(vx)
     vy_bin = BinsparseFormat.from_numpy(vy)
 
-    (x, y, vx, vy) = benchmark_particle_sum(
-        xp, x_bin, y_bin, vx_bin, vy_bin, size, steps
+    ps.xp = xp
+    (x, y, vx, vy) = ps.ParticleSimBenchmark().benchmark(
+        (x_bin, y_bin, vx_bin, vy_bin, size, steps), {}
     )
 
     x = xp.from_binsparse(x)
