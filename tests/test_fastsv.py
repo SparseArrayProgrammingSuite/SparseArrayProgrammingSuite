@@ -1,6 +1,7 @@
 import numpy as np
 
-from sparseappbench.benchmarks.fastsv import benchmark_fastsv
+import sparseappbench.benchmarks.fastsv as fastsv
+import sparseappbench.benchmarks.connected_components as cc
 from saps_framework import BinsparseFormat
 from frameworks.saps_numpy import NumpyFramework
 
@@ -9,7 +10,15 @@ def _run_fastsv_case(A, expected):
     "This method will run all the different tests. It will assist with setup"
     xp = NumpyFramework()
     A_bin = BinsparseFormat.from_numpy(A)
-    bench_result = benchmark_fastsv(xp, A_bin)
+    fastsv.xp = xp
+    (bench_result,) = fastsv.FastsvBenchmark().benchmark((A_bin,), {})
+    result = xp.from_binsparse(bench_result).ravel()
+    assert np.array_equal(result, expected), (
+        f"fastsv output mismatch.\nGot {result}, expected {expected}"
+    )
+
+    cc.xp = xp
+    (bench_result,) = cc.SimplyConnectedComponentsBenchmark().benchmark((A_bin,), {})
     result = xp.from_binsparse(bench_result).ravel()
     assert np.array_equal(result, expected), (
         f"fastsv output mismatch.\nGot {result}, expected {expected}"

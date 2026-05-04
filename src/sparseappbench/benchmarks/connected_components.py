@@ -9,27 +9,24 @@ from sparseappbench.benchmark import (
 xp = sparseappbench.xp
 
 
-class TransitiveClosureBenchmark(Benchmark):
+class SimplyConnectedComponentsBenchmark(Benchmark):
     @property
     def name(self):
-        return "transitive_closure"
+        return "simply_connected_components"
 
     @property
     def pretty_name(self):
-        return "Transitive Closure"
+        return "Simply Connected Components"
 
     @property
     def description(self):
         return (
-            "Computes the transitive closure of a directed graph using fixed-point iteration. "
-            "The algorithm initializes the adjacency matrix with the identity, then iteratively "
-            "applies the closure operation using sparse matrix operations until convergence. "
-            "This enables reachability queries."
+            "Computes the simply connected components of a directed graph using label propagation. "
         )
 
     @property
     def tags(self):
-        return ["graph", "reachability", "transitive-closure", "sparse"]
+        return ["graph", "connected-components", "sparse"]
 
     @property
     def authors(self):
@@ -52,8 +49,7 @@ class TransitiveClosureBenchmark(Benchmark):
                 journal="Society for Industrial and Applied Mathematics (SIAM)",
                 city="Philadelphia",
                 year=2011,
-            ),
-
+            )
         ]
 
     @property
@@ -72,6 +68,7 @@ class TransitiveClosureBenchmark(Benchmark):
     @property
     def generators(self):
         return []
+
     def benchmark(self, data, meta):
         edges_b = data[0]
         edges = xp.from_binsparse(edges_b)
@@ -83,13 +80,14 @@ class TransitiveClosureBenchmark(Benchmark):
         graph = graph
         identity_matrix = xp.eye(n, dtype=bool)
         graph = xp.logical_or(identity_matrix, graph)
+        labels = xp.arange(n)
 
         # do fixed-point iteration
         max_iterations = n
         for _iteration in range(max_iterations):
-            nextGraph = xp.einsum("nextGraph[i,j] or= graph[i,k] & graph[k,j]", graph=graph)
+            nextLabels = xp.einsum("nextLabels[i] max= graph[i,j] & labels[j]", graph=graph, labels=labels)
 
-            if xp.all(xp.equal(graph, nextGraph)):
+            if xp.all(xp.equal(labels, nextLabels)):
                 break
-            graph = nextGraph
-        return [xp.to_binsparse(graph)]
+            labels = nextLabels
+        return [xp.to_binsparse(labels)]

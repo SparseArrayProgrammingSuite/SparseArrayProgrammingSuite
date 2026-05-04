@@ -4,14 +4,15 @@ import numpy as np
 
 import networkx as nx
 
-from sparseappbench.benchmarks.centrality import betweenness_centrality
+import sparseappbench.benchmarks.centrality as centrality
 from saps_framework import BinsparseFormat 
 from frameworks.saps_numpy import NumpyFramework
 
 
 def run_bc(xp, A):
     A_bin = BinsparseFormat.from_numpy(A)
-    result_bin = betweenness_centrality(xp, A_bin)
+    centrality.xp = xp
+    (result_bin,) = centrality.BetweennessCentralityBenchmark().benchmark((A_bin,), {})
     return xp.from_binsparse(result_bin).ravel()
 
 

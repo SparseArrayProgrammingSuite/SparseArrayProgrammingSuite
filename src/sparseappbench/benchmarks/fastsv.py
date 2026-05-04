@@ -1,68 +1,115 @@
-"""
-Name: FastSV Algorithm
-Author: Richard Wan
-Email: rwan41@gatech.edu
-
-Motivation:
-The FastSV algorithm is a graph algorithm used to find the connected components
-for a simple graph. This algorithm introduces several optimizations that allow
-for faster convergence to a solution compared to the SV algorithm it is based on,
-specifically through modifications to the tree hooking and termination condition.
-
-Citation for reference implementation:
-Zhang, Y., Azad, A., & Hu, Z. (2020). FastSV: A distributed-memory connected
-component algorithm with fast convergence. In Proceedings of the 2020 SIAM Conference on
-Parallel Processing for Scientific Computing (pp. 46-57). Society for Industrial and
-Applied Mathematics.
-
-Statement on the use of Generative AI: No generative AI was used to construct
-the benchmark function itself. Generative AI was used for debugging. Generative
-AI might have been used to construct tests. This statement was written by hand.
-"""
-
 import sparseappbench
+from sparseappbench.benchmark import (
+    Benchmark,
+    Contributor,
+    Ref,
+    Author,
+)
 
 xp = sparseappbench.xp
 
+class FastsvBenchmark(Benchmark):
+    @property
+    def name(self):
+        return "fastsv"
 
-def benchmark_fastsv(xp, adjacency_matrix):
-    A = xp.from_binsparse(adjacency_matrix)
-    A = A != 0
+    @property
+    def pretty_name(self):
+        return "FastSV Algorithm"
 
-    (n, m) = A.shape
-    assert n == m
+    @property
+    def description(self):
+        return (
+            "The FastSV algorithm is a graph algorithm used to find the connected components "
+            "for a simple graph. This algorithm introduces several optimizations that allow "
+            "for faster convergence to a solution compared to the SV algorithm it is based on, "
+            "specifically through modifications to the tree hooking and termination condition."
+        )
 
-    f = xp.arange(n)
-    gf = xp.asarray(f, copy=True)
+    @property
+    def tags(self):
+        return ['linear-algebra', 'decomposition', 'sparse']
 
-    int_max = xp.iinfo(f.dtype).max
+    @property
+    def authors(self):
+        return [
+            Contributor("Richard Wan", "rwan41@gatech.edu"),
+        ]
 
-    while True:
-        dup = gf
+    @property
+    def references(self):
+        return [
+            Ref(
+                title = "FastSV: A distributed-memory connected component algorithm with fast convergence.",
+                authors = [
+                    Author("Zhang, Y."),
+                    Author("Azad, A."),
+                    Author("Hu, Z."),
+                ],
+                journal = "Proceedings of the 2020 SIAM Conference on Parallel Processing for Scientific Computing",
+                pages = "46-57",
+                publisher = "Society for Industrial and Applied Mathematics",
+                year = 2020,
+            ),
+        ]
 
-        A, f, gf = [A, f, gf]
+    @property
+    def ai_disclosure(self):
+        return (
+            "No generative AI was used to construct the benchmark function itself. "
+            "Generative AI might have been used to construct tests."
+        )
 
-        # step 1: stochastic hooking
-        mngf = xp.min(xp.where(A, xp.expand_dims(gf, 0), int_max), axis=1)
-        B = xp.zeros((n, n), dtype=bool)
-        B[f, xp.arange(n)] = True
-        f = xp.min(xp.where(B, xp.expand_dims(mngf, 0), int_max), axis=1)
+    @property
+    def motivation(self):
+        return ""
 
-        # step 2: aggressive hooking
-        f = xp.minimum(f, mngf)
+    @property
+    def generators(self):
+        return []
 
-        # step 3: shortcutting
-        f = xp.minimum(f, gf)
+    def benchmark(self, data, meta):
+        (adjacency_matrix,) = data
+        
+        # Inlined benchmark_fastsv helper
+        A = xp.from_binsparse(adjacency_matrix)
+        A = A != 0
 
-        # step 4: calculate grandparents
-        gf = xp.take(f, f)
+        (n, m) = A.shape
+        assert n == m
 
-        # step 5: check termination
-        stop = xp.all(dup == gf)
+        f = xp.arange(n)
+        gf = xp.asarray(f, copy=True)
 
-        f, gf, stop = [f, gf, stop]
+        int_max = xp.iinfo(f.dtype).max
 
-        if stop:
-            break
+        while True:
+            dup = gf
 
-    return xp.to_binsparse(f)
+            A, f, gf = [A, f, gf]
+
+            # step 1: stochastic hooking
+            mngf = xp.min(xp.where(A, xp.expand_dims(gf, 0), int_max), axis=1)
+            B = xp.zeros((n, n), dtype=bool)
+            B[f, xp.arange(n)] = True
+            f = xp.min(xp.where(B, xp.expand_dims(mngf, 0), int_max), axis=1)
+
+            # step 2: aggressive hooking
+            f = xp.minimum(f, mngf)
+
+            # step 3: shortcutting
+            f = xp.minimum(f, gf)
+
+            # step 4: calculate grandparents
+            gf = xp.take(f, f)
+
+            # step 5: check termination
+            stop = xp.all(dup == gf)
+
+            f, gf, stop = [f, gf, stop]
+
+            if stop:
+                break
+
+        result = xp.to_binsparse(f)
+        return [result]

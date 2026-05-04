@@ -4,7 +4,7 @@ import numpy as np
 
 import networkx as nx
 
-from sparseappbench.benchmarks.pagerank import pagerank
+import sparseappbench.benchmarks.pagerank as pr
 from saps_framework import BinsparseFormat
 from frameworks.saps_numpy import NumpyFramework
 
@@ -22,7 +22,8 @@ def test_basic_pagerank_cases(A, expected):
 
     A_bin = BinsparseFormat.from_numpy(A)
 
-    result_bin = pagerank(xp, A_bin)
+    pr.xp = xp
+    (result_bin,) = pr.PageRankBenchmark().benchmark((A_bin,), {})
 
     result = xp.from_binsparse(result_bin).ravel()
 
@@ -50,7 +51,8 @@ def test_pagerank_against_networkx():
     A = nx.to_numpy_array(G, dtype=float)
     A_bin = BinsparseFormat.from_numpy(A)
 
-    result_bin = pagerank(xp, A_bin)
+    pr.xp = xp
+    (result_bin,) = pr.PageRankBenchmark().benchmark((A_bin,), {})
     result = xp.from_binsparse(result_bin).ravel()
 
     expected_dict = nx.pagerank(G, alpha=0.85, max_iter=100, tol=1e-6)

@@ -1,100 +1,131 @@
-"""
-Name: Particule Simulation Algorithm
-Author: Richard Wan
-Email: rwan41@gatech.edu
-
-Motivation:
-The particle simulation is used to model particle interaction
-present in mechanics, biology, astronomy, and other fields on
-a simplitic level.
-
-Role of sparsity:
-The number of particles within the cutoff distance of particle
-interaction is sparse.
-
-Implementation Reference:
-https://github.com/Berkeley-CS267/hw2-1/blob/master/serial.cpp
-
-Data Generation:
-The position, velocity, and acceleration vectors for the
-particles may be created manually or generated randomly
-using the generation function in the benchmark test.
-
-Statement on the use of Generative AI: No generative AI was
-used for the benchmark function itself. Generative AI might
-have been used to construct tests. This statement was written
-by hand.
-"""
-
 import sparseappbench
+from sparseappbench.benchmark import (
+    Benchmark,
+    Contributor,
+)
 
 xp = sparseappbench.xp
 
+class ParticleSimBenchmark(Benchmark):
+    @property
+    def name(self):
+        return "particle_sim"
 
-def benchmark_particle_sum(xp, x, y, vx, vy, size, steps):
-    # CONSTANTS
-    mass = 0.01
-    cutoff = 0.01
-    min_r = cutoff / 100
-    dt = 0.0005
+    @property
+    def pretty_name(self):
+        return "Particle Simulation"
 
-    x = xp.from_binsparse(x)
-    y = xp.from_binsparse(y)
-    vx = xp.from_binsparse(vx)
-    vy = xp.from_binsparse(vy)
+    @property
+    def description(self):
+        return (
+            "Benchmark implementation for Particule_Simulation_Algorithm using sparse array operations. "
+            "This benchmark evaluates performance characteristics and numerical properties."
+        )
 
-    for _ in range(steps):
-        x, y, vx, vy = [x, y, vx, vy]
+    @property
+    def tags(self):
+        return ['physics', 'simulation', 'sparse']
 
-        # compute forces
-        dx = x - x.reshape(-1, 1)
-        dy = y - y.reshape(-1, 1)
-        r2 = dx * dx + dy * dy
+    @property
+    def authors(self):
+        return [
+            Contributor("Richard Wan", "rwan41@gatech.edu"),
+        ]
 
-        mask = r2 > cutoff * cutoff
+    @property
+    def references(self):
+        return [
+            Ref(
+                title="Particle Simulation Algorithm",
+                authors=[
+                    Author("CS 267 Staff")
+                ],
+                url="https://github.com/Berkeley-CS267/hw2-1/blob/master/serial.cpp"
+            )
+        ]
 
-        r2 = xp.where(mask, xp.inf, r2)
-        r2 = xp.maximum(r2, min_r * min_r)
-        r = xp.sqrt(r2)
+    @property
+    def ai_disclosure(self):
+        return (
+            "No generative AI was used for the benchmark function itself. Generative AI might "
+            "have been used to construct tests. This statement was written "
+            "by hand."
+        )
 
-        coef = (1 - cutoff / r) / r2 / mass
-        # coef = xp.where(mask, 0, coef)
+    @property
+    def motivation(self):
+        return "The particle simulation is used to model particle interaction present in mechanics, biology, astronomy, and other fields on a simplitic level."
 
-        ax = coef * dx
-        ay = coef * dy
+    @property
+    def generators(self):
+        return []
 
-        ax = xp.sum(ax, axis=1)
-        ay = xp.sum(ay, axis=1)
+    def benchmark(self, data, meta):
+        x, y, vx, vy, size, steps = data
+        # CONSTANTS
+        mass = 0.01
+        cutoff = 0.01
+        min_r = cutoff / 100
+        dt = 0.0005
 
-        # move particles
-        vx += ax * dt
-        vy += ay * dt
+        x = xp.from_binsparse(x)
+        y = xp.from_binsparse(y)
+        vx = xp.from_binsparse(vx)
+        vy = xp.from_binsparse(vy)
 
-        x += vx * dt
-        y += vy * dt
+        for _ in range(steps):
+            x, y, vx, vy = [x, y, vx, vy]
 
-        # bounce off walls
-        # x
-        reflected = (x < 0) | (x > size)
-        vx = xp.where(reflected, -vx, vx)
+            # compute forces
+            dx = x - x.reshape(-1, 1)
+            dy = y - y.reshape(-1, 1)
+            r2 = dx * dx + dy * dy
 
-        x1 = xp.abs(x)
-        x2 = 2 * size - x
-        x = xp.where(x > size, x2, x1)
+            mask = r2 > cutoff * cutoff
 
-        # y
-        reflected = (y < 0) | (y > size)
-        vy = xp.where(reflected, -vy, vy)
+            r2 = xp.where(mask, xp.inf, r2)
+            r2 = xp.maximum(r2, min_r * min_r)
+            r = xp.sqrt(r2)
 
-        y1 = xp.abs(y)
-        y2 = 2 * size - y
-        y = xp.where(y > size, y2, y1)
+            coef = (1 - cutoff / r) / r2 / mass
+            # coef = xp.where(mask, 0, coef)
 
-        x, y, vx, vy = [x, y, vx, vy]
+            ax = coef * dx
+            ay = coef * dy
 
-    x = xp.to_binsparse(x)
-    y = xp.to_binsparse(y)
-    vx = xp.to_binsparse(vx)
-    vy = xp.to_binsparse(vy)
+            ax = xp.sum(ax, axis=1)
+            ay = xp.sum(ay, axis=1)
 
-    return (x, y, vx, vy)
+            # move particles
+            vx += ax * dt
+            vy += ay * dt
+
+            x += vx * dt
+            y += vy * dt
+
+            # bounce off walls
+            # x
+            reflected = (x < 0) | (x > size)
+            vx = xp.where(reflected, -vx, vx)
+
+            x1 = xp.abs(x)
+            x2 = 2 * size - x
+            x = xp.where(x > size, x2, x1)
+
+            # y
+            reflected = (y < 0) | (y > size)
+            vy = xp.where(reflected, -vy, vy)
+
+            y1 = xp.abs(y)
+            y2 = 2 * size - y
+            y = xp.where(y > size, y2, y1)
+
+            x, y, vx, vy = [x, y, vx, vy]
+
+        x = xp.to_binsparse(x)
+        y = xp.to_binsparse(y)
+        vx = xp.to_binsparse(vx)
+        vy = xp.to_binsparse(vy)
+
+        return (x, y, vx, vy)
+
