@@ -37,6 +37,188 @@ from saps_framework.binsparse_format import BinsparseFormat
 xp = sparseappbench.xp
 
 
+
+def _as2d_full(xp, F):
+    """Full 2D antisymmetrizer: F[a,e] - F[e,a]."""
+    F_T = xp.einsum("FT[i,j] = F[j,i]", F=F)
+    return F - F_T
+
+
+def _asas_full(xp, T):
+    """Fully antisymmetrize a 4D tensor in both index pairs (0,1) and (2,3).
+
+    Here antisymmetry means swapping either pair flips the sign:
+    T[a,b,i,j] = -T[b,a,i,j] and T[a,b,i,j] = -T[a,b,j,i].
+    This helper applies the full ASAS combination
+    T - T_ba - T_ji + T_baji without assuming canonical masking.
+    """
+    T_ba = xp.einsum("Tba[a,b,i,j] = T[b,a,i,j]", T=T)
+    T_ji = xp.einsum("Tji[a,b,i,j] = T[a,b,j,i]", T=T)
+    T_baji = xp.einsum("Tbaji[a,b,i,j] = T[b,a,j,i]", T=T)
+    return T - T_ba - T_ji + T_baji
+
+
+def _antisym_dims01(xp, T):
+    """Antisymmetrize T in dims 0,1: T - T[b,a,i,j]."""
+    T_ba = xp.einsum("Tba[a,b,i,j] = T[b,a,i,j]", T=T)
+    return T - T_ba
+
+
+def _antisym_dims23(xp, T):
+    """Antisymmetrize T in dims 2,3: T - T[a,b,j,i]."""
+    T_ji = xp.einsum("Tji[a,b,i,j] = T[a,b,j,i]", T=T)
+    return T - T_ji
+
+
+def _ctf_col_major_idx(shape):
+    return np.arange(int(np.prod(shape)), dtype=np.int64).reshape(shape, order="F")
+
+
+def _ctf_rand(shape, tensor_id, multiplier=16):
+    """NS fill: all elements independent, matching CTF fill_rand."""
+    idx = _ctf_col_major_idx(shape)
+    values = ((idx * multiplier + tensor_id) % 13077) / 13077.0 - 0.5
+    return BinsparseFormat.from_numpy(values)
+
+
+def _make_as2d(shape, tensor_id, multiplier=16):
+    """Build a 2D antisymmetric tensor from canonical entries with d0 < d1.
+
+    Values are generated only on the upper-triangular canonical half using the
+    CTF-style deterministic fill, then mirrored with a sign flip so the final
+    tensor satisfies A[i, j] = -A[j, i].
+    """
+    d0, d1 = shape
+    idx = _ctf_col_major_idx(shape)
+    vals = ((idx * multiplier + tensor_id) % 13077) / 13077.0 - 0.5
+    canon = np.arange(d0)[:, None] < np.arange(d1)[None, :]
+    result = np.where(canon, vals, 0.0)
+    result = result - result.T
+    return BinsparseFormat.from_numpy(result)
+
+
+def _make_asns_asns(shape, tensor_id, multiplier=16):
+    """Build a 4D tensor antisymmetric in both index pairs (0,1) and (2,3).
+
+    Only canonical entries with d0 < d1 and d2 < d3 are filled directly. The
+    remaining positions are derived by reflecting across each antisymmetric pair
+    with the appropriate sign changes, matching the CCSD {AS,NS,AS,NS} layout.
+    """
+    d0, d1, d2, d3 = shape
+    idx = _ctf_col_major_idx(shape)
+    vals = ((idx * multiplier + tensor_id) % 13077) / 13077.0 - 0.5
+    canon = (
+        np.arange(d0)[:, None, None, None] < np.arange(d1)[None, :, None, None]
+    ) & (np.arange(d2)[None, None, :, None] < np.arange(d3)[None, None, None, :])
+    result = np.where(canon, vals, 0.0)
+    result = result - result.transpose(1, 0, 2, 3)
+    result = result - result.transpose(0, 1, 3, 2)
+    return BinsparseFormat.from_numpy(result)
+
+
+def _make_asns_nsns(shape, tensor_id, multiplier=16):
+    """Build a 4D tensor antisymmetric only in the first index pair (0,1).
+
+    Canonical values are placed where d0 < d1, then reflected across the first
+    pair with a sign flip. The last two dimensions are left nonsymmetric.
+    """
+    d0, d1 = shape[0], shape[1]
+    idx = _ctf_col_major_idx(shape)
+    vals = ((idx * multiplier + tensor_id) % 13077) / 13077.0 - 0.5
+    canon = np.arange(d0)[:, None, None, None] < np.arange(d1)[None, :, None, None]
+    result = np.where(canon, vals, 0.0)
+    result = result - result.transpose(1, 0, 2, 3)
+    return BinsparseFormat.from_numpy(result)
+
+
+def _make_nsns_asns(shape, tensor_id, multiplier=16):
+    """Build a 4D tensor antisymmetric only in the last index pair (2,3).
+
+    Canonical values are placed where d2 < d3, then reflected across the last
+    pair with a sign flip. The first two dimensions are left nonsymmetric.
+    """
+    d2, d3 = shape[2], shape[3]
+    idx = _ctf_col_major_idx(shape)
+    vals = ((idx * multiplier + tensor_id) % 13077) / 13077.0 - 0.5
+    canon = np.arange(d2)[None, None, :, None] < np.arange(d3)[None, None, None, :]
+    result = np.where(canon, vals, 0.0)
+    result = result - result.transpose(0, 1, 3, 2)
+    return BinsparseFormat.from_numpy(result)
+
+
+def dg_ccsd_small():
+    """no=4, nv=6 — matches the C++ CTF reference (ccsd.cxx)."""
+    return make_ccsd_inputs(no=4, nv=6)
+
+
+def dg_ccsd_medium():
+    """no=8, nv=12."""
+    return make_ccsd_inputs(no=8, nv=12)
+
+
+def dg_ccsd_large():
+    """no=16, nv=24."""
+    return make_ccsd_inputs(no=16, nv=24)
+
+
+def make_ccsd_inputs(no, nv):
+    """Generate deterministic antisymmetric CCSD inputs matching ccsd.cxx fill_rand."""
+    Vae_b = _make_as2d((nv, nv), 2)
+    Vai_b = _ctf_rand((nv, no), 3)
+    Vme_b = _ctf_rand((no, nv), 4)
+    Vmi_b = _make_as2d((no, no), 5)
+    Vabef_b = _make_asns_asns((nv, nv, nv, nv), 6)
+    Vabei_b = _make_asns_nsns((nv, nv, nv, no), 7)
+    Vanef_b = _make_nsns_asns((nv, no, nv, nv), 8)
+    Vamei_b = _ctf_rand((nv, no, nv, no), 9)
+    Vabij_b = _make_asns_asns((nv, nv, no, no), 10)
+    Vmnef_b = _make_asns_asns((no, no, nv, nv), 11)
+    Vamij_b = _make_nsns_asns((nv, no, no, no), 12)
+    Vmnei_b = _make_asns_nsns((no, no, nv, no), 13)
+    Vmnij_b = _make_asns_asns((no, no, no, no), 14)
+
+    # Tensor aliases (same underlying CTF storage in C++)
+    Vamef_b = Vanef_b
+    Vaeim_b = Vabij_b
+    Vmnfi_b = Vmnei_b
+
+    T1_b = _ctf_rand((nv, no), 0, multiplier=13)
+    T2_b = _make_asns_asns((nv, nv, no, no), 1, multiplier=13)
+
+    aa = ((np.arange(nv) * 16 + 0) % 13077) / 13077.0 - 0.5
+    ii = ((np.arange(no) * 16 + 1) % 13077) / 13077.0 - 0.5
+    D1 = ii[None, :] - aa[:, None]
+    D2 = (
+        ii.reshape(1, 1, no, 1)
+        + ii.reshape(1, 1, 1, no)
+        - aa.reshape(nv, 1, 1, 1)
+        - aa.reshape(1, nv, 1, 1)
+    )
+
+    return (
+        Vme_b,
+        Vae_b,
+        Vmi_b,
+        Vai_b,
+        Vmnef_b,
+        Vabef_b,
+        Vabij_b,
+        Vabei_b,
+        Vmnij_b,
+        Vmnei_b,
+        Vamei_b,
+        Vamij_b,
+        Vanef_b,
+        Vmnfi_b,
+        Vamef_b,
+        Vaeim_b,
+        T1_b,
+        T2_b,
+        BinsparseFormat.from_numpy(D1),
+        BinsparseFormat.from_numpy(D2),
+    )
+
+
 def benchmark_ccsd(
     xp,
     Vme_bench,  # (no, nv)
@@ -192,184 +374,3 @@ def benchmark_ccsd(
     T1_out, T2_out = (T1_final, T2_final)
 
     return xp.to_binsparse(T1_out), xp.to_binsparse(T2_out)
-
-
-def _as2d_full(xp, F):
-    """Full 2D antisymmetrizer: F[a,e] - F[e,a]."""
-    F_T = xp.einsum("FT[i,j] = F[j,i]", F=F)
-    return F - F_T
-
-
-def _asas_full(xp, T):
-    """Fully antisymmetrize a 4D tensor in both index pairs (0,1) and (2,3).
-
-    Here antisymmetry means swapping either pair flips the sign:
-    T[a,b,i,j] = -T[b,a,i,j] and T[a,b,i,j] = -T[a,b,j,i].
-    This helper applies the full ASAS combination
-    T - T_ba - T_ji + T_baji without assuming canonical masking.
-    """
-    T_ba = xp.einsum("Tba[a,b,i,j] = T[b,a,i,j]", T=T)
-    T_ji = xp.einsum("Tji[a,b,i,j] = T[a,b,j,i]", T=T)
-    T_baji = xp.einsum("Tbaji[a,b,i,j] = T[b,a,j,i]", T=T)
-    return T - T_ba - T_ji + T_baji
-
-
-def _antisym_dims01(xp, T):
-    """Antisymmetrize T in dims 0,1: T - T[b,a,i,j]."""
-    T_ba = xp.einsum("Tba[a,b,i,j] = T[b,a,i,j]", T=T)
-    return T - T_ba
-
-
-def _antisym_dims23(xp, T):
-    """Antisymmetrize T in dims 2,3: T - T[a,b,j,i]."""
-    T_ji = xp.einsum("Tji[a,b,i,j] = T[a,b,j,i]", T=T)
-    return T - T_ji
-
-
-def _ctf_col_major_idx(shape):
-    return np.arange(int(np.prod(shape)), dtype=np.int64).reshape(shape, order="F")
-
-
-def _ctf_rand(shape, tensor_id, multiplier=16):
-    """NS fill: all elements independent, matching CTF fill_rand."""
-    idx = _ctf_col_major_idx(shape)
-    values = ((idx * multiplier + tensor_id) % 13077) / 13077.0 - 0.5
-    return BinsparseFormat.from_numpy(values)
-
-
-def _make_as2d(shape, tensor_id, multiplier=16):
-    """Build a 2D antisymmetric tensor from canonical entries with d0 < d1.
-
-    Values are generated only on the upper-triangular canonical half using the
-    CTF-style deterministic fill, then mirrored with a sign flip so the final
-    tensor satisfies A[i, j] = -A[j, i].
-    """
-    d0, d1 = shape
-    idx = _ctf_col_major_idx(shape)
-    vals = ((idx * multiplier + tensor_id) % 13077) / 13077.0 - 0.5
-    canon = np.arange(d0)[:, None] < np.arange(d1)[None, :]
-    result = np.where(canon, vals, 0.0)
-    result = result - result.T
-    return BinsparseFormat.from_numpy(result)
-
-
-def _make_asns_asns(shape, tensor_id, multiplier=16):
-    """Build a 4D tensor antisymmetric in both index pairs (0,1) and (2,3).
-
-    Only canonical entries with d0 < d1 and d2 < d3 are filled directly. The
-    remaining positions are derived by reflecting across each antisymmetric pair
-    with the appropriate sign changes, matching the CCSD {AS,NS,AS,NS} layout.
-    """
-    d0, d1, d2, d3 = shape
-    idx = _ctf_col_major_idx(shape)
-    vals = ((idx * multiplier + tensor_id) % 13077) / 13077.0 - 0.5
-    canon = (
-        np.arange(d0)[:, None, None, None] < np.arange(d1)[None, :, None, None]
-    ) & (np.arange(d2)[None, None, :, None] < np.arange(d3)[None, None, None, :])
-    result = np.where(canon, vals, 0.0)
-    result = result - result.transpose(1, 0, 2, 3)
-    result = result - result.transpose(0, 1, 3, 2)
-    return BinsparseFormat.from_numpy(result)
-
-
-def _make_asns_nsns(shape, tensor_id, multiplier=16):
-    """Build a 4D tensor antisymmetric only in the first index pair (0,1).
-
-    Canonical values are placed where d0 < d1, then reflected across the first
-    pair with a sign flip. The last two dimensions are left nonsymmetric.
-    """
-    d0, d1 = shape[0], shape[1]
-    idx = _ctf_col_major_idx(shape)
-    vals = ((idx * multiplier + tensor_id) % 13077) / 13077.0 - 0.5
-    canon = np.arange(d0)[:, None, None, None] < np.arange(d1)[None, :, None, None]
-    result = np.where(canon, vals, 0.0)
-    result = result - result.transpose(1, 0, 2, 3)
-    return BinsparseFormat.from_numpy(result)
-
-
-def _make_nsns_asns(shape, tensor_id, multiplier=16):
-    """Build a 4D tensor antisymmetric only in the last index pair (2,3).
-
-    Canonical values are placed where d2 < d3, then reflected across the last
-    pair with a sign flip. The first two dimensions are left nonsymmetric.
-    """
-    d2, d3 = shape[2], shape[3]
-    idx = _ctf_col_major_idx(shape)
-    vals = ((idx * multiplier + tensor_id) % 13077) / 13077.0 - 0.5
-    canon = np.arange(d2)[None, None, :, None] < np.arange(d3)[None, None, None, :]
-    result = np.where(canon, vals, 0.0)
-    result = result - result.transpose(0, 1, 3, 2)
-    return BinsparseFormat.from_numpy(result)
-
-
-def make_ccsd_inputs(no, nv):
-    """Generate deterministic antisymmetric CCSD inputs matching ccsd.cxx fill_rand."""
-    Vae_b = _make_as2d((nv, nv), 2)
-    Vai_b = _ctf_rand((nv, no), 3)
-    Vme_b = _ctf_rand((no, nv), 4)
-    Vmi_b = _make_as2d((no, no), 5)
-    Vabef_b = _make_asns_asns((nv, nv, nv, nv), 6)
-    Vabei_b = _make_asns_nsns((nv, nv, nv, no), 7)
-    Vanef_b = _make_nsns_asns((nv, no, nv, nv), 8)
-    Vamei_b = _ctf_rand((nv, no, nv, no), 9)
-    Vabij_b = _make_asns_asns((nv, nv, no, no), 10)
-    Vmnef_b = _make_asns_asns((no, no, nv, nv), 11)
-    Vamij_b = _make_nsns_asns((nv, no, no, no), 12)
-    Vmnei_b = _make_asns_nsns((no, no, nv, no), 13)
-    Vmnij_b = _make_asns_asns((no, no, no, no), 14)
-
-    # Tensor aliases (same underlying CTF storage in C++)
-    Vamef_b = Vanef_b
-    Vaeim_b = Vabij_b
-    Vmnfi_b = Vmnei_b
-
-    T1_b = _ctf_rand((nv, no), 0, multiplier=13)
-    T2_b = _make_asns_asns((nv, nv, no, no), 1, multiplier=13)
-
-    aa = ((np.arange(nv) * 16 + 0) % 13077) / 13077.0 - 0.5
-    ii = ((np.arange(no) * 16 + 1) % 13077) / 13077.0 - 0.5
-    D1 = ii[None, :] - aa[:, None]
-    D2 = (
-        ii.reshape(1, 1, no, 1)
-        + ii.reshape(1, 1, 1, no)
-        - aa.reshape(nv, 1, 1, 1)
-        - aa.reshape(1, nv, 1, 1)
-    )
-
-    return (
-        Vme_b,
-        Vae_b,
-        Vmi_b,
-        Vai_b,
-        Vmnef_b,
-        Vabef_b,
-        Vabij_b,
-        Vabei_b,
-        Vmnij_b,
-        Vmnei_b,
-        Vamei_b,
-        Vamij_b,
-        Vanef_b,
-        Vmnfi_b,
-        Vamef_b,
-        Vaeim_b,
-        T1_b,
-        T2_b,
-        BinsparseFormat.from_numpy(D1),
-        BinsparseFormat.from_numpy(D2),
-    )
-
-
-def dg_ccsd_small():
-    """no=4, nv=6 — matches the C++ CTF reference (ccsd.cxx)."""
-    return make_ccsd_inputs(no=4, nv=6)
-
-
-def dg_ccsd_medium():
-    """no=8, nv=12."""
-    return make_ccsd_inputs(no=8, nv=12)
-
-
-def dg_ccsd_large():
-    """no=16, nv=24."""
-    return make_ccsd_inputs(no=16, nv=24)
