@@ -14,6 +14,34 @@ from sparseappbench.benchmark import (
 
 xp = sparseappbench.xp
 
+def _step_input(t):
+    """A simple 5V step input starting at t=0."""
+    return 5.0 if t >= 0 else 0.0
+
+
+def _rc_derivatives(t, state, R, C, source_voltage):
+    """RC circuit derivatives."""
+    tau = R * C
+    Vs = source_voltage(t)  # Get the current source voltage
+    return [(Vs - state[0]) / tau]  # dV/dt
+
+
+def _rlc_derivatives(t, state, R, L, C, source_voltage):
+    """RLC circuit derivatives."""
+    Vc = state[0]
+    dVc = state[1]
+    Vs = source_voltage(t)
+    d2Vc = (Vs - Vc - R * C * dVc) / (L * C)
+    return (dVc, d2Vc)
+
+
+def _lotka_volterra_derivatives(t, state, a, b, c, d):
+    """Lotka-Volterra derivatives."""
+    x, y = state
+    dxdt = a * x - b * x * y
+    dydt = d * x * y - c * y
+    return (dxdt, dydt)
+
 
 def dydx_brusselator(t, u_vec):
     return brusselator_dydx(t, u_vec, 4, 3.4, 1.0, 0.01)
@@ -99,35 +127,6 @@ def dg_forward_euler_bruss(n, a, b, alpha, t_max, y0, step):
 
     return (np, dydx, (0, t_max), y0, step)
 
-
-
-def _step_input(t):
-    """A simple 5V step input starting at t=0."""
-    return 5.0 if t >= 0 else 0.0
-
-
-def _rc_derivatives(t, state, R, C, source_voltage):
-    """RC circuit derivatives."""
-    tau = R * C
-    Vs = source_voltage(t)  # Get the current source voltage
-    return [(Vs - state[0]) / tau]  # dV/dt
-
-
-def _rlc_derivatives(t, state, R, L, C, source_voltage):
-    """RLC circuit derivatives."""
-    Vc = state[0]
-    dVc = state[1]
-    Vs = source_voltage(t)
-    d2Vc = (Vs - Vc - R * C * dVc) / (L * C)
-    return (dVc, d2Vc)
-
-
-def _lotka_volterra_derivatives(t, state, a, b, c, d):
-    """Lotka-Volterra derivatives."""
-    x, y = state
-    dxdt = a * x - b * x * y
-    dydt = d * x * y - c * y
-    return (dxdt, dydt)
 
 
 
