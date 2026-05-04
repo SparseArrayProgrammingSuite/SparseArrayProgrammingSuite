@@ -4,7 +4,7 @@ import numpy as np
 from scipy.integrate import solve_ivp
 
 
-from sparseappbench.benchmarks.brusselator import (
+from sparseappbench.benchmarks.ode import (
     brusselator_dydx,
     forward_euler,
     init_brusselator_2d,
