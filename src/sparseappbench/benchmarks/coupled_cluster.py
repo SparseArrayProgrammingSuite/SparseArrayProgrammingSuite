@@ -1,33 +1,4 @@
-"""
-Name: Coupled Cluster Singles and Doubles (CCSD)
-Author: Tarun Devi
-Motivation:
-"Coupled cluster theory is one of the most accurate and widely used methods in
-quantum chemistry for computing ground-state energies of molecular systems."
-G. D. Purvis and R. J. Bartlett, "A full coupled-cluster singles and doubles
-model: The inclusion of disconnected triples," J. Chem. Phys., vol. 76, no. 4,
-pp. 1910-1918, 1982, doi: 10.1063/1.443164.
-Role of sparsity:
-The two-electron integral tensors (Vabef, Vabij, etc.) are antisymmetric, which
-means roughly 3/4 of entries are redundant. Exploiting this antisymmetry reduces
-both storage and compute by up to 8x for 4-index tensors.
-Here antisymmetry means swapping an antisymmetric index pair flips the sign, for
-example T[a,b,i,j] = -T[b,a,i,j] and T[a,b,i,j] = -T[a,b,j,i].
-Implementation (Where did the reference algorithm come from? With citation.):
-Ported from the CTF (Cyclops Tensor Framework) CCSD reference implementation:
-E. Solomonik, D. Matthews, J. R. Hammond, J. F. Stanton, and J. Demmel,
-"A massively parallel tensor contraction framework for coupled-cluster
-computations," J. Parallel Distrib. Comput., vol. 74, no. 12, pp. 3176-3190,
-2014, doi: 10.1016/j.jpdc.2014.06.002.
-Data Generation (How is the data generated? Why is it realistic?):
-Inputs are generated using the same deterministic pseudorandom fill as the C++
-CTF reference (ccsd.cxx): canonical antisymmetric elements are set to
-((flat_index * multiplier + tensor_id) % 13077) / 13077 - 0.5, then reflected
-via antisymmetry. This exactly reproduces the C++ reference output |T| = 380638.
-Statement on the use of Generative AI:
-Generative AI was used to assist in debugging the benchmark.
-This statement was written by hand.
-"""
+
 
 import numpy as np
 
@@ -218,6 +189,36 @@ def make_ccsd_inputs(no, nv):
         BinsparseFormat.from_numpy(D2),
     )
 
+"""
+Name: Coupled Cluster Singles and Doubles (CCSD)
+Author: Tarun Devi
+Motivation:
+"Coupled cluster theory is one of the most accurate and widely used methods in
+quantum chemistry for computing ground-state energies of molecular systems."
+G. D. Purvis and R. J. Bartlett, "A full coupled-cluster singles and doubles
+model: The inclusion of disconnected triples," J. Chem. Phys., vol. 76, no. 4,
+pp. 1910-1918, 1982, doi: 10.1063/1.443164.
+Role of sparsity:
+The two-electron integral tensors (Vabef, Vabij, etc.) are antisymmetric, which
+means roughly 3/4 of entries are redundant. Exploiting this antisymmetry reduces
+both storage and compute by up to 8x for 4-index tensors.
+Here antisymmetry means swapping an antisymmetric index pair flips the sign, for
+example T[a,b,i,j] = -T[b,a,i,j] and T[a,b,i,j] = -T[a,b,j,i].
+Implementation (Where did the reference algorithm come from? With citation.):
+Ported from the CTF (Cyclops Tensor Framework) CCSD reference implementation:
+E. Solomonik, D. Matthews, J. R. Hammond, J. F. Stanton, and J. Demmel,
+"A massively parallel tensor contraction framework for coupled-cluster
+computations," J. Parallel Distrib. Comput., vol. 74, no. 12, pp. 3176-3190,
+2014, doi: 10.1016/j.jpdc.2014.06.002.
+Data Generation (How is the data generated? Why is it realistic?):
+Inputs are generated using the same deterministic pseudorandom fill as the C++
+CTF reference (ccsd.cxx): canonical antisymmetric elements are set to
+((flat_index * multiplier + tensor_id) % 13077) / 13077 - 0.5, then reflected
+via antisymmetry. This exactly reproduces the C++ reference output |T| = 380638.
+Statement on the use of Generative AI:
+Generative AI was used to assist in debugging the benchmark.
+This statement was written by hand.
+"""
 
 def benchmark_ccsd(
     xp,
