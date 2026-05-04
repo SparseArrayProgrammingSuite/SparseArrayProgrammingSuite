@@ -138,19 +138,19 @@ class LotkaVolterraDataset(Dataset):
 class RCGenerator(Generator[RCDataset]):
     @property
     def name(self) -> str:
-        return "forward_euler_rc"
+        return "rc"
 
     @property
     def pretty_name(self) -> str:
-        return "Forward Euler RC Circuit"
+        return "RC Circuit"
 
     @property
     def description(self) -> str:
-        return "RC circuit ODE solved with Forward Euler."
+        return "RC circuit ODE."
 
     @property
     def tags(self) -> list[str]:
-        return ["ode", "rc-circuit", "forward-euler"]
+        return ["ode", "rc-circuit"]
 
     @property
     def authors(self) -> list[Contributor]:
@@ -204,19 +204,19 @@ class RCGenerator(Generator[RCDataset]):
 class RLCGenerator(Generator[RLCDataset]):
     @property
     def name(self) -> str:
-        return "forward_euler_rlc"
+        return "rlc"
 
     @property
     def pretty_name(self) -> str:
-        return "Forward Euler RLC Circuit"
+        return "RLC Circuit"
 
     @property
     def description(self) -> str:
-        return "RLC circuit ODE solved with Forward Euler."
+        return "RLC circuit ODE."
 
     @property
     def tags(self) -> list[str]:
-        return ["ode", "rlc-circuit", "forward-euler"]
+        return ["ode", "rlc-circuit"]
 
     @property
     def authors(self) -> list[Contributor]:
@@ -270,19 +270,19 @@ class RLCGenerator(Generator[RLCDataset]):
 class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
     @property
     def name(self) -> str:
-        return "forward_euler_lotka_volterra"
+        return "lotka_volterra"
 
     @property
     def pretty_name(self) -> str:
-        return "Forward Euler Lotka-Volterra"
+        return "Lotka-Volterra"
 
     @property
     def description(self) -> str:
-        return "Lotka-Volterra ODE solved with Forward Euler."
+        return "Lotka-Volterra ODE."
 
     @property
     def tags(self) -> list[str]:
-        return ["ode", "lotka-volterra", "forward-euler"]
+        return ["ode", "lotka-volterra"]
 
     @property
     def authors(self) -> list[Contributor]:
@@ -401,66 +401,152 @@ class ForwardEuler(Benchmark):
 
 
 
-def backward_euler(
-    xp,
-    dydx,
-    span,
-    y0,
-    first_step,
-):
-    """Backward Euler method of approximating ordinary differential equations (ODEs)."""
-    # Builtin range function does not support floating-point step
-    curr = span[0]
-    inputs = []
-    while curr < span[1]:
-        inputs.append(curr)
-        curr += first_step
 
-    step = first_step
-    outputs = [None for _ in inputs]
-    outputs[0] = y0
-    # y_n+1 = y_n + dy/dx(x_n+1, y_n+1) * delta x
 
-    # Fixed point iteration
-    for i in range(1, len(inputs)):
-        y_guess = outputs[i - 1] # initial guess
-        for _ in range(10):
-            dydt_vector = dydx(inputs[i], y_guess)
-            y_guess = [outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))]
-        outputs[i] = y_guess
-    
-    return (inputs, outputs)
 
-def rk4(
-    xp,
-    dydx,
-    span,
-    y0,
-    first_step
-):
-    """Runge-Kutta 4th order method of approximating ordinary differential equations (ODEs)."""
-    curr = span[0]
-    inputs = []
-    while curr < span[1]:
-        inputs.append(curr)
-        curr += first_step
+class BackwardEuler(Benchmark):
+    @property
+    def name(self):
+        return "backward_euler"
 
-    step = first_step
-    outputs = [None for _ in inputs]
-    outputs[0] = y0
+    @property
+    def pretty_name(self):
+        return "Backward Euler ODE Solver"
 
-    for i in range(1, len(inputs)):
-        y_prev = outputs[i - 1]
-        k1 = dydx(inputs[i - 1], y_prev)
-        k2_state = [y_prev[j] + (step / 2) * k1[j] for j in range(len(y0))]
-        k2 = dydx(inputs[i - 1] + step / 2, k2_state)
-        k3_state = [y_prev[j] + (step / 2) * k2[j] for j in range(len(y0))]
-        k3 = dydx(inputs[i - 1] + step / 2, k3_state)
-        k4_state = [y_prev[j] + step * k3[j] for j in range(len(y0))]
-        k4 = dydx(inputs[i - 1] + step, k4_state)
-        outputs[i] = [
-            y_prev[j] + (step / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j])
-            for j in range(len(y0))
+    @property
+    def description(self):
+        return "Backward Euler method for solving various ODE systems."
+
+    @property
+    def tags(self):
+        return ["ode", "backward-euler", "integration"]
+
+    @property
+    def authors(self):
+        return [Contributor("Akarsh Duddu", "aduddu3@gatech.edu")]
+
+    @property
+    def references(self):
+        return []
+
+    @property
+    def ai_disclosure(self):
+        return (
+            "No generative AI was used to write the benchmark function itself. Generative"
+            "AI was used for debugging. This statement was written by hand"
+        )
+
+    @property
+    def motivation(self):
+        return ""
+
+    @property
+    def generators(self):
+        return [
+            RCGenerator(),
+            RLCGenerator(),
+            LotkaVolterraGenerator(),
         ]
 
-    return (inputs, outputs)
+    def benchmark(self, data, meta):
+        dydx, span, y0, first_step = data
+        
+        # Backward Euler integration with fixed point iteration
+        curr = span[0]
+        inputs = []
+        while curr < span[1]:
+            inputs.append(curr)
+            curr += first_step
+
+        step = first_step
+        outputs = [None for _ in inputs]
+        outputs[0] = y0
+
+        # y_n+1 = y_n + dy/dx(x_n+1, y_n+1) * delta x
+        # Fixed point iteration
+        for i in range(1, len(inputs)):
+            y_guess = outputs[i - 1]  # initial guess
+            for _ in range(10):
+                dydt_vector = dydx(inputs[i], y_guess)
+                y_guess = [outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))]
+            outputs[i] = y_guess
+
+        return (inputs, outputs)
+
+
+
+
+
+class RK4(Benchmark):
+    @property
+    def name(self):
+        return "rk4"
+
+    @property
+    def pretty_name(self):
+        return "Runge-Kutta 4th Order ODE Solver"
+
+    @property
+    def description(self):
+        return "Runge-Kutta 4th order method for solving various ODE systems."
+
+    @property
+    def tags(self):
+        return ["ode", "rk4", "integration"]
+
+    @property
+    def authors(self):
+        return [Contributor("Akarsh Duddu", "aduddu3@gatech.edu")]
+
+    @property
+    def references(self):
+        return []
+
+    @property
+    def ai_disclosure(self):
+        return (
+            "No generative AI was used to write the benchmark function itself. Generative"
+            "AI was used for debugging. This statement was written by hand"
+        )
+
+    @property
+    def motivation(self):
+        return ""
+
+    @property
+    def generators(self):
+        return [
+            RCGenerator(),
+            RLCGenerator(),
+            LotkaVolterraGenerator(),
+        ]
+
+    def benchmark(self, data, meta):
+        dydx, span, y0, first_step = data
+        
+        # Runge-Kutta 4th order integration
+        curr = span[0]
+        inputs = []
+        while curr < span[1]:
+            inputs.append(curr)
+            curr += first_step
+
+        step = first_step
+        outputs = [None for _ in inputs]
+        outputs[0] = y0
+
+        for i in range(1, len(inputs)):
+            y_prev = outputs[i - 1]
+            k1 = dydx(inputs[i - 1], y_prev)
+            k2_state = [y_prev[j] + (step / 2) * k1[j] for j in range(len(y0))]
+            k2 = dydx(inputs[i - 1] + step / 2, k2_state)
+            k3_state = [y_prev[j] + (step / 2) * k2[j] for j in range(len(y0))]
+            k3 = dydx(inputs[i - 1] + step / 2, k3_state)
+            k4_state = [y_prev[j] + step * k3[j] for j in range(len(y0))]
+            k4 = dydx(inputs[i - 1] + step, k4_state)
+            outputs[i] = [
+                y_prev[j] + (step / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j])
+                for j in range(len(y0))
+            ]
+
+        return (inputs, outputs)
