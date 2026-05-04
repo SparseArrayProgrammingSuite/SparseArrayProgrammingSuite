@@ -1,3 +1,60 @@
+# Data generators
+def dg_cp_als_sparse_small():
+    dim1, dim2, dim3, dim4, dim5 = 10, 10, 10, 10, 10
+    rank = 4
+    nnz = int(0.01 * dim1 * dim2 * dim3 * dim4 * dim5)
+
+    all_indices = np.random.default_rng(0).choice(
+        dim1 * dim2 * dim3 * dim4 * dim5, size=nnz, replace=False
+    )
+    i_idx, j_idx, k_idx, l_idx, m_idx = np.unravel_index(
+        all_indices, (dim1, dim2, dim3, dim4, dim5)
+    )
+
+    values = np.random.default_rng(0).random(nnz).astype(np.float32)
+    X_bin = BinsparseFormat.from_coo(
+        (i_idx, j_idx, k_idx, l_idx, m_idx), values, (dim1, dim2, dim3, dim4, dim5)
+    )
+    max_iter = 50
+
+    return (X_bin, rank, max_iter)
+
+
+def dg_cp_als_factorizable_small():
+    """
+    Generating a small factorizable tensor by creating random factor matrices
+    and reconstructing the tensor from them (tensor should decompose easily
+    with low reconstruction error).
+    """
+    dim1, dim2, dim3, dim4, dim5 = 10, 10, 10, 10, 10
+    rank = 4
+
+    rng = np.random.default_rng(0)
+
+    # Create simple factor matrices for easier decomposition
+    A = rng.random((dim1, rank)).astype(np.float32)
+    B = rng.random((dim2, rank)).astype(np.float32)
+    C = rng.random((dim3, rank)).astype(np.float32)
+    D = rng.random((dim4, rank)).astype(np.float32)
+    E = rng.random((dim5, rank)).astype(np.float32)
+
+    A = A / np.linalg.norm(A, axis=0, keepdims=True)
+    B = B / np.linalg.norm(B, axis=0, keepdims=True)
+    C = C / np.linalg.norm(C, axis=0, keepdims=True)
+    D = D / np.linalg.norm(D, axis=0, keepdims=True)
+    E = E / np.linalg.norm(E, axis=0, keepdims=True)
+    lambdas = np.array([1.0, 0.8, 0.6, 0.4], dtype=np.float32)
+    A = A * lambdas
+
+    X_dense = np.einsum("ir,jr,kr,lr,mr->ijklm", A, B, C, D, E)
+
+    indices = np.nonzero(np.ones_like(X_dense))
+    values = X_dense[indices]
+    X_bin = BinsparseFormat.from_coo(indices, values, (dim1, dim2, dim3, dim4, dim5))
+    max_iter = 100
+
+    return (X_bin, rank, max_iter)
+
 """
 Name: CP-ALS for Tensor Decomposition
 Author: Willow Ahrens
@@ -245,61 +302,3 @@ def benchmark_cp_als(xp, X_bench, rank, max_iter=100):
         E_bench_out,
         lambda_bench_out,
     )
-
-
-# Data generators
-def dg_cp_als_sparse_small():
-    dim1, dim2, dim3, dim4, dim5 = 10, 10, 10, 10, 10
-    rank = 4
-    nnz = int(0.01 * dim1 * dim2 * dim3 * dim4 * dim5)
-
-    all_indices = np.random.default_rng(0).choice(
-        dim1 * dim2 * dim3 * dim4 * dim5, size=nnz, replace=False
-    )
-    i_idx, j_idx, k_idx, l_idx, m_idx = np.unravel_index(
-        all_indices, (dim1, dim2, dim3, dim4, dim5)
-    )
-
-    values = np.random.default_rng(0).random(nnz).astype(np.float32)
-    X_bin = BinsparseFormat.from_coo(
-        (i_idx, j_idx, k_idx, l_idx, m_idx), values, (dim1, dim2, dim3, dim4, dim5)
-    )
-    max_iter = 50
-
-    return (X_bin, rank, max_iter)
-
-
-def dg_cp_als_factorizable_small():
-    """
-    Generating a small factorizable tensor by creating random factor matrices
-    and reconstructing the tensor from them (tensor should decompose easily
-    with low reconstruction error).
-    """
-    dim1, dim2, dim3, dim4, dim5 = 10, 10, 10, 10, 10
-    rank = 4
-
-    rng = np.random.default_rng(0)
-
-    # Create simple factor matrices for easier decomposition
-    A = rng.random((dim1, rank)).astype(np.float32)
-    B = rng.random((dim2, rank)).astype(np.float32)
-    C = rng.random((dim3, rank)).astype(np.float32)
-    D = rng.random((dim4, rank)).astype(np.float32)
-    E = rng.random((dim5, rank)).astype(np.float32)
-
-    A = A / np.linalg.norm(A, axis=0, keepdims=True)
-    B = B / np.linalg.norm(B, axis=0, keepdims=True)
-    C = C / np.linalg.norm(C, axis=0, keepdims=True)
-    D = D / np.linalg.norm(D, axis=0, keepdims=True)
-    E = E / np.linalg.norm(E, axis=0, keepdims=True)
-    lambdas = np.array([1.0, 0.8, 0.6, 0.4], dtype=np.float32)
-    A = A * lambdas
-
-    X_dense = np.einsum("ir,jr,kr,lr,mr->ijklm", A, B, C, D, E)
-
-    indices = np.nonzero(np.ones_like(X_dense))
-    values = X_dense[indices]
-    X_bin = BinsparseFormat.from_coo(indices, values, (dim1, dim2, dim3, dim4, dim5))
-    max_iter = 100
-
-    return (X_bin, rank, max_iter)

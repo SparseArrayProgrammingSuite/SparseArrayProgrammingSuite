@@ -39,6 +39,56 @@ from saps_framework.binsparse_format import BinsparseFormat
 
 xp = sparseappbench.xp
 
+
+# Data generators
+def dg_cp_als_sparse_small():
+    dim1, dim2, dim3 = 20, 20, 20
+    rank = 3
+    nnz = int(0.01 * dim1 * dim2 * dim3)
+
+    all_indices = np.random.default_rng(0).choice(
+        dim1 * dim2 * dim3, size=nnz, replace=False
+    )
+    i_idx, j_idx, k_idx = np.unravel_index(all_indices, (dim1, dim2, dim3))
+
+    values = np.random.default_rng(0).random(nnz).astype(np.float32)
+    X_bin = BinsparseFormat.from_coo((i_idx, j_idx, k_idx), values, (dim1, dim2, dim3))
+    max_iter = 50
+
+    return (X_bin, rank, max_iter)
+
+
+def dg_cp_als_factorizable_small():
+    """
+    Generating a small factorizable tensor by creating random factor matrices
+    and reconstructing the tensor from them (tensor should decompose easily
+    with low reconstruction error).
+    """
+    dim1, dim2, dim3 = 20, 20, 20
+    rank = 3
+
+    rng = np.random.default_rng(0)
+
+    # Create simple factor matrices for easier decomposition
+    A = rng.random((dim1, rank)).astype(np.float32)
+    B = rng.random((dim2, rank)).astype(np.float32)
+    C = rng.random((dim3, rank)).astype(np.float32)
+
+    A = A / np.linalg.norm(A, axis=0, keepdims=True)
+    B = B / np.linalg.norm(B, axis=0, keepdims=True)
+    C = C / np.linalg.norm(C, axis=0, keepdims=True)
+    lambdas = np.array([100.0, 50.0, 25.0], dtype=np.float32)
+    A = A * lambdas
+
+    X_dense = np.einsum("ir,jr,kr->ijk", A, B, C)
+
+    indices = np.nonzero(np.ones_like(X_dense))
+    values = X_dense[indices]
+    X_bin = BinsparseFormat.from_coo(indices, values, (dim1, dim2, dim3))
+    max_iter = 100
+
+    return (X_bin, rank, max_iter)
+
 """
 benchmark_cp_als(xp, X_bench, rank, max_iter)
 
@@ -158,52 +208,3 @@ def benchmark_cp_als(xp, X_bench, rank, max_iter=50):
 
     return (A_bench_out, B_bench_out, C_bench_out, lambda_bench_out)
 
-
-# Data generators
-def dg_cp_als_sparse_small():
-    dim1, dim2, dim3 = 20, 20, 20
-    rank = 3
-    nnz = int(0.01 * dim1 * dim2 * dim3)
-
-    all_indices = np.random.default_rng(0).choice(
-        dim1 * dim2 * dim3, size=nnz, replace=False
-    )
-    i_idx, j_idx, k_idx = np.unravel_index(all_indices, (dim1, dim2, dim3))
-
-    values = np.random.default_rng(0).random(nnz).astype(np.float32)
-    X_bin = BinsparseFormat.from_coo((i_idx, j_idx, k_idx), values, (dim1, dim2, dim3))
-    max_iter = 50
-
-    return (X_bin, rank, max_iter)
-
-
-def dg_cp_als_factorizable_small():
-    """
-    Generating a small factorizable tensor by creating random factor matrices
-    and reconstructing the tensor from them (tensor should decompose easily
-    with low reconstruction error).
-    """
-    dim1, dim2, dim3 = 20, 20, 20
-    rank = 3
-
-    rng = np.random.default_rng(0)
-
-    # Create simple factor matrices for easier decomposition
-    A = rng.random((dim1, rank)).astype(np.float32)
-    B = rng.random((dim2, rank)).astype(np.float32)
-    C = rng.random((dim3, rank)).astype(np.float32)
-
-    A = A / np.linalg.norm(A, axis=0, keepdims=True)
-    B = B / np.linalg.norm(B, axis=0, keepdims=True)
-    C = C / np.linalg.norm(C, axis=0, keepdims=True)
-    lambdas = np.array([100.0, 50.0, 25.0], dtype=np.float32)
-    A = A * lambdas
-
-    X_dense = np.einsum("ir,jr,kr->ijk", A, B, C)
-
-    indices = np.nonzero(np.ones_like(X_dense))
-    values = X_dense[indices]
-    X_bin = BinsparseFormat.from_coo(indices, values, (dim1, dim2, dim3))
-    max_iter = 100
-
-    return (X_bin, rank, max_iter)
