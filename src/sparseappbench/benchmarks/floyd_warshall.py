@@ -7,6 +7,69 @@ import ssgetpy
 
 from saps_framework.binsparse_format import BinsparseFormat
 
+
+
+def dg_fw_sparse_1():
+    return generate_floyd_warshall_data("bcspwr01", symmetrize=True)
+
+
+def dg_fw_sparse_2():
+    return generate_floyd_warshall_data("bcspwr02", symmetrize=True)
+
+
+def dg_fw_sparse_3():
+    return generate_floyd_warshall_data("bcspwr03", symmetrize=True)
+
+
+def dg_fw_sparse_4():
+    return generate_floyd_warshall_data("chesapeake", symmetrize=True)
+
+
+def dg_fw_sparse_5():
+    return generate_floyd_warshall_data("ash85")
+
+
+def dg_fw_sparse_6():
+    return generate_floyd_warshall_data("arc130")
+
+
+def dg_fw_sparse_7():
+    return generate_floyd_warshall_data("bcspwr04", symmetrize=True)
+
+
+def dg_fw_sparse_8():
+    return generate_floyd_warshall_data("ash292")
+
+def generate_floyd_warshall_data(source, symmetrize=False):
+    matrices = ssgetpy.search(name=source)
+    if not matrices:
+        raise ValueError(f"No matrix found with name '{source}'")
+    matrix = matrices[0]
+    (path, archive) = matrix.download(extract=True)
+    matrix_path = os.path.join(path, matrix.name + ".mtx")
+    if matrix_path and os.path.exists(matrix_path):
+        A = mmread(matrix_path)
+    else:
+        raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
+
+    A = A.tocoo()
+    n, m = A.shape
+    if n != m:
+        raise ValueError(f"Floyd-Warshall requires a square matrix, got {A.shape}")
+
+    G = np.full((n, n), np.inf, dtype=np.float64)
+    np.fill_diagonal(G, 0.0)
+    if A.nnz > 0:
+        G[A.row, A.col] = A.data.astype(np.float64)
+
+    if symmetrize:
+        G = np.minimum(G, G.T)
+
+    G_bin = BinsparseFormat.from_numpy(G)
+    return (G_bin,)
+
+
+
 """
 Name: Floyd-Warshall algorithm
 Co-Authors: Aarav Joglekar, Joel Mathew Cherian
@@ -63,64 +126,3 @@ def floyd_warshall(xp, edges_binsparse):
         G_k = xp.expand_dims(G[:, k], axis=1) + xp.expand_dims(G[k, :], axis=0)
         G = xp.minimum(G, G_k)
     return xp.to_binsparse(G)
-
-
-def generate_floyd_warshall_data(source, symmetrize=False):
-    matrices = ssgetpy.search(name=source)
-    if not matrices:
-        raise ValueError(f"No matrix found with name '{source}'")
-    matrix = matrices[0]
-    (path, archive) = matrix.download(extract=True)
-    matrix_path = os.path.join(path, matrix.name + ".mtx")
-    if matrix_path and os.path.exists(matrix_path):
-        A = mmread(matrix_path)
-    else:
-        raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-
-    A = A.tocoo()
-    n, m = A.shape
-    if n != m:
-        raise ValueError(f"Floyd-Warshall requires a square matrix, got {A.shape}")
-
-    G = np.full((n, n), np.inf, dtype=np.float64)
-    np.fill_diagonal(G, 0.0)
-    if A.nnz > 0:
-        G[A.row, A.col] = A.data.astype(np.float64)
-
-    if symmetrize:
-        G = np.minimum(G, G.T)
-
-    G_bin = BinsparseFormat.from_numpy(G)
-    return (G_bin,)
-
-
-def dg_fw_sparse_1():
-    return generate_floyd_warshall_data("bcspwr01", symmetrize=True)
-
-
-def dg_fw_sparse_2():
-    return generate_floyd_warshall_data("bcspwr02", symmetrize=True)
-
-
-def dg_fw_sparse_3():
-    return generate_floyd_warshall_data("bcspwr03", symmetrize=True)
-
-
-def dg_fw_sparse_4():
-    return generate_floyd_warshall_data("chesapeake", symmetrize=True)
-
-
-def dg_fw_sparse_5():
-    return generate_floyd_warshall_data("ash85")
-
-
-def dg_fw_sparse_6():
-    return generate_floyd_warshall_data("arc130")
-
-
-def dg_fw_sparse_7():
-    return generate_floyd_warshall_data("bcspwr04", symmetrize=True)
-
-
-def dg_fw_sparse_8():
-    return generate_floyd_warshall_data("ash292")
