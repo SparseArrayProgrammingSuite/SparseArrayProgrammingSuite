@@ -36,8 +36,8 @@ class Ref:
     booktitle: str | None = None
     publisher: str | None = None
     institution: str | None = None
-    volume: str | None = None
-    number: str | None = None
+    volume: str | int | None = None
+    number: str | int | None = None
     pages: str | None = None
     year: int | None = None
     url: str | None = None

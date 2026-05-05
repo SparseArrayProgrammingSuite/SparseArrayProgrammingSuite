@@ -251,7 +251,7 @@ class CCSDGenerator(Generator[CCSDDataset]):
                 pages = "1910-1918",
             ),
             Ref(
-                title = "A massively parallel tensor contraction framework for coupled-cluster computations,"
+                title = "A massively parallel tensor contraction framework for coupled-cluster computations",
                 authors = [
                     Author("E. Solomonik"),
                     Author("D. Matthews"),
@@ -354,7 +354,7 @@ class CCSD(Benchmark):
                 pages = "1910-1918",
             ),
             Ref(
-                title = "A massively parallel tensor contraction framework for coupled-cluster computations,"
+                title = "A massively parallel tensor contraction framework for coupled-cluster computations",
                 authors = [
                     Author("E. Solomonik"),
                     Author("D. Matthews"),
