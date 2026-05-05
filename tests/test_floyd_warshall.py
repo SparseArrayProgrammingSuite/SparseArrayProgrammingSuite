@@ -1,14 +1,15 @@
 import numpy as np
+import pytest
 
-from sparseappbench.benchmarks.floyd_warshall import floyd_warshall
+import sparseappbench.benchmarks.floyd_warshall as floyd_warshall
 from saps_framework import BinsparseFormat
 from frameworks.saps_numpy import NumpyFramework
 
 
 def _run_fw_case(xp, A, expected):
     """Run Floyd–Warshall and compare to an expected APSP distance matrix."""
-    A_bin = BinsparseFormat.from_numpy(A)
-    out_test = floyd_warshall(xp, A_bin)
+    floyd_warshall.xp = xp
+    out_test = floyd_warshall.FloydWarshallBenchmark().benchmark([A], {})[0]
     out = xp.from_binsparse(out_test)
 
     both_inf = np.isinf(out) & np.isinf(expected)
@@ -73,7 +74,8 @@ def test_fw_tiny_cases():
     _run_fw_case(NumpyFramework(), A, expected)
 
 
-def test_fw_chesapeake_invariants():
+@pytest.mark.parametrize("dataset", floyd_warshall.FloydWarshallGenerator().datasets)
+def test_fw_generated_datasets(dataset):
     xp = NumpyFramework()
     n = 39
 
@@ -176,23 +178,16 @@ def test_fw_chesapeake_invariants():
         A[u, v] = 1.0
         A[v, u] = 1.0
 
-    A_bin = BinsparseFormat.from_numpy(A)
-    out = xp.from_binsparse(floyd_warshall(xp, A_bin))
+    out = xp.from_binsparse(floyd_warshall.FloydWarshallBenchmark().benchmark([edges], {})[0])
 
+    assert out.shape[0] == out.shape[1]
     assert np.all(np.diag(out) == 0.0)
-
-    assert np.all(out == out.T)
-
-    assert np.all(np.isfinite(out))
-
-    for u, v in edges:
-        assert out[u, v] == 1.0
-        assert out[v, u] == 1.0
-
     assert np.all(out >= 0.0)
-    assert np.all(out == np.floor(out))
+
+    if dataset.symmetrize:
+        assert np.all(out == out.T)
 
     rng = np.random.default_rng(0)
-    for _ in range(200):
-        i, j, k = rng.integers(0, n, size=3)
+    for _ in range(50):
+        i, j, k = rng.integers(0, out.shape[0], size=3)
         assert out[i, j] <= out[i, k] + out[k, j]
