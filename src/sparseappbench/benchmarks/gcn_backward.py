@@ -1,3 +1,129 @@
+
+
+import os
+
+import numpy as np
+from scipy.io import mmread
+
+import ssgetpy
+
+import sparseappbench
+from saps_framework.binsparse_format import BinsparseFormat
+
+xp = sparseappbench.xp
+
+
+
+
+
+def generate_gcn_backward_data(source, hidden_dim=4):
+    """Generate degree prediction training data from a SuiteSparse matrix.
+
+    Creates a GCN training task where the network learns to predict normalized
+    node degrees from graph structure using constant features (all 1s).
+
+    Args:
+        source: Name of matrix in SuiteSparse collection
+        hidden_dim: Hidden layer dimension (default 4)
+
+    Returns:
+        Tuple of (A, A_T, features, W1, b1, W2, b2, targets) in BinsparseFormat
+    """
+    matrices = ssgetpy.search(name=source)
+    if not matrices:
+        raise ValueError(f"No matrix found with name '{source}'")
+    matrix = matrices[0]
+    (path, _) = matrix.download(extract=True)
+    matrix_path = os.path.join(path, matrix.name + ".mtx")
+    if not (matrix_path and os.path.exists(matrix_path)):
+        raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
+
+    A = mmread(matrix_path)
+    A = A.tocoo()
+
+    # Make adjacency binary (unweighted graph)
+    A_binary = A.copy()
+    A_binary.data = np.ones_like(A_binary.data)
+
+    # Compute node degrees and normalize as targets
+    n = A.shape[0]
+    degrees = np.array(A_binary.sum(axis=1)).flatten()
+    max_degree = degrees.max() if degrees.max() > 0 else 1
+    targets = (degrees / max_degree).reshape(-1, 1)
+
+    # Constant features (force learning from structure)
+    features = np.ones((n, 1))
+
+    # Initialize weights deterministically
+    rng = np.random.default_rng(42)
+    weights1 = rng.standard_normal((1, hidden_dim)) * 0.5
+    bias1 = np.zeros(hidden_dim)
+    weights2 = rng.standard_normal((hidden_dim, 1)) * 0.5
+    bias2 = np.zeros(1)
+
+    # Create transpose
+    A_T = A_binary.T.tocoo()
+
+    # Convert to BinsparseFormat
+    A_bin = BinsparseFormat.from_coo(
+        (A_binary.row, A_binary.col), A_binary.data.astype(np.float64), A_binary.shape
+    )
+    A_T_bin = BinsparseFormat.from_coo(
+        (A_T.row, A_T.col), A_T.data.astype(np.float64), A_T.shape
+    )
+    features_bin = BinsparseFormat.from_numpy(features)
+    weights1_bin = BinsparseFormat.from_numpy(weights1)
+    bias1_bin = BinsparseFormat.from_numpy(bias1)
+    weights2_bin = BinsparseFormat.from_numpy(weights2)
+    bias2_bin = BinsparseFormat.from_numpy(bias2)
+    targets_bin = BinsparseFormat.from_numpy(targets)
+
+    return (
+        A_bin,
+        A_T_bin,
+        features_bin,
+        weights1_bin,
+        bias1_bin,
+        weights2_bin,
+        bias2_bin,
+        targets_bin,
+    )
+
+
+def dg_gcn_backward_small_1():
+    """Small graph - Zachary's karate club (34 nodes)."""
+    return generate_gcn_backward_data("karate", hidden_dim=4)
+
+
+def dg_gcn_backward_small_2():
+    """Small graph - Dolphins social network (62 nodes)."""
+    return generate_gcn_backward_data("dolphins", hidden_dim=4)
+
+
+def dg_gcn_backward_small_3():
+    """Small graph - Les Miserables character network (77 nodes)."""
+    return generate_gcn_backward_data("lesmis", hidden_dim=4)
+
+
+def dg_gcn_backward_medium_1():
+    """Medium graph - Football network (115 nodes)."""
+    return generate_gcn_backward_data("football", hidden_dim=8)
+
+
+def dg_gcn_backward_medium_2():
+    """Medium graph - Political books network (105 nodes)."""
+    return generate_gcn_backward_data("polbooks", hidden_dim=8)
+
+
+def dg_gcn_backward_large_1():
+    """Larger graph - Email network (~1K nodes)."""
+    return generate_gcn_backward_data("email", hidden_dim=16)
+
+
+def dg_gcn_backward_large_2():
+    """Larger graph - ca-GrQc collaboration network (~5K nodes)."""
+    return generate_gcn_backward_data("ca-GrQc", hidden_dim=16)
+
 """
 Name: Graph Convolutional Network Training (Backward Pass)
 Author: Tarun Devi
@@ -29,19 +155,6 @@ No generative AI was used to construct the benchmark function itself.
 Generative AI might have been used to construct tests. This statement
 was written by hand.
 """
-
-import os
-
-import numpy as np
-from scipy.io import mmread
-
-import ssgetpy
-
-import sparseappbench
-from saps_framework.binsparse_format import BinsparseFormat
-
-xp = sparseappbench.xp
-
 
 def benchmark_gcn_backward(
     xp,
@@ -173,112 +286,3 @@ def benchmark_gcn_backward(
         xp.to_binsparse(weights2_out),
         xp.to_binsparse(bias2_out),
     )
-
-
-def generate_gcn_backward_data(source, hidden_dim=4):
-    """Generate degree prediction training data from a SuiteSparse matrix.
-
-    Creates a GCN training task where the network learns to predict normalized
-    node degrees from graph structure using constant features (all 1s).
-
-    Args:
-        source: Name of matrix in SuiteSparse collection
-        hidden_dim: Hidden layer dimension (default 4)
-
-    Returns:
-        Tuple of (A, A_T, features, W1, b1, W2, b2, targets) in BinsparseFormat
-    """
-    matrices = ssgetpy.search(name=source)
-    if not matrices:
-        raise ValueError(f"No matrix found with name '{source}'")
-    matrix = matrices[0]
-    (path, _) = matrix.download(extract=True)
-    matrix_path = os.path.join(path, matrix.name + ".mtx")
-    if not (matrix_path and os.path.exists(matrix_path)):
-        raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-
-    A = mmread(matrix_path)
-    A = A.tocoo()
-
-    # Make adjacency binary (unweighted graph)
-    A_binary = A.copy()
-    A_binary.data = np.ones_like(A_binary.data)
-
-    # Compute node degrees and normalize as targets
-    n = A.shape[0]
-    degrees = np.array(A_binary.sum(axis=1)).flatten()
-    max_degree = degrees.max() if degrees.max() > 0 else 1
-    targets = (degrees / max_degree).reshape(-1, 1)
-
-    # Constant features (force learning from structure)
-    features = np.ones((n, 1))
-
-    # Initialize weights deterministically
-    rng = np.random.default_rng(42)
-    weights1 = rng.standard_normal((1, hidden_dim)) * 0.5
-    bias1 = np.zeros(hidden_dim)
-    weights2 = rng.standard_normal((hidden_dim, 1)) * 0.5
-    bias2 = np.zeros(1)
-
-    # Create transpose
-    A_T = A_binary.T.tocoo()
-
-    # Convert to BinsparseFormat
-    A_bin = BinsparseFormat.from_coo(
-        (A_binary.row, A_binary.col), A_binary.data.astype(np.float64), A_binary.shape
-    )
-    A_T_bin = BinsparseFormat.from_coo(
-        (A_T.row, A_T.col), A_T.data.astype(np.float64), A_T.shape
-    )
-    features_bin = BinsparseFormat.from_numpy(features)
-    weights1_bin = BinsparseFormat.from_numpy(weights1)
-    bias1_bin = BinsparseFormat.from_numpy(bias1)
-    weights2_bin = BinsparseFormat.from_numpy(weights2)
-    bias2_bin = BinsparseFormat.from_numpy(bias2)
-    targets_bin = BinsparseFormat.from_numpy(targets)
-
-    return (
-        A_bin,
-        A_T_bin,
-        features_bin,
-        weights1_bin,
-        bias1_bin,
-        weights2_bin,
-        bias2_bin,
-        targets_bin,
-    )
-
-
-def dg_gcn_backward_small_1():
-    """Small graph - Zachary's karate club (34 nodes)."""
-    return generate_gcn_backward_data("karate", hidden_dim=4)
-
-
-def dg_gcn_backward_small_2():
-    """Small graph - Dolphins social network (62 nodes)."""
-    return generate_gcn_backward_data("dolphins", hidden_dim=4)
-
-
-def dg_gcn_backward_small_3():
-    """Small graph - Les Miserables character network (77 nodes)."""
-    return generate_gcn_backward_data("lesmis", hidden_dim=4)
-
-
-def dg_gcn_backward_medium_1():
-    """Medium graph - Football network (115 nodes)."""
-    return generate_gcn_backward_data("football", hidden_dim=8)
-
-
-def dg_gcn_backward_medium_2():
-    """Medium graph - Political books network (105 nodes)."""
-    return generate_gcn_backward_data("polbooks", hidden_dim=8)
-
-
-def dg_gcn_backward_large_1():
-    """Larger graph - Email network (~1K nodes)."""
-    return generate_gcn_backward_data("email", hidden_dim=16)
-
-
-def dg_gcn_backward_large_2():
-    """Larger graph - ca-GrQc collaboration network (~5K nodes)."""
-    return generate_gcn_backward_data("ca-GrQc", hidden_dim=16)
