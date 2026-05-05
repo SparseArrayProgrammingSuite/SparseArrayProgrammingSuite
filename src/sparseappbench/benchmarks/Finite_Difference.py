@@ -1,3 +1,24 @@
+import os
+from typing import Any
+
+import numpy as np
+from scipy.io import mmread
+from scipy.sparse import random
+
+import ssgetpy
+
+import sparseappbench
+from sparseappbench.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    Dataset,
+    Generator,
+    Ref,
+)
+from saps_framework import BinsparseFormat
+
+xp = sparseappbench.xp
 
 def burgers_flux(u):
     return 0.5 * u * u
@@ -14,18 +35,9 @@ def linear_advection_flux(c):
 
     return flux
 
-# I made this deterministic
-def lax_freidrichs_data_generator(xp, number_spatial, density):
-    u_0 = xp.zeros(number_spatial)
-    step = int(1 / density)
-    indices = xp.arange(0, number_spatial, step)
 
-    u_0[indices] = 1
-    return u_0
-
-
-def lax_freidrichs_matrix_no_flux(xp, Nx):
-    matrix = xp.zeros((Nx, Nx))
+def _lax_freidrichs_matrix_no_flux(Nx):
+    matrix = np.zeros((Nx, Nx))
     for i in range(1, Nx):
         matrix[i, i - 1] = 0.5
     for i in range(Nx - 1):
@@ -38,8 +50,8 @@ def lax_freidrichs_matrix_no_flux(xp, Nx):
     return matrix
 
 
-def difference_matrix(xp, Nx):
-    matrix = xp.zeros((Nx, Nx))
+def _difference_matrix(Nx):
+    matrix = np.zeros((Nx, Nx))
     for i in range(1, Nx):
         matrix[i, i - 1] = -1
     for i in range(Nx - 1):
@@ -50,50 +62,236 @@ def difference_matrix(xp, Nx):
     matrix[-1, 0] = 1
     return matrix
 
-"""
-Name: Finite Difference Simulation
-Author: Vilohith Gokarakonda
-Email: vgokarakonda3@gatech.edu
-Motivation (Importance of problem with citation):
-The purpose of this is to analyze the importance of numerical methods for PDEs,
-and applications sparse array theory into these method, through the form of benchmarks.
-This paticular benchmark analyzes the use of the Lax–Friedrichs method for solving
-nonlinear hyberbolic PDEs, with numerical stability and accuracy not seen in FTCS.
-This benchmark will run a simulation using both Lax–Friedrichs and analyze
-core concepts such as numerical stability, conservation law consistency, etc.
-Citation:
-Laurel, J., Laguna, I., & Hückelheim, J. (2025).
-Synthesizing Sound and Precise Abstract Transformers for
-Nonlinear Hyperbolic PDE Solvers.
-Proceedings of the ACM on Programming Languages,
-9(OOPSLA2), 1063–1091. https://doi.org/10.1145/3763088
+class FiniteDifferenceDataset(Dataset):
+    def __init__(
+        self, name, pretty_name, tags, Nx, dx, Nt, dt, flux
+    ):
+        self._name = name
+        self._pretty_name = pretty_name
+        self._tags = tags
+        self.Nx = Nx
+        self.dx = dx
+        self.Nt = Nt
+        self.dt = dt
+        self.flux = flux
 
-Role of sparsity (How sparsity is used in the problem):
-The intial conditions are sparse. Furthermore, for linear advection, updates are done
-using a matrix representation, to updates the spatial coordinates for time t.
-Implementation (Where did the reference algorithm come from? With citation.):
-Hand-written, direct call to array api function
-https://data-apis.org/array-api/latest/API_specification/generated/array_api.matmul.html
-Data Generation (How is the data generated? Why is it realistic?):
-Sparse-sparse matrix multiplication is sensitive to sparsity patterns and their
-interaction. We use random sparsity patterns for now.  Statement on the use of
-Generative AI: No generative AI was used to construct the benchmark function
-itself. Generative AI might have been used to construct tests. This statement
-was written by hand.
-"""
-def lax_friedrichs_solver_matrix_general(
-    xp, u0_bench, matrix_bench, difference_bench, timesteps, flux, dt, dx
-):
-    u_0 = u0_bench
-    matrix = matrix_bench
-    dif = difference_bench
-    Nt = timesteps + 1
-    alpha = (dt) / (2 * dx)
-    u = xp.zeros((Nt, u_0.shape[0]))
-    u[0] = u_0
-    for n in range(Nt - 1):
-        u_n = u[n]
-        f = flux(u_n)
-        u_next = matrix @ u_n - alpha * (dif @ f)
-        u[n + 1] = u_next
-    return xp.to_binsparse(u)
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return f"{self.pretty_name}: Nx = {self.Nx}, dx = {self.dx}, dt = {self.dt}."
+
+    @property
+    def tags(self) -> list[str]:
+        return self._tags
+
+class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
+    @property
+    def name(self) -> str:
+        return "finite_difference_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Finite Difference Data Generator"
+
+    @property
+    def description(self) -> str:
+        return (
+            "The purpose of this is to analyze the importance of numerical methods for PDEs, "
+            "and applications sparse array theory into these method, through the form of benchmarks."
+            "This paticular benchmark analyzes the use of the Lax–Friedrichs method for solving"
+            "nonlinear hyberbolic PDEs, with numerical stability and accuracy not seen in FTCS."
+            "This benchmark will run a simulation using both Lax–Friedrichs and analyze"
+            "core concepts such as numerical stability, conservation law consistency, etc."
+        )
+
+    @property
+    def tags(self) -> list[str]:
+        return ["simulation", "sparse"]
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Vilohith Gokarakonda", "vgokarakonda3@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title = "Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.",
+                authors = [
+                    Author("Laurel, J."),
+                    Author("Laguna, I."),
+                    Author("Hückelheim, J."),
+                ],
+                journal = "Proceedings of the ACM on Programming Languages",
+                volume = "9",
+                number = "OOPSLA2",
+                pages = "1063–1091",
+                year = 2025,
+                url = "https://doi.org/10.1145/3763088",
+            )
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to construct the benchmark function"
+            "itself. Generative AI might have been used to construct tests. This statement"
+            "was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return (
+            "For linear advection, updates are done "
+            "using a sparse matrix representation, to updates the spatial coordinates for time t."
+        )
+
+    @property
+    def datasets(self) -> list[FiniteDifferenceDataset]:
+        return [
+            FiniteDifferenceDataset(
+                name="buckley_leverett_small",
+                pretty_name="Buckley-Leverett small",
+                tags=["small"],
+                Nx=100,
+                dx=0.1,
+                Nt=100,
+                dt=0.01,
+                flux=buckley_leverett_flux,
+            ),
+            FiniteDifferenceDataset(
+                name="burgers_small",
+                pretty_name="Burgers small",
+                tags=["small"],
+                Nx=100,
+                dx=0.1,
+                Nt=100,
+                dt=0.01,
+                flux=burgers_flux,
+            ),
+             FiniteDifferenceDataset(
+                name="linear_advection_small",
+                pretty_name="Linear Advection small",
+                tags=["small"],
+                Nx=100,
+                dx=0.1,
+                Nt=100,
+                dt=0.01,
+                flux=linear_advection_flux(1),
+            ),
+        ]
+
+    def generate(self, dataset: FiniteDifferenceDataset):
+        u_0 = np.random.rand(dataset.Nx)
+        u_0[dataset.Nx//2] = 10 # spike in the middle, to make it more interesting
+        
+        difference = _difference_matrix(dataset.Nx)
+        matrix = _lax_freidrichs_matrix_no_flux(dataset.Nx)
+
+        data = (xp.to_binsparse(u_0), xp.to_binsparse(matrix), xp.to_binsparse(difference))
+
+        meta = {
+            "flux": self.flux,
+            "timesteps": dataset.Nt,
+            "dt": dataset.dt,
+            "dx": dataset.dx,
+        }
+        return data, meta
+
+class FiniteDifferenceBenchmark(Benchmark):
+    @property
+    def tag(self) -> str:
+        return "finite_difference"
+
+    @property
+    def name(self) -> str:
+        return "finite_difference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "1D Finite Difference Method"
+
+    @property
+    def description(self) -> str:
+        return (
+            "The purpose of this is to analyze the importance of numerical methods for PDEs, "
+            "and applications sparse array theory into these method, through the form of benchmarks."
+            "This paticular benchmark analyzes the use of the Lax–Friedrichs method for solving"
+            "nonlinear hyberbolic PDEs, with numerical stability and accuracy not seen in FTCS."
+            "This benchmark will run a simulation using both Lax–Friedrichs and analyze"
+            "core concepts such as numerical stability, conservation law consistency, etc."
+        )
+
+    @property
+    def tags(self) -> list[str]:
+        return ["simulation", "sparse"]
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Vilohith Gokarakonda", "vgokarakonda3@gatech.edu")]
+
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title = "Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.",
+                authors = [
+                    Author("Laurel, J."),
+                    Author("Laguna, I."),
+                    Author("Hückelheim, J."),
+                ],
+                journal = "Proceedings of the ACM on Programming Languages",
+                volume = "9",
+                number = "OOPSLA2",
+                pages = "1063–1091",
+                year = 2025,
+                url = "https://doi.org/10.1145/3763088",
+            )
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to construct the benchmark function"
+            "itself. Generative AI might have been used to construct tests. This statement"
+            "was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return (
+            "The intial conditions are sparse. Furthermore, for linear advection, updates are done "
+            "using a matrix representation, to updates the spatial coordinates for time t."
+        )
+
+    @property
+    def generators(self):
+        return [FiniteDifferenceGenerator()]
+        
+    def benchmark(self, data: list, meta: dict):
+        u0_bench, matrix_bench, difference_bench = data
+        flux = meta["flux"]
+        timesteps = meta["timesteps"]
+        dt = meta["dt"]
+        dx = meta["dx"]
+        u_0 = u0_bench
+        matrix = matrix_bench
+        dif = difference_bench
+        Nt = timesteps + 1
+        alpha = (dt) / (2 * dx)
+        u = xp.zeros((Nt, u_0.shape[0]))
+        u[0] = u_0
+        for n in range(Nt - 1):
+            u_n = u[n]
+            f = flux(u_n)
+            u_next = matrix @ u_n - alpha * (dif @ f)
+            u[n + 1] = u_next
+        return xp.to_binsparse(u)
