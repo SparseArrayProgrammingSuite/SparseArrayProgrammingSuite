@@ -2,7 +2,6 @@ import numpy as np
 import pytest
 
 import sparseappbench.benchmarks.floyd_warshall as floyd_warshall
-from saps_framework import BinsparseFormat
 from frameworks.saps_numpy import NumpyFramework
 
 
@@ -178,7 +177,11 @@ def test_fw_generated_datasets(dataset):
         A[u, v] = 1.0
         A[v, u] = 1.0
 
-    out = xp.from_binsparse(floyd_warshall.FloydWarshallBenchmark().benchmark([edges], {})[0])
+    out = xp.from_binsparse(
+        floyd_warshall.FloydWarshallBenchmark().benchmark(
+            (A,), {}
+        )[0]
+    )
 
     assert out.shape[0] == out.shape[1]
     assert np.all(np.diag(out) == 0.0)

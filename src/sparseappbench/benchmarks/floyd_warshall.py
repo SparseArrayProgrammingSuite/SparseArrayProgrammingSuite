@@ -80,7 +80,6 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                     Author("Gilbert, John"),
                 ],
                 journal="Society for Industrial and Applied Mathematics (SIAM)",
-                city="Philadelphia",
                 year=2011,
             ),
             Ref(
@@ -98,8 +97,8 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to construct"
-            "the benchmark function itself. Generative AI might have been used to construct"
+            "No generative AI was used to construct "
+            "the benchmark function itself. Generative AI might have been used to construct "
             "tests. This statement was written by hand."
         )
 
@@ -195,7 +194,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
 
         G = np.full((n, n), np.inf, dtype=np.float64)
         if A.nnz > 0:
-            G[A.row, A.col] = A.data.astype(np.float64) #TODO should be 1.0?
+            G[A.row, A.col] = 1.0
         np.fill_diagonal(G, 0.0)
 
         if dataset.symmetrize:
@@ -246,10 +245,18 @@ class FloydWarshallBenchmark(Benchmark):
                     Author("Gilbert, John"),
                 ],
                 journal="Society for Industrial and Applied Mathematics (SIAM)",
-                city="Philadelphia",
+                publisher="SIAM",
                 year=2011,
             ),
         ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to construct "
+            "the benchmark function itself. Generative AI might have been used to construct "
+            "tests. This statement was written by hand."
+        )
 
     @property
     def motivation(self):
