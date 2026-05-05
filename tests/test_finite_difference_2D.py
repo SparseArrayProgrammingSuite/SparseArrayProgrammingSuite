@@ -1,13 +1,11 @@
 import pytest
 
+import numpy as np
+
+import sparseappbench.benchmarks.Finite_Difference_2D as fd2d
 from sparseappbench.benchmarks.Finite_Difference_2D import (
     aniso_burgers_flux_2D,
     buckley_leverett_flux_2D,
-    difference_matrix_x_direction,
-    difference_matrix_y_direction,
-    lax_freidrichs_data_generator,
-    lax_freidrichs_matrix_no_flux,
-    lax_friedrichs_solver_matrix_2d,
     linear_advection_flux_2D,
 )
 from frameworks.saps_numpy import NumpyFramework
@@ -16,6 +14,66 @@ from frameworks.saps_numpy import NumpyFramework
 @pytest.fixture
 def xp():
     return NumpyFramework()
+
+
+def generate_fd2d_triplet(xp, x_spatial, y_spatial, flux):
+    gen = fd2d.FiniteDifference2DGenerator()
+    ds = fd2d.FiniteDifference2DDataset(
+        name=f"test_{x_spatial}x{y_spatial}",
+        pretty_name="test",
+        tags=[],
+        Nx=x_spatial,
+        dx=0.1,
+        Ny=y_spatial,
+        dy=0.1,
+        Nt=20,
+        dt=0.01,
+        flux=flux,
+    )
+
+    prev_xp = getattr(fd2d, "xp", None)
+    fd2d.xp = xp
+    try:
+        data, meta = gen.generate(ds)
+    finally:
+        fd2d.xp = prev_xp
+
+    u = xp.from_binsparse(data[0])
+    matrix = xp.from_binsparse(data[1])
+    diff_x = xp.from_binsparse(data[2])
+    diff_y = xp.from_binsparse(data[3])
+    return u, matrix, diff_x, diff_y
+
+
+def lax_friedrichs_solver_matrix_2d(
+    xp,
+    u0_bench,
+    matrix_bench,
+    diff_x_bench,
+    diff_y_bench,
+    timesteps,
+    flux_x,
+    flux_y,
+    dt,
+    dx,
+    dy,
+):
+    data = [u0_bench, matrix_bench, diff_x_bench, diff_y_bench]
+    meta = {
+        "flux_x": flux_x,
+        "flux_y": flux_y,
+        "timesteps": timesteps,
+        "dt": dt,
+        "dx": dx,
+        "dy": dy,
+    }
+
+    prev_xp = getattr(fd2d, "xp", None)
+    fd2d.xp = xp
+    try:
+        return fd2d.FiniteDifference2DBenchmark().benchmark(data, meta)[0]
+    finally:
+        fd2d.xp = prev_xp
 
 
 @pytest.mark.parametrize(
@@ -30,13 +88,9 @@ def test_linear_advection_cfl_check(xp, cx, cy, dx, dt, dy):
     y_spatial = 10
     timesteps = 20
 
-    u0 = lax_freidrichs_data_generator(xp, x_spatial, y_spatial, density=0.05)
-
-    matrix = lax_freidrichs_matrix_no_flux(xp, x_spatial, y_spatial)
-    dif_x = difference_matrix_x_direction(xp, x_spatial, y_spatial)
-    dif_y = difference_matrix_y_direction(xp, x_spatial, y_spatial)
-
     fl_x, fl_y = linear_advection_flux_2D(cx, cy)
+
+    u0, matrix, dif_x, dif_y = generate_fd2d_triplet(xp, x_spatial, y_spatial, (fl_x, fl_y))
 
     result_bench = lax_friedrichs_solver_matrix_2d(
         xp=xp,
@@ -82,13 +136,9 @@ def test_nonlinear_flux(xp, dx, dy, dt, flux):
     y_spatial = 10
     timesteps = 20
 
-    u0 = lax_freidrichs_data_generator(xp, x_spatial, y_spatial, density=0.05)
-
-    matrix = lax_freidrichs_matrix_no_flux(xp, x_spatial, y_spatial)
-    dif_x = difference_matrix_x_direction(xp, x_spatial, y_spatial)
-    dif_y = difference_matrix_y_direction(xp, x_spatial, y_spatial)
-
     flux_x, flux_y = flux()
+
+    u0, matrix, dif_x, dif_y = generate_fd2d_triplet(xp, x_spatial, y_spatial, (flux_x, flux_y))
 
     result_bench = lax_friedrichs_solver_matrix_2d(
         xp=xp,
@@ -136,13 +186,10 @@ def test__linear_adv_sparse_stencil_check(xp, dx, dy, dt):
     u0 = xp.zeros(x_spatial * y_spatial)
     center = (y_spatial // 2) * x_spatial + (x_spatial // 2)
     u0[center] = 1
-    u0 = u0
-
-    matrix = lax_freidrichs_matrix_no_flux(xp, x_spatial, y_spatial)
-    dif_x = difference_matrix_x_direction(xp, x_spatial, y_spatial)
-    dif_y = difference_matrix_y_direction(xp, x_spatial, y_spatial)
 
     fl_x, fl_y = linear_advection_flux_2D(1.0, 1.0)
+
+    _, matrix, dif_x, dif_y = generate_fd2d_triplet(xp, x_spatial, y_spatial, (fl_x, fl_y))
 
     result_bench = lax_friedrichs_solver_matrix_2d(
         xp=xp,

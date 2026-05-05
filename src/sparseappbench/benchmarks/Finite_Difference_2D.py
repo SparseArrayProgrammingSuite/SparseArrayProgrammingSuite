@@ -102,13 +102,15 @@ def _difference_matrix_y_direction(number_spatial_x, number_spatial_y):
 
 class FiniteDifference2DDataset(Dataset):
     def __init__(
-        self, name, pretty_name, tags, Nx, dx, Nt, dt, flux
+        self, name, pretty_name, tags, Nx, dx, Ny, dy, Nt, dt, flux
     ):
         self._name = name
         self._pretty_name = pretty_name
         self._tags = tags
         self.Nx = Nx
         self.dx = dx
+        self.Ny = Ny
+        self.dy = dy
         self.Nt = Nt
         self.dt = dt
         self.flux = flux
@@ -123,7 +125,10 @@ class FiniteDifference2DDataset(Dataset):
 
     @property
     def description(self) -> str:
-        return f"{self.pretty_name}: Nx = {self.Nx}, dx = {self.dx}, dt = {self.dt}."
+        return (
+            f"{self.pretty_name}: Nx = {self.Nx}, dx = {self.dx}, "
+            f"Ny = {self.Ny}, dy = {self.dy}, dt = {self.dt}."
+        )
 
     @property
     def tags(self) -> list[str]:
@@ -328,7 +333,7 @@ class FiniteDifference2DBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [FiniteDifferenceGenerator()]
+        return [FiniteDifference2DGenerator()]
         
     def benchmark(self, data: list, meta: dict):
         u_0, matrix, diff_x, diff_y = data
