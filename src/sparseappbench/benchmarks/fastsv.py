@@ -8,7 +8,7 @@ from sparseappbench.benchmark import (
 
 xp = sparseappbench.xp
 
-class FastsvBenchmark(Benchmark):
+class FastSVBenchmark(Benchmark):
     @property
     def name(self):
         return "fastsv"
