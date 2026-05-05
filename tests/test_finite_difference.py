@@ -6,11 +6,37 @@ from sparseappbench.benchmarks.Finite_Difference import (
     difference_matrix,
     lax_freidrichs_data_generator,
     lax_freidrichs_matrix_no_flux,
-    lax_friedrichs_solver,
     lax_friedrichs_solver_matrix_general,
     linear_advection_flux,
 )
 from frameworks.saps_numpy import NumpyFramework
+
+
+def lax_friedrichs_solver(xp, u0_bench, dt, dx, flux, timesteps):
+    u_0 = u0_bench
+
+    Nt = timesteps + 1
+
+    # Intializes the space-time grid
+    u = xp.zeros((Nt, int(u_0.shape[0])))
+
+    u[0] = u_0
+
+    alpha = dt / (2 * dx)
+    for n in range(Nt - 1):
+        u_n = u[n]
+        # Vector equivalent of doing
+        # u[t+1][x] = 0.5(u[t][n+1] - u[t][n-1]) -  alpha (flux(u[t][n+1])
+        # - flux(u[t][n-1]))
+        # Naturally incorporates periodic BC.
+        u_next_spatial = xp.roll(u_n, -1)  # u[i +1]
+        u_prev_spatial = xp.roll(u_n, 1)  # u[i -1]
+        u_next = 0.5 * (u_next_spatial + u_prev_spatial) - alpha * (
+            flux(u_next_spatial) - flux(u_prev_spatial)
+        )
+
+        u[n + 1] = u_next
+    return xp.to_binsparse(u)
 
 
 @pytest.fixture
