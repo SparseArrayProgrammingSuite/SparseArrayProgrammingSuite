@@ -189,16 +189,23 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
         ]
 
     def generate(self, dataset: FiniteDifferenceDataset):
-        u_0 = np.random.rand(dataset.Nx)
-        u_0[dataset.Nx//2] = 10 # spike in the middle, to make it more interesting
-        
+        # Produce a gentle, sparse initial condition (small amplitudes)
+        density = 0.05
+        u_0 = np.zeros(dataset.Nx, dtype=float)
+        k = max(1, int(dataset.Nx * density))
+        idx = np.random.choice(dataset.Nx, size=k, replace=False)
+        # small random amplitudes to avoid nonlinear overflow
+        u_0[idx] = np.random.rand(k) * 0.5
+        # a modest central pulse (order 1), previously was 10 which caused instability
+        u_0[dataset.Nx // 2] = max(u_0[dataset.Nx // 2], 1.0)
+
         difference = _difference_matrix(dataset.Nx)
         matrix = _lax_freidrichs_matrix_no_flux(dataset.Nx)
 
         data = (xp.to_binsparse(u_0), xp.to_binsparse(matrix), xp.to_binsparse(difference))
 
         meta = {
-            "flux": self.flux,
+            "flux": dataset.flux,
             "timesteps": dataset.Nt,
             "dt": dataset.dt,
             "dx": dataset.dx,

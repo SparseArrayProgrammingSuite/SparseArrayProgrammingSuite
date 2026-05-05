@@ -1,15 +1,56 @@
 import pytest
-
+import numpy as np
+import sparseappbench.benchmarks.Finite_Difference as fd
+from saps_framework import BinsparseFormat
 from sparseappbench.benchmarks.Finite_Difference import (
     buckley_leverett_flux,
     burgers_flux,
-    difference_matrix,
-    lax_freidrichs_data_generator,
-    lax_freidrichs_matrix_no_flux,
-    lax_friedrichs_solver_matrix_general,
     linear_advection_flux,
 )
 from frameworks.saps_numpy import NumpyFramework
+
+def generate_fd_triplet(xp, N, flux=fd.burgers_flux):
+    gen = fd.FiniteDifferenceGenerator()
+    ds = fd.FiniteDifferenceDataset(
+        name=f"test_trip_{N}",
+        pretty_name="test_trip",
+        tags=[],
+        Nx=N,
+        dx=0.1,
+        Nt=20,
+        dt=0.01,
+        flux=flux,
+    )
+    prev_xp = getattr(fd, "xp", None)
+    fd.xp = xp
+    try:
+        data, meta = gen.generate(ds)
+    finally:
+        fd.xp = prev_xp
+
+        u = xp.from_binsparse(data[0])
+    return u, data[1], data[2]
+
+
+def lax_friedrichs_solver_matrix_general(
+    xp, u0_bench, matrix_bench, difference_bench, timesteps, flux, dt, dx
+):
+    # Use the FiniteDifferenceBenchmark implementation to run the matrix-based solver
+    from saps_framework import BinsparseFormat
+
+    def ensure_array(a):
+        return xp.from_binsparse(a) if isinstance(a, BinsparseFormat) else a
+
+    data = (ensure_array(u0_bench), ensure_array(matrix_bench), ensure_array(difference_bench))
+    meta = {"flux": flux, "timesteps": timesteps, "dt": dt, "dx": dx}
+
+    prev_xp = getattr(fd, "xp", None)
+    fd.xp = xp
+    try:
+        out = fd.FiniteDifferenceBenchmark().benchmark(list(data), meta)
+    finally:
+        fd.xp = prev_xp
+    return out
 
 
 def lax_friedrichs_solver(xp, u0_bench, dt, dx, flux, timesteps):
@@ -55,10 +96,8 @@ def test_linear_advection_cfl_check(xp, c, dx, dt):
     N = 200
     timesteps = 20
 
-    u0 = lax_freidrichs_data_generator(xp, N, density=0.05)
-
-    matrix = lax_freidrichs_matrix_no_flux(xp, N)
-    dif = difference_matrix(xp, N)
+    # generator already returns initial condition, matrix, and difference
+    u0, matrix, dif = generate_fd_triplet(xp, N, flux=linear_advection_flux(c))
 
     flux = linear_advection_flux(c)
 
@@ -102,10 +141,7 @@ def test_mass_conservation_nonlinear_flux(xp, dx, dt, flux):
     N = 200
     timesteps = 20
 
-    u0 = lax_freidrichs_data_generator(xp, N, density=0.05)
-
-    matrix = lax_freidrichs_matrix_no_flux(xp, N)
-    dif = difference_matrix(xp, N)
+    u0, matrix, dif = generate_fd_triplet(xp, N, flux=flux)
 
     result_bench = lax_friedrichs_solver_matrix_general(
         xp=xp,
@@ -140,10 +176,7 @@ def test_nonlinear_matrix_stencil_check(xp, dx, dt, flux):
     Nx = 200
     timesteps = 20
 
-    u0 = lax_freidrichs_data_generator(xp, Nx, density=0.05)
-
-    matrix = lax_freidrichs_matrix_no_flux(xp, Nx)
-    dif = difference_matrix(xp, Nx)
+    u0, matrix, dif = generate_fd_triplet(xp, Nx, flux=flux)
 
     result_bench_matrix = lax_friedrichs_solver_matrix_general(
         xp=xp,
