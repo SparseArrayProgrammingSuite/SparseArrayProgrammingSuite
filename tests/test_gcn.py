@@ -5,11 +5,22 @@ import numpy as np
 from sparseappbench.benchmarks.gcn import (
     benchmark_gcn,
     dg_gcn_social_1,
-    gcn_reference_np,
 )
 from saps_framework import BinsparseFormat
 from frameworks.saps_numpy import NumpyFramework
 
+def gcn_reference_np(adjacency, features, weights1, bias1, weights2, bias2):
+    """Reference NumPy implementation of the 2-layer GCN used for tests.
+
+    Inputs are dense NumPy arrays; adjacency is treated as a dense matrix for
+    simplicity in tests (small graphs).
+    """
+    h1 = adjacency @ features
+    h1 = h1 @ weights1 + bias1
+    h1 = np.maximum(h1, 0)
+
+    h2 = adjacency @ h1
+    return h2 @ weights2 + bias2
 
 @pytest.mark.parametrize(
     "xp,adjacency,features,weights1,bias1,weights2,bias2",
