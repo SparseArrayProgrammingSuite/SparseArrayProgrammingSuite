@@ -275,8 +275,7 @@ class FiniteDifferenceBenchmark(Benchmark):
     @property
     def motivation(self) -> str:
         return (
-            "The intial conditions are sparse. Furthermore, for linear advection, updates are done "
-            "using a matrix representation, to updates the spatial coordinates for time t."
+            "Updates are done using a matrix representation, to updates the spatial coordinates for time t."
         )
 
     @property
