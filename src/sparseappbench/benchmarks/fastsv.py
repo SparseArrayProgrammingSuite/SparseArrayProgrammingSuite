@@ -28,7 +28,7 @@ class FastSVBenchmark(Benchmark):
 
     @property
     def tags(self):
-        return ['linear-algebra', 'decomposition', 'sparse']
+        return ['graph', 'sparse']
 
     @property
     def authors(self):
