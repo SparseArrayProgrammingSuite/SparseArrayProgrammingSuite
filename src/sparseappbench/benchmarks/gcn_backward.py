@@ -40,22 +40,38 @@ xp = sparseappbench.xp
 
 class GCNTrainingDataset(Dataset):
     def __init__(
-        self, source_name: str, has_b_file: bool = False, nnz: int | None = None
+        self,
+        name: str,
+        description: str | None = None,
+        source_name: str | None = None,
+        *,
+        feature_dim: int = 1,
+        hidden_dim: int = 4,
+        out_dim: int = 1,
+        num_iterations: int = 10,
+        learning_rate: float = 0.01,
     ):
-        self.source_name = source_name
-        self.has_b_file = has_b_file
-        self.nnz = nnz
+        self._name = name
+        self._description = description
+        self.source_name = source_name or name
+        self.feature_dim = feature_dim
+        self.hidden_dim = hidden_dim
+        self.out_dim = out_dim
+        self.num_iterations = num_iterations
+        self.learning_rate = learning_rate
 
     @property
     def name(self) -> str:
-        return self.source_name
+        return self._name
 
     @property
     def pretty_name(self) -> str:
-        return f"GCN {self.source_name}"
+        return f"GCN {self._name}"
 
     @property
     def description(self) -> str:
+        if self._description is not None:
+            return self._description
         return f"SuiteSparse matrix {self.source_name}."
 
     @property
@@ -65,8 +81,12 @@ class GCNTrainingDataset(Dataset):
     @property
     def metadata(self) -> dict[str, Any]:
         data = super().metadata
-        data["nnz"] = self.nnz
-        data["has_b_file"] = self.has_b_file
+        data["source_name"] = self.source_name
+        data["feature_dim"] = self.feature_dim
+        data["hidden_dim"] = self.hidden_dim
+        data["out_dim"] = self.out_dim
+        data["num_iterations"] = self.num_iterations
+        data["learning_rate"] = self.learning_rate
         return data
 
 
@@ -239,6 +259,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
         feature_dim = dataset.feature_dim
         hidden_dim = dataset.hidden_dim
         out_dim = dataset.out_dim
+        source = dataset.source_name
 
         matrices = ssgetpy.search(name=source)
         if not matrices:
@@ -260,19 +281,38 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
         bias1 = np.zeros((hidden_dim,))
         weights2 = rng.standard_normal((hidden_dim, out_dim))
         bias2 = np.zeros((out_dim,))
+        targets = rng.standard_normal((n, out_dim))
+        A_T = A.T.tocoo()
 
         A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
+        A_T_bin = BinsparseFormat.from_coo((A_T.row, A_T.col), A_T.data, A_T.shape)
         features_b = BinsparseFormat.from_numpy(features)
         weights1_b = BinsparseFormat.from_numpy(weights1)
         bias1_b = BinsparseFormat.from_numpy(bias1)
         weights2_b = BinsparseFormat.from_numpy(weights2)
         bias2_b = BinsparseFormat.from_numpy(bias2)
-        return (A_bin, features_b, weights1_b, bias1_b, weights2_b, bias2_b)
+        targets_b = BinsparseFormat.from_numpy(targets)
+        return (
+            [
+                A_bin,
+                A_T_bin,
+                features_b,
+                weights1_b,
+                bias1_b,
+                weights2_b,
+                bias2_b,
+                targets_b,
+            ],
+            {
+                "num_iterations": dataset.num_iterations,
+                "learning_rate": dataset.learning_rate,
+            },
+        )
 
-class GCNBenchmark(Benchmark):
+class GCNBackwardBenchmark(Benchmark):
     @property
     def name(self) -> str:
-        return "gcn"
+        return "gcn_backward"
 
     @property
     def pretty_name(self) -> str:
@@ -409,7 +449,7 @@ Each iteration:
         (final_loss, final_W1, final_b1, final_W2, final_b2)
     """
     def benchmark(self, data: list, meta: dict):
-        adjacency, adjacency_T, features, targets, weights1, bias1, weights2, bias2 = data
+        adjacency, adjacency_T, features, weights1, bias1, weights2, bias2, targets = data
         num_iterations=meta["num_iterations"]
         learning_rate=meta["learning_rate"]
 
@@ -463,145 +503,3 @@ Each iteration:
             xp.to_binsparse(weights2_out),
             xp.to_binsparse(bias2_out),
         )
-
-
-def generate_gcn_backward_data(source, hidden_dim=4):
-    """Generate degree prediction training data from a SuiteSparse matrix.
-
-    Creates a GCN training task where the network learns to predict normalized
-    node degrees from graph structure using constant features (all 1s).
-
-    Args:
-        source: Name of matrix in SuiteSparse collection
-        hidden_dim: Hidden layer dimension (default 4)
-
-    Returns:
-        Tuple of (A, A_T, features, W1, b1, W2, b2, targets) in BinsparseFormat
-    """
-    matrices = ssgetpy.search(name=source)
-    if not matrices:
-        raise ValueError(f"No matrix found with name '{source}'")
-    matrix = matrices[0]
-    (path, _) = matrix.download(extract=True)
-    matrix_path = os.path.join(path, matrix.name + ".mtx")
-    if not (matrix_path and os.path.exists(matrix_path)):
-        raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-
-    A = mmread(matrix_path)
-    A = A.tocoo()
-
-    # Make adjacency binary (unweighted graph)
-    A_binary = A.copy()
-    A_binary.data = np.ones_like(A_binary.data)
-
-    # Compute node degrees and normalize as targets
-    n = A.shape[0]
-    degrees = np.array(A_binary.sum(axis=1)).flatten()
-    max_degree = degrees.max() if degrees.max() > 0 else 1
-    targets = (degrees / max_degree).reshape(-1, 1)
-
-    # Constant features (force learning from structure)
-    features = np.ones((n, 1))
-
-    # Initialize weights deterministically
-    rng = np.random.default_rng(42)
-    weights1 = rng.standard_normal((1, hidden_dim)) * 0.5
-    bias1 = np.zeros(hidden_dim)
-    weights2 = rng.standard_normal((hidden_dim, 1)) * 0.5
-    bias2 = np.zeros(1)
-
-    # Create transpose
-    A_T = A_binary.T.tocoo()
-
-    # Convert to BinsparseFormat
-    A_bin = BinsparseFormat.from_coo(
-        (A_binary.row, A_binary.col), A_binary.data.astype(np.float64), A_binary.shape
-    )
-    A_T_bin = BinsparseFormat.from_coo(
-        (A_T.row, A_T.col), A_T.data.astype(np.float64), A_T.shape
-    )
-    features_bin = BinsparseFormat.from_numpy(features)
-    weights1_bin = BinsparseFormat.from_numpy(weights1)
-    bias1_bin = BinsparseFormat.from_numpy(bias1)
-    weights2_bin = BinsparseFormat.from_numpy(weights2)
-    bias2_bin = BinsparseFormat.from_numpy(bias2)
-    targets_bin = BinsparseFormat.from_numpy(targets)
-
-    return (
-        A_bin,
-        A_T_bin,
-        features_bin,
-        weights1_bin,
-        bias1_bin,
-        weights2_bin,
-        bias2_bin,
-        targets_bin,
-    )
-
-
-def dg_gcn_backward_small_1():
-    """Small graph - Zachary's karate club (34 nodes)."""
-    return generate_gcn_backward_data("karate", hidden_dim=4)
-
-
-def dg_gcn_backward_small_2():
-    """Small graph - Dolphins social network (62 nodes)."""
-    return generate_gcn_backward_data("dolphins", hidden_dim=4)
-
-
-def dg_gcn_backward_small_3():
-    """Small graph - Les Miserables character network (77 nodes)."""
-    return generate_gcn_backward_data("lesmis", hidden_dim=4)
-
-
-def dg_gcn_backward_medium_1():
-    """Medium graph - Football network (115 nodes)."""
-    return generate_gcn_backward_data("football", hidden_dim=8)
-
-
-def dg_gcn_backward_medium_2():
-    """Medium graph - Political books network (105 nodes)."""
-    return generate_gcn_backward_data("polbooks", hidden_dim=8)
-
-
-def dg_gcn_backward_large_1():
-    """Larger graph - Email network (~1K nodes)."""
-    return generate_gcn_backward_data("email", hidden_dim=16)
-
-
-def dg_gcn_backward_large_2():
-    """Larger graph - ca-GrQc collaboration network (~5K nodes)."""
-    return generate_gcn_backward_data("ca-GrQc", hidden_dim=16)
-
-"""
-Name: Graph Convolutional Network Training (Backward Pass)
-Author: Tarun Devi
-Email: tdevi3@gatech.edu
-Motivation: "Graphs are widely used for abstracting systems of interacting objects,
-such as social networks (Easley et al., 2010), knowledge graphs (Nickel et al., 2015),
-molecular graphs (Wu et al., 2018), and biological networks (Barabasi & Oltvai, 2004),
-as well as for modeling 3D objects (Simonovsky & Komodakis, 2017),
-manifolds (Bronstein et al., 2017), and source code (Allamanis et al.,
-2017). Machine learning (ML), especially deep learning,
-on graphs is an emerging field (Hamilton et al., 2017b; Bronstein et al., 2017)."
-W. Hu et al., "Open Graph Benchmark: Datasets for Machine Learning on Graphs,"
-arXiv, vol. 2005.00687, pp. 1–15, Feb. 2021, doi: 10.48550/arXiv.2005.00687.
-Role of Sparsity:
-To represent a graph, an adjacency matrix is used, which is inherently sparse.
-The backward pass requires both the adjacency matrix A and its transpose A.T
-for efficient gradient computation through the graph structure.
-Implementation Details:
-Backpropagation derivation based on:
-Y. Hsiao, R. Yue, and A. Dutta, "Derivation of Back-propagation for Graph
-Convolutional Networks using Matrix Calculus and its Application to Explainable
-Artificial Intelligence," arXiv, vol. 2408.01408, Aug. 2024,
-doi: 10.48550/arXiv.2408.01408.
-Data Generation:
-Data generators create degree prediction tasks where the GCN learns to predict
-node degrees from graph structure using constant features.
-Statement on the use of Generative AI:
-No generative AI was used to construct the benchmark function itself.
-Generative AI might have been used to construct tests. This statement
-was written by hand.
-"""
-

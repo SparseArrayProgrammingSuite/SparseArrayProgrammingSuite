@@ -1,8 +1,44 @@
 import numpy as np
 
-from sparseappbench.benchmarks.gcn_backward import benchmark_gcn_backward
-from saps_framework import BinsparseFormat
+import sparseappbench.benchmarks.gcn_backward as gcn_backward
 from frameworks.saps_numpy import NumpyFramework
+
+
+def run_gcn_backward_benchmark(
+    xp,
+    adjacency,
+    adjacency_T,
+    features,
+    weights1,
+    bias1,
+    weights2,
+    bias2,
+    targets,
+    num_iterations=10,
+    learning_rate=0.01,
+):
+    benchmark = gcn_backward.GCNBackwardBenchmark()
+    prev_xp = getattr(gcn_backward, "xp", None)
+    gcn_backward.xp = xp
+    try:
+        return benchmark.benchmark(
+            [
+                adjacency,
+                adjacency_T,
+                features,
+                weights1,
+                bias1,
+                weights2,
+                bias2,
+                targets,
+            ],
+            {
+                "num_iterations": num_iterations,
+                "learning_rate": learning_rate,
+            },
+        )
+    finally:
+        gcn_backward.xp = prev_xp
 
 
 def test_gcn_backward_2node():
@@ -19,25 +55,16 @@ def test_gcn_backward_2node():
 
     xp = NumpyFramework()
 
-    adjacency_b = BinsparseFormat.from_numpy(adjacency)
-    adjacency_T_b = BinsparseFormat.from_numpy(adjacency_T)
-    features_b = BinsparseFormat.from_numpy(features)
-    weights1_b = BinsparseFormat.from_numpy(weights1)
-    bias1_b = BinsparseFormat.from_numpy(bias1)
-    weights2_b = BinsparseFormat.from_numpy(weights2)
-    bias2_b = BinsparseFormat.from_numpy(bias2)
-    targets_b = BinsparseFormat.from_numpy(targets)
-
-    loss, w1, b1, w2, b2 = benchmark_gcn_backward(
+    loss, w1, b1, w2, b2 = run_gcn_backward_benchmark(
         xp,
-        adjacency_b,
-        adjacency_T_b,
-        features_b,
-        weights1_b,
-        bias1_b,
-        weights2_b,
-        bias2_b,
-        targets_b,
+        adjacency,
+        adjacency_T,
+        features,
+        weights1,
+        bias1,
+        weights2,
+        bias2,
+        targets,
         num_iterations=10,
         learning_rate=0.01,
     )
@@ -87,41 +114,32 @@ def test_gcn_backward_multidim():
 
     xp = NumpyFramework()
 
-    adjacency_b = BinsparseFormat.from_numpy(adjacency)
-    adjacency_T_b = BinsparseFormat.from_numpy(adjacency_T)
-    features_b = BinsparseFormat.from_numpy(features)
-    weights1_b = BinsparseFormat.from_numpy(weights1)
-    bias1_b = BinsparseFormat.from_numpy(bias1)
-    weights2_b = BinsparseFormat.from_numpy(weights2)
-    bias2_b = BinsparseFormat.from_numpy(bias2)
-    targets_b = BinsparseFormat.from_numpy(targets)
-
     # Get initial loss (1 iteration)
-    loss_1, _, _, _, _ = benchmark_gcn_backward(
+    loss_1, _, _, _, _ = run_gcn_backward_benchmark(
         xp,
-        adjacency_b,
-        adjacency_T_b,
-        features_b,
-        weights1_b,
-        bias1_b,
-        weights2_b,
-        bias2_b,
-        targets_b,
+        adjacency,
+        adjacency_T,
+        features,
+        weights1,
+        bias1,
+        weights2,
+        bias2,
+        targets,
         num_iterations=1,
         learning_rate=0.01,
     )
 
     # Get loss after training
-    loss_100, w1, b1, w2, b2 = benchmark_gcn_backward(
+    loss_100, w1, b1, w2, b2 = run_gcn_backward_benchmark(
         xp,
-        adjacency_b,
-        adjacency_T_b,
-        features_b,
-        weights1_b,
-        bias1_b,
-        weights2_b,
-        bias2_b,
-        targets_b,
+        adjacency,
+        adjacency_T,
+        features,
+        weights1,
+        bias1,
+        weights2,
+        bias2,
+        targets,
         num_iterations=100,
         learning_rate=0.01,
     )
@@ -203,26 +221,16 @@ def test_gcn_backward_degree_prediction():
 
     xp = NumpyFramework()
 
-    # Train on training graph
-    train_adj_b = BinsparseFormat.from_numpy(train_adj)
-    train_adj_T_b = BinsparseFormat.from_numpy(train_adj_T)
-    train_features_b = BinsparseFormat.from_numpy(train_features)
-    weights1_b = BinsparseFormat.from_numpy(weights1)
-    bias1_b = BinsparseFormat.from_numpy(bias1)
-    weights2_b = BinsparseFormat.from_numpy(weights2)
-    bias2_b = BinsparseFormat.from_numpy(bias2)
-    train_targets_b = BinsparseFormat.from_numpy(train_targets)
-
-    _, w1_b, b1_b, w2_b, b2_b = benchmark_gcn_backward(
+    _, w1_b, b1_b, w2_b, b2_b = run_gcn_backward_benchmark(
         xp,
-        train_adj_b,
-        train_adj_T_b,
-        train_features_b,
-        weights1_b,
-        bias1_b,
-        weights2_b,
-        bias2_b,
-        train_targets_b,
+        train_adj,
+        train_adj_T,
+        train_features,
+        weights1,
+        bias1,
+        weights2,
+        bias2,
+        train_targets,
         num_iterations=500,
         learning_rate=0.01,
     )
