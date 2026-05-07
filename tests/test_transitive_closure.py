@@ -1,11 +1,10 @@
 import numpy as np
 
-from sparseappbench.benchmarks.transitive_closure import (
-    benchmark_simple_connected_components,
-    benchmark_transitive_closure,
-)
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+import saps.benchmarks.transitive_closure as tc
+from saps_framework import BinsparseFormat
+from frameworks.saps_numpy import NumpyFramework
+
+saps_xp = NumpyFramework()
 
 
 def test_transitive_closure():
@@ -36,14 +35,15 @@ def test_transitive_closure():
         dtype=bool,
     )
 
+    tc.xp = xp
     bench_input = BinsparseFormat.from_numpy(input_matrix)
-    res = benchmark_transitive_closure(xp, bench_input)
-    res = xp.from_benchmark(res)
+    (res,) = tc.TransitiveClosureBenchmark().benchmark((bench_input,), {})
+    res = xp.from_binsparse(res)
     assert np.array_equal(res, expected)
 
 
-def test_scc():
-    # 8 node graph with 4 SCCs
+def test_stc():
+    # 8 node graph with 4 Stc.
     xp = NumpyFramework()
     input_matrix = np.array(
         [
@@ -61,24 +61,25 @@ def test_scc():
 
     expected = 4
 
+    tc.xp = xp
     bench_input = BinsparseFormat.from_numpy(input_matrix)
-    res = benchmark_simple_connected_components(xp, bench_input)
-    res = xp.from_benchmark(res)
+    (res,) = tc.TransitiveClosureBenchmark().benchmark((bench_input,), {})
+    res = xp.from_binsparse(res)
 
-    # count sccs
+    # count stc.
     visited_set = set()
-    scc_count = 0
+    count = 0
     for i in range(res.shape[0]):
         comp = tuple(res[i, :])
         if comp not in visited_set:
-            scc_count += 1
+            count += 1
             visited_set.add(comp)
 
-    assert scc_count == expected
+    assert count == expected
 
 
-def test_scc_cycle():
-    # one scc, one cycle
+def test_stc_cycle():
+    # one stc. one cycle
     xp = NumpyFramework()
 
     input_matrix = np.array(
@@ -90,22 +91,24 @@ def test_scc_cycle():
         dtype=bool,
     )
 
+    tc.xp = xp
     bench_input = BinsparseFormat.from_numpy(input_matrix)
-    res = benchmark_simple_connected_components(xp, bench_input)
-    res = xp.from_benchmark(res)
+    (res,) = tc.TransitiveClosureBenchmark().benchmark((bench_input,), {})
+    res = xp.from_binsparse(res)
     # clique matrix
     expected = np.ones((3, 3), dtype=bool)
     assert np.array_equal(res, expected)
 
 
-def test_scc_one_node():
+def test_stc_one_node():
     # one node
     xp = NumpyFramework()
     input_matrix = np.array([[0]], dtype=bool)
 
+    tc.xp = xp
     bench_input = BinsparseFormat.from_numpy(input_matrix)
-    res = benchmark_simple_connected_components(xp, bench_input)
-    res = xp.from_benchmark(res)
+    (res,) = tc.TransitiveClosureBenchmark().benchmark((bench_input,), {})
+    res = xp.from_binsparse(res)
 
     # simple 1x1 matrix with 1
     expected = np.array([[1]], dtype=bool)
@@ -117,9 +120,10 @@ def test_transitive_closure_one_node():
     xp = NumpyFramework()
     input_matrix = np.array([[0]], dtype=bool)
 
+    tc.xp = xp
     bench_input = BinsparseFormat.from_numpy(input_matrix)
-    res = benchmark_transitive_closure(xp, bench_input)
-    res = xp.from_benchmark(res)
+    (res,) = tc.TransitiveClosureBenchmark().benchmark((bench_input,), {})
+    res = xp.from_binsparse(res)
 
     # should be self loop, 1x1 matrix with 1
     expected = np.array([[1]], dtype=bool)

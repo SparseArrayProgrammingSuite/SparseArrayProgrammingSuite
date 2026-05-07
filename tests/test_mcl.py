@@ -3,10 +3,10 @@ import pytest
 import numpy as np
 import scipy.sparse as sp
 
-from sparseappbench.benchmarks.mcl_benchmark import benchmark_mcl
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
-from sparseappbench.frameworks.sparse_framework import PyDataSparseFramework
+import saps.benchmarks.mcl_benchmark as mcl
+from saps_framework import BinsparseFormat
+from frameworks.saps_numpy import NumpyFramework
+from frameworks.saps_sparse import PyDataSparseFramework
 
 
 def get_cluster_count(matrix):
@@ -32,6 +32,19 @@ def create_planted_clique(N, k):
     A[:k, :k] = 1.0
     np.fill_diagonal(A, 0)
     return A
+
+
+def run_mcl_benchmark(xp, A):
+    benchmark = mcl.MCLBenchmark()
+    prev_xp = getattr(mcl, "xp", None)
+    mcl.xp = xp
+    try:
+        (result_matrix,) = benchmark.benchmark(
+            [A], {"expansion": 2, "inflation": 2, "loop_value": 1}
+        )
+    finally:
+        mcl.xp = prev_xp
+    return result_matrix
 
 
 @pytest.mark.parametrize(
@@ -81,10 +94,9 @@ def test_mcl_solver(xp, A, expected_count):
     A_bin = BinsparseFormat.from_coo(
         (A_sparse.row, A_sparse.col), A_sparse.data, A_sparse.shape
     )
+    A_input = xp.from_binsparse(A_bin)
 
-    result_bin = benchmark_mcl(xp, A_bin, expansion=2, inflation=2, loop_value=1)
-
-    result_matrix = xp.from_benchmark(result_bin)
+    result_matrix = run_mcl_benchmark(xp, A_input)
 
     actual_count = get_cluster_count(result_matrix)
 

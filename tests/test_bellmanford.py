@@ -2,12 +2,11 @@ import pytest
 
 import numpy as np
 
-from sparseappbench.benchmarks.bellmanford import bellman_ford
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+import saps.benchmarks.bellmanford as bellmanford
+from saps_framework import BinsparseFormat 
+from frameworks.saps_numpy import NumpyFramework
 
 xp = NumpyFramework()
-
 
 def bellman_ford_reference(A, src):
     n = A.shape[0]
@@ -214,9 +213,12 @@ def build_chesapeake_matrix():
     ],
 )
 def test_bellman_ford_networks(matrix_builder, src):
+    xp = NumpyFramework()
+    bellmanford.xp = xp
+
     A = matrix_builder()
-    bench = BinsparseFormat.from_numpy(A)
-    result_bin = bellman_ford(xp, bench, src)
-    result = xp.from_benchmark(result_bin).ravel()
+    edges = BinsparseFormat.from_numpy(A)
+    (result,) = bellmanford.BellmanFordBenchmark().benchmark((A,), {"src":src})
+    result = result.ravel()
     ref = bellman_ford_reference(A, src)
     assert np.allclose(result, ref, equal_nan=True)

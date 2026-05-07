@@ -1,9 +1,9 @@
 import numpy as np
 
-from sparseappbench.benchmarks.transitive_reduction import (
+from saps.benchmarks.transitive_reduction import (
     transitive_reduction,
 )
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from frameworks.saps_numpy import NumpyFramework
 
 
 def create_graph(xp, edges, n):
@@ -16,12 +16,12 @@ def create_graph(xp, edges, n):
     dense[np.arange(n), np.arange(n)] = np.inf
     dense[rows, cols] = vals
 
-    return xp.to_benchmark(dense)
+    return xp.to_binsparse(dense)
 
 
 def to_dense(xp, bench_matrix):
     """Helper to convert output back to dense array for easy assertion."""
-    return xp.from_benchmark(bench_matrix)
+    return xp.from_binsparse(bench_matrix)
 
 
 def test_case_1():

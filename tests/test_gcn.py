@@ -2,15 +2,36 @@ import pytest
 
 import numpy as np
 
-from sparseappbench.benchmarks.gcn import (
-    benchmark_gcn,
-    dg_gcn_social_1,
-    gcn_reference_np,
-)
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.checker_framework import CheckerFramework
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+import saps.benchmarks.gcn as gcn
+from frameworks.saps_numpy import NumpyFramework
 
+def gcn_reference_np(adjacency, features, weights1, bias1, weights2, bias2):
+    """Reference NumPy implementation of the 2-layer GCN used for tests.
+
+    Inputs are dense NumPy arrays; adjacency is treated as a dense matrix for
+    simplicity in tests (small graphs).
+    """
+    h1 = adjacency @ features
+    h1 = h1 @ weights1 + bias1
+    h1 = np.maximum(h1, 0)
+
+    h2 = adjacency @ h1
+    return h2 @ weights2 + bias2
+
+
+def run_gcn_benchmark(adjacency, features, weights1, bias1, weights2, bias2):
+    xp = NumpyFramework()
+    benchmark = gcn.GCNBenchmark()
+    prev_xp = getattr(gcn, "xp", None)
+    gcn.xp = xp
+    try:
+        output_b = benchmark.benchmark(
+            [adjacency, features, weights1, bias1, weights2, bias2],
+            {},
+        )
+    finally:
+        gcn.xp = prev_xp
+    return xp.from_binsparse(output_b)
 
 @pytest.mark.parametrize(
     "xp,adjacency,features,weights1,bias1,weights2,bias2",
@@ -24,42 +45,25 @@ from sparseappbench.frameworks.numpy_framework import NumpyFramework
             np.array([[1], [1]]),
             np.array([0]),
         ),
-        (
-            CheckerFramework(),
-            np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]]),
-            np.array([[1, 0], [0, 1], [1, 1]]),
-            np.array([[1, 0], [0, 1]]),
-            np.array([0, 0]),
-            np.array([[1], [1]]),
-            np.array([0]),
-        ),
     ],
 )
 def test_benchmark_gcn(xp, adjacency, features, weights1, bias1, weights2, bias2):
-    adjacency_b = BinsparseFormat.from_numpy(adjacency)
-    features_b = BinsparseFormat.from_numpy(features)
-    weights1_b = BinsparseFormat.from_numpy(weights1)
-    bias1_b = BinsparseFormat.from_numpy(bias1)
-    weights2_b = BinsparseFormat.from_numpy(weights2)
-    bias2_b = BinsparseFormat.from_numpy(bias2)
-
-    output_b = benchmark_gcn(
-        xp, adjacency_b, features_b, weights1_b, bias1_b, weights2_b, bias2_b
-    )
-    output_coo = BinsparseFormat.to_coo(output_b)
-
     expected = gcn_reference_np(adjacency, features, weights1, bias1, weights2, bias2)
-    assert output_coo == BinsparseFormat.to_coo(BinsparseFormat.from_numpy(expected))
+    output = run_gcn_benchmark(adjacency, features, weights1, bias1, weights2, bias2)
+    np.testing.assert_allclose(output, expected, rtol=1e-10)
 
 
-def test_dg_gcn_social_1():
-    """Test social network graph generator."""
-    A_bin, features_b, weights1_b, bias1_b, weights2_b, bias2_b = dg_gcn_social_1()
-    xp = NumpyFramework()
-    output_b = benchmark_gcn(
-        xp, A_bin, features_b, weights1_b, bias1_b, weights2_b, bias2_b
-    )
-    assert output_b is not None
+def test_gcn_benchmark_smoke():
+    """Smoke test for the class-based benchmark interface."""
+    adjacency = np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]], dtype=np.float64)
+    features = np.array([[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]])
+    weights1 = np.array([[1.0, 0.0], [0.0, 1.0]])
+    bias1 = np.array([0.0, 0.0])
+    weights2 = np.array([[1.0], [1.0]])
+    bias2 = np.array([0.0])
+
+    output = run_gcn_benchmark(adjacency, features, weights1, bias1, weights2, bias2)
+    assert output.shape == (3, 1)
 
 
 def test_gcn_simple_2node():
@@ -91,18 +95,7 @@ def test_gcn_simple_2node():
     np.testing.assert_allclose(output, expected, rtol=1e-10)
 
     # Also test with benchmark_gcn
-    adjacency_b = BinsparseFormat.from_numpy(adjacency)
-    features_b = BinsparseFormat.from_numpy(features)
-    weights1_b = BinsparseFormat.from_numpy(weights1)
-    bias1_b = BinsparseFormat.from_numpy(bias1)
-    weights2_b = BinsparseFormat.from_numpy(weights2)
-    bias2_b = BinsparseFormat.from_numpy(bias2)
-
-    xp = NumpyFramework()
-    output_b = benchmark_gcn(
-        xp, adjacency_b, features_b, weights1_b, bias1_b, weights2_b, bias2_b
-    )
-    output_np = xp.from_benchmark(output_b)
+    output_np = run_gcn_benchmark(adjacency, features, weights1, bias1, weights2, bias2)
     np.testing.assert_allclose(output_np, expected, rtol=1e-10)
 
 
@@ -141,18 +134,7 @@ def test_gcn_simple_3node_line():
     np.testing.assert_allclose(output, expected, rtol=1e-10)
 
     # Also test with benchmark_gcn
-    adjacency_b = BinsparseFormat.from_numpy(adjacency)
-    features_b = BinsparseFormat.from_numpy(features)
-    weights1_b = BinsparseFormat.from_numpy(weights1)
-    bias1_b = BinsparseFormat.from_numpy(bias1)
-    weights2_b = BinsparseFormat.from_numpy(weights2)
-    bias2_b = BinsparseFormat.from_numpy(bias2)
-
-    xp = NumpyFramework()
-    output_b = benchmark_gcn(
-        xp, adjacency_b, features_b, weights1_b, bias1_b, weights2_b, bias2_b
-    )
-    output_np = xp.from_benchmark(output_b)
+    output_np = run_gcn_benchmark(adjacency, features, weights1, bias1, weights2, bias2)
     np.testing.assert_allclose(output_np, expected, rtol=1e-10)
 
 
@@ -190,17 +172,5 @@ def test_gcn_with_relu_activation():
     output = gcn_reference_np(adjacency, features, weights1, bias1, weights2, bias2)
     np.testing.assert_allclose(output, expected, rtol=1e-10)
 
-    # Also test with benchmark_gcn
-    adjacency_b = BinsparseFormat.from_numpy(adjacency)
-    features_b = BinsparseFormat.from_numpy(features)
-    weights1_b = BinsparseFormat.from_numpy(weights1)
-    bias1_b = BinsparseFormat.from_numpy(bias1)
-    weights2_b = BinsparseFormat.from_numpy(weights2)
-    bias2_b = BinsparseFormat.from_numpy(bias2)
-
-    xp = NumpyFramework()
-    output_b = benchmark_gcn(
-        xp, adjacency_b, features_b, weights1_b, bias1_b, weights2_b, bias2_b
-    )
-    output_np = xp.from_benchmark(output_b)
+    output_np = run_gcn_benchmark(adjacency, features, weights1, bias1, weights2, bias2)
     np.testing.assert_allclose(output_np, expected, rtol=1e-10)

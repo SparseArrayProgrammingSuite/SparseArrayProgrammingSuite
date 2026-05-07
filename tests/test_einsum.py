@@ -2,12 +2,18 @@ import pytest
 
 import numpy as np
 
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from frameworks.saps_numpy import NumpyFramework
+from frameworks.saps_scipy import SciPyFramework
 
 
 @pytest.fixture
 def xp():
     return NumpyFramework()
+
+
+@pytest.fixture
+def sp():
+    return SciPyFramework()
 
 
 @pytest.fixture
@@ -26,12 +32,67 @@ def test_basic_addition_with_transpose(xp, rng):
     assert np.allclose(C, C_ref)
 
 
-def test_matrix_multiplication(xp, rng):
+def test_matrix_multiplication_np(xp, rng):
     """Test matrix multiplication using += (increment/accumulation)"""
     A = rng.random((3, 4))
     B = rng.random((4, 5))
 
     C = xp.einsum("C[i,j] += A[i,k] * B[k,j]", A=A, B=B)
+    C_ref = A @ B
+
+    assert np.allclose(C, C_ref)
+
+
+def test_matrix_multiplication_sp(sp, rng):
+    """Test matrix multiplication using += (increment/accumulation)"""
+    A = rng.random((3, 4))
+    B = rng.random((4, 5))
+
+    C = sp.einsum("C[i,j] += A[i,k] * B[k,j]", A=A, B=B)
+    C_ref = A @ B
+
+    assert np.allclose(C, C_ref)
+
+
+def test_vecdot_xp(xp, rng):
+    """Test vector dot product using += (increment/accumulation)"""
+    A = rng.random(3)
+    B = rng.random(3)
+
+    C = xp.einsum("C[] += A[i] * B[i]", A=A, B=B)
+    C_ref = np.sum(A * B)
+
+    assert np.allclose(C, C_ref)
+
+
+def test_vecdot_sp(sp, rng):
+    """Test vector dot product using += (increment/accumulation)"""
+    A = rng.random(3)
+    B = rng.random(3)
+
+    C = sp.einsum("C[] += A[i] * B[i]", A=A, B=B)
+    C_ref = np.sum(A * B)
+
+    assert np.allclose(C, C_ref)
+
+
+def test_matvec_xp(xp, rng):
+    """Test matrix-vector product using += (increment/accumulation)"""
+    A = rng.random((3, 4))
+    B = rng.random(4)
+
+    C = xp.einsum("C[i] += A[i, j] * B[j]", A=A, B=B)
+    C_ref = A @ B
+
+    assert np.allclose(C, C_ref)
+
+
+def test_matvec_sp(sp, rng):
+    """Test matrix-vector product using += (increment/accumulation)"""
+    A = rng.random((3, 4))
+    B = rng.random(4)
+
+    C = sp.einsum("C[i] += A[i, j] * B[j]", A=A, B=B)
     C_ref = A @ B
 
     assert np.allclose(C, C_ref)
