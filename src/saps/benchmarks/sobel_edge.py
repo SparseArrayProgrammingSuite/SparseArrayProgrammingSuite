@@ -1,37 +1,3 @@
-"""
-Name: Sobel Operator Edge Detection
-
-Author: Aadharsh Rajkumar
-
-Email: arajkumar34@gatech.edu
-
-What does this code do: This code implements a simple edge detection algorithm
-on a 2D MRI image. The algorithm computes the gradients in the X and Y directions
-using the concept of a Sobel operator, which is a common method for edge detection.
-The sobel operator was recreated using array shifts that account for sparse patterns.
-The magnitude of the gradients is computed and then masked with a threshold to
-produce a binary edge map.
-
-Citation for reference implementation:
-https://commit.csail.mit.edu/papers/2021/oopsla2021-array-programming.pdf
-
-Motivation: Edge detection is a crucial task that is a part of image processing
-pipelines. It is often the case that images and scans in the medical field rquire
-post-processing to extract useful information. In this case, we are using a 2D
-MRI image to produce thresholded edge maps. Since medical images are large and
-often contain redundant information, it is important to process them efficiently.
-The redundancy of MRI makes them a good candidate for sparse processing.
-https://www.researchgate.net/publication/310464068_EDGE_DETECTION_OF_MRI_IMAGES_-A_REVIEW
-https://pmc.ncbi.nlm.nih.gov/articles/PMC4948115/
-
-Data Generation: I used MRI image data from this Kaggle set:
-https://www.kaggle.com/navoneel/brain-mri-images-for-brain-tumor-detection.
-I used a constant edge threshold of 150.0 with all of the images that I used.
-
-Statement on the use of Generative AI: No generative AI was used to construct
-the benchmark function. Generative AI might have been used to construct tests.
-This statement is written by hand.
-"""
 
 import os
 
@@ -47,27 +13,11 @@ except ImportError:
 from sparseappbench.binsparse_format import BinsparseFormat
 
 
-def benchmark_mri_edge(
-    xp, image_bench, dx_bench, sy_bench, sx_bench, dy_bench, threshold_bench
-):
-    image = xp.lazy(xp.from_benchmark(image_bench))
-    threshold = xp.lazy(xp.from_benchmark(threshold_bench))
-    D_x = xp.lazy(xp.from_benchmark(dx_bench))
-    S_y = xp.lazy(xp.from_benchmark(sy_bench))
-    S_x = xp.lazy(xp.from_benchmark(sx_bench))
-    D_y = xp.lazy(xp.from_benchmark(dy_bench))
-
-    gx = D_x @ image @ S_y
-    gy = S_x @ image @ D_y
-
-    magnitude = xp.abs(gx) + xp.abs(gy)
-
-    edges = magnitude > threshold
-
-    result = xp.compute(edges)
-    return xp.to_benchmark(result)
-
-
+"""
+Data Generation: I used MRI image data from this Kaggle set:
+https://www.kaggle.com/navoneel/brain-mri-images-for-brain-tumor-detection.
+I used a constant edge threshold of 150.0 with all of the images that I used.
+"""
 def generate_mri_sobel_data(category, filename, threshold_val=100.0):
     if kagglehub is None or Image is None:
         raise ImportError("kagglehub and Pillow are required.")
@@ -151,3 +101,55 @@ def generate_1d_sobel_matrices(Nx, Ny):
     )
 
     return dx_bin, sy_bin, sx_bin, dy_bin
+
+"""
+Name: Sobel Operator Edge Detection
+
+Author: Aadharsh Rajkumar
+
+Email: arajkumar34@gatech.edu
+
+What does this code do: This code implements a simple edge detection algorithm
+on a 2D MRI image. The algorithm computes the gradients in the X and Y directions
+using the concept of a Sobel operator, which is a common method for edge detection.
+The sobel operator was recreated using array shifts that account for sparse patterns.
+The magnitude of the gradients is computed and then masked with a threshold to
+produce a binary edge map.
+
+Motivation: Edge detection is a crucial task that is a part of image processing
+pipelines. It is often the case that images and scans in the medical field rquire
+post-processing to extract useful information. In this case, we are using a 2D
+MRI image to produce thresholded edge maps. Since medical images are large and
+often contain redundant information, it is important to process them efficiently.
+The redundancy of MRI makes them a good candidate for sparse processing.
+
+https://commit.csail.mit.edu/papers/2021/oopsla2021-array-programming.pdf
+https://www.researchgate.net/publication/310464068_EDGE_DETECTION_OF_MRI_IMAGES_-A_REVIEW
+https://pmc.ncbi.nlm.nih.gov/articles/PMC4948115/
+
+
+Statement on the use of Generative AI: No generative AI was used to construct
+the benchmark function. Generative AI might have been used to construct tests.
+This statement is written by hand.
+"""
+
+def benchmark_mri_edge(
+    xp, image_bench, dx_bench, sy_bench, sx_bench, dy_bench, threshold_bench
+):
+    image = xp.lazy(xp.from_benchmark(image_bench))
+    threshold = xp.lazy(xp.from_benchmark(threshold_bench))
+    D_x = xp.lazy(xp.from_benchmark(dx_bench))
+    S_y = xp.lazy(xp.from_benchmark(sy_bench))
+    S_x = xp.lazy(xp.from_benchmark(sx_bench))
+    D_y = xp.lazy(xp.from_benchmark(dy_bench))
+
+    gx = D_x @ image @ S_y
+    gy = S_x @ image @ D_y
+
+    magnitude = xp.abs(gx) + xp.abs(gy)
+
+    edges = magnitude > threshold
+
+    result = xp.compute(edges)
+    return xp.to_benchmark(result)
+
