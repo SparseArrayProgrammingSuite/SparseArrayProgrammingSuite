@@ -2,19 +2,19 @@ import pytest
 
 import numpy as np
 
-from sparseappbench.benchmarks.mri_edge import (
-    benchmark_masked_mri_edge,
-    dg_masked_mri_1,
-    dg_masked_mri_2,
-    dg_masked_mri_3,
-    dg_masked_mri_4,
-)
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+import saps.benchmarks.mri_edge as mri_edge
+from frameworks.saps_numpy import NumpyFramework
 
 
-def get_framework():
-    return NumpyFramework()
+def run_masked_mri_benchmark(xp, data):
+    benchmark = mri_edge.MaskedMRIEdgeBenchmark()
+    prev_xp = getattr(mri_edge, "xp", None)
+    mri_edge.xp = xp
+    try:
+        (result,) = benchmark.benchmark(data, {})
+    finally:
+        mri_edge.xp = prev_xp
+    return result
 
 
 def expected_masked_mri_edge(image, roi, t1, t2):
@@ -59,45 +59,38 @@ def expected_masked_mri_edge(image, roi, t1, t2):
     ],
 )
 def test_masked_mri_basic_cases(image, roi, t1, t2):
-    xp = get_framework()
+    xp = NumpyFramework()
+    dataset = mri_edge.MaskedMRIDataset(
+        "local", "local", "local", t1_val=t1, t2_val=t2, image=image, roi=roi
+    )
+    data_binsparse, meta = mri_edge.MaskedMRIGenerator().generate(dataset)
+    data = [xp.from_binsparse(array) for array in data_binsparse]
 
+    result = run_masked_mri_benchmark(xp, data)
     expected = expected_masked_mri_edge(image, roi, t1, t2)
 
-    image_bin = BinsparseFormat.from_numpy(image)
-    roi_bin = BinsparseFormat.from_numpy(roi)
-    t1_bin = BinsparseFormat.from_numpy(np.array(t1, dtype=np.float32))
-    t2_bin = BinsparseFormat.from_numpy(np.array(t2, dtype=np.float32))
-
-    result_bin = benchmark_masked_mri_edge(
-        xp, img_bench=image_bin, roi_bench=roi_bin, t1_bench=t1_bin, t2_bench=t2_bin
-    )
-    result = xp.from_benchmark(result_bin)
-
+    assert meta == {}
     assert result.shape == expected.shape
     assert np.all(result == expected)
 
 
-@pytest.mark.parametrize(
-    "generator", [dg_masked_mri_1, dg_masked_mri_2, dg_masked_mri_3, dg_masked_mri_4]
-)
-def test_masked_mri_sparse_generators(generator):
-    xp = get_framework()
-    try:
-        image_bin, roi_bin, t1_bin, t2_bin = generator()
-    except (FileNotFoundError, ImportError, ValueError) as e:
-        pytest.skip(f"Failed to generate data: {e}")
-
-    result_bin = benchmark_masked_mri_edge(
-        xp, img_bench=image_bin, roi_bench=roi_bin, t1_bench=t1_bin, t2_bench=t2_bin
+def test_masked_mri_generator_builds_default_roi():
+    xp = NumpyFramework()
+    image = np.arange(36, dtype=np.float32).reshape(6, 6)
+    dataset = mri_edge.MaskedMRIDataset(
+        "tiny", "local", "tiny", t1_val=10.0, t2_val=20.0, image=image
     )
-    result = xp.from_benchmark(result_bin)
 
-    image = xp.from_benchmark(image_bin)
-    roi = xp.from_benchmark(roi_bin)
-    t1 = xp.from_benchmark(t1_bin)
-    t2 = xp.from_benchmark(t2_bin)
+    data_binsparse, meta = mri_edge.MaskedMRIGenerator().generate(dataset)
+    image_arr, roi_arr, t1_arr, t2_arr = [
+        xp.from_binsparse(array) for array in data_binsparse
+    ]
 
-    expected = expected_masked_mri_edge(image, roi, float(t1), float(t2))
+    expected_roi = np.zeros_like(image, dtype=bool)
+    expected_roi[1:5, 1:5] = True
 
-    assert np.all(result == expected)
-    assert result.dtype == bool
+    assert meta == {}
+    assert np.all(image_arr == image)
+    assert np.all(roi_arr == expected_roi)
+    assert t1_arr.item() == 10.0
+    assert t2_arr.item() == 20.0

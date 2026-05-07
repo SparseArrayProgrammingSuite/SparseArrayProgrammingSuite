@@ -1,5 +1,5 @@
-
 import os
+from typing import Any
 
 import numpy as np
 
@@ -10,10 +10,13 @@ except ImportError:
     Image = None
     kagglehub = None
 
-from sparseappbench.binsparse_format import BinsparseFormat
+import saps
+from saps.benchmark import Benchmark, Contributor, Dataset, Generator, Ref
+from saps_framework import BinsparseFormat
 
 
 
+xp = saps.xp
 
 
 def generate_1d_sobel_matrices(Nx, Ny):
@@ -61,99 +64,203 @@ def generate_1d_sobel_matrices(Nx, Ny):
 
     return dx_bin, sy_bin, sx_bin, dy_bin
 
-"""
-Data Generation: I used MRI image data from this Kaggle set:
-https://www.kaggle.com/navoneel/brain-mri-images-for-brain-tumor-detection.
-I used a constant edge threshold of 150.0 with all of the images that I used.
-"""
+
+class MRISobelDataset(Dataset):
+    def __init__(
+        self,
+        name: str,
+        category: str,
+        filename: str,
+        threshold_val: float = 150.0,
+        image: np.ndarray | None = None,
+    ):
+        self.source_name = name
+        self.category = category
+        self.filename = filename
+        self.threshold_val = threshold_val
+        self.image = image
+
+    @property
+    def name(self) -> str:
+        return self.source_name
+
+    @property
+    def pretty_name(self) -> str:
+        return f"MRI Sobel Edge {self.source_name}"
+
+    @property
+    def description(self) -> str:
+        return f"MRI image {self.filename} with edge threshold {self.threshold_val}."
+
+    @property
+    def tags(self) -> list[str]:
+        return ["image-processing", "edge-detection", "sparse"]
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        data = super().metadata
+        data["category"] = self.category
+        data["filename"] = self.filename
+        data["threshold_val"] = self.threshold_val
+        return data
 
 
-def dg_mri_sobel_1():
-    return generate_mri_sobel_data("yes", "Y157.JPG", 150.0)
+class MRISobelGenerator(Generator[MRISobelDataset]):
+    @property
+    def name(self) -> str:
+        return "mri_sobel_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "MRI Sobel Edge Data Generator"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Data Generation: I used MRI image data from this Kaggle set: "
+            "https://www.kaggle.com/navoneel/brain-mri-images-for-brain-tumor-detection. "
+            "I used a constant edge threshold of 150.0 with all of the images "
+            "that I used."
+        )
+
+    @property
+    def tags(self) -> list[str]:
+        return ["image-processing", "edge-detection", "mri", "sparse"]
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return MRISobelEdgeBenchmark().authors
+
+    @property
+    def references(self) -> list[Ref]:
+        return MRISobelEdgeBenchmark().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return MRISobelEdgeBenchmark().ai_disclosure
+
+    @property
+    def motivation(self) -> str:
+        return MRISobelEdgeBenchmark().motivation
+
+    @property
+    def datasets(self) -> list[MRISobelDataset]:
+        return [
+            MRISobelDataset("mri_sobel_1", "yes", "Y157.JPG"),
+            MRISobelDataset("mri_sobel_2", "yes", "Y6.jpg"),
+            MRISobelDataset("mri_sobel_3", "yes", "Y194.jpg"),
+            MRISobelDataset("mri_sobel_4", "yes", "Y180.jpg"),
+        ]
+
+    def generate(
+        self, dataset: MRISobelDataset
+    ) -> tuple[list[BinsparseFormat], dict[str, Any]]:
+        if dataset.image is None:
+            if kagglehub is None or Image is None:
+                raise ImportError("kagglehub and Pillow are required.")
+            path = kagglehub.dataset_download(
+                "navoneel/brain-mri-images-for-brain-tumor-detection"
+            )
+            img_path = os.path.join(path, dataset.category, dataset.filename)
+            if not os.path.exists(img_path):
+                raise FileNotFoundError(f"Image not found at {img_path}")
+
+            img = Image.open(img_path).convert("L")
+            img_array = np.array(img, dtype=np.float32)
+        else:
+            img_array = np.array(dataset.image, dtype=np.float32)
+
+        image_bin = BinsparseFormat.from_numpy(img_array)
+        threshold_bin = BinsparseFormat.from_numpy(
+            np.array(dataset.threshold_val, dtype=np.float32)
+        )
+
+        Nx, Ny = img_array.shape
+        dx_bin, sy_bin, sx_bin, dy_bin = generate_1d_sobel_matrices(Nx, Ny)
+        return [image_bin, dx_bin, sy_bin, sx_bin, dy_bin, threshold_bin], {}
 
 
-def dg_mri_sobel_2():
-    return generate_mri_sobel_data("yes", "Y6.jpg", 150.0)
+class MRISobelEdgeBenchmark(Benchmark):
+    @property
+    def name(self) -> str:
+        return "mri_sobel_edge"
 
+    @property
+    def pretty_name(self) -> str:
+        return "Sobel Operator Edge Detection"
 
-def dg_mri_sobel_3():
-    return generate_mri_sobel_data("yes", "Y194.jpg", 150.0)
+    @property
+    def description(self) -> str:
+        return (
+            "What does this code do: This code implements a simple edge detection "
+            "algorithm on a 2D MRI image. The algorithm computes the gradients in "
+            "the X and Y directions using the concept of a Sobel operator, which "
+            "is a common method for edge detection. The sobel operator was "
+            "recreated using array shifts that account for sparse patterns. The "
+            "magnitude of the gradients is computed and then masked with a "
+            "threshold to produce a binary edge map."
+        )
 
+    @property
+    def tags(self) -> list[str]:
+        return ["image-processing", "edge-detection", "mri", "sparse"]
 
-def dg_mri_sobel_4():
-    return generate_mri_sobel_data("yes", "Y180.jpg", 150.0)
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Aadharsh Rajkumar", "arajkumar34@gatech.edu")]
 
+    @property
+    def motivation(self) -> str:
+        return (
+            "Motivation: Edge detection is a crucial task that is a part of image "
+            "processing pipelines. It is often the case that images and scans in "
+            "the medical field rquire post-processing to extract useful "
+            "information. In this case, we are using a 2D MRI image to produce "
+            "thresholded edge maps. Since medical images are large and often "
+            "contain redundant information, it is important to process them "
+            "efficiently. The redundancy of MRI makes them a good candidate for "
+            "sparse processing."
+        )
 
-def generate_mri_sobel_data(category, filename, threshold_val=100.0):
-    if kagglehub is None or Image is None:
-        raise ImportError("kagglehub and Pillow are required.")
-    path = kagglehub.dataset_download(
-        "navoneel/brain-mri-images-for-brain-tumor-detection"
-    )
-    img_path = os.path.join(path, category, filename)
-    if not os.path.exists(img_path):
-        raise FileNotFoundError(f"Image not found at {img_path}")
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="",
+                authors=[],
+                url="https://commit.csail.mit.edu/papers/2021/oopsla2021-array-programming.pdf",
+            ),
+            Ref(
+                title="",
+                authors=[],
+                url="https://www.researchgate.net/publication/310464068_EDGE_DETECTION_OF_MRI_IMAGES_-A_REVIEW",
+            ),
+            Ref(
+                title="",
+                authors=[],
+                url="https://pmc.ncbi.nlm.nih.gov/articles/PMC4948115/",
+            ),
+        ]
 
-    img = Image.open(img_path).convert("L")
-    img_array = np.array(img, dtype=np.float32)
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Statement on the use of Generative AI: No generative AI was used to "
+            "construct the benchmark function. Generative AI might have been used "
+            "to construct tests. This statement is written by hand."
+        )
 
-    image_bin = BinsparseFormat.from_numpy(img_array)
-    threshold_bin = BinsparseFormat.from_numpy(
-        np.array(threshold_val, dtype=np.float32)
-    )
+    @property
+    def generators(self) -> list[Generator[Any]]:
+        return [MRISobelGenerator()]
 
-    Nx, Ny = img_array.shape
-    dx_bin, sy_bin, sx_bin, dy_bin = generate_1d_sobel_matrices(Nx, Ny)
-    return image_bin, dx_bin, sy_bin, sx_bin, dy_bin, threshold_bin
+    def benchmark(self, data: list[Any], meta: dict[str, Any]):
+        image, D_x, S_y, S_x, D_y, threshold = data
 
-"""
-Name: Sobel Operator Edge Detection
+        gx = D_x @ image @ S_y
+        gy = S_x @ image @ D_y
 
-Author: Aadharsh Rajkumar
+        magnitude = xp.abs(gx) + xp.abs(gy)
+        edges = magnitude > threshold
 
-Email: arajkumar34@gatech.edu
-
-What does this code do: This code implements a simple edge detection algorithm
-on a 2D MRI image. The algorithm computes the gradients in the X and Y directions
-using the concept of a Sobel operator, which is a common method for edge detection.
-The sobel operator was recreated using array shifts that account for sparse patterns.
-The magnitude of the gradients is computed and then masked with a threshold to
-produce a binary edge map.
-
-Motivation: Edge detection is a crucial task that is a part of image processing
-pipelines. It is often the case that images and scans in the medical field rquire
-post-processing to extract useful information. In this case, we are using a 2D
-MRI image to produce thresholded edge maps. Since medical images are large and
-often contain redundant information, it is important to process them efficiently.
-The redundancy of MRI makes them a good candidate for sparse processing.
-
-https://commit.csail.mit.edu/papers/2021/oopsla2021-array-programming.pdf
-https://www.researchgate.net/publication/310464068_EDGE_DETECTION_OF_MRI_IMAGES_-A_REVIEW
-https://pmc.ncbi.nlm.nih.gov/articles/PMC4948115/
-
-
-Statement on the use of Generative AI: No generative AI was used to construct
-the benchmark function. Generative AI might have been used to construct tests.
-This statement is written by hand.
-"""
-
-def benchmark_mri_edge(
-    xp, image_bench, dx_bench, sy_bench, sx_bench, dy_bench, threshold_bench
-):
-    image = xp.lazy(xp.from_benchmark(image_bench))
-    threshold = xp.lazy(xp.from_benchmark(threshold_bench))
-    D_x = xp.lazy(xp.from_benchmark(dx_bench))
-    S_y = xp.lazy(xp.from_benchmark(sy_bench))
-    S_x = xp.lazy(xp.from_benchmark(sx_bench))
-    D_y = xp.lazy(xp.from_benchmark(dy_bench))
-
-    gx = D_x @ image @ S_y
-    gy = S_x @ image @ D_y
-
-    magnitude = xp.abs(gx) + xp.abs(gy)
-
-    edges = magnitude > threshold
-
-    result = xp.compute(edges)
-    return xp.to_benchmark(result)
-
+        return [edges]

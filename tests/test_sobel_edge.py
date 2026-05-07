@@ -2,20 +2,19 @@ import pytest
 
 import numpy as np
 
-from sparseappbench.benchmarks.sobel_edge import (
-    benchmark_mri_edge,
-    dg_mri_sobel_1,
-    dg_mri_sobel_2,
-    dg_mri_sobel_3,
-    dg_mri_sobel_4,
-    generate_1d_sobel_matrices,
-)
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+import saps.benchmarks.sobel_edge as sobel_edge
+from frameworks.saps_numpy import NumpyFramework
 
 
-def get_framework():
-    return NumpyFramework()
+def run_sobel_benchmark(xp, data):
+    benchmark = sobel_edge.MRISobelEdgeBenchmark()
+    prev_xp = getattr(sobel_edge, "xp", None)
+    sobel_edge.xp = xp
+    try:
+        (edges,) = benchmark.benchmark(data, {})
+    finally:
+        sobel_edge.xp = prev_xp
+    return edges
 
 
 def expected_sobel_edge(image, threshold):
@@ -27,12 +26,16 @@ def expected_sobel_edge(image, threshold):
     img_p1_0 = np.roll(image, -1, axis=0)
     img_p1_p1 = np.roll(np.roll(image, -1, axis=0), -1, axis=1)
 
-    gx = (img_p1_m1 + 2 * img_p1_0 + img_p1_p1) - (img_m1_m1 + 2 * img_m1_0 + img_m1_p1)
+    gx = (img_p1_m1 + 2 * img_p1_0 + img_p1_p1) - (
+        img_m1_m1 + 2 * img_m1_0 + img_m1_p1
+    )
 
     img_0_m1 = np.roll(image, 1, axis=1)
     img_0_p1 = np.roll(image, -1, axis=1)
 
-    gy = (img_m1_p1 + 2 * img_0_p1 + img_p1_p1) - (img_m1_m1 + 2 * img_0_m1 + img_p1_m1)
+    gy = (img_m1_p1 + 2 * img_0_p1 + img_p1_p1) - (
+        img_m1_m1 + 2 * img_0_m1 + img_p1_m1
+    )
 
     magnitude = np.abs(gx) + np.abs(gy)
     return magnitude > threshold
@@ -71,46 +74,30 @@ def expected_sobel_edge(image, threshold):
     ],
 )
 def test_sobel_basic_cases(image, threshold):
-    xp = get_framework()
+    xp = NumpyFramework()
+    dataset = sobel_edge.MRISobelDataset(
+        "local", "local", "local", threshold_val=threshold, image=image
+    )
+    data_binsparse, meta = sobel_edge.MRISobelGenerator().generate(dataset)
+    data = [xp.from_binsparse(array) for array in data_binsparse]
 
+    result = run_sobel_benchmark(xp, data)
     expected = expected_sobel_edge(image, threshold)
 
-    image_bin = BinsparseFormat.from_numpy(image)
-    threshold_bin = BinsparseFormat.from_numpy(np.array(threshold))
-
-    Nx, Ny = image.shape
-    dx_bin, sy_bin, sx_bin, dy_bin = generate_1d_sobel_matrices(Nx, Ny)
-
-    result_bin = benchmark_mri_edge(
-        xp, image_bin, dx_bin, sy_bin, sx_bin, dy_bin, threshold_bin
-    )
-    result = xp.from_benchmark(result_bin)
-
+    assert meta == {}
     assert result.shape == expected.shape
-    assert np.all(result == expected), (
-        "Benchmark MRI Soebel outputdoes not match expected."
+    assert np.all(result == expected)
+
+
+def test_sobel_generator_metadata():
+    image = np.zeros((3, 4), dtype=np.float32)
+    dataset = sobel_edge.MRISobelDataset(
+        "tiny", "local", "tiny", threshold_val=7.0, image=image
     )
 
+    data, meta = sobel_edge.MRISobelGenerator().generate(dataset)
 
-@pytest.mark.parametrize(
-    "generator", [dg_mri_sobel_1, dg_mri_sobel_2, dg_mri_sobel_3, dg_mri_sobel_4]
-)
-def test_sobel_sparse_generators(generator):
-    xp = get_framework()
-    try:
-        image_bin, dx_bin, sy_bin, sx_bin, dy_bin, threshold_bin = generator()
-    except (FileNotFoundError, ImportError, ValueError) as e:
-        pytest.skip(f"Failed to generate data: {e}")
-
-    result_bin = benchmark_mri_edge(
-        xp, image_bin, dx_bin, sy_bin, sx_bin, dy_bin, threshold_bin
-    )
-    result = xp.from_benchmark(result_bin)
-
-    image = xp.from_benchmark(image_bin)
-    threshold = xp.from_benchmark(threshold_bin)
-
-    expected = expected_sobel_edge(image, float(threshold))
-
-    assert np.all(result == expected), "Outputs mismatched."
-    assert result.dtype == bool
+    assert len(data) == 6
+    assert data[0].data["shape"] == image.shape
+    assert data[-1].data["values"].item() == 7.0
+    assert meta == {}
