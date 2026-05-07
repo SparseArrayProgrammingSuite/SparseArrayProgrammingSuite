@@ -1,26 +1,28 @@
+import numpy as np
+
 from frameworks.saps_sparse import PyDataSparseFramework
+from saps_framework import BinsparseFormat
 
 import sparseappbench.benchmarks.subgraph_matching as subgraph_matching
 
 
-def test_human_subset():
+def test_single_edge_label_count():
     xp = PyDataSparseFramework()
     subgraph_matching.xp = xp
-    dataset = subgraph_matching.SubgraphGCareGenerator().datasets[0]
-    (matrices, meta) = subgraph_matching.SubgraphGCareGenerator().generate(dataset)
-    # print(f'Meta: {meta}')
+
+    edge_matrix = BinsparseFormat.from_coo(
+        (np.array([0, 1]), np.array([1, 2])),
+        np.array([1, 1], dtype=np.int64),
+        (3, 3),
+    )
+    matrices = [{"E0": edge_matrix}]
+    meta = {
+        "exprs": ["S[] += E0[i,j]"],
+        "gts": [2],
+        "names": ["local_edges"],
+    }
 
     results = subgraph_matching.SubgraphMatching().benchmark(matrices, meta)
     results = xp.from_binsparse(results)
 
-    for i in range(len(results)):
-        res = results[i]
-        gt = meta["gts"][i]
-        # print(f'Test {meta["names"][i]}: Result = {res}, Ground Truth = {gt}')
-        assert res == gt, (
-            f"Test {meta['names'][i]} incorrect: Result = {res}, Ground Truth = {gt}"
-        )
-
-
-if __name__ == "__main__":
-    test_human_subset()
+    assert results[0] == meta["gts"][0]

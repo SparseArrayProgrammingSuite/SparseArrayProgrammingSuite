@@ -18,19 +18,22 @@ from sparseappbench.benchmark import (
 )
 from saps_framework import BinsparseFormat
 
-def _generate_cg_data(source, has_b_file, data=None):
-    if data is not None:
-        return data
-    matrices = ssgetpy.search(name=source)
-    if not matrices:
-        raise ValueError(f"No matrix found with name '{source}'")
-    matrix = matrices[0]
-    (path, archive) = matrix.download(extract=True)
-    matrix_path = os.path.join(path, matrix.name + ".mtx")
-    if matrix_path and os.path.exists(matrix_path):
-        A = mmread(matrix_path)
+
+def _generate_cg_data(source, has_b_file, A=None):
+    if A is not None:
+        A = sp.coo_matrix(A)
     else:
-        raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
+        matrices = ssgetpy.search(name=source)
+        if not matrices:
+            raise ValueError(f"No matrix found with name '{source}'")
+        matrix = matrices[0]
+        (path, archive) = matrix.download(extract=True)
+        matrix_path = os.path.join(path, matrix.name + ".mtx")
+        if matrix_path and os.path.exists(matrix_path):
+            A = mmread(matrix_path)
+        else:
+            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
+    A = A.tocoo()
     rng = np.random.default_rng(0)
 
     if has_b_file:
@@ -53,12 +56,15 @@ def _generate_cg_data(source, has_b_file, data=None):
 
 xp = sparseappbench.xp
 
+
 class PreconditionedCGDataset(Dataset):
-    def __init__(self, source_name: str, condition_number: str, has_b_file=False, data=None):
+    def __init__(
+        self, source_name: str, condition_number: str, has_b_file=False, A=None
+    ):
         self.source_name = source_name
         self.condition_number = condition_number
         self.has_b_file = has_b_file
-        self.data = data
+        self.A = A
 
     @property
     def name(self) -> str:
@@ -134,7 +140,9 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
     def generate(
         self, dataset: PreconditionedCGDataset
     ) -> tuple[list[BinsparseFormat], dict[str, Any]]:
-        A, b, x = _generate_cg_data(dataset.source_name, dataset.has_b_file, dataset.data)
+        A, b, x = _generate_cg_data(
+            dataset.source_name, dataset.has_b_file, dataset.A
+        )
         A_csr = A.tocsr()
         n = A_csr.shape[0]
         # Create one block for every processor modelled after
@@ -268,6 +276,8 @@ class PreconditionedCGBenchmark(Benchmark):
                 year=1992,
             ),
             Ref(
+                title="",
+                authors=[],
                 url="https://www.netlib.org/templates/templates.pdf",
             ),
         ]
@@ -331,8 +341,6 @@ class PreconditionedCGBenchmark(Benchmark):
 
         x_solution = x
         return [x_solution]
-
-
 
 
 def solve_block_jacobi_cg(xp, M, r):
