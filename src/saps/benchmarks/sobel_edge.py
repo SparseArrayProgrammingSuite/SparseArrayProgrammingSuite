@@ -13,48 +13,7 @@ except ImportError:
 from sparseappbench.binsparse_format import BinsparseFormat
 
 
-"""
-Data Generation: I used MRI image data from this Kaggle set:
-https://www.kaggle.com/navoneel/brain-mri-images-for-brain-tumor-detection.
-I used a constant edge threshold of 150.0 with all of the images that I used.
-"""
-def generate_mri_sobel_data(category, filename, threshold_val=100.0):
-    if kagglehub is None or Image is None:
-        raise ImportError("kagglehub and Pillow are required.")
-    path = kagglehub.dataset_download(
-        "navoneel/brain-mri-images-for-brain-tumor-detection"
-    )
-    img_path = os.path.join(path, category, filename)
-    if not os.path.exists(img_path):
-        raise FileNotFoundError(f"Image not found at {img_path}")
 
-    img = Image.open(img_path).convert("L")
-    img_array = np.array(img, dtype=np.float32)
-
-    image_bin = BinsparseFormat.from_numpy(img_array)
-    threshold_bin = BinsparseFormat.from_numpy(
-        np.array(threshold_val, dtype=np.float32)
-    )
-
-    Nx, Ny = img_array.shape
-    dx_bin, sy_bin, sx_bin, dy_bin = generate_1d_sobel_matrices(Nx, Ny)
-    return image_bin, dx_bin, sy_bin, sx_bin, dy_bin, threshold_bin
-
-
-def dg_mri_sobel_1():
-    return generate_mri_sobel_data("yes", "Y157.JPG", 150.0)
-
-
-def dg_mri_sobel_2():
-    return generate_mri_sobel_data("yes", "Y6.jpg", 150.0)
-
-
-def dg_mri_sobel_3():
-    return generate_mri_sobel_data("yes", "Y194.jpg", 150.0)
-
-
-def dg_mri_sobel_4():
-    return generate_mri_sobel_data("yes", "Y180.jpg", 150.0)
 
 
 def generate_1d_sobel_matrices(Nx, Ny):
@@ -101,6 +60,51 @@ def generate_1d_sobel_matrices(Nx, Ny):
     )
 
     return dx_bin, sy_bin, sx_bin, dy_bin
+
+"""
+Data Generation: I used MRI image data from this Kaggle set:
+https://www.kaggle.com/navoneel/brain-mri-images-for-brain-tumor-detection.
+I used a constant edge threshold of 150.0 with all of the images that I used.
+"""
+
+
+def dg_mri_sobel_1():
+    return generate_mri_sobel_data("yes", "Y157.JPG", 150.0)
+
+
+def dg_mri_sobel_2():
+    return generate_mri_sobel_data("yes", "Y6.jpg", 150.0)
+
+
+def dg_mri_sobel_3():
+    return generate_mri_sobel_data("yes", "Y194.jpg", 150.0)
+
+
+def dg_mri_sobel_4():
+    return generate_mri_sobel_data("yes", "Y180.jpg", 150.0)
+
+
+def generate_mri_sobel_data(category, filename, threshold_val=100.0):
+    if kagglehub is None or Image is None:
+        raise ImportError("kagglehub and Pillow are required.")
+    path = kagglehub.dataset_download(
+        "navoneel/brain-mri-images-for-brain-tumor-detection"
+    )
+    img_path = os.path.join(path, category, filename)
+    if not os.path.exists(img_path):
+        raise FileNotFoundError(f"Image not found at {img_path}")
+
+    img = Image.open(img_path).convert("L")
+    img_array = np.array(img, dtype=np.float32)
+
+    image_bin = BinsparseFormat.from_numpy(img_array)
+    threshold_bin = BinsparseFormat.from_numpy(
+        np.array(threshold_val, dtype=np.float32)
+    )
+
+    Nx, Ny = img_array.shape
+    dx_bin, sy_bin, sx_bin, dy_bin = generate_1d_sobel_matrices(Nx, Ny)
+    return image_bin, dx_bin, sy_bin, sx_bin, dy_bin, threshold_bin
 
 """
 Name: Sobel Operator Edge Detection
