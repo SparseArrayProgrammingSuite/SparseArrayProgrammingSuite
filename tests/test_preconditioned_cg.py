@@ -57,12 +57,12 @@ A5 = np.array(
 @pytest.mark.parametrize(
     "dataset",
     [
-        pcg.PreconditionedCGDataset("A0", "", data=A0),
-        pcg.PreconditionedCGDataset("A1", "", data=A1),
-        pcg.PreconditionedCGDataset("A2", "", data=A2),
-        pcg.PreconditionedCGDataset("A3", "", data=A3),
-        pcg.PreconditionedCGDataset("A4", "", data=A4),
-        pcg.PreconditionedCGDataset("A5", "", data=A5),
+        pcg.PreconditionedCGDataset("A0", "", A=A0),
+        pcg.PreconditionedCGDataset("A1", "", A=A1),
+        pcg.PreconditionedCGDataset("A2", "", A=A2),
+        pcg.PreconditionedCGDataset("A3", "", A=A3),
+        pcg.PreconditionedCGDataset("A4", "", A=A4),
+        pcg.PreconditionedCGDataset("A5", "", A=A5),
     ],
 )
 def test_preconditioned_cg(generator, dataset):

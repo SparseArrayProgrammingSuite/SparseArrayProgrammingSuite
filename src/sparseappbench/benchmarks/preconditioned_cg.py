@@ -59,7 +59,11 @@ xp = sparseappbench.xp
 
 class PreconditionedCGDataset(Dataset):
     def __init__(
-        self, source_name: str, condition_number: str, has_b_file=False, A=None
+        self,
+        source_name: str,
+        condition_number: str,
+        has_b_file=False,
+        A=None,
     ):
         self.source_name = source_name
         self.condition_number = condition_number
@@ -215,7 +219,9 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
     def generate(
         self, dataset: PreconditionedCGDataset
     ) -> tuple[list[BinsparseFormat], dict[str, Any]]:
-        A, b, x = _generate_cg_data(dataset.source_name, dataset.has_b_file)
+        A, b, x = _generate_cg_data(
+            dataset.source_name, dataset.has_b_file, dataset.A
+        )
         M = A.diagonal()
         M_bin = BinsparseFormat.from_numpy(M)
         A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
