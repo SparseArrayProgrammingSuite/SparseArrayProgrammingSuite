@@ -1,20 +1,13 @@
 import os
 from typing import Any
 
+import kagglehub
 import numpy as np
-
-try:
-    import kagglehub
-    from PIL import Image
-except ImportError:
-    Image = None
-    kagglehub = None
+from PIL import Image
 
 import saps
 from saps.benchmark import Benchmark, Contributor, Dataset, Generator, Ref
 from saps_framework import BinsparseFormat
-
-
 
 xp = saps.xp
 
@@ -156,8 +149,6 @@ class MRISobelGenerator(Generator[MRISobelDataset]):
         self, dataset: MRISobelDataset
     ) -> tuple[list[BinsparseFormat], dict[str, Any]]:
         if dataset.image is None:
-            if kagglehub is None or Image is None:
-                raise ImportError("kagglehub and Pillow are required.")
             path = kagglehub.dataset_download(
                 "navoneel/brain-mri-images-for-brain-tumor-detection"
             )
