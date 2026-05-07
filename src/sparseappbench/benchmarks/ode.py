@@ -298,7 +298,7 @@ class RCGenerator(Generator[RCDataset]):
                 C=0.001,
                 t_max=5.0,
                 V_C_initial=0.0,
-                step=0.000001,
+                step=0.00001,
                 source_voltage=_step_input,
             ),
         ]
@@ -431,7 +431,7 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
                 d=0.01,
                 t_max=100.0,
                 y0=[40.0, 9.0],
-                step=0.00001,
+                step=0.0001,
             ),
         ]
 
