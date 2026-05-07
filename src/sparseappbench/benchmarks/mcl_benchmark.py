@@ -54,6 +54,55 @@ def _prune(array_api, matrix, threshold):
     return matrix * mask
 
 
+
+def dg_mcl_sparse_1():
+    return generate_mcl_data("Trefethen_200")
+
+
+def dg_mcl_sparse_2():
+    return generate_mcl_data("mesh3em5")
+
+
+def dg_mcl_sparse_3():
+    return generate_mcl_data("fv1")
+
+
+def dg_mcl_sparse_4():
+    return generate_mcl_data("bcsstk05")
+
+
+def dg_mcl_sparse_5():
+    return generate_mcl_data("nos1")
+
+
+def dg_mcl_sparse_6():
+    return generate_mcl_data("nos2")
+
+
+def dg_mcl_sparse_7():
+    return generate_mcl_data("nos3")
+
+
+def dg_mcl_sparse_8():
+    return generate_mcl_data("dwt_59")
+
+
+def generate_mcl_data(source):
+    matrices = ssgetpy.search(name=source)
+    if not matrices:
+        raise ValueError(f"No matrix found with name '{source}'")
+    matrix = matrices[0]
+    path, archive = matrix.download(extract=True)
+    matrix_path = os.path.join(path, matrix.name + ".mtx")
+    if matrix_path and os.path.exists(matrix_path):
+        A = mmread(matrix_path)
+    else:
+        raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
+    A = A.tocoo()
+    A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
+    return (A_bin,)
+
+
 """
 
 benchmark_mcl(array_api, graph_binsparse, expansion=2, inflation=2, loop_value=1,
@@ -128,51 +177,3 @@ def benchmark_mcl(
             break
 
     return array_api.to_binsparse(current_matrix)
-
-
-def generate_mcl_data(source):
-    matrices = ssgetpy.search(name=source)
-    if not matrices:
-        raise ValueError(f"No matrix found with name '{source}'")
-    matrix = matrices[0]
-    path, archive = matrix.download(extract=True)
-    matrix_path = os.path.join(path, matrix.name + ".mtx")
-    if matrix_path and os.path.exists(matrix_path):
-        A = mmread(matrix_path)
-    else:
-        raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-    A = A.tocoo()
-    A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
-    return (A_bin,)
-
-
-def dg_mcl_sparse_1():
-    return generate_mcl_data("Trefethen_200")
-
-
-def dg_mcl_sparse_2():
-    return generate_mcl_data("mesh3em5")
-
-
-def dg_mcl_sparse_3():
-    return generate_mcl_data("fv1")
-
-
-def dg_mcl_sparse_4():
-    return generate_mcl_data("bcsstk05")
-
-
-def dg_mcl_sparse_5():
-    return generate_mcl_data("nos1")
-
-
-def dg_mcl_sparse_6():
-    return generate_mcl_data("nos2")
-
-
-def dg_mcl_sparse_7():
-    return generate_mcl_data("nos3")
-
-
-def dg_mcl_sparse_8():
-    return generate_mcl_data("dwt_59")
