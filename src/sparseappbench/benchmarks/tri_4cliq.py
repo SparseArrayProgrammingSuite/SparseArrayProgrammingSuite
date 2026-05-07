@@ -13,14 +13,6 @@ class TriangleCountBenchmark(Benchmark):
         return "Triangle Counting"
 
     @property
-    def tags(self) -> list[str]:
-        return ["graph", "triangle-counting", "sparse"]
-
-    @property
-    def authors(self) -> list[Contributor]:
-        return [Contributor("Jeffrey Xu", "jxu743@gatech.edu")]
-
-    @property
     def motivation(self) -> str:
         return (
             "Adjacency matrices are often sparse, and are used as input in this problem."
