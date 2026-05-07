@@ -1,6 +1,6 @@
 import numpy as np
 
-import sparseappbench.benchmarks.rp_kmeans_clustering as rp_kmeans
+import saps.benchmarks.rp_kmeans_clustering as rp_kmeans
 from saps_framework import BinsparseFormat
 from frameworks.saps_numpy import NumpyFramework
 

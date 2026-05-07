@@ -19,7 +19,7 @@ from asv.repo import get_repo
 from asv.results import Results
 from asv.runner import run_benchmarks
 
-import sparseappbench
+import saps
 
 
 def format_results(results: Results, benchmarks: Benchmarks) -> dict:
@@ -153,7 +153,7 @@ def main() -> int:
     # Construct ASV config dict with all fields visible
     asv_config_dict = {
         "version": 1,
-        "project": "sparseappbench",
+        "project": "saps",
         "project_url": "https://github.com/SparseArrayProgrammingSuite/SparseArrayProgrammingSuite",
         "repo": str(repo_root),
         "branches": "HEAD",
@@ -162,7 +162,7 @@ def main() -> int:
             "install_command",
             ["in-dir={env_dir} python -mpip install {build_dir} --force-reinstall"],
         ),
-        "benchmark_dir": str(repo_root / "src/sparseappbench/benchmarks"),
+        "benchmark_dir": str(repo_root / "src/saps/benchmarks"),
         "env_dir": saps_config_data.get("env_dir", str(saps_dir / "results")),
         "results_dir": saps_config_data.get("results_dir", str(outputs_dir / "results")),
         "html_dir": str(outputs_dir / "html"),
@@ -240,10 +240,10 @@ def main() -> int:
     for name in benchmarks:
         module_name, class_name, _method_name = name.rsplit(".", 2)
         benchmark_module = importlib.import_module(
-            f"sparseappbench.benchmarks.{module_name}"
+            f"saps.benchmarks.{module_name}"
         )
         benchmark = getattr(benchmark_module, class_name)()
-        assert isinstance(benchmark, sparseappbench.Benchmark)
+        assert isinstance(benchmark, saps.Benchmark)
         metadata[name] = benchmark.metadata
 
     # Store benchmark metadata in SAPS outputs directory

@@ -1,10 +1,10 @@
 import numpy as np
 
-import sparseappbench.benchmarks.transitive_closure as tc
+import saps.benchmarks.transitive_closure as tc
 from saps_framework import BinsparseFormat
 from frameworks.saps_numpy import NumpyFramework
 
-sparseappbench_xp = NumpyFramework()
+saps_xp = NumpyFramework()
 
 
 def test_transitive_closure():

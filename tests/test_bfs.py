@@ -1,6 +1,6 @@
 import numpy as np
 
-import sparseappbench.benchmarks.BFS as bfs
+import saps.benchmarks.BFS as bfs
 from saps_framework import BinsparseFormat 
 from frameworks.saps_numpy import NumpyFramework
 

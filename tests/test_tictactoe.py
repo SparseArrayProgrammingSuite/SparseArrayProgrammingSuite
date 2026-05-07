@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 
-from sparseappbench.benchmarks.tic_tac import (
+from saps.benchmarks.tic_tac import (
     build_win_masks,
     is_terminal,
     minimax_depth2,

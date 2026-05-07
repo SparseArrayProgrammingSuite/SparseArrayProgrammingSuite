@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 
-import sparseappbench.benchmarks.tri_4cliq as tri_4cliq
+import saps.benchmarks.tri_4cliq as tri_4cliq
 from saps_framework import BinsparseFormat
 from frameworks.saps_numpy import NumpyFramework
 

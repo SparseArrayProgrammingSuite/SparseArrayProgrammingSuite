@@ -2,8 +2,8 @@ import pytest
 
 import numpy as np
 
-from sparseappbench.benchmarks.coupled_cluster import CCSD, make_ccsd_inputs
-import sparseappbench.benchmarks.coupled_cluster as cc
+from saps.benchmarks.coupled_cluster import CCSD, make_ccsd_inputs
+import saps.benchmarks.coupled_cluster as cc
 from saps_framework.binsparse_format import BinsparseFormat
 from frameworks.saps_numpy import NumpyFramework
 

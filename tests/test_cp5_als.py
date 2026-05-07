@@ -1,10 +1,10 @@
 import pytest
 
-from sparseappbench.benchmarks.cp5_als import (
+from saps.benchmarks.cp5_als import (
     CP5_ALS,
     CP5FactorizeableGenerator,
 )
-import sparseappbench.benchmarks.cp5_als as cp5_als
+import saps.benchmarks.cp5_als as cp5_als
 from frameworks.saps_numpy import NumpyFramework
 import numpy as np
 

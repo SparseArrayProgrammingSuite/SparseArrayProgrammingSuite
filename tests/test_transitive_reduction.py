@@ -1,6 +1,6 @@
 import numpy as np
 
-from sparseappbench.benchmarks.transitive_reduction import (
+from saps.benchmarks.transitive_reduction import (
     transitive_reduction,
 )
 from frameworks.saps_numpy import NumpyFramework

@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 
-import sparseappbench.benchmarks.preconditioned_cg as pcg
+import saps.benchmarks.preconditioned_cg as pcg
 from frameworks.saps_numpy import NumpyFramework
 
 
