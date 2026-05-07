@@ -1,5 +1,5 @@
 [project]
-name = "sparseappbench"
+name = "saps"
 description = ""
 version = "0.1.0"
 readme = "README.md"
@@ -21,7 +21,7 @@ dependencies = [
 
 [tool.poetry]
 packages = [
-    {include = "sparseappbench", from = "src"},
+    {include = "saps", from = "src"},
     {include = "saps_framework", from = "src"},
 ]
 requires-poetry = '>=2.0,<3.0'

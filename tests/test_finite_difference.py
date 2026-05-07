@@ -1,8 +1,8 @@
 import pytest
 import numpy as np
-import sparseappbench.benchmarks.Finite_Difference as fd
+import saps.benchmarks.Finite_Difference as fd
 from saps_framework import BinsparseFormat
-from sparseappbench.benchmarks.Finite_Difference import (
+from saps.benchmarks.Finite_Difference import (
     buckley_leverett_flux,
     burgers_flux,
     linear_advection_flux,

@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 
-import sparseappbench.benchmarks.gcn as gcn
+import saps.benchmarks.gcn as gcn
 from frameworks.saps_numpy import NumpyFramework
 
 def gcn_reference_np(adjacency, features, weights1, bias1, weights2, bias2):

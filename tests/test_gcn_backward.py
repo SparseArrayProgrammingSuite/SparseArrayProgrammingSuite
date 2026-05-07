@@ -1,6 +1,6 @@
 import numpy as np
 
-import sparseappbench.benchmarks.gcn_backward as gcn_backward
+import saps.benchmarks.gcn_backward as gcn_backward
 from frameworks.saps_numpy import NumpyFramework
 
 

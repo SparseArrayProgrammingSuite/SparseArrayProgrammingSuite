@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 
-import sparseappbench.benchmarks.lsqr as lsqr
+import saps.benchmarks.lsqr as lsqr
 from saps_framework import BinsparseFormat
 from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_sparse import (

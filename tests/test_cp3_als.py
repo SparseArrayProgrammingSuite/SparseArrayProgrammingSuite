@@ -1,10 +1,10 @@
 import pytest
 
-from sparseappbench.benchmarks.cp3_als import (
+from saps.benchmarks.cp3_als import (
     CP3_ALS,
     CP3FactorizeableGenerator,
 )
-import sparseappbench.benchmarks.cp3_als as cp3_als
+import saps.benchmarks.cp3_als as cp3_als
 from frameworks.saps_numpy import NumpyFramework
 import numpy as np
 

@@ -1,6 +1,6 @@
 from frameworks.saps_numpy import NumpyFramework
 
-import sparseappbench.benchmarks.model_counting as mc
+import saps.benchmarks.model_counting as mc
 
 
 def test_model_counting_datasets():

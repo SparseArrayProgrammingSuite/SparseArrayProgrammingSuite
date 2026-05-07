@@ -1,7 +1,7 @@
 import numpy as np
 
-import sparseappbench.benchmarks.fastsv as fastsv
-import sparseappbench.benchmarks.connected_components as cc
+import saps.benchmarks.fastsv as fastsv
+import saps.benchmarks.connected_components as cc
 from saps_framework import BinsparseFormat
 from frameworks.saps_numpy import NumpyFramework
 

@@ -3,7 +3,7 @@ import pytest
 import numpy as np
 from scipy.integrate import solve_ivp
 
-from sparseappbench.benchmarks.ode import ForwardEuler, BackwardEuler, RK4, RCGenerator, RLCGenerator, LotkaVolterraGenerator, BrusselatorGenerator
+from saps.benchmarks.ode import ForwardEuler, BackwardEuler, RK4, RCGenerator, RLCGenerator, LotkaVolterraGenerator, BrusselatorGenerator
 
 
 def test_euler_forward_rc():

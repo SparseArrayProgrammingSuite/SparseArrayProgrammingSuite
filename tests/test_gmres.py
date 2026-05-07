@@ -4,7 +4,7 @@ import numpy as np
 import scipy.sparse
 import scipy.sparse.linalg
 
-import sparseappbench.benchmarks.GMRES as gmres
+import saps.benchmarks.GMRES as gmres
 from frameworks.saps_numpy import NumpyFramework
 
 

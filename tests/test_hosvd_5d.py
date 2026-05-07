@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 
-import sparseappbench.benchmarks.HOSVD_5d as hosvd_5d
+import saps.benchmarks.HOSVD_5d as hosvd_5d
 from saps_framework import BinsparseFormat
 from frameworks.saps_numpy import NumpyFramework
 

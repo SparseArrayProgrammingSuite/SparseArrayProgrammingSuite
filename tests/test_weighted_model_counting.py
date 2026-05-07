@@ -2,7 +2,7 @@ import numpy as np
 
 from frameworks.saps_numpy import NumpyFramework
 
-import sparseappbench.benchmarks.weighted_model_counting as wmc
+import saps.benchmarks.weighted_model_counting as wmc
 
 
 def test_weighted_model_counting_datasets():

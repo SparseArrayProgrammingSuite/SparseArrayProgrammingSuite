@@ -2,8 +2,8 @@ import pytest
 
 import numpy as np
 
-import sparseappbench.benchmarks.Finite_Difference_2D as fd2d
-from sparseappbench.benchmarks.Finite_Difference_2D import (
+import saps.benchmarks.Finite_Difference_2D as fd2d
+from saps.benchmarks.Finite_Difference_2D import (
     aniso_burgers_flux_2D,
     buckley_leverett_flux_2D,
     linear_advection_flux_2D,

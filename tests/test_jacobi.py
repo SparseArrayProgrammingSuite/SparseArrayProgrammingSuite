@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 
-import sparseappbench.benchmarks.jacobi as jacobi
+import saps.benchmarks.jacobi as jacobi
 from saps_framework import BinsparseFormat
 from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_scipy import SciPyFramework
