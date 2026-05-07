@@ -1,3 +1,5 @@
+import math
+
 """
 Name: Random Projections for k-means Clustering
 Author: Maksim Krylykov
@@ -21,8 +23,6 @@ Test points for this benchmark were created manually.
 Generative AI:
 No generative AI was used to implement benchmark functions.
 """
-
-import math
 
 """
 Labels points into k clusters.

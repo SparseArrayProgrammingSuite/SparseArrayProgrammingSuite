@@ -5,6 +5,38 @@ from saps_framework import BinsparseFormat
 
 xp = sparseappbench.xp
 
+# Data gen
+
+
+def dg_single_layer_large():
+    "Small instance of 10 qubits, 1 layer"
+    nqubits = 40
+    dim = 1 << nqubits
+    state = np.zeros(dim, dtype=np.complex128)
+    state[0] = 1.0 + 0j  # |000...0
+    state_bin = BinsparseFormat.from_numpy(state)
+    return state_bin, nqubits
+
+
+def dg_single_layer_small():
+    "Small instance of 10 qubits, 1 layer"
+    nqubits = 10
+    dim = 1 << nqubits
+    state = np.zeros(dim, dtype=np.complex128)
+    state[0] = 1.0 + 0j  # |000...0
+    state_bin = BinsparseFormat.from_numpy(state)
+    return state_bin, nqubits
+
+
+def dg_single_layer_tiny():
+    "Tiny instance of 5 qubits, 1 layer"
+    nqubits = 5
+    dim = 1 << nqubits
+    state = np.zeros(dim, dtype=np.complex128)
+    state[0] = 1.0 + 0j  # |000...0
+    state_bin = BinsparseFormat.from_numpy(state)
+    return state_bin, nqubits
+
 
 def apply_single_qubit_gate(xp, state, gate, qubit, nqubits):
     left = 1 << qubit
@@ -60,35 +92,3 @@ def benchmark_rqc_statevector(xp, state_bench, nqubits, num_layers=10):
 
     return xp.to_binsparse(state)
 
-
-# Data gen
-
-
-def dg_single_layer_large():
-    "Small instance of 10 qubits, 1 layer"
-    nqubits = 40
-    dim = 1 << nqubits
-    state = np.zeros(dim, dtype=np.complex128)
-    state[0] = 1.0 + 0j  # |000...0
-    state_bin = BinsparseFormat.from_numpy(state)
-    return state_bin, nqubits
-
-
-def dg_single_layer_small():
-    "Small instance of 10 qubits, 1 layer"
-    nqubits = 10
-    dim = 1 << nqubits
-    state = np.zeros(dim, dtype=np.complex128)
-    state[0] = 1.0 + 0j  # |000...0
-    state_bin = BinsparseFormat.from_numpy(state)
-    return state_bin, nqubits
-
-
-def dg_single_layer_tiny():
-    "Tiny instance of 5 qubits, 1 layer"
-    nqubits = 5
-    dim = 1 << nqubits
-    state = np.zeros(dim, dtype=np.complex128)
-    state[0] = 1.0 + 0j  # |000...0
-    state_bin = BinsparseFormat.from_numpy(state)
-    return state_bin, nqubits

@@ -8,6 +8,137 @@ import ssgetpy
 
 from saps_framework import BinsparseFormat
 
+
+
+def dg_block_cg_sparse_1():
+    return generate_block_cg_data(
+        "mhdb416"
+    )  # Condition Number With Preconditioner: 3994223509->6.24
+
+
+def dg_block_cg_sparse_2():
+    return generate_block_cg_data(
+        "lund_b"
+    )  # Condition Number With Preconditioner: 30036->36.3
+
+
+def dg_block_cg_sparse_3():
+    return generate_block_cg_data(
+        "Chem97ZtZ"
+    )  # Condition Number With Preconditioner: 247->8.48
+
+
+def dg_block_cg_sparse_4():
+    return generate_block_cg_data(
+        "bcsstm12"
+    )  # Condition Number With Preconditioner: 633194->7.14
+
+
+def dg_block_cg_sparse_5():
+    return generate_block_cg_data(
+        "mesh1em1"
+    )  # Condition Number With Preconditioner: 19->11.4
+
+
+def dg_jacobi_cg_sparse_1():
+    return generate_jacobi_cg_data(
+        "mhdb416"
+    )  # Condition Number With Preconditioner: 3994223509->69.7
+
+
+def dg_jacobi_cg_sparse_2():
+    return generate_jacobi_cg_data(
+        "lund_b"
+    )  # Condition Number With Preconditioner: 30036->144
+
+
+def dg_jacobi_cg_sparse_3():
+    return generate_jacobi_cg_data(
+        "Chem97ZtZ"
+    )  # Condition Number With Preconditioner: 247->8.48
+
+
+def dg_jacobi_cg_sparse_4():
+    return generate_jacobi_cg_data(
+        "bcsstm12"
+    )  # Condition Number With Preconditioner 633194->3160
+
+
+def dg_jacobi_cg_sparse_5():
+    return generate_block_cg_data(
+        "mesh1em1"
+    )  # Condition Number With Preconditioner: 19->11.6
+
+
+def generate_cg_data(source, has_b_file):
+    matrices = ssgetpy.search(name=source)
+    if not matrices:
+        raise ValueError(f"No matrix found with name '{source}'")
+    matrix = matrices[0]
+    (path, archive) = matrix.download(extract=True)
+    matrix_path = os.path.join(path, matrix.name + ".mtx")
+    if matrix_path and os.path.exists(matrix_path):
+        A = mmread(matrix_path)
+    else:
+        raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
+    rng = np.random.default_rng(0)
+
+    if has_b_file:
+        matrix_path = os.path.join(path, matrix.name + "_b.mtx")
+        if matrix_path and os.path.exists(matrix_path):
+            b = mmread(matrix_path)
+        else:
+            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
+        if not isinstance(b, np.ndarray):
+            b = b.toarray() if hasattr(b, "toarray") else np.asarray(b)
+        b = b.flatten()
+    else:
+        x = sp.random(
+            A.shape[1], 1, density=0.1, format="coo", dtype=np.float64, random_state=rng
+        )
+        b = A @ x
+        b = b.toarray().flatten()
+    x = np.zeros(A.shape[1])
+    return (A, b, x)
+
+
+def generate_block_cg_data(source, has_b_file=False):
+    A, b, x = generate_cg_data(source, has_b_file)
+    M = generate_block_jacobi_M(A)
+    M_bin = BinsparseFormat.from_coo((M.row, M.col), M.data, M.shape)
+    A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
+    b_bin = BinsparseFormat.from_numpy(b)
+    x_bin = BinsparseFormat.from_numpy(x)
+    return (A_bin, b_bin, x_bin, M_bin, solve_block_jacobi_cg)
+
+
+def generate_block_jacobi_M(A):
+    A_csr = A.tocsr()
+    n = A_csr.shape[0]
+    # Create one block for every processor modelled after
+    # this example: https://petsc.org/main/src/ksp/ksp/tutorials/ex7.c.html
+    p = min(10, n)
+    block_size = n // p
+    blocks = []
+    i = 0
+    while i < n:
+        j = min(i + block_size, n)
+        A_ii = A_csr[i:j, i:j].toarray()
+        L_i = np.linalg.cholesky(A_ii)
+        blocks.append(L_i)
+        i = j
+    return sp.block_diag(blocks).tocoo()
+
+
+def generate_jacobi_cg_data(source, has_b_file=False):
+    A, b, x = generate_cg_data(source, has_b_file)
+    M = A.diagonal()
+    M_bin = BinsparseFormat.from_numpy(M)
+    A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
+    b_bin = BinsparseFormat.from_numpy(b)
+    x_bin = BinsparseFormat.from_numpy(x)
+    return (A_bin, b_bin, x_bin, M_bin, solve_jacobi_cg)
+
 """
 Name: Preconditioned Conjugate Gradient (Block Jacobi)
 Author: Benjamin Berol
@@ -106,133 +237,3 @@ def preconditioned_cg(
 
     x_solution = x
     return xp.to_binsparse(x_solution)
-
-
-def generate_cg_data(source, has_b_file):
-    matrices = ssgetpy.search(name=source)
-    if not matrices:
-        raise ValueError(f"No matrix found with name '{source}'")
-    matrix = matrices[0]
-    (path, archive) = matrix.download(extract=True)
-    matrix_path = os.path.join(path, matrix.name + ".mtx")
-    if matrix_path and os.path.exists(matrix_path):
-        A = mmread(matrix_path)
-    else:
-        raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-    rng = np.random.default_rng(0)
-
-    if has_b_file:
-        matrix_path = os.path.join(path, matrix.name + "_b.mtx")
-        if matrix_path and os.path.exists(matrix_path):
-            b = mmread(matrix_path)
-        else:
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-        if not isinstance(b, np.ndarray):
-            b = b.toarray() if hasattr(b, "toarray") else np.asarray(b)
-        b = b.flatten()
-    else:
-        x = sp.random(
-            A.shape[1], 1, density=0.1, format="coo", dtype=np.float64, random_state=rng
-        )
-        b = A @ x
-        b = b.toarray().flatten()
-    x = np.zeros(A.shape[1])
-    return (A, b, x)
-
-
-def generate_block_cg_data(source, has_b_file=False):
-    A, b, x = generate_cg_data(source, has_b_file)
-    M = generate_block_jacobi_M(A)
-    M_bin = BinsparseFormat.from_coo((M.row, M.col), M.data, M.shape)
-    A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
-    b_bin = BinsparseFormat.from_numpy(b)
-    x_bin = BinsparseFormat.from_numpy(x)
-    return (A_bin, b_bin, x_bin, M_bin, solve_block_jacobi_cg)
-
-
-def generate_block_jacobi_M(A):
-    A_csr = A.tocsr()
-    n = A_csr.shape[0]
-    # Create one block for every processor modelled after
-    # this example: https://petsc.org/main/src/ksp/ksp/tutorials/ex7.c.html
-    p = min(10, n)
-    block_size = n // p
-    blocks = []
-    i = 0
-    while i < n:
-        j = min(i + block_size, n)
-        A_ii = A_csr[i:j, i:j].toarray()
-        L_i = np.linalg.cholesky(A_ii)
-        blocks.append(L_i)
-        i = j
-    return sp.block_diag(blocks).tocoo()
-
-
-def generate_jacobi_cg_data(source, has_b_file=False):
-    A, b, x = generate_cg_data(source, has_b_file)
-    M = A.diagonal()
-    M_bin = BinsparseFormat.from_numpy(M)
-    A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
-    b_bin = BinsparseFormat.from_numpy(b)
-    x_bin = BinsparseFormat.from_numpy(x)
-    return (A_bin, b_bin, x_bin, M_bin, solve_jacobi_cg)
-
-
-def dg_block_cg_sparse_1():
-    return generate_block_cg_data(
-        "mhdb416"
-    )  # Condition Number With Preconditioner: 3994223509->6.24
-
-
-def dg_block_cg_sparse_2():
-    return generate_block_cg_data(
-        "lund_b"
-    )  # Condition Number With Preconditioner: 30036->36.3
-
-
-def dg_block_cg_sparse_3():
-    return generate_block_cg_data(
-        "Chem97ZtZ"
-    )  # Condition Number With Preconditioner: 247->8.48
-
-
-def dg_block_cg_sparse_4():
-    return generate_block_cg_data(
-        "bcsstm12"
-    )  # Condition Number With Preconditioner: 633194->7.14
-
-
-def dg_block_cg_sparse_5():
-    return generate_block_cg_data(
-        "mesh1em1"
-    )  # Condition Number With Preconditioner: 19->11.4
-
-
-def dg_jacobi_cg_sparse_1():
-    return generate_jacobi_cg_data(
-        "mhdb416"
-    )  # Condition Number With Preconditioner: 3994223509->69.7
-
-
-def dg_jacobi_cg_sparse_2():
-    return generate_jacobi_cg_data(
-        "lund_b"
-    )  # Condition Number With Preconditioner: 30036->144
-
-
-def dg_jacobi_cg_sparse_3():
-    return generate_jacobi_cg_data(
-        "Chem97ZtZ"
-    )  # Condition Number With Preconditioner: 247->8.48
-
-
-def dg_jacobi_cg_sparse_4():
-    return generate_jacobi_cg_data(
-        "bcsstm12"
-    )  # Condition Number With Preconditioner 633194->3160
-
-
-def dg_jacobi_cg_sparse_5():
-    return generate_block_cg_data(
-        "mesh1em1"
-    )  # Condition Number With Preconditioner: 19->11.6
