@@ -40,23 +40,32 @@ xp = sparseappbench.xp
 
 class GCNDataset(Dataset):
     def __init__(
-        self, source_name: str, has_b_file: bool = False, nnz: int | None = None
+        self,
+        name: str,
+        description: str = "",
+        source_name: str | None = None,
+        feature_dim: int = 16,
+        hidden_dim: int = 8,
+        out_dim: int = 1,
     ):
-        self.source_name = source_name
-        self.has_b_file = has_b_file
-        self.nnz = nnz
+        self.dataset_name = name
+        self.dataset_description = description
+        self.source_name = source_name if source_name is not None else name
+        self.feature_dim = feature_dim
+        self.hidden_dim = hidden_dim
+        self.out_dim = out_dim
 
     @property
     def name(self) -> str:
-        return self.source_name
+        return self.dataset_name
 
     @property
     def pretty_name(self) -> str:
-        return f"GCN {self.source_name}"
+        return f"GCN {self.dataset_name}"
 
     @property
     def description(self) -> str:
-        return f"SuiteSparse matrix {self.source_name}."
+        return self.dataset_description or f"SuiteSparse matrix {self.source_name}."
 
     @property
     def tags(self) -> list[str]:
@@ -65,8 +74,10 @@ class GCNDataset(Dataset):
     @property
     def metadata(self) -> dict[str, Any]:
         data = super().metadata
-        data["nnz"] = self.nnz
-        data["has_b_file"] = self.has_b_file
+        data["source_name"] = self.source_name
+        data["feature_dim"] = self.feature_dim
+        data["hidden_dim"] = self.hidden_dim
+        data["out_dim"] = self.out_dim
         return data
 
 
@@ -240,6 +251,7 @@ class GCNGenerator(Generator[GCNDataset]):
         hidden_dim = dataset.hidden_dim
         out_dim = dataset.out_dim
 
+        source = dataset.source_name
         matrices = ssgetpy.search(name=source)
         if not matrices:
             raise ValueError(f"No matrix found with name '{source}'")
@@ -393,4 +405,3 @@ class GCNBenchmark(Benchmark):
 
         solution = output
         return xp.to_binsparse(solution)
-

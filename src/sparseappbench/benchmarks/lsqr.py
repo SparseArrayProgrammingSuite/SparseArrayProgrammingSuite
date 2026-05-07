@@ -201,9 +201,13 @@ class LSQRBenchmark(Benchmark):
     def references(self) -> list[Ref]:
         return [
             Ref(
+                title="",
+                authors=[],
                 url="https://web.stanford.edu/group/SOL/software/lsqr/lsqr-toms82a.pdf",
             ),
             Ref(
+                title="",
+                authors=[],
                 url="https://github.com/PythonOptimizers/pykrylov/blob/master/pykrylov/lls/lsqr.py#L293",
             ),
         ]

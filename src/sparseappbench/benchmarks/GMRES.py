@@ -78,6 +78,8 @@ class GMRESGenerator(Generator[GMRESDataset]):
     def references(self) -> list[Ref]:
         return [
             Ref(
+                title="",
+                authors=[],
                 url="https://www.netlib.org/templates/templates.pdf",
             )
         ]
@@ -188,9 +190,13 @@ class GMRESBenchmark(Benchmark):
     def references(self) -> list[Ref]:
         return [
             Ref(
+                title="",
+                authors=[],
                 url="https://www.netlib.org/templates/templates.pdf",
             ),
             Ref(
+                title="",
+                authors=[],
                 url="https://www.netlib.org/utk/people/JackDongarra/PAPERS/sparse-bench.pdf",
             ),
         ]

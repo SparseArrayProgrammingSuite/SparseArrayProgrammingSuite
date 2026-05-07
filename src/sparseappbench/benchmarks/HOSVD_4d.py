@@ -296,7 +296,7 @@ class HOSVD4DBenchmark(Benchmark):
         num_modes = len(dimensions)
 
         # initial HOSVD by performing SVD on matrix unfoldings along each mode
-        initial_factors = [None] * num_modes
+        initial_factors: list[Any] = [None] * num_modes
         for mode in range(num_modes):
             perm = [mode] + list(range(mode)) + list(range(mode + 1, num_modes))
             unfold = xp.reshape(xp.transpose(X, perm), (dimensions[mode], -1))
