@@ -1,4 +1,5 @@
 import os
+from typing import Any
 
 import numpy as np
 from scipy.io import mmread
@@ -6,143 +7,251 @@ from scipy.sparse import random
 
 import ssgetpy
 
-from ..binsparse_format import BinsparseFormat
+import sparseappbench
+from sparseappbench.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    Dataset,
+    Generator,
+    Ref,
+)
+from saps_framework.binsparse_format import BinsparseFormat
 
-"""
-Name: Conjugate Gradient Iterative Solver
-Author: Benjamin Berol
-Email: bberol3@gatech.edu
-Motivation:
-"The Conjugate Gradient algorithm is one of the best known iterative techniques for
-solving sparse Symmetric Positive Definite linear systems."
-Y. Saad, Iterative Methods for Sparse Linear Systems, 2nd ed. Philadelphia,
-PA: SIAM, 2003, ch. 6.7.
-Role of Sparsity:
-Each iteration of the conjugate gradient requires a SpMV to compute Ap
-which can be done in O(nnz) time rather than O(n^2) time for dense matrices.
-Implementation:
-Hand-written code modelling the algorithm structure outlined in:
-https://arxiv.org/abs/2007.00640 Page 21
-Data Generation:
-Data collected from SuiteSparse Matrix Collection consisting of symmetric
-positive definite matrices, particularly those with a low convergence criteria.
-Statement on the use of Generative AI:
-No generative AI was used to write the benchmark function itself. Generative
-AI was used to debug code. This statement was written by hand.
-"""
+xp = sparseappbench.xp
 
 
-def benchmark_cg(
-    xp, A_bench, b_bench, x_bench, rel_tol=1e-8, abs_tol=1e-20, max_iters=10_000
-):
-    A = xp.lazy(xp.from_benchmark(A_bench))
-    b = xp.lazy(xp.from_benchmark(b_bench))
-    x = xp.lazy(xp.from_benchmark(x_bench))
+class CGDataset(Dataset):
+    def __init__(
+        self, source_name: str, has_b_file: bool = False, nnz: int | None = None
+    ):
+        self.source_name = source_name
+        self.has_b_file = has_b_file
+        self.nnz = nnz
 
-    tolerance = max(
-        xp.compute(xp.lazy(rel_tol) * xp.sqrt(xp.vecdot(b, b)))[()], abs_tol
-    )
-    # tol_sq used to avoid having to sqrt dot products when checking tolerance
-    tol_sq = tolerance * tolerance
+    @property
+    def name(self) -> str:
+        return self.source_name
 
-    r = b - A @ x
-    p = r
-    it = 0
-    rr = xp.compute(xp.vecdot(r, r))[()]
+    @property
+    def pretty_name(self) -> str:
+        return f"CG {self.source_name}"
 
-    if rr >= tol_sq:
-        while it < max_iters:
-            x = xp.lazy(x)
-            r = xp.lazy(r)
-            p = xp.lazy(p)
+    @property
+    def description(self) -> str:
+        return f"SuiteSparse matrix {self.source_name}."
 
-            Ap = A @ p
-            alpha = rr / xp.vecdot(r, Ap)
-            x += alpha * p
-            r -= alpha * Ap
+    @property
+    def tags(self) -> list[str]:
+        return ["suitesparse", "sparse"]
 
-            x = xp.compute(x)
-            r = xp.compute(r)
-            p = xp.compute(p)
-            new_rr = xp.compute(xp.vecdot(r, r))[()]
-
-            it += 1
-
-            if new_rr < tol_sq:
-                break
-
-            beta = new_rr / rr
-            p = r + beta * p
-            rr = new_rr
-
-    x_solution = xp.compute(x)
-    return xp.to_benchmark(x_solution)
+    @property
+    def metadata(self) -> dict[str, Any]:
+        data = super().metadata
+        data["nnz"] = self.nnz
+        data["has_b_file"] = self.has_b_file
+        return data
 
 
-def generate_cg_data(source, has_b_file=False):
-    matrices = ssgetpy.search(name=source)
-    if not matrices:
-        raise ValueError(f"No matrix found with name '{source}'")
-    matrix = matrices[0]
-    (path, archive) = matrix.download(extract=True)
-    matrix_path = os.path.join(path, matrix.name + ".mtx")
-    if matrix_path and os.path.exists(matrix_path):
-        A = mmread(matrix_path)
-    else:
-        raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-    rng = np.random.default_rng(0)
-    A = A.tocoo()
+class CGGenerator(Generator[CGDataset]):
+    @property
+    def name(self) -> str:
+        return "cg_inputs"
 
-    if has_b_file:
-        matrix_path = os.path.join(path, matrix.name + "_b.mtx")
-        if matrix_path and os.path.exists(matrix_path):
-            b = mmread(matrix_path)
-        else:
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-        if not isinstance(b, np.ndarray):
-            b = b.toarray() if hasattr(b, "toarray") else np.asarray(b)
-        b = b.flatten()
-    else:
-        x = random(
-            A.shape[1], 1, density=0.1, format="coo", dtype=np.float64, random_state=rng
+    @property
+    def pretty_name(self) -> str:
+        return "Conjugate Gradient SuiteSparse Data Generator"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Accesses and prepares symmetric positive definite matrices from "
+            "SuiteSparse for conjugate gradient."
         )
-        b = A @ x
-        b = b.toarray().flatten()
-    x = np.zeros(A.shape[1])
 
-    A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
-    b_bin = BinsparseFormat.from_numpy(b)
-    x_bin = BinsparseFormat.from_numpy(x)
-    return (A_bin, b_bin, x_bin)
+    @property
+    def tags(self) -> list[str]:
+        return ["iterative", "solver", "suitesparse", "sparse"]
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Benjamin Berol", "bberol3@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to write the benchmark function itself. "
+            "Generative AI was used to debug code. This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return (
+            "Data collected from SuiteSparse Matrix Collection consisting of "
+            "symmetric positive definite matrices, particularly those "
+            "with a low convergence criteria"
+        )
+
+    @property
+    def datasets(self) -> list[CGDataset]:
+        return [
+            CGDataset("mesh3em5", nnz=1889),
+            CGDataset("bcsstm02", nnz=66),
+            CGDataset("fv1", nnz=85264),
+            CGDataset("Muu", nnz=170134),
+            CGDataset("Chem97ZtZ", nnz=7361),
+            CGDataset("Dubcova1", nnz=253009),
+            CGDataset("t3dl_e", nnz=20360),
+            CGDataset("bcsstk09", nnz=18437),
+        ]
+
+    def generate(
+        self, dataset: CGDataset
+    ) -> tuple[list[BinsparseFormat], dict[str, Any]]:
+        matrices = ssgetpy.search(name=dataset.source_name)
+        if not matrices:
+            raise ValueError(f"No matrix found with name '{dataset.source_name}'")
+        matrix = matrices[0]
+        path, _archive = matrix.download(extract=True)
+        matrix_path = os.path.join(path, f"{matrix.name}.mtx")
+        if not os.path.exists(matrix_path):
+            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
+
+        A = mmread(matrix_path).tocoo()
+        rng = np.random.default_rng(0)
+
+        if dataset.has_b_file:
+            b_path = os.path.join(path, f"{matrix.name}_b.mtx")
+            if not os.path.exists(b_path):
+                raise FileNotFoundError(f"Matrix file not found at {b_path}")
+            b = mmread(b_path)
+            if not isinstance(b, np.ndarray):
+                b = b.toarray() if hasattr(b, "toarray") else np.asarray(b)
+            b = b.flatten()
+        else:
+            x_rand = random(
+                A.shape[1],
+                1,
+                density=0.1,
+                format="coo",
+                dtype=np.float64,
+                random_state=rng,
+            )
+            b = A @ x_rand
+            b = b.toarray().flatten()
+
+        x = np.zeros(A.shape[1])
+
+        A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
+        b_bin = BinsparseFormat.from_numpy(b)
+        x_bin = BinsparseFormat.from_numpy(x)
+
+        return [A_bin, b_bin, x_bin], {}
 
 
-def dg_cg_sparse_1():
-    return generate_cg_data("mesh3em5")
+class CGBenchmark(Benchmark):
+    @property
+    def tag(self) -> str:
+        return "cg_solver"
 
+    @property
+    def name(self) -> str:
+        return "cg_solver"
 
-def dg_cg_sparse_2():
-    return generate_cg_data("bcsstm02")
+    @property
+    def pretty_name(self) -> str:
+        return "Conjugate Gradient Iterative Solver"
 
+    @property
+    def description(self) -> str:
+        return "Solves sparse symmetric positive definite linear systems with CG."
 
-def dg_cg_sparse_3():
-    return generate_cg_data("fv1")
+    @property
+    def tags(self) -> list[str]:
+        return ["iterative", "solver", "sparse"]
 
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Benjamin Berol", "bberol3@gatech.edu")]
 
-def dg_cg_sparse_4():
-    return generate_cg_data("Muu")
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="Iterative Methods for Sparse Linear Systems",
+                authors=[Author("Yousef Saad")],
+                publisher="SIAM",
+                year=2003,
+            )
+        ]
 
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to write the benchmark function itself. "
+            "Generative AI was used to debug code. This statement was written by hand."
+        )
 
-def dg_cg_sparse_5():
-    return generate_cg_data("Chem97ZtZ")
+    @property
+    def motivation(self) -> str:
+        return (
+            "Each iteration of the conjugate gradient requires a SpMV to compute Ap"
+            "which can be done in O(nnz) time rather than O(n^2) time "
+            "for dense matrices."
+        )
 
+    @property
+    def generators(self):
+        return [CGGenerator()]
 
-def dg_cg_sparse_6():
-    return generate_cg_data("Dubcova1")
+    def benchmark(self, data: list, meta: dict):
+        A, b, x = data
+        rel_tol = 1e-8
+        abs_tol = 1e-20
+        max_iters = 10_000
 
+        tolerance = max(rel_tol * xp.sqrt(xp.vecdot(b, b))[()], abs_tol)
+        tol_sq = tolerance * tolerance
 
-def dg_cg_sparse_7():
-    return generate_cg_data("t3dl_e")
+        r = b - A @ x
+        p = r
+        rr = xp.vecdot(r, r)[()]
+        it = 0
 
+        if rr >= tol_sq:
+            while it < max_iters:
+                x = x
+                r = r
+                p = p
 
-def dg_cg_sparse_8():
-    return generate_cg_data("bcsstk09")
+                Ap = A @ p
+                alpha = rr / xp.vecdot(p, Ap)[()]
+                x += alpha * p
+                r -= alpha * Ap
+
+                x = x
+                r = r
+                p = p
+                old_rr = rr
+                new_rr = xp.vecdot(r, r)[()]
+                rr = new_rr
+
+                it += 1
+
+                if rr < tol_sq:
+                    break
+
+                beta = new_rr / old_rr
+                p = r + beta * p
+
+        if rr >= tol_sq:
+            raise RuntimeError(
+                "Conjugate gradient did not converge "
+                "within the maximum number of iterations"
+            )
+
+        return [x]

@@ -1,6 +1,10 @@
+from .benchmark import Author, Benchmark, Contributor, Ref
+from .framework import xp
+
 __all__ = [
-    "einsum",
-    "main",
+    "Author",
+    "Benchmark",
+    "Contributor",
+    "Ref",
+    "xp",
 ]
-from .benchmark_runner import main as main
-from .frameworks import einsum

@@ -3,9 +3,7 @@ import scipy.sparse.linalg as spla
 
 import sparse as sp
 
-from ..binsparse_format import BinsparseFormat
-from .abstract_framework import AbstractFramework
-from .einsum import einsum
+from saps_framework import BinsparseFormat, Framework, einsum
 
 
 class PyDataSparseLinalg:
@@ -23,11 +21,11 @@ class PyDataSparseLinalg:
         return sp.asarray(x)
 
 
-class PyDataSparseFramework(AbstractFramework):
+class PyDataSparseFramework(Framework):
     def __init__(self):
         pass
 
-    def from_benchmark(self, array):
+    def from_binsparse(self, array):
         if array.data["format"] == "dense":
             return sp.asarray(array.data["values"].reshape(array.data["shape"]))
         if array.data["format"] == "COO":
@@ -41,12 +39,13 @@ class PyDataSparseFramework(AbstractFramework):
             return sp.COO(tuple(indices), V, shape=shape, fill_value=0)
         raise ValueError("Unsupported format: " + array.data["format"])
 
-    def to_benchmark(self, array):
+    def to_binsparse(self, array):
         if isinstance(array, sp.COO):
-            print(type(array))
             return BinsparseFormat.from_coo(array.coords, array.data, array.shape)
         if isinstance(array, sp.SparseArray):
             return self.to_benchmark(array.tocoo())
+        if isinstance(array, np.ndarray):
+            return BinsparseFormat.from_numpy(array)
         raise ValueError("Unsupported array type: " + str(type(array)))
 
     def lazy(self, array):
@@ -71,3 +70,6 @@ class PyDataSparseFramework(AbstractFramework):
 
     def __getattr__(self, name):
         return getattr(sp, name)
+
+
+xp = PyDataSparseFramework()

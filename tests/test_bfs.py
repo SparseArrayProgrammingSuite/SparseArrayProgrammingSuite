@@ -1,16 +1,16 @@
 import numpy as np
 
-from sparseappbench.benchmarks.BFS import benchmark_bfs
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+import sparseappbench.benchmarks.BFS as bfs
+from saps_framework import BinsparseFormat 
+from frameworks.saps_numpy import NumpyFramework
 
 
 def _run_bfs_case(A, source, expected):
     "This method will run all the different tests. It will asisst with setup"
     xp = NumpyFramework()
-    A_bin = BinsparseFormat.from_numpy(A)
-    bench_result = benchmark_bfs(xp, A_bin, source)
-    result = xp.from_benchmark(bench_result).ravel()
+    bfs.xp = xp
+    (bench_result,) = bfs.BreadthFirstSearchBenchmark().benchmark((A,), {"src": source})
+    result = bench_result.ravel()
     assert np.array_equal(result, expected), (
         f"BFS output mismatch.\nGot {result}, expected {expected}"
     )

@@ -1,10 +1,21 @@
 import numpy as np
 
-from sparseappbench.benchmarks.rp_kmeans_clustering import (
-    rp_kmeans_clustering,
-)
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+import sparseappbench.benchmarks.rp_kmeans_clustering as rp_kmeans
+from saps_framework import BinsparseFormat
+from frameworks.saps_numpy import NumpyFramework
+
+
+def run_rp_kmeans(xp, A, k, eps, c=1, max_iter=100):
+    benchmark = rp_kmeans.RPKMeansBenchmark()
+    prev_xp = getattr(rp_kmeans, "xp", None)
+    rp_kmeans.xp = xp
+    try:
+        (labels,) = benchmark.benchmark(
+            [A], {"k": k, "eps": eps, "c": c, "max_iter": max_iter}
+        )
+    finally:
+        rp_kmeans.xp = prev_xp
+    return labels
 
 
 def test_rp_kmeans_sanity_check():
@@ -21,8 +32,9 @@ def test_rp_kmeans_sanity_check():
         dtype=np.float32,
     )
     A_bin = BinsparseFormat.from_numpy(points)
+    A_input = xp.from_binsparse(A_bin)
 
-    labels = rp_kmeans_clustering(xp, A_bin, k=3, eps=0.3, c=0.5, max_iter=5).tolist()
+    labels = run_rp_kmeans(xp, A_input, k=3, eps=0.3, c=0.5, max_iter=5).tolist()
 
     assert (
         labels[0] == labels[1]
@@ -45,7 +57,8 @@ def test_rp_kmeans_two_clusters():
         dtype=np.float32,
     )
     A_bin = BinsparseFormat.from_numpy(points)
+    A_input = xp.from_binsparse(A_bin)
 
-    labels = rp_kmeans_clustering(xp, A_bin, k=2, eps=0.2, c=1, max_iter=5).tolist()
+    labels = run_rp_kmeans(xp, A_input, k=2, eps=0.2, c=1, max_iter=5).tolist()
 
     assert labels[0] == labels[1] == labels[2] == labels[3] and labels[0] != labels[4]

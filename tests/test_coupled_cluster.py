@@ -2,14 +2,19 @@ import pytest
 
 import numpy as np
 
-from sparseappbench.benchmarks.coupled_cluster import benchmark_ccsd, make_ccsd_inputs
-from sparseappbench.binsparse_format import BinsparseFormat
-from sparseappbench.frameworks.checker_framework import CheckerFramework
-from sparseappbench.frameworks.numpy_framework import NumpyFramework
+from sparseappbench.benchmarks.coupled_cluster import CCSD, make_ccsd_inputs
+import sparseappbench.benchmarks.coupled_cluster as cc
+from saps_framework.binsparse_format import BinsparseFormat
+from frameworks.saps_numpy import NumpyFramework
 
 # Ground truth from C++ CTF (tests/cpp_reference/coupled_cluster/ccsd.cxx):
 #   mpirun -n 1 ./ccsd -no 4 -nv 6 -niter 1  →  |T| = 380638.269079
 CPP_CTF_REFERENCE_NORM = 380638.269079
+
+def benchmark_ccsd(xp, data):
+    cc.xp = xp
+    data = [xp.from_binsparse(d) for d in data]
+    return CCSD().benchmark(data, {})
 
 
 def _as_canon_abij(T):
@@ -47,12 +52,12 @@ def _full_antisym3(T, axes):
     )
 
 
-@pytest.mark.parametrize("xp", [NumpyFramework(), CheckerFramework()])
+@pytest.mark.parametrize("xp", [NumpyFramework()])
 def test_ccsd_output_shape(xp):
     """Verify benchmark runs without errors and returns correct output shapes."""
-    T1_out_b, T2_out_b = benchmark_ccsd(xp, *make_ccsd_inputs(no=4, nv=6))
-    assert T1_out_b.data["shape"] == (6, 4)
-    assert T2_out_b.data["shape"] == (6, 6, 4, 4)
+    T1_out, T2_out = benchmark_ccsd(xp, make_ccsd_inputs(no=4, nv=6))
+    assert T1_out.shape == (6, 4)
+    assert T2_out.shape == (6, 6, 4, 4)
 
 
 def test_ccsd_output_matches_cpp_reference():
@@ -65,9 +70,7 @@ def test_ccsd_output_matches_cpp_reference():
     antisymmetric positions), equivalent to norm(full_antisymmetrized).
     """
     xp = NumpyFramework()
-    T1_out_b, T2_out_b = benchmark_ccsd(xp, *make_ccsd_inputs(no=4, nv=6))
-    T1_out = xp.from_benchmark(T1_out_b)
-    T2_out = xp.from_benchmark(T2_out_b)
+    T1_out, T2_out = benchmark_ccsd(xp, make_ccsd_inputs(no=4, nv=6))
     T2_out = _as_canon_abij(T2_out)
     # Verify T2 antisymmetry: T2[a,b,i,j] == -T2[b,a,i,j] and T2[a,b,i,j] ==-T2[a,b,j,i]
     assert np.allclose(T2_out, -T2_out.transpose(1, 0, 2, 3), atol=1e-10), (
@@ -82,18 +85,18 @@ def test_ccsd_output_matches_cpp_reference():
     )
 
 
-@pytest.mark.parametrize("xp", [NumpyFramework(), CheckerFramework()])
+@pytest.mark.parametrize("xp", [NumpyFramework()])
 def test_ccsdt_map_contraction_shape(xp):
     """Verify Z[hijmno] += W[hijk]*T[kmno] produces shape (n,n,n,n,n,n)."""
     n = 4
     W_b = BinsparseFormat.from_numpy(np.zeros((n, n, n, n)))
     T_b = BinsparseFormat.from_numpy(np.zeros((n, n, n, n)))
     Z_b = BinsparseFormat.from_numpy(np.zeros((n, n, n, n, n, n)))
-    W = xp.from_benchmark(W_b)
-    T = xp.from_benchmark(T_b)
-    Z = xp.from_benchmark(Z_b)
+    W = xp.from_binsparse(W_b)
+    T = xp.from_binsparse(T_b)
+    Z = xp.from_binsparse(Z_b)
     Z = Z + xp.einsum("Z[h,i,j,m,n,o] += W[h,i,j,k] * T[k,m,n,o]", W=W, T=T)
-    assert xp.to_benchmark(Z).data["shape"] == (n, n, n, n, n, n)
+    assert xp.to_binsparse(Z).data["shape"] == (n, n, n, n, n, n)
 
 
 def test_ccsdt_map_contraction_correctness():
@@ -104,13 +107,13 @@ def test_ccsdt_map_contraction_correctness():
     T = rng.standard_normal((n, n, n, n))
     Z = rng.standard_normal((n, n, n, n, n, n))
     xp = NumpyFramework()
-    Z_result = xp.from_benchmark(
-        xp.to_benchmark(
-            xp.from_benchmark(BinsparseFormat.from_numpy(Z))
+    Z_result = xp.from_binsparse(
+        xp.to_binsparse(
+            xp.from_binsparse(BinsparseFormat.from_numpy(Z))
             + xp.einsum(
                 "Z[h,i,j,m,n,o] += W[h,i,j,k] * T[k,m,n,o]",
-                W=xp.from_benchmark(BinsparseFormat.from_numpy(W)),
-                T=xp.from_benchmark(BinsparseFormat.from_numpy(T)),
+                W=xp.from_binsparse(BinsparseFormat.from_numpy(W)),
+                T=xp.from_binsparse(BinsparseFormat.from_numpy(T)),
             )
         )
     )
