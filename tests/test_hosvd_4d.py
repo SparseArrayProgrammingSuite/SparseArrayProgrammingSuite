@@ -2,11 +2,7 @@ import pytest
 
 import numpy as np
 
-from sparseappbench.benchmarks.HOSVD_4d import (
-    benchmark_hosvd,
-    dg_hosvd_random_small,
-    dg_hosvd_sparse_small,
-)
+import sparseappbench.benchmarks.HOSVD_4d as hosvd_4d
 from saps_framework import BinsparseFormat
 from frameworks.saps_numpy import NumpyFramework
 
@@ -14,6 +10,23 @@ from frameworks.saps_numpy import NumpyFramework
 @pytest.fixture
 def xp_numpy():
     return NumpyFramework()
+
+
+def run_hosvd_benchmark(xp_numpy, X, ranks, max_iter=50, tolerance=1e-8):
+    benchmark = hosvd_4d.HOSVD4DBenchmark()
+    prev_xp = getattr(hosvd_4d, "xp", None)
+    hosvd_4d.xp = xp_numpy
+    try:
+        output = benchmark.benchmark(
+            [X, ranks],
+            {
+                "max_iter": max_iter,
+                "tolerance": tolerance,
+            },
+        )
+    finally:
+        hosvd_4d.xp = prev_xp
+    return output[0], output[1:]
 
 
 def reconstruct_tensor(core, factors):
@@ -36,32 +49,24 @@ def reconstruct_tensor(core, factors):
     return np.einsum(subscripts, *operands)
 
 
-def test_hosvd_vs_tensorly(xp_numpy):
+def test_hosvd_dense_generator_reconstruction(xp_numpy):
     """
-    Compare against tensorly Tucker decomposition.
+    Test with the dense low-rank generator.
     """
-    tensorly = pytest.importorskip("tensorly")
-    tucker = pytest.importorskip("tensorly.decomposition")
-
-    X_bin, ranks_bin = dg_hosvd_random_small()
-    X_dense = xp_numpy.from_binsparse(X_bin)
-    ranks = tuple(xp_numpy.from_binsparse(ranks_bin).astype(int))
-
-    core_bin, factors_bin = benchmark_hosvd(xp_numpy, X_bin, ranks_bin, max_iter=50)
-    core_bench = xp_numpy.from_binsparse(core_bin)
-    factors_bench = [xp_numpy.from_binsparse(f) for f in factors_bin]
-    X_rec_bench = reconstruct_tensor(core_bench, factors_bench)
-    error_bench = np.linalg.norm(X_dense - X_rec_bench) / np.linalg.norm(X_dense)
-
-    core_tl, factors_tl = tucker.tucker(
-        X_dense, rank=list(ranks), n_iter_max=50, tol=1e-8
+    data, meta = hosvd_4d.HOSVD4DDenseGenerator().generate(
+        hosvd_4d.HOSVD4DDenseGenerator().datasets[0]
     )
-    X_rec_tl = tensorly.tucker_to_tensor((core_tl, factors_tl))
-    error_tl = np.linalg.norm(X_dense - X_rec_tl) / np.linalg.norm(X_dense)
+    X_bin, ranks_bin = data
+    X_dense = xp_numpy.from_binsparse(X_bin)
+    ranks = xp_numpy.from_binsparse(ranks_bin).astype(int)
 
-    print(f"Benchmark Error: {error_bench}, Tensorly Error: {error_tl}")
+    core_res, factors_res = run_hosvd_benchmark(
+        xp_numpy, X_dense, ranks, max_iter=meta["max_iter"]
+    )
+    X_rec = reconstruct_tensor(core_res, factors_res)
+    error = np.linalg.norm(X_dense - X_rec) / np.linalg.norm(X_dense)
 
-    assert abs(error_bench - error_tl) < 1e-4
+    assert error < 1e-5
 
 
 def test_manual_example_1_diagonal(xp_numpy):
@@ -80,9 +85,12 @@ def test_manual_example_1_diagonal(xp_numpy):
     X_bin = BinsparseFormat.from_numpy(X_dense)
     ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
 
-    core_bin, factors_bin = benchmark_hosvd(xp_numpy, X_bin, ranks_bin, max_iter=10)
-    core_res = xp_numpy.from_binsparse(core_bin)
-    factors_res = [xp_numpy.from_binsparse(f) for f in factors_bin]
+    core_res, factors_res = run_hosvd_benchmark(
+        xp_numpy,
+        xp_numpy.from_binsparse(X_bin),
+        xp_numpy.from_binsparse(ranks_bin),
+        max_iter=10,
+    )
 
     X_rec = reconstruct_tensor(core_res, factors_res)
 
@@ -106,9 +114,12 @@ def test_manual_example_2_rank_one(xp_numpy):
     X_bin = BinsparseFormat.from_numpy(X_dense)
     ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
 
-    core_bin, factors_bin = benchmark_hosvd(xp_numpy, X_bin, ranks_bin, max_iter=10)
-    core_res = xp_numpy.from_binsparse(core_bin)
-    factors_res = [xp_numpy.from_binsparse(f) for f in factors_bin]
+    core_res, factors_res = run_hosvd_benchmark(
+        xp_numpy,
+        xp_numpy.from_binsparse(X_bin),
+        xp_numpy.from_binsparse(ranks_bin),
+        max_iter=10,
+    )
     X_rec = reconstruct_tensor(core_res, factors_res)
 
     assert np.allclose(X_dense, X_rec, atol=1e-5)
@@ -137,9 +148,12 @@ def test_manual_example_3_structured(xp_numpy):
     X_bin = BinsparseFormat.from_numpy(X_dense)
     ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
 
-    core_bin, factors_bin = benchmark_hosvd(xp_numpy, X_bin, ranks_bin, max_iter=20)
-    core_res = xp_numpy.from_binsparse(core_bin)
-    factors_res = [xp_numpy.from_binsparse(f) for f in factors_bin]
+    core_res, factors_res = run_hosvd_benchmark(
+        xp_numpy,
+        xp_numpy.from_binsparse(X_bin),
+        xp_numpy.from_binsparse(ranks_bin),
+        max_iter=20,
+    )
     X_rec = reconstruct_tensor(core_res, factors_res)
 
     assert np.allclose(X_dense, X_rec, atol=1e-5)
@@ -153,13 +167,17 @@ def test_hosvd_sparse_input(xp_numpy):
     """
     Test with sparse input.
     """
-    X_bin, ranks_bin = dg_hosvd_sparse_small()
-    ranks = tuple(xp_numpy.from_binsparse(ranks_bin).astype(int))
+    data, meta = hosvd_4d.HOSVD4DSparseGenerator().generate(
+        hosvd_4d.HOSVD4DSparseGenerator().datasets[0]
+    )
+    X_bin, ranks_bin = data
+    X_dense = xp_numpy.from_binsparse(X_bin)
+    ranks = xp_numpy.from_binsparse(ranks_bin).astype(int)
 
-    core_bin, factors_bin = benchmark_hosvd(xp_numpy, X_bin, ranks_bin, max_iter=5)
-    core_res = xp_numpy.from_binsparse(core_bin)
-    factors_res = [xp_numpy.from_binsparse(f) for f in factors_bin]
+    core_res, factors_res = run_hosvd_benchmark(
+        xp_numpy, X_dense, ranks, max_iter=5, tolerance=meta["tolerance"]
+    )
 
     assert core_res.shape == tuple(ranks)
     for i, f in enumerate(factors_res):
-        assert f.shape == (X_bin.data["shape"][i], ranks[i])
+        assert f.shape == (X_dense.shape[i], ranks[i])

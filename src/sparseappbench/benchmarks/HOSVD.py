@@ -4,7 +4,6 @@ import numpy as np
 
 import sparseappbench
 from sparseappbench.benchmark import (
-    Author,
     Benchmark,
     Contributor,
     Dataset,
@@ -259,9 +258,13 @@ class HOSVDBenchmark(Benchmark):
     def references(self) -> list[Ref]:
         return [
             Ref(
+                title="",
+                authors=[],
                 url="https://epubs.siam.org/doi/10.1137/07070111X",
             ),
             Ref(
+                title="",
+                authors=[],
                 url="https://doi.org/10.36227/techrxiv.174417403.38431928/v1",
             ),
         ]
