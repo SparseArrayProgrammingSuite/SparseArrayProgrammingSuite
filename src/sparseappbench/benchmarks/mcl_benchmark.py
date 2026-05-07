@@ -1,24 +1,3 @@
-"""
-Name: Markov Clustering Algorithm
-Co-Authors: Prateek Hanumappanahalli, Joel Mathew Cherian
-Email: phanumap3@gatech.edu
-Motivation: "The Markov Clustering (MCL) algorithm relies heavily on repeated matrix
-operations, particularly matrix multiplication during the expansion step. Since the
-efficient execution of matrix-based kernels has been extensively studied in linear
-algebra, MCL serves as an effective benchmark for evaluating the performance of
-iterative numerical methods."
-Gene H. Golub and Charles F. Van Loan, Matrix Computations (4th ed., SIAM, 2013),
-doi: 10.1137/1.9780898719918.
-Role of sparsity: The input is a sparse adjacency matrix.
-The algorithm uses sparse matrix multiplication and element-wise operations repeatedly,
-so it depends heavily on efficient sparse matrix functions.
-Implementation: Handwritten code based on the implementation from
-https://github.com/GuyAllard/markov_clustering.
-Data Generation: Data collected from SuiteSparse Matrix Collection consisting of
-sparse adjacency matrices used to evaluate graph clustering performance.
-Statement on Generative AI: No generative AI was used to write the benchmark function
-itself. Generative AI was used to debug code. This statement was written by hand.
-"""
 
 import os
 
@@ -103,6 +82,27 @@ def generate_mcl_data(source):
     return (A_bin,)
 
 
+"""
+Name: Markov Clustering Algorithm
+Co-Authors: Prateek Hanumappanahalli, Joel Mathew Cherian
+Email: phanumap3@gatech.edu
+Motivation: "The Markov Clustering (MCL) algorithm relies heavily on repeated matrix
+operations, particularly matrix multiplication during the expansion step. Since the
+efficient execution of matrix-based kernels has been extensively studied in linear
+algebra, MCL serves as an effective benchmark for evaluating the performance of
+iterative numerical methods."
+Gene H. Golub and Charles F. Van Loan, Matrix Computations (4th ed., SIAM, 2013),
+doi: 10.1137/1.9780898719918.
+Role of sparsity: The input is a sparse adjacency matrix.
+The algorithm uses sparse matrix multiplication and element-wise operations repeatedly,
+so it depends heavily on efficient sparse matrix functions.
+Implementation: Handwritten code based on the implementation from
+https://github.com/GuyAllard/markov_clustering.
+Data Generation: Data collected from SuiteSparse Matrix Collection consisting of
+sparse adjacency matrices used to evaluate graph clustering performance.
+Statement on Generative AI: No generative AI was used to write the benchmark function
+itself. Generative AI was used to debug code. This statement was written by hand.
+"""
 """
 
 benchmark_mcl(array_api, graph_binsparse, expansion=2, inflation=2, loop_value=1,
