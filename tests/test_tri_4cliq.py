@@ -2,12 +2,19 @@ import pytest
 
 import numpy as np
 
-from sparseappbench.benchmarks.tri_4cliq import (
-    benchmark_4clique_count,
-    benchmark_triangle_count,
-)
+import sparseappbench.benchmarks.tri_4cliq as tri_4cliq
 from saps_framework import BinsparseFormat
 from frameworks.saps_numpy import NumpyFramework
+
+
+def run_count_benchmark(benchmark, xp, A):
+    prev_xp = getattr(tri_4cliq, "xp", None)
+    tri_4cliq.xp = xp
+    try:
+        (result,) = benchmark.benchmark([A], {})
+    finally:
+        tri_4cliq.xp = prev_xp
+    return result
 
 
 @pytest.mark.parametrize(
@@ -56,9 +63,11 @@ from frameworks.saps_numpy import NumpyFramework
 def test_triangle_count(A, expected):
     xp = NumpyFramework()
     A_bin = BinsparseFormat.from_numpy(A)
+    A_input = xp.from_binsparse(A_bin)
 
-    bench_result = benchmark_triangle_count(xp, A_bin)
-    result = xp.from_binsparse(bench_result).item()
+    result = run_count_benchmark(
+        tri_4cliq.TriangleCountBenchmark(), xp, A_input
+    ).item()
 
     assert np.allclose(result, expected)
 
@@ -111,8 +120,10 @@ def test_triangle_count(A, expected):
 def test_4clique_count(A, expected):
     xp = NumpyFramework()
     A_bin = BinsparseFormat.from_numpy(A)
+    A_input = xp.from_binsparse(A_bin)
 
-    bench_result = benchmark_4clique_count(xp, A_bin)
-    result = xp.from_binsparse(bench_result).item()
+    result = run_count_benchmark(
+        tri_4cliq.FourCliqueCountBenchmark(), xp, A_input
+    ).item()
 
     assert np.allclose(result, expected)
