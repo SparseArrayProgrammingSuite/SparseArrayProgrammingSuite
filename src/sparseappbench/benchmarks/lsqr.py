@@ -11,6 +11,77 @@ from saps_framework import BinsparseFormat
 
 xp = sparseappbench.xp
 
+
+def normof2(xp, x, y):
+    return xp.sqrt(xp.sum(xp.multiply(x, y)))
+
+
+def dg_lsqr_sparse_1():
+    return generate_lsqr_data("abb313")
+
+
+def dg_lsqr_sparse_2():
+    return generate_lsqr_data("ash958")
+
+
+def dg_lsqr_sparse_3():
+    return generate_lsqr_data("well1033")
+
+
+def dg_lsqr_sparse_4():
+    return generate_lsqr_data("Maragal_5")
+
+
+def dg_lsqr_sparse_5():
+    return generate_lsqr_data("illc1850")
+
+
+def dg_lsqr_sparse_6():
+    return generate_lsqr_data("bayer06")
+
+
+def generate_lsqr_data(source, has_b_file=False, noise_amt=0.1):
+    matrices = ssgetpy.search(name=source)
+    if not matrices:
+        raise ValueError(f"No matrix found with name '{source}'")
+    matrix = matrices[0]
+    (path, archive) = matrix.download(extract=True)
+    matrix_path = os.path.join(path, matrix.name + ".mtx")
+    if matrix_path and os.path.exists(matrix_path):
+        A = mmread(matrix_path)
+    else:
+        raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
+    rng = np.random.default_rng(0)
+    A = A.tocoo()
+
+    if has_b_file:
+        matrix_path = os.path.join(path, matrix.name + "_b.mtx")
+        if matrix_path and os.path.exists(matrix_path):
+            b = mmread(matrix_path)
+        else:
+            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
+        if not isinstance(b, np.ndarray):
+            b = b.toarray() if hasattr(b, "toarray") else np.asarray(b)
+        b = b.flatten()
+    else:
+        x_true = random(
+            A.shape[1], 1, density=0.1, format="coo", dtype=np.float64, random_state=rng
+        )
+        b = A @ x_true
+        b = b.toarray().flatten()
+
+        # Adds a small amount of noise so that Ax != b
+        noise_level = noise_amt * np.linalg.norm(b)
+        noise = rng.standard_normal(b.shape) * noise_level
+        b += noise
+
+    A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
+    b_bin = BinsparseFormat.from_numpy(b)
+    return (A_bin, b_bin)
+
+
+
+
 """
 Name: LSQR Iterative Solver
 Author: Benjamin Berol
@@ -156,71 +227,3 @@ def benchmark_lsqr(
             break
 
     return xp.to_binsparse(x), exit, it
-
-
-def normof2(xp, x, y):
-    return xp.sqrt(xp.sum(xp.multiply(x, y)))
-
-
-def generate_lsqr_data(source, has_b_file=False, noise_amt=0.1):
-    matrices = ssgetpy.search(name=source)
-    if not matrices:
-        raise ValueError(f"No matrix found with name '{source}'")
-    matrix = matrices[0]
-    (path, archive) = matrix.download(extract=True)
-    matrix_path = os.path.join(path, matrix.name + ".mtx")
-    if matrix_path and os.path.exists(matrix_path):
-        A = mmread(matrix_path)
-    else:
-        raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-    rng = np.random.default_rng(0)
-    A = A.tocoo()
-
-    if has_b_file:
-        matrix_path = os.path.join(path, matrix.name + "_b.mtx")
-        if matrix_path and os.path.exists(matrix_path):
-            b = mmread(matrix_path)
-        else:
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-        if not isinstance(b, np.ndarray):
-            b = b.toarray() if hasattr(b, "toarray") else np.asarray(b)
-        b = b.flatten()
-    else:
-        x_true = random(
-            A.shape[1], 1, density=0.1, format="coo", dtype=np.float64, random_state=rng
-        )
-        b = A @ x_true
-        b = b.toarray().flatten()
-
-        # Adds a small amount of noise so that Ax != b
-        noise_level = noise_amt * np.linalg.norm(b)
-        noise = rng.standard_normal(b.shape) * noise_level
-        b += noise
-
-    A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
-    b_bin = BinsparseFormat.from_numpy(b)
-    return (A_bin, b_bin)
-
-
-def dg_lsqr_sparse_1():
-    return generate_lsqr_data("abb313")
-
-
-def dg_lsqr_sparse_2():
-    return generate_lsqr_data("ash958")
-
-
-def dg_lsqr_sparse_3():
-    return generate_lsqr_data("well1033")
-
-
-def dg_lsqr_sparse_4():
-    return generate_lsqr_data("Maragal_5")
-
-
-def dg_lsqr_sparse_5():
-    return generate_lsqr_data("illc1850")
-
-
-def dg_lsqr_sparse_6():
-    return generate_lsqr_data("bayer06")
