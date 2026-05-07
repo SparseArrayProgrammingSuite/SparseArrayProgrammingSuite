@@ -1,20 +1,27 @@
 import pytest
 
 import numpy as np
-import scipy.sparse as sp
 
-from sparseappbench.benchmarks.preconditioned_cg import (
-    generate_block_jacobi_M,
-    preconditioned_cg,
-    solve_block_jacobi_cg,
-    solve_jacobi_cg,
-)
-from saps_framework import BinsparseFormat
+import sparseappbench.benchmarks.preconditioned_cg as pcg
 from frameworks.saps_numpy import NumpyFramework
-from frameworks.saps_scipy import SciPyFramework
-from frameworks.saps_sparse import (
-    PyDataSparseFramework,
-)
+
+
+def as_dense(array):
+    if hasattr(array, "todense"):
+        return np.asarray(array.todense()).ravel()
+    return np.asarray(array).ravel()
+
+
+def run_preconditioned_cg(xp, data, meta):
+    benchmark = pcg.PreconditionedCGBenchmark()
+    prev_xp = getattr(pcg, "xp", None)
+    pcg.xp = xp
+    try:
+        (x_sol,) = benchmark.benchmark(data, meta)
+    finally:
+        pcg.xp = prev_xp
+    return x_sol
+
 
 A0 = np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]])
 A1 = np.array([[7.0, 2.0, 1.0], [2.0, 6.0, -1.0], [1.0, -1.0, 5.0]])
@@ -39,72 +46,32 @@ A5 = np.array(
 )
 
 
+
 @pytest.mark.parametrize(
-    "xp, A, b, x, M, solve",
+    "generator",
     [
-        (
-            PyDataSparseFramework(),
-            A0,
-            np.array([17.0, 1.0, 11.0]),  # b = A @ [3, 1, 2]
-            np.zeros((3,)),
-            generate_block_jacobi_M(sp.coo_matrix(A0)),
-            solve_block_jacobi_cg,
-        ),
-        (
-            PyDataSparseFramework(),
-            A1,
-            np.array([10.0, 7.0, 5.0]),  # b = A @ [1, 1, 1]
-            np.zeros((3,)),
-            sp.coo_matrix(A1).diagonal(),
-            solve_jacobi_cg,
-        ),
-        (
-            NumpyFramework(),
-            A2,
-            np.array([17.0, -10.0, 0.0, 8.0]),  # b = A @ [2, -1, 0, 1]
-            np.zeros((4,)),
-            generate_block_jacobi_M(sp.coo_matrix(A2)),
-            solve_block_jacobi_cg,
-        ),
-        (
-            NumpyFramework(),
-            A3,
-            np.array([-12.0, 30.0, 43.0]),  # b = A @ [-1, 2, 4]
-            np.zeros((3,)),
-            sp.coo_matrix(A3).diagonal(),
-            solve_jacobi_cg,
-        ),
-        (
-            SciPyFramework(),
-            A4,
-            np.array([590.0, 580.0, 590.0]),  # b = Ad @ [5, 5, 5]
-            np.zeros((3,)),
-            generate_block_jacobi_M(sp.coo_matrix(A4)),
-            solve_block_jacobi_cg,
-        ),
-        (
-            SciPyFramework(),
-            A5,
-            np.array([6.0, 17.0, 34.0, 39.0, 72.0]),  # b = A @ [1, 2, 3, 4, 5]
-            np.zeros((5,)),
-            sp.coo_matrix(A5).diagonal(),
-            solve_jacobi_cg,
-        ),
+        pcg.BlockJacobiCGGenerator(),
+        pcg.JacobiCGGenerator(),
     ],
 )
-def test_preconditioned_cg(xp, A, b, x, M, solve):
-    if sp.issparse(M):
-        M_bin = BinsparseFormat.from_coo((M.row, M.col), M.data, M.shape)
-    else:
-        M_bin = BinsparseFormat.from_numpy(M)
+@pytest.mark.parametrize(
+    "dataset",
+    [
+        pcg.PreconditionedCGDataset("A0", "", data=A0),
+        pcg.PreconditionedCGDataset("A1", "", data=A1),
+        pcg.PreconditionedCGDataset("A2", "", data=A2),
+        pcg.PreconditionedCGDataset("A3", "", data=A3),
+        pcg.PreconditionedCGDataset("A4", "", data=A4),
+        pcg.PreconditionedCGDataset("A5", "", data=A5),
+    ],
+)
+def test_preconditioned_cg(generator, dataset):
+    xp = NumpyFramework()
+    data_bin, meta = generator.generate(dataset)
+    data = [xp.from_binsparse(array) for array in data_bin]
 
-    A_bin = BinsparseFormat.from_numpy(A)
-    b_bin = BinsparseFormat.from_numpy(b)
-    x_bin = BinsparseFormat.from_numpy(x)
+    A, b, x, M = data
+    x_sol = run_preconditioned_cg(xp, [A, b, x, M], meta)
 
-    x_sol = preconditioned_cg(xp, A_bin, b_bin, x_bin, M_bin, solve)
-    x_sol = xp.from_binsparse(x_sol)
-    x_sol = np.round(x_sol, decimals=4)
-
-    b_coo = BinsparseFormat.to_coo(b_bin)
-    assert b_coo == BinsparseFormat.to_coo(BinsparseFormat.from_numpy(A @ x_sol))
+    residual = as_dense(b - A @ x_sol)
+    assert np.linalg.norm(residual) < 1e-6 * np.linalg.norm(as_dense(b)) + 1e-6

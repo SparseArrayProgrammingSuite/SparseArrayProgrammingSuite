@@ -4,12 +4,25 @@ import numpy as np
 
 from sparseappbench.benchmarks.quantum import (
     QGates,
+    QuantumStatevectorBenchmark,
     apply_single_qubit_gate,
-    benchmark_rqc_statevector,
-    dg_single_layer_small,
 )
+import sparseappbench.benchmarks.quantum as quantum
 from saps_framework import BinsparseFormat
 from frameworks.saps_numpy import NumpyFramework
+
+
+def run_quantum_benchmark(xp, state, nqubits):
+    benchmark = QuantumStatevectorBenchmark()
+    prev_xp = getattr(quantum, "xp", None)
+    quantum.xp = xp
+    try:
+        (final_state,) = benchmark.benchmark(
+            [state], {"nqubits": nqubits, "num_layers": 1}
+        )
+    finally:
+        quantum.xp = prev_xp
+    return final_state
 
 
 @pytest.mark.parametrize("xp", [NumpyFramework()])
@@ -18,12 +31,17 @@ def test_quantum_statevector_basic(xp):
     Test that RQC statevector simulation runs without errors
     and produces correct output shape and dtype.
     """
-    state_bin, nqubits = dg_single_layer_small()
-    final_state_bin = benchmark_rqc_statevector(xp, state_bin, nqubits, num_layers=1)
+    nqubits = 10
+    dim = 1 << nqubits
+    state_np = np.zeros(dim, dtype=np.complex128)
+    state_np[0] = 1.0 + 0j
+    state = xp.from_binsparse(BinsparseFormat.from_numpy(state_np))
+
+    final_state = run_quantum_benchmark(xp, state, nqubits)
+    final_state_bin = xp.to_binsparse(final_state)
 
     # Expected shape: 2**nqubits complex entries
-    expected_dim = 1 << nqubits
-    assert final_state_bin.data["shape"] == (expected_dim,)
+    assert final_state_bin.data["shape"] == (dim,)
     assert final_state_bin.data["values"].dtype == np.complex128
 
     # Very basic sanity: norm should be close to 1 (unitary evolution)
