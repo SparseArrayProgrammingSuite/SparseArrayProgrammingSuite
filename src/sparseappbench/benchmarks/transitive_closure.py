@@ -72,6 +72,7 @@ class TransitiveClosureBenchmark(Benchmark):
     @property
     def generators(self):
         return []
+
     def benchmark(self, data, meta):
         edges_b = data[0]
         edges = xp.from_binsparse(edges_b)

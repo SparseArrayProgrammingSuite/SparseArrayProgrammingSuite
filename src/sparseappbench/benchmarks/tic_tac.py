@@ -12,22 +12,6 @@ from sparseappbench.benchmark import (
 
 xp = sparseappbench.xp
 
-"""
-Name: Minimax Tic-Tac-Toe
-
-Co-Authors: Aarav Jogekar & Prof. Ahrens
-
-What does this code do: Implement a fully tensorized, non-recursive minimax
-search over a tic-tac-toe game. Game states are represented as tensors.
-Game state is represented as S[n, i, j, p] of shape (N, 3, 3, 2) where n
-indexes boards, i,j are board positions and p is the player channel. Given
-any board state within the game, it should return the result of the game.
-
-Statement on the use of Generative AI: No generative AI was used to construct
-the benchmark function itself.
-Email: ajoglekar32@gatech.edu
-"""
-
 
 def build_win_masks(xp):
     return xp.asarray(
@@ -319,8 +303,11 @@ class TicTacToeBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "Tensorized minimax search over tic-tac-toe. "
-            "You are able to test at depths 2, 3, 5, and 9"
+            "What does this code do: Implement a fully tensorized, non-recursive minimax"
+            "search over a tic-tac-toe game. Game states are represented as tensors."
+            "Game state is represented as S[n, i, j, p] of shape (N, 3, 3, 2) where n"
+            "indexes boards, i,j are board positions and p is the player channel. Given"
+            "any board state within the game, it should return the result of the game."
         )
 
     @property
