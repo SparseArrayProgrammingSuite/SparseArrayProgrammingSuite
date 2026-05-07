@@ -1,3 +1,64 @@
+import numpy as np
+
+import sparseappbench
+from saps_framework import BinsparseFormat
+
+xp = sparseappbench.xp
+
+def dg_hosvd_random_small():
+    """
+    Generate a dense low-rank 3D tensor using random factor matrices.
+    """
+    dim1, dim2, dim3 = 10, 10, 10
+    ranks = (3, 3, 3)
+    rng = np.random.default_rng(42)
+
+    G = rng.random(ranks).astype(np.float64)
+    A = rng.random((dim1, ranks[0])).astype(np.float64)
+    B = rng.random((dim2, ranks[1])).astype(np.float64)
+    C = rng.random((dim3, ranks[2])).astype(np.float64)
+
+    X_dense = np.einsum("pqr,ip,jq,kr->ijk", G, A, B, C)
+
+    indices = np.nonzero(np.ones_like(X_dense))
+    values = X_dense[indices]
+    X_bin = BinsparseFormat.from_coo(indices, values, (dim1, dim2, dim3))
+
+    ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
+    return (X_bin, ranks_bin)
+
+
+def dg_hosvd_sparse_small():
+    """
+    Generate a sparse low-rank 3D tensor using random factor matrices.
+    """
+    dim1, dim2, dim3 = 20, 20, 20
+    ranks = (3, 3, 3)
+    rng = np.random.default_rng(42)
+
+    def get_sparse_factor(rows, cols, density=0.2):
+        nnz = int(rows * cols * density)
+        if nnz < 1:
+            nnz = 1
+        indices = rng.choice(rows * cols, nnz, replace=False)
+        mat = np.zeros(rows * cols)
+        mat[indices] = rng.random(nnz)
+        return mat.reshape((rows, cols)).astype(np.float64)
+
+    G = get_sparse_factor(ranks[0], ranks[1] * ranks[2], density=0.5).reshape(ranks)
+    A = get_sparse_factor(dim1, ranks[0], density=0.2)
+    B = get_sparse_factor(dim2, ranks[1], density=0.2)
+    C = get_sparse_factor(dim3, ranks[2], density=0.2)
+
+    X_dense = np.einsum("pqr,ip,jq,kr->ijk", G, A, B, C)
+
+    indices = np.nonzero(X_dense)
+    values = X_dense[indices]
+
+    X_bin = BinsparseFormat.from_coo(indices, values, (dim1, dim2, dim3))
+
+    ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
+    return (X_bin, ranks_bin)
 """
 Name: High-Order SVD (Tucker Decomposition)
 
@@ -17,8 +78,6 @@ matrices. The iteration continues until max iterations is reached or the change
 in factor matrices becomes insignificant. The resulting factor matrices and the
 core tensor are returned by the benchmark function.
 
-Citation for reference implementation:
-https://epubs.siam.org/doi/10.1137/07070111X
 
 Motivation: Tensor decomposition are essential for efficiently analyzing
 multi-dimensional data and can cut out noise during preprocessing. Tensor
@@ -26,6 +85,9 @@ decomposition has applications in signal processing, computer vision, numerical
 linear algebra, and many other fields. HOSVD or Tucker Decomposition is one
 of the most widely used methods for tensor decomposition on high-level tensors,
 which are tensors with 3 or more dimensions.
+
+Citation for reference implementation:
+https://epubs.siam.org/doi/10.1137/07070111X
 DOI: 10.36227/techrxiv.174417403.38431928/v1
 https://epubs.siam.org/doi/10.1137/07070111X
 
@@ -38,12 +100,6 @@ the benchmark function. Generative AI might have been used to construct tests.
 This statement is written by hand.
 """
 
-import numpy as np
-
-import sparseappbench
-from saps_framework import BinsparseFormat
-
-xp = sparseappbench.xp
 
 
 def benchmark_hosvd(xp, X_bench, ranks_bench, max_iter=50, tolerance=1e-8):
@@ -125,59 +181,3 @@ def benchmark_hosvd(xp, X_bench, ranks_bench, max_iter=50, tolerance=1e-8):
         xp.to_binsparse(initial_factors[2]),
     ]
     return core_bench, factors_bench
-
-
-def dg_hosvd_random_small():
-    """
-    Generate a dense low-rank 3D tensor using random factor matrices.
-    """
-    dim1, dim2, dim3 = 10, 10, 10
-    ranks = (3, 3, 3)
-    rng = np.random.default_rng(42)
-
-    G = rng.random(ranks).astype(np.float64)
-    A = rng.random((dim1, ranks[0])).astype(np.float64)
-    B = rng.random((dim2, ranks[1])).astype(np.float64)
-    C = rng.random((dim3, ranks[2])).astype(np.float64)
-
-    X_dense = np.einsum("pqr,ip,jq,kr->ijk", G, A, B, C)
-
-    indices = np.nonzero(np.ones_like(X_dense))
-    values = X_dense[indices]
-    X_bin = BinsparseFormat.from_coo(indices, values, (dim1, dim2, dim3))
-
-    ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
-    return (X_bin, ranks_bin)
-
-
-def dg_hosvd_sparse_small():
-    """
-    Generate a sparse low-rank 3D tensor using random factor matrices.
-    """
-    dim1, dim2, dim3 = 20, 20, 20
-    ranks = (3, 3, 3)
-    rng = np.random.default_rng(42)
-
-    def get_sparse_factor(rows, cols, density=0.2):
-        nnz = int(rows * cols * density)
-        if nnz < 1:
-            nnz = 1
-        indices = rng.choice(rows * cols, nnz, replace=False)
-        mat = np.zeros(rows * cols)
-        mat[indices] = rng.random(nnz)
-        return mat.reshape((rows, cols)).astype(np.float64)
-
-    G = get_sparse_factor(ranks[0], ranks[1] * ranks[2], density=0.5).reshape(ranks)
-    A = get_sparse_factor(dim1, ranks[0], density=0.2)
-    B = get_sparse_factor(dim2, ranks[1], density=0.2)
-    C = get_sparse_factor(dim3, ranks[2], density=0.2)
-
-    X_dense = np.einsum("pqr,ip,jq,kr->ijk", G, A, B, C)
-
-    indices = np.nonzero(X_dense)
-    values = X_dense[indices]
-
-    X_bin = BinsparseFormat.from_coo(indices, values, (dim1, dim2, dim3))
-
-    ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
-    return (X_bin, ranks_bin)
