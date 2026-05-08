@@ -23,8 +23,7 @@ class PageRankBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "First the code calls from_binsparse on the wrapper to translate from binsparse COO. "
-            "Once that is done the out-degree of the adjacency is found by summing columns, giving "
+            "The out-degree of the adjacency is found by summing columns, giving "
             "us the number of outbound links per page. If out-degree is not 0, we divide by k "
             "(the number of outbound links). If out-degree is 0, that means the node had no links, "
             "so we distribute it evenly among all nodes to preserve probability mass. We then run "
@@ -90,13 +89,11 @@ class PageRankBenchmark(Benchmark):
         return []
 
     def benchmark(self, data, meta):
-        A_binsparse = data[0]
         alpha = meta.get("alpha", 0.85)
         max_iter = meta.get("max_iter", 100)
         tol = meta.get("tol", 1e-8)
         
-        A = xp.from_binsparse(A_binsparse)
-        A = A
+        A = xp.from_binsparse(data[0])
         out_degree = xp.sum(A, axis=0)
         M = xp.array(A, dtype=float)
         N = A.shape[0]
@@ -106,13 +103,11 @@ class PageRankBenchmark(Benchmark):
         M = M / safe_out
         M = M * (1 - zero_deg) + (1.0 / N) * zero_deg
 
-        M = M
         x = xp.full((N,), 1.0 / N)
         u = xp.full((N,), 1.0 / N)
         for _ in range(max_iter):
             x_new = alpha * xp.matmul(M, x) + (1 - alpha) * u
             diff = xp.sqrt(xp.sum(xp.multiply(x_new - x, x_new - x)))
-            (x_new, diff) = (x_new, diff)
             if diff < tol:
                 break
             x = x_new

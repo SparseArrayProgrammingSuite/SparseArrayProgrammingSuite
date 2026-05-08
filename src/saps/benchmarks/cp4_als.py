@@ -266,7 +266,6 @@ class CP4_ALS(Benchmark):
         )
 
         for _iteration in range(max_iter):
-            (A, B, C, D) = (A, B, C, D)
             # Update A
             mttkrp_result = xp.einsum(
                 "mttkrp_result[i, r] += X[i, j, k, l] * B[j, r] * C[k, r] * D[l, r]",
@@ -327,8 +326,6 @@ class CP4_ALS(Benchmark):
             D = xp.matmul(mttkrp_result, G_pinv)
 
 
-        (A, B, C, D) = (A, B, C, D)
-
         # Normalizing factors
         A_norms_sq = xp.einsum("norms[r] += A[i, r] * A[i, r]", A=A)
         B_norms_sq = xp.einsum("norms[r] += B[j, r] * B[j, r]", B=B)
@@ -361,9 +358,5 @@ class CP4_ALS(Benchmark):
         B = xp.divide(B, B_norms_safe)
         C = xp.divide(C, C_norms_safe)
         D = xp.divide(D, D_norms_safe)
-
-        # Now compute everything at once
-
-        (A, B, C, D, lambda_vals) = (A, B, C, D, lambda_vals)
 
         return [A, B, C, D, lambda_vals]

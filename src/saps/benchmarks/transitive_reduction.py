@@ -40,14 +40,11 @@ def transitive_reduction(xp, R_bench, x=1, max_iters=10):
     """
 
     R = xp.from_binsparse(R_bench)
-    R = R
     R_nnz_prev_tensor = xp.sum(np.inf != R)
-    R, R_nnz_prev_tensor = (R, R_nnz_prev_tensor)
     R_nnz_prev = R_nnz_prev_tensor[()]
 
     for _i in range(max_iters):
         # R_plus = xp.with_fill_value(R, np.inf)
-        R = R
 
         # handle dense arrays (Numpy) where 0 must be converted to inf
         # without this, 0s act as valid edges with 0 weight

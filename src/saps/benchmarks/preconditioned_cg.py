@@ -323,14 +323,11 @@ class PreconditionedCGBenchmark(Benchmark):
 
         if rr >= tol_sq:
             while it < max_iters:
-                x, r, p = (x, r, p)
-
                 Ap = A @ p
                 alpha = rho / xp.vecdot(p, Ap)
                 x += alpha * p
                 r -= alpha * Ap
 
-                x, r, p = (x, r, p)
                 new_rr = xp.vecdot(r, r)[()]
 
                 it += 1

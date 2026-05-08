@@ -283,14 +283,11 @@ class FiniteDifferenceBenchmark(Benchmark):
         return [FiniteDifferenceGenerator()]
         
     def benchmark(self, data: list, meta: dict):
-        u0_bench, matrix_bench, difference_bench = data
+        u_0, matrix, dif = data
         flux = meta["flux"]
         timesteps = meta["timesteps"]
         dt = meta["dt"]
         dx = meta["dx"]
-        u_0 = u0_bench
-        matrix = matrix_bench
-        dif = difference_bench
         Nt = timesteps + 1
         alpha = (dt) / (2 * dx)
         u = xp.zeros((Nt, u_0.shape[0]))

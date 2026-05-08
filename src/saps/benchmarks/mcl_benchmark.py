@@ -26,8 +26,6 @@ def _normalize(array_api, matrix):
 
 
 def _sparse_allclose(array_api, matrix_a, matrix_b, rtol=1e-5, atol=1e-8):
-    matrix_a = matrix_a
-    matrix_b = matrix_b
     return array_api.all(
         array_api.abs(matrix_a - matrix_b) <= atol + rtol * array_api.abs(matrix_b)
     )
@@ -221,7 +219,7 @@ convergence_check_frequency: Perform convergence check every
 
         """
         array_api = xp
-        graph_lazy = data[0]
+        graph = data[0]
         expansion = meta.get("expansion", 2)
         inflation = meta.get("inflation", 2)
         loop_value = meta.get("loop_value", 1)
@@ -230,18 +228,12 @@ convergence_check_frequency: Perform convergence check every
         pruning_frequency = meta.get("pruning_frequency", 1)
         convergence_check_frequency = meta.get("convergence_check_frequency", 1)
 
-        # begin region 1
-        loops_matrix = array_api.eye(graph_lazy.shape[0], dtype=graph_lazy.dtype)
-        current_matrix = graph_lazy + loop_value * loops_matrix
+        loops_matrix = array_api.eye(graph.shape[0], dtype=graph.dtype)
+        current_matrix = graph + loop_value * loops_matrix
         current_matrix = _normalize(array_api, current_matrix)
-        # end region 1
-        current_matrix = current_matrix
 
         for i in range(iterations):
             previous_matrix = current_matrix
-
-            # begin region 2
-            current_matrix = current_matrix
 
             expanded_matrix = current_matrix
             for _ in range(expansion - 1):
@@ -255,8 +247,6 @@ convergence_check_frequency: Perform convergence check every
             ):
                 current_matrix = _prune(array_api, current_matrix, pruning_threshold)
 
-            # end region 2
-            current_matrix = current_matrix
 
             if i % convergence_check_frequency == (
                 convergence_check_frequency - 1

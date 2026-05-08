@@ -312,12 +312,9 @@ class JLApproxNearestNeighbor(Benchmark):
         return [JLApproxNNGenerator()]
 
     def benchmark(self, data, meta):
-        data_bench, query_bench, projection_matrix = data
+        data, query, P = data
         k = meta["k"]
         eps = meta["eps"]
-        data = data_bench
-        query = query_bench
-        P = projection_matrix
 
         n_samples, n_features = data.shape
         #  Johnson Lindenstrauss Theorem Lemmna.

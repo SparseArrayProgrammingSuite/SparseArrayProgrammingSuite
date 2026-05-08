@@ -276,8 +276,7 @@ class FloydWarshallBenchmark(Benchmark):
         Returns the all pair shortest path i.e. A[i,j] is the shortest
         path from i to j
         """
-        edges = data[0]
-        G = edges
+        G = data[0]
         n, m = G.shape
         assert n == m
         for k in range(n):

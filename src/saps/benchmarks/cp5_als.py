@@ -276,7 +276,6 @@ class CP5_ALS(Benchmark):
 
         for _iteration in range(max_iter):
             print(_iteration, "/", max_iter)
-            (A, B, C, D, E) = (A, B, C, D, E)
             # Update A
             mttkrp_result = xp.einsum(
                 "mttkrp_result[i, r] += X[i, j, k, l, m] * "
@@ -361,10 +360,6 @@ class CP5_ALS(Benchmark):
             G_pinv = xp.linalg.pinv(G)
             E = xp.matmul(mttkrp_result, G_pinv)
 
-            A, B, C, D, E = (A, B, C, D, E)
-
-        (A, B, C, D, E) = (A, B, C, D, E)
-
         # Normalizing factors
         A_norms_sq = xp.einsum("norms[r] += A[i, r] * A[i, r]", A=A)
         B_norms_sq = xp.einsum("norms[r] += B[j, r] * B[j, r]", B=B)
@@ -403,9 +398,5 @@ class CP5_ALS(Benchmark):
         C = xp.divide(C, C_norms_safe)
         D = xp.divide(D, D_norms_safe)
         E = xp.divide(E, E_norms_safe)
-
-        # Now compute everything at once
-
-        (A, B, C, D, E, lambda_vals) = (A, B, C, D, E, lambda_vals)
 
         return [A, B, C, D, E, lambda_vals]

@@ -29,8 +29,7 @@ class BetweennessCentralityBenchmark(Benchmark):
             "shortest path. The second step is for tracing backwards to see how many "
             "times a node appears in other shortest paths. The number of times this "
             "node is in one of the shortest path divided by total shortest paths between "
-            "the two edge nodes gets added to the intermediate nodes bc score. This code "
-            "performs lazy calculations before computing at the end of iteration blocks."
+            "the two edge nodes gets added to the intermediate nodes bc score."
         )
 
     @property
@@ -92,9 +91,7 @@ class BetweennessCentralityBenchmark(Benchmark):
         return []
 
     def benchmark(self, data, meta):
-        (edges,) = data
-        A_binsparse = edges
-        G = xp.from_binsparse(A_binsparse)
+        G = xp.from_binsparse(data[0])
         n = G.shape[0]
         bc_scores = xp.zeros((n,), dtype=float)
 
@@ -108,15 +105,12 @@ class BetweennessCentralityBenchmark(Benchmark):
             layer_traversal = []
             depth = 0
 
-            neighbors = neighbors
             node_count = xp.sum(neighbors)
 
             while node_count != 0:
                 depth += 1
 
                 layer_traversal.append(neighbors != 0)
-
-                number_of_paths, neighbors = (number_of_paths, neighbors)
 
                 number_of_paths = number_of_paths + neighbors
 
@@ -141,7 +135,6 @@ class BetweennessCentralityBenchmark(Benchmark):
 
                 update_val = update_val * prev_layer * number_of_paths
 
-                score_update, update_val = (score_update, update_val)
                 score_update = score_update + update_val
 
                 depth -= 1

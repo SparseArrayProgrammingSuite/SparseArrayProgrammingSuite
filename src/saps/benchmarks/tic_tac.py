@@ -346,9 +346,8 @@ class TicTacToeBenchmark(Benchmark):
         return [TicTacToeGenerator()]
 
     def benchmark(self, data: list, meta: dict):
-        S_bin = data[0]
         depth = meta.get("depth", 9)
-        S = xp.from_binsparse(S_bin)
+        S = xp.from_binsparse(data[0])
         W = build_win_masks(xp)
 
         if depth == 2:
