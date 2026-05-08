@@ -408,19 +408,4 @@ class CP5_ALS(Benchmark):
 
         (A, B, C, D, E, lambda_vals) = (A, B, C, D, E, lambda_vals)
 
-        # Convert to binsparse format
-        A_bench_out = xp.to_binsparse(A)
-        B_bench_out = xp.to_binsparse(B)
-        C_bench_out = xp.to_binsparse(C)
-        D_bench_out = xp.to_binsparse(D)
-        E_bench_out = xp.to_binsparse(E)
-        lambda_bench_out = xp.to_binsparse(lambda_vals)
-
-        return (
-            A_bench_out,
-            B_bench_out,
-            C_bench_out,
-            D_bench_out,
-            E_bench_out,
-            lambda_bench_out,
-        )
+        return [A, B, C, D, E, lambda_vals]

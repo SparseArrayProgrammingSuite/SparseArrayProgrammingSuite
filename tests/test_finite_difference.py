@@ -50,7 +50,7 @@ def lax_friedrichs_solver_matrix_general(
         out = fd.FiniteDifferenceBenchmark().benchmark(list(data), meta)
     finally:
         fd.xp = prev_xp
-    return out
+    return out[0]
 
 
 def lax_friedrichs_solver(xp, u0_bench, dt, dx, flux, timesteps):
@@ -77,7 +77,7 @@ def lax_friedrichs_solver(xp, u0_bench, dt, dx, flux, timesteps):
         )
 
         u[n + 1] = u_next
-    return xp.to_binsparse(u)
+    return u
 
 
 @pytest.fixture
@@ -112,7 +112,7 @@ def test_linear_advection_cfl_check(xp, c, dx, dt):
         dx=dx,
     )
 
-    result = xp.from_binsparse(result_bench)
+    result = result_bench
     cfl = (c * dt) / dx
 
     norm_initial = xp.linalg.norm(u0)
@@ -154,7 +154,7 @@ def test_mass_conservation_nonlinear_flux(xp, dx, dt, flux):
         dx=dx,
     )
 
-    result_bench_inter = xp.from_binsparse(result_bench)
+    result_bench_inter = result_bench
 
     inital_mass = xp.sum(result_bench_inter[0])
     final_mass = xp.sum(result_bench_inter[-1])
@@ -197,7 +197,7 @@ def test_nonlinear_matrix_stencil_check(xp, dx, dt, flux):
         flux=flux,
         timesteps=timesteps,
     )
-    result_matrix = xp.from_binsparse(result_bench_matrix)
-    result_bench_inter = xp.from_binsparse(result_bench_interative)
+    result_matrix = result_bench_matrix
+    result_bench_inter = result_bench_interative
 
     assert xp.linalg.norm(result_bench_inter - result_matrix) <= 1e-6

@@ -300,4 +300,4 @@ class FiniteDifferenceBenchmark(Benchmark):
             f = flux(u_n)
             u_next = matrix @ u_n - alpha * (dif @ f)
             u[n + 1] = u_next
-        return xp.to_binsparse(u)
+        return [u]

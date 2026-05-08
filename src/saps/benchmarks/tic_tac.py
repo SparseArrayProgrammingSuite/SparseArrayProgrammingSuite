@@ -360,4 +360,4 @@ class TicTacToeBenchmark(Benchmark):
         else:
             result = minimax(xp, S, W)
 
-        return [xp.to_binsparse(result)]
+        return [result]

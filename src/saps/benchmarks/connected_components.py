@@ -92,4 +92,4 @@ class SimplyConnectedComponentsBenchmark(Benchmark):
             if xp.all(xp.equal(labels, nextLabels)):
                 break
             labels = nextLabels
-        return [xp.to_binsparse(labels)]
+        return [labels]

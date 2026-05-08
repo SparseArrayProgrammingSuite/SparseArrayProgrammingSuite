@@ -8,8 +8,7 @@ from frameworks.saps_numpy import NumpyFramework
 def _run_fw_case(xp, A, expected):
     """Run Floyd–Warshall and compare to an expected APSP distance matrix."""
     floyd_warshall.xp = xp
-    out_test = floyd_warshall.FloydWarshallBenchmark().benchmark([A], {})[0]
-    out = xp.from_binsparse(out_test)
+    out = floyd_warshall.FloydWarshallBenchmark().benchmark([A], {})[0]
 
     both_inf = np.isinf(out) & np.isinf(expected)
     both_finite = np.isfinite(out) & np.isfinite(expected)
@@ -177,11 +176,7 @@ def test_fw_generated_datasets(dataset):
         A[u, v] = 1.0
         A[v, u] = 1.0
 
-    out = xp.from_binsparse(
-        floyd_warshall.FloydWarshallBenchmark().benchmark(
-            (A,), {}
-        )[0]
-    )
+    out = floyd_warshall.FloydWarshallBenchmark().benchmark((A,), {})[0]
 
     assert out.shape[0] == out.shape[1]
     assert np.all(np.diag(out) == 0.0)

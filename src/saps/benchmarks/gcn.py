@@ -404,4 +404,4 @@ class GCNBenchmark(Benchmark):
         output = h2 @ weights2 + bias2
 
         solution = output
-        return xp.to_binsparse(solution)
+        return [solution]

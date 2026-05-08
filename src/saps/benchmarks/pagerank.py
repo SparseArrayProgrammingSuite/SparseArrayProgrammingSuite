@@ -116,4 +116,4 @@ class PageRankBenchmark(Benchmark):
             if diff < tol:
                 break
             x = x_new
-        return [xp.to_binsparse(x)]
+        return [x]

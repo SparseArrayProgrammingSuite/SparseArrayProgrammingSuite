@@ -12,14 +12,14 @@ def _run_fastsv_case(A, expected):
     A_bin = BinsparseFormat.from_numpy(A)
     fastsv.xp = xp
     (bench_result,) = fastsv.FastSVBenchmark().benchmark((A_bin,), {})
-    result = xp.from_binsparse(bench_result).ravel()
+    result = bench_result.ravel()
     assert np.array_equal(result, expected), (
         f"fastsv output mismatch.\nGot {result}, expected {expected}"
     )
 
     cc.xp = xp
     (bench_result,) = cc.SimplyConnectedComponentsBenchmark().benchmark((A_bin,), {})
-    result = xp.from_binsparse(bench_result).ravel()
+    result = bench_result.ravel()
     assert np.array_equal(result, expected), (
         f"fastsv output mismatch.\nGot {result}, expected {expected}"
     )

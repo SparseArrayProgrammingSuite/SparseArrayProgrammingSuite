@@ -13,7 +13,7 @@ def run_bc(xp, A):
     A_bin = BinsparseFormat.from_numpy(A)
     centrality.xp = xp
     (result_bin,) = centrality.BetweennessCentralityBenchmark().benchmark((A_bin,), {})
-    return xp.from_binsparse(result_bin).ravel()
+    return result_bin.ravel()
 
 
 # Modified the intended results because I am calculating

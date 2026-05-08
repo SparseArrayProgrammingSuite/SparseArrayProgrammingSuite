@@ -283,4 +283,4 @@ class FloydWarshallBenchmark(Benchmark):
         for k in range(n):
             G_k = xp.expand_dims(G[:, k], axis=1) + xp.expand_dims(G[k, :], axis=0)
             G = xp.minimum(G, G_k)
-        return [xp.to_binsparse(G)]
+        return [G]

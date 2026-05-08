@@ -38,7 +38,6 @@ def test_transitive_closure():
     tc.xp = xp
     bench_input = BinsparseFormat.from_numpy(input_matrix)
     (res,) = tc.TransitiveClosureBenchmark().benchmark((bench_input,), {})
-    res = xp.from_binsparse(res)
     assert np.array_equal(res, expected)
 
 
@@ -64,7 +63,6 @@ def test_stc():
     tc.xp = xp
     bench_input = BinsparseFormat.from_numpy(input_matrix)
     (res,) = tc.TransitiveClosureBenchmark().benchmark((bench_input,), {})
-    res = xp.from_binsparse(res)
 
     # count stc.
     visited_set = set()
@@ -94,7 +92,6 @@ def test_stc_cycle():
     tc.xp = xp
     bench_input = BinsparseFormat.from_numpy(input_matrix)
     (res,) = tc.TransitiveClosureBenchmark().benchmark((bench_input,), {})
-    res = xp.from_binsparse(res)
     # clique matrix
     expected = np.ones((3, 3), dtype=bool)
     assert np.array_equal(res, expected)
@@ -108,7 +105,6 @@ def test_stc_one_node():
     tc.xp = xp
     bench_input = BinsparseFormat.from_numpy(input_matrix)
     (res,) = tc.TransitiveClosureBenchmark().benchmark((bench_input,), {})
-    res = xp.from_binsparse(res)
 
     # simple 1x1 matrix with 1
     expected = np.array([[1]], dtype=bool)
@@ -123,7 +119,6 @@ def test_transitive_closure_one_node():
     tc.xp = xp
     bench_input = BinsparseFormat.from_numpy(input_matrix)
     (res,) = tc.TransitiveClosureBenchmark().benchmark((bench_input,), {})
-    res = xp.from_binsparse(res)
 
     # should be self loop, 1x1 matrix with 1
     expected = np.array([[1]], dtype=bool)

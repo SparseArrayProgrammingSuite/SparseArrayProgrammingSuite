@@ -25,13 +25,13 @@ def run_gcn_benchmark(adjacency, features, weights1, bias1, weights2, bias2):
     prev_xp = getattr(gcn, "xp", None)
     gcn.xp = xp
     try:
-        output_b = benchmark.benchmark(
+        (output,) = benchmark.benchmark(
             [adjacency, features, weights1, bias1, weights2, bias2],
             {},
         )
     finally:
         gcn.xp = prev_xp
-    return xp.from_binsparse(output_b)
+    return output
 
 @pytest.mark.parametrize(
     "xp,adjacency,features,weights1,bias1,weights2,bias2",

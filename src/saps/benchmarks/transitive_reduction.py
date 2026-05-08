@@ -90,7 +90,7 @@ def transitive_reduction(xp, R_bench, x=1, max_iters=10):
         R_nnz_prev = R_nnz_new
         # R = R_computed
 
-    return xp.to_binsparse(R)
+    return R
 
 
 # TO-DO: add data generator functions

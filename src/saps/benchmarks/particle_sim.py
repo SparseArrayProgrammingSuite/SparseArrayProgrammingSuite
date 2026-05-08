@@ -122,10 +122,4 @@ class ParticleSimBenchmark(Benchmark):
 
             x, y, vx, vy = [x, y, vx, vy]
 
-        x = xp.to_binsparse(x)
-        y = xp.to_binsparse(y)
-        vx = xp.to_binsparse(vx)
-        vy = xp.to_binsparse(vy)
-
-        return (x, y, vx, vy)
-
+        return [x, y, vx, vy]

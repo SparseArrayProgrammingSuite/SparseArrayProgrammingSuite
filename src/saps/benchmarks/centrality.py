@@ -148,6 +148,4 @@ class BetweennessCentralityBenchmark(Benchmark):
 
             bc_scores = bc_scores + score_update
 
-        bc = xp.to_binsparse(bc_scores)
-        return [bc]
-
+        return [bc_scores]

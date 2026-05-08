@@ -111,5 +111,4 @@ class FastSVBenchmark(Benchmark):
             if stop:
                 break
 
-        result = xp.to_binsparse(f)
-        return [result]
+        return [f]

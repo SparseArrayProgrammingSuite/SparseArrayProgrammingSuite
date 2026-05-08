@@ -93,4 +93,4 @@ class TransitiveClosureBenchmark(Benchmark):
             if xp.all(xp.equal(graph, nextGraph)):
                 break
             graph = nextGraph
-        return [xp.to_binsparse(graph)]
+        return [graph]
