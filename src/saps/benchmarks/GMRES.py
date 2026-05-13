@@ -9,7 +9,6 @@ import ssgetpy
 
 import saps
 from saps.benchmark import (
-    Author,
     Benchmark,
     Contributor,
     Dataset,
@@ -139,7 +138,12 @@ class GMRESGenerator(Generator[GMRESDataset]):
             b = b.flatten()
         else:
             x = random(
-                A.shape[1], 1, density=0.1, format="coo", dtype=np.float64, random_state=rng
+                A.shape[1],
+                1,
+                density=0.1,
+                format="coo",
+                dtype=np.float64,
+                random_state=rng,
             )
             b = A @ x
             b = b.toarray().flatten()

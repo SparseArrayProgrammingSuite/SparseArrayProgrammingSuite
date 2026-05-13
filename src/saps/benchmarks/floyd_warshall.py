@@ -3,11 +3,11 @@ import os
 import numpy as np
 from scipy.io import mmread
 
-import saps
 import ssgetpy
 
-from saps_framework.binsparse_format import BinsparseFormat
+import saps
 from saps.benchmark import Author, Benchmark, Contributor, Dataset, Generator, Ref
+from saps_framework.binsparse_format import BinsparseFormat
 
 xp = saps.xp
 
@@ -72,9 +72,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
     def references(self):
         return [
             Ref(
-                title=(
-                    "Graph Algorithms in the Language of Linear Algebra"
-                ),
+                title=("Graph Algorithms in the Language of Linear Algebra"),
                 authors=[
                     Author("Kepner, Jeremy"),
                     Author("Gilbert, John"),
@@ -91,7 +89,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 journal="AAAI",
                 url="https://networkrepository.com",
                 year=2015,
-            )
+            ),
         ]
 
     @property
@@ -204,7 +202,6 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
         return [G_bin], {}
 
 
-
 class FloydWarshallBenchmark(Benchmark):
     @property
     def name(self):
@@ -232,14 +229,11 @@ class FloydWarshallBenchmark(Benchmark):
             Contributor("Joel Mathew Cherian", "jcherian32@gatech.edu"),
         ]
 
-
     @property
     def references(self):
         return [
             Ref(
-                title=(
-                    "Graph Algorithms in the Language of Linear Algebra"
-                ),
+                title=("Graph Algorithms in the Language of Linear Algebra"),
                 authors=[
                     Author("Kepner, Jeremy"),
                     Author("Gilbert, John"),

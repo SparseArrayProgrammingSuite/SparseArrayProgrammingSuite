@@ -1,7 +1,6 @@
 import numpy as np
 
 import saps.benchmarks.BFS as bfs
-from saps_framework import BinsparseFormat 
 from frameworks.saps_numpy import NumpyFramework
 
 

@@ -5,8 +5,8 @@ import pytest
 import numpy as np
 
 import saps.benchmarks.particle_sim as ps
-from saps_framework import BinsparseFormat
 from frameworks.saps_numpy import NumpyFramework
+from saps_framework import BinsparseFormat
 
 # CONSTANTS
 nsteps = 1000

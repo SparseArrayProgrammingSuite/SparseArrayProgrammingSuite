@@ -2,14 +2,14 @@ import pytest
 
 import numpy as np
 
+import saps.benchmarks.quantum as quantum
+from frameworks.saps_numpy import NumpyFramework
 from saps.benchmarks.quantum import (
     QGates,
     QuantumStatevectorBenchmark,
     apply_single_qubit_gate,
 )
-import saps.benchmarks.quantum as quantum
 from saps_framework import BinsparseFormat
-from frameworks.saps_numpy import NumpyFramework
 
 
 def run_quantum_benchmark(xp, state, nqubits):

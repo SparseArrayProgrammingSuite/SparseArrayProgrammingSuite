@@ -1,18 +1,13 @@
-import numpy as np
-import scipy as sp
-
 import saps
-from saps_framework import BinsparseFormat
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
-    Dataset,
-    Generator,
     Ref,
 )
 
 xp = saps.xp
+
 
 class BreadthFirstSearchBenchmark(Benchmark):
     @property
@@ -43,14 +38,11 @@ class BreadthFirstSearchBenchmark(Benchmark):
             Contributor("Joel Mathew Cherian", "jcherian32@gatech.edu"),
         ]
 
-
     @property
     def references(self):
         return [
             Ref(
-                title=(
-                    "Graph Algorithms in the Language of Linear Algebra"
-                ),
+                title=("Graph Algorithms in the Language of Linear Algebra"),
                 authors=[
                     Author("Kepner, Jeremy"),
                     Author("Gilbert, John"),
@@ -100,7 +92,9 @@ class BreadthFirstSearchBenchmark(Benchmark):
             level = xp.where(frontier, level_idx, level)
             visited = xp.logical_or(visited, frontier)
             frontier = xp.einsum(
-                "frontier[j] += edges[i,j] * frontier[i]", edges=edges, frontier=frontier
+                "frontier[j] += edges[i,j] * frontier[i]",
+                edges=edges,
+                frontier=frontier,
             )
             frontier = xp.logical_and(frontier, xp.logical_not(visited))
             frontier_count = xp.sum(frontier)

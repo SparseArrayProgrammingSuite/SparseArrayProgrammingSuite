@@ -50,9 +50,7 @@ def format_results(results: Results, benchmarks: Benchmarks) -> dict:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(
-        description="Run SAPS benchmarks"
-    )
+    parser = argparse.ArgumentParser(description="Run SAPS benchmarks")
     parser.add_argument(
         "--config",
         default=None,
@@ -128,7 +126,7 @@ def main() -> int:
 
     # Get repo root (parent of bin directory where this script is)
     repo_root = Path(__file__).parent.parent
-    
+
     # Load SAPS configuration
     saps_dir = Path(".saps")
     saps_dir.mkdir(parents=True, exist_ok=True)
@@ -136,7 +134,7 @@ def main() -> int:
     machine_files_dir.mkdir(parents=True, exist_ok=True)
     outputs_dir = saps_dir / "outputs"
     outputs_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Load optional saps.conf.json
     saps_config_data = {}
     if args.config:
@@ -149,7 +147,7 @@ def main() -> int:
         if saps_config_file.exists():
             with open(saps_config_file) as f:
                 saps_config_data = json.load(f)
-    
+
     # Construct ASV config dict with all fields visible
     asv_config_dict = {
         "version": 1,
@@ -164,7 +162,9 @@ def main() -> int:
         ),
         "benchmark_dir": str(repo_root / "src/saps/benchmarks"),
         "env_dir": saps_config_data.get("env_dir", str(saps_dir / "results")),
-        "results_dir": saps_config_data.get("results_dir", str(outputs_dir / "results")),
+        "results_dir": saps_config_data.get(
+            "results_dir", str(outputs_dir / "results")
+        ),
         "html_dir": str(outputs_dir / "html"),
         "matrix": saps_config_data.get(
             "matrix",
@@ -186,21 +186,21 @@ def main() -> int:
             },
         ),
     }
-    
+
     # Create ASV config from dict
     conf = Config.from_json(asv_config_dict)
-    
+
     log.info(f"Using SAPS outputs directory: {outputs_dir}")
     log.info(f"Using SAPS machine files directory: {machine_files_dir}")
-    
+
     # Determine timeout with hierarchy: CLI arg > config > 5 seconds default
     if args.timeout is not None:
         timeout = args.timeout
-    elif hasattr(conf, 'timeout') and conf.timeout is not None:
+    elif hasattr(conf, "timeout") and conf.timeout is not None:
         timeout = conf.timeout
     else:
         timeout = 5
-    
+
     # Convert relative SAPS_FRAMEWORK paths to absolute paths so child processes can find them
     cwd = os.getcwd()
     if "env_nobuild" in conf.matrix and "SAPS_FRAMEWORK" in conf.matrix["env_nobuild"]:
@@ -218,7 +218,7 @@ def main() -> int:
         interactive=True,
         use_defaults=True,
     )
-    
+
     # Save machine file to SAPS machine files directory
     machine_params.save(str(machine_files_dir))
 
@@ -239,9 +239,7 @@ def main() -> int:
 
     for name in benchmarks:
         module_name, class_name, _method_name = name.rsplit(".", 2)
-        benchmark_module = importlib.import_module(
-            f"saps.benchmarks.{module_name}"
-        )
+        benchmark_module = importlib.import_module(f"saps.benchmarks.{module_name}")
         benchmark = getattr(benchmark_module, class_name)()
         assert isinstance(benchmark, saps.Benchmark)
         metadata[name] = benchmark.metadata
@@ -296,7 +294,9 @@ def main() -> int:
         param_combos = list(product(*benchmarks[name]["params"]))
         for idx, param in enumerate(param_combos):
             if len(param) == 0:
-                print(f"Warning: benchmark '{name}' has no data generators, skipping benchmark")
+                print(
+                    f"Warning: benchmark '{name}' has no data generators, skipping benchmark"
+                )
                 continue
             generator, dataset = param[0].split(".")[:2]
             generator = generators.get(generator)

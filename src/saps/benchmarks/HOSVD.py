@@ -193,9 +193,7 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
             mat[indices] = rng.random(nnz)
             return mat.reshape((rows, cols)).astype(np.float64)
 
-        G = get_sparse_factor(ranks[0], ranks[1] * ranks[2], density=0.5).reshape(
-            ranks
-        )
+        G = get_sparse_factor(ranks[0], ranks[1] * ranks[2], density=0.5).reshape(ranks)
         A = get_sparse_factor(dim1, ranks[0], density=0.2)
         B = get_sparse_factor(dim2, ranks[1], density=0.2)
         C = get_sparse_factor(dim3, ranks[2], density=0.2)

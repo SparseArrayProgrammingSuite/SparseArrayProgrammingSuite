@@ -4,7 +4,6 @@ import numpy as np
 
 import saps
 from saps.benchmark import (
-    Author,
     Benchmark,
     Contributor,
     Dataset,
@@ -13,6 +12,7 @@ from saps.benchmark import (
 )
 
 xp = saps.xp
+
 
 def _step_input(t):
     """A simple 5V step input starting at t=0."""
@@ -48,8 +48,6 @@ def _limit(a, N):
     return a % N
 
 
-
-
 def _init_brusselator_2d(n):
     """Initialize 2D Brusselator state."""
     u = [0.0] * (n * n * 2)
@@ -57,7 +55,7 @@ def _init_brusselator_2d(n):
         for j in range(n):
             fi = i / (n - 1) if n > 1 else 0.0
             fj = j / (n - 1) if n > 1 else 0.0
-            u[(i * n + j) * 2]     = float(np.real(22 * (fj * (1 - fj)) ** 1.5))
+            u[(i * n + j) * 2] = float(np.real(22 * (fj * (1 - fj)) ** 1.5))
             u[(i * n + j) * 2 + 1] = float(np.real(27 * (fi * (1 - fi)) ** 1.5))
     return u
 
@@ -83,7 +81,7 @@ def _construct_brusselator_matrix(n, alpha, b):
                 C[u_idx][(ni * n + nj) * 2] += alpha
                 C[v_idx][(ni * n + nj) * 2 + 1] += alpha
 
-            C[u_idx][u_idx] -= (4 * alpha + (b + 1))
+            C[u_idx][u_idx] -= 4 * alpha + (b + 1)
             C[v_idx][v_idx] -= 4 * alpha
             C[v_idx][u_idx] += b
 
@@ -93,7 +91,7 @@ def _construct_brusselator_matrix(n, alpha, b):
 def _brusselator_derivatives(t, u_vec, n, a, alpha, C, brusselator_cb):
     """Brusselator derivatives with diffusion on 2D grid."""
     u_arr = np.array(u_vec, dtype=float)
-    
+
     # Linear part
     lin = C @ u_arr
     lin[0::2] += a
@@ -105,16 +103,28 @@ def _brusselator_derivatives(t, u_vec, n, a, alpha, C, brusselator_cb):
     u_vals = u_arr[0::2]
     v_vals = u_arr[1::2]
     uv2 = u_vals**2 * v_vals
-    
+
     non_lin = np.zeros(len(u_vec), dtype=float)
     non_lin[0::2] = uv2
     non_lin[1::2] = -uv2
-    
+
     return (lin + non_lin).tolist()
 
 
 class RCDataset(Dataset):
-    def __init__(self, name, pretty_name, description, tags, R, C, t_max, V_C_initial, step, source_voltage):
+    def __init__(
+        self,
+        name,
+        pretty_name,
+        description,
+        tags,
+        R,
+        C,
+        t_max,
+        V_C_initial,
+        step,
+        source_voltage,
+    ):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
@@ -144,7 +154,20 @@ class RCDataset(Dataset):
 
 
 class RLCDataset(Dataset):
-    def __init__(self, name, pretty_name, description, tags, R, L, C, t_max, y0, step, source_voltage):
+    def __init__(
+        self,
+        name,
+        pretty_name,
+        description,
+        tags,
+        R,
+        L,
+        C,
+        t_max,
+        y0,
+        step,
+        source_voltage,
+    ):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
@@ -175,7 +198,9 @@ class RLCDataset(Dataset):
 
 
 class LotkaVolterraDataset(Dataset):
-    def __init__(self, name, pretty_name, description, tags, a, b, c, d, t_max, y0, step):
+    def __init__(
+        self, name, pretty_name, description, tags, a, b, c, d, t_max, y0, step
+    ):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
@@ -206,7 +231,9 @@ class LotkaVolterraDataset(Dataset):
 
 
 class BrusselatorDataset(Dataset):
-    def __init__(self, name, pretty_name, description, tags, n, a, b, alpha, t_max, step):
+    def __init__(
+        self, name, pretty_name, description, tags, n, a, b, alpha, t_max, step
+    ):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
@@ -218,10 +245,10 @@ class BrusselatorDataset(Dataset):
         self.t_max = t_max
         self.step = step
         self.y0 = _init_brusselator_2d(n)
-        
+
         # Pre-construct matrix and forcing term
         self.C = _construct_brusselator_matrix(n, alpha, b)
-        
+
         # Construct forcing term
         size = n * n * 2
         self.brusselator_cb = [0.0] * size
@@ -281,7 +308,6 @@ class RCGenerator(Generator[RCDataset]):
             "AI was used for debugging. This statement was written by hand"
         )
 
-
     @property
     def motivation(self) -> str:
         return ""
@@ -305,7 +331,9 @@ class RCGenerator(Generator[RCDataset]):
 
     def generate(self, dataset: RCDataset):
         def dVdt(t, state):
-            return _rc_derivatives(t, state, dataset.R, dataset.C, dataset.source_voltage)
+            return _rc_derivatives(
+                t, state, dataset.R, dataset.C, dataset.source_voltage
+            )
 
         return (
             dVdt,
@@ -371,7 +399,9 @@ class RLCGenerator(Generator[RLCDataset]):
 
     def generate(self, dataset: RLCDataset):
         def dVdt(t, state):
-            return _rlc_derivatives(t, state, dataset.R, dataset.L, dataset.C, dataset.source_voltage)
+            return _rlc_derivatives(
+                t, state, dataset.R, dataset.L, dataset.C, dataset.source_voltage
+            )
 
         return (
             dVdt,
@@ -437,7 +467,9 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
 
     def generate(self, dataset: LotkaVolterraDataset):
         def dydt(t, state):
-            return _lotka_volterra_derivatives(t, state, dataset.a, dataset.b, dataset.c, dataset.d)
+            return _lotka_volterra_derivatives(
+                t, state, dataset.a, dataset.b, dataset.c, dataset.d
+            )
 
         return (
             dydt,
@@ -502,7 +534,15 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
 
     def generate(self, dataset: BrusselatorDataset):
         def dudt(t, state):
-            return _brusselator_derivatives(t, state, dataset.n, dataset.a, dataset.alpha, dataset.C, dataset.brusselator_cb)
+            return _brusselator_derivatives(
+                t,
+                state,
+                dataset.n,
+                dataset.a,
+                dataset.alpha,
+                dataset.C,
+                dataset.brusselator_cb,
+            )
 
         return (
             dudt,
@@ -544,7 +584,6 @@ class ForwardEuler(Benchmark):
             "AI was used for debugging. This statement was written by hand"
         )
 
-
     @property
     def motivation(self):
         return ""
@@ -560,7 +599,7 @@ class ForwardEuler(Benchmark):
 
     def benchmark(self, data, meta):
         dydx, span, y0, first_step = data
-        
+
         # Forward Euler integration
         curr = span[0]
         inputs = []
@@ -574,14 +613,11 @@ class ForwardEuler(Benchmark):
 
         for i in range(1, len(inputs)):
             dydt_vector = dydx(inputs[i - 1], outputs[i - 1])
-            outputs[i] = [outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))]
+            outputs[i] = [
+                outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
+            ]
 
         return (inputs, outputs)
-
-
-
-
-
 
 
 class BackwardEuler(Benchmark):
@@ -631,7 +667,7 @@ class BackwardEuler(Benchmark):
 
     def benchmark(self, data, meta):
         dydx, span, y0, first_step = data
-        
+
         # Backward Euler integration with fixed point iteration
         curr = span[0]
         inputs = []
@@ -649,13 +685,12 @@ class BackwardEuler(Benchmark):
             y_guess = outputs[i - 1]  # initial guess
             for _ in range(10):
                 dydt_vector = dydx(inputs[i], y_guess)
-                y_guess = [outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))]
+                y_guess = [
+                    outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
+                ]
             outputs[i] = y_guess
 
         return (inputs, outputs)
-
-
-
 
 
 class RK4(Benchmark):
@@ -705,7 +740,7 @@ class RK4(Benchmark):
 
     def benchmark(self, data, meta):
         dydx, span, y0, first_step = data
-        
+
         # Runge-Kutta 4th order integration
         curr = span[0]
         inputs = []

@@ -3,10 +3,11 @@ import pytest
 import numpy as np
 
 import saps.benchmarks.bellmanford as bellmanford
-from saps_framework import BinsparseFormat 
 from frameworks.saps_numpy import NumpyFramework
+from saps_framework import BinsparseFormat
 
 xp = NumpyFramework()
+
 
 def bellman_ford_reference(A, src):
     n = A.shape[0]
@@ -218,7 +219,7 @@ def test_bellman_ford_networks(matrix_builder, src):
 
     A = matrix_builder()
     edges = BinsparseFormat.from_numpy(A)
-    (result,) = bellmanford.BellmanFordBenchmark().benchmark((A,), {"src":src})
+    (result,) = bellmanford.BellmanFordBenchmark().benchmark((A,), {"src": src})
     result = result.ravel()
     ref = bellman_ford_reference(A, src)
     assert np.allclose(result, ref, equal_nan=True)

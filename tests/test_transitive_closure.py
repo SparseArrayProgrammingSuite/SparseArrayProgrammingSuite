@@ -1,8 +1,8 @@
 import numpy as np
 
 import saps.benchmarks.transitive_closure as tc
-from saps_framework import BinsparseFormat
 from frameworks.saps_numpy import NumpyFramework
+from saps_framework import BinsparseFormat
 
 saps_xp = NumpyFramework()
 

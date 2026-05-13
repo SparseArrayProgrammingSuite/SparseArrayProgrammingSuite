@@ -1,9 +1,8 @@
 import numpy as np
 
+import saps.benchmarks.subgraph_matching as subgraph_matching
 from frameworks.saps_sparse import PyDataSparseFramework
 from saps_framework import BinsparseFormat
-
-import saps.benchmarks.subgraph_matching as subgraph_matching
 
 
 def test_single_edge_label_count():

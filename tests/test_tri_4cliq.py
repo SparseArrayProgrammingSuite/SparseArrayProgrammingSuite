@@ -3,8 +3,8 @@ import pytest
 import numpy as np
 
 import saps.benchmarks.tri_4cliq as tri_4cliq
-from saps_framework import BinsparseFormat
 from frameworks.saps_numpy import NumpyFramework
+from saps_framework import BinsparseFormat
 
 
 def run_count_benchmark(benchmark, xp, A):
@@ -65,9 +65,7 @@ def test_triangle_count(A, expected):
     A_bin = BinsparseFormat.from_numpy(A)
     A_input = xp.from_binsparse(A_bin)
 
-    result = run_count_benchmark(
-        tri_4cliq.TriangleCountBenchmark(), xp, A_input
-    ).item()
+    result = run_count_benchmark(tri_4cliq.TriangleCountBenchmark(), xp, A_input).item()
 
     assert np.allclose(result, expected)
 

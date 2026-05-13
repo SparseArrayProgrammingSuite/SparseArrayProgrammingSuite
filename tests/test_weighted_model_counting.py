@@ -1,8 +1,7 @@
 import numpy as np
 
-from frameworks.saps_numpy import NumpyFramework
-
 import saps.benchmarks.weighted_model_counting as wmc
+from frameworks.saps_numpy import NumpyFramework
 
 
 def test_weighted_model_counting_datasets():

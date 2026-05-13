@@ -1,9 +1,9 @@
 import saps
 from saps.benchmark import (
+    Author,
     Benchmark,
     Contributor,
     Ref,
-    Author,
 )
 
 xp = saps.xp
@@ -60,9 +60,7 @@ class BetweennessCentralityBenchmark(Benchmark):
                 url="https://doi.org/10.1186/s40649-019-0062-5",
             ),
             Ref(
-                title=(
-                    "Graph Algorithms in the Language of Linear Algebra"
-                ),
+                title=("Graph Algorithms in the Language of Linear Algebra"),
                 authors=[
                     Author("Kepner, Jeremy"),
                     Author("Gilbert, John"),
@@ -73,7 +71,6 @@ class BetweennessCentralityBenchmark(Benchmark):
             ),
         ]
 
-
     @property
     def ai_disclosure(self):
         return (
@@ -83,9 +80,7 @@ class BetweennessCentralityBenchmark(Benchmark):
 
     @property
     def motivation(self):
-        return (
-            ""
-        )
+        return ""
 
     @property
     def generators(self):
@@ -150,4 +145,3 @@ class BetweennessCentralityBenchmark(Benchmark):
 
         bc = xp.to_binsparse(bc_scores)
         return [bc]
-

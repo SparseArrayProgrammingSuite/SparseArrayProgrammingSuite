@@ -54,6 +54,7 @@ def _generate_cg_data(source, has_b_file, A=None):
     x = np.zeros(A.shape[1])
     return (A, b, x)
 
+
 xp = saps.xp
 
 
@@ -144,9 +145,7 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
     def generate(
         self, dataset: PreconditionedCGDataset
     ) -> tuple[list[BinsparseFormat], dict[str, Any]]:
-        A, b, x = _generate_cg_data(
-            dataset.source_name, dataset.has_b_file, dataset.A
-        )
+        A, b, x = _generate_cg_data(dataset.source_name, dataset.has_b_file, dataset.A)
         A_csr = A.tocsr()
         n = A_csr.shape[0]
         # Create one block for every processor modelled after
@@ -219,9 +218,7 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
     def generate(
         self, dataset: PreconditionedCGDataset
     ) -> tuple[list[BinsparseFormat], dict[str, Any]]:
-        A, b, x = _generate_cg_data(
-            dataset.source_name, dataset.has_b_file, dataset.A
-        )
+        A, b, x = _generate_cg_data(dataset.source_name, dataset.has_b_file, dataset.A)
         M = A.diagonal()
         M_bin = BinsparseFormat.from_numpy(M)
         A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)

@@ -1,8 +1,6 @@
 import numpy as np
-import sparse
 
 import saps
-from saps_framework import BinsparseFormat
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -11,15 +9,16 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps_framework import BinsparseFormat
 
 xp = saps.xp
 
-import numpy as np
 
 import saps
 from saps_framework.binsparse_format import BinsparseFormat
 
 xp = saps.xp
+
 
 class CP3FactorizeableDataset(Dataset):
     def __init__(self, name, pretty_name, tags, shape, rank):
@@ -28,7 +27,6 @@ class CP3FactorizeableDataset(Dataset):
         self._tags = tags
         self.shape = shape
         self.rank = rank
-
 
     @property
     def name(self) -> str:
@@ -45,7 +43,7 @@ class CP3FactorizeableDataset(Dataset):
     @property
     def tags(self) -> list[str]:
         return self._tags
-    
+
 
 class CP3FactorizeableGenerator(Generator):
     @property
@@ -58,13 +56,11 @@ class CP3FactorizeableGenerator(Generator):
 
     @property
     def description(self):
-        return (
-            """
+        return """
             Generating a small factorizable tensor by creating random factor matrices
             and reconstructing the tensor from them (tensor should decompose easily
             with low reconstruction error).
             """
-        )
 
     @property
     def ai_disclosure(self):
@@ -90,16 +86,18 @@ class CP3FactorizeableGenerator(Generator):
         return [
             Contributor("Grace Wang", "gwang426@gatech.edu"),
         ]
-    
+
     @property
     def datasets(self):
         return [
             CP3FactorizeableDataset(
                 name="cp_factorizeable_small",
                 pretty_name="Small Factorizeable CP Tensor",
-                tags = ["small",],
+                tags=[
+                    "small",
+                ],
                 shape=(20, 20, 20),
-                rank=3
+                rank=3,
             ),
         ]
 
@@ -117,7 +115,7 @@ class CP3FactorizeableGenerator(Generator):
         A = A / np.linalg.norm(A, axis=0, keepdims=True)
         B = B / np.linalg.norm(B, axis=0, keepdims=True)
         C = C / np.linalg.norm(C, axis=0, keepdims=True)
-        lambdas = 100*np.pow(2.0, -np.arange(rank))
+        lambdas = 100 * np.pow(2.0, -np.arange(rank))
         A = A * lambdas
 
         X = np.einsum("ir,jr,kr->ijk", A, B, C)
@@ -126,6 +124,7 @@ class CP3FactorizeableGenerator(Generator):
         max_iter = 100
 
         return (X, rank, max_iter)
+
 
 class CP3_ALS(Benchmark):
     @property
@@ -139,12 +138,12 @@ class CP3_ALS(Benchmark):
     @property
     def description(self):
         return (
-        "Computes the CP decomposition using Alternating Least Squares (ALS). "
-        "Factorizes a 3rd-order tensor X into factor matrices A, B, C such that: "
-        "$X \approx \\sum_{r=1}^{R} \\lambda_r \\cdot a_r \\circ b_r \\circ c_r$ "
-        "where $\\circ$ denotes the outeer product, R is the rank, and $\\lambda$ "
-        "are the weights."
-        "Handwritten code based on the standard CP-ALS algorithm from Kolda and Bader (2009). "
+            "Computes the CP decomposition using Alternating Least Squares (ALS). "
+            "Factorizes a 3rd-order tensor X into factor matrices A, B, C such that: "
+            "$X \approx \\sum_{r=1}^{R} \\lambda_r \\cdot a_r \\circ b_r \\circ c_r$ "
+            "where $\\circ$ denotes the outeer product, R is the rank, and $\\lambda$ "
+            "are the weights."
+            "Handwritten code based on the standard CP-ALS algorithm from Kolda and Bader (2009). "
         )
 
     @property
@@ -166,21 +165,21 @@ class CP3_ALS(Benchmark):
                 number=3,
                 pages="455-500",
                 year=2009,
-                doi="10.1137/07070111X"
+                doi="10.1137/07070111X",
             ),
             Ref(
                 title="CS 18.335 Final Project: CP Decomposition",
                 authors=[Author("Willow Ahrens"), Author("Alvin Shi")],
                 url="https://github.com/willow-ahrens/18.335FinalProject/blob/submit/TFGDCANDECOMP.py",
-                year = 2025
+                year=2025,
             ),
             Ref(
-                title= "Tensorly",
+                title="Tensorly",
                 authors=[
                     Author("Tensorly Contributors"),
                 ],
-                url = "https://github.com/tensorly/tensorly/blob/main/tensorly/decomposition/_cp.py",
-                year = 2025
+                url="https://github.com/tensorly/tensorly/blob/main/tensorly/decomposition/_cp.py",
+                year=2025,
             ),
         ]
 
@@ -229,6 +228,7 @@ class CP3_ALS(Benchmark):
     - A, B, and C are the normalized factor matrices
     - lambda are the component weights
     """
+
     def benchmark(self, data, meta):
         (X,) = data
         rank = meta["rank"]

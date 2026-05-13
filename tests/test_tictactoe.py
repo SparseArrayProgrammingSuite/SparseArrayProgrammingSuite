@@ -2,6 +2,7 @@ import pytest
 
 import numpy as np
 
+from frameworks.saps_sparse import PyDataSparseFramework
 from saps.benchmarks.tic_tac import (
     build_win_masks,
     is_terminal,
@@ -9,7 +10,6 @@ from saps.benchmarks.tic_tac import (
     minimax_depth3,
     minimax_depth5,
 )
-from frameworks.saps_sparse import PyDataSparseFramework
 
 
 @pytest.mark.parametrize(

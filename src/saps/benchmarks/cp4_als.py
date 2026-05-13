@@ -1,8 +1,6 @@
 import numpy as np
-import sparse
 
 import saps
-from saps_framework import BinsparseFormat
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -11,15 +9,16 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps_framework import BinsparseFormat
 
 xp = saps.xp
 
-import numpy as np
 
 import saps
 from saps_framework.binsparse_format import BinsparseFormat
 
 xp = saps.xp
+
 
 class CP4FactorizeableDataset(Dataset):
     def __init__(self, name, pretty_name, tags, shape, rank):
@@ -28,7 +27,6 @@ class CP4FactorizeableDataset(Dataset):
         self._tags = tags
         self.shape = shape
         self.rank = rank
-
 
     @property
     def name(self) -> str:
@@ -45,7 +43,7 @@ class CP4FactorizeableDataset(Dataset):
     @property
     def tags(self) -> list[str]:
         return self._tags
-    
+
 
 class CP4FactorizeableGenerator(Generator):
     @property
@@ -58,13 +56,11 @@ class CP4FactorizeableGenerator(Generator):
 
     @property
     def description(self):
-        return (
-            """
+        return """
             Generating a small factorizable tensor by creating random factor matrices
             and reconstructing the tensor from them (tensor should decompose easily
             with low reconstruction error).
             """
-        )
 
     @property
     def ai_disclosure(self):
@@ -89,18 +85,20 @@ class CP4FactorizeableGenerator(Generator):
     def authors(self):
         return [
             Contributor("Grace Wang", "gwang426@gatech.edu"),
-            Contributor("Kseniia Suleimanova", "kseniiasuleimanova@gmail.com")
+            Contributor("Kseniia Suleimanova", "kseniiasuleimanova@gmail.com"),
         ]
-    
+
     @property
     def datasets(self):
         return [
             CP4FactorizeableDataset(
                 name="cp_factorizeable_small",
                 pretty_name="Small Factorizeable CP Tensor",
-                tags = ["small",],
+                tags=[
+                    "small",
+                ],
                 shape=(20, 20, 20, 20),
-                rank=4
+                rank=4,
             ),
         ]
 
@@ -120,7 +118,7 @@ class CP4FactorizeableGenerator(Generator):
         B = B / np.linalg.norm(B, axis=0, keepdims=True)
         C = C / np.linalg.norm(C, axis=0, keepdims=True)
         D = D / np.linalg.norm(D, axis=0, keepdims=True)
-        lambdas = 100*np.pow(2.0, -np.arange(rank))
+        lambdas = 100 * np.pow(2.0, -np.arange(rank))
         A = A * lambdas
 
         X = np.einsum("ir,jr,kr,lr->ijkl", A, B, C, D)
@@ -129,6 +127,7 @@ class CP4FactorizeableGenerator(Generator):
         max_iter = 100
 
         return (X, rank, max_iter)
+
 
 class CP4_ALS(Benchmark):
     @property
@@ -142,12 +141,12 @@ class CP4_ALS(Benchmark):
     @property
     def description(self):
         return (
-        "Computes the CP decomposition using Alternating Least Squares (ALS). "
-        "Factorizes a 4-order tensor X into factor matrices A, B, C such that: "
-        "$X \approx \\sum_{r=1}^{R} \\lambda_r \\cdot a_r \\circ b_r \\circ c_r \\circ d_r$ "
-        "where $\\circ$ denotes the outeer product, R is the rank, and $\\lambda$ "
-        "are the weights."
-        "Handwritten code based on the standard CP-ALS algorithm from Kolda and Bader (2009). "
+            "Computes the CP decomposition using Alternating Least Squares (ALS). "
+            "Factorizes a 4-order tensor X into factor matrices A, B, C such that: "
+            "$X \approx \\sum_{r=1}^{R} \\lambda_r \\cdot a_r \\circ b_r \\circ c_r \\circ d_r$ "
+            "where $\\circ$ denotes the outeer product, R is the rank, and $\\lambda$ "
+            "are the weights."
+            "Handwritten code based on the standard CP-ALS algorithm from Kolda and Bader (2009). "
         )
 
     @property
@@ -158,7 +157,7 @@ class CP4_ALS(Benchmark):
     def authors(self):
         return [
             Contributor("Grace Wang", "gwang426@gatech.edu"),
-            Contributor("Kseniia Suleimanova", "kseniiasuleimanova@gmail.com")
+            Contributor("Kseniia Suleimanova", "kseniiasuleimanova@gmail.com"),
         ]
 
     @property
@@ -172,23 +171,21 @@ class CP4_ALS(Benchmark):
                 number=3,
                 pages="455-500",
                 year=2009,
-                doi="10.1137/07070111X"
+                doi="10.1137/07070111X",
             ),
-
-
             Ref(
                 title="CS 18.335 Final Project: CP Decomposition",
                 authors=[Author("Willow Ahrens"), Author("Alvin Shi")],
                 url="https://github.com/willow-ahrens/18.335FinalProject/blob/submit/TFGDCANDECOMP.py",
-                year = 2025
+                year=2025,
             ),
             Ref(
-                title= "Tensorly",
+                title="Tensorly",
                 authors=[
                     Author("Tensorly Contributors"),
                 ],
-                url = "https://github.com/tensorly/tensorly/blob/main/tensorly/decomposition/_cp.py",
-                year = 2025
+                url="https://github.com/tensorly/tensorly/blob/main/tensorly/decomposition/_cp.py",
+                year=2025,
             ),
         ]
 
@@ -237,6 +234,7 @@ class CP4_ALS(Benchmark):
     - A, B, and C are the normalized factor matrices
     - lambda are the component weights
     """
+
     def benchmark(self, data, meta):
         (X,) = data
         rank = meta["rank"]
@@ -326,7 +324,6 @@ class CP4_ALS(Benchmark):
             G_pinv = xp.linalg.pinv(G)
             D = xp.matmul(mttkrp_result, G_pinv)
 
-
         (A, B, C, D) = (A, B, C, D)
 
         # Normalizing factors
@@ -374,4 +371,3 @@ class CP4_ALS(Benchmark):
         lambda_bench_out = xp.to_binsparse(lambda_vals)
 
         return (A_bench_out, B_bench_out, C_bench_out, D_bench_out, lambda_bench_out)
-

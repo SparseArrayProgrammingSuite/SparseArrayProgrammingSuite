@@ -1,12 +1,13 @@
 import pytest
 
+import numpy as np
+
+import saps.benchmarks.cp3_als as cp3_als
+from frameworks.saps_numpy import NumpyFramework
 from saps.benchmarks.cp3_als import (
     CP3_ALS,
     CP3FactorizeableGenerator,
 )
-import saps.benchmarks.cp3_als as cp3_als
-from frameworks.saps_numpy import NumpyFramework
-import numpy as np
 
 
 @pytest.mark.parametrize("xp", [NumpyFramework()])
@@ -20,7 +21,7 @@ def test_cp_als_reconstruction_error(xp):
     X = cp3_als.xp.from_binsparse(X_bin)
 
     A_bin, B_bin, C_bin, lambda_bin = CP3_ALS().benchmark(
-        (X,), {"rank":rank, "max_iter":max_iter}
+        (X,), {"rank": rank, "max_iter": max_iter}
     )
 
     A = cp3_als.xp.from_binsparse(A_bin)
@@ -29,7 +30,8 @@ def test_cp_als_reconstruction_error(xp):
     l = cp3_als.xp.from_binsparse(lambda_bin)
 
     Y = cp3_als.xp.einsum(
-        "Y[i,j,k] += l[r] * A[i,r] * B[j,r] * C[k,r]", l=l, A=A, B=B, C=C)
+        "Y[i,j,k] += l[r] * A[i,r] * B[j,r] * C[k,r]", l=l, A=A, B=B, C=C
+    )
     X_norm = np.linalg.norm(X)
     diff = Y - X
     diff_norm = np.linalg.norm(diff)
@@ -49,7 +51,7 @@ def test_cp_als_factorizable_basic(xp):
     X = cp3_als.xp.from_binsparse(X_bin)
 
     A_bin, B_bin, C_bin, lambda_bin = CP3_ALS().benchmark(
-        (X,), {"rank":rank, "max_iter":max_iter}
+        (X,), {"rank": rank, "max_iter": max_iter}
     )
     dim1, dim2, dim3 = X_bin.data["shape"]
     assert A_bin.data["shape"] == (dim1, rank)

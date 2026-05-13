@@ -1,18 +1,13 @@
-import numpy as np
-import scipy as sp
-
 import saps
-from saps_framework import BinsparseFormat
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
-    Dataset,
-    Generator,
     Ref,
 )
 
 xp = saps.xp
+
 
 class BellmanFordBenchmark(Benchmark):
     @property
@@ -43,14 +38,11 @@ class BellmanFordBenchmark(Benchmark):
             Contributor("Joel Mathew Cherian", "jcherian32@gatech.edu"),
         ]
 
-
     @property
     def references(self):
         return [
             Ref(
-                title=(
-                    "Graph Algorithms in the Language of Linear Algebra"
-                ),
+                title=("Graph Algorithms in the Language of Linear Algebra"),
                 authors=[
                     Author("Kepner, Jeremy"),
                     Author("Gilbert, John"),

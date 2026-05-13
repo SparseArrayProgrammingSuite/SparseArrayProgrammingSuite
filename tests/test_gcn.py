@@ -5,6 +5,7 @@ import numpy as np
 import saps.benchmarks.gcn as gcn
 from frameworks.saps_numpy import NumpyFramework
 
+
 def gcn_reference_np(adjacency, features, weights1, bias1, weights2, bias2):
     """Reference NumPy implementation of the 2-layer GCN used for tests.
 
@@ -32,6 +33,7 @@ def run_gcn_benchmark(adjacency, features, weights1, bias1, weights2, bias2):
     finally:
         gcn.xp = prev_xp
     return xp.from_binsparse(output_b)
+
 
 @pytest.mark.parametrize(
     "xp,adjacency,features,weights1,bias1,weights2,bias2",

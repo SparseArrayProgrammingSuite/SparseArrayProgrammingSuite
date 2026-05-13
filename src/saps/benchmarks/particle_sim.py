@@ -1,12 +1,13 @@
 import saps
 from saps.benchmark import (
+    Author,
     Benchmark,
     Contributor,
     Ref,
-    Author,
 )
 
 xp = saps.xp
+
 
 class ParticleSimBenchmark(Benchmark):
     @property
@@ -26,7 +27,7 @@ class ParticleSimBenchmark(Benchmark):
 
     @property
     def tags(self):
-        return ['physics', 'simulation', 'sparse']
+        return ["physics", "simulation", "sparse"]
 
     @property
     def authors(self):
@@ -39,10 +40,8 @@ class ParticleSimBenchmark(Benchmark):
         return [
             Ref(
                 title="Particle Simulation Algorithm",
-                authors=[
-                    Author("CS 267 Staff")
-                ],
-                url="https://github.com/Berkeley-CS267/hw2-1/blob/master/serial.cpp"
+                authors=[Author("CS 267 Staff")],
+                url="https://github.com/Berkeley-CS267/hw2-1/blob/master/serial.cpp",
             )
         ]
 
@@ -130,4 +129,3 @@ class ParticleSimBenchmark(Benchmark):
         vy = xp.to_binsparse(vy)
 
         return (x, y, vx, vy)
-

@@ -1,12 +1,13 @@
 import pytest
 
+import numpy as np
+
+import saps.benchmarks.cp5_als as cp5_als
+from frameworks.saps_numpy import NumpyFramework
 from saps.benchmarks.cp5_als import (
     CP5_ALS,
     CP5FactorizeableGenerator,
 )
-import saps.benchmarks.cp5_als as cp5_als
-from frameworks.saps_numpy import NumpyFramework
-import numpy as np
 
 
 @pytest.mark.parametrize("xp", [NumpyFramework()])
@@ -20,7 +21,7 @@ def test_cp_als_reconstruction_error(xp):
     X = cp5_als.xp.from_binsparse(X_bin)
 
     A_bin, B_bin, C_bin, D_bin, E_bin, lambda_bin = CP5_ALS().benchmark(
-        (X,), {"rank":rank, "max_iter":max_iter}
+        (X,), {"rank": rank, "max_iter": max_iter}
     )
 
     A = cp5_als.xp.from_binsparse(A_bin)
@@ -31,7 +32,14 @@ def test_cp_als_reconstruction_error(xp):
     L = cp5_als.xp.from_binsparse(lambda_bin)
 
     Y = cp5_als.xp.einsum(
-        "Y[i,j,k,l,m] += L[r] * A[i,r] * B[j,r] * C[k,r] * D[l, r] * E[m, r]", L=L, A=A, B=B, C=C, D=D, E=E)
+        "Y[i,j,k,l,m] += L[r] * A[i,r] * B[j,r] * C[k,r] * D[l, r] * E[m, r]",
+        L=L,
+        A=A,
+        B=B,
+        C=C,
+        D=D,
+        E=E,
+    )
     X_norm = np.linalg.norm(X)
     diff = Y - X
     diff_norm = np.linalg.norm(diff)
@@ -51,10 +59,10 @@ def test_cp_als_factorizable_basic(xp):
     X = cp5_als.xp.from_binsparse(X_bin)
 
     A_bin, B_bin, C_bin, D_bin, E_bin, lambda_bin = CP5_ALS().benchmark(
-        (X,), {"rank":rank, "max_iter":max_iter}
+        (X,), {"rank": rank, "max_iter": max_iter}
     )
 
-    dim1, dim2, dim3, dim4,dim5 = X_bin.data["shape"]
+    dim1, dim2, dim3, dim4, dim5 = X_bin.data["shape"]
     assert A_bin.data["shape"] == (dim1, rank)
     assert B_bin.data["shape"] == (dim2, rank)
     assert C_bin.data["shape"] == (dim3, rank)

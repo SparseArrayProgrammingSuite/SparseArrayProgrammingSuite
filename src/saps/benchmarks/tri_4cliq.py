@@ -1,7 +1,8 @@
 import saps
-from saps.benchmark import Benchmark, Contributor, Generator, Ref, Author
+from saps.benchmark import Author, Benchmark, Contributor, Generator, Ref
 
 xp = saps.xp
+
 
 class TriangleCountBenchmark(Benchmark):
     @property
@@ -54,28 +55,28 @@ class TriangleCountBenchmark(Benchmark):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title = "First look: Linear algebra-based triangle counting without matrix multiplication",
-                authors = [
+                title="First look: Linear algebra-based triangle counting without matrix multiplication",
+                authors=[
                     Author("T. M. Low"),
                     Author("V. N. Rao"),
                     Author("M. Lee"),
                     Author("D. Popovici"),
                     Author("F. Franchetti"),
-                    Author("S. McMillan")
+                    Author("S. McMillan"),
                 ],
-                journal = "IEEE High Performance Extreme Computing Conference (HPEC)",
-                year = 2017,
-                url="https://doi.org/10.1109/HPEC.2017.8091046"
+                journal="IEEE High Performance Extreme Computing Conference (HPEC)",
+                year=2017,
+                url="https://doi.org/10.1109/HPEC.2017.8091046",
             ),
             Ref(
-                title = "Graph Algorithms in the Language of Linear Algebra",
-                authors = [
+                title="Graph Algorithms in the Language of Linear Algebra",
+                authors=[
                     Author("Kepner, Jeremy"),
                     Author("Gilbert, John"),
                 ],
-                journal = "Society for Industrial and Applied Mathematics",
-                year = 2011,
-                url = "https://doi.org/10.1137/1.9780898719918",
+                journal="Society for Industrial and Applied Mathematics",
+                year=2011,
+                url="https://doi.org/10.1137/1.9780898719918",
             ),
         ]
 
@@ -149,28 +150,28 @@ class FourCliqueCountBenchmark(Benchmark):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title = "First look: Linear algebra-based triangle counting without matrix multiplication",
-                authors = [
+                title="First look: Linear algebra-based triangle counting without matrix multiplication",
+                authors=[
                     Author("T. M. Low"),
                     Author("V. N. Rao"),
                     Author("M. Lee"),
                     Author("D. Popovici"),
                     Author("F. Franchetti"),
-                    Author("S. McMillan")
+                    Author("S. McMillan"),
                 ],
-                journal = "IEEE High Performance Extreme Computing Conference (HPEC)",
-                year = 2017,
-                url="https://doi.org/10.1109/HPEC.2017.8091046"
+                journal="IEEE High Performance Extreme Computing Conference (HPEC)",
+                year=2017,
+                url="https://doi.org/10.1109/HPEC.2017.8091046",
             ),
             Ref(
-                title = "Graph Algorithms in the Language of Linear Algebra",
-                authors = [
+                title="Graph Algorithms in the Language of Linear Algebra",
+                authors=[
                     Author("Kepner, Jeremy"),
                     Author("Gilbert, John"),
                 ],
-                journal = "Society for Industrial and Applied Mathematics",
-                year = 2011,
-                url = "https://doi.org/10.1137/1.9780898719918",
+                journal="Society for Industrial and Applied Mathematics",
+                year=2011,
+                url="https://doi.org/10.1137/1.9780898719918",
             ),
         ]
 

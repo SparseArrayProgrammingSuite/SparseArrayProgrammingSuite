@@ -1,9 +1,6 @@
-
-
 import numpy as np
 
 import saps
-from saps_framework.binsparse_format import BinsparseFormat
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -12,9 +9,9 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps_framework.binsparse_format import BinsparseFormat
 
 xp = saps.xp
-
 
 
 def _as2d_full(xp, F):
@@ -182,6 +179,7 @@ def make_ccsd_inputs(no, nv):
         BinsparseFormat.from_numpy(D2),
     )
 
+
 class CCSDDataset(Dataset):
     def __init__(self, name, pretty_name, description, tags, no, nv):
         self._name = name
@@ -238,34 +236,31 @@ class CCSDGenerator(Generator[CCSDDataset]):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title = "A full coupled-cluster singles and doubles model: The inclusion of disconnected triples",
-                authors = [
-                    Author("G. D. Purvis"),
-                    Author("R. J. Bartlett")
-                ],
-                year = 1982,
-                url = "https://doi.org/10.1063/1.443164",
-                journal = "J. Chem. Phys.",
-                volume = 76,
-                number = 4,
-                pages = "1910-1918",
+                title="A full coupled-cluster singles and doubles model: The inclusion of disconnected triples",
+                authors=[Author("G. D. Purvis"), Author("R. J. Bartlett")],
+                year=1982,
+                url="https://doi.org/10.1063/1.443164",
+                journal="J. Chem. Phys.",
+                volume=76,
+                number=4,
+                pages="1910-1918",
             ),
             Ref(
-                title = "A massively parallel tensor contraction framework for coupled-cluster computations",
-                authors = [
+                title="A massively parallel tensor contraction framework for coupled-cluster computations",
+                authors=[
                     Author("E. Solomonik"),
                     Author("D. Matthews"),
                     Author("J. R. Hammond"),
                     Author("J. F. Stanton"),
-                    Author("J. Demmel")
+                    Author("J. Demmel"),
                 ],
-                year = 2014,
-                url = "https://doi.org/10.1016/j.jpdc.2014.06.002",
-                journal = "J. Parallel Distrib. Comput.",
-                volume = 74,
-                number = 12,
-                pages = "3176-3190",
-            )
+                year=2014,
+                url="https://doi.org/10.1016/j.jpdc.2014.06.002",
+                journal="J. Parallel Distrib. Comput.",
+                volume=74,
+                number=12,
+                pages="3176-3190",
+            ),
         ]
 
     @property
@@ -277,9 +272,7 @@ class CCSDGenerator(Generator[CCSDDataset]):
 
     @property
     def motivation(self) -> str:
-        return (
-            ""
-        )
+        return ""
 
     @property
     def datasets(self) -> list[CCSDDataset]:
@@ -313,6 +306,7 @@ class CCSDGenerator(Generator[CCSDDataset]):
     def generate(self, dataset: CCSDDataset):
         return make_ccsd_inputs(dataset.no, dataset.nv), {}
 
+
 class CCSD(Benchmark):
     @property
     def name(self) -> str:
@@ -341,34 +335,31 @@ class CCSD(Benchmark):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title = "A full coupled-cluster singles and doubles model: The inclusion of disconnected triples",
-                authors = [
-                    Author("G. D. Purvis"),
-                    Author("R. J. Bartlett")
-                ],
-                year = 1982,
-                url = "https://doi.org/10.1063/1.443164",
-                journal = "J. Chem. Phys.",
-                volume = 76,
-                number = 4,
-                pages = "1910-1918",
+                title="A full coupled-cluster singles and doubles model: The inclusion of disconnected triples",
+                authors=[Author("G. D. Purvis"), Author("R. J. Bartlett")],
+                year=1982,
+                url="https://doi.org/10.1063/1.443164",
+                journal="J. Chem. Phys.",
+                volume=76,
+                number=4,
+                pages="1910-1918",
             ),
             Ref(
-                title = "A massively parallel tensor contraction framework for coupled-cluster computations",
-                authors = [
+                title="A massively parallel tensor contraction framework for coupled-cluster computations",
+                authors=[
                     Author("E. Solomonik"),
                     Author("D. Matthews"),
                     Author("J. R. Hammond"),
                     Author("J. F. Stanton"),
-                    Author("J. Demmel")
+                    Author("J. Demmel"),
                 ],
-                year = 2014,
-                url = "https://doi.org/10.1016/j.jpdc.2014.06.002",
-                journal = "J. Parallel Distrib. Comput.",
-                volume = 74,
-                number = 12,
-                pages = "3176-3190",
-            )
+                year=2014,
+                url="https://doi.org/10.1016/j.jpdc.2014.06.002",
+                journal="J. Parallel Distrib. Comput.",
+                volume=74,
+                number=12,
+                pages="3176-3190",
+            ),
         ]
 
     @property
@@ -460,8 +451,12 @@ class CCSD(Benchmark):
 
         Wamei = (
             2 * Vamei
-            - xp.einsum("Wamei[a,m,e,i] += Wmnei[m,n,e,i] * T1[a,n]", Wmnei=Wmnei, T1=T1)
-            + xp.einsum("Wamei[a,m,e,i] += Vamef[a,m,e,f] * T1[f,i]", Vamef=Vamef, T1=T1)
+            - xp.einsum(
+                "Wamei[a,m,e,i] += Wmnei[m,n,e,i] * T1[a,n]", Wmnei=Wmnei, T1=T1
+            )
+            + xp.einsum(
+                "Wamei[a,m,e,i] += Vamef[a,m,e,f] * T1[f,i]", Vamef=Vamef, T1=T1
+            )
             + xp.einsum(
                 "Wamei[a,m,e,i] += 0.5 * Vmnef[m,n,e,f] * T2[a,f,i,n]",
                 Vmnef=Vmnef,
@@ -482,7 +477,9 @@ class CCSD(Benchmark):
             - xp.einsum("T1_new[a,i] += Fmi[m,i] * T1[a,m]", Fmi=Fmi, T1=T1)
             + xp.einsum("T1_new[a,i] += Vae[a,e] * T1[e,i]", Vae=Vae, T1=T1)
             + xp.einsum("T1_new[a,i] += Vamei[a,m,e,i] * T1[e,m]", Vamei=Vamei, T1=T1)
-            + xp.einsum("T1_new[a,i] += Vaeim[a,e,i,m] * Fme[m,e]", Vaeim=Vaeim, Fme=Fme)
+            + xp.einsum(
+                "T1_new[a,i] += Vaeim[a,e,i,m] * Fme[m,e]", Vaeim=Vaeim, Fme=Fme
+            )
             + xp.einsum(
                 "T1_new[a,i] += 0.5 * Vamef[a,m,e,f] * T21[e,f,i,m]",
                 Vamef=Vamef,
@@ -494,11 +491,15 @@ class CCSD(Benchmark):
                 T21=T21,
             )
         )
-        R1_Z = xp.einsum("T2_new[a,b,i,j] += Vabei[a,b,e,i] * T1[e,j]", Vabei=Vabei, T1=T1)
+        R1_Z = xp.einsum(
+            "T2_new[a,b,i,j] += Vabei[a,b,e,i] * T1[e,j]", Vabei=Vabei, T1=T1
+        )
         R2_Z = xp.einsum(
             "T2_new[a,b,i,j] += Wamei[a,m,e,i] * T2[e,b,m,j]", Wamei=Wamei, T2=T2
         )
-        R3_Z = xp.einsum("T2_new[a,b,i,j] += Wamij[a,m,i,j] * T1[b,m]", Wamij=Wamij, T1=T1)
+        R3_Z = xp.einsum(
+            "T2_new[a,b,i,j] += Wamij[a,m,i,j] * T1[b,m]", Wamij=Wamij, T1=T1
+        )
         R4_Z = xp.einsum("T2_new[a,b,i,j] += Fae[a,e] * T2[e,b,i,j]", Fae=Fae, T2=T2)
         R5_Z = xp.einsum("T2_new[a,b,i,j] += Fmi[m,i] * T2[a,b,m,j]", Fmi=Fmi, T2=T2)
         R6_Z = xp.einsum(

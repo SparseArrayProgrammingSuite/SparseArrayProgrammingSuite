@@ -5,8 +5,8 @@ import numpy as np
 import networkx as nx
 
 import saps.benchmarks.centrality as centrality
-from saps_framework import BinsparseFormat 
 from frameworks.saps_numpy import NumpyFramework
+from saps_framework import BinsparseFormat
 
 
 def run_bc(xp, A):

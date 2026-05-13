@@ -2,7 +2,6 @@ import numpy as np
 import scipy as sp
 
 import saps
-from saps_framework import BinsparseFormat
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -11,6 +10,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps_framework import BinsparseFormat
 
 xp = saps.xp
 

@@ -1,5 +1,6 @@
-import numpy as np
 import pytest
+
+import numpy as np
 
 import saps.benchmarks.floyd_warshall as floyd_warshall
 from frameworks.saps_numpy import NumpyFramework
@@ -178,9 +179,7 @@ def test_fw_generated_datasets(dataset):
         A[v, u] = 1.0
 
     out = xp.from_binsparse(
-        floyd_warshall.FloydWarshallBenchmark().benchmark(
-            (A,), {}
-        )[0]
+        floyd_warshall.FloydWarshallBenchmark().benchmark((A,), {})[0]
     )
 
     assert out.shape[0] == out.shape[1]

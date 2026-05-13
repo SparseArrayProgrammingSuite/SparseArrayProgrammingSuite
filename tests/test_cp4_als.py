@@ -1,12 +1,13 @@
 import pytest
 
+import numpy as np
+
+import saps.benchmarks.cp4_als as cp4_als
+from frameworks.saps_numpy import NumpyFramework
 from saps.benchmarks.cp4_als import (
     CP4_ALS,
     CP4FactorizeableGenerator,
 )
-import saps.benchmarks.cp4_als as cp4_als
-from frameworks.saps_numpy import NumpyFramework
-import numpy as np
 
 
 @pytest.mark.parametrize("xp", [NumpyFramework()])
@@ -20,7 +21,7 @@ def test_cp_als_reconstruction_error(xp):
     X = cp4_als.xp.from_binsparse(X_bin)
 
     A_bin, B_bin, C_bin, D_bin, lambda_bin = CP4_ALS().benchmark(
-        (X,), {"rank":rank, "max_iter":max_iter}
+        (X,), {"rank": rank, "max_iter": max_iter}
     )
 
     A = cp4_als.xp.from_binsparse(A_bin)
@@ -30,7 +31,13 @@ def test_cp_als_reconstruction_error(xp):
     L = cp4_als.xp.from_binsparse(lambda_bin)
 
     Y = cp4_als.xp.einsum(
-        "Y[i,j,k,l] += L[r] * A[i,r] * B[j,r] * C[k,r] * D[l, r]", L=L, A=A, B=B, C=C, D=D)
+        "Y[i,j,k,l] += L[r] * A[i,r] * B[j,r] * C[k,r] * D[l, r]",
+        L=L,
+        A=A,
+        B=B,
+        C=C,
+        D=D,
+    )
     X_norm = np.linalg.norm(X)
     diff = Y - X
     diff_norm = np.linalg.norm(diff)
@@ -50,7 +57,7 @@ def test_cp_als_factorizable_basic(xp):
     X = cp4_als.xp.from_binsparse(X_bin)
 
     A_bin, B_bin, C_bin, D_bin, lambda_bin = CP4_ALS().benchmark(
-        (X,), {"rank":rank, "max_iter":max_iter}
+        (X,), {"rank": rank, "max_iter": max_iter}
     )
     dim1, dim2, dim3, dim4 = X_bin.data["shape"]
     assert A_bin.data["shape"] == (dim1, rank)

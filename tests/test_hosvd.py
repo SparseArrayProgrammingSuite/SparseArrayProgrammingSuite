@@ -3,8 +3,8 @@ import pytest
 import numpy as np
 
 import saps.benchmarks.HOSVD as hosvd
-from saps_framework import BinsparseFormat
 from frameworks.saps_numpy import NumpyFramework
+from saps_framework import BinsparseFormat
 
 
 @pytest.fixture

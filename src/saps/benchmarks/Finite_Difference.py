@@ -1,11 +1,4 @@
-import os
-from typing import Any
-
 import numpy as np
-from scipy.io import mmread
-from scipy.sparse import random
-
-import ssgetpy
 
 import saps
 from saps.benchmark import (
@@ -16,9 +9,9 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps_framework import BinsparseFormat
 
 xp = saps.xp
+
 
 def burgers_flux(u):
     return 0.5 * u * u
@@ -62,10 +55,9 @@ def _difference_matrix(Nx):
     matrix[-1, 0] = 1
     return matrix
 
+
 class FiniteDifferenceDataset(Dataset):
-    def __init__(
-        self, name, pretty_name, tags, Nx, dx, Nt, dt, flux
-    ):
+    def __init__(self, name, pretty_name, tags, Nx, dx, Nt, dt, flux):
         self._name = name
         self._pretty_name = pretty_name
         self._tags = tags
@@ -90,6 +82,7 @@ class FiniteDifferenceDataset(Dataset):
     @property
     def tags(self) -> list[str]:
         return self._tags
+
 
 class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
     @property
@@ -123,18 +116,18 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title = "Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.",
-                authors = [
+                title="Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.",
+                authors=[
                     Author("Laurel, J."),
                     Author("Laguna, I."),
                     Author("Hückelheim, J."),
                 ],
-                journal = "Proceedings of the ACM on Programming Languages",
-                volume = "9",
-                number = "OOPSLA2",
-                pages = "1063–1091",
-                year = 2025,
-                url = "https://doi.org/10.1145/3763088",
+                journal="Proceedings of the ACM on Programming Languages",
+                volume="9",
+                number="OOPSLA2",
+                pages="1063–1091",
+                year=2025,
+                url="https://doi.org/10.1145/3763088",
             )
         ]
 
@@ -176,7 +169,7 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
                 dt=0.01,
                 flux=burgers_flux,
             ),
-             FiniteDifferenceDataset(
+            FiniteDifferenceDataset(
                 name="linear_advection_small",
                 pretty_name="Linear Advection small",
                 tags=["small"],
@@ -202,7 +195,11 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
         difference = _difference_matrix(dataset.Nx)
         matrix = _lax_freidrichs_matrix_no_flux(dataset.Nx)
 
-        data = (xp.to_binsparse(u_0), xp.to_binsparse(matrix), xp.to_binsparse(difference))
+        data = (
+            xp.to_binsparse(u_0),
+            xp.to_binsparse(matrix),
+            xp.to_binsparse(difference),
+        )
 
         meta = {
             "flux": dataset.flux,
@@ -211,6 +208,7 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
             "dx": dataset.dx,
         }
         return data, meta
+
 
 class FiniteDifferenceBenchmark(Benchmark):
     @property
@@ -244,23 +242,22 @@ class FiniteDifferenceBenchmark(Benchmark):
     def authors(self) -> list[Contributor]:
         return [Contributor("Vilohith Gokarakonda", "vgokarakonda3@gatech.edu")]
 
-
     @property
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title = "Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.",
-                authors = [
+                title="Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.",
+                authors=[
                     Author("Laurel, J."),
                     Author("Laguna, I."),
                     Author("Hückelheim, J."),
                 ],
-                journal = "Proceedings of the ACM on Programming Languages",
-                volume = "9",
-                number = "OOPSLA2",
-                pages = "1063–1091",
-                year = 2025,
-                url = "https://doi.org/10.1145/3763088",
+                journal="Proceedings of the ACM on Programming Languages",
+                volume="9",
+                number="OOPSLA2",
+                pages="1063–1091",
+                year=2025,
+                url="https://doi.org/10.1145/3763088",
             )
         ]
 
@@ -274,14 +271,12 @@ class FiniteDifferenceBenchmark(Benchmark):
 
     @property
     def motivation(self) -> str:
-        return (
-            "Updates are done using a matrix representation, to updates the spatial coordinates for time t."
-        )
+        return "Updates are done using a matrix representation, to updates the spatial coordinates for time t."
 
     @property
     def generators(self):
         return [FiniteDifferenceGenerator()]
-        
+
     def benchmark(self, data: list, meta: dict):
         u0_bench, matrix_bench, difference_bench = data
         flux = meta["flux"]

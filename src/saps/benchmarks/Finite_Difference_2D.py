@@ -1,11 +1,4 @@
-import os
-from typing import Any
-
 import numpy as np
-from scipy.io import mmread
-from scipy.sparse import random
-
-import ssgetpy
 
 import saps
 from saps.benchmark import (
@@ -16,9 +9,9 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps_framework import BinsparseFormat
 
 xp = saps.xp
+
 
 def linear_advection_flux_2D(cx, cy):
     def flux_x(u):
@@ -99,11 +92,8 @@ def _difference_matrix_y_direction(number_spatial_x, number_spatial_y):
     return dif_y_matrix
 
 
-
 class FiniteDifference2DDataset(Dataset):
-    def __init__(
-        self, name, pretty_name, tags, Nx, dx, Ny, dy, Nt, dt, flux
-    ):
+    def __init__(self, name, pretty_name, tags, Nx, dx, Ny, dy, Nt, dt, flux):
         self._name = name
         self._pretty_name = pretty_name
         self._tags = tags
@@ -133,6 +123,7 @@ class FiniteDifference2DDataset(Dataset):
     @property
     def tags(self) -> list[str]:
         return self._tags
+
 
 class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
     @property
@@ -166,18 +157,18 @@ class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title = "Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.",
-                authors = [
+                title="Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.",
+                authors=[
                     Author("Laurel, J."),
                     Author("Laguna, I."),
                     Author("Hückelheim, J."),
                 ],
-                journal = "Proceedings of the ACM on Programming Languages",
-                volume = "9",
-                number = "OOPSLA2",
-                pages = "1063–1091",
-                year = 2025,
-                url = "https://doi.org/10.1145/3763088",
+                journal="Proceedings of the ACM on Programming Languages",
+                volume="9",
+                number="OOPSLA2",
+                pages="1063–1091",
+                year=2025,
+                url="https://doi.org/10.1145/3763088",
             )
         ]
 
@@ -223,7 +214,7 @@ class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
                 dt=0.01,
                 flux=aniso_burgers_flux_2D(),
             ),
-             FiniteDifference2DDataset(
+            FiniteDifference2DDataset(
                 name="linear_advection_small",
                 pretty_name="Linear Advection small",
                 tags=["small"],
@@ -246,13 +237,20 @@ class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
         # small random amplitudes to avoid nonlinear overflow
         u_0[idx] = np.random.rand(k) * 0.5
         # a modest central pulse (order 1), previously was 10 which caused instability
-        u_0[dataset.Nx // 2 * dataset.Ny + dataset.Ny // 2] = max(u_0[dataset.Nx // 2 * dataset.Ny + dataset.Ny // 2], 1.0)
+        u_0[dataset.Nx // 2 * dataset.Ny + dataset.Ny // 2] = max(
+            u_0[dataset.Nx // 2 * dataset.Ny + dataset.Ny // 2], 1.0
+        )
 
         diff_x = _difference_matrix_x_direction(dataset.Nx, dataset.Ny)
         diff_y = _difference_matrix_y_direction(dataset.Nx, dataset.Ny)
         matrix = _lax_freidrichs_matrix_no_flux_2D(dataset.Nx, dataset.Ny)
 
-        data = (xp.to_binsparse(u_0), xp.to_binsparse(matrix), xp.to_binsparse(diff_x), xp.to_binsparse(diff_y))
+        data = (
+            xp.to_binsparse(u_0),
+            xp.to_binsparse(matrix),
+            xp.to_binsparse(diff_x),
+            xp.to_binsparse(diff_y),
+        )
         flux_x, flux_y = dataset.flux
 
         meta = {
@@ -264,6 +262,7 @@ class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
             "dy": dataset.dy,
         }
         return data, meta
+
 
 class FiniteDifference2DBenchmark(Benchmark):
     @property
@@ -297,23 +296,22 @@ class FiniteDifference2DBenchmark(Benchmark):
     def authors(self) -> list[Contributor]:
         return [Contributor("Vilohith Gokarakonda", "vgokarakonda3@gatech.edu")]
 
-
     @property
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title = "Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.",
-                authors = [
+                title="Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.",
+                authors=[
                     Author("Laurel, J."),
                     Author("Laguna, I."),
                     Author("Hückelheim, J."),
                 ],
-                journal = "Proceedings of the ACM on Programming Languages",
-                volume = "9",
-                number = "OOPSLA2",
-                pages = "1063–1091",
-                year = 2025,
-                url = "https://doi.org/10.1145/3763088",
+                journal="Proceedings of the ACM on Programming Languages",
+                volume="9",
+                number="OOPSLA2",
+                pages="1063–1091",
+                year=2025,
+                url="https://doi.org/10.1145/3763088",
             )
         ]
 
@@ -327,14 +325,12 @@ class FiniteDifference2DBenchmark(Benchmark):
 
     @property
     def motivation(self) -> str:
-        return (
-            "Updates are done using a matrix representation, to updates the spatial coordinates for time t."
-        )
+        return "Updates are done using a matrix representation, to updates the spatial coordinates for time t."
 
     @property
     def generators(self):
         return [FiniteDifference2DGenerator()]
-        
+
     def benchmark(self, data: list, meta: dict):
         u_0, matrix, diff_x, diff_y = data
         flux_x = meta["flux_x"]

@@ -3,10 +3,10 @@ import pytest
 import numpy as np
 
 import saps.benchmarks.cg as cg
-from saps_framework import BinsparseFormat 
 from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_scipy import SciPyFramework
 from frameworks.saps_sparse import PyDataSparseFramework
+from saps_framework import BinsparseFormat
 
 
 @pytest.mark.parametrize(

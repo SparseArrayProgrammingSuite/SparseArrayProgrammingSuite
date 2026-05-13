@@ -1,12 +1,13 @@
 import saps
 from saps.benchmark import (
+    Author,
     Benchmark,
     Contributor,
     Ref,
-    Author,
 )
 
 xp = saps.xp
+
 
 class FastSVBenchmark(Benchmark):
     @property
@@ -28,7 +29,7 @@ class FastSVBenchmark(Benchmark):
 
     @property
     def tags(self):
-        return ['graph', 'sparse']
+        return ["graph", "sparse"]
 
     @property
     def authors(self):
@@ -40,16 +41,16 @@ class FastSVBenchmark(Benchmark):
     def references(self):
         return [
             Ref(
-                title = "FastSV: A distributed-memory connected component algorithm with fast convergence.",
-                authors = [
+                title="FastSV: A distributed-memory connected component algorithm with fast convergence.",
+                authors=[
                     Author("Zhang, Y."),
                     Author("Azad, A."),
                     Author("Hu, Z."),
                 ],
-                journal = "Proceedings of the 2020 SIAM Conference on Parallel Processing for Scientific Computing",
-                pages = "46-57",
-                publisher = "Society for Industrial and Applied Mathematics",
-                year = 2020,
+                journal="Proceedings of the 2020 SIAM Conference on Parallel Processing for Scientific Computing",
+                pages="46-57",
+                publisher="Society for Industrial and Applied Mathematics",
+                year=2020,
             ),
         ]
 
@@ -70,7 +71,7 @@ class FastSVBenchmark(Benchmark):
 
     def benchmark(self, data, meta):
         (adjacency_matrix,) = data
-        
+
         # Inlined benchmark_fastsv helper
         A = xp.from_binsparse(adjacency_matrix)
         A = A != 0

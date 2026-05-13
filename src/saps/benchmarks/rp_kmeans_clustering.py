@@ -165,7 +165,6 @@ class RPKMeansBenchmark(Benchmark):
     @property
     def references(self) -> list[Ref]:
         return [
-
             Ref(
                 authors=[
                     Author("C. Boutsidis"),
@@ -191,26 +190,26 @@ class RPKMeansBenchmark(Benchmark):
 
     def benchmark(self, data: list[Any], meta: dict[str, Any]):
         """
-        Labels points into k clusters.
+                Labels points into k clusters.
 
-Args:
-----
-xp : array_api
-    The array API module to utilize
-A_benchmark : BinsparseFormat
-    Sparse input matrix
-k : int
-    Number of clusters
-eps : float
-    Error parameter in (0, 1/3)
-c : float
-    Constant factor for new dimensionality t
-max_iter : int
-    Number of iterations for k-means
+        Args:
+        ----
+        xp : array_api
+            The array API module to utilize
+        A_benchmark : BinsparseFormat
+            Sparse input matrix
+        k : int
+            Number of clusters
+        eps : float
+            Error parameter in (0, 1/3)
+        c : float
+            Constant factor for new dimensionality t
+        max_iter : int
+            Number of iterations for k-means
 
-        Returns:
-        -------
-        Returns xp.array of size n: labels of input points.
+                Returns:
+                -------
+                Returns xp.array of size n: labels of input points.
         """
         k = meta["k"]
         eps = meta["eps"]

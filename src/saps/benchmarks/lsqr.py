@@ -9,7 +9,6 @@ import ssgetpy
 
 import saps
 from saps.benchmark import (
-    Author,
     Benchmark,
     Contributor,
     Dataset,
