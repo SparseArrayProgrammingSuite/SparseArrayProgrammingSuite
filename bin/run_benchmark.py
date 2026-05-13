@@ -295,6 +295,9 @@ def main() -> int:
         generators = {gen["name"]: gen for gen in metadata[name]["generators"]}
         param_combos = list(product(*benchmarks[name]["params"]))
         for idx, param in enumerate(param_combos):
+            if len(param) == 0:
+                print(f"Warning: benchmark '{name}' has no data generators, skipping benchmark")
+                continue
             generator, dataset = param[0].split(".")[:2]
             generator = generators.get(generator)
             datasets = {ds["name"]: ds for ds in generator["datasets"]}

@@ -75,11 +75,11 @@ class CP4FactorizeableGenerator(Generator):
 
     @property
     def motivation(self):
-        ""
+        return ""
 
     @property
     def references(self):
-        []
+        return []
 
     @property
     def tags(self):

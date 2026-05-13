@@ -75,11 +75,11 @@ class CP3FactorizeableGenerator(Generator):
 
     @property
     def motivation(self):
-        ""
+        return ""
 
     @property
     def references(self):
-        []
+        return []
 
     @property
     def tags(self):
@@ -168,8 +168,6 @@ class CP3_ALS(Benchmark):
                 year=2009,
                 doi="10.1137/07070111X"
             ),
-
-
             Ref(
                 title="CS 18.335 Final Project: CP Decomposition",
                 authors=[Author("Willow Ahrens"), Author("Alvin Shi")],

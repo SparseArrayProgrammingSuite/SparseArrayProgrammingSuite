@@ -2,6 +2,8 @@ import saps
 from saps.benchmark import (
     Benchmark,
     Contributor,
+    Ref,
+    Author,
 )
 
 xp = saps.xp
