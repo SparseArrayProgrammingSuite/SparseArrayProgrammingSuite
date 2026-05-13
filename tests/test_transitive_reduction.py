@@ -21,7 +21,7 @@ def create_graph(xp, edges, n):
 
 def to_dense(xp, bench_matrix):
     """Helper to convert output back to dense array for easy assertion."""
-    return xp.from_binsparse(bench_matrix)
+    return bench_matrix
 
 
 def test_case_1():

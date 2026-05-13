@@ -498,8 +498,8 @@ Each iteration:
 
         return (
             loss_out,
-            xp.to_binsparse(weights1_out),
-            xp.to_binsparse(bias1_out),
-            xp.to_binsparse(weights2_out),
-            xp.to_binsparse(bias2_out),
+            weights1_out,
+            bias1_out,
+            weights2_out,
+            bias2_out,
         )

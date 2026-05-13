@@ -224,18 +224,11 @@ class CGBenchmark(Benchmark):
 
         if rr >= tol_sq:
             while it < max_iters:
-                x = x
-                r = r
-                p = p
-
                 Ap = A @ p
                 alpha = rr / xp.vecdot(p, Ap)[()]
                 x += alpha * p
                 r -= alpha * Ap
 
-                x = x
-                r = r
-                p = p
                 old_rr = rr
                 new_rr = xp.vecdot(r, r)[()]
                 rr = new_rr

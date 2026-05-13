@@ -71,14 +71,12 @@ class SimplyConnectedComponentsBenchmark(Benchmark):
         return []
 
     def benchmark(self, data, meta):
-        edges_b = data[0]
-        edges = xp.from_binsparse(edges_b)
+        edges = xp.from_binsparse(data[0])
         (n, m) = edges.shape
         assert m == n
 
         # create identity matrix with edges
         graph = xp.array(edges, dtype=bool)
-        graph = graph
         identity_matrix = xp.eye(n, dtype=bool)
         graph = xp.logical_or(identity_matrix, graph)
         labels = xp.arange(n)
@@ -92,4 +90,4 @@ class SimplyConnectedComponentsBenchmark(Benchmark):
             if xp.all(xp.equal(labels, nextLabels)):
                 break
             labels = nextLabels
-        return [xp.to_binsparse(labels)]
+        return [labels]

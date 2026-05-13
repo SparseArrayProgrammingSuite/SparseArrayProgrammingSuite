@@ -74,8 +74,6 @@ class ParticleSimBenchmark(Benchmark):
         vy = xp.from_binsparse(vy)
 
         for _ in range(steps):
-            x, y, vx, vy = [x, y, vx, vy]
-
             # compute forces
             dx = x - x.reshape(-1, 1)
             dy = y - y.reshape(-1, 1)
@@ -120,12 +118,4 @@ class ParticleSimBenchmark(Benchmark):
             y2 = 2 * size - y
             y = xp.where(y > size, y2, y1)
 
-            x, y, vx, vy = [x, y, vx, vy]
-
-        x = xp.to_binsparse(x)
-        y = xp.to_binsparse(y)
-        vx = xp.to_binsparse(vx)
-        vy = xp.to_binsparse(vy)
-
-        return (x, y, vx, vy)
-
+        return [x, y, vx, vy]

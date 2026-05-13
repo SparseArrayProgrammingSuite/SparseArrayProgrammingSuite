@@ -255,7 +255,6 @@ class CP3_ALS(Benchmark):
         )
 
         for _iteration in range(max_iter):
-            (A, B, C) = (A, B, C)
             # Update A
             mttkrp_result = xp.einsum(
                 "mttkrp_result[i, r] += X[i, j, k] * B[j, r] * C[k, r]", X=X, B=B, C=C
@@ -284,10 +283,6 @@ class CP3_ALS(Benchmark):
             G_pinv = xp.linalg.pinv(G)
             C = xp.matmul(mttkrp_result, G_pinv)
 
-            A, B, C = (A, B, C)
-
-        (A, B, C) = (A, B, C)
-
         # Normalizing factors
         A_norms_sq = xp.einsum("norms[r] += A[i, r] * A[i, r]", A=A)
         B_norms_sq = xp.einsum("norms[r] += B[j, r] * B[j, r]", B=B)
@@ -314,14 +309,4 @@ class CP3_ALS(Benchmark):
         B = xp.divide(B, B_norms_safe)
         C = xp.divide(C, C_norms_safe)
 
-        # Now compute everything at once
-
-        (A, B, C, lambda_vals) = (A, B, C, lambda_vals)
-
-        # Convert to binsparse format
-        A_bench_out = xp.to_binsparse(A)
-        B_bench_out = xp.to_binsparse(B)
-        C_bench_out = xp.to_binsparse(C)
-        lambda_bench_out = xp.to_binsparse(lambda_vals)
-
-        return (A_bench_out, B_bench_out, C_bench_out, lambda_bench_out)
+        return [A, B, C, lambda_vals]

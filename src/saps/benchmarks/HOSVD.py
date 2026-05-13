@@ -339,8 +339,6 @@ class HOSVDBenchmark(Benchmark):
                 U, S, Vt = xp.linalg.svd(unfold_update, full_matrices=False)
                 initial_factors[mode] = U[:, : ranks[mode]]
 
-                initial_factors[mode] = initial_factors[mode]
-
             # stop iterations when solutions stop changing significantly
             change = (
                 xp.linalg.norm(initial_factors[0] - prev_factors[0])
@@ -357,7 +355,6 @@ class HOSVDBenchmark(Benchmark):
             B=initial_factors[1],
             C=initial_factors[2],
         )
-        core_tensor = core_tensor
         return [
             core_tensor,
             initial_factors[0],
