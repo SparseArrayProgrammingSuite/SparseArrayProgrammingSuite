@@ -118,7 +118,10 @@ def main() -> int:
         "--timeout",
         type=float,
         default=None,
-        help="Timeout in seconds for each benchmark (default: config timeout or 5 seconds)",
+        help=(
+            "Timeout in seconds for each benchmark"
+            " (default: config timeout or 5 seconds)"
+        ),
     )
     args = parser.parse_args()
 
@@ -201,7 +204,8 @@ def main() -> int:
     else:
         timeout = 5
 
-    # Convert relative SAPS_FRAMEWORK paths to absolute paths so child processes can find them
+    # Convert relative SAPS_FRAMEWORK paths to absolute paths so child processes can
+    # find them
     cwd = os.getcwd()
     if "env_nobuild" in conf.matrix and "SAPS_FRAMEWORK" in conf.matrix["env_nobuild"]:
         abs_paths = []
@@ -295,7 +299,8 @@ def main() -> int:
         for idx, param in enumerate(param_combos):
             if len(param) == 0:
                 print(
-                    f"Warning: benchmark '{name}' has no data generators, skipping benchmark"
+                    f"Warning: benchmark '{name}' has no data generators, skipping"
+                    " benchmark"
                 )
                 continue
             generator, dataset = param[0].split(".")[:2]

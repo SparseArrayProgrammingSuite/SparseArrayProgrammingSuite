@@ -305,8 +305,8 @@ class SubgraphGCareGenerator(Generator[SubgraphGCareDataset]):
     @property
     def description(self) -> str:
         return (
-            "Transforms the G-CARE dataset to the input of subgraph "
-            "matching algorithms."
+            "Transforms the G-CARE dataset to the input of subgraph matching"
+            " algorithms."
         )
 
     @property

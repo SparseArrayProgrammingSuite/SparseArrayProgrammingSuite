@@ -14,12 +14,6 @@ from saps_framework import BinsparseFormat
 xp = saps.xp
 
 
-import saps
-from saps_framework.binsparse_format import BinsparseFormat
-
-xp = saps.xp
-
-
 class CP3FactorizeableDataset(Dataset):
     def __init__(self, name, pretty_name, tags, shape, rank):
         self._name = name
@@ -65,8 +59,9 @@ class CP3FactorizeableGenerator(Generator):
     @property
     def ai_disclosure(self):
         return (
-            "No generative AI was used to construct the benchmark function itself. Generative AI was"
-            "used to debug some parts of the code. This statement was written by hand."
+            "No generative AI was used to construct the benchmark function itself."
+            " Generative AI was used to debug some parts of the code. This statement"
+            " was written by hand."
         )
 
     @property
@@ -133,7 +128,10 @@ class CP3_ALS(Benchmark):
 
     @property
     def pretty_name(self):
-        return "CANDECOMP/PARAFAC (CP) Decomposition of order 3 via Alternating Least Squares (ALS)"
+        return (
+            "CANDECOMP/PARAFAC (CP) Decomposition of order 3"
+            " via Alternating Least Squares (ALS)"
+        )
 
     @property
     def description(self):
@@ -143,7 +141,8 @@ class CP3_ALS(Benchmark):
             "$X \approx \\sum_{r=1}^{R} \\lambda_r \\cdot a_r \\circ b_r \\circ c_r$ "
             "where $\\circ$ denotes the outeer product, R is the rank, and $\\lambda$ "
             "are the weights."
-            "Handwritten code based on the standard CP-ALS algorithm from Kolda and Bader (2009). "
+            "Handwritten code based on the standard CP-ALS algorithm from Kolda and"
+            " Bader (2009). "
         )
 
     @property
@@ -186,24 +185,27 @@ class CP3_ALS(Benchmark):
     @property
     def ai_disclosure(self):
         return (
-            "No generative AI was used to construct the benchmark function itself. Generative AI was"
-            "used to debug some parts of the code. This statement was written by hand."
+            "No generative AI was used to construct the benchmark function itself."
+            " Generative AI was used to debug some parts of the code. This statement"
+            " was written by hand."
         )
 
     @property
     def motivation(self):
         return (
-            "The Alternating Least Squares (ALS) algorithm for CANDECOMP/PARAFAC (CP) plays a "
-            "critical role in tensor decomposition, which has applications in various fields such as "
-            "signal processing, pscyhometrics, neuroscience, and graph analysis. Within the ALS "
-            "algorithm, the Matricized-Tensor Times Khatri-Rao Product (MTTKRP) operation is a "
-            "computationally intensive step that often dominates the overall runtime. Efficiently "
-            "implementing MTTKRP is crucial for the performance of the ALS algorithm. "
-            "The input tensor is sparse, and the ALS algorithm takes advantage of this sparsity "
-            "through its MTTKRP kernel, which process only the non-zero elements of the tensor. "
-            "For sparse tensors with nnz << I * J * K, the complexity reduces from O(I * J * K * R) "
-            "to O(nnz * R), where nnz is the number of non-zero elements in the tensor and R is the "
-            "decomposition rank. This makes it practical to work with large-scale applications."
+            "The Alternating Least Squares (ALS) algorithm for CANDECOMP/PARAFAC (CP)"
+            " plays a critical role in tensor decomposition, which has applications in"
+            " various fields such as signal processing, pscyhometrics, neuroscience,"
+            " and graph analysis. Within the ALS algorithm, the Matricized-Tensor Times"
+            " Khatri-Rao Product (MTTKRP) operation is a computationally intensive step"
+            " that often dominates the overall runtime. Efficiently implementing MTTKRP"
+            " is crucial for the performance of the ALS algorithm. The input tensor is"
+            " sparse, and the ALS algorithm takes advantage of this sparsity through"
+            " its MTTKRP kernel, which process only the non-zero elements of the"
+            " tensor. For sparse tensors with nnz << I * J * K, the complexity reduces"
+            " from O(I * J * K * R) to O(nnz * R), where nnz is the number of non-zero"
+            " elements in the tensor and R is the decomposition rank. This makes it"
+            " practical to work with large-scale applications."
         )
 
     @property

@@ -96,12 +96,13 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
     @property
     def description(self) -> str:
         return (
-            "The purpose of this is to analyze the importance of numerical methods for PDEs, "
-            "and applications sparse array theory into these method, through the form of benchmarks."
-            "This paticular benchmark analyzes the use of the Lax–Friedrichs method for solving"
-            "nonlinear hyberbolic PDEs, with numerical stability and accuracy not seen in FTCS."
-            "This benchmark will run a simulation using both Lax–Friedrichs and analyze"
-            "core concepts such as numerical stability, conservation law consistency, etc."
+            "The purpose of this is to analyze the importance of numerical methods for"
+            " PDEs, and applications sparse array theory into these method, through the"
+            " form of benchmarks. This paticular benchmark analyzes the use of the"
+            " Lax–Friedrichs method for solving nonlinear hyberbolic PDEs, with"
+            " numerical stability and accuracy not seen in FTCS. This benchmark will"
+            " run a simulation using both Lax–Friedrichs and analyze core concepts such"
+            " as numerical stability, conservation law consistency, etc."
         )
 
     @property
@@ -116,7 +117,10 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title="Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.",
+                title=(
+                    "Synthesizing Sound and Precise Abstract Transformers"
+                    " for Nonlinear Hyperbolic PDE Solvers."
+                ),
                 authors=[
                     Author("Laurel, J."),
                     Author("Laguna, I."),
@@ -134,16 +138,16 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to construct the benchmark function"
-            "itself. Generative AI might have been used to construct tests. This statement"
-            "was written by hand."
+            "No generative AI was used to construct the benchmark function itself."
+            " Generative AI might have been used to construct tests. This statement was"
+            " written by hand."
         )
 
     @property
     def motivation(self) -> str:
         return (
-            "For linear advection, updates are done "
-            "using a sparse matrix representation, to updates the spatial coordinates for time t."
+            "For linear advection, updates are done using a sparse matrix"
+            " representation, to updates the spatial coordinates for time t."
         )
 
     @property
@@ -186,9 +190,10 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
         density = 0.05
         u_0 = np.zeros(dataset.Nx, dtype=float)
         k = max(1, int(dataset.Nx * density))
-        idx = np.random.choice(dataset.Nx, size=k, replace=False)
+        rng = np.random.default_rng()
+        idx = rng.choice(dataset.Nx, size=k, replace=False)
         # small random amplitudes to avoid nonlinear overflow
-        u_0[idx] = np.random.rand(k) * 0.5
+        u_0[idx] = rng.random(k) * 0.5
         # a modest central pulse (order 1), previously was 10 which caused instability
         u_0[dataset.Nx // 2] = max(u_0[dataset.Nx // 2], 1.0)
 
@@ -226,12 +231,13 @@ class FiniteDifferenceBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "The purpose of this is to analyze the importance of numerical methods for PDEs, "
-            "and applications sparse array theory into these method, through the form of benchmarks."
-            "This paticular benchmark analyzes the use of the Lax–Friedrichs method for solving"
-            "nonlinear hyberbolic PDEs, with numerical stability and accuracy not seen in FTCS."
-            "This benchmark will run a simulation using both Lax–Friedrichs and analyze"
-            "core concepts such as numerical stability, conservation law consistency, etc."
+            "The purpose of this is to analyze the importance of numerical methods for"
+            " PDEs, and applications sparse array theory into these method, through the"
+            " form of benchmarks. This paticular benchmark analyzes the use of the"
+            " Lax–Friedrichs method for solving nonlinear hyberbolic PDEs, with"
+            " numerical stability and accuracy not seen in FTCS. This benchmark will"
+            " run a simulation using both Lax–Friedrichs and analyze core concepts such"
+            " as numerical stability, conservation law consistency, etc."
         )
 
     @property
@@ -246,7 +252,10 @@ class FiniteDifferenceBenchmark(Benchmark):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title="Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.",
+                title=(
+                    "Synthesizing Sound and Precise Abstract Transformers"
+                    " for Nonlinear Hyperbolic PDE Solvers."
+                ),
                 authors=[
                     Author("Laurel, J."),
                     Author("Laguna, I."),
@@ -264,14 +273,17 @@ class FiniteDifferenceBenchmark(Benchmark):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to construct the benchmark function"
-            "itself. Generative AI might have been used to construct tests. This statement"
-            "was written by hand."
+            "No generative AI was used to construct the benchmark function itself."
+            " Generative AI might have been used to construct tests. This statement was"
+            " written by hand."
         )
 
     @property
     def motivation(self) -> str:
-        return "Updates are done using a matrix representation, to updates the spatial coordinates for time t."
+        return (
+            "Updates are done using a matrix representation, to updates"
+            " the spatial coordinates for time t."
+        )
 
     @property
     def generators(self):

@@ -1,8 +1,9 @@
 import os
 from typing import Any
 
-import kagglehub
 import numpy as np
+
+import kagglehub
 from PIL import Image
 
 import saps
@@ -110,10 +111,10 @@ class MRISobelGenerator(Generator[MRISobelDataset]):
     @property
     def description(self) -> str:
         return (
-            "Data Generation: I used MRI image data from this Kaggle set: "
-            "https://www.kaggle.com/navoneel/brain-mri-images-for-brain-tumor-detection. "
-            "I used a constant edge threshold of 150.0 with all of the images "
-            "that I used."
+            "Data Generation: I used MRI image data from this Kaggle set:"
+            " https://www.kaggle.com/navoneel/brain-mri-images-for-brain-tumor-detection"
+            " . I used a constant edge threshold of 150.0 with all of the images that I"
+            " used."
         )
 
     @property
@@ -183,13 +184,13 @@ class MRISobelEdgeBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "What does this code do: This code implements a simple edge detection "
-            "algorithm on a 2D MRI image. The algorithm computes the gradients in "
-            "the X and Y directions using the concept of a Sobel operator, which "
-            "is a common method for edge detection. The sobel operator was "
-            "recreated using array shifts that account for sparse patterns. The "
-            "magnitude of the gradients is computed and then masked with a "
-            "threshold to produce a binary edge map."
+            "What does this code do: This code implements a simple edge detection"
+            " algorithm on a 2D MRI image. The algorithm computes the gradients in the"
+            " X and Y directions using the concept of a Sobel operator, which is a"
+            " common method for edge detection. The sobel operator was recreated using"
+            " array shifts that account for sparse patterns. The magnitude of the"
+            " gradients is computed and then masked with a threshold to produce a"
+            " binary edge map."
         )
 
     @property
@@ -203,14 +204,13 @@ class MRISobelEdgeBenchmark(Benchmark):
     @property
     def motivation(self) -> str:
         return (
-            "Motivation: Edge detection is a crucial task that is a part of image "
-            "processing pipelines. It is often the case that images and scans in "
-            "the medical field rquire post-processing to extract useful "
-            "information. In this case, we are using a 2D MRI image to produce "
-            "thresholded edge maps. Since medical images are large and often "
-            "contain redundant information, it is important to process them "
-            "efficiently. The redundancy of MRI makes them a good candidate for "
-            "sparse processing."
+            "Motivation: Edge detection is a crucial task that is a part of image"
+            " processing pipelines. It is often the case that images and scans in the"
+            " medical field rquire post-processing to extract useful information. In"
+            " this case, we are using a 2D MRI image to produce thresholded edge maps."
+            " Since medical images are large and often contain redundant information,"
+            " it is important to process them efficiently. The redundancy of MRI makes"
+            " them a good candidate for sparse processing."
         )
 
     @property

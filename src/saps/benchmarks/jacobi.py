@@ -91,9 +91,9 @@ class JacobiGenerator(Generator[JacobiDataset]):
     @property
     def motivation(self) -> str:
         return (
-            "Data collected from SuiteSparse Matrix Collection consisting of symmetric "
-            "positive definite matrices whose Jacobi iteration matrices have spectral "
-            "radius < 1."
+            "Data collected from SuiteSparse Matrix Collection consisting of symmetric"
+            " positive definite matrices whose Jacobi iteration matrices have spectral"
+            " radius < 1."
         )
 
     @property

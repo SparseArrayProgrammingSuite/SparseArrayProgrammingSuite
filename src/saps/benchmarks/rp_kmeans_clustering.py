@@ -157,9 +157,9 @@ class RPKMeansBenchmark(Benchmark):
     @property
     def motivation(self) -> str:
         return (
-            "Random Projections reduce dimensionality for k-means clustering. "
-            "Input points can be high-dimensional and sparse, which are then "
-            "projected on a random matrix."
+            "Random Projections reduce dimensionality for k-means clustering. Input"
+            " points can be high-dimensional and sparse, which are then projected on a"
+            " random matrix."
         )
 
     @property

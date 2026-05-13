@@ -256,16 +256,16 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to construct the benchmark function itself. "
-            "This statement was written by hand."
+            "No generative AI was used to construct the benchmark function itself."
+            " This statement was written by hand."
         )
 
     @property
     def motivation(self) -> str:
         return (
             "Boards have range of sparsity so they go from empty to being very dense"
-            "this helps us measure how sparsity can affect performance at different"
-            "depths."
+            " this helps us measure how sparsity can affect performance at different"
+            " depths."
         )
 
     @property
@@ -303,11 +303,12 @@ class TicTacToeBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "What does this code do: Implement a fully tensorized, non-recursive minimax"
-            "search over a tic-tac-toe game. Game states are represented as tensors."
-            "Game state is represented as S[n, i, j, p] of shape (N, 3, 3, 2) where n"
-            "indexes boards, i,j are board positions and p is the player channel. Given"
-            "any board state within the game, it should return the result of the game."
+            "What does this code do: Implement a fully tensorized, non-recursive"
+            " minimax search over a tic-tac-toe game. Game states are represented as"
+            " tensors. Game state is represented as S[n, i, j, p] of shape (N, 3, 3, 2)"
+            " where n indexes boards, i,j are board positions and p is the player"
+            " channel. Given any board state within the game, it should return the"
+            " result of the game."
         )
 
     @property
@@ -328,8 +329,8 @@ class TicTacToeBenchmark(Benchmark):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to construct the benchmark function itself. "
-            "This statement was written by hand."
+            "No generative AI was used to construct the benchmark function itself."
+            " This statement was written by hand."
         )
 
     @property

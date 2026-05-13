@@ -20,12 +20,6 @@ from saps_framework import BinsparseFormat
 xp = saps.xp
 
 
-import saps
-from saps_framework.binsparse_format import BinsparseFormat
-
-xp = saps.xp
-
-
 class GCNTrainingDataset(Dataset):
     def __init__(
         self,
@@ -138,22 +132,23 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to construct the benchmark function "
-            "itself. Generative AI might have been used to construct tests. This statement "
-            "was written by hand. "
+            "No generative AI was used to construct the benchmark function itself."
+            " Generative AI might have been used to construct tests. This statement was"
+            " written by hand."
         )
 
     @property
     def motivation(self) -> str:
         return (
-            "Graphs are widely used for abstracting  systems of interacting objects, "
-            "such as social networks (Easley et al., 2010), knowledge graphs (Nickel et al., 2015), "
-            "molecular graphs (Wu et al., 2018), and biological networks (Barabasi & Oltvai, 2004), "
-            "as well as for modeling 3D objects (Simonovsky & Komodakis, 2017), "
-            "manifolds (Bronstein et al., 2017), and source code (Allamanis et al., "
-            "2017). Machine learning (ML), especially deep learning, "
-            "on graphs is an emerging field (Hamilton et al., 2017b; Bronstein et al., 2017). "
-            "W. Hu et al. To represent a graph, an adjaceny matrix is used, which is inherently sparse. "
+            "Graphs are widely used for abstracting systems of interacting objects,"
+            " such as social networks (Easley et al., 2010), knowledge graphs (Nickel"
+            " et al., 2015), molecular graphs (Wu et al., 2018), and biological"
+            " networks (Barabasi & Oltvai, 2004), as well as for modeling 3D objects"
+            " (Simonovsky & Komodakis, 2017), manifolds (Bronstein et al., 2017), and"
+            " source code (Allamanis et al., 2017). Machine learning (ML), especially"
+            " deep learning, on graphs is an emerging field (Hamilton et al., 2017b;"
+            " Bronstein et al., 2017). W. Hu et al. To represent a graph, an adjaceny"
+            " matrix is used, which is inherently sparse."
         )
 
     @property
@@ -233,7 +228,8 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
             ),
             GCNTrainingDataset(
                 "dg_gcn_bcsstk01",
-                "Original small structural engineering matrix (for backward compatibility).",
+                "Original small structural engineering matrix"
+                " (for backward compatibility).",
                 "bcsstk01",
                 feature_dim=16,
                 hidden_dim=8,
@@ -382,22 +378,23 @@ Each iteration:
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to construct the benchmark function "
-            "itself. Generative AI might have been used to construct tests. This statement "
-            "was written by hand. "
+            "No generative AI was used to construct the benchmark function itself."
+            " Generative AI might have been used to construct tests. This statement was"
+            " written by hand."
         )
 
     @property
     def motivation(self) -> str:
         return (
-            "Graphs are widely used for abstracting  systems of interacting objects, "
-            "such as social networks (Easley et al., 2010), knowledge graphs (Nickel et al., 2015), "
-            "molecular graphs (Wu et al., 2018), and biological networks (Barabasi & Oltvai, 2004), "
-            "as well as for modeling 3D objects (Simonovsky & Komodakis, 2017), "
-            "manifolds (Bronstein et al., 2017), and source code (Allamanis et al., "
-            "2017). Machine learning (ML), especially deep learning, "
-            "on graphs is an emerging field (Hamilton et al., 2017b; Bronstein et al., 2017). "
-            "W. Hu et al. To represent a graph, an adjaceny matrix is used, which is inherently sparse."
+            "Graphs are widely used for abstracting systems of interacting objects,"
+            " such as social networks (Easley et al., 2010), knowledge graphs (Nickel"
+            " et al., 2015), molecular graphs (Wu et al., 2018), and biological"
+            " networks (Barabasi & Oltvai, 2004), as well as for modeling 3D objects"
+            " (Simonovsky & Komodakis, 2017), manifolds (Bronstein et al., 2017), and"
+            " source code (Allamanis et al., 2017). Machine learning (ML), especially"
+            " deep learning, on graphs is an emerging field (Hamilton et al., 2017b;"
+            " Bronstein et al., 2017). W. Hu et al. To represent a graph, an adjaceny"
+            " matrix is used, which is inherently sparse."
         )
 
     @property

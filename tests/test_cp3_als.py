@@ -27,10 +27,10 @@ def test_cp_als_reconstruction_error(xp):
     A = cp3_als.xp.from_binsparse(A_bin)
     B = cp3_als.xp.from_binsparse(B_bin)
     C = cp3_als.xp.from_binsparse(C_bin)
-    l = cp3_als.xp.from_binsparse(lambda_bin)
+    lam = cp3_als.xp.from_binsparse(lambda_bin)
 
     Y = cp3_als.xp.einsum(
-        "Y[i,j,k] += l[r] * A[i,r] * B[j,r] * C[k,r]", l=l, A=A, B=B, C=C
+        "Y[i,j,k] += l[r] * A[i,r] * B[j,r] * C[k,r]", l=lam, A=A, B=B, C=C
     )
     X_norm = np.linalg.norm(X)
     diff = Y - X

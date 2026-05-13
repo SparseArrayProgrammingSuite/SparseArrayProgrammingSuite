@@ -107,9 +107,9 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
     @property
     def description(self) -> str:
         return (
-            "Data collected from SuiteSparse Matrix Collection consisting of "
-            "symmetric positive definite matrices, particularly those with a "
-            "low convergence criteria."
+            "Data collected from SuiteSparse Matrix Collection consisting of symmetric"
+            " positive definite matrices, particularly those with a low convergence"
+            " criteria."
         )
 
     @property
@@ -180,9 +180,9 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
     @property
     def description(self) -> str:
         return (
-            "Data collected from SuiteSparse Matrix Collection consisting of "
-            "symmetric positive definite matrices, particularly those with a "
-            "low convergence criteria."
+            "Data collected from SuiteSparse Matrix Collection consisting of symmetric"
+            " positive definite matrices, particularly those with a low convergence"
+            " criteria."
         )
 
     @property
@@ -268,8 +268,8 @@ class PreconditionedCGBenchmark(Benchmark):
         return [
             Ref(
                 title=(
-                    "Block Jacobi Preconditioning of the Conjugate Gradient "
-                    "Method on a Vector Processor"
+                    "Block Jacobi Preconditioning of the Conjugate Gradient Method on"
+                    " a Vector Processor"
                 ),
                 authors=[Author("M. Hegland"), Author("P. E. Saylor")],
                 journal="International Journal of Computer Mathematics",

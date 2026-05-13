@@ -20,7 +20,10 @@ class SimplyConnectedComponentsBenchmark(Benchmark):
 
     @property
     def description(self):
-        return "Computes the simply connected components of a directed graph using label propagation. "
+        return (
+            "Computes the simply connected components of a directed graph using label"
+            " propagation."
+        )
 
     @property
     def tags(self):

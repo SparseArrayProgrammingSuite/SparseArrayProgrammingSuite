@@ -21,10 +21,10 @@ class TransitiveClosureBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "Computes the transitive closure of a directed graph using fixed-point iteration. "
-            "The algorithm initializes the adjacency matrix with the identity, then iteratively "
-            "applies the closure operation using sparse matrix operations until convergence. "
-            "This enables reachability queries."
+            "Computes the transitive closure of a directed graph using fixed-point"
+            " iteration. The algorithm initializes the adjacency matrix with the"
+            " identity, then iteratively applies the closure operation using sparse"
+            " matrix operations until convergence. This enables reachability queries."
         )
 
     @property

@@ -21,16 +21,17 @@ class BetweennessCentralityBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "This code is based on the Brandes betweenness centrality algorithm. The "
-            "current code for the benchmark takes a two step approach. The first step "
-            "involves going layer by layer from each potential starting node to find "
-            "the total amount of shortest paths that lead to a node. So for example "
-            "4 -> 6 could have 3 diff shortest paths and 4 -> 2 could have only 1 "
-            "shortest path. The second step is for tracing backwards to see how many "
-            "times a node appears in other shortest paths. The number of times this "
-            "node is in one of the shortest path divided by total shortest paths between "
-            "the two edge nodes gets added to the intermediate nodes bc score. This code "
-            "performs lazy calculations before computing at the end of iteration blocks."
+            "This code is based on the Brandes betweenness centrality algorithm. The"
+            " current code for the benchmark takes a two step approach. The first step"
+            " involves going layer by layer from each potential starting node to find"
+            " the total amount of shortest paths that lead to a node. So for example 4"
+            " -> 6 could have 3 diff shortest paths and 4 -> 2 could have only 1"
+            " shortest path. The second step is for tracing backwards to see how many"
+            " times a node appears in other shortest paths. The number of times this"
+            " node is in one of the shortest path divided by total shortest paths"
+            " between the two edge nodes gets added to the intermediate nodes bc score."
+            " This code performs lazy calculations before computing at the end of"
+            " iteration blocks."
         )
 
     @property
@@ -48,7 +49,8 @@ class BetweennessCentralityBenchmark(Benchmark):
         return [
             Ref(
                 title=(
-                    "Comparing the speed and accuracy of approaches to betweenness centrality approximation"
+                    "Comparing the speed and accuracy of approaches to betweenness"
+                    " centrality approximation"
                 ),
                 authors=[
                     Author("Matta, J."),
@@ -74,8 +76,8 @@ class BetweennessCentralityBenchmark(Benchmark):
     @property
     def ai_disclosure(self):
         return (
-            "No generative AI was used to construct the benchmark function. "
-            "This statement is written by hand."
+            "No generative AI was used to construct the benchmark function. This"
+            " statement is written by hand."
         )
 
     @property

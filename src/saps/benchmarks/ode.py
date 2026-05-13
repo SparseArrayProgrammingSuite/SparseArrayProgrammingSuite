@@ -304,8 +304,8 @@ class RCGenerator(Generator[RCDataset]):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to write the benchmark function itself. Generative"
-            "AI was used for debugging. This statement was written by hand"
+            "No generative AI was used to write the benchmark function itself."
+            " Generative AI was used for debugging. This statement was written by hand"
         )
 
     @property
@@ -371,8 +371,8 @@ class RLCGenerator(Generator[RLCDataset]):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to write the benchmark function itself. Generative"
-            "AI was used for debugging. This statement was written by hand"
+            "No generative AI was used to write the benchmark function itself."
+            " Generative AI was used for debugging. This statement was written by hand"
         )
 
     @property
@@ -439,8 +439,8 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to write the benchmark function itself. Generative"
-            "AI was used for debugging. This statement was written by hand"
+            "No generative AI was used to write the benchmark function itself."
+            " Generative AI was used for debugging. This statement was written by hand"
         )
 
     @property
@@ -507,8 +507,8 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to write the benchmark function itself. Generative"
-            "AI was used for debugging. This statement was written by hand"
+            "No generative AI was used to write the benchmark function itself."
+            " Generative AI was used for debugging. This statement was written by hand"
         )
 
     @property
@@ -580,8 +580,8 @@ class ForwardEuler(Benchmark):
     @property
     def ai_disclosure(self):
         return (
-            "No generative AI was used to write the benchmark function itself. Generative"
-            "AI was used for debugging. This statement was written by hand"
+            "No generative AI was used to write the benchmark function itself."
+            " Generative AI was used for debugging. This statement was written by hand"
         )
 
     @property
@@ -648,8 +648,8 @@ class BackwardEuler(Benchmark):
     @property
     def ai_disclosure(self):
         return (
-            "No generative AI was used to write the benchmark function itself. Generative"
-            "AI was used for debugging. This statement was written by hand"
+            "No generative AI was used to write the benchmark function itself."
+            " Generative AI was used for debugging. This statement was written by hand"
         )
 
     @property
@@ -721,8 +721,8 @@ class RK4(Benchmark):
     @property
     def ai_disclosure(self):
         return (
-            "No generative AI was used to write the benchmark function itself. Generative"
-            "AI was used for debugging. This statement was written by hand"
+            "No generative AI was used to write the benchmark function itself."
+            " Generative AI was used for debugging. This statement was written by hand"
         )
 
     @property

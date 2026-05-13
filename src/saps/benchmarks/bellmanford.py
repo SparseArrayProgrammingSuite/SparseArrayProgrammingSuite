@@ -21,10 +21,11 @@ class BellmanFordBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "This code implements an Array-API compatible version of Bellman Ford Algorithm"
-            "to find the shortest distance from a src node to all edges across a graph."
-            "It takes in an adjacency matrix as an input and then slowly relaxes each vector"
-            "by broadcasting it and then determining the minimum distances iteratively."
+            "This code implements an Array-API compatible version of Bellman Ford"
+            " Algorithm to find the shortest distance from a src node to all edges"
+            " across a graph. It takes in an adjacency matrix as an input and then"
+            " slowly relaxes each vector by broadcasting it and then determining the"
+            " minimum distances iteratively."
         )
 
     @property
@@ -63,10 +64,11 @@ class BellmanFordBenchmark(Benchmark):
     @property
     def motivation(self):
         return (
-            "Linear algebraic graph algorithms use sparsity to avoid unnecessary computations "
-            "by focusing only on non-zero elements. Optimizing the use of sparse data structures and "
-            "algorithms is key to achieving high performance, as it reduces memory footprint and "
-            "leads to faster traversals."
+            "Linear algebraic graph algorithms use sparsity to avoid unnecessary"
+            " computations by focusing only on non-zero elements. Optimizing the use of"
+            " sparse data structures and algorithms is key to achieving high"
+            " performance, as it reduces memory footprint and leads to faster"
+            " traversals."
         )
 
     @property

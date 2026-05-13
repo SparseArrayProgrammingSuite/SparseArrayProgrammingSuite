@@ -21,8 +21,9 @@ class ParticleSimBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "Benchmark implementation for Particule_Simulation_Algorithm using sparse array operations. "
-            "This benchmark evaluates performance characteristics and numerical properties."
+            "Benchmark implementation for Particule_Simulation_Algorithm using sparse"
+            " array operations. This benchmark evaluates performance characteristics"
+            " and numerical properties."
         )
 
     @property
@@ -48,14 +49,17 @@ class ParticleSimBenchmark(Benchmark):
     @property
     def ai_disclosure(self):
         return (
-            "No generative AI was used for the benchmark function itself. Generative AI might "
-            "have been used to construct tests. This statement was written "
-            "by hand."
+            "No generative AI was used for the benchmark function itself. Generative"
+            " AI might have been used to construct tests. This statement was written by"
+            " hand."
         )
 
     @property
     def motivation(self):
-        return "The particle simulation is used to model particle interaction present in mechanics, biology, astronomy, and other fields on a simplitic level."
+        return (
+            "The particle simulation is used to model particle interaction present in"
+            " mechanics, biology, astronomy, and other fields on a simplitic level."
+        )
 
     @property
     def generators(self):

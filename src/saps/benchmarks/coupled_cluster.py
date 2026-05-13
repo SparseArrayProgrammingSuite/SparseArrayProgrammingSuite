@@ -218,10 +218,11 @@ class CCSDGenerator(Generator[CCSDDataset]):
     @property
     def description(self) -> str:
         return (
-            "Inputs are generated using the same deterministic pseudorandom fill as the C++"
-            "CTF reference (ccsd.cxx): canonical antisymmetric elements are set to"
-            "((flat_index * multiplier + tensor_id) % 13077) / 13077 - 0.5, then reflected"
-            "via antisymmetry. This exactly reproduces the C++ reference output |T| = 380638."
+            "Inputs are generated using the same deterministic pseudorandom fill as"
+            " the C++ CTF reference (ccsd.cxx): canonical antisymmetric elements are"
+            " set to ((flat_index * multiplier + tensor_id) % 13077) / 13077 - 0.5,"
+            " then reflected via antisymmetry. This exactly reproduces the C++"
+            " reference output |T| = 380638."
         )
 
     @property
@@ -236,7 +237,10 @@ class CCSDGenerator(Generator[CCSDDataset]):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title="A full coupled-cluster singles and doubles model: The inclusion of disconnected triples",
+                title=(
+                    "A full coupled-cluster singles and doubles model:"
+                    " The inclusion of disconnected triples"
+                ),
                 authors=[Author("G. D. Purvis"), Author("R. J. Bartlett")],
                 year=1982,
                 url="https://doi.org/10.1063/1.443164",
@@ -246,7 +250,10 @@ class CCSDGenerator(Generator[CCSDDataset]):
                 pages="1910-1918",
             ),
             Ref(
-                title="A massively parallel tensor contraction framework for coupled-cluster computations",
+                title=(
+                    "A massively parallel tensor contraction framework"
+                    " for coupled-cluster computations"
+                ),
                 authors=[
                     Author("E. Solomonik"),
                     Author("D. Matthews"),
@@ -266,8 +273,8 @@ class CCSDGenerator(Generator[CCSDDataset]):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "Generative AI was used to assist in debugging the benchmark. "
-            "This statement was written by hand."
+            "Generative AI was used to assist in debugging the benchmark. This"
+            " statement was written by hand."
         )
 
     @property
@@ -319,8 +326,8 @@ class CCSD(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "Computes T1 and T2 amplitudes for CCSD."
-            "Ported from the CTF (Cyclops Tensor Framework) CCSD reference implementation"
+            "Computes T1 and T2 amplitudes for CCSD. Ported from the CTF (Cyclops"
+            " Tensor Framework) CCSD reference implementation"
         )
 
     @property
@@ -335,7 +342,10 @@ class CCSD(Benchmark):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title="A full coupled-cluster singles and doubles model: The inclusion of disconnected triples",
+                title=(
+                    "A full coupled-cluster singles and doubles model:"
+                    " The inclusion of disconnected triples"
+                ),
                 authors=[Author("G. D. Purvis"), Author("R. J. Bartlett")],
                 year=1982,
                 url="https://doi.org/10.1063/1.443164",
@@ -345,7 +355,10 @@ class CCSD(Benchmark):
                 pages="1910-1918",
             ),
             Ref(
-                title="A massively parallel tensor contraction framework for coupled-cluster computations",
+                title=(
+                    "A massively parallel tensor contraction framework"
+                    " for coupled-cluster computations"
+                ),
                 authors=[
                     Author("E. Solomonik"),
                     Author("D. Matthews"),
@@ -365,19 +378,24 @@ class CCSD(Benchmark):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "Generative AI was used to assist in debugging the benchmark. "
-            "This statement was written by hand."
+            "Generative AI was used to assist in debugging the benchmark. This"
+            " statement was written by hand."
         )
 
     @property
     def motivation(self) -> str:
         return (
-            "Coupled cluster theory is one of the most accurate and widely used methods in"
-            "quantum chemistry for computing ground-state energies of molecular systems."
-            "The two-electron integral tensors (Vabef, Vabij, etc.) are antisymmetric, which"
-            "means roughly 3/4 of entries are redundant. Exploiting this antisymmetry reduces"
+            "Coupled cluster theory is one of the most accurate and widely used methods"
+            " in"
+            "quantum chemistry for computing ground-state energies of molecular"
+            " systems."
+            "The two-electron integral tensors (Vabef, Vabij, etc.) are antisymmetric,"
+            " which"
+            "means roughly 3/4 of entries are redundant. Exploiting this antisymmetry"
+            " reduces"
             "both storage and compute by up to 8x for 4-index tensors."
-            "Here antisymmetry means swapping an antisymmetric index pair flips the sign, for"
+            "Here antisymmetry means swapping an antisymmetric index pair flips the"
+            " sign, for"
             "example T[a,b,i,j] = -T[b,a,i,j] and T[a,b,i,j] = -T[a,b,j,i]."
         )
 

@@ -4,7 +4,6 @@ import numpy as np
 
 import saps.benchmarks.bellmanford as bellmanford
 from frameworks.saps_numpy import NumpyFramework
-from saps_framework import BinsparseFormat
 
 xp = NumpyFramework()
 
@@ -218,7 +217,6 @@ def test_bellman_ford_networks(matrix_builder, src):
     bellmanford.xp = xp
 
     A = matrix_builder()
-    edges = BinsparseFormat.from_numpy(A)
     (result,) = bellmanford.BellmanFordBenchmark().benchmark((A,), {"src": src})
     result = result.ravel()
     ref = bellman_ford_reference(A, src)

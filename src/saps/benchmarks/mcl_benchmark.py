@@ -159,9 +159,9 @@ class MCLBenchmark(Benchmark):
             "kernels has been extensively studied in linear algebra, MCL "
             "serves as an effective benchmark for evaluating the performance "
             'of iterative numerical methods." The input is a sparse adjacency '
-            "matrix. The algorithm uses sparse matrix multiplication and "
-            "element-wise operations repeatedly, so it depends heavily on "
-            "efficient sparse matrix functions."
+            "matrix. The algorithm uses sparse matrix multiplication and element-wise"
+            " operations repeatedly, so it depends heavily on efficient sparse matrix"
+            " functions."
         )
 
     @property

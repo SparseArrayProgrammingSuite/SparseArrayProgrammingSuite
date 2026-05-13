@@ -21,13 +21,14 @@ class PageRankBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "First the code calls from_binsparse on the wrapper to translate from binsparse COO. "
-            "Once that is done the out-degree of the adjacency is found by summing columns, giving "
-            "us the number of outbound links per page. If out-degree is not 0, we divide by k "
-            "(the number of outbound links). If out-degree is 0, that means the node had no links, "
-            "so we distribute it evenly among all nodes to preserve probability mass. We then run "
-            "iteration multiple times so that the PageRank vector converges to its theoretical "
-            "stationary value."
+            "First the code calls from_binsparse on the wrapper to translate from"
+            " binsparse COO. Once that is done the out-degree of the adjacency is found"
+            " by summing columns, giving us the number of outbound links per page. If"
+            " out-degree is not 0, we divide by k (the number of outbound links). If"
+            " out-degree is 0, that means the node had no links, so we distribute it"
+            " evenly among all nodes to preserve probability mass. We then run"
+            " iteration multiple times so that the PageRank vector converges to its"
+            " theoretical stationary value."
         )
 
     @property
@@ -70,9 +71,9 @@ class PageRankBenchmark(Benchmark):
     @property
     def ai_disclosure(self):
         return (
-            "No generative AI was used to construct the benchmark function itself. "
-            "Generative AI might have been used to construct tests. This statement "
-            "was written by hand."
+            "No generative AI was used to construct the benchmark function itself."
+            " Generative AI might have been used to construct tests. This statement was"
+            " written by hand."
         )
 
     @property

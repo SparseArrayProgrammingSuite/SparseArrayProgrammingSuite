@@ -188,12 +188,11 @@ class LSQRBenchmark(Benchmark):
             "C. C. Paige and M. A. Saunders, "
             '"LSQR: An Algorithm for Sparse Linear Equations and Sparse Least '
             'Squares," ACM Transactions on Mathematical Software, vol. 8, '
-            "no. 1, 1982, p. 43. "
-            "The main computation of the algorithm is 2 SpMVs per iteration Av "
-            "and ATu. Through sparsity the computation is lowered from two "
-            "operations of O(n^2) to two O(nnz). This efficiency allows the "
-            "algorithm to handle massive, ill-conditioned systems with very low "
-            "storage requirements."
+            "no. 1, 1982, p. 43. The main computation of the algorithm is 2 SpMVs per"
+            " iteration Av and ATu. Through sparsity the computation is lowered from"
+            " two operations of O(n^2) to two O(nnz). This efficiency allows the"
+            " algorithm to handle massive, ill-conditioned systems with very low"
+            " storage requirements."
         )
 
     @property

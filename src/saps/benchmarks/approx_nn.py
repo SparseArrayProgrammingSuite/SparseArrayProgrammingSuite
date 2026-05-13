@@ -69,8 +69,8 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
     @property
     def description(self) -> str:
         return (
-            "Generates uniformly random data/query matrices and sparse random projection "
-            "matrices for JL approximate nearest-neighbor."
+            "Generates uniformly random data/query matrices and sparse random"
+            " projection matrices for JL approximate nearest-neighbor."
         )
 
     @property
@@ -139,8 +139,8 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
                 name="small",
                 pretty_name="Small JL ANN",
                 description=(
-                    "Small random dense data and query matrices with sparse "
-                    "random projection."
+                    "Small random dense data and query matrices with sparse random"
+                    " projection."
                 ),
                 tags=["small", "rnla", "sparse"],
                 n_samples=256,
@@ -154,8 +154,8 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
                 name="medium",
                 pretty_name="Medium JL ANN",
                 description=(
-                    "Medium random dense data and query matrices with sparse "
-                    "random projection."
+                    "Medium random dense data and query matrices with sparse random"
+                    " projection."
                 ),
                 tags=["medium", "rnla", "sparse"],
                 n_samples=1024,
@@ -169,8 +169,8 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
                 name="large",
                 pretty_name="Large JL ANN",
                 description=(
-                    "Large random dense data and query matrices with sparse "
-                    "random projection."
+                    "Large random dense data and query matrices with sparse random"
+                    " projection."
                 ),
                 tags=["large", "rnla", "sparse"],
                 n_samples=4096,
@@ -251,9 +251,8 @@ class JLApproxNearestNeighbor(Benchmark):
     @property
     def description(self):
         return (
-            "Benchmarks Johnson-Lindenstrauss projection followed by "
-            "k-nearest-neighbor "
-            "ranking in projected space."
+            "Benchmarks Johnson-Lindenstrauss projection followed by"
+            " k-nearest-neighbor ranking in projected space."
         )
 
     @property

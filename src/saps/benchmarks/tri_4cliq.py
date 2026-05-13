@@ -16,7 +16,8 @@ class TriangleCountBenchmark(Benchmark):
     @property
     def motivation(self) -> str:
         return (
-            "Adjacency matrices are often sparse, and are used as input in this problem."
+            "Adjacency matrices are often sparse, and are used as input in this"
+            " problem."
             "'It is generally known that counting the exact number of"
             "triangles in a graph G can be described using the language of"
             "linear algebra as 1/6 Γ(A3),"
@@ -34,13 +35,13 @@ class TriangleCountBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "Triangle Counting: Given adjacency matrix A, # triangles = trace(A^3) // 6."
-            "This counts the number of walks of length 3 that start at vertex i"
-            "and end at vertex i, which is exactly a triangle. Divide by 6 to avoid overcounting."
-            "These methods are implemented using the property that"
-            "multiplying a graph's adjacency matrix by itself n times"
-            "yields the number of walks of length n that begin at the vertex denoted by the row label"
-            "and end at the vertex denoted by the column label."
+            "Triangle Counting: Given adjacency matrix A, # triangles = trace(A^3) //"
+            " 6. This counts the number of walks of length 3 that start at vertex i and"
+            " end at vertex i, which is exactly a triangle. Divide by 6 to avoid"
+            " overcounting. These methods are implemented using the property that"
+            " multiplying a graph's adjacency matrix by itself n times yields the"
+            " number of walks of length n that begin at the vertex denoted by the row"
+            " label and end at the vertex denoted by the column label."
         )
 
     @property
@@ -55,7 +56,10 @@ class TriangleCountBenchmark(Benchmark):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title="First look: Linear algebra-based triangle counting without matrix multiplication",
+                title=(
+                    "First look: Linear algebra-based triangle counting"
+                    " without matrix multiplication"
+                ),
                 authors=[
                     Author("T. M. Low"),
                     Author("V. N. Rao"),
@@ -109,7 +113,8 @@ class FourCliqueCountBenchmark(Benchmark):
     @property
     def motivation(self) -> str:
         return (
-            "Adjacency matrices are often sparse, and are used as input in this problem."
+            "Adjacency matrices are often sparse, and are used as input in this"
+            " problem."
             "'It is generally known that counting the exact number of"
             "triangles in a graph G can be described using the language of"
             "linear algebra as 1/6 Γ(A3),"
@@ -127,15 +132,14 @@ class FourCliqueCountBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "4-clique Counting: A 4-clique must contain 6 edges that connect all 4 vertices."
-            "The einsum does the following: for a given vertex i, checks for existence"
-            "of 3 edges to 3 other vertices, then checks for existence"
-            "of 3 edges between those 3 vertices."
-            "This constitutes a 4-clique. Divide by 24 to avoid overcounting."
-            "These methods are implemented using the property that"
-            "multiplying a graph's adjacency matrix by itself n times"
-            "yields the number of walks of length n that begin at the vertex denoted by the row label"
-            "and end at the vertex denoted by the column label."
+            "4-clique Counting: A 4-clique must contain 6 edges that connect all 4"
+            " vertices. The einsum does the following: for a given vertex i, checks for"
+            " existence of 3 edges to 3 other vertices, then checks for existence of 3"
+            " edges between those 3 vertices. This constitutes a 4-clique. Divide by 24"
+            " to avoid overcounting. These methods are implemented using the property"
+            " that multiplying a graph's adjacency matrix by itself n times yields the"
+            " number of walks of length n that begin at the vertex denoted by the row"
+            " label and end at the vertex denoted by the column label."
         )
 
     @property
@@ -150,7 +154,10 @@ class FourCliqueCountBenchmark(Benchmark):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title="First look: Linear algebra-based triangle counting without matrix multiplication",
+                title=(
+                    "First look: Linear algebra-based triangle counting"
+                    " without matrix multiplication"
+                ),
                 authors=[
                     Author("T. M. Low"),
                     Author("V. N. Rao"),
