@@ -77,10 +77,8 @@ class FastSVBenchmark(Benchmark):
         return []
 
     def benchmark(self, data, meta):
-        (adjacency_matrix,) = data
-
         # Inlined benchmark_fastsv helper
-        A = xp.from_binsparse(adjacency_matrix)
+        A = xp.from_binsparse(data[0])
         A = A != 0
 
         (n, m) = A.shape
@@ -93,8 +91,6 @@ class FastSVBenchmark(Benchmark):
 
         while True:
             dup = gf
-
-            A, f, gf = [A, f, gf]
 
             # step 1: stochastic hooking
             mngf = xp.min(xp.where(A, xp.expand_dims(gf, 0), int_max), axis=1)
@@ -114,10 +110,7 @@ class FastSVBenchmark(Benchmark):
             # step 5: check termination
             stop = xp.all(dup == gf)
 
-            f, gf, stop = [f, gf, stop]
-
             if stop:
                 break
 
-        result = xp.to_binsparse(f)
-        return [result]
+        return [f]

@@ -237,10 +237,8 @@ class JacobiBenchmark(Benchmark):
 
         while self._norm(xp, r)[()] >= tolerance and it < max_iters:
             x = x + r / d
-            x = x
 
             r = b - A @ x
-            r = r
             it += 1
         if it >= max_iters:
             raise RuntimeError(

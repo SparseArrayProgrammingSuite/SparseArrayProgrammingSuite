@@ -20,16 +20,9 @@ def test_cp_als_reconstruction_error(xp):
 
     X = cp5_als.xp.from_binsparse(X_bin)
 
-    A_bin, B_bin, C_bin, D_bin, E_bin, lambda_bin = CP5_ALS().benchmark(
-        (X,), {"rank": rank, "max_iter": max_iter}
+    A, B, C, D, E, L = CP5_ALS().benchmark(
+        (X,), {"rank":rank, "max_iter":max_iter}
     )
-
-    A = cp5_als.xp.from_binsparse(A_bin)
-    B = cp5_als.xp.from_binsparse(B_bin)
-    C = cp5_als.xp.from_binsparse(C_bin)
-    D = cp5_als.xp.from_binsparse(D_bin)
-    E = cp5_als.xp.from_binsparse(E_bin)
-    L = cp5_als.xp.from_binsparse(lambda_bin)
 
     Y = cp5_als.xp.einsum(
         "Y[i,j,k,l,m] += L[r] * A[i,r] * B[j,r] * C[k,r] * D[l, r] * E[m, r]",
@@ -58,15 +51,15 @@ def test_cp_als_factorizable_basic(xp):
 
     X = cp5_als.xp.from_binsparse(X_bin)
 
-    A_bin, B_bin, C_bin, D_bin, E_bin, lambda_bin = CP5_ALS().benchmark(
-        (X,), {"rank": rank, "max_iter": max_iter}
+    A, B, C, D, E, lambda_vals = CP5_ALS().benchmark(
+        (X,), {"rank":rank, "max_iter":max_iter}
     )
 
-    dim1, dim2, dim3, dim4, dim5 = X_bin.data["shape"]
-    assert A_bin.data["shape"] == (dim1, rank)
-    assert B_bin.data["shape"] == (dim2, rank)
-    assert C_bin.data["shape"] == (dim3, rank)
-    assert D_bin.data["shape"] == (dim4, rank)
-    assert E_bin.data["shape"] == (dim5, rank)
-    assert lambda_bin.data["shape"] == (rank,)
+    dim1, dim2, dim3, dim4,dim5 = X_bin.data["shape"]
+    assert A.shape == (dim1, rank)
+    assert B.shape == (dim2, rank)
+    assert C.shape == (dim3, rank)
+    assert D.shape == (dim4, rank)
+    assert E.shape == (dim5, rank)
+    assert lambda_vals.shape == (rank,)
     print(f"CP-ALS factorizable test passed with {xp.__class__.__name__}")

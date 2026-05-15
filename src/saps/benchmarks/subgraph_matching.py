@@ -476,4 +476,4 @@ class SubgraphMatching(Benchmark):
             for key, val in sp_mats.items():
                 sp_mats[key] = xp.from_binsparse(val)
             counts[i] = xp.einsum(expr, **sp_mats)
-        return xp.to_binsparse(counts)
+        return [xp.asarray(counts)]

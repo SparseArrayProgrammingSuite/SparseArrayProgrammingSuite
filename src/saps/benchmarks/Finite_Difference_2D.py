@@ -369,4 +369,4 @@ class FiniteDifference2DBenchmark(Benchmark):
 
             u[n + 1] = u_next
 
-        return [xp.to_binsparse(u)]
+        return [u]

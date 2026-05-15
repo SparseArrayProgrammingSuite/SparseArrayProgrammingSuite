@@ -25,7 +25,7 @@ def test_basic_pagerank_cases(A, expected):
     pr.xp = xp
     (result_bin,) = pr.PageRankBenchmark().benchmark((A_bin,), {})
 
-    result = xp.from_binsparse(result_bin).ravel()
+    result = result_bin.ravel()
 
     if expected is not None:
         assert np.allclose(result, expected, atol=1e-2)
@@ -53,7 +53,7 @@ def test_pagerank_against_networkx():
 
     pr.xp = xp
     (result_bin,) = pr.PageRankBenchmark().benchmark((A_bin,), {})
-    result = xp.from_binsparse(result_bin).ravel()
+    result = result_bin.ravel()
 
     expected_dict = nx.pagerank(G, alpha=0.85, max_iter=100, tol=1e-6)
     expected = np.array([expected_dict[i] for i in range(len(G))])

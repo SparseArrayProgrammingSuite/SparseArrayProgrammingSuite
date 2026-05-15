@@ -89,7 +89,6 @@ class BreadthFirstSearchBenchmark(Benchmark):
         level_idx = 1
         frontier_count = 1
         while frontier_count > 0:
-            visited, frontier, level = [visited, frontier, level]
             level = xp.where(frontier, level_idx, level)
             visited = xp.logical_or(visited, frontier)
             frontier = xp.einsum(

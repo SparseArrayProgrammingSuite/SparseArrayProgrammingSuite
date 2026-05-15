@@ -277,7 +277,6 @@ class CP5_ALS(Benchmark):
 
         for _iteration in range(max_iter):
             print(_iteration, "/", max_iter)
-            (A, B, C, D, E) = (A, B, C, D, E)
             # Update A
             mttkrp_result = xp.einsum(
                 "mttkrp_result[i, r] += X[i, j, k, l, m] * "
@@ -362,10 +361,6 @@ class CP5_ALS(Benchmark):
             G_pinv = xp.linalg.pinv(G)
             E = xp.matmul(mttkrp_result, G_pinv)
 
-            A, B, C, D, E = (A, B, C, D, E)
-
-        (A, B, C, D, E) = (A, B, C, D, E)
-
         # Normalizing factors
         A_norms_sq = xp.einsum("norms[r] += A[i, r] * A[i, r]", A=A)
         B_norms_sq = xp.einsum("norms[r] += B[j, r] * B[j, r]", B=B)
@@ -405,23 +400,4 @@ class CP5_ALS(Benchmark):
         D = xp.divide(D, D_norms_safe)
         E = xp.divide(E, E_norms_safe)
 
-        # Now compute everything at once
-
-        (A, B, C, D, E, lambda_vals) = (A, B, C, D, E, lambda_vals)
-
-        # Convert to binsparse format
-        A_bench_out = xp.to_binsparse(A)
-        B_bench_out = xp.to_binsparse(B)
-        C_bench_out = xp.to_binsparse(C)
-        D_bench_out = xp.to_binsparse(D)
-        E_bench_out = xp.to_binsparse(E)
-        lambda_bench_out = xp.to_binsparse(lambda_vals)
-
-        return (
-            A_bench_out,
-            B_bench_out,
-            C_bench_out,
-            D_bench_out,
-            E_bench_out,
-            lambda_bench_out,
-        )
+        return [A, B, C, D, E, lambda_vals]

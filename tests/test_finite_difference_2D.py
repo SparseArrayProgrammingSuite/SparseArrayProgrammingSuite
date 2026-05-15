@@ -106,7 +106,7 @@ def test_linear_advection_cfl_check(xp, cx, cy, dx, dt, dy):
         dy=dy,
     )
 
-    result = xp.from_binsparse(result_bench)
+    result = result_bench
     cfl_x = (cx * dt) / dx
     cfl_y = (cy * dt) / dy
 
@@ -156,7 +156,7 @@ def test_nonlinear_flux(xp, dx, dy, dt, flux):
         dy=dy,
     )
 
-    result = xp.from_binsparse(result_bench)
+    result = result_bench
 
     # Checking to see if values are finite
     assert xp.all(xp.isfinite(result))
@@ -209,7 +209,7 @@ def test__linear_adv_sparse_stencil_check(xp, dx, dy, dt):
         dy=dy,
     )
 
-    result = xp.from_binsparse(result_bench)
+    result = result_bench
 
     final_results = result[-1]
 

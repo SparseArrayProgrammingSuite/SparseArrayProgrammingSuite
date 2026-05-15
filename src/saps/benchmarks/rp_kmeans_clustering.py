@@ -219,7 +219,6 @@ class RPKMeansBenchmark(Benchmark):
         assert eps > 0 and eps < 1 / 3
         assert k > 0
         A = data[0]
-        A = A
         n, d = A.shape
         t = int(c * math.ceil(k / eps**2))
         value = 1 / (t**0.5)

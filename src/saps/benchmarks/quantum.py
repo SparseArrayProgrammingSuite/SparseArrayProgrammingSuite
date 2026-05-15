@@ -175,12 +175,8 @@ class QuantumStatevectorBenchmark(Benchmark):
         # Load the initial state
         state = data[0]
 
-        # Single lazy chain: apply each gate to each qubit sequentially.
-        state = state
+        # Apply each gate to each qubit sequentially.
         for q in range(nqubits):
             state = apply_single_qubit_gate(xp, state, gates[q], q, nqubits)
-
-        # Evaluate the lazy chain
-        state = state
 
         return [state]

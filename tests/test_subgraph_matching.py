@@ -21,7 +21,6 @@ def test_single_edge_label_count():
         "names": ["local_edges"],
     }
 
-    results = subgraph_matching.SubgraphMatching().benchmark(matrices, meta)
-    results = xp.from_binsparse(results)
+    (results,) = subgraph_matching.SubgraphMatching().benchmark(matrices, meta)
 
     assert results[0] == meta["gts"][0]
