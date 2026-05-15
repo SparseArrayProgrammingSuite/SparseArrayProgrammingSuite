@@ -199,10 +199,7 @@ class Benchmark(Tagged, Attributed, Motivated):
         cls.setup.pretty_source = "\n".join(
             inspect.getsource(generator.generate) for generator in instance.generators
         )
-        backend_type = os.environ.get("REMOTE_STORAGE_BACKEND")
-        backend_bucket = os.environ.get("REMOTE_STORAGE_BUCKET")
-        instance.backend = build_storage_backend(backend_type, backend_bucket)
-    
+
     @property
     def params(self):
         return [
@@ -212,6 +209,14 @@ class Benchmark(Tagged, Attributed, Motivated):
         ]
 
     param_names = ["dataset"]
+
+    @property
+    def backend(self):
+        if getattr(self, "_backend", None) is None:
+            backend_type = os.environ.get("REMOTE_STORAGE_BACKEND")
+            backend_bucket = os.environ.get("REMOTE_STORAGE_BUCKET")
+            self._backend = build_storage_backend(backend_type, backend_bucket)
+        return self._backend
 
     def setup(self, param):
         input, meta = self.backend.retrieve_dataset(param.generator, param.dataset)

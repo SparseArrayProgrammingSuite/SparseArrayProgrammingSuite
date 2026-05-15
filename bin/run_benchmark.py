@@ -90,7 +90,7 @@ def main() -> int:
     )
     parser.add_argument(
         "--remote-storage-backend",
-        default=['s3'],
+        default="s3",
         help=(
             "Remote storage backend to use for uploading and downloading datasets "
             "(local or s3)"
@@ -98,7 +98,7 @@ def main() -> int:
     )
     parser.add_argument(
         "--remote-storage-bucket",
-        default=['s3://sparse-array-programming-suite'],
+        default="sparse-array-programming-suite",
         help=(
             "Remote storage bucket name to use for uploading and downloading datasets "
             "(local backend will use this as a directory path)"
@@ -201,8 +201,8 @@ def main() -> int:
                         "frameworks/saps_scipy.py",
                         "frameworks/saps_sparse.py",
                     ],
-                    "REMOTE_STORAGE_BACKEND": args.remote_storage_backend,
-                    "REMOTE_STORAGE_BUCKET": args.remote_storage_bucket,
+                    "REMOTE_STORAGE_BACKEND": [args.remote_storage_backend],
+                    "REMOTE_STORAGE_BUCKET": [args.remote_storage_bucket],
                 },
             },
         ),
