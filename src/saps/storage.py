@@ -33,11 +33,14 @@ class StorageBackend(ABC):
         return f"{generator.name}/{dataset.name}/{digest}.pkl"
 
     def serialize_data(self, data: DataInstance, local_path: Path) -> None:
+        # TODO: don't use pickle, instead write a serializer for BinSparseFormat
         local_path.parent.mkdir(parents=True, exist_ok=True)
         with open(local_path, "wb") as f:
-            pickle.dump(data, f)  # TODO: don't use pickle
+            pickle.dump(data, f)  
+
 
     def deserialize_data(self, local_path: Path) -> DataInstance:
+        # TODO: don't use pickle, instead write a deserializer for BinSparseFormat
         with open(local_path, "rb") as f:
             return pickle.load(f)  # TODO: don't use pickle
 
