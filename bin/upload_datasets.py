@@ -20,37 +20,10 @@ from asv.results import Results
 from asv.runner import run_benchmarks
 
 import saps
-
-
-def format_results(results: Results, benchmarks: Benchmarks) -> dict:
-    """Return a JSON-serializable snapshot of benchmark results."""
-    entries: dict[str, dict] = {}
-    for name in sorted(results.get_all_result_keys()):
-        benchmark = benchmarks.get(name)
-        params = benchmark["params"] if benchmark is not None else []
-        entries[name] = {
-            "result": results.get_result_value(name, params),
-            "stats": results.get_result_stats(name, params),
-            "samples": results.get_result_samples(name, params),
-            "duration_seconds": results.duration.get(name),
-            "started_at": results.started_at.get(name),
-            "errcode": results.errcode.get(name),
-            "stderr": results.stderr.get(name),
-        }
-
-    return {
-        "commit_hash": results.commit_hash,
-        "date": results.date,
-        "env_name": results.env_name,
-        "env_vars": results.env_vars,
-        "params": results.params,
-        "result_count": len(entries),
-        "results": entries,
-    }
-
+from saps.storage import upload_dataset
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run SAPS benchmarks")
+    parser = argparse.ArgumentParser(description="Upload SAPS datasets to Remote Storage")
     parser.add_argument(
         "--config",
         default=None,
@@ -86,22 +59,6 @@ def main() -> int:
         help=(
             "SAPS tag include filter (can be passed more than once, "
             "applies to datasets, generators, and benchmarks)"
-        ),
-    )
-    parser.add_argument(
-        "--remote-storage-backend",
-        default=['s3'],
-        help=(
-            "Remote storage backend to use for uploading and downloading datasets "
-            "(local or s3)"
-        ),
-    )
-    parser.add_argument(
-        "--remote-storage-bucket",
-        default=['s3://sparse-array-programming-suite'],
-        help=(
-            "Remote storage bucket name to use for uploading and downloading datasets "
-            "(local backend will use this as a directory path)"
         ),
     )
     parser.add_argument(
@@ -195,15 +152,6 @@ def main() -> int:
                     "lark": ["1.3.0"],
                     "ssgetpy": ["1.0rc2"],
                 },
-                "env_nobuild": {
-                    "SAPS_FRAMEWORK": [
-                        "frameworks/saps_numpy.py",
-                        "frameworks/saps_scipy.py",
-                        "frameworks/saps_sparse.py",
-                    ],
-                    "REMOTE_STORAGE_BACKEND": args.remote_storage_backend,
-                    "REMOTE_STORAGE_BUCKET": args.remote_storage_bucket,
-                },
             },
         ),
     }
@@ -213,36 +161,6 @@ def main() -> int:
 
     log.info(f"Using SAPS outputs directory: {outputs_dir}")
     log.info(f"Using SAPS machine files directory: {machine_files_dir}")
-
-    # Determine timeout with hierarchy: CLI arg > config > 5 seconds default
-    if args.timeout is not None:
-        timeout = args.timeout
-    elif hasattr(conf, "timeout") and conf.timeout is not None:
-        timeout = conf.timeout
-    else:
-        timeout = 5
-
-    # Convert relative SAPS_FRAMEWORK paths to absolute paths so child processes can
-    # find them
-    cwd = os.getcwd()
-    if "env_nobuild" in conf.matrix and "SAPS_FRAMEWORK" in conf.matrix["env_nobuild"]:
-        abs_paths = []
-        for path in conf.matrix["env_nobuild"]["SAPS_FRAMEWORK"]:
-            path_obj = Path(path)
-            if path_obj.is_absolute():
-                abs_paths.append(path)
-            else:
-                abs_paths.append(str(Path(cwd) / path_obj))
-        conf.matrix["env_nobuild"]["SAPS_FRAMEWORK"] = abs_paths
-
-    machine_params = Machine.load(
-        machine_name=args.machine,
-        interactive=True,
-        use_defaults=True,
-    )
-
-    # Save machine file to SAPS machine files directory
-    machine_params.save(str(machine_files_dir))
 
     environments = list(get_environments(conf, None))
     if not environments:
@@ -298,7 +216,6 @@ def main() -> int:
         return bool(exclude_set and exclude_set.intersection(obj["tags"]))
 
     skips = []
-    benchmarks._benchmark_selection = {}
     for name in benchmarks:
         if name not in metadata:
             log.warning(
@@ -311,7 +228,6 @@ def main() -> int:
         if is_exclude(metadata[name]):
             skips.append(name)
             continue
-        benchmarks._benchmark_selection[name] = []
         generators = {gen["name"]: gen for gen in metadata[name]["generators"]}
         param_combos = list(product(*benchmarks[name]["params"]))
         for idx, param in enumerate(param_combos):
@@ -335,44 +251,10 @@ def main() -> int:
                 )
             ):
                 continue
-            benchmarks._benchmark_selection[name].append(idx)
+            upload_dataset(generator, dataset, args.remote_storage)
+            # upload dataset to s3 if not already uploaded
+            # (this is a placeholder, actual upload code would go here)
 
-        if not benchmarks._benchmark_selection[name]:
-            skips.append(name)
-
-    benchmarks = benchmarks.filter_out(set(skips))
-
-    print(f"Discovered {len(benchmarks)} benchmark entries")
-    print(f"Using timeout: {timeout} seconds")
-
-    for env in environments:
-        Setup.perform_setup([env], parallel=1)
-
-        params = dict(machine_params.__dict__)
-        params["python"] = env.python
-        params.update(env.requirements)
-
-        results = Results(
-            params=params,
-            requirements=env.requirements,
-            commit_hash=commit_hash,
-            date=repo.get_date(commit_hash),
-            python=env.python,
-            env_name=env.name,
-            env_vars=env.env_vars,
-        )
-
-        run_benchmarks(
-            benchmarks=benchmarks,
-            env=env,
-            results=results,
-            show_stderr=args.show_stderr,
-            quick=args.quick,
-            extra_params={"timeout": timeout},
-        )
-
-        print("Results object:", results)
-        print(json.dumps(format_results(results, benchmarks), indent=2, default=str))
     return 0
 
 

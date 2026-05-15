@@ -1,9 +1,11 @@
 import inspect
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+import os
 from typing import Any, Generic, TypeVar
 
 from saps.framework import xp
+from saps.storage import build_storage_backend
 from saps_framework.binsparse_format import BinsparseFormat
 
 
@@ -121,6 +123,7 @@ class Dataset(Tagged):
 
 
 TDataset = TypeVar("TDataset", bound=Dataset)
+DataInstance = TypeVar("DataInstance", bound=tuple[list[BinsparseFormat], Any])
 
 
 class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
@@ -133,7 +136,7 @@ class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
         return [dataset.name for dataset in self.datasets]
 
     @abstractmethod
-    def generate(self, dataset: TDataset) -> tuple[list[BinsparseFormat], Any]: ...
+    def generate(self, dataset: TDataset) -> DataInstance: ...
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -157,9 +160,6 @@ class Param(Generic[TDataset]):
 
     def __repr__(self):
         return f"{self.generator.name}.{self.dataset.name}"
-
-    def generate(self):
-        return self.generator.generate(self.dataset)
 
 
 class Benchmark(Tagged, Attributed, Motivated):
@@ -199,7 +199,10 @@ class Benchmark(Tagged, Attributed, Motivated):
         cls.setup.pretty_source = "\n".join(
             inspect.getsource(generator.generate) for generator in instance.generators
         )
-
+        backend_type = os.environ.get("REMOTE_STORAGE_BACKEND")
+        backend_bucket = os.environ.get("REMOTE_STORAGE_BUCKET")
+        instance.backend = build_storage_backend(backend_type, backend_bucket)
+    
     @property
     def params(self):
         return [
@@ -211,7 +214,7 @@ class Benchmark(Tagged, Attributed, Motivated):
     param_names = ["dataset"]
 
     def setup(self, param):
-        input, meta = param.generate()
+        input, meta = self.backend.retrieve_dataset(param.generator, param.dataset)
         self._input = input
         self._meta = meta
 
