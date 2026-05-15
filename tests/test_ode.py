@@ -1,240 +1,63 @@
 import numpy as np
+import pytest
 from scipy.integrate import solve_ivp
 
 from saps.benchmarks.ode import (
-    RK4,
-    BackwardEuler,
-    BrusselatorGenerator,
-    ForwardEuler,
-    LotkaVolterraGenerator,
-    RCGenerator,
-    RLCGenerator,
+    BrusselatorBackwardEuler,
+    BrusselatorForwardEuler,
+    BrusselatorRK4,
+    LotkaVolterraBackwardEuler,
+    LotkaVolterraForwardEuler,
+    LotkaVolterraRK4,
+    RCBackwardEuler,
+    RCForwardEuler,
+    RCRK4,
+    RLCBackwardEuler,
+    RLCForwardEuler,
+    RLCRK4,
 )
 
 
-def test_euler_forward_rc():
-    """Test Forward Euler with RC circuit."""
-    benchmark = ForwardEuler()
-    generator = RCGenerator()
-    dataset = generator.datasets[0]  # rc_small
+def _run(bench_cls):
+    bench = bench_cls()
+    generator = bench.generators[0]
+    dataset = generator.datasets[0]
     data, meta = generator.generate(dataset)
-
-    dydx, span, y0, step = data
-
-    time, y_euler = benchmark.benchmark(data, meta)
-    y_euler = np.array(y_euler)
-
-    # Reference solution
-    actual = solve_ivp(dydx, span, y0, t_eval=time)
-
-    error = np.max(np.abs(y_euler - actual.y.T))
-    assert error < 0.05, f"Exceeds error tolerance: {error}"
-
-
-def test_euler_forward_rlc():
-    """Test Forward Euler with RLC circuit."""
-    benchmark = ForwardEuler()
-    generator = RLCGenerator()
-    dataset = generator.datasets[0]  # rlc_small
-    data, meta = generator.generate(dataset)
-
-    dydx, span, y0, step = data
-
-    time, y_euler = benchmark.benchmark(data, meta)
-    y_euler = np.array(y_euler)
-
-    # Reference solution
-    actual = solve_ivp(dydx, span, y0, t_eval=time)
-
-    error = np.max(np.abs(y_euler[:, 0] - actual.y[0].T))
-    assert error < 0.05, f"Exceeds error tolerance: {error}"
-
-
-def test_euler_forward_lotka_volterra():
-    """Test Forward Euler with Lotka-Volterra equations."""
-    benchmark = ForwardEuler()
-    generator = LotkaVolterraGenerator()
-    dataset = generator.datasets[0]  # lotka_volterra_small
-    data, meta = generator.generate(dataset)
-
-    dydx, span, y0, step = data
-
-    time, y_euler = benchmark.benchmark(data, meta)
-    y_euler = np.array(y_euler)
-
-    # Reference solution
-    actual = solve_ivp(dydx, span, y0, t_eval=time)
-
-    error = np.max(np.abs(y_euler - actual.y.T))
-    assert error < 10.0, f"Exceeds error tolerance: {error}"
-
-
-def test_backward_euler_rc():
-    """Test Backward Euler with RC circuit."""
-    benchmark = BackwardEuler()
-    generator = RCGenerator()
-    dataset = generator.datasets[0]  # rc_small
-    data, meta = generator.generate(dataset)
-
-    dydx, span, y0, step = data
-
-    time, y_be = benchmark.benchmark(data, meta)
-    y_be = np.array(y_be)
-
-    # Reference solution
-    actual = solve_ivp(dydx, span, y0, t_eval=time)
-
-    error = np.max(np.abs(y_be - actual.y.T))
-    assert error < 0.05, f"Exceeds error tolerance: {error}"
-
-
-def test_backward_euler_rlc():
-    """Test Backward Euler with RLC circuit."""
-    benchmark = BackwardEuler()
-    generator = RLCGenerator()
-    dataset = generator.datasets[0]  # rlc_small
-    data, meta = generator.generate(dataset)
-
-    dydx, span, y0, step = data
-
-    time, y_be = benchmark.benchmark(data, meta)
-    y_be = np.array(y_be)
-
-    # Reference solution
-    actual = solve_ivp(dydx, span, y0, t_eval=time)
-
-    error = np.max(np.abs(y_be[:, 0] - actual.y[0].T))
-    assert error < 0.05, f"Exceeds error tolerance: {error}"
-
-
-def test_backward_euler_lotka_volterra():
-    """Test Backward Euler with Lotka-Volterra equations."""
-    benchmark = BackwardEuler()
-    generator = LotkaVolterraGenerator()
-    dataset = generator.datasets[0]  # lotka_volterra_small
-    data, meta = generator.generate(dataset)
-
-    dydx, span, y0, step = data
-
-    time, y_be = benchmark.benchmark(data, meta)
-    y_be = np.array(y_be)
-
-    # Reference solution
-    actual = solve_ivp(dydx, span, y0, t_eval=time)
-
-    error = np.max(np.abs(y_be - actual.y.T))
-    assert error < 10.0, f"Exceeds error tolerance: {error}"
-
-
-def test_rk4_rc():
-    """Test RK4 with RC circuit."""
-    benchmark = RK4()
-    generator = RCGenerator()
-    dataset = generator.datasets[0]  # rc_small
-    data, meta = generator.generate(dataset)
-
-    dydx, span, y0, step = data
-
-    time, y_rk4 = benchmark.benchmark(data, meta)
-    y_rk4 = np.array(y_rk4)
-
-    # Reference solution
-    actual = solve_ivp(dydx, span, y0, t_eval=time)
-
-    error = np.max(np.abs(y_rk4 - actual.y.T))
-    assert error < 0.05, f"Exceeds error tolerance: {error}"
-
-
-def test_rk4_rlc():
-    """Test RK4 with RLC circuit."""
-    benchmark = RK4()
-    generator = RLCGenerator()
-    dataset = generator.datasets[0]  # rlc_small
-    data, meta = generator.generate(dataset)
-
-    dydx, span, y0, step = data
-
-    time, y_rk4 = benchmark.benchmark(data, meta)
-    y_rk4 = np.array(y_rk4)
-
-    # Reference solution
-    actual = solve_ivp(dydx, span, y0, t_eval=time)
-
-    error = np.max(np.abs(y_rk4[:, 0] - actual.y[0].T))
-    assert error < 0.05, f"Exceeds error tolerance: {error}"
-
-
-def test_rk4_lotka_volterra():
-    """Test RK4 with Lotka-Volterra equations."""
-    benchmark = RK4()
-    generator = LotkaVolterraGenerator()
-    dataset = generator.datasets[0]  # lotka_volterra_small
-    data, meta = generator.generate(dataset)
-
-    dydx, span, y0, step = data
-
-    time, y_rk4 = benchmark.benchmark(data, meta)
-    y_rk4 = np.array(y_rk4)
-
-    # Reference solution
-    actual = solve_ivp(dydx, span, y0, t_eval=time)
-
-    error = np.max(np.abs(y_rk4 - actual.y.T))
-    assert error < 10.0, f"Exceeds error tolerance: {error}"
-
-
-def test_forward_euler_brusselator():
-    """Test Forward Euler with Brusselator."""
-    benchmark = ForwardEuler()
-    generator = BrusselatorGenerator()
-    dataset = generator.datasets[0]  # brusselator_4
-    data, meta = generator.generate(dataset)
-
-    dydx, span, y0, step = data
-
-    time, y_fe = benchmark.benchmark(data, meta)
-    y_fe = np.array(y_fe).real
-
-    # Reference solution
-    actual = solve_ivp(dydx, span, y0, t_eval=time)
-
-    error = np.max(np.abs(y_fe - actual.y.T))
-    assert error < 0.5, f"Exceeds error tolerance: {error}"
-
-
-def test_backward_euler_brusselator():
-    """Test Backward Euler with Brusselator."""
-    benchmark = BackwardEuler()
-    generator = BrusselatorGenerator()
-    dataset = generator.datasets[0]  # brusselator_4
-    data, meta = generator.generate(dataset)
-
-    dydx, span, y0, step = data
-
-    time, y_be = benchmark.benchmark(data, meta)
-    y_be = np.array(y_be).real
-
-    # Reference solution
-    actual = solve_ivp(dydx, span, y0, t_eval=time)
-
-    error = np.max(np.abs(y_be - actual.y.T))
-    assert error < 0.5, f"Exceeds error tolerance: {error}"
-
-
-def test_rk4_brusselator():
-    """Test RK4 with Brusselator."""
-    benchmark = RK4()
-    generator = BrusselatorGenerator()
-    dataset = generator.datasets[0]  # brusselator_4
-    data, meta = generator.generate(dataset)
-
-    dydx, span, y0, step = data
-
-    time, y_rk4 = benchmark.benchmark(data, meta)
-    y_rk4 = np.array(y_rk4).real
-
-    # Reference solution
-    actual = solve_ivp(dydx, span, y0, t_eval=time)
-
-    error = np.max(np.abs(y_rk4 - actual.y.T))
-    assert error < 0.5, f"Exceeds error tolerance: {error}"
+    time, y_out = bench.benchmark(data, meta)
+    rhs = lambda t, y: bench._dydt(t, list(y), meta)  # noqa: E731
+    actual = solve_ivp(rhs, meta["span"], meta["y0"], t_eval=time)
+    return np.array(y_out), actual.y.T
+
+
+@pytest.mark.parametrize("bench_cls", [RCForwardEuler, RCBackwardEuler, RCRK4])
+def test_rc(bench_cls):
+    y, ref = _run(bench_cls)
+    error = np.max(np.abs(y - ref))
+    assert error < 0.05, f"{bench_cls.__name__}: error {error} exceeds tolerance"
+
+
+@pytest.mark.parametrize("bench_cls", [RLCForwardEuler, RLCBackwardEuler, RLCRK4])
+def test_rlc(bench_cls):
+    y, ref = _run(bench_cls)
+    error = np.max(np.abs(y[:, 0] - ref[:, 0]))
+    assert error < 0.05, f"{bench_cls.__name__}: error {error} exceeds tolerance"
+
+
+@pytest.mark.parametrize(
+    "bench_cls",
+    [LotkaVolterraForwardEuler, LotkaVolterraBackwardEuler, LotkaVolterraRK4],
+)
+def test_lotka_volterra(bench_cls):
+    y, ref = _run(bench_cls)
+    error = np.max(np.abs(y - ref))
+    assert error < 10.0, f"{bench_cls.__name__}: error {error} exceeds tolerance"
+
+
+@pytest.mark.parametrize(
+    "bench_cls", [BrusselatorForwardEuler, BrusselatorBackwardEuler, BrusselatorRK4]
+)
+def test_brusselator(bench_cls):
+    y, ref = _run(bench_cls)
+    y = y.real
+    error = np.max(np.abs(y - ref))
+    assert error < 0.5, f"{bench_cls.__name__}: error {error} exceeds tolerance"
