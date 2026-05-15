@@ -1,13 +1,14 @@
 import pytest
-import numpy as np
+
 import saps.benchmarks.Finite_Difference as fd
-from saps_framework import BinsparseFormat
+from frameworks.saps_numpy import NumpyFramework
 from saps.benchmarks.Finite_Difference import (
     buckley_leverett_flux,
     burgers_flux,
     linear_advection_flux,
 )
-from frameworks.saps_numpy import NumpyFramework
+from saps_framework import BinsparseFormat
+
 
 def generate_fd_triplet(xp, N, flux=fd.burgers_flux):
     gen = fd.FiniteDifferenceGenerator()
@@ -36,12 +37,15 @@ def lax_friedrichs_solver_matrix_general(
     xp, u0_bench, matrix_bench, difference_bench, timesteps, flux, dt, dx
 ):
     # Use the FiniteDifferenceBenchmark implementation to run the matrix-based solver
-    from saps_framework import BinsparseFormat
 
     def ensure_array(a):
         return xp.from_binsparse(a) if isinstance(a, BinsparseFormat) else a
 
-    data = (ensure_array(u0_bench), ensure_array(matrix_bench), ensure_array(difference_bench))
+    data = (
+        ensure_array(u0_bench),
+        ensure_array(matrix_bench),
+        ensure_array(difference_bench),
+    )
     meta = {"flux": flux, "timesteps": timesteps, "dt": dt, "dx": dx}
 
     prev_xp = getattr(fd, "xp", None)

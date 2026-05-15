@@ -3,8 +3,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Generic, TypeVar
 
-from saps_framework.binsparse_format import BinsparseFormat
 from saps.framework import xp
+from saps_framework.binsparse_format import BinsparseFormat
 
 
 @dataclass
@@ -39,6 +39,7 @@ class Ref:
     volume: str | int | None = None
     number: str | int | None = None
     pages: str | None = None
+    city: str | None = None
     year: int | None = None
     url: str | None = None
     doi: str | None = None
@@ -53,13 +54,14 @@ class Ref:
         volume_str = f", Vol. {self.volume}" if self.volume else ""
         number_str = f", No. {self.number}" if self.number else ""
         pages_str = f", pp. {self.pages}" if self.pages else ""
+        city_str = f", {self.city}" if self.city else ""
         year_str = f", {self.year}" if self.year else ""
         url_str = f", URL: {self.url}" if self.url else ""
         doi_str = f", DOI: {self.doi}" if self.doi else ""
         return (
             f'{author_str}. "{self.title}"'
             f"{journal_str}{conference_str}{booktitle_str}{publisher_str}{institution_str}"
-            f"{volume_str}{number_str}{pages_str}{year_str}{url_str}{doi_str}."
+            f"{volume_str}{number_str}{pages_str}{city_str}{year_str}{url_str}{doi_str}."
         )
 
 

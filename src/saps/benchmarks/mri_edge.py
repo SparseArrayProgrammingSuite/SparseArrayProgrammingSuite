@@ -1,8 +1,9 @@
 import os
 from typing import Any
 
-import kagglehub
 import numpy as np
+
+import kagglehub
 from PIL import Image
 
 import saps
@@ -72,10 +73,10 @@ class MaskedMRIGenerator(Generator[MaskedMRIDataset]):
     @property
     def description(self) -> str:
         return (
-            "Data Generation: I used MRI image data from this Kaggle set: "
-            "https://www.kaggle.com/navoneel/brain-mri-images-for-brain-tumor-detection. "
-            "I used a constant edge threshold of 150.0 with all of the images "
-            "that I used."
+            "Data Generation: I used MRI image data from this Kaggle set:"
+            " https://www.kaggle.com/navoneel/brain-mri-images-for-brain-tumor-detection"
+            " . I used a constant edge threshold of 150.0 with all of the images that I"
+            " used."
         )
 
     @property
@@ -151,10 +152,10 @@ class MaskedMRIEdgeBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "What does this code do: This code implements a masked edge detection "
-            "algorithm on a 2D MRI image. The benchmark performs boolean threshold "
-            "mask operations using t1=75% and t2=80% thresholds and a "
-            "Region-of-Interest (ROI) mask."
+            "What does this code do: This code implements a masked edge detection"
+            " algorithm on a 2D MRI image. The benchmark performs boolean threshold"
+            " mask operations using t1=75% and t2=80% thresholds and a"
+            " Region-of-Interest (ROI) mask."
         )
 
     @property
@@ -168,14 +169,13 @@ class MaskedMRIEdgeBenchmark(Benchmark):
     @property
     def motivation(self) -> str:
         return (
-            "Motivation: Edge detection is a crucial task that is a part of image "
-            "processing pipelines. It is often the case that images and scans in "
-            "the medical field rquire post-processing to extract useful "
-            "information. In this case, we are using a 2D MRI image to produce "
-            "thresholded edge maps. Since medical images are large and often "
-            "contain redundant information, it is important to process them "
-            "efficiently. The redundancy of MRI makes them a good candidate for "
-            "sparse processing."
+            "Motivation: Edge detection is a crucial task that is a part of image"
+            " processing pipelines. It is often the case that images and scans in the"
+            " medical field rquire post-processing to extract useful information. In"
+            " this case, we are using a 2D MRI image to produce thresholded edge maps."
+            " Since medical images are large and often contain redundant information,"
+            " it is important to process them efficiently. The redundancy of MRI makes"
+            " them a good candidate for sparse processing."
         )
 
     @property

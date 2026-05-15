@@ -65,8 +65,8 @@ class CGGenerator(Generator[CGDataset]):
     @property
     def description(self) -> str:
         return (
-            "Accesses and prepares symmetric positive definite matrices from "
-            "SuiteSparse for conjugate gradient."
+            "Accesses and prepares symmetric positive definite matrices from"
+            " SuiteSparse for conjugate gradient."
         )
 
     @property
@@ -91,9 +91,9 @@ class CGGenerator(Generator[CGDataset]):
     @property
     def motivation(self) -> str:
         return (
-            "Data collected from SuiteSparse Matrix Collection consisting of "
-            "symmetric positive definite matrices, particularly those "
-            "with a low convergence criteria"
+            "Data collected from SuiteSparse Matrix Collection consisting of symmetric"
+            " positive definite matrices, particularly those with a low convergence"
+            " criteria"
         )
 
     @property
@@ -200,8 +200,8 @@ class CGBenchmark(Benchmark):
     def motivation(self) -> str:
         return (
             "Each iteration of the conjugate gradient requires a SpMV to compute Ap"
-            "which can be done in O(nnz) time rather than O(n^2) time "
-            "for dense matrices."
+            " which can be done in O(nnz) time rather than O(n^2) time for dense"
+            " matrices."
         )
 
     @property

@@ -4,9 +4,9 @@ import numpy as np
 import scipy.sparse as sp
 
 import saps.benchmarks.mcl_benchmark as mcl
-from saps_framework import BinsparseFormat
 from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_sparse import PyDataSparseFramework
+from saps_framework import BinsparseFormat
 
 
 def get_cluster_count(matrix):

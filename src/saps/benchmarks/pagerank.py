@@ -1,5 +1,3 @@
-import numpy as np
-
 import saps
 from saps.benchmark import (
     Author,
@@ -43,9 +41,7 @@ class PageRankBenchmark(Benchmark):
     def references(self):
         return [
             Ref(
-                title=(
-                    "Graph Algorithms in the Language of Linear Algebra"
-                ),
+                title=("Graph Algorithms in the Language of Linear Algebra"),
                 authors=[
                     Author("Kepner, Jeremy"),
                     Author("Gilbert, John"),
@@ -58,7 +54,7 @@ class PageRankBenchmark(Benchmark):
                 title="Page Rank Algorithm and Implementation",
                 authors=[Author("GeeksforGeeks contributors")],
                 url="https://www.geeksforgeeks.org/python/page-rank-algorithm-implementation/",
-                year="2025"
+                year="2025",
             ),
             Ref(
                 title="The anatomy of a large-scale hypertextual Web search engine",
@@ -73,16 +69,14 @@ class PageRankBenchmark(Benchmark):
     @property
     def ai_disclosure(self):
         return (
-            "No generative AI was used to construct the benchmark function itself. "
-            "Generative AI might have been used to construct tests. This statement "
-            "was written by hand."
+            "No generative AI was used to construct the benchmark function itself."
+            " Generative AI might have been used to construct tests. This statement was"
+            " written by hand."
         )
 
     @property
     def motivation(self):
-        return (
-            "TODO"
-        )
+        return "TODO"
 
     @property
     def generators(self):

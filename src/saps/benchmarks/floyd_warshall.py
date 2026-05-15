@@ -3,11 +3,11 @@ import os
 import numpy as np
 from scipy.io import mmread
 
-import saps
 import ssgetpy
 
-from saps_framework.binsparse_format import BinsparseFormat
+import saps
 from saps.benchmark import Author, Benchmark, Contributor, Dataset, Generator, Ref
+from saps_framework.binsparse_format import BinsparseFormat
 
 xp = saps.xp
 
@@ -50,11 +50,11 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
     @property
     def description(self) -> str:
         return (
-            "Data is collected from the SuiteSparse Matrix Collection and standard benchmark graph "
-            "datasets, with sparse adjacency matrices converted into unweighted all-pairs shortest "
-            "path inputs. "
-            "This generator uses real-world networks, including the Chesapeake road network "
-            "and soc-tribes network from the Network Repository."
+            "Data is collected from the SuiteSparse Matrix Collection and standard"
+            " benchmark graph datasets, with sparse adjacency matrices converted into"
+            " unweighted all-pairs shortest path inputs. This generator uses real-world"
+            " networks, including the Chesapeake road network and soc-tribes network"
+            " from the Network Repository."
         )
 
     @property
@@ -72,9 +72,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
     def references(self):
         return [
             Ref(
-                title=(
-                    "Graph Algorithms in the Language of Linear Algebra"
-                ),
+                title=("Graph Algorithms in the Language of Linear Algebra"),
                 authors=[
                     Author("Kepner, Jeremy"),
                     Author("Gilbert, John"),
@@ -83,7 +81,10 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 year=2011,
             ),
             Ref(
-                title="The Network Data Repository with Interactive Graph Analytics and Visualization",
+                title=(
+                    "The Network Data Repository with Interactive"
+                    " Graph Analytics and Visualization"
+                ),
                 authors=[
                     Author("Ryan A. Rossi"),
                     Author("Nesreen K. Ahmed"),
@@ -91,15 +92,15 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 journal="AAAI",
                 url="https://networkrepository.com",
                 year=2015,
-            )
+            ),
         ]
 
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to construct "
-            "the benchmark function itself. Generative AI might have been used to construct "
-            "tests. This statement was written by hand."
+            "No generative AI was used to construct the benchmark function itself."
+            " Generative AI might have been used to construct tests. This statement was"
+            " written by hand."
         )
 
     @property
@@ -204,7 +205,6 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
         return [G_bin], {}
 
 
-
 class FloydWarshallBenchmark(Benchmark):
     @property
     def name(self):
@@ -232,14 +232,11 @@ class FloydWarshallBenchmark(Benchmark):
             Contributor("Joel Mathew Cherian", "jcherian32@gatech.edu"),
         ]
 
-
     @property
     def references(self):
         return [
             Ref(
-                title=(
-                    "Graph Algorithms in the Language of Linear Algebra"
-                ),
+                title=("Graph Algorithms in the Language of Linear Algebra"),
                 authors=[
                     Author("Kepner, Jeremy"),
                     Author("Gilbert, John"),
@@ -253,18 +250,18 @@ class FloydWarshallBenchmark(Benchmark):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to construct "
-            "the benchmark function itself. Generative AI might have been used to construct "
-            "tests. This statement was written by hand."
+            "No generative AI was used to construct the benchmark function itself."
+            " Generative AI might have been used to construct tests. This statement was"
+            " written by hand."
         )
 
     @property
     def motivation(self):
         return (
-            "Sparse graphs reduce unnecessary computation, as most entries in the adjacency"
-            "matrix represent non-edges and begin as inifinity. Efficient sparse representations"
-            "allow the backend framework to skip work and minimize memory movement during the"
-            "relaxation steps of the algorithm."
+            "Sparse graphs reduce unnecessary computation, as most entries in the"
+            " adjacency matrix represent non-edges and begin as inifinity. Efficient"
+            " sparse representations allow the backend framework to skip work and"
+            " minimize memory movement during the relaxation steps of the algorithm."
         )
 
     @property

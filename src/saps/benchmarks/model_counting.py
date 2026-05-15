@@ -121,8 +121,8 @@ class MCGenerator(Generator[MCDataset]):
     @property
     def description(self) -> str:
         return (
-            "Parses standard DIMACS CNF test strings into sparse arrays for "
-            "model counting."
+            "Parses standard DIMACS CNF test strings into sparse arrays for model"
+            " counting."
         )
 
     @property
@@ -256,8 +256,8 @@ class ModelCounting(Benchmark):
     @property
     def motivation(self):
         return (
-            "Model Counting is used to determine the total number of satisfying "
-            "assignments for a SAT problem."
+            "Model Counting is used to determine the total number of satisfying"
+            " assignments for a SAT problem."
         )
 
     @property

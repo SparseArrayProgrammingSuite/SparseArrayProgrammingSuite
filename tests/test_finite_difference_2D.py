@@ -1,14 +1,12 @@
 import pytest
 
-import numpy as np
-
 import saps.benchmarks.Finite_Difference_2D as fd2d
+from frameworks.saps_numpy import NumpyFramework
 from saps.benchmarks.Finite_Difference_2D import (
     aniso_burgers_flux_2D,
     buckley_leverett_flux_2D,
     linear_advection_flux_2D,
 )
-from frameworks.saps_numpy import NumpyFramework
 
 
 @pytest.fixture
@@ -90,7 +88,9 @@ def test_linear_advection_cfl_check(xp, cx, cy, dx, dt, dy):
 
     fl_x, fl_y = linear_advection_flux_2D(cx, cy)
 
-    u0, matrix, dif_x, dif_y = generate_fd2d_triplet(xp, x_spatial, y_spatial, (fl_x, fl_y))
+    u0, matrix, dif_x, dif_y = generate_fd2d_triplet(
+        xp, x_spatial, y_spatial, (fl_x, fl_y)
+    )
 
     result_bench = lax_friedrichs_solver_matrix_2d(
         xp=xp,
@@ -138,7 +138,9 @@ def test_nonlinear_flux(xp, dx, dy, dt, flux):
 
     flux_x, flux_y = flux()
 
-    u0, matrix, dif_x, dif_y = generate_fd2d_triplet(xp, x_spatial, y_spatial, (flux_x, flux_y))
+    u0, matrix, dif_x, dif_y = generate_fd2d_triplet(
+        xp, x_spatial, y_spatial, (flux_x, flux_y)
+    )
 
     result_bench = lax_friedrichs_solver_matrix_2d(
         xp=xp,
@@ -189,7 +191,9 @@ def test__linear_adv_sparse_stencil_check(xp, dx, dy, dt):
 
     fl_x, fl_y = linear_advection_flux_2D(1.0, 1.0)
 
-    _, matrix, dif_x, dif_y = generate_fd2d_triplet(xp, x_spatial, y_spatial, (fl_x, fl_y))
+    _, matrix, dif_x, dif_y = generate_fd2d_triplet(
+        xp, x_spatial, y_spatial, (fl_x, fl_y)
+    )
 
     result_bench = lax_friedrichs_solver_matrix_2d(
         xp=xp,

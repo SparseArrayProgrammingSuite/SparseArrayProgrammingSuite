@@ -1,9 +1,9 @@
 import numpy as np
 
+from frameworks.saps_numpy import NumpyFramework
 from saps.benchmarks.transitive_reduction import (
     transitive_reduction,
 )
-from frameworks.saps_numpy import NumpyFramework
 
 
 def create_graph(xp, edges, n):

@@ -2,14 +2,15 @@ import pytest
 
 import numpy as np
 
-from saps.benchmarks.coupled_cluster import CCSD, make_ccsd_inputs
 import saps.benchmarks.coupled_cluster as cc
-from saps_framework.binsparse_format import BinsparseFormat
 from frameworks.saps_numpy import NumpyFramework
+from saps.benchmarks.coupled_cluster import CCSD, make_ccsd_inputs
+from saps_framework.binsparse_format import BinsparseFormat
 
 # Ground truth from C++ CTF (tests/cpp_reference/coupled_cluster/ccsd.cxx):
 #   mpirun -n 1 ./ccsd -no 4 -nv 6 -niter 1  →  |T| = 380638.269079
 CPP_CTF_REFERENCE_NORM = 380638.269079
+
 
 def benchmark_ccsd(xp, data):
     cc.xp = xp

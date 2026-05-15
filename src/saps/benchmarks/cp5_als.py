@@ -1,8 +1,6 @@
 import numpy as np
-import sparse
 
 import saps
-from saps_framework import BinsparseFormat
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -11,15 +9,10 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps_framework import BinsparseFormat
 
 xp = saps.xp
 
-import numpy as np
-
-import saps
-from saps_framework.binsparse_format import BinsparseFormat
-
-xp = saps.xp
 
 class CP5FactorizeableDataset(Dataset):
     def __init__(self, name, pretty_name, tags, shape, rank):
@@ -28,7 +21,6 @@ class CP5FactorizeableDataset(Dataset):
         self._tags = tags
         self.shape = shape
         self.rank = rank
-
 
     @property
     def name(self) -> str:
@@ -45,7 +37,7 @@ class CP5FactorizeableDataset(Dataset):
     @property
     def tags(self) -> list[str]:
         return self._tags
-    
+
 
 class CP5FactorizeableGenerator(Generator):
     @property
@@ -58,28 +50,27 @@ class CP5FactorizeableGenerator(Generator):
 
     @property
     def description(self):
-        return (
-            """
+        return """
             Generating a small factorizable tensor by creating random factor matrices
             and reconstructing the tensor from them (tensor should decompose easily
             with low reconstruction error).
             """
-        )
 
     @property
     def ai_disclosure(self):
         return (
-            "No generative AI was used to construct the benchmark function itself. Generative AI was"
-            "used to debug some parts of the code. This statement was written by hand."
+            "No generative AI was used to construct the benchmark function itself."
+            " Generative AI was used to debug some parts of the code. This statement"
+            " was written by hand."
         )
 
     @property
     def motivation(self):
-        ""
+        return ""
 
     @property
     def references(self):
-        []
+        return []
 
     @property
     def tags(self):
@@ -90,18 +81,20 @@ class CP5FactorizeableGenerator(Generator):
         return [
             Contributor("Grace Wang", "gwang426@gatech.edu"),
             Contributor("Kseniia Suleimanova", "kseniiasuleimanova@gmail.com"),
-            Contributor("Willow Ahrens", "ahrens@gmail.com")
+            Contributor("Willow Ahrens", "ahrens@gmail.com"),
         ]
-    
+
     @property
     def datasets(self):
         return [
             CP5FactorizeableDataset(
                 name="cp_factorizeable_small",
                 pretty_name="Small Factorizeable CP Tensor",
-                tags = ["small",],
+                tags=[
+                    "small",
+                ],
                 shape=(10, 10, 10, 10, 10),
-                rank=5
+                rank=5,
             ),
         ]
 
@@ -123,7 +116,7 @@ class CP5FactorizeableGenerator(Generator):
         C = C / np.linalg.norm(C, axis=0, keepdims=True)
         D = D / np.linalg.norm(D, axis=0, keepdims=True)
         E = E / np.linalg.norm(E, axis=0, keepdims=True)
-        lambdas = 100*np.pow(2.0, -np.arange(rank))
+        lambdas = 100 * np.pow(2.0, -np.arange(rank))
         A = A * lambdas
 
         X = np.einsum("ir,jr,kr,lr,mr->ijklm", A, B, C, D, E)
@@ -133,6 +126,7 @@ class CP5FactorizeableGenerator(Generator):
 
         return (X, rank, max_iter)
 
+
 class CP5_ALS(Benchmark):
     @property
     def name(self):
@@ -140,17 +134,22 @@ class CP5_ALS(Benchmark):
 
     @property
     def pretty_name(self):
-        return "CANDECOMP/PARAFAC (CP) Decomposition of order 5 via Alternating Least Squares (ALS)"
+        return (
+            "CANDECOMP/PARAFAC (CP) Decomposition of order 5"
+            " via Alternating Least Squares (ALS)"
+        )
 
     @property
     def description(self):
         return (
-        "Computes the CP decomposition using Alternating Least Squares (ALS). "
-        "Factorizes a 5-order tensor X into factor matrices A, B, C such that: "
-        "$X \approx \\sum_{r=1}^{R} \\lambda_r \\cdot a_r \\circ b_r \\circ c_r \\circ d_r \\circ e_r$ "
-        "where $\\circ$ denotes the outeer product, R is the rank, and $\\lambda$ "
-        "are the weights."
-        "Handwritten code based on the standard CP-ALS algorithm from Kolda and Bader (2009). "
+            "Computes the CP decomposition using Alternating Least Squares (ALS). "
+            "Factorizes a 5-order tensor X into factor matrices A, B, C such that: "
+            "$X \approx \\sum_{r=1}^{R} \\lambda_r \\cdot a_r \\circ b_r \\circ c_r"
+            " \\circ d_r \\circ e_r$ "
+            "where $\\circ$ denotes the outeer product, R is the rank, and $\\lambda$ "
+            "are the weights."
+            "Handwritten code based on the standard CP-ALS algorithm from Kolda and"
+            " Bader (2009). "
         )
 
     @property
@@ -162,7 +161,7 @@ class CP5_ALS(Benchmark):
         return [
             Contributor("Grace Wang", "gwang426@gatech.edu"),
             Contributor("Kseniia Suleimanova", "kseniiasuleimanova@gmail.com"),
-            Contributor("Willow Ahrens", "ahrens@gmail.com")
+            Contributor("Willow Ahrens", "ahrens@gmail.com"),
         ]
 
     @property
@@ -176,47 +175,48 @@ class CP5_ALS(Benchmark):
                 number=3,
                 pages="455-500",
                 year=2009,
-                doi="10.1137/07070111X"
+                doi="10.1137/07070111X",
             ),
-
-
             Ref(
                 title="CS 18.335 Final Project: CP Decomposition",
                 authors=[Author("Willow Ahrens"), Author("Alvin Shi")],
                 url="https://github.com/willow-ahrens/18.335FinalProject/blob/submit/TFGDCANDECOMP.py",
-                year = 2025
+                year=2025,
             ),
             Ref(
-                title= "Tensorly",
+                title="Tensorly",
                 authors=[
                     Author("Tensorly Contributors"),
                 ],
-                url = "https://github.com/tensorly/tensorly/blob/main/tensorly/decomposition/_cp.py",
-                year = 2025
+                url="https://github.com/tensorly/tensorly/blob/main/tensorly/decomposition/_cp.py",
+                year=2025,
             ),
         ]
 
     @property
     def ai_disclosure(self):
         return (
-            "No generative AI was used to construct the benchmark function itself. Generative AI was"
-            "used to debug some parts of the code. This statement was written by hand."
+            "No generative AI was used to construct the benchmark function itself."
+            " Generative AI was used to debug some parts of the code. This statement"
+            " was written by hand."
         )
 
     @property
     def motivation(self):
         return (
-            "The Alternating Least Squares (ALS) algorithm for CANDECOMP/PARAFAC (CP) plays a "
-            "critical role in tensor decomposition, which has applications in various fields such as "
-            "signal processing, pscyhometrics, neuroscience, and graph analysis. Within the ALS "
-            "algorithm, the Matricized-Tensor Times Khatri-Rao Product (MTTKRP) operation is a "
-            "computationally intensive step that often dominates the overall runtime. Efficiently "
-            "implementing MTTKRP is crucial for the performance of the ALS algorithm. "
-            "The input tensor is sparse, and the ALS algorithm takes advantage of this sparsity "
-            "through its MTTKRP kernel, which process only the non-zero elements of the tensor. "
-            "For sparse tensors with nnz << I * J * K, the complexity reduces from O(I * J * K * R) "
-            "to O(nnz * R), where nnz is the number of non-zero elements in the tensor and R is the "
-            "decomposition rank. This makes it practical to work with large-scale applications."
+            "The Alternating Least Squares (ALS) algorithm for CANDECOMP/PARAFAC (CP)"
+            " plays a critical role in tensor decomposition, which has applications in"
+            " various fields such as signal processing, pscyhometrics, neuroscience,"
+            " and graph analysis. Within the ALS algorithm, the Matricized-Tensor Times"
+            " Khatri-Rao Product (MTTKRP) operation is a computationally intensive step"
+            " that often dominates the overall runtime. Efficiently implementing MTTKRP"
+            " is crucial for the performance of the ALS algorithm. The input tensor is"
+            " sparse, and the ALS algorithm takes advantage of this sparsity through"
+            " its MTTKRP kernel, which process only the non-zero elements of the"
+            " tensor. For sparse tensors with nnz << I * J * K, the complexity reduces"
+            " from O(I * J * K * R) to O(nnz * R), where nnz is the number of non-zero"
+            " elements in the tensor and R is the decomposition rank. This makes it"
+            " practical to work with large-scale applications."
         )
 
     @property
@@ -241,6 +241,7 @@ class CP5_ALS(Benchmark):
     - A, B, and C are the normalized factor matrices
     - lambda are the component weights
     """
+
     def benchmark(self, data, meta):
         (X,) = data
         rank = meta["rank"]

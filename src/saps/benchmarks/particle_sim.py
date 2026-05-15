@@ -1,10 +1,13 @@
 import saps
 from saps.benchmark import (
+    Author,
     Benchmark,
     Contributor,
+    Ref,
 )
 
 xp = saps.xp
+
 
 class ParticleSimBenchmark(Benchmark):
     @property
@@ -18,13 +21,14 @@ class ParticleSimBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "Benchmark implementation for Particule_Simulation_Algorithm using sparse array operations. "
-            "This benchmark evaluates performance characteristics and numerical properties."
+            "Benchmark implementation for Particule_Simulation_Algorithm using sparse"
+            " array operations. This benchmark evaluates performance characteristics"
+            " and numerical properties."
         )
 
     @property
     def tags(self):
-        return ['physics', 'simulation', 'sparse']
+        return ["physics", "simulation", "sparse"]
 
     @property
     def authors(self):
@@ -37,24 +41,25 @@ class ParticleSimBenchmark(Benchmark):
         return [
             Ref(
                 title="Particle Simulation Algorithm",
-                authors=[
-                    Author("CS 267 Staff")
-                ],
-                url="https://github.com/Berkeley-CS267/hw2-1/blob/master/serial.cpp"
+                authors=[Author("CS 267 Staff")],
+                url="https://github.com/Berkeley-CS267/hw2-1/blob/master/serial.cpp",
             )
         ]
 
     @property
     def ai_disclosure(self):
         return (
-            "No generative AI was used for the benchmark function itself. Generative AI might "
-            "have been used to construct tests. This statement was written "
-            "by hand."
+            "No generative AI was used for the benchmark function itself. Generative"
+            " AI might have been used to construct tests. This statement was written by"
+            " hand."
         )
 
     @property
     def motivation(self):
-        return "The particle simulation is used to model particle interaction present in mechanics, biology, astronomy, and other fields on a simplitic level."
+        return (
+            "The particle simulation is used to model particle interaction present in"
+            " mechanics, biology, astronomy, and other fields on a simplitic level."
+        )
 
     @property
     def generators(self):

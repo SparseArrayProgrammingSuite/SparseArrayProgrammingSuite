@@ -157,9 +157,9 @@ class MCLBenchmark(Benchmark):
             "kernels has been extensively studied in linear algebra, MCL "
             "serves as an effective benchmark for evaluating the performance "
             'of iterative numerical methods." The input is a sparse adjacency '
-            "matrix. The algorithm uses sparse matrix multiplication and "
-            "element-wise operations repeatedly, so it depends heavily on "
-            "efficient sparse matrix functions."
+            "matrix. The algorithm uses sparse matrix multiplication and element-wise"
+            " operations repeatedly, so it depends heavily on efficient sparse matrix"
+            " functions."
         )
 
     @property
@@ -196,26 +196,26 @@ class MCLBenchmark(Benchmark):
 
     def benchmark(self, data: list[Any], meta: dict[str, Any]):
         """
-        benchmark(data, meta)
+                benchmark(data, meta)
 
-        Computes Markov Clustering on a given sparse adjacency matrix
+                Computes Markov Clustering on a given sparse adjacency matrix
 
-Args:
-----
-array_api: The array API module to utilize
-graph_binsparse: The sparse adjacency matrix of the graph in binsparse format.
-expansion: The cluster expansion factor.
-inflation: The cluster inflation factor.
-loop_value: The value to add to the diagonal for self loops.
-iterations: The maximum number of iterations.
-pruning_threshold: Threshold below which matrix elements will be set to 0.
-pruning_frequency: Perform pruning every 'pruning_frequency' iterations.
-convergence_check_frequency: Perform convergence check every
-                             'convergence_check_frequency' iterations.
+        Args:
+        ----
+        array_api: The array API module to utilize
+        graph_binsparse: The sparse adjacency matrix of the graph in binsparse format.
+        expansion: The cluster expansion factor.
+        inflation: The cluster inflation factor.
+        loop_value: The value to add to the diagonal for self loops.
+        iterations: The maximum number of iterations.
+        pruning_threshold: Threshold below which matrix elements will be set to 0.
+        pruning_frequency: Perform pruning every 'pruning_frequency' iterations.
+        convergence_check_frequency: Perform convergence check every
+                                     'convergence_check_frequency' iterations.
 
-        Returns
-        -------
-        The final converged matrix.
+                Returns
+                -------
+                The final converged matrix.
 
         """
         array_api = xp

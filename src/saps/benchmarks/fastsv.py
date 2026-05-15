@@ -1,12 +1,13 @@
 import saps
 from saps.benchmark import (
+    Author,
     Benchmark,
     Contributor,
     Ref,
-    Author,
 )
 
 xp = saps.xp
+
 
 class FastSVBenchmark(Benchmark):
     @property
@@ -20,15 +21,16 @@ class FastSVBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "The FastSV algorithm is a graph algorithm used to find the connected components "
-            "for a simple graph. This algorithm introduces several optimizations that allow "
-            "for faster convergence to a solution compared to the SV algorithm it is based on, "
-            "specifically through modifications to the tree hooking and termination condition."
+            "The FastSV algorithm is a graph algorithm used to find the connected"
+            " components for a simple graph. This algorithm introduces several"
+            " optimizations that allow for faster convergence to a solution compared to"
+            " the SV algorithm it is based on, specifically through modifications to"
+            " the tree hooking and termination condition."
         )
 
     @property
     def tags(self):
-        return ['graph', 'sparse']
+        return ["graph", "sparse"]
 
     @property
     def authors(self):
@@ -40,16 +42,22 @@ class FastSVBenchmark(Benchmark):
     def references(self):
         return [
             Ref(
-                title = "FastSV: A distributed-memory connected component algorithm with fast convergence.",
-                authors = [
+                title=(
+                    "FastSV: A distributed-memory connected component"
+                    " algorithm with fast convergence."
+                ),
+                authors=[
                     Author("Zhang, Y."),
                     Author("Azad, A."),
                     Author("Hu, Z."),
                 ],
-                journal = "Proceedings of the 2020 SIAM Conference on Parallel Processing for Scientific Computing",
-                pages = "46-57",
-                publisher = "Society for Industrial and Applied Mathematics",
-                year = 2020,
+                journal=(
+                    "Proceedings of the 2020 SIAM Conference on Parallel"
+                    " Processing for Scientific Computing"
+                ),
+                pages="46-57",
+                publisher="Society for Industrial and Applied Mathematics",
+                year=2020,
             ),
         ]
 

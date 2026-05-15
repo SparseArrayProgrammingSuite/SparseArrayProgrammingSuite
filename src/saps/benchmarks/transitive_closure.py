@@ -1,9 +1,9 @@
 import saps
 from saps.benchmark import (
+    Author,
     Benchmark,
     Contributor,
     Ref,
-    Author,
 )
 
 xp = saps.xp
@@ -21,10 +21,10 @@ class TransitiveClosureBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "Computes the transitive closure of a directed graph using fixed-point iteration. "
-            "The algorithm initializes the adjacency matrix with the identity, then iteratively "
-            "applies the closure operation using sparse matrix operations until convergence. "
-            "This enables reachability queries."
+            "Computes the transitive closure of a directed graph using fixed-point"
+            " iteration. The algorithm initializes the adjacency matrix with the"
+            " identity, then iteratively applies the closure operation using sparse"
+            " matrix operations until convergence. This enables reachability queries."
         )
 
     @property
@@ -42,9 +42,7 @@ class TransitiveClosureBenchmark(Benchmark):
     def references(self):
         return [
             Ref(
-                title=(
-                    "Graph Algorithms in the Language of Linear Algebra"
-                ),
+                title=("Graph Algorithms in the Language of Linear Algebra"),
                 authors=[
                     Author("Kepner, Jeremy"),
                     Author("Gilbert, John"),
@@ -53,7 +51,6 @@ class TransitiveClosureBenchmark(Benchmark):
                 city="Philadelphia",
                 year=2011,
             ),
-
         ]
 
     @property
@@ -65,9 +62,7 @@ class TransitiveClosureBenchmark(Benchmark):
 
     @property
     def motivation(self):
-        return (
-            ""
-        )
+        return ""
 
     @property
     def generators(self):
@@ -86,7 +81,9 @@ class TransitiveClosureBenchmark(Benchmark):
         # do fixed-point iteration
         max_iterations = n
         for _iteration in range(max_iterations):
-            nextGraph = xp.einsum("nextGraph[i,j] or= graph[i,k] & graph[k,j]", graph=graph)
+            nextGraph = xp.einsum(
+                "nextGraph[i,j] or= graph[i,k] & graph[k,j]", graph=graph
+            )
 
             if xp.all(xp.equal(graph, nextGraph)):
                 break

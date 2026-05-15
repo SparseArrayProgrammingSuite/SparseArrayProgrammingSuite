@@ -3,7 +3,6 @@ from typing import Any
 
 import numpy as np
 from scipy.io import mmread
-from scipy.sparse import random
 
 import ssgetpy
 
@@ -19,23 +18,6 @@ from saps.benchmark import (
 from saps_framework import BinsparseFormat
 
 xp = saps.xp
-
-import os
-
-import numpy as np
-from scipy.io import mmread
-
-import ssgetpy
-
-import saps
-from saps_framework.binsparse_format import BinsparseFormat
-
-xp = saps.xp
-
-
-
-
-
 
 
 class GCNDataset(Dataset):
@@ -92,9 +74,7 @@ class GCNGenerator(Generator[GCNDataset]):
 
     @property
     def description(self) -> str:
-        return (
-            "Generates random weights for a 2-layer Graph Convolutional Network."
-        )
+        return "Generates random weights for a 2-layer Graph Convolutional Network."
 
     @property
     def tags(self) -> list[str]:
@@ -119,11 +99,11 @@ class GCNGenerator(Generator[GCNDataset]):
                 journal="Arxiv",
                 volume="arXiv:2405.16883",
                 year=2024,
-                url="https://anonymous.4open.science/r/scorch/README.md"
+                url="https://anonymous.4open.science/r/scorch/README.md",
             ),
             Ref(
-                title = "Open Graph Benchmark: Datasets for Machine Learning on Graph",
-                authors = [
+                title="Open Graph Benchmark: Datasets for Machine Learning on Graph",
+                authors=[
                     Author("Wenbing Hu"),
                     Author("Matthias Fey"),
                     Author("Marinka Zitnik"),
@@ -133,32 +113,33 @@ class GCNGenerator(Generator[GCNDataset]):
                     Author("Michele Catasta"),
                     Author("Jure Leskovec"),
                 ],
-                journal = "Arxiv",
-                volume = "arXiv:2005.00687",
-                year = 2021,
-                url = "https://arxiv.org/abs/2005.00687"
-            )
+                journal="Arxiv",
+                volume="arXiv:2005.00687",
+                year=2021,
+                url="https://arxiv.org/abs/2005.00687",
+            ),
         ]
 
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to construct the benchmark function "
-            "itself. Generative AI might have been used to construct tests. This statement "
-            "was written by hand. "
+            "No generative AI was used to construct the benchmark function itself."
+            " Generative AI might have been used to construct tests. This statement was"
+            " written by hand."
         )
 
     @property
     def motivation(self) -> str:
         return (
-            "Graphs are widely used for abstracting  systems of interacting objects, "
-            "such as social networks (Easley et al., 2010), knowledge graphs (Nickel et al., 2015), "
-            "molecular graphs (Wu et al., 2018), and biological networks (Barabasi & Oltvai, 2004), "
-            "as well as for modeling 3D objects (Simonovsky & Komodakis, 2017), "
-            "manifolds (Bronstein et al., 2017), and source code (Allamanis et al., "
-            "2017). Machine learning (ML), especially deep learning, "
-            "on graphs is an emerging field (Hamilton et al., 2017b; Bronstein et al., 2017). "
-            "W. Hu et al. To represent a graph, an adjaceny matrix is used, which is inherently sparse. "
+            "Graphs are widely used for abstracting systems of interacting objects,"
+            " such as social networks (Easley et al., 2010), knowledge graphs (Nickel"
+            " et al., 2015), molecular graphs (Wu et al., 2018), and biological"
+            " networks (Barabasi & Oltvai, 2004), as well as for modeling 3D objects"
+            " (Simonovsky & Komodakis, 2017), manifolds (Bronstein et al., 2017), and"
+            " source code (Allamanis et al., 2017). Machine learning (ML), especially"
+            " deep learning, on graphs is an emerging field (Hamilton et al., 2017b;"
+            " Bronstein et al., 2017). W. Hu et al. To represent a graph, an adjaceny"
+            " matrix is used, which is inherently sparse."
         )
 
     @property
@@ -172,7 +153,7 @@ class GCNGenerator(Generator[GCNDataset]):
                 hidden_dim=8,
                 out_dim=1,
             ),
-                GCNDataset(
+            GCNDataset(
                 "dg_gcn_social_2",
                 "Medium social network graph.",
                 "dolphins",
@@ -238,7 +219,8 @@ class GCNGenerator(Generator[GCNDataset]):
             ),
             GCNDataset(
                 "dg_gcn_bcsstk01",
-                "Original small structural engineering matrix (for backward compatibility).",
+                "Original small structural engineering matrix"
+                " (for backward compatibility).",
                 "bcsstk01",
                 feature_dim=16,
                 hidden_dim=8,
@@ -281,6 +263,7 @@ class GCNGenerator(Generator[GCNDataset]):
         bias2_b = BinsparseFormat.from_numpy(bias2)
         return (A_bin, features_b, weights1_b, bias1_b, weights2_b, bias2_b)
 
+
 class GCNBenchmark(Benchmark):
     @property
     def name(self) -> str:
@@ -322,11 +305,11 @@ class GCNBenchmark(Benchmark):
                 journal="Arxiv",
                 volume="arXiv:2405.16883",
                 year=2024,
-                url="https://anonymous.4open.science/r/scorch/README.md"
+                url="https://anonymous.4open.science/r/scorch/README.md",
             ),
             Ref(
-                title = "Open Graph Benchmark: Datasets for Machine Learning on Graph",
-                authors = [
+                title="Open Graph Benchmark: Datasets for Machine Learning on Graph",
+                authors=[
                     Author("Wenbing Hu"),
                     Author("Matthias Fey"),
                     Author("Marinka Zitnik"),
@@ -336,32 +319,33 @@ class GCNBenchmark(Benchmark):
                     Author("Michele Catasta"),
                     Author("Jure Leskovec"),
                 ],
-                journal = "Arxiv",
-                volume = "arXiv:2005.00687",
-                year = 2021,
-                url = "https://arxiv.org/abs/2005.00687"
-            )
+                journal="Arxiv",
+                volume="arXiv:2005.00687",
+                year=2021,
+                url="https://arxiv.org/abs/2005.00687",
+            ),
         ]
 
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to construct the benchmark function "
-            "itself. Generative AI might have been used to construct tests. This statement "
-            "was written by hand. "
+            "No generative AI was used to construct the benchmark function itself."
+            " Generative AI might have been used to construct tests. This statement was"
+            " written by hand."
         )
 
     @property
     def motivation(self) -> str:
         return (
-            "Graphs are widely used for abstracting  systems of interacting objects, "
-            "such as social networks (Easley et al., 2010), knowledge graphs (Nickel et al., 2015), "
-            "molecular graphs (Wu et al., 2018), and biological networks (Barabasi & Oltvai, 2004), "
-            "as well as for modeling 3D objects (Simonovsky & Komodakis, 2017), "
-            "manifolds (Bronstein et al., 2017), and source code (Allamanis et al., "
-            "2017). Machine learning (ML), especially deep learning, "
-            "on graphs is an emerging field (Hamilton et al., 2017b; Bronstein et al., 2017). "
-            "W. Hu et al. To represent a graph, an adjaceny matrix is used, which is inherently sparse."
+            "Graphs are widely used for abstracting systems of interacting objects,"
+            " such as social networks (Easley et al., 2010), knowledge graphs (Nickel"
+            " et al., 2015), molecular graphs (Wu et al., 2018), and biological"
+            " networks (Barabasi & Oltvai, 2004), as well as for modeling 3D objects"
+            " (Simonovsky & Komodakis, 2017), manifolds (Bronstein et al., 2017), and"
+            " source code (Allamanis et al., 2017). Machine learning (ML), especially"
+            " deep learning, on graphs is an emerging field (Hamilton et al., 2017b;"
+            " Bronstein et al., 2017). W. Hu et al. To represent a graph, an adjaceny"
+            " matrix is used, which is inherently sparse."
         )
 
     @property
@@ -391,8 +375,16 @@ class GCNBenchmark(Benchmark):
     BinsparseFormat
         Output node embeddings after 2-layer GCN
     """
+
     def benchmark(self, data: list, meta: dict):
-        adjacency, features, weights1, bias1, weights2, bias2, = data
+        (
+            adjacency,
+            features,
+            weights1,
+            bias1,
+            weights2,
+            bias2,
+        ) = data
 
         # Layer 1: adjacency @ features -> linear transform -> ReLU
         h1 = adjacency @ features

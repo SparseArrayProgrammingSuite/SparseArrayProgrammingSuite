@@ -1,8 +1,8 @@
 import numpy as np
 
 import saps.benchmarks.rp_kmeans_clustering as rp_kmeans
-from saps_framework import BinsparseFormat
 from frameworks.saps_numpy import NumpyFramework
+from saps_framework import BinsparseFormat
 
 
 def run_rp_kmeans(xp, A, k, eps, c=1, max_iter=100):

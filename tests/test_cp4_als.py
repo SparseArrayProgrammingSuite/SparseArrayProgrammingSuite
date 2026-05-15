@@ -1,12 +1,13 @@
 import pytest
 
+import numpy as np
+
+import saps.benchmarks.cp4_als as cp4_als
+from frameworks.saps_numpy import NumpyFramework
 from saps.benchmarks.cp4_als import (
     CP4_ALS,
     CP4FactorizeableGenerator,
 )
-import saps.benchmarks.cp4_als as cp4_als
-from frameworks.saps_numpy import NumpyFramework
-import numpy as np
 
 
 @pytest.mark.parametrize("xp", [NumpyFramework()])
@@ -24,7 +25,13 @@ def test_cp_als_reconstruction_error(xp):
     )
 
     Y = cp4_als.xp.einsum(
-        "Y[i,j,k,l] += L[r] * A[i,r] * B[j,r] * C[k,r] * D[l, r]", L=L, A=A, B=B, C=C, D=D)
+        "Y[i,j,k,l] += L[r] * A[i,r] * B[j,r] * C[k,r] * D[l, r]",
+        L=L,
+        A=A,
+        B=B,
+        C=C,
+        D=D,
+    )
     X_norm = np.linalg.norm(X)
     diff = Y - X
     diff_norm = np.linalg.norm(diff)

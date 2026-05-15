@@ -1,5 +1,6 @@
-import numpy as np
 import pytest
+
+import numpy as np
 
 import saps.benchmarks.floyd_warshall as floyd_warshall
 from frameworks.saps_numpy import NumpyFramework

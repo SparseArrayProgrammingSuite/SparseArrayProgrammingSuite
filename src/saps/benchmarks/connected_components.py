@@ -1,9 +1,9 @@
 import saps
 from saps.benchmark import (
+    Author,
     Benchmark,
     Contributor,
     Ref,
-    Author,
 )
 
 xp = saps.xp
@@ -21,7 +21,8 @@ class SimplyConnectedComponentsBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "Computes the simply connected components of a directed graph using label propagation. "
+            "Computes the simply connected components of a directed graph using label"
+            " propagation."
         )
 
     @property
@@ -40,9 +41,7 @@ class SimplyConnectedComponentsBenchmark(Benchmark):
     def references(self):
         return [
             Ref(
-                title=(
-                    "Graph Algorithms in the Language of Linear Algebra"
-                ),
+                title=("Graph Algorithms in the Language of Linear Algebra"),
                 authors=[
                     Author("Kepner, Jeremy"),
                     Author("Gilbert, John"),
@@ -62,9 +61,7 @@ class SimplyConnectedComponentsBenchmark(Benchmark):
 
     @property
     def motivation(self):
-        return (
-            ""
-        )
+        return ""
 
     @property
     def generators(self):

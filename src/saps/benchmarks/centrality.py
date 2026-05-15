@@ -1,9 +1,9 @@
 import saps
 from saps.benchmark import (
+    Author,
     Benchmark,
     Contributor,
     Ref,
-    Author,
 )
 
 xp = saps.xp
@@ -47,7 +47,8 @@ class BetweennessCentralityBenchmark(Benchmark):
         return [
             Ref(
                 title=(
-                    "Comparing the speed and accuracy of approaches to betweenness centrality approximation"
+                    "Comparing the speed and accuracy of approaches to betweenness"
+                    " centrality approximation"
                 ),
                 authors=[
                     Author("Matta, J."),
@@ -59,9 +60,7 @@ class BetweennessCentralityBenchmark(Benchmark):
                 url="https://doi.org/10.1186/s40649-019-0062-5",
             ),
             Ref(
-                title=(
-                    "Graph Algorithms in the Language of Linear Algebra"
-                ),
+                title=("Graph Algorithms in the Language of Linear Algebra"),
                 authors=[
                     Author("Kepner, Jeremy"),
                     Author("Gilbert, John"),
@@ -72,19 +71,16 @@ class BetweennessCentralityBenchmark(Benchmark):
             ),
         ]
 
-
     @property
     def ai_disclosure(self):
         return (
-            "No generative AI was used to construct the benchmark function. "
-            "This statement is written by hand."
+            "No generative AI was used to construct the benchmark function. This"
+            " statement is written by hand."
         )
 
     @property
     def motivation(self):
-        return (
-            ""
-        )
+        return ""
 
     @property
     def generators(self):

@@ -1,12 +1,13 @@
 import pytest
 
+import numpy as np
+
+import saps.benchmarks.cp3_als as cp3_als
+from frameworks.saps_numpy import NumpyFramework
 from saps.benchmarks.cp3_als import (
     CP3_ALS,
     CP3FactorizeableGenerator,
 )
-import saps.benchmarks.cp3_als as cp3_als
-from frameworks.saps_numpy import NumpyFramework
-import numpy as np
 
 
 @pytest.mark.parametrize("xp", [NumpyFramework()])
@@ -24,7 +25,8 @@ def test_cp_als_reconstruction_error(xp):
     )
 
     Y = cp3_als.xp.einsum(
-        "Y[i,j,k] += l[r] * A[i,r] * B[j,r] * C[k,r]", l=l, A=A, B=B, C=C)
+        "Y[i,j,k] += l[r] * A[i,r] * B[j,r] * C[k,r]", l=lam, A=A, B=B, C=C
+    )
     X_norm = np.linalg.norm(X)
     diff = Y - X
     diff_norm = np.linalg.norm(diff)
