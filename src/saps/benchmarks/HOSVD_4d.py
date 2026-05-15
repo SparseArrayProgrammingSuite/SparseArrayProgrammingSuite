@@ -100,6 +100,8 @@ class HOSVD4DDenseGenerator(Generator[HOSVD4DDataset]):
     def datasets(self) -> list[HOSVD4DDataset]:
         return [
             HOSVD4DDataset(
+                "small_dense_4d",
+                "Small dense 4d HOSVD Tensor",
                 "random_small Small Dense 4D HOSVD Tensor Dense low-rank 4D tensor"
                 " using random factor matrices.",
                 ["small", "dense", "tensor"],
@@ -170,6 +172,8 @@ class HOSVD4DSparseGenerator(Generator[HOSVD4DDataset]):
     def datasets(self) -> list[HOSVD4DDataset]:
         return [
             HOSVD4DDataset(
+                "small_sparse_4d",
+                "Small sparse 4d HOSVD Tensor",
                 "sparse_small Small Sparse 4D HOSVD Tensor Sparse low-rank 4D tensor"
                 " using random factor matrices.",
                 ["small", "sparse", "tensor"],
