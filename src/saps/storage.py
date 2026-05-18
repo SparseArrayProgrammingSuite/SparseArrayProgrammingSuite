@@ -93,19 +93,16 @@ class StorageBackend(ABC):
             prefix = self.prefix(generator, dataset, digest)
             self.serialize_data(data, self.cache_dir / prefix)
             self.update_manifest(generator, dataset, digest)
-            logging.info(f"Dataset {generator.name}.{dataset.name} generated and cached.")
-            logging.info(f"Manifest path: {self.manifest_path}")
             return data
 
-        logging.info(f"Dataset {generator.name}.{dataset.name} downloaded.")
-        logging.info(f"Manifest path: {self.manifest_path}")
         prefix = self.prefix(generator, dataset, digest)
         cache_path = self.cache_dir / prefix
+        if cache_path.exists():
+            logging.info(f"Dataset {generator.name}.{dataset.name} found in cache.")
+            logging.info(f"Manifest path: {self.manifest_path}")
         if not cache_path.exists():
             cache_path.parent.mkdir(parents=True, exist_ok=True)
             self.download_file(prefix, cache_path)
-            logging.info(f"Dataset {generator.name}.{dataset.name} downloaded.")
-            logging.info(f"Manifest path: {self.manifest_path}")
         data = self.deserialize_data(cache_path)
         assert digest == self.code_and_data_hash(generator, dataset, data), \
             "Data integrity check failed: hash mismatch"
