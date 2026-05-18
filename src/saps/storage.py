@@ -102,11 +102,15 @@ class StorageBackend(ABC):
             logging.info(f"Dataset {generator.name}.{dataset.name} found in cache.")
             logging.info(f"Manifest path: {self.manifest_path}")
         if not cache_path.exists():
+            logging.info(f"Dataset {generator.name}.{dataset.name} not found in cache.")
+            logging.info(f"Manifest path: {self.manifest_path}")
             cache_path.parent.mkdir(parents=True, exist_ok=True)
             self.download_file(prefix, cache_path)
         data = self.deserialize_data(cache_path)
         assert digest == self.code_and_data_hash(generator, dataset, data), \
             "Data integrity check failed: hash mismatch"
+        logging.info(f"data type: {type(data)}")
+        
         return data
 
 
