@@ -47,7 +47,7 @@ class StorageBackend(ABC):
     def code_and_data_hash(self, generator: Generator, dataset: Dataset, data: DataInstance) -> str:
         m = hashlib.sha256()
         m.update(pickle.dumps(data))
-        m.update(pickle.dumps(dataset))
+        m.update(pickle.dumps(dataset.__dict__))
         m.update(generator.generate.__code__.co_code)
         return m.hexdigest()
 
@@ -109,8 +109,6 @@ class StorageBackend(ABC):
         data = self.deserialize_data(cache_path)
         assert digest == self.code_and_data_hash(generator, dataset, data), \
             "Data integrity check failed: hash mismatch"
-        logging.info(f"data type: {type(data)}")
-        
         return data
 
 
@@ -170,15 +168,38 @@ class S3StorageBackend(StorageBackend):
             return False
 
 
+def _repo_root() -> Path:
+    """Find the repo root by walking up from cwd looking for pyproject.toml.
+
+    Walks from the *cwd* (not __file__) so that the installed copy of storage.py
+    inside an ASV-managed virtualenv still finds the host repo's manifest. The
+    ASV runner sets cwd to a per-child tmpdir, so we also accept SAPS_REPO_ROOT
+    as an explicit override that run_benchmark.py sets in env_nobuild.
+    """
+    env = os.environ.get("SAPS_REPO_ROOT")
+    if env:
+        return Path(env).resolve()
+    here = Path.cwd().resolve()
+    for candidate in (here, *here.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate
+    return here
+
+
 def _default_cache_dir() -> Path:
-    return Path(os.environ.get("SAPS_CACHE_DIR", ".saps/cache")).resolve()
+    env = os.environ.get("SAPS_CACHE_DIR")
+    if env:
+        return Path(env).resolve()
+    return _repo_root() / ".saps" / "cache"
 
 
 def _default_manifest_path() -> Path:
-    env = os.environ.get("SAPS_MANIFEST_PATH", "manifest.json")
+    env = os.environ.get("SAPS_MANIFEST_PATH")
     if env:
         return Path(env).resolve()
-    return _default_cache_dir() / "manifest.json"
+    # The manifest is committed to the repo so every checkout knows which
+    # (generator, dataset) → digest entries already live in remote storage.
+    return _repo_root() / "manifest.json"
 
 
 def build_storage_backend(

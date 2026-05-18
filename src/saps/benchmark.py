@@ -123,7 +123,7 @@ class Dataset(Tagged):
 
 
 TDataset = TypeVar("TDataset", bound=Dataset)
-DataInstance = TypeVar("DataInstance", bound=tuple[list[BinsparseFormat], Any])
+DataInstance = TypeVar("DataInstance", bound=tuple[list[BinsparseFormat], dict[str, Any]])
 
 
 class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
@@ -219,6 +219,13 @@ class Benchmark(Tagged, Attributed, Motivated):
         return self._backend
 
     def setup(self, param):
+        import logging
+
+        if not logging.getLogger().handlers:
+            logging.basicConfig(
+                level=logging.INFO,
+                format="%(levelname)s %(name)s: %(message)s",
+            )
         input, meta = self.backend.retrieve_dataset(param.generator, param.dataset)
         self._input = input
         self._meta = meta

@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import importlib
 import json
+import logging
 import os
 import re
 from itertools import product
@@ -21,6 +22,7 @@ from asv.runner import run_benchmarks
 
 import saps
 
+logging.basicConfig(level=logging.INFO)
 
 def format_results(results: Results, benchmarks: Benchmarks) -> dict:
     """Return a JSON-serializable snapshot of benchmark results."""
@@ -198,6 +200,14 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    import logging as _logging
+
+    if not _logging.getLogger().handlers:
+        _logging.basicConfig(
+            level=_logging.INFO,
+            format="%(levelname)s %(name)s: %(message)s",
+        )
+
     if args.upload_datasets and saps.xp is None:
         # Upload mode runs in the caller's env (no ASV subproc), so default the
         # framework so benchmark modules can call xp.to_binsparse(...) at generate time.
@@ -274,6 +284,7 @@ def main() -> int:
                     ],
                     "REMOTE_STORAGE_BACKEND": [args.remote_storage_backend],
                     "REMOTE_STORAGE_BUCKET": [args.remote_storage_bucket],
+                    "SAPS_REPO_ROOT": [str(repo_root)],
                 },
             },
         ),
