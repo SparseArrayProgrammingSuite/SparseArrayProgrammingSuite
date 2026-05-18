@@ -97,11 +97,15 @@ class StorageBackend(ABC):
             logging.info(f"Manifest path: {self.manifest_path}")
             return data
 
+        logging.info(f"Dataset {generator.name}.{dataset.name} downloaded.")
+        logging.info(f"Manifest path: {self.manifest_path}")
         prefix = self.prefix(generator, dataset, digest)
         cache_path = self.cache_dir / prefix
         if not cache_path.exists():
             cache_path.parent.mkdir(parents=True, exist_ok=True)
             self.download_file(prefix, cache_path)
+            logging.info(f"Dataset {generator.name}.{dataset.name} downloaded.")
+            logging.info(f"Manifest path: {self.manifest_path}")
         data = self.deserialize_data(cache_path)
         assert digest == self.code_and_data_hash(generator, dataset, data), \
             "Data integrity check failed: hash mismatch"
@@ -169,7 +173,7 @@ def _default_cache_dir() -> Path:
 
 
 def _default_manifest_path() -> Path:
-    env = os.environ.get("SAPS_MANIFEST_PATH")
+    env = os.environ.get("SAPS_MANIFEST_PATH", "manifest.json")
     if env:
         return Path(env).resolve()
     return _default_cache_dir() / "manifest.json"
