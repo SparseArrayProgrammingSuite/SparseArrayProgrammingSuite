@@ -93,6 +93,7 @@ class StorageBackend(ABC):
             prefix = self.prefix(generator, dataset, digest)
             self.serialize_data(data, self.cache_dir / prefix)
             self.update_manifest(generator, dataset, digest)
+            logging.info(f"Dataset {generator.name}.{dataset.name} regenerated.")
             return data
 
         prefix = self.prefix(generator, dataset, digest)
