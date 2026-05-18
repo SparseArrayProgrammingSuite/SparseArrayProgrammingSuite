@@ -49,6 +49,53 @@ def format_results(results: Results, benchmarks: Benchmarks) -> dict:
     }
 
 
+def _upload_all(benchmarks, metadata, backend, is_include, is_exclude) -> int:
+    """Walk every (benchmark, generator, dataset) triple and upload."""
+    uploaded = failed = skipped = 0
+    seen: set[tuple[str, str]] = set()
+    for name in benchmarks:
+        if name not in metadata:
+            continue
+        bench_meta = metadata[name]
+        if is_exclude(bench_meta):
+            continue
+        module_name, class_name, _method = name.rsplit(".", 2)
+        bench_module = importlib.import_module(f"saps.benchmarks.{module_name}")
+        bench = getattr(bench_module, class_name)()
+        for gen in bench.generators:
+            gen_meta = gen.metadata
+            if is_exclude(gen_meta):
+                continue
+            for ds in gen.datasets:
+                ds_meta = ds.metadata
+                if is_exclude(ds_meta):
+                    continue
+                if not (
+                    is_include(bench_meta)
+                    or is_include(gen_meta)
+                    or is_include(ds_meta)
+                ):
+                    continue
+                key = (gen.name, ds.name)
+                if key in seen:
+                    skipped += 1
+                    continue
+                seen.add(key)
+                label = f"{bench.name} / {gen.name} / {ds.name}"
+                try:
+                    if backend.upload_dataset(gen, ds):
+                        uploaded += 1
+                        print(f"[uploaded] {label}")
+                    else:
+                        failed += 1
+                        print(f"[failed]   {label}")
+                except Exception as e:
+                    failed += 1
+                    print(f"[error]    {label}: {e}")
+    print(f"upload summary: uploaded={uploaded} failed={failed} skipped={skipped}")
+    return 0 if failed == 0 else 1
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run SAPS benchmarks")
     parser.add_argument(
@@ -105,6 +152,16 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--upload-datasets",
+        action="store_true",
+        help=(
+            "Skip benchmark execution. Instead, walk every "
+            "(benchmark, generator, dataset) triple, generate the data, "
+            "and upload it via the configured storage backend. Honors "
+            "--re/--no-re/--tag/--no-tag filters."
+        ),
+    )
+    parser.add_argument(
         "--no-tag",
         action="append",
         default=[],
@@ -140,6 +197,20 @@ def main() -> int:
         ),
     )
     args = parser.parse_args()
+
+    if args.upload_datasets and saps.xp is None:
+        # Upload mode runs in the caller's env (no ASV subproc), so default the
+        # framework so benchmark modules can call xp.to_binsparse(...) at generate time.
+        import importlib as _importlib
+
+        os.environ.setdefault(
+            "SAPS_FRAMEWORK",
+            str(Path(__file__).resolve().parent.parent / "frameworks/saps_numpy.py"),
+        )
+        import saps.framework as _saps_framework
+
+        _importlib.reload(_saps_framework)
+        saps.xp = _saps_framework.xp
 
     log.enable(args.verbose)
 
@@ -296,6 +367,21 @@ def main() -> int:
         if exclude_res and regex_any_match(exclude_res, match_target(obj)):
             return True
         return bool(exclude_set and exclude_set.intersection(obj["tags"]))
+
+    if args.upload_datasets:
+        from saps.storage import build_storage_backend
+
+        backend = build_storage_backend(
+            type=args.remote_storage_backend,
+            bucket=args.remote_storage_bucket,
+        )
+        return _upload_all(
+            benchmarks=benchmarks,
+            metadata=metadata,
+            backend=backend,
+            is_include=is_include,
+            is_exclude=is_exclude,
+        )
 
     skips = []
     benchmarks._benchmark_selection = {}

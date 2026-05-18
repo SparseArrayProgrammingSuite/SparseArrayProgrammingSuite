@@ -94,7 +94,7 @@ class FiniteDifference2DDataset(Dataset):
 class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
     @property
     def name(self) -> str:
-        return "finite_difference_inputs"
+        return "finite_difference_inputs_2d"
 
     @property
     def pretty_name(self) -> str:

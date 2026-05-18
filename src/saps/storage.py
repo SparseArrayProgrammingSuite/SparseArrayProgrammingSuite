@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import os
 from abc import ABC, abstractmethod
 import pickle
@@ -37,7 +38,6 @@ class StorageBackend(ABC):
         local_path.parent.mkdir(parents=True, exist_ok=True)
         with open(local_path, "wb") as f:
             pickle.dump(data, f)  
-
 
     def deserialize_data(self, local_path: Path) -> DataInstance:
         # TODO: don't use pickle, instead write a deserializer for BinSparseFormat
@@ -93,8 +93,8 @@ class StorageBackend(ABC):
             prefix = self.prefix(generator, dataset, digest)
             self.serialize_data(data, self.cache_dir / prefix)
             self.update_manifest(generator, dataset, digest)
-            print(f"Dataset {generator.name}.{dataset.name} generated and cached.")
-            print(f"Manifest path: {self.manifest_path}")
+            logging.info(f"Dataset {generator.name}.{dataset.name} generated and cached.")
+            logging.info(f"Manifest path: {self.manifest_path}")
             return data
 
         prefix = self.prefix(generator, dataset, digest)
@@ -121,19 +121,19 @@ class LocalStorageBackend(StorageBackend):
             dest_path.write_bytes(local_path.read_bytes())
             return True
         except Exception as e:
-            print(f"Error uploading file to local storage: {e}")
+            logging.error(f"Error uploading file to local storage: {e}")
             return False
 
     def download_file(self, remote_prefix: str, local_path: Path) -> bool:
         source_path = self.base_path / remote_prefix
         if not source_path.exists():
-            print(f"File not found in local storage: {source_path}")
+            logging.error(f"File not found in local storage: {source_path}")
             return False
         try:
             local_path.write_bytes(source_path.read_bytes())
             return True
         except Exception as e:
-            print(f"Error downloading file from local storage: {e}")
+            logging.error(f"Error downloading file from local storage: {e}")
             return False
 
 
@@ -152,7 +152,7 @@ class S3StorageBackend(StorageBackend):
             self.s3.upload_file(str(local_path), self.bucket_name, remote_prefix)
             return True
         except Exception as e:
-            print(f"Error uploading file to S3: {e}")
+            logging.error(f"Error uploading file to S3: {e}")
             return False
 
     def download_file(self, remote_prefix: str, local_path: Path) -> bool:
@@ -160,7 +160,7 @@ class S3StorageBackend(StorageBackend):
             self.s3.download_file(self.bucket_name, remote_prefix, str(local_path))
             return True
         except Exception as e:
-            print(f"Error downloading file from S3: {e}")
+            logging.error(f"Error downloading file from S3: {e}")
             return False
 
 
