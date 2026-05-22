@@ -43,7 +43,7 @@ class StorageBackend(ABC):
     def serialize_data(self, data: DataInstance) -> str:
         binsparse_list, meta = data
         binsparse_strings = [binsparse.serialize() for binsparse in binsparse_list]
-        return json.dumps({"binsparse": binsparse_strings, "meta": meta})
+        return json.dumps({"binsparse": binsparse_strings, "meta": meta}, sort_keys=True, indent=2)
     
     def serialize_data_to_file(self, data: DataInstance, local_path: Path) -> None:
         os.makedirs(local_path.parent, exist_ok=True)
@@ -65,7 +65,8 @@ class StorageBackend(ABC):
         m = hashlib.sha256()
         m.update(self.serialize_data(data).encode("utf-8"))
         m.update(json.dumps(dataset.metadata, sort_keys=True).encode("utf-8"))
-        m.update(generator.generate.__code__.co_code)
+#        m.update(generator.generate.__code__.co_code)
+        print(f"Generator Name: {generator.name} Code and data hash: {m.hexdigest()}")
         return m.hexdigest()
 
     def _read_manifest(self) -> dict:
