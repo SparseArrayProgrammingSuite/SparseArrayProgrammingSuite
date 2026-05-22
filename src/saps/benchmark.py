@@ -139,6 +139,17 @@ class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
     def dataset_names(self) -> list[str]:
         return [dataset.name for dataset in self.datasets]
 
+    @property
+    def backend(self):
+        if getattr(self, "_backend", None) is None:
+            backend_type = os.environ.get("REMOTE_STORAGE_BACKEND")
+            backend_bucket = os.environ.get("REMOTE_STORAGE_BUCKET")
+            self._backend = build_storage_backend(backend_type, backend_bucket)
+        return self._backend
+
+    def cached_generate(self, dataset: TDataset) -> DataInstance:
+        return self.backend.retrieve_dataset(self, dataset)
+
     @abstractmethod
     def generate(self, dataset: TDataset) -> DataInstance: ...
 
@@ -214,14 +225,6 @@ class Benchmark(Tagged, Attributed, Motivated):
 
     param_names = ["dataset"]
 
-    @property
-    def backend(self):
-        if getattr(self, "_backend", None) is None:
-            backend_type = os.environ.get("REMOTE_STORAGE_BACKEND")
-            backend_bucket = os.environ.get("REMOTE_STORAGE_BUCKET")
-            self._backend = build_storage_backend(backend_type, backend_bucket)
-        return self._backend
-
     def setup(self, param):
         import logging
 
@@ -230,7 +233,7 @@ class Benchmark(Tagged, Attributed, Motivated):
                 level=logging.INFO,
                 format="%(levelname)s %(name)s: %(message)s",
             )
-        input, meta = self.backend.retrieve_dataset(param.generator, param.dataset)
+        input, meta = param.generator.cached_generate(param.dataset)
         self._input = input
         self._meta = meta
 

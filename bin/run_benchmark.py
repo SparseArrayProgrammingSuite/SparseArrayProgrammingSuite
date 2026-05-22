@@ -393,6 +393,8 @@ def main() -> int:
             type=args.remote_storage_backend,
             bucket=args.remote_storage_bucket,
         )
+        os.environ["REMOTE_STORAGE_BACKEND"] = args.remote_storage_backend
+        os.environ["REMOTE_STORAGE_BUCKET"] = args.remote_storage_bucket
         return _upload_all(
             benchmarks=benchmarks,
             metadata=metadata,
