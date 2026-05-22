@@ -483,6 +483,7 @@ def main() -> int:
 
         print("Results object:", results)
         print(json.dumps(format_results(results, benchmarks), indent=2, default=str))
+        results.save(outputs_dir / f"results")
     return 0
 
 
