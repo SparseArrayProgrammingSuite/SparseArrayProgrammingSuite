@@ -274,9 +274,13 @@ def main() -> int:
     if args.remote_storage_bucket is not None:
         matrix["env_nobuild"]["REMOTE_STORAGE_BUCKET"] = args.remote_storage_bucket
     if "SAPS_CACHE_DIR" not in matrix["env_nobuild"]:
-        matrix["env_nobuild"]["SAPS_CACHE_DIR"] = [str(outputs_dir / "cache")]
+        cache_dir = str(outputs_dir / "cache")
+        os.environ["SAPS_CACHE_DIR"] = cache_dir
+        matrix["env_nobuild"]["SAPS_CACHE_DIR"] = [cache_dir]
     if "SAPS_MANIFEST_PATH" not in matrix["env_nobuild"]:
-        matrix["env_nobuild"]["SAPS_MANIFEST_PATH"] = [str(repo_root / "manifest.json")]
+        manifest_path = str(repo_root / "manifest.json")
+        os.environ["SAPS_MANIFEST_PATH"] = manifest_path
+        matrix["env_nobuild"]["SAPS_MANIFEST_PATH"] = [manifest_path]
 
     # Construct ASV config dict with all fields visible
     asv_config_dict = {
@@ -389,12 +393,12 @@ def main() -> int:
         return bool(exclude_set and exclude_set.intersection(obj["tags"]))
 
     if args.upload_datasets:
+        os.environ["REMOTE_STORAGE_BACKEND"] = args.remote_storage_backend
+        os.environ["REMOTE_STORAGE_BUCKET"] = args.remote_storage_bucket
         backend = saps.build_storage_backend(
             type=args.remote_storage_backend,
             bucket=args.remote_storage_bucket,
         )
-        os.environ["REMOTE_STORAGE_BACKEND"] = args.remote_storage_backend
-        os.environ["REMOTE_STORAGE_BUCKET"] = args.remote_storage_bucket
         return _upload_all(
             benchmarks=benchmarks,
             metadata=metadata,

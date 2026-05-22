@@ -123,6 +123,8 @@ class Dataset(Tagged):
 
 
 TDataset = TypeVar("TDataset", bound=Dataset)
+# DataInstance is a type variable that represents the return type of the generate method
+# Every DataInstance is a tuple of a list of BinsparseFormat objects and a json serializable dictionary
 DataInstance = TypeVar("DataInstance", bound=tuple[list[BinsparseFormat], dict[str, Any]])
 
 

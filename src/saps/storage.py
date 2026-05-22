@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 import os
 from abc import ABC, abstractmethod
-import pickle
 from typing import TYPE_CHECKING
 import boto3
 import json
@@ -11,6 +10,8 @@ import hashlib
 from pathlib import Path
 
 import botocore
+
+from saps_framework.binsparse_format import BinsparseFormat
 
 if TYPE_CHECKING:
     from .benchmark import DataInstance, Generator, Dataset
@@ -37,23 +38,33 @@ class StorageBackend(ABC):
         """Download a file from remote storage."""
 
     def prefix(self, generator: Generator, dataset: Dataset, digest: str) -> str:
-        return f"{generator.name}/{dataset.name}/{digest}.pkl"
+        return f"{generator.name}/{dataset.name}/{digest}.json"
 
-    def serialize_data(self, data: DataInstance, local_path: Path) -> None:
-        # TODO: don't use pickle, instead write a serializer for BinSparseFormat
-        local_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(local_path, "wb") as f:
-            pickle.dump(data, f)  
+    def serialize_data(self, data: DataInstance) -> str:
+        binsparse_list, meta = data
+        binsparse_strings = [binsparse.serialize() for binsparse in binsparse_list]
+        return json.dumps({"binsparse": binsparse_strings, "meta": meta})
+    
+    def serialize_data_to_file(self, data: DataInstance, local_path: Path) -> None:
+        os.makedirs(local_path.parent, exist_ok=True)
+        with open(local_path, "w") as f:
+            f.write(self.serialize_data(data))
 
-    def deserialize_data(self, local_path: Path) -> DataInstance:
-        # TODO: don't use pickle, instead write a deserializer for BinSparseFormat
-        with open(local_path, "rb") as f:
-            return pickle.load(f)  # TODO: don't use pickle
+    def deserialize_data(self, json_str: str) -> DataInstance:
+        data = json.loads(json_str)
+        binsparse_strings = data["binsparse"]
+        meta = data["meta"]
+        binsparse_list = [BinsparseFormat.deserialize(string) for string in binsparse_strings]
+        return (binsparse_list, meta)
+    
+    def deserialize_data_from_file(self, local_path: Path) -> DataInstance:
+        with open(local_path, "r") as f:
+            return self.deserialize_data(f.read())
 
     def code_and_data_hash(self, generator: Generator, dataset: Dataset, data: DataInstance) -> str:
         m = hashlib.sha256()
-        m.update(pickle.dumps(data))
-        m.update(pickle.dumps(dataset.__dict__))
+        m.update(self.serialize_data(data).encode("utf-8"))
+        m.update(json.dumps(dataset.metadata, sort_keys=True).encode("utf-8"))
         m.update(generator.generate.__code__.co_code)
         return m.hexdigest()
 
@@ -82,7 +93,7 @@ class StorageBackend(ABC):
         if self.file_exists(prefix):
             return True
         local_path = self.cache_dir / prefix
-        self.serialize_data(data, local_path)
+        self.serialize_data_to_file(data, local_path)
         successful = self.upload_file(local_path, prefix)
         if successful:
             self.update_manifest(generator, dataset, digest)
@@ -103,7 +114,7 @@ class StorageBackend(ABC):
             data = generator.generate(dataset)
             digest = self.code_and_data_hash(generator, dataset, data)
             prefix = self.prefix(generator, dataset, digest)
-            self.serialize_data(data, self.cache_dir / prefix)
+            self.serialize_data_to_file(data, self.cache_dir / prefix)
             self.update_manifest(generator, dataset, digest)
             logging.info(f"Dataset {generator.name}.{dataset.name} regenerated.")
             return data
@@ -120,7 +131,7 @@ class StorageBackend(ABC):
             if not self.download_file(prefix, cache_path):
                 logging.error(f"Failed to download dataset {generator.name}.{dataset.name} from remote storage.")
                 return None
-        data = self.deserialize_data(cache_path)
+        data = self.deserialize_data_from_file(cache_path)
         assert digest == self.code_and_data_hash(generator, dataset, data), \
             "Data integrity check failed: hash mismatch"
         return data
@@ -215,6 +226,8 @@ def build_storage_backend(
 ) -> StorageBackend:
     manifest_path = os.environ.get("SAPS_MANIFEST_PATH")
     cache_dir = os.environ.get("SAPS_CACHE_DIR")
+    print(f"manifest_path: {manifest_path}")
+    print(f"cache_dir: {cache_dir}")
     if type == "local":
         return LocalStorageBackend(bucket, manifest_path, cache_dir)
     elif type == "s3":
