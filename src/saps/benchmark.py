@@ -2,7 +2,7 @@ import inspect
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import os
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, TypeAlias, TypeVar
 
 from saps.framework import xp
 from saps.storage import build_storage_backend
@@ -123,9 +123,8 @@ class Dataset(Tagged):
 
 
 TDataset = TypeVar("TDataset", bound=Dataset)
-# DataInstance is a type variable that represents the return type of the generate method
 # Every DataInstance is a tuple of a list of BinsparseFormat objects and a json serializable dictionary
-DataInstance = TypeVar("DataInstance", bound=tuple[list[BinsparseFormat], dict[str, Any]])
+DataInstance: TypeAlias = tuple[list[BinsparseFormat], dict[str, Any]]
 
 
 class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):

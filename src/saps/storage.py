@@ -208,8 +208,8 @@ def build_storage_backend(
     type: str,
     bucket: str,
 ) -> StorageBackend:
-    manifest_path = os.environ.get("SAPS_MANIFEST_PATH")
-    cache_dir = os.environ.get("SAPS_CACHE_DIR")
+    manifest_path = Path(os.environ["SAPS_MANIFEST_PATH"])
+    cache_dir = Path(os.environ["SAPS_CACHE_DIR"])
     print(f"manifest_path: {manifest_path}")
     print(f"cache_dir: {cache_dir}")
     if type == "local":
