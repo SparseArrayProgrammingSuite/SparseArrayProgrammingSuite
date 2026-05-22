@@ -126,7 +126,7 @@ class StorageBackend(ABC):
             logging.info(f"Dataset {generator.name}.{dataset.name} found in cache.")
             logging.info(f"Manifest path: {self.manifest_path}")
         if not cache_path.exists():
-            logging.info(f"Dataset {generator.name}.{dataset.name} not found in cache.")
+            logging.info(f"Dataset {generator.name}.{dataset.name} not found in cache at {cache_path}")
             logging.info(f"Manifest path: {self.manifest_path}")
             cache_path.parent.mkdir(parents=True, exist_ok=True)
             if not self.download_file(prefix, cache_path):
