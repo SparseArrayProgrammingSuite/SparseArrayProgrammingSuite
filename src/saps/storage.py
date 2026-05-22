@@ -10,6 +10,8 @@ import json
 import hashlib
 from pathlib import Path
 
+import botocore
+
 if TYPE_CHECKING:
     from .benchmark import DataInstance, Generator, Dataset
 
@@ -25,6 +27,10 @@ class StorageBackend(ABC):
     @abstractmethod
     def upload_file(self, local_path: Path, remote_prefix: str) -> bool:
         """Upload a file to remote storage."""
+
+    @abstractmethod
+    def file_exists(self, remote_prefix: str) -> bool:
+        """Check if a file exists in remote storage."""
 
     @abstractmethod
     def download_file(self, remote_prefix: str, local_path: Path) -> bool:
@@ -60,7 +66,7 @@ class StorageBackend(ABC):
         manifest = self._read_manifest()
         dataset_key = f"{generator.name}.{dataset.name}"
         manifest[dataset_key] = {"digest": digest}
-        self.manifest_path.write_text(json.dumps(manifest))
+        self.manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True))
 
     def check_manifest(self, generator: Generator, dataset: Dataset) -> str | None:
         manifest = self._read_manifest()
@@ -73,6 +79,8 @@ class StorageBackend(ABC):
         data = generator.generate(dataset)
         digest = self.code_and_data_hash(generator, dataset, data)
         prefix = self.prefix(generator, dataset, digest)
+        if self.file_exists(prefix):
+            return True
         local_path = self.cache_dir / prefix
         self.serialize_data(data, local_path)
         successful = self.upload_file(local_path, prefix)
@@ -80,12 +88,16 @@ class StorageBackend(ABC):
             self.update_manifest(generator, dataset, digest)
         return successful
 
-    def retrieve_dataset(self, generator: Generator, dataset: Dataset) -> DataInstance:
+    def retrieve_dataset(self, generator: Generator, dataset: Dataset) -> DataInstance | None:
         """Retrieve the dataset by, in order:
             1. The cache
             2. Remote Storage
             3. Generating it
         """
+        cacheable = generator.cacheable
+        if not cacheable:
+            return generator.generate(dataset)
+        
         digest = self.check_manifest(generator, dataset)
         if not digest:
             data = generator.generate(dataset)
@@ -105,7 +117,9 @@ class StorageBackend(ABC):
             logging.info(f"Dataset {generator.name}.{dataset.name} not found in cache.")
             logging.info(f"Manifest path: {self.manifest_path}")
             cache_path.parent.mkdir(parents=True, exist_ok=True)
-            self.download_file(prefix, cache_path)
+            if not self.download_file(prefix, cache_path):
+                logging.error(f"Failed to download dataset {generator.name}.{dataset.name} from remote storage.")
+                return None
         data = self.deserialize_data(cache_path)
         assert digest == self.code_and_data_hash(generator, dataset, data), \
             "Data integrity check failed: hash mismatch"
@@ -127,6 +141,9 @@ class LocalStorageBackend(StorageBackend):
         except Exception as e:
             logging.error(f"Error uploading file to local storage: {e}")
             return False
+
+    def file_exists(self, remote_prefix: str) -> bool:
+        return os.path.exists(self.base_path / remote_prefix)
 
     def download_file(self, remote_prefix: str, local_path: Path) -> bool:
         source_path = self.base_path / remote_prefix
@@ -159,6 +176,13 @@ class S3StorageBackend(StorageBackend):
             logging.error(f"Error uploading file to S3: {e}")
             return False
 
+    def file_exists(self, remote_prefix: str) -> bool:
+        try:
+            self.s3.head_object(Bucket=self.bucket_name, Key=remote_prefix)
+            return True
+        except botocore.exceptions.ClientError as e:
+            return False
+
     def download_file(self, remote_prefix: str, local_path: Path) -> bool:
         try:
             self.s3.download_file(self.bucket_name, remote_prefix, str(local_path))
@@ -185,31 +209,12 @@ def _repo_root() -> Path:
             return candidate
     return here
 
-
-def _default_cache_dir() -> Path:
-    env = os.environ.get("SAPS_CACHE_DIR")
-    if env:
-        return Path(env).resolve()
-    return _repo_root() / ".saps" / "cache"
-
-
-def _default_manifest_path() -> Path:
-    env = os.environ.get("SAPS_MANIFEST_PATH")
-    if env:
-        return Path(env).resolve()
-    # The manifest is committed to the repo so every checkout knows which
-    # (generator, dataset) → digest entries already live in remote storage.
-    return _repo_root() / "manifest.json"
-
-
 def build_storage_backend(
     type: str,
     bucket: str,
-    manifest_path: Path | str | None = None,
-    cache_dir: Path | str | None = None,
 ) -> StorageBackend:
-    manifest_path = Path(manifest_path) if manifest_path else _default_manifest_path()
-    cache_dir = Path(cache_dir) if cache_dir else _default_cache_dir()
+    manifest_path = os.environ.get("SAPS_MANIFEST_PATH")
+    cache_dir = os.environ.get("SAPS_CACHE_DIR")
     if type == "local":
         return LocalStorageBackend(bucket, manifest_path, cache_dir)
     elif type == "s3":

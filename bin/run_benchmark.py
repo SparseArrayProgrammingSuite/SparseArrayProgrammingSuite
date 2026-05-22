@@ -139,17 +139,20 @@ def main() -> int:
     )
     parser.add_argument(
         "--remote-storage-backend",
-        default="s3",
+        default=None,
         help=(
             "Remote storage backend to use for uploading and downloading datasets "
-            "(local or s3)"
+            " (local or s3)"
+            "In order to use s3 for upload, you must have AWS credentials configured"
+            " (AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY)."
         ),
     )
     parser.add_argument(
         "--remote-storage-bucket",
-        default="sparse-array-programming-suite",
+        default=None,
         help=(
             "Remote storage bucket name to use for uploading and downloading datasets "
+            "standard s3 bucket is 'sparse-array-programming-suite'"
             "(local backend will use this as a directory path)"
         ),
     )
@@ -247,6 +250,33 @@ def main() -> int:
         if saps_config_file.exists():
             with open(saps_config_file) as f:
                 saps_config_data = json.load(f)
+    
+    matrix = saps_config_data.get("matrix", 
+                                    {
+                                        "req": {
+                                            "numpy": ["2.3"],
+                                            "scipy": ["1.16.2"],
+                                            "sparse": ["0.17.0"],
+                                            "lark": ["1.3.0"],
+                                            "ssgetpy": ["1.0rc2"],
+                                        },
+                                        "env_nobuild": {
+                                            "SAPS_FRAMEWORK": [
+                                                "frameworks/saps_numpy.py",
+                                                "frameworks/saps_scipy.py",
+                                                "frameworks/saps_sparse.py",
+                                            ],
+                                            "SAPS_REPO_ROOT": [str(repo_root)],
+                                        },
+                                    },)
+    if args.remote_storage_backend is not None:
+        matrix["env_nobuild"]["REMOTE_STORAGE_BACKEND"] = args.remote_storage_backend
+    if args.remote_storage_bucket is not None:
+        matrix["env_nobuild"]["REMOTE_STORAGE_BUCKET"] = args.remote_storage_bucket
+    if "SAPS_CACHE_DIR" not in matrix["env_nobuild"]:
+        matrix["env_nobuild"]["SAPS_CACHE_DIR"] = [str(outputs_dir / "cache")]
+    if "SAPS_MANIFEST_PATH" not in matrix["env_nobuild"]:
+        matrix["env_nobuild"]["SAPS_MANIFEST_PATH"] = [str(repo_root / "manifest.json")]
 
     # Construct ASV config dict with all fields visible
     asv_config_dict = {
@@ -266,30 +296,9 @@ def main() -> int:
             "results_dir", str(outputs_dir / "results")
         ),
         "html_dir": str(outputs_dir / "html"),
-        "matrix": saps_config_data.get(
-            "matrix",
-            {
-                "req": {
-                    "numpy": ["2.3"],
-                    "scipy": ["1.16.2"],
-                    "sparse": ["0.17.0"],
-                    "lark": ["1.3.0"],
-                    "ssgetpy": ["1.0rc2"],
-                },
-                "env_nobuild": {
-                    "SAPS_FRAMEWORK": [
-                        "frameworks/saps_numpy.py",
-                        "frameworks/saps_scipy.py",
-                        "frameworks/saps_sparse.py",
-                    ],
-                    "REMOTE_STORAGE_BACKEND": [args.remote_storage_backend],
-                    "REMOTE_STORAGE_BUCKET": [args.remote_storage_bucket],
-                    "SAPS_REPO_ROOT": [str(repo_root)],
-                },
-            },
-        ),
+        "matrix": matrix
     }
-
+    log.info(f"Using SAPS config: {saps_config_data}")  
     # Create ASV config from dict
     conf = Config.from_json(asv_config_dict)
 
@@ -380,9 +389,7 @@ def main() -> int:
         return bool(exclude_set and exclude_set.intersection(obj["tags"]))
 
     if args.upload_datasets:
-        from saps.storage import build_storage_backend
-
-        backend = build_storage_backend(
+        backend = saps.build_storage_backend(
             type=args.remote_storage_backend,
             bucket=args.remote_storage_bucket,
         )

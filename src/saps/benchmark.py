@@ -132,6 +132,10 @@ class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
     def datasets(self) -> list[TDataset]: ...
 
     @property
+    def cacheable(self) -> bool:
+        return True
+
+    @property
     def dataset_names(self) -> list[str]:
         return [dataset.name for dataset in self.datasets]
 
