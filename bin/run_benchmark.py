@@ -231,7 +231,7 @@ def main() -> int:
     repo_root = Path(__file__).parent.parent
 
     # Load SAPS configuration
-    saps_dir = Path(".saps")
+    saps_dir = Path(".saps").resolve()
     saps_dir.mkdir(parents=True, exist_ok=True)
     machine_files_dir = saps_dir / "machine_files"
     machine_files_dir.mkdir(parents=True, exist_ok=True)

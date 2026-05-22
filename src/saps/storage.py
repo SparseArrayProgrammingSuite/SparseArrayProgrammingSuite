@@ -204,23 +204,6 @@ class S3StorageBackend(StorageBackend):
             return False
 
 
-def _repo_root() -> Path:
-    """Find the repo root by walking up from cwd looking for pyproject.toml.
-
-    Walks from the *cwd* (not __file__) so that the installed copy of storage.py
-    inside an ASV-managed virtualenv still finds the host repo's manifest. The
-    ASV runner sets cwd to a per-child tmpdir, so we also accept SAPS_REPO_ROOT
-    as an explicit override that run_benchmark.py sets in env_nobuild.
-    """
-    env = os.environ.get("SAPS_REPO_ROOT")
-    if env:
-        return Path(env).resolve()
-    here = Path.cwd().resolve()
-    for candidate in (here, *here.parents):
-        if (candidate / "pyproject.toml").exists():
-            return candidate
-    return here
-
 def build_storage_backend(
     type: str,
     bucket: str,
