@@ -3,25 +3,24 @@ import numpy as np
 import saps.benchmarks.connected_components as cc
 import saps.benchmarks.fastsv as fastsv
 from frameworks.saps_numpy import NumpyFramework
-from saps_framework import BinsparseFormat
 
 
 def _run_fastsv_case(A, expected):
-    "This method will run all the different tests. It will assist with setup"
+    "Run FastSV and cross-validate against SimplyConnectedComponents."
     xp = NumpyFramework()
-    A_bin = BinsparseFormat.from_numpy(A)
+
     fastsv.xp = xp
-    (bench_result,) = fastsv.FastSVBenchmark().benchmark((A_bin,), {})
+    (bench_result,) = fastsv.FastSVBenchmark().benchmark((A,), {})
     result = bench_result.ravel()
     assert np.array_equal(result, expected), (
         f"fastsv output mismatch.\nGot {result}, expected {expected}"
     )
 
     cc.xp = xp
-    (bench_result,) = cc.SimplyConnectedComponentsBenchmark().benchmark((A_bin,), {})
+    (bench_result,) = cc.SimplyConnectedComponentsBenchmark().benchmark((A,), {})
     result = bench_result.ravel()
     assert np.array_equal(result, expected), (
-        f"fastsv output mismatch.\nGot {result}, expected {expected}"
+        f"connected_components output mismatch.\nGot {result}, expected {expected}"
     )
 
 

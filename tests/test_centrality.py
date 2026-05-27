@@ -1,3 +1,5 @@
+import gzip
+
 import pytest
 
 import numpy as np
@@ -6,14 +8,12 @@ import networkx as nx
 
 import saps.benchmarks.centrality as centrality
 from frameworks.saps_numpy import NumpyFramework
-from saps_framework import BinsparseFormat
 
 
 def run_bc(xp, A):
-    A_bin = BinsparseFormat.from_numpy(A)
     centrality.xp = xp
-    (result_bin,) = centrality.BetweennessCentralityBenchmark().benchmark((A_bin,), {})
-    return result_bin.ravel()
+    (result,) = centrality.BetweennessCentralityBenchmark().benchmark((A,), {})
+    return result.ravel()
 
 
 # Modified the intended results because I am calculating
@@ -94,7 +94,7 @@ def reference_bc_alg_6_4(A):
 
 
 def test_matrix_vertex_algorithm_comparison():
-    # Test for comparing results from matrix and vertext-based algorithms
+    # Test for comparing results from matrix and vertex-based algorithms
     xp = NumpyFramework()
     rng = np.random.default_rng(42)
     n = 10
@@ -146,3 +146,24 @@ def test_networkx():
     expected = np.array([bc[i] for i in range(len(G))])
 
     assert np.allclose(result, expected, atol=1e-6)
+
+
+def test_centrality_generator_loads_snap_dataset(monkeypatch, tmp_path):
+    dataset_dir = tmp_path / "toy"
+    dataset_dir.mkdir()
+    with gzip.open(dataset_dir / "toy.txt.gz", "wt", encoding="utf-8") as f:
+        f.write("# SNAP edge list\n10 20\n20 40\n")
+
+    original_download = centrality.download_snap_dataset
+
+    def download_from_tmp(dataset_name):
+        return original_download(dataset_name, data_dir=tmp_path)
+
+    monkeypatch.setattr(centrality, "download_snap_dataset", download_from_tmp)
+
+    dataset = centrality.BetweennessCentralityDataset("snap-toy")
+    data, meta = centrality.BetweennessCentralityGenerator().generate(dataset)
+
+    assert data[0].data["shape"] == (3, 3)
+    assert meta["snap_slug"] == "toy"
+    assert meta["src"] == 0

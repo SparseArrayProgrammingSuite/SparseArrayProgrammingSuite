@@ -1,10 +1,11 @@
+import gzip
+
 import pytest
 
 import numpy as np
 
 import saps.benchmarks.tri_4cliq as tri_4cliq
 from frameworks.saps_numpy import NumpyFramework
-from saps_framework import BinsparseFormat
 
 
 def run_count_benchmark(benchmark, xp, A):
@@ -62,11 +63,7 @@ def run_count_benchmark(benchmark, xp, A):
 )
 def test_triangle_count(A, expected):
     xp = NumpyFramework()
-    A_bin = BinsparseFormat.from_numpy(A)
-    A_input = xp.from_binsparse(A_bin)
-
-    result = run_count_benchmark(tri_4cliq.TriangleCountBenchmark(), xp, A_input).item()
-
+    result = run_count_benchmark(tri_4cliq.TriangleCountBenchmark(), xp, A).item()
     assert np.allclose(result, expected)
 
 
@@ -117,11 +114,49 @@ def test_triangle_count(A, expected):
 )
 def test_4clique_count(A, expected):
     xp = NumpyFramework()
-    A_bin = BinsparseFormat.from_numpy(A)
-    A_input = xp.from_binsparse(A_bin)
-
     result = run_count_benchmark(
-        tri_4cliq.FourCliqueCountBenchmark(), xp, A_input
+        tri_4cliq.FourCliqueCountBenchmark(), xp, A
     ).item()
-
     assert np.allclose(result, expected)
+
+
+def test_triangle_generator_loads_snap_dataset(monkeypatch, tmp_path):
+    dataset_dir = tmp_path / "toy"
+    dataset_dir.mkdir()
+    with gzip.open(dataset_dir / "toy.txt.gz", "wt", encoding="utf-8") as f:
+        f.write("# SNAP edge list\n10 20\n20 40\n")
+
+    original_download = tri_4cliq.download_snap_dataset
+
+    def download_from_tmp(dataset_name):
+        return original_download(dataset_name, data_dir=tmp_path)
+
+    monkeypatch.setattr(tri_4cliq, "download_snap_dataset", download_from_tmp)
+
+    dataset = tri_4cliq.GraphCountingDataset("snap-toy")
+    data, meta = tri_4cliq.TriangleCountGenerator().generate(dataset)
+
+    assert data[0].data["shape"] == (3, 3)
+    assert meta["snap_slug"] == "toy"
+    assert meta["src"] == 0
+
+
+def test_4clique_generator_loads_snap_dataset(monkeypatch, tmp_path):
+    dataset_dir = tmp_path / "toy"
+    dataset_dir.mkdir()
+    with gzip.open(dataset_dir / "toy.txt.gz", "wt", encoding="utf-8") as f:
+        f.write("# SNAP edge list\n10 20\n20 40\n")
+
+    original_download = tri_4cliq.download_snap_dataset
+
+    def download_from_tmp(dataset_name):
+        return original_download(dataset_name, data_dir=tmp_path)
+
+    monkeypatch.setattr(tri_4cliq, "download_snap_dataset", download_from_tmp)
+
+    dataset = tri_4cliq.GraphCountingDataset("snap-toy")
+    data, meta = tri_4cliq.FourCliqueCountGenerator().generate(dataset)
+
+    assert data[0].data["shape"] == (3, 3)
+    assert meta["snap_slug"] == "toy"
+    assert meta["src"] == 0

@@ -1,3 +1,5 @@
+import gzip
+
 import pytest
 
 import numpy as np
@@ -221,3 +223,32 @@ def test_bellman_ford_networks(matrix_builder, src):
     result = result.ravel()
     ref = bellman_ford_reference(A, src)
     assert np.allclose(result, ref, equal_nan=True)
+
+
+def test_bellman_ford_generator_loads_snap_dataset(monkeypatch, tmp_path):
+    dataset_dir = tmp_path / "toy"
+    dataset_dir.mkdir()
+    with gzip.open(dataset_dir / "toy.txt.gz", "wt", encoding="utf-8") as file:
+        file.write("# SNAP edge list\n10 20\n20 40\n")
+
+    original_download = bellmanford.download_snap_dataset
+
+    def download_from_tmp(dataset_name):
+        return original_download(dataset_name, data_dir=tmp_path)
+
+    monkeypatch.setattr(bellmanford, "download_snap_dataset", download_from_tmp)
+
+    dataset = bellmanford.BellmanFordDataset("snap-toy")
+    data, meta = bellmanford.BellmanFordGenerator().generate(dataset)
+    matrix = data[0].data["values"].reshape(data[0].data["shape"])
+
+    expected = np.array(
+        [
+            [0.0, 1.0, np.inf],
+            [np.inf, 0.0, 1.0],
+            [np.inf, np.inf, 0.0],
+        ]
+    )
+    assert np.array_equal(matrix, expected)
+    assert meta["snap_slug"] == "toy"
+    assert meta["src"] == 0
