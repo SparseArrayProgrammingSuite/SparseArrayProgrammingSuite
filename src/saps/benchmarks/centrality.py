@@ -1,12 +1,116 @@
+from typing import Any
+
 import saps
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    Dataset,
+    Generator,
     Ref,
 )
 
+from saps.downloaders.snap import download_snap_dataset
+from saps_framework.binsparse_format import BinsparseFormat
+
 xp = saps.xp
+
+
+class BetweennessCentralityDataset(Dataset):
+    def __init__(
+        self,
+        name: str,
+        pretty_name: str | None = None,
+        description: str | None = None,
+        tags: list[str] | None = None,
+    ):
+        self._name = name
+        self._pretty_name = pretty_name or name
+        self._description = description or f"Betweenness centrality input {name}."
+        self._tags = tags or ["graph", "centrality", "sparse"]
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @property
+    def tags(self) -> list[str]:
+        return self._tags
+
+
+class BetweennessCentralityGenerator(Generator[BetweennessCentralityDataset]):
+    @property
+    def name(self) -> str:
+        return "betweenness_centrality_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Betweenness Centrality Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Input generator for betweenness centrality benchmarks."
+
+    @property
+    def tags(self) -> list[str]:
+        return ["graph", "centrality", "sparse"]
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Aadharsh Rajkumar", "arajkumar34@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to construct the benchmark function. This"
+            " statement is written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Generate sparse directed graph inputs for betweenness centrality."
+
+    @property
+    def datasets(self) -> list[BetweennessCentralityDataset]:
+        return [
+            BetweennessCentralityDataset(
+                name="snap-email-Eu-core-temporal-Dept3",
+                pretty_name="SNAP email-Eu-core temporal Dept3",
+                description=(
+                    "Department 3 email network from the SNAP email-Eu-core"
+                    " temporal dataset, with 89 nodes and 1,506 static edges."
+                ),
+                tags=["graph", "centrality", "sparse", "snap", "directed"],
+            ),
+            BetweennessCentralityDataset(
+                name="snap-email-Eu-core-temporal-Dept4",
+                pretty_name="SNAP email-Eu-core temporal Dept4",
+                description=(
+                    "Department 4 email network from the SNAP email-Eu-core"
+                    " temporal dataset, with 142 nodes and 1,375 static edges."
+                ),
+                tags=["graph", "centrality", "sparse", "snap", "directed"],
+            ),
+        ]
+
+    def generate(
+        self, dataset: BetweennessCentralityDataset
+    ) -> tuple[list[BinsparseFormat], Any]:
+        if dataset.name.startswith("snap"):
+            return download_snap_dataset(dataset.name)
+        raise ValueError(f"Unsupported betweenness centrality dataset: {dataset.name}")
 
 
 class BetweennessCentralityBenchmark(Benchmark):
@@ -83,11 +187,11 @@ class BetweennessCentralityBenchmark(Benchmark):
         return ""
 
     @property
-    def generators(self):
-        return []
+    def generators(self) -> list[Generator[BetweennessCentralityDataset]]:
+        return [BetweennessCentralityGenerator()]
 
     def benchmark(self, data, meta):
-        G = xp.from_binsparse(data[0])
+        G = data[0]
         n = G.shape[0]
         bc_scores = xp.zeros((n,), dtype=float)
 
