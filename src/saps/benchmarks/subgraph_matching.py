@@ -185,6 +185,10 @@ class SubgraphGCareGenerator(Generator[SubgraphGCareDataset]):
     @property
     def pretty_name(self) -> str:
         return "Subgraph G-CARE Input Generator"
+    
+    @property
+    def cacheable(self) -> bool:
+        return False
 
     @property
     def description(self) -> str:
