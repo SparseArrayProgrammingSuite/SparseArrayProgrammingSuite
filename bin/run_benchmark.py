@@ -276,14 +276,12 @@ def main() -> int:
         matrix["env_nobuild"]["REMOTE_STORAGE_BACKEND"] = args.remote_storage_backend
     if args.remote_storage_bucket is not None:
         matrix["env_nobuild"]["REMOTE_STORAGE_BUCKET"] = args.remote_storage_bucket
-    if "SAPS_CACHE_DIR" not in matrix["env_nobuild"]:
-        cache_dir = str(outputs_dir / "cache")
-        os.environ["SAPS_CACHE_DIR"] = cache_dir
-        matrix["env_nobuild"]["SAPS_CACHE_DIR"] = [cache_dir]
-    if "SAPS_MANIFEST_PATH" not in matrix["env_nobuild"]:
-        manifest_path = str(repo_root / "manifest.json")
-        os.environ["SAPS_MANIFEST_PATH"] = manifest_path
-        matrix["env_nobuild"]["SAPS_MANIFEST_PATH"] = [manifest_path]
+    cache_dir = str(outputs_dir / "cache")
+    os.environ["SAPS_CACHE_DIR"] = cache_dir
+    matrix["env_nobuild"]["SAPS_CACHE_DIR"] = [cache_dir]
+    manifest_path = str(repo_root / "manifest.json")
+    os.environ["SAPS_MANIFEST_PATH"] = manifest_path
+    matrix["env_nobuild"]["SAPS_MANIFEST_PATH"] = [manifest_path]
 
     # Construct ASV config dict with all fields visible
     asv_config_dict = {
