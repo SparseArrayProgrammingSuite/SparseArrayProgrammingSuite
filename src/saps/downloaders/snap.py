@@ -46,6 +46,37 @@ def download_snap_dataset(
     return [adjacency], meta
 
 
+def load_toy_dataset(data_dir: str | Path | None = None) -> tuple[list[BinsparseFormat], dict]:
+    root = Path(data_dir) if data_dir is not None else _default_data_dir()
+    dataset_dir = root / "toy"
+    dataset_dir.mkdir(parents=True, exist_ok=True)
+
+    gz_path = dataset_dir / "toy.txt.gz"
+    txt_path = dataset_dir / "toy.txt"
+
+    if not txt_path.exists():
+        if not gz_path.exists():
+            with gzip.open(gz_path, "wt", encoding="utf-8") as file:
+                file.write("# SNAP edge list\n10 20\n20 40\n")
+
+        with gzip.open(gz_path, "rb") as source, txt_path.open("wb") as target:
+            shutil.copyfileobj(source, target)
+
+    edge_list_path = txt_path
+    adjacency, meta = parse_snap_edge_list(
+        edge_list_path, directed=True, remap_nodes=True
+    )
+    meta.update(
+        {
+            "dataset_name": "snap-toy",
+            "snap_slug": "toy",
+            "source_url": "N/A",
+            "path": str(edge_list_path),
+        }
+    )
+    return [adjacency], meta
+
+
 def parse_snap_edge_list(
     path: str | Path,
     *,
@@ -102,7 +133,7 @@ def _snap_slug(dataset_name: str) -> str:
     name = dataset_name.strip()
     for prefix in ("snap://", "snap:", "snap/", "snap-", "snap_"):
         if name.startswith(prefix):
-            name = name[len(prefix) :]
+            name = name[len(prefix):]
             break
     name = name.removesuffix(".txt").removesuffix(".gz")
     if not re.fullmatch(r"[A-Za-z0-9_.-]+", name):
@@ -155,4 +186,3 @@ def _open_text(path: Path) -> IO[str]:
     if path.suffix == ".gz":
         return gzip.open(path, mode="rt", encoding="utf-8")
     return path.open(encoding="utf-8")
-
