@@ -1,7 +1,7 @@
 import inspect
+import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-import os
 from typing import Any, Generic, TypeAlias, TypeVar
 
 from saps.framework import xp
@@ -149,6 +149,10 @@ class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
         return self._backend
 
     def cached_generate(self, dataset: TDataset) -> DataInstance:
+        cacheable = self.cacheable
+        if not cacheable:
+            return self.generate(dataset)
+
         return self.backend.retrieve_dataset(self, dataset)
 
     @abstractmethod

@@ -24,6 +24,7 @@ import saps
 
 logging.basicConfig(level=logging.INFO)
 
+
 def format_results(results: Results, benchmarks: Benchmarks) -> dict:
     """Return a JSON-serializable snapshot of benchmark results."""
     entries: dict[str, dict] = {}
@@ -51,7 +52,7 @@ def format_results(results: Results, benchmarks: Benchmarks) -> dict:
     }
 
 
-def _upload_all(benchmarks, metadata, backend, is_include, is_exclude) -> int:
+def _upload(benchmarks, metadata, backend, is_include, is_exclude) -> int:
     """Walk every (benchmark, generator, dataset) triple and upload."""
     uploaded = failed = skipped = 0
     seen: set[tuple[str, str]] = set()
@@ -250,25 +251,27 @@ def main() -> int:
         if saps_config_file.exists():
             with open(saps_config_file) as f:
                 saps_config_data = json.load(f)
-    
-    matrix = saps_config_data.get("matrix", 
-                                    {
-                                        "req": {
-                                            "numpy": ["2.3"],
-                                            "scipy": ["1.16.2"],
-                                            "sparse": ["0.17.0"],
-                                            "lark": ["1.3.0"],
-                                            "ssgetpy": ["1.0rc2"],
-                                        },
-                                        "env_nobuild": {
-                                            "SAPS_FRAMEWORK": [
-                                                "frameworks/saps_numpy.py",
-                                                "frameworks/saps_scipy.py",
-                                                "frameworks/saps_sparse.py",
-                                            ],
-                                            "SAPS_REPO_ROOT": [str(repo_root)],
-                                        },
-                                    },)
+
+    matrix = saps_config_data.get(
+        "matrix",
+        {
+            "req": {
+                "numpy": ["2.3"],
+                "scipy": ["1.16.2"],
+                "sparse": ["0.17.0"],
+                "lark": ["1.3.0"],
+                "ssgetpy": ["1.0rc2"],
+            },
+            "env_nobuild": {
+                "SAPS_FRAMEWORK": [
+                    "frameworks/saps_numpy.py",
+                    "frameworks/saps_scipy.py",
+                    "frameworks/saps_sparse.py",
+                ],
+                "SAPS_REPO_ROOT": [str(repo_root)],
+            },
+        },
+    )
     if args.remote_storage_backend is not None:
         matrix["env_nobuild"]["REMOTE_STORAGE_BACKEND"] = args.remote_storage_backend
     if args.remote_storage_bucket is not None:
@@ -300,9 +303,9 @@ def main() -> int:
             "results_dir", str(outputs_dir / "results")
         ),
         "html_dir": str(outputs_dir / "html"),
-        "matrix": matrix
+        "matrix": matrix,
     }
-    log.info(f"Using SAPS config: {saps_config_data}")  
+    log.info(f"Using SAPS config: {saps_config_data}")
     # Create ASV config from dict
     conf = Config.from_json(asv_config_dict)
 
@@ -399,7 +402,7 @@ def main() -> int:
             type=args.remote_storage_backend,
             bucket=args.remote_storage_bucket,
         )
-        return _upload_all(
+        return _upload(
             benchmarks=benchmarks,
             metadata=metadata,
             backend=backend,
@@ -483,7 +486,7 @@ def main() -> int:
 
         print("Results object:", results)
         print(json.dumps(format_results(results, benchmarks), indent=2, default=str))
-        results.save(outputs_dir / f"results")
+        results.save(outputs_dir / "results")
     return 0
 
 

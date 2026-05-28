@@ -1,24 +1,23 @@
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
 import os
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
-import boto3
-import json
-import hashlib
 from pathlib import Path
+from typing import TYPE_CHECKING
 
+import boto3
 import botocore
 
 from saps_framework.binsparse_format import BinsparseFormat
 
 if TYPE_CHECKING:
-    from .benchmark import DataInstance, Generator, Dataset
+    from .benchmark import DataInstance, Dataset, Generator
 
 
 class StorageBackend(ABC):
-
     def __init__(self, manifest_path: Path, cache_dir: Path) -> None:
         self.manifest_path = Path(manifest_path)
         self.cache_dir = Path(cache_dir)
@@ -43,8 +42,10 @@ class StorageBackend(ABC):
     def serialize_data(self, data: DataInstance) -> str:
         binsparse_list, meta = data
         binsparse_strings = [binsparse.serialize() for binsparse in binsparse_list]
-        return json.dumps({"binsparse": binsparse_strings, "meta": meta}, sort_keys=True, indent=2)
-    
+        return json.dumps(
+            {"binsparse": binsparse_strings, "meta": meta}, sort_keys=True, indent=2
+        )
+
     def serialize_data_to_file(self, data: DataInstance, local_path: Path) -> None:
         os.makedirs(local_path.parent, exist_ok=True)
         with open(local_path, "w") as f:
@@ -54,18 +55,22 @@ class StorageBackend(ABC):
         data = json.loads(json_str)
         binsparse_strings = data["binsparse"]
         meta = data["meta"]
-        binsparse_list = [BinsparseFormat.deserialize(string) for string in binsparse_strings]
+        binsparse_list = [
+            BinsparseFormat.deserialize(string) for string in binsparse_strings
+        ]
         return (binsparse_list, meta)
-    
+
     def deserialize_data_from_file(self, local_path: Path) -> DataInstance:
-        with open(local_path, "r") as f:
+        with open(local_path) as f:
             return self.deserialize_data(f.read())
 
-    def code_and_data_hash(self, generator: Generator, dataset: Dataset, data: DataInstance) -> str:
+    def code_and_data_hash(
+        self, generator: Generator, dataset: Dataset, data: DataInstance
+    ) -> str:
         m = hashlib.sha256()
         m.update(self.serialize_data(data).encode("utf-8"))
         m.update(json.dumps(dataset.metadata, sort_keys=True).encode("utf-8"))
-#        m.update(generator.generate.__code__.co_code)
+        #        m.update(generator.generate.__code__.co_code)
         print(f"Generator Name: {generator.name} Code and data hash: {m.hexdigest()}")
         return m.hexdigest()
 
@@ -74,7 +79,9 @@ class StorageBackend(ABC):
             return {}
         return json.loads(self.manifest_path.read_text())
 
-    def update_manifest(self, generator: Generator, dataset: Dataset, digest: str) -> None:
+    def update_manifest(
+        self, generator: Generator, dataset: Dataset, digest: str
+    ) -> None:
         manifest = self._read_manifest()
         dataset_key = f"{generator.name}.{dataset.name}"
         manifest[dataset_key] = {"digest": digest}
@@ -100,16 +107,14 @@ class StorageBackend(ABC):
             self.update_manifest(generator, dataset, digest)
         return successful
 
-    def retrieve_dataset(self, generator: Generator, dataset: Dataset) -> DataInstance | None:
+    def retrieve_dataset(
+        self, generator: Generator, dataset: Dataset
+    ) -> DataInstance | None:
         """Retrieve the dataset by, in order:
-            1. The cache
-            2. Remote Storage
-            3. Generating it
+        1. The cache
+        2. Remote Storage
+        3. Generating it
         """
-        cacheable = generator.cacheable
-        if not cacheable:
-            return generator.generate(dataset)
-        
         digest = self.check_manifest(generator, dataset)
         if not digest:
             data = generator.generate(dataset)
@@ -126,15 +131,20 @@ class StorageBackend(ABC):
             logging.info(f"Dataset {generator.name}.{dataset.name} found in cache.")
             logging.info(f"Manifest path: {self.manifest_path}")
         if not cache_path.exists():
-            logging.info(f"Dataset {generator.name}.{dataset.name} not found in cache at {cache_path}")
+            logging.info(
+                f"Dataset {generator.name}.{dataset.name} not found in cache at {cache_path}"
+            )
             logging.info(f"Manifest path: {self.manifest_path}")
             cache_path.parent.mkdir(parents=True, exist_ok=True)
             if not self.download_file(prefix, cache_path):
-                logging.error(f"Failed to download dataset {generator.name}.{dataset.name} from remote storage.")
+                logging.error(
+                    f"Failed to download dataset {generator.name}.{dataset.name} from remote storage."
+                )
                 return None
         data = self.deserialize_data_from_file(cache_path)
-        assert digest == self.code_and_data_hash(generator, dataset, data), \
+        assert digest == self.code_and_data_hash(generator, dataset, data), (
             "Data integrity check failed: hash mismatch"
+        )
         return data
 
 
@@ -175,7 +185,7 @@ class S3StorageBackend(StorageBackend):
         super().__init__(manifest_path, cache_dir)
         # Accept either "s3://bucket" or plain "bucket"
         if bucket_name.startswith("s3://"):
-            bucket_name = bucket_name[len("s3://"):]
+            bucket_name = bucket_name[len("s3://") :]
         bucket_name = bucket_name.split("/", 1)[0]
         self.bucket_name = bucket_name
         self.s3 = boto3.client("s3")
@@ -192,7 +202,7 @@ class S3StorageBackend(StorageBackend):
         try:
             self.s3.head_object(Bucket=self.bucket_name, Key=remote_prefix)
             return True
-        except botocore.exceptions.ClientError as e:
+        except botocore.exceptions.ClientError:
             return False
 
     def download_file(self, remote_prefix: str, local_path: Path) -> bool:
@@ -214,7 +224,6 @@ def build_storage_backend(
     print(f"cache_dir: {cache_dir}")
     if type == "local":
         return LocalStorageBackend(bucket, manifest_path, cache_dir)
-    elif type == "s3":
+    if type == "s3":
         return S3StorageBackend(bucket, manifest_path, cache_dir)
-    else:
-        raise ValueError(f"Unsupported storage backend type: {type}")
+    raise ValueError(f"Unsupported storage backend type: {type}")
