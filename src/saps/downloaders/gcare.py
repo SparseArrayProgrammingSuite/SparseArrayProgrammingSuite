@@ -17,86 +17,112 @@ import gdown
 from saps_framework.binsparse_format import BinsparseFormat
 
 
-def load_gcare_dataset(
+def list_gcare_queries(dataset_name: str, data_dir: str | Path | None = None) -> list[str]:
+    """Return query identifiers for *dataset_name* as POSIX paths relative to
+    ``queryset/<dataset_name>/``, without the ``.txt`` extension.
+
+    Example: ``"p0/query001"``
+    """
+    root = Path(data_dir) if data_dir is not None else _default_data_dir()
+    _ensure_downloaded(root)
+    _, queryset_dir, _ = _get_dirs(root)
+    base = queryset_dir / dataset_name
+    return [
+        p.relative_to(base).with_suffix("").as_posix()
+        for p in base.rglob("*.txt")
+    ]
+
+
+def load_gcare_graph(
     dataset_name: str,
     *,
     data_dir: str | Path | None = None,
-) -> tuple[list[BinsparseFormat], dict]:
-    """Download (if needed) and parse a G-CARE dataset.
+) -> tuple[list[BinsparseFormat], dict[str, Any]]:
+    """Download (if needed) and parse the G-CARE data-graph for *dataset_name*.
 
-    Follows the same convention as ``download_snap_dataset``: returns a flat
-    ``list[BinsparseFormat]`` so the harness can convert each matrix uniformly.
-
-    Because each query needs several named matrices, the flat list concatenates
-    all queries' matrices in order.  The ``meta`` dict carries the grouping
-    information needed to reconstruct per-query dicts in ``benchmark()``:
-
-    * ``"exprs"``        – einsum string, one per query
-    * ``"gts"``         – ground-truth count, one per query
-    * ``"names"``       – query stem name, one per query
-    * ``"query_sizes"`` – number of matrices belonging to each query
-    * ``"matrix_names"``– name (e.g. ``"V0"``, ``"E1"``) for every flat entry,
-                          in the same order as the flat list
+    Returns ``(bin_mats, graph_meta)`` where *bin_mats* is the list of graph
+    matrices as :class:`BinsparseFormat` and *graph_meta* contains
+    ``"matrix_names"``, ``"max_vid"``, and ``"continous_label"``.
+    Pass both directly to :func:`load_gcare_query` to build per-query inputs.
     """
     root = Path(data_dir) if data_dir is not None else _default_data_dir()
-    dataset_dir, queryset_dir, ground_truth_dir = download_gcare_data(root)
-
-    max_vid, continous_label, all_sp_mats = read_gcare_data(
+    _ensure_downloaded(root)
+    dataset_dir, _, _ = _get_dirs(root)
+    max_vid, continous_label, raw_sp_mats = _parse_graph(
         dataset_dir / dataset_name / f"{dataset_name}.txt"
     )
+    matrix_names: list[str] = []
+    bin_mats: list[BinsparseFormat] = []
+    for name, raw in raw_sp_mats.items():
+        matrix_names.append(name)
+        bin_mats.append(BinsparseFormat.from_coo(raw["I_tuple"], raw["V"], raw["shape"]))
+    meta = {"matrix_names": matrix_names, "max_vid": max_vid, "continous_label": continous_label}
+    return bin_mats, meta
 
-    queries: dict[str, dict] = {}
 
-    for query_path in (queryset_dir / dataset_name).rglob("*.txt"):
-        sp_mats_needed, expr = process_one_query(
-            query_path, all_sp_mats, max_vid, continous_label
-        )
-        queries[query_path.stem] = {"matrices": sp_mats_needed, "expr": expr}
+def load_gcare_query(
+    dataset_name: str,
+    query_rel_path: str,
+    bin_mats: list[BinsparseFormat],
+    graph_meta: dict[str, Any],
+    *,
+    data_dir: str | Path | None = None,
+) -> tuple[list[BinsparseFormat], dict]:
+    """Build the benchmark input for a single query.
 
-    for gt_path in (ground_truth_dir / dataset_name).rglob("*.txt"):
-        with open(gt_path) as f:
-            queries[gt_path.stem]["ground_truth"] = int(f.readline())
+    *query_rel_path* is a POSIX path relative to ``queryset/<dataset_name>/``
+    without the ``.txt`` extension, as returned by :func:`list_gcare_queries`.
 
-    # Flatten: one BinsparseFormat per matrix, across all queries in order.
-    flat_matrices: list[BinsparseFormat] = []
-    meta: dict[str, list[Any]] = {
-        "exprs": [],
-        "gts": [],
-        "names": [],
-        "query_sizes": [],
-        "matrix_names": [],
+    *bin_mats* and *graph_meta* must come from :func:`load_gcare_graph` for
+    the same *dataset_name* (*graph_meta* must contain ``"matrix_names"``,
+    ``"max_vid"``, and ``"continous_label"``).
+
+    Returns ``(bin_mats, meta)`` where *meta* contains scalar fields ``"expr"``,
+    ``"gt"``, ``"name"``, and a list ``"matrix_names"`` parallel to *bin_mats*.
+    """
+    root = Path(data_dir) if data_dir is not None else _default_data_dir()
+    _ensure_downloaded(root)
+    _, queryset_dir, ground_truth_dir = _get_dirs(root)
+
+    all_sp_mats: dict[str, BinsparseFormat] = dict(zip(graph_meta["matrix_names"], bin_mats))
+    max_vid: int = graph_meta["max_vid"]
+    continous_label: bool = graph_meta["continous_label"]
+
+    query_path = queryset_dir / dataset_name / (query_rel_path + ".txt")
+    sp_mats_needed, expr = _build_query_matrices(
+        query_path, all_sp_mats, max_vid, continous_label
+    )
+
+    query_stem = Path(query_rel_path).name
+    gt_matches = list((ground_truth_dir / dataset_name).rglob(f"{query_stem}.txt"))
+    ground_truth = int(gt_matches[0].read_text().strip().split()[0]) if gt_matches else 0
+
+    bin_mats = list(sp_mats_needed.values())
+    meta: dict[str, Any] = {
+        "expr": expr,
+        "gt": ground_truth,
+        "name": query_rel_path,
+        "matrix_names": list(sp_mats_needed.keys()),
     }
-    for query_name, query_data in queries.items():
-        named_mats: dict[str, BinsparseFormat] = query_data["matrices"]
-        meta["exprs"].append(query_data["expr"])
-        meta["gts"].append(query_data["ground_truth"])
-        meta["names"].append(query_name)
-        meta["query_sizes"].append(len(named_mats))
-        for mat_name, mat in named_mats.items():
-            flat_matrices.append(mat)
-            meta["matrix_names"].append(mat_name)
-
-    return flat_matrices, meta
+    return bin_mats, meta
 
 
 # ---------------------------------------------------------------------------
 # Download helpers
 # ---------------------------------------------------------------------------
 
-def download_gcare_data(root_dir: Path):
-    """Download and extract the three G-CARE tarballs into *root_dir*.
+def _get_dirs(root: Path) -> tuple[Path, Path, Path]:
+    return root / "dataset", root / "queryset", root / "ground_truth"
 
-    Returns ``(dataset_dir, queryset_dir, ground_truth_dir)``.
-    """
-    dataset_dir = root_dir / "dataset"
-    queryset_dir = root_dir / "queryset"
-    ground_truth_dir = root_dir / "ground_truth"
+
+def _ensure_downloaded(root: Path) -> None:
+    """Download and extract the three G-CARE tarballs into *root* if not present."""
+    dataset_dir, queryset_dir, ground_truth_dir = _get_dirs(root)
 
     dataset_link = "https://drive.google.com/file/d/1HAgSVE-24NOap6_Q1_twH56Dkb2kPvGU/view?usp=sharing"
     queryset_link = "https://drive.google.com/file/d/1Dlj43rBAOVPAsfzKlYxIbZ9RsqeGM_MN/view?usp=sharing"
     ground_truth_link = "https://drive.google.com/file/d/1Bc6Q2RZQTcIB8IfOw5KafNYwPhq2BO94/view?usp=sharing"
 
-    # Download dataset
     dataset_dir.mkdir(parents=True, exist_ok=True)
     gdown.cached_download(  # type: ignore[attr-defined]
         dataset_link,
@@ -106,7 +132,6 @@ def download_gcare_data(root_dir: Path):
     with tarfile.open(dataset_dir / "dataset.tar.gz", "r:gz") as tar:
         tar.extractall(path=dataset_dir, filter="data")
 
-    # Download queryset
     queryset_dir.mkdir(parents=True, exist_ok=True)
     gdown.cached_download(  # type: ignore[attr-defined]
         queryset_link,
@@ -116,7 +141,6 @@ def download_gcare_data(root_dir: Path):
     with tarfile.open(queryset_dir / "queryset.tar.gz", "r:gz") as tar:
         tar.extractall(path=queryset_dir, filter="data")
 
-    # Download ground truth
     ground_truth_dir.mkdir(parents=True, exist_ok=True)
     gdown.cached_download(  # type: ignore[attr-defined]
         ground_truth_link,
@@ -126,19 +150,17 @@ def download_gcare_data(root_dir: Path):
     with tarfile.open(ground_truth_dir / "ground_truth.tar.gz", "r:gz") as tar:
         tar.extractall(path=ground_truth_dir, filter="data")
 
-    return dataset_dir, queryset_dir, ground_truth_dir
-
 
 # ---------------------------------------------------------------------------
 # Parsers
 # ---------------------------------------------------------------------------
 
-def read_gcare_data(p: Path):
-    """Parse a G-CARE data-graph file.
+def _parse_graph(p: Path):
+    """Parse a G-CARE graph file into raw COO dicts.
 
-    Returns ``(max_vid, continous_label, sp_mats)`` where *sp_mats* is a dict
-    mapping matrix names (``"V{label}"``, ``"E{label}"``, optionally ``"C"``)
-    to raw COO dicts (keys: ``"V"``, ``"I_tuple"``, ``"shape"``).
+    Returns ``(max_vid, continous_label, sp_mats)`` where *sp_mats* maps matrix
+    names (``"V{label}"``, ``"E{label}"``, optionally ``"C"``) to COO dicts
+    with keys ``"V"``, ``"I_tuple"``, ``"shape"``.
     """
     with p.open("r", encoding="utf-8") as f:
         max_vid = 0
@@ -220,12 +242,11 @@ def read_gcare_data(p: Path):
         return max_vid, continous_label, sp_mats
 
 
-def read_gcare_query(p: Path, continous_label: bool = True):
+def _parse_query(p: Path, continous_label: bool = True):
     """Parse a G-CARE query file into a framework einsum expression.
 
-    Returns ``(expr, qvs, sp_mats_name)`` where *expr* is a string suitable
-    for ``xp.einsum()``, *qvs* is the list of query-variable names, and
-    *sp_mats_name* is the set of sparse-matrix names required.
+    Returns ``(expr, qvs, sp_mats_name)``: the einsum string, query-variable
+    names, and the set of sparse-matrix names required.
     """
     with p.open("r", encoding="utf-8") as f:
         exprs = []
@@ -262,17 +283,18 @@ def read_gcare_query(p: Path, continous_label: bool = True):
         return final_expr, qvs, sp_mats_name
 
 
-def process_one_query(
+def _build_query_matrices(
     query_path: Path,
-    all_sp_mats: dict[str, Any],
+    all_sp_mats: dict[str, BinsparseFormat],
     max_vid: int,
     continous_label: bool,
 ) -> tuple[dict[str, BinsparseFormat], str]:
-    """Build the ``BinsparseFormat`` matrices needed for a single query.
+    """Select matrices needed by a query from the pre-converted graph matrices.
 
-    Returns ``(sp_mats_needed, expr)`` ready for the benchmark.
+    Missing matrix names (not present in *all_sp_mats*) get a zero or one-hot
+    placeholder sized to *max_vid*.  Returns ``(sp_mats_needed, expr)``.
     """
-    expr, _, sp_mats_name = read_gcare_query(
+    expr, _, sp_mats_name = _parse_query(
         query_path, continous_label=continous_label
     )
 
@@ -298,10 +320,7 @@ def process_one_query(
                     (max_vid + 1, max_vid + 1),
                 )
         else:
-            sp_mat = all_sp_mats[sp_name]
-            sp_mats_needed[sp_name] = BinsparseFormat.from_coo(
-                sp_mat["I_tuple"], sp_mat["V"], sp_mat["shape"]
-            )
+            sp_mats_needed[sp_name] = all_sp_mats[sp_name]
 
     return sp_mats_needed, expr
 
