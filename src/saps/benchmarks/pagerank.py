@@ -65,7 +65,7 @@ class PageRankGenerator(Generator[PageRankDataset]):
 
     @property
     def authors(self) -> list[Contributor]:
-        return [Contributor("Aarav Joglekar", "ajoglekar32@gatech.edu")]
+        return []
 
     @property
     def references(self) -> list[Ref]:
@@ -74,9 +74,8 @@ class PageRankGenerator(Generator[PageRankDataset]):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to construct the benchmark function itself."
-            " Generative AI might have been used to construct tests. This statement was"
-            " written by hand."
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
         )
 
     @property

@@ -65,7 +65,7 @@ class BetweennessCentralityGenerator(Generator[BetweennessCentralityDataset]):
 
     @property
     def authors(self) -> list[Contributor]:
-        return [Contributor("Aadharsh Rajkumar", "arajkumar34@gatech.edu")]
+        return []
 
     @property
     def references(self) -> list[Ref]:
@@ -74,8 +74,8 @@ class BetweennessCentralityGenerator(Generator[BetweennessCentralityDataset]):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to construct the benchmark function. This"
-            " statement is written by hand."
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
         )
 
     @property

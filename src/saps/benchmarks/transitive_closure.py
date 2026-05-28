@@ -65,10 +65,7 @@ class TransitiveClosureGenerator(Generator[TransitiveClosureDataset]):
 
     @property
     def authors(self) -> list[Contributor]:
-        return [
-            Contributor("Rithvik Reddygari", "rreddygari3@gatech.edu"),
-            Contributor("Joel Mathew Cherian", "jcherian32@gatech.edu"),
-        ]
+        return []
 
     @property
     def references(self) -> list[Ref]:
@@ -77,8 +74,8 @@ class TransitiveClosureGenerator(Generator[TransitiveClosureDataset]):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to construct the benchmark function itself. "
-            "Generative AI might have been used to construct tests."
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
         )
 
     @property

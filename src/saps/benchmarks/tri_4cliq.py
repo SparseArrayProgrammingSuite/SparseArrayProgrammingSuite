@@ -58,7 +58,7 @@ class TriangleCountGenerator(Generator[GraphCountingDataset]):
 
     @property
     def authors(self) -> list[Contributor]:
-        return [Contributor("Jeffrey Xu", "jxu743@gatech.edu")]
+        return []
 
     @property
     def references(self) -> list[Ref]:
@@ -67,8 +67,8 @@ class TriangleCountGenerator(Generator[GraphCountingDataset]):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to write the benchmark function itself. "
-            "Generative AI was used to debug code. This statement was written by hand."
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
         )
 
     @property
