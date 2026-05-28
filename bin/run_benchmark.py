@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import importlib
 import json
+import logging
 import os
 import re
 from itertools import product
@@ -20,6 +21,8 @@ from asv.results import Results
 from asv.runner import run_benchmarks
 
 import saps
+
+logging.basicConfig(level=logging.INFO)
 
 
 def format_results(results: Results, benchmarks: Benchmarks) -> dict:
@@ -47,6 +50,53 @@ def format_results(results: Results, benchmarks: Benchmarks) -> dict:
         "result_count": len(entries),
         "results": entries,
     }
+
+
+def _upload(benchmarks, metadata, backend, is_include, is_exclude) -> int:
+    """Walk every (benchmark, generator, dataset) triple and upload."""
+    uploaded = failed = skipped = 0
+    seen: set[tuple[str, str]] = set()
+    for name in benchmarks:
+        if name not in metadata:
+            continue
+        bench_meta = metadata[name]
+        if is_exclude(bench_meta):
+            continue
+        module_name, class_name, _method = name.rsplit(".", 2)
+        bench_module = importlib.import_module(f"saps.benchmarks.{module_name}")
+        bench = getattr(bench_module, class_name)()
+        for gen in bench.generators:
+            gen_meta = gen.metadata
+            if is_exclude(gen_meta):
+                continue
+            for ds in gen.datasets:
+                ds_meta = ds.metadata
+                if is_exclude(ds_meta):
+                    continue
+                if not (
+                    is_include(bench_meta)
+                    or is_include(gen_meta)
+                    or is_include(ds_meta)
+                ):
+                    continue
+                key = (gen.name, ds.name)
+                if key in seen:
+                    skipped += 1
+                    continue
+                seen.add(key)
+                label = f"{bench.name} / {gen.name} / {ds.name}"
+                try:
+                    if backend.upload_dataset(gen, ds):
+                        uploaded += 1
+                        print(f"[uploaded] {label}")
+                    else:
+                        failed += 1
+                        print(f"[failed]   {label}")
+                except Exception as e:
+                    failed += 1
+                    print(f"[error]    {label}: {e}")
+    print(f"upload summary: uploaded={uploaded} failed={failed} skipped={skipped}")
+    return 0 if failed == 0 else 1
 
 
 def main() -> int:
@@ -89,6 +139,35 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--remote-storage-backend",
+        default=None,
+        help=(
+            "Remote storage backend to use for uploading and downloading datasets "
+            " (local or s3)"
+            "In order to use s3 for upload, you must have AWS credentials configured"
+            " (AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY)."
+        ),
+    )
+    parser.add_argument(
+        "--remote-storage-bucket",
+        default=None,
+        help=(
+            "Remote storage bucket name to use for uploading and downloading datasets "
+            "standard s3 bucket is 'sparse-array-programming-suite'"
+            "(local backend will use this as a directory path)"
+        ),
+    )
+    parser.add_argument(
+        "--upload-datasets",
+        action="store_true",
+        help=(
+            "Skip benchmark execution. Instead, walk every "
+            "(benchmark, generator, dataset) triple, generate the data, "
+            "and upload it via the configured storage backend. Honors "
+            "--re/--no-re/--tag/--no-tag filters."
+        ),
+    )
+    parser.add_argument(
         "--no-tag",
         action="append",
         default=[],
@@ -125,13 +204,35 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    import logging as _logging
+
+    if not _logging.getLogger().handlers:
+        _logging.basicConfig(
+            level=_logging.INFO,
+            format="%(levelname)s %(name)s: %(message)s",
+        )
+
+    if args.upload_datasets and saps.xp is None:
+        # Upload mode runs in the caller's env (no ASV subproc), so default the
+        # framework so benchmark modules can call xp.to_binsparse(...) at generate time.
+        import importlib as _importlib
+
+        os.environ.setdefault(
+            "SAPS_FRAMEWORK",
+            str(Path(__file__).resolve().parent.parent / "frameworks/saps_numpy.py"),
+        )
+        import saps.framework as _saps_framework
+
+        _importlib.reload(_saps_framework)
+        saps.xp = _saps_framework.xp
+
     log.enable(args.verbose)
 
     # Get repo root (parent of bin directory where this script is)
     repo_root = Path(__file__).parent.parent
 
     # Load SAPS configuration
-    saps_dir = Path(".saps")
+    saps_dir = Path(".saps").resolve()
     saps_dir.mkdir(parents=True, exist_ok=True)
     machine_files_dir = saps_dir / "machine_files"
     machine_files_dir.mkdir(parents=True, exist_ok=True)
@@ -151,6 +252,37 @@ def main() -> int:
             with open(saps_config_file) as f:
                 saps_config_data = json.load(f)
 
+    matrix = saps_config_data.get(
+        "matrix",
+        {
+            "req": {
+                "numpy": ["2.3"],
+                "scipy": ["1.16.2"],
+                "sparse": ["0.17.0"],
+                "lark": ["1.3.0"],
+                "ssgetpy": ["1.0rc2"],
+            },
+            "env_nobuild": {
+                "SAPS_FRAMEWORK": [
+                    "frameworks/saps_numpy.py",
+                    "frameworks/saps_scipy.py",
+                    "frameworks/saps_sparse.py",
+                ],
+                "SAPS_REPO_ROOT": [str(repo_root)],
+            },
+        },
+    )
+    if args.remote_storage_backend is not None:
+        matrix["env_nobuild"]["REMOTE_STORAGE_BACKEND"] = args.remote_storage_backend
+    if args.remote_storage_bucket is not None:
+        matrix["env_nobuild"]["REMOTE_STORAGE_BUCKET"] = args.remote_storage_bucket
+    cache_dir = str(outputs_dir / "cache")
+    os.environ["SAPS_CACHE_DIR"] = cache_dir
+    matrix["env_nobuild"]["SAPS_CACHE_DIR"] = [cache_dir]
+    manifest_path = str(repo_root / "manifest.json")
+    os.environ["SAPS_MANIFEST_PATH"] = manifest_path
+    matrix["env_nobuild"]["SAPS_MANIFEST_PATH"] = [manifest_path]
+
     # Construct ASV config dict with all fields visible
     asv_config_dict = {
         "version": 1,
@@ -169,27 +301,9 @@ def main() -> int:
             "results_dir", str(outputs_dir / "results")
         ),
         "html_dir": str(outputs_dir / "html"),
-        "matrix": saps_config_data.get(
-            "matrix",
-            {
-                "req": {
-                    "numpy": ["2.3"],
-                    "scipy": ["1.16.2"],
-                    "sparse": ["0.17.0"],
-                    "lark": ["1.3.0"],
-                    "ssgetpy": ["1.0rc2"],
-                },
-                "env_nobuild": {
-                    "SAPS_FRAMEWORK": [
-                        "frameworks/saps_numpy.py",
-                        "frameworks/saps_scipy.py",
-                        "frameworks/saps_sparse.py",
-                    ]
-                },
-            },
-        ),
+        "matrix": matrix,
     }
-
+    log.info(f"Using SAPS config: {saps_config_data}")
     # Create ASV config from dict
     conf = Config.from_json(asv_config_dict)
 
@@ -279,6 +393,21 @@ def main() -> int:
             return True
         return bool(exclude_set and exclude_set.intersection(obj["tags"]))
 
+    if args.upload_datasets:
+        os.environ["REMOTE_STORAGE_BACKEND"] = args.remote_storage_backend
+        os.environ["REMOTE_STORAGE_BUCKET"] = args.remote_storage_bucket
+        backend = saps.build_storage_backend(
+            type=args.remote_storage_backend,
+            bucket=args.remote_storage_bucket,
+        )
+        return _upload(
+            benchmarks=benchmarks,
+            metadata=metadata,
+            backend=backend,
+            is_include=is_include,
+            is_exclude=is_exclude,
+        )
+
     skips = []
     benchmarks._benchmark_selection = {}
     for name in benchmarks:
@@ -355,6 +484,7 @@ def main() -> int:
 
         print("Results object:", results)
         print(json.dumps(format_results(results, benchmarks), indent=2, default=str))
+        results.save(outputs_dir / "results")
     return 0
 
 

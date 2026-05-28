@@ -1,9 +1,11 @@
 import inspect
+import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, TypeAlias, TypeVar
 
 from saps.framework import xp
+from saps.storage import build_storage_backend
 from saps_framework.binsparse_format import BinsparseFormat
 
 
@@ -121,6 +123,8 @@ class Dataset(Tagged):
 
 
 TDataset = TypeVar("TDataset", bound=Dataset)
+# Every DataInstance is a tuple of a list of BinsparseFormat objects and a json serializable dictionary
+DataInstance: TypeAlias = tuple[list[BinsparseFormat], dict[str, Any]]
 
 
 class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
@@ -129,11 +133,30 @@ class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
     def datasets(self) -> list[TDataset]: ...
 
     @property
+    def cacheable(self) -> bool:
+        return True
+
+    @property
     def dataset_names(self) -> list[str]:
         return [dataset.name for dataset in self.datasets]
 
+    @property
+    def backend(self):
+        if getattr(self, "_backend", None) is None:
+            backend_type = os.environ.get("REMOTE_STORAGE_BACKEND")
+            backend_bucket = os.environ.get("REMOTE_STORAGE_BUCKET")
+            self._backend = build_storage_backend(backend_type, backend_bucket)
+        return self._backend
+
+    def cached_generate(self, dataset: TDataset) -> DataInstance:
+        cacheable = self.cacheable
+        if not cacheable:
+            return self.generate(dataset)
+
+        return self.backend.retrieve_dataset(self, dataset)
+
     @abstractmethod
-    def generate(self, dataset: TDataset) -> tuple[list[BinsparseFormat], Any]: ...
+    def generate(self, dataset: TDataset) -> DataInstance: ...
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -157,9 +180,6 @@ class Param(Generic[TDataset]):
 
     def __repr__(self):
         return f"{self.generator.name}.{self.dataset.name}"
-
-    def generate(self):
-        return self.generator.generate(self.dataset)
 
 
 class Benchmark(Tagged, Attributed, Motivated):
@@ -211,7 +231,14 @@ class Benchmark(Tagged, Attributed, Motivated):
     param_names = ["dataset"]
 
     def setup(self, param):
-        input, meta = param.generate()
+        import logging
+
+        if not logging.getLogger().handlers:
+            logging.basicConfig(
+                level=logging.INFO,
+                format="%(levelname)s %(name)s: %(message)s",
+            )
+        input, meta = param.generator.cached_generate(param.dataset)
         self._input = input
         self._meta = meta
 

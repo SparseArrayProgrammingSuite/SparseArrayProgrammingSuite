@@ -25,7 +25,7 @@ def test_cp_als_reconstruction_error(xp):
     )
 
     Y = cp3_als.xp.einsum(
-        "Y[i,j,k] += l[r] * A[i,r] * B[j,r] * C[k,r]", l=lam, A=A, B=B, C=C
+        "Y[i,j,k] += l[r] * A[i,r] * B[j,r] * C[k,r]", l=l, A=A, B=B, C=C
     )
     X_norm = np.linalg.norm(X)
     diff = Y - X

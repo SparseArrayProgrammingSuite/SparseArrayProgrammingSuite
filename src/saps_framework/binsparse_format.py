@@ -1,3 +1,4 @@
+import json
 import numpy as np
 import scipy as sp
 
@@ -56,10 +57,29 @@ class BinsparseFormat:
             return BinsparseFormat.from_coo(indices, V, shape)
         raise ValueError("Unsupported format: " + binsparse.data["format"])
 
+    def serialize(self) -> str:
+        bytes_data = {}
+        for k, v in self.data.items():
+            if isinstance(v, np.ndarray):
+                bytes_data[k] = (str(v.dtype), v.tobytes().hex())
+            else:
+                bytes_data[k] = v
+        return json.dumps(bytes_data, sort_keys=True)
+    
+    @staticmethod
+    def deserialize(string_data: str) -> "BinsparseFormat":
+        data = json.loads(string_data)
+        for k, v in data.items():
+            if isinstance(v, list):
+                data[k] = tuple(v)
+                v = data[k]
+            if isinstance(v, tuple) and len(v) == 2 and isinstance(v[0], str) and isinstance(v[1], str):
+                data[k] = np.frombuffer(bytes.fromhex(v[1]), dtype=v[0])
+        return BinsparseFormat(data)
+
     def __eq__(self, value):
         if not isinstance(value, BinsparseFormat):
             return NotImplemented
-
         for key in self.data:
             if key not in value.data:
                 return False

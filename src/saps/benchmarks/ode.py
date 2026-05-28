@@ -1,4 +1,5 @@
 from __future__ import annotations
+from abc import ABC, abstractmethod
 
 import numpy as np
 
@@ -22,8 +23,8 @@ def _step_input(t):
 def _rc_derivatives(t, state, R, C, source_voltage):
     """RC circuit derivatives."""
     tau = R * C
-    Vs = source_voltage(t)  # Get the current source voltage
-    return [(Vs - state[0]) / tau]  # dV/dt
+    Vs = source_voltage(t)
+    return [(Vs - state[0]) / tau]
 
 
 def _rlc_derivatives(t, state, R, L, C, source_voltage):
@@ -92,14 +93,12 @@ def _brusselator_derivatives(t, u_vec, n, a, alpha, C, brusselator_cb):
     """Brusselator derivatives with diffusion on 2D grid."""
     u_arr = np.array(u_vec, dtype=float)
 
-    # Linear part
     lin = C @ u_arr
     lin[0::2] += a
 
     if t >= 1.1:
         lin += np.array(brusselator_cb)
 
-    # Non-linear part: u^2 * v
     u_vals = u_arr[0::2]
     v_vals = u_arr[1::2]
     uv2 = u_vals**2 * v_vals
@@ -111,20 +110,13 @@ def _brusselator_derivatives(t, u_vec, n, a, alpha, C, brusselator_cb):
     return (lin + non_lin).tolist()
 
 
+# ---------------------------------------------------------------------------
+# Datasets
+# ---------------------------------------------------------------------------
+
+
 class RCDataset(Dataset):
-    def __init__(
-        self,
-        name,
-        pretty_name,
-        description,
-        tags,
-        R,
-        C,
-        t_max,
-        V_C_initial,
-        step,
-        source_voltage,
-    ):
+    def __init__(self, name, pretty_name, description, tags, R, C, t_max, V_C_initial, step):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
@@ -134,40 +126,19 @@ class RCDataset(Dataset):
         self.t_max = t_max
         self.V_C_initial = V_C_initial
         self.step = step
-        self.source_voltage = source_voltage
 
     @property
-    def name(self) -> str:
-        return self._name
-
+    def name(self) -> str: return self._name
     @property
-    def pretty_name(self) -> str:
-        return self._pretty_name
-
+    def pretty_name(self) -> str: return self._pretty_name
     @property
-    def description(self) -> str:
-        return self._description
-
+    def description(self) -> str: return self._description
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def tags(self) -> list[str]: return self._tags
 
 
 class RLCDataset(Dataset):
-    def __init__(
-        self,
-        name,
-        pretty_name,
-        description,
-        tags,
-        R,
-        L,
-        C,
-        t_max,
-        y0,
-        step,
-        source_voltage,
-    ):
+    def __init__(self, name, pretty_name, description, tags, R, L, C, t_max, y0, step):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
@@ -178,29 +149,19 @@ class RLCDataset(Dataset):
         self.t_max = t_max
         self.y0 = y0
         self.step = step
-        self.source_voltage = source_voltage
 
     @property
-    def name(self) -> str:
-        return self._name
-
+    def name(self) -> str: return self._name
     @property
-    def pretty_name(self) -> str:
-        return self._pretty_name
-
+    def pretty_name(self) -> str: return self._pretty_name
     @property
-    def description(self) -> str:
-        return self._description
-
+    def description(self) -> str: return self._description
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def tags(self) -> list[str]: return self._tags
 
 
 class LotkaVolterraDataset(Dataset):
-    def __init__(
-        self, name, pretty_name, description, tags, a, b, c, d, t_max, y0, step
-    ):
+    def __init__(self, name, pretty_name, description, tags, a, b, c, d, t_max, y0, step):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
@@ -214,26 +175,17 @@ class LotkaVolterraDataset(Dataset):
         self.step = step
 
     @property
-    def name(self) -> str:
-        return self._name
-
+    def name(self) -> str: return self._name
     @property
-    def pretty_name(self) -> str:
-        return self._pretty_name
-
+    def pretty_name(self) -> str: return self._pretty_name
     @property
-    def description(self) -> str:
-        return self._description
-
+    def description(self) -> str: return self._description
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def tags(self) -> list[str]: return self._tags
 
 
 class BrusselatorDataset(Dataset):
-    def __init__(
-        self, name, pretty_name, description, tags, n, a, b, alpha, t_max, step
-    ):
+    def __init__(self, name, pretty_name, description, tags, n, a, b, alpha, t_max, step):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
@@ -245,11 +197,8 @@ class BrusselatorDataset(Dataset):
         self.t_max = t_max
         self.step = step
         self.y0 = _init_brusselator_2d(n)
-
-        # Pre-construct matrix and forcing term
         self.C = _construct_brusselator_matrix(n, alpha, b)
 
-        # Construct forcing term
         size = n * n * 2
         self.brusselator_cb = [0.0] * size
         for i in range(n):
@@ -260,57 +209,44 @@ class BrusselatorDataset(Dataset):
                     self.brusselator_cb[(i * n + j) * 2] = 5
 
     @property
-    def name(self) -> str:
-        return self._name
-
+    def name(self) -> str: return self._name
     @property
-    def pretty_name(self) -> str:
-        return self._pretty_name
-
+    def pretty_name(self) -> str: return self._pretty_name
     @property
-    def description(self) -> str:
-        return self._description
-
+    def description(self) -> str: return self._description
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def tags(self) -> list[str]: return self._tags
+
+
+# ---------------------------------------------------------------------------
+# Generators
+# ---------------------------------------------------------------------------
+
+
+_AKARSH = [Contributor("Akarsh Duddu", "aduddu3@gatech.edu")]
+_AI_DISCLOSURE = (
+    "No generative AI was used to write the benchmark function itself."
+    " Generative AI was used for debugging. This statement was written by hand"
+)
 
 
 class RCGenerator(Generator[RCDataset]):
     @property
-    def name(self) -> str:
-        return "rc"
-
+    def name(self) -> str: return "rc"
     @property
-    def pretty_name(self) -> str:
-        return "RC Circuit"
-
+    def pretty_name(self) -> str: return "RC Circuit"
     @property
-    def description(self) -> str:
-        return "RC circuit ODE."
-
+    def description(self) -> str: return "RC circuit ODE."
     @property
-    def tags(self) -> list[str]:
-        return ["ode", "rc-circuit"]
-
+    def tags(self) -> list[str]: return ["ode", "rc-circuit"]
     @property
-    def authors(self) -> list[Contributor]:
-        return [Contributor("Akarsh Duddu", "aduddu3@gatech.edu")]
-
+    def authors(self) -> list[Contributor]: return _AKARSH
     @property
-    def references(self) -> list[Ref]:
-        return []
-
+    def references(self) -> list[Ref]: return []
     @property
-    def ai_disclosure(self) -> str:
-        return (
-            "No generative AI was used to write the benchmark function itself."
-            " Generative AI was used for debugging. This statement was written by hand"
-        )
-
+    def ai_disclosure(self) -> str: return _AI_DISCLOSURE
     @property
-    def motivation(self) -> str:
-        return ""
+    def motivation(self) -> str: return ""
 
     @property
     def datasets(self) -> list[RCDataset]:
@@ -325,59 +261,37 @@ class RCGenerator(Generator[RCDataset]):
                 t_max=5.0,
                 V_C_initial=0.0,
                 step=0.00001,
-                source_voltage=_step_input,
             ),
         ]
 
     def generate(self, dataset: RCDataset):
-        def dVdt(t, state):
-            return _rc_derivatives(
-                t, state, dataset.R, dataset.C, dataset.source_voltage
-            )
-
-        return (
-            dVdt,
-            (0, dataset.t_max),
-            [dataset.V_C_initial],
-            dataset.step,
-        ), {}
+        meta = {
+            "span": (0, dataset.t_max),
+            "y0": [dataset.V_C_initial],
+            "step": dataset.step,
+            "R": dataset.R,
+            "C": dataset.C,
+        }
+        return (), meta
 
 
 class RLCGenerator(Generator[RLCDataset]):
     @property
-    def name(self) -> str:
-        return "rlc"
-
+    def name(self) -> str: return "rlc"
     @property
-    def pretty_name(self) -> str:
-        return "RLC Circuit"
-
+    def pretty_name(self) -> str: return "RLC Circuit"
     @property
-    def description(self) -> str:
-        return "RLC circuit ODE."
-
+    def description(self) -> str: return "RLC circuit ODE."
     @property
-    def tags(self) -> list[str]:
-        return ["ode", "rlc-circuit"]
-
+    def tags(self) -> list[str]: return ["ode", "rlc-circuit"]
     @property
-    def authors(self) -> list[Contributor]:
-        return [Contributor("Akarsh Duddu", "aduddu3@gatech.edu")]
-
+    def authors(self) -> list[Contributor]: return _AKARSH
     @property
-    def references(self) -> list[Ref]:
-        return []
-
+    def references(self) -> list[Ref]: return []
     @property
-    def ai_disclosure(self) -> str:
-        return (
-            "No generative AI was used to write the benchmark function itself."
-            " Generative AI was used for debugging. This statement was written by hand"
-        )
-
+    def ai_disclosure(self) -> str: return _AI_DISCLOSURE
     @property
-    def motivation(self) -> str:
-        return ""
+    def motivation(self) -> str: return ""
 
     @property
     def datasets(self) -> list[RLCDataset]:
@@ -393,59 +307,38 @@ class RLCGenerator(Generator[RLCDataset]):
                 t_max=0.01,
                 y0=[0.0, 0.0],
                 step=0.0000001,
-                source_voltage=_step_input,
             ),
         ]
 
     def generate(self, dataset: RLCDataset):
-        def dVdt(t, state):
-            return _rlc_derivatives(
-                t, state, dataset.R, dataset.L, dataset.C, dataset.source_voltage
-            )
-
-        return (
-            dVdt,
-            (0, dataset.t_max),
-            dataset.y0,
-            dataset.step,
-        ), {}
+        meta = {
+            "span": (0, dataset.t_max),
+            "y0": list(dataset.y0),
+            "step": dataset.step,
+            "R": dataset.R,
+            "L": dataset.L,
+            "C": dataset.C,
+        }
+        return (), meta
 
 
 class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
     @property
-    def name(self) -> str:
-        return "lotka_volterra"
-
+    def name(self) -> str: return "lotka_volterra"
     @property
-    def pretty_name(self) -> str:
-        return "Lotka-Volterra"
-
+    def pretty_name(self) -> str: return "Lotka-Volterra"
     @property
-    def description(self) -> str:
-        return "Lotka-Volterra ODE."
-
+    def description(self) -> str: return "Lotka-Volterra ODE."
     @property
-    def tags(self) -> list[str]:
-        return ["ode", "lotka-volterra"]
-
+    def tags(self) -> list[str]: return ["ode", "lotka-volterra"]
     @property
-    def authors(self) -> list[Contributor]:
-        return [Contributor("Akarsh Duddu", "aduddu3@gatech.edu")]
-
+    def authors(self) -> list[Contributor]: return _AKARSH
     @property
-    def references(self) -> list[Ref]:
-        return []
-
+    def references(self) -> list[Ref]: return []
     @property
-    def ai_disclosure(self) -> str:
-        return (
-            "No generative AI was used to write the benchmark function itself."
-            " Generative AI was used for debugging. This statement was written by hand"
-        )
-
+    def ai_disclosure(self) -> str: return _AI_DISCLOSURE
     @property
-    def motivation(self) -> str:
-        return ""
+    def motivation(self) -> str: return ""
 
     @property
     def datasets(self) -> list[LotkaVolterraDataset]:
@@ -466,54 +359,35 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
         ]
 
     def generate(self, dataset: LotkaVolterraDataset):
-        def dydt(t, state):
-            return _lotka_volterra_derivatives(
-                t, state, dataset.a, dataset.b, dataset.c, dataset.d
-            )
-
-        return (
-            dydt,
-            (0, dataset.t_max),
-            dataset.y0,
-            dataset.step,
-        ), {}
+        meta = {
+            "span": (0, dataset.t_max),
+            "y0": list(dataset.y0),
+            "step": dataset.step,
+            "a": dataset.a,
+            "b": dataset.b,
+            "c": dataset.c,
+            "d": dataset.d,
+        }
+        return (), meta
 
 
 class BrusselatorGenerator(Generator[BrusselatorDataset]):
     @property
-    def name(self) -> str:
-        return "brusselator"
-
+    def name(self) -> str: return "brusselator"
     @property
-    def pretty_name(self) -> str:
-        return "Brusselator"
-
+    def pretty_name(self) -> str: return "Brusselator"
     @property
-    def description(self) -> str:
-        return "2D Brusselator ODE with diffusion."
-
+    def description(self) -> str: return "2D Brusselator ODE with diffusion."
     @property
-    def tags(self) -> list[str]:
-        return ["ode", "brusselator"]
-
+    def tags(self) -> list[str]: return ["ode", "brusselator"]
     @property
-    def authors(self) -> list[Contributor]:
-        return [Contributor("Akarsh Duddu", "aduddu3@gatech.edu")]
-
+    def authors(self) -> list[Contributor]: return _AKARSH
     @property
-    def references(self) -> list[Ref]:
-        return []
-
+    def references(self) -> list[Ref]: return []
     @property
-    def ai_disclosure(self) -> str:
-        return (
-            "No generative AI was used to write the benchmark function itself."
-            " Generative AI was used for debugging. This statement was written by hand"
-        )
-
+    def ai_disclosure(self) -> str: return _AI_DISCLOSURE
     @property
-    def motivation(self) -> str:
-        return ""
+    def motivation(self) -> str: return ""
 
     @property
     def datasets(self) -> list[BrusselatorDataset]:
@@ -533,237 +407,259 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
         ]
 
     def generate(self, dataset: BrusselatorDataset):
-        def dudt(t, state):
-            return _brusselator_derivatives(
-                t,
-                state,
-                dataset.n,
-                dataset.a,
-                dataset.alpha,
-                dataset.C,
-                dataset.brusselator_cb,
-            )
-
-        return (
-            dudt,
-            (0, dataset.t_max),
-            dataset.y0,
-            dataset.step,
-        ), {}
+        meta = {
+            "span": (0, dataset.t_max),
+            "y0": list(dataset.y0),
+            "step": dataset.step,
+            "n": dataset.n,
+            "a": dataset.a,
+            "alpha": dataset.alpha,
+            "C": dataset.C,
+            "brusselator_cb": dataset.brusselator_cb,
+        }
+        return (), meta
 
 
-class ForwardEuler(Benchmark):
+# ---------------------------------------------------------------------------
+# Integration-scheme abstract bases
+# ---------------------------------------------------------------------------
+
+
+class _OdeBenchmarkBase(Benchmark, ABC):
     @property
-    def name(self):
-        return "forward_euler"
-
+    def authors(self): return _AKARSH
     @property
-    def pretty_name(self):
-        return "Forward Euler ODE Solver"
-
+    def references(self): return []
     @property
-    def description(self):
-        return "Forward Euler method for solving various ODE systems."
-
+    def ai_disclosure(self): return _AI_DISCLOSURE
     @property
-    def tags(self):
-        return ["ode", "forward-euler", "integration"]
+    def motivation(self): return ""
 
-    @property
-    def authors(self):
-        return [Contributor("Akarsh Duddu", "aduddu3@gatech.edu")]
+    @abstractmethod
+    def _dydt(self, t, y, meta):
+        raise NotImplementedError
 
-    @property
-    def references(self):
-        return []
 
+class _ForwardEulerBase(_OdeBenchmarkBase):
     @property
-    def ai_disclosure(self):
-        return (
-            "No generative AI was used to write the benchmark function itself."
-            " Generative AI was used for debugging. This statement was written by hand"
-        )
-
-    @property
-    def motivation(self):
-        return ""
-
-    @property
-    def generators(self):
-        return [
-            RCGenerator(),
-            RLCGenerator(),
-            LotkaVolterraGenerator(),
-            BrusselatorGenerator(),
-        ]
+    def tags(self): return ["ode", "forward-euler", "integration"]
 
     def benchmark(self, data, meta):
-        dydx, span, y0, first_step = data
-
-        # Forward Euler integration
+        span = meta["span"]
+        y0 = meta["y0"]
+        step = meta["step"]
         curr = span[0]
         inputs = []
         while curr < span[1]:
             inputs.append(curr)
-            curr += first_step
+            curr += step
 
-        step = first_step
         outputs = [None for _ in inputs]
         outputs[0] = y0
-
         for i in range(1, len(inputs)):
-            dydt_vector = dydx(inputs[i - 1], outputs[i - 1])
-            outputs[i] = [
-                outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
-            ]
-
+            dydt_vector = self._dydt(inputs[i - 1], outputs[i - 1], meta)
+            outputs[i] = [outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))]
         return (inputs, outputs)
 
 
-class BackwardEuler(Benchmark):
+class _BackwardEulerBase(_OdeBenchmarkBase):
     @property
-    def name(self):
-        return "backward_euler"
-
-    @property
-    def pretty_name(self):
-        return "Backward Euler ODE Solver"
-
-    @property
-    def description(self):
-        return "Backward Euler method for solving various ODE systems."
-
-    @property
-    def tags(self):
-        return ["ode", "backward-euler", "integration"]
-
-    @property
-    def authors(self):
-        return [Contributor("Akarsh Duddu", "aduddu3@gatech.edu")]
-
-    @property
-    def references(self):
-        return []
-
-    @property
-    def ai_disclosure(self):
-        return (
-            "No generative AI was used to write the benchmark function itself."
-            " Generative AI was used for debugging. This statement was written by hand"
-        )
-
-    @property
-    def motivation(self):
-        return ""
-
-    @property
-    def generators(self):
-        return [
-            RCGenerator(),
-            RLCGenerator(),
-            LotkaVolterraGenerator(),
-            BrusselatorGenerator(),
-        ]
+    def tags(self): return ["ode", "backward-euler", "integration"]
 
     def benchmark(self, data, meta):
-        dydx, span, y0, first_step = data
-
-        # Backward Euler integration with fixed point iteration
+        span = meta["span"]
+        y0 = meta["y0"]
+        step = meta["step"]
         curr = span[0]
         inputs = []
         while curr < span[1]:
             inputs.append(curr)
-            curr += first_step
+            curr += step
 
-        step = first_step
         outputs = [None for _ in inputs]
         outputs[0] = y0
-
-        # y_n+1 = y_n + dy/dx(x_n+1, y_n+1) * delta x
-        # Fixed point iteration
         for i in range(1, len(inputs)):
-            y_guess = outputs[i - 1]  # initial guess
+            y_guess = outputs[i - 1]
             for _ in range(10):
-                dydt_vector = dydx(inputs[i], y_guess)
-                y_guess = [
-                    outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
-                ]
+                dydt_vector = self._dydt(inputs[i], y_guess, meta)
+                y_guess = [outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))]
             outputs[i] = y_guess
-
         return (inputs, outputs)
 
 
-class RK4(Benchmark):
+class _RK4Base(_OdeBenchmarkBase):
     @property
-    def name(self):
-        return "rk4"
-
-    @property
-    def pretty_name(self):
-        return "Runge-Kutta 4th Order ODE Solver"
-
-    @property
-    def description(self):
-        return "Runge-Kutta 4th order method for solving various ODE systems."
-
-    @property
-    def tags(self):
-        return ["ode", "rk4", "integration"]
-
-    @property
-    def authors(self):
-        return [Contributor("Akarsh Duddu", "aduddu3@gatech.edu")]
-
-    @property
-    def references(self):
-        return []
-
-    @property
-    def ai_disclosure(self):
-        return (
-            "No generative AI was used to write the benchmark function itself."
-            " Generative AI was used for debugging. This statement was written by hand"
-        )
-
-    @property
-    def motivation(self):
-        return ""
-
-    @property
-    def generators(self):
-        return [
-            RCGenerator(),
-            RLCGenerator(),
-            LotkaVolterraGenerator(),
-            BrusselatorGenerator(),
-        ]
+    def tags(self): return ["ode", "rk4", "integration"]
 
     def benchmark(self, data, meta):
-        dydx, span, y0, first_step = data
-
-        # Runge-Kutta 4th order integration
+        span = meta["span"]
+        y0 = meta["y0"]
+        step = meta["step"]
         curr = span[0]
         inputs = []
         while curr < span[1]:
             inputs.append(curr)
-            curr += first_step
+            curr += step
 
-        step = first_step
         outputs = [None for _ in inputs]
         outputs[0] = y0
-
         for i in range(1, len(inputs)):
             y_prev = outputs[i - 1]
-            k1 = dydx(inputs[i - 1], y_prev)
+            k1 = self._dydt(inputs[i - 1], y_prev, meta)
             k2_state = [y_prev[j] + (step / 2) * k1[j] for j in range(len(y0))]
-            k2 = dydx(inputs[i - 1] + step / 2, k2_state)
+            k2 = self._dydt(inputs[i - 1] + step / 2, k2_state, meta)
             k3_state = [y_prev[j] + (step / 2) * k2[j] for j in range(len(y0))]
-            k3 = dydx(inputs[i - 1] + step / 2, k3_state)
+            k3 = self._dydt(inputs[i - 1] + step / 2, k3_state, meta)
             k4_state = [y_prev[j] + step * k3[j] for j in range(len(y0))]
-            k4 = dydx(inputs[i - 1] + step, k4_state)
+            k4 = self._dydt(inputs[i - 1] + step, k4_state, meta)
             outputs[i] = [
                 y_prev[j] + (step / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j])
                 for j in range(len(y0))
             ]
-
         return (inputs, outputs)
+
+
+# ---------------------------------------------------------------------------
+# RC concrete benchmarks
+# ---------------------------------------------------------------------------
+
+
+class _RCMixin:
+    @property
+    def description(self): return "RC circuit ODE."
+    @property
+    def generators(self): return [RCGenerator()]
+
+    def _dydt(self, t, y, meta):
+        return _rc_derivatives(t, y, meta["R"], meta["C"], _step_input)
+
+
+class RCForwardEuler(_RCMixin, _ForwardEulerBase):
+    @property
+    def name(self): return "rc_forward_euler"
+    @property
+    def pretty_name(self): return "RC Circuit — Forward Euler"
+
+
+class RCBackwardEuler(_RCMixin, _BackwardEulerBase):
+    @property
+    def name(self): return "rc_backward_euler"
+    @property
+    def pretty_name(self): return "RC Circuit — Backward Euler"
+
+
+class RCRK4(_RCMixin, _RK4Base):
+    @property
+    def name(self): return "rc_rk4"
+    @property
+    def pretty_name(self): return "RC Circuit — RK4"
+
+
+# ---------------------------------------------------------------------------
+# RLC concrete benchmarks
+# ---------------------------------------------------------------------------
+
+
+class _RLCMixin:
+    @property
+    def description(self): return "RLC circuit ODE."
+    @property
+    def generators(self): return [RLCGenerator()]
+
+    def _dydt(self, t, y, meta):
+        return _rlc_derivatives(t, y, meta["R"], meta["L"], meta["C"], _step_input)
+
+
+class RLCForwardEuler(_RLCMixin, _ForwardEulerBase):
+    @property
+    def name(self): return "rlc_forward_euler"
+    @property
+    def pretty_name(self): return "RLC Circuit — Forward Euler"
+
+
+class RLCBackwardEuler(_RLCMixin, _BackwardEulerBase):
+    @property
+    def name(self): return "rlc_backward_euler"
+    @property
+    def pretty_name(self): return "RLC Circuit — Backward Euler"
+
+
+class RLCRK4(_RLCMixin, _RK4Base):
+    @property
+    def name(self): return "rlc_rk4"
+    @property
+    def pretty_name(self): return "RLC Circuit — RK4"
+
+
+# ---------------------------------------------------------------------------
+# Lotka-Volterra concrete benchmarks
+# ---------------------------------------------------------------------------
+
+
+class _LotkaVolterraMixin:
+    @property
+    def description(self): return "Lotka-Volterra ODE."
+    @property
+    def generators(self): return [LotkaVolterraGenerator()]
+
+    def _dydt(self, t, y, meta):
+        return _lotka_volterra_derivatives(t, y, meta["a"], meta["b"], meta["c"], meta["d"])
+
+
+class LotkaVolterraForwardEuler(_LotkaVolterraMixin, _ForwardEulerBase):
+    @property
+    def name(self): return "lotka_volterra_forward_euler"
+    @property
+    def pretty_name(self): return "Lotka-Volterra — Forward Euler"
+
+
+class LotkaVolterraBackwardEuler(_LotkaVolterraMixin, _BackwardEulerBase):
+    @property
+    def name(self): return "lotka_volterra_backward_euler"
+    @property
+    def pretty_name(self): return "Lotka-Volterra — Backward Euler"
+
+
+class LotkaVolterraRK4(_LotkaVolterraMixin, _RK4Base):
+    @property
+    def name(self): return "lotka_volterra_rk4"
+    @property
+    def pretty_name(self): return "Lotka-Volterra — RK4"
+
+
+# ---------------------------------------------------------------------------
+# Brusselator concrete benchmarks
+# ---------------------------------------------------------------------------
+
+
+class _BrusselatorMixin:
+    @property
+    def description(self): return "2D Brusselator ODE with diffusion."
+    @property
+    def generators(self): return [BrusselatorGenerator()]
+
+    def _dydt(self, t, y, meta):
+        return _brusselator_derivatives(
+            t, y, meta["n"], meta["a"], meta["alpha"], meta["C"], meta["brusselator_cb"],
+        )
+
+
+class BrusselatorForwardEuler(_BrusselatorMixin, _ForwardEulerBase):
+    @property
+    def name(self): return "brusselator_forward_euler"
+    @property
+    def pretty_name(self): return "Brusselator — Forward Euler"
+
+
+class BrusselatorBackwardEuler(_BrusselatorMixin, _BackwardEulerBase):
+    @property
+    def name(self): return "brusselator_backward_euler"
+    @property
+    def pretty_name(self): return "Brusselator — Backward Euler"
+
+
+class BrusselatorRK4(_BrusselatorMixin, _RK4Base):
+    @property
+    def name(self): return "brusselator_rk4"
+    @property
+    def pretty_name(self): return "Brusselator — RK4"

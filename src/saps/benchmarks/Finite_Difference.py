@@ -13,22 +13,6 @@ from saps.benchmark import (
 xp = saps.xp
 
 
-def burgers_flux(u):
-    return 0.5 * u * u
-
-
-def buckley_leverett_flux(u):
-    sq = u * u
-    return sq / (sq + (0.25 * (1 - u) * (1 - u)))
-
-
-def linear_advection_flux(c):
-    def flux(u):
-        return c * u
-
-    return flux
-
-
 def _lax_freidrichs_matrix_no_flux(Nx):
     matrix = np.zeros((Nx, Nx))
     for i in range(1, Nx):
@@ -57,7 +41,7 @@ def _difference_matrix(Nx):
 
 
 class FiniteDifferenceDataset(Dataset):
-    def __init__(self, name, pretty_name, tags, Nx, dx, Nt, dt, flux):
+    def __init__(self, name, pretty_name, tags, Nx, dx, Nt, dt):
         self._name = name
         self._pretty_name = pretty_name
         self._tags = tags
@@ -65,7 +49,6 @@ class FiniteDifferenceDataset(Dataset):
         self.dx = dx
         self.Nt = Nt
         self.dt = dt
-        self.flux = flux
 
     @property
     def name(self) -> str:
@@ -154,34 +137,13 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
     def datasets(self) -> list[FiniteDifferenceDataset]:
         return [
             FiniteDifferenceDataset(
-                name="buckley_leverett_small",
-                pretty_name="Buckley-Leverett small",
+                name="default",
+                pretty_name="Default",
                 tags=["small"],
                 Nx=100,
                 dx=0.1,
                 Nt=100,
                 dt=0.01,
-                flux=buckley_leverett_flux,
-            ),
-            FiniteDifferenceDataset(
-                name="burgers_small",
-                pretty_name="Burgers small",
-                tags=["small"],
-                Nx=100,
-                dx=0.1,
-                Nt=100,
-                dt=0.01,
-                flux=burgers_flux,
-            ),
-            FiniteDifferenceDataset(
-                name="linear_advection_small",
-                pretty_name="Linear Advection small",
-                tags=["small"],
-                Nx=100,
-                dx=0.1,
-                Nt=100,
-                dt=0.01,
-                flux=linear_advection_flux(1),
             ),
         ]
 
@@ -207,7 +169,6 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
         )
 
         meta = {
-            "flux": dataset.flux,
             "timesteps": dataset.Nt,
             "dt": dataset.dt,
             "dx": dataset.dx,
@@ -215,31 +176,7 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
         return data, meta
 
 
-class FiniteDifferenceBenchmark(Benchmark):
-    @property
-    def tag(self) -> str:
-        return "finite_difference"
-
-    @property
-    def name(self) -> str:
-        return "finite_difference"
-
-    @property
-    def pretty_name(self) -> str:
-        return "1D Finite Difference Method"
-
-    @property
-    def description(self) -> str:
-        return (
-            "The purpose of this is to analyze the importance of numerical methods for"
-            " PDEs, and applications sparse array theory into these method, through the"
-            " form of benchmarks. This paticular benchmark analyzes the use of the"
-            " Lax–Friedrichs method for solving nonlinear hyberbolic PDEs, with"
-            " numerical stability and accuracy not seen in FTCS. This benchmark will"
-            " run a simulation using both Lax–Friedrichs and analyze core concepts such"
-            " as numerical stability, conservation law consistency, etc."
-        )
-
+class _FiniteDifferenceBenchmarkBase(Benchmark):
     @property
     def tags(self) -> list[str]:
         return ["simulation", "sparse"]
@@ -286,22 +223,98 @@ class FiniteDifferenceBenchmark(Benchmark):
         )
 
     @property
+    def description(self) -> str:
+        return (
+            "The purpose of this is to analyze the importance of numerical methods for"
+            " PDEs, and applications sparse array theory into these method, through the"
+            " form of benchmarks. This paticular benchmark analyzes the use of the"
+            " Lax–Friedrichs method for solving nonlinear hyberbolic PDEs, with"
+            " numerical stability and accuracy not seen in FTCS. This benchmark will"
+            " run a simulation using both Lax–Friedrichs and analyze core concepts such"
+            " as numerical stability, conservation law consistency, etc."
+        )
+
+    @property
     def generators(self):
         return [FiniteDifferenceGenerator()]
 
+
+class BurgersFiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkBase):
+    @property
+    def name(self) -> str:
+        return "burgers_finite_difference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "1D Finite Difference (Burgers flux)"
+
     def benchmark(self, data: list, meta: dict):
         u_0, matrix, dif = data
-        flux = meta["flux"]
         timesteps = meta["timesteps"]
         dt = meta["dt"]
         dx = meta["dx"]
         Nt = timesteps + 1
-        alpha = (dt) / (2 * dx)
+        alpha = dt / (2 * dx)
         u = xp.zeros((Nt, u_0.shape[0]))
         u[0] = u_0
         for n in range(Nt - 1):
             u_n = u[n]
-            f = flux(u_n)
+            f = 0.5 * u_n * u_n
+            u_next = matrix @ u_n - alpha * (dif @ f)
+            u[n + 1] = u_next
+        return [u]
+
+
+class BuckleyLeverettFiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkBase):
+    @property
+    def name(self) -> str:
+        return "buckley_leverett_finite_difference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "1D Finite Difference (Buckley-Leverett flux)"
+
+    def benchmark(self, data: list, meta: dict):
+        u_0, matrix, dif = data
+        timesteps = meta["timesteps"]
+        dt = meta["dt"]
+        dx = meta["dx"]
+        Nt = timesteps + 1
+        alpha = dt / (2 * dx)
+        u = xp.zeros((Nt, u_0.shape[0]))
+        u[0] = u_0
+        for n in range(Nt - 1):
+            u_n = u[n]
+            sq = u_n * u_n
+            f = sq / (sq + (0.25 * (1 - u_n) * (1 - u_n)))
+            u_next = matrix @ u_n - alpha * (dif @ f)
+            u[n + 1] = u_next
+        return [u]
+
+
+class LinearAdvectionFiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkBase):
+    C = 1.0
+
+    @property
+    def name(self) -> str:
+        return "linear_advection_finite_difference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "1D Finite Difference (Linear Advection flux)"
+
+    def benchmark(self, data: list, meta: dict):
+        u_0, matrix, dif = data
+        timesteps = meta["timesteps"]
+        dt = meta["dt"]
+        dx = meta["dx"]
+        Nt = timesteps + 1
+        alpha = dt / (2 * dx)
+        u = xp.zeros((Nt, u_0.shape[0]))
+        u[0] = u_0
+        for n in range(Nt - 1):
+            u_n = u[n]
+            f = self.C * u_n
             u_next = matrix @ u_n - alpha * (dif @ f)
             u[n + 1] = u_next
         return [u]
