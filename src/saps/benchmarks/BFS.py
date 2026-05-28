@@ -198,10 +198,10 @@ class BreadthFirstSearchBenchmark(Benchmark):
     def generators(self):
         return [BreadthFirstSearchGenerator()]
 
-    def benchmark(self, data, meta):
-        (edges,) = data
+    def benchmark(self, data: list[BinsparseFormat], meta: dict):
+        edges = xp.from_binsparse(data[0])
         src = meta["src"]
-
+        
         (n, m) = edges.shape
         assert n == m
         visited = xp.zeros((n,), dtype=bool)

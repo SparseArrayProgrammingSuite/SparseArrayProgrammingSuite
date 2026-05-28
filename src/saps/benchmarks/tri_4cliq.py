@@ -272,7 +272,7 @@ class TriangleCountBenchmark(Benchmark):
         return [TriangleCountGenerator()]
 
     def benchmark(self, data: list, meta: dict):
-        A = data[0]
+        A = xp.from_binsparse(data[0])
         triangles = xp.einsum("S[] += A[i,j] * A[j,k] * A[k,i]", A=A) / 6
         return [xp.asarray(triangles)]
 
@@ -370,7 +370,7 @@ class FourCliqueCountBenchmark(Benchmark):
         return [FourCliqueCountGenerator()]
 
     def benchmark(self, data: list, meta: dict):
-        A = data[0]
+        A = xp.from_binsparse(data[0])
         cliq_4 = (
             xp.einsum(
                 "S[] += A[i,j] * A[i,k] * A[i,l] * A[j,k] * A[j,l] * A[k,l]",

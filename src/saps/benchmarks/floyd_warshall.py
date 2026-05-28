@@ -273,7 +273,7 @@ class FloydWarshallBenchmark(Benchmark):
         Returns the all pair shortest path i.e. A[i,j] is the shortest
         path from i to j
         """
-        G = data[0]
+        G = xp.from_binsparse(data[0])
         n, m = G.shape
         assert n == m
         for k in range(n):

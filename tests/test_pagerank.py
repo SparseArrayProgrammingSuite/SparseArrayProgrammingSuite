@@ -8,6 +8,8 @@ import networkx as nx
 
 import saps.benchmarks.pagerank as pr
 from frameworks.saps_numpy import NumpyFramework
+from saps.downloaders.snap import load_toy_dataset
+from saps_framework.binsparse_format import BinsparseFormat
 
 
 @pytest.mark.parametrize(
@@ -18,11 +20,12 @@ from frameworks.saps_numpy import NumpyFramework
         (np.array([[0, 0], [1, 0]], dtype=float), None),
     ],
 )
-def test_basic_pagerank_cases(A, expected):
+def test_basic_pagerank_cases(A: np.ndarray, expected: float):
     xp = NumpyFramework()
 
     pr.xp = xp
-    (result,) = pr.PageRankBenchmark().benchmark((A,), {})
+    A_bin = BinsparseFormat.from_numpy(A)
+    (result,) = pr.PageRankBenchmark().benchmark([A_bin], {})
 
     result = result.ravel()
 
@@ -50,7 +53,8 @@ def test_pagerank_against_networkx():
     A = nx.to_numpy_array(G, dtype=float)
 
     pr.xp = xp
-    (result,) = pr.PageRankBenchmark().benchmark((A,), {})
+    A_bin = BinsparseFormat.from_numpy(A)
+    (result,) = pr.PageRankBenchmark().benchmark([A_bin], {})
     result = result.ravel()
 
     expected_dict = nx.pagerank(G, alpha=0.85, max_iter=100, tol=1e-6)
@@ -59,25 +63,16 @@ def test_pagerank_against_networkx():
     assert np.allclose(result, expected, atol=1e-2)
 
 
-def test_pagerank_generator_loads_snap_dataset(monkeypatch, tmp_path):
-    dataset_dir = tmp_path / "toy"
-    dataset_dir.mkdir()
-    with gzip.open(dataset_dir / "toy.txt.gz", "wt", encoding="utf-8") as file:
-        file.write("# SNAP edge list\n10 20\n20 40\n")
+def test_pagerank_snap_toy():
+    data, meta = load_toy_dataset()
+    (result,) = pr.PageRankBenchmark().benchmark(data, meta)
+    result = result.ravel()
 
-    original_download = pr.download_snap_dataset
+    G = nx.DiGraph()
+    G.add_edges_from([(1, 0), (2, 1)]) # The toy edges
+    expected_dict = nx.pagerank(G, alpha=0.85, max_iter=100, tol=1e-6)
+    expected = np.array([expected_dict[i] for i in range(len(G))])
 
-    def download_from_tmp(dataset_name):
-        return original_download(dataset_name, data_dir=tmp_path)
+    assert np.allclose(result, expected, atol=1e-2)
 
-    monkeypatch.setattr(pr, "download_snap_dataset", download_from_tmp)
 
-    dataset = pr.PageRankDataset("snap-toy")
-    data, meta = pr.PageRankGenerator().generate(dataset)
-
-    assert data[0].data["shape"] == (3, 3)
-    assert np.array_equal(data[0].data["indices_0"], np.array([0, 1]))
-    assert np.array_equal(data[0].data["indices_1"], np.array([1, 2]))
-    assert np.array_equal(data[0].data["values"], np.array([True, True]))
-    assert meta["snap_slug"] == "toy"
-    assert meta["src"] == 0

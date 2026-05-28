@@ -198,7 +198,7 @@ class PageRankBenchmark(Benchmark):
         max_iter = meta.get("max_iter", 100)
         tol = meta.get("tol", 1e-8)
 
-        A = data[0]
+        A = xp.from_binsparse(data[0])
         out_degree = xp.sum(A, axis=0)
         M = xp.array(A, dtype=float)
         N = A.shape[0]

@@ -200,7 +200,7 @@ class FastSVBenchmark(Benchmark):
         return [FastSVGenerator()]
 
     def benchmark(self, data, meta):
-        A = data[0]
+        A = xp.from_binsparse(data[0])
         A = A != 0
 
         (n, m) = A.shape

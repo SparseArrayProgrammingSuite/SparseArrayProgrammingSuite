@@ -179,7 +179,7 @@ class TransitiveClosureBenchmark(Benchmark):
         return [TransitiveClosureGenerator()]
 
     def benchmark(self, data, meta):
-        edges = data[0]
+        edges = xp.from_binsparse(data[0])
         (n, m) = edges.shape
         assert m == n
 

@@ -235,7 +235,7 @@ class BellmanFordBenchmark(Benchmark):
         return [BellmanFordGenerator()]
 
     def benchmark(self, data, meta):
-        (edges,) = data
+        edges = xp.from_binsparse(data[0])
         src = meta["src"]
 
         n = edges.shape[0]

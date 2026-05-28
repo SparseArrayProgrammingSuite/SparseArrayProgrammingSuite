@@ -2,12 +2,16 @@ import numpy as np
 
 import saps.benchmarks.floyd_warshall as floyd_warshall
 from frameworks.saps_numpy import NumpyFramework
+from saps_framework.binsparse_format import BinsparseFormat
 
 
 def _run_fw_case(xp, A, expected):
     """Run Floyd–Warshall and compare to an expected APSP distance matrix."""
     floyd_warshall.xp = xp
-    out = floyd_warshall.FloydWarshallBenchmark().benchmark([A], {})[0]
+
+    A_bin = A if isinstance(A, BinsparseFormat) else BinsparseFormat.from_numpy(A)
+
+    out = floyd_warshall.FloydWarshallBenchmark().benchmark([A_bin], {})[0]
 
     both_inf = np.isinf(out) & np.isinf(expected)
     both_finite = np.isfinite(out) & np.isfinite(expected)
@@ -108,8 +112,8 @@ def test_fw_larger_symmetric_graph():
     for u, v in edges:
         A[u, v] = 1.0
         A[v, u] = 1.0
-
-    out = floyd_warshall.FloydWarshallBenchmark().benchmark((A,), {})[0]
+    A_bin = BinsparseFormat.from_numpy(A)
+    out = floyd_warshall.FloydWarshallBenchmark().benchmark([A_bin], {})[0]
 
     assert out.shape[0] == out.shape[1]
     assert np.all(np.diag(out) == 0.0)

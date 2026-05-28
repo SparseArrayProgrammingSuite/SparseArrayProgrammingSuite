@@ -1,16 +1,17 @@
-import gzip
-
 import numpy as np
 import pytest
 
 import saps.benchmarks.connected_components as cc
 from frameworks.saps_numpy import NumpyFramework
+from saps.downloaders.snap import load_toy_dataset
+from saps_framework import BinsparseFormat
 
 
 def _run_cc(A):
     xp = NumpyFramework()
     cc.xp = xp
-    (labels,) = cc.SimplyConnectedComponentsBenchmark().benchmark((A,), {})
+    A_bin = A if isinstance(A, BinsparseFormat) else BinsparseFormat.from_numpy(A)
+    (labels,) = cc.SimplyConnectedComponentsBenchmark().benchmark([A_bin], {})
     return labels.ravel()
 
 
@@ -80,26 +81,7 @@ def test_cc_single_node():
 # Generator / downloader wiring
 # ---------------------------------------------------------------------------
 
-
-def test_cc_generator_loads_snap_dataset(monkeypatch, tmp_path):
-    dataset_dir = tmp_path / "toy"
-    dataset_dir.mkdir()
-    with gzip.open(dataset_dir / "toy.txt.gz", "wt", encoding="utf-8") as f:
-        f.write("# SNAP edge list\n10 20\n20 40\n")
-
-    original_download = cc.download_snap_dataset
-
-    def download_from_tmp(dataset_name):
-        return original_download(dataset_name, data_dir=tmp_path)
-
-    monkeypatch.setattr(cc, "download_snap_dataset", download_from_tmp)
-
-    dataset = cc.ConnectedComponentsDataset("snap-toy")
-    data, meta = cc.ConnectedComponentsGenerator().generate(dataset)
-
-    assert data[0].data["shape"] == (3, 3)
-    assert np.array_equal(data[0].data["indices_0"], np.array([0, 1]))
-    assert np.array_equal(data[0].data["indices_1"], np.array([1, 2]))
-    assert np.array_equal(data[0].data["values"], np.array([True, True]))
-    assert meta["snap_slug"] == "toy"
-    assert meta["src"] == 0
+def test_cc_snap_toy():
+    data, _ = load_toy_dataset()
+    labels = _run_cc(data[0])
+    assert len(set(labels.tolist())) == 1, "all nodes should converge to the same label"
