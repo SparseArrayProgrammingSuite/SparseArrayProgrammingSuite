@@ -62,7 +62,20 @@ class TriangleCountGenerator(Generator[GraphCountingDataset]):
 
     @property
     def references(self) -> list[Ref]:
-        return []
+        return [
+            Ref(
+                title="SNAP: A General Purpose Network Analysis and Graph Mining Library",
+                authors=[
+                    Author("Leskovec, Jure"),
+                    Author("Sosič, Rok"),
+                ],
+                journal="ACM Transactions on Intelligent Systems and Technology",
+                volume=8,
+                number=1,
+                year=2016,
+                url="https://snap.stanford.edu/index.html",
+            )
+        ]
 
     @property
     def ai_disclosure(self) -> str:
