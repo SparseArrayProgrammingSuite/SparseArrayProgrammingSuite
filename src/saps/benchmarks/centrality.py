@@ -191,7 +191,7 @@ class BetweennessCentralityBenchmark(Benchmark):
         return [BetweennessCentralityGenerator()]
 
     def benchmark(self, data, meta):
-        G = data[0]
+        G = xp.from_binsparse(data[0])
         n = G.shape[0]
         bc_scores = xp.zeros((n,), dtype=float)
 

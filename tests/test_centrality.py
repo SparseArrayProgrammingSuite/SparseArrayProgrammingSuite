@@ -8,19 +8,21 @@ import networkx as nx
 
 import saps.benchmarks.centrality as centrality
 from frameworks.saps_numpy import NumpyFramework
+from saps.downloaders.snap import load_toy_dataset
+from saps_framework import BinsparseFormat
 
 
-def run_bc(xp, A):
+def run_bc(A):
+    xp = NumpyFramework()
     centrality.xp = xp
-    (result,) = centrality.BetweennessCentralityBenchmark().benchmark((A,), {})
+    A_bin = A if isinstance(A, BinsparseFormat) else BinsparseFormat.from_numpy(A)
+    (result,) = centrality.BetweennessCentralityBenchmark().benchmark([A_bin], {})
     return result.ravel()
 
 
 # Modified the intended results because I am calculating
 # unnormalized betweenness centrality.
 def test_joels_case():
-    xp = NumpyFramework()
-
     A = np.array(
         [
             [0, 1, 1, 0, 0],
@@ -32,7 +34,7 @@ def test_joels_case():
         dtype=float,
     )
 
-    result = run_bc(xp, A)
+    result = run_bc(A)
     expected = np.array([0.0, 1.0, 1.0, 3.0, 0.0])
 
     assert np.allclose(result, expected, atol=1e-6)
@@ -56,8 +58,7 @@ def test_joels_case():
     ],
 )
 def test_basic_bc(A, expected):
-    xp = NumpyFramework()
-    result = run_bc(xp, A)
+    result = run_bc(A)
     assert np.allclose(result, expected, atol=1e-6)
 
 
@@ -95,26 +96,24 @@ def reference_bc_alg_6_4(A):
 
 def test_matrix_vertex_algorithm_comparison():
     # Test for comparing results from matrix and vertex-based algorithms
-    xp = NumpyFramework()
     rng = np.random.default_rng(42)
     n = 10
     A = (rng.random((n, n)) < 0.2).astype(float)
     np.fill_diagonal(A, 0)
 
-    result = run_bc(xp, A)
+    result = run_bc(A)
     expected = reference_bc_alg_6_4(A)
 
     assert np.allclose(result, expected, atol=1e-6)
 
 
 def test_undirected_graph():
-    xp = NumpyFramework()
     A = np.zeros((5, 5))
     for i in range(4):
         A[i, i + 1] = 1
         A[i + 1, i] = 1
 
-    result = run_bc(xp, A)
+    result = run_bc(A)
     G = nx.DiGraph()
     for i in range(4):
         G.add_edge(i, i + 1)
@@ -126,7 +125,6 @@ def test_undirected_graph():
 
 
 def test_networkx():
-    xp = NumpyFramework()
     G = nx.DiGraph()
     G.add_edges_from(
         [
@@ -140,7 +138,7 @@ def test_networkx():
     )
 
     A = nx.to_numpy_array(G, dtype=float)
-    result = run_bc(xp, A)
+    result = run_bc(A)
 
     bc = nx.betweenness_centrality(G, normalized=False)
     expected = np.array([bc[i] for i in range(len(G))])
@@ -167,3 +165,9 @@ def test_centrality_generator_loads_snap_dataset(monkeypatch, tmp_path):
     assert data[0].data["shape"] == (3, 3)
     assert meta["snap_slug"] == "toy"
     assert meta["src"] == 0
+
+
+def test_centrality_snap_toy():
+    data, _ = load_toy_dataset()
+    result = run_bc(data[0])
+    assert np.allclose(result, [0.0, 1.0, 0.0], atol=1e-6)
