@@ -1,4 +1,5 @@
 import json
+
 import numpy as np
 import scipy as sp
 
@@ -17,6 +18,22 @@ class BinsparseFormat:
         data["shape"] = array.shape
         data["values"] = array.flatten()
         return BinsparseFormat(data)
+
+    @staticmethod
+    def from_scipy(sparse_array: sp.sparse.spmatrix) -> "BinsparseFormat":
+        if sp.sparse.issparse(sparse_array):
+            coo = sparse_array.tocoo()
+            I_tuple = (coo.row, coo.col)
+            V = coo.data
+            shape = coo.shape
+            return BinsparseFormat.from_coo(I_tuple, V, shape)
+        if isinstance(sparse_array, np.ndarray):
+            return BinsparseFormat.from_numpy(sparse_array)
+        if isinstance(sparse_array, np.matrix):
+            return BinsparseFormat.from_numpy(np.array(sparse_array))
+        raise TypeError(
+            f"Type {type(sparse_array)} is not a recognized SciPy/NumPy format."
+        )
 
     @staticmethod
     def from_pytorch(tensor: torch.Tensor) -> "BinsparseFormat":
@@ -67,7 +84,7 @@ class BinsparseFormat:
             else:
                 bytes_data[k] = v
         return json.dumps(bytes_data, sort_keys=True)
-    
+
     @staticmethod
     def deserialize(string_data: str) -> "BinsparseFormat":
         data = json.loads(string_data)
@@ -75,7 +92,12 @@ class BinsparseFormat:
             if isinstance(v, list):
                 data[k] = tuple(v)
                 v = data[k]
-            if isinstance(v, tuple) and len(v) == 2 and isinstance(v[0], str) and isinstance(v[1], str):
+            if (
+                isinstance(v, tuple)
+                and len(v) == 2
+                and isinstance(v[0], str)
+                and isinstance(v[1], str)
+            ):
                 data[k] = np.frombuffer(bytes.fromhex(v[1]), dtype=v[0])
         return BinsparseFormat(data)
 
