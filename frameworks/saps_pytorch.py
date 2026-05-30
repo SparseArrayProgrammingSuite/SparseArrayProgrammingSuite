@@ -13,9 +13,8 @@ class PytorchFramework(Framework):
 
     def from_binsparse(self, array):
         if array.data["format"] == "dense":
-            return torch.from_numpy(
-                np.asarray(array.data["values"]).reshape(array.data["shape"])
-            )
+            values = np.asarray(array.data["values"]).copy()
+            return torch.from_numpy(values.reshape(array.data["shape"]))
         if array.data["format"] == "COO":
             indices = []
             idx_dim = 0
@@ -23,9 +22,10 @@ class PytorchFramework(Framework):
                 indices.append(array.data["indices_" + str(idx_dim)])
                 idx_dim += 1
 
+            values = np.asarray(array.data["values"]).copy()
             coo = torch.sparse_coo_tensor(
-                torch.from_numpy(np.stack(indices).astype(np.int64, copy=False)),
-                torch.from_numpy(np.asarray(array.data["values"])),
+                torch.from_numpy(np.stack(indices).astype(np.int64, copy=True)),
+                torch.from_numpy(values),
                 size=array.data["shape"],
             ).coalesce()
 
