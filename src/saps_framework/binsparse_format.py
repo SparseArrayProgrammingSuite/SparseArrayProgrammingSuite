@@ -39,9 +39,10 @@ class BinsparseFormat:
     def from_pytorch(tensor: torch.Tensor) -> "BinsparseFormat":
         t = tensor.detach().cpu()
         if t.layout == torch.sparse_coo:
-            indices_tuple = tuple(t.indices().numpy())
+            coo = t.coalesce()
+            indices_tuple = tuple(coo.indices().numpy())
             return BinsparseFormat.from_coo(
-                indices_tuple, t.values().resolve_conj().numpy(), tuple(t.shape)
+                indices_tuple, coo.values().resolve_conj().numpy(), tuple(coo.shape)
             )
         if t.layout == torch.sparse_csr:
             coo = t.to_sparse_coo().coalesce()
@@ -49,8 +50,9 @@ class BinsparseFormat:
             return BinsparseFormat.from_coo(
                 indices_tuple, coo.values().resolve_conj().numpy(), tuple(coo.shape)
             )
-
-        return BinsparseFormat.from_numpy(t.resolve_conj().numpy())
+        if t.layout == torch.strided:
+            return BinsparseFormat.from_numpy(t.resolve_conj().numpy())
+        raise TypeError(f"Unsupported PyTorch layout: {t.layout}")
 
     @staticmethod
     def from_coo(

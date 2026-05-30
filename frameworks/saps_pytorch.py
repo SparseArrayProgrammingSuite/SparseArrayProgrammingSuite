@@ -1,16 +1,16 @@
 import numpy as np
 
+import array_api_compat
 import torch
 
-from ..binsparse_format import BinsparseFormat
-from .abstract_framework import AbstractFramework
+from saps_framework import BinsparseFormat, Framework, einsum
 
 
-class PytorchFramework(AbstractFramework):
+class PytorchFramework(Framework):
     def __init__(self, sparse_layout: str = "COO"):
         self.sparse_layout = sparse_layout
 
-    def from_benchmark(self, array):
+    def from_binsparse(self, array):
         if array.data["format"] == "dense":
             return torch.from_numpy(
                 np.asarray(array.data["values"]).reshape(array.data["shape"])
@@ -37,11 +37,8 @@ class PytorchFramework(AbstractFramework):
 
         raise ValueError("Unsupported format: " + array.data["format"])
 
-    def to_benchmark(self, array):
-        layout = array.layout
-        if layout in {torch.sparse_coo, torch.sparse_csr, torch.strided}:
-            return BinsparseFormat.from_pytorch(array)
-        raise ValueError("Unsupported array type: " + str(layout))
+    def to_binsparse(self, array):
+        return BinsparseFormat.from_pytorch(array)
 
     def lazy(self, array):
         return array
@@ -50,10 +47,14 @@ class PytorchFramework(AbstractFramework):
         return array
 
     def einsum(self, prgm, **kwargs):
-        pass
+        xp = array_api_compat.array_namespace(*kwargs.values(), use_compat=True)
+        return einsum(xp, prgm, **kwargs)
 
     def with_fill_value(self, array, value):
         return array
 
     def __getattr__(self, name):
         return getattr(torch, name)
+
+
+xp = PytorchFramework()
