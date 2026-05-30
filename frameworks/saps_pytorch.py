@@ -7,6 +7,7 @@ from saps_framework import BinsparseFormat, Framework, einsum
 
 
 class PytorchFramework(Framework):
+    # TODO: Check if pyproject restricted dependencies is necessary
     def __init__(self, sparse_layout: str = "COO"):
         self.sparse_layout = sparse_layout
 
@@ -52,6 +53,9 @@ class PytorchFramework(Framework):
 
     def with_fill_value(self, array, value):
         return array
+
+    def vecdot(self, x, y):
+        return torch.sum(x * y)
 
     def __getattr__(self, name):
         return getattr(torch, name)
