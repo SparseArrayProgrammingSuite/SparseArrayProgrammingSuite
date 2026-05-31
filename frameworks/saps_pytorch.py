@@ -6,10 +6,40 @@ import torch
 from saps_framework import BinsparseFormat, Framework, einsum
 
 
+def _is_sparse_tensor(array):
+    return array.layout in {
+        torch.sparse_coo,
+        torch.sparse_csr,
+        torch.sparse_csc,
+    }
+
+
+class PytorchLinalg:
+    @staticmethod
+    def _dense(array):
+        return array.to_dense() if _is_sparse_tensor(array) else array
+
+    @staticmethod
+    def solve(A, b, **kwargs):
+        return torch.linalg.solve(PytorchLinalg._dense(A), b, **kwargs)
+
+    @staticmethod
+    def norm(x, **kwargs):
+        return torch.linalg.norm(PytorchLinalg._dense(x), **kwargs)
+
+    @staticmethod
+    def lstsq(A, b, **kwargs):
+        result = torch.linalg.lstsq(PytorchLinalg._dense(A), b, **kwargs)
+        return result.solution, result.residuals, result.rank, result.singular_values
+
+
 class PytorchFramework(Framework):
-    # TODO: Check if pyproject restricted dependencies is necessary
     def __init__(self, sparse_layout: str = "COO"):
         self.sparse_layout = sparse_layout
+
+    @property
+    def linalg(self):
+        return PytorchLinalg
 
     def from_binsparse(self, array):
         if array.data["format"] == "dense":
@@ -49,13 +79,25 @@ class PytorchFramework(Framework):
 
     def einsum(self, prgm, **kwargs):
         xp = array_api_compat.array_namespace(*kwargs.values(), use_compat=True)
+        if not hasattr(xp, "power"):
+            xp.power = torch.pow
         return einsum(xp, prgm, **kwargs)
 
     def with_fill_value(self, array, value):
         return array
 
+    def maximum(self, x, y):
+        if not torch.is_tensor(y):
+            y = torch.as_tensor(y, dtype=x.dtype, device=x.device)
+        return torch.maximum(x, y)
+
+    def minimum(self, x, y):
+        if not torch.is_tensor(y):
+            y = torch.as_tensor(y, dtype=x.dtype, device=x.device)
+        return torch.minimum(x, y)
+
     def vecdot(self, x, y):
-        return torch.sum(x * y)
+        return torch.sum(torch.conj(x) * y, dim=-1)
 
     def __getattr__(self, name):
         return getattr(torch, name)
