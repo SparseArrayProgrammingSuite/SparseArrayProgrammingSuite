@@ -78,6 +78,9 @@ class PytorchFramework(Framework):
     def compute(self, array):
         return array
 
+    def compile(self, func):
+        return torch.compile(func)
+
     def einsum(self, prgm, **kwargs):
         xp = array_api_compat.array_namespace(*kwargs.values(), use_compat=True)
         if not hasattr(xp, "power"):

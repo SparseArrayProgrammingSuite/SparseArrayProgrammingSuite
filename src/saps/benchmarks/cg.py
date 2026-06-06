@@ -15,6 +15,7 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    compile,
 )
 from saps_framework.binsparse_format import BinsparseFormat
 
@@ -208,6 +209,7 @@ class CGBenchmark(Benchmark):
     def generators(self):
         return [CGGenerator()]
 
+    @compile
     def benchmark(self, data: list, meta: dict):
         A, b, x = data
         rel_tol = 1e-8

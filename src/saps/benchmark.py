@@ -2,11 +2,31 @@ import inspect
 import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from functools import wraps
 from typing import Any, Generic, TypeAlias, TypeVar
 
 from saps.framework import xp
 from saps.storage import build_storage_backend
 from saps_framework.binsparse_format import BinsparseFormat
+
+
+def compile(func):
+    compiled = None
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        nonlocal compiled
+
+        compiler = getattr(xp, "compile", None)
+        if compiler is None:
+            return func(*args, **kwargs)
+
+        if compiled is None:
+            compiled = compiler(func)
+
+        return compiled(*args, **kwargs)
+
+    return wrapper
 
 
 @dataclass
@@ -123,7 +143,8 @@ class Dataset(Tagged):
 
 
 TDataset = TypeVar("TDataset", bound=Dataset)
-# Every DataInstance is a tuple of a list of BinsparseFormat objects and a json serializable dictionary
+# Every DataInstance is a tuple of a list of BinsparseFormat objects
+# and a json serializable dictionary
 DataInstance: TypeAlias = tuple[list[BinsparseFormat], dict[str, Any]]
 
 
