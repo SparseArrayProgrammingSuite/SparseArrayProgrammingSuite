@@ -3,8 +3,11 @@ import numpy as np
 import array_api_compat
 import array_api_compat.torch as torch_xp
 import torch
+import torch._dynamo
 
 from saps_framework import BinsparseFormat, Framework, einsum
+
+torch._dynamo.config.suppress_errors = True
 
 
 def _is_sparse_tensor(array):
