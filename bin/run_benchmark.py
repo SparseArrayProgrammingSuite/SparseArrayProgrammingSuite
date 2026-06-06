@@ -139,15 +139,6 @@ def main() -> int:
         ),
     )
     parser.add_argument(
-        "--framework",
-        action="append",
-        default=None,
-        help=(
-            "Framework to benchmark (numpy, scipy, sparse, pytorch). "
-            "Can be passed more than once. Overrides SAPS_FRAMEWORK "
-        ),
-    )
-    parser.add_argument(
         "--remote-storage-backend",
         default=None,
         help=(
@@ -282,23 +273,6 @@ def main() -> int:
             },
         },
     )
-
-    framework_paths = {
-        "numpy": "frameworks/saps_numpy.py",
-        "np": "frameworks/saps_numpy.py",
-        "scipy": "frameworks/saps_scipy.py",
-        "sparse": "frameworks/saps_sparse.py",
-        "pydata-sparse": "frameworks/saps_sparse.py",
-        "pytorch": "frameworks/saps_pytorch.py",
-        "torch": "frameworks/saps_pytorch.py",
-    }
-    if args.framework is not None:
-        matrix.setdefault("env_nobuild", {})
-        matrix["env_nobuild"]["SAPS_FRAMEWORK"] = [
-            framework_paths.get(framework.lower(), framework)
-            for framework in args.framework
-        ]
-
     if args.remote_storage_backend is not None:
         matrix["env_nobuild"]["REMOTE_STORAGE_BACKEND"] = args.remote_storage_backend
     if args.remote_storage_bucket is not None:
