@@ -1,6 +1,7 @@
 import numpy as np
 
 import array_api_compat
+import array_api_compat.torch as torch_xp
 import torch
 
 from saps_framework import BinsparseFormat, Framework, einsum
@@ -96,10 +97,9 @@ class PytorchFramework(Framework):
             y = torch.as_tensor(y, dtype=x.dtype, device=x.device)
         return torch.minimum(x, y)
 
-    def vecdot(self, x, y):
-        return torch.sum(torch.conj(x) * y, dim=-1)
-
     def __getattr__(self, name):
+        if hasattr(torch_xp, name):
+            return getattr(torch_xp, name)
         return getattr(torch, name)
 
 
