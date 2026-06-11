@@ -75,8 +75,9 @@ def test_particle_sim(x, y, vx, vy, size, steps):
     vy_bin = BinsparseFormat.from_numpy(vy)
 
     ps.xp = xp
+    data = [xp.from_binsparse(d) for d in [x_bin, y_bin, vx_bin, vy_bin]]
     (x, y, vx, vy) = ps.ParticleSimBenchmark().benchmark(
-        (x_bin, y_bin, vx_bin, vy_bin, size, steps), {}
+        data, {"size": size, "steps": steps}
     )
 
     init_simulation(ref_particles, len(ref_particles), size, steps)
