@@ -1,3 +1,5 @@
+import gzip
+
 import pytest
 
 import numpy as np
@@ -6,7 +8,8 @@ import networkx as nx
 
 import saps.benchmarks.pagerank as pr
 from frameworks.saps_numpy import NumpyFramework
-from saps_framework import BinsparseFormat
+from saps.downloaders.snap import load_toy_dataset
+from saps_framework.binsparse_format import BinsparseFormat
 
 
 @pytest.mark.parametrize(
@@ -17,15 +20,14 @@ from saps_framework import BinsparseFormat
         (np.array([[0, 0], [1, 0]], dtype=float), None),
     ],
 )
-def test_basic_pagerank_cases(A, expected):
+def test_basic_pagerank_cases(A: np.ndarray, expected: float):
     xp = NumpyFramework()
 
-    A_bin = BinsparseFormat.from_numpy(A)
-
     pr.xp = xp
-    (result_bin,) = pr.PageRankBenchmark().benchmark((A_bin,), {})
+    A_bin = BinsparseFormat.from_numpy(A)
+    (result,) = pr.PageRankBenchmark().benchmark([A_bin], {})
 
-    result = result_bin.ravel()
+    result = result.ravel()
 
     if expected is not None:
         assert np.allclose(result, expected, atol=1e-2)
@@ -49,13 +51,28 @@ def test_pagerank_against_networkx():
     G = nx.DiGraph()
     G.add_edges_from([(0, 1), (1, 2), (2, 0), (2, 3), (3, 4), (4, 2)])
     A = nx.to_numpy_array(G, dtype=float)
-    A_bin = BinsparseFormat.from_numpy(A)
 
     pr.xp = xp
-    (result_bin,) = pr.PageRankBenchmark().benchmark((A_bin,), {})
-    result = result_bin.ravel()
+    A_bin = BinsparseFormat.from_numpy(A)
+    (result,) = pr.PageRankBenchmark().benchmark([A_bin], {})
+    result = result.ravel()
 
     expected_dict = nx.pagerank(G, alpha=0.85, max_iter=100, tol=1e-6)
     expected = np.array([expected_dict[i] for i in range(len(G))])
 
     assert np.allclose(result, expected, atol=1e-2)
+
+
+def test_pagerank_snap_toy():
+    data, meta = load_toy_dataset()
+    (result,) = pr.PageRankBenchmark().benchmark(data, meta)
+    result = result.ravel()
+
+    G = nx.DiGraph()
+    G.add_edges_from([(1, 0), (2, 1)]) # The toy edges
+    expected_dict = nx.pagerank(G, alpha=0.85, max_iter=100, tol=1e-6)
+    expected = np.array([expected_dict[i] for i in range(len(G))])
+
+    assert np.allclose(result, expected, atol=1e-2)
+
+

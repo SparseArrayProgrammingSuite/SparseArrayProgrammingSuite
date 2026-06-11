@@ -1,7 +1,196 @@
+from typing import Any
+
 import saps
-from saps.benchmark import Author, Benchmark, Contributor, Generator, Ref
+from saps.benchmark import Author, Benchmark, Contributor, Dataset, Generator, Ref
+
+from saps.downloaders.snap import download_snap_dataset
+from saps_framework.binsparse_format import BinsparseFormat
 
 xp = saps.xp
+
+
+class GraphCountingDataset(Dataset):
+    def __init__(
+        self,
+        name: str,
+        pretty_name: str | None = None,
+        description: str | None = None,
+        tags: list[str] | None = None,
+    ):
+        self._name = name
+        self._pretty_name = pretty_name or name
+        self._description = description or f"Graph counting input {name}."
+        self._tags = tags or ["graph", "sparse"]
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @property
+    def tags(self) -> list[str]:
+        return self._tags
+
+
+class TriangleCountGenerator(Generator[GraphCountingDataset]):
+    @property
+    def name(self) -> str:
+        return "triangle_count_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Triangle Count Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Input generator for triangle counting benchmarks."
+
+    @property
+    def tags(self) -> list[str]:
+        return ["graph", "triangle-counting", "sparse"]
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="SNAP: A General Purpose Network Analysis and Graph Mining Library",
+                authors=[
+                    Author("Leskovec, Jure"),
+                    Author("Sosič, Rok"),
+                ],
+                journal="ACM Transactions on Intelligent Systems and Technology",
+                volume=8,
+                number=1,
+                year=2016,
+                url="https://snap.stanford.edu/index.html",
+            )
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Generate sparse graph inputs for triangle counting."
+
+    @property
+    def datasets(self) -> list[GraphCountingDataset]:
+        return [
+            GraphCountingDataset(
+                name="snap-email-Eu-core",
+                pretty_name="SNAP email-Eu-core",
+                description=(
+                    "Directed email communication network from a European research"
+                    " institution, with 1,005 nodes and 25,571 edges."
+                ),
+                tags=["graph", "triangle-counting", "sparse", "snap", "directed"],
+            ),
+            GraphCountingDataset(
+                name="snap-ca-GrQc",
+                pretty_name="SNAP ca-GrQc",
+                description=(
+                    "Arxiv General Relativity and Quantum Cosmology collaboration"
+                    " network, with 5,242 nodes and 14,496 edges."
+                ),
+                tags=[
+                    "graph",
+                    "triangle-counting",
+                    "sparse",
+                    "snap",
+                    "collaboration-network",
+                ],
+            ),
+        ]
+
+    def generate(
+        self, dataset: GraphCountingDataset
+    ) -> tuple[list[BinsparseFormat], Any]:
+        if dataset.name.startswith("snap"):
+            return download_snap_dataset(dataset.name)
+        raise ValueError(f"Unsupported triangle count dataset: {dataset.name}")
+
+
+class FourCliqueCountGenerator(Generator[GraphCountingDataset]):
+    @property
+    def name(self) -> str:
+        return "four_clique_count_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "4-Clique Count Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Input generator for 4-clique counting benchmarks."
+
+    @property
+    def tags(self) -> list[str]:
+        return ["graph", "clique-counting", "sparse"]
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Jeffrey Xu", "jxu743@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to write the benchmark function itself. "
+            "Generative AI was used to debug code. This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Generate sparse graph inputs for 4-clique counting."
+
+    @property
+    def datasets(self) -> list[GraphCountingDataset]:
+        # 4-clique counting is very expensive (6-way einsum); use small graphs only.
+        return [
+            GraphCountingDataset(
+                name="snap-email-Eu-core-temporal-Dept3",
+                pretty_name="SNAP email-Eu-core temporal Dept3",
+                description=(
+                    "Department 3 email network from the SNAP email-Eu-core"
+                    " temporal dataset, with 89 nodes and 1,506 static edges."
+                ),
+                tags=["graph", "clique-counting", "sparse", "snap", "directed"],
+            ),
+            GraphCountingDataset(
+                name="snap-email-Eu-core-temporal-Dept4",
+                pretty_name="SNAP email-Eu-core temporal Dept4",
+                description=(
+                    "Department 4 email network from the SNAP email-Eu-core"
+                    " temporal dataset, with 142 nodes and 1,375 static edges."
+                ),
+                tags=["graph", "clique-counting", "sparse", "snap", "directed"],
+            ),
+        ]
+
+    def generate(
+        self, dataset: GraphCountingDataset
+    ) -> tuple[list[BinsparseFormat], Any]:
+        if dataset.name.startswith("snap"):
+            return download_snap_dataset(dataset.name)
+        raise ValueError(f"Unsupported 4-clique count dataset: {dataset.name}")
 
 
 class TriangleCountBenchmark(Benchmark):
@@ -92,11 +281,11 @@ class TriangleCountBenchmark(Benchmark):
         )
 
     @property
-    def generators(self) -> list[Generator]:
-        return []
+    def generators(self) -> list[Generator[GraphCountingDataset]]:
+        return [TriangleCountGenerator()]
 
     def benchmark(self, data: list, meta: dict):
-        A = data[0]
+        A = xp.from_binsparse(data[0])
         triangles = xp.einsum("S[] += A[i,j] * A[j,k] * A[k,i]", A=A) / 6
         return [xp.asarray(triangles)]
 
@@ -190,11 +379,11 @@ class FourCliqueCountBenchmark(Benchmark):
         )
 
     @property
-    def generators(self) -> list[Generator]:
-        return []
+    def generators(self) -> list[Generator[GraphCountingDataset]]:
+        return [FourCliqueCountGenerator()]
 
     def benchmark(self, data: list, meta: dict):
-        A = data[0]
+        A = xp.from_binsparse(data[0])
         cliq_4 = (
             xp.einsum(
                 "S[] += A[i,j] * A[i,k] * A[i,l] * A[j,k] * A[j,l] * A[k,l]",

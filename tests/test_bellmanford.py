@@ -4,8 +4,16 @@ import numpy as np
 
 import saps.benchmarks.bellmanford as bellmanford
 from frameworks.saps_numpy import NumpyFramework
+from saps.downloaders.snap import load_toy_dataset
+from saps_framework import BinsparseFormat
 
-xp = NumpyFramework()
+
+def _run_bf(A, src):
+    xp = NumpyFramework()
+    bellmanford.xp = xp
+    A_bin = A if isinstance(A, BinsparseFormat) else BinsparseFormat.from_numpy(A)
+    (result,) = bellmanford.BellmanFordBenchmark().benchmark([A_bin], {"src": src})
+    return result.ravel()
 
 
 def bellman_ford_reference(A, src):
@@ -213,11 +221,14 @@ def build_chesapeake_matrix():
     ],
 )
 def test_bellman_ford_networks(matrix_builder, src):
-    xp = NumpyFramework()
-    bellmanford.xp = xp
-
     A = matrix_builder()
-    (result,) = bellmanford.BellmanFordBenchmark().benchmark((A,), {"src": src})
-    result = result.ravel()
+    result = _run_bf(A, src)
     ref = bellman_ford_reference(A, src)
     assert np.allclose(result, ref, equal_nan=True)
+
+
+def test_bellman_ford_snap_toy():
+    data, meta = load_toy_dataset()
+    dist = bellmanford._adjacency_to_unit_distance(data[0])
+    result = _run_bf(dist, meta["src"])
+    assert np.allclose(result, [0.0, 1.0, 2.0])

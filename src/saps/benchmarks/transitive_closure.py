@@ -1,12 +1,122 @@
+from typing import Any
+
 import saps
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    Dataset,
+    Generator,
     Ref,
 )
 
+from saps.downloaders.snap import download_snap_dataset
+from saps_framework.binsparse_format import BinsparseFormat
+
 xp = saps.xp
+
+
+class TransitiveClosureDataset(Dataset):
+    def __init__(
+        self,
+        name: str,
+        pretty_name: str | None = None,
+        description: str | None = None,
+        tags: list[str] | None = None,
+    ):
+        self._name = name
+        self._pretty_name = pretty_name or name
+        self._description = description or f"Transitive closure input {name}."
+        self._tags = tags or ["graph", "sparse"]
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @property
+    def tags(self) -> list[str]:
+        return self._tags
+
+
+class TransitiveClosureGenerator(Generator[TransitiveClosureDataset]):
+    @property
+    def name(self) -> str:
+        return "transitive_closure_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Transitive Closure Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Input generator for transitive closure benchmarks."
+
+    @property
+    def tags(self) -> list[str]:
+        return ["graph", "transitive-closure", "sparse"]
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Generate sparse directed graph inputs for transitive closure."
+
+    @property
+    def datasets(self) -> list[TransitiveClosureDataset]:
+        return [
+            TransitiveClosureDataset(
+                name="snap-email-Eu-core",
+                pretty_name="SNAP email-Eu-core",
+                description=(
+                    "Directed email communication network from a European research"
+                    " institution, with 1,005 nodes and 25,571 edges."
+                ),
+                tags=["graph", "transitive-closure", "sparse", "snap", "directed"],
+            ),
+            TransitiveClosureDataset(
+                name="snap-ca-GrQc",
+                pretty_name="SNAP ca-GrQc",
+                description=(
+                    "Arxiv General Relativity and Quantum Cosmology collaboration"
+                    " network, with 5,242 nodes and 14,496 edges."
+                ),
+                tags=[
+                    "graph",
+                    "transitive-closure",
+                    "sparse",
+                    "snap",
+                    "collaboration-network",
+                ],
+            ),
+        ]
+
+    def generate(
+        self, dataset: TransitiveClosureDataset
+    ) -> tuple[list[BinsparseFormat], Any]:
+        if dataset.name.startswith("snap"):
+            return download_snap_dataset(dataset.name)
+        raise ValueError(f"Unsupported transitive closure dataset: {dataset.name}")
 
 
 class TransitiveClosureBenchmark(Benchmark):
@@ -65,8 +175,8 @@ class TransitiveClosureBenchmark(Benchmark):
         return ""
 
     @property
-    def generators(self):
-        return []
+    def generators(self) -> list[Generator[TransitiveClosureDataset]]:
+        return [TransitiveClosureGenerator()]
 
     def benchmark(self, data, meta):
         edges = xp.from_binsparse(data[0])
