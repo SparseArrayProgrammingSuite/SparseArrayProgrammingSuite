@@ -7,7 +7,7 @@ import torch
 import saps.benchmark as benchmark_module
 from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_pytorch import PytorchFramework
-from saps.benchmark import compile_benchmark_class
+from saps.benchmark import compile
 
 
 def arithmetic_op_eager(x, y, z):
@@ -31,7 +31,7 @@ def test_numpy_passes_through():
     cls = make_benchmark_cls()
     original = cls.benchmark
 
-    compile_benchmark_class(cls)
+    cls.benchmark = compile(cls.benchmark)
 
     assert cls.benchmark is original
 
@@ -47,7 +47,7 @@ def test_pytorch_compiles():
     cls = make_benchmark_cls()
     original = cls.benchmark
 
-    compile_benchmark_class(cls)
+    cls.benchmark = compile(cls.benchmark)
 
     assert cls.benchmark is not original
 
@@ -75,7 +75,7 @@ def test_pytorch_compiled_is_faster():
 
     eager_cls = make_benchmark_cls()
     compiled_cls = make_benchmark_cls()
-    compile_benchmark_class(compiled_cls)
+    compiled_cls.benchmark = compile(compiled_cls.benchmark)
 
     eager = eager_cls()
     compiled = compiled_cls()

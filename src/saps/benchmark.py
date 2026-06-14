@@ -9,13 +9,10 @@ from saps.storage import build_storage_backend
 from saps_framework.binsparse_format import BinsparseFormat
 
 
-def compile_benchmark_class(cls: type) -> None:
+def compile(func):
     if xp is None:
-        return
-    original = cls.__dict__.get("benchmark")
-    if original is None:
-        return
-    cls.benchmark = xp.compile(original)
+        return func
+    return xp.compile(func)
 
 
 @dataclass
@@ -211,7 +208,7 @@ class Benchmark(Tagged, Attributed, Motivated):
             return
 
         benchmark_source = inspect.getsource(cls.benchmark)
-        compile_benchmark_class(cls)
+        cls.benchmark = compile(cls.benchmark)
 
         def _mem_run(self, param):
             self.run(param)
