@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 
 from saps_framework import Framework
@@ -19,6 +20,8 @@ if framework_path is not None:
     assert spec is not None, "Failed to create module spec"
     custom_framework = importlib.util.module_from_spec(spec)
     assert spec.loader is not None, "Module spec has no loader"
+    # Register before exec so the module is importable by name
+    sys.modules["custom_framework"] = custom_framework
     spec.loader.exec_module(custom_framework)
     xp = custom_framework.xp
     assert isinstance(xp, Framework), (
