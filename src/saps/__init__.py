@@ -1,4 +1,4 @@
-from .benchmark import Author, Benchmark, Contributor, Ref, compile
+from .benchmark import Author, Benchmark, Contributor, Ref, compile_benchmark_class
 from .framework import xp
 from .storage import build_storage_backend
 
@@ -8,6 +8,6 @@ __all__ = [
     "Contributor",
     "Ref",
     "build_storage_backend",
-    "compile",
+    "compile_benchmark_class",
     "xp",
 ]

@@ -2,7 +2,6 @@ import inspect
 import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from functools import wraps
 from typing import Any, Generic, TypeAlias, TypeVar
 
 from saps.framework import xp
@@ -10,23 +9,13 @@ from saps.storage import build_storage_backend
 from saps_framework.binsparse_format import BinsparseFormat
 
 
-def compile(func):
-    compiled = None
-
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        nonlocal compiled
-
-        compiler = getattr(xp, "compile", None)
-        if compiler is None:
-            return func(*args, **kwargs)
-
-        if compiled is None:
-            compiled = compiler(func)
-
-        return compiled(*args, **kwargs)
-
-    return wrapper
+def compile_benchmark_class(cls: type) -> None:
+    if xp is None:
+        return
+    original = cls.__dict__.get("benchmark")
+    if original is None:
+        return
+    cls.benchmark = xp.compile(original)
 
 
 @dataclass
@@ -221,6 +210,9 @@ class Benchmark(Tagged, Attributed, Motivated):
         except (TypeError, ValueError):
             return
 
+        benchmark_source = inspect.getsource(cls.benchmark)
+        compile_benchmark_class(cls)
+
         def _mem_run(self, param):
             self.run(param)
 
@@ -228,14 +220,10 @@ class Benchmark(Tagged, Attributed, Motivated):
             self.run(param)
 
         setattr(cls, f"mem_{instance.name}", _mem_run)
-        getattr(cls, f"mem_{instance.name}").pretty_source = inspect.getsource(
-            cls.benchmark
-        )
+        getattr(cls, f"mem_{instance.name}").pretty_source = benchmark_source
 
         setattr(cls, f"time_{instance.name}", _time_run)
-        getattr(cls, f"time_{instance.name}").pretty_source = inspect.getsource(
-            cls.benchmark
-        )
+        getattr(cls, f"time_{instance.name}").pretty_source = benchmark_source
 
         cls.setup.pretty_source = "\n".join(
             inspect.getsource(generator.generate) for generator in instance.generators
