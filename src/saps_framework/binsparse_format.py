@@ -1,9 +1,7 @@
 import json
 
 import numpy as np
-import scipy as sp
 
-import torch
 from pyparsing import Any
 
 
@@ -18,41 +16,6 @@ class BinsparseFormat:
         data["shape"] = array.shape
         data["values"] = array.flatten()
         return BinsparseFormat(data)
-
-    @staticmethod
-    def from_scipy(sparse_array: sp.sparse.spmatrix) -> "BinsparseFormat":
-        if sp.sparse.issparse(sparse_array):
-            coo = sparse_array.tocoo()
-            I_tuple = (coo.row, coo.col)
-            V = coo.data
-            shape = coo.shape
-            return BinsparseFormat.from_coo(I_tuple, V, shape)
-        if isinstance(sparse_array, np.ndarray):
-            return BinsparseFormat.from_numpy(sparse_array)
-        if isinstance(sparse_array, np.matrix):
-            return BinsparseFormat.from_numpy(np.array(sparse_array))
-        raise TypeError(
-            f"Type {type(sparse_array)} is not a recognized SciPy/NumPy format."
-        )
-
-    @staticmethod
-    def from_pytorch(tensor: torch.Tensor) -> "BinsparseFormat":
-        t = tensor.detach().cpu()
-        if t.layout == torch.sparse_coo:
-            coo = t.coalesce()
-            indices_tuple = tuple(coo.indices().numpy())
-            return BinsparseFormat.from_coo(
-                indices_tuple, coo.values().resolve_conj().numpy(), tuple(coo.shape)
-            )
-        if t.layout == torch.sparse_csr:
-            coo = t.to_sparse_coo().coalesce()
-            indices_tuple = tuple(coo.indices().numpy())
-            return BinsparseFormat.from_coo(
-                indices_tuple, coo.values().resolve_conj().numpy(), tuple(coo.shape)
-            )
-        if t.layout == torch.strided:
-            return BinsparseFormat.from_numpy(t.resolve_conj().numpy())
-        raise TypeError(f"Unsupported PyTorch layout: {t.layout}")
 
     @staticmethod
     def from_coo(
