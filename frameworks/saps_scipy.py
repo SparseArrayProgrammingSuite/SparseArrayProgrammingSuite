@@ -48,7 +48,14 @@ class SciPyFramework(Framework):
         raise ValueError(f"Unsupported format: {array.data['format']}")
 
     def to_binsparse(self, array):
-        return BinsparseFormat.from_scipy(array)
+        if sp.sparse.issparse(array):
+            coo = array.tocoo()
+            return BinsparseFormat.from_coo((coo.row, coo.col), coo.data, coo.shape)
+        if isinstance(array, np.ndarray):
+            return BinsparseFormat.from_numpy(array)
+        if isinstance(array, np.matrix):
+            return BinsparseFormat.from_numpy(np.array(array))
+        raise TypeError(f"Type {type(array)} is not a recognized SciPy/NumPy format.")
 
     def lazy(self, array):
         return array

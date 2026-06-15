@@ -73,7 +73,22 @@ class PytorchFramework(Framework):
         raise ValueError("Unsupported format: " + array.data["format"])
 
     def to_binsparse(self, array):
-        return BinsparseFormat.from_pytorch(array)
+        t = array.detach().cpu()
+        if t.layout == torch.sparse_coo:
+            coo = t.coalesce()
+            indices_tuple = tuple(coo.indices().numpy())
+            return BinsparseFormat.from_coo(
+                indices_tuple, coo.values().resolve_conj().numpy(), tuple(coo.shape)
+            )
+        if t.layout == torch.sparse_csr:
+            coo = t.to_sparse_coo().coalesce()
+            indices_tuple = tuple(coo.indices().numpy())
+            return BinsparseFormat.from_coo(
+                indices_tuple, coo.values().resolve_conj().numpy(), tuple(coo.shape)
+            )
+        if t.layout == torch.strided:
+            return BinsparseFormat.from_numpy(t.resolve_conj().numpy())
+        raise TypeError(f"Unsupported PyTorch layout: {t.layout}")
 
     def lazy(self, array):
         return array
