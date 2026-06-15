@@ -226,8 +226,8 @@ class CGBenchmark(Benchmark):
             while it < max_iters:
                 Ap = A @ p
                 alpha = rr / xp.vecdot(p, Ap)[()]
-                x += alpha * p
-                r -= alpha * Ap
+                x = x + alpha * p
+                r = r - alpha * Ap
 
                 old_rr = rr
                 new_rr = xp.vecdot(r, r)[()]

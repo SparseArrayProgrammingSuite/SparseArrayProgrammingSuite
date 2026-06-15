@@ -123,7 +123,8 @@ class Dataset(Tagged):
 
 
 TDataset = TypeVar("TDataset", bound=Dataset)
-# Every DataInstance is a tuple of a list of BinsparseFormat objects and a json serializable dictionary
+# Every DataInstance is a tuple of a list of BinsparseFormat objects
+# and a json serializable dictionary
 DataInstance: TypeAlias = tuple[list[BinsparseFormat], dict[str, Any]]
 
 
@@ -200,6 +201,9 @@ class Benchmark(Tagged, Attributed, Motivated):
         except (TypeError, ValueError):
             return
 
+        benchmark_source = inspect.getsource(cls.benchmark)
+        cls.benchmark = cls.benchmark if xp is None else xp.compile(cls.benchmark)
+
         def _mem_run(self, param):
             self.run(param)
 
@@ -207,14 +211,10 @@ class Benchmark(Tagged, Attributed, Motivated):
             self.run(param)
 
         setattr(cls, f"mem_{instance.name}", _mem_run)
-        getattr(cls, f"mem_{instance.name}").pretty_source = inspect.getsource(
-            cls.benchmark
-        )
+        getattr(cls, f"mem_{instance.name}").pretty_source = benchmark_source
 
         setattr(cls, f"time_{instance.name}", _time_run)
-        getattr(cls, f"time_{instance.name}").pretty_source = inspect.getsource(
-            cls.benchmark
-        )
+        getattr(cls, f"time_{instance.name}").pretty_source = benchmark_source
 
         cls.setup.pretty_source = "\n".join(
             inspect.getsource(generator.generate) for generator in instance.generators

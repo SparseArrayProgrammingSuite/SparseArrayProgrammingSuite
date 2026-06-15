@@ -4,7 +4,7 @@ description = ""
 version = "0.1.0"
 readme = "README.md"
 authors = [{name = "Willow Ahrens", email = "willow.marie.ahrens@gmail.com"}]
-requires-python = '>=3.11,<4.0'
+requires-python = '>=3.11,<3.15'
 dependencies = [
     'numpy>=1.19,<2.4',
     'donfig>=0.8.1.post1,<0.9.0',
@@ -20,7 +20,8 @@ dependencies = [
     "kagglehub>=0.3.13,<1.0.0",
     "pillow>=10.0.0,<13.0.0",
     "boto3 (>=1.43.8,<2.0.0)",
-    "botocore[crt] (>=1.43.10,<2.0.0)"
+    "botocore[crt] (>=1.43.10,<2.0.0)",
+    "torch>=2.11.0,<3.0.0"
 ]
 
 [tool.poetry]

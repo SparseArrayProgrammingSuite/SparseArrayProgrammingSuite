@@ -1,7 +1,9 @@
 import json
+
 import numpy as np
 import scipy as sp
 
+import torch
 from pyparsing import Any
 
 
@@ -32,6 +34,25 @@ class BinsparseFormat:
         raise TypeError(
             f"Type {type(sparse_array)} is not a recognized SciPy/NumPy format."
         )
+
+    @staticmethod
+    def from_pytorch(tensor: torch.Tensor) -> "BinsparseFormat":
+        t = tensor.detach().cpu()
+        if t.layout == torch.sparse_coo:
+            coo = t.coalesce()
+            indices_tuple = tuple(coo.indices().numpy())
+            return BinsparseFormat.from_coo(
+                indices_tuple, coo.values().resolve_conj().numpy(), tuple(coo.shape)
+            )
+        if t.layout == torch.sparse_csr:
+            coo = t.to_sparse_coo().coalesce()
+            indices_tuple = tuple(coo.indices().numpy())
+            return BinsparseFormat.from_coo(
+                indices_tuple, coo.values().resolve_conj().numpy(), tuple(coo.shape)
+            )
+        if t.layout == torch.strided:
+            return BinsparseFormat.from_numpy(t.resolve_conj().numpy())
+        raise TypeError(f"Unsupported PyTorch layout: {t.layout}")
 
     @staticmethod
     def from_coo(
@@ -65,7 +86,7 @@ class BinsparseFormat:
             else:
                 bytes_data[k] = v
         return json.dumps(bytes_data, sort_keys=True)
-    
+
     @staticmethod
     def deserialize(string_data: str) -> "BinsparseFormat":
         data = json.loads(string_data)
@@ -73,7 +94,12 @@ class BinsparseFormat:
             if isinstance(v, list):
                 data[k] = tuple(v)
                 v = data[k]
-            if isinstance(v, tuple) and len(v) == 2 and isinstance(v[0], str) and isinstance(v[1], str):
+            if (
+                isinstance(v, tuple)
+                and len(v) == 2
+                and isinstance(v[0], str)
+                and isinstance(v[1], str)
+            ):
                 data[k] = np.frombuffer(bytes.fromhex(v[1]), dtype=v[0])
         return BinsparseFormat(data)
 

@@ -267,6 +267,7 @@ def main() -> int:
                     "frameworks/saps_numpy.py",
                     "frameworks/saps_scipy.py",
                     "frameworks/saps_sparse.py",
+                    "frameworks/saps_pytorch.py",
                 ],
                 "SAPS_REPO_ROOT": [str(repo_root)],
             },
