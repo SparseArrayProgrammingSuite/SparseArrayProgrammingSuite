@@ -4,10 +4,8 @@ import numpy as np
 
 import torch
 
-import saps.benchmark as benchmark_module
 from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_pytorch import PytorchFramework
-from saps.benchmark import compile
 
 
 def arithmetic_op_eager(x, y, z):
@@ -27,11 +25,11 @@ def make_benchmark_cls():
 
 
 def test_numpy_passes_through():
-    benchmark_module.xp = NumpyFramework()
+    xp = NumpyFramework()
     cls = make_benchmark_cls()
     original = cls.benchmark
 
-    cls.benchmark = compile(cls.benchmark)
+    cls.benchmark = xp.compile(cls.benchmark)
 
     assert cls.benchmark is original
 
@@ -43,11 +41,11 @@ def test_numpy_passes_through():
 
 
 def test_pytorch_compiles():
-    benchmark_module.xp = PytorchFramework()
+    xp = PytorchFramework()
     cls = make_benchmark_cls()
     original = cls.benchmark
 
-    cls.benchmark = compile(cls.benchmark)
+    cls.benchmark = xp.compile(cls.benchmark)
 
     assert cls.benchmark is not original
 
@@ -71,11 +69,11 @@ def _median_time(fn, args):
 
 def test_pytorch_compiled_is_faster():
     # Compare PyTorch with and without compilation to confirm a speedup.
-    benchmark_module.xp = PytorchFramework()
+    xp = PytorchFramework()
 
     eager_cls = make_benchmark_cls()
     compiled_cls = make_benchmark_cls()
-    compiled_cls.benchmark = compile(compiled_cls.benchmark)
+    compiled_cls.benchmark = xp.compile(compiled_cls.benchmark)
 
     eager = eager_cls()
     compiled = compiled_cls()
