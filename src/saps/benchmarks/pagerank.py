@@ -27,7 +27,7 @@ class PageRankDataset(Dataset):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"PageRank input {name}."
-        self._tags = tags or ["graph", "pagerank", "sparse"]
+        self._tags = tags or []
 
     @property
     def name(self) -> str:
@@ -61,7 +61,7 @@ class PageRankGenerator(Generator[PageRankDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["graph", "pagerank", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -92,7 +92,7 @@ class PageRankGenerator(Generator[PageRankDataset]):
                     "Directed email communication network from a European research"
                     " institution, with 1,005 nodes and 25,571 edges."
                 ),
-                tags=["graph", "pagerank", "sparse", "snap", "directed"],
+                tags=[],
             ),
             PageRankDataset(
                 name="snap-ca-GrQc",
@@ -101,7 +101,7 @@ class PageRankGenerator(Generator[PageRankDataset]):
                     "Arxiv General Relativity and Quantum Cosmology collaboration"
                     " network, with 5,242 nodes and 14,496 edges."
                 ),
-                tags=["graph", "pagerank", "sparse", "snap", "collaboration-network"],
+                tags=[],
             ),
             PageRankDataset(
                 name="snap-p2p-Gnutella04",
@@ -110,7 +110,7 @@ class PageRankGenerator(Generator[PageRankDataset]):
                     "Directed Gnutella peer-to-peer network snapshot from August 4,"
                     " 2002, with 10,876 nodes and 39,994 edges."
                 ),
-                tags=["graph", "pagerank", "sparse", "snap", "directed", "peer-to-peer"],
+                tags=[],
             ),
         ]
 
@@ -142,7 +142,7 @@ class PageRankBenchmark(Benchmark):
 
     @property
     def tags(self):
-        return ["graph", "pagerank", "sparse"]
+        return []
 
     @property
     def authors(self):

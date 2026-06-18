@@ -19,6 +19,7 @@ xp = saps.xp
 
 class RPKMeansDataset(Dataset):
     def __init__(self, source_name: str, points, k: int, eps: float, c=1, max_iter=100):
+        self._tags = []
         self.source_name = source_name
         self.points = points
         self.k = k
@@ -40,7 +41,7 @@ class RPKMeansDataset(Dataset):
 
     @property
     def tags(self) -> list[str]:
-        return ["clustering", "random-projection"]
+        return self._tags
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -67,7 +68,7 @@ class RPKMeansGenerator(Generator[RPKMeansDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["clustering", "random-projection"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -182,7 +183,7 @@ class RPKMeansBenchmark(Benchmark):
 
     @property
     def tags(self) -> list[str]:
-        return ["clustering", "random-projection", "sparse"]
+        return []
 
     @property
     def generators(self):

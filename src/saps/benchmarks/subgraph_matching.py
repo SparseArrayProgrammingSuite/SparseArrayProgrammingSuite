@@ -98,7 +98,7 @@ class SubgraphGCareGraphGenerator(Generator[SubgraphGCareGraphDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["subgraph matching", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -151,25 +151,25 @@ class SubgraphGCareGraphGenerator(Generator[SubgraphGCareGraphDataset]):
                 name="human",
                 pretty_name="G-CARE Human Subset (Small)",
                 description=("G-CARE Human Subset (Small)"),
-                tags=["small", "sparse"],
+                tags=[],
             ),
             SubgraphGCareGraphDataset(
                 name="aids",
                 pretty_name="G-CARE AIDS Subset (Medium)",
                 description=("G-CARE AIDS Subset (Medium)"),
-                tags=["medium", "sparse"],
+                tags=[],
             ),
             SubgraphGCareGraphDataset(
                 name="lubm80",
                 pretty_name="G-CARE LUBM80 Subset (Large)",
                 description=("G-CARE LUBM80 Subset (Large)"),
-                tags=["large", "sparse"],
+                tags=[],
             ),
             SubgraphGCareGraphDataset(
                 name="yago",
                 pretty_name="G-CARE YAGO Subset (Huge)",
                 description=("G-CARE YAGO Subset (Huge)"),
-                tags=["huge", "sparse"],
+                tags=[],
             ),
         ]
 
@@ -199,7 +199,7 @@ class SubgraphGCareGenerator(Generator[SubgraphGCareDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["subgraph matching", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -261,7 +261,7 @@ class SubgraphGCareGenerator(Generator[SubgraphGCareDataset]):
                         query_name=query_name,
                         pretty_name=f"{subset_label}, Query {query_name}",
                         description=f"{subset_label} with query {query_name}",
-                        tags=[size_tag, "sparse"],
+                        tags=[],
                     )
                 )
         return datasets
@@ -297,7 +297,7 @@ class SubgraphMatching(Benchmark):
 
     @property
     def tags(self):
-        return ["subgraph-matching", "sparse"]
+        return []
 
     @property
     def authors(self):

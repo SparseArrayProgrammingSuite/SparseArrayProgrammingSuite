@@ -20,7 +20,7 @@ class GraphCountingDataset(Dataset):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Graph counting input {name}."
-        self._tags = tags or ["graph", "sparse"]
+        self._tags = tags or []
 
     @property
     def name(self) -> str:
@@ -54,7 +54,7 @@ class TriangleCountGenerator(Generator[GraphCountingDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["graph", "triangle-counting", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -98,7 +98,7 @@ class TriangleCountGenerator(Generator[GraphCountingDataset]):
                     "Directed email communication network from a European research"
                     " institution, with 1,005 nodes and 25,571 edges."
                 ),
-                tags=["graph", "triangle-counting", "sparse", "snap", "directed"],
+                tags=[],
             ),
             GraphCountingDataset(
                 name="snap-ca-GrQc",
@@ -107,13 +107,7 @@ class TriangleCountGenerator(Generator[GraphCountingDataset]):
                     "Arxiv General Relativity and Quantum Cosmology collaboration"
                     " network, with 5,242 nodes and 14,496 edges."
                 ),
-                tags=[
-                    "graph",
-                    "triangle-counting",
-                    "sparse",
-                    "snap",
-                    "collaboration-network",
-                ],
+                tags=[],
             ),
         ]
 
@@ -140,7 +134,7 @@ class FourCliqueCountGenerator(Generator[GraphCountingDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["graph", "clique-counting", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -172,7 +166,7 @@ class FourCliqueCountGenerator(Generator[GraphCountingDataset]):
                     "Department 3 email network from the SNAP email-Eu-core"
                     " temporal dataset, with 89 nodes and 1,506 static edges."
                 ),
-                tags=["graph", "clique-counting", "sparse", "snap", "directed"],
+                tags=[],
             ),
             GraphCountingDataset(
                 name="snap-email-Eu-core-temporal-Dept4",
@@ -181,7 +175,7 @@ class FourCliqueCountGenerator(Generator[GraphCountingDataset]):
                     "Department 4 email network from the SNAP email-Eu-core"
                     " temporal dataset, with 142 nodes and 1,375 static edges."
                 ),
-                tags=["graph", "clique-counting", "sparse", "snap", "directed"],
+                tags=[],
             ),
         ]
 
@@ -235,7 +229,7 @@ class TriangleCountBenchmark(Benchmark):
 
     @property
     def tags(self) -> list[str]:
-        return ["graph", "triangle-counting", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -333,7 +327,7 @@ class FourCliqueCountBenchmark(Benchmark):
 
     @property
     def tags(self) -> list[str]:
-        return ["graph", "clique-counting", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:

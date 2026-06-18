@@ -32,6 +32,7 @@ class LSQRDataset(Dataset):
         nnz: int | None = None,
         noise_amt: float = 0.1,
     ):
+        self._tags = []
         self.source_name = source_name
         self.has_b_file = has_b_file
         self.nnz = nnz
@@ -51,7 +52,7 @@ class LSQRDataset(Dataset):
 
     @property
     def tags(self) -> list[str]:
-        return ["suitesparse", "sparse"]
+        return self._tags
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -82,7 +83,7 @@ class LSQRGenerator(Generator[LSQRDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["iterative", "solver", "least-squares", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -219,7 +220,7 @@ class LSQRBenchmark(Benchmark):
 
     @property
     def tags(self) -> list[str]:
-        return ["iterative", "solver", "least-squares", "sparse"]
+        return []
 
     @property
     def generators(self):

@@ -11,6 +11,7 @@ xp = saps.xp
 
 class QuantumDataset(Dataset):
     def __init__(self, source_name: str, nqubits: int, description: str):
+        self._tags = []
         self.source_name = source_name
         self.nqubits = nqubits
         self.dataset_description = description
@@ -29,7 +30,7 @@ class QuantumDataset(Dataset):
 
     @property
     def tags(self) -> list[str]:
-        return ["quantum", "statevector"]
+        return self._tags
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -53,7 +54,7 @@ class QuantumStateGenerator(Generator[QuantumDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["quantum", "statevector"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -137,7 +138,7 @@ class QuantumStatevectorBenchmark(Benchmark):
 
     @property
     def tags(self) -> list[str]:
-        return ["quantum", "statevector", "einsum"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:

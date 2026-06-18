@@ -33,6 +33,7 @@ class GCNTrainingDataset(Dataset):
         num_iterations: int = 10,
         learning_rate: float = 0.01,
     ):
+        self._tags = []
         self._name = name
         self._description = description
         self.source_name = source_name or name
@@ -58,7 +59,7 @@ class GCNTrainingDataset(Dataset):
 
     @property
     def tags(self) -> list[str]:
-        return ["suitesparse", "sparse"]
+        return self._tags
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -87,7 +88,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["machine learning", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -333,7 +334,7 @@ Each iteration:
 
     @property
     def tags(self) -> list[str]:
-        return ["machine learning", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:

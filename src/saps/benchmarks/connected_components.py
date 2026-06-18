@@ -27,7 +27,7 @@ class ConnectedComponentsDataset(Dataset):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Connected components input {name}."
-        self._tags = tags or ["graph", "connected-components", "sparse"]
+        self._tags = tags or []
 
     @property
     def name(self) -> str:
@@ -61,7 +61,7 @@ class ConnectedComponentsGenerator(Generator[ConnectedComponentsDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["graph", "connected-components", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -105,7 +105,7 @@ class ConnectedComponentsGenerator(Generator[ConnectedComponentsDataset]):
                     "Directed email communication network from a European research"
                     " institution, with 1,005 nodes and 25,571 edges."
                 ),
-                tags=["graph", "connected-components", "sparse", "snap", "directed"],
+                tags=[],
             ),
             ConnectedComponentsDataset(
                 name="snap-facebook_combined",
@@ -114,13 +114,7 @@ class ConnectedComponentsGenerator(Generator[ConnectedComponentsDataset]):
                     "Combined Facebook social-circle network, with 4,039 nodes and"
                     " 88,234 edges."
                 ),
-                tags=[
-                    "graph",
-                    "connected-components",
-                    "sparse",
-                    "snap",
-                    "social-network",
-                ],
+                tags=[],
             ),
             ConnectedComponentsDataset(
                 name="snap-ca-GrQc",
@@ -129,13 +123,7 @@ class ConnectedComponentsGenerator(Generator[ConnectedComponentsDataset]):
                     "Arxiv General Relativity and Quantum Cosmology collaboration"
                     " network, with 5,242 nodes and 14,496 edges."
                 ),
-                tags=[
-                    "graph",
-                    "connected-components",
-                    "sparse",
-                    "snap",
-                    "collaboration-network",
-                ],
+                tags=[],
             ),
         ]
 
@@ -165,7 +153,7 @@ class SimplyConnectedComponentsBenchmark(Benchmark):
 
     @property
     def tags(self):
-        return ["graph", "connected-components", "sparse"]
+        return []
 
     @property
     def authors(self):

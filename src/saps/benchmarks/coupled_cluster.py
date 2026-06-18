@@ -227,7 +227,7 @@ class CCSDGenerator(Generator[CCSDDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["quantum-chemistry", "ccsd", "antisymmetric", "tensor-contraction"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -288,7 +288,7 @@ class CCSDGenerator(Generator[CCSDDataset]):
                 name="ccsd_small",
                 pretty_name="CCSD Small",
                 description="no=4, nv=6 — matches the C++ CTF reference.",
-                tags=["small"],
+                tags=[],
                 no=4,
                 nv=6,
             ),
@@ -296,7 +296,7 @@ class CCSDGenerator(Generator[CCSDDataset]):
                 name="ccsd_medium",
                 pretty_name="CCSD Medium",
                 description="no=8, nv=12.",
-                tags=["medium"],
+                tags=[],
                 no=8,
                 nv=12,
             ),
@@ -304,7 +304,7 @@ class CCSDGenerator(Generator[CCSDDataset]):
                 name="ccsd_large",
                 pretty_name="CCSD Large",
                 description="no=16, nv=24.",
-                tags=["large"],
+                tags=[],
                 no=16,
                 nv=24,
             ),
@@ -332,7 +332,7 @@ class CCSD(Benchmark):
 
     @property
     def tags(self) -> list[str]:
-        return ["quantum-chemistry", "ccsd", "tensor-contraction"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:

@@ -68,6 +68,7 @@ class MRISobelDataset(Dataset):
         threshold_val: float = 150.0,
         image: np.ndarray | None = None,
     ):
+        self._tags = []
         self.source_name = name
         self.category = category
         self.filename = filename
@@ -88,7 +89,7 @@ class MRISobelDataset(Dataset):
 
     @property
     def tags(self) -> list[str]:
-        return ["image-processing", "edge-detection", "sparse"]
+        return self._tags
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -119,7 +120,7 @@ class MRISobelGenerator(Generator[MRISobelDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["image-processing", "edge-detection", "mri", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -195,7 +196,7 @@ class MRISobelEdgeBenchmark(Benchmark):
 
     @property
     def tags(self) -> list[str]:
-        return ["image-processing", "edge-detection", "mri", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:

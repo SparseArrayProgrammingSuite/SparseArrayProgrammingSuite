@@ -74,7 +74,7 @@ class CP3FactorizeableGenerator(Generator):
 
     @property
     def tags(self):
-        return ["tensor-factorization", "sparse"]
+        return []
 
     @property
     def authors(self):
@@ -88,9 +88,7 @@ class CP3FactorizeableGenerator(Generator):
             CP3FactorizeableDataset(
                 name="cp_factorizeable_small",
                 pretty_name="Small Factorizeable CP Tensor",
-                tags=[
-                    "small",
-                ],
+                tags=[],
                 shape=(20, 20, 20),
                 rank=3,
             ),
@@ -147,7 +145,7 @@ class CP3_ALS(Benchmark):
 
     @property
     def tags(self):
-        return ["tensor-factorization", "sparse"]
+        return []
 
     @property
     def authors(self):

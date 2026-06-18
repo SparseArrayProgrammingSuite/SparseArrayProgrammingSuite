@@ -28,7 +28,7 @@ class ParticleSimBenchmark(Benchmark):
 
     @property
     def tags(self):
-        return ["physics", "simulation", "sparse"]
+        return []
 
     @property
     def authors(self):

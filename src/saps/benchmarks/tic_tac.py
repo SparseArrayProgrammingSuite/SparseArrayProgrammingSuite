@@ -204,6 +204,7 @@ BOARD_BATCH_NEAR = np.concatenate(
 
 class TicTacToeDataset(Dataset):
     def __init__(self, name: str, board: np.ndarray, depth: int):
+        self._tags = []
         self._name = name
         self.board = board
         self.depth = depth
@@ -222,7 +223,7 @@ class TicTacToeDataset(Dataset):
 
     @property
     def tags(self) -> list[str]:
-        return ["game", "minimax", f"depth{self.depth}"]
+        return self._tags
 
 
 class TicTacToeGenerator(Generator[TicTacToeDataset]):
@@ -243,7 +244,7 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["game", "minimax", "tictactoe"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -313,7 +314,7 @@ class TicTacToeBenchmark(Benchmark):
 
     @property
     def tags(self) -> list[str]:
-        return ["minimax", "tensor", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:

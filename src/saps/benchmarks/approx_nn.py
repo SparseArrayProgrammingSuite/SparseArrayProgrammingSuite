@@ -77,7 +77,7 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["rnla", "projection", "approximate-nearest-neighbor", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -144,7 +144,7 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
                     "Small random dense data and query matrices with sparse random"
                     " projection."
                 ),
-                tags=["small", "rnla", "sparse"],
+                tags=[],
                 n_samples=256,
                 n_features=128,
                 n_queries=32,
@@ -159,7 +159,7 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
                     "Medium random dense data and query matrices with sparse random"
                     " projection."
                 ),
-                tags=["medium", "rnla", "sparse"],
+                tags=[],
                 n_samples=1024,
                 n_features=256,
                 n_queries=64,
@@ -174,7 +174,7 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
                     "Large random dense data and query matrices with sparse random"
                     " projection."
                 ),
-                tags=["large", "rnla", "sparse"],
+                tags=[],
                 n_samples=4096,
                 n_features=512,
                 n_queries=128,
@@ -259,7 +259,7 @@ class JLApproxNearestNeighbor(Benchmark):
 
     @property
     def tags(self):
-        return ["rnla", "approximate-nearest-neighbor", "projection", "sparse"]
+        return []
 
     @property
     def authors(self):

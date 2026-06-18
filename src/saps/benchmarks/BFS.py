@@ -27,7 +27,7 @@ class BreadthFirstSearchDataset(Dataset):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Breadth-first search input {name}."
-        self._tags = tags or ["graph", "sparse"]
+        self._tags = tags or []
 
     @property
     def name(self) -> str:
@@ -61,7 +61,7 @@ class BreadthFirstSearchGenerator(Generator[BreadthFirstSearchDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["graph", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -92,7 +92,7 @@ class BreadthFirstSearchGenerator(Generator[BreadthFirstSearchDataset]):
                     "Directed email communication network from a European research"
                     " institution, with 1,005 nodes and 25,571 edges."
                 ),
-                tags=["graph", "sparse", "snap", "directed"],
+                tags=[],
             ),
             BreadthFirstSearchDataset(
                 name="snap-facebook_combined",
@@ -101,7 +101,7 @@ class BreadthFirstSearchGenerator(Generator[BreadthFirstSearchDataset]):
                     "Combined Facebook social-circle network, with 4,039 nodes and"
                     " 88,234 edges."
                 ),
-                tags=["graph", "sparse", "snap", "social-network"],
+                tags=[],
             ),
             BreadthFirstSearchDataset(
                 name="snap-ca-GrQc",
@@ -110,7 +110,7 @@ class BreadthFirstSearchGenerator(Generator[BreadthFirstSearchDataset]):
                     "Arxiv General Relativity and Quantum Cosmology collaboration"
                     " network, with 5,242 nodes and 14,496 edges."
                 ),
-                tags=["graph", "sparse", "snap", "collaboration-network"],
+                tags=[],
             ),
             BreadthFirstSearchDataset(
                 name="snap-p2p-Gnutella04",
@@ -119,7 +119,7 @@ class BreadthFirstSearchGenerator(Generator[BreadthFirstSearchDataset]):
                     "Directed Gnutella peer-to-peer network snapshot from August 4,"
                     " 2002, with 10,876 nodes and 39,994 edges."
                 ),
-                tags=["graph", "sparse", "snap", "directed", "peer-to-peer"],
+                tags=[],
             ),
         ]
 
@@ -151,7 +151,7 @@ class BreadthFirstSearchBenchmark(Benchmark):
 
     @property
     def tags(self) -> list[str]:
-        return ["graph", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:

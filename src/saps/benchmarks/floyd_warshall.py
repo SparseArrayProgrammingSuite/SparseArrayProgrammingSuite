@@ -59,7 +59,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["graph", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -114,7 +114,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 name="bcspwr01",
                 pretty_name="BCS Power Grid 01",
                 description="Sparse SuiteSparse graph input for Floyd-Warshall.",
-                tags=["graph", "suite-sparse", "sparse"],
+                tags=[],
                 source="bcspwr01",
                 symmetrize=True,
             ),
@@ -122,7 +122,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 name="bcspwr02",
                 pretty_name="BCS Power Grid 02",
                 description="Sparse SuiteSparse graph input for Floyd-Warshall.",
-                tags=["graph", "suite-sparse", "sparse"],
+                tags=[],
                 source="bcspwr02",
                 symmetrize=True,
             ),
@@ -130,7 +130,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 name="bcspwr03",
                 pretty_name="BCS Power Grid 03",
                 description="Sparse SuiteSparse graph input for Floyd-Warshall.",
-                tags=["graph", "suite-sparse", "sparse"],
+                tags=[],
                 source="bcspwr03",
                 symmetrize=True,
             ),
@@ -138,7 +138,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 name="chesapeake",
                 pretty_name="Chesapeake",
                 description="Sparse road network input for Floyd-Warshall.",
-                tags=["graph", "road-network", "sparse"],
+                tags=[],
                 source="chesapeake",
                 symmetrize=True,
             ),
@@ -146,7 +146,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 name="ash85",
                 pretty_name="ASH 85",
                 description="Sparse SuiteSparse graph input for Floyd-Warshall.",
-                tags=["graph", "suite-sparse", "sparse"],
+                tags=[],
                 source="ash85",
                 symmetrize=False,
             ),
@@ -154,7 +154,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 name="arc130",
                 pretty_name="ARC 130",
                 description="Sparse SuiteSparse graph input for Floyd-Warshall.",
-                tags=["graph", "suite-sparse", "sparse"],
+                tags=[],
                 source="arc130",
                 symmetrize=False,
             ),
@@ -162,7 +162,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 name="bcspwr04",
                 pretty_name="BCS Power Grid 04",
                 description="Sparse SuiteSparse graph input for Floyd-Warshall.",
-                tags=["graph", "suite-sparse", "sparse"],
+                tags=[],
                 source="bcspwr04",
                 symmetrize=True,
             ),
@@ -170,7 +170,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 name="ash292",
                 pretty_name="ASH 292",
                 description="Sparse SuiteSparse graph input for Floyd-Warshall.",
-                tags=["graph", "suite-sparse", "sparse"],
+                tags=[],
                 source="ash292",
                 symmetrize=False,
             ),
@@ -223,7 +223,7 @@ class FloydWarshallBenchmark(Benchmark):
 
     @property
     def tags(self) -> list[str]:
-        return ["graph", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:

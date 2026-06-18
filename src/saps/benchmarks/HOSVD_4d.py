@@ -74,7 +74,7 @@ class HOSVD4DDenseGenerator(Generator[HOSVD4DDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["tensor", "dense", "factorizable"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -146,7 +146,7 @@ class HOSVD4DSparseGenerator(Generator[HOSVD4DDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["tensor", "sparse", "factorizable"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -282,7 +282,7 @@ class HOSVD4DBenchmark(Benchmark):
 
     @property
     def tags(self) -> list[str]:
-        return ["tensor", "decomposition", "sparse"]
+        return []
 
     @property
     def generators(self):

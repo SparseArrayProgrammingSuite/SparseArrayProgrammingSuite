@@ -66,6 +66,7 @@ class PreconditionedCGDataset(Dataset):
         has_b_file=False,
         A=None,
     ):
+        self._tags = []
         self.source_name = source_name
         self.condition_number = condition_number
         self.has_b_file = has_b_file
@@ -85,7 +86,7 @@ class PreconditionedCGDataset(Dataset):
 
     @property
     def tags(self) -> list[str]:
-        return ["suitesparse", "sparse"]
+        return self._tags
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -114,7 +115,7 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["iterative", "solver", "suitesparse", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -187,7 +188,7 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["iterative", "solver", "suitesparse", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -294,7 +295,7 @@ class PreconditionedCGBenchmark(Benchmark):
 
     @property
     def tags(self) -> list[str]:
-        return ["iterative", "solver", "preconditioner", "sparse"]
+        return []
 
     @property
     def generators(self):

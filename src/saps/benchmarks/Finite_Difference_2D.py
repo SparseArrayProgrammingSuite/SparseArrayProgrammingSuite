@@ -114,7 +114,7 @@ class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["simulation", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -163,7 +163,7 @@ class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
             FiniteDifference2DDataset(
                 name="default",
                 pretty_name="Default",
-                tags=["small"],
+                tags=[],
                 Nx=100,
                 dx=0.1,
                 Ny=100,
@@ -210,7 +210,7 @@ class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
 class _FiniteDifference2DBenchmarkBase(Benchmark):
     @property
     def tags(self) -> list[str]:
-        return ["simulation", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:

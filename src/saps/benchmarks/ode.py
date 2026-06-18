@@ -137,6 +137,7 @@ class RCDataset(Dataset):
     def tags(self) -> list[str]: return self._tags
 
 
+
 class RLCDataset(Dataset):
     def __init__(self, name, pretty_name, description, tags, R, L, C, t_max, y0, step):
         self._name = name
@@ -158,6 +159,7 @@ class RLCDataset(Dataset):
     def description(self) -> str: return self._description
     @property
     def tags(self) -> list[str]: return self._tags
+
 
 
 class LotkaVolterraDataset(Dataset):
@@ -182,6 +184,7 @@ class LotkaVolterraDataset(Dataset):
     def description(self) -> str: return self._description
     @property
     def tags(self) -> list[str]: return self._tags
+
 
 
 class BrusselatorDataset(Dataset):
@@ -218,6 +221,7 @@ class BrusselatorDataset(Dataset):
     def tags(self) -> list[str]: return self._tags
 
 
+
 # ---------------------------------------------------------------------------
 # Generators
 # ---------------------------------------------------------------------------
@@ -238,7 +242,8 @@ class RCGenerator(Generator[RCDataset]):
     @property
     def description(self) -> str: return "RC circuit ODE."
     @property
-    def tags(self) -> list[str]: return ["ode", "rc-circuit"]
+    def tags(self) -> list[str]: return []
+
     @property
     def authors(self) -> list[Contributor]: return _AKARSH
     @property
@@ -255,7 +260,7 @@ class RCGenerator(Generator[RCDataset]):
                 name="rc_small",
                 pretty_name="RC Small",
                 description="Small RC circuit",
-                tags=["small"],
+                tags=[],
                 R=1000.0,
                 C=0.001,
                 t_max=5.0,
@@ -283,7 +288,8 @@ class RLCGenerator(Generator[RLCDataset]):
     @property
     def description(self) -> str: return "RLC circuit ODE."
     @property
-    def tags(self) -> list[str]: return ["ode", "rlc-circuit"]
+    def tags(self) -> list[str]: return []
+
     @property
     def authors(self) -> list[Contributor]: return _AKARSH
     @property
@@ -300,7 +306,7 @@ class RLCGenerator(Generator[RLCDataset]):
                 name="rlc_small",
                 pretty_name="RLC Small",
                 description="Small RLC circuit",
-                tags=["small"],
+                tags=[],
                 R=100.0,
                 L=0.001,
                 C=0.0000001,
@@ -330,7 +336,8 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
     @property
     def description(self) -> str: return "Lotka-Volterra ODE."
     @property
-    def tags(self) -> list[str]: return ["ode", "lotka-volterra"]
+    def tags(self) -> list[str]: return []
+
     @property
     def authors(self) -> list[Contributor]: return _AKARSH
     @property
@@ -347,7 +354,7 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
                 name="lotka_volterra_small",
                 pretty_name="Lotka-Volterra Small",
                 description="Small Lotka-Volterra system",
-                tags=["small"],
+                tags=[],
                 a=0.1,
                 b=0.02,
                 c=0.3,
@@ -379,7 +386,8 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
     @property
     def description(self) -> str: return "2D Brusselator ODE with diffusion."
     @property
-    def tags(self) -> list[str]: return ["ode", "brusselator"]
+    def tags(self) -> list[str]: return []
+
     @property
     def authors(self) -> list[Contributor]: return _AKARSH
     @property
@@ -396,7 +404,7 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
                 name="brusselator_4",
                 pretty_name="Brusselator 4x4",
                 description="2D Brusselator with 4x4 grid",
-                tags=["small"],
+                tags=[],
                 n=4,
                 a=3.4,
                 b=1.0,
@@ -442,7 +450,8 @@ class _OdeBenchmarkBase(Benchmark, ABC):
 
 class _ForwardEulerBase(_OdeBenchmarkBase):
     @property
-    def tags(self): return ["ode", "forward-euler", "integration"]
+    def tags(self): return []
+
 
     def benchmark(self, data, meta):
         span = meta["span"]
@@ -464,7 +473,8 @@ class _ForwardEulerBase(_OdeBenchmarkBase):
 
 class _BackwardEulerBase(_OdeBenchmarkBase):
     @property
-    def tags(self): return ["ode", "backward-euler", "integration"]
+    def tags(self): return []
+
 
     def benchmark(self, data, meta):
         span = meta["span"]
@@ -489,7 +499,8 @@ class _BackwardEulerBase(_OdeBenchmarkBase):
 
 class _RK4Base(_OdeBenchmarkBase):
     @property
-    def tags(self): return ["ode", "rk4", "integration"]
+    def tags(self): return []
+
 
     def benchmark(self, data, meta):
         span = meta["span"]

@@ -27,7 +27,7 @@ class TransitiveClosureDataset(Dataset):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Transitive closure input {name}."
-        self._tags = tags or ["graph", "sparse"]
+        self._tags = tags or []
 
     @property
     def name(self) -> str:
@@ -61,7 +61,7 @@ class TransitiveClosureGenerator(Generator[TransitiveClosureDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["graph", "transitive-closure", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -92,7 +92,7 @@ class TransitiveClosureGenerator(Generator[TransitiveClosureDataset]):
                     "Directed email communication network from a European research"
                     " institution, with 1,005 nodes and 25,571 edges."
                 ),
-                tags=["graph", "transitive-closure", "sparse", "snap", "directed"],
+                tags=[],
             ),
             TransitiveClosureDataset(
                 name="snap-ca-GrQc",
@@ -101,13 +101,7 @@ class TransitiveClosureGenerator(Generator[TransitiveClosureDataset]):
                     "Arxiv General Relativity and Quantum Cosmology collaboration"
                     " network, with 5,242 nodes and 14,496 edges."
                 ),
-                tags=[
-                    "graph",
-                    "transitive-closure",
-                    "sparse",
-                    "snap",
-                    "collaboration-network",
-                ],
+                tags=[],
             ),
         ]
 
@@ -139,7 +133,7 @@ class TransitiveClosureBenchmark(Benchmark):
 
     @property
     def tags(self):
-        return ["graph", "reachability", "transitive-closure", "sparse"]
+        return []
 
     @property
     def authors(self):

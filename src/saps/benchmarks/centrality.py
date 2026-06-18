@@ -27,7 +27,7 @@ class BetweennessCentralityDataset(Dataset):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Betweenness centrality input {name}."
-        self._tags = tags or ["graph", "centrality", "sparse"]
+        self._tags = tags or []
 
     @property
     def name(self) -> str:
@@ -61,7 +61,7 @@ class BetweennessCentralityGenerator(Generator[BetweennessCentralityDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["graph", "centrality", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -92,7 +92,7 @@ class BetweennessCentralityGenerator(Generator[BetweennessCentralityDataset]):
                     "Department 3 email network from the SNAP email-Eu-core"
                     " temporal dataset, with 89 nodes and 1,506 static edges."
                 ),
-                tags=["graph", "centrality", "sparse", "snap", "directed"],
+                tags=[],
             ),
             BetweennessCentralityDataset(
                 name="snap-email-Eu-core-temporal-Dept4",
@@ -101,7 +101,7 @@ class BetweennessCentralityGenerator(Generator[BetweennessCentralityDataset]):
                     "Department 4 email network from the SNAP email-Eu-core"
                     " temporal dataset, with 142 nodes and 1,375 static edges."
                 ),
-                tags=["graph", "centrality", "sparse", "snap", "directed"],
+                tags=[],
             ),
         ]
 
@@ -138,7 +138,7 @@ class BetweennessCentralityBenchmark(Benchmark):
 
     @property
     def tags(self) -> list[str]:
-        return ["graph", "centrality", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:

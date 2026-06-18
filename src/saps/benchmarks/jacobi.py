@@ -25,6 +25,7 @@ class JacobiDataset(Dataset):
     def __init__(
         self, source_name: str, has_b_file: bool = False, nnz: int | None = None
     ):
+        self._tags = []
         self.source_name = source_name
         self.has_b_file = has_b_file
         self.nnz = nnz
@@ -43,7 +44,7 @@ class JacobiDataset(Dataset):
 
     @property
     def tags(self) -> list[str]:
-        return ["suitesparse", "sparse"]
+        return self._tags
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -71,7 +72,7 @@ class JacobiGenerator(Generator[JacobiDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["iterative", "solver", "suitesparse", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -174,7 +175,7 @@ class JacobiBenchmark(Benchmark):
 
     @property
     def tags(self) -> list[str]:
-        return ["iterative", "solver", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:

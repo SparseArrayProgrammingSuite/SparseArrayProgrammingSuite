@@ -41,6 +41,7 @@ def _prune(array_api, matrix, threshold):
 
 class MCLDataset(Dataset):
     def __init__(self, source_name: str):
+        self._tags = []
         self.source_name = source_name
 
     @property
@@ -57,7 +58,7 @@ class MCLDataset(Dataset):
 
     @property
     def tags(self) -> list[str]:
-        return ["suitesparse", "sparse", "graph"]
+        return self._tags
 
 
 class MCLGenerator(Generator[MCLDataset]):
@@ -78,7 +79,7 @@ class MCLGenerator(Generator[MCLDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["suitesparse", "sparse", "graph", "clustering"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -188,7 +189,7 @@ class MCLBenchmark(Benchmark):
 
     @property
     def tags(self) -> list[str]:
-        return ["clustering", "graph", "iterative", "sparse"]
+        return []
 
     @property
     def generators(self):

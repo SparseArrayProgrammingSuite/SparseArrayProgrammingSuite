@@ -24,6 +24,7 @@ class MaskedMRIDataset(Dataset):
         image: np.ndarray | None = None,
         roi: np.ndarray | None = None,
     ):
+        self._tags = []
         self.source_name = name
         self.category = category
         self.filename = filename
@@ -49,7 +50,7 @@ class MaskedMRIDataset(Dataset):
 
     @property
     def tags(self) -> list[str]:
-        return ["image-processing", "edge-detection", "mri", "sparse"]
+        return self._tags
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -81,7 +82,7 @@ class MaskedMRIGenerator(Generator[MaskedMRIDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["image-processing", "edge-detection", "mri", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -160,7 +161,7 @@ class MaskedMRIEdgeBenchmark(Benchmark):
 
     @property
     def tags(self) -> list[str]:
-        return ["image-processing", "edge-detection", "mri", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:

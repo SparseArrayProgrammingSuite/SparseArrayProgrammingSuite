@@ -127,7 +127,7 @@ class MCGenerator(Generator[MCDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["generator", "model-counting", "cnf", "sparse"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -153,7 +153,7 @@ class MCGenerator(Generator[MCDataset]):
                 name="test_1",
                 pretty_name="Test 1: Standard SAT",
                 description="3 variables, 2 clauses",
-                tags=["small", "test"],
+                tags=[],
                 cnf_text="""
                     p cnf 3 2
                     1 -3 0
@@ -165,7 +165,7 @@ class MCGenerator(Generator[MCDataset]):
                 name="test_2",
                 pretty_name="Test 2: Contradiction",
                 description="V1 and not V1",
-                tags=["small", "test"],
+                tags=[],
                 cnf_text="""
                     c contradiction
                     p cnf 1 2
@@ -178,7 +178,7 @@ class MCGenerator(Generator[MCDataset]):
                 name="test_3",
                 pretty_name="Test 3: Single Solution",
                 description="Forces all 3 variables to be true",
-                tags=["small", "test"],
+                tags=[],
                 cnf_text="""
                     c single_solution
                     p cnf 3 3
@@ -192,7 +192,7 @@ class MCGenerator(Generator[MCDataset]):
                 name="test_4",
                 pretty_name="Test 4: Empty Formula",
                 description="No clauses, 2 variables",
-                tags=["small", "test"],
+                tags=[],
                 cnf_text="""
                     c empty_formula
                     p cnf 2 0
@@ -238,7 +238,7 @@ class ModelCounting(Benchmark):
 
     @property
     def tags(self):
-        return ["model-counting", "SAT", "sparse"]
+        return []
 
     @property
     def authors(self):

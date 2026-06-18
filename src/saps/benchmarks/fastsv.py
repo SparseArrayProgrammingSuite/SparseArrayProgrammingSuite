@@ -27,7 +27,7 @@ class FastSVDataset(Dataset):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"FastSV input {name}."
-        self._tags = tags or ["graph", "sparse"]
+        self._tags = tags or []
 
     @property
     def name(self) -> str:
@@ -61,7 +61,7 @@ class FastSVGenerator(Generator[FastSVDataset]):
 
     @property
     def tags(self) -> list[str]:
-        return ["graph", "sparse", "connected-components"]
+        return []
 
     @property
     def authors(self) -> list[Contributor]:
@@ -92,7 +92,7 @@ class FastSVGenerator(Generator[FastSVDataset]):
                     "Directed email communication network from a European research"
                     " institution, with 1,005 nodes and 25,571 edges."
                 ),
-                tags=["graph", "sparse", "connected-components", "snap", "directed"],
+                tags=[],
             ),
             FastSVDataset(
                 name="snap-facebook_combined",
@@ -101,13 +101,7 @@ class FastSVGenerator(Generator[FastSVDataset]):
                     "Combined Facebook social-circle network, with 4,039 nodes and"
                     " 88,234 edges."
                 ),
-                tags=[
-                    "graph",
-                    "sparse",
-                    "connected-components",
-                    "snap",
-                    "social-network",
-                ],
+                tags=[],
             ),
             FastSVDataset(
                 name="snap-ca-GrQc",
@@ -116,13 +110,7 @@ class FastSVGenerator(Generator[FastSVDataset]):
                     "Arxiv General Relativity and Quantum Cosmology collaboration"
                     " network, with 5,242 nodes and 14,496 edges."
                 ),
-                tags=[
-                    "graph",
-                    "sparse",
-                    "connected-components",
-                    "snap",
-                    "collaboration-network",
-                ],
+                tags=[],
             ),
         ]
 
@@ -153,7 +141,7 @@ class FastSVBenchmark(Benchmark):
 
     @property
     def tags(self):
-        return ["graph", "sparse"]
+        return []
 
     @property
     def authors(self):

@@ -74,7 +74,7 @@ class CP4FactorizeableGenerator(Generator):
 
     @property
     def tags(self):
-        return ["tensor-factorization", "sparse"]
+        return []
 
     @property
     def authors(self):
@@ -89,9 +89,7 @@ class CP4FactorizeableGenerator(Generator):
             CP4FactorizeableDataset(
                 name="cp_factorizeable_small",
                 pretty_name="Small Factorizeable CP Tensor",
-                tags=[
-                    "small",
-                ],
+                tags=[],
                 shape=(20, 20, 20, 20),
                 rank=4,
             ),
@@ -151,7 +149,7 @@ class CP4_ALS(Benchmark):
 
     @property
     def tags(self):
-        return ["tensor-factorization", "sparse"]
+        return []
 
     @property
     def authors(self):
