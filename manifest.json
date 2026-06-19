@@ -1,5 +1,29 @@
 {
+  "hosvd_4d_dense_inputs.small_dense_4d": {
+    "digest": "e41fd38ddf99c9181fd4ba4d5765fc7a6670bf554d5d97ad5dfef6a62e5f3910"
+  },
+  "hosvd_4d_sparse_inputs.small_sparse_4d": {
+    "digest": "ba9f31e21b20ab664a08219a45b3ddd8ce04650285a2b55768198b11773a706c"
+  },
   "hosvd_5d_dense_inputs.small_dense_5d": {
     "digest": "9dcb14082b2d503d0201fd5bceeb5a205b3092115f2b8a0ebde9506dd88bf123"
+  },
+  "hosvd_5d_sparse_inputs.small_sparse_5d": {
+    "digest": "60b5e1ef19595f3fd48179b5366bb9a58afc5e6d0c836f54e66336d7b1c2450c"
+  },
+  "hosvd_dense_inputs.small_dense_hosvd": {
+    "digest": "4411c0246c213a032b66beaccc018b744ebe80f5e4860e04be8ce802c630791a"
+  },
+  "hosvd_sparse_inputs.small_sparse": {
+    "digest": "6fd60031ab38ce7f4e6fd2e2035d536bee70ab121343f2b5904e52334b0e941b"
+  },
+  "jl_projection_inputs.large": {
+    "digest": "c785f46167d4c571d135aabaeddc036660ceaa4cade13d51ac28ad1411746fb6"
+  },
+  "jl_projection_inputs.medium": {
+    "digest": "cedd81ac238b7993f91c74a79e2ea99a75b658a5c8815558225a8014919c4e7f"
+  },
+  "jl_projection_inputs.small": {
+    "digest": "a1d72e1a6c7e2c8b87363ea4e673d37bdd7efc6f4e6350e3dbeb22776ca73e2d"
   }
 }

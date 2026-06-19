@@ -297,7 +297,7 @@ class Benchmark(Tagged, Attributed, Motivated):
             char if char.isalnum() or char in "._-" else "_"
             for char in f"{benchmark_id}.{param.generator.name}.{param.dataset.name}"
         )
-        output_path = path / f"{safe_id}.{os.getpid()}.json"
+        output_path = path / f"{safe_id}.json"
         output_path.write_text(json.dumps(data, indent=2, default=str))
 
     def teardown(self, param):

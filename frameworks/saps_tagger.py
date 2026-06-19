@@ -1,7 +1,13 @@
 import operator
+import os
+import sys
 from functools import wraps
 
 import numpy as np
+
+repo_root = os.environ.get("SAPS_REPO_ROOT")
+if repo_root is not None and repo_root not in sys.path:
+    sys.path.insert(0, repo_root)
 
 from frameworks.saps_sparse import PyDataSparseFramework
 from saps_framework import Framework
@@ -72,6 +78,49 @@ _REDUCTION_OPERATORS = {
     "sum",
     "tensordot",
     "var",
+}
+
+_ARRAY_METHOD_FALLBACKS = {
+    "astype",
+    "flatten",
+    "reshape",
+    "squeeze",
+    "sum",
+    "transpose",
+}
+
+
+def _array_method_fallback(name):
+    def fallback(array, *args, **kwargs):
+        return getattr(array, name)(*args, **kwargs)
+
+    return fallback
+
+
+def _densify_for_numpy(value):
+    if hasattr(value, "todense"):
+        return value.todense()
+    return value
+
+
+def _numpy_fallback(name):
+    func = getattr(np, name)
+
+    def fallback(*args, **kwargs):
+        args = tuple(_densify_for_numpy(arg) for arg in args)
+        kwargs = {
+            key: _densify_for_numpy(value) for key, value in kwargs.items()
+        }
+        return func(*args, **kwargs)
+
+    return fallback
+
+
+_NUMPY_FALLBACKS = {
+    "arange",
+    "argsort",
+    "sort",
+    "take",
 }
 
 
@@ -154,154 +203,196 @@ class TaggedArray:
             ),
         )
 
+    def _unary_operator(self, name, op):
+        self.framework._record_operation("", name, (self,), {})
+        result_lineage = self.framework._result_elementwise_count(
+            "", name, (self,), {}
+        )
+        return self.framework._wrap(
+            op(self.array),
+            elementwise_ops_since_reduction=result_lineage,
+        )
+
+    def _binary_operator(self, name, op, left, right):
+        self.framework._record_operation("", name, (left, right), {})
+        result_lineage = self.framework._result_elementwise_count(
+            "", name, (left, right), {}
+        )
+        return self.framework._wrap(
+            op(self.framework._unwrap(left), self.framework._unwrap(right)),
+            elementwise_ops_since_reduction=result_lineage,
+        )
+
+    def _unary_function(self, name):
+        return self._unary_operator(name, getattr(np, name))
+
+    def _binary_function(self, name, other):
+        return self._binary_operator(name, getattr(np, name), self, other)
+
     def __add__(self, other):
-        return self.mod.add(self, other)
+        return self._binary_operator("add", operator.add, self, other)
 
     def __radd__(self, other):
-        return self.mod.add(other, self)
+        return self._binary_operator("add", operator.add, other, self)
 
     def __sub__(self, other):
-        return self.mod.subtract(self, other)
+        return self._binary_operator("subtract", operator.sub, self, other)
 
     def __rsub__(self, other):
-        return self.mod.subtract(other, self)
+        return self._binary_operator("subtract", operator.sub, other, self)
 
     def __mul__(self, other):
-        return self.mod.multiply(self, other)
+        return self._binary_operator("multiply", operator.mul, self, other)
 
     def __rmul__(self, other):
-        return self.mod.multiply(other, self)
+        return self._binary_operator("multiply", operator.mul, other, self)
 
     def __abs__(self):
-        return self.mod.abs(self)
+        return self._unary_operator("abs", operator.abs)
 
     def __pos__(self):
-        return self.mod.positive(self)
+        return self._unary_operator("positive", operator.pos)
 
     def __neg__(self):
-        return self.mod.negative(self)
+        return self._unary_operator("negative", operator.neg)
 
     def __invert__(self):
-        return self.mod.bitwise_invert(self)
+        return self._unary_operator("bitwise_invert", operator.invert)
 
     def __and__(self, other):
-        return self.mod.bitwise_and(self, other)
+        return self._binary_operator("bitwise_and", operator.and_, self, other)
 
     def __rand__(self, other):
-        return self.mod.bitwise_and(other, self)
+        return self._binary_operator("bitwise_and", operator.and_, other, self)
 
     def __lshift__(self, other):
-        return self.mod.bitwise_left_shift(self, other)
+        return self._binary_operator(
+            "bitwise_left_shift", operator.lshift, self, other
+        )
 
     def __rlshift__(self, other):
-        return self.mod.bitwise_left_shift(other, self)
+        return self._binary_operator(
+            "bitwise_left_shift", operator.lshift, other, self
+        )
 
     def __or__(self, other):
-        return self.mod.bitwise_or(self, other)
+        return self._binary_operator("bitwise_or", operator.or_, self, other)
 
     def __ror__(self, other):
-        return self.mod.bitwise_or(other, self)
+        return self._binary_operator("bitwise_or", operator.or_, other, self)
 
     def __rshift__(self, other):
-        return self.mod.bitwise_right_shift(self, other)
+        return self._binary_operator(
+            "bitwise_right_shift", operator.rshift, self, other
+        )
 
     def __rrshift__(self, other):
-        return self.mod.bitwise_right_shift(other, self)
+        return self._binary_operator(
+            "bitwise_right_shift", operator.rshift, other, self
+        )
 
     def __xor__(self, other):
-        return self.mod.bitwise_xor(self, other)
+        return self._binary_operator("bitwise_xor", operator.xor, self, other)
 
     def __rxor__(self, other):
-        return self.mod.bitwise_xor(other, self)
+        return self._binary_operator("bitwise_xor", operator.xor, other, self)
 
     def __truediv__(self, other):
-        return self.mod.divide(self, other)
+        return self._binary_operator("divide", operator.truediv, self, other)
 
     def __rtruediv__(self, other):
-        return self.mod.divide(other, self)
+        return self._binary_operator("divide", operator.truediv, other, self)
 
     def __floordiv__(self, other):
-        return self.mod.floor_divide(self, other)
+        return self._binary_operator("floor_divide", operator.floordiv, self, other)
 
     def __rfloordiv__(self, other):
-        return self.mod.floor_divide(other, self)
+        return self._binary_operator("floor_divide", operator.floordiv, other, self)
 
     def __mod__(self, other):
-        return self.mod.remainder(self, other)
+        return self._binary_operator("remainder", operator.mod, self, other)
 
     def __rmod__(self, other):
-        return self.mod.remainder(other, self)
+        return self._binary_operator("remainder", operator.mod, other, self)
 
     def __pow__(self, other):
-        return self.mod.power(self, other)
+        return self._binary_operator("power", operator.pow, self, other)
 
     def __rpow__(self, other):
-        return self.mod.power(other, self)
+        return self._binary_operator("power", operator.pow, other, self)
 
     def __matmul__(self, other):
-        return self.mod.matmul(self, other)
+        return self._binary_operator("matmul", operator.matmul, self, other)
 
     def __rmatmul__(self, other):
-        return self.mod.matmul(other, self)
+        return self._binary_operator("matmul", operator.matmul, other, self)
 
     def __sin__(self):
-        return self.mod.sin(self)
+        return self._unary_function("sin")
 
     def __sinh__(self):
-        return self.mod.sinh(self)
+        return self._unary_function("sinh")
 
     def __cos__(self):
-        return self.mod.cos(self)
+        return self._unary_function("cos")
 
     def __cosh__(self):
-        return self.mod.cosh(self)
+        return self._unary_function("cosh")
 
     def __tan__(self):
-        return self.mod.tan(self)
+        return self._unary_function("tan")
 
     def __tanh__(self):
-        return self.mod.tanh(self)
+        return self._unary_function("tanh")
 
     def __asin__(self):
-        return self.mod.asin(self)
+        return self._unary_function("asin")
 
     def __asinh__(self):
-        return self.mod.asinh(self)
+        return self._unary_function("asinh")
 
     def __acos__(self):
-        return self.mod.acos(self)
+        return self._unary_function("acos")
 
     def __acosh__(self):
-        return self.mod.acosh(self)
+        return self._unary_function("acosh")
 
     def __atan__(self):
-        return self.mod.atan(self)
+        return self._unary_function("atan")
 
     def __atanh__(self):
-        return self.mod.atanh(self)
+        return self._unary_function("atanh")
 
     def __atan2__(self, other):
-        return self.mod.atan2(self, other)
+        return self._binary_function("atan2", other)
+
+    def _scalar_value(self):
+        value = self.array
+        if hasattr(value, "todense"):
+            value = value.todense()
+        if hasattr(value, "item"):
+            return value.item()
+        return value
 
     def __complex__(self):
         if self.ndim != 0:
             raise ValueError("Cannot convert non-scalar tensor to complex.")
-        return complex(self[()])
+        return complex(self._scalar_value())
 
     def __float__(self):
         if self.ndim != 0:
             raise ValueError("Cannot convert non-scalar tensor to float.")
-        return float(self[()])
+        return float(self._scalar_value())
 
     def __int__(self):
         if self.ndim != 0:
             raise ValueError("Cannot convert non-scalar tensor to int.")
-        return int(self[()])
+        return int(self._scalar_value())
 
     def __bool__(self):
         if self.ndim != 0:
             raise ValueError("Cannot convert non-scalar tensor to bool.")
-        return bool(self[()])
+        return bool(self._scalar_value())
 
     def __index__(self) -> int:
         if self.ndim != 0:
@@ -309,49 +400,49 @@ class TaggedArray:
         return operator.index(self.__int__())
 
     def __log__(self):
-        return self.mod.log(self)
+        return self._unary_function("log")
 
     def __log1p__(self):
-        return self.mod.log1p(self)
+        return self._unary_function("log1p")
 
     def __log2__(self):
-        return self.mod.log2(self)
+        return self._unary_function("log2")
 
     def __log10__(self):
-        return self.mod.log10(self)
+        return self._unary_function("log10")
 
     def __logaddexp__(self, other):
-        return self.mod.logaddexp(self, other)
+        return self._binary_function("logaddexp", other)
 
     def __logical_and__(self, other):
-        return self.mod.logical_and(self, other)
+        return self._binary_function("logical_and", other)
 
     def __logical_or__(self, other):
-        return self.mod.logical_or(self, other)
+        return self._binary_function("logical_or", other)
 
     def __logical_xor__(self, other):
-        return self.mod.logical_xor(self, other)
+        return self._binary_function("logical_xor", other)
 
     def __logical_not__(self):
-        return self.mod.logical_not(self)
+        return self._unary_function("logical_not")
 
     def __lt__(self, other):
-        return self.mod.less(self, other)
+        return self._binary_operator("less", operator.lt, self, other)
 
     def __le__(self, other):
-        return self.mod.less_equal(self, other)
+        return self._binary_operator("less_equal", operator.le, self, other)
 
     def __gt__(self, other):
-        return self.mod.greater(self, other)
+        return self._binary_operator("greater", operator.gt, self, other)
 
     def __ge__(self, other):
-        return self.mod.greater_equal(self, other)
+        return self._binary_operator("greater_equal", operator.ge, self, other)
 
     def __eq__(self, other):
-        return self.mod.equal(self, other)
+        return self._binary_operator("equal", operator.eq, self, other)
 
     def __ne__(self, other):
-        return self.mod.not_equal(self, other)
+        return self._binary_operator("not_equal", operator.ne, self, other)
 
 
 class TaggedLinalg:
@@ -583,6 +674,12 @@ class TaggerFramework(Framework):
         self._record_operation("", "einsum", (prgm,), kwargs)
         result_lineage = self._result_elementwise_count("", "einsum", (), kwargs)
         kwargs = self._unwrap_kwargs(kwargs)
+        asarray = getattr(self.wrapped, "asarray", None)
+        if asarray is not None:
+            kwargs = {
+                key: asarray(value) if hasattr(value, "ndim") else value
+                for key, value in kwargs.items()
+            }
         return self._wrap(
             self.wrapped.einsum(prgm, **kwargs),
             elementwise_ops_since_reduction=result_lineage,
@@ -604,7 +701,16 @@ class TaggerFramework(Framework):
         return TaggedLinalg(self.wrapped.linalg, self, "linalg")
 
     def __getattr__(self, name):
-        attr = getattr(self.wrapped, name)
+        if name in _NUMPY_FALLBACKS:
+            attr = _numpy_fallback(name)
+        else:
+            try:
+                attr = getattr(self.wrapped, name)
+            except AttributeError:
+                if name in _ARRAY_METHOD_FALLBACKS:
+                    attr = _array_method_fallback(name)
+                else:
+                    raise
         if isinstance(attr, type):
             return attr
         if name in {"fft", "linalg"}:

@@ -286,6 +286,10 @@ def _merge_tags(record, tags):
     record["tags"] = sorted(set(record.get("tags", [])).union(tags))
 
 
+def regex_any_match(patterns: list[str], value: str) -> bool:
+    return any(re.search(pattern, value) for pattern in patterns)
+
+
 def _select_benchmarks(benchmarks, metadata, is_include, is_exclude):
     skips = []
     benchmarks._benchmark_selection = {}
@@ -333,14 +337,33 @@ def _select_benchmarks(benchmarks, metadata, is_include, is_exclude):
     return benchmarks.filter_out(set(skips))
 
 
+def _prefilter_benchmarks_by_name(benchmarks, include_res, exclude_res):
+    skips = []
+    for name in benchmarks:
+        if include_res and not regex_any_match(include_res, name):
+            skips.append(name)
+            continue
+        if exclude_res and regex_any_match(exclude_res, name):
+            skips.append(name)
+    return benchmarks.filter_out(set(skips))
+
+
+def _normalize_benchmark_id(benchmark_id: str) -> str:
+    if benchmark_id.startswith("benchmarks."):
+        return f"saps.{benchmark_id}"
+    return benchmark_id
+
+
 def _apply_tagger_stats(metadata, stats_dir: Path) -> int:
     tagged = 0
     metadata_by_id: dict[str, list[str]] = {}
     for name, bench_meta in metadata.items():
-        metadata_by_id.setdefault(bench_meta.get("id", name), []).append(name)
+        metadata_by_id.setdefault(
+            _normalize_benchmark_id(bench_meta.get("id", name)), []
+        ).append(name)
     for stats_path in sorted(stats_dir.glob("*.json")):
         record = json.loads(stats_path.read_text(encoding="utf-8"))
-        benchmark_id = record["benchmark_id"]
+        benchmark_id = _normalize_benchmark_id(record["benchmark_id"])
         generator_name = record["generator_name"]
         if benchmark_id not in metadata_by_id:
             print(f"[missing] {stats_path.name}: {benchmark_id}")
@@ -623,13 +646,34 @@ def main() -> int:
     matrix["env_nobuild"]["SAPS_MANIFEST_PATH"] = [manifest_path]
     if args.add_tags:
         tagger_stats_dir = str(outputs_dir / "tagger_stats")
+        tagger_manifest_path = str(outputs_dir / "tagger_manifest.json")
+        storage_backend = args.remote_storage_backend or "local"
+        storage_bucket = args.remote_storage_bucket or str(outputs_dir / "datasets")
+        pythonpath = str(repo_root / "src")
         os.environ["SAPS_TAGGER_STATS_DIR"] = tagger_stats_dir
         os.environ["SAPS_ASV_SINGLE_RUN"] = "1"
+        os.environ["SAPS_MANIFEST_PATH"] = tagger_manifest_path
+        os.environ["REMOTE_STORAGE_BACKEND"] = storage_backend
+        os.environ["REMOTE_STORAGE_BUCKET"] = storage_bucket
+        os.environ["PYTHONPATH"] = pythonpath
         matrix["env_nobuild"]["SAPS_FRAMEWORK"] = [
             str(repo_root / "frameworks/saps_tagger.py")
         ]
         matrix["env_nobuild"]["SAPS_TAGGER_STATS_DIR"] = [tagger_stats_dir]
         matrix["env_nobuild"]["SAPS_ASV_SINGLE_RUN"] = ["1"]
+        matrix["env_nobuild"]["SAPS_MANIFEST_PATH"] = [tagger_manifest_path]
+        matrix["env_nobuild"]["REMOTE_STORAGE_BACKEND"] = [storage_backend]
+        matrix["env_nobuild"]["REMOTE_STORAGE_BUCKET"] = [storage_bucket]
+        matrix["env_nobuild"]["PYTHONPATH"] = [pythonpath]
+
+    install_command = saps_config_data.get(
+        "install_command",
+        ["in-dir={env_dir} python -mpip install {build_dir} --force-reinstall"],
+    )
+    if args.add_tags:
+        install_command = [
+            f"in-dir={{env_dir}} python -mpip install {repo_root} --force-reinstall"
+        ]
 
     # Construct ASV config dict with all fields visible
     asv_config_dict = {
@@ -639,10 +683,7 @@ def main() -> int:
         "repo": str(repo_root),
         "branches": "HEAD",
         "environment_type": saps_config_data.get("environment_type", "virtualenv"),
-        "install_command": saps_config_data.get(
-            "install_command",
-            ["in-dir={env_dir} python -mpip install {build_dir} --force-reinstall"],
-        ),
+        "install_command": install_command,
         "benchmark_dir": str(repo_root / "src/saps/benchmarks"),
         "env_dir": saps_config_data.get("env_dir", str(saps_dir / "results")),
         "results_dir": saps_config_data.get(
@@ -701,6 +742,13 @@ def main() -> int:
         commit_hash=[commit_hash],
     )
 
+    include_res = args.re or []
+    exclude_res = args.no_re or []
+    if include_res or exclude_res:
+        benchmarks = _prefilter_benchmarks_by_name(
+            benchmarks, include_res, exclude_res
+        )
+
     metadata: dict[str, dict] = {}
 
     for name in benchmarks:
@@ -721,12 +769,6 @@ def main() -> int:
 
     include_set = {tag.strip().lower() for tag in args.tag if tag and tag.strip()}
     exclude_set = {tag.strip().lower() for tag in args.no_tag if tag and tag.strip()}
-
-    include_res = args.re or []
-    exclude_res = args.no_re or []
-
-    def regex_any_match(patterns: list[str], value: str) -> bool:
-        return any(re.search(pattern, value) for pattern in patterns)
 
     def match_target(obj: dict) -> str:
         return obj.get("id", obj["name"])
