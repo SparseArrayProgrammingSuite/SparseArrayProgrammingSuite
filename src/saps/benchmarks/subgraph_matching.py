@@ -50,11 +50,11 @@ class GCareDataset(Dataset):
         self,
         subset_name,
         query_name,
-        tags,
+        tags=None,
     ):
         self._subset_name = subset_name
         self._query_name = query_name
-        self._tags = tags
+        self._tags = tags or []
 
     @property
     def name(self) -> str:
