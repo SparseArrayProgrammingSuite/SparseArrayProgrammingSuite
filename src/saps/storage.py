@@ -109,9 +109,6 @@ class StorageBackend(ABC):
         if dataset_key in manifest.get("digests", {}):
             return manifest["digests"][dataset_key]
 
-        if dataset_key in manifest:
-            return manifest[dataset_key]["digest"]
-
         dataset_record = self._find_dataset_record(manifest, generator, dataset)
         if dataset_record is not None:
             return dataset_record.get("digest")

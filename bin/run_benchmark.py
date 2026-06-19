@@ -546,7 +546,6 @@ def _add_citation_tags_command(
     metadata: dict[str, dict],
     metadata_path: Path,
     persistent_metadata_path: Path,
-    legacy_manifest_path: Path,
     *,
     fetch_timeout: float,
 ) -> int:
@@ -558,9 +557,7 @@ def _add_citation_tags_command(
         json.dumps(metadata, indent=2, sort_keys=True),
         encoding="utf-8",
     )
-    _update_persistent_metadata(
-        metadata, persistent_metadata_path, legacy_manifest_path
-    )
+    _update_persistent_metadata(metadata, persistent_metadata_path)
     report_path = metadata_path.parent / "citation_validation.json"
     report_path.write_text(
         json.dumps(report, indent=2, sort_keys=True),
@@ -645,13 +642,6 @@ def _collapse_metadata(metadata: dict[str, dict]) -> list[dict]:
 
 def _digest_map(document: dict) -> dict[str, str]:
     digests = dict(document.get("digests", {}))
-    digests.update(
-        {
-            key: value["digest"]
-            for key, value in document.items()
-            if isinstance(value, dict) and "digest" in value
-        }
-    )
     for benchmark in document.get("benchmarks", []):
         for generator in benchmark.get("generators", []):
             for dataset in generator.get("datasets", []):
@@ -660,12 +650,6 @@ def _digest_map(document: dict) -> dict[str, str]:
                         "digest"
                     ]
     return digests
-
-
-def _digest_map_from_file(path: Path) -> dict[str, str]:
-    if not path.exists():
-        return {}
-    return _digest_map(json.loads(path.read_text(encoding="utf-8")))
 
 
 def _strip_nested_digests(record: dict) -> dict:
@@ -679,16 +663,12 @@ def _strip_nested_digests(record: dict) -> dict:
 def _update_persistent_metadata(
     metadata: dict[str, dict],
     metadata_path: Path,
-    legacy_manifest_path: Path | None = None,
 ):
     current = {"benchmarks": []}
     if metadata_path.exists():
         current = json.loads(metadata_path.read_text(encoding="utf-8"))
 
-    digests = {}
-    if legacy_manifest_path is not None:
-        digests.update(_digest_map_from_file(legacy_manifest_path))
-    digests.update(_digest_map(current))
+    digests = _digest_map(current)
     digests.update(_digest_map({"benchmarks": list(metadata.values())}))
 
     existing_by_key = {}
@@ -724,7 +704,6 @@ def _add_tags(
     metadata,
     metadata_path,
     persistent_metadata_path,
-    legacy_manifest_path,
     environments,
     machine_params,
     repo,
@@ -737,9 +716,7 @@ def _add_tags(
 ) -> int:
     """Run selected benchmarks under ASV with the tagger framework."""
     benchmarks = _select_benchmarks(benchmarks, metadata, is_include, is_exclude)
-    _update_persistent_metadata(
-        metadata, persistent_metadata_path, legacy_manifest_path
-    )
+    _update_persistent_metadata(metadata, persistent_metadata_path)
     stats_dir = outputs_dir / "tagger_stats"
     stats_dir.mkdir(parents=True, exist_ok=True)
     for stats_path in stats_dir.glob("*.json"):
@@ -784,9 +761,7 @@ def _add_tags(
         json.dumps(metadata, indent=2, sort_keys=True),
         encoding="utf-8",
     )
-    _update_persistent_metadata(
-        metadata, persistent_metadata_path, legacy_manifest_path
-    )
+    _update_persistent_metadata(metadata, persistent_metadata_path)
     print(f"tag summary: tagged_records={tagged} failed_benchmark_entries={failed}")
     return 0 if failed == 0 else 1
 
@@ -997,7 +972,6 @@ def main() -> int:
     os.environ["SAPS_CACHE_DIR"] = cache_dir
     matrix["env_nobuild"]["SAPS_CACHE_DIR"] = [cache_dir]
     persistent_metadata_path = repo_root / "benchmark_metadata.json"
-    legacy_manifest_path = repo_root / "manifest.json"
     manifest_path = str(persistent_metadata_path)
     os.environ["SAPS_MANIFEST_PATH"] = manifest_path
     matrix["env_nobuild"]["SAPS_MANIFEST_PATH"] = [manifest_path]
@@ -1136,9 +1110,7 @@ def main() -> int:
         return bool(exclude_set and exclude_set.intersection(obj["tags"]))
 
     if args.upload_datasets:
-        _update_persistent_metadata(
-            metadata, persistent_metadata_path, legacy_manifest_path
-        )
+        _update_persistent_metadata(metadata, persistent_metadata_path)
         os.environ["REMOTE_STORAGE_BACKEND"] = args.remote_storage_backend
         os.environ["REMOTE_STORAGE_BUCKET"] = args.remote_storage_bucket
         backend = saps.build_storage_backend(
@@ -1162,7 +1134,6 @@ def main() -> int:
             metadata=selected_metadata,
             metadata_path=metadata_path,
             persistent_metadata_path=persistent_metadata_path,
-            legacy_manifest_path=legacy_manifest_path,
             fetch_timeout=args.citation_fetch_timeout,
         )
 
@@ -1172,7 +1143,6 @@ def main() -> int:
             metadata=metadata,
             metadata_path=metadata_path,
             persistent_metadata_path=persistent_metadata_path,
-            legacy_manifest_path=legacy_manifest_path,
             environments=environments,
             machine_params=machine_params,
             repo=repo,
