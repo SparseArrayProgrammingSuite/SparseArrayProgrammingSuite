@@ -1,75 +1,34 @@
-import numpy as np
-import scipy.sparse.linalg as spla
-
-import sparse as sp
-
-from saps_framework import BinsparseFormat, Framework, einsum
+from frameworks.saps_sparse import PyDataSparseFramework
+from saps_framework import Framework
 
 
-class PyDataSparseLinalg:
-    @staticmethod
-    def solve(A, b):
-        if hasattr(A, "to_scipy_sparse"):
-            A = A.to_scipy_sparse()
-
-        if hasattr(b, "todense"):
-            b = np.asarray(b.todense()).ravel()
-        else:
-            b = np.asarray(b).ravel()
-
-        x = spla.spsolve(A, b)
-        return sp.asarray(x)
-
-
-class PyDataSparseFramework(Framework):
-    def __init__(self):
-        pass
+class TaggerFramework(Framework):
+    def __init__(self, wrapped: Framework | None = None):
+        self.wrapped = wrapped or PyDataSparseFramework()
 
     def from_binsparse(self, array):
-        if array.data["format"] == "dense":
-            return sp.asarray(array.data["values"].reshape(array.data["shape"]))
-        if array.data["format"] == "COO":
-            indices = []
-            idx_dim = 0
-            while "indices_" + str(idx_dim) in array.data:
-                indices.append(array.data["indices_" + str(idx_dim)])
-                idx_dim += 1
-            V = array.data["values"]
-            shape = array.data["shape"]
-            return sp.COO(tuple(indices), V, shape=shape, fill_value=0)
-        raise ValueError("Unsupported format: " + array.data["format"])
+        return self.wrapped.from_binsparse(array)
 
     def to_binsparse(self, array):
-        if isinstance(array, sp.COO):
-            return BinsparseFormat.from_coo(array.coords, array.data, array.shape)
-        if isinstance(array, sp.SparseArray):
-            return self.to_benchmark(array.tocoo())
-        if isinstance(array, np.ndarray):
-            return BinsparseFormat.from_numpy(array)
-        raise ValueError("Unsupported array type: " + str(type(array)))
+        return self.wrapped.to_binsparse(array)
 
     def lazy(self, array):
-        return array
+        return self.wrapped.lazy(array)
 
     def compute(self, array):
-        return array
+        return self.wrapped.compute(array)
+
+    def compile(self, func):
+        return self.wrapped.compile(func)
 
     def einsum(self, prgm, **kwargs):
-        return einsum(sp, prgm, **kwargs)
+        return self.wrapped.einsum(prgm, **kwargs)
 
     def with_fill_value(self, array, value):
-        if isinstance(array, sp.SparseArray):
-            res = array.copy(deep=False)
-            res.fill_value = array.dtype.type(value)
-            return res
-        return array
-
-    @property
-    def linalg(self):
-        return PyDataSparseLinalg
+        return self.wrapped.with_fill_value(array, value)
 
     def __getattr__(self, name):
-        return getattr(sp, name)
+        return getattr(self.wrapped, name)
 
 
-xp = PyDataSparseFramework()
+xp = TaggerFramework()
