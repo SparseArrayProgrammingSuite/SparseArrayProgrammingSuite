@@ -9,7 +9,6 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-
 from saps.downloaders.snap import download_snap_dataset
 from saps_framework.binsparse_format import BinsparseFormat
 
@@ -201,7 +200,7 @@ class BreadthFirstSearchBenchmark(Benchmark):
     def benchmark(self, data: list[BinsparseFormat], meta: dict):
         edges = xp.from_binsparse(data[0])
         src = meta["src"]
-        
+
         (n, m) = edges.shape
         assert n == m
         visited = xp.zeros((n,), dtype=bool)

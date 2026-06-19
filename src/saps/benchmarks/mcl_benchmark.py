@@ -248,7 +248,6 @@ class MCLBenchmark(Benchmark):
             ):
                 current_matrix = _prune(array_api, current_matrix, pruning_threshold)
 
-
             if i % convergence_check_frequency == (
                 convergence_check_frequency - 1
             ) and _sparse_allclose(array_api, current_matrix, previous_matrix):

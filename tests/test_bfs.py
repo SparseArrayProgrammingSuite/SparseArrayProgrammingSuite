@@ -11,7 +11,9 @@ def _run_bfs_case(A, source: int, expected: np.ndarray):
     xp = NumpyFramework()
     bfs.xp = xp
     A_bin = A if isinstance(A, BinsparseFormat) else BinsparseFormat.from_numpy(A)
-    (bench_result,) = bfs.BreadthFirstSearchBenchmark().benchmark([A_bin], {"src": source})
+    (bench_result,) = bfs.BreadthFirstSearchBenchmark().benchmark(
+        [A_bin], {"src": source}
+    )
     result = bench_result.ravel()
     assert np.array_equal(result, expected), (
         f"BFS output mismatch.\nGot {result}, expected {expected}"

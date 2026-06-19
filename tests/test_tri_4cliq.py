@@ -115,9 +115,7 @@ def test_triangle_count(A, expected):
 )
 def test_4clique_count(A, expected):
     xp = NumpyFramework()
-    result = run_count_benchmark(
-        tri_4cliq.FourCliqueCountBenchmark(), xp, A
-    ).item()
+    result = run_count_benchmark(tri_4cliq.FourCliqueCountBenchmark(), xp, A).item()
     assert np.allclose(result, expected)
 
 
@@ -131,5 +129,7 @@ def test_triangle_snap_toy():
 def test_4clique_snap_toy():
     data, _ = load_toy_dataset()
     xp = NumpyFramework()
-    result = run_count_benchmark(tri_4cliq.FourCliqueCountBenchmark(), xp, data[0]).item()
+    result = run_count_benchmark(
+        tri_4cliq.FourCliqueCountBenchmark(), xp, data[0]
+    ).item()
     assert np.allclose(result, 0)

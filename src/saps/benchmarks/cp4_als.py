@@ -324,7 +324,6 @@ class CP4_ALS(Benchmark):
             G_pinv = xp.linalg.pinv(G)
             D = xp.matmul(mttkrp_result, G_pinv)
 
-
         # Normalizing factors
         A_norms_sq = xp.einsum("norms[r] += A[i, r] * A[i, r]", A=A)
         B_norms_sq = xp.einsum("norms[r] += B[j, r] * B[j, r]", B=B)

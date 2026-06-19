@@ -242,31 +242,24 @@ def _infer_tags(stats: dict) -> tuple[list[str], list[str]]:
         linalg_ops
     ):
         benchmark_tags.add("linalg-ops")
-    if (
-        operator_names.intersection(elementary_ops)
-        and not benchmark_tags.intersection(
-            {
-                "transcendental-ops",
-                "shape-ops",
-                "fancy-ops",
-                "index-ops",
-                "linalg-ops",
-            }
-        )
+    if operator_names.intersection(elementary_ops) and not benchmark_tags.intersection(
+        {
+            "transcendental-ops",
+            "shape-ops",
+            "fancy-ops",
+            "index-ops",
+            "linalg-ops",
+        }
     ):
         benchmark_tags.add("elementary-ops")
 
     if any(_fill_is_nonzero(t.get("fill_value")) for t in tensors):
         benchmark_tags.add("nonzero-fill")
 
-    sparsities = [
-        t.get("sparsity") for t in tensors if t.get("sparsity") is not None
-    ]
+    sparsities = [t.get("sparsity") for t in tensors if t.get("sparsity") is not None]
     if sparsities and all(sparsity == 1 for sparsity in sparsities):
         generator_tags.add("dense")
-    if any(
-        t.get("sparsity") is not None and t["sparsity"] <= 0.01 for t in tensors
-    ):
+    if any(t.get("sparsity") is not None and t["sparsity"] <= 0.01 for t in tensors):
         generator_tags.add("hypersparse")
     if any(
         sum(
@@ -462,7 +455,9 @@ def _ccs_tags_from_html(text: str) -> list[str]:
     return sorted(tags)
 
 
-def _fetch_reference_page(doi: str | None, url: str | None, timeout: float) -> str | None:
+def _fetch_reference_page(
+    doi: str | None, url: str | None, timeout: float
+) -> str | None:
     targets = []
     if url:
         targets.append(url)
@@ -563,7 +558,9 @@ def _add_citation_tags_command(
         json.dumps(metadata, indent=2, sort_keys=True),
         encoding="utf-8",
     )
-    _update_persistent_metadata(metadata, persistent_metadata_path, legacy_manifest_path)
+    _update_persistent_metadata(
+        metadata, persistent_metadata_path, legacy_manifest_path
+    )
     report_path = metadata_path.parent / "citation_validation.json"
     report_path.write_text(
         json.dumps(report, indent=2, sort_keys=True),
@@ -778,9 +775,7 @@ def _add_tags(
             extra_params={"timeout": timeout},
         )
         failed += sum(
-            1
-            for errcode in results.errcode.values()
-            if errcode not in (None, 0)
+            1 for errcode in results.errcode.values() if errcode not in (None, 0)
         )
         results.save(outputs_dir / "results")
 
@@ -1104,9 +1099,7 @@ def main() -> int:
     include_res = args.re or []
     exclude_res = args.no_re or []
     if include_res or exclude_res:
-        benchmarks = _prefilter_benchmarks_by_name(
-            benchmarks, include_res, exclude_res
-        )
+        benchmarks = _prefilter_benchmarks_by_name(benchmarks, include_res, exclude_res)
 
     metadata: dict[str, dict] = {}
 

@@ -1,8 +1,11 @@
-import numpy as np
 import pytest
+
+import numpy as np
 from scipy.integrate import solve_ivp
 
 from saps.benchmarks.ode import (
+    RCRK4,
+    RLCRK4,
     BrusselatorBackwardEuler,
     BrusselatorForwardEuler,
     BrusselatorRK4,
@@ -11,10 +14,8 @@ from saps.benchmarks.ode import (
     LotkaVolterraRK4,
     RCBackwardEuler,
     RCForwardEuler,
-    RCRK4,
     RLCBackwardEuler,
     RLCForwardEuler,
-    RLCRK4,
 )
 
 

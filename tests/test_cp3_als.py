@@ -20,9 +20,7 @@ def test_cp_als_reconstruction_error(xp):
 
     X = cp3_als.xp.from_binsparse(X_bin)
 
-    A, B, C, l = CP3_ALS().benchmark(
-        (X,), {"rank":rank, "max_iter":max_iter}
-    )
+    A, B, C, l = CP3_ALS().benchmark((X,), {"rank": rank, "max_iter": max_iter})
 
     Y = cp3_als.xp.einsum(
         "Y[i,j,k] += l[r] * A[i,r] * B[j,r] * C[k,r]", l=l, A=A, B=B, C=C
@@ -46,7 +44,7 @@ def test_cp_als_factorizable_basic(xp):
     X = cp3_als.xp.from_binsparse(X_bin)
 
     A, B, C, lambda_vals = CP3_ALS().benchmark(
-        (X,), {"rank":rank, "max_iter":max_iter}
+        (X,), {"rank": rank, "max_iter": max_iter}
     )
     dim1, dim2, dim3 = X_bin.data["shape"]
     assert A.shape == (dim1, rank)

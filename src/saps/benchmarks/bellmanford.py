@@ -11,7 +11,6 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-
 from saps.downloaders.snap import download_snap_dataset
 from saps_framework.binsparse_format import BinsparseFormat
 

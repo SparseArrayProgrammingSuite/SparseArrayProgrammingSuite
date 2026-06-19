@@ -1,9 +1,9 @@
 import inspect
 import json
 import os
-from pathlib import Path
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Generic, TypeAlias, TypeVar
 
 from saps.framework import xp
@@ -266,6 +266,7 @@ class Benchmark(Tagged, Attributed, Motivated):
 
     def _refresh_xp(self):
         import sys
+
         import saps as saps_pkg
 
         global xp
@@ -274,7 +275,7 @@ class Benchmark(Tagged, Attributed, Motivated):
 
         module = sys.modules.get(self.__class__.__module__)
         if module is not None:
-            setattr(module, "xp", xp)
+            module.xp = xp
 
     def _write_tagger_stats(self, param):
         stats_dir = os.environ.get("SAPS_TAGGER_STATS_DIR")

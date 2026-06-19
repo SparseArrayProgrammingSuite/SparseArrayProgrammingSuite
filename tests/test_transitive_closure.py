@@ -118,12 +118,5 @@ def test_transitive_closure_one_node():
 def test_transitive_snap_toy():
     data, _ = load_toy_dataset()
     res = _run_tc(data[0])
-    expected = np.array(
-        [
-            [1, 1, 1],
-            [0, 1, 1],
-            [0, 0, 1]
-        ],
-        dtype=bool
-    )
+    expected = np.array([[1, 1, 1], [0, 1, 1], [0, 0, 1]], dtype=bool)
     assert np.array_equal(res, expected)

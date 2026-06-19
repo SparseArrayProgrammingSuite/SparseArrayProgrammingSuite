@@ -22,6 +22,7 @@ def _buckley_leverett_ref(u):
 def _linear_advection_ref(c):
     def flux(u):
         return c * u
+
     return flux
 
 

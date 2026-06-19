@@ -69,8 +69,7 @@ class PyDataSparseLinalg:
 
         def wrapped(*args, **kwargs):
             args = tuple(
-                self._scipy_sparse(arg) if hasattr(arg, "ndim") else arg
-                for arg in args
+                self._scipy_sparse(arg) if hasattr(arg, "ndim") else arg for arg in args
             )
             kwargs = {
                 key: self._scipy_sparse(value) if hasattr(value, "ndim") else value

@@ -318,7 +318,9 @@ class JLApproxNearestNeighbor(Benchmark):
         eps = meta["eps"]
 
         n_samples, n_features = data.shape
-        logging.info(f"Data shape: {data.shape}, Query shape: {query.shape}, Projection shape: {P.shape}")
+        logging.info(
+            f"Data shape: {data.shape}, Query shape: {query.shape}, Projection shape: {P.shape}"
+        )
         #  Johnson Lindenstrauss Theorem Lemmna.
         # The eps represents the disortion of distance by epsilon,
         # between the the original space and the reduced subspace

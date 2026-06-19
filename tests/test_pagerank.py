@@ -1,5 +1,3 @@
-import gzip
-
 import pytest
 
 import numpy as np
@@ -69,10 +67,8 @@ def test_pagerank_snap_toy():
     result = result.ravel()
 
     G = nx.DiGraph()
-    G.add_edges_from([(1, 0), (2, 1)]) # The toy edges
+    G.add_edges_from([(1, 0), (2, 1)])  # The toy edges
     expected_dict = nx.pagerank(G, alpha=0.85, max_iter=100, tol=1e-6)
     expected = np.array([expected_dict[i] for i in range(len(G))])
 
     assert np.allclose(result, expected, atol=1e-2)
-
-

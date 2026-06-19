@@ -12,7 +12,6 @@ if repo_root is not None and repo_root not in sys.path:
 from frameworks.saps_sparse import PyDataSparseFramework
 from saps_framework import Framework
 
-
 _ELEMENTWISE_OPERATORS = {
     "abs",
     "acos",
@@ -108,9 +107,7 @@ def _numpy_fallback(name):
 
     def fallback(*args, **kwargs):
         args = tuple(_densify_for_numpy(arg) for arg in args)
-        kwargs = {
-            key: _densify_for_numpy(value) for key, value in kwargs.items()
-        }
+        kwargs = {key: _densify_for_numpy(value) for key, value in kwargs.items()}
         return func(*args, **kwargs)
 
     return fallback
@@ -148,9 +145,7 @@ class TaggedArray:
         for item in self.array:
             yield self.framework._wrap(
                 item,
-                elementwise_ops_since_reduction=(
-                    self.elementwise_ops_since_reduction
-                ),
+                elementwise_ops_since_reduction=(self.elementwise_ops_since_reduction),
             )
 
     def __getitem__(self, key):
@@ -182,9 +177,7 @@ class TaggedArray:
 
             @wraps(attr)
             def wrapped(*args, **kwargs):
-                self.framework._record_operation(
-                    "array", name, (self, *args), kwargs
-                )
+                self.framework._record_operation("array", name, (self, *args), kwargs)
                 result_lineage = self.framework._result_elementwise_count(
                     "array", name, (self, *args), kwargs
                 )
@@ -198,16 +191,12 @@ class TaggedArray:
             return wrapped
         return self.framework._wrap(
             attr,
-            elementwise_ops_since_reduction=(
-                self.elementwise_ops_since_reduction
-            ),
+            elementwise_ops_since_reduction=(self.elementwise_ops_since_reduction),
         )
 
     def _unary_operator(self, name, op):
         self.framework._record_operation("", name, (self,), {})
-        result_lineage = self.framework._result_elementwise_count(
-            "", name, (self,), {}
-        )
+        result_lineage = self.framework._result_elementwise_count("", name, (self,), {})
         return self.framework._wrap(
             op(self.array),
             elementwise_ops_since_reduction=result_lineage,
@@ -266,14 +255,10 @@ class TaggedArray:
         return self._binary_operator("bitwise_and", operator.and_, other, self)
 
     def __lshift__(self, other):
-        return self._binary_operator(
-            "bitwise_left_shift", operator.lshift, self, other
-        )
+        return self._binary_operator("bitwise_left_shift", operator.lshift, self, other)
 
     def __rlshift__(self, other):
-        return self._binary_operator(
-            "bitwise_left_shift", operator.lshift, other, self
-        )
+        return self._binary_operator("bitwise_left_shift", operator.lshift, other, self)
 
     def __or__(self, other):
         return self._binary_operator("bitwise_or", operator.or_, self, other)
@@ -457,9 +442,7 @@ class TaggedLinalg:
 
             @wraps(attr)
             def wrapped(*args, **kwargs):
-                self.framework._record_operation(
-                    self.namespace, name, args, kwargs
-                )
+                self.framework._record_operation(self.namespace, name, args, kwargs)
                 result_lineage = self.framework._result_elementwise_count(
                     self.namespace, name, args, kwargs
                 )
@@ -507,7 +490,7 @@ class TaggerFramework(Framework):
 
         nnz = getattr(array, "nnz", None)
         if nnz is None and hasattr(array, "data"):
-            data = getattr(array, "data")
+            data = array.data
             if hasattr(data, "size"):
                 nnz = int(data.size)
         if nnz is None and hasattr(array, "size"):
@@ -532,7 +515,7 @@ class TaggerFramework(Framework):
             fill_value = fill_value.item()
 
         return {
-            "ndim": int(getattr(array, "ndim")),
+            "ndim": int(array.ndim),
             "shape": shape,
             "size": size,
             "nnz": nnz,
@@ -556,9 +539,7 @@ class TaggerFramework(Framework):
     def _collect_operand_stats(self, value):
         if isinstance(value, TaggedArray):
             return [
-                self._tensor_stats(
-                    value.array, value.elementwise_ops_since_reduction
-                )
+                self._tensor_stats(value.array, value.elementwise_ops_since_reduction)
             ]
         if isinstance(value, list) or isinstance(value, tuple):
             operands = []
@@ -720,9 +701,7 @@ class TaggerFramework(Framework):
             @wraps(attr)
             def wrapped(*args, **kwargs):
                 self._record_operation("", name, args, kwargs)
-                result_lineage = self._result_elementwise_count(
-                    "", name, args, kwargs
-                )
+                result_lineage = self._result_elementwise_count("", name, args, kwargs)
                 args = self._unwrap(args)
                 kwargs = self._unwrap_kwargs(kwargs)
                 return self._wrap(

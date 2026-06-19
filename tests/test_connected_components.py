@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 
 import saps.benchmarks.connected_components as cc
 from frameworks.saps_numpy import NumpyFramework
@@ -49,7 +48,9 @@ def test_cc_isolated_nodes():
     """With no edges, every node is its own component."""
     A = np.zeros((4, 4), dtype=bool)
     labels = _run_cc(A)
-    assert len(set(labels.tolist())) == 4, "each isolated node should have a unique label"
+    assert len(set(labels.tolist())) == 4, (
+        "each isolated node should have a unique label"
+    )
 
 
 def test_cc_directed_star_pointing_inward():
@@ -80,6 +81,7 @@ def test_cc_single_node():
 # ---------------------------------------------------------------------------
 # Generator / downloader wiring
 # ---------------------------------------------------------------------------
+
 
 def test_cc_snap_toy():
     data, _ = load_toy_dataset()
