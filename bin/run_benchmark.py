@@ -3,11 +3,15 @@ from __future__ import annotations
 
 import argparse
 import copy
+import html
 import importlib
 import json
 import logging
 import os
 import re
+import urllib.error
+import urllib.request
+import xml.etree.ElementTree as ET
 from itertools import product
 from pathlib import Path
 
@@ -386,6 +390,195 @@ def _apply_tagger_stats(metadata, stats_dir: Path) -> int:
     return tagged
 
 
+_DOI_RE = re.compile(r"\b10\.\d{4,9}/[-._;()/:A-Z0-9]+", re.IGNORECASE)
+_URL_RE = re.compile(r"https?://[^\s\"<>]+", re.IGNORECASE)
+
+
+def _clean_reference_token(value: str) -> str:
+    return value.rstrip(".,);]")
+
+
+def _reference_doi(reference: str) -> str | None:
+    doi_match = re.search(r"\bDOI:\s*(\S+)", reference, re.IGNORECASE)
+    if doi_match is not None:
+        return _clean_reference_token(doi_match.group(1))
+
+    match = _DOI_RE.search(reference)
+    if match is None:
+        return None
+    return _clean_reference_token(match.group(0))
+
+
+def _reference_url(reference: str) -> str | None:
+    url_match = re.search(r"\bURL:\s*(\S+)", reference, re.IGNORECASE)
+    if url_match is not None:
+        return _clean_reference_token(url_match.group(1))
+
+    match = _URL_RE.search(reference)
+    if match is None:
+        return None
+    return _clean_reference_token(match.group(0))
+
+
+def _ccs_tag(value: str) -> str:
+    tag = value.replace("::", " ")
+    tag = re.sub(r"[^0-9A-Za-z]+", "_", tag.lower())
+    return re.sub(r"_+", "_", tag).strip("_")
+
+
+def _xml_node_text(node: ET.Element, name: str) -> str | None:
+    for child in node.iter():
+        if child.tag.rsplit("}", 1)[-1] == name and child.text:
+            return child.text.strip()
+    return None
+
+
+def _ccs_tags_from_xml(xml_text: str) -> list[str]:
+    try:
+        root = ET.fromstring(xml_text)
+    except ET.ParseError:
+        return []
+
+    tags = []
+    for concept in root.iter():
+        if concept.tag.rsplit("}", 1)[-1] != "concept":
+            continue
+        desc = _xml_node_text(concept, "concept_desc")
+        if desc:
+            tags.append(_ccs_tag(desc))
+    return sorted({tag for tag in tags if tag})
+
+
+def _ccs_tags_from_html(text: str) -> list[str]:
+    candidates = [text, html.unescape(text)]
+    tags: set[str] = set()
+    for candidate in candidates:
+        for match in re.finditer(
+            r"<ccs2012\b[^>]*>.*?</ccs2012>",
+            candidate,
+            flags=re.IGNORECASE | re.DOTALL,
+        ):
+            tags.update(_ccs_tags_from_xml(match.group(0)))
+    return sorted(tags)
+
+
+def _fetch_reference_page(doi: str | None, url: str | None, timeout: float) -> str | None:
+    targets = []
+    if url:
+        targets.append(url)
+    if doi:
+        targets.append(f"https://doi.org/{doi}")
+        if doi.startswith("10.1145/"):
+            targets.append(f"https://dl.acm.org/doi/{doi}")
+
+    seen = set()
+    targets = [target for target in targets if not (target in seen or seen.add(target))]
+
+    for target in targets:
+        request = urllib.request.Request(
+            target,
+            headers={
+                "Accept": (
+                    "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+                ),
+                "Accept-Language": "en-US,en;q=0.8",
+                "User-Agent": "SparseArrayProgrammingSuite citation tagger",
+            },
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=timeout) as response:
+                charset = response.headers.get_content_charset() or "utf-8"
+                return response.read().decode(charset, errors="replace")
+        except (OSError, urllib.error.URLError, urllib.error.HTTPError) as exc:
+            print(f"[citation-fetch-failed] {target}: {exc}")
+    return None
+
+
+def _reference_owners(metadata: dict[str, dict]):
+    for metadata_key, benchmark in metadata.items():
+        yield (
+            "benchmark",
+            metadata_key,
+            benchmark.get("id", benchmark.get("name", metadata_key)),
+            benchmark,
+        )
+        for generator in benchmark.get("generators", []):
+            yield (
+                "generator",
+                metadata_key,
+                f"{benchmark.get('id', metadata_key)} / {generator.get('name')}",
+                generator,
+            )
+
+
+def _add_citation_tags(
+    metadata: dict[str, dict],
+    *,
+    fetch_timeout: float,
+) -> dict:
+    checked = fetched = tagged = 0
+    fetch_cache: dict[tuple[str | None, str | None], list[str]] = {}
+
+    for _owner_type, _metadata_key, owner_id, owner in _reference_owners(metadata):
+        for reference in owner.get("references", []):
+            checked += 1
+            doi = _reference_doi(reference)
+            url = _reference_url(reference)
+            if doi is None and url is None:
+                continue
+
+            tags: list[str] = []
+            key = (doi, url)
+            if key not in fetch_cache:
+                page = _fetch_reference_page(doi, url, fetch_timeout)
+                fetched += int(page is not None)
+                fetch_cache[key] = _ccs_tags_from_html(page) if page else []
+            tags = fetch_cache[key]
+
+            if tags:
+                _merge_tags(owner, tags)
+                tagged += 1
+                print(f"[citation-tagged] {owner_id}: {', '.join(tags)}")
+
+    return {
+        "checked": checked,
+        "fetched": fetched,
+        "tagged_records": tagged,
+    }
+
+
+def _add_citation_tags_command(
+    metadata: dict[str, dict],
+    metadata_path: Path,
+    persistent_metadata_path: Path,
+    legacy_manifest_path: Path,
+    *,
+    fetch_timeout: float,
+) -> int:
+    report = _add_citation_tags(
+        metadata,
+        fetch_timeout=fetch_timeout,
+    )
+    metadata_path.write_text(
+        json.dumps(metadata, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    _update_persistent_metadata(metadata, persistent_metadata_path, legacy_manifest_path)
+    report_path = metadata_path.parent / "citation_validation.json"
+    report_path.write_text(
+        json.dumps(report, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    print(
+        "citation summary: "
+        f"checked={report['checked']} "
+        f"fetched={report['fetched']} "
+        f"tagged_records={report['tagged_records']}"
+    )
+    print(f"citation report: {report_path}")
+    return 0
+
+
 def _record_key(record: dict) -> str:
     benchmark_id = _normalize_benchmark_id(record.get("id", record["name"]))
     match = re.search(r"(?:^|\.)benchmarks\.([^.]+\.[^.]+)(?:\.|$)", benchmark_id)
@@ -681,6 +874,21 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--validate-citations",
+        action="store_true",
+        help=(
+            "Skip benchmark execution. Fetch DOI/URL pages for references when "
+            "possible and merge ACM CCS tags into benchmark_metadata.json. "
+            "Honors --re/--no-re/--tag/--no-tag filters."
+        ),
+    )
+    parser.add_argument(
+        "--citation-fetch-timeout",
+        type=float,
+        default=10.0,
+        help="Timeout in seconds for each citation page fetch.",
+    )
+    parser.add_argument(
         "--no-tag",
         action="append",
         default=[],
@@ -950,6 +1158,19 @@ def main() -> int:
             backend=backend,
             is_include=is_include,
             is_exclude=is_exclude,
+        )
+
+    if args.validate_citations:
+        benchmarks = _select_benchmarks(benchmarks, metadata, is_include, is_exclude)
+        selected_metadata = {
+            name: metadata[name] for name in benchmarks if name in metadata
+        }
+        return _add_citation_tags_command(
+            metadata=selected_metadata,
+            metadata_path=metadata_path,
+            persistent_metadata_path=persistent_metadata_path,
+            legacy_manifest_path=legacy_manifest_path,
+            fetch_timeout=args.citation_fetch_timeout,
         )
 
     if args.add_tags:
