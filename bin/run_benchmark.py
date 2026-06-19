@@ -99,6 +99,335 @@ def _upload(benchmarks, metadata, backend, is_include, is_exclude) -> int:
     return 0 if failed == 0 else 1
 
 
+def _fill_is_nonzero(value) -> bool:
+    if value is None:
+        return False
+    try:
+        return bool(value != 0)
+    except ValueError:
+        return True
+
+
+def _infer_tags(stats: dict) -> tuple[list[str], list[str]]:
+    tensors = stats.get("tensors", [])
+    operators = set(stats.get("operators", {}))
+    operator_names = {op.rsplit(".", 1)[-1] for op in operators}
+    arg_counts = [
+        count
+        for counts in stats.get("operator_arg_counts", {}).values()
+        for count in counts
+    ]
+    operand_stats = [
+        operands
+        for invocations in stats.get("operator_operand_stats", {}).values()
+        for operands in invocations
+    ]
+
+    benchmark_tags: set[str] = set()
+    generator_tags: set[str] = set()
+
+    if any(t.get("ndim", 0) >= 5 for t in tensors):
+        generator_tags.add("high-dimensional")
+    if any(t.get("ndim", 0) >= 3 for t in tensors):
+        generator_tags.add("tensor")
+    if any(count >= 5 for count in arg_counts):
+        benchmark_tags.add("large-query")
+
+    transcendental_ops = {
+        "acos",
+        "acosh",
+        "asin",
+        "asinh",
+        "atan",
+        "atan2",
+        "atanh",
+        "cos",
+        "cosh",
+        "exp",
+        "expm1",
+        "log",
+        "log1p",
+        "log2",
+        "log10",
+        "logaddexp",
+        "power",
+        "sin",
+        "sinh",
+        "sqrt",
+        "tan",
+        "tanh",
+    }
+    shape_ops = {
+        "broadcast_to",
+        "concatenate",
+        "concat",
+        "expand_dims",
+        "flatten",
+        "moveaxis",
+        "permute_dims",
+        "ravel",
+        "reshape",
+        "squeeze",
+        "stack",
+        "transpose",
+    }
+    fancy_ops = {
+        "all",
+        "any",
+        "bitwise_and",
+        "bitwise_invert",
+        "bitwise_left_shift",
+        "bitwise_or",
+        "bitwise_right_shift",
+        "bitwise_xor",
+        "equal",
+        "greater",
+        "greater_equal",
+        "less",
+        "less_equal",
+        "logical_and",
+        "logical_not",
+        "logical_or",
+        "logical_xor",
+        "max",
+        "maximum",
+        "min",
+        "minimum",
+        "not_equal",
+        "sort",
+        "where",
+    }
+    index_ops = {"getitem", "setitem", "take", "nonzero", "argwhere"}
+    linalg_ops = {
+        "cholesky",
+        "dot",
+        "eig",
+        "inv",
+        "matmul",
+        "norm",
+        "pinv",
+        "qr",
+        "solve",
+        "svd",
+        "tensordot",
+    }
+    elementary_ops = {
+        "add",
+        "divide",
+        "floor_divide",
+        "multiply",
+        "negative",
+        "positive",
+        "remainder",
+        "subtract",
+    }
+
+    if operator_names.intersection(transcendental_ops):
+        benchmark_tags.add("transcendental-ops")
+    if operator_names.intersection(shape_ops):
+        benchmark_tags.add("shape-ops")
+    if operator_names.intersection(fancy_ops):
+        benchmark_tags.add("fancy-ops")
+    if operator_names.intersection(index_ops) or {
+        "array.getitem",
+        "array.setitem",
+    }.intersection(operators):
+        benchmark_tags.add("index-ops")
+    if any(op.startswith("linalg.") for op in operators) or operator_names.intersection(
+        linalg_ops
+    ):
+        benchmark_tags.add("linalg-ops")
+    if (
+        operator_names.intersection(elementary_ops)
+        and not benchmark_tags.intersection(
+            {
+                "transcendental-ops",
+                "shape-ops",
+                "fancy-ops",
+                "index-ops",
+                "linalg-ops",
+            }
+        )
+    ):
+        benchmark_tags.add("elementary-ops")
+
+    if any(_fill_is_nonzero(t.get("fill_value")) for t in tensors):
+        benchmark_tags.add("nonzero-fill")
+
+    sparsities = [
+        t.get("sparsity") for t in tensors if t.get("sparsity") is not None
+    ]
+    if sparsities and all(sparsity == 1 for sparsity in sparsities):
+        generator_tags.add("dense")
+    if any(
+        t.get("sparsity") is not None and t["sparsity"] <= 0.01 for t in tensors
+    ):
+        generator_tags.add("hypersparse")
+    if any(
+        sum(
+            1
+            for operand in operands
+            if operand.get("sparsity") is not None and operand["sparsity"] < 1
+        )
+        >= 2
+        for operands in operand_stats
+    ):
+        generator_tags.add("dynamic-sparsity")
+
+    return sorted(benchmark_tags), sorted(generator_tags)
+
+
+def _metadata_generator_record(metadata, benchmark_name, generator_name):
+    generators = metadata[benchmark_name]["generators"]
+    return next(gen for gen in generators if gen["name"] == generator_name)
+
+
+def _merge_tags(record, tags):
+    record["tags"] = sorted(set(record.get("tags", [])).union(tags))
+
+
+def _select_benchmarks(benchmarks, metadata, is_include, is_exclude):
+    skips = []
+    benchmarks._benchmark_selection = {}
+    for name in benchmarks:
+        if name not in metadata:
+            log.warning(
+                "No SAPS metadata found for benchmark "
+                f"'{name}', skipping SAPS tag filtering "
+                "for this benchmark"
+            )
+            skips.append(name)
+            continue
+        if is_exclude(metadata[name]):
+            skips.append(name)
+            continue
+        benchmarks._benchmark_selection[name] = []
+        generators = {gen["name"]: gen for gen in metadata[name]["generators"]}
+        param_combos = list(product(*benchmarks[name]["params"]))
+        for idx, param in enumerate(param_combos):
+            if len(param) == 0:
+                print(
+                    f"Warning: benchmark '{name}' has no data generators, skipping"
+                    " benchmark"
+                )
+                continue
+            generator_name, dataset_name = param[0].split(".")[:2]
+            generator = generators.get(generator_name)
+            datasets = {ds["name"]: ds for ds in generator["datasets"]}
+            dataset = datasets.get(dataset_name)
+            if (
+                is_exclude(generator)
+                or is_exclude(dataset)
+                or not (
+                    is_include(metadata[name])
+                    or is_include(generator)
+                    or is_include(dataset)
+                )
+            ):
+                continue
+            benchmarks._benchmark_selection[name].append(idx)
+
+        if not benchmarks._benchmark_selection[name]:
+            skips.append(name)
+
+    return benchmarks.filter_out(set(skips))
+
+
+def _apply_tagger_stats(metadata, stats_dir: Path) -> int:
+    tagged = 0
+    metadata_by_id: dict[str, list[str]] = {}
+    for name, bench_meta in metadata.items():
+        metadata_by_id.setdefault(bench_meta.get("id", name), []).append(name)
+    for stats_path in sorted(stats_dir.glob("*.json")):
+        record = json.loads(stats_path.read_text(encoding="utf-8"))
+        benchmark_id = record["benchmark_id"]
+        generator_name = record["generator_name"]
+        if benchmark_id not in metadata_by_id:
+            print(f"[missing] {stats_path.name}: {benchmark_id}")
+            continue
+
+        benchmark_tags, generator_tags = _infer_tags(record.get("stats", {}))
+        for metadata_key in metadata_by_id[benchmark_id]:
+            _merge_tags(metadata[metadata_key], benchmark_tags)
+            generator = _metadata_generator_record(
+                metadata, metadata_key, generator_name
+            )
+            _merge_tags(generator, generator_tags)
+        tagged += 1
+        print(
+            f"[tagged]  {benchmark_id} / {generator_name}: "
+            f"benchmark={', '.join(benchmark_tags)}; "
+            f"generator={', '.join(generator_tags)}"
+        )
+    return tagged
+
+
+def _add_tags(
+    benchmarks,
+    metadata,
+    metadata_path,
+    environments,
+    machine_params,
+    repo,
+    commit_hash,
+    outputs_dir,
+    timeout,
+    show_stderr,
+    is_include,
+    is_exclude,
+) -> int:
+    """Run selected benchmarks under ASV with the tagger framework."""
+    benchmarks = _select_benchmarks(benchmarks, metadata, is_include, is_exclude)
+    stats_dir = outputs_dir / "tagger_stats"
+    stats_dir.mkdir(parents=True, exist_ok=True)
+    for stats_path in stats_dir.glob("*.json"):
+        stats_path.unlink()
+
+    print(f"Discovered {len(benchmarks)} benchmark entries for tagger")
+    print(f"Using timeout: {timeout} seconds")
+
+    failed = 0
+    for env in environments:
+        Setup.perform_setup([env], parallel=1)
+
+        params = dict(machine_params.__dict__)
+        params["python"] = env.python
+        params.update(env.requirements)
+
+        results = Results(
+            params=params,
+            requirements=env.requirements,
+            commit_hash=commit_hash,
+            date=repo.get_date(commit_hash),
+            python=env.python,
+            env_name=env.name,
+            env_vars=env.env_vars,
+        )
+
+        run_benchmarks(
+            benchmarks=benchmarks,
+            env=env,
+            results=results,
+            show_stderr=show_stderr,
+            quick=True,
+            extra_params={"timeout": timeout},
+        )
+        failed += sum(
+            1
+            for errcode in results.errcode.values()
+            if errcode not in (None, 0)
+        )
+        results.save(outputs_dir / "results")
+
+    tagged = _apply_tagger_stats(metadata, stats_dir)
+    metadata_path.write_text(
+        json.dumps(metadata, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    print(f"tag summary: tagged_records={tagged} failed_benchmark_entries={failed}")
+    return 0 if failed == 0 else 1
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run SAPS benchmarks")
     parser.add_argument(
@@ -164,6 +493,15 @@ def main() -> int:
             "Skip benchmark execution. Instead, walk every "
             "(benchmark, generator, dataset) triple, generate the data, "
             "and upload it via the configured storage backend. Honors "
+            "--re/--no-re/--tag/--no-tag filters."
+        ),
+    )
+    parser.add_argument(
+        "--add-tags",
+        action="store_true",
+        help=(
+            "Run selected benchmark cases under ASV with the tagger framework "
+            "and add inferred quality tags to benchmarks_meta.json. Honors "
             "--re/--no-re/--tag/--no-tag filters."
         ),
     )
@@ -283,6 +621,15 @@ def main() -> int:
     manifest_path = str(repo_root / "manifest.json")
     os.environ["SAPS_MANIFEST_PATH"] = manifest_path
     matrix["env_nobuild"]["SAPS_MANIFEST_PATH"] = [manifest_path]
+    if args.add_tags:
+        tagger_stats_dir = str(outputs_dir / "tagger_stats")
+        os.environ["SAPS_TAGGER_STATS_DIR"] = tagger_stats_dir
+        os.environ["SAPS_ASV_SINGLE_RUN"] = "1"
+        matrix["env_nobuild"]["SAPS_FRAMEWORK"] = [
+            str(repo_root / "frameworks/saps_tagger.py")
+        ]
+        matrix["env_nobuild"]["SAPS_TAGGER_STATS_DIR"] = [tagger_stats_dir]
+        matrix["env_nobuild"]["SAPS_ASV_SINGLE_RUN"] = ["1"]
 
     # Construct ASV config dict with all fields visible
     asv_config_dict = {
@@ -409,50 +756,23 @@ def main() -> int:
             is_exclude=is_exclude,
         )
 
-    skips = []
-    benchmarks._benchmark_selection = {}
-    for name in benchmarks:
-        if name not in metadata:
-            log.warning(
-                "No SAPS metadata found for benchmark "
-                f"'{name}', skipping SAPS tag filtering "
-                "for this benchmark"
-            )
-            skips.append(name)
-            continue
-        if is_exclude(metadata[name]):
-            skips.append(name)
-            continue
-        benchmarks._benchmark_selection[name] = []
-        generators = {gen["name"]: gen for gen in metadata[name]["generators"]}
-        param_combos = list(product(*benchmarks[name]["params"]))
-        for idx, param in enumerate(param_combos):
-            if len(param) == 0:
-                print(
-                    f"Warning: benchmark '{name}' has no data generators, skipping"
-                    " benchmark"
-                )
-                continue
-            generator, dataset = param[0].split(".")[:2]
-            generator = generators.get(generator)
-            datasets = {ds["name"]: ds for ds in generator["datasets"]}
-            dataset = datasets.get(dataset)
-            if (
-                is_exclude(generator)
-                or is_exclude(dataset)
-                or not (
-                    is_include(metadata[name])
-                    or is_include(generator)
-                    or is_include(dataset)
-                )
-            ):
-                continue
-            benchmarks._benchmark_selection[name].append(idx)
+    if args.add_tags:
+        return _add_tags(
+            benchmarks=benchmarks,
+            metadata=metadata,
+            metadata_path=metadata_path,
+            environments=environments,
+            machine_params=machine_params,
+            repo=repo,
+            commit_hash=commit_hash,
+            outputs_dir=outputs_dir,
+            timeout=timeout,
+            show_stderr=args.show_stderr,
+            is_include=is_include,
+            is_exclude=is_exclude,
+        )
 
-        if not benchmarks._benchmark_selection[name]:
-            skips.append(name)
-
-    benchmarks = benchmarks.filter_out(set(skips))
+    benchmarks = _select_benchmarks(benchmarks, metadata, is_include, is_exclude)
 
     print(f"Discovered {len(benchmarks)} benchmark entries")
     print(f"Using timeout: {timeout} seconds")

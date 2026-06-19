@@ -1,5 +1,7 @@
 import inspect
+import json
 import os
+from pathlib import Path
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Generic, TypeAlias, TypeVar
@@ -215,6 +217,16 @@ class Benchmark(Tagged, Attributed, Motivated):
 
         setattr(cls, f"time_{instance.name}", _time_run)
         getattr(cls, f"time_{instance.name}").pretty_source = benchmark_source
+        if os.environ.get("SAPS_ASV_SINGLE_RUN") == "1":
+            for method in (
+                getattr(cls, f"mem_{instance.name}"),
+                getattr(cls, f"time_{instance.name}"),
+            ):
+                method.number = 1
+                method.repeat = 1
+                method.rounds = 1
+                method.warmup_time = 0
+                method.min_run_count = 1
 
         cls.setup.pretty_source = "\n".join(
             inspect.getsource(generator.generate) for generator in instance.generators
@@ -243,10 +255,50 @@ class Benchmark(Tagged, Attributed, Motivated):
         self._meta = meta
 
     def run(self, param):
+        self._refresh_xp()
+        if hasattr(xp, "reset_stats"):
+            xp.reset_stats()
         input = [xp.from_binsparse(d) for d in self._input]
         output = self.benchmark(input, self._meta)
         output = [xp.to_binsparse(o) for o in output]
         self._output = output
+        self._write_tagger_stats(param)
+
+    def _refresh_xp(self):
+        import sys
+        import saps as saps_pkg
+
+        global xp
+        if saps_pkg.xp is not None:
+            xp = saps_pkg.xp
+
+        module = sys.modules.get(self.__class__.__module__)
+        if module is not None:
+            setattr(module, "xp", xp)
+
+    def _write_tagger_stats(self, param):
+        stats_dir = os.environ.get("SAPS_TAGGER_STATS_DIR")
+        if not stats_dir or not hasattr(xp, "stats"):
+            return
+
+        path = Path(stats_dir)
+        path.mkdir(parents=True, exist_ok=True)
+        benchmark_id = (
+            f"{self.__class__.__module__}.{self.__class__.__name__}.{self.name}"
+        )
+        data = {
+            "benchmark_id": benchmark_id,
+            "benchmark_name": self.name,
+            "generator_name": param.generator.name,
+            "dataset_name": param.dataset.name,
+            "stats": xp.stats,
+        }
+        safe_id = "".join(
+            char if char.isalnum() or char in "._-" else "_"
+            for char in f"{benchmark_id}.{param.generator.name}.{param.dataset.name}"
+        )
+        output_path = path / f"{safe_id}.{os.getpid()}.json"
+        output_path.write_text(json.dumps(data, indent=2, default=str))
 
     def teardown(self, param):
         if hasattr(self, "_output"):
