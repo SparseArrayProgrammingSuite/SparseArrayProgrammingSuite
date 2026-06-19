@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import importlib
 import json
 import logging
@@ -385,10 +386,155 @@ def _apply_tagger_stats(metadata, stats_dir: Path) -> int:
     return tagged
 
 
+def _record_key(record: dict) -> str:
+    benchmark_id = _normalize_benchmark_id(record.get("id", record["name"]))
+    match = re.search(r"(?:^|\.)benchmarks\.([^.]+\.[^.]+)(?:\.|$)", benchmark_id)
+    if match is not None:
+        return match.group(1)
+    return benchmark_id
+
+
+def _merge_dataset_metadata(existing: dict, incoming: dict) -> dict:
+    merged = copy.deepcopy(incoming)
+    for key, value in existing.items():
+        if key != "digest" and key not in merged:
+            merged[key] = copy.deepcopy(value)
+    _merge_tags(merged, existing.get("tags", []))
+    merged.pop("digest", None)
+    return merged
+
+
+def _merge_generator_metadata(existing: dict, incoming: dict) -> dict:
+    merged = copy.deepcopy(incoming)
+    for key, value in existing.items():
+        if key not in merged:
+            merged[key] = copy.deepcopy(value)
+    _merge_tags(merged, existing.get("tags", []))
+    existing_datasets = {
+        dataset["name"]: dataset for dataset in existing.get("datasets", [])
+    }
+    datasets = []
+    for dataset in merged.get("datasets", []):
+        old_dataset = existing_datasets.get(dataset["name"])
+        if old_dataset is not None:
+            dataset = _merge_dataset_metadata(old_dataset, dataset)
+        datasets.append(dataset)
+    merged["datasets"] = datasets
+    return merged
+
+
+def _merge_benchmark_metadata(existing: dict, incoming: dict) -> dict:
+    merged = copy.deepcopy(incoming)
+    for key, value in existing.items():
+        if key not in merged:
+            merged[key] = copy.deepcopy(value)
+    _merge_tags(merged, existing.get("tags", []))
+    existing_generators = {
+        generator["name"]: generator for generator in existing.get("generators", [])
+    }
+    generators = []
+    for generator in merged.get("generators", []):
+        old_generator = existing_generators.get(generator["name"])
+        if old_generator is not None:
+            generator = _merge_generator_metadata(old_generator, generator)
+        generators.append(generator)
+    merged["generators"] = generators
+    return merged
+
+
+def _collapse_metadata(metadata: dict[str, dict]) -> list[dict]:
+    collapsed: dict[str, dict] = {}
+    for record in metadata.values():
+        key = _record_key(record)
+        if key in collapsed:
+            collapsed[key] = _merge_benchmark_metadata(collapsed[key], record)
+        else:
+            collapsed[key] = copy.deepcopy(record)
+    return sorted(collapsed.values(), key=_record_key)
+
+
+def _digest_map(document: dict) -> dict[str, str]:
+    digests = dict(document.get("digests", {}))
+    digests.update(
+        {
+            key: value["digest"]
+            for key, value in document.items()
+            if isinstance(value, dict) and "digest" in value
+        }
+    )
+    for benchmark in document.get("benchmarks", []):
+        for generator in benchmark.get("generators", []):
+            for dataset in generator.get("datasets", []):
+                if "digest" in dataset:
+                    digests[f"{generator['name']}.{dataset['name']}"] = dataset[
+                        "digest"
+                    ]
+    return digests
+
+
+def _digest_map_from_file(path: Path) -> dict[str, str]:
+    if not path.exists():
+        return {}
+    return _digest_map(json.loads(path.read_text(encoding="utf-8")))
+
+
+def _strip_nested_digests(record: dict) -> dict:
+    stripped = copy.deepcopy(record)
+    for generator in stripped.get("generators", []):
+        for dataset in generator.get("datasets", []):
+            dataset.pop("digest", None)
+    return stripped
+
+
+def _update_persistent_metadata(
+    metadata: dict[str, dict],
+    metadata_path: Path,
+    legacy_manifest_path: Path | None = None,
+):
+    current = {"benchmarks": []}
+    if metadata_path.exists():
+        current = json.loads(metadata_path.read_text(encoding="utf-8"))
+
+    digests = {}
+    if legacy_manifest_path is not None:
+        digests.update(_digest_map_from_file(legacy_manifest_path))
+    digests.update(_digest_map(current))
+    digests.update(_digest_map({"benchmarks": list(metadata.values())}))
+
+    existing_by_key = {}
+    for record in current.get("benchmarks", []):
+        key = _record_key(record)
+        record = _strip_nested_digests(record)
+        if key in existing_by_key:
+            record = _merge_benchmark_metadata(existing_by_key[key], record)
+        existing_by_key[key] = record
+
+    for record in _collapse_metadata(metadata):
+        key = _record_key(record)
+        record = _strip_nested_digests(record)
+        if key in existing_by_key:
+            record = _merge_benchmark_metadata(existing_by_key[key], record)
+        existing_by_key[key] = record
+
+    metadata_path.write_text(
+        json.dumps(
+            {
+                "benchmarks": sorted(existing_by_key.values(), key=_record_key),
+                "digests": dict(sorted(digests.items())),
+            },
+            indent=2,
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
+
+
 def _add_tags(
     benchmarks,
     metadata,
     metadata_path,
+    persistent_metadata_path,
+    legacy_manifest_path,
     environments,
     machine_params,
     repo,
@@ -401,6 +547,9 @@ def _add_tags(
 ) -> int:
     """Run selected benchmarks under ASV with the tagger framework."""
     benchmarks = _select_benchmarks(benchmarks, metadata, is_include, is_exclude)
+    _update_persistent_metadata(
+        metadata, persistent_metadata_path, legacy_manifest_path
+    )
     stats_dir = outputs_dir / "tagger_stats"
     stats_dir.mkdir(parents=True, exist_ok=True)
     for stats_path in stats_dir.glob("*.json"):
@@ -446,6 +595,9 @@ def _add_tags(
     metadata_path.write_text(
         json.dumps(metadata, indent=2, sort_keys=True),
         encoding="utf-8",
+    )
+    _update_persistent_metadata(
+        metadata, persistent_metadata_path, legacy_manifest_path
     )
     print(f"tag summary: tagged_records={tagged} failed_benchmark_entries={failed}")
     return 0 if failed == 0 else 1
@@ -524,8 +676,8 @@ def main() -> int:
         action="store_true",
         help=(
             "Run selected benchmark cases under ASV with the tagger framework "
-            "and add inferred quality tags to benchmarks_meta.json. Honors "
-            "--re/--no-re/--tag/--no-tag filters."
+            "and merge inferred quality tags into benchmark_metadata.json. "
+            "Honors --re/--no-re/--tag/--no-tag filters."
         ),
     )
     parser.add_argument(
@@ -641,18 +793,18 @@ def main() -> int:
     cache_dir = str(outputs_dir / "cache")
     os.environ["SAPS_CACHE_DIR"] = cache_dir
     matrix["env_nobuild"]["SAPS_CACHE_DIR"] = [cache_dir]
-    manifest_path = str(repo_root / "manifest.json")
+    persistent_metadata_path = repo_root / "benchmark_metadata.json"
+    legacy_manifest_path = repo_root / "manifest.json"
+    manifest_path = str(persistent_metadata_path)
     os.environ["SAPS_MANIFEST_PATH"] = manifest_path
     matrix["env_nobuild"]["SAPS_MANIFEST_PATH"] = [manifest_path]
     if args.add_tags:
         tagger_stats_dir = str(outputs_dir / "tagger_stats")
-        tagger_manifest_path = str(outputs_dir / "tagger_manifest.json")
         storage_backend = args.remote_storage_backend or "local"
         storage_bucket = args.remote_storage_bucket or str(outputs_dir / "datasets")
         pythonpath = str(repo_root / "src")
         os.environ["SAPS_TAGGER_STATS_DIR"] = tagger_stats_dir
         os.environ["SAPS_ASV_SINGLE_RUN"] = "1"
-        os.environ["SAPS_MANIFEST_PATH"] = tagger_manifest_path
         os.environ["REMOTE_STORAGE_BACKEND"] = storage_backend
         os.environ["REMOTE_STORAGE_BUCKET"] = storage_bucket
         os.environ["PYTHONPATH"] = pythonpath
@@ -661,7 +813,6 @@ def main() -> int:
         ]
         matrix["env_nobuild"]["SAPS_TAGGER_STATS_DIR"] = [tagger_stats_dir]
         matrix["env_nobuild"]["SAPS_ASV_SINGLE_RUN"] = ["1"]
-        matrix["env_nobuild"]["SAPS_MANIFEST_PATH"] = [tagger_manifest_path]
         matrix["env_nobuild"]["REMOTE_STORAGE_BACKEND"] = [storage_backend]
         matrix["env_nobuild"]["REMOTE_STORAGE_BUCKET"] = [storage_bucket]
         matrix["env_nobuild"]["PYTHONPATH"] = [pythonpath]
@@ -784,6 +935,9 @@ def main() -> int:
         return bool(exclude_set and exclude_set.intersection(obj["tags"]))
 
     if args.upload_datasets:
+        _update_persistent_metadata(
+            metadata, persistent_metadata_path, legacy_manifest_path
+        )
         os.environ["REMOTE_STORAGE_BACKEND"] = args.remote_storage_backend
         os.environ["REMOTE_STORAGE_BUCKET"] = args.remote_storage_bucket
         backend = saps.build_storage_backend(
@@ -803,6 +957,8 @@ def main() -> int:
             benchmarks=benchmarks,
             metadata=metadata,
             metadata_path=metadata_path,
+            persistent_metadata_path=persistent_metadata_path,
+            legacy_manifest_path=legacy_manifest_path,
             environments=environments,
             machine_params=machine_params,
             repo=repo,
