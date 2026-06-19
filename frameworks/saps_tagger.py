@@ -7,13 +7,87 @@ from frameworks.saps_sparse import PyDataSparseFramework
 from saps_framework import Framework
 
 
+_ELEMENTWISE_OPERATORS = {
+    "abs",
+    "acos",
+    "acosh",
+    "add",
+    "asin",
+    "asinh",
+    "atan",
+    "atan2",
+    "atanh",
+    "bitwise_and",
+    "bitwise_invert",
+    "bitwise_left_shift",
+    "bitwise_or",
+    "bitwise_right_shift",
+    "bitwise_xor",
+    "cos",
+    "cosh",
+    "divide",
+    "equal",
+    "floor_divide",
+    "greater",
+    "greater_equal",
+    "less",
+    "less_equal",
+    "log",
+    "log1p",
+    "log2",
+    "log10",
+    "logaddexp",
+    "logical_and",
+    "logical_not",
+    "logical_or",
+    "logical_xor",
+    "multiply",
+    "negative",
+    "not_equal",
+    "positive",
+    "power",
+    "remainder",
+    "sin",
+    "sinh",
+    "sqrt",
+    "subtract",
+    "tan",
+    "tanh",
+    "where",
+}
+
+_REDUCTION_OPERATORS = {
+    "all",
+    "any",
+    "argmax",
+    "argmin",
+    "count_nonzero",
+    "dot",
+    "einsum",
+    "max",
+    "mean",
+    "min",
+    "prod",
+    "std",
+    "sum",
+    "tensordot",
+    "var",
+}
+
+
 class TaggedArray:
     __array_priority__ = 1000
 
-    def __init__(self, array, framework: "TaggerFramework"):
+    def __init__(
+        self,
+        array,
+        framework: "TaggerFramework",
+        elementwise_ops_since_reduction: int = 0,
+    ):
         self.array = array
         self.framework = framework
         self.mod = framework
+        self.elementwise_ops_since_reduction = elementwise_ops_since_reduction
 
     def __repr__(self):
         return repr(self.array)
@@ -23,11 +97,21 @@ class TaggedArray:
 
     def __iter__(self):
         for item in self.array:
-            yield self.framework._wrap(item)
+            yield self.framework._wrap(
+                item,
+                elementwise_ops_since_reduction=(
+                    self.elementwise_ops_since_reduction
+                ),
+            )
 
     def __getitem__(self, key):
         self.framework._record_operation("array", "getitem", (self, key), {})
-        return self.framework._wrap(self.array[key])
+        result_lineage = self.framework._result_elementwise_count(
+            "array", "getitem", (self, key), {}
+        )
+        return self.framework._wrap(
+            self.array[key], elementwise_ops_since_reduction=result_lineage
+        )
 
     def __setitem__(self, key, value):
         self.framework._record_operation("array", "setitem", (self, key, value), {})
@@ -49,13 +133,26 @@ class TaggedArray:
 
             @wraps(attr)
             def wrapped(*args, **kwargs):
-                self.framework._record_operation("array", name, args, kwargs)
+                self.framework._record_operation(
+                    "array", name, (self, *args), kwargs
+                )
+                result_lineage = self.framework._result_elementwise_count(
+                    "array", name, (self, *args), kwargs
+                )
                 args = self.framework._unwrap(args)
                 kwargs = self.framework._unwrap_kwargs(kwargs)
-                return self.framework._wrap(attr(*args, **kwargs))
+                return self.framework._wrap(
+                    attr(*args, **kwargs),
+                    elementwise_ops_since_reduction=result_lineage,
+                )
 
             return wrapped
-        return self.framework._wrap(attr)
+        return self.framework._wrap(
+            attr,
+            elementwise_ops_since_reduction=(
+                self.elementwise_ops_since_reduction
+            ),
+        )
 
     def __add__(self, other):
         return self.mod.add(self, other)
@@ -272,9 +369,15 @@ class TaggedLinalg:
                 self.framework._record_operation(
                     self.namespace, name, args, kwargs
                 )
+                result_lineage = self.framework._result_elementwise_count(
+                    self.namespace, name, args, kwargs
+                )
                 args = self.framework._unwrap(args)
                 kwargs = self.framework._unwrap_kwargs(kwargs)
-                return self.framework._wrap(attr(*args, **kwargs))
+                return self.framework._wrap(
+                    attr(*args, **kwargs),
+                    elementwise_ops_since_reduction=result_lineage,
+                )
 
             return wrapped
         return attr
@@ -306,7 +409,7 @@ class TaggerFramework(Framework):
             self._operand_stats(args, kwargs)
         )
 
-    def _tensor_stats(self, array):
+    def _tensor_stats(self, array, elementwise_ops_since_reduction=0):
         shape = getattr(array, "shape", None)
         if shape is not None:
             shape = tuple(int(dim) for dim in shape)
@@ -345,10 +448,13 @@ class TaggerFramework(Framework):
             "sparsity": sparsity,
             "sparsity_factor": sparsity_factor,
             "fill_value": fill_value,
+            "elementwise_ops_since_reduction": elementwise_ops_since_reduction,
         }
 
-    def _record_tensor(self, array):
-        self.stats["tensors"].append(self._tensor_stats(array))
+    def _record_tensor(self, array, elementwise_ops_since_reduction):
+        self.stats["tensors"].append(
+            self._tensor_stats(array, elementwise_ops_since_reduction)
+        )
 
     def _operand_stats(self, args, kwargs):
         operands = []
@@ -358,7 +464,11 @@ class TaggerFramework(Framework):
 
     def _collect_operand_stats(self, value):
         if isinstance(value, TaggedArray):
-            return [self._tensor_stats(value.array)]
+            return [
+                self._tensor_stats(
+                    value.array, value.elementwise_ops_since_reduction
+                )
+            ]
         if isinstance(value, list) or isinstance(value, tuple):
             operands = []
             for item in value:
@@ -368,18 +478,65 @@ class TaggerFramework(Framework):
             return [self._tensor_stats(value)]
         return []
 
-    def _wrap(self, value):
+    def _operand_elementwise_counts(self, args, kwargs):
+        counts = []
+        for value in list(args) + list(kwargs.values()):
+            counts.extend(self._collect_elementwise_counts(value))
+        return counts
+
+    def _collect_elementwise_counts(self, value):
+        if isinstance(value, TaggedArray):
+            return [value.elementwise_ops_since_reduction]
+        if isinstance(value, list) or isinstance(value, tuple):
+            counts = []
+            for item in value:
+                counts.extend(self._collect_elementwise_counts(item))
+            return counts
+        return []
+
+    def _operation_kind(self, namespace, name):
+        if namespace == "linalg" or name in _REDUCTION_OPERATORS:
+            return "reduction"
+        if name == "matmul":
+            return "reduction"
+        if name in _ELEMENTWISE_OPERATORS:
+            return "elementwise"
+        return "preserve"
+
+    def _result_elementwise_count(self, namespace, name, args, kwargs):
+        counts = self._operand_elementwise_counts(args, kwargs)
+        operand_count = max(counts, default=0)
+        kind = self._operation_kind(namespace, name)
+        if kind == "reduction":
+            return 0
+        if kind == "elementwise":
+            return operand_count + 1
+        return operand_count
+
+    def _wrap(self, value, elementwise_ops_since_reduction=0):
         if isinstance(value, TaggedArray):
             return value
         if isinstance(value, list):
-            return [self._wrap(item) for item in value]
+            return [
+                self._wrap(
+                    item,
+                    elementwise_ops_since_reduction=elementwise_ops_since_reduction,
+                )
+                for item in value
+            ]
         if isinstance(value, tuple):
-            return tuple(self._wrap(item) for item in value)
+            return tuple(
+                self._wrap(
+                    item,
+                    elementwise_ops_since_reduction=elementwise_ops_since_reduction,
+                )
+                for item in value
+            )
         if isinstance(value, dict):
             return value
         if hasattr(value, "ndim"):
-            self._record_tensor(value)
-            return TaggedArray(value, self)
+            self._record_tensor(value, elementwise_ops_since_reduction)
+            return TaggedArray(value, self, elementwise_ops_since_reduction)
         return value
 
     def _unwrap(self, value):
@@ -404,11 +561,19 @@ class TaggerFramework(Framework):
 
     def lazy(self, array):
         self._record_operation("", "lazy", (array,), {})
-        return self._wrap(self.wrapped.lazy(self._unwrap(array)))
+        result_lineage = self._result_elementwise_count("", "lazy", (array,), {})
+        return self._wrap(
+            self.wrapped.lazy(self._unwrap(array)),
+            elementwise_ops_since_reduction=result_lineage,
+        )
 
     def compute(self, array):
         self._record_operation("", "compute", (array,), {})
-        return self._wrap(self.wrapped.compute(self._unwrap(array)))
+        result_lineage = self._result_elementwise_count("", "compute", (array,), {})
+        return self._wrap(
+            self.wrapped.compute(self._unwrap(array)),
+            elementwise_ops_since_reduction=result_lineage,
+        )
 
     def compile(self, func):
         self._record_operation("", "compile", (func,), {})
@@ -416,13 +581,23 @@ class TaggerFramework(Framework):
 
     def einsum(self, prgm, **kwargs):
         self._record_operation("", "einsum", (prgm,), kwargs)
+        result_lineage = self._result_elementwise_count("", "einsum", (), kwargs)
         kwargs = self._unwrap_kwargs(kwargs)
-        return self._wrap(self.wrapped.einsum(prgm, **kwargs))
+        return self._wrap(
+            self.wrapped.einsum(prgm, **kwargs),
+            elementwise_ops_since_reduction=result_lineage,
+        )
 
     def with_fill_value(self, array, value):
         self._record_operation("", "with_fill_value", (array, value), {})
+        result_lineage = self._result_elementwise_count(
+            "", "with_fill_value", (array, value), {}
+        )
         array = self._unwrap(array)
-        return self._wrap(self.wrapped.with_fill_value(array, value))
+        return self._wrap(
+            self.wrapped.with_fill_value(array, value),
+            elementwise_ops_since_reduction=result_lineage,
+        )
 
     @property
     def linalg(self):
@@ -439,9 +614,15 @@ class TaggerFramework(Framework):
             @wraps(attr)
             def wrapped(*args, **kwargs):
                 self._record_operation("", name, args, kwargs)
+                result_lineage = self._result_elementwise_count(
+                    "", name, args, kwargs
+                )
                 args = self._unwrap(args)
                 kwargs = self._unwrap_kwargs(kwargs)
-                return self._wrap(attr(*args, **kwargs))
+                return self._wrap(
+                    attr(*args, **kwargs),
+                    elementwise_ops_since_reduction=result_lineage,
+                )
 
             return wrapped
         return attr
