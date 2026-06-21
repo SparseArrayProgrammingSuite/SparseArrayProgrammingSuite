@@ -21,7 +21,7 @@ class JacobiDataset(Dataset):
     def __init__(
         self, source_name: str, has_b_file: bool = False, nnz: int | None = None
     ):
-        self._tags: list[str] = []
+        self._suites: list[str] = []
         self.source_name = source_name
         self.has_b_file = has_b_file
         self.nnz = nnz
@@ -39,8 +39,8 @@ class JacobiDataset(Dataset):
         return f"SuiteSparse matrix {self.source_name}."
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -67,7 +67,7 @@ class JacobiGenerator(Generator[JacobiDataset]):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -175,7 +175,7 @@ class JacobiBenchmark(Benchmark):
         return "Solves linear systems using the Jacobi iterative method."
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property

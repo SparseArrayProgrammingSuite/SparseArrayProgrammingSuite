@@ -19,7 +19,7 @@ xp = saps.xp
 
 class RPKMeansDataset(Dataset):
     def __init__(self, source_name: str, points, k: int, eps: float, c=1, max_iter=100):
-        self._tags: list[str] = []
+        self._suites: list[str] = []
         self.source_name = source_name
         self.points = points
         self.k = k
@@ -40,8 +40,8 @@ class RPKMeansDataset(Dataset):
         return "Manual test points for random-projection k-means clustering."
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -67,7 +67,7 @@ class RPKMeansGenerator(Generator[RPKMeansDataset]):
         return "Test points for this benchmark were created manually."
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -182,7 +182,7 @@ class RPKMeansBenchmark(Benchmark):
         return "No generative AI was used to implement benchmark functions."
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property

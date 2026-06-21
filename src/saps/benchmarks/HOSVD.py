@@ -21,7 +21,7 @@ class HOSVDDataset(Dataset):
         name: str,
         pretty_name: str,
         description: str,
-        tags: list[str],
+        suites: list[str],
         shape: tuple[int, int, int],
         ranks: tuple[int, int, int],
         seed: int = 42,
@@ -29,7 +29,7 @@ class HOSVDDataset(Dataset):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
-        self._tags = tags
+        self._suites = suites
         self.shape = shape
         self.ranks = ranks
         self.seed = seed
@@ -47,8 +47,8 @@ class HOSVDDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -73,7 +73,7 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
         return "Generates a dense low-rank 3D tensor using random factor matrices."
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -143,7 +143,7 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
         return "Generates a sparse low-rank 3D tensor using random factor matrices."
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -276,7 +276,7 @@ class HOSVDBenchmark(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property

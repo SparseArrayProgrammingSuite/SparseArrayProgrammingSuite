@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import argparse
-import copy
 import importlib
 import json
 import logging
@@ -306,30 +305,12 @@ def _metadata_generator_record(metadata, benchmark_name, generator_name):
     return next(gen for gen in generators if gen["name"] == generator_name)
 
 
-def _normalize_tag(tag: str) -> str:
-    tag = tag.strip().lower().replace("_", "-")
-    return re.sub(r"-+", "-", tag)
-
-
-def _normalize_tags(tags) -> list[str]:
-    return sorted(
-        {
-            normalized
-            for tag in tags
-            if isinstance(tag, str) and (normalized := _normalize_tag(tag))
-        }
-    )
-
-
-def _merge_generated_tags(record, field: str, tags):
-    record[field] = _normalize_tags([*record.get(field, []), *tags])
-
-
-def _effective_tags(record: dict) -> set[str]:
-    return set(record.get("tags", [])).union(
-        record.get("topics", []),
-        record.get("statistics", []),
-    )
+def _metadata_tags(record: dict) -> set[str]:
+    return {
+        *record.get("suites", []),
+        *record.get("statistics", []),
+        *record.get("topics", []),
+    }
 
 
 def regex_any_match(patterns: list[str], value: str) -> bool:
@@ -359,11 +340,15 @@ def _apply_tagger_stats(metadata, stats_dir: Path) -> int:
 
         benchmark_tags, generator_tags = _infer_tags(record.get("stats", {}))
         for metadata_key in metadata_by_id[benchmark_id]:
-            _merge_generated_tags(metadata[metadata_key], "statistics", benchmark_tags)
+            metadata[metadata_key]["statistics"] = sorted(
+                {*metadata[metadata_key].get("statistics", []), *benchmark_tags}
+            )
             generator = _metadata_generator_record(
                 metadata, metadata_key, generator_name
             )
-            _merge_generated_tags(generator, "statistics", generator_tags)
+            generator["statistics"] = sorted(
+                {*generator.get("statistics", []), *generator_tags}
+            )
         tagged += 1
         print(
             f"[tagged]  {benchmark_id} / {generator_name}: "
@@ -371,22 +356,6 @@ def _apply_tagger_stats(metadata, stats_dir: Path) -> int:
             f"generator={', '.join(generator_tags)}"
         )
     return tagged
-
-
-def _generate_topics(
-    metadata: dict[str, dict],
-    metadata_path: Path,
-    persistent_metadata_path: Path,
-) -> int:
-    metadata_path.write_text(
-        json.dumps(metadata, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
-    _update_persistent_metadata(
-        metadata, persistent_metadata_path, replace_fields={"topics"}
-    )
-    print(f"generated topics for {len(metadata)} benchmark records")
-    return 0
 
 
 def _record_key(record: dict) -> str:
@@ -397,192 +366,120 @@ def _record_key(record: dict) -> str:
     return benchmark_id
 
 
-def _merge_generated_field(
-    existing: dict,
-    incoming: dict,
-    field: str,
-    replace_fields: set[str],
-) -> list[str]:
-    if field in replace_fields:
-        return _normalize_tags(incoming.get(field, []))
-    return _normalize_tags([*existing.get(field, []), *incoming.get(field, [])])
-
-
-def _merge_dataset_metadata(
-    existing: dict, incoming: dict, replace_fields: set[str] | None = None
-) -> dict:
-    replace_fields = replace_fields or set()
-    merged = copy.deepcopy(incoming)
-    for key, value in existing.items():
-        if key not in {"digest", "tags", "topics", "statistics"} and key not in merged:
-            merged[key] = copy.deepcopy(value)
-    merged["tags"] = copy.deepcopy(incoming.get("tags", existing.get("tags", [])))
-    merged["topics"] = _merge_generated_field(
-        existing, incoming, "topics", replace_fields
-    )
-    merged["statistics"] = _merge_generated_field(
-        existing, incoming, "statistics", replace_fields
-    )
-    merged.pop("digest", None)
-    return merged
-
-
-def _merge_generator_metadata(
-    existing: dict, incoming: dict, replace_fields: set[str] | None = None
-) -> dict:
-    replace_fields = replace_fields or set()
-    merged = copy.deepcopy(incoming)
-    for key, value in existing.items():
-        if key not in {"tags", "topics", "statistics"} and key not in merged:
-            merged[key] = copy.deepcopy(value)
-    merged["tags"] = copy.deepcopy(incoming.get("tags", existing.get("tags", [])))
-    merged["topics"] = _merge_generated_field(
-        existing, incoming, "topics", replace_fields
-    )
-    merged["statistics"] = _merge_generated_field(
-        existing, incoming, "statistics", replace_fields
-    )
-    existing_datasets = {
-        dataset["name"]: dataset for dataset in existing.get("datasets", [])
-    }
-    datasets = []
-    for dataset in merged.get("datasets", []):
-        old_dataset = existing_datasets.get(dataset["name"])
-        if old_dataset is not None:
-            dataset = _merge_dataset_metadata(old_dataset, dataset, replace_fields)
-        datasets.append(dataset)
-    merged["datasets"] = datasets
-    return merged
-
-
-def _merge_benchmark_metadata(
-    existing: dict, incoming: dict, replace_fields: set[str] | None = None
-) -> dict:
-    replace_fields = replace_fields or set()
-    merged = copy.deepcopy(incoming)
-    for key, value in existing.items():
-        if key not in {"tags", "topics", "statistics"} and key not in merged:
-            merged[key] = copy.deepcopy(value)
-    merged["tags"] = copy.deepcopy(incoming.get("tags", existing.get("tags", [])))
-    merged["topics"] = _merge_generated_field(
-        existing, incoming, "topics", replace_fields
-    )
-    merged["statistics"] = _merge_generated_field(
-        existing, incoming, "statistics", replace_fields
-    )
-    existing_generators = {
-        generator["name"]: generator for generator in existing.get("generators", [])
-    }
-    generators = []
-    for generator in merged.get("generators", []):
-        old_generator = existing_generators.get(generator["name"])
-        if old_generator is not None:
-            generator = _merge_generator_metadata(old_generator, generator, replace_fields)
-        generators.append(generator)
-    merged["generators"] = generators
-    return merged
-
-
-def _collapse_metadata(
-    metadata: dict[str, dict], replace_fields: set[str] | None = None
-) -> list[dict]:
-    replace_fields = replace_fields or set()
-    collapsed: dict[str, dict] = {}
-    for record in metadata.values():
-        key = _record_key(record)
-        if key in collapsed:
-            collapsed[key] = _merge_benchmark_metadata(
-                collapsed[key], record, replace_fields
+def _load_metadata_document(metadata_path: Path) -> dict:
+    if not metadata_path.exists():
+        raise RuntimeError(
+            f"{metadata_path} does not exist; run generate metadata first with "
+            "`poetry run ./bin/run_benchmark.py --generate-metadata`."
+        )
+    document = json.loads(metadata_path.read_text(encoding="utf-8"))
+    document.setdefault("benchmarks", [])
+    document.setdefault("digests", {})
+    pending = list(document["benchmarks"])
+    required_fields = {"suites", "topics", "statistics"}
+    while pending:
+        record = pending.pop()
+        missing = required_fields.difference(record)
+        if missing:
+            name = record.get("id", record.get("name", "metadata record"))
+            raise RuntimeError(
+                f"{name} is missing {', '.join(sorted(missing))}; run generate "
+                "metadata first with "
+                "`poetry run ./bin/run_benchmark.py --generate-metadata`."
             )
-        else:
-            collapsed[key] = copy.deepcopy(record)
-    return sorted(collapsed.values(), key=_record_key)
+        pending.extend(record.get("generators", []))
+        pending.extend(record.get("datasets", []))
+    return document
 
 
-def _digest_map(document: dict) -> dict[str, str]:
-    digests = dict(document.get("digests", {}))
-    for benchmark in document.get("benchmarks", []):
-        for generator in benchmark.get("generators", []):
-            for dataset in generator.get("datasets", []):
-                if "digest" in dataset:
-                    digests[f"{generator['name']}.{dataset['name']}"] = dataset[
-                        "digest"
-                    ]
-    return digests
-
-
-def _strip_nested_digests(record: dict) -> dict:
-    stripped = copy.deepcopy(record)
-    for generator in stripped.get("generators", []):
-        for dataset in generator.get("datasets", []):
-            dataset.pop("digest", None)
-    return stripped
-
-
-def _ensure_tag_fields(record: dict) -> dict:
-    record.setdefault("tags", [])
-    record.setdefault("topics", [])
-    record.setdefault("statistics", [])
-    record["topics"] = _normalize_tags(record["topics"])
-    record["statistics"] = _normalize_tags(record["statistics"])
-    for generator in record.get("generators", []):
-        _ensure_tag_fields(generator)
-        for dataset in generator.get("datasets", []):
-            _ensure_tag_fields(dataset)
-    return record
-
-
-def _update_persistent_metadata(
+def _generate_metadata(
     metadata: dict[str, dict],
     metadata_path: Path,
-    *,
-    replace_fields: set[str] | None = None,
-):
-    replace_fields = replace_fields or set()
-    current = {"benchmarks": []}
+) -> int:
+    digests = {}
     if metadata_path.exists():
-        current = json.loads(metadata_path.read_text(encoding="utf-8"))
-
-    digests = _digest_map(current)
-    digests.update(_digest_map({"benchmarks": list(metadata.values())}))
-
-    existing_by_key = {}
-    for record in current.get("benchmarks", []):
-        key = _record_key(record)
-        record = _strip_nested_digests(record)
-        if key in existing_by_key:
-            record = _merge_benchmark_metadata(existing_by_key[key], record)
-        existing_by_key[key] = record
-
-    for record in _collapse_metadata(metadata, replace_fields):
-        key = _record_key(record)
-        record = _strip_nested_digests(record)
-        if key in existing_by_key:
-            record = _merge_benchmark_metadata(
-                existing_by_key[key], record, replace_fields
-            )
-        existing_by_key[key] = record
-
-    metadata_path.write_text(
-        json.dumps(
-            {
-                "benchmarks": sorted(
-                    (_ensure_tag_fields(record) for record in existing_by_key.values()),
-                    key=_record_key,
-                ),
-                "digests": dict(sorted(digests.items())),
-            },
-            indent=2,
-            sort_keys=True,
+        digests = json.loads(metadata_path.read_text(encoding="utf-8")).get(
+            "digests", {}
         )
-        + "\n",
+
+    records = {}
+    for record in metadata.values():
+        records.setdefault(_record_key(record), record)
+
+    document = {
+        "benchmarks": [
+            record for record in sorted(records.values(), key=_record_key)
+        ],
+        "digests": dict(sorted(digests.items())),
+    }
+    metadata_path.write_text(
+        json.dumps(document, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+    print(f"generated metadata for {len(document['benchmarks'])} benchmarks")
+    return 0
+
+
+def _generate_topics(
+    metadata: dict[str, dict],
+    metadata_path: Path,
+) -> int:
+    document = _load_metadata_document(metadata_path)
+    existing_benchmarks = {
+        _record_key(record): record for record in document.get("benchmarks", [])
+    }
+
+    updated = 0
+    records = {}
+    for record in metadata.values():
+        records.setdefault(_record_key(record), record)
+
+    for key, source_benchmark in records.items():
+        if key not in existing_benchmarks:
+            raise RuntimeError(
+                f"Missing metadata entry for {key}; run generate metadata first with "
+                "`poetry run ./bin/run_benchmark.py --generate-metadata`."
+            )
+        benchmark = existing_benchmarks[key]
+        benchmark["topics"] = source_benchmark.get("topics", [])
+
+        generators = {gen["name"]: gen for gen in benchmark.get("generators", [])}
+        for source_generator in source_benchmark.get("generators", []):
+            generator_name = source_generator["name"]
+            if generator_name not in generators:
+                raise RuntimeError(
+                    f"Missing metadata entry for generator {generator_name}; run "
+                    "generate metadata first with "
+                    "`poetry run ./bin/run_benchmark.py --generate-metadata`."
+                )
+            generator = generators[generator_name]
+            generator["topics"] = source_generator.get("topics", [])
+
+            datasets = {ds["name"]: ds for ds in generator.get("datasets", [])}
+            for source_dataset in source_generator.get("datasets", []):
+                dataset_name = source_dataset["name"]
+                if dataset_name not in datasets:
+                    raise RuntimeError(
+                        f"Missing metadata entry for dataset "
+                        f"{generator_name}.{dataset_name}; run generate metadata "
+                        "first with "
+                        "`poetry run ./bin/run_benchmark.py --generate-metadata`."
+                    )
+                datasets[dataset_name]["topics"] = source_dataset.get("topics", [])
+        updated += 1
+
+    metadata_path.write_text(
+        json.dumps(document, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    print(f"generated topics for {updated} benchmarks")
+    return 0
 
 
 def _trace_statistics(
     benchmarks,
     metadata,
+    metadata_document,
     metadata_path,
     persistent_metadata_path,
     environments,
@@ -594,7 +491,13 @@ def _trace_statistics(
     show_stderr,
 ) -> int:
     """Run selected benchmarks under ASV with the tagger framework."""
-    _update_persistent_metadata(metadata, persistent_metadata_path)
+    for record in metadata.values():
+        record["statistics"] = []
+        for generator in record.get("generators", []):
+            generator["statistics"] = []
+            for dataset in generator.get("datasets", []):
+                dataset["statistics"] = []
+
     stats_dir = outputs_dir / "tagger_stats"
     stats_dir.mkdir(parents=True, exist_ok=True)
     for stats_path in stats_dir.glob("*.json"):
@@ -639,8 +542,9 @@ def _trace_statistics(
         json.dumps(metadata, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    _update_persistent_metadata(
-        metadata, persistent_metadata_path, replace_fields={"statistics"}
+    persistent_metadata_path.write_text(
+        json.dumps(metadata_document, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
     )
     print(f"tag summary: tagged_records={tagged} failed_benchmark_entries={failed}")
     return 0 if tagged > 0 else 1
@@ -712,6 +616,15 @@ def main() -> int:
             "(benchmark, generator, dataset) triple, generate the data, "
             "and cache it via the configured storage backend. Honors "
             "--re/--no-re/--tag/--no-tag filters."
+        ),
+    )
+    parser.add_argument(
+        "--generate-metadata",
+        dest="generate_metadata",
+        action="store_true",
+        help=(
+            "Skip benchmark execution. Rebuild benchmark_metadata.json from the "
+            "benchmark definitions."
         ),
     )
     parser.add_argument(
@@ -861,7 +774,10 @@ def main() -> int:
             os.environ["SAPS_ASV_SINGLE_RUN"] = "1"
 
     uses_parent_environment = (
-        args.trace_statistics or args.cache_datasets or args.generate_topics
+        args.trace_statistics
+        or args.cache_datasets
+        or args.generate_metadata
+        or args.generate_topics
     )
 
     # Construct ASV config dict with all fields visible
@@ -950,25 +866,29 @@ def main() -> int:
         commit_hash=[commit_hash],
     )
 
-    metadata: dict[str, dict] = {}
+    source_metadata: dict[str, dict] = {}
     for name in benchmarks:
         module_name, class_name, _method_name = name.rsplit(".", 2)
         benchmark_module = importlib.import_module(f"saps.benchmarks.{module_name}")
         benchmark = getattr(benchmark_module, class_name)()
         assert isinstance(benchmark, saps.Benchmark)
-        metadata[name] = benchmark.metadata
+        source_metadata[name] = benchmark.metadata
+    metadata = dict(source_metadata)
 
     # Store benchmark metadata in SAPS outputs directory
     results_dir = outputs_dir / "results"
     results_dir.mkdir(parents=True, exist_ok=True)
     metadata_path = results_dir / "benchmarks_meta.json"
     metadata_path.write_text(
-        json.dumps(metadata, indent=2, sort_keys=True) + "\n",
+        json.dumps(source_metadata, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
 
-    include_set = {tag.strip().lower() for tag in args.tag if tag and tag.strip()}
-    exclude_set = {tag.strip().lower() for tag in args.no_tag if tag and tag.strip()}
+    if args.generate_metadata:
+        return _generate_metadata(source_metadata, persistent_metadata_path)
+
+    include_set = {tag.strip() for tag in args.tag if tag and tag.strip()}
+    exclude_set = {tag.strip() for tag in args.no_tag if tag and tag.strip()}
     include_res = args.re or []
     exclude_res = args.no_re or []
 
@@ -978,28 +898,24 @@ def main() -> int:
     def is_include(obj) -> bool:
         if include_res and not regex_any_match(include_res, match_target(obj)):
             return False
-        return not (include_set and not include_set.intersection(_effective_tags(obj)))
+        return not (include_set and not include_set.intersection(_metadata_tags(obj)))
 
     def is_exclude(obj) -> bool:
         if exclude_res and regex_any_match(exclude_res, match_target(obj)):
             return True
-        return bool(exclude_set and exclude_set.intersection(_effective_tags(obj)))
+        return bool(exclude_set and exclude_set.intersection(_metadata_tags(obj)))
 
-    if (
-        not (args.cache_datasets or args.trace_statistics or args.generate_topics)
-        and persistent_metadata_path.exists()
-    ):
-        persistent_metadata = json.loads(
-            persistent_metadata_path.read_text(encoding="utf-8")
-        )
+    persistent_document = None
+    if persistent_metadata_path.exists():
+        persistent_document = _load_metadata_document(persistent_metadata_path)
         persistent_by_key = {
             _record_key(record): record
-            for record in persistent_metadata.get("benchmarks", [])
+            for record in persistent_document.get("benchmarks", [])
         }
         for name, record in list(metadata.items()):
             existing = persistent_by_key.get(_record_key(record))
             if existing is not None:
-                metadata[name] = _merge_benchmark_metadata(existing, record)
+                metadata[name] = existing
 
     skips = []
     benchmarks._benchmark_selection = {}
@@ -1047,7 +963,22 @@ def main() -> int:
     benchmarks = benchmarks.filter_out(set(skips))
 
     if args.cache_datasets:
-        _update_persistent_metadata(metadata, persistent_metadata_path)
+        if persistent_document is None:
+            persistent_document = _load_metadata_document(persistent_metadata_path)
+        selected_source_metadata = {
+            name: source_metadata[name] for name in benchmarks if name in source_metadata
+        }
+        existing_benchmarks = {
+            _record_key(record): record
+            for record in persistent_document.get("benchmarks", [])
+        }
+        for record in selected_source_metadata.values():
+            key = _record_key(record)
+            if key not in existing_benchmarks:
+                raise RuntimeError(
+                    f"Missing metadata entry for {key}; run generate metadata first "
+                    "with `poetry run ./bin/run_benchmark.py --generate-metadata`."
+                )
         return _cache_datasets(
             benchmarks=benchmarks,
             metadata=metadata,
@@ -1055,19 +986,35 @@ def main() -> int:
         )
 
     if args.generate_topics:
-        selected_metadata = {
-            name: metadata[name] for name in benchmarks if name in metadata
+        selected_source_metadata = {
+            name: source_metadata[name] for name in benchmarks if name in source_metadata
         }
         return _generate_topics(
-            metadata=selected_metadata,
-            metadata_path=metadata_path,
-            persistent_metadata_path=persistent_metadata_path,
+            metadata=selected_source_metadata,
+            metadata_path=persistent_metadata_path,
         )
 
     if args.trace_statistics:
+        if persistent_document is None:
+            persistent_document = _load_metadata_document(persistent_metadata_path)
+        selected_source_metadata = {
+            name: source_metadata[name] for name in benchmarks if name in source_metadata
+        }
+        existing_benchmarks = {
+            _record_key(record): record
+            for record in persistent_document.get("benchmarks", [])
+        }
+        for record in selected_source_metadata.values():
+            key = _record_key(record)
+            if key not in existing_benchmarks:
+                raise RuntimeError(
+                    f"Missing metadata entry for {key}; run generate metadata first "
+                    "with `poetry run ./bin/run_benchmark.py --generate-metadata`."
+                )
         return _trace_statistics(
             benchmarks=benchmarks,
             metadata=metadata,
+            metadata_document=persistent_document,
             metadata_path=metadata_path,
             persistent_metadata_path=persistent_metadata_path,
             environments=environments,

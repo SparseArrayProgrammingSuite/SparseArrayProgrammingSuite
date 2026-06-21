@@ -21,12 +21,12 @@ class BetweennessCentralityDataset(Dataset):
         name: str,
         pretty_name: str | None = None,
         description: str | None = None,
-        tags: list[str] | None = None,
+        suites: list[str] | None = None,
     ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Betweenness centrality input {name}."
-        self._tags = tags or []
+        self._suites = suites or []
 
     @property
     def name(self) -> str:
@@ -41,8 +41,8 @@ class BetweennessCentralityDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
 
 class BetweennessCentralityGenerator(Generator[BetweennessCentralityDataset]):
@@ -59,7 +59,7 @@ class BetweennessCentralityGenerator(Generator[BetweennessCentralityDataset]):
         return "Input generator for betweenness centrality benchmarks."
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -91,7 +91,7 @@ class BetweennessCentralityGenerator(Generator[BetweennessCentralityDataset]):
                     "Department 3 email network from the SNAP email-Eu-core"
                     " temporal dataset, with 89 nodes and 1,506 static edges."
                 ),
-                tags=[],
+                suites=[],
             ),
             BetweennessCentralityDataset(
                 name="snap-email-Eu-core-temporal-Dept4",
@@ -100,7 +100,7 @@ class BetweennessCentralityGenerator(Generator[BetweennessCentralityDataset]):
                     "Department 4 email network from the SNAP email-Eu-core"
                     " temporal dataset, with 142 nodes and 1,375 static edges."
                 ),
-                tags=[],
+                suites=[],
             ),
         ]
 
@@ -136,7 +136,7 @@ class BetweennessCentralityBenchmark(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property

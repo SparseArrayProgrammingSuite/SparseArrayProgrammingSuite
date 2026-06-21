@@ -21,7 +21,7 @@ class MaskedMRIDataset(Dataset):
         image: np.ndarray | None = None,
         roi: np.ndarray | None = None,
     ):
-        self._tags: list[str] = []
+        self._suites: list[str] = []
         self.source_name = name
         self.category = category
         self.filename = filename
@@ -46,8 +46,8 @@ class MaskedMRIDataset(Dataset):
         )
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -78,7 +78,7 @@ class MaskedMRIGenerator(Generator[MaskedMRIDataset]):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -160,7 +160,7 @@ class MaskedMRIEdgeBenchmark(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property

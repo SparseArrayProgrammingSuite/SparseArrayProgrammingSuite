@@ -21,12 +21,12 @@ class TransitiveClosureDataset(Dataset):
         name: str,
         pretty_name: str | None = None,
         description: str | None = None,
-        tags: list[str] | None = None,
+        suites: list[str] | None = None,
     ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Transitive closure input {name}."
-        self._tags = tags or []
+        self._suites = suites or []
 
     @property
     def name(self) -> str:
@@ -41,8 +41,8 @@ class TransitiveClosureDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
 
 class TransitiveClosureGenerator(Generator[TransitiveClosureDataset]):
@@ -59,7 +59,7 @@ class TransitiveClosureGenerator(Generator[TransitiveClosureDataset]):
         return "Input generator for transitive closure benchmarks."
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -91,7 +91,7 @@ class TransitiveClosureGenerator(Generator[TransitiveClosureDataset]):
                     "Directed email communication network from a European research"
                     " institution, with 1,005 nodes and 25,571 edges."
                 ),
-                tags=[],
+                suites=[],
             ),
             TransitiveClosureDataset(
                 name="snap-ca-GrQc",
@@ -100,7 +100,7 @@ class TransitiveClosureGenerator(Generator[TransitiveClosureDataset]):
                     "Arxiv General Relativity and Quantum Cosmology collaboration"
                     " network, with 5,242 nodes and 14,496 edges."
                 ),
-                tags=[],
+                suites=[],
             ),
         ]
 
@@ -131,7 +131,7 @@ class TransitiveClosureBenchmark(Benchmark):
         )
 
     @property
-    def tags(self):
+    def suites(self):
         return []
 
     @property

@@ -23,12 +23,12 @@ class BellmanFordDataset(Dataset):
         name: str,
         pretty_name: str | None = None,
         description: str | None = None,
-        tags: list[str] | None = None,
+        suites: list[str] | None = None,
     ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Bellman-Ford input {name}."
-        self._tags = tags or []
+        self._suites = suites or []
 
     @property
     def name(self) -> str:
@@ -43,8 +43,8 @@ class BellmanFordDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
 
 class BellmanFordGenerator(Generator[BellmanFordDataset]):
@@ -61,7 +61,7 @@ class BellmanFordGenerator(Generator[BellmanFordDataset]):
         return "Input generator for Bellman-Ford shortest-path benchmarks."
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -94,7 +94,7 @@ class BellmanFordGenerator(Generator[BellmanFordDataset]):
                     " temporal dataset, projected to unit-weight edges, with 89"
                     " nodes and 1,506 static edges."
                 ),
-                tags=[],
+                suites=[],
             ),
             BellmanFordDataset(
                 name="snap-email-Eu-core-temporal-Dept4",
@@ -104,7 +104,7 @@ class BellmanFordGenerator(Generator[BellmanFordDataset]):
                     " temporal dataset, projected to unit-weight edges, with 142"
                     " nodes and 1,375 static edges."
                 ),
-                tags=[],
+                suites=[],
             ),
             BellmanFordDataset(
                 name="snap-email-Eu-core-temporal-Dept2",
@@ -114,7 +114,7 @@ class BellmanFordGenerator(Generator[BellmanFordDataset]):
                     " temporal dataset, projected to unit-weight edges, with 162"
                     " nodes and 1,772 static edges."
                 ),
-                tags=[],
+                suites=[],
             ),
             BellmanFordDataset(
                 name="snap-email-Eu-core-temporal-Dept1",
@@ -124,7 +124,7 @@ class BellmanFordGenerator(Generator[BellmanFordDataset]):
                     " temporal dataset, projected to unit-weight edges, with 309"
                     " nodes and 3,031 static edges."
                 ),
-                tags=[],
+                suites=[],
             ),
             BellmanFordDataset(
                 name="snap-email-Eu-core",
@@ -134,7 +134,7 @@ class BellmanFordGenerator(Generator[BellmanFordDataset]):
                     " institution, projected to unit-weight edges, with 1,005"
                     " nodes and 25,571 edges."
                 ),
-                tags=[],
+                suites=[],
             ),
         ]
 
@@ -187,7 +187,7 @@ class BellmanFordBenchmark(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property

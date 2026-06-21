@@ -21,7 +21,7 @@ class HOSVD4DDataset(Dataset):
         name: str,
         pretty_name: str,
         description: str,
-        tags: list[str],
+        suites: list[str],
         shape: tuple[int, ...],
         ranks: tuple[int, ...],
         seed: int = 42,
@@ -29,7 +29,7 @@ class HOSVD4DDataset(Dataset):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
-        self._tags = tags
+        self._suites = suites
         self.shape = shape
         self.ranks = ranks
         self.seed = seed
@@ -47,8 +47,8 @@ class HOSVD4DDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -73,7 +73,7 @@ class HOSVD4DDenseGenerator(Generator[HOSVD4DDataset]):
         return "Generates a dense low-rank 4D tensor using random factor matrices."
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -145,7 +145,7 @@ class HOSVD4DSparseGenerator(Generator[HOSVD4DDataset]):
         return "Generates a sparse low-rank 4D tensor using random factor matrices."
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -281,7 +281,7 @@ class HOSVD4DBenchmark(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property

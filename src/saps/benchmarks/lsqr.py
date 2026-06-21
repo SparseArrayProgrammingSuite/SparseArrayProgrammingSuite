@@ -28,7 +28,7 @@ class LSQRDataset(Dataset):
         nnz: int | None = None,
         noise_amt: float = 0.1,
     ):
-        self._tags: list[str] = []
+        self._suites: list[str] = []
         self.source_name = source_name
         self.has_b_file = has_b_file
         self.nnz = nnz
@@ -47,8 +47,8 @@ class LSQRDataset(Dataset):
         return f"SuiteSparse matrix {self.source_name}."
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -78,7 +78,7 @@ class LSQRGenerator(Generator[LSQRDataset]):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -220,7 +220,7 @@ class LSQRBenchmark(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property

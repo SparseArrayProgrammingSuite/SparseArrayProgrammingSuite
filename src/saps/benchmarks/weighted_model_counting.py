@@ -107,14 +107,14 @@ class WMCDataset(Dataset):
         name: str,
         pretty_name: str,
         description: str,
-        tags: list[str],
+        suites: list[str],
         cnf_text: str,
         expected: float,
     ):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
-        self._tags = tags
+        self._suites = suites
         self.cnf_text = cnf_text
         self.expected = expected
 
@@ -131,8 +131,8 @@ class WMCDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
 
 class WMCGenerator(Generator[WMCDataset]):
@@ -149,7 +149,7 @@ class WMCGenerator(Generator[WMCDataset]):
         return "Parses DIMACS CNF test strings into sparse arrays."
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -178,7 +178,7 @@ class WMCGenerator(Generator[WMCDataset]):
                 name="test_1",
                 pretty_name="Test 1: Satisfiable",
                 description="(V1 or V2) and (not V1 or V2)",
-                tags=[],
+                suites=[],
                 cnf_text=textwrap.dedent(
                     """\
                     c (V1 or V2) and (not V1 or V2)
@@ -197,7 +197,7 @@ class WMCGenerator(Generator[WMCDataset]):
                 name="test_2",
                 pretty_name="Test 2: Unsatisfiable",
                 description="V1 and not V1",
-                tags=[],
+                suites=[],
                 cnf_text=textwrap.dedent(
                     """\
                     c V1 and not V1 (unsatisfiable)
@@ -214,7 +214,7 @@ class WMCGenerator(Generator[WMCDataset]):
                 name="test_3",
                 pretty_name="Test 3: No Clauses",
                 description="p cnf 2 0",
-                tags=[],
+                suites=[],
                 cnf_text=textwrap.dedent(
                     """\
                     c no clauses
@@ -231,7 +231,7 @@ class WMCGenerator(Generator[WMCDataset]):
                 name="test_4",
                 pretty_name="Test 4: Default Weights",
                 description="V1 or V2 (default weights)",
-                tags=[],
+                suites=[],
                 cnf_text=textwrap.dedent(
                     """\
                     c V1 or V2 (default weights)
@@ -245,7 +245,7 @@ class WMCGenerator(Generator[WMCDataset]):
                 name="test_5",
                 pretty_name="Test 5: 3-Var Formula",
                 description="(V1 or V2) and (not V2 or V3)",
-                tags=[],
+                suites=[],
                 cnf_text=textwrap.dedent(
                     """\
                     c (V1 or V2) and (not V2 or V3)
@@ -273,7 +273,7 @@ class WMCGenerator(Generator[WMCDataset]):
                     and (not V12 or not V17 or V18) and (V14 or V19 or not V20)
                     and (not V15 or V16 or V20) and (V17 or not V18 or V19)
                 """,
-                tags=[],
+                suites=[],
                 cnf_text=textwrap.dedent(
                     """\
                     c 20 var WMC problem
@@ -360,7 +360,7 @@ class WeightedModelCounting(Benchmark):
         return "Benchmarks Weighted Model Counting Algorithm using einsum operations."
 
     @property
-    def tags(self):
+    def suites(self):
         return []
 
     @property

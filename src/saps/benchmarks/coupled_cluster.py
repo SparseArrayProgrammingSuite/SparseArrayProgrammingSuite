@@ -181,11 +181,11 @@ def make_ccsd_inputs(no, nv):
 
 
 class CCSDDataset(Dataset):
-    def __init__(self, name, pretty_name, description, tags, no, nv):
+    def __init__(self, name, pretty_name, description, suites, no, nv):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
-        self._tags = tags
+        self._suites = suites
         self.no = no
         self.nv = nv
 
@@ -202,8 +202,8 @@ class CCSDDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
 
 class CCSDGenerator(Generator[CCSDDataset]):
@@ -226,7 +226,7 @@ class CCSDGenerator(Generator[CCSDDataset]):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -288,7 +288,7 @@ class CCSDGenerator(Generator[CCSDDataset]):
                 name="ccsd_small",
                 pretty_name="CCSD Small",
                 description="no=4, nv=6 — matches the C++ CTF reference.",
-                tags=[],
+                suites=[],
                 no=4,
                 nv=6,
             ),
@@ -296,7 +296,7 @@ class CCSDGenerator(Generator[CCSDDataset]):
                 name="ccsd_medium",
                 pretty_name="CCSD Medium",
                 description="no=8, nv=12.",
-                tags=[],
+                suites=[],
                 no=8,
                 nv=12,
             ),
@@ -304,7 +304,7 @@ class CCSDGenerator(Generator[CCSDDataset]):
                 name="ccsd_large",
                 pretty_name="CCSD Large",
                 description="no=16, nv=24.",
-                tags=[],
+                suites=[],
                 no=16,
                 nv=24,
             ),
@@ -331,7 +331,7 @@ class CCSD(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property

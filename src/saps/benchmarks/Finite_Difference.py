@@ -41,10 +41,10 @@ def _difference_matrix(Nx):
 
 
 class FiniteDifferenceDataset(Dataset):
-    def __init__(self, name, pretty_name, tags, Nx, dx, Nt, dt):
+    def __init__(self, name, pretty_name, suites, Nx, dx, Nt, dt):
         self._name = name
         self._pretty_name = pretty_name
-        self._tags = tags
+        self._suites = suites
         self.Nx = Nx
         self.dx = dx
         self.Nt = Nt
@@ -63,8 +63,8 @@ class FiniteDifferenceDataset(Dataset):
         return f"{self.pretty_name}: Nx = {self.Nx}, dx = {self.dx}, dt = {self.dt}."
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
 
 class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
@@ -89,7 +89,7 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -139,7 +139,7 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
             FiniteDifferenceDataset(
                 name="default",
                 pretty_name="Default",
-                tags=[],
+                suites=[],
                 Nx=100,
                 dx=0.1,
                 Nt=100,
@@ -178,7 +178,7 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
 
 class _FiniteDifferenceBenchmarkBase(Benchmark):
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property

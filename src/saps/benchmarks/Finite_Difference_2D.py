@@ -60,10 +60,10 @@ def _difference_matrix_y_direction(number_spatial_x, number_spatial_y):
 
 
 class FiniteDifference2DDataset(Dataset):
-    def __init__(self, name, pretty_name, tags, Nx, dx, Ny, dy, Nt, dt):
+    def __init__(self, name, pretty_name, suites, Nx, dx, Ny, dy, Nt, dt):
         self._name = name
         self._pretty_name = pretty_name
-        self._tags = tags
+        self._suites = suites
         self.Nx = Nx
         self.dx = dx
         self.Ny = Ny
@@ -87,8 +87,8 @@ class FiniteDifference2DDataset(Dataset):
         )
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
 
 class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
@@ -113,7 +113,7 @@ class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -163,7 +163,7 @@ class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
             FiniteDifference2DDataset(
                 name="default",
                 pretty_name="Default",
-                tags=[],
+                suites=[],
                 Nx=100,
                 dx=0.1,
                 Ny=100,
@@ -209,7 +209,7 @@ class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
 
 class _FiniteDifference2DBenchmarkBase(Benchmark):
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property

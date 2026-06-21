@@ -30,7 +30,7 @@ class GCNTrainingDataset(Dataset):
         num_iterations: int = 10,
         learning_rate: float = 0.01,
     ):
-        self._tags: list[str] = []
+        self._suites: list[str] = []
         self._name = name
         self._description = description
         self.source_name = source_name or name
@@ -55,8 +55,8 @@ class GCNTrainingDataset(Dataset):
         return f"SuiteSparse matrix {self.source_name}."
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -84,7 +84,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
         return "Generates random weights for a 2-layer Graph Convolutional Network."
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -334,7 +334,7 @@ Each iteration:
         """
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property

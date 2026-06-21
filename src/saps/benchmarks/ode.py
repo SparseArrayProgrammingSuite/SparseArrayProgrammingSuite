@@ -118,12 +118,12 @@ def _brusselator_derivatives(t, u_vec, n, a, alpha, C, brusselator_cb):
 
 class RCDataset(Dataset):
     def __init__(
-        self, name, pretty_name, description, tags, R, C, t_max, V_C_initial, step
+        self, name, pretty_name, description, suites, R, C, t_max, V_C_initial, step
     ):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
-        self._tags = tags
+        self._suites = suites
         self.R = R
         self.C = C
         self.t_max = t_max
@@ -143,16 +143,16 @@ class RCDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
 
 class RLCDataset(Dataset):
-    def __init__(self, name, pretty_name, description, tags, R, L, C, t_max, y0, step):
+    def __init__(self, name, pretty_name, description, suites, R, L, C, t_max, y0, step):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
-        self._tags = tags
+        self._suites = suites
         self.R = R
         self.L = L
         self.C = C
@@ -173,18 +173,18 @@ class RLCDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
 
 class LotkaVolterraDataset(Dataset):
     def __init__(
-        self, name, pretty_name, description, tags, a, b, c, d, t_max, y0, step
+        self, name, pretty_name, description, suites, a, b, c, d, t_max, y0, step
     ):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
-        self._tags = tags
+        self._suites = suites
         self.a = a
         self.b = b
         self.c = c
@@ -206,18 +206,18 @@ class LotkaVolterraDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
 
 class BrusselatorDataset(Dataset):
     def __init__(
-        self, name, pretty_name, description, tags, n, a, b, alpha, t_max, step
+        self, name, pretty_name, description, suites, n, a, b, alpha, t_max, step
     ):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
-        self._tags = tags
+        self._suites = suites
         self.n = n
         self.a = a
         self.b = b
@@ -249,8 +249,8 @@ class BrusselatorDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
 
 # ---------------------------------------------------------------------------
@@ -279,7 +279,7 @@ class RCGenerator(Generator[RCDataset]):
         return "RC circuit ODE."
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -305,7 +305,7 @@ class RCGenerator(Generator[RCDataset]):
                 name="rc_small",
                 pretty_name="RC Small",
                 description="Small RC circuit",
-                tags=[],
+                suites=[],
                 R=1000.0,
                 C=0.001,
                 t_max=5.0,
@@ -339,7 +339,7 @@ class RLCGenerator(Generator[RLCDataset]):
         return "RLC circuit ODE."
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -365,7 +365,7 @@ class RLCGenerator(Generator[RLCDataset]):
                 name="rlc_small",
                 pretty_name="RLC Small",
                 description="Small RLC circuit",
-                tags=[],
+                suites=[],
                 R=100.0,
                 L=0.001,
                 C=0.0000001,
@@ -401,7 +401,7 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
         return "Lotka-Volterra ODE."
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -427,7 +427,7 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
                 name="lotka_volterra_small",
                 pretty_name="Lotka-Volterra Small",
                 description="Small Lotka-Volterra system",
-                tags=[],
+                suites=[],
                 a=0.1,
                 b=0.02,
                 c=0.3,
@@ -465,7 +465,7 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
         return "2D Brusselator ODE with diffusion."
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -491,7 +491,7 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
                 name="brusselator_4",
                 pretty_name="Brusselator 4x4",
                 description="2D Brusselator with 4x4 grid",
-                tags=[],
+                suites=[],
                 n=4,
                 a=3.4,
                 b=1.0,
@@ -544,7 +544,7 @@ class _OdeBenchmarkBase(Benchmark, ABC):
 
 class _ForwardEulerBase(_OdeBenchmarkBase):
     @property
-    def tags(self):
+    def suites(self):
         return []
 
     def benchmark(self, data, meta):
@@ -569,7 +569,7 @@ class _ForwardEulerBase(_OdeBenchmarkBase):
 
 class _BackwardEulerBase(_OdeBenchmarkBase):
     @property
-    def tags(self):
+    def suites(self):
         return []
 
     def benchmark(self, data, meta):
@@ -597,7 +597,7 @@ class _BackwardEulerBase(_OdeBenchmarkBase):
 
 class _RK4Base(_OdeBenchmarkBase):
     @property
-    def tags(self):
+    def suites(self):
         return []
 
     def benchmark(self, data, meta):

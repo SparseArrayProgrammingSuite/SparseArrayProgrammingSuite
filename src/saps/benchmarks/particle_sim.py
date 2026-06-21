@@ -27,7 +27,7 @@ class ParticleSimBenchmark(Benchmark):
         )
 
     @property
-    def tags(self):
+    def suites(self):
         return []
 
     @property

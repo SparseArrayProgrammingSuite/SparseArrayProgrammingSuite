@@ -81,14 +81,14 @@ class MCDataset(Dataset):
         name: str,
         pretty_name: str,
         description: str,
-        tags: list[str],
+        suites: list[str],
         cnf_text: str,
         expected: int,
     ):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
-        self._tags = tags
+        self._suites = suites
         self.cnf_text = cnf_text
         self.expected = expected
 
@@ -105,8 +105,8 @@ class MCDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
 
 class MCGenerator(Generator[MCDataset]):
@@ -126,7 +126,7 @@ class MCGenerator(Generator[MCDataset]):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -153,7 +153,7 @@ class MCGenerator(Generator[MCDataset]):
                 name="test_1",
                 pretty_name="Test 1: Standard SAT",
                 description="3 variables, 2 clauses",
-                tags=[],
+                suites=[],
                 cnf_text="""
                     p cnf 3 2
                     1 -3 0
@@ -165,7 +165,7 @@ class MCGenerator(Generator[MCDataset]):
                 name="test_2",
                 pretty_name="Test 2: Contradiction",
                 description="V1 and not V1",
-                tags=[],
+                suites=[],
                 cnf_text="""
                     c contradiction
                     p cnf 1 2
@@ -178,7 +178,7 @@ class MCGenerator(Generator[MCDataset]):
                 name="test_3",
                 pretty_name="Test 3: Single Solution",
                 description="Forces all 3 variables to be true",
-                tags=[],
+                suites=[],
                 cnf_text="""
                     c single_solution
                     p cnf 3 3
@@ -192,7 +192,7 @@ class MCGenerator(Generator[MCDataset]):
                 name="test_4",
                 pretty_name="Test 4: Empty Formula",
                 description="No clauses, 2 variables",
-                tags=[],
+                suites=[],
                 cnf_text="""
                     c empty_formula
                     p cnf 2 0
@@ -237,7 +237,7 @@ class ModelCounting(Benchmark):
         return "Benchmarks Model Counting Algorithm using einsum operations."
 
     @property
-    def tags(self):
+    def suites(self):
         return []
 
     @property

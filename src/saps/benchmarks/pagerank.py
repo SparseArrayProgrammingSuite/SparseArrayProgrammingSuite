@@ -21,12 +21,12 @@ class PageRankDataset(Dataset):
         name: str,
         pretty_name: str | None = None,
         description: str | None = None,
-        tags: list[str] | None = None,
+        suites: list[str] | None = None,
     ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"PageRank input {name}."
-        self._tags = tags or []
+        self._suites = suites or []
 
     @property
     def name(self) -> str:
@@ -41,8 +41,8 @@ class PageRankDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
 
 class PageRankGenerator(Generator[PageRankDataset]):
@@ -59,7 +59,7 @@ class PageRankGenerator(Generator[PageRankDataset]):
         return "Input generator for PageRank benchmarks."
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -91,7 +91,7 @@ class PageRankGenerator(Generator[PageRankDataset]):
                     "Directed email communication network from a European research"
                     " institution, with 1,005 nodes and 25,571 edges."
                 ),
-                tags=[],
+                suites=[],
             ),
             PageRankDataset(
                 name="snap-ca-GrQc",
@@ -100,7 +100,7 @@ class PageRankGenerator(Generator[PageRankDataset]):
                     "Arxiv General Relativity and Quantum Cosmology collaboration"
                     " network, with 5,242 nodes and 14,496 edges."
                 ),
-                tags=[],
+                suites=[],
             ),
             PageRankDataset(
                 name="snap-p2p-Gnutella04",
@@ -109,7 +109,7 @@ class PageRankGenerator(Generator[PageRankDataset]):
                     "Directed Gnutella peer-to-peer network snapshot from August 4,"
                     " 2002, with 10,876 nodes and 39,994 edges."
                 ),
-                tags=[],
+                suites=[],
             ),
         ]
 
@@ -141,7 +141,7 @@ class PageRankBenchmark(Benchmark):
         )
 
     @property
-    def tags(self):
+    def suites(self):
         return []
 
     @property

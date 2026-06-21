@@ -21,12 +21,12 @@ class GCareGraphDataset(Dataset):
         name,
         pretty_name,
         description,
-        tags,
+        suites,
     ):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
-        self._tags = tags
+        self._suites = suites
 
     @property
     def name(self) -> str:
@@ -41,8 +41,8 @@ class GCareGraphDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
 
 class GCareDataset(Dataset):
@@ -50,11 +50,11 @@ class GCareDataset(Dataset):
         self,
         subset_name,
         query_name,
-        tags=None,
+        suites=None,
     ):
         self._subset_name = subset_name
         self._query_name = query_name
-        self._tags = tags or []
+        self._suites = suites or []
 
     @property
     def name(self) -> str:
@@ -77,8 +77,8 @@ class GCareDataset(Dataset):
         return f"{self._subset_name} with query {self._query_name}"
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
 
 class GCareGraphGenerator(Generator[GCareGraphDataset]):
@@ -95,7 +95,7 @@ class GCareGraphGenerator(Generator[GCareGraphDataset]):
         return "Converts a G-CARE graph subset into BinsparseFormat matrices."
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -149,25 +149,25 @@ class GCareGraphGenerator(Generator[GCareGraphDataset]):
                 name="human",
                 pretty_name="G-CARE Human Subset (Small)",
                 description=("G-CARE Human Subset (Small)"),
-                tags=[],
+                suites=[],
             ),
             GCareGraphDataset(
                 name="aids",
                 pretty_name="G-CARE AIDS Subset (Medium)",
                 description=("G-CARE AIDS Subset (Medium)"),
-                tags=[],
+                suites=[],
             ),
             GCareGraphDataset(
                 name="lubm80",
                 pretty_name="G-CARE LUBM80 Subset (Large)",
                 description=("G-CARE LUBM80 Subset (Large)"),
-                tags=[],
+                suites=[],
             ),
             GCareGraphDataset(
                 name="yago",
                 pretty_name="G-CARE YAGO Subset (Huge)",
                 description=("G-CARE YAGO Subset (Huge)"),
-                tags=[],
+                suites=[],
             ),
         ]
 
@@ -188,7 +188,7 @@ class GCareGenerator(Generator[GCareDataset]):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -2527,7 +2527,7 @@ class SubgraphMatching(Benchmark):
         return "Benchmarks subgraph matching algorithms using einsum operations."
 
     @property
-    def tags(self):
+    def suites(self):
         return []
 
     @property

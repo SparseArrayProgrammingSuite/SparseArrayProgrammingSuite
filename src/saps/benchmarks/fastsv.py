@@ -21,12 +21,12 @@ class FastSVDataset(Dataset):
         name: str,
         pretty_name: str | None = None,
         description: str | None = None,
-        tags: list[str] | None = None,
+        suites: list[str] | None = None,
     ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"FastSV input {name}."
-        self._tags = tags or []
+        self._suites = suites or []
 
     @property
     def name(self) -> str:
@@ -41,8 +41,8 @@ class FastSVDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
 
 class FastSVGenerator(Generator[FastSVDataset]):
@@ -59,7 +59,7 @@ class FastSVGenerator(Generator[FastSVDataset]):
         return "Input generator for FastSV connected-components benchmarks."
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -91,7 +91,7 @@ class FastSVGenerator(Generator[FastSVDataset]):
                     "Directed email communication network from a European research"
                     " institution, with 1,005 nodes and 25,571 edges."
                 ),
-                tags=[],
+                suites=[],
             ),
             FastSVDataset(
                 name="snap-facebook_combined",
@@ -100,7 +100,7 @@ class FastSVGenerator(Generator[FastSVDataset]):
                     "Combined Facebook social-circle network, with 4,039 nodes and"
                     " 88,234 edges."
                 ),
-                tags=[],
+                suites=[],
             ),
             FastSVDataset(
                 name="snap-ca-GrQc",
@@ -109,7 +109,7 @@ class FastSVGenerator(Generator[FastSVDataset]):
                     "Arxiv General Relativity and Quantum Cosmology collaboration"
                     " network, with 5,242 nodes and 14,496 edges."
                 ),
-                tags=[],
+                suites=[],
             ),
         ]
 
@@ -139,7 +139,7 @@ class FastSVBenchmark(Benchmark):
         )
 
     @property
-    def tags(self):
+    def suites(self):
         return []
 
     @property

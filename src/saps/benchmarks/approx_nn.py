@@ -22,7 +22,7 @@ class JLApproxNNDataset(Dataset):
         name,
         pretty_name,
         description,
-        tags,
+        suites,
         n_samples,
         n_features,
         n_queries,
@@ -33,7 +33,7 @@ class JLApproxNNDataset(Dataset):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
-        self._tags = tags
+        self._suites = suites
         self.n_samples = n_samples
         self.n_features = n_features
         self.n_queries = n_queries
@@ -54,8 +54,8 @@ class JLApproxNNDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
 
 class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
@@ -75,7 +75,7 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -143,7 +143,7 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
                     "Small random dense data and query matrices with sparse random"
                     " projection."
                 ),
-                tags=[],
+                suites=[],
                 n_samples=256,
                 n_features=128,
                 n_queries=32,
@@ -158,7 +158,7 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
                     "Medium random dense data and query matrices with sparse random"
                     " projection."
                 ),
-                tags=[],
+                suites=[],
                 n_samples=1024,
                 n_features=256,
                 n_queries=64,
@@ -173,7 +173,7 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
                     "Large random dense data and query matrices with sparse random"
                     " projection."
                 ),
-                tags=[],
+                suites=[],
                 n_samples=4096,
                 n_features=512,
                 n_queries=128,
@@ -259,7 +259,7 @@ class JLApproxNearestNeighbor(Benchmark):
         )
 
     @property
-    def tags(self):
+    def suites(self):
         return []
 
     @property

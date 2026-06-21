@@ -15,10 +15,10 @@ xp = saps.xp
 
 
 class CP4FactorizeableDataset(Dataset):
-    def __init__(self, name, pretty_name, tags, shape, rank):
+    def __init__(self, name, pretty_name, suites, shape, rank):
         self._name = name
         self._pretty_name = pretty_name
-        self._tags = tags
+        self._suites = suites
         self.shape = shape
         self.rank = rank
 
@@ -35,8 +35,8 @@ class CP4FactorizeableDataset(Dataset):
         return f"rank = {self.rank}, shape = {self.shape}"
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
 
 class CP4FactorizeableGenerator(Generator):
@@ -73,7 +73,7 @@ class CP4FactorizeableGenerator(Generator):
         return []
 
     @property
-    def tags(self):
+    def suites(self):
         return []
 
     @property
@@ -89,7 +89,7 @@ class CP4FactorizeableGenerator(Generator):
             CP4FactorizeableDataset(
                 name="cp_factorizeable_small",
                 pretty_name="Small Factorizeable CP Tensor",
-                tags=[],
+                suites=[],
                 shape=(20, 20, 20, 20),
                 rank=4,
             ),
@@ -148,7 +148,7 @@ class CP4_ALS(Benchmark):
         )
 
     @property
-    def tags(self):
+    def suites(self):
         return []
 
     @property

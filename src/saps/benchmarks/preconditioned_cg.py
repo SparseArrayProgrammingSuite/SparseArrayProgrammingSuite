@@ -67,7 +67,7 @@ class PreconditionedCGDataset(Dataset):
         has_b_file=False,
         A=None,
     ):
-        self._tags: list[str] = []
+        self._suites: list[str] = []
         self.source_name = source_name
         self.condition_number = condition_number
         self.has_b_file = has_b_file
@@ -86,8 +86,8 @@ class PreconditionedCGDataset(Dataset):
         return f"SuiteSparse matrix {self.source_name}."
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -115,7 +115,7 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -190,7 +190,7 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -297,7 +297,7 @@ class PreconditionedCGBenchmark(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property

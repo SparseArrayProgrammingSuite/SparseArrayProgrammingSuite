@@ -27,7 +27,7 @@ class GCNDataset(Dataset):
         hidden_dim: int = 8,
         out_dim: int = 1,
     ):
-        self._tags: list[str] = []
+        self._suites: list[str] = []
         self.dataset_name = name
         self.dataset_description = description
         self.source_name = source_name if source_name is not None else name
@@ -48,8 +48,8 @@ class GCNDataset(Dataset):
         return self.dataset_description or f"SuiteSparse matrix {self.source_name}."
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -75,7 +75,7 @@ class GCNGenerator(Generator[GCNDataset]):
         return "Generates random weights for a 2-layer Graph Convolutional Network."
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -285,7 +285,7 @@ class GCNBenchmark(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property

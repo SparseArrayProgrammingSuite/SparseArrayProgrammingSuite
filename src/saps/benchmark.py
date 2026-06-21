@@ -118,7 +118,7 @@ class Tagged(Metadata):
 
     @property
     @abstractmethod
-    def tags(self) -> list[str]: ...
+    def suites(self) -> list[str]: ...
 
     @property
     def ccs_xml(self) -> str | None:
@@ -156,7 +156,7 @@ class Dataset(Tagged):
             "name": self.name,
             "pretty_name": self.pretty_name,
             "description": self.description,
-            "tags": self.tags,
+            "suites": self.suites,
             "topics": self.topics,
             "statistics": [],
         }
@@ -205,7 +205,7 @@ class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
             "name": self.name,
             "pretty_name": self.pretty_name,
             "description": self.description,
-            "tags": self.tags,
+            "suites": self.suites,
             "topics": self.topics,
             "statistics": [],
             "authors": [str(a) for a in self.authors],
@@ -367,7 +367,7 @@ class Benchmark(Tagged, Attributed, Motivated):
             "pretty_name": self.pretty_name,
             "id": f"{self.__class__.__module__}.{self.__class__.__name__}.{self.name}",
             "description": self.description,
-            "tags": self.tags,
+            "suites": self.suites,
             "topics": self.topics,
             "statistics": [],
             "authors": [str(a) for a in self.authors],

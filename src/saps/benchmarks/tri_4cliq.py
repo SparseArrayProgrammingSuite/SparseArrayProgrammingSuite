@@ -14,12 +14,12 @@ class GraphCountingDataset(Dataset):
         name: str,
         pretty_name: str | None = None,
         description: str | None = None,
-        tags: list[str] | None = None,
+        suites: list[str] | None = None,
     ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Graph counting input {name}."
-        self._tags = tags or []
+        self._suites = suites or []
 
     @property
     def name(self) -> str:
@@ -34,8 +34,8 @@ class GraphCountingDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
 
 class TriangleCountGenerator(Generator[GraphCountingDataset]):
@@ -52,7 +52,7 @@ class TriangleCountGenerator(Generator[GraphCountingDataset]):
         return "Input generator for triangle counting benchmarks."
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -99,7 +99,7 @@ class TriangleCountGenerator(Generator[GraphCountingDataset]):
                     "Directed email communication network from a European research"
                     " institution, with 1,005 nodes and 25,571 edges."
                 ),
-                tags=[],
+                suites=[],
             ),
             GraphCountingDataset(
                 name="snap-ca-GrQc",
@@ -108,7 +108,7 @@ class TriangleCountGenerator(Generator[GraphCountingDataset]):
                     "Arxiv General Relativity and Quantum Cosmology collaboration"
                     " network, with 5,242 nodes and 14,496 edges."
                 ),
-                tags=[],
+                suites=[],
             ),
         ]
 
@@ -134,7 +134,7 @@ class FourCliqueCountGenerator(Generator[GraphCountingDataset]):
         return "Input generator for 4-clique counting benchmarks."
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -167,7 +167,7 @@ class FourCliqueCountGenerator(Generator[GraphCountingDataset]):
                     "Department 3 email network from the SNAP email-Eu-core"
                     " temporal dataset, with 89 nodes and 1,506 static edges."
                 ),
-                tags=[],
+                suites=[],
             ),
             GraphCountingDataset(
                 name="snap-email-Eu-core-temporal-Dept4",
@@ -176,7 +176,7 @@ class FourCliqueCountGenerator(Generator[GraphCountingDataset]):
                     "Department 4 email network from the SNAP email-Eu-core"
                     " temporal dataset, with 142 nodes and 1,375 static edges."
                 ),
-                tags=[],
+                suites=[],
             ),
         ]
 
@@ -229,7 +229,7 @@ class TriangleCountBenchmark(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -327,7 +327,7 @@ class FourCliqueCountBenchmark(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property

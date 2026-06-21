@@ -10,11 +10,11 @@ xp = saps.xp
 
 
 class FloydWarshallDataset(Dataset):
-    def __init__(self, name, pretty_name, description, tags, source, symmetrize=False):
+    def __init__(self, name, pretty_name, description, suites, source, symmetrize=False):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
-        self._tags = tags
+        self._suites = suites
         self.source = source
         self.symmetrize = symmetrize
 
@@ -31,8 +31,8 @@ class FloydWarshallDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
 
 class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
@@ -55,7 +55,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -111,7 +111,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 name="bcspwr01",
                 pretty_name="BCS Power Grid 01",
                 description="Sparse SuiteSparse graph input for Floyd-Warshall.",
-                tags=[],
+                suites=[],
                 source="bcspwr01",
                 symmetrize=True,
             ),
@@ -119,7 +119,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 name="bcspwr02",
                 pretty_name="BCS Power Grid 02",
                 description="Sparse SuiteSparse graph input for Floyd-Warshall.",
-                tags=[],
+                suites=[],
                 source="bcspwr02",
                 symmetrize=True,
             ),
@@ -127,7 +127,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 name="bcspwr03",
                 pretty_name="BCS Power Grid 03",
                 description="Sparse SuiteSparse graph input for Floyd-Warshall.",
-                tags=[],
+                suites=[],
                 source="bcspwr03",
                 symmetrize=True,
             ),
@@ -135,7 +135,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 name="chesapeake",
                 pretty_name="Chesapeake",
                 description="Sparse road network input for Floyd-Warshall.",
-                tags=[],
+                suites=[],
                 source="chesapeake",
                 symmetrize=True,
             ),
@@ -143,7 +143,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 name="ash85",
                 pretty_name="ASH 85",
                 description="Sparse SuiteSparse graph input for Floyd-Warshall.",
-                tags=[],
+                suites=[],
                 source="ash85",
                 symmetrize=False,
             ),
@@ -151,7 +151,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 name="arc130",
                 pretty_name="ARC 130",
                 description="Sparse SuiteSparse graph input for Floyd-Warshall.",
-                tags=[],
+                suites=[],
                 source="arc130",
                 symmetrize=False,
             ),
@@ -159,7 +159,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 name="bcspwr04",
                 pretty_name="BCS Power Grid 04",
                 description="Sparse SuiteSparse graph input for Floyd-Warshall.",
-                tags=[],
+                suites=[],
                 source="bcspwr04",
                 symmetrize=True,
             ),
@@ -167,7 +167,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 name="ash292",
                 pretty_name="ASH 292",
                 description="Sparse SuiteSparse graph input for Floyd-Warshall.",
-                tags=[],
+                suites=[],
                 source="ash292",
                 symmetrize=False,
             ),
@@ -223,7 +223,7 @@ class FloydWarshallBenchmark(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property

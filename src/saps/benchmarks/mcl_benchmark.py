@@ -37,7 +37,7 @@ def _prune(array_api, matrix, threshold):
 
 class MCLDataset(Dataset):
     def __init__(self, source_name: str):
-        self._tags: list[str] = []
+        self._suites: list[str] = []
         self.source_name = source_name
 
     @property
@@ -53,8 +53,8 @@ class MCLDataset(Dataset):
         return f"SuiteSparse adjacency matrix {self.source_name}."
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
 
 class MCLGenerator(Generator[MCLDataset]):
@@ -74,7 +74,7 @@ class MCLGenerator(Generator[MCLDataset]):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property
@@ -188,7 +188,7 @@ class MCLBenchmark(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
+    def suites(self) -> list[str]:
         return []
 
     @property

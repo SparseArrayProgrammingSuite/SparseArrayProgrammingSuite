@@ -15,10 +15,10 @@ xp = saps.xp
 
 
 class CP5FactorizeableDataset(Dataset):
-    def __init__(self, name, pretty_name, tags, shape, rank):
+    def __init__(self, name, pretty_name, suites, shape, rank):
         self._name = name
         self._pretty_name = pretty_name
-        self._tags = tags
+        self._suites = suites
         self.shape = shape
         self.rank = rank
 
@@ -35,8 +35,8 @@ class CP5FactorizeableDataset(Dataset):
         return f"rank = {self.rank}, shape = {self.shape}"
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
 
 
 class CP5FactorizeableGenerator(Generator):
@@ -73,7 +73,7 @@ class CP5FactorizeableGenerator(Generator):
         return []
 
     @property
-    def tags(self):
+    def suites(self):
         return []
 
     @property
@@ -90,7 +90,7 @@ class CP5FactorizeableGenerator(Generator):
             CP5FactorizeableDataset(
                 name="cp_factorizeable_small",
                 pretty_name="Small Factorizeable CP Tensor",
-                tags=[],
+                suites=[],
                 shape=(10, 10, 10, 10, 10),
                 rank=5,
             ),
@@ -151,7 +151,7 @@ class CP5_ALS(Benchmark):
         )
 
     @property
-    def tags(self):
+    def suites(self):
         return []
 
     @property
