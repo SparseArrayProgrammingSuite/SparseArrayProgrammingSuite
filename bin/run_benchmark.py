@@ -600,7 +600,7 @@ def main() -> int:
         dest="generate_metadata",
         action="store_true",
         help=(
-            "Skip benchmark execution. Rebuild benchmark_metadata.json from the "
+            "Skip benchmark execution. Rebuild metadata.json from the "
             "benchmark definitions."
         ),
     )
@@ -609,7 +609,7 @@ def main() -> int:
         action="store_true",
         help=(
             "Run selected benchmark cases under ASV with the tagger framework "
-            "and replace generated statistics tags in benchmark_metadata.json. "
+            "and replace generated statistics tags in metadata.json. "
             "Honors --re/--no-re/--tag/--no-tag filters."
         ),
     )
@@ -619,7 +619,7 @@ def main() -> int:
         action="store_true",
         help=(
             "Skip benchmark execution. Convert ACM CCS concepts into topic tags "
-            "in benchmark_metadata.json "
+            "in metadata.json "
             "from pasted ACM CCS XML. Honors --re/--no-re/--tag/--no-tag filters."
         ),
     )
@@ -731,7 +731,7 @@ def main() -> int:
     cache_dir = str(outputs_dir / "cache")
     os.environ["SAPS_CACHE_DIR"] = cache_dir
     matrix["env_nobuild"]["SAPS_CACHE_DIR"] = [cache_dir]
-    persistent_metadata_path = repo_root / "benchmark_metadata.json"
+    persistent_metadata_path = repo_root / "metadata.json"
     manifest_path = str(repo_root / "manifest.json")
     pythonpath = str(repo_root)
     os.environ["SAPS_MANIFEST_PATH"] = manifest_path
