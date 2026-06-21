@@ -288,53 +288,6 @@ def regex_any_match(patterns: list[str], value: str) -> bool:
     return any(re.search(pattern, value) for pattern in patterns)
 
 
-def _select_benchmarks(benchmarks, metadata, is_include, is_exclude):
-    skips = []
-    benchmarks._benchmark_selection = {}
-    for name in benchmarks:
-        if name not in metadata:
-            log.warning(
-                "No SAPS metadata found for benchmark "
-                f"'{name}', skipping SAPS tag filtering "
-                "for this benchmark"
-            )
-            skips.append(name)
-            continue
-        if is_exclude(metadata[name]):
-            skips.append(name)
-            continue
-        benchmarks._benchmark_selection[name] = []
-        generators = {gen["name"]: gen for gen in metadata[name]["generators"]}
-        param_combos = list(product(*benchmarks[name]["params"]))
-        for idx, param in enumerate(param_combos):
-            if len(param) == 0:
-                print(
-                    f"Warning: benchmark '{name}' has no data generators, skipping"
-                    " benchmark"
-                )
-                continue
-            generator_name, dataset_name = param[0].split(".")[:2]
-            generator = generators.get(generator_name)
-            datasets = {ds["name"]: ds for ds in generator["datasets"]}
-            dataset = datasets.get(dataset_name)
-            if (
-                is_exclude(generator)
-                or is_exclude(dataset)
-                or not (
-                    is_include(metadata[name])
-                    or is_include(generator)
-                    or is_include(dataset)
-                )
-            ):
-                continue
-            benchmarks._benchmark_selection[name].append(idx)
-
-        if not benchmarks._benchmark_selection[name]:
-            skips.append(name)
-
-    return benchmarks.filter_out(set(skips))
-
-
 def _prefilter_benchmarks_by_name(benchmarks, include_res, exclude_res):
     skips = []
     for name in benchmarks:
@@ -715,7 +668,6 @@ def _add_tags(
     is_exclude,
 ) -> int:
     """Run selected benchmarks under ASV with the tagger framework."""
-    benchmarks = _select_benchmarks(benchmarks, metadata, is_include, is_exclude)
     _update_persistent_metadata(metadata, persistent_metadata_path)
     stats_dir = outputs_dir / "tagger_stats"
     stats_dir.mkdir(parents=True, exist_ok=True)
@@ -1070,11 +1022,6 @@ def main() -> int:
         commit_hash=[commit_hash],
     )
 
-    include_res = args.re or []
-    exclude_res = args.no_re or []
-    if include_res or exclude_res:
-        benchmarks = _prefilter_benchmarks_by_name(benchmarks, include_res, exclude_res)
-
     metadata: dict[str, dict] = {}
 
     for name in benchmarks:
@@ -1095,6 +1042,8 @@ def main() -> int:
 
     include_set = {tag.strip().lower() for tag in args.tag if tag and tag.strip()}
     exclude_set = {tag.strip().lower() for tag in args.no_tag if tag and tag.strip()}
+    include_res = args.re or []
+    exclude_res = args.no_re or []
 
     def match_target(obj: dict) -> str:
         return obj.get("id", obj["name"])
@@ -1108,6 +1057,9 @@ def main() -> int:
         if exclude_res and regex_any_match(exclude_res, match_target(obj)):
             return True
         return bool(exclude_set and exclude_set.intersection(obj["tags"]))
+
+    if include_res or exclude_res:
+        benchmarks = _prefilter_benchmarks_by_name(benchmarks, include_res, exclude_res)
 
     if args.upload_datasets:
         _update_persistent_metadata(metadata, persistent_metadata_path)
@@ -1125,8 +1077,52 @@ def main() -> int:
             is_exclude=is_exclude,
         )
 
+    skips = []
+    benchmarks._benchmark_selection = {}
+    for name in benchmarks:
+        if name not in metadata:
+            log.warning(
+                "No SAPS metadata found for benchmark "
+                f"'{name}', skipping SAPS tag filtering "
+                "for this benchmark"
+            )
+            skips.append(name)
+            continue
+        if is_exclude(metadata[name]):
+            skips.append(name)
+            continue
+        benchmarks._benchmark_selection[name] = []
+        generators = {gen["name"]: gen for gen in metadata[name]["generators"]}
+        param_combos = list(product(*benchmarks[name]["params"]))
+        for idx, param in enumerate(param_combos):
+            if len(param) == 0:
+                print(
+                    f"Warning: benchmark '{name}' has no data generators, skipping"
+                    " benchmark"
+                )
+                continue
+            generator, dataset = param[0].split(".")[:2]
+            generator = generators.get(generator)
+            datasets = {ds["name"]: ds for ds in generator["datasets"]}
+            dataset = datasets.get(dataset)
+            if (
+                is_exclude(generator)
+                or is_exclude(dataset)
+                or not (
+                    is_include(metadata[name])
+                    or is_include(generator)
+                    or is_include(dataset)
+                )
+            ):
+                continue
+            benchmarks._benchmark_selection[name].append(idx)
+
+        if not benchmarks._benchmark_selection[name]:
+            skips.append(name)
+
+    benchmarks = benchmarks.filter_out(set(skips))
+
     if args.validate_citations:
-        benchmarks = _select_benchmarks(benchmarks, metadata, is_include, is_exclude)
         selected_metadata = {
             name: metadata[name] for name in benchmarks if name in metadata
         }
@@ -1153,8 +1149,6 @@ def main() -> int:
             is_include=is_include,
             is_exclude=is_exclude,
         )
-
-    benchmarks = _select_benchmarks(benchmarks, metadata, is_include, is_exclude)
 
     print(f"Discovered {len(benchmarks)} benchmark entries")
     print(f"Using timeout: {timeout} seconds")
