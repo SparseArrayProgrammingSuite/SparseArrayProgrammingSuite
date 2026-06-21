@@ -921,8 +921,8 @@ def main() -> int:
         },
     )
     matrix.setdefault("env_nobuild", {})
-    storage_backend = args.remote_storage_backend or "local"
-    storage_bucket = args.remote_storage_bucket or str(outputs_dir / "datasets")
+    storage_backend = args.remote_storage_backend or "s3"
+    storage_bucket = args.remote_storage_bucket or "sparse-array-programming-suite"
     if (
         args.remote_storage_backend is not None
         or "REMOTE_STORAGE_BACKEND" not in matrix["env_nobuild"]
