@@ -78,7 +78,7 @@ raise SystemExit(0 if backend.upload_dataset(generator, dataset) else 1)
 """
 
 
-def _upload(benchmarks, metadata, environments) -> int:
+def _cache_datasets(benchmarks, metadata, environments) -> int:
     """Upload the selected (benchmark, generator, dataset) triples."""
     uploaded = failed = skipped = 0
     seen: set[tuple[str, str]] = set()
@@ -478,7 +478,7 @@ def _reference_owners(metadata: dict[str, dict]):
             )
 
 
-def _add_citation_tags(
+def _fetch_topic_tags(
     metadata: dict[str, dict],
     *,
     fetch_timeout: float,
@@ -514,14 +514,14 @@ def _add_citation_tags(
     }
 
 
-def _add_citation_tags_command(
+def _fetch_topics(
     metadata: dict[str, dict],
     metadata_path: Path,
     persistent_metadata_path: Path,
     *,
     fetch_timeout: float,
 ) -> int:
-    report = _add_citation_tags(
+    report = _fetch_topic_tags(
         metadata,
         fetch_timeout=fetch_timeout,
     )
@@ -530,18 +530,18 @@ def _add_citation_tags_command(
         encoding="utf-8",
     )
     _update_persistent_metadata(metadata, persistent_metadata_path)
-    report_path = metadata_path.parent / "citation_validation.json"
+    report_path = metadata_path.parent / "topic_fetch.json"
     report_path.write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
     print(
-        "citation summary: "
+        "topic summary: "
         f"checked={report['checked']} "
         f"fetched={report['fetched']} "
         f"tagged_records={report['tagged_records']}"
     )
-    print(f"citation report: {report_path}")
+    print(f"topic report: {report_path}")
     return 0
 
 
@@ -672,7 +672,7 @@ def _update_persistent_metadata(
     )
 
 
-def _add_tags(
+def _trace_statistics(
     benchmarks,
     metadata,
     metadata_path,
@@ -780,41 +780,41 @@ def main() -> int:
         default=None,
         help=(
             "Remote storage backend to use for uploading and downloading datasets "
-            " (local or s3)"
-            "In order to use s3 for upload, you must have AWS credentials configured"
-            " (AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY)."
+            "(local or s3). "
+            "In order to use s3 for upload, you must have AWS credentials configured "
+            "(AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY)."
         ),
     )
     parser.add_argument(
         "--remote-storage-bucket",
         default=None,
         help=(
-            "Remote storage bucket name to use for uploading and downloading datasets "
-            "standard s3 bucket is 'sparse-array-programming-suite'"
-            "(local backend will use this as a directory path)"
+            "Remote storage bucket name to use for uploading and downloading datasets. "
+            "The standard s3 bucket is 'sparse-array-programming-suite' "
+            "(local backend will use this as a directory path)."
         ),
     )
     parser.add_argument(
-        "--upload-datasets",
+        "--cache-datasets",
         action="store_true",
         help=(
             "Skip benchmark execution. Instead, walk every "
             "(benchmark, generator, dataset) triple, generate the data, "
-            "and upload it via the configured storage backend. Honors "
+            "and cache it via the configured storage backend. Honors "
             "--re/--no-re/--tag/--no-tag filters."
         ),
     )
     parser.add_argument(
-        "--add-tags",
+        "--trace-statistics",
         action="store_true",
         help=(
             "Run selected benchmark cases under ASV with the tagger framework "
-            "and merge inferred quality tags into benchmark_metadata.json. "
+            "and merge inferred statistics tags into benchmark_metadata.json. "
             "Honors --re/--no-re/--tag/--no-tag filters."
         ),
     )
     parser.add_argument(
-        "--validate-citations",
+        "--fetch-topics",
         action="store_true",
         help=(
             "Skip benchmark execution. Fetch DOI/URL pages for references when "
@@ -823,10 +823,10 @@ def main() -> int:
         ),
     )
     parser.add_argument(
-        "--citation-fetch-timeout",
+        "--topic-fetch-timeout",
         type=float,
         default=10.0,
-        help="Timeout in seconds for each citation page fetch.",
+        help="Timeout in seconds for each topic page fetch.",
     )
     parser.add_argument(
         "--no-tag",
@@ -944,18 +944,20 @@ def main() -> int:
     os.environ["REMOTE_STORAGE_BACKEND"] = storage_backend
     os.environ["REMOTE_STORAGE_BUCKET"] = storage_bucket
     matrix["env_nobuild"]["SAPS_MANIFEST_PATH"] = [manifest_path]
-    if args.add_tags or args.upload_datasets:
+    if args.trace_statistics or args.cache_datasets:
         framework_file = (
-            "frameworks/saps_tagger.py" if args.add_tags else "frameworks/saps_numpy.py"
+            "frameworks/saps_tagger.py"
+            if args.trace_statistics
+            else "frameworks/saps_numpy.py"
         )
         os.environ["SAPS_FRAMEWORK"] = str(repo_root / framework_file)
-        if args.add_tags:
+        if args.trace_statistics:
             tagger_stats_dir = str(outputs_dir / "tagger_stats")
             os.environ["SAPS_TAGGER_STATS_DIR"] = tagger_stats_dir
             os.environ["SAPS_ASV_SINGLE_RUN"] = "1"
 
     uses_parent_environment = (
-        args.add_tags or args.upload_datasets or args.validate_citations
+        args.trace_statistics or args.cache_datasets or args.fetch_topics
     )
 
     # Construct ASV config dict with all fields visible
@@ -1081,7 +1083,7 @@ def main() -> int:
         return bool(exclude_set and exclude_set.intersection(obj["tags"]))
 
     if (
-        not (args.upload_datasets or args.add_tags or args.validate_citations)
+        not (args.cache_datasets or args.trace_statistics or args.fetch_topics)
         and persistent_metadata_path.exists()
     ):
         persistent_metadata = json.loads(
@@ -1141,27 +1143,27 @@ def main() -> int:
 
     benchmarks = benchmarks.filter_out(set(skips))
 
-    if args.upload_datasets:
+    if args.cache_datasets:
         _update_persistent_metadata(metadata, persistent_metadata_path)
-        return _upload(
+        return _cache_datasets(
             benchmarks=benchmarks,
             metadata=metadata,
             environments=environments,
         )
 
-    if args.validate_citations:
+    if args.fetch_topics:
         selected_metadata = {
             name: metadata[name] for name in benchmarks if name in metadata
         }
-        return _add_citation_tags_command(
+        return _fetch_topics(
             metadata=selected_metadata,
             metadata_path=metadata_path,
             persistent_metadata_path=persistent_metadata_path,
-            fetch_timeout=args.citation_fetch_timeout,
+            fetch_timeout=args.topic_fetch_timeout,
         )
 
-    if args.add_tags:
-        return _add_tags(
+    if args.trace_statistics:
+        return _trace_statistics(
             benchmarks=benchmarks,
             metadata=metadata,
             metadata_path=metadata_path,
