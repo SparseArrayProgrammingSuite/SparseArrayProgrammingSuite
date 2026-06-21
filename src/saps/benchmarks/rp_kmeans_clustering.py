@@ -19,7 +19,7 @@ xp = saps.xp
 
 class RPKMeansDataset(Dataset):
     def __init__(self, source_name: str, points, k: int, eps: float, c=1, max_iter=100):
-        self._tags = []
+        self._tags: list[str] = []
         self.source_name = source_name
         self.points = points
         self.k = k

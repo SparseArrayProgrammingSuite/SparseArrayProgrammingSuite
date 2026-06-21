@@ -2,9 +2,13 @@ import numpy as np
 import scipy.sparse as sps
 import scipy.sparse.linalg as spla
 
+import array_api_compat
+import array_api_compat.numpy as compat_np
 import sparse as sp
 
 from saps_framework import BinsparseFormat, Framework, einsum
+
+sparse_namespace = sp.asarray([0]).__array_namespace__()
 
 
 class PyDataSparseLinalg:
@@ -81,16 +85,20 @@ class PyDataSparseLinalg:
 
 
 class PyDataSparseFramework(Framework):
+    _sparse_first = {"asarray", "eye", "ones"}
+
     def __init__(self):
-        pass
+        self._modules = [sp, sparse_namespace, np]
 
     @staticmethod
-    def _dense(array):
-        if isinstance(array, sp.SparseArray):
-            return array.todense()
-        if sps.issparse(array):
-            return array.toarray()
-        return np.asarray(array)
+    def _has_sparse_arg(*args, **kwargs):
+        return any(isinstance(arg, sp.SparseArray) for arg in args) or any(
+            isinstance(value, sp.SparseArray) for value in kwargs.values()
+        )
+
+    @staticmethod
+    def _array_namespace(*arrays):
+        return array_api_compat.array_namespace(*arrays, use_compat=True)
 
     def from_binsparse(self, array):
         if array.data["format"] == "dense":
@@ -123,8 +131,27 @@ class PyDataSparseFramework(Framework):
 
     def einsum(self, prgm, **kwargs):
         if all(not isinstance(value, sp.SparseArray) for value in kwargs.values()):
-            return einsum(np, prgm, **kwargs)
+            xp = self._array_namespace(*kwargs.values())
+            return einsum(xp, prgm, **kwargs)
         return einsum(sp, prgm, **kwargs)
+
+    def diagonal(self, a, *args, **kwargs):
+        if isinstance(a, sp.SparseArray):
+            return sp.diagonal(a, *args, **kwargs)
+        xp = self._array_namespace(a)
+        return xp.diagonal(a, *args, **kwargs)
+
+    def matmul(self, x1, x2, /, **kwargs):
+        if isinstance(x1, sp.SparseArray) or isinstance(x2, sp.SparseArray):
+            return x1 @ x2
+        xp = self._array_namespace(x1, x2)
+        return xp.matmul(x1, x2, **kwargs)
+
+    def zeros(self, shape, *args, **kwargs):
+        return compat_np.zeros(shape, *args, **kwargs)
+
+    def arange(self, *args, **kwargs):
+        return compat_np.arange(*args, **kwargs)
 
     def with_fill_value(self, array, value):
         if isinstance(array, sp.SparseArray):
@@ -138,7 +165,27 @@ class PyDataSparseFramework(Framework):
         return PyDataSparseLinalg()
 
     def __getattr__(self, name):
-        return getattr(sp, name)
+        sparse_attr = getattr(sp, name, None)
+        compat_attr = getattr(sparse_namespace, name, None)
+        if name in self._sparse_first and sparse_attr is not None:
+            return sparse_attr
+        if sparse_attr is not None and compat_attr is not None:
+
+            def wrapped(*args, **kwargs):
+                attr = (
+                    sparse_attr
+                    if self._has_sparse_arg(*args, **kwargs)
+                    else compat_attr
+                )
+                return attr(*args, **kwargs)
+
+            return wrapped
+
+        for attr in (sparse_attr, compat_attr, getattr(np, name, None)):
+            if attr is not None:
+                return attr
+
+        raise AttributeError(f"'{self.__class__.__name__}' has no attribute '{name}'")
 
 
 xp = PyDataSparseFramework()

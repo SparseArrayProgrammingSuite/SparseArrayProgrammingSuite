@@ -5,6 +5,7 @@ import scipy.sparse as sps
 import scipy.sparse.linalg as spla
 
 import array_api_compat
+import array_api_compat.numpy as compat_np
 
 from saps_framework import BinsparseFormat, Framework, einsum
 
@@ -27,13 +28,11 @@ class ScipyLinalg:
 
 class SciPyFramework(Framework):
     def __init__(self):
-        self._modules = [sp, sps, np]
+        self._modules = [sps, compat_np, sp, np]
 
     @staticmethod
-    def _dense(array):
-        if sps.issparse(array):
-            return array.toarray()
-        return np.asarray(array)
+    def _array_namespace(*arrays):
+        return array_api_compat.array_namespace(*arrays, use_compat=True)
 
     @property
     def linalg(self):
@@ -70,16 +69,25 @@ class SciPyFramework(Framework):
         return array
 
     def einsum(self, prgm, **kwargs):
-        xp = array_api_compat.array_namespace(*kwargs.values(), use_compat=True)
+        xp = self._array_namespace(*kwargs.values())
         return einsum(xp, prgm, **kwargs)
+
+    def diagonal(self, a, *args, **kwargs):
+        if sps.issparse(a):
+            return a.diagonal(*args, **kwargs)
+        xp = self._array_namespace(a)
+        return xp.diagonal(a, *args, **kwargs)
+
+    def matmul(self, x1, x2, /, **kwargs):
+        if sps.issparse(x1) or sps.issparse(x2):
+            return x1 @ x2
+        xp = self._array_namespace(x1, x2)
+        return xp.matmul(x1, x2, **kwargs)
 
     def with_fill_value(self, array, value):
         return array
 
     def __getattr__(self, name):
-        xp = array_api_compat.array_namespace(use_compat=True)
-        if hasattr(xp, name):
-            return getattr(xp, name)
         for module in self._modules:
             if hasattr(module, name):
                 return getattr(module, name)

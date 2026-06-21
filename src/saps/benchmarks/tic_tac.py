@@ -204,7 +204,7 @@ BOARD_BATCH_NEAR = np.concatenate(
 
 class TicTacToeDataset(Dataset):
     def __init__(self, name: str, board: np.ndarray, depth: int):
-        self._tags = []
+        self._tags: list[str] = []
         self._name = name
         self.board = board
         self.depth = depth

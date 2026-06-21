@@ -27,7 +27,7 @@ class GCNDataset(Dataset):
         hidden_dim: int = 8,
         out_dim: int = 1,
     ):
-        self._tags = []
+        self._tags: list[str] = []
         self.dataset_name = name
         self.dataset_description = description
         self.source_name = source_name if source_name is not None else name

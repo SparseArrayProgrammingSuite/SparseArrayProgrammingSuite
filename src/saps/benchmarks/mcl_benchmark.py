@@ -37,7 +37,7 @@ def _prune(array_api, matrix, threshold):
 
 class MCLDataset(Dataset):
     def __init__(self, source_name: str):
-        self._tags = []
+        self._tags: list[str] = []
         self.source_name = source_name
 
     @property

@@ -67,7 +67,7 @@ class PreconditionedCGDataset(Dataset):
         has_b_file=False,
         A=None,
     ):
-        self._tags = []
+        self._tags: list[str] = []
         self.source_name = source_name
         self.condition_number = condition_number
         self.has_b_file = has_b_file

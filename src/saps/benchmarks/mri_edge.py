@@ -21,7 +21,7 @@ class MaskedMRIDataset(Dataset):
         image: np.ndarray | None = None,
         roi: np.ndarray | None = None,
     ):
-        self._tags = []
+        self._tags: list[str] = []
         self.source_name = name
         self.category = category
         self.filename = filename

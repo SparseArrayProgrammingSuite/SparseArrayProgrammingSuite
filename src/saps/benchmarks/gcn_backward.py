@@ -30,7 +30,7 @@ class GCNTrainingDataset(Dataset):
         num_iterations: int = 10,
         learning_rate: float = 0.01,
     ):
-        self._tags = []
+        self._tags: list[str] = []
         self._name = name
         self._description = description
         self.source_name = source_name or name

@@ -11,7 +11,7 @@ xp = saps.xp
 
 class QuantumDataset(Dataset):
     def __init__(self, source_name: str, nqubits: int, description: str):
-        self._tags = []
+        self._tags: list[str] = []
         self.source_name = source_name
         self.nqubits = nqubits
         self.dataset_description = description

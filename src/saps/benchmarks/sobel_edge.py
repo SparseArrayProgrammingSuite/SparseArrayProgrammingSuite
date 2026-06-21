@@ -65,7 +65,7 @@ class MRISobelDataset(Dataset):
         threshold_val: float = 150.0,
         image: np.ndarray | None = None,
     ):
-        self._tags = []
+        self._tags: list[str] = []
         self.source_name = name
         self.category = category
         self.filename = filename

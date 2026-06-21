@@ -149,21 +149,25 @@ class GCareGraphGenerator(Generator[GCareGraphDataset]):
                 name="human",
                 pretty_name="G-CARE Human Subset (Small)",
                 description=("G-CARE Human Subset (Small)"),
+                tags=[],
             ),
             GCareGraphDataset(
                 name="aids",
                 pretty_name="G-CARE AIDS Subset (Medium)",
                 description=("G-CARE AIDS Subset (Medium)"),
+                tags=[],
             ),
             GCareGraphDataset(
                 name="lubm80",
                 pretty_name="G-CARE LUBM80 Subset (Large)",
                 description=("G-CARE LUBM80 Subset (Large)"),
+                tags=[],
             ),
             GCareGraphDataset(
                 name="yago",
                 pretty_name="G-CARE YAGO Subset (Huge)",
                 description=("G-CARE YAGO Subset (Huge)"),
+                tags=[],
             ),
         ]
 

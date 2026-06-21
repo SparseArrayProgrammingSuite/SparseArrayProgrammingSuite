@@ -28,7 +28,7 @@ class LSQRDataset(Dataset):
         nnz: int | None = None,
         noise_amt: float = 0.1,
     ):
-        self._tags = []
+        self._tags: list[str] = []
         self.source_name = source_name
         self.has_b_file = has_b_file
         self.nnz = nnz
