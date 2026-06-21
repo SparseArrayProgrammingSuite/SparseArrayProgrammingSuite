@@ -76,18 +76,6 @@ class StorageBackend(ABC):
             return {}
         return json.loads(self.manifest_path.read_text())
 
-    def _find_dataset_record(
-        self, manifest: dict, generator: Generator, dataset: Dataset
-    ) -> dict | None:
-        for benchmark in manifest.get("benchmarks", []):
-            for gen_record in benchmark.get("generators", []):
-                if gen_record.get("name") != generator.name:
-                    continue
-                for dataset_record in gen_record.get("datasets", []):
-                    if dataset_record.get("name") == dataset.name:
-                        return dataset_record
-        return None
-
     def _dataset_key(self, generator: Generator, dataset: Dataset) -> str:
         return f"{generator.name}.{dataset.name}"
 
@@ -95,9 +83,7 @@ class StorageBackend(ABC):
         self, generator: Generator, dataset: Dataset, digest: str
     ) -> None:
         manifest = self._read_manifest()
-        manifest.setdefault("digests", {})[self._dataset_key(generator, dataset)] = (
-            digest
-        )
+        manifest[self._dataset_key(generator, dataset)] = {"digest": digest}
         self.manifest_path.write_text(
             json.dumps(manifest, indent=2, sort_keys=True) + "\n",
             encoding="utf-8",
@@ -106,14 +92,9 @@ class StorageBackend(ABC):
     def check_manifest(self, generator: Generator, dataset: Dataset) -> str | None:
         manifest = self._read_manifest()
         dataset_key = self._dataset_key(generator, dataset)
-        if dataset_key in manifest.get("digests", {}):
-            return manifest["digests"][dataset_key]
-
-        dataset_record = self._find_dataset_record(manifest, generator, dataset)
-        if dataset_record is not None:
-            return dataset_record.get("digest")
-
-        return None
+        if dataset_key not in manifest:
+            return None
+        return manifest[dataset_key]["digest"]
 
     def upload_dataset(self, generator: Generator, dataset: Dataset) -> bool:
         data = generator.generate(dataset)

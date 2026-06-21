@@ -373,22 +373,13 @@ def _load_metadata_document(metadata_path: Path) -> dict:
             "`poetry run ./bin/run_benchmark.py --generate-metadata`."
         )
     document = json.loads(metadata_path.read_text(encoding="utf-8"))
-    return {
-        "benchmarks": document.get("benchmarks", []),
-        "digests": document.get("digests", {}),
-    }
+    return {"benchmarks": document.get("benchmarks", [])}
 
 
 def _generate_metadata(
     metadata: dict[str, dict],
     metadata_path: Path,
 ) -> int:
-    digests = {}
-    if metadata_path.exists():
-        digests = json.loads(metadata_path.read_text(encoding="utf-8")).get(
-            "digests", {}
-        )
-
     records = {}
     for record in metadata.values():
         records.setdefault(_record_key(record), record)
@@ -396,8 +387,7 @@ def _generate_metadata(
     document = {
         "benchmarks": [
             record for record in sorted(records.values(), key=_record_key)
-        ],
-        "digests": dict(sorted(digests.items())),
+        ]
     }
     metadata_path.write_text(
         json.dumps(document, indent=2, sort_keys=True) + "\n",
@@ -742,7 +732,7 @@ def main() -> int:
     os.environ["SAPS_CACHE_DIR"] = cache_dir
     matrix["env_nobuild"]["SAPS_CACHE_DIR"] = [cache_dir]
     persistent_metadata_path = repo_root / "benchmark_metadata.json"
-    manifest_path = str(persistent_metadata_path)
+    manifest_path = str(repo_root / "manifest.json")
     pythonpath = str(repo_root)
     os.environ["SAPS_MANIFEST_PATH"] = manifest_path
     os.environ["PYTHONPATH"] = pythonpath
