@@ -132,11 +132,12 @@ class PageRankBenchmark(Benchmark):
     def description(self):
         return (
             "The out-degree of the adjacency is found by summing columns, giving "
-            "us the number of outbound links per page. If out-degree is not 0, we divide by k "
-            "(the number of outbound links). If out-degree is 0, that means the node had no links, "
-            "so we distribute it evenly among all nodes to preserve probability mass. We then run "
-            "iteration multiple times so that the PageRank vector converges to its theoretical "
-            "stationary value."
+            "us the number of outbound links per page. If out-degree is not 0, "
+            "we divide by k (the number of outbound links). If out-degree is 0, "
+            "that means the node had no links, so we distribute it evenly among "
+            "all nodes to preserve probability mass. We then run iteration "
+            "multiple times so that the PageRank vector converges to its "
+            "theoretical stationary value."
         )
 
     @property

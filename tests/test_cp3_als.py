@@ -20,10 +20,16 @@ def test_cp_als_reconstruction_error(xp):
 
     X = cp3_als.xp.from_binsparse(X_bin)
 
-    A, B, C, l = CP3_ALS().benchmark((X,), {"rank": rank, "max_iter": max_iter})
+    A, B, C, lambda_vals = CP3_ALS().benchmark(
+        (X,), {"rank": rank, "max_iter": max_iter}
+    )
 
     Y = cp3_als.xp.einsum(
-        "Y[i,j,k] += l[r] * A[i,r] * B[j,r] * C[k,r]", l=l, A=A, B=B, C=C
+        "Y[i,j,k] += l[r] * A[i,r] * B[j,r] * C[k,r]",
+        l=lambda_vals,
+        A=A,
+        B=B,
+        C=C,
     )
     X_norm = np.linalg.norm(X)
     diff = Y - X

@@ -9,8 +9,8 @@ repo_root = os.environ.get("SAPS_REPO_ROOT")
 if repo_root is not None and repo_root not in sys.path:
     sys.path.insert(0, repo_root)
 
-from frameworks.saps_sparse import PyDataSparseFramework
-from saps_framework import Framework
+from frameworks.saps_sparse import PyDataSparseFramework  # noqa: E402
+from saps_framework import Framework  # noqa: E402
 
 _ELEMENTWISE_OPERATORS = {
     "abs",
@@ -541,7 +541,7 @@ class TaggerFramework(Framework):
             return [
                 self._tensor_stats(value.array, value.elementwise_ops_since_reduction)
             ]
-        if isinstance(value, list) or isinstance(value, tuple):
+        if isinstance(value, (list, tuple)):
             operands = []
             for item in value:
                 operands.extend(self._collect_operand_stats(item))
@@ -559,7 +559,7 @@ class TaggerFramework(Framework):
     def _collect_elementwise_counts(self, value):
         if isinstance(value, TaggedArray):
             return [value.elementwise_ops_since_reduction]
-        if isinstance(value, list) or isinstance(value, tuple):
+        if isinstance(value, (list, tuple)):
             counts = []
             for item in value:
                 counts.extend(self._collect_elementwise_counts(item))

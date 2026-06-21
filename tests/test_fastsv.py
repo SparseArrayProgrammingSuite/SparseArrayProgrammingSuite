@@ -2,7 +2,10 @@ import numpy as np
 
 import saps.benchmarks.connected_components as cc
 import saps.benchmarks.fastsv as fastsv
+from frameworks.saps_numpy import NumpyFramework
 from saps_framework import BinsparseFormat
+
+xp = NumpyFramework()
 
 
 def _run_fastsv_case(A, expected):

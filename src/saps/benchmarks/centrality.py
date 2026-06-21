@@ -131,8 +131,8 @@ class BetweennessCentralityBenchmark(Benchmark):
             "4 -> 6 could have 3 diff shortest paths and 4 -> 2 could have only 1 "
             "shortest path. The second step is for tracing backwards to see how many "
             "times a node appears in other shortest paths. The number of times this "
-            "node is in one of the shortest path divided by total shortest paths between "
-            "the two edge nodes gets added to the intermediate nodes bc score."
+            "node is in one of the shortest path divided by total shortest paths "
+            "between the two edge nodes gets added to the intermediate nodes bc score."
         )
 
     @property

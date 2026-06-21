@@ -2562,5 +2562,5 @@ class SubgraphMatching(Benchmark):
         ]
 
     def benchmark(self, data, meta):
-        sp_mats = dict(zip(meta["matrix_names"], data))
+        sp_mats = dict(zip(meta["matrix_names"], data, strict=True))
         return [xp.einsum(meta["expr"], **sp_mats)]

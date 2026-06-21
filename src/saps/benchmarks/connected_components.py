@@ -70,7 +70,9 @@ class ConnectedComponentsGenerator(Generator[ConnectedComponentsDataset]):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title="SNAP: A General Purpose Network Analysis and Graph Mining Library",
+                title=(
+                    "SNAP: A General Purpose Network Analysis and Graph Mining Library"
+                ),
                 authors=[
                     Author("Leskovec, Jure"),
                     Author("Sosič, Rok"),

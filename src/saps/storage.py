@@ -98,7 +98,10 @@ class StorageBackend(ABC):
         manifest.setdefault("digests", {})[self._dataset_key(generator, dataset)] = (
             digest
         )
-        self.manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True))
+        self.manifest_path.write_text(
+            json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
 
     def check_manifest(self, generator: Generator, dataset: Dataset) -> str | None:
         manifest = self._read_manifest()
@@ -180,7 +183,7 @@ class LocalStorageBackend(StorageBackend):
         try:
             dest_path.write_bytes(local_path.read_bytes())
             return True
-        except Exception as e:
+        except OSError as e:
             logging.error(f"Error uploading file to local storage: {e}")
             return False
 
@@ -195,7 +198,7 @@ class LocalStorageBackend(StorageBackend):
         try:
             local_path.write_bytes(source_path.read_bytes())
             return True
-        except Exception as e:
+        except OSError as e:
             logging.error(f"Error downloading file from local storage: {e}")
             return False
 
@@ -213,10 +216,15 @@ class S3StorageBackend(StorageBackend):
         self.s3 = boto3.client("s3")
 
     def upload_file(self, local_path: Path, remote_prefix: str) -> bool:
+        import botocore
+
         try:
             self.s3.upload_file(str(local_path), self.bucket_name, remote_prefix)
             return True
-        except Exception as e:
+        except (
+            botocore.exceptions.BotoCoreError,
+            botocore.exceptions.ClientError,
+        ) as e:
             logging.error(f"Error uploading file to S3: {e}")
             return False
 
@@ -230,10 +238,15 @@ class S3StorageBackend(StorageBackend):
             return False
 
     def download_file(self, remote_prefix: str, local_path: Path) -> bool:
+        import botocore
+
         try:
             self.s3.download_file(self.bucket_name, remote_prefix, str(local_path))
             return True
-        except Exception as e:
+        except (
+            botocore.exceptions.BotoCoreError,
+            botocore.exceptions.ClientError,
+        ) as e:
             logging.error(f"Error downloading file from S3: {e}")
             return False
 

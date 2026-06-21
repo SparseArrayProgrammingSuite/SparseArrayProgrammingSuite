@@ -15,6 +15,7 @@ import xml.etree.ElementTree as ET
 from itertools import product
 from pathlib import Path
 
+from asv import util
 from asv.benchmarks import Benchmarks
 from asv.commands.setup import Setup
 from asv.config import Config
@@ -121,7 +122,12 @@ def _upload(benchmarks, metadata, environments) -> int:
                         )
                         uploaded += 1
                         print(f"[uploaded] {label}")
-                    except Exception as e:
+                    except (
+                        OSError,
+                        RuntimeError,
+                        StopIteration,
+                        util.ProcessError,
+                    ) as e:
                         failed += 1
                         print(f"[error]    {label}: {e}")
     print(f"upload summary: uploaded={uploaded} failed={failed} skipped={skipped}")
@@ -520,13 +526,13 @@ def _add_citation_tags_command(
         fetch_timeout=fetch_timeout,
     )
     metadata_path.write_text(
-        json.dumps(metadata, indent=2, sort_keys=True),
+        json.dumps(metadata, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
     _update_persistent_metadata(metadata, persistent_metadata_path)
     report_path = metadata_path.parent / "citation_validation.json"
     report_path.write_text(
-        json.dumps(report, indent=2, sort_keys=True),
+        json.dumps(report, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
     print(
@@ -660,7 +666,8 @@ def _update_persistent_metadata(
             },
             indent=2,
             sort_keys=True,
-        ),
+        )
+        + "\n",
         encoding="utf-8",
     )
 
@@ -721,7 +728,7 @@ def _add_tags(
 
     tagged = _apply_tagger_stats(metadata, stats_dir)
     metadata_path.write_text(
-        json.dumps(metadata, indent=2, sort_keys=True),
+        json.dumps(metadata, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
     _update_persistent_metadata(metadata, persistent_metadata_path)
@@ -929,9 +936,7 @@ def main() -> int:
         storage_bucket = args.remote_storage_bucket or str(outputs_dir / "datasets")
         pythonpath = str(repo_root / "src")
         framework_file = (
-            "frameworks/saps_tagger.py"
-            if args.add_tags
-            else "frameworks/saps_numpy.py"
+            "frameworks/saps_tagger.py" if args.add_tags else "frameworks/saps_numpy.py"
         )
         os.environ["SAPS_FRAMEWORK"] = str(repo_root / framework_file)
         os.environ["REMOTE_STORAGE_BACKEND"] = storage_backend
@@ -1039,7 +1044,7 @@ def main() -> int:
     results_dir.mkdir(parents=True, exist_ok=True)
     metadata_path = results_dir / "benchmarks_meta.json"
     metadata_path.write_text(
-        json.dumps(metadata, indent=2, sort_keys=True),
+        json.dumps(metadata, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
 

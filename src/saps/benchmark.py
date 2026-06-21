@@ -299,7 +299,10 @@ class Benchmark(Tagged, Attributed, Motivated):
             for char in f"{benchmark_id}.{param.generator.name}.{param.dataset.name}"
         )
         output_path = path / f"{safe_id}.json"
-        output_path.write_text(json.dumps(data, indent=2, default=str))
+        output_path.write_text(
+            json.dumps(data, indent=2, default=str) + "\n",
+            encoding="utf-8",
+        )
 
     def teardown(self, param):
         if hasattr(self, "_output"):
