@@ -2,10 +2,6 @@ import os
 from typing import Any
 
 import numpy as np
-import scipy.sparse as sp
-from scipy.io import mmread
-
-import ssgetpy
 
 import saps
 from saps.benchmark import (
@@ -20,6 +16,11 @@ from saps_framework import BinsparseFormat
 
 
 def _generate_cg_data(source, has_b_file, A=None):
+    import scipy.sparse as sp
+    from scipy.io import mmread
+
+    import ssgetpy
+
     if A is not None:
         A = sp.coo_matrix(A)
     else:
@@ -146,6 +147,8 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
     def generate(
         self, dataset: PreconditionedCGDataset
     ) -> tuple[list[BinsparseFormat], dict[str, Any]]:
+        import scipy.sparse as sp
+
         A, b, x = _generate_cg_data(dataset.source_name, dataset.has_b_file, dataset.A)
         A_csr = A.tocsr()
         n = A_csr.shape[0]

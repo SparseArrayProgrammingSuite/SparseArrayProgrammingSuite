@@ -1,7 +1,6 @@
 import logging
 
 import numpy as np
-import scipy as sp
 
 import saps
 from saps.benchmark import (
@@ -185,6 +184,8 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
         ]
 
     def generate(self, dataset: JLApproxNNDataset):
+        import scipy as sp
+
         rng = np.random.default_rng(dataset.seed)
         data = rng.standard_normal((dataset.n_samples, dataset.n_features))
         query = rng.standard_normal((dataset.n_queries, dataset.n_features))
@@ -319,7 +320,8 @@ class JLApproxNearestNeighbor(Benchmark):
 
         n_samples, n_features = data.shape
         logging.info(
-            f"Data shape: {data.shape}, Query shape: {query.shape}, Projection shape: {P.shape}"
+            f"Data shape: {data.shape}, Query shape: {query.shape}, "
+            f"Projection shape: {P.shape}"
         )
         #  Johnson Lindenstrauss Theorem Lemmna.
         # The eps represents the disortion of distance by epsilon,

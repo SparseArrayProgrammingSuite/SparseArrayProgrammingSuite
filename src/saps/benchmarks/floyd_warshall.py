@@ -1,9 +1,6 @@
 import os
 
 import numpy as np
-from scipy.io import mmread
-
-import ssgetpy
 
 import saps
 from saps.benchmark import Author, Benchmark, Contributor, Dataset, Generator, Ref
@@ -177,6 +174,10 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
         ]
 
     def generate(self, dataset: FloydWarshallDataset):
+        from scipy.io import mmread
+
+        import ssgetpy
+
         matrices = ssgetpy.search(name=dataset.source)
         if not matrices:
             raise ValueError(f"No matrix found with name '{dataset.source}'")

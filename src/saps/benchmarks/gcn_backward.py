@@ -2,9 +2,6 @@ import os
 from typing import Any
 
 import numpy as np
-from scipy.io import mmread
-
-import ssgetpy
 
 import saps
 from saps.benchmark import (
@@ -239,6 +236,10 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
         ]
 
     def generate(self, dataset: GCNTrainingDataset):
+        from scipy.io import mmread
+
+        import ssgetpy
+
         feature_dim = dataset.feature_dim
         hidden_dim = dataset.hidden_dim
         out_dim = dataset.out_dim

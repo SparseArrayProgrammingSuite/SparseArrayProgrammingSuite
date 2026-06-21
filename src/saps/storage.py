@@ -8,9 +8,6 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import boto3
-import botocore
-
 from saps_framework.binsparse_format import BinsparseFormat
 
 if TYPE_CHECKING:
@@ -153,13 +150,15 @@ class StorageBackend(ABC):
             logging.info(f"Manifest path: {self.manifest_path}")
         if not cache_path.exists():
             logging.info(
-                f"Dataset {generator.name}.{dataset.name} not found in cache at {cache_path}"
+                f"Dataset {generator.name}.{dataset.name} not found in cache at "
+                f"{cache_path}"
             )
             logging.info(f"Manifest path: {self.manifest_path}")
             cache_path.parent.mkdir(parents=True, exist_ok=True)
             if not self.download_file(prefix, cache_path):
                 logging.error(
-                    f"Failed to download dataset {generator.name}.{dataset.name} from remote storage."
+                    "Failed to download dataset "
+                    f"{generator.name}.{dataset.name} from remote storage."
                 )
                 return None
         data = self.deserialize_data_from_file(cache_path)
@@ -203,6 +202,8 @@ class LocalStorageBackend(StorageBackend):
 
 class S3StorageBackend(StorageBackend):
     def __init__(self, bucket_name: str, manifest_path: Path, cache_dir: Path):
+        import boto3
+
         super().__init__(manifest_path, cache_dir)
         # Accept either "s3://bucket" or plain "bucket"
         if bucket_name.startswith("s3://"):
@@ -220,6 +221,8 @@ class S3StorageBackend(StorageBackend):
             return False
 
     def file_exists(self, remote_prefix: str) -> bool:
+        import botocore
+
         try:
             self.s3.head_object(Bucket=self.bucket_name, Key=remote_prefix)
             return True

@@ -1,10 +1,6 @@
 import os
 from typing import Any
 
-from scipy.io import mmread
-
-import ssgetpy
-
 import saps
 from saps.benchmark import (
     Author,
@@ -111,6 +107,10 @@ class MCLGenerator(Generator[MCLDataset]):
         ]
 
     def generate(self, dataset: MCLDataset):
+        from scipy.io import mmread
+
+        import ssgetpy
+
         matrices = ssgetpy.search(name=dataset.source_name)
         if not matrices:
             raise ValueError(f"No matrix found with name '{dataset.source_name}'")

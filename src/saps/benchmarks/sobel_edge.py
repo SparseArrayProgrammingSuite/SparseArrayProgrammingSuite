@@ -3,9 +3,6 @@ from typing import Any
 
 import numpy as np
 
-import kagglehub
-from PIL import Image
-
 import saps
 from saps.benchmark import Benchmark, Contributor, Dataset, Generator, Ref
 from saps_framework import BinsparseFormat
@@ -151,6 +148,9 @@ class MRISobelGenerator(Generator[MRISobelDataset]):
         self, dataset: MRISobelDataset
     ) -> tuple[list[BinsparseFormat], dict[str, Any]]:
         if dataset.image is None:
+            import kagglehub
+            from PIL import Image
+
             path = kagglehub.dataset_download(
                 "navoneel/brain-mri-images-for-brain-tumor-detection"
             )

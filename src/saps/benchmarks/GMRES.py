@@ -2,10 +2,6 @@ import os
 from typing import Any
 
 import numpy as np
-from scipy.io import mmread
-from scipy.sparse import random
-
-import ssgetpy
 
 import saps
 from saps.benchmark import (
@@ -113,6 +109,11 @@ class GMRESGenerator(Generator[GMRESDataset]):
         ]
 
     def generate(self, dataset: GMRESDataset):
+        from scipy.io import mmread
+        from scipy.sparse import random
+
+        import ssgetpy
+
         source = dataset.source_name
         has_b_file = dataset.metadata.get("has_b_file", False)
         matrices = ssgetpy.search(name=source)

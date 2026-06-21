@@ -2,10 +2,6 @@ import os
 from typing import Any
 
 import numpy as np
-from scipy.io import mmread
-from scipy.sparse import random
-
-import ssgetpy
 
 import saps
 from saps.benchmark import (
@@ -113,6 +109,11 @@ class LSQRGenerator(Generator[LSQRDataset]):
         ]
 
     def generate(self, dataset: LSQRDataset):
+        from scipy.io import mmread
+        from scipy.sparse import random
+
+        import ssgetpy
+
         matrices = ssgetpy.search(name=dataset.source_name)
         if not matrices:
             raise ValueError(f"No matrix found with name '{dataset.source_name}'")

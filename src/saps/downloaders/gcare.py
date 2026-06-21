@@ -12,8 +12,6 @@ from typing import Any
 
 import numpy as np
 
-import gdown
-
 from saps_framework.binsparse_format import BinsparseFormat
 
 
@@ -90,7 +88,7 @@ def load_gcare_query(
     _, queryset_dir, ground_truth_dir = _get_dirs(root)
 
     all_sp_mats: dict[str, BinsparseFormat] = dict(
-        zip(graph_meta["matrix_names"], bin_mats)
+        zip(graph_meta["matrix_names"], bin_mats, strict=True)
     )
     max_vid: int = graph_meta["max_vid"]
     continous_label: bool = graph_meta["continous_label"]
@@ -127,6 +125,8 @@ def _get_dirs(root: Path) -> tuple[Path, Path, Path]:
 
 def _ensure_downloaded(root: Path) -> None:
     """Download and extract the three G-CARE tarballs into *root* if not present."""
+    import gdown
+
     dataset_dir, queryset_dir, ground_truth_dir = _get_dirs(root)
 
     dataset_link = "https://drive.google.com/file/d/1HAgSVE-24NOap6_Q1_twH56Dkb2kPvGU/view?usp=sharing"
