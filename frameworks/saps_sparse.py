@@ -8,8 +8,6 @@ import sparse as sp
 
 from saps_framework import BinsparseFormat, Framework, einsum
 
-sparse_namespace = sp.asarray([0]).__array_namespace__()
-
 
 class PyDataSparseLinalg:
     @staticmethod
@@ -88,7 +86,7 @@ class PyDataSparseFramework(Framework):
     _sparse_first = {"asarray", "eye", "ones"}
 
     def __init__(self):
-        self._modules = [sp, sparse_namespace, np]
+        self._modules = [sp, compat_np, np]
 
     @staticmethod
     def _has_sparse_arg(*args, **kwargs):
@@ -166,7 +164,7 @@ class PyDataSparseFramework(Framework):
 
     def __getattr__(self, name):
         sparse_attr = getattr(sp, name, None)
-        compat_attr = getattr(sparse_namespace, name, None)
+        compat_attr = getattr(compat_np, name, None)
         if name in self._sparse_first and sparse_attr is not None:
             return sparse_attr
         if sparse_attr is not None and compat_attr is not None:

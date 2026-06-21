@@ -14,6 +14,10 @@ if framework_path is not None:
     if not resolved_path.exists():
         raise FileNotFoundError(f"Framework file not found: {resolved_path}")
 
+    framework_dir = str(resolved_path.parent)
+    if framework_dir not in sys.path:
+        sys.path.insert(0, framework_dir)
+
     spec = importlib.util.spec_from_file_location(
         "custom_framework", str(resolved_path)
     )

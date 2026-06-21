@@ -1,16 +1,11 @@
 import operator
-import os
-import sys
 from functools import wraps
 
 import numpy as np
 
-repo_root = os.environ.get("SAPS_REPO_ROOT")
-if repo_root is not None and repo_root not in sys.path:
-    sys.path.insert(0, repo_root)
+from saps_sparse import PyDataSparseFramework
 
-from frameworks.saps_sparse import PyDataSparseFramework  # noqa: E402
-from saps_framework import Framework  # noqa: E402
+from saps_framework import Framework
 
 _ELEMENTWISE_OPERATORS = {
     "abs",

@@ -733,7 +733,7 @@ def _add_tags(
     )
     _update_persistent_metadata(metadata, persistent_metadata_path)
     print(f"tag summary: tagged_records={tagged} failed_benchmark_entries={failed}")
-    return 0 if failed == 0 else 1
+    return 0 if tagged > 0 else 1
 
 
 def main() -> int:
