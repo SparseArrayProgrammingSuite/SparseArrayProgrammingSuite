@@ -407,7 +407,7 @@ def _generate_metadata(
     return 0
 
 
-def _generate_topics(
+def _convert_concepts(
     metadata: dict[str, dict],
     metadata_path: Path,
 ) -> int:
@@ -459,7 +459,7 @@ def _generate_topics(
         json.dumps(document, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    print(f"generated topics for {updated} benchmarks")
+    print(f"converted concepts for {updated} benchmarks")
     return 0
 
 
@@ -624,11 +624,12 @@ def main() -> int:
         ),
     )
     parser.add_argument(
-        "--generate-topics",
-        dest="generate_topics",
+        "--convert-concepts",
+        dest="convert_concepts",
         action="store_true",
         help=(
-            "Skip benchmark execution. Generate topic tags in benchmark_metadata.json "
+            "Skip benchmark execution. Convert ACM CCS concepts into topic tags "
+            "in benchmark_metadata.json "
             "from pasted ACM CCS XML. Honors --re/--no-re/--tag/--no-tag filters."
         ),
     )
@@ -764,7 +765,7 @@ def main() -> int:
         args.trace_statistics
         or args.cache_datasets
         or args.generate_metadata
-        or args.generate_topics
+        or args.convert_concepts
     )
 
     # Construct ASV config dict with all fields visible
@@ -974,8 +975,8 @@ def main() -> int:
             environments=environments,
         )
 
-    if args.generate_topics:
-        return _generate_topics(
+    if args.convert_concepts:
+        return _convert_concepts(
             metadata=selected_source_metadata,
             metadata_path=persistent_metadata_path,
         )

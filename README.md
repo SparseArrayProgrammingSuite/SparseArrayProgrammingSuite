@@ -60,7 +60,7 @@ def concepts(self) -> str:
     """
 ```
 
-Run `poetry run ./bin/run_benchmark.py --generate-metadata` after changing benchmark metadata, then run `poetry run ./bin/run_benchmark.py --generate-topics` to replace the generated `topics` field without changing `suites` or generated `statistics`.
+Run `poetry run ./bin/run_benchmark.py --generate-metadata` after changing benchmark metadata, then run `poetry run ./bin/run_benchmark.py --convert-concepts` to replace the generated `topics` field without changing `suites` or generated `statistics`.
 
 ### Problem qualities
 
