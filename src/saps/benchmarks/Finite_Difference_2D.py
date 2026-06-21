@@ -137,16 +137,18 @@ class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
                     " for Nonlinear Hyperbolic PDE Solvers."
                 ),
                 authors=[
-                    Author("Laurel, J."),
-                    Author("Laguna, I."),
-                    Author("Hückelheim, J."),
+                    Author("Jacob Laurel"),
+                    Author("Ignacio Laguna"),
+                    Author("Jan Hückelheim"),
                 ],
                 journal="Proceedings of the ACM on Programming Languages",
+                publisher="Association for Computing Machinery (ACM)",
                 volume="9",
                 number="OOPSLA2",
-                pages="1063–1091",
+                pages="1063-1091",
                 year=2025,
                 url="https://doi.org/10.1145/3763088",
+                doi="10.1145/3763088",
             )
         ]
 
@@ -237,16 +239,18 @@ class _FiniteDifference2DBenchmarkBase(Benchmark):
                     " for Nonlinear Hyperbolic PDE Solvers."
                 ),
                 authors=[
-                    Author("Laurel, J."),
-                    Author("Laguna, I."),
-                    Author("Hückelheim, J."),
+                    Author("Jacob Laurel"),
+                    Author("Ignacio Laguna"),
+                    Author("Jan Hückelheim"),
                 ],
                 journal="Proceedings of the ACM on Programming Languages",
+                publisher="Association for Computing Machinery (ACM)",
                 volume="9",
                 number="OOPSLA2",
-                pages="1063–1091",
+                pages="1063-1091",
                 year=2025,
                 url="https://doi.org/10.1145/3763088",
+                doi="10.1145/3763088",
             )
         ]
 

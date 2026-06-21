@@ -300,18 +300,26 @@ class JLApproxNearestNeighbor(Benchmark):
             ),
             Ref(
                 title=(
-                    "Randomized numerical linear algebra: "
-                    "A perspective on the field with an eye to software"
+                    "Randomized Numerical Linear Algebra : "
+                    "A Perspective on the Field With an Eye to Software"
                 ),
                 authors=[
-                    Author("Murray, R."),
-                    Author("Demmel, J."),
-                    Author("Mahoney, M. W."),
-                    Author("Erichson, N. B."),
-                    Author("Melnichenko, M."),
-                    Author("Malik, O. A."),
-                    Author("Dongarra, J."),
+                    Author("Riley Murray"),
+                    Author("James Demmel"),
+                    Author("Michael W. Mahoney"),
+                    Author("N. Benjamin Erichson"),
+                    Author("Maksim Melnichenko"),
+                    Author("Osman Asif Malik"),
+                    Author("Laura Grigori"),
+                    Author("Piotr Luszczek"),
+                    Author("Michał Dereziński"),
+                    Author("Miles E. Lopes"),
+                    Author("Tianyu Liang"),
+                    Author("Hengrui Luo"),
+                    Author("Jack Dongarra"),
                 ],
+                journal="Arxiv",
+                volume="arXiv:2302.11474",
                 year=2023,
                 url="https://arxiv.org/abs/2302.11474",
             ),

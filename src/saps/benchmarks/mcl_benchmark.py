@@ -175,10 +175,11 @@ class MCLBenchmark(Benchmark):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title="Matrix Computations",
-                authors=[Author("Gene H. Golub"), Author("Charles F. Van Loan")],
-                publisher="SIAM",
-                year=2013,
+                title="Graph Algorithms in the Language of Linear Algebra",
+                authors=[],
+                publisher="Society for Industrial and Applied Mathematics",
+                year=2011,
+                url="https://doi.org/10.1137/1.9780898719918",
                 doi="10.1137/1.9780898719918",
             ),
             Ref(

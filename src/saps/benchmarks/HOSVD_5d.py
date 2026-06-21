@@ -4,6 +4,7 @@ import numpy as np
 
 import saps
 from saps.benchmark import (
+    Author,
     Benchmark,
     Contributor,
     Dataset,
@@ -279,14 +280,28 @@ class HOSVD5DBenchmark(Benchmark):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title="",
-                authors=[],
-                url="https://epubs.siam.org/doi/10.1137/07070111X",
+                title="Tensor Decompositions and Applications",
+                authors=[Author("Tamara G. Kolda"), Author("Brett W. Bader")],
+                journal="SIAM Review",
+                publisher="Society for Industrial & Applied Mathematics (SIAM)",
+                volume="51",
+                number="3",
+                pages="455-500",
+                year=2009,
+                url="https://doi.org/10.1137/07070111x",
+                doi="10.1137/07070111x",
             ),
             Ref(
-                title="",
-                authors=[],
+                title="Harnessing Tensor Decomposition for High-Dimensional Machine Learning",
+                authors=[
+                    Author("Evgeni Rustik"),
+                    Author("Emiliya Viktoriia"),
+                    Author("Aliona Tatyana"),
+                ],
+                publisher="Institute of Electrical and Electronics Engineers (IEEE)",
+                year=2025,
                 url="https://doi.org/10.36227/techrxiv.174417403.38431928/v1",
+                doi="10.36227/techrxiv.174417403.38431928/v1",
             ),
         ]
 

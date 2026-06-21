@@ -181,11 +181,12 @@ class PageRankBenchmark(Benchmark):
             ),
             Ref(
                 title="The anatomy of a large-scale hypertextual Web search engine",
-                authors=[Author("Brin, S."), Author("Page, L.")],
+                authors=[Author("Sergey Brin"), Author("Lawrence Page")],
                 year=1998,
                 journal="Computer Networks and ISDN Systems",
                 pages="107-117",
-                url="https://doi.org/10.1016/S1389-1286(98)00110-X",
+                url="https://doi.org/10.1016/S0169-7552(98)00110-X",
+                doi="10.1016/S0169-7552(98)00110-X",
             ),
         ]
 

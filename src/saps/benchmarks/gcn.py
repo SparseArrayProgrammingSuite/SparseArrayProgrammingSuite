@@ -108,9 +108,9 @@ class GCNGenerator(Generator[GCNDataset]):
                 url="https://anonymous.4open.science/r/scorch/README.md",
             ),
             Ref(
-                title="Open Graph Benchmark: Datasets for Machine Learning on Graph",
+                title="Open Graph Benchmark: Datasets for Machine Learning on Graphs",
                 authors=[
-                    Author("Wenbing Hu"),
+                    Author("Weihua Hu"),
                     Author("Matthias Fey"),
                     Author("Marinka Zitnik"),
                     Author("Yuxiao Dong"),
@@ -121,7 +121,7 @@ class GCNGenerator(Generator[GCNDataset]):
                 ],
                 journal="Arxiv",
                 volume="arXiv:2005.00687",
-                year=2021,
+                year=2020,
                 url="https://arxiv.org/abs/2005.00687",
             ),
         ]
@@ -322,9 +322,9 @@ class GCNBenchmark(Benchmark):
                 url="https://anonymous.4open.science/r/scorch/README.md",
             ),
             Ref(
-                title="Open Graph Benchmark: Datasets for Machine Learning on Graph",
+                title="Open Graph Benchmark: Datasets for Machine Learning on Graphs",
                 authors=[
-                    Author("Wenbing Hu"),
+                    Author("Weihua Hu"),
                     Author("Matthias Fey"),
                     Author("Marinka Zitnik"),
                     Author("Yuxiao Dong"),
@@ -335,7 +335,7 @@ class GCNBenchmark(Benchmark):
                 ],
                 journal="Arxiv",
                 volume="arXiv:2005.00687",
-                year=2021,
+                year=2020,
                 url="https://arxiv.org/abs/2005.00687",
             ),
         ]

@@ -176,11 +176,14 @@ class RPKMeansBenchmark(Benchmark):
         return [
             Ref(
                 authors=[
-                    Author("C. Boutsidis"),
-                    Author("A. Zouzias"),
-                    Author("P. Drineas"),
+                    Author("Christos Boutsidis"),
+                    Author("Anastasios Zouzias"),
+                    Author("Petros Drineas"),
                 ],
-                title="Random Projection for k-Means Clustering",
+                title="Random Projections for $k$-means Clustering",
+                journal="Arxiv",
+                volume="arXiv:1011.4632",
+                year=2010,
                 url="https://arxiv.org/abs/1011.4632",
             )
         ]

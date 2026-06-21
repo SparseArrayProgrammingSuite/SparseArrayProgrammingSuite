@@ -166,13 +166,17 @@ class BetweennessCentralityBenchmark(Benchmark):
                     " centrality approximation"
                 ),
                 authors=[
-                    Author("Matta, J."),
-                    Author("Ercal, G."),
-                    Author("Sinha, K."),
+                    Author("John Matta"),
+                    Author("Gunes Ercal"),
+                    Author("Koushik Sinha"),
                 ],
                 journal="Computational Social Networks",
+                publisher="Springer Science and Business Media LLC",
+                volume="6",
+                number="1",
                 year=2019,
                 url="https://doi.org/10.1186/s40649-019-0062-5",
+                doi="10.1186/s40649-019-0062-5",
             ),
             Ref(
                 title=("Graph Algorithms in the Language of Linear Algebra"),
