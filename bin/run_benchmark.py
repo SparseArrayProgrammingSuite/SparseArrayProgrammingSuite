@@ -677,8 +677,6 @@ def _add_tags(
     outputs_dir,
     timeout,
     show_stderr,
-    is_include,
-    is_exclude,
 ) -> int:
     """Run selected benchmarks under ASV with the tagger framework."""
     _update_persistent_metadata(metadata, persistent_metadata_path)
@@ -944,24 +942,22 @@ def main() -> int:
             os.environ["SAPS_TAGGER_STATS_DIR"] = tagger_stats_dir
             os.environ["SAPS_ASV_SINGLE_RUN"] = "1"
 
-    install_command = saps_config_data.get(
-        "install_command",
-        ["in-dir={env_dir} python -mpip install {build_dir} --force-reinstall"],
-    )
-
     # Construct ASV config dict with all fields visible
-    environment_type = saps_config_data.get("environment_type", "virtualenv")
-    if args.add_tags or args.upload_datasets:
-        environment_type = "existing:same"
-
     asv_config_dict = {
         "version": 1,
         "project": "saps",
         "project_url": "https://github.com/SparseArrayProgrammingSuite/SparseArrayProgrammingSuite",
         "repo": str(repo_root),
         "branches": "HEAD",
-        "environment_type": environment_type,
-        "install_command": install_command,
+        "environment_type": (
+            "existing:same"
+            if args.add_tags or args.upload_datasets
+            else saps_config_data.get("environment_type", "virtualenv")
+        ),
+        "install_command": saps_config_data.get(
+            "install_command",
+            ["in-dir={env_dir} python -mpip install {build_dir} --force-reinstall"],
+        ),
         "benchmark_dir": str(repo_root / "src/saps/benchmarks"),
         "env_dir": saps_config_data.get("env_dir", str(saps_dir / "results")),
         "results_dir": saps_config_data.get(
@@ -1149,8 +1145,6 @@ def main() -> int:
             outputs_dir=outputs_dir,
             timeout=timeout,
             show_stderr=args.show_stderr,
-            is_include=is_include,
-            is_exclude=is_exclude,
         )
 
     print(f"Discovered {len(benchmarks)} benchmark entries")
