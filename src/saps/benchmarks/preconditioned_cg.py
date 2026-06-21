@@ -119,6 +119,10 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
         return []
 
     @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
     def authors(self) -> list[Contributor]:
         return PreconditionedCGBenchmark().authors
 
@@ -192,6 +196,10 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
     @property
     def suites(self) -> list[str]:
         return []
+
+    @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -299,6 +307,10 @@ class PreconditionedCGBenchmark(Benchmark):
     @property
     def suites(self) -> list[str]:
         return []
+
+    @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def generators(self):

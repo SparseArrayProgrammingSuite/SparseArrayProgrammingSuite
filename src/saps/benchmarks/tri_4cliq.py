@@ -56,6 +56,10 @@ class TriangleCountGenerator(Generator[GraphCountingDataset]):
         return []
 
     @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
     def authors(self) -> list[Contributor]:
         return []
 
@@ -136,6 +140,10 @@ class FourCliqueCountGenerator(Generator[GraphCountingDataset]):
     @property
     def suites(self) -> list[str]:
         return []
+
+    @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -231,6 +239,10 @@ class TriangleCountBenchmark(Benchmark):
     @property
     def suites(self) -> list[str]:
         return []
+
+    @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -329,6 +341,10 @@ class FourCliqueCountBenchmark(Benchmark):
     @property
     def suites(self) -> list[str]:
         return []
+
+    @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:

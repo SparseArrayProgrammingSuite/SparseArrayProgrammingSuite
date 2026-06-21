@@ -840,7 +840,14 @@
       ],
       "statistics": [],
       "suites": [],
-      "topics": []
+      "topics": [
+        "computing-methodologies",
+        "dimensionality-reduction",
+        "machine-learning-algorithms",
+        "mathematics-of-computing",
+        "nearest-neighbor-algorithms",
+        "theory-of-computation"
+      ]
     },
     {
       "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI might have been used to construct tests.",

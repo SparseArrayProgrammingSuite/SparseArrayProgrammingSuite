@@ -46,7 +46,7 @@ Each dataset should be tagged with a problem domain from the [ACM Computing Clas
 
 Manual benchmark suite tags are written to metadata verbatim under `suites`. Topic tags generated from ACM CCS XML are written under `topics`, and trace-derived tags are written under `statistics`; benchmark selection builds its tag set from all three fields.
 
-You can use the [ACM CCS 2012 generator](https://dl.acm.org/ccs/ccs.cfm), copy its XML output, and paste it into any benchmark, generator, or dataset as `ccs_xml`. SAPS converts each `concept_desc` path component into `topics`:
+Every benchmark must provide `ccs_xml`. You can use the [ACM CCS 2012 generator](https://dl.acm.org/ccs/ccs.cfm), copy its XML output, and paste it into a benchmark as `ccs_xml`. SAPS converts each `concept_desc` path component into `topics`:
 
 ```python
 @property

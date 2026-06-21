@@ -77,6 +77,10 @@ class CP4FactorizeableGenerator(Generator):
         return []
 
     @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
     def authors(self):
         return [
             Contributor("Grace Wang", "gwang426@gatech.edu"),
@@ -150,6 +154,10 @@ class CP4_ALS(Benchmark):
     @property
     def suites(self):
         return []
+
+    @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self):

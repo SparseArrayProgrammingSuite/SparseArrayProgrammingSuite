@@ -283,6 +283,10 @@ class RCGenerator(Generator[RCDataset]):
         return []
 
     @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
     def authors(self) -> list[Contributor]:
         return _AKARSH
 
@@ -341,6 +345,10 @@ class RLCGenerator(Generator[RLCDataset]):
     @property
     def suites(self) -> list[str]:
         return []
+
+    @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -403,6 +411,10 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
     @property
     def suites(self) -> list[str]:
         return []
+
+    @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -469,6 +481,10 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
         return []
 
     @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
     def authors(self) -> list[Contributor]:
         return _AKARSH
 
@@ -521,6 +537,10 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
 
 
 class _OdeBenchmarkBase(Benchmark, ABC):
+
+    @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
     @property
     def authors(self):
         return _AKARSH

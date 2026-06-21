@@ -78,6 +78,10 @@ class MCLGenerator(Generator[MCLDataset]):
         return []
 
     @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
     def authors(self) -> list[Contributor]:
         return MCLBenchmark().authors
 
@@ -190,6 +194,10 @@ class MCLBenchmark(Benchmark):
     @property
     def suites(self) -> list[str]:
         return []
+
+    @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def generators(self):

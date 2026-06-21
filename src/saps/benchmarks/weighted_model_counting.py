@@ -153,6 +153,10 @@ class WMCGenerator(Generator[WMCDataset]):
         return []
 
     @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
     def authors(self) -> list[Contributor]:
         return [Contributor("Richard Wan", "rwan41@gatech.edu")]
 
@@ -362,6 +366,10 @@ class WeightedModelCounting(Benchmark):
     @property
     def suites(self):
         return []
+
+    @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self):

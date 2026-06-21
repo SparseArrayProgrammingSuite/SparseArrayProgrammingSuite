@@ -63,6 +63,10 @@ class TransitiveClosureGenerator(Generator[TransitiveClosureDataset]):
         return []
 
     @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
     def authors(self) -> list[Contributor]:
         return []
 
@@ -133,6 +137,10 @@ class TransitiveClosureBenchmark(Benchmark):
     @property
     def suites(self):
         return []
+
+    @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self):

@@ -99,6 +99,10 @@ class GCareGraphGenerator(Generator[GCareGraphDataset]):
         return []
 
     @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
     def authors(self) -> list[Contributor]:
         return [
             Contributor("Taishan Chen", "utallow@bu.edu"),
@@ -190,6 +194,10 @@ class GCareGenerator(Generator[GCareDataset]):
     @property
     def suites(self) -> list[str]:
         return []
+
+    @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -2529,6 +2537,10 @@ class SubgraphMatching(Benchmark):
     @property
     def suites(self):
         return []
+
+    @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self):

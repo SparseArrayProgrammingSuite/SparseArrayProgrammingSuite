@@ -63,6 +63,10 @@ class ConnectedComponentsGenerator(Generator[ConnectedComponentsDataset]):
         return []
 
     @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
     def authors(self) -> list[Contributor]:
         return []
 
@@ -155,6 +159,10 @@ class SimplyConnectedComponentsBenchmark(Benchmark):
     @property
     def suites(self):
         return []
+
+    @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self):

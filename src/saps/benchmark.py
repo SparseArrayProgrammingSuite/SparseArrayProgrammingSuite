@@ -120,9 +120,11 @@ class Tagged(Metadata):
     @abstractmethod
     def suites(self) -> list[str]: ...
 
+
+class Classified(Metadata):
     @property
-    def ccs_xml(self) -> str | None:
-        return None
+    @abstractmethod
+    def ccs_xml(self) -> str: ...
 
     @property
     def topics(self) -> list[str]:
@@ -157,7 +159,7 @@ class Dataset(Tagged):
             "pretty_name": self.pretty_name,
             "description": self.description,
             "suites": self.suites,
-            "topics": self.topics,
+            "topics": [],
             "statistics": [],
         }
 
@@ -168,7 +170,7 @@ TDataset = TypeVar("TDataset", bound=Dataset)
 DataInstance: TypeAlias = tuple[list[BinsparseFormat], dict[str, Any]]
 
 
-class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
+class Generator(Tagged, Classified, Attributed, Motivated, Generic[TDataset]):
     @property
     @abstractmethod
     def datasets(self) -> list[TDataset]: ...
@@ -225,7 +227,7 @@ class Param(Generic[TDataset]):
         return f"{self.generator.name}.{self.dataset.name}"
 
 
-class Benchmark(Tagged, Attributed, Motivated):
+class Benchmark(Tagged, Classified, Attributed, Motivated):
     @property
     @abstractmethod
     def generators(self) -> list[Generator[Any]]: ...

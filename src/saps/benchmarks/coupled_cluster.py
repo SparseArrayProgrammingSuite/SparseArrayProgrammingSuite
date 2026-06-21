@@ -230,6 +230,10 @@ class CCSDGenerator(Generator[CCSDDataset]):
         return []
 
     @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
     def authors(self) -> list[Contributor]:
         return [Contributor("Tarun Devi", "tdevi3@gatech.edu")]
 
@@ -333,6 +337,10 @@ class CCSD(Benchmark):
     @property
     def suites(self) -> list[str]:
         return []
+
+    @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:

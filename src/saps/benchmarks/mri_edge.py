@@ -82,6 +82,10 @@ class MaskedMRIGenerator(Generator[MaskedMRIDataset]):
         return []
 
     @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
     def authors(self) -> list[Contributor]:
         return MaskedMRIEdgeBenchmark().authors
 
@@ -162,6 +166,10 @@ class MaskedMRIEdgeBenchmark(Benchmark):
     @property
     def suites(self) -> list[str]:
         return []
+
+    @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:

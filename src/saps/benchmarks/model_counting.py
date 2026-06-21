@@ -130,6 +130,10 @@ class MCGenerator(Generator[MCDataset]):
         return []
 
     @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
     def authors(self) -> list[Contributor]:
         return [Contributor("Richard Wan", "rwan41@gatech.edu")]
 
@@ -239,6 +243,10 @@ class ModelCounting(Benchmark):
     @property
     def suites(self):
         return []
+
+    @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self):

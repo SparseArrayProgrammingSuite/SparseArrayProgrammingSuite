@@ -79,6 +79,10 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
         return []
 
     @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
     def authors(self) -> list[Contributor]:
         return [
             Contributor("Vilohith Gokarakonda", "vgokarakonda3@gatech.edu"),
@@ -261,6 +265,22 @@ class JLApproxNearestNeighbor(Benchmark):
     @property
     def suites(self):
         return []
+
+    @property
+    def ccs_xml(self) -> str:
+        return """
+        <ccs2012>
+          <concept>
+            <concept_desc>Computing methodologies~Machine learning algorithms</concept_desc>
+          </concept>
+          <concept>
+            <concept_desc>Mathematics of computing~Dimensionality reduction</concept_desc>
+          </concept>
+          <concept>
+            <concept_desc>Theory of computation~Nearest neighbor algorithms</concept_desc>
+          </concept>
+        </ccs2012>
+        """
 
     @property
     def authors(self):

@@ -77,6 +77,10 @@ class HOSVD4DDenseGenerator(Generator[HOSVD4DDataset]):
         return []
 
     @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
     def authors(self) -> list[Contributor]:
         return [Contributor("Aadharsh Rajkumar", "arajkumar34@gatech.edu")]
 
@@ -147,6 +151,10 @@ class HOSVD4DSparseGenerator(Generator[HOSVD4DDataset]):
     @property
     def suites(self) -> list[str]:
         return []
+
+    @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -283,6 +291,10 @@ class HOSVD4DBenchmark(Benchmark):
     @property
     def suites(self) -> list[str]:
         return []
+
+    @property
+    def ccs_xml(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def generators(self):
