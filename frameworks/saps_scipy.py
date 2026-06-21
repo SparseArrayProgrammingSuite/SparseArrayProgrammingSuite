@@ -69,7 +69,6 @@ class SciPyFramework(Framework):
     def compute(self, array):
         return array
 
-
     def einsum(self, prgm, **kwargs):
         xp = array_api_compat.array_namespace(*kwargs.values(), use_compat=True)
         return einsum(xp, prgm, **kwargs)
