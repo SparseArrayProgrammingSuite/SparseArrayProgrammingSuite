@@ -93,7 +93,7 @@
           "name": "finite_difference_inputs",
           "pretty_name": "Finite Difference Data Generator",
           "references": [
-            "Laurel, J., Laguna, I., H\u00fcckelheim, J.. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Vol. 9, No. OOPSLA2, pp. 1063\u20131091, 2025, URL: https://doi.org/10.1145/3763088."
+            "Jacob Laurel, Ignacio Laguna, Jan H\u00fcckelheim. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Association for Computing Machinery (ACM), Vol. 9, No. OOPSLA2, pp. 1063-1091, 2025, URL: https://doi.org/10.1145/3763088, DOI: 10.1145/3763088."
           ],
           "statistics": [],
           "suites": [],
@@ -105,7 +105,7 @@
       "name": "buckley_leverett_finite_difference",
       "pretty_name": "1D Finite Difference (Buckley-Leverett flux)",
       "references": [
-        "Laurel, J., Laguna, I., H\u00fcckelheim, J.. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Vol. 9, No. OOPSLA2, pp. 1063\u20131091, 2025, URL: https://doi.org/10.1145/3763088."
+        "Jacob Laurel, Ignacio Laguna, Jan H\u00fcckelheim. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Association for Computing Machinery (ACM), Vol. 9, No. OOPSLA2, pp. 1063-1091, 2025, URL: https://doi.org/10.1145/3763088, DOI: 10.1145/3763088."
       ],
       "statistics": [],
       "suites": [],
@@ -138,7 +138,7 @@
           "name": "finite_difference_inputs",
           "pretty_name": "Finite Difference Data Generator",
           "references": [
-            "Laurel, J., Laguna, I., H\u00fcckelheim, J.. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Vol. 9, No. OOPSLA2, pp. 1063\u20131091, 2025, URL: https://doi.org/10.1145/3763088."
+            "Jacob Laurel, Ignacio Laguna, Jan H\u00fcckelheim. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Association for Computing Machinery (ACM), Vol. 9, No. OOPSLA2, pp. 1063-1091, 2025, URL: https://doi.org/10.1145/3763088, DOI: 10.1145/3763088."
           ],
           "statistics": [],
           "suites": [],
@@ -150,7 +150,7 @@
       "name": "burgers_finite_difference",
       "pretty_name": "1D Finite Difference (Burgers flux)",
       "references": [
-        "Laurel, J., Laguna, I., H\u00fcckelheim, J.. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Vol. 9, No. OOPSLA2, pp. 1063\u20131091, 2025, URL: https://doi.org/10.1145/3763088."
+        "Jacob Laurel, Ignacio Laguna, Jan H\u00fcckelheim. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Association for Computing Machinery (ACM), Vol. 9, No. OOPSLA2, pp. 1063-1091, 2025, URL: https://doi.org/10.1145/3763088, DOI: 10.1145/3763088."
       ],
       "statistics": [],
       "suites": [],
@@ -183,7 +183,7 @@
           "name": "finite_difference_inputs",
           "pretty_name": "Finite Difference Data Generator",
           "references": [
-            "Laurel, J., Laguna, I., H\u00fcckelheim, J.. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Vol. 9, No. OOPSLA2, pp. 1063\u20131091, 2025, URL: https://doi.org/10.1145/3763088."
+            "Jacob Laurel, Ignacio Laguna, Jan H\u00fcckelheim. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Association for Computing Machinery (ACM), Vol. 9, No. OOPSLA2, pp. 1063-1091, 2025, URL: https://doi.org/10.1145/3763088, DOI: 10.1145/3763088."
           ],
           "statistics": [],
           "suites": [],
@@ -195,7 +195,7 @@
       "name": "linear_advection_finite_difference",
       "pretty_name": "1D Finite Difference (Linear Advection flux)",
       "references": [
-        "Laurel, J., Laguna, I., H\u00fcckelheim, J.. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Vol. 9, No. OOPSLA2, pp. 1063\u20131091, 2025, URL: https://doi.org/10.1145/3763088."
+        "Jacob Laurel, Ignacio Laguna, Jan H\u00fcckelheim. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Association for Computing Machinery (ACM), Vol. 9, No. OOPSLA2, pp. 1063-1091, 2025, URL: https://doi.org/10.1145/3763088, DOI: 10.1145/3763088."
       ],
       "statistics": [],
       "suites": [],
@@ -228,7 +228,7 @@
           "name": "finite_difference_inputs_2d",
           "pretty_name": "Finite Difference Data Generator",
           "references": [
-            "Laurel, J., Laguna, I., H\u00fcckelheim, J.. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Vol. 9, No. OOPSLA2, pp. 1063\u20131091, 2025, URL: https://doi.org/10.1145/3763088."
+            "Jacob Laurel, Ignacio Laguna, Jan H\u00fcckelheim. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Association for Computing Machinery (ACM), Vol. 9, No. OOPSLA2, pp. 1063-1091, 2025, URL: https://doi.org/10.1145/3763088, DOI: 10.1145/3763088."
           ],
           "statistics": [],
           "suites": [],
@@ -240,7 +240,7 @@
       "name": "buckley_leverett_finite_difference_2d",
       "pretty_name": "2D Finite Difference (Buckley-Leverett flux)",
       "references": [
-        "Laurel, J., Laguna, I., H\u00fcckelheim, J.. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Vol. 9, No. OOPSLA2, pp. 1063\u20131091, 2025, URL: https://doi.org/10.1145/3763088."
+        "Jacob Laurel, Ignacio Laguna, Jan H\u00fcckelheim. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Association for Computing Machinery (ACM), Vol. 9, No. OOPSLA2, pp. 1063-1091, 2025, URL: https://doi.org/10.1145/3763088, DOI: 10.1145/3763088."
       ],
       "statistics": [],
       "suites": [],
@@ -273,7 +273,7 @@
           "name": "finite_difference_inputs_2d",
           "pretty_name": "Finite Difference Data Generator",
           "references": [
-            "Laurel, J., Laguna, I., H\u00fcckelheim, J.. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Vol. 9, No. OOPSLA2, pp. 1063\u20131091, 2025, URL: https://doi.org/10.1145/3763088."
+            "Jacob Laurel, Ignacio Laguna, Jan H\u00fcckelheim. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Association for Computing Machinery (ACM), Vol. 9, No. OOPSLA2, pp. 1063-1091, 2025, URL: https://doi.org/10.1145/3763088, DOI: 10.1145/3763088."
           ],
           "statistics": [],
           "suites": [],
@@ -285,7 +285,7 @@
       "name": "burgers_finite_difference_2d",
       "pretty_name": "2D Finite Difference (Burgers flux)",
       "references": [
-        "Laurel, J., Laguna, I., H\u00fcckelheim, J.. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Vol. 9, No. OOPSLA2, pp. 1063\u20131091, 2025, URL: https://doi.org/10.1145/3763088."
+        "Jacob Laurel, Ignacio Laguna, Jan H\u00fcckelheim. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Association for Computing Machinery (ACM), Vol. 9, No. OOPSLA2, pp. 1063-1091, 2025, URL: https://doi.org/10.1145/3763088, DOI: 10.1145/3763088."
       ],
       "statistics": [],
       "suites": [],
@@ -318,7 +318,7 @@
           "name": "finite_difference_inputs_2d",
           "pretty_name": "Finite Difference Data Generator",
           "references": [
-            "Laurel, J., Laguna, I., H\u00fcckelheim, J.. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Vol. 9, No. OOPSLA2, pp. 1063\u20131091, 2025, URL: https://doi.org/10.1145/3763088."
+            "Jacob Laurel, Ignacio Laguna, Jan H\u00fcckelheim. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Association for Computing Machinery (ACM), Vol. 9, No. OOPSLA2, pp. 1063-1091, 2025, URL: https://doi.org/10.1145/3763088, DOI: 10.1145/3763088."
           ],
           "statistics": [],
           "suites": [],
@@ -330,7 +330,7 @@
       "name": "linear_advection_finite_difference_2d",
       "pretty_name": "2D Finite Difference (Linear Advection flux)",
       "references": [
-        "Laurel, J., Laguna, I., H\u00fcckelheim, J.. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Vol. 9, No. OOPSLA2, pp. 1063\u20131091, 2025, URL: https://doi.org/10.1145/3763088."
+        "Jacob Laurel, Ignacio Laguna, Jan H\u00fcckelheim. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Association for Computing Machinery (ACM), Vol. 9, No. OOPSLA2, pp. 1063-1091, 2025, URL: https://doi.org/10.1145/3763088, DOI: 10.1145/3763088."
       ],
       "statistics": [],
       "suites": [],
@@ -496,8 +496,8 @@
           "name": "hosvd_dense_inputs",
           "pretty_name": "Dense Low-Rank HOSVD Input Generator",
           "references": [
-            ". \"\", URL: https://epubs.siam.org/doi/10.1137/07070111X.",
-            ". \"\", URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1."
+            "Tamara G. Kolda, Brett W. Bader. \"Tensor Decompositions and Applications\", SIAM Review, Society for Industrial & Applied Mathematics (SIAM), Vol. 51, No. 3, pp. 455-500, 2009, URL: https://doi.org/10.1137/07070111x, DOI: 10.1137/07070111x.",
+            "Evgeni Rustik, Emiliya Viktoriia, Aliona Tatyana. \"Harnessing Tensor Decomposition for High-Dimensional Machine Learning\", Institute of Electrical and Electronics Engineers (IEEE), 2025, URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1, DOI: 10.36227/techrxiv.174417403.38431928/v1."
           ],
           "statistics": [],
           "suites": [],
@@ -538,8 +538,8 @@
           "name": "hosvd_sparse_inputs",
           "pretty_name": "Sparse Low-Rank HOSVD Input Generator",
           "references": [
-            ". \"\", URL: https://epubs.siam.org/doi/10.1137/07070111X.",
-            ". \"\", URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1."
+            "Tamara G. Kolda, Brett W. Bader. \"Tensor Decompositions and Applications\", SIAM Review, Society for Industrial & Applied Mathematics (SIAM), Vol. 51, No. 3, pp. 455-500, 2009, URL: https://doi.org/10.1137/07070111x, DOI: 10.1137/07070111x.",
+            "Evgeni Rustik, Emiliya Viktoriia, Aliona Tatyana. \"Harnessing Tensor Decomposition for High-Dimensional Machine Learning\", Institute of Electrical and Electronics Engineers (IEEE), 2025, URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1, DOI: 10.36227/techrxiv.174417403.38431928/v1."
           ],
           "statistics": [],
           "suites": [],
@@ -551,8 +551,8 @@
       "name": "hosvd",
       "pretty_name": "High-Order SVD (Tucker Decomposition)",
       "references": [
-        ". \"\", URL: https://epubs.siam.org/doi/10.1137/07070111X.",
-        ". \"\", URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1."
+        "Tamara G. Kolda, Brett W. Bader. \"Tensor Decompositions and Applications\", SIAM Review, Society for Industrial & Applied Mathematics (SIAM), Vol. 51, No. 3, pp. 455-500, 2009, URL: https://doi.org/10.1137/07070111x, DOI: 10.1137/07070111x.",
+        "Evgeni Rustik, Emiliya Viktoriia, Aliona Tatyana. \"Harnessing Tensor Decomposition for High-Dimensional Machine Learning\", Institute of Electrical and Electronics Engineers (IEEE), 2025, URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1, DOI: 10.36227/techrxiv.174417403.38431928/v1."
       ],
       "statistics": [],
       "suites": [],
@@ -602,8 +602,8 @@
           "name": "hosvd_4d_dense_inputs",
           "pretty_name": "Dense Low-Rank 4D HOSVD Input Generator",
           "references": [
-            ". \"\", URL: https://epubs.siam.org/doi/10.1137/07070111X.",
-            ". \"\", URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1."
+            "Tamara G. Kolda, Brett W. Bader. \"Tensor Decompositions and Applications\", SIAM Review, Society for Industrial & Applied Mathematics (SIAM), Vol. 51, No. 3, pp. 455-500, 2009, URL: https://doi.org/10.1137/07070111x, DOI: 10.1137/07070111x.",
+            "Evgeni Rustik, Emiliya Viktoriia, Aliona Tatyana. \"Harnessing Tensor Decomposition for High-Dimensional Machine Learning\", Institute of Electrical and Electronics Engineers (IEEE), 2025, URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1, DOI: 10.36227/techrxiv.174417403.38431928/v1."
           ],
           "statistics": [],
           "suites": [],
@@ -646,8 +646,8 @@
           "name": "hosvd_4d_sparse_inputs",
           "pretty_name": "Sparse Low-Rank 4D HOSVD Input Generator",
           "references": [
-            ". \"\", URL: https://epubs.siam.org/doi/10.1137/07070111X.",
-            ". \"\", URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1."
+            "Tamara G. Kolda, Brett W. Bader. \"Tensor Decompositions and Applications\", SIAM Review, Society for Industrial & Applied Mathematics (SIAM), Vol. 51, No. 3, pp. 455-500, 2009, URL: https://doi.org/10.1137/07070111x, DOI: 10.1137/07070111x.",
+            "Evgeni Rustik, Emiliya Viktoriia, Aliona Tatyana. \"Harnessing Tensor Decomposition for High-Dimensional Machine Learning\", Institute of Electrical and Electronics Engineers (IEEE), 2025, URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1, DOI: 10.36227/techrxiv.174417403.38431928/v1."
           ],
           "statistics": [],
           "suites": [],
@@ -659,8 +659,8 @@
       "name": "hosvd_4d",
       "pretty_name": "High-Order SVD (Tucker Decomposition) for 4D Tensors",
       "references": [
-        ". \"\", URL: https://epubs.siam.org/doi/10.1137/07070111X.",
-        ". \"\", URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1."
+        "Tamara G. Kolda, Brett W. Bader. \"Tensor Decompositions and Applications\", SIAM Review, Society for Industrial & Applied Mathematics (SIAM), Vol. 51, No. 3, pp. 455-500, 2009, URL: https://doi.org/10.1137/07070111x, DOI: 10.1137/07070111x.",
+        "Evgeni Rustik, Emiliya Viktoriia, Aliona Tatyana. \"Harnessing Tensor Decomposition for High-Dimensional Machine Learning\", Institute of Electrical and Electronics Engineers (IEEE), 2025, URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1, DOI: 10.36227/techrxiv.174417403.38431928/v1."
       ],
       "statistics": [],
       "suites": [],
@@ -712,8 +712,8 @@
           "name": "hosvd_5d_dense_inputs",
           "pretty_name": "Dense Low-Rank 5D HOSVD Input Generator",
           "references": [
-            ". \"\", URL: https://epubs.siam.org/doi/10.1137/07070111X.",
-            ". \"\", URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1."
+            "Tamara G. Kolda, Brett W. Bader. \"Tensor Decompositions and Applications\", SIAM Review, Society for Industrial & Applied Mathematics (SIAM), Vol. 51, No. 3, pp. 455-500, 2009, URL: https://doi.org/10.1137/07070111x, DOI: 10.1137/07070111x.",
+            "Evgeni Rustik, Emiliya Viktoriia, Aliona Tatyana. \"Harnessing Tensor Decomposition for High-Dimensional Machine Learning\", Institute of Electrical and Electronics Engineers (IEEE), 2025, URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1, DOI: 10.36227/techrxiv.174417403.38431928/v1."
           ],
           "statistics": [],
           "suites": [],
@@ -758,8 +758,8 @@
           "name": "hosvd_5d_sparse_inputs",
           "pretty_name": "Sparse Low-Rank 5D HOSVD Input Generator",
           "references": [
-            ". \"\", URL: https://epubs.siam.org/doi/10.1137/07070111X.",
-            ". \"\", URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1."
+            "Tamara G. Kolda, Brett W. Bader. \"Tensor Decompositions and Applications\", SIAM Review, Society for Industrial & Applied Mathematics (SIAM), Vol. 51, No. 3, pp. 455-500, 2009, URL: https://doi.org/10.1137/07070111x, DOI: 10.1137/07070111x.",
+            "Evgeni Rustik, Emiliya Viktoriia, Aliona Tatyana. \"Harnessing Tensor Decomposition for High-Dimensional Machine Learning\", Institute of Electrical and Electronics Engineers (IEEE), 2025, URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1, DOI: 10.36227/techrxiv.174417403.38431928/v1."
           ],
           "statistics": [],
           "suites": [],
@@ -771,8 +771,8 @@
       "name": "hosvd_5d",
       "pretty_name": "High-Order SVD (Tucker Decomposition) for 5D Tensors",
       "references": [
-        ". \"\", URL: https://epubs.siam.org/doi/10.1137/07070111X.",
-        ". \"\", URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1."
+        "Tamara G. Kolda, Brett W. Bader. \"Tensor Decompositions and Applications\", SIAM Review, Society for Industrial & Applied Mathematics (SIAM), Vol. 51, No. 3, pp. 455-500, 2009, URL: https://doi.org/10.1137/07070111x, DOI: 10.1137/07070111x.",
+        "Evgeni Rustik, Emiliya Viktoriia, Aliona Tatyana. \"Harnessing Tensor Decomposition for High-Dimensional Machine Learning\", Institute of Electrical and Electronics Engineers (IEEE), 2025, URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1, DOI: 10.36227/techrxiv.174417403.38431928/v1."
       ],
       "statistics": [],
       "suites": [],
@@ -836,7 +836,7 @@
       "pretty_name": "Johnson-Lindenstrauss Approximate Nearest Neighbor",
       "references": [
         "scikit-learn contributors. \"Random projection implementation reference\", URL: https://github.com/scikit-learn/scikit-learn/blob/d3898d9d57aeb1e960d266613a2e31b07bca39d7/sklearn/random_projection.py#L615.",
-        "Murray, R., Demmel, J., Mahoney, M. W., Erichson, N. B., Melnichenko, M., Malik, O. A., Dongarra, J.. \"Randomized numerical linear algebra: A perspective on the field with an eye to software\", 2023, URL: https://arxiv.org/abs/2302.11474."
+        "Riley Murray, James Demmel, Michael W. Mahoney, N. Benjamin Erichson, Maksim Melnichenko, Osman Asif Malik, Laura Grigori, Piotr Luszczek, Micha\u0142 Derezi\u0144ski, Miles E. Lopes, Tianyu Liang, Hengrui Luo, Jack Dongarra. \"Randomized Numerical Linear Algebra : A Perspective on the Field With an Eye to Software\", Arxiv, Vol. arXiv:2302.11474, 2023, URL: https://arxiv.org/abs/2302.11474."
       ],
       "statistics": [],
       "suites": [],
@@ -966,7 +966,7 @@
       "name": "betweenness_centrality",
       "pretty_name": "Betweenness Centrality Algorithm",
       "references": [
-        "Matta, J., Ercal, G., Sinha, K.. \"Comparing the speed and accuracy of approaches to betweenness centrality approximation\", Computational Social Networks, 2019, URL: https://doi.org/10.1186/s40649-019-0062-5.",
+        "John Matta, Gunes Ercal, Koushik Sinha. \"Comparing the speed and accuracy of approaches to betweenness centrality approximation\", Computational Social Networks, Springer Science and Business Media LLC, Vol. 6, No. 1, 2019, URL: https://doi.org/10.1186/s40649-019-0062-5, DOI: 10.1186/s40649-019-0062-5.",
         "Kepner, Jeremy, Gilbert, John. \"Graph Algorithms in the Language of Linear Algebra\", Society for Industrial and Applied Mathematics (SIAM), Philadelphia, 2011."
       ],
       "statistics": [],
@@ -1654,7 +1654,7 @@
           "pretty_name": "Graph Convolutional Network Weights",
           "references": [
             "Bobby Yan, Alexander J. Root, Trevor Gale, David Broman, Fredrik Kjolstad. \"Scorch: A Library for Sparse Deep Learning\", Arxiv, Vol. arXiv:2405.16883, 2024, URL: https://anonymous.4open.science/r/scorch/README.md.",
-            "Wenbing Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graph\", Arxiv, Vol. arXiv:2005.00687, 2021, URL: https://arxiv.org/abs/2005.00687."
+            "Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graphs\", Arxiv, Vol. arXiv:2005.00687, 2020, URL: https://arxiv.org/abs/2005.00687."
           ],
           "statistics": [],
           "suites": [],
@@ -1667,7 +1667,7 @@
       "pretty_name": "Graph Convolutional Network Inference",
       "references": [
         "Bobby Yan, Alexander J. Root, Trevor Gale, David Broman, Fredrik Kjolstad. \"Scorch: A Library for Sparse Deep Learning\", Arxiv, Vol. arXiv:2405.16883, 2024, URL: https://anonymous.4open.science/r/scorch/README.md.",
-        "Wenbing Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graph\", Arxiv, Vol. arXiv:2005.00687, 2021, URL: https://arxiv.org/abs/2005.00687."
+        "Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graphs\", Arxiv, Vol. arXiv:2005.00687, 2020, URL: https://arxiv.org/abs/2005.00687."
       ],
       "statistics": [],
       "suites": [],
@@ -1833,7 +1833,7 @@
           "pretty_name": "Graph Convolutional Network Weights",
           "references": [
             "Bobby Yan, Alexander J. Root, Trevor Gale, David Broman, Fredrik Kjolstad. \"Scorch: A Library for Sparse Deep Learning\", Arxiv, Vol. arXiv:2405.16883, 2024, URL: https://anonymous.4open.science/r/scorch/README.md.",
-            "Wenbing Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graph\", Arxiv, Vol. arXiv:2005.00687, 2021, URL: https://arxiv.org/abs/2005.00687."
+            "Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graphs\", Arxiv, Vol. arXiv:2005.00687, 2020, URL: https://arxiv.org/abs/2005.00687."
           ],
           "statistics": [],
           "suites": [],
@@ -1846,7 +1846,7 @@
       "pretty_name": "Graph Convolutional Network Inference",
       "references": [
         "Bobby Yan, Alexander J. Root, Trevor Gale, David Broman, Fredrik Kjolstad. \"Scorch: A Library for Sparse Deep Learning\", Arxiv, Vol. arXiv:2405.16883, 2024, URL: https://anonymous.4open.science/r/scorch/README.md.",
-        "Wenbing Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graph\", Arxiv, Vol. arXiv:2005.00687, 2021, URL: https://arxiv.org/abs/2005.00687."
+        "Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graphs\", Arxiv, Vol. arXiv:2005.00687, 2020, URL: https://arxiv.org/abs/2005.00687."
       ],
       "statistics": [],
       "suites": [],
@@ -2157,7 +2157,7 @@
           "name": "mcl_inputs",
           "pretty_name": "MCL SuiteSparse Data Generator",
           "references": [
-            "Gene H. Golub, Charles F. Van Loan. \"Matrix Computations\", SIAM, 2013, DOI: 10.1137/1.9780898719918.",
+            ". \"Graph Algorithms in the Language of Linear Algebra\", Society for Industrial and Applied Mathematics, 2011, URL: https://doi.org/10.1137/1.9780898719918, DOI: 10.1137/1.9780898719918.",
             "Guy Allard. \"markov_clustering\", URL: https://github.com/GuyAllard/markov_clustering."
           ],
           "statistics": [],
@@ -2170,7 +2170,7 @@
       "name": "mcl",
       "pretty_name": "Markov Clustering Algorithm",
       "references": [
-        "Gene H. Golub, Charles F. Van Loan. \"Matrix Computations\", SIAM, 2013, DOI: 10.1137/1.9780898719918.",
+        ". \"Graph Algorithms in the Language of Linear Algebra\", Society for Industrial and Applied Mathematics, 2011, URL: https://doi.org/10.1137/1.9780898719918, DOI: 10.1137/1.9780898719918.",
         "Guy Allard. \"markov_clustering\", URL: https://github.com/GuyAllard/markov_clustering."
       ],
       "statistics": [],
@@ -2876,7 +2876,7 @@
       "references": [
         "Kepner, Jeremy, Gilbert, John. \"Graph Algorithms in the Language of Linear Algebra\", Society for Industrial and Applied Mathematics (SIAM), Philadelphia, 2011.",
         "GeeksforGeeks contributors. \"Page Rank Algorithm and Implementation\", 2025, URL: https://www.geeksforgeeks.org/python/page-rank-algorithm-implementation/.",
-        "Brin, S., Page, L.. \"The anatomy of a large-scale hypertextual Web search engine\", Computer Networks and ISDN Systems, pp. 107-117, 1998, URL: https://doi.org/10.1016/S1389-1286(98)00110-X."
+        "Sergey Brin, Lawrence Page. \"The anatomy of a large-scale hypertextual Web search engine\", Computer Networks and ISDN Systems, pp. 107-117, 1998, URL: https://doi.org/10.1016/S0169-7552(98)00110-X, DOI: 10.1016/S0169-7552(98)00110-X."
       ],
       "statistics": [],
       "suites": [],
@@ -3157,7 +3157,7 @@
           "name": "rp_kmeans_inputs",
           "pretty_name": "Random Projection k-means Data Generator",
           "references": [
-            "C. Boutsidis, A. Zouzias, P. Drineas. \"Random Projection for k-Means Clustering\", URL: https://arxiv.org/abs/1011.4632."
+            "Christos Boutsidis, Anastasios Zouzias, Petros Drineas. \"Random Projections for $k$-means Clustering\", Arxiv, Vol. arXiv:1011.4632, 2010, URL: https://arxiv.org/abs/1011.4632."
           ],
           "statistics": [],
           "suites": [],
@@ -3169,7 +3169,7 @@
       "name": "rp_kmeans_clustering",
       "pretty_name": "Random Projections for k-means Clustering",
       "references": [
-        "C. Boutsidis, A. Zouzias, P. Drineas. \"Random Projection for k-Means Clustering\", URL: https://arxiv.org/abs/1011.4632."
+        "Christos Boutsidis, Anastasios Zouzias, Petros Drineas. \"Random Projections for $k$-means Clustering\", Arxiv, Vol. arXiv:1011.4632, 2010, URL: https://arxiv.org/abs/1011.4632."
       ],
       "statistics": [],
       "suites": [],
