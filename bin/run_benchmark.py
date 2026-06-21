@@ -57,44 +57,73 @@ def format_results(results: Results, benchmarks: Benchmarks) -> dict:
     }
 
 
-def _upload(benchmarks, metadata, backend) -> int:
+_UPLOAD_DATASET_CODE = r"""
+import importlib
+import os
+import sys
+
+import saps
+
+module_name, class_name, generator_name, dataset_name = sys.argv[1:5]
+bench_module = importlib.import_module(f"saps.benchmarks.{module_name}")
+bench = getattr(bench_module, class_name)()
+generator = next(gen for gen in bench.generators if gen.name == generator_name)
+dataset = next(ds for ds in generator.datasets if ds.name == dataset_name)
+backend = saps.build_storage_backend(
+    type=os.environ.get("REMOTE_STORAGE_BACKEND"),
+    bucket=os.environ.get("REMOTE_STORAGE_BUCKET"),
+)
+raise SystemExit(0 if backend.upload_dataset(generator, dataset) else 1)
+"""
+
+
+def _upload(benchmarks, metadata, environments) -> int:
     """Upload the selected (benchmark, generator, dataset) triples."""
     uploaded = failed = skipped = 0
     seen: set[tuple[str, str]] = set()
-    for name in benchmarks:
-        if name not in metadata:
-            continue
-        selected_pairs = None
-        selected_idx = benchmarks.benchmark_selection.get(name)
-        if selected_idx is not None:
-            selected_pairs = {
-                tuple(param[0].split(".")[:2])
-                for idx, param in enumerate(product(*benchmarks[name]["params"]))
-                if idx in selected_idx and len(param) > 0
-            }
-        module_name, class_name, _method = name.rsplit(".", 2)
-        bench_module = importlib.import_module(f"saps.benchmarks.{module_name}")
-        bench = getattr(bench_module, class_name)()
-        for gen in bench.generators:
-            for ds in gen.datasets:
-                key = (gen.name, ds.name)
-                if selected_pairs is not None and key not in selected_pairs:
-                    continue
-                if key in seen:
-                    skipped += 1
-                    continue
-                seen.add(key)
-                label = f"{bench.name} / {gen.name} / {ds.name}"
-                try:
-                    if backend.upload_dataset(gen, ds):
+    for env in environments:
+        Setup.perform_setup([env], parallel=1)
+        for name in benchmarks:
+            if name not in metadata:
+                continue
+            selected_pairs = None
+            selected_idx = benchmarks.benchmark_selection.get(name)
+            if selected_idx is not None:
+                selected_pairs = {
+                    tuple(param[0].split(".")[:2])
+                    for idx, param in enumerate(product(*benchmarks[name]["params"]))
+                    if idx in selected_idx and len(param) > 0
+                }
+            module_name, class_name, _method = name.rsplit(".", 2)
+            bench_meta = metadata[name]
+            generators = {gen["name"]: gen for gen in bench_meta["generators"]}
+            for generator_name, gen_meta in generators.items():
+                for ds_meta in gen_meta["datasets"]:
+                    dataset_name = ds_meta["name"]
+                    key = (generator_name, dataset_name)
+                    if selected_pairs is not None and key not in selected_pairs:
+                        continue
+                    if key in seen:
+                        skipped += 1
+                        continue
+                    seen.add(key)
+                    label = f"{bench_meta['name']} / {generator_name} / {dataset_name}"
+                    try:
+                        env.run(
+                            [
+                                "-c",
+                                _UPLOAD_DATASET_CODE,
+                                module_name,
+                                class_name,
+                                generator_name,
+                                dataset_name,
+                            ]
+                        )
                         uploaded += 1
                         print(f"[uploaded] {label}")
-                    else:
+                    except Exception as e:
                         failed += 1
-                        print(f"[failed]   {label}")
-                except Exception as e:
-                    failed += 1
-                    print(f"[error]    {label}: {e}")
+                        print(f"[error]    {label}: {e}")
     print(f"upload summary: uploaded={uploaded} failed={failed} skipped={skipped}")
     return 0 if failed == 0 else 1
 
@@ -839,20 +868,6 @@ def main() -> int:
             format="%(levelname)s %(name)s: %(message)s",
         )
 
-    if args.upload_datasets and saps.xp is None:
-        # Upload mode runs in the caller's env (no ASV subproc), so default the
-        # framework so benchmark modules can call xp.to_binsparse(...) at generate time.
-        import importlib as _importlib
-
-        os.environ.setdefault(
-            "SAPS_FRAMEWORK",
-            str(Path(__file__).resolve().parent.parent / "frameworks/saps_numpy.py"),
-        )
-        import saps.framework as _saps_framework
-
-        _importlib.reload(_saps_framework)
-        saps.xp = _saps_framework.xp
-
     log.enable(args.verbose)
 
     # Get repo root (parent of bin directory where this script is)
@@ -911,42 +926,41 @@ def main() -> int:
     manifest_path = str(persistent_metadata_path)
     os.environ["SAPS_MANIFEST_PATH"] = manifest_path
     matrix["env_nobuild"]["SAPS_MANIFEST_PATH"] = [manifest_path]
-    if args.add_tags:
-        tagger_stats_dir = str(outputs_dir / "tagger_stats")
+    if args.add_tags or args.upload_datasets:
         storage_backend = args.remote_storage_backend or "local"
         storage_bucket = args.remote_storage_bucket or str(outputs_dir / "datasets")
         pythonpath = str(repo_root / "src")
-        os.environ["SAPS_TAGGER_STATS_DIR"] = tagger_stats_dir
-        os.environ["SAPS_ASV_SINGLE_RUN"] = "1"
+        framework_file = (
+            "frameworks/saps_tagger.py"
+            if args.add_tags
+            else "frameworks/saps_numpy.py"
+        )
+        os.environ["SAPS_FRAMEWORK"] = str(repo_root / framework_file)
         os.environ["REMOTE_STORAGE_BACKEND"] = storage_backend
         os.environ["REMOTE_STORAGE_BUCKET"] = storage_bucket
         os.environ["PYTHONPATH"] = pythonpath
-        matrix["env_nobuild"]["SAPS_FRAMEWORK"] = [
-            str(repo_root / "frameworks/saps_tagger.py")
-        ]
-        matrix["env_nobuild"]["SAPS_TAGGER_STATS_DIR"] = [tagger_stats_dir]
-        matrix["env_nobuild"]["SAPS_ASV_SINGLE_RUN"] = ["1"]
-        matrix["env_nobuild"]["REMOTE_STORAGE_BACKEND"] = [storage_backend]
-        matrix["env_nobuild"]["REMOTE_STORAGE_BUCKET"] = [storage_bucket]
-        matrix["env_nobuild"]["PYTHONPATH"] = [pythonpath]
+        if args.add_tags:
+            tagger_stats_dir = str(outputs_dir / "tagger_stats")
+            os.environ["SAPS_TAGGER_STATS_DIR"] = tagger_stats_dir
+            os.environ["SAPS_ASV_SINGLE_RUN"] = "1"
 
     install_command = saps_config_data.get(
         "install_command",
         ["in-dir={env_dir} python -mpip install {build_dir} --force-reinstall"],
     )
-    if args.add_tags:
-        install_command = [
-            f"in-dir={{env_dir}} python -mpip install {repo_root} --force-reinstall"
-        ]
 
     # Construct ASV config dict with all fields visible
+    environment_type = saps_config_data.get("environment_type", "virtualenv")
+    if args.add_tags or args.upload_datasets:
+        environment_type = "existing:same"
+
     asv_config_dict = {
         "version": 1,
         "project": "saps",
         "project_url": "https://github.com/SparseArrayProgrammingSuite/SparseArrayProgrammingSuite",
         "repo": str(repo_root),
         "branches": "HEAD",
-        "environment_type": saps_config_data.get("environment_type", "virtualenv"),
+        "environment_type": environment_type,
         "install_command": install_command,
         "benchmark_dir": str(repo_root / "src/saps/benchmarks"),
         "env_dir": saps_config_data.get("env_dir", str(saps_dir / "results")),
@@ -1105,16 +1119,10 @@ def main() -> int:
 
     if args.upload_datasets:
         _update_persistent_metadata(metadata, persistent_metadata_path)
-        os.environ["REMOTE_STORAGE_BACKEND"] = args.remote_storage_backend
-        os.environ["REMOTE_STORAGE_BUCKET"] = args.remote_storage_bucket
-        backend = saps.build_storage_backend(
-            type=args.remote_storage_backend,
-            bucket=args.remote_storage_bucket,
-        )
         return _upload(
             benchmarks=benchmarks,
             metadata=metadata,
-            backend=backend,
+            environments=environments,
         )
 
     if args.validate_citations:
