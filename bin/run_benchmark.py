@@ -3,15 +3,11 @@ from __future__ import annotations
 
 import argparse
 import copy
-import html
 import importlib
 import json
 import logging
 import os
 import re
-import urllib.error
-import urllib.request
-import xml.etree.ElementTree as ET
 from itertools import product
 from pathlib import Path
 
@@ -310,8 +306,30 @@ def _metadata_generator_record(metadata, benchmark_name, generator_name):
     return next(gen for gen in generators if gen["name"] == generator_name)
 
 
-def _merge_tags(record, tags):
-    record["tags"] = sorted(set(record.get("tags", [])).union(tags))
+def _normalize_tag(tag: str) -> str:
+    tag = tag.strip().lower().replace("_", "-")
+    return re.sub(r"-+", "-", tag)
+
+
+def _normalize_tags(tags) -> list[str]:
+    return sorted(
+        {
+            normalized
+            for tag in tags
+            if isinstance(tag, str) and (normalized := _normalize_tag(tag))
+        }
+    )
+
+
+def _merge_generated_tags(record, field: str, tags):
+    record[field] = _normalize_tags([*record.get(field, []), *tags])
+
+
+def _effective_tags(record: dict) -> set[str]:
+    return set(record.get("tags", [])).union(
+        record.get("topics", []),
+        record.get("statistics", []),
+    )
 
 
 def regex_any_match(patterns: list[str], value: str) -> bool:
@@ -341,11 +359,11 @@ def _apply_tagger_stats(metadata, stats_dir: Path) -> int:
 
         benchmark_tags, generator_tags = _infer_tags(record.get("stats", {}))
         for metadata_key in metadata_by_id[benchmark_id]:
-            _merge_tags(metadata[metadata_key], benchmark_tags)
+            _merge_generated_tags(metadata[metadata_key], "statistics", benchmark_tags)
             generator = _metadata_generator_record(
                 metadata, metadata_key, generator_name
             )
-            _merge_tags(generator, generator_tags)
+            _merge_generated_tags(generator, "statistics", generator_tags)
         tagged += 1
         print(
             f"[tagged]  {benchmark_id} / {generator_name}: "
@@ -355,193 +373,19 @@ def _apply_tagger_stats(metadata, stats_dir: Path) -> int:
     return tagged
 
 
-_DOI_RE = re.compile(r"\b10\.\d{4,9}/[-._;()/:A-Z0-9]+", re.IGNORECASE)
-_URL_RE = re.compile(r"https?://[^\s\"<>]+", re.IGNORECASE)
-
-
-def _clean_reference_token(value: str) -> str:
-    return value.rstrip(".,);]")
-
-
-def _reference_doi(reference: str) -> str | None:
-    doi_match = re.search(r"\bDOI:\s*(\S+)", reference, re.IGNORECASE)
-    if doi_match is not None:
-        return _clean_reference_token(doi_match.group(1))
-
-    match = _DOI_RE.search(reference)
-    if match is None:
-        return None
-    return _clean_reference_token(match.group(0))
-
-
-def _reference_url(reference: str) -> str | None:
-    url_match = re.search(r"\bURL:\s*(\S+)", reference, re.IGNORECASE)
-    if url_match is not None:
-        return _clean_reference_token(url_match.group(1))
-
-    match = _URL_RE.search(reference)
-    if match is None:
-        return None
-    return _clean_reference_token(match.group(0))
-
-
-def _ccs_tag(value: str) -> str:
-    tag = value.replace("::", " ")
-    tag = re.sub(r"[^0-9A-Za-z]+", "_", tag.lower())
-    return re.sub(r"_+", "_", tag).strip("_")
-
-
-def _xml_node_text(node: ET.Element, name: str) -> str | None:
-    for child in node.iter():
-        if child.tag.rsplit("}", 1)[-1] == name and child.text:
-            return child.text.strip()
-    return None
-
-
-def _ccs_tags_from_xml(xml_text: str) -> list[str]:
-    try:
-        root = ET.fromstring(xml_text)
-    except ET.ParseError:
-        return []
-
-    tags = []
-    for concept in root.iter():
-        if concept.tag.rsplit("}", 1)[-1] != "concept":
-            continue
-        desc = _xml_node_text(concept, "concept_desc")
-        if desc:
-            tags.append(_ccs_tag(desc))
-    return sorted({tag for tag in tags if tag})
-
-
-def _ccs_tags_from_html(text: str) -> list[str]:
-    candidates = [text, html.unescape(text)]
-    tags: set[str] = set()
-    for candidate in candidates:
-        for match in re.finditer(
-            r"<ccs2012\b[^>]*>.*?</ccs2012>",
-            candidate,
-            flags=re.IGNORECASE | re.DOTALL,
-        ):
-            tags.update(_ccs_tags_from_xml(match.group(0)))
-    return sorted(tags)
-
-
-def _fetch_reference_page(
-    doi: str | None, url: str | None, timeout: float
-) -> str | None:
-    targets = []
-    if url:
-        targets.append(url)
-    if doi:
-        targets.append(f"https://doi.org/{doi}")
-        if doi.startswith("10.1145/"):
-            targets.append(f"https://dl.acm.org/doi/{doi}")
-
-    seen = set()
-    targets = [target for target in targets if not (target in seen or seen.add(target))]
-
-    for target in targets:
-        request = urllib.request.Request(
-            target,
-            headers={
-                "Accept": (
-                    "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
-                ),
-                "Accept-Language": "en-US,en;q=0.8",
-                "User-Agent": "SparseArrayProgrammingSuite citation tagger",
-            },
-        )
-        try:
-            with urllib.request.urlopen(request, timeout=timeout) as response:
-                charset = response.headers.get_content_charset() or "utf-8"
-                return response.read().decode(charset, errors="replace")
-        except (OSError, urllib.error.URLError, urllib.error.HTTPError) as exc:
-            print(f"[citation-fetch-failed] {target}: {exc}")
-    return None
-
-
-def _reference_owners(metadata: dict[str, dict]):
-    for metadata_key, benchmark in metadata.items():
-        yield (
-            "benchmark",
-            metadata_key,
-            benchmark.get("id", benchmark.get("name", metadata_key)),
-            benchmark,
-        )
-        for generator in benchmark.get("generators", []):
-            yield (
-                "generator",
-                metadata_key,
-                f"{benchmark.get('id', metadata_key)} / {generator.get('name')}",
-                generator,
-            )
-
-
-def _fetch_topic_tags(
-    metadata: dict[str, dict],
-    *,
-    fetch_timeout: float,
-) -> dict:
-    checked = fetched = tagged = 0
-    fetch_cache: dict[tuple[str | None, str | None], list[str]] = {}
-
-    for _owner_type, _metadata_key, owner_id, owner in _reference_owners(metadata):
-        for reference in owner.get("references", []):
-            checked += 1
-            doi = _reference_doi(reference)
-            url = _reference_url(reference)
-            if doi is None and url is None:
-                continue
-
-            tags: list[str] = []
-            key = (doi, url)
-            if key not in fetch_cache:
-                page = _fetch_reference_page(doi, url, fetch_timeout)
-                fetched += int(page is not None)
-                fetch_cache[key] = _ccs_tags_from_html(page) if page else []
-            tags = fetch_cache[key]
-
-            if tags:
-                _merge_tags(owner, tags)
-                tagged += 1
-                print(f"[citation-tagged] {owner_id}: {', '.join(tags)}")
-
-    return {
-        "checked": checked,
-        "fetched": fetched,
-        "tagged_records": tagged,
-    }
-
-
-def _fetch_topics(
+def _generate_topics(
     metadata: dict[str, dict],
     metadata_path: Path,
     persistent_metadata_path: Path,
-    *,
-    fetch_timeout: float,
 ) -> int:
-    report = _fetch_topic_tags(
-        metadata,
-        fetch_timeout=fetch_timeout,
-    )
     metadata_path.write_text(
         json.dumps(metadata, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    _update_persistent_metadata(metadata, persistent_metadata_path)
-    report_path = metadata_path.parent / "topic_fetch.json"
-    report_path.write_text(
-        json.dumps(report, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
+    _update_persistent_metadata(
+        metadata, persistent_metadata_path, replace_fields={"topics"}
     )
-    print(
-        "topic summary: "
-        f"checked={report['checked']} "
-        f"fetched={report['fetched']} "
-        f"tagged_records={report['tagged_records']}"
-    )
-    print(f"topic report: {report_path}")
+    print(f"generated topics for {len(metadata)} benchmark records")
     return 0
 
 
@@ -553,22 +397,51 @@ def _record_key(record: dict) -> str:
     return benchmark_id
 
 
-def _merge_dataset_metadata(existing: dict, incoming: dict) -> dict:
+def _merge_generated_field(
+    existing: dict,
+    incoming: dict,
+    field: str,
+    replace_fields: set[str],
+) -> list[str]:
+    if field in replace_fields:
+        return _normalize_tags(incoming.get(field, []))
+    return _normalize_tags([*existing.get(field, []), *incoming.get(field, [])])
+
+
+def _merge_dataset_metadata(
+    existing: dict, incoming: dict, replace_fields: set[str] | None = None
+) -> dict:
+    replace_fields = replace_fields or set()
     merged = copy.deepcopy(incoming)
     for key, value in existing.items():
-        if key != "digest" and key not in merged:
+        if key not in {"digest", "tags", "topics", "statistics"} and key not in merged:
             merged[key] = copy.deepcopy(value)
-    _merge_tags(merged, existing.get("tags", []))
+    merged["tags"] = copy.deepcopy(incoming.get("tags", existing.get("tags", [])))
+    merged["topics"] = _merge_generated_field(
+        existing, incoming, "topics", replace_fields
+    )
+    merged["statistics"] = _merge_generated_field(
+        existing, incoming, "statistics", replace_fields
+    )
     merged.pop("digest", None)
     return merged
 
 
-def _merge_generator_metadata(existing: dict, incoming: dict) -> dict:
+def _merge_generator_metadata(
+    existing: dict, incoming: dict, replace_fields: set[str] | None = None
+) -> dict:
+    replace_fields = replace_fields or set()
     merged = copy.deepcopy(incoming)
     for key, value in existing.items():
-        if key not in merged:
+        if key not in {"tags", "topics", "statistics"} and key not in merged:
             merged[key] = copy.deepcopy(value)
-    _merge_tags(merged, existing.get("tags", []))
+    merged["tags"] = copy.deepcopy(incoming.get("tags", existing.get("tags", [])))
+    merged["topics"] = _merge_generated_field(
+        existing, incoming, "topics", replace_fields
+    )
+    merged["statistics"] = _merge_generated_field(
+        existing, incoming, "statistics", replace_fields
+    )
     existing_datasets = {
         dataset["name"]: dataset for dataset in existing.get("datasets", [])
     }
@@ -576,18 +449,27 @@ def _merge_generator_metadata(existing: dict, incoming: dict) -> dict:
     for dataset in merged.get("datasets", []):
         old_dataset = existing_datasets.get(dataset["name"])
         if old_dataset is not None:
-            dataset = _merge_dataset_metadata(old_dataset, dataset)
+            dataset = _merge_dataset_metadata(old_dataset, dataset, replace_fields)
         datasets.append(dataset)
     merged["datasets"] = datasets
     return merged
 
 
-def _merge_benchmark_metadata(existing: dict, incoming: dict) -> dict:
+def _merge_benchmark_metadata(
+    existing: dict, incoming: dict, replace_fields: set[str] | None = None
+) -> dict:
+    replace_fields = replace_fields or set()
     merged = copy.deepcopy(incoming)
     for key, value in existing.items():
-        if key not in merged:
+        if key not in {"tags", "topics", "statistics"} and key not in merged:
             merged[key] = copy.deepcopy(value)
-    _merge_tags(merged, existing.get("tags", []))
+    merged["tags"] = copy.deepcopy(incoming.get("tags", existing.get("tags", [])))
+    merged["topics"] = _merge_generated_field(
+        existing, incoming, "topics", replace_fields
+    )
+    merged["statistics"] = _merge_generated_field(
+        existing, incoming, "statistics", replace_fields
+    )
     existing_generators = {
         generator["name"]: generator for generator in existing.get("generators", [])
     }
@@ -595,18 +477,23 @@ def _merge_benchmark_metadata(existing: dict, incoming: dict) -> dict:
     for generator in merged.get("generators", []):
         old_generator = existing_generators.get(generator["name"])
         if old_generator is not None:
-            generator = _merge_generator_metadata(old_generator, generator)
+            generator = _merge_generator_metadata(old_generator, generator, replace_fields)
         generators.append(generator)
     merged["generators"] = generators
     return merged
 
 
-def _collapse_metadata(metadata: dict[str, dict]) -> list[dict]:
+def _collapse_metadata(
+    metadata: dict[str, dict], replace_fields: set[str] | None = None
+) -> list[dict]:
+    replace_fields = replace_fields or set()
     collapsed: dict[str, dict] = {}
     for record in metadata.values():
         key = _record_key(record)
         if key in collapsed:
-            collapsed[key] = _merge_benchmark_metadata(collapsed[key], record)
+            collapsed[key] = _merge_benchmark_metadata(
+                collapsed[key], record, replace_fields
+            )
         else:
             collapsed[key] = copy.deepcopy(record)
     return sorted(collapsed.values(), key=_record_key)
@@ -632,10 +519,26 @@ def _strip_nested_digests(record: dict) -> dict:
     return stripped
 
 
+def _ensure_tag_fields(record: dict) -> dict:
+    record.setdefault("tags", [])
+    record.setdefault("topics", [])
+    record.setdefault("statistics", [])
+    record["topics"] = _normalize_tags(record["topics"])
+    record["statistics"] = _normalize_tags(record["statistics"])
+    for generator in record.get("generators", []):
+        _ensure_tag_fields(generator)
+        for dataset in generator.get("datasets", []):
+            _ensure_tag_fields(dataset)
+    return record
+
+
 def _update_persistent_metadata(
     metadata: dict[str, dict],
     metadata_path: Path,
+    *,
+    replace_fields: set[str] | None = None,
 ):
+    replace_fields = replace_fields or set()
     current = {"benchmarks": []}
     if metadata_path.exists():
         current = json.loads(metadata_path.read_text(encoding="utf-8"))
@@ -651,17 +554,22 @@ def _update_persistent_metadata(
             record = _merge_benchmark_metadata(existing_by_key[key], record)
         existing_by_key[key] = record
 
-    for record in _collapse_metadata(metadata):
+    for record in _collapse_metadata(metadata, replace_fields):
         key = _record_key(record)
         record = _strip_nested_digests(record)
         if key in existing_by_key:
-            record = _merge_benchmark_metadata(existing_by_key[key], record)
+            record = _merge_benchmark_metadata(
+                existing_by_key[key], record, replace_fields
+            )
         existing_by_key[key] = record
 
     metadata_path.write_text(
         json.dumps(
             {
-                "benchmarks": sorted(existing_by_key.values(), key=_record_key),
+                "benchmarks": sorted(
+                    (_ensure_tag_fields(record) for record in existing_by_key.values()),
+                    key=_record_key,
+                ),
                 "digests": dict(sorted(digests.items())),
             },
             indent=2,
@@ -731,7 +639,9 @@ def _trace_statistics(
         json.dumps(metadata, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    _update_persistent_metadata(metadata, persistent_metadata_path)
+    _update_persistent_metadata(
+        metadata, persistent_metadata_path, replace_fields={"statistics"}
+    )
     print(f"tag summary: tagged_records={tagged} failed_benchmark_entries={failed}")
     return 0 if tagged > 0 else 1
 
@@ -809,24 +719,18 @@ def main() -> int:
         action="store_true",
         help=(
             "Run selected benchmark cases under ASV with the tagger framework "
-            "and merge inferred statistics tags into benchmark_metadata.json. "
+            "and replace generated statistics tags in benchmark_metadata.json. "
             "Honors --re/--no-re/--tag/--no-tag filters."
         ),
     )
     parser.add_argument(
-        "--fetch-topics",
+        "--generate-topics",
+        dest="generate_topics",
         action="store_true",
         help=(
-            "Skip benchmark execution. Fetch DOI/URL pages for references when "
-            "possible and merge ACM CCS tags into benchmark_metadata.json. "
-            "Honors --re/--no-re/--tag/--no-tag filters."
+            "Skip benchmark execution. Generate topic tags in benchmark_metadata.json "
+            "from pasted ACM CCS XML. Honors --re/--no-re/--tag/--no-tag filters."
         ),
-    )
-    parser.add_argument(
-        "--topic-fetch-timeout",
-        type=float,
-        default=10.0,
-        help="Timeout in seconds for each topic page fetch.",
     )
     parser.add_argument(
         "--no-tag",
@@ -957,7 +861,7 @@ def main() -> int:
             os.environ["SAPS_ASV_SINGLE_RUN"] = "1"
 
     uses_parent_environment = (
-        args.trace_statistics or args.cache_datasets or args.fetch_topics
+        args.trace_statistics or args.cache_datasets or args.generate_topics
     )
 
     # Construct ASV config dict with all fields visible
@@ -1047,7 +951,6 @@ def main() -> int:
     )
 
     metadata: dict[str, dict] = {}
-
     for name in benchmarks:
         module_name, class_name, _method_name = name.rsplit(".", 2)
         benchmark_module = importlib.import_module(f"saps.benchmarks.{module_name}")
@@ -1075,15 +978,15 @@ def main() -> int:
     def is_include(obj) -> bool:
         if include_res and not regex_any_match(include_res, match_target(obj)):
             return False
-        return not (include_set and not include_set.intersection(obj["tags"]))
+        return not (include_set and not include_set.intersection(_effective_tags(obj)))
 
     def is_exclude(obj) -> bool:
         if exclude_res and regex_any_match(exclude_res, match_target(obj)):
             return True
-        return bool(exclude_set and exclude_set.intersection(obj["tags"]))
+        return bool(exclude_set and exclude_set.intersection(_effective_tags(obj)))
 
     if (
-        not (args.cache_datasets or args.trace_statistics or args.fetch_topics)
+        not (args.cache_datasets or args.trace_statistics or args.generate_topics)
         and persistent_metadata_path.exists()
     ):
         persistent_metadata = json.loads(
@@ -1151,15 +1054,14 @@ def main() -> int:
             environments=environments,
         )
 
-    if args.fetch_topics:
+    if args.generate_topics:
         selected_metadata = {
             name: metadata[name] for name in benchmarks if name in metadata
         }
-        return _fetch_topics(
+        return _generate_topics(
             metadata=selected_metadata,
             metadata_path=metadata_path,
             persistent_metadata_path=persistent_metadata_path,
-            fetch_timeout=args.topic_fetch_timeout,
         )
 
     if args.trace_statistics:

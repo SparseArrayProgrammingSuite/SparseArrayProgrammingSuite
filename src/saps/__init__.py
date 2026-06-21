@@ -1,4 +1,4 @@
-from .benchmark import Author, Benchmark, Contributor, Ref
+from .benchmark import Author, Benchmark, Contributor, Ref, ccs_xml_to_tags
 from .framework import xp
 from .storage import build_storage_backend
 
@@ -8,5 +8,6 @@ __all__ = [
     "Contributor",
     "Ref",
     "build_storage_backend",
+    "ccs_xml_to_tags",
     "xp",
 ]

@@ -38,11 +38,29 @@ to install the current project and dev dependencies.
 
 ### Domains
 
-Each dataset should be tagged with a problem domain from the [ACM Computing Classification System](https://dl.acm.org/ccs), converted to lowercase with underscores, for example:
+Each dataset should be tagged with a problem domain from the [ACM Computing Classification System](https://dl.acm.org/ccs), converted to lowercase with hyphens, for example:
 
-- `applied_computing`
-- `physical_sciences_and_engineering`
+- `applied-computing`
+- `physical-sciences-and-engineering`
 - `aerospace`
+
+Manual `tags` are written to metadata verbatim. Topic tags generated from ACM CCS XML are written separately under `topics`, and trace-derived tags are written under `statistics`; benchmark selection merges all three fields when applying tag filters.
+
+You can use the [ACM CCS 2012 generator](https://dl.acm.org/ccs/ccs.cfm), copy its XML output, and paste it into any benchmark, generator, or dataset as `ccs_xml`. SAPS converts each `concept_desc` path component into `topics`:
+
+```python
+@property
+def ccs_xml(self) -> str:
+    return """
+    <ccs2012>
+      <concept>
+        <concept_desc>Applied computing~Physical sciences and engineering~Aerospace</concept_desc>
+      </concept>
+    </ccs2012>
+    """
+```
+
+Run `poetry run ./bin/run_benchmark.py --generate-topics` to replace the generated `topics` field in `benchmark_metadata.json` without changing manual `tags` or generated `statistics`.
 
 ### Problem qualities
 

@@ -1,6 +1,8 @@
 import inspect
 import json
 import os
+import re
+import xml.etree.ElementTree as ET
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
@@ -69,6 +71,32 @@ class Ref:
         )
 
 
+def _tag_slug(value: str) -> str:
+    tag = re.sub(r"[^0-9A-Za-z]+", "-", value.lower())
+    return re.sub(r"-+", "-", tag).strip("-")
+
+
+def ccs_xml_to_tags(xml_text: str | None) -> list[str]:
+    """Convert pasted ACM CCS XML into SAPS tag slugs."""
+    if not xml_text:
+        return []
+
+    try:
+        root = ET.fromstring(xml_text)
+    except ET.ParseError:
+        return []
+
+    tags: set[str] = set()
+    for node in root.iter():
+        if node.tag.rsplit("}", 1)[-1] != "concept_desc" or not node.text:
+            continue
+        for part in re.split(r"\s*(?:~|::)\s*", node.text.strip()):
+            tag = _tag_slug(part)
+            if tag:
+                tags.add(tag)
+    return sorted(tags)
+
+
 class Metadata(ABC):
     @property
     @abstractmethod
@@ -91,6 +119,14 @@ class Tagged(Metadata):
     @property
     @abstractmethod
     def tags(self) -> list[str]: ...
+
+    @property
+    def ccs_xml(self) -> str | None:
+        return None
+
+    @property
+    def topics(self) -> list[str]:
+        return ccs_xml_to_tags(self.ccs_xml)
 
 
 class Attributed(ABC):
@@ -121,6 +157,8 @@ class Dataset(Tagged):
             "pretty_name": self.pretty_name,
             "description": self.description,
             "tags": self.tags,
+            "topics": self.topics,
+            "statistics": [],
         }
 
 
@@ -168,6 +206,8 @@ class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
             "pretty_name": self.pretty_name,
             "description": self.description,
             "tags": self.tags,
+            "topics": self.topics,
+            "statistics": [],
             "authors": [str(a) for a in self.authors],
             "references": [str(r) for r in self.references],
             "ai_disclosure": self.ai_disclosure,
@@ -328,6 +368,8 @@ class Benchmark(Tagged, Attributed, Motivated):
             "id": f"{self.__class__.__module__}.{self.__class__.__name__}.{self.name}",
             "description": self.description,
             "tags": self.tags,
+            "topics": self.topics,
+            "statistics": [],
             "authors": [str(a) for a in self.authors],
             "references": [str(r) for r in self.references],
             "ai_disclosure": self.ai_disclosure,
