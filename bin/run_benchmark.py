@@ -373,23 +373,10 @@ def _load_metadata_document(metadata_path: Path) -> dict:
             "`poetry run ./bin/run_benchmark.py --generate-metadata`."
         )
     document = json.loads(metadata_path.read_text(encoding="utf-8"))
-    document.setdefault("benchmarks", [])
-    document.setdefault("digests", {})
-    pending = list(document["benchmarks"])
-    required_fields = {"suites", "topics", "statistics"}
-    while pending:
-        record = pending.pop()
-        missing = required_fields.difference(record)
-        if missing:
-            name = record.get("id", record.get("name", "metadata record"))
-            raise RuntimeError(
-                f"{name} is missing {', '.join(sorted(missing))}; run generate "
-                "metadata first with "
-                "`poetry run ./bin/run_benchmark.py --generate-metadata`."
-            )
-        pending.extend(record.get("generators", []))
-        pending.extend(record.get("datasets", []))
-    return document
+    return {
+        "benchmarks": document.get("benchmarks", []),
+        "digests": document.get("digests", {}),
+    }
 
 
 def _generate_metadata(
@@ -961,13 +948,13 @@ def main() -> int:
             skips.append(name)
 
     benchmarks = benchmarks.filter_out(set(skips))
+    selected_source_metadata = {
+        name: source_metadata[name] for name in benchmarks if name in source_metadata
+    }
 
-    if args.cache_datasets:
+    if args.cache_datasets or args.trace_statistics:
         if persistent_document is None:
             persistent_document = _load_metadata_document(persistent_metadata_path)
-        selected_source_metadata = {
-            name: source_metadata[name] for name in benchmarks if name in source_metadata
-        }
         existing_benchmarks = {
             _record_key(record): record
             for record in persistent_document.get("benchmarks", [])
@@ -979,6 +966,8 @@ def main() -> int:
                     f"Missing metadata entry for {key}; run generate metadata first "
                     "with `poetry run ./bin/run_benchmark.py --generate-metadata`."
                 )
+
+    if args.cache_datasets:
         return _cache_datasets(
             benchmarks=benchmarks,
             metadata=metadata,
@@ -986,31 +975,12 @@ def main() -> int:
         )
 
     if args.generate_topics:
-        selected_source_metadata = {
-            name: source_metadata[name] for name in benchmarks if name in source_metadata
-        }
         return _generate_topics(
             metadata=selected_source_metadata,
             metadata_path=persistent_metadata_path,
         )
 
     if args.trace_statistics:
-        if persistent_document is None:
-            persistent_document = _load_metadata_document(persistent_metadata_path)
-        selected_source_metadata = {
-            name: source_metadata[name] for name in benchmarks if name in source_metadata
-        }
-        existing_benchmarks = {
-            _record_key(record): record
-            for record in persistent_document.get("benchmarks", [])
-        }
-        for record in selected_source_metadata.values():
-            key = _record_key(record)
-            if key not in existing_benchmarks:
-                raise RuntimeError(
-                    f"Missing metadata entry for {key}; run generate metadata first "
-                    "with `poetry run ./bin/run_benchmark.py --generate-metadata`."
-                )
         return _trace_statistics(
             benchmarks=benchmarks,
             metadata=metadata,
