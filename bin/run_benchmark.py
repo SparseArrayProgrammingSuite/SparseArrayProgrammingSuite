@@ -19,7 +19,7 @@ from asv.benchmarks import Benchmarks
 from asv.commands.setup import Setup
 from asv.config import Config
 from asv.console import log
-from asv.environment import get_environments
+from asv.environment import ExistingEnvironment, get_environments
 from asv.machine import Machine
 from asv.repo import get_repo
 from asv.results import Results
@@ -672,8 +672,8 @@ def _add_tags(
     persistent_metadata_path,
     environments,
     machine_params,
-    repo,
     commit_hash,
+    commit_date,
     outputs_dir,
     timeout,
     show_stderr,
@@ -700,7 +700,7 @@ def _add_tags(
             params=params,
             requirements=env.requirements,
             commit_hash=commit_hash,
-            date=repo.get_date(commit_hash),
+            date=commit_date,
             python=env.python,
             env_name=env.name,
             env_vars=env.env_vars,
@@ -942,6 +942,10 @@ def main() -> int:
             os.environ["SAPS_TAGGER_STATS_DIR"] = tagger_stats_dir
             os.environ["SAPS_ASV_SINGLE_RUN"] = "1"
 
+    uses_parent_environment = (
+        args.add_tags or args.upload_datasets or args.validate_citations
+    )
+
     # Construct ASV config dict with all fields visible
     asv_config_dict = {
         "version": 1,
@@ -951,7 +955,7 @@ def main() -> int:
         "branches": "HEAD",
         "environment_type": (
             "existing:same"
-            if args.add_tags or args.upload_datasets
+            if uses_parent_environment
             else saps_config_data.get("environment_type", "virtualenv")
         ),
         "install_command": saps_config_data.get(
@@ -1003,16 +1007,21 @@ def main() -> int:
     # Save machine file to SAPS machine files directory
     machine_params.save(str(machine_files_dir))
 
-    environments = list(get_environments(conf, None))
+    if uses_parent_environment:
+        environments = [ExistingEnvironment(conf, "same", {}, {})]
+    else:
+        environments = list(get_environments(conf, None))
     if not environments:
         raise RuntimeError("No ASV environments available")
 
     repo = get_repo(conf)
     commit_hash = repo.get_hash_from_name("HEAD")
+    commit_date = repo.get_date(commit_hash)
+    discovery_environments = [ExistingEnvironment(conf, "same", {}, {})]
     benchmarks = Benchmarks.discover(
         conf=conf,
         repo=repo,
-        environments=environments,
+        environments=discovery_environments,
         commit_hash=[commit_hash],
     )
 
@@ -1140,8 +1149,8 @@ def main() -> int:
             persistent_metadata_path=persistent_metadata_path,
             environments=environments,
             machine_params=machine_params,
-            repo=repo,
             commit_hash=commit_hash,
+            commit_date=commit_date,
             outputs_dir=outputs_dir,
             timeout=timeout,
             show_stderr=args.show_stderr,
@@ -1152,6 +1161,7 @@ def main() -> int:
 
     for env in environments:
         Setup.perform_setup([env], parallel=1)
+        env.install_project(conf, repo, commit_hash)
 
         params = dict(machine_params.__dict__)
         params["python"] = env.python
@@ -1161,7 +1171,7 @@ def main() -> int:
             params=params,
             requirements=env.requirements,
             commit_hash=commit_hash,
-            date=repo.get_date(commit_hash),
+            date=commit_date,
             python=env.python,
             env_name=env.name,
             env_vars=env.env_vars,
