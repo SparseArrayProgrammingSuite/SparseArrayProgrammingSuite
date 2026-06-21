@@ -163,7 +163,14 @@ class StorageBackend(ABC):
                     "Failed to download dataset "
                     f"{generator.name}.{dataset.name} from remote storage."
                 )
-                return None
+                data = generator.generate(dataset)
+                digest = self.code_and_data_hash(generator, dataset, data)
+                prefix = self.prefix(generator, dataset, digest)
+                cache_path = self.cache_dir / prefix
+                self.serialize_data_to_file(data, cache_path)
+                self.update_manifest(generator, dataset, digest)
+                logging.info(f"Dataset {generator.name}.{dataset.name} regenerated.")
+                return data
         data = self.deserialize_data_from_file(cache_path)
         assert digest == self.code_and_data_hash(generator, dataset, data), (
             "Data integrity check failed: hash mismatch"

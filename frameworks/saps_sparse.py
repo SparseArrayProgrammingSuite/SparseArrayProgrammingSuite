@@ -84,9 +84,17 @@ class PyDataSparseFramework(Framework):
     def __init__(self):
         pass
 
+    @staticmethod
+    def _dense(array):
+        if isinstance(array, sp.SparseArray):
+            return array.todense()
+        if sps.issparse(array):
+            return array.toarray()
+        return np.asarray(array)
+
     def from_binsparse(self, array):
         if array.data["format"] == "dense":
-            return sp.asarray(array.data["values"].reshape(array.data["shape"]))
+            return np.asarray(array.data["values"]).reshape(array.data["shape"])
         if array.data["format"] == "COO":
             indices = []
             idx_dim = 0
@@ -114,6 +122,8 @@ class PyDataSparseFramework(Framework):
         return array
 
     def einsum(self, prgm, **kwargs):
+        if all(not isinstance(value, sp.SparseArray) for value in kwargs.values()):
+            return einsum(np, prgm, **kwargs)
         return einsum(sp, prgm, **kwargs)
 
     def with_fill_value(self, array, value):

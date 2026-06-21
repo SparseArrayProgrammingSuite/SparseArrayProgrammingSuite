@@ -903,6 +903,7 @@ def main() -> int:
         "matrix",
         {
             "req": {
+                "array-api-compat": ["1.14"],
                 "numpy": ["2.3"],
                 "scipy": ["1.16.2"],
                 "sparse": ["0.17.0"],
@@ -914,34 +915,40 @@ def main() -> int:
                     "frameworks/saps_numpy.py",
                     "frameworks/saps_scipy.py",
                     "frameworks/saps_sparse.py",
-                    "frameworks/saps_pytorch.py",
                 ],
                 "SAPS_REPO_ROOT": [str(repo_root)],
             },
         },
     )
-    if args.remote_storage_backend is not None:
-        matrix["env_nobuild"]["REMOTE_STORAGE_BACKEND"] = args.remote_storage_backend
-    if args.remote_storage_bucket is not None:
-        matrix["env_nobuild"]["REMOTE_STORAGE_BUCKET"] = args.remote_storage_bucket
+    matrix.setdefault("env_nobuild", {})
+    storage_backend = args.remote_storage_backend or "local"
+    storage_bucket = args.remote_storage_bucket or str(outputs_dir / "datasets")
+    if (
+        args.remote_storage_backend is not None
+        or "REMOTE_STORAGE_BACKEND" not in matrix["env_nobuild"]
+    ):
+        matrix["env_nobuild"]["REMOTE_STORAGE_BACKEND"] = [storage_backend]
+    if (
+        args.remote_storage_bucket is not None
+        or "REMOTE_STORAGE_BUCKET" not in matrix["env_nobuild"]
+    ):
+        matrix["env_nobuild"]["REMOTE_STORAGE_BUCKET"] = [storage_bucket]
     cache_dir = str(outputs_dir / "cache")
     os.environ["SAPS_CACHE_DIR"] = cache_dir
     matrix["env_nobuild"]["SAPS_CACHE_DIR"] = [cache_dir]
     persistent_metadata_path = repo_root / "benchmark_metadata.json"
     manifest_path = str(persistent_metadata_path)
+    pythonpath = str(repo_root)
     os.environ["SAPS_MANIFEST_PATH"] = manifest_path
+    os.environ["PYTHONPATH"] = pythonpath
+    os.environ["REMOTE_STORAGE_BACKEND"] = storage_backend
+    os.environ["REMOTE_STORAGE_BUCKET"] = storage_bucket
     matrix["env_nobuild"]["SAPS_MANIFEST_PATH"] = [manifest_path]
     if args.add_tags or args.upload_datasets:
-        storage_backend = args.remote_storage_backend or "local"
-        storage_bucket = args.remote_storage_bucket or str(outputs_dir / "datasets")
-        pythonpath = str(repo_root / "src")
         framework_file = (
             "frameworks/saps_tagger.py" if args.add_tags else "frameworks/saps_numpy.py"
         )
         os.environ["SAPS_FRAMEWORK"] = str(repo_root / framework_file)
-        os.environ["REMOTE_STORAGE_BACKEND"] = storage_backend
-        os.environ["REMOTE_STORAGE_BUCKET"] = storage_bucket
-        os.environ["PYTHONPATH"] = pythonpath
         if args.add_tags:
             tagger_stats_dir = str(outputs_dir / "tagger_stats")
             os.environ["SAPS_TAGGER_STATS_DIR"] = tagger_stats_dir
@@ -1022,7 +1029,14 @@ def main() -> int:
     repo = get_repo(conf)
     commit_hash = repo.get_hash_from_name("HEAD")
     commit_date = repo.get_date(commit_hash)
-    discovery_environments = [ExistingEnvironment(conf, "same", {}, {})]
+    discovery_environments = [
+        ExistingEnvironment(
+            conf,
+            "same",
+            {},
+            {("nobuild", "PYTHONPATH"): pythonpath},
+        )
+    ]
     benchmarks = Benchmarks.discover(
         conf=conf,
         repo=repo,

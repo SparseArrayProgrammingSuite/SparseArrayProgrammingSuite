@@ -29,6 +29,12 @@ class SciPyFramework(Framework):
     def __init__(self):
         self._modules = [sp, sps, np]
 
+    @staticmethod
+    def _dense(array):
+        if sps.issparse(array):
+            return array.toarray()
+        return np.asarray(array)
+
     @property
     def linalg(self):
         return ScipyLinalg
@@ -63,10 +69,6 @@ class SciPyFramework(Framework):
     def compute(self, array):
         return array
 
-    def diagonal(self, array, **kwargs):
-        if hasattr(array, "diagonal"):
-            return array.diagonal(**kwargs)
-        return np.diagonal(array, **kwargs)
 
     def einsum(self, prgm, **kwargs):
         xp = array_api_compat.array_namespace(*kwargs.values(), use_compat=True)
@@ -76,6 +78,9 @@ class SciPyFramework(Framework):
         return array
 
     def __getattr__(self, name):
+        xp = array_api_compat.array_namespace(use_compat=True)
+        if hasattr(xp, name):
+            return getattr(xp, name)
         for module in self._modules:
             if hasattr(module, name):
                 return getattr(module, name)
