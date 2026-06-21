@@ -90,6 +90,10 @@ class FiniteDifference2DDataset(Dataset):
     def suites(self) -> list[str]:
         return self._suites
 
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
 
 class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
     @property
@@ -117,7 +121,7 @@ class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
@@ -217,7 +221,7 @@ class _FiniteDifference2DBenchmarkBase(Benchmark):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property

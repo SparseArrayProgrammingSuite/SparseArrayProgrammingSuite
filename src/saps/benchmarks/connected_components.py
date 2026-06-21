@@ -44,6 +44,10 @@ class ConnectedComponentsDataset(Dataset):
     def suites(self) -> list[str]:
         return self._suites
 
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
 
 class ConnectedComponentsGenerator(Generator[ConnectedComponentsDataset]):
     @property
@@ -63,7 +67,7 @@ class ConnectedComponentsGenerator(Generator[ConnectedComponentsDataset]):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
@@ -161,7 +165,7 @@ class SimplyConnectedComponentsBenchmark(Benchmark):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property

@@ -33,6 +33,10 @@ class QuantumDataset(Dataset):
         return self._suites
 
     @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
     def metadata(self) -> dict[str, Any]:
         data = super().metadata
         data["nqubits"] = self.nqubits
@@ -57,7 +61,7 @@ class QuantumStateGenerator(Generator[QuantumDataset]):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
@@ -145,7 +149,7 @@ class QuantumStatevectorBenchmark(Benchmark):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property

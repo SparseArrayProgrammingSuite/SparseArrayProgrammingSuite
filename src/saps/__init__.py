@@ -1,11 +1,10 @@
-from .benchmark import Author, Benchmark, Classified, Contributor, Ref, ccs_xml_to_tags
+from .benchmark import Author, Benchmark, Contributor, Ref, ccs_xml_to_tags
 from .framework import xp
 from .storage import build_storage_backend
 
 __all__ = [
     "Author",
     "Benchmark",
-    "Classified",
     "Contributor",
     "Ref",
     "build_storage_backend",

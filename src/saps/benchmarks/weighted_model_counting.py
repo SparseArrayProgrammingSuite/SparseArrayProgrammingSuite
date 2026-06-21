@@ -134,6 +134,10 @@ class WMCDataset(Dataset):
     def suites(self) -> list[str]:
         return self._suites
 
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
 
 class WMCGenerator(Generator[WMCDataset]):
     @property
@@ -153,7 +157,7 @@ class WMCGenerator(Generator[WMCDataset]):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
@@ -368,7 +372,7 @@ class WeightedModelCounting(Benchmark):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property

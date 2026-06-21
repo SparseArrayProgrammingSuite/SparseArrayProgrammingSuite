@@ -44,6 +44,10 @@ class BetweennessCentralityDataset(Dataset):
     def suites(self) -> list[str]:
         return self._suites
 
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
 
 class BetweennessCentralityGenerator(Generator[BetweennessCentralityDataset]):
     @property
@@ -63,7 +67,7 @@ class BetweennessCentralityGenerator(Generator[BetweennessCentralityDataset]):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
@@ -144,7 +148,7 @@ class BetweennessCentralityBenchmark(Benchmark):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property

@@ -44,6 +44,10 @@ class BreadthFirstSearchDataset(Dataset):
     def suites(self) -> list[str]:
         return self._suites
 
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
 
 class BreadthFirstSearchGenerator(Generator[BreadthFirstSearchDataset]):
     @property
@@ -63,7 +67,7 @@ class BreadthFirstSearchGenerator(Generator[BreadthFirstSearchDataset]):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
@@ -157,7 +161,7 @@ class BreadthFirstSearchBenchmark(Benchmark):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property

@@ -44,6 +44,10 @@ class TransitiveClosureDataset(Dataset):
     def suites(self) -> list[str]:
         return self._suites
 
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
 
 class TransitiveClosureGenerator(Generator[TransitiveClosureDataset]):
     @property
@@ -63,7 +67,7 @@ class TransitiveClosureGenerator(Generator[TransitiveClosureDataset]):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
@@ -139,7 +143,7 @@ class TransitiveClosureBenchmark(Benchmark):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property

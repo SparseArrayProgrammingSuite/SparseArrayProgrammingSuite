@@ -59,6 +59,10 @@ class GCNTrainingDataset(Dataset):
         return self._suites
 
     @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
     def metadata(self) -> dict[str, Any]:
         data = super().metadata
         data["source_name"] = self.source_name
@@ -88,7 +92,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
@@ -342,7 +346,7 @@ Each iteration:
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property

@@ -225,6 +225,10 @@ class TicTacToeDataset(Dataset):
     def suites(self) -> list[str]:
         return self._suites
 
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
 
 class TicTacToeGenerator(Generator[TicTacToeDataset]):
     @property
@@ -247,7 +251,7 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
@@ -321,7 +325,7 @@ class TicTacToeBenchmark(Benchmark):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property

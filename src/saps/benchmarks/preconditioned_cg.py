@@ -90,6 +90,10 @@ class PreconditionedCGDataset(Dataset):
         return self._suites
 
     @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
     def metadata(self) -> dict[str, Any]:
         data = super().metadata
         data["condition_number"] = self.condition_number
@@ -119,7 +123,7 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
@@ -198,7 +202,7 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
@@ -309,7 +313,7 @@ class PreconditionedCGBenchmark(Benchmark):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property

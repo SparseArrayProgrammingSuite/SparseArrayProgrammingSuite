@@ -44,6 +44,10 @@ class FastSVDataset(Dataset):
     def suites(self) -> list[str]:
         return self._suites
 
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
 
 class FastSVGenerator(Generator[FastSVDataset]):
     @property
@@ -63,7 +67,7 @@ class FastSVGenerator(Generator[FastSVDataset]):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
@@ -147,7 +151,7 @@ class FastSVBenchmark(Benchmark):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property

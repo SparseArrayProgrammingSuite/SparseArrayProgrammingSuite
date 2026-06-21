@@ -146,6 +146,10 @@ class RCDataset(Dataset):
     def suites(self) -> list[str]:
         return self._suites
 
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
 
 class RLCDataset(Dataset):
     def __init__(self, name, pretty_name, description, suites, R, L, C, t_max, y0, step):
@@ -175,6 +179,10 @@ class RLCDataset(Dataset):
     @property
     def suites(self) -> list[str]:
         return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
 
 class LotkaVolterraDataset(Dataset):
@@ -208,6 +216,10 @@ class LotkaVolterraDataset(Dataset):
     @property
     def suites(self) -> list[str]:
         return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
 
 class BrusselatorDataset(Dataset):
@@ -252,6 +264,10 @@ class BrusselatorDataset(Dataset):
     def suites(self) -> list[str]:
         return self._suites
 
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
 
 # ---------------------------------------------------------------------------
 # Generators
@@ -283,7 +299,7 @@ class RCGenerator(Generator[RCDataset]):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
@@ -347,7 +363,7 @@ class RLCGenerator(Generator[RLCDataset]):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
@@ -413,7 +429,7 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
@@ -481,7 +497,7 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
@@ -539,7 +555,7 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
 class _OdeBenchmarkBase(Benchmark, ABC):
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
     @property
     def authors(self):

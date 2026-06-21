@@ -44,6 +44,10 @@ class GCareGraphDataset(Dataset):
     def suites(self) -> list[str]:
         return self._suites
 
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
 
 class GCareDataset(Dataset):
     def __init__(
@@ -80,6 +84,10 @@ class GCareDataset(Dataset):
     def suites(self) -> list[str]:
         return self._suites
 
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
 
 class GCareGraphGenerator(Generator[GCareGraphDataset]):
     @property
@@ -99,7 +107,7 @@ class GCareGraphGenerator(Generator[GCareGraphDataset]):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
@@ -196,7 +204,7 @@ class GCareGenerator(Generator[GCareDataset]):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
@@ -2539,7 +2547,7 @@ class SubgraphMatching(Benchmark):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property

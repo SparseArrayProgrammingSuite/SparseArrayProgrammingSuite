@@ -43,6 +43,10 @@ class JacobiDataset(Dataset):
         return self._suites
 
     @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
     def metadata(self) -> dict[str, Any]:
         data = super().metadata
         data["nnz"] = self.nnz
@@ -71,7 +75,7 @@ class JacobiGenerator(Generator[JacobiDataset]):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
@@ -183,7 +187,7 @@ class JacobiBenchmark(Benchmark):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property

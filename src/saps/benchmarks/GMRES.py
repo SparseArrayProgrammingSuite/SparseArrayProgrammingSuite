@@ -42,6 +42,10 @@ class GMRESDataset(Dataset):
         return self._suites
 
     @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
     def metadata(self) -> dict[str, Any]:
         data = super().metadata
         data["nnz"] = self.nnz
@@ -67,7 +71,7 @@ class GMRESGenerator(Generator[GMRESDataset]):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
@@ -229,7 +233,7 @@ class GMRESBenchmark(Benchmark):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property

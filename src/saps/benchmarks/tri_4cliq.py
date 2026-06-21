@@ -37,6 +37,10 @@ class GraphCountingDataset(Dataset):
     def suites(self) -> list[str]:
         return self._suites
 
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
 
 class TriangleCountGenerator(Generator[GraphCountingDataset]):
     @property
@@ -56,7 +60,7 @@ class TriangleCountGenerator(Generator[GraphCountingDataset]):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
@@ -142,7 +146,7 @@ class FourCliqueCountGenerator(Generator[GraphCountingDataset]):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
@@ -241,7 +245,7 @@ class TriangleCountBenchmark(Benchmark):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
@@ -343,7 +347,7 @@ class FourCliqueCountBenchmark(Benchmark):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property

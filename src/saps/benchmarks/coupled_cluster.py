@@ -205,6 +205,10 @@ class CCSDDataset(Dataset):
     def suites(self) -> list[str]:
         return self._suites
 
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
 
 class CCSDGenerator(Generator[CCSDDataset]):
     @property
@@ -230,7 +234,7 @@ class CCSDGenerator(Generator[CCSDDataset]):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
@@ -339,7 +343,7 @@ class CCSD(Benchmark):
         return []
 
     @property
-    def ccs_xml(self) -> str:
+    def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
     @property
