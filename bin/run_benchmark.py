@@ -57,34 +57,29 @@ def format_results(results: Results, benchmarks: Benchmarks) -> dict:
     }
 
 
-def _upload(benchmarks, metadata, backend, is_include, is_exclude) -> int:
-    """Walk every (benchmark, generator, dataset) triple and upload."""
+def _upload(benchmarks, metadata, backend) -> int:
+    """Upload the selected (benchmark, generator, dataset) triples."""
     uploaded = failed = skipped = 0
     seen: set[tuple[str, str]] = set()
     for name in benchmarks:
         if name not in metadata:
             continue
-        bench_meta = metadata[name]
-        if is_exclude(bench_meta):
-            continue
+        selected_pairs = None
+        selected_idx = benchmarks.benchmark_selection.get(name)
+        if selected_idx is not None:
+            selected_pairs = {
+                tuple(param[0].split(".")[:2])
+                for idx, param in enumerate(product(*benchmarks[name]["params"]))
+                if idx in selected_idx and len(param) > 0
+            }
         module_name, class_name, _method = name.rsplit(".", 2)
         bench_module = importlib.import_module(f"saps.benchmarks.{module_name}")
         bench = getattr(bench_module, class_name)()
         for gen in bench.generators:
-            gen_meta = gen.metadata
-            if is_exclude(gen_meta):
-                continue
             for ds in gen.datasets:
-                ds_meta = ds.metadata
-                if is_exclude(ds_meta):
-                    continue
-                if not (
-                    is_include(bench_meta)
-                    or is_include(gen_meta)
-                    or is_include(ds_meta)
-                ):
-                    continue
                 key = (gen.name, ds.name)
+                if selected_pairs is not None and key not in selected_pairs:
+                    continue
                 if key in seen:
                     skipped += 1
                     continue
@@ -286,17 +281,6 @@ def _merge_tags(record, tags):
 
 def regex_any_match(patterns: list[str], value: str) -> bool:
     return any(re.search(pattern, value) for pattern in patterns)
-
-
-def _prefilter_benchmarks_by_name(benchmarks, include_res, exclude_res):
-    skips = []
-    for name in benchmarks:
-        if include_res and not regex_any_match(include_res, name):
-            skips.append(name)
-            continue
-        if exclude_res and regex_any_match(exclude_res, name):
-            skips.append(name)
-    return benchmarks.filter_out(set(skips))
 
 
 def _normalize_benchmark_id(benchmark_id: str) -> str:
@@ -1058,24 +1042,21 @@ def main() -> int:
             return True
         return bool(exclude_set and exclude_set.intersection(obj["tags"]))
 
-    if include_res or exclude_res:
-        benchmarks = _prefilter_benchmarks_by_name(benchmarks, include_res, exclude_res)
-
-    if args.upload_datasets:
-        _update_persistent_metadata(metadata, persistent_metadata_path)
-        os.environ["REMOTE_STORAGE_BACKEND"] = args.remote_storage_backend
-        os.environ["REMOTE_STORAGE_BUCKET"] = args.remote_storage_bucket
-        backend = saps.build_storage_backend(
-            type=args.remote_storage_backend,
-            bucket=args.remote_storage_bucket,
+    if (
+        not (args.upload_datasets or args.add_tags or args.validate_citations)
+        and persistent_metadata_path.exists()
+    ):
+        persistent_metadata = json.loads(
+            persistent_metadata_path.read_text(encoding="utf-8")
         )
-        return _upload(
-            benchmarks=benchmarks,
-            metadata=metadata,
-            backend=backend,
-            is_include=is_include,
-            is_exclude=is_exclude,
-        )
+        persistent_by_key = {
+            _record_key(record): record
+            for record in persistent_metadata.get("benchmarks", [])
+        }
+        for name, record in list(metadata.items()):
+            existing = persistent_by_key.get(_record_key(record))
+            if existing is not None:
+                metadata[name] = _merge_benchmark_metadata(existing, record)
 
     skips = []
     benchmarks._benchmark_selection = {}
@@ -1121,6 +1102,20 @@ def main() -> int:
             skips.append(name)
 
     benchmarks = benchmarks.filter_out(set(skips))
+
+    if args.upload_datasets:
+        _update_persistent_metadata(metadata, persistent_metadata_path)
+        os.environ["REMOTE_STORAGE_BACKEND"] = args.remote_storage_backend
+        os.environ["REMOTE_STORAGE_BUCKET"] = args.remote_storage_bucket
+        backend = saps.build_storage_backend(
+            type=args.remote_storage_backend,
+            bucket=args.remote_storage_bucket,
+        )
+        return _upload(
+            benchmarks=benchmarks,
+            metadata=metadata,
+            backend=backend,
+        )
 
     if args.validate_citations:
         selected_metadata = {
