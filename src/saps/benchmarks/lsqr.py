@@ -1,3 +1,69 @@
+import os
+from typing import Any
+
+import numpy as np
+
+import saps
+from saps.benchmark import (
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    Ref,
+)
+from saps_framework import BinsparseFormat
+
+xp = saps.xp
+
+
+def normof2(xp, x, y):
+    return xp.sqrt(xp.sum(xp.multiply(x, y)))
+
+
+class LSQRDataset(Dataset):
+    def __init__(
+        self,
+        source_name: str,
+        has_b_file: bool = False,
+        nnz: int | None = None,
+        noise_amt: float = 0.1,
+    ):
+        self._suites: list[str] = []
+        self.source_name = source_name
+        self.has_b_file = has_b_file
+        self.nnz = nnz
+        self.noise_amt = noise_amt
+
+    @property
+    def name(self) -> str:
+        return self.source_name
+
+    @property
+    def pretty_name(self) -> str:
+        return f"LSQR {self.source_name}"
+
+    @property
+    def description(self) -> str:
+        return f"SuiteSparse matrix {self.source_name}."
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        data = super().metadata
+        data["nnz"] = self.nnz
+        data["has_b_file"] = self.has_b_file
+        data["noise_amt"] = self.noise_amt
+        return data
+
+
 # BEGIN COPIED TEST FILE: tests/test_lsqr.py
 # import pytest
 #
@@ -129,72 +195,6 @@
 #     elif convergence == "gradient":
 #         assert np.linalg.norm(A.T @ residual) < 1e-5 * np.linalg.norm(A.T @ b) + 1e-5
 # END COPIED TEST FILE: tests/test_lsqr.py
-
-import os
-from typing import Any
-
-import numpy as np
-
-import saps
-from saps.benchmark import (
-    Benchmark,
-    Contributor,
-    DataInstance,
-    Dataset,
-    Generator,
-    Ref,
-)
-from saps_framework import BinsparseFormat
-
-xp = saps.xp
-
-
-def normof2(xp, x, y):
-    return xp.sqrt(xp.sum(xp.multiply(x, y)))
-
-
-class LSQRDataset(Dataset):
-    def __init__(
-        self,
-        source_name: str,
-        has_b_file: bool = False,
-        nnz: int | None = None,
-        noise_amt: float = 0.1,
-    ):
-        self._suites: list[str] = []
-        self.source_name = source_name
-        self.has_b_file = has_b_file
-        self.nnz = nnz
-        self.noise_amt = noise_amt
-
-    @property
-    def name(self) -> str:
-        return self.source_name
-
-    @property
-    def pretty_name(self) -> str:
-        return f"LSQR {self.source_name}"
-
-    @property
-    def description(self) -> str:
-        return f"SuiteSparse matrix {self.source_name}."
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
-    @property
-    def metadata(self) -> dict[str, Any]:
-        data = super().metadata
-        data["nnz"] = self.nnz
-        data["has_b_file"] = self.has_b_file
-        data["noise_amt"] = self.noise_amt
-        return data
-
 
 class LSQRGenerator(Generator[LSQRDataset]):
     @property

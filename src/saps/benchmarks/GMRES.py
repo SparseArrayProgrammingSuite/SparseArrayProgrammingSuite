@@ -1,3 +1,59 @@
+import os
+from typing import Any
+
+import numpy as np
+
+import saps
+from saps.benchmark import (
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    Ref,
+)
+from saps_framework import BinsparseFormat
+
+xp = saps.xp
+
+
+class GMRESDataset(Dataset):
+    def __init__(
+        self, source_name: str, has_b_file: bool = False, nnz: int | None = None
+    ):
+        self._suites: list[str] = []
+        self.source_name = source_name
+        self.has_b_file = has_b_file
+        self.nnz = nnz
+
+    @property
+    def name(self) -> str:
+        return self.source_name
+
+    @property
+    def pretty_name(self) -> str:
+        return f"GMRES {self.source_name}"
+
+    @property
+    def description(self) -> str:
+        return f"SuiteSparse matrix {self.source_name}."
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        data = super().metadata
+        data["nnz"] = self.nnz
+        data["has_b_file"] = self.has_b_file
+        return data
+
+
 # BEGIN COPIED TEST FILE: tests/test_gmres.py
 # import pytest
 #
@@ -115,62 +171,6 @@
 #
 #         assert rel_resid < 1e-4, f"Relative residual too high: {rel_resid}"
 # END COPIED TEST FILE: tests/test_gmres.py
-
-import os
-from typing import Any
-
-import numpy as np
-
-import saps
-from saps.benchmark import (
-    Benchmark,
-    Contributor,
-    DataInstance,
-    Dataset,
-    Generator,
-    Ref,
-)
-from saps_framework import BinsparseFormat
-
-xp = saps.xp
-
-
-class GMRESDataset(Dataset):
-    def __init__(
-        self, source_name: str, has_b_file: bool = False, nnz: int | None = None
-    ):
-        self._suites: list[str] = []
-        self.source_name = source_name
-        self.has_b_file = has_b_file
-        self.nnz = nnz
-
-    @property
-    def name(self) -> str:
-        return self.source_name
-
-    @property
-    def pretty_name(self) -> str:
-        return f"GMRES {self.source_name}"
-
-    @property
-    def description(self) -> str:
-        return f"SuiteSparse matrix {self.source_name}."
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
-    @property
-    def metadata(self) -> dict[str, Any]:
-        data = super().metadata
-        data["nnz"] = self.nnz
-        data["has_b_file"] = self.has_b_file
-        return data
-
 
 class GMRESGenerator(Generator[GMRESDataset]):
     @property

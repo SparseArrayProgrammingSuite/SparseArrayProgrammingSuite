@@ -1,3 +1,101 @@
+import numpy as np
+
+import saps
+from saps.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    Ref,
+)
+
+xp = saps.xp
+
+
+# This matrix formula assume Dirichlet BC instead of Periodic BC.
+def _lax_freidrichs_matrix_no_flux_2D(number_spatial_x, number_spatial_y):
+    N = number_spatial_x * number_spatial_y
+    matrix = np.zeros((N, N))
+    for i in range(N):
+        x = i % number_spatial_x
+        y = i // number_spatial_x
+        if x > 0:
+            matrix[i, i - 1] = 0.25
+        if x < number_spatial_x - 1:
+            matrix[i, i + 1] = 0.25
+
+        if y > 0:
+            matrix[i, i - number_spatial_x] = 0.25
+        if y < number_spatial_y - 1:
+            matrix[i, i + number_spatial_x] = 0.25
+
+    return matrix
+
+
+def _difference_matrix_x_direction(number_spatial_x, number_spatial_y):
+    N = number_spatial_x * number_spatial_y
+    dif_x_matrix = np.zeros((N, N))
+    for i in range(N):
+        x = i % number_spatial_x
+        if x > 0:
+            dif_x_matrix[i, i - 1] = -1
+        if x < number_spatial_x - 1:
+            dif_x_matrix[i, i + 1] = +1
+
+    return dif_x_matrix
+
+
+def _difference_matrix_y_direction(number_spatial_x, number_spatial_y):
+    N = number_spatial_x * number_spatial_y
+    dif_y_matrix = np.zeros((N, N))
+    for i in range(N):
+        y = i // number_spatial_x
+        if y > 0:
+            dif_y_matrix[i, i - number_spatial_x] = -1
+        if y < number_spatial_y - 1:
+            dif_y_matrix[i, i + number_spatial_x] = +1
+
+    return dif_y_matrix
+
+
+class FiniteDifference2DDataset(Dataset):
+    def __init__(self, name, pretty_name, suites, Nx, dx, Ny, dy, Nt, dt):
+        self._name = name
+        self._pretty_name = pretty_name
+        self._suites = suites
+        self.Nx = Nx
+        self.dx = dx
+        self.Ny = Ny
+        self.dy = dy
+        self.Nt = Nt
+        self.dt = dt
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return (
+            f"{self.pretty_name}: Nx = {self.Nx}, dx = {self.dx}, "
+            f"Ny = {self.Ny}, dy = {self.dy}, dt = {self.dt}."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+
 # BEGIN COPIED TEST FILE: tests/test_finite_difference_2D.py
 # import pytest
 #
@@ -181,104 +279,6 @@
 #     for idx in actual_non_zero_points:
 #         assert idx in theory_non_zero_points
 # END COPIED TEST FILE: tests/test_finite_difference_2D.py
-
-import numpy as np
-
-import saps
-from saps.benchmark import (
-    Author,
-    Benchmark,
-    Contributor,
-    DataInstance,
-    Dataset,
-    Generator,
-    Ref,
-)
-
-xp = saps.xp
-
-
-# This matrix formula assume Dirichlet BC instead of Periodic BC.
-def _lax_freidrichs_matrix_no_flux_2D(number_spatial_x, number_spatial_y):
-    N = number_spatial_x * number_spatial_y
-    matrix = np.zeros((N, N))
-    for i in range(N):
-        x = i % number_spatial_x
-        y = i // number_spatial_x
-        if x > 0:
-            matrix[i, i - 1] = 0.25
-        if x < number_spatial_x - 1:
-            matrix[i, i + 1] = 0.25
-
-        if y > 0:
-            matrix[i, i - number_spatial_x] = 0.25
-        if y < number_spatial_y - 1:
-            matrix[i, i + number_spatial_x] = 0.25
-
-    return matrix
-
-
-def _difference_matrix_x_direction(number_spatial_x, number_spatial_y):
-    N = number_spatial_x * number_spatial_y
-    dif_x_matrix = np.zeros((N, N))
-    for i in range(N):
-        x = i % number_spatial_x
-        if x > 0:
-            dif_x_matrix[i, i - 1] = -1
-        if x < number_spatial_x - 1:
-            dif_x_matrix[i, i + 1] = +1
-
-    return dif_x_matrix
-
-
-def _difference_matrix_y_direction(number_spatial_x, number_spatial_y):
-    N = number_spatial_x * number_spatial_y
-    dif_y_matrix = np.zeros((N, N))
-    for i in range(N):
-        y = i // number_spatial_x
-        if y > 0:
-            dif_y_matrix[i, i - number_spatial_x] = -1
-        if y < number_spatial_y - 1:
-            dif_y_matrix[i, i + number_spatial_x] = +1
-
-    return dif_y_matrix
-
-
-class FiniteDifference2DDataset(Dataset):
-    def __init__(self, name, pretty_name, suites, Nx, dx, Ny, dy, Nt, dt):
-        self._name = name
-        self._pretty_name = pretty_name
-        self._suites = suites
-        self.Nx = Nx
-        self.dx = dx
-        self.Ny = Ny
-        self.dy = dy
-        self.Nt = Nt
-        self.dt = dt
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def pretty_name(self) -> str:
-        return self._pretty_name
-
-    @property
-    def description(self) -> str:
-        return (
-            f"{self.pretty_name}: Nx = {self.Nx}, dx = {self.dx}, "
-            f"Ny = {self.Ny}, dy = {self.dy}, dt = {self.dt}."
-        )
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
 
 class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
     @property

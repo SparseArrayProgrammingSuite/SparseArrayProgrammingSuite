@@ -1,3 +1,68 @@
+import os
+from typing import Any
+
+import numpy as np
+
+import saps
+from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
+from saps_framework import BinsparseFormat
+
+xp = saps.xp
+
+
+class MaskedMRIDataset(Dataset):
+    def __init__(
+        self,
+        name: str,
+        category: str,
+        filename: str,
+        t1_val: float = 191.25,
+        t2_val: float = 204.0,
+        image: np.ndarray | None = None,
+        roi: np.ndarray | None = None,
+    ):
+        self._suites: list[str] = []
+        self.source_name = name
+        self.category = category
+        self.filename = filename
+        self.t1_val = t1_val
+        self.t2_val = t2_val
+        self.image = image
+        self.roi = roi
+
+    @property
+    def name(self) -> str:
+        return self.source_name
+
+    @property
+    def pretty_name(self) -> str:
+        return f"Masked MRI Edge {self.source_name}"
+
+    @property
+    def description(self) -> str:
+        return (
+            f"MRI image {self.filename} with thresholds {self.t1_val} and "
+            f"{self.t2_val}."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        data = super().metadata
+        data["category"] = self.category
+        data["filename"] = self.filename
+        data["t1_val"] = self.t1_val
+        data["t2_val"] = self.t2_val
+        return data
+
+
 # BEGIN COPIED TEST FILE: tests/test_mri_edge.py
 # import pytest
 #
@@ -100,71 +165,6 @@
 #     assert t1_arr.item() == 10.0
 #     assert t2_arr.item() == 20.0
 # END COPIED TEST FILE: tests/test_mri_edge.py
-
-import os
-from typing import Any
-
-import numpy as np
-
-import saps
-from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
-from saps_framework import BinsparseFormat
-
-xp = saps.xp
-
-
-class MaskedMRIDataset(Dataset):
-    def __init__(
-        self,
-        name: str,
-        category: str,
-        filename: str,
-        t1_val: float = 191.25,
-        t2_val: float = 204.0,
-        image: np.ndarray | None = None,
-        roi: np.ndarray | None = None,
-    ):
-        self._suites: list[str] = []
-        self.source_name = name
-        self.category = category
-        self.filename = filename
-        self.t1_val = t1_val
-        self.t2_val = t2_val
-        self.image = image
-        self.roi = roi
-
-    @property
-    def name(self) -> str:
-        return self.source_name
-
-    @property
-    def pretty_name(self) -> str:
-        return f"Masked MRI Edge {self.source_name}"
-
-    @property
-    def description(self) -> str:
-        return (
-            f"MRI image {self.filename} with thresholds {self.t1_val} and "
-            f"{self.t2_val}."
-        )
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
-    @property
-    def metadata(self) -> dict[str, Any]:
-        data = super().metadata
-        data["category"] = self.category
-        data["filename"] = self.filename
-        data["t1_val"] = self.t1_val
-        data["t2_val"] = self.t2_val
-        return data
-
 
 class MaskedMRIGenerator(Generator[MaskedMRIDataset]):
     @property

@@ -1,3 +1,49 @@
+import numpy as np
+
+import saps
+from saps.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    Ref,
+)
+from saps_framework import BinsparseFormat
+
+xp = saps.xp
+
+
+class CP5FactorizeableDataset(Dataset):
+    def __init__(self, name, pretty_name, suites, shape, rank):
+        self._name = name
+        self._pretty_name = pretty_name
+        self._suites = suites
+        self.shape = shape
+        self.rank = rank
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return f"rank = {self.rank}, shape = {self.shape}"
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+
 # BEGIN COPIED TEST FILE: tests/test_cp5_als.py
 # import pytest
 #
@@ -69,52 +115,6 @@
 #     assert lambda_vals.shape == (rank,)
 #     print(f"CP-ALS factorizable test passed with {xp.__class__.__name__}")
 # END COPIED TEST FILE: tests/test_cp5_als.py
-
-import numpy as np
-
-import saps
-from saps.benchmark import (
-    Author,
-    Benchmark,
-    Contributor,
-    DataInstance,
-    Dataset,
-    Generator,
-    Ref,
-)
-from saps_framework import BinsparseFormat
-
-xp = saps.xp
-
-
-class CP5FactorizeableDataset(Dataset):
-    def __init__(self, name, pretty_name, suites, shape, rank):
-        self._name = name
-        self._pretty_name = pretty_name
-        self._suites = suites
-        self.shape = shape
-        self.rank = rank
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def pretty_name(self) -> str:
-        return self._pretty_name
-
-    @property
-    def description(self) -> str:
-        return f"rank = {self.rank}, shape = {self.shape}"
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
 
 class CP5FactorizeableGenerator(Generator):
     @property

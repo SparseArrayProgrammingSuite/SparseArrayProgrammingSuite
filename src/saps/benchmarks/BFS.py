@@ -1,3 +1,53 @@
+import saps
+from saps.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    Ref,
+)
+from saps.downloaders.snap import download_snap_dataset
+from saps_framework.binsparse_format import BinsparseFormat
+
+xp = saps.xp
+
+
+class BreadthFirstSearchDataset(Dataset):
+    def __init__(
+        self,
+        name: str,
+        pretty_name: str | None = None,
+        description: str | None = None,
+        suites: list[str] | None = None,
+    ):
+        self._name = name
+        self._pretty_name = pretty_name or name
+        self._description = description or f"Breadth-first search input {name}."
+        self._suites = suites or []
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+
 # BEGIN COPIED TEST FILE: tests/test_bfs.py
 # import numpy as np
 #
@@ -89,56 +139,6 @@
 #     data, meta = load_toy_dataset()
 #     _run_bfs_case(data[0], meta["src"], np.array([1, 2, 3], dtype=int))
 # END COPIED TEST FILE: tests/test_bfs.py
-
-import saps
-from saps.benchmark import (
-    Author,
-    Benchmark,
-    Contributor,
-    DataInstance,
-    Dataset,
-    Generator,
-    Ref,
-)
-from saps.downloaders.snap import download_snap_dataset
-from saps_framework.binsparse_format import BinsparseFormat
-
-xp = saps.xp
-
-
-class BreadthFirstSearchDataset(Dataset):
-    def __init__(
-        self,
-        name: str,
-        pretty_name: str | None = None,
-        description: str | None = None,
-        suites: list[str] | None = None,
-    ):
-        self._name = name
-        self._pretty_name = pretty_name or name
-        self._description = description or f"Breadth-first search input {name}."
-        self._suites = suites or []
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def pretty_name(self) -> str:
-        return self._pretty_name
-
-    @property
-    def description(self) -> str:
-        return self._description
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
 
 class BreadthFirstSearchGenerator(Generator[BreadthFirstSearchDataset]):
     @property

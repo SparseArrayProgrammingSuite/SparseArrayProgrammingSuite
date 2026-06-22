@@ -1,3 +1,54 @@
+import os
+
+import numpy as np
+
+import saps
+from saps.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    Ref,
+)
+from saps_framework.binsparse_format import BinsparseFormat
+
+xp = saps.xp
+
+
+class FloydWarshallDataset(Dataset):
+    def __init__(
+        self, name, pretty_name, description, suites, source, symmetrize=False
+    ):
+        self._name = name
+        self._pretty_name = pretty_name
+        self._description = description
+        self._suites = suites
+        self.source = source
+        self.symmetrize = symmetrize
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+
 # BEGIN COPIED TEST FILE: tests/test_floyd_warshall.py
 # import numpy as np
 #
@@ -194,57 +245,6 @@
 #         i, j, k = rng.integers(0, n, size=3)
 #         assert out[i, j] <= out[i, k] + out[k, j]
 # END COPIED TEST FILE: tests/test_floyd_warshall.py
-
-import os
-
-import numpy as np
-
-import saps
-from saps.benchmark import (
-    Author,
-    Benchmark,
-    Contributor,
-    DataInstance,
-    Dataset,
-    Generator,
-    Ref,
-)
-from saps_framework.binsparse_format import BinsparseFormat
-
-xp = saps.xp
-
-
-class FloydWarshallDataset(Dataset):
-    def __init__(
-        self, name, pretty_name, description, suites, source, symmetrize=False
-    ):
-        self._name = name
-        self._pretty_name = pretty_name
-        self._description = description
-        self._suites = suites
-        self.source = source
-        self.symmetrize = symmetrize
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def pretty_name(self) -> str:
-        return self._pretty_name
-
-    @property
-    def description(self) -> str:
-        return self._description
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
 
 class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
     @property

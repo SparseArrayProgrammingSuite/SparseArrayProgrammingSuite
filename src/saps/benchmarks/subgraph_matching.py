@@ -1,3 +1,95 @@
+import saps
+from saps.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    Ref,
+)
+from saps.downloaders.gcare import (
+    load_gcare_graph,
+    load_gcare_query,
+)
+
+xp = saps.xp
+
+
+class GCareGraphDataset(Dataset):
+    def __init__(
+        self,
+        name,
+        pretty_name,
+        description,
+        suites,
+    ):
+        self._name = name
+        self._pretty_name = pretty_name
+        self._description = description
+        self._suites = suites
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+
+class GCareDataset(Dataset):
+    def __init__(
+        self,
+        subset_name,
+        query_name,
+        suites=None,
+    ):
+        self._subset_name = subset_name
+        self._query_name = query_name
+        self._suites = suites or []
+
+    @property
+    def name(self) -> str:
+        return f"{self._subset_name}/{self._query_name}"
+
+    @property
+    def subset_name(self) -> str:
+        return self._subset_name
+
+    @property
+    def query_name(self) -> str:
+        return self._query_name
+
+    @property
+    def pretty_name(self) -> str:
+        return f"{self._subset_name}, Query {self._query_name}"
+
+    @property
+    def description(self) -> str:
+        return f"{self._subset_name} with query {self._query_name}"
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+
 # BEGIN COPIED TEST FILE: tests/test_subgraph_matching.py
 # import pytest
 #
@@ -151,98 +243,6 @@
 #     result = _run(xp, query_matrices, meta)
 #     assert int(result[0]) == meta["gt"]
 # END COPIED TEST FILE: tests/test_subgraph_matching.py
-
-import saps
-from saps.benchmark import (
-    Author,
-    Benchmark,
-    Contributor,
-    DataInstance,
-    Dataset,
-    Generator,
-    Ref,
-)
-from saps.downloaders.gcare import (
-    load_gcare_graph,
-    load_gcare_query,
-)
-
-xp = saps.xp
-
-
-class GCareGraphDataset(Dataset):
-    def __init__(
-        self,
-        name,
-        pretty_name,
-        description,
-        suites,
-    ):
-        self._name = name
-        self._pretty_name = pretty_name
-        self._description = description
-        self._suites = suites
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def pretty_name(self) -> str:
-        return self._pretty_name
-
-    @property
-    def description(self) -> str:
-        return self._description
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
-
-class GCareDataset(Dataset):
-    def __init__(
-        self,
-        subset_name,
-        query_name,
-        suites=None,
-    ):
-        self._subset_name = subset_name
-        self._query_name = query_name
-        self._suites = suites or []
-
-    @property
-    def name(self) -> str:
-        return f"{self._subset_name}/{self._query_name}"
-
-    @property
-    def subset_name(self) -> str:
-        return self._subset_name
-
-    @property
-    def query_name(self) -> str:
-        return self._query_name
-
-    @property
-    def pretty_name(self) -> str:
-        return f"{self._subset_name}, Query {self._query_name}"
-
-    @property
-    def description(self) -> str:
-        return f"{self._subset_name} with query {self._query_name}"
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
 
 class GCareGraphGenerator(Generator[GCareGraphDataset]):
     @property

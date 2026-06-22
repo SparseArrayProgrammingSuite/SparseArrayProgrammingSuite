@@ -1,3 +1,71 @@
+import os
+from typing import Any
+
+import numpy as np
+
+import saps
+from saps.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    Ref,
+)
+from saps_framework import BinsparseFormat
+
+xp = saps.xp
+
+
+class GCNDataset(Dataset):
+    def __init__(
+        self,
+        name: str,
+        description: str = "",
+        source_name: str | None = None,
+        feature_dim: int = 16,
+        hidden_dim: int = 8,
+        out_dim: int = 1,
+    ):
+        self._suites: list[str] = []
+        self.dataset_name = name
+        self.dataset_description = description
+        self.source_name = source_name if source_name is not None else name
+        self.feature_dim = feature_dim
+        self.hidden_dim = hidden_dim
+        self.out_dim = out_dim
+
+    @property
+    def name(self) -> str:
+        return self.dataset_name
+
+    @property
+    def pretty_name(self) -> str:
+        return f"GCN {self.dataset_name}"
+
+    @property
+    def description(self) -> str:
+        return self.dataset_description or f"SuiteSparse matrix {self.source_name}."
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        data = super().metadata
+        data["source_name"] = self.source_name
+        data["feature_dim"] = self.feature_dim
+        data["hidden_dim"] = self.hidden_dim
+        data["out_dim"] = self.out_dim
+        return data
+
+
 # BEGIN COPIED TEST FILE: tests/test_gcn.py
 # import pytest
 #
@@ -178,74 +246,6 @@
 #     output_np = run_gcn_benchmark(adjacency, features, weights1, bias1, weights2, bias2)
 #     np.testing.assert_allclose(output_np, expected, rtol=1e-10)
 # END COPIED TEST FILE: tests/test_gcn.py
-
-import os
-from typing import Any
-
-import numpy as np
-
-import saps
-from saps.benchmark import (
-    Author,
-    Benchmark,
-    Contributor,
-    DataInstance,
-    Dataset,
-    Generator,
-    Ref,
-)
-from saps_framework import BinsparseFormat
-
-xp = saps.xp
-
-
-class GCNDataset(Dataset):
-    def __init__(
-        self,
-        name: str,
-        description: str = "",
-        source_name: str | None = None,
-        feature_dim: int = 16,
-        hidden_dim: int = 8,
-        out_dim: int = 1,
-    ):
-        self._suites: list[str] = []
-        self.dataset_name = name
-        self.dataset_description = description
-        self.source_name = source_name if source_name is not None else name
-        self.feature_dim = feature_dim
-        self.hidden_dim = hidden_dim
-        self.out_dim = out_dim
-
-    @property
-    def name(self) -> str:
-        return self.dataset_name
-
-    @property
-    def pretty_name(self) -> str:
-        return f"GCN {self.dataset_name}"
-
-    @property
-    def description(self) -> str:
-        return self.dataset_description or f"SuiteSparse matrix {self.source_name}."
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
-    @property
-    def metadata(self) -> dict[str, Any]:
-        data = super().metadata
-        data["source_name"] = self.source_name
-        data["feature_dim"] = self.feature_dim
-        data["hidden_dim"] = self.hidden_dim
-        data["out_dim"] = self.out_dim
-        return data
-
 
 class GCNGenerator(Generator[GCNDataset]):
     @property

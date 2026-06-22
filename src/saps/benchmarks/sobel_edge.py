@@ -1,3 +1,106 @@
+import os
+from typing import Any
+
+import numpy as np
+
+import saps
+from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
+from saps_framework import BinsparseFormat
+
+xp = saps.xp
+
+
+def generate_1d_sobel_matrices(Nx, Ny):
+    rows = np.arange(Nx)
+    cols1 = (rows + 1) % Nx
+    cols2 = (rows - 1) % Nx
+    D_x_R = np.concatenate([rows, rows])
+    D_x_C = np.concatenate([cols1, cols2])
+    D_x_V = np.concatenate([np.ones(Nx), -np.ones(Nx)])
+    dx_bin = BinsparseFormat.from_coo(
+        (D_x_R, D_x_C), D_x_V.astype(np.float32), (Nx, Nx)
+    )
+
+    rows = np.arange(Ny)
+    cols1 = (rows - 1) % Ny
+    cols2 = rows
+    cols3 = (rows + 1) % Ny
+    S_y_R = np.concatenate([rows, rows, rows])
+    S_y_C = np.concatenate([cols1, cols2, cols3])
+    S_y_V = np.concatenate([np.ones(Ny), 2.0 * np.ones(Ny), np.ones(Ny)])
+    sy_bin = BinsparseFormat.from_coo(
+        (S_y_R, S_y_C), S_y_V.astype(np.float32), (Ny, Ny)
+    )
+
+    rows = np.arange(Nx)
+    cols1 = (rows - 1) % Nx
+    cols2 = rows
+    cols3 = (rows + 1) % Nx
+    S_x_R = np.concatenate([rows, rows, rows])
+    S_x_C = np.concatenate([cols1, cols2, cols3])
+    S_x_V = np.concatenate([np.ones(Nx), 2.0 * np.ones(Nx), np.ones(Nx)])
+    sx_bin = BinsparseFormat.from_coo(
+        (S_x_R, S_x_C), S_x_V.astype(np.float32), (Nx, Nx)
+    )
+
+    rows = np.arange(Ny)
+    cols1 = (rows + 1) % Ny
+    cols2 = (rows - 1) % Ny
+    D_y_R = np.concatenate([rows, rows])
+    D_y_C = np.concatenate([cols1, cols2])
+    D_y_V = np.concatenate([np.ones(Ny), -np.ones(Ny)])
+    dy_bin = BinsparseFormat.from_coo(
+        (D_y_R, D_y_C), D_y_V.astype(np.float32), (Ny, Ny)
+    )
+
+    return dx_bin, sy_bin, sx_bin, dy_bin
+
+
+class MRISobelDataset(Dataset):
+    def __init__(
+        self,
+        name: str,
+        category: str,
+        filename: str,
+        threshold_val: float = 150.0,
+        image: np.ndarray | None = None,
+    ):
+        self._suites: list[str] = []
+        self.source_name = name
+        self.category = category
+        self.filename = filename
+        self.threshold_val = threshold_val
+        self.image = image
+
+    @property
+    def name(self) -> str:
+        return self.source_name
+
+    @property
+    def pretty_name(self) -> str:
+        return f"MRI Sobel Edge {self.source_name}"
+
+    @property
+    def description(self) -> str:
+        return f"MRI image {self.filename} with edge threshold {self.threshold_val}."
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        data = super().metadata
+        data["category"] = self.category
+        data["filename"] = self.filename
+        data["threshold_val"] = self.threshold_val
+        return data
+
+
 # BEGIN COPIED TEST FILE: tests/test_sobel_edge.py
 # import pytest
 #
@@ -103,109 +206,6 @@
 #     assert data[-1].data["values"].item() == 7.0
 #     assert meta == {}
 # END COPIED TEST FILE: tests/test_sobel_edge.py
-
-import os
-from typing import Any
-
-import numpy as np
-
-import saps
-from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
-from saps_framework import BinsparseFormat
-
-xp = saps.xp
-
-
-def generate_1d_sobel_matrices(Nx, Ny):
-    rows = np.arange(Nx)
-    cols1 = (rows + 1) % Nx
-    cols2 = (rows - 1) % Nx
-    D_x_R = np.concatenate([rows, rows])
-    D_x_C = np.concatenate([cols1, cols2])
-    D_x_V = np.concatenate([np.ones(Nx), -np.ones(Nx)])
-    dx_bin = BinsparseFormat.from_coo(
-        (D_x_R, D_x_C), D_x_V.astype(np.float32), (Nx, Nx)
-    )
-
-    rows = np.arange(Ny)
-    cols1 = (rows - 1) % Ny
-    cols2 = rows
-    cols3 = (rows + 1) % Ny
-    S_y_R = np.concatenate([rows, rows, rows])
-    S_y_C = np.concatenate([cols1, cols2, cols3])
-    S_y_V = np.concatenate([np.ones(Ny), 2.0 * np.ones(Ny), np.ones(Ny)])
-    sy_bin = BinsparseFormat.from_coo(
-        (S_y_R, S_y_C), S_y_V.astype(np.float32), (Ny, Ny)
-    )
-
-    rows = np.arange(Nx)
-    cols1 = (rows - 1) % Nx
-    cols2 = rows
-    cols3 = (rows + 1) % Nx
-    S_x_R = np.concatenate([rows, rows, rows])
-    S_x_C = np.concatenate([cols1, cols2, cols3])
-    S_x_V = np.concatenate([np.ones(Nx), 2.0 * np.ones(Nx), np.ones(Nx)])
-    sx_bin = BinsparseFormat.from_coo(
-        (S_x_R, S_x_C), S_x_V.astype(np.float32), (Nx, Nx)
-    )
-
-    rows = np.arange(Ny)
-    cols1 = (rows + 1) % Ny
-    cols2 = (rows - 1) % Ny
-    D_y_R = np.concatenate([rows, rows])
-    D_y_C = np.concatenate([cols1, cols2])
-    D_y_V = np.concatenate([np.ones(Ny), -np.ones(Ny)])
-    dy_bin = BinsparseFormat.from_coo(
-        (D_y_R, D_y_C), D_y_V.astype(np.float32), (Ny, Ny)
-    )
-
-    return dx_bin, sy_bin, sx_bin, dy_bin
-
-
-class MRISobelDataset(Dataset):
-    def __init__(
-        self,
-        name: str,
-        category: str,
-        filename: str,
-        threshold_val: float = 150.0,
-        image: np.ndarray | None = None,
-    ):
-        self._suites: list[str] = []
-        self.source_name = name
-        self.category = category
-        self.filename = filename
-        self.threshold_val = threshold_val
-        self.image = image
-
-    @property
-    def name(self) -> str:
-        return self.source_name
-
-    @property
-    def pretty_name(self) -> str:
-        return f"MRI Sobel Edge {self.source_name}"
-
-    @property
-    def description(self) -> str:
-        return f"MRI image {self.filename} with edge threshold {self.threshold_val}."
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
-    @property
-    def metadata(self) -> dict[str, Any]:
-        data = super().metadata
-        data["category"] = self.category
-        data["filename"] = self.filename
-        data["threshold_val"] = self.threshold_val
-        return data
-
 
 class MRISobelGenerator(Generator[MRISobelDataset]):
     @property

@@ -1,3 +1,60 @@
+import os
+from typing import Any
+
+import numpy as np
+
+import saps
+from saps.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    Ref,
+)
+from saps_framework.binsparse_format import BinsparseFormat
+
+xp = saps.xp
+
+
+class CGDataset(Dataset):
+    def __init__(
+        self, source_name: str, has_b_file: bool = False, nnz: int | None = None
+    ):
+        self._suites: list[str] = []
+        self.source_name = source_name
+        self.has_b_file = has_b_file
+        self.nnz = nnz
+
+    @property
+    def name(self) -> str:
+        return self.source_name
+
+    @property
+    def pretty_name(self) -> str:
+        return f"CG {self.source_name}"
+
+    @property
+    def description(self) -> str:
+        return f"SuiteSparse matrix {self.source_name}."
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        data = super().metadata
+        data["nnz"] = self.nnz
+        data["has_b_file"] = self.has_b_file
+        return data
+
+
 # BEGIN COPIED TEST FILE: tests/test_cg.py
 # import pytest
 #
@@ -86,63 +143,6 @@
 #     b_coo = BinsparseFormat.to_coo(b_bin)
 #     assert b_coo == BinsparseFormat.to_coo(BinsparseFormat.from_numpy(A @ x_sol))
 # END COPIED TEST FILE: tests/test_cg.py
-
-import os
-from typing import Any
-
-import numpy as np
-
-import saps
-from saps.benchmark import (
-    Author,
-    Benchmark,
-    Contributor,
-    DataInstance,
-    Dataset,
-    Generator,
-    Ref,
-)
-from saps_framework.binsparse_format import BinsparseFormat
-
-xp = saps.xp
-
-
-class CGDataset(Dataset):
-    def __init__(
-        self, source_name: str, has_b_file: bool = False, nnz: int | None = None
-    ):
-        self._suites: list[str] = []
-        self.source_name = source_name
-        self.has_b_file = has_b_file
-        self.nnz = nnz
-
-    @property
-    def name(self) -> str:
-        return self.source_name
-
-    @property
-    def pretty_name(self) -> str:
-        return f"CG {self.source_name}"
-
-    @property
-    def description(self) -> str:
-        return f"SuiteSparse matrix {self.source_name}."
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
-    @property
-    def metadata(self) -> dict[str, Any]:
-        data = super().metadata
-        data["nnz"] = self.nnz
-        data["has_b_file"] = self.has_b_file
-        return data
-
 
 class CGGenerator(Generator[CGDataset]):
     @property

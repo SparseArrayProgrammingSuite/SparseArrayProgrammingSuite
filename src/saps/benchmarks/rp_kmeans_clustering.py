@@ -1,3 +1,63 @@
+import math
+from typing import Any
+
+import numpy as np
+
+import saps
+from saps.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    Ref,
+)
+from saps_framework import BinsparseFormat
+
+xp = saps.xp
+
+
+class RPKMeansDataset(Dataset):
+    def __init__(self, source_name: str, points, k: int, eps: float, c=1, max_iter=100):
+        self._suites: list[str] = []
+        self.source_name = source_name
+        self.points = points
+        self.k = k
+        self.eps = eps
+        self.c = c
+        self.max_iter = max_iter
+
+    @property
+    def name(self) -> str:
+        return self.source_name
+
+    @property
+    def pretty_name(self) -> str:
+        return f"RP k-means {self.source_name}"
+
+    @property
+    def description(self) -> str:
+        return "Manual test points for random-projection k-means clustering."
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        data = super().metadata
+        data["k"] = self.k
+        data["eps"] = self.eps
+        data["c"] = self.c
+        data["max_iter"] = self.max_iter
+        return data
+
+
 # BEGIN COPIED TEST FILE: tests/test_rp_kmeans_clustering.py
 # import numpy as np
 #
@@ -64,66 +124,6 @@
 #
 #     assert labels[0] == labels[1] == labels[2] == labels[3] and labels[0] != labels[4]
 # END COPIED TEST FILE: tests/test_rp_kmeans_clustering.py
-
-import math
-from typing import Any
-
-import numpy as np
-
-import saps
-from saps.benchmark import (
-    Author,
-    Benchmark,
-    Contributor,
-    DataInstance,
-    Dataset,
-    Generator,
-    Ref,
-)
-from saps_framework import BinsparseFormat
-
-xp = saps.xp
-
-
-class RPKMeansDataset(Dataset):
-    def __init__(self, source_name: str, points, k: int, eps: float, c=1, max_iter=100):
-        self._suites: list[str] = []
-        self.source_name = source_name
-        self.points = points
-        self.k = k
-        self.eps = eps
-        self.c = c
-        self.max_iter = max_iter
-
-    @property
-    def name(self) -> str:
-        return self.source_name
-
-    @property
-    def pretty_name(self) -> str:
-        return f"RP k-means {self.source_name}"
-
-    @property
-    def description(self) -> str:
-        return "Manual test points for random-projection k-means clustering."
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
-    @property
-    def metadata(self) -> dict[str, Any]:
-        data = super().metadata
-        data["k"] = self.k
-        data["eps"] = self.eps
-        data["c"] = self.c
-        data["max_iter"] = self.max_iter
-        return data
-
 
 class RPKMeansGenerator(Generator[RPKMeansDataset]):
     @property

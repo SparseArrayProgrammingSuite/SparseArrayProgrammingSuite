@@ -1,3 +1,48 @@
+from typing import Any
+
+import numpy as np
+
+import saps
+from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
+from saps_framework import BinsparseFormat
+
+xp = saps.xp
+
+
+class QuantumDataset(Dataset):
+    def __init__(self, source_name: str, nqubits: int, description: str):
+        self._suites: list[str] = []
+        self.source_name = source_name
+        self.nqubits = nqubits
+        self.dataset_description = description
+
+    @property
+    def name(self) -> str:
+        return self.source_name
+
+    @property
+    def pretty_name(self) -> str:
+        return f"Quantum {self.source_name}"
+
+    @property
+    def description(self) -> str:
+        return self.dataset_description
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        data = super().metadata
+        data["nqubits"] = self.nqubits
+        return data
+
+
 # BEGIN COPIED TEST FILE: tests/test_quantum.py
 # import pytest
 #
@@ -123,51 +168,6 @@
 #
 #     np.testing.assert_allclose(result, state_np, atol=1e-13)
 # END COPIED TEST FILE: tests/test_quantum.py
-
-from typing import Any
-
-import numpy as np
-
-import saps
-from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
-from saps_framework import BinsparseFormat
-
-xp = saps.xp
-
-
-class QuantumDataset(Dataset):
-    def __init__(self, source_name: str, nqubits: int, description: str):
-        self._suites: list[str] = []
-        self.source_name = source_name
-        self.nqubits = nqubits
-        self.dataset_description = description
-
-    @property
-    def name(self) -> str:
-        return self.source_name
-
-    @property
-    def pretty_name(self) -> str:
-        return f"Quantum {self.source_name}"
-
-    @property
-    def description(self) -> str:
-        return self.dataset_description
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
-    @property
-    def metadata(self) -> dict[str, Any]:
-        data = super().metadata
-        data["nqubits"] = self.nqubits
-        return data
-
 
 class QuantumStateGenerator(Generator[QuantumDataset]):
     @property

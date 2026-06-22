@@ -1,3 +1,14 @@
+import saps
+from saps.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    Ref,
+)
+
+xp = saps.xp
+
+
 # BEGIN COPIED TEST FILE: tests/test_particle_sim.py
 # import math
 #
@@ -175,17 +186,6 @@
 #     for _ in range(steps):
 #         simulate_one_step(parts, num_parts, size)
 # END COPIED TEST FILE: tests/test_particle_sim.py
-
-import saps
-from saps.benchmark import (
-    Author,
-    Benchmark,
-    Contributor,
-    Ref,
-)
-
-xp = saps.xp
-
 
 class ParticleSimBenchmark(Benchmark):
     @property

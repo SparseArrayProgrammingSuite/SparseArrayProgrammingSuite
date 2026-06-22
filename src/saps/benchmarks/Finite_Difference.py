@@ -1,3 +1,77 @@
+import numpy as np
+
+import saps
+from saps.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    Ref,
+)
+
+xp = saps.xp
+
+
+def _lax_freidrichs_matrix_no_flux(Nx):
+    matrix = np.zeros((Nx, Nx))
+    for i in range(1, Nx):
+        matrix[i, i - 1] = 0.5
+    for i in range(Nx - 1):
+        matrix[i, i + 1] = 0.5
+
+    # periodic BC
+    matrix[0, -1] = 0.5
+    matrix[-1, 0] = 0.5
+
+    return matrix
+
+
+def _difference_matrix(Nx):
+    matrix = np.zeros((Nx, Nx))
+    for i in range(1, Nx):
+        matrix[i, i - 1] = -1
+    for i in range(Nx - 1):
+        matrix[i, i + 1] = 1
+
+    # periodic BC
+    matrix[0, -1] = -1
+    matrix[-1, 0] = 1
+    return matrix
+
+
+class FiniteDifferenceDataset(Dataset):
+    def __init__(self, name, pretty_name, suites, Nx, dx, Nt, dt):
+        self._name = name
+        self._pretty_name = pretty_name
+        self._suites = suites
+        self.Nx = Nx
+        self.dx = dx
+        self.Nt = Nt
+        self.dt = dt
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return f"{self.pretty_name}: Nx = {self.Nx}, dx = {self.dx}, dt = {self.dt}."
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+
 # BEGIN COPIED TEST FILE: tests/test_finite_difference.py
 # import pytest
 #
@@ -195,80 +269,6 @@
 #
 #     assert xp.linalg.norm(result_iter - result_matrix) <= 1e-6
 # END COPIED TEST FILE: tests/test_finite_difference.py
-
-import numpy as np
-
-import saps
-from saps.benchmark import (
-    Author,
-    Benchmark,
-    Contributor,
-    DataInstance,
-    Dataset,
-    Generator,
-    Ref,
-)
-
-xp = saps.xp
-
-
-def _lax_freidrichs_matrix_no_flux(Nx):
-    matrix = np.zeros((Nx, Nx))
-    for i in range(1, Nx):
-        matrix[i, i - 1] = 0.5
-    for i in range(Nx - 1):
-        matrix[i, i + 1] = 0.5
-
-    # periodic BC
-    matrix[0, -1] = 0.5
-    matrix[-1, 0] = 0.5
-
-    return matrix
-
-
-def _difference_matrix(Nx):
-    matrix = np.zeros((Nx, Nx))
-    for i in range(1, Nx):
-        matrix[i, i - 1] = -1
-    for i in range(Nx - 1):
-        matrix[i, i + 1] = 1
-
-    # periodic BC
-    matrix[0, -1] = -1
-    matrix[-1, 0] = 1
-    return matrix
-
-
-class FiniteDifferenceDataset(Dataset):
-    def __init__(self, name, pretty_name, suites, Nx, dx, Nt, dt):
-        self._name = name
-        self._pretty_name = pretty_name
-        self._suites = suites
-        self.Nx = Nx
-        self.dx = dx
-        self.Nt = Nt
-        self.dt = dt
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def pretty_name(self) -> str:
-        return self._pretty_name
-
-    @property
-    def description(self) -> str:
-        return f"{self.pretty_name}: Nx = {self.Nx}, dx = {self.dx}, dt = {self.dt}."
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
 
 class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
     @property

@@ -1,3 +1,67 @@
+import os
+from typing import Any
+
+import saps
+from saps.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    Ref,
+)
+from saps_framework import BinsparseFormat
+
+xp = saps.xp
+
+
+def _normalize(array_api, matrix):
+    col_sums = array_api.sum(matrix, axis=0)
+    col_sums = array_api.maximum(col_sums, array_api.finfo(matrix.dtype).eps)
+    return matrix / col_sums
+
+
+def _sparse_allclose(array_api, matrix_a, matrix_b, rtol=1e-5, atol=1e-8):
+    return array_api.all(
+        array_api.abs(matrix_a - matrix_b) <= atol + rtol * array_api.abs(matrix_b)
+    )
+
+
+def _prune(array_api, matrix, threshold):
+    max_vals = array_api.max(matrix, axis=0)
+
+    mask = (matrix >= threshold) | ((matrix == max_vals) & (matrix > 0))
+
+    return matrix * mask
+
+
+class MCLDataset(Dataset):
+    def __init__(self, source_name: str):
+        self._suites: list[str] = []
+        self.source_name = source_name
+
+    @property
+    def name(self) -> str:
+        return self.source_name
+
+    @property
+    def pretty_name(self) -> str:
+        return f"MCL {self.source_name}"
+
+    @property
+    def description(self) -> str:
+        return f"SuiteSparse adjacency matrix {self.source_name}."
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+
 # BEGIN COPIED TEST FILE: tests/test_mcl.py
 # import pytest
 #
@@ -107,70 +171,6 @@
 #         f"but expected {expected_count}."
 #     )
 # END COPIED TEST FILE: tests/test_mcl.py
-
-import os
-from typing import Any
-
-import saps
-from saps.benchmark import (
-    Author,
-    Benchmark,
-    Contributor,
-    DataInstance,
-    Dataset,
-    Generator,
-    Ref,
-)
-from saps_framework import BinsparseFormat
-
-xp = saps.xp
-
-
-def _normalize(array_api, matrix):
-    col_sums = array_api.sum(matrix, axis=0)
-    col_sums = array_api.maximum(col_sums, array_api.finfo(matrix.dtype).eps)
-    return matrix / col_sums
-
-
-def _sparse_allclose(array_api, matrix_a, matrix_b, rtol=1e-5, atol=1e-8):
-    return array_api.all(
-        array_api.abs(matrix_a - matrix_b) <= atol + rtol * array_api.abs(matrix_b)
-    )
-
-
-def _prune(array_api, matrix, threshold):
-    max_vals = array_api.max(matrix, axis=0)
-
-    mask = (matrix >= threshold) | ((matrix == max_vals) & (matrix > 0))
-
-    return matrix * mask
-
-
-class MCLDataset(Dataset):
-    def __init__(self, source_name: str):
-        self._suites: list[str] = []
-        self.source_name = source_name
-
-    @property
-    def name(self) -> str:
-        return self.source_name
-
-    @property
-    def pretty_name(self) -> str:
-        return f"MCL {self.source_name}"
-
-    @property
-    def description(self) -> str:
-        return f"SuiteSparse adjacency matrix {self.source_name}."
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
 
 class MCLGenerator(Generator[MCLDataset]):
     @property

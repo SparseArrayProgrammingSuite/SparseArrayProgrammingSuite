@@ -1,3 +1,80 @@
+import os
+from typing import Any
+
+import numpy as np
+
+import saps
+from saps.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    Ref,
+)
+from saps_framework import BinsparseFormat
+
+xp = saps.xp
+
+
+class GCNTrainingDataset(Dataset):
+    def __init__(
+        self,
+        name: str,
+        description: str | None = None,
+        source_name: str | None = None,
+        *,
+        feature_dim: int = 1,
+        hidden_dim: int = 4,
+        out_dim: int = 1,
+        num_iterations: int = 10,
+        learning_rate: float = 0.01,
+    ):
+        self._suites: list[str] = []
+        self._name = name
+        self._description = description
+        self.source_name = source_name or name
+        self.feature_dim = feature_dim
+        self.hidden_dim = hidden_dim
+        self.out_dim = out_dim
+        self.num_iterations = num_iterations
+        self.learning_rate = learning_rate
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return f"GCN {self._name}"
+
+    @property
+    def description(self) -> str:
+        if self._description is not None:
+            return self._description
+        return f"SuiteSparse matrix {self.source_name}."
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        data = super().metadata
+        data["source_name"] = self.source_name
+        data["feature_dim"] = self.feature_dim
+        data["hidden_dim"] = self.hidden_dim
+        data["out_dim"] = self.out_dim
+        data["num_iterations"] = self.num_iterations
+        data["learning_rate"] = self.learning_rate
+        return data
+
+
 # BEGIN COPIED TEST FILE: tests/test_gcn_backward.py
 # import numpy as np
 #
@@ -281,83 +358,6 @@
 #         f"Singleton prediction ({singleton_pred:.3f}) should be near zero"
 #     )
 # END COPIED TEST FILE: tests/test_gcn_backward.py
-
-import os
-from typing import Any
-
-import numpy as np
-
-import saps
-from saps.benchmark import (
-    Author,
-    Benchmark,
-    Contributor,
-    DataInstance,
-    Dataset,
-    Generator,
-    Ref,
-)
-from saps_framework import BinsparseFormat
-
-xp = saps.xp
-
-
-class GCNTrainingDataset(Dataset):
-    def __init__(
-        self,
-        name: str,
-        description: str | None = None,
-        source_name: str | None = None,
-        *,
-        feature_dim: int = 1,
-        hidden_dim: int = 4,
-        out_dim: int = 1,
-        num_iterations: int = 10,
-        learning_rate: float = 0.01,
-    ):
-        self._suites: list[str] = []
-        self._name = name
-        self._description = description
-        self.source_name = source_name or name
-        self.feature_dim = feature_dim
-        self.hidden_dim = hidden_dim
-        self.out_dim = out_dim
-        self.num_iterations = num_iterations
-        self.learning_rate = learning_rate
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def pretty_name(self) -> str:
-        return f"GCN {self._name}"
-
-    @property
-    def description(self) -> str:
-        if self._description is not None:
-            return self._description
-        return f"SuiteSparse matrix {self.source_name}."
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
-    @property
-    def metadata(self) -> dict[str, Any]:
-        data = super().metadata
-        data["source_name"] = self.source_name
-        data["feature_dim"] = self.feature_dim
-        data["hidden_dim"] = self.hidden_dim
-        data["out_dim"] = self.out_dim
-        data["num_iterations"] = self.num_iterations
-        data["learning_rate"] = self.learning_rate
-        return data
-
 
 class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
     @property

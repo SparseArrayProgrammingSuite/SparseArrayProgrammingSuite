@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepend benchmark test files to their corresponding benchmark modules."""
+"""Copy benchmark test files near the corresponding benchmark generators."""
 
 from __future__ import annotations
 
@@ -26,8 +26,9 @@ class CopyPlan:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Copy each benchmark-specific tests/test_*.py file into the top of "
-            "the corresponding src/saps/benchmarks/*.py file."
+            "Copy each benchmark-specific tests/test_*.py file into the "
+            "corresponding src/saps/benchmarks/*.py file near the benchmark "
+            "generator insertion point."
         )
     )
     parser.add_argument(
@@ -157,19 +158,57 @@ def raw_test_content(test_path: Path) -> str:
 
 def strip_existing_copied_test(content: str) -> str:
     lines = content.splitlines(keepends=True)
-    if not lines:
-        return content
+    index = 0
+    while index < len(lines):
+        if not lines[index].lstrip().startswith(BEGIN_PREFIX):
+            index += 1
+            continue
 
-    first_line = lines[0].rstrip("\n")
-    if not first_line.startswith(BEGIN_PREFIX):
-        return content
+        end_index = None
+        for candidate in range(index + 1, len(lines)):
+            if lines[candidate].lstrip().startswith(END_PREFIX):
+                end_index = candidate
+                break
+        if end_index is None:
+            raise ValueError("found copied-test start marker without end marker")
 
-    for index, line in enumerate(lines):
-        if line.rstrip("\n").startswith(END_PREFIX):
-            remainder = "".join(lines[index + 1 :])
-            return remainder.lstrip("\n")
+        del lines[index : end_index + 1]
+        while index < len(lines) and not lines[index].strip():
+            del lines[index]
 
-    raise ValueError("found copied-test start marker without end marker")
+    return "".join(lines)
+
+
+def class_base_name(base: ast.expr) -> str | None:
+    if isinstance(base, ast.Name):
+        return base.id
+    if isinstance(base, ast.Attribute):
+        return base.attr
+    if isinstance(base, ast.Subscript):
+        return class_base_name(base.value)
+    return None
+
+
+def insertion_line_index(content: str, benchmark_path: Path) -> int:
+    tree = ast.parse(content, filename=str(benchmark_path))
+    lines = content.splitlines(keepends=True)
+
+    for target_base in ("Generator", "Benchmark"):
+        for node in tree.body:
+            if not isinstance(node, ast.ClassDef):
+                continue
+            if any(class_base_name(base) == target_base for base in node.bases):
+                return max(0, node.lineno - 1)
+
+    return len(lines)
+
+
+def insert_at_generator_location(
+    content: str, copied_content: str, benchmark_path: Path
+) -> str:
+    lines = content.splitlines(keepends=True)
+    insert_at = insertion_line_index(content, benchmark_path)
+    return "".join(lines[:insert_at]) + copied_content + "".join(lines[insert_at:])
 
 
 def prepend_test(plan: CopyPlan, *, dry_run: bool, raw: bool) -> bool:
@@ -179,7 +218,9 @@ def prepend_test(plan: CopyPlan, *, dry_run: bool, raw: bool) -> bool:
         copied_content = raw_test_content(plan.test_path)
     else:
         copied_content = comment_test_content(plan.test_path)
-    new_content = copied_content + cleaned_content
+    new_content = insert_at_generator_location(
+        cleaned_content, copied_content, plan.benchmark_path
+    )
 
     rel_test = plan.test_path.relative_to(ROOT)
     rel_benchmark = plan.benchmark_path.relative_to(ROOT)

@@ -1,3 +1,70 @@
+from typing import Any
+
+import numpy as np
+
+import saps
+from saps.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    Ref,
+)
+from saps_framework import BinsparseFormat
+
+xp = saps.xp
+
+
+class HOSVDDataset(Dataset):
+    def __init__(
+        self,
+        name: str,
+        pretty_name: str,
+        description: str,
+        suites: list[str],
+        shape: tuple[int, int, int],
+        ranks: tuple[int, int, int],
+        seed: int = 42,
+    ):
+        self._name = name
+        self._pretty_name = pretty_name
+        self._description = description
+        self._suites = suites
+        self.shape = shape
+        self.ranks = ranks
+        self.seed = seed
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        data = super().metadata
+        data["shape"] = self.shape
+        data["ranks"] = self.ranks
+        data["seed"] = self.seed
+        return data
+
+
 # BEGIN COPIED TEST FILE: tests/test_hosvd.py
 # import pytest
 #
@@ -185,73 +252,6 @@
 #     for i, f in enumerate(factors_res):
 #         assert f.shape == (X_dense.shape[i], ranks[i])
 # END COPIED TEST FILE: tests/test_hosvd.py
-
-from typing import Any
-
-import numpy as np
-
-import saps
-from saps.benchmark import (
-    Author,
-    Benchmark,
-    Contributor,
-    DataInstance,
-    Dataset,
-    Generator,
-    Ref,
-)
-from saps_framework import BinsparseFormat
-
-xp = saps.xp
-
-
-class HOSVDDataset(Dataset):
-    def __init__(
-        self,
-        name: str,
-        pretty_name: str,
-        description: str,
-        suites: list[str],
-        shape: tuple[int, int, int],
-        ranks: tuple[int, int, int],
-        seed: int = 42,
-    ):
-        self._name = name
-        self._pretty_name = pretty_name
-        self._description = description
-        self._suites = suites
-        self.shape = shape
-        self.ranks = ranks
-        self.seed = seed
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def pretty_name(self) -> str:
-        return self._pretty_name
-
-    @property
-    def description(self) -> str:
-        return self._description
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
-    @property
-    def metadata(self) -> dict[str, Any]:
-        data = super().metadata
-        data["shape"] = self.shape
-        data["ranks"] = self.ranks
-        data["seed"] = self.seed
-        return data
-
 
 class HOSVDDenseGenerator(Generator[HOSVDDataset]):
     @property
