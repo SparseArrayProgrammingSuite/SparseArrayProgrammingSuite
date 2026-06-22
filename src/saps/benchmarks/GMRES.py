@@ -7,6 +7,7 @@ import saps
 from saps.benchmark import (
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
@@ -162,7 +163,7 @@ class GMRESGenerator(Generator[GMRESDataset]):
         A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
         b_bin = BinsparseFormat.from_numpy(b)
         x_bin = BinsparseFormat.from_numpy(x)
-        return [A_bin, b_bin, x_bin], {}
+        return DataInstance(inputs=[A_bin, b_bin, x_bin], meta={})
 
 
 class GMRESBenchmark(Benchmark):

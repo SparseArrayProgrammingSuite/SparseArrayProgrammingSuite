@@ -40,7 +40,7 @@ def generate_fd_triplet(xp, N):
     prev_xp = getattr(fd, "xp", None)
     fd.xp = xp
     try:
-        data, _meta = gen.generate(ds)
+        data = gen.generate(ds).inputs
     finally:
         fd.xp = prev_xp
 

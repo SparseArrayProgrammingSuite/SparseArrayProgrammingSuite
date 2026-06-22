@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Generic, TypeAlias, TypeVar
+from typing import Any, Generic, TypeVar
 
 from saps.framework import xp
 from saps.storage import build_storage_backend
@@ -162,10 +162,15 @@ class Dataset(Tagged):
         }
 
 
+@dataclass
+class DataInstance:
+    inputs: list[Any]
+    meta: dict[str, Any]
+    ref_outputs: list[Any] | None = None
+    ref_meta: dict[str, Any] | None = None
+
+
 TDataset = TypeVar("TDataset", bound=Dataset)
-# Every DataInstance is a tuple of a list of BinsparseFormat objects
-# and a json serializable dictionary
-DataInstance: TypeAlias = tuple[list[BinsparseFormat], dict[str, Any]]
 
 
 class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
@@ -290,9 +295,9 @@ class Benchmark(Tagged, Attributed, Motivated):
                 level=logging.INFO,
                 format="%(levelname)s %(name)s: %(message)s",
             )
-        input, meta = param.generator.cached_generate(param.dataset)
-        self._input = input
-        self._meta = meta
+        problem = param.generator.cached_generate(param.dataset)
+        self._input = problem.inputs
+        self._meta = problem.meta
 
     def run(self, param):
         self._refresh_xp()
@@ -346,14 +351,14 @@ class Benchmark(Tagged, Attributed, Motivated):
 
     def teardown(self, param):
         if hasattr(self, "_output"):
-            self.check_correct(param)
+            self.check(param)
             del self._output
         if hasattr(self, "_meta"):
             del self._meta
         if hasattr(self, "_input"):
             del self._input
 
-    def check_correct(self, param):
+    def check(self, param):
         # TODO do better than this
         for item in self._output:
             assert isinstance(item, BinsparseFormat), (

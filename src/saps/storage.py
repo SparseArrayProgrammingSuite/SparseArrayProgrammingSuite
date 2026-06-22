@@ -36,11 +36,21 @@ class StorageBackend(ABC):
     def prefix(self, generator: Generator, dataset: Dataset, digest: str) -> str:
         return f"{generator.name}/{dataset.name}/{digest}.json"
 
+    def _serialize_binsparse_list(self, values: list[BinsparseFormat] | None):
+        if values is None:
+            return None
+        return [binsparse.serialize() for binsparse in values]
+
     def serialize_data(self, data: DataInstance) -> str:
-        binsparse_list, meta = data
-        binsparse_strings = [binsparse.serialize() for binsparse in binsparse_list]
         return json.dumps(
-            {"binsparse": binsparse_strings, "meta": meta}, sort_keys=True, indent=2
+            {
+                "inputs": self._serialize_binsparse_list(data.inputs),
+                "meta": data.meta,
+                "ref_outputs": self._serialize_binsparse_list(data.ref_outputs),
+                "ref_meta": data.ref_meta,
+            },
+            sort_keys=True,
+            indent=2,
         )
 
     def serialize_data_to_file(self, data: DataInstance, local_path: Path) -> None:
@@ -48,14 +58,22 @@ class StorageBackend(ABC):
         with open(local_path, "w") as f:
             f.write(self.serialize_data(data))
 
+    def _deserialize_binsparse_list(self, values: list[str] | None):
+        if values is None:
+            return None
+        return [BinsparseFormat.deserialize(string) for string in values]
+
     def deserialize_data(self, json_str: str) -> DataInstance:
+        from .benchmark import DataInstance
+
         data = json.loads(json_str)
-        binsparse_strings = data["binsparse"]
-        meta = data["meta"]
-        binsparse_list = [
-            BinsparseFormat.deserialize(string) for string in binsparse_strings
-        ]
-        return (binsparse_list, meta)
+        inputs = data.get("inputs", data.get("binsparse"))
+        return DataInstance(
+            inputs=self._deserialize_binsparse_list(inputs) or [],
+            meta=data["meta"],
+            ref_outputs=self._deserialize_binsparse_list(data.get("ref_outputs")),
+            ref_meta=data.get("ref_meta"),
+        )
 
     def deserialize_data_from_file(self, local_path: Path) -> DataInstance:
         with open(local_path) as f:

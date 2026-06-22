@@ -7,6 +7,7 @@ from saps.benchmark import (
     Benchmark,
     BinsparseFormat,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
@@ -224,7 +225,7 @@ class MCGenerator(Generator[MCDataset]):
             "default_total": default_total,
         }
 
-        return data_list, meta
+        return DataInstance(inputs=data_list, meta=meta)
 
 
 class ModelCounting(Benchmark):

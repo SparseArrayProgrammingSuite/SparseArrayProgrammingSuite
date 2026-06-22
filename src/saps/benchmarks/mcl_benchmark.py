@@ -6,6 +6,7 @@ from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
@@ -131,7 +132,7 @@ class MCLGenerator(Generator[MCLDataset]):
             raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
         A = A.tocoo()
         A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
-        return [A_bin], {}
+        return DataInstance(inputs=[A_bin], meta={})
 
 
 class MCLBenchmark(Benchmark):

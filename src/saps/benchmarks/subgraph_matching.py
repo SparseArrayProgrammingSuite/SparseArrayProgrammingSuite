@@ -3,6 +3,7 @@ from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
@@ -184,7 +185,8 @@ class GCareGraphGenerator(Generator[GCareGraphDataset]):
         ]
 
     def generate(self, dataset: GCareGraphDataset):
-        return load_gcare_graph(dataset.name)
+        inputs, meta = load_gcare_graph(dataset.name)
+        return DataInstance(inputs=inputs, meta=meta)
 
 
 class GCareGenerator(Generator[GCareDataset]):
@@ -255,13 +257,14 @@ class GCareGenerator(Generator[GCareDataset]):
         raw_dataset = next(
             ds for ds in raw_generator.datasets if ds.name == dataset.subset_name
         )
-        flat_matrices, graph_meta = raw_generator.cached_generate(raw_dataset)
-        return load_gcare_query(
+        graph_problem = raw_generator.cached_generate(raw_dataset)
+        inputs, meta = load_gcare_query(
             dataset.subset_name,
             dataset.query_name,
-            flat_matrices,
-            graph_meta,
+            graph_problem.inputs,
+            graph_problem.meta,
         )
+        return DataInstance(inputs=inputs, meta=meta)
 
 
 class GCareHumanGenerator(GCareGenerator):

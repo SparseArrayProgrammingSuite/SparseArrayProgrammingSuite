@@ -14,7 +14,10 @@ from saps.benchmarks.cp3_als import (
 def test_cp_als_reconstruction_error(xp):
     """Tests that CP-ALS produces low reconstruction error on a factorizable tensor"""
     gen = CP3FactorizeableGenerator()
-    X_bin, rank, max_iter = gen.generate(gen.datasets[0])
+    problem = gen.generate(gen.datasets[0])
+    (X_bin,) = problem.inputs
+    rank = problem.meta["rank"]
+    max_iter = problem.meta["max_iter"]
 
     cp3_als.xp = NumpyFramework()
 
@@ -43,7 +46,10 @@ def test_cp_als_reconstruction_error(xp):
 def test_cp_als_factorizable_basic(xp):
     """Test CP-ALS on factorizable tensor (basic shape check)"""
     gen = CP3FactorizeableGenerator()
-    X_bin, rank, max_iter = gen.generate(gen.datasets[0])
+    problem = gen.generate(gen.datasets[0])
+    (X_bin,) = problem.inputs
+    rank = problem.meta["rank"]
+    max_iter = problem.meta["max_iter"]
 
     cp3_als.xp = NumpyFramework()
 

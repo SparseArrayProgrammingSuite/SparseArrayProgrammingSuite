@@ -8,6 +8,7 @@ from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
@@ -162,7 +163,7 @@ class JacobiGenerator(Generator[JacobiDataset]):
         b_bin = BinsparseFormat.from_numpy(b)
         x_bin = BinsparseFormat.from_numpy(x)
 
-        return ([A_bin, b_bin, x_bin], {})
+        return DataInstance(inputs=[A_bin, b_bin, x_bin], meta={})
 
 
 class JacobiBenchmark(Benchmark):

@@ -7,6 +7,7 @@ from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
@@ -137,7 +138,10 @@ class HOSVD4DDenseGenerator(Generator[HOSVD4DDataset]):
         X_bin = BinsparseFormat.from_coo(indices, values, (dim1, dim2, dim3, dim4))
 
         ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
-        return [X_bin, ranks_bin], {"max_iter": 50, "tolerance": 1e-8}
+        return DataInstance(
+            inputs=[X_bin, ranks_bin],
+            meta={"max_iter": 50, "tolerance": 1e-8},
+        )
 
 
 class HOSVD4DSparseGenerator(Generator[HOSVD4DDataset]):
@@ -225,7 +229,10 @@ class HOSVD4DSparseGenerator(Generator[HOSVD4DDataset]):
         X_bin = BinsparseFormat.from_coo(indices, values, (dim1, dim2, dim3, dim4))
 
         ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
-        return [X_bin, ranks_bin], {"max_iter": 50, "tolerance": 1e-8}
+        return DataInstance(
+            inputs=[X_bin, ranks_bin],
+            meta={"max_iter": 50, "tolerance": 1e-8},
+        )
 
 
 class HOSVD4DBenchmark(Benchmark):
@@ -286,7 +293,10 @@ class HOSVD4DBenchmark(Benchmark):
                 doi="10.1137/07070111x",
             ),
             Ref(
-                title="Harnessing Tensor Decomposition for High-Dimensional Machine Learning",
+                title=(
+                    "Harnessing Tensor Decomposition for High-Dimensional "
+                    "Machine Learning"
+                ),
                 authors=[
                     Author("Evgeni Rustik"),
                     Author("Emiliya Viktoriia"),

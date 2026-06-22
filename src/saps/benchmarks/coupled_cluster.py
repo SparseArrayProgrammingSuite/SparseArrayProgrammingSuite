@@ -5,6 +5,7 @@ from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
@@ -319,7 +320,7 @@ class CCSDGenerator(Generator[CCSDDataset]):
         ]
 
     def generate(self, dataset: CCSDDataset):
-        return make_ccsd_inputs(dataset.no, dataset.nv), {}
+        return DataInstance(inputs=make_ccsd_inputs(dataset.no, dataset.nv), meta={})
 
 
 class CCSD(Benchmark):

@@ -8,6 +8,7 @@ from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
@@ -177,7 +178,10 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
         A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
         b_bin = BinsparseFormat.from_numpy(b)
         x_bin = BinsparseFormat.from_numpy(x)
-        return [A_bin, b_bin, x_bin, M_bin], {"solve": solve_block_jacobi_cg}
+        return DataInstance(
+            inputs=[A_bin, b_bin, x_bin, M_bin],
+            meta={"solve": solve_block_jacobi_cg},
+        )
 
 
 class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
@@ -240,7 +244,10 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
         A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
         b_bin = BinsparseFormat.from_numpy(b)
         x_bin = BinsparseFormat.from_numpy(x)
-        return [A_bin, b_bin, x_bin, M_bin], {"solve": solve_jacobi_cg}
+        return DataInstance(
+            inputs=[A_bin, b_bin, x_bin, M_bin],
+            meta={"solve": solve_jacobi_cg},
+        )
 
 
 class PreconditionedCGBenchmark(Benchmark):

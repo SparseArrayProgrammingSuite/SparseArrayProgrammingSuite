@@ -4,7 +4,7 @@ from typing import Any
 import numpy as np
 
 import saps
-from saps.benchmark import Benchmark, Contributor, Dataset, Generator, Ref
+from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
 from saps_framework import BinsparseFormat
 
 xp = saps.xp
@@ -152,9 +152,7 @@ class MRISobelGenerator(Generator[MRISobelDataset]):
             MRISobelDataset("mri_sobel_4", "yes", "Y180.jpg"),
         ]
 
-    def generate(
-        self, dataset: MRISobelDataset
-    ) -> tuple[list[BinsparseFormat], dict[str, Any]]:
+    def generate(self, dataset: MRISobelDataset) -> DataInstance:
         if dataset.image is None:
             import kagglehub
             from PIL import Image
@@ -178,7 +176,10 @@ class MRISobelGenerator(Generator[MRISobelDataset]):
 
         Nx, Ny = img_array.shape
         dx_bin, sy_bin, sx_bin, dy_bin = generate_1d_sobel_matrices(Nx, Ny)
-        return [image_bin, dx_bin, sy_bin, sx_bin, dy_bin, threshold_bin], {}
+        return DataInstance(
+            inputs=[image_bin, dx_bin, sy_bin, sx_bin, dy_bin, threshold_bin],
+            meta={},
+        )
 
 
 class MRISobelEdgeBenchmark(Benchmark):

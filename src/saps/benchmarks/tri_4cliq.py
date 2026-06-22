@@ -1,9 +1,14 @@
-from typing import Any
-
 import saps
-from saps.benchmark import Author, Benchmark, Contributor, Dataset, Generator, Ref
+from saps.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    Ref,
+)
 from saps.downloaders.snap import download_snap_dataset
-from saps_framework.binsparse_format import BinsparseFormat
 
 xp = saps.xp
 
@@ -120,11 +125,10 @@ class TriangleCountGenerator(Generator[GraphCountingDataset]):
             ),
         ]
 
-    def generate(
-        self, dataset: GraphCountingDataset
-    ) -> tuple[list[BinsparseFormat], Any]:
+    def generate(self, dataset: GraphCountingDataset) -> DataInstance:
         if dataset.name.startswith("snap"):
-            return download_snap_dataset(dataset.name)
+            inputs, meta = download_snap_dataset(dataset.name)
+            return DataInstance(inputs=inputs, meta=meta)
         raise ValueError(f"Unsupported triangle count dataset: {dataset.name}")
 
 
@@ -192,11 +196,10 @@ class FourCliqueCountGenerator(Generator[GraphCountingDataset]):
             ),
         ]
 
-    def generate(
-        self, dataset: GraphCountingDataset
-    ) -> tuple[list[BinsparseFormat], Any]:
+    def generate(self, dataset: GraphCountingDataset) -> DataInstance:
         if dataset.name.startswith("snap"):
-            return download_snap_dataset(dataset.name)
+            inputs, meta = download_snap_dataset(dataset.name)
+            return DataInstance(inputs=inputs, meta=meta)
         raise ValueError(f"Unsupported 4-clique count dataset: {dataset.name}")
 
 

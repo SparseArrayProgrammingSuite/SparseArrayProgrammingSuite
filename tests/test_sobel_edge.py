@@ -74,7 +74,9 @@ def test_sobel_basic_cases(image, threshold):
     dataset = sobel_edge.MRISobelDataset(
         "local", "local", "local", threshold_val=threshold, image=image
     )
-    data_binsparse, meta = sobel_edge.MRISobelGenerator().generate(dataset)
+    problem = sobel_edge.MRISobelGenerator().generate(dataset)
+    data_binsparse = problem.inputs
+    meta = problem.meta
     data = [xp.from_binsparse(array) for array in data_binsparse]
 
     result = run_sobel_benchmark(xp, data)
@@ -91,7 +93,9 @@ def test_sobel_generator_metadata():
         "tiny", "local", "tiny", threshold_val=7.0, image=image
     )
 
-    data, meta = sobel_edge.MRISobelGenerator().generate(dataset)
+    problem = sobel_edge.MRISobelGenerator().generate(dataset)
+    data = problem.inputs
+    meta = problem.meta
 
     assert len(data) == 6
     assert data[0].data["shape"] == image.shape

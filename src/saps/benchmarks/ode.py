@@ -8,6 +8,7 @@ import saps
 from saps.benchmark import (
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
@@ -152,7 +153,9 @@ class RCDataset(Dataset):
 
 
 class RLCDataset(Dataset):
-    def __init__(self, name, pretty_name, description, suites, R, L, C, t_max, y0, step):
+    def __init__(
+        self, name, pretty_name, description, suites, R, L, C, t_max, y0, step
+    ):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
@@ -342,7 +345,7 @@ class RCGenerator(Generator[RCDataset]):
             "R": dataset.R,
             "C": dataset.C,
         }
-        return (), meta
+        return DataInstance(inputs=[], meta=meta)
 
 
 class RLCGenerator(Generator[RLCDataset]):
@@ -408,7 +411,7 @@ class RLCGenerator(Generator[RLCDataset]):
             "L": dataset.L,
             "C": dataset.C,
         }
-        return (), meta
+        return DataInstance(inputs=[], meta=meta)
 
 
 class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
@@ -476,7 +479,7 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
             "c": dataset.c,
             "d": dataset.d,
         }
-        return (), meta
+        return DataInstance(inputs=[], meta=meta)
 
 
 class BrusselatorGenerator(Generator[BrusselatorDataset]):
@@ -544,7 +547,7 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
             "C": dataset.C,
             "brusselator_cb": dataset.brusselator_cb,
         }
-        return (), meta
+        return DataInstance(inputs=[], meta=meta)
 
 
 # ---------------------------------------------------------------------------
@@ -553,10 +556,10 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
 
 
 class _OdeBenchmarkBase(Benchmark, ABC):
-
     @property
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
+
     @property
     def authors(self):
         return _AKARSH

@@ -8,6 +8,7 @@ from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
@@ -134,16 +135,17 @@ class RPKMeansGenerator(Generator[RPKMeansDataset]):
             ),
         ]
 
-    def generate(
-        self, dataset: RPKMeansDataset
-    ) -> tuple[list[BinsparseFormat], dict[str, Any]]:
+    def generate(self, dataset: RPKMeansDataset) -> DataInstance:
         A_bin = BinsparseFormat.from_numpy(dataset.points)
-        return [A_bin], {
-            "k": dataset.k,
-            "eps": dataset.eps,
-            "c": dataset.c,
-            "max_iter": dataset.max_iter,
-        }
+        return DataInstance(
+            inputs=[A_bin],
+            meta={
+                "k": dataset.k,
+                "eps": dataset.eps,
+                "c": dataset.c,
+                "max_iter": dataset.max_iter,
+            },
+        )
 
 
 class RPKMeansBenchmark(Benchmark):

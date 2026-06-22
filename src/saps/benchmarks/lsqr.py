@@ -7,6 +7,7 @@ import saps
 from saps.benchmark import (
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
@@ -163,7 +164,7 @@ class LSQRGenerator(Generator[LSQRDataset]):
 
         A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
         b_bin = BinsparseFormat.from_numpy(b)
-        return [A_bin, b_bin], {}
+        return DataInstance(inputs=[A_bin, b_bin], meta={})
 
 
 class LSQRBenchmark(Benchmark):

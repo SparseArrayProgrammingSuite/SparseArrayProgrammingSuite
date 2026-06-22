@@ -3,14 +3,24 @@ import os
 import numpy as np
 
 import saps
-from saps.benchmark import Author, Benchmark, Contributor, Dataset, Generator, Ref
+from saps.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    Ref,
+)
 from saps_framework.binsparse_format import BinsparseFormat
 
 xp = saps.xp
 
 
 class FloydWarshallDataset(Dataset):
-    def __init__(self, name, pretty_name, description, suites, source, symmetrize=False):
+    def __init__(
+        self, name, pretty_name, description, suites, source, symmetrize=False
+    ):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
@@ -211,7 +221,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
             G = np.minimum(G, G.T)
 
         G_bin = BinsparseFormat.from_numpy(G)
-        return [G_bin], {}
+        return DataInstance(inputs=[G_bin], meta={})
 
 
 class FloydWarshallBenchmark(Benchmark):

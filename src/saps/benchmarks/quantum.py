@@ -3,7 +3,7 @@ from typing import Any
 import numpy as np
 
 import saps
-from saps.benchmark import Benchmark, Contributor, Dataset, Generator, Ref
+from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
 from saps_framework import BinsparseFormat
 
 xp = saps.xp
@@ -94,15 +94,13 @@ class QuantumStateGenerator(Generator[QuantumDataset]):
             ),
         ]
 
-    def generate(
-        self, dataset: QuantumDataset
-    ) -> tuple[list[BinsparseFormat], dict[str, Any]]:
+    def generate(self, dataset: QuantumDataset) -> DataInstance:
         nqubits = dataset.nqubits
         dim = 1 << nqubits
         state = np.zeros(dim, dtype=np.complex128)
         state[0] = 1.0 + 0j  # |000...0
         state_bin = BinsparseFormat.from_numpy(state)
-        return [state_bin], {"nqubits": nqubits}
+        return DataInstance(inputs=[state_bin], meta={"nqubits": nqubits})
 
 
 def apply_single_qubit_gate(xp, state, gate, qubit, nqubits):

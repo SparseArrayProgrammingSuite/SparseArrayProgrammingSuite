@@ -10,7 +10,9 @@ def test_model_counting_datasets():
     benchmark = mc.ModelCounting()
 
     for dataset in generator.datasets:
-        raw_matrices, meta = generator.generate(dataset)
+        problem = generator.generate(dataset)
+        raw_matrices = problem.inputs
+        meta = problem.meta
 
         input_arrays = [xp.from_binsparse(m) for m in raw_matrices]
 

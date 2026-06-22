@@ -63,7 +63,9 @@ def test_masked_mri_basic_cases(image, roi, t1, t2):
     dataset = mri_edge.MaskedMRIDataset(
         "local", "local", "local", t1_val=t1, t2_val=t2, image=image, roi=roi
     )
-    data_binsparse, meta = mri_edge.MaskedMRIGenerator().generate(dataset)
+    problem = mri_edge.MaskedMRIGenerator().generate(dataset)
+    data_binsparse = problem.inputs
+    meta = problem.meta
     data = [xp.from_binsparse(array) for array in data_binsparse]
 
     result = run_masked_mri_benchmark(xp, data)
@@ -81,7 +83,9 @@ def test_masked_mri_generator_builds_default_roi():
         "tiny", "local", "tiny", t1_val=10.0, t2_val=20.0, image=image
     )
 
-    data_binsparse, meta = mri_edge.MaskedMRIGenerator().generate(dataset)
+    problem = mri_edge.MaskedMRIGenerator().generate(dataset)
+    data_binsparse = problem.inputs
+    meta = problem.meta
     image_arr, roi_arr, t1_arr, t2_arr = [
         xp.from_binsparse(array) for array in data_binsparse
     ]

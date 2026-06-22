@@ -384,11 +384,7 @@ def _generate_metadata(
     for record in metadata.values():
         records.setdefault(_record_key(record), record)
 
-    document = {
-        "benchmarks": [
-            record for record in sorted(records.values(), key=_record_key)
-        ]
-    }
+    document = {"benchmarks": sorted(records.values(), key=_record_key)}
     metadata_path.write_text(
         json.dumps(document, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",

@@ -20,9 +20,9 @@ def test_jl_preserves_distance(rng):
         eps=0.01,
         seed=42,
     )
-    ((data, query, projection_matrix), meta) = approx_nn.JLApproxNNGenerator().generate(
-        dataset
-    )
+    problem = approx_nn.JLApproxNNGenerator().generate(dataset)
+    data, query, projection_matrix = problem.inputs
+    meta = problem.meta
     data = xp.from_binsparse(data)
     query = xp.from_binsparse(query)
     projection_matrix = xp.from_binsparse(projection_matrix)

@@ -9,6 +9,7 @@ from saps.benchmark import (
     Benchmark,
     BinsparseFormat,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
@@ -347,7 +348,7 @@ class WMCGenerator(Generator[WMCDataset]):
             "default_total": default_total,
         }
 
-        return data_list, meta
+        return DataInstance(inputs=data_list, meta=meta)
 
 
 class WeightedModelCounting(Benchmark):

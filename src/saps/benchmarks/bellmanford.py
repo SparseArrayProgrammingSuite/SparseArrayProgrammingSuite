@@ -7,6 +7,7 @@ from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
@@ -151,7 +152,9 @@ class BellmanFordGenerator(Generator[BellmanFordDataset]):
     ) -> tuple[list[BinsparseFormat], Any]:
         if dataset.name.startswith("snap"):
             data, meta = download_snap_dataset(dataset.name)
-            return [_adjacency_to_unit_distance(data[0])], meta
+            return DataInstance(
+                inputs=[_adjacency_to_unit_distance(data[0])], meta=meta
+            )
         raise ValueError(f"Unsupported Bellman-Ford dataset: {dataset.name}")
 
 

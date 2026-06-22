@@ -10,7 +10,6 @@ import saps
 import saps.benchmarks
 from saps import Author, Ref
 
-
 _DOI_RE = re.compile(r"\b10\.\d{4,9}/[-._;()/:A-Z0-9]+", re.IGNORECASE)
 
 
@@ -160,7 +159,9 @@ def _effective_ref_doi(ref: Ref) -> str | None:
 
 def _ref_mismatches(actual: Ref, expected: Ref) -> list[str]:
     mismatches = []
-    if _normalize_citation_text(actual.title) != _normalize_citation_text(expected.title):
+    if _normalize_citation_text(actual.title) != _normalize_citation_text(
+        expected.title
+    ):
         mismatches.append("title")
     if expected.year is not None and actual.year != expected.year:
         mismatches.append("year")
@@ -220,7 +221,7 @@ def test_citations_match_crossref_or_arxiv():
     arxiv_client = arxiv.Client(page_size=1, delay_seconds=0, num_retries=2)
     failures = []
 
-    for _ref_string, (ref, owners) in _references_by_owner().items():
+    for ref, owners in _references_by_owner().values():
         doi = ref.doi or _reference_doi(ref.url or "")
         arxiv_id = _arxiv_id_from_url(ref.url)
 
@@ -239,7 +240,12 @@ def test_citations_match_crossref_or_arxiv():
                 expected = _arxiv_ref(result, arxiv_id)
             else:
                 continue
-        except (HTTPStatusError, RequestError, arxiv.ArxivError, arxiv.HTTPError) as exc:
+        except (
+            HTTPStatusError,
+            RequestError,
+            arxiv.ArxivError,
+            arxiv.HTTPError,
+        ) as exc:
             failures.append(f"Could not fetch {ref}\nowners={owners}\n{exc}")
             continue
 

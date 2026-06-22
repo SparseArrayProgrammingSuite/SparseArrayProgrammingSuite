@@ -5,6 +5,7 @@ from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
@@ -183,7 +184,7 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
             "dt": dataset.dt,
             "dx": dataset.dx,
         }
-        return data, meta
+        return DataInstance(inputs=data, meta=meta)
 
 
 class _FiniteDifferenceBenchmarkBase(Benchmark):

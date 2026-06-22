@@ -23,7 +23,9 @@ def _run(bench_cls):
     bench = bench_cls()
     generator = bench.generators[0]
     dataset = generator.datasets[0]
-    data, meta = generator.generate(dataset)
+    problem = generator.generate(dataset)
+    data = problem.inputs
+    meta = problem.meta
     time, y_out = bench.benchmark(data, meta)
     rhs = lambda t, y: bench._dydt(t, list(y), meta)  # noqa: E731
     actual = solve_ivp(rhs, meta["span"], meta["y0"], t_eval=time)

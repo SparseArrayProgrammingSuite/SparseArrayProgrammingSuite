@@ -4,7 +4,7 @@ from typing import Any
 import numpy as np
 
 import saps
-from saps.benchmark import Benchmark, Contributor, Dataset, Generator, Ref
+from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
 from saps_framework import BinsparseFormat
 
 xp = saps.xp
@@ -114,9 +114,7 @@ class MaskedMRIGenerator(Generator[MaskedMRIDataset]):
             MaskedMRIDataset("masked_mri_4", "yes", "Y180.jpg"),
         ]
 
-    def generate(
-        self, dataset: MaskedMRIDataset
-    ) -> tuple[list[BinsparseFormat], dict[str, Any]]:
+    def generate(self, dataset: MaskedMRIDataset) -> DataInstance:
         if dataset.image is None:
             import kagglehub
             from PIL import Image
@@ -146,7 +144,7 @@ class MaskedMRIGenerator(Generator[MaskedMRIDataset]):
         t1_bin = BinsparseFormat.from_numpy(np.array(dataset.t1_val, dtype=np.float32))
         t2_bin = BinsparseFormat.from_numpy(np.array(dataset.t2_val, dtype=np.float32))
 
-        return [image_bin, roi_bin, t1_bin, t2_bin], {}
+        return DataInstance(inputs=[image_bin, roi_bin, t1_bin, t2_bin], meta={})
 
 
 class MaskedMRIEdgeBenchmark(Benchmark):

@@ -1,10 +1,9 @@
-from typing import Any
-
 import saps
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
@@ -130,11 +129,10 @@ class BreadthFirstSearchGenerator(Generator[BreadthFirstSearchDataset]):
             ),
         ]
 
-    def generate(
-        self, dataset: BreadthFirstSearchDataset
-    ) -> tuple[list[BinsparseFormat], Any]:
+    def generate(self, dataset: BreadthFirstSearchDataset) -> DataInstance:
         if dataset.name.startswith("snap"):
-            return download_snap_dataset(dataset.name)
+            inputs, meta = download_snap_dataset(dataset.name)
+            return DataInstance(inputs=inputs, meta=meta)
         raise ValueError(f"Unsupported BFS dataset: {dataset.name}")
 
 

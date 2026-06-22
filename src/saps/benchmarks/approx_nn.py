@@ -7,6 +7,7 @@ from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
@@ -243,11 +244,14 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
             projection_matrix.shape,
         )
 
-        return [
-            BinsparseFormat.from_numpy(data),
-            BinsparseFormat.from_numpy(query),
-            P,
-        ], meta
+        return DataInstance(
+            inputs=[
+                BinsparseFormat.from_numpy(data),
+                BinsparseFormat.from_numpy(query),
+                P,
+            ],
+            meta=meta,
+        )
 
 
 class JLApproxNearestNeighbor(Benchmark):
@@ -272,19 +276,22 @@ class JLApproxNearestNeighbor(Benchmark):
 
     @property
     def concepts(self) -> str:
-        return """
-        <ccs2012>
-          <concept>
-            <concept_desc>Computing methodologies~Machine learning algorithms</concept_desc>
-          </concept>
-          <concept>
-            <concept_desc>Mathematics of computing~Dimensionality reduction</concept_desc>
-          </concept>
-          <concept>
-            <concept_desc>Theory of computation~Nearest neighbor algorithms</concept_desc>
-          </concept>
-        </ccs2012>
-        """
+        return (
+            "<ccs2012>"
+            "<concept>"
+            "<concept_desc>Computing methodologies~"
+            "Machine learning algorithms</concept_desc>"
+            "</concept>"
+            "<concept>"
+            "<concept_desc>Mathematics of computing~"
+            "Dimensionality reduction</concept_desc>"
+            "</concept>"
+            "<concept>"
+            "<concept_desc>Theory of computation~"
+            "Nearest neighbor algorithms</concept_desc>"
+            "</concept>"
+            "</ccs2012>"
+        )
 
     @property
     def authors(self):

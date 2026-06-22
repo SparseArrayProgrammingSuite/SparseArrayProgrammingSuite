@@ -5,6 +5,7 @@ from saps.benchmark import (
     Benchmark,
     BinsparseFormat,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
@@ -293,7 +294,7 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
 
     def generate(self, dataset: TicTacToeDataset):
         S_bin = BinsparseFormat.from_numpy(dataset.board)
-        return ([S_bin], {"depth": dataset.depth})
+        return DataInstance(inputs=[S_bin], meta={"depth": dataset.depth})
 
 
 class TicTacToeBenchmark(Benchmark):

@@ -7,6 +7,7 @@ from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
@@ -135,7 +136,10 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
         X_bin = BinsparseFormat.from_coo(indices, values, (dim1, dim2, dim3))
 
         ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
-        return [X_bin, ranks_bin], {"max_iter": 50, "tolerance": 1e-8}
+        return DataInstance(
+            inputs=[X_bin, ranks_bin],
+            meta={"max_iter": 50, "tolerance": 1e-8},
+        )
 
 
 class HOSVDSparseGenerator(Generator[HOSVDDataset]):
@@ -220,7 +224,10 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
         X_bin = BinsparseFormat.from_coo(indices, values, (dim1, dim2, dim3))
 
         ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
-        return [X_bin, ranks_bin], {"max_iter": 50, "tolerance": 1e-8}
+        return DataInstance(
+            inputs=[X_bin, ranks_bin],
+            meta={"max_iter": 50, "tolerance": 1e-8},
+        )
 
 
 class HOSVDBenchmark(Benchmark):
@@ -281,7 +288,10 @@ class HOSVDBenchmark(Benchmark):
                 doi="10.1137/07070111x",
             ),
             Ref(
-                title="Harnessing Tensor Decomposition for High-Dimensional Machine Learning",
+                title=(
+                    "Harnessing Tensor Decomposition for High-Dimensional "
+                    "Machine Learning"
+                ),
                 authors=[
                     Author("Evgeni Rustik"),
                     Author("Emiliya Viktoriia"),

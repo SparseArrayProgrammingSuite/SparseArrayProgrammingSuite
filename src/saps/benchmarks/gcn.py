@@ -8,6 +8,7 @@ from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
@@ -271,7 +272,10 @@ class GCNGenerator(Generator[GCNDataset]):
         bias1_b = BinsparseFormat.from_numpy(bias1)
         weights2_b = BinsparseFormat.from_numpy(weights2)
         bias2_b = BinsparseFormat.from_numpy(bias2)
-        return (A_bin, features_b, weights1_b, bias1_b, weights2_b, bias2_b), {}
+        return DataInstance(
+            inputs=[A_bin, features_b, weights1_b, bias1_b, weights2_b, bias2_b],
+            meta={},
+        )
 
 
 class GCNBenchmark(Benchmark):

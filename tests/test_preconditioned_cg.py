@@ -66,7 +66,9 @@ A5 = np.array(
 )
 def test_preconditioned_cg(generator, dataset):
     xp = NumpyFramework()
-    data_bin, meta = generator.generate(dataset)
+    problem = generator.generate(dataset)
+    data_bin = problem.inputs
+    meta = problem.meta
     data = [xp.from_binsparse(array) for array in data_bin]
 
     A, b, x, M = data

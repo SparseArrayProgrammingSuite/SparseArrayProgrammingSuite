@@ -1,16 +1,14 @@
-from typing import Any
-
 import saps
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
 )
 from saps.downloaders.snap import download_snap_dataset
-from saps_framework.binsparse_format import BinsparseFormat
 
 xp = saps.xp
 
@@ -121,9 +119,10 @@ class FastSVGenerator(Generator[FastSVDataset]):
             ),
         ]
 
-    def generate(self, dataset: FastSVDataset) -> tuple[list[BinsparseFormat], Any]:
+    def generate(self, dataset: FastSVDataset) -> DataInstance:
         if dataset.name.startswith("snap"):
-            return download_snap_dataset(dataset.name)
+            inputs, meta = download_snap_dataset(dataset.name)
+            return DataInstance(inputs=inputs, meta=meta)
         raise ValueError(f"Unsupported FastSV dataset: {dataset.name}")
 
 

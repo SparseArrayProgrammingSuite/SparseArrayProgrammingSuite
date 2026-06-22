@@ -96,7 +96,7 @@ def test_gmres_sample_examples(A_dense, b, x0):
 def test_gmres_sparse_generators(dataset):
     xp = get_framework()
     try:
-        data, _ = gmres.GMRESGenerator().generate(dataset)
+        data = gmres.GMRESGenerator().generate(dataset).inputs
     except (FileNotFoundError, ValueError) as e:
         pytest.skip(f"Failed to download/load data: {e}")
 

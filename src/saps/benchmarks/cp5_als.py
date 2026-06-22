@@ -5,6 +5,7 @@ from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
@@ -130,7 +131,7 @@ class CP5FactorizeableGenerator(Generator):
         X = BinsparseFormat.from_numpy(X)
         max_iter = 100
 
-        return (X, rank, max_iter)
+        return DataInstance(inputs=[X], meta={"rank": rank, "max_iter": max_iter})
 
 
 class CP5_ALS(Benchmark):

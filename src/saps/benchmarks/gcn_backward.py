@@ -8,6 +8,7 @@ from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
@@ -284,8 +285,8 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
         weights2_b = BinsparseFormat.from_numpy(weights2)
         bias2_b = BinsparseFormat.from_numpy(bias2)
         targets_b = BinsparseFormat.from_numpy(targets)
-        return (
-            [
+        return DataInstance(
+            inputs=[
                 A_bin,
                 A_T_bin,
                 features_b,
@@ -295,7 +296,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
                 bias2_b,
                 targets_b,
             ],
-            {
+            meta={
                 "num_iterations": dataset.num_iterations,
                 "learning_rate": dataset.learning_rate,
             },

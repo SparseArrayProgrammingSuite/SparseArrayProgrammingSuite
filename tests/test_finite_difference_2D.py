@@ -31,7 +31,7 @@ def generate_fd2d_triplet(xp, x_spatial, y_spatial):
     prev_xp = getattr(fd2d, "xp", None)
     fd2d.xp = xp
     try:
-        data, _meta = gen.generate(ds)
+        data = gen.generate(ds).inputs
     finally:
         fd2d.xp = prev_xp
 

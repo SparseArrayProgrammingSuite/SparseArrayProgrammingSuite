@@ -53,9 +53,11 @@ def test_hosvd_dense_generator_reconstruction(xp_numpy):
     """
     Test with the dense low-rank generator.
     """
-    data, meta = hosvd_5d.HOSVD5DDenseGenerator().generate(
+    problem = hosvd_5d.HOSVD5DDenseGenerator().generate(
         hosvd_5d.HOSVD5DDenseGenerator().datasets[0]
     )
+    data = problem.inputs
+    meta = problem.meta
     X_bin, ranks_bin = data
     X_dense = xp_numpy.from_binsparse(X_bin)
     ranks = xp_numpy.from_binsparse(ranks_bin).astype(int)
@@ -169,9 +171,11 @@ def test_hosvd_sparse_input(xp_numpy):
     """
     Test with sparse input.
     """
-    data, meta = hosvd_5d.HOSVD5DSparseGenerator().generate(
+    problem = hosvd_5d.HOSVD5DSparseGenerator().generate(
         hosvd_5d.HOSVD5DSparseGenerator().datasets[0]
     )
+    data = problem.inputs
+    meta = problem.meta
     X_bin, ranks_bin = data
     X_dense = xp_numpy.from_binsparse(X_bin)
     ranks = xp_numpy.from_binsparse(ranks_bin).astype(int)

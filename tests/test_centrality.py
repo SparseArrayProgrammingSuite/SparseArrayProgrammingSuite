@@ -160,7 +160,9 @@ def test_centrality_generator_loads_snap_dataset(monkeypatch, tmp_path):
     monkeypatch.setattr(centrality, "download_snap_dataset", download_from_tmp)
 
     dataset = centrality.BetweennessCentralityDataset("snap-toy")
-    data, meta = centrality.BetweennessCentralityGenerator().generate(dataset)
+    problem = centrality.BetweennessCentralityGenerator().generate(dataset)
+    data = problem.inputs
+    meta = problem.meta
 
     assert data[0].data["shape"] == (3, 3)
     assert meta["snap_slug"] == "toy"
