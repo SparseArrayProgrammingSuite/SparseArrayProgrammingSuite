@@ -187,7 +187,7 @@ def transitive_reduction(xp, R_bench, x=1, max_iters=10):
 #     output_dense = to_dense(xp, R_output)
 #
 #     assert output_dense[0, 2] == np.inf, (
-#         "Edge 0->2 should be removed (since equal weight, we should remove redundancy)"
+#         "Edge 0->2 should be removed (since equal weight, we should remove redundancy)"  # noqa: E501
 #     )
 # END COPIED TEST FILE: tests/test_transitive_reduction.py
 

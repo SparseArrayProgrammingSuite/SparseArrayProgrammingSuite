@@ -287,7 +287,7 @@ class CCSDDataset(Dataset):
 #     xp = NumpyFramework()
 #     T1_out, T2_out = benchmark_ccsd(xp, make_ccsd_inputs(no=4, nv=6))
 #     T2_out = _as_canon_abij(T2_out)
-#     # Verify T2 antisymmetry: T2[a,b,i,j] == -T2[b,a,i,j] and T2[a,b,i,j] ==-T2[a,b,j,i]
+#     # Verify T2 antisymmetry: T2[a,b,i,j] == -T2[b,a,i,j] and T2[a,b,i,j] ==-T2[a,b,j,i]  # noqa: E501
 #     assert np.allclose(T2_out, -T2_out.transpose(1, 0, 2, 3), atol=1e-10), (
 #         "T2 output violates antisymmetry in first index pair (a,b)"
 #     )
@@ -296,7 +296,7 @@ class CCSDDataset(Dataset):
 #     )
 #     T_norm = np.linalg.norm(T1_out) + np.linalg.norm(T2_out)
 #     assert np.isclose(T_norm, CPP_CTF_REFERENCE_NORM, rtol=1e-6), (
-#         f"|T| = {T_norm:.6f} does not match C++ CTF reference {CPP_CTF_REFERENCE_NORM}"
+#         f"|T| = {T_norm:.6f} does not match C++ CTF reference {CPP_CTF_REFERENCE_NORM}"  # noqa: E501
 #     )
 #
 #

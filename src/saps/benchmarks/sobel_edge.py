@@ -130,12 +130,12 @@ class MRISobelDataset(Dataset):
 #     img_p1_0 = np.roll(image, -1, axis=0)
 #     img_p1_p1 = np.roll(np.roll(image, -1, axis=0), -1, axis=1)
 #
-#     gx = (img_p1_m1 + 2 * img_p1_0 + img_p1_p1) - (img_m1_m1 + 2 * img_m1_0 + img_m1_p1)
+#     gx = (img_p1_m1 + 2 * img_p1_0 + img_p1_p1) - (img_m1_m1 + 2 * img_m1_0 + img_m1_p1)  # noqa: E501
 #
 #     img_0_m1 = np.roll(image, 1, axis=1)
 #     img_0_p1 = np.roll(image, -1, axis=1)
 #
-#     gy = (img_m1_p1 + 2 * img_0_p1 + img_p1_p1) - (img_m1_m1 + 2 * img_0_m1 + img_p1_m1)
+#     gy = (img_m1_p1 + 2 * img_0_p1 + img_p1_p1) - (img_m1_m1 + 2 * img_0_m1 + img_p1_m1)  # noqa: E501
 #
 #     magnitude = np.abs(gx) + np.abs(gy)
 #     return magnitude > threshold

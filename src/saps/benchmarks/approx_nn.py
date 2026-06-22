@@ -77,7 +77,7 @@ class JLApproxNNDataset(Dataset):
 #     dataset = approx_nn.JLApproxNNDataset(
 #         name="test",
 #         pretty_name="test JL ANN",
-#         description="test dense data and query matrices with sparse random projection.",
+#         description="test dense data and query matrices with sparse random projection.",  # noqa: E501
 #         tags=["test", "rnla", "sparse"],
 #         n_samples=20,
 #         n_features=10,

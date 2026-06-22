@@ -97,7 +97,7 @@ xp = saps.xp
 #         actual = (x[i], y[i], vx[i], vy[i])
 #         expected = (p_ref.x, p_ref.y, p_ref.vx, p_ref.vy)
 #
-#         msg = f"Mismatch at particle {i}:\n  Expected: {expected}\n  Actual:   {actual}"
+#         msg = f"Mismatch at particle {i}:\n  Expected: {expected}\n  Actual:   {actual}"  # noqa: E501
 #         assert actual == expected, msg
 #
 #

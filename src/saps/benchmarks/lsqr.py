@@ -106,7 +106,7 @@ class LSQRDataset(Dataset):
 #         (
 #             PyDataSparseFramework(),  # Overdetermined
 #             np.array(
-#                 [[7.0, 2.0, 1.0], [2.0, 6.0, -1.0], [1.0, -1.0, 5.0], [4.0, -3.0, 1.0]]
+#                 [[7.0, 2.0, 1.0], [2.0, 6.0, -1.0], [1.0, -1.0, 5.0], [4.0, -3.0, 1.0]]  # noqa: E501
 #             ),
 #             np.array([13.2, -3.3, 8.1, 12.4]),  # b = A @ [2, -1, 1] + noise
 #             "gradient",
@@ -132,7 +132,7 @@ class LSQRDataset(Dataset):
 #         (
 #             NumpyFramework(),  # Overdetermined
 #             np.array(
-#                 [[12.0, 2.0, -1.0], [2.0, 10.0, 3.0], [-1.0, 3.0, 9.0], [5.0, 1.0, 2.0]]
+#                 [[12.0, 2.0, -1.0], [2.0, 10.0, 3.0], [-1.0, 3.0, 9.0], [5.0, 1.0, 2.0]]  # noqa: E501
 #             ),
 #             np.array([40.1, 10.2, -18.3, 15.4]),  # b = A @ [3, 1, -2] + noise
 #             "gradient",

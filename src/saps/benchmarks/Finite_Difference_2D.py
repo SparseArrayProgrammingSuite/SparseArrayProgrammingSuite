@@ -142,7 +142,7 @@ class FiniteDifference2DDataset(Dataset):
 #
 #
 # def lax_friedrichs_solver_matrix_2d(
-#     xp, bench, u0_bench, matrix_bench, diff_x_bench, diff_y_bench, timesteps, dt, dx, dy
+#     xp, bench, u0_bench, matrix_bench, diff_x_bench, diff_y_bench, timesteps, dt, dx, dy  # noqa: E501
 # ):
 #     data = [u0_bench, matrix_bench, diff_x_bench, diff_y_bench]
 #     meta = {"timesteps": timesteps, "dt": dt, "dx": dx, "dy": dy}

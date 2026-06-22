@@ -206,7 +206,7 @@ class FiniteDifferenceDataset(Dataset):
 # @pytest.mark.parametrize(
 #     "dx,dt,bench_cls,ref_flux",
 #     [
-#         (0.01, 0.0025, BuckleyLeverettFiniteDifferenceBenchmark, _buckley_leverett_ref),
+#         (0.01, 0.0025, BuckleyLeverettFiniteDifferenceBenchmark, _buckley_leverett_ref),  # noqa: E501
 #         (0.01, 0.0025, BurgersFiniteDifferenceBenchmark, _burgers_ref),
 #     ],
 # )

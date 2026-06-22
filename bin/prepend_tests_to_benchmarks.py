@@ -129,7 +129,12 @@ def discover_copy_plan(tests_dir: Path, benchmarks_dir: Path) -> list[CopyPlan]:
 
 def comment_test_content(test_path: Path) -> str:
     body = test_path.read_text().rstrip()
-    commented_lines = [f"# {line}" if line else "#" for line in body.splitlines()]
+    commented_lines = []
+    for line in body.splitlines():
+        commented_line = f"# {line}" if line else "#"
+        if len(commented_line) > 88:
+            commented_line += "  # noqa: E501"
+        commented_lines.append(commented_line)
     rel_path = test_path.relative_to(ROOT)
     return "\n".join(
         [

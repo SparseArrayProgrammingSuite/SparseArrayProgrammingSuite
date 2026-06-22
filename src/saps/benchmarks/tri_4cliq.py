@@ -172,7 +172,7 @@ class GraphCountingDataset(Dataset):
 # def test_triangle_snap_toy():
 #     data, _ = load_toy_dataset()
 #     xp = NumpyFramework()
-#     result = run_count_benchmark(tri_4cliq.TriangleCountBenchmark(), xp, data[0]).item()
+#     result = run_count_benchmark(tri_4cliq.TriangleCountBenchmark(), xp, data[0]).item()  # noqa: E501
 #     assert np.allclose(result, 0)
 #
 #

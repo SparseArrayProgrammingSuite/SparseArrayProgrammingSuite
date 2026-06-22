@@ -118,7 +118,7 @@ class ConnectedComponentsDataset(Dataset):
 #         dtype=bool,
 #     )
 #     labels = _run_cc(A)
-#     assert len(set(labels.tolist())) == 1, "all nodes should converge to the same label"
+#     assert len(set(labels.tolist())) == 1, "all nodes should converge to the same label"  # noqa: E501
 #
 #
 # def test_cc_single_node():
@@ -136,7 +136,7 @@ class ConnectedComponentsDataset(Dataset):
 # def test_cc_snap_toy():
 #     data, _ = load_toy_dataset()
 #     labels = _run_cc(data[0])
-#     assert len(set(labels.tolist())) == 1, "all nodes should converge to the same label"
+#     assert len(set(labels.tolist())) == 1, "all nodes should converge to the same label"  # noqa: E501
 # END COPIED TEST FILE: tests/test_connected_components.py
 
 class ConnectedComponentsGenerator(Generator[ConnectedComponentsDataset]):

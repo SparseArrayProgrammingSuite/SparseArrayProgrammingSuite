@@ -166,14 +166,14 @@ class GCNDataset(Dataset):
 #     np.testing.assert_allclose(output, expected, rtol=1e-10)
 #
 #     # Also test with benchmark_gcn
-#     output_np = run_gcn_benchmark(adjacency, features, weights1, bias1, weights2, bias2)
+#     output_np = run_gcn_benchmark(adjacency, features, weights1, bias1, weights2, bias2)  # noqa: E501
 #     np.testing.assert_allclose(output_np, expected, rtol=1e-10)
 #
 #
 # def test_gcn_simple_3node_line():
 #     """Test GCN on a 3-node line graph with hand-computed expected output.
 #
-#     Source: Computation methodology based on "Graph Convolutional Network (GCN) by Hand"
+#     Source: Computation methodology based on "Graph Convolutional Network (GCN) by Hand"  # noqa: E501
 #     byhand.ai.
 #     https://www.byhand.ai/p/17-can-you-calculate-a-graph-convolutional
 #
@@ -205,14 +205,14 @@ class GCNDataset(Dataset):
 #     np.testing.assert_allclose(output, expected, rtol=1e-10)
 #
 #     # Also test with benchmark_gcn
-#     output_np = run_gcn_benchmark(adjacency, features, weights1, bias1, weights2, bias2)
+#     output_np = run_gcn_benchmark(adjacency, features, weights1, bias1, weights2, bias2)  # noqa: E501
 #     np.testing.assert_allclose(output_np, expected, rtol=1e-10)
 #
 #
 # def test_gcn_with_relu_activation():
 #     """Test GCN with ReLU activation (negative values zeroed out).
 #
-#     Source: Computation methodology based on "Graph Convolutional Network (GCN) by Hand"
+#     Source: Computation methodology based on "Graph Convolutional Network (GCN) by Hand"  # noqa: E501
 #     byhand.ai.
 #     https://www.byhand.ai/p/17-can-you-calculate-a-graph-convolutional
 #
@@ -243,7 +243,7 @@ class GCNDataset(Dataset):
 #     output = gcn_reference_np(adjacency, features, weights1, bias1, weights2, bias2)
 #     np.testing.assert_allclose(output, expected, rtol=1e-10)
 #
-#     output_np = run_gcn_benchmark(adjacency, features, weights1, bias1, weights2, bias2)
+#     output_np = run_gcn_benchmark(adjacency, features, weights1, bias1, weights2, bias2)  # noqa: E501
 #     np.testing.assert_allclose(output_np, expected, rtol=1e-10)
 # END COPIED TEST FILE: tests/test_gcn.py
 
