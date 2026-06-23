@@ -23641,7 +23641,7 @@
       "name": "transitive_reduction",
       "pretty_name": "diBELLA Transitive Reduction Algorithm",
       "references": [
-        "G. Guidi. \"Parallel String Graph Construction and Transitive Reduction for De Novo Genome Assembly\", IEEE International Parallel and Distributed Processing Symposium (IPDPS), pp. 517-526, 2021, DOI: 10.1109/IPDPS49936.2021.00060."
+        "Giulia Guidi, Oguz Selvitopi, Marquita Ellis, Leonid Oliker, Katherine Yelick, Aydin Buluc. \"Parallel String Graph Construction and Transitive Reduction for De Novo Genome Assembly\", IEEE International Parallel and Distributed Processing Symposium (IPDPS), pp. 517-526, 2021, DOI: 10.1109/IPDPS49936.2021.00060."
       ],
       "statistics": [],
       "suites": [],
