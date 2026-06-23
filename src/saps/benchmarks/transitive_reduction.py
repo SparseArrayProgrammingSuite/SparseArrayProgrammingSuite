@@ -163,7 +163,14 @@ class TransitiveReductionBenchmark(Benchmark):
                     "Parallel String Graph Construction and Transitive Reduction "
                     "for De Novo Genome Assembly"
                 ),
-                authors=[Author("G. Guidi")],
+                authors=[
+                    Author("Giulia Guidi"),
+                    Author("Oguz Selvitopi"),
+                    Author("Marquita Ellis"),
+                    Author("Leonid Oliker"),
+                    Author("Katherine Yelick"),
+                    Author("Aydin Buluc"),
+                ],
                 conference=(
                     "IEEE International Parallel and Distributed Processing "
                     "Symposium (IPDPS)"
