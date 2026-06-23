@@ -442,7 +442,7 @@ def _generate_metadata(
     metadata: dict[str, dict],
     metadata_path: Path,
 ) -> int:
-    records = {}
+    records: dict[str, dict] = {}
     for record in metadata.values():
         records.setdefault(_record_key(record), record)
 
@@ -465,7 +465,7 @@ def _convert_concepts(
     }
 
     updated = 0
-    records = {}
+    records: dict[str, dict] = {}
     for record in metadata.values():
         records.setdefault(_record_key(record), record)
 

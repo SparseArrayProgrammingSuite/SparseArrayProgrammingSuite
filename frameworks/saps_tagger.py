@@ -1,5 +1,6 @@
 import operator
 from functools import wraps
+from typing import Any
 
 import numpy as np
 
@@ -455,7 +456,7 @@ class TaggedLinalg:
 class TaggerFramework(Framework):
     def __init__(self, wrapped: Framework | None = None):
         self.wrapped = wrapped or PyDataSparseFramework()
-        self.stats = {
+        self.stats: dict[str, Any] = {
             "operators": {},
             "operator_arg_counts": {},
             "operator_operand_stats": {},

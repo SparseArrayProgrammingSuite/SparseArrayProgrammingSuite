@@ -1,3 +1,5 @@
+from typing import Any
+
 import numpy as np
 
 import saps
@@ -106,6 +108,8 @@ class FastSVTestGenerator(Generator[FastSVDataset]):
         ]
 
     def generate(self, dataset: FastSVDataset) -> DataInstance:
+        A: np.ndarray[Any, Any]
+        expected: np.ndarray[Any, Any]
         if dataset.name == "no-edges":
             A = np.zeros((5, 5), dtype=bool)
             expected = np.arange(5)

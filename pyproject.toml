@@ -77,5 +77,6 @@ section-order = [
 ]
 
 [tool.mypy]
+files = ["src", "tests", "bin", "frameworks"]
 ignore_missing_imports = true
 exclude = ["tests/reference"]
