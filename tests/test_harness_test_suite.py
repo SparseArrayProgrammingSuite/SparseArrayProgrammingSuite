@@ -70,7 +70,6 @@ def test_harness_test_suite_outputs_pass_for_all_test_datasets(tmp_path):
                 if path
             ),
             "SAPS_ASV_SINGLE_RUN": "1",
-            "SAPS_ASV_BENCHMARK_KINDS": "track",
             "SAPS_FRAMEWORK": str(REPO_ROOT / "frameworks/saps_numpy.py"),
         }
     )
@@ -84,6 +83,8 @@ def test_harness_test_suite_outputs_pass_for_all_test_datasets(tmp_path):
             "--tag",
             "test",
             "--check-suite",
+            "--metric",
+            "time",
             "--quick",
             "--timeout",
             "30",

@@ -700,6 +700,17 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--metric",
+        "--metrics",
+        dest="metrics",
+        action="extend",
+        nargs="+",
+        choices=("peakmem", "time"),
+        default=None,
+        metavar="METRIC",
+        help="Benchmark metric(s) to run: peakmem or time. Defaults to both.",
+    )
+    parser.add_argument(
         "--show-stderr",
         action="store_true",
         help="Show stderr for benchmark runs",
@@ -735,6 +746,7 @@ def main() -> int:
         )
 
     log.enable(args.verbose)
+    benchmark_metrics = args.metrics or ["peakmem", "time"]
 
     # Get repo root (parent of bin directory where this script is)
     repo_root = Path(__file__).parent.parent
@@ -908,6 +920,14 @@ def main() -> int:
         repo=repo,
         environments=discovery_environments,
         commit_hash=[commit_hash],
+    )
+    metric_prefixes = tuple(f"{metric}_" for metric in benchmark_metrics)
+    benchmarks = benchmarks.filter_out(
+        {
+            name
+            for name in benchmarks
+            if not name.rsplit(".", 1)[-1].startswith(metric_prefixes)
+        }
     )
 
     source_metadata: dict[str, dict] = {}
