@@ -218,7 +218,9 @@ class MCGenerator(Generator[MCDataset]):
         num_vars, clauses = parse_dimacs(dataset.cnf_text)
         expr = clauses_to_einsum(clauses)
 
-        data_list: list[BinsparseFormat] = [xp.to_binsparse(xp.array([0, 1]))]
+        data_list: list[BinsparseFormat] = [
+            BinsparseFormat.from_numpy(np.array([0, 1]))
+        ]
 
         default_total = 2**num_vars
 

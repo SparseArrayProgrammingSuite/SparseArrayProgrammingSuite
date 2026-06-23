@@ -333,10 +333,12 @@ class WMCGenerator(Generator[WMCDataset]):
         num_vars, clauses, weights = parse_format(dataset.cnf_text)
         expr = clauses_to_einsum(clauses, num_vars)
 
-        data_list: list[BinsparseFormat] = [xp.to_binsparse(xp.array([0, 1]))]
+        data_list: list[BinsparseFormat] = [
+            BinsparseFormat.from_numpy(np.array([0, 1]))
+        ]
 
         data_list.extend(
-            xp.to_binsparse(xp.array([weights[-i], weights[i]]))
+            BinsparseFormat.from_numpy(np.array([weights[-i], weights[i]]))
             for i in range(1, num_vars + 1)
         )
 

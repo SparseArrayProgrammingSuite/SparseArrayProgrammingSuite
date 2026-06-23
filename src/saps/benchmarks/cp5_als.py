@@ -140,12 +140,28 @@ class CP5FactorizeableGenerator(Generator):
         A = A * lambdas
 
         X = np.einsum("ir,jr,kr,lr,mr->ijklm", A, B, C, D, E)
+        dtype = X.dtype
+        initial_A = BinsparseFormat.from_numpy(
+            np.random.default_rng(0).random((dim1, rank)).astype(dtype)
+        )
+        initial_B = BinsparseFormat.from_numpy(
+            np.random.default_rng(0).random((dim2, rank)).astype(dtype)
+        )
+        initial_C = BinsparseFormat.from_numpy(
+            np.random.default_rng(0).random((dim3, rank)).astype(dtype)
+        )
+        initial_D = BinsparseFormat.from_numpy(
+            np.random.default_rng(0).random((dim4, rank)).astype(dtype)
+        )
+        initial_E = BinsparseFormat.from_numpy(
+            np.random.default_rng(0).random((dim5, rank)).astype(dtype)
+        )
 
         X = BinsparseFormat.from_numpy(X)
         max_iter = dataset.max_iter
 
         return DataInstance(
-            inputs=[X],
+            inputs=[X, initial_A, initial_B, initial_C, initial_D, initial_E],
             meta={"rank": rank, "max_iter": max_iter},
             ref_meta={"check_reconstruction": True, "rel_error_tol": 0.1},
         )
@@ -305,37 +321,8 @@ class CP5_ALS(Benchmark):
     """
 
     def benchmark(self, data, meta):
-        (X,) = data
-        rank = meta["rank"]
+        X, A, B, C, D, E = data
         max_iter = meta["max_iter"]
-        dim1, dim2, dim3, dim4, dim5 = X.shape
-        dtype = X.dtype
-
-        A = xp.from_binsparse(
-            BinsparseFormat.from_numpy(
-                np.random.default_rng(0).random((dim1, rank)).astype(dtype)
-            )
-        )
-        B = xp.from_binsparse(
-            BinsparseFormat.from_numpy(
-                np.random.default_rng(0).random((dim2, rank)).astype(dtype)
-            )
-        )
-        C = xp.from_binsparse(
-            BinsparseFormat.from_numpy(
-                np.random.default_rng(0).random((dim3, rank)).astype(dtype)
-            )
-        )
-        D = xp.from_binsparse(
-            BinsparseFormat.from_numpy(
-                np.random.default_rng(0).random((dim4, rank)).astype(dtype)
-            )
-        )
-        E = xp.from_binsparse(
-            BinsparseFormat.from_numpy(
-                np.random.default_rng(0).random((dim5, rank)).astype(dtype)
-            )
-        )
 
         for _iteration in range(max_iter):
             print(_iteration, "/", max_iter)

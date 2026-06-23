@@ -162,8 +162,16 @@ class RPKMeansGenerator(Generator[RPKMeansDataset]):
 
     def generate(self, dataset: RPKMeansDataset) -> DataInstance:
         A_bin = BinsparseFormat.from_numpy(dataset.points)
+        _, d = dataset.points.shape
+        t = int(dataset.c * math.ceil(dataset.k / dataset.eps**2))
+        value = 1 / (t**0.5)
+        rng = np.random.default_rng(0)
+        R = np.where(rng.random((d, t)) < 0.5, value, -value).astype(
+            dataset.points.dtype
+        )
+        R_bin = BinsparseFormat.from_numpy(R)
         return DataInstance(
-            inputs=[A_bin],
+            inputs=[A_bin, R_bin],
             meta={
                 "k": dataset.k,
                 "eps": dataset.eps,
@@ -262,13 +270,7 @@ class RPKMeansBenchmark(Benchmark):
         assert c > 0
         assert eps > 0 and eps < 1 / 3
         assert k > 0
-        A = data[0]
-        n, d = A.shape
-        t = int(c * math.ceil(k / eps**2))
-        value = 1 / (t**0.5)
-        R = xp.random.rand(d, t)
-        R = R < 0.5
-        R = xp.where(R, value, -value)
+        A, R = data
         A_prime = xp.matmul(A, R)
 
         n, t = A_prime.shape

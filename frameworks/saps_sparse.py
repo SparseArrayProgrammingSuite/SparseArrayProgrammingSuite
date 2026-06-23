@@ -47,6 +47,14 @@ class PyDataSparseLinalg:
         return PyDataSparseLinalg._wrap_result(x)
 
     @staticmethod
+    def pinv(A, **kwargs):
+        if hasattr(A, "todense"):
+            A = A.todense()
+        else:
+            A = np.asarray(A)
+        return np.linalg.pinv(A, **kwargs)
+
+    @staticmethod
     def svd(A, full_matrices=False, k=None, **kwargs):
         if full_matrices:
             raise ValueError("Sparse SVD does not support full_matrices=True.")
@@ -84,6 +92,19 @@ class PyDataSparseLinalg:
 
 class PyDataSparseFramework(Framework):
     _sparse_first = {"asarray", "eye", "ones"}
+    _dtype_attrs = {
+        "bool",
+        "float32",
+        "float64",
+        "int8",
+        "int16",
+        "int32",
+        "int64",
+        "uint8",
+        "uint16",
+        "uint32",
+        "uint64",
+    }
 
     def __init__(self):
         self._modules = [sp, compat_np, np]
@@ -116,9 +137,11 @@ class PyDataSparseFramework(Framework):
         if isinstance(array, sp.COO):
             return BinsparseFormat.from_coo(array.coords, array.data, array.shape)
         if isinstance(array, sp.SparseArray):
-            return self.to_benchmark(array.tocoo())
+            return self.to_binsparse(array.tocoo())
         if isinstance(array, np.ndarray):
             return BinsparseFormat.from_numpy(array)
+        if np.isscalar(array):
+            return BinsparseFormat.from_numpy(np.asarray(array))
         raise ValueError("Unsupported array type: " + str(type(array)))
 
     def lazy(self, array):
@@ -165,6 +188,8 @@ class PyDataSparseFramework(Framework):
     def __getattr__(self, name):
         sparse_attr = getattr(sp, name, None)
         compat_attr = getattr(compat_np, name, None)
+        if name in self._dtype_attrs and compat_attr is not None:
+            return compat_attr
         if name in self._sparse_first and sparse_attr is not None:
             return sparse_attr
         if sparse_attr is not None and compat_attr is not None:
