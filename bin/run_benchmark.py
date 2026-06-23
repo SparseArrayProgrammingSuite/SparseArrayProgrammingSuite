@@ -706,9 +706,9 @@ def main() -> int:
         action="extend",
         nargs="+",
         choices=("peakmem", "time"),
-        default=None,
+        default=("time",),
         metavar="METRIC",
-        help="Benchmark metric(s) to run: peakmem or time. Defaults to both.",
+        help="Benchmark metric(s) to run: peakmem and/or time. Defaults to time.",
     )
     parser.add_argument(
         "--show-stderr",
