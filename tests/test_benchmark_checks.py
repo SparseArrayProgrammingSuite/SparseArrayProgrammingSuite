@@ -10,6 +10,7 @@ import pytest
 import saps
 import saps.benchmarks
 from frameworks.saps_numpy import NumpyFramework
+from frameworks.saps_sparse import PyDataSparseFramework
 from saps.benchmark import Benchmark
 
 
@@ -28,6 +29,13 @@ def _benchmark_classes() -> Iterator[type[Benchmark]]:
                 yield cls
 
 
+def _framework_params():
+    return [
+        pytest.param(NumpyFramework, id="numpy"),
+        pytest.param(PyDataSparseFramework, id="sparse"),
+    ]
+
+
 def _test_params():
     for cls in _benchmark_classes():
         benchmark = cls()
@@ -38,8 +46,9 @@ def _test_params():
 
 
 @pytest.mark.parametrize(("benchmark_cls", "param"), list(_test_params()))
-def test_benchmark_check(benchmark_cls: type[Benchmark], param):
-    saps.xp = NumpyFramework()
+@pytest.mark.parametrize("framework_cls", _framework_params())
+def test_benchmark_check(benchmark_cls: type[Benchmark], param, framework_cls):
+    saps.xp = framework_cls()
     benchmark = benchmark_cls()
     try:
         benchmark.setup(param, use_cache=False)
