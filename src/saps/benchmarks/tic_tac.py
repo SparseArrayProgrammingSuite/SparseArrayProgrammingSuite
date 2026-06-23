@@ -204,11 +204,19 @@ BOARD_BATCH_NEAR = np.concatenate(
 
 
 class TicTacToeDataset(Dataset):
-    def __init__(self, name: str, board: np.ndarray, depth: int):
-        self._suites: list[str] = []
+    def __init__(
+        self,
+        name: str,
+        board: np.ndarray,
+        depth: int,
+        expected: np.ndarray | float | None = None,
+        suites: list[str] | None = None,
+    ):
+        self._suites = suites or []
         self._name = name
         self.board = board
         self.depth = depth
+        self.expected = expected
 
     @property
     def name(self) -> str:
@@ -231,260 +239,11 @@ class TicTacToeDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-# BEGIN COPIED TEST FILE: tests/test_tictactoe.py
-# import pytest
-#
-# import numpy as np
-#
-# from frameworks.saps_sparse import PyDataSparseFramework
-# from saps.benchmarks.tic_tac import (
-#     build_win_masks,
-#     is_terminal,
-#     minimax_depth2,
-#     minimax_depth3,
-#     minimax_depth5,
-# )
-#
-#
-# @pytest.mark.parametrize(
-#     "S,expected_terminal,expected_value",
-#     [
-#         (
-#             np.array(
-#                 [
-#                     [
-#                         [[1, 0], [1, 0], [1, 0]],
-#                         [[0, 1], [0, 1], [0, 0]],
-#                         [[0, 0], [0, 0], [0, 0]],
-#                     ]
-#                 ],
-#                 dtype=float,
-#             ),
-#             True,
-#             1.0,
-#         ),
-#         (
-#             np.array(
-#                 [
-#                     [
-#                         [[0, 1], [1, 0], [0, 0]],
-#                         [[0, 1], [1, 0], [0, 0]],
-#                         [[0, 1], [0, 0], [0, 0]],
-#                     ]
-#                 ],
-#                 dtype=float,
-#             ),
-#             True,
-#             -1.0,
-#         ),
-#         (
-#             np.array(
-#                 [
-#                     [
-#                         [[1, 0], [0, 1], [1, 0]],
-#                         [[0, 1], [1, 0], [0, 1]],
-#                         [[0, 1], [1, 0], [0, 1]],
-#                     ]
-#                 ],
-#                 dtype=float,
-#             ),
-#             True,
-#             0.0,
-#         ),
-#     ],
-# )
-# def test_is_terminal(S, expected_terminal, expected_value):
-#     xp = PyDataSparseFramework()
-#     W = build_win_masks(xp)
-#     terminal, value = is_terminal(xp, xp.asarray(S), W)
-#     assert bool(terminal[0]) == expected_terminal
-#     assert np.isclose(value[0], expected_value, atol=1e-6)
-#
-#
-# def test_is_terminal_batch():
-#     xp = PyDataSparseFramework()
-#     W = build_win_masks(xp)
-#     S_batch = np.array(
-#         [
-#             [
-#                 [[1, 0], [1, 0], [1, 0]],
-#                 [[0, 1], [0, 1], [0, 0]],
-#                 [[0, 0], [0, 0], [0, 0]],
-#             ],
-#             [
-#                 [[0, 1], [1, 0], [0, 0]],
-#                 [[0, 1], [1, 0], [0, 0]],
-#                 [[0, 1], [0, 0], [0, 0]],
-#             ],
-#             [
-#                 [[1, 0], [0, 1], [1, 0]],
-#                 [[0, 1], [1, 0], [0, 1]],
-#                 [[0, 1], [1, 0], [0, 1]],
-#             ],
-#         ],
-#         dtype=float,
-#     )
-#     terminal, values = is_terminal(xp, xp.asarray(S_batch), W)
-#     assert np.all(terminal)
-#     assert np.allclose(np.asarray(values.todense()), [1.0, -1.0, 0.0], atol=1e-6)
-#
-#
-# @pytest.mark.parametrize(
-#     "S,expected",
-#     [
-#         (
-#             np.array(
-#                 [
-#                     [
-#                         [[1, 0], [1, 0], [0, 0]],
-#                         [[0, 1], [0, 1], [0, 0]],
-#                         [[1, 0], [0, 0], [0, 1]],
-#                     ]
-#                 ],
-#                 dtype=float,
-#             ),
-#             1.0,
-#         ),
-#         (
-#             np.array(
-#                 [
-#                     [
-#                         [[1, 0], [0, 1], [0, 0]],
-#                         [[0, 0], [0, 1], [1, 0]],
-#                         [[0, 1], [1, 0], [1, 0]],
-#                     ]
-#                 ],
-#                 dtype=float,
-#             ),
-#             -1.0,
-#         ),
-#         (
-#             np.array(
-#                 [
-#                     [
-#                         [[1, 0], [0, 1], [1, 0]],
-#                         [[1, 0], [0, 1], [0, 1]],
-#                         [[0, 1], [1, 0], [0, 0]],
-#                     ]
-#                 ],
-#                 dtype=float,
-#             ),
-#             0.0,
-#         ),
-#     ],
-# )
-# def test_minimax_depth2(S, expected):
-#     xp = PyDataSparseFramework()
-#     W = build_win_masks(xp)
-#     result = minimax_depth2(xp, xp.asarray(S), W)
-#     assert np.isclose(result[0], expected, atol=1e-6)
-#
-#
-# def test_minimax_depth2_batch():
-#     xp = PyDataSparseFramework()
-#     W = build_win_masks(xp)
-#     S_batch = np.array(
-#         [
-#             [
-#                 [[1, 0], [1, 0], [0, 0]],
-#                 [[0, 1], [0, 1], [0, 0]],
-#                 [[1, 0], [0, 0], [0, 1]],
-#             ],
-#             [
-#                 [[1, 0], [0, 1], [0, 0]],
-#                 [[0, 0], [0, 1], [1, 0]],
-#                 [[0, 1], [1, 0], [1, 0]],
-#             ],
-#             [
-#                 [[1, 0], [0, 1], [1, 0]],
-#                 [[1, 0], [0, 1], [0, 1]],
-#                 [[0, 1], [1, 0], [0, 0]],
-#             ],
-#         ],
-#         dtype=float,
-#     )
-#     result = minimax_depth2(xp, xp.asarray(S_batch), W)
-#     expected = np.array([1.0, -1.0, 0.0])
-#     assert np.allclose(np.asarray(result.todense()), expected, atol=1e-6)
-#
-#
-# @pytest.mark.parametrize(
-#     "S,expected",
-#     [
-#         (
-#             np.array(
-#                 [
-#                     [
-#                         [[1, 0], [1, 0], [0, 0]],
-#                         [[0, 1], [0, 0], [0, 0]],
-#                         [[0, 0], [0, 1], [0, 0]],
-#                     ]
-#                 ],
-#                 dtype=float,
-#             ),
-#             1.0,
-#         ),
-#         (
-#             np.array(
-#                 [
-#                     [
-#                         [[1, 0], [0, 1], [0, 0]],
-#                         [[0, 0], [0, 1], [1, 0]],
-#                         [[0, 0], [1, 0], [1, 0]],
-#                     ]
-#                 ],
-#                 dtype=float,
-#             ),
-#             -1.0,
-#         ),
-#     ],
-# )
-# def test_minimax_depth3(S, expected):
-#     xp = PyDataSparseFramework()
-#     W = build_win_masks(xp)
-#     result = minimax_depth3(xp, xp.asarray(S), W)
-#     assert np.isclose(result[0], expected, atol=1e-6)
-#
-#
-# @pytest.mark.parametrize(
-#     "S,expected",
-#     [
-#         (
-#             np.array(
-#                 [
-#                     [
-#                         [[0.0, 0.0], [0.0, 1.0], [0.0, 0.0]],
-#                         [[0.0, 0.0], [1.0, 0.0], [0.0, 0.0]],
-#                         [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]],
-#                     ]
-#                 ],
-#                 dtype=float,
-#             ),
-#             1.0,
-#         ),
-#         (
-#             np.array(
-#                 [
-#                     [
-#                         [[0.0, 1.0], [0.0, 0.0], [1.0, 0.0]],
-#                         [[0.0, 0.0], [1.0, 0.0], [0.0, 0.0]],
-#                         [[0.0, 1.0], [0.0, 0.0], [0.0, 0.0]],
-#                     ]
-#                 ],
-#                 dtype=float,
-#             ),
-#             0.0,
-#         ),
-#     ],
-# )
-# def test_minimax_depth5(S, expected):
-#     xp = PyDataSparseFramework()
-#     W = build_win_masks(xp)
-#     result = minimax_depth5(xp, xp.asarray(S), W)
-#     assert np.isclose(float(result[0]), expected, atol=1e-6)
-# END COPIED TEST FILE: tests/test_tictactoe.py
-
 class TicTacToeGenerator(Generator[TicTacToeDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
     @property
     def name(self) -> str:
         return "tictactoe_boards"
@@ -534,20 +293,57 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
     @property
     def datasets(self) -> list[TicTacToeDataset]:
         return [
-            TicTacToeDataset("x_wins_near", BOARD_X_WINS_NEAR, depth=2),
-            TicTacToeDataset("o_wins_near", BOARD_O_WINS_NEAR, depth=2),
-            TicTacToeDataset("draw_near", BOARD_DRAW_NEAR, depth=2),
-            TicTacToeDataset("batch_near", BOARD_BATCH_NEAR, depth=2),
-            TicTacToeDataset("x_wins_mid", BOARD_X_WINS_MID, depth=3),
-            TicTacToeDataset("o_wins_mid", BOARD_O_WINS_MID, depth=3),
-            TicTacToeDataset("x_wins_early", BOARD_X_WINS_EARLY, depth=5),
-            TicTacToeDataset("draw_early", BOARD_DRAW_EARLY, depth=5),
+            TicTacToeDataset(
+                "x_wins_near", BOARD_X_WINS_NEAR, depth=2, expected=1.0, suites=["test"]
+            ),
+            TicTacToeDataset(
+                "o_wins_near",
+                BOARD_O_WINS_NEAR,
+                depth=2,
+                expected=-1.0,
+                suites=["test"],
+            ),
+            TicTacToeDataset(
+                "draw_near", BOARD_DRAW_NEAR, depth=2, expected=0.0, suites=["test"]
+            ),
+            TicTacToeDataset(
+                "batch_near",
+                BOARD_BATCH_NEAR,
+                depth=2,
+                expected=np.array([1.0, -1.0, 0.0]),
+                suites=["test"],
+            ),
+            TicTacToeDataset(
+                "x_wins_mid", BOARD_X_WINS_MID, depth=3, expected=1.0, suites=["test"]
+            ),
+            TicTacToeDataset(
+                "o_wins_mid",
+                BOARD_O_WINS_MID,
+                depth=3,
+                expected=-1.0,
+                suites=["test"],
+            ),
+            TicTacToeDataset(
+                "x_wins_early",
+                BOARD_X_WINS_EARLY,
+                depth=5,
+                expected=1.0,
+                suites=["test"],
+            ),
+            TicTacToeDataset(
+                "draw_early", BOARD_DRAW_EARLY, depth=5, expected=0.0, suites=["test"]
+            ),
             TicTacToeDataset("empty_board", BOARD_EMPTY, depth=9),
         ]
 
     def generate(self, dataset: TicTacToeDataset):
         S_bin = BinsparseFormat.from_numpy(dataset.board)
-        return DataInstance(inputs=[S_bin], meta={"depth": dataset.depth})
+        ref_outputs = None
+        if dataset.expected is not None:
+            ref_outputs = [BinsparseFormat.from_numpy(np.asarray(dataset.expected))]
+        return DataInstance(
+            inputs=[S_bin], meta={"depth": dataset.depth}, ref_outputs=ref_outputs
+        )
 
 
 class TicTacToeBenchmark(Benchmark):
@@ -615,7 +411,7 @@ class TicTacToeBenchmark(Benchmark):
 
     def benchmark(self, data: list, meta: dict):
         depth = meta.get("depth", 9)
-        S = xp.from_binsparse(data[0])
+        S = data[0]
         W = build_win_masks(xp)
 
         if depth == 2:
@@ -628,3 +424,13 @@ class TicTacToeBenchmark(Benchmark):
             result = minimax(xp, S, W)
 
         return [result]
+
+    def check(self, param):
+        super().check(param)
+        if self._ref_outputs is None:
+            return
+        actual = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        expected = self._ref_outputs[0].data["values"].reshape(
+            self._ref_outputs[0].data["shape"]
+        )
+        assert np.allclose(actual, expected, atol=1e-6)

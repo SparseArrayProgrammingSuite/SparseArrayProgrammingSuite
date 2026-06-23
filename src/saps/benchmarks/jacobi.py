@@ -3,6 +3,8 @@ from typing import Any
 
 import numpy as np
 
+import sparse as pydata_sparse
+
 import saps
 from saps.benchmark import (
     Author,
@@ -20,12 +22,22 @@ xp = saps.xp
 
 class JacobiDataset(Dataset):
     def __init__(
-        self, source_name: str, has_b_file: bool = False, nnz: int | None = None
+        self,
+        source_name: str,
+        has_b_file: bool = False,
+        nnz: int | None = None,
+        suites: list[str] | None = None,
+        A: np.ndarray | None = None,
+        b: np.ndarray | None = None,
+        x: np.ndarray | None = None,
     ):
-        self._suites: list[str] = []
+        self._suites = suites or []
         self.source_name = source_name
         self.has_b_file = has_b_file
         self.nnz = nnz
+        self.A = A
+        self.b = b
+        self.x = x
 
     @property
     def name(self) -> str:
@@ -55,76 +67,100 @@ class JacobiDataset(Dataset):
         return data
 
 
-# BEGIN COPIED TEST FILE: tests/test_jacobi.py
-# import pytest
-#
-# import numpy as np
-#
-# import saps.benchmarks.jacobi as jacobi
-# from frameworks.saps_numpy import NumpyFramework
-# from frameworks.saps_scipy import SciPyFramework
-# from frameworks.saps_sparse import (
-#     PyDataSparseFramework,
-# )
-# from saps_framework import BinsparseFormat
-#
-#
-# @pytest.mark.parametrize(
-#     "xp, A, b, x",
-#     [
-#         (
-#             PyDataSparseFramework(),
-#             np.array([[4.0, 1.0, 0.0], [1.0, 5.0, 2.0], [0.0, 2.0, 6.0]]),
-#             np.array([5.0, 8.0, 8.0]),
-#             np.zeros((3,)),
-#         ),
-#         (
-#             SciPyFramework(),
-#             np.array([[4.0, 1.0, 0.0], [1.0, 5.0, 2.0], [0.0, 2.0, 6.0]]),
-#             np.array([5.0, 8.0, 8.0]),
-#             np.zeros((3,)),
-#         ),
-#         (
-#             NumpyFramework(),
-#             np.array(
-#                 [
-#                     [10.0, 1.0, 0.0, 2.0],
-#                     [1.0, 8.0, 1.0, 0.0],
-#                     [0.0, 2.0, 9.0, 1.0],
-#                     [1.0, 0.0, 1.0, 7.0],
-#                 ]
-#             ),
-#             np.array([16.0, 18.0, 15.0, 16.0]),
-#             np.zeros((4,)),
-#         ),
-#         (
-#             NumpyFramework(),
-#             np.array([[20.0, 3.0, 1.0], [2.0, 15.0, 4.0], [1.0, 2.0, 18.0]]),
-#             np.array([24.0, 21.0, 21.0]),
-#             np.zeros((3,)),
-#         ),
-#     ],
-# )
-# def test_jacobi_solver(xp, A, b, x):
-#     A_bin = BinsparseFormat.from_numpy(A)
-#     b_bin = BinsparseFormat.from_numpy(b)
-#     x_bin = BinsparseFormat.from_numpy(x)
-#
-#     jacobi.xp = xp
-#     benchmark = jacobi.JacobiBenchmark()
-#     x_sol = benchmark.benchmark(
-#         [
-#             xp.from_binsparse(A_bin),
-#             xp.from_binsparse(b_bin),
-#             xp.from_binsparse(x_bin),
-#         ],
-#         {},
-#     )[0]
-#     x_sol = np.round(x_sol, decimals=4)
-#
-#     b_coo = BinsparseFormat.to_coo(b_bin)
-#     assert b_coo == BinsparseFormat.to_coo(BinsparseFormat.from_numpy(A @ x_sol))
-# END COPIED TEST FILE: tests/test_jacobi.py
+class JacobiTestGenerator(Generator[JacobiDataset]):
+    @property
+    def name(self) -> str:
+        return "jacobi_test_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Jacobi Test Data Generator"
+
+    @property
+    def description(self) -> str:
+        return "Inlined matrices from the Jacobi pytest examples."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["test"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Benjamin Berol", "bberol3@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to write the benchmark function itself. "
+            "Generative AI was used to debug code. This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Uses small inlined linear systems to verify solver correctness."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[JacobiDataset]:
+        return [
+            JacobiDataset(
+                "test_3x3",
+                suites=["test"],
+                A=np.array(
+                    [[4.0, 1.0, 0.0], [1.0, 5.0, 2.0], [0.0, 2.0, 6.0]]
+                ),
+                b=np.array([5.0, 8.0, 8.0]),
+                x=np.zeros((3,)),
+            ),
+            JacobiDataset(
+                "test_4x4",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [10.0, 1.0, 0.0, 2.0],
+                        [1.0, 8.0, 1.0, 0.0],
+                        [0.0, 2.0, 9.0, 1.0],
+                        [1.0, 0.0, 1.0, 7.0],
+                    ]
+                ),
+                b=np.array([16.0, 18.0, 15.0, 16.0]),
+                x=np.zeros((4,)),
+            ),
+            JacobiDataset(
+                "test_3x3_dominant",
+                suites=["test"],
+                A=np.array(
+                    [[20.0, 3.0, 1.0], [2.0, 15.0, 4.0], [1.0, 2.0, 18.0]]
+                ),
+                b=np.array([24.0, 21.0, 21.0]),
+                x=np.zeros((3,)),
+            ),
+        ]
+
+    def generate(self, dataset: JacobiDataset):
+        if dataset.A is None or dataset.b is None or dataset.x is None:
+            raise ValueError("Jacobi test datasets must define A, b, and x.")
+
+        return DataInstance(
+            inputs=[
+                BinsparseFormat.from_numpy(dataset.A),
+                BinsparseFormat.from_numpy(dataset.b),
+                BinsparseFormat.from_numpy(dataset.x),
+            ],
+            meta={},
+            ref_meta={"check_rounded_residual": True, "round_decimals": 4},
+        )
 
 class JacobiGenerator(Generator[JacobiDataset]):
     @property
@@ -301,7 +337,37 @@ class JacobiBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [JacobiGenerator()]
+        return [JacobiTestGenerator(), JacobiGenerator()]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+
+        if not self._ref_meta or not self._ref_meta.get("check_rounded_residual"):
+            return
+
+        A_bin, b_bin, _x_bin = self._input
+        A_coo = BinsparseFormat.to_coo(A_bin)
+        A = pydata_sparse.COO(
+            coords=np.stack((A_coo.data["indices_0"], A_coo.data["indices_1"])),
+            data=A_coo.data["values"],
+            shape=A_coo.data["shape"],
+        )
+        decimals = self._ref_meta["round_decimals"]
+        x_sol = np.round(
+            self._output[0].data["values"].reshape(self._output[0].data["shape"]),
+            decimals=decimals,
+        )
+
+        actual_b = BinsparseFormat.to_coo(
+            BinsparseFormat.from_numpy(np.asarray(A @ x_sol))
+        )
+        expected_b = BinsparseFormat.to_coo(b_bin)
+        assert expected_b == actual_b, (
+            f"Jacobi residual mismatch for {param.dataset.name}"
+        )
 
     def _norm(self, xp, v):
         return xp.sqrt(xp.sum(xp.multiply(v, v)))

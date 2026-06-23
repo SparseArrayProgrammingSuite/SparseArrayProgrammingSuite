@@ -1,3 +1,5 @@
+import numpy as np
+
 import saps
 from saps.benchmark import (
     Author,
@@ -21,11 +23,17 @@ class BreadthFirstSearchDataset(Dataset):
         pretty_name: str | None = None,
         description: str | None = None,
         suites: list[str] | None = None,
+        A: np.ndarray | None = None,
+        src: int | None = None,
+        expected: np.ndarray | None = None,
     ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Breadth-first search input {name}."
         self._suites = suites or []
+        self.A = A
+        self.src = src
+        self.expected = expected
 
     @property
     def name(self) -> str:
@@ -48,97 +56,147 @@ class BreadthFirstSearchDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-# BEGIN COPIED TEST FILE: tests/test_bfs.py
-# import numpy as np
-#
-# import saps.benchmarks.BFS as bfs
-# from frameworks.saps_numpy import NumpyFramework
-# from saps.downloaders.snap import load_toy_dataset
-# from saps_framework import BinsparseFormat
-#
-#
-# def _run_bfs_case(A, source: int, expected: np.ndarray):
-#     "This method will run all the different tests. It will asisst with setup"
-#     xp = NumpyFramework()
-#     bfs.xp = xp
-#     A_bin = A if isinstance(A, BinsparseFormat) else BinsparseFormat.from_numpy(A)
-#     (bench_result,) = bfs.BreadthFirstSearchBenchmark().benchmark(
-#         [A_bin], {"src": source}
-#     )
-#     result = bench_result.ravel()
-#     assert np.array_equal(result, expected), (
-#         f"BFS output mismatch.\nGot {result}, expected {expected}"
-#     )
-#
-#
-# def test_bfs_basic():
-#     """Standard DAG benchmark graph."""
-#     A = np.array(
-#         [
-#             [0, 1, 1, 0, 0, 0],
-#             [0, 0, 1, 1, 0, 0],
-#             [0, 0, 0, 0, 1, 0],
-#             [0, 0, 0, 0, 0, 0],
-#             [0, 0, 0, 0, 0, 1],
-#             [0, 0, 0, 1, 0, 0],
-#         ],
-#         dtype=bool,
-#     )
-#     _run_bfs_case(A, 0, np.array([1, 2, 2, 3, 3, 4], dtype=int))
-#
-#
-# def test_bfs_single_node():
-#     """Trivial graph with one vertex."""
-#     A = np.array([[0]], dtype=bool)
-#     _run_bfs_case(A, 0, np.array([1], dtype=int))
-#
-#
-# def test_bfs_disconnected():
-#     """Graph with unreachable vertices."""
-#     A = np.array(
-#         [
-#             [0, 1, 0, 0],
-#             [0, 0, 0, 0],
-#             [0, 0, 0, 1],
-#             [0, 0, 0, 0],
-#         ],
-#         dtype=bool,
-#     )
-#     _run_bfs_case(A, 0, np.array([1, 2, 0, 0], dtype=int))
-#
-#
-# def test_bfs_undirected():
-#     """Undirected symmetric adjacency."""
-#     A = np.array(
-#         [
-#             [0, 1, 0, 0],
-#             [1, 0, 1, 0],
-#             [0, 1, 0, 1],
-#             [0, 0, 1, 0],
-#         ],
-#         dtype=bool,
-#     )
-#     _run_bfs_case(A, 0, np.array([1, 2, 3, 4], dtype=int))
-#
-#
-# def test_bfs_cycle():
-#     """Cycle graph: 0→1→2→3→0."""
-#     A = np.array(
-#         [
-#             [0, 1, 0, 0],
-#             [0, 0, 1, 0],
-#             [0, 0, 0, 1],
-#             [1, 0, 0, 0],
-#         ],
-#         dtype=bool,
-#     )
-#     _run_bfs_case(A, 0, np.array([1, 2, 3, 4], dtype=int))
-#
-#
-# def test_bfs_snap_toy():
-#     data, meta = load_toy_dataset()
-#     _run_bfs_case(data[0], meta["src"], np.array([1, 2, 3], dtype=int))
-# END COPIED TEST FILE: tests/test_bfs.py
+class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
+    @property
+    def name(self) -> str:
+        return "bfs_test_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Breadth-First Search Test Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Small deterministic BFS examples with reference outputs."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["test"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI might have been used to construct tests. This statement "
+            "was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Provide small BFS examples for benchmark correctness checks."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[BreadthFirstSearchDataset]:
+        return [
+            BreadthFirstSearchDataset(
+                "test_bfs_basic",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [0, 1, 1, 0, 0, 0],
+                        [0, 0, 1, 1, 0, 0],
+                        [0, 0, 0, 0, 1, 0],
+                        [0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 1],
+                        [0, 0, 0, 1, 0, 0],
+                    ],
+                    dtype=bool,
+                ),
+                src=0,
+                expected=np.array([1, 2, 2, 3, 3, 4], dtype=int),
+            ),
+            BreadthFirstSearchDataset(
+                "test_bfs_single_node",
+                suites=["test"],
+                A=np.array([[0]], dtype=bool),
+                src=0,
+                expected=np.array([1], dtype=int),
+            ),
+            BreadthFirstSearchDataset(
+                "test_bfs_disconnected",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [0, 1, 0, 0],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 1],
+                        [0, 0, 0, 0],
+                    ],
+                    dtype=bool,
+                ),
+                src=0,
+                expected=np.array([1, 2, 0, 0], dtype=int),
+            ),
+            BreadthFirstSearchDataset(
+                "test_bfs_undirected",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [0, 1, 0, 0],
+                        [1, 0, 1, 0],
+                        [0, 1, 0, 1],
+                        [0, 0, 1, 0],
+                    ],
+                    dtype=bool,
+                ),
+                src=0,
+                expected=np.array([1, 2, 3, 4], dtype=int),
+            ),
+            BreadthFirstSearchDataset(
+                "test_bfs_cycle",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [0, 1, 0, 0],
+                        [0, 0, 1, 0],
+                        [0, 0, 0, 1],
+                        [1, 0, 0, 0],
+                    ],
+                    dtype=bool,
+                ),
+                src=0,
+                expected=np.array([1, 2, 3, 4], dtype=int),
+            ),
+            BreadthFirstSearchDataset(
+                "test_bfs_snap_toy",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [0, 1, 0],
+                        [0, 0, 1],
+                        [0, 0, 0],
+                    ],
+                    dtype=bool,
+                ),
+                src=0,
+                expected=np.array([1, 2, 3], dtype=int),
+            ),
+        ]
+
+    def generate(self, dataset: BreadthFirstSearchDataset) -> DataInstance:
+        if dataset.A is None or dataset.src is None or dataset.expected is None:
+            raise ValueError("BFS test datasets must define A, src, and expected.")
+        return DataInstance(
+            inputs=[BinsparseFormat.from_numpy(dataset.A)],
+            meta={"src": dataset.src},
+            ref_outputs=[BinsparseFormat.from_numpy(dataset.expected)],
+        )
+
 
 class BreadthFirstSearchGenerator(Generator[BreadthFirstSearchDataset]):
     @property
@@ -297,10 +355,10 @@ class BreadthFirstSearchBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [BreadthFirstSearchGenerator()]
+        return [BreadthFirstSearchGenerator(), BreadthFirstSearchTestGenerator()]
 
-    def benchmark(self, data: list[BinsparseFormat], meta: dict):
-        edges = xp.from_binsparse(data[0])
+    def benchmark(self, data: list, meta: dict):
+        edges = data[0]
         src = meta["src"]
 
         (n, m) = edges.shape
@@ -325,3 +383,14 @@ class BreadthFirstSearchBenchmark(Benchmark):
             level_idx += 1
 
         return [level]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+        if self._ref_outputs is None:
+            return
+        assert self._output[0] == self._ref_outputs[0], (
+            f"BFS output mismatch for {param.dataset.name}"
+        )

@@ -140,36 +140,6 @@ class WMCDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-# BEGIN COPIED TEST FILE: tests/test_weighted_model_counting.py
-# import numpy as np
-#
-# import saps.benchmarks.weighted_model_counting as wmc
-# from frameworks.saps_numpy import NumpyFramework
-#
-#
-# def test_weighted_model_counting_datasets():
-#     xp = NumpyFramework()
-#     wmc.xp = xp
-#
-#     generator = wmc.WMCGenerator()
-#     benchmark = wmc.WeightedModelCounting()
-#
-#     for dataset in generator.datasets:
-#         problem = generator.generate(dataset)
-#         raw_matrices = problem.inputs
-#         meta = problem.meta
-#
-#         input_arrays = [xp.from_binsparse(m) for m in raw_matrices]
-#
-#         results = benchmark.benchmark(input_arrays, meta)
-#
-#         res = float(results[0])
-#         expected = meta["expected_result"]
-#
-#         msg = f"Test '{dataset.name}' failed: Expected {expected}, got {res}"
-#         assert np.isclose(res, expected, rtol=10e-8), msg
-# END COPIED TEST FILE: tests/test_weighted_model_counting.py
-
 class WMCGenerator(Generator[WMCDataset]):
     @property
     def name(self) -> str:
@@ -185,7 +155,7 @@ class WMCGenerator(Generator[WMCDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -211,13 +181,17 @@ class WMCGenerator(Generator[WMCDataset]):
         return "Uses a predefined set of formulas to verify correctness."
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[WMCDataset]:
         return [
             WMCDataset(
                 name="test_1",
                 pretty_name="Test 1: Satisfiable",
                 description="(V1 or V2) and (not V1 or V2)",
-                suites=[],
+                suites=["test"],
                 cnf_text=textwrap.dedent(
                     """\
                     c (V1 or V2) and (not V1 or V2)
@@ -236,7 +210,7 @@ class WMCGenerator(Generator[WMCDataset]):
                 name="test_2",
                 pretty_name="Test 2: Unsatisfiable",
                 description="V1 and not V1",
-                suites=[],
+                suites=["test"],
                 cnf_text=textwrap.dedent(
                     """\
                     c V1 and not V1 (unsatisfiable)
@@ -253,7 +227,7 @@ class WMCGenerator(Generator[WMCDataset]):
                 name="test_3",
                 pretty_name="Test 3: No Clauses",
                 description="p cnf 2 0",
-                suites=[],
+                suites=["test"],
                 cnf_text=textwrap.dedent(
                     """\
                     c no clauses
@@ -270,7 +244,7 @@ class WMCGenerator(Generator[WMCDataset]):
                 name="test_4",
                 pretty_name="Test 4: Default Weights",
                 description="V1 or V2 (default weights)",
-                suites=[],
+                suites=["test"],
                 cnf_text=textwrap.dedent(
                     """\
                     c V1 or V2 (default weights)
@@ -284,7 +258,7 @@ class WMCGenerator(Generator[WMCDataset]):
                 name="test_5",
                 pretty_name="Test 5: 3-Var Formula",
                 description="(V1 or V2) and (not V2 or V3)",
-                suites=[],
+                suites=["test"],
                 cnf_text=textwrap.dedent(
                     """\
                     c (V1 or V2) and (not V2 or V3)
@@ -312,7 +286,7 @@ class WMCGenerator(Generator[WMCDataset]):
                     and (not V12 or not V17 or V18) and (V14 or V19 or not V20)
                     and (not V15 or V16 or V20) and (V17 or not V18 or V19)
                 """,
-                suites=[],
+                suites=["test"],
                 cnf_text=textwrap.dedent(
                     """\
                     c 20 var WMC problem
@@ -378,7 +352,11 @@ class WMCGenerator(Generator[WMCDataset]):
             "default_total": default_total,
         }
 
-        return DataInstance(inputs=data_list, meta=meta)
+        return DataInstance(
+            inputs=data_list,
+            meta=meta,
+            ref_outputs=[BinsparseFormat.from_numpy(np.array(dataset.expected))],
+        )
 
 
 class WeightedModelCounting(Benchmark):
@@ -445,3 +423,22 @@ class WeightedModelCounting(Benchmark):
         result = xp.einsum(expr, **args)
 
         return [result]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+        if self._ref_outputs is None:
+            return
+        result = float(
+            self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        )
+        expected = float(
+            self._ref_outputs[0]
+            .data["values"]
+            .reshape(self._ref_outputs[0].data["shape"])
+        )
+        assert np.isclose(result, expected, rtol=10e-8), (
+            f"Test '{param.dataset.name}' failed: expected {expected}, got {result}"
+        )

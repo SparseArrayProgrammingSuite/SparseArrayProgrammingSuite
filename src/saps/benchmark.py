@@ -10,7 +10,7 @@ from typing import Any, Generic, TypeVar
 
 from saps.framework import xp
 from saps.storage import build_storage_backend
-from saps_framework.binsparse_format import BinsparseFormat
+from saps_framework.binsparse_format import BinsparseFormat as BinsparseFormat
 
 
 @dataclass
@@ -287,7 +287,7 @@ class Benchmark(Tagged, Attributed, Motivated):
 
     param_names = ["dataset"]
 
-    def setup(self, param):
+    def setup(self, param, *, use_cache: bool = True):
         import logging
 
         if not logging.getLogger().handlers:
@@ -295,9 +295,16 @@ class Benchmark(Tagged, Attributed, Motivated):
                 level=logging.INFO,
                 format="%(levelname)s %(name)s: %(message)s",
             )
-        problem = param.generator.cached_generate(param.dataset)
+        self._refresh_xp()
+        problem = (
+            param.generator.cached_generate(param.dataset)
+            if use_cache
+            else param.generator.generate(param.dataset)
+        )
         self._input = problem.inputs
         self._meta = problem.meta
+        self._ref_outputs = problem.ref_outputs
+        self._ref_meta = problem.ref_meta
 
     def run(self, param):
         self._refresh_xp()
@@ -355,11 +362,14 @@ class Benchmark(Tagged, Attributed, Motivated):
             del self._output
         if hasattr(self, "_meta"):
             del self._meta
+        if hasattr(self, "_ref_outputs"):
+            del self._ref_outputs
+        if hasattr(self, "_ref_meta"):
+            del self._ref_meta
         if hasattr(self, "_input"):
             del self._input
 
     def check(self, param):
-        # TODO do better than this
         for item in self._output:
             assert isinstance(item, BinsparseFormat), (
                 "Output must be in binsparse format"

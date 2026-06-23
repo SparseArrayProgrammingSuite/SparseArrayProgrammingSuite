@@ -28,12 +28,19 @@ class LSQRDataset(Dataset):
         has_b_file: bool = False,
         nnz: int | None = None,
         noise_amt: float = 0.1,
+        suites: list[str] | None = None,
+        A: np.ndarray | None = None,
+        b: np.ndarray | None = None,
+        convergence: str | None = None,
     ):
-        self._suites: list[str] = []
+        self._suites = suites or []
         self.source_name = source_name
         self.has_b_file = has_b_file
         self.nnz = nnz
         self.noise_amt = noise_amt
+        self.A = A
+        self.b = b
+        self.convergence = convergence
 
     @property
     def name(self) -> str:
@@ -64,137 +71,165 @@ class LSQRDataset(Dataset):
         return data
 
 
-# BEGIN COPIED TEST FILE: tests/test_lsqr.py
-# import pytest
-#
-# import numpy as np
-#
-# import saps.benchmarks.lsqr as lsqr
-# from frameworks.saps_numpy import NumpyFramework
-# from frameworks.saps_sparse import (
-#     PyDataSparseFramework,
-# )
-# from saps_framework import BinsparseFormat
-#
-#
-# def as_dense(array):
-#     if hasattr(array, "todense"):
-#         return np.asarray(array.todense())
-#     return np.asarray(array)
-#
-#
-# def run_lsqr_benchmark(xp, A, b):
-#     benchmark = lsqr.LSQRBenchmark()
-#     prev_xp = getattr(lsqr, "xp", None)
-#     lsqr.xp = xp
-#     try:
-#         (x_sol,) = benchmark.benchmark([A, b], {})
-#     finally:
-#         lsqr.xp = prev_xp
-#     return x_sol
-#
-#
-# @pytest.mark.parametrize(
-#     "xp, A, b, convergence",
-#     [
-#         (
-#             PyDataSparseFramework(),  # Underdetermined
-#             np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0]]),
-#             np.array([4.1, 10.1]),  # b = A @ [1, 2, 3] + noise
-#             "residual",
-#         ),
-#         (
-#             PyDataSparseFramework(),  # Overdetermined
-#             np.array(
-#                 [[7.0, 2.0, 1.0], [2.0, 6.0, -1.0], [1.0, -1.0, 5.0], [4.0, -3.0, 1.0]]  # noqa: E501
-#             ),
-#             np.array([13.2, -3.3, 8.1, 12.4]),  # b = A @ [2, -1, 1] + noise
-#             "gradient",
-#         ),
-#         (
-#             PyDataSparseFramework(),  # Exact Solution
-#             np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]),
-#             np.array([4.0, 8.0, 16.0]),  # b = A @ [1, 2, 3]
-#             "residual",
-#         ),
-#         (
-#             NumpyFramework(),  # Underdetermined
-#             np.array(
-#                 [
-#                     [8.0, -1.0, 0.0, 0.0],
-#                     [-1.0, 8.0, -1.0, 0.0],
-#                     [0.0, -1.0, 8.0, -1.0],
-#                 ]
-#             ),
-#             np.array([8.1, -2.2, 6.3]),  # b = A @ [1, 0, 1, 2] + noise
-#             "residual",
-#         ),
-#         (
-#             NumpyFramework(),  # Overdetermined
-#             np.array(
-#                 [[12.0, 2.0, -1.0], [2.0, 10.0, 3.0], [-1.0, 3.0, 9.0], [5.0, 1.0, 2.0]]  # noqa: E501
-#             ),
-#             np.array([40.1, 10.2, -18.3, 15.4]),  # b = A @ [3, 1, -2] + noise
-#             "gradient",
-#         ),
-#         (
-#             NumpyFramework(),  # Exact Solution
-#             np.array(
-#                 [
-#                     [8.0, -1.0, 0.0, 0.0],
-#                     [-1.0, 8.0, -1.0, 0.0],
-#                     [0.0, -1.0, 8.0, -1.0],
-#                     [0.0, 0.0, -1.0, 8.0],
-#                 ]
-#             ),
-#             np.array([8.0, -2.0, 6.0, 15.0]),  # b = A @ [1, 0, 1, 2]
-#             "residual",
-#         ),
-#         (
-#             NumpyFramework(),  # Underdetermined
-#             np.array([[120.0, -2.0, 0.0], [-2.0, 120.0, -2.0]]),
-#             np.array([118.1, 116.1]),  # b = A @ [1, 1, 1] + noise
-#             "residual",
-#         ),
-#         (
-#             NumpyFramework(),  # Overdetermined
-#             np.array(
-#                 [[1.0, 2.0, 0.0], [0.0, 3.0, 1.0], [1.0, 0.0, 4.0], [2.0, 1.0, 3.0]]
-#             ),
-#             np.array([5.1, 7.2, 11.3, 12.4]),  # b = A @ [1, 2, 3] + noise
-#             "gradient",
-#         ),
-#         (
-#             NumpyFramework(),  # Exact Solution
-#             np.array(
-#                 [
-#                     [15.0, -2.0, 0.0, 0.0, -1.0],
-#                     [-2.0, 14.0, -3.0, 0.0, 0.0],
-#                     [0.0, -3.0, 16.0, -2.0, 0.0],
-#                     [0.0, 0.0, -2.0, 15.0, -3.0],
-#                     [-1.0, 0.0, 0.0, -3.0, 17.0],
-#                 ]
-#             ),
-#             np.array([27.0, -1.0, -18.0, 8.0, 46.0]),  # b = A @ [2, 0, -1, 1, 3]
-#             "residual",
-#         ),
-#     ],
-# )
-# def test_lsqr_solver(xp, A, b, convergence):
-#     A_bin = BinsparseFormat.from_numpy(A)
-#     b_bin = BinsparseFormat.from_numpy(b)
-#     A_input = xp.from_binsparse(A_bin)
-#     b_input = xp.from_binsparse(b_bin)
-#
-#     x_sol = as_dense(run_lsqr_benchmark(xp, A_input, b_input))
-#
-#     residual = b - A @ x_sol
-#
-#     if convergence == "residual":
-#         assert np.linalg.norm(residual) < 1e-5 * np.linalg.norm(b) + 1e-5
-#     elif convergence == "gradient":
-#         assert np.linalg.norm(A.T @ residual) < 1e-5 * np.linalg.norm(A.T @ b) + 1e-5
-# END COPIED TEST FILE: tests/test_lsqr.py
+class LSQRTestGenerator(Generator[LSQRDataset]):
+    @property
+    def name(self) -> str:
+        return "lsqr_test_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "LSQR Test Data Generator"
+
+    @property
+    def description(self) -> str:
+        return "Inlined matrices from the LSQR pytest examples."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["test"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Benjamin Berol", "bberol3@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return LSQRBenchmark().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return LSQRBenchmark().ai_disclosure
+
+    @property
+    def motivation(self) -> str:
+        return "Uses small inlined least-squares systems to verify convergence."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[LSQRDataset]:
+        return [
+            LSQRDataset(
+                "test_lsqr_underdetermined_3",
+                suites=["test"],
+                A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0]]),
+                b=np.array([4.1, 10.1]),
+                convergence="residual",
+            ),
+            LSQRDataset(
+                "test_lsqr_overdetermined_3",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [7.0, 2.0, 1.0],
+                        [2.0, 6.0, -1.0],
+                        [1.0, -1.0, 5.0],
+                        [4.0, -3.0, 1.0],
+                    ]
+                ),
+                b=np.array([13.2, -3.3, 8.1, 12.4]),
+                convergence="gradient",
+            ),
+            LSQRDataset(
+                "test_lsqr_exact_3",
+                suites=["test"],
+                A=np.array(
+                    [[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]
+                ),
+                b=np.array([4.0, 8.0, 16.0]),
+                convergence="residual",
+            ),
+            LSQRDataset(
+                "test_lsqr_underdetermined_4",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [8.0, -1.0, 0.0, 0.0],
+                        [-1.0, 8.0, -1.0, 0.0],
+                        [0.0, -1.0, 8.0, -1.0],
+                    ]
+                ),
+                b=np.array([8.1, -2.2, 6.3]),
+                convergence="residual",
+            ),
+            LSQRDataset(
+                "test_lsqr_overdetermined_sparse",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [12.0, 2.0, -1.0],
+                        [2.0, 10.0, 3.0],
+                        [-1.0, 3.0, 9.0],
+                        [5.0, 1.0, 2.0],
+                    ]
+                ),
+                b=np.array([40.1, 10.2, -18.3, 15.4]),
+                convergence="gradient",
+            ),
+            LSQRDataset(
+                "test_lsqr_exact_4",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [8.0, -1.0, 0.0, 0.0],
+                        [-1.0, 8.0, -1.0, 0.0],
+                        [0.0, -1.0, 8.0, -1.0],
+                        [0.0, 0.0, -1.0, 8.0],
+                    ]
+                ),
+                b=np.array([8.0, -2.0, 6.0, 15.0]),
+                convergence="residual",
+            ),
+            LSQRDataset(
+                "test_lsqr_scaled_underdetermined",
+                suites=["test"],
+                A=np.array([[120.0, -2.0, 0.0], [-2.0, 120.0, -2.0]]),
+                b=np.array([118.1, 116.1]),
+                convergence="residual",
+            ),
+            LSQRDataset(
+                "test_lsqr_overdetermined_dense",
+                suites=["test"],
+                A=np.array(
+                    [[1.0, 2.0, 0.0], [0.0, 3.0, 1.0], [1.0, 0.0, 4.0], [2.0, 1.0, 3.0]]
+                ),
+                b=np.array([5.1, 7.2, 11.3, 12.4]),
+                convergence="gradient",
+            ),
+            LSQRDataset(
+                "test_lsqr_exact_5",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [15.0, -2.0, 0.0, 0.0, -1.0],
+                        [-2.0, 14.0, -3.0, 0.0, 0.0],
+                        [0.0, -3.0, 16.0, -2.0, 0.0],
+                        [0.0, 0.0, -2.0, 15.0, -3.0],
+                        [-1.0, 0.0, 0.0, -3.0, 17.0],
+                    ]
+                ),
+                b=np.array([27.0, -1.0, -18.0, 8.0, 46.0]),
+                convergence="residual",
+            ),
+        ]
+
+    def generate(self, dataset: LSQRDataset) -> DataInstance:
+        if dataset.A is None or dataset.b is None or dataset.convergence is None:
+            raise ValueError("LSQR test datasets must define A, b, and convergence.")
+        return DataInstance(
+            inputs=[
+                BinsparseFormat.from_numpy(dataset.A),
+                BinsparseFormat.from_numpy(dataset.b),
+            ],
+            meta={},
+            ref_meta={"convergence": dataset.convergence},
+        )
 
 class LSQRGenerator(Generator[LSQRDataset]):
     @property
@@ -370,7 +405,29 @@ class LSQRBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [LSQRGenerator()]
+        return [LSQRTestGenerator(), LSQRGenerator()]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+
+        if not self._ref_meta or "convergence" not in self._ref_meta:
+            return
+
+        A_bin, b_bin = self._input
+        A = A_bin.data["values"].reshape(A_bin.data["shape"])
+        b = b_bin.data["values"].reshape(b_bin.data["shape"])
+        x_sol = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        residual = b - A @ x_sol
+
+        if self._ref_meta["convergence"] == "residual":
+            assert np.linalg.norm(residual) < 1e-5 * np.linalg.norm(b) + 1e-5
+        elif self._ref_meta["convergence"] == "gradient":
+            assert np.linalg.norm(A.T @ residual) < (
+                1e-5 * np.linalg.norm(A.T @ b) + 1e-5
+            )
 
     def benchmark(self, data: list, meta: dict):
         A, b = data

@@ -1,5 +1,5 @@
 import os
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 
@@ -27,14 +27,29 @@ class GCNDataset(Dataset):
         feature_dim: int = 16,
         hidden_dim: int = 8,
         out_dim: int = 1,
+        suites: list[str] | None = None,
+        adjacency: np.ndarray | None = None,
+        features: np.ndarray | None = None,
+        weights1: np.ndarray | None = None,
+        bias1: np.ndarray | None = None,
+        weights2: np.ndarray | None = None,
+        bias2: np.ndarray | None = None,
+        expected: np.ndarray | None = None,
     ):
-        self._suites: list[str] = []
+        self._suites = suites or []
         self.dataset_name = name
         self.dataset_description = description
         self.source_name = source_name if source_name is not None else name
         self.feature_dim = feature_dim
         self.hidden_dim = hidden_dim
         self.out_dim = out_dim
+        self.adjacency = adjacency
+        self.features = features
+        self.weights1 = weights1
+        self.bias1 = bias1
+        self.weights2 = weights2
+        self.bias2 = bias2
+        self.expected = expected
 
     @property
     def name(self) -> str:
@@ -66,186 +81,128 @@ class GCNDataset(Dataset):
         return data
 
 
-# BEGIN COPIED TEST FILE: tests/test_gcn.py
-# import pytest
-#
-# import numpy as np
-#
-# import saps.benchmarks.gcn as gcn
-# from frameworks.saps_numpy import NumpyFramework
-#
-#
-# def gcn_reference_np(adjacency, features, weights1, bias1, weights2, bias2):
-#     """Reference NumPy implementation of the 2-layer GCN used for tests.
-#
-#     Inputs are dense NumPy arrays; adjacency is treated as a dense matrix for
-#     simplicity in tests (small graphs).
-#     """
-#     h1 = adjacency @ features
-#     h1 = h1 @ weights1 + bias1
-#     h1 = np.maximum(h1, 0)
-#
-#     h2 = adjacency @ h1
-#     return h2 @ weights2 + bias2
-#
-#
-# def run_gcn_benchmark(adjacency, features, weights1, bias1, weights2, bias2):
-#     xp = NumpyFramework()
-#     benchmark = gcn.GCNBenchmark()
-#     prev_xp = getattr(gcn, "xp", None)
-#     gcn.xp = xp
-#     try:
-#         (output,) = benchmark.benchmark(
-#             [adjacency, features, weights1, bias1, weights2, bias2],
-#             {},
-#         )
-#     finally:
-#         gcn.xp = prev_xp
-#     return output
-#
-#
-# @pytest.mark.parametrize(
-#     "xp,adjacency,features,weights1,bias1,weights2,bias2",
-#     [
-#         (
-#             NumpyFramework(),
-#             np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]]),
-#             np.array([[1, 0], [0, 1], [1, 1]]),
-#             np.array([[1, 0], [0, 1]]),
-#             np.array([0, 0]),
-#             np.array([[1], [1]]),
-#             np.array([0]),
-#         ),
-#     ],
-# )
-# def test_benchmark_gcn(xp, adjacency, features, weights1, bias1, weights2, bias2):
-#     expected = gcn_reference_np(adjacency, features, weights1, bias1, weights2, bias2)
-#     output = run_gcn_benchmark(adjacency, features, weights1, bias1, weights2, bias2)
-#     np.testing.assert_allclose(output, expected, rtol=1e-10)
-#
-#
-# def test_gcn_benchmark_smoke():
-#     """Smoke test for the class-based benchmark interface."""
-#     adjacency = np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]], dtype=np.float64)
-#     features = np.array([[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]])
-#     weights1 = np.array([[1.0, 0.0], [0.0, 1.0]])
-#     bias1 = np.array([0.0, 0.0])
-#     weights2 = np.array([[1.0], [1.0]])
-#     bias2 = np.array([0.0])
-#
-#     output = run_gcn_benchmark(adjacency, features, weights1, bias1, weights2, bias2)
-#     assert output.shape == (3, 1)
-#
-#
-# def test_gcn_simple_2node():
-#     """Test GCN on a simple 2-node graph with hand-computed expected output.
-#
-#     Graph: 0 -- 1 (single edge)
-#     Adjacency: [[0, 1], [1, 0]]
-#
-#     Manual computation:
-#     Layer 1: h1 = A @ X @ W1 + b1
-#       A @ X = [[0, 1], [1, 0]] @ [[1], [2]] = [[2], [1]]
-#       h1 = [[2], [1]] @ [[2]] = [[4], [2]]
-#       h1 = ReLU([[4], [2]]) = [[4], [2]]
-#
-#     Layer 2: output = A @ h1 @ W2 + b2
-#       A @ h1 = [[0, 1], [1, 0]] @ [[4], [2]] = [[2], [4]]
-#       output = [[2], [4]] @ [[3]] = [[6], [12]]
-#     """
-#     adjacency = np.array([[0, 1], [1, 0]], dtype=np.float64)
-#     features = np.array([[1.0], [2.0]])
-#     weights1 = np.array([[2.0]])
-#     bias1 = np.array([0.0])
-#     weights2 = np.array([[3.0]])
-#     bias2 = np.array([0.0])
-#
-#     expected = np.array([[6.0], [12.0]])
-#
-#     output = gcn_reference_np(adjacency, features, weights1, bias1, weights2, bias2)
-#     np.testing.assert_allclose(output, expected, rtol=1e-10)
-#
-#     # Also test with benchmark_gcn
-#     output_np = run_gcn_benchmark(adjacency, features, weights1, bias1, weights2, bias2)  # noqa: E501
-#     np.testing.assert_allclose(output_np, expected, rtol=1e-10)
-#
-#
-# def test_gcn_simple_3node_line():
-#     """Test GCN on a 3-node line graph with hand-computed expected output.
-#
-#     Source: Computation methodology based on "Graph Convolutional Network (GCN) by Hand"  # noqa: E501
-#     byhand.ai.
-#     https://www.byhand.ai/p/17-can-you-calculate-a-graph-convolutional
-#
-#     Test case manually computed following the GCN formula from GCN.py (lines 37-40).
-#
-#     Graph: 0 -- 1 -- 2 (line graph)
-#     Adjacency: [[0, 1, 0], [1, 0, 1], [0, 1, 0]]
-#
-#     Manual computation:
-#     Layer 1: h1 = A @ X @ W1 + b1
-#       A @ X = [[0, 1, 0], [1, 0, 1], [0, 1, 0]] @ [[1], [0], [1]] = [[0], [2], [0]]
-#       h1 = [[0], [2], [0]] @ [[1]] = [[0], [2], [0]]
-#       h1 = ReLU([[0], [2], [0]]) = [[0], [2], [0]]
-#
-#     Layer 2: output = A @ h1 @ W2 + b2
-#       A @ h1 = [[0, 1, 0], [1, 0, 1], [0, 1, 0]] @ [[0], [2], [0]] = [[2], [0], [2]]
-#       output = [[2], [0], [2]] @ [[1]] = [[2], [0], [2]]
-#     """
-#     adjacency = np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]], dtype=np.float64)
-#     features = np.array([[1.0], [0.0], [1.0]])
-#     weights1 = np.array([[1.0]])
-#     bias1 = np.array([0.0])
-#     weights2 = np.array([[1.0]])
-#     bias2 = np.array([0.0])
-#
-#     expected = np.array([[2.0], [0.0], [2.0]])
-#
-#     output = gcn_reference_np(adjacency, features, weights1, bias1, weights2, bias2)
-#     np.testing.assert_allclose(output, expected, rtol=1e-10)
-#
-#     # Also test with benchmark_gcn
-#     output_np = run_gcn_benchmark(adjacency, features, weights1, bias1, weights2, bias2)  # noqa: E501
-#     np.testing.assert_allclose(output_np, expected, rtol=1e-10)
-#
-#
-# def test_gcn_with_relu_activation():
-#     """Test GCN with ReLU activation (negative values zeroed out).
-#
-#     Source: Computation methodology based on "Graph Convolutional Network (GCN) by Hand"  # noqa: E501
-#     byhand.ai.
-#     https://www.byhand.ai/p/17-can-you-calculate-a-graph-convolutional
-#
-#     Test case manually computed following the GCN formula from GCN.py (lines 37-40).
-#     This test verifies that ReLU activation works correctly by using
-#     weights that produce negative intermediate values.
-#
-#     Graph: 0 -- 1
-#     """
-#     adjacency = np.array([[0, 1], [1, 0]], dtype=np.float64)
-#     features = np.array([[1.0], [-1.0]])
-#     weights1 = np.array([[1.0]])
-#     bias1 = np.array([0.0])
-#     weights2 = np.array([[2.0]])
-#     bias2 = np.array([0.0])
-#
-#     # Manual computation:
-#     # Layer 1: h1 = A @ X @ W1
-#     #   A @ X = [[0, 1], [1, 0]] @ [[1], [-1]] = [[-1], [1]]
-#     #   h1 = [[-1], [1]] @ [[1]] = [[-1], [1]]
-#     #   h1 = ReLU([[-1], [1]]) = [[0], [1]]  <- ReLU zeros out negative value
-#     # Layer 2: output = A @ h1 @ W2
-#     #   A @ h1 = [[0, 1], [1, 0]] @ [[0], [1]] = [[1], [0]]
-#     #   output = [[1], [0]] @ [[2]] = [[2], [0]]
-#
-#     expected = np.array([[2.0], [0.0]])
-#
-#     output = gcn_reference_np(adjacency, features, weights1, bias1, weights2, bias2)
-#     np.testing.assert_allclose(output, expected, rtol=1e-10)
-#
-#     output_np = run_gcn_benchmark(adjacency, features, weights1, bias1, weights2, bias2)  # noqa: E501
-#     np.testing.assert_allclose(output_np, expected, rtol=1e-10)
-# END COPIED TEST FILE: tests/test_gcn.py
+def gcn_reference_np(adjacency, features, weights1, bias1, weights2, bias2):
+    h1 = adjacency @ features
+    h1 = h1 @ weights1 + bias1
+    h1 = np.maximum(h1, 0)
+    h2 = adjacency @ h1
+    return h2 @ weights2 + bias2
+
+
+class GCNTestGenerator(Generator[GCNDataset]):
+    @property
+    def name(self) -> str:
+        return "gcn_test_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "GCN Test Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Small inlined GCN forward-pass examples."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["test"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Tarun Devi", "tdevi3@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return GCNBenchmark().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return GCNBenchmark().ai_disclosure
+
+    @property
+    def motivation(self) -> str:
+        return "Uses small graph examples to verify the GCN forward pass."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[GCNDataset]:
+        return [
+            GCNDataset(
+                "test_gcn_3node",
+                suites=["test"],
+                adjacency=np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]], dtype=float),
+                features=np.array([[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]]),
+                weights1=np.array([[1.0, 0.0], [0.0, 1.0]]),
+                bias1=np.array([0.0, 0.0]),
+                weights2=np.array([[1.0], [1.0]]),
+                bias2=np.array([0.0]),
+            ),
+            GCNDataset(
+                "test_gcn_simple_2node",
+                suites=["test"],
+                adjacency=np.array([[0, 1], [1, 0]], dtype=float),
+                features=np.array([[1.0], [2.0]]),
+                weights1=np.array([[2.0]]),
+                bias1=np.array([0.0]),
+                weights2=np.array([[3.0]]),
+                bias2=np.array([0.0]),
+                expected=np.array([[6.0], [12.0]]),
+            ),
+            GCNDataset(
+                "test_gcn_simple_3node_line",
+                suites=["test"],
+                adjacency=np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]], dtype=float),
+                features=np.array([[1.0], [0.0], [1.0]]),
+                weights1=np.array([[1.0]]),
+                bias1=np.array([0.0]),
+                weights2=np.array([[1.0]]),
+                bias2=np.array([0.0]),
+                expected=np.array([[2.0], [0.0], [2.0]]),
+            ),
+            GCNDataset(
+                "test_gcn_with_relu_activation",
+                suites=["test"],
+                adjacency=np.array([[0, 1], [1, 0]], dtype=float),
+                features=np.array([[1.0], [-1.0]]),
+                weights1=np.array([[1.0]]),
+                bias1=np.array([0.0]),
+                weights2=np.array([[2.0]]),
+                bias2=np.array([0.0]),
+                expected=np.array([[2.0], [0.0]]),
+            ),
+        ]
+
+    def generate(self, dataset: GCNDataset):
+        required = (
+            dataset.adjacency,
+            dataset.features,
+            dataset.weights1,
+            dataset.bias1,
+            dataset.weights2,
+            dataset.bias2,
+        )
+        if any(item is None for item in required):
+            raise ValueError("GCN test datasets must define all input arrays.")
+
+        expected = dataset.expected
+        if expected is None:
+            expected = gcn_reference_np(*required)
+
+        inputs = [
+            BinsparseFormat.from_numpy(cast(np.ndarray, item)) for item in required
+        ]
+        return DataInstance(
+            inputs=inputs,
+            meta={},
+            ref_outputs=[BinsparseFormat.from_numpy(expected)],
+            ref_meta={"rtol": 1e-10},
+        )
 
 class GCNGenerator(Generator[GCNDataset]):
     @property
@@ -549,7 +506,27 @@ class GCNBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [GCNGenerator()]
+        return [GCNTestGenerator(), GCNGenerator()]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+
+        if self._ref_outputs is None:
+            return
+
+        result = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        expected = self._ref_outputs[0].data["values"].reshape(
+            self._ref_outputs[0].data["shape"]
+        )
+        np.testing.assert_allclose(
+            result,
+            expected,
+            rtol=self._ref_meta["rtol"],
+            err_msg=f"GCN output mismatch for {param.dataset.name}",
+        )
 
     """
     Args:

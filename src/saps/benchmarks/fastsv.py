@@ -1,3 +1,5 @@
+import numpy as np
+
 import saps
 from saps.benchmark import (
     Author,
@@ -9,6 +11,7 @@ from saps.benchmark import (
     Ref,
 )
 from saps.downloaders.snap import download_snap_dataset
+from saps_framework import BinsparseFormat
 
 xp = saps.xp
 
@@ -47,120 +50,132 @@ class FastSVDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-# BEGIN COPIED TEST FILE: tests/test_fastsv.py
-# import numpy as np
-#
-# import saps.benchmarks.connected_components as cc
-# import saps.benchmarks.fastsv as fastsv
-# from frameworks.saps_numpy import NumpyFramework
-# from saps_framework import BinsparseFormat
-#
-# xp = NumpyFramework()
-#
-#
-# def _run_fastsv_case(A, expected):
-#     "Run FastSV and cross-validate against SimplyConnectedComponents."
-#     A_bin = A if isinstance(A, BinsparseFormat) else BinsparseFormat.from_numpy(A)
-#
-#     fastsv.xp = xp
-#     (bench_result,) = fastsv.FastSVBenchmark().benchmark([A_bin], {})
-#     result = bench_result.ravel()
-#     assert np.array_equal(result, expected), (
-#         f"fastsv output mismatch.\nGot {result}, expected {expected}"
-#     )
-#
-#     cc.xp = xp
-#     (bench_result,) = cc.SimplyConnectedComponentsBenchmark().benchmark([A_bin], {})
-#     result = bench_result.ravel()
-#     assert np.array_equal(result, expected), (
-#         f"connected_components output mismatch.\nGot {result}, expected {expected}"
-#     )
-#
-#
-# def test_fastsv_no_edges():
-#     """Graph with no edges: every vertex is its own component."""
-#     A = np.zeros((5, 5), dtype=bool)
-#     expected = np.arange(5)  # each node isolated
-#     _run_fastsv_case(A, expected)
-#
-#
-# def test_fastsv_single_component():
-#     """Fully connected undirected graph: one component."""
-#     A = np.array(
-#         [
-#             [0, 1, 1, 1],
-#             [1, 0, 1, 1],
-#             [1, 1, 0, 1],
-#             [1, 1, 1, 0],
-#         ],
-#         dtype=bool,
-#     )
-#     expected = np.array([0, 0, 0, 0])
-#     _run_fastsv_case(A, expected)
-#
-#
-# def test_fastsv_two_components():
-#     """Two disconnected components of equal size."""
-#     A = np.array(
-#         [
-#             [0, 1, 0, 0],
-#             [1, 0, 0, 0],
-#             [0, 0, 0, 1],
-#             [0, 0, 1, 0],
-#         ],
-#         dtype=bool,
-#     )
-#     expected = np.array([0, 0, 2, 2])
-#     _run_fastsv_case(A, expected)
-#
-#
-# def test_fastsv_chain():
-#     """A simple chain: 0-1-2-3-4 → one connected component."""
-#     A = np.array(
-#         [
-#             [0, 1, 0, 0, 0],
-#             [1, 0, 1, 0, 0],
-#             [0, 1, 0, 1, 0],
-#             [0, 0, 1, 0, 1],
-#             [0, 0, 0, 1, 0],
-#         ],
-#         dtype=bool,
-#     )
-#     expected = np.array([0, 0, 0, 0, 0])
-#     _run_fastsv_case(A, expected)
-#
-#
-# def test_fastsv_star():
-#     """Star graph: center is 0, connected to all others."""
-#     A = np.array(
-#         [
-#             [0, 1, 1, 1, 1],
-#             [1, 0, 0, 0, 0],
-#             [1, 0, 0, 0, 0],
-#             [1, 0, 0, 0, 0],
-#             [1, 0, 0, 0, 0],
-#         ],
-#         dtype=bool,
-#     )
-#     expected = np.array([0, 0, 0, 0, 0])
-#     _run_fastsv_case(A, expected)
-#
-#
-# def test_fastsv_isolated_and_connected():
-#     """One connected triple + two isolated nodes."""
-#     A = np.array(
-#         [
-#             [0, 1, 0, 0, 0],
-#             [1, 0, 1, 0, 0],
-#             [0, 1, 0, 0, 0],
-#             [0, 0, 0, 0, 0],
-#             [0, 0, 0, 0, 0],
-#         ],
-#         dtype=bool,
-#     )
-#     expected = np.array([0, 0, 0, 3, 4])
-#     _run_fastsv_case(A, expected)
-# END COPIED TEST FILE: tests/test_fastsv.py
+class FastSVTestGenerator(Generator[FastSVDataset]):
+    @property
+    def name(self) -> str:
+        return "fastsv_test_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "FastSV Test Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Small deterministic FastSV examples with reference labels."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["test"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI might have been used to construct tests. This statement "
+            "was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Provide small graph examples for FastSV correctness checks."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[FastSVDataset]:
+        return [
+            FastSVDataset("no-edges", suites=["test"]),
+            FastSVDataset("single-component", suites=["test"]),
+            FastSVDataset("two-components", suites=["test"]),
+            FastSVDataset("chain", suites=["test"]),
+            FastSVDataset("star", suites=["test"]),
+            FastSVDataset("isolated-and-connected", suites=["test"]),
+        ]
+
+    def generate(self, dataset: FastSVDataset) -> DataInstance:
+        if dataset.name == "no-edges":
+            A = np.zeros((5, 5), dtype=bool)
+            expected = np.arange(5)
+        elif dataset.name == "single-component":
+            A = np.array(
+                [
+                    [0, 1, 1, 1],
+                    [1, 0, 1, 1],
+                    [1, 1, 0, 1],
+                    [1, 1, 1, 0],
+                ],
+                dtype=bool,
+            )
+            expected = np.array([0, 0, 0, 0])
+        elif dataset.name == "two-components":
+            A = np.array(
+                [
+                    [0, 1, 0, 0],
+                    [1, 0, 0, 0],
+                    [0, 0, 0, 1],
+                    [0, 0, 1, 0],
+                ],
+                dtype=bool,
+            )
+            expected = np.array([0, 0, 2, 2])
+        elif dataset.name == "chain":
+            A = np.array(
+                [
+                    [0, 1, 0, 0, 0],
+                    [1, 0, 1, 0, 0],
+                    [0, 1, 0, 1, 0],
+                    [0, 0, 1, 0, 1],
+                    [0, 0, 0, 1, 0],
+                ],
+                dtype=bool,
+            )
+            expected = np.array([0, 0, 0, 0, 0])
+        elif dataset.name == "star":
+            A = np.array(
+                [
+                    [0, 1, 1, 1, 1],
+                    [1, 0, 0, 0, 0],
+                    [1, 0, 0, 0, 0],
+                    [1, 0, 0, 0, 0],
+                    [1, 0, 0, 0, 0],
+                ],
+                dtype=bool,
+            )
+            expected = np.array([0, 0, 0, 0, 0])
+        elif dataset.name == "isolated-and-connected":
+            A = np.array(
+                [
+                    [0, 1, 0, 0, 0],
+                    [1, 0, 1, 0, 0],
+                    [0, 1, 0, 0, 0],
+                    [0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0],
+                ],
+                dtype=bool,
+            )
+            expected = np.array([0, 0, 0, 3, 4])
+        else:
+            raise ValueError(f"Unsupported test dataset: {dataset.name}")
+
+        return DataInstance(
+            inputs=[BinsparseFormat.from_numpy(A)],
+            meta={},
+            ref_outputs=[BinsparseFormat.from_numpy(expected)],
+        )
+
 
 class FastSVGenerator(Generator[FastSVDataset]):
     @property
@@ -310,10 +325,10 @@ class FastSVBenchmark(Benchmark):
 
     @property
     def generators(self) -> list[Generator[FastSVDataset]]:
-        return [FastSVGenerator()]
+        return [FastSVTestGenerator(), FastSVGenerator()]
 
     def benchmark(self, data, meta):
-        A = xp.from_binsparse(data[0])
+        A = data[0]
         A = A != 0
 
         (n, m) = A.shape
@@ -349,3 +364,14 @@ class FastSVBenchmark(Benchmark):
                 break
 
         return [f]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+        if self._ref_outputs is None:
+            return
+        assert self._output[0] == self._ref_outputs[0], (
+            f"FastSV output mismatch for {param.dataset.name}"
+        )

@@ -63,49 +63,73 @@ class JLApproxNNDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-# BEGIN COPIED TEST FILE: tests/test_approx_nn.py
-# import numpy as np
-#
-# import saps.benchmarks.approx_nn as approx_nn
-# from frameworks.saps_numpy import NumpyFramework
-#
-#
-# def test_jl_preserves_distance(rng):
-#     xp = NumpyFramework()
-#     approx_nn.xp = xp
-#
-#     dataset = approx_nn.JLApproxNNDataset(
-#         name="test",
-#         pretty_name="test JL ANN",
-#         description="test dense data and query matrices with sparse random projection.",  # noqa: E501
-#         tags=["test", "rnla", "sparse"],
-#         n_samples=20,
-#         n_features=10,
-#         n_queries=4,
-#         k=3,
-#         eps=0.01,
-#         seed=42,
-#     )
-#     problem = approx_nn.JLApproxNNGenerator().generate(dataset)
-#     data, query, projection_matrix = problem.inputs
-#     meta = problem.meta
-#     data = xp.from_binsparse(data)
-#     query = xp.from_binsparse(query)
-#     projection_matrix = xp.from_binsparse(projection_matrix)
-#
-#     benchmark = approx_nn.JLApproxNearestNeighbor()
-#     nearest_ind, _ = benchmark.benchmark([data, query, projection_matrix], meta)
-#
-#     # True distances
-#     diff = xp.einsum("X[i, j, k] = Q[i, k] - D[j, k]", Q=query, D=data)
-#     orig_distances = np.sqrt(np.sum(diff**2, axis=-1))
-#
-#     # Checks if the returned nearest neighbors are a similar distance as the
-#     # true nearest neighbors
-#     true_nearest = np.min(orig_distances, axis=1)
-#     approx_nearest = orig_distances[xp.arange(dataset.n_queries), nearest_ind[:, 0]]
-#     assert np.all(approx_nearest <= (1 + dataset.eps) * true_nearest)
-# END COPIED TEST FILE: tests/test_approx_nn.py
+class JLApproxNNTestGenerator(Generator[JLApproxNNDataset]):
+    @property
+    def name(self) -> str:
+        return "jl_projection_test_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "JL Projection Test Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Small JL approximate nearest-neighbor example."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["test"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return JLApproxNNGenerator().authors
+
+    @property
+    def references(self) -> list[Ref]:
+        return JLApproxNNGenerator().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return JLApproxNNGenerator().ai_disclosure
+
+    @property
+    def motivation(self) -> str:
+        return "Provide a small JL ANN example for benchmark correctness checks."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[JLApproxNNDataset]:
+        return [
+            JLApproxNNDataset(
+                name="test_jl_preserves_distance",
+                pretty_name="test JL ANN",
+                description=(
+                    "test dense data and query matrices with sparse random projection."
+                ),
+                suites=["test", "rnla", "sparse"],
+                n_samples=20,
+                n_features=10,
+                n_queries=4,
+                k=3,
+                eps=0.01,
+                seed=42,
+            )
+        ]
+
+    def generate(self, dataset: JLApproxNNDataset):
+        problem = JLApproxNNGenerator().generate(dataset)
+        return DataInstance(
+            inputs=problem.inputs,
+            meta=problem.meta,
+            ref_meta={"check": "jl_preserves_distance"},
+        )
 
 class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
     @property
@@ -394,7 +418,7 @@ class JLApproxNearestNeighbor(Benchmark):
 
     @property
     def generators(self):
-        return [JLApproxNNGenerator()]
+        return [JLApproxNNTestGenerator(), JLApproxNNGenerator()]
 
     def benchmark(self, data, meta):
         data, query, P = data
@@ -433,3 +457,26 @@ class JLApproxNearestNeighbor(Benchmark):
         nearest_distances = xp.take(xp.sort(distances), xp.arange(k), axis=1)
 
         return [nearest_indices, nearest_distances]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+        if not self._ref_meta:
+            return
+
+        data = self._input[0].data["values"].reshape(self._input[0].data["shape"])
+        query = self._input[1].data["values"].reshape(self._input[1].data["shape"])
+        nearest_ind = self._output[0].data["values"].reshape(
+            self._output[0].data["shape"]
+        )
+
+        diff = np.expand_dims(query, axis=1) - np.expand_dims(data, axis=0)
+        orig_distances = np.sqrt(np.sum(diff**2, axis=-1))
+
+        true_nearest = np.min(orig_distances, axis=1)
+        approx_nearest = orig_distances[
+            np.arange(param.dataset.n_queries), nearest_ind[:, 0].astype(int)
+        ]
+        assert np.all(approx_nearest <= (1 + param.dataset.eps) * true_nearest)

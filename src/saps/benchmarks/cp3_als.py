@@ -44,75 +44,6 @@ class CP3FactorizeableDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-# BEGIN COPIED TEST FILE: tests/test_cp3_als.py
-# import pytest
-#
-# import numpy as np
-#
-# import saps.benchmarks.cp3_als as cp3_als
-# from frameworks.saps_numpy import NumpyFramework
-# from saps.benchmarks.cp3_als import (
-#     CP3_ALS,
-#     CP3FactorizeableGenerator,
-# )
-#
-#
-# @pytest.mark.parametrize("xp", [NumpyFramework()])
-# def test_cp_als_reconstruction_error(xp):
-#     """Tests that CP-ALS produces low reconstruction error on a factorizable tensor"""
-#     gen = CP3FactorizeableGenerator()
-#     problem = gen.generate(gen.datasets[0])
-#     (X_bin,) = problem.inputs
-#     rank = problem.meta["rank"]
-#     max_iter = problem.meta["max_iter"]
-#
-#     cp3_als.xp = NumpyFramework()
-#
-#     X = cp3_als.xp.from_binsparse(X_bin)
-#
-#     A, B, C, lambda_vals = CP3_ALS().benchmark(
-#         (X,), {"rank": rank, "max_iter": max_iter}
-#     )
-#
-#     Y = cp3_als.xp.einsum(
-#         "Y[i,j,k] += l[r] * A[i,r] * B[j,r] * C[k,r]",
-#         l=lambda_vals,
-#         A=A,
-#         B=B,
-#         C=C,
-#     )
-#     X_norm = np.linalg.norm(X)
-#     diff = Y - X
-#     diff_norm = np.linalg.norm(diff)
-#     rel_error = diff_norm / X_norm
-#
-#     assert rel_error < 0.1, f"Reconstruction error too high: {rel_error:.6f}"
-#
-#
-# @pytest.mark.parametrize("xp", [NumpyFramework()])
-# def test_cp_als_factorizable_basic(xp):
-#     """Test CP-ALS on factorizable tensor (basic shape check)"""
-#     gen = CP3FactorizeableGenerator()
-#     problem = gen.generate(gen.datasets[0])
-#     (X_bin,) = problem.inputs
-#     rank = problem.meta["rank"]
-#     max_iter = problem.meta["max_iter"]
-#
-#     cp3_als.xp = NumpyFramework()
-#
-#     X = cp3_als.xp.from_binsparse(X_bin)
-#
-#     A, B, C, lambda_vals = CP3_ALS().benchmark(
-#         (X,), {"rank": rank, "max_iter": max_iter}
-#     )
-#     dim1, dim2, dim3 = X_bin.data["shape"]
-#     assert A.shape == (dim1, rank)
-#     assert B.shape == (dim2, rank)
-#     assert C.shape == (dim3, rank)
-#     assert lambda_vals.shape == (rank,)
-#     print(f"CP-ALS factorizable test passed with {xp.__class__.__name__}")
-# END COPIED TEST FILE: tests/test_cp3_als.py
-
 class CP3FactorizeableGenerator(Generator):
     @property
     def name(self):
@@ -151,6 +82,10 @@ class CP3FactorizeableGenerator(Generator):
         return []
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
@@ -166,7 +101,7 @@ class CP3FactorizeableGenerator(Generator):
             CP3FactorizeableDataset(
                 name="cp_factorizeable_small",
                 pretty_name="Small Factorizeable CP Tensor",
-                suites=[],
+                suites=["test"],
                 shape=(20, 20, 20),
                 rank=3,
             ),
@@ -194,7 +129,11 @@ class CP3FactorizeableGenerator(Generator):
         X = BinsparseFormat.from_numpy(X)
         max_iter = 100
 
-        return DataInstance(inputs=[X], meta={"rank": rank, "max_iter": max_iter})
+        return DataInstance(
+            inputs=[X],
+            meta={"rank": rank, "max_iter": max_iter},
+            ref_meta={"check_reconstruction": True, "rel_error_tol": 0.1},
+        )
 
 
 class CP3_ALS(Benchmark):
@@ -293,6 +232,36 @@ class CP3_ALS(Benchmark):
         return [
             CP3FactorizeableGenerator(),
         ]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+
+        if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
+            return
+
+        X = self._input[0].data["values"].reshape(self._input[0].data["shape"])
+        A = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        B = self._output[1].data["values"].reshape(self._output[1].data["shape"])
+        C = self._output[2].data["values"].reshape(self._output[2].data["shape"])
+        lambda_vals = self._output[3].data["values"].reshape(
+            self._output[3].data["shape"]
+        )
+        dim1, dim2, dim3 = X.shape
+        rank = self._meta["rank"]
+
+        assert A.shape == (dim1, rank)
+        assert B.shape == (dim2, rank)
+        assert C.shape == (dim3, rank)
+        assert lambda_vals.shape == (rank,)
+
+        Y = np.einsum("r,ir,jr,kr->ijk", lambda_vals, A, B, C)
+        rel_error = np.linalg.norm(Y - X) / np.linalg.norm(X)
+        assert rel_error < self._ref_meta["rel_error_tol"], (
+            f"CP3 reconstruction error too high: {rel_error:.6f}"
+        )
 
     """
     benchmark(X_bench, rank, max_iter)

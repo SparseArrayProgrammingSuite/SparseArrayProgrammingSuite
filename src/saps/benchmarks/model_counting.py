@@ -114,35 +114,6 @@ class MCDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-# BEGIN COPIED TEST FILE: tests/test_model_counting.py
-# import saps.benchmarks.model_counting as mc
-# from frameworks.saps_numpy import NumpyFramework
-#
-#
-# def test_model_counting_datasets():
-#     xp = NumpyFramework()
-#     mc.xp = xp
-#
-#     generator = mc.MCGenerator()
-#     benchmark = mc.ModelCounting()
-#
-#     for dataset in generator.datasets:
-#         problem = generator.generate(dataset)
-#         raw_matrices = problem.inputs
-#         meta = problem.meta
-#
-#         input_arrays = [xp.from_binsparse(m) for m in raw_matrices]
-#
-#         results = benchmark.benchmark(input_arrays, meta)
-#
-#         res = int(results[0])
-#         expected = meta["expected_result"]
-#
-#         msg = f"Test '{dataset.name}' failed: Expected {expected}, got {res}"
-#
-#         assert res == expected, msg
-# END COPIED TEST FILE: tests/test_model_counting.py
-
 class MCGenerator(Generator[MCDataset]):
     @property
     def name(self) -> str:
@@ -161,7 +132,7 @@ class MCGenerator(Generator[MCDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -185,13 +156,17 @@ class MCGenerator(Generator[MCDataset]):
         return "Uses a predefined set of formulas to verify correctness."
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[MCDataset]:
         return [
             MCDataset(
                 name="test_1",
                 pretty_name="Test 1: Standard SAT",
                 description="3 variables, 2 clauses",
-                suites=[],
+                suites=["test"],
                 cnf_text="""
                     p cnf 3 2
                     1 -3 0
@@ -203,7 +178,7 @@ class MCGenerator(Generator[MCDataset]):
                 name="test_2",
                 pretty_name="Test 2: Contradiction",
                 description="V1 and not V1",
-                suites=[],
+                suites=["test"],
                 cnf_text="""
                     c contradiction
                     p cnf 1 2
@@ -216,7 +191,7 @@ class MCGenerator(Generator[MCDataset]):
                 name="test_3",
                 pretty_name="Test 3: Single Solution",
                 description="Forces all 3 variables to be true",
-                suites=[],
+                suites=["test"],
                 cnf_text="""
                     c single_solution
                     p cnf 3 3
@@ -230,7 +205,7 @@ class MCGenerator(Generator[MCDataset]):
                 name="test_4",
                 pretty_name="Test 4: Empty Formula",
                 description="No clauses, 2 variables",
-                suites=[],
+                suites=["test"],
                 cnf_text="""
                     c empty_formula
                     p cnf 2 0
@@ -254,7 +229,11 @@ class MCGenerator(Generator[MCDataset]):
             "default_total": default_total,
         }
 
-        return DataInstance(inputs=data_list, meta=meta)
+        return DataInstance(
+            inputs=data_list,
+            meta=meta,
+            ref_outputs=[BinsparseFormat.from_numpy(np.array(dataset.expected))],
+        )
 
 
 class ModelCounting(Benchmark):
@@ -315,3 +294,22 @@ class ModelCounting(Benchmark):
         result = xp.einsum(expr, B=data[0])
 
         return [result]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+        if self._ref_outputs is None:
+            return
+        result = int(
+            self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        )
+        expected = int(
+            self._ref_outputs[0]
+            .data["values"]
+            .reshape(self._ref_outputs[0].data["shape"])
+        )
+        assert result == expected, (
+            f"Test '{param.dataset.name}' failed: expected {expected}, got {result}"
+        )

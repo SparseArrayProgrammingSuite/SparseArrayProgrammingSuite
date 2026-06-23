@@ -1,5 +1,3 @@
-from typing import Any
-
 import numpy as np
 
 import saps
@@ -25,11 +23,19 @@ class BellmanFordDataset(Dataset):
         pretty_name: str | None = None,
         description: str | None = None,
         suites: list[str] | None = None,
+        A: np.ndarray | None = None,
+        src: int = 0,
+        expected: np.ndarray | None = None,
     ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Bellman-Ford input {name}."
         self._suites = suites or []
+        self.A = A
+        self.src = src
+        if expected is None and A is not None:
+            expected = bellman_ford_reference(A, src)
+        self.expected = expected
 
     @property
     def name(self) -> str:
@@ -52,242 +58,282 @@ class BellmanFordDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-# BEGIN COPIED TEST FILE: tests/test_bellmanford.py
-# import pytest
-#
-# import numpy as np
-#
-# import saps.benchmarks.bellmanford as bellmanford
-# from frameworks.saps_numpy import NumpyFramework
-# from saps.downloaders.snap import load_toy_dataset
-# from saps_framework import BinsparseFormat
-#
-#
-# def _run_bf(A, src):
-#     xp = NumpyFramework()
-#     bellmanford.xp = xp
-#     A_bin = A if isinstance(A, BinsparseFormat) else BinsparseFormat.from_numpy(A)
-#     (result,) = bellmanford.BellmanFordBenchmark().benchmark([A_bin], {"src": src})
-#     return result.ravel()
-#
-#
-# def bellman_ford_reference(A, src):
-#     n = A.shape[0]
-#     D = np.full((n,), np.inf)
-#     D[src] = 0
-#     for _ in range(n):
-#         for v in range(n):
-#             for u in range(n):
-#                 if A[u, v] + D[u] < D[v]:
-#                     D[v] = A[u, v] + D[u]
-#     return D
-#
-#
-# # --- TRIBES SOCIAL NETWORK ---
-# TRIBES_N = 16
-# TRIBES_EDGES = [
-#     (0, 1),
-#     (1, 0),
-#     (0, 2),
-#     (2, 0),
-#     (1, 2),
-#     (2, 1),
-#     (0, 3),
-#     (3, 0),
-#     (2, 3),
-#     (3, 2),
-#     (0, 4),
-#     (4, 0),
-#     (1, 4),
-#     (4, 1),
-#     (0, 5),
-#     (5, 0),
-#     (1, 5),
-#     (5, 1),
-#     (2, 5),
-#     (5, 2),
-#     (2, 6),
-#     (6, 2),
-#     (4, 6),
-#     (6, 4),
-#     (5, 6),
-#     (6, 5),
-#     (2, 7),
-#     (7, 2),
-#     (3, 7),
-#     (7, 3),
-#     (5, 7),
-#     (7, 5),
-#     (6, 7),
-#     (7, 6),
-#     (1, 8),
-#     (8, 1),
-#     (4, 8),
-#     (8, 4),
-#     (7, 8),
-#     (8, 7),
-#     (3, 9),
-#     (9, 3),
-#     (8, 9),
-#     (9, 8),
-#     (9, 10),
-#     (10, 9),
-#     (10, 11),
-#     (11, 10),
-#     (8, 11),
-#     (11, 8),
-#     (11, 12),
-#     (12, 11),
-#     (7, 12),
-#     (12, 7),
-#     (12, 13),
-#     (13, 12),
-#     (13, 14),
-#     (14, 13),
-#     (9, 14),
-#     (14, 9),
-#     (14, 15),
-#     (15, 14),
-#     (12, 15),
-#     (15, 12),
-# ]
-#
-#
-# def build_tribes_matrix():
-#     A = np.full((TRIBES_N, TRIBES_N), np.inf)
-#     np.fill_diagonal(A, 0)
-#     for u, v in TRIBES_EDGES:
-#         A[u, v] = 1.0
-#     return A
-#
-#
-# # --- CHESAPEAKE ROAD NETWORK ---
-# CHESAPEAKE_N = 39
-# CHESAPEAKE_EDGES = [
-#     (0, 1),
-#     (0, 2),
-#     (0, 3),
-#     (0, 4),
-#     (0, 5),
-#     (0, 6),
-#     (0, 7),
-#     (0, 8),
-#     (1, 9),
-#     (1, 10),
-#     (1, 11),
-#     (1, 12),
-#     (1, 13),
-#     (1, 14),
-#     (1, 15),
-#     (1, 16),
-#     (2, 9),
-#     (2, 10),
-#     (2, 17),
-#     (2, 18),
-#     (3, 11),
-#     (3, 12),
-#     (3, 19),
-#     (3, 20),
-#     (3, 21),
-#     (4, 13),
-#     (4, 22),
-#     (4, 23),
-#     (4, 24),
-#     (5, 14),
-#     (5, 22),
-#     (5, 25),
-#     (5, 26),
-#     (6, 15),
-#     (6, 23),
-#     (6, 27),
-#     (6, 28),
-#     (7, 16),
-#     (7, 24),
-#     (7, 29),
-#     (7, 30),
-#     (8, 17),
-#     (8, 18),
-#     (8, 19),
-#     (8, 20),
-#     (8, 21),
-#     (9, 22),
-#     (9, 31),
-#     (9, 32),
-#     (10, 23),
-#     (10, 31),
-#     (10, 33),
-#     (11, 24),
-#     (11, 32),
-#     (11, 34),
-#     (12, 25),
-#     (12, 26),
-#     (12, 35),
-#     (13, 27),
-#     (13, 36),
-#     (14, 28),
-#     (14, 37),
-#     (15, 29),
-#     (15, 38),
-#     (16, 30),
-#     (17, 31),
-#     (18, 32),
-#     (19, 33),
-#     (20, 34),
-#     (21, 35),
-#     (22, 36),
-#     (23, 37),
-#     (24, 38),
-#     (25, 27),
-#     (25, 29),
-#     (26, 28),
-#     (26, 30),
-#     (27, 31),
-#     (27, 33),
-#     (28, 32),
-#     (28, 34),
-#     (29, 35),
-#     (30, 36),
-#     (31, 37),
-#     (32, 38),
-#     (33, 35),
-#     (34, 36),
-#     (35, 37),
-#     (36, 38),
-#     (37, 38),
-# ]
-#
-#
-# def build_chesapeake_matrix():
-#     A = np.full((CHESAPEAKE_N, CHESAPEAKE_N), np.inf)
-#     np.fill_diagonal(A, 0)
-#     for u, v in CHESAPEAKE_EDGES:
-#         A[u, v] = 1.0
-#         A[v, u] = 1.0
-#     return A
-#
-#
-# @pytest.mark.parametrize(
-#     "matrix_builder,src",
-#     [
-#         (build_tribes_matrix, 0),
-#         (build_chesapeake_matrix, 0),
-#         (build_chesapeake_matrix, 10),
-#         (build_chesapeake_matrix, 38),
-#     ],
-# )
-# def test_bellman_ford_networks(matrix_builder, src):
-#     A = matrix_builder()
-#     result = _run_bf(A, src)
-#     ref = bellman_ford_reference(A, src)
-#     assert np.allclose(result, ref, equal_nan=True)
-#
-#
-# def test_bellman_ford_snap_toy():
-#     data, meta = load_toy_dataset()
-#     dist = bellmanford._adjacency_to_unit_distance(data[0])
-#     result = _run_bf(dist, meta["src"])
-#     assert np.allclose(result, [0.0, 1.0, 2.0])
-# END COPIED TEST FILE: tests/test_bellmanford.py
+def bellman_ford_reference(A, src):
+    n = A.shape[0]
+    D = np.full((n,), np.inf)
+    D[src] = 0
+    for _ in range(n):
+        for v in range(n):
+            for u in range(n):
+                if A[u, v] + D[u] < D[v]:
+                    D[v] = A[u, v] + D[u]
+    return D
+
+
+def bellman_ford_matrix(n, edges, *, symmetric=False):
+    A = np.full((n, n), np.inf)
+    np.fill_diagonal(A, 0)
+    for u, v in edges:
+        A[u, v] = 1.0
+        if symmetric:
+            A[v, u] = 1.0
+    return A
+
+
+class BellmanFordTestGenerator(Generator[BellmanFordDataset]):
+    @property
+    def name(self) -> str:
+        return "bellman_ford_test_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Bellman-Ford Test Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Small deterministic Bellman-Ford examples."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["test"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI might have been used to construct tests. This statement "
+            "was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Provide small graph examples for Bellman-Ford correctness checks."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[BellmanFordDataset]:
+        tribes = bellman_ford_matrix(
+            16,
+            [
+                (0, 1),
+                (1, 0),
+                (0, 2),
+                (2, 0),
+                (1, 2),
+                (2, 1),
+                (0, 3),
+                (3, 0),
+                (2, 3),
+                (3, 2),
+                (0, 4),
+                (4, 0),
+                (1, 4),
+                (4, 1),
+                (0, 5),
+                (5, 0),
+                (1, 5),
+                (5, 1),
+                (2, 5),
+                (5, 2),
+                (2, 6),
+                (6, 2),
+                (4, 6),
+                (6, 4),
+                (5, 6),
+                (6, 5),
+                (2, 7),
+                (7, 2),
+                (3, 7),
+                (7, 3),
+                (5, 7),
+                (7, 5),
+                (6, 7),
+                (7, 6),
+                (1, 8),
+                (8, 1),
+                (4, 8),
+                (8, 4),
+                (7, 8),
+                (8, 7),
+                (3, 9),
+                (9, 3),
+                (8, 9),
+                (9, 8),
+                (9, 10),
+                (10, 9),
+                (10, 11),
+                (11, 10),
+                (8, 11),
+                (11, 8),
+                (11, 12),
+                (12, 11),
+                (7, 12),
+                (12, 7),
+                (12, 13),
+                (13, 12),
+                (13, 14),
+                (14, 13),
+                (9, 14),
+                (14, 9),
+                (14, 15),
+                (15, 14),
+                (12, 15),
+                (15, 12),
+            ],
+        )
+        chesapeake = bellman_ford_matrix(
+            39,
+            [
+                (0, 1),
+                (0, 2),
+                (0, 3),
+                (0, 4),
+                (0, 5),
+                (0, 6),
+                (0, 7),
+                (0, 8),
+                (1, 9),
+                (1, 10),
+                (1, 11),
+                (1, 12),
+                (1, 13),
+                (1, 14),
+                (1, 15),
+                (1, 16),
+                (2, 9),
+                (2, 10),
+                (2, 17),
+                (2, 18),
+                (3, 11),
+                (3, 12),
+                (3, 19),
+                (3, 20),
+                (3, 21),
+                (4, 13),
+                (4, 22),
+                (4, 23),
+                (4, 24),
+                (5, 14),
+                (5, 22),
+                (5, 25),
+                (5, 26),
+                (6, 15),
+                (6, 23),
+                (6, 27),
+                (6, 28),
+                (7, 16),
+                (7, 24),
+                (7, 29),
+                (7, 30),
+                (8, 17),
+                (8, 18),
+                (8, 19),
+                (8, 20),
+                (8, 21),
+                (9, 22),
+                (9, 31),
+                (9, 32),
+                (10, 23),
+                (10, 31),
+                (10, 33),
+                (11, 24),
+                (11, 32),
+                (11, 34),
+                (12, 25),
+                (12, 26),
+                (12, 35),
+                (13, 27),
+                (13, 36),
+                (14, 28),
+                (14, 37),
+                (15, 29),
+                (15, 38),
+                (16, 30),
+                (17, 31),
+                (18, 32),
+                (19, 33),
+                (20, 34),
+                (21, 35),
+                (22, 36),
+                (23, 37),
+                (24, 38),
+                (25, 27),
+                (25, 29),
+                (26, 28),
+                (26, 30),
+                (27, 31),
+                (27, 33),
+                (28, 32),
+                (28, 34),
+                (29, 35),
+                (30, 36),
+                (31, 37),
+                (32, 38),
+                (33, 35),
+                (34, 36),
+                (35, 37),
+                (36, 38),
+                (37, 38),
+            ],
+            symmetric=True,
+        )
+        return [
+            BellmanFordDataset(
+                name="test_bellman_ford_tribes_src_0",
+                suites=["test"],
+                A=tribes,
+                src=0,
+            ),
+            BellmanFordDataset(
+                name="test_bellman_ford_chesapeake_src_0",
+                suites=["test"],
+                A=chesapeake,
+                src=0,
+            ),
+            BellmanFordDataset(
+                name="test_bellman_ford_chesapeake_src_10",
+                suites=["test"],
+                A=chesapeake,
+                src=10,
+            ),
+            BellmanFordDataset(
+                name="test_bellman_ford_chesapeake_src_38",
+                suites=["test"],
+                A=chesapeake,
+                src=38,
+            ),
+            BellmanFordDataset(
+                name="test_bellman_ford_snap_toy",
+                suites=["test"],
+                A=bellman_ford_matrix(3, [(0, 1), (1, 2)]),
+                src=0,
+                expected=np.array([0.0, 1.0, 2.0]),
+            ),
+        ]
+
+    def generate(self, dataset: BellmanFordDataset) -> DataInstance:
+        if dataset.A is None or dataset.expected is None:
+            raise ValueError("Bellman-Ford test datasets must define A and expected.")
+        return DataInstance(
+            inputs=[BinsparseFormat.from_numpy(dataset.A)],
+            meta={"src": dataset.src},
+            ref_outputs=[BinsparseFormat.from_numpy(dataset.expected)],
+        )
+
 
 class BellmanFordGenerator(Generator[BellmanFordDataset]):
     @property
@@ -384,9 +430,7 @@ class BellmanFordGenerator(Generator[BellmanFordDataset]):
             ),
         ]
 
-    def generate(
-        self, dataset: BellmanFordDataset
-    ) -> tuple[list[BinsparseFormat], Any]:
+    def generate(self, dataset: BellmanFordDataset) -> DataInstance:
         if dataset.name.startswith("snap"):
             data, meta = download_snap_dataset(dataset.name)
             return DataInstance(
@@ -483,10 +527,10 @@ class BellmanFordBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [BellmanFordGenerator()]
+        return [BellmanFordTestGenerator(), BellmanFordGenerator()]
 
     def benchmark(self, data, meta):
-        edges = xp.from_binsparse(data[0])
+        edges = data[0]
         src = meta["src"]
 
         n = edges.shape[0]
@@ -504,3 +548,19 @@ class BellmanFordBenchmark(Benchmark):
                 break
 
         return [D]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+        if self._ref_outputs is None:
+            return
+
+        result = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        expected = self._ref_outputs[0].data["values"].reshape(
+            self._ref_outputs[0].data["shape"]
+        )
+        assert np.allclose(result, expected, equal_nan=True), (
+            f"Bellman-Ford output mismatch for {param.dataset.name}"
+        )

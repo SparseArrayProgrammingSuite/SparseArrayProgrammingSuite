@@ -1,3 +1,5 @@
+import numpy as np
+
 import saps
 from saps.benchmark import (
     Author,
@@ -9,6 +11,7 @@ from saps.benchmark import (
     Ref,
 )
 from saps.downloaders.snap import download_snap_dataset
+from saps_framework import BinsparseFormat
 
 xp = saps.xp
 
@@ -47,130 +50,128 @@ class TransitiveClosureDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-# BEGIN COPIED TEST FILE: tests/test_transitive_closure.py
-# import numpy as np
-#
-# import saps.benchmarks.transitive_closure as tc
-# from frameworks.saps_numpy import NumpyFramework
-# from saps.downloaders.snap import load_toy_dataset
-# from saps_framework import BinsparseFormat
-#
-#
-# def _run_tc(A):
-#     xp = NumpyFramework()
-#     tc.xp = xp
-#     A_bin = A if isinstance(A, BinsparseFormat) else BinsparseFormat.from_numpy(A)
-#     (res,) = tc.TransitiveClosureBenchmark().benchmark([A_bin], {})
-#     return res
-#
-#
-# def test_transitive_closure():
-#     # 6-node DAG.
-#     input_matrix = np.array(
-#         [
-#             [0, 1, 1, 0, 0, 0],
-#             [0, 0, 1, 1, 0, 0],
-#             [0, 0, 0, 0, 1, 0],
-#             [0, 0, 0, 0, 0, 0],
-#             [0, 0, 0, 0, 0, 1],
-#             [0, 0, 0, 1, 0, 0],
-#         ],
-#         dtype=bool,
-#     )
-#
-#     expected = np.array(
-#         [
-#             [1, 1, 1, 1, 1, 1],
-#             [0, 1, 1, 1, 1, 1],
-#             [0, 0, 1, 1, 1, 1],
-#             [0, 0, 0, 1, 0, 0],
-#             [0, 0, 0, 1, 1, 1],
-#             [0, 0, 0, 1, 0, 1],
-#         ],
-#         dtype=bool,
-#     )
-#
-#     res = _run_tc(input_matrix)
-#     assert np.array_equal(res, expected)
-#
-#
-# def test_stc():
-#     # 8 node graph with 4 Stc.
-#     input_matrix = np.array(
-#         [
-#             [0, 1, 0, 0, 0, 0, 0, 0],
-#             [0, 0, 1, 0, 1, 1, 0, 0],
-#             [0, 0, 0, 1, 0, 0, 1, 0],
-#             [0, 0, 1, 0, 0, 0, 0, 1],
-#             [1, 0, 0, 0, 0, 1, 0, 0],
-#             [0, 0, 0, 0, 0, 0, 1, 0],
-#             [0, 0, 0, 0, 0, 1, 0, 1],
-#             [0, 0, 0, 0, 0, 0, 0, 1],
-#         ],
-#         dtype=bool,
-#     )
-#
-#     expected = 4
-#
-#     res = _run_tc(input_matrix)
-#
-#     # count stc.
-#     visited_set = set()
-#     count = 0
-#     for i in range(res.shape[0]):
-#         comp = tuple(res[i, :])
-#         if comp not in visited_set:
-#             count += 1
-#             visited_set.add(comp)
-#
-#     assert count == expected
-#
-#
-# def test_stc_cycle():
-#     # one stc. one cycle
-#     input_matrix = np.array(
-#         [
-#             [0, 1, 0],
-#             [0, 0, 1],
-#             [1, 0, 0],
-#         ],
-#         dtype=bool,
-#     )
-#
-#     res = _run_tc(input_matrix)
-#     # clique matrix
-#     expected = np.ones((3, 3), dtype=bool)
-#     assert np.array_equal(res, expected)
-#
-#
-# def test_stc_one_node():
-#     # one node
-#     input_matrix = np.array([[0]], dtype=bool)
-#
-#     res = _run_tc(input_matrix)
-#
-#     # simple 1x1 matrix with 1
-#     expected = np.array([[1]], dtype=bool)
-#     assert np.array_equal(res, expected)
-#
-#
-# def test_transitive_closure_one_node():
-#     # one node
-#     input_matrix = np.array([[0]], dtype=bool)
-#
-#     res = _run_tc(input_matrix)
-#
-#     # should be self loop, 1x1 matrix with 1
-#     expected = np.array([[1]], dtype=bool)
-#     assert np.array_equal(res, expected)
-#
-#
-# def test_transitive_snap_toy():
-#     data, _ = load_toy_dataset()
-#     res = _run_tc(data[0])
-#     expected = np.array([[1, 1, 1], [0, 1, 1], [0, 0, 1]], dtype=bool)
-#     assert np.array_equal(res, expected)
-# END COPIED TEST FILE: tests/test_transitive_closure.py
+class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
+    @property
+    def name(self) -> str:
+        return "transitive_closure_test_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Transitive Closure Test Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Small deterministic transitive closure examples."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["test"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI might have been used to construct tests. This statement "
+            "was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Provide small reachability examples for correctness checks."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[TransitiveClosureDataset]:
+        return [
+            TransitiveClosureDataset("dag", suites=["test"]),
+            TransitiveClosureDataset("strong-component-count", suites=["test"]),
+            TransitiveClosureDataset("cycle", suites=["test"]),
+            TransitiveClosureDataset("one-node", suites=["test"]),
+            TransitiveClosureDataset("snap-toy", suites=["test"]),
+        ]
+
+    def generate(self, dataset: TransitiveClosureDataset) -> DataInstance:
+        if dataset.name == "dag":
+            A = np.array(
+                [
+                    [0, 1, 1, 0, 0, 0],
+                    [0, 0, 1, 1, 0, 0],
+                    [0, 0, 0, 0, 1, 0],
+                    [0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 1],
+                    [0, 0, 0, 1, 0, 0],
+                ],
+                dtype=bool,
+            )
+            expected = np.array(
+                [
+                    [1, 1, 1, 1, 1, 1],
+                    [0, 1, 1, 1, 1, 1],
+                    [0, 0, 1, 1, 1, 1],
+                    [0, 0, 0, 1, 0, 0],
+                    [0, 0, 0, 1, 1, 1],
+                    [0, 0, 0, 1, 0, 1],
+                ],
+                dtype=bool,
+            )
+            return DataInstance(
+                inputs=[BinsparseFormat.from_numpy(A)],
+                meta={},
+                ref_outputs=[BinsparseFormat.from_numpy(expected)],
+            )
+
+        if dataset.name == "strong-component-count":
+            A = np.array(
+                [
+                    [0, 1, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 1, 0, 1, 1, 0, 0],
+                    [0, 0, 0, 1, 0, 0, 1, 0],
+                    [0, 0, 1, 0, 0, 0, 0, 1],
+                    [1, 0, 0, 0, 0, 1, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 1, 0],
+                    [0, 0, 0, 0, 0, 1, 0, 1],
+                    [0, 0, 0, 0, 0, 0, 0, 1],
+                ],
+                dtype=bool,
+            )
+            return DataInstance(
+                inputs=[BinsparseFormat.from_numpy(A)],
+                meta={},
+                ref_meta={"strong_component_count": 4},
+            )
+
+        if dataset.name == "cycle":
+            A = np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]], dtype=bool)
+            expected = np.ones((3, 3), dtype=bool)
+        elif dataset.name == "one-node":
+            A = np.array([[0]], dtype=bool)
+            expected = np.array([[1]], dtype=bool)
+        elif dataset.name == "snap-toy":
+            A = np.array([[0, 1, 0], [0, 0, 1], [0, 0, 0]], dtype=bool)
+            expected = np.array([[1, 1, 1], [0, 1, 1], [0, 0, 1]], dtype=bool)
+        else:
+            raise ValueError(f"Unsupported test dataset: {dataset.name}")
+
+        return DataInstance(
+            inputs=[BinsparseFormat.from_numpy(A)],
+            meta={},
+            ref_outputs=[BinsparseFormat.from_numpy(expected)],
+        )
+
 
 class TransitiveClosureGenerator(Generator[TransitiveClosureDataset]):
     @property
@@ -303,10 +304,10 @@ class TransitiveClosureBenchmark(Benchmark):
 
     @property
     def generators(self) -> list[Generator[TransitiveClosureDataset]]:
-        return [TransitiveClosureGenerator()]
+        return [TransitiveClosureGenerator(), TransitiveClosureTestGenerator()]
 
     def benchmark(self, data, meta):
-        edges = xp.from_binsparse(data[0])
+        edges = data[0]
         (n, m) = edges.shape
         assert m == n
 
@@ -326,3 +327,24 @@ class TransitiveClosureBenchmark(Benchmark):
                 break
             graph = nextGraph
         return [graph]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+        if self._ref_outputs is not None:
+            assert self._output[0] == self._ref_outputs[0], (
+                f"Transitive closure mismatch for {param.dataset.name}"
+            )
+        if self._ref_meta and "strong_component_count" in self._ref_meta:
+            output = self._output[0]
+            matrix = output.data["values"].reshape(output.data["shape"])
+            visited_set = set()
+            count = 0
+            for i in range(matrix.shape[0]):
+                comp = tuple(matrix[i, :])
+                if comp not in visited_set:
+                    count += 1
+                    visited_set.add(comp)
+            assert count == self._ref_meta["strong_component_count"]

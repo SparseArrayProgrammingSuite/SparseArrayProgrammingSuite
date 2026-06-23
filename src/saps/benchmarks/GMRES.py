@@ -3,6 +3,8 @@ from typing import Any
 
 import numpy as np
 
+import sparse as pydata_sparse
+
 import saps
 from saps.benchmark import (
     Benchmark,
@@ -19,12 +21,26 @@ xp = saps.xp
 
 class GMRESDataset(Dataset):
     def __init__(
-        self, source_name: str, has_b_file: bool = False, nnz: int | None = None
+        self,
+        source_name: str,
+        has_b_file: bool = False,
+        nnz: int | None = None,
+        suites: list[str] | None = None,
+        A: Any | None = None,
+        b: np.ndarray | None = None,
+        x0: np.ndarray | None = None,
+        meta: dict[str, Any] | None = None,
+        ref_meta: dict[str, Any] | None = None,
     ):
-        self._suites: list[str] = []
+        self._suites = suites or []
         self.source_name = source_name
         self.has_b_file = has_b_file
         self.nnz = nnz
+        self.A = A
+        self.b = b
+        self.x0 = x0
+        self.benchmark_meta = meta or {}
+        self.ref_meta = ref_meta or {}
 
     @property
     def name(self) -> str:
@@ -54,123 +70,136 @@ class GMRESDataset(Dataset):
         return data
 
 
-# BEGIN COPIED TEST FILE: tests/test_gmres.py
-# import pytest
-#
-# import numpy as np
-# import scipy.sparse
-# import scipy.sparse.linalg
-#
-# import saps.benchmarks.GMRES as gmres
-# from frameworks.saps_numpy import NumpyFramework
-#
-#
-# def get_framework():
-#     return NumpyFramework()
-#
-#
-# def run_gmres_benchmark(A, b, x0, restart=50, tol=1e-8, max_iter=1000):
-#     benchmark = gmres.GMRESBenchmark()
-#     prev_xp = getattr(gmres, "xp", None)
-#     gmres.xp = get_framework()
-#     try:
-#         (x_bench,) = benchmark.benchmark(
-#             [A, b, x0],
-#             {
-#                 "restart": restart,
-#                 "tol": tol,
-#                 "max_iter": max_iter,
-#             },
-#         )
-#     finally:
-#         gmres.xp = prev_xp
-#     return x_bench
-#
-#
-# @pytest.mark.parametrize("seed", [42, 123])
-# def test_scipy_gmres(seed):
-#     rng = np.random.default_rng(seed)
-#     N = 50
-#     A = scipy.sparse.random(N, N, density=0.1, random_state=rng)
-#     A = A + scipy.sparse.eye(N) * N
-#     x_true = rng.standard_normal(N)
-#     b = A @ x_true
-#     x0 = np.zeros(N)
-#
-#     x_bench = run_gmres_benchmark(
-#         A.toarray(), b, x0, restart=20, tol=1e-8, max_iter=1000
-#     )
-#
-#     x_scipy, info = scipy.sparse.linalg.gmres(
-#         A, b, x0=x0, restart=20, rtol=1e-8, atol=0, maxiter=1000
-#     )
-#     assert info == 0, "Scipy GMRES failed to converge"
-#
-#     res_bench = np.linalg.norm(b - A @ x_bench)
-#
-#     assert res_bench < 1e-5, f"Benchmark GMRES did not converge well: {res_bench}"
-#     assert np.allclose(x_bench, x_scipy, atol=1e-4, rtol=1e-4), (
-#         "Solutions differ significantly from Scipy"
-#     )
-#
-#
-# @pytest.mark.parametrize(
-#     "A_dense, b, x0",
-#     [
-#         (np.array([[2.0, 0.0], [0.0, 3.0]]), np.array([4.0, 9.0]), np.zeros(2)),
-#         (
-#             np.array([[10.0, 2.0, 1.0], [1.0, 20.0, 1.0], [1.0, 2.0, 10.0]]),
-#             np.array([13.0, 22.0, 13.0]),
-#             np.zeros(3),
-#         ),
-#         (
-#             np.array(
-#                 [
-#                     [4.0, -1.0, 0.0, 0.0],
-#                     [-1.0, 4.0, -1.0, 0.0],
-#                     [0.0, -1.0, 4.0, -1.0],
-#                     [0.0, 0.0, -1.0, 3.0],
-#                 ]
-#             ),
-#             np.array([3.0, 2.0, 2.0, 2.0]),
-#             np.zeros(4),
-#         ),
-#     ],
-# )
-# def test_gmres_sample_examples(A_dense, b, x0):
-#     x_bench = run_gmres_benchmark(
-#         A_dense, b, x0, restart=A_dense.shape[0], tol=1e-8, max_iter=100
-#     )
-#
-#     residual = np.linalg.norm(b - A_dense @ x_bench)
-#     assert residual < 1e-6, f"Residual too high: {residual}"
-#
-#
-# @pytest.mark.parametrize(
-#     "dataset",
-#     gmres.GMRESGenerator().datasets,
-# )
-# def test_gmres_sparse_generators(dataset):
-#     xp = get_framework()
-#     try:
-#         data = gmres.GMRESGenerator().generate(dataset).inputs
-#     except (FileNotFoundError, ValueError) as e:
-#         pytest.skip(f"Failed to download/load data: {e}")
-#
-#     A, b, x0 = [xp.from_binsparse(d) for d in data]
-#     x_bench = run_gmres_benchmark(A, b, x0, restart=100, tol=1e-5, max_iter=3000)
-#
-#     b_norm = np.linalg.norm(b)
-#     if b_norm < 1e-12:
-#         assert np.linalg.norm(x_bench) < 1e-12
-#     else:
-#         res_norm = np.linalg.norm(b - A @ x_bench)
-#         rel_resid = res_norm / b_norm
-#
-#         print(f"Dataset {dataset.name} Relative Residual: {rel_resid}")
-#
-#         assert rel_resid < 1e-4, f"Relative residual too high: {rel_resid}"
-# END COPIED TEST FILE: tests/test_gmres.py
+def gmres_random_system(seed):
+    import scipy.sparse
+
+    rng = np.random.default_rng(seed)
+    n = 50
+    A = scipy.sparse.random(n, n, density=0.1, random_state=rng)
+    A = A + scipy.sparse.eye(n) * n
+    x_true = rng.standard_normal(n)
+    b = A @ x_true
+    return A.tocoo(), b, np.zeros(n)
+
+
+class GMRESTestGenerator(Generator[GMRESDataset]):
+    @property
+    def name(self) -> str:
+        return "gmres_test_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "GMRES Test Data Generator"
+
+    @property
+    def description(self) -> str:
+        return "Inlined matrices and seeded systems from the GMRES pytest examples."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["test"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Aadharsh Rajkumar", "arajkumar34@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return GMRESBenchmark().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return GMRESBenchmark().ai_disclosure
+
+    @property
+    def motivation(self) -> str:
+        return "Uses small inlined linear systems to verify GMRES convergence."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[GMRESDataset]:
+        random_42 = gmres_random_system(42)
+        random_123 = gmres_random_system(123)
+        return [
+            GMRESDataset(
+                "test_gmres_random_42",
+                suites=["test"],
+                A=random_42[0],
+                b=random_42[1],
+                x0=random_42[2],
+                meta={"restart": 20, "tol": 1e-8, "max_iter": 1000},
+                ref_meta={"residual_tol": 1e-5},
+            ),
+            GMRESDataset(
+                "test_gmres_random_123",
+                suites=["test"],
+                A=random_123[0],
+                b=random_123[1],
+                x0=random_123[2],
+                meta={"restart": 20, "tol": 1e-8, "max_iter": 1000},
+                ref_meta={"residual_tol": 1e-5},
+            ),
+            GMRESDataset(
+                "test_gmres_diagonal",
+                suites=["test"],
+                A=np.array([[2.0, 0.0], [0.0, 3.0]]),
+                b=np.array([4.0, 9.0]),
+                x0=np.zeros(2),
+                meta={"restart": 2, "tol": 1e-8, "max_iter": 100},
+                ref_meta={"residual_tol": 1e-6},
+            ),
+            GMRESDataset(
+                "test_gmres_3x3",
+                suites=["test"],
+                A=np.array([[10.0, 2.0, 1.0], [1.0, 20.0, 1.0], [1.0, 2.0, 10.0]]),
+                b=np.array([13.0, 22.0, 13.0]),
+                x0=np.zeros(3),
+                meta={"restart": 3, "tol": 1e-8, "max_iter": 100},
+                ref_meta={"residual_tol": 1e-6},
+            ),
+            GMRESDataset(
+                "test_gmres_4x4",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [4.0, -1.0, 0.0, 0.0],
+                        [-1.0, 4.0, -1.0, 0.0],
+                        [0.0, -1.0, 4.0, -1.0],
+                        [0.0, 0.0, -1.0, 3.0],
+                    ]
+                ),
+                b=np.array([3.0, 2.0, 2.0, 2.0]),
+                x0=np.zeros(4),
+                meta={"restart": 4, "tol": 1e-8, "max_iter": 100},
+                ref_meta={"residual_tol": 1e-6},
+            ),
+        ]
+
+    def generate(self, dataset: GMRESDataset) -> DataInstance:
+        if dataset.A is None or dataset.b is None or dataset.x0 is None:
+            raise ValueError("GMRES test datasets must define A, b, and x0.")
+        A = dataset.A.tocoo() if hasattr(dataset.A, "tocoo") else None
+        A_bin = (
+            BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
+            if A is not None
+            else BinsparseFormat.from_numpy(dataset.A)
+        )
+        return DataInstance(
+            inputs=[
+                A_bin,
+                BinsparseFormat.from_numpy(dataset.b),
+                BinsparseFormat.from_numpy(dataset.x0),
+            ],
+            meta=dataset.benchmark_meta,
+            ref_meta=dataset.ref_meta,
+        )
 
 class GMRESGenerator(Generator[GMRESDataset]):
     @property
@@ -357,7 +386,30 @@ class GMRESBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [GMRESGenerator()]
+        return [GMRESTestGenerator(), GMRESGenerator()]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+
+        if not self._ref_meta or "residual_tol" not in self._ref_meta:
+            return
+
+        A_bin, b_bin, _x0_bin = self._input
+        A_coo = BinsparseFormat.to_coo(A_bin)
+        A = pydata_sparse.COO(
+            coords=np.stack((A_coo.data["indices_0"], A_coo.data["indices_1"])),
+            data=A_coo.data["values"],
+            shape=A_coo.data["shape"],
+        )
+        b = b_bin.data["values"].reshape(b_bin.data["shape"])
+        x_sol = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        residual = np.linalg.norm(b - A @ x_sol)
+        assert residual < self._ref_meta["residual_tol"], (
+            f"GMRES residual too high for {param.dataset.name}: {residual}"
+        )
 
     def benchmark(self, data: list, meta: dict):
         A, b, x0 = data

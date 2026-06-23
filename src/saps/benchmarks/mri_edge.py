@@ -20,8 +20,10 @@ class MaskedMRIDataset(Dataset):
         t2_val: float = 204.0,
         image: np.ndarray | None = None,
         roi: np.ndarray | None = None,
+        suites: list[str] | None = None,
+        ref_meta: dict[str, Any] | None = None,
     ):
-        self._suites: list[str] = []
+        self._suites = suites or []
         self.source_name = name
         self.category = category
         self.filename = filename
@@ -29,6 +31,7 @@ class MaskedMRIDataset(Dataset):
         self.t2_val = t2_val
         self.image = image
         self.roi = roi
+        self.ref_meta = ref_meta
 
     @property
     def name(self) -> str:
@@ -63,108 +66,129 @@ class MaskedMRIDataset(Dataset):
         return data
 
 
-# BEGIN COPIED TEST FILE: tests/test_mri_edge.py
-# import pytest
-#
-# import numpy as np
-#
-# import saps.benchmarks.mri_edge as mri_edge
-# from frameworks.saps_numpy import NumpyFramework
-#
-#
-# def run_masked_mri_benchmark(xp, data):
-#     benchmark = mri_edge.MaskedMRIEdgeBenchmark()
-#     prev_xp = getattr(mri_edge, "xp", None)
-#     mri_edge.xp = xp
-#     try:
-#         (result,) = benchmark.benchmark(data, {})
-#     finally:
-#         mri_edge.xp = prev_xp
-#     return result
-#
-#
-# def expected_masked_mri_edge(image, roi, t1, t2):
-#     img_t1 = image > t1
-#     img_t2 = image > t2
-#     return (img_t2 & roi) ^ (img_t1 & roi)
-#
-#
-# @pytest.mark.parametrize(
-#     "image, roi, t1, t2",
-#     [
-#         (
-#             np.zeros((5, 5), dtype=np.float32),
-#             np.ones((5, 5), dtype=bool),
-#             50.0,
-#             100.0,
-#         ),
-#         (
-#             np.array(
-#                 [
-#                     [0, 50, 100, 150, 200],
-#                     [0, 50, 100, 150, 200],
-#                     [0, 50, 100, 150, 200],
-#                     [0, 50, 100, 150, 200],
-#                     [0, 50, 100, 150, 200],
-#                 ],
-#                 dtype=np.float32,
-#             ),
-#             np.array(
-#                 [
-#                     [False, False, False, False, False],
-#                     [False, True, True, True, False],
-#                     [False, True, True, True, False],
-#                     [False, True, True, True, False],
-#                     [False, False, False, False, False],
-#                 ],
-#                 dtype=bool,
-#             ),
-#             75.0,
-#             125.0,
-#         ),
-#     ],
-# )
-# def test_masked_mri_basic_cases(image, roi, t1, t2):
-#     xp = NumpyFramework()
-#     dataset = mri_edge.MaskedMRIDataset(
-#         "local", "local", "local", t1_val=t1, t2_val=t2, image=image, roi=roi
-#     )
-#     problem = mri_edge.MaskedMRIGenerator().generate(dataset)
-#     data_binsparse = problem.inputs
-#     meta = problem.meta
-#     data = [xp.from_binsparse(array) for array in data_binsparse]
-#
-#     result = run_masked_mri_benchmark(xp, data)
-#     expected = expected_masked_mri_edge(image, roi, t1, t2)
-#
-#     assert meta == {}
-#     assert result.shape == expected.shape
-#     assert np.all(result == expected)
-#
-#
-# def test_masked_mri_generator_builds_default_roi():
-#     xp = NumpyFramework()
-#     image = np.arange(36, dtype=np.float32).reshape(6, 6)
-#     dataset = mri_edge.MaskedMRIDataset(
-#         "tiny", "local", "tiny", t1_val=10.0, t2_val=20.0, image=image
-#     )
-#
-#     problem = mri_edge.MaskedMRIGenerator().generate(dataset)
-#     data_binsparse = problem.inputs
-#     meta = problem.meta
-#     image_arr, roi_arr, t1_arr, t2_arr = [
-#         xp.from_binsparse(array) for array in data_binsparse
-#     ]
-#
-#     expected_roi = np.zeros_like(image, dtype=bool)
-#     expected_roi[1:5, 1:5] = True
-#
-#     assert meta == {}
-#     assert np.all(image_arr == image)
-#     assert np.all(roi_arr == expected_roi)
-#     assert t1_arr.item() == 10.0
-#     assert t2_arr.item() == 20.0
-# END COPIED TEST FILE: tests/test_mri_edge.py
+def expected_masked_mri_edge(image, roi, t1, t2):
+    img_t1 = image > t1
+    img_t2 = image > t2
+    return (img_t2 & roi) ^ (img_t1 & roi)
+
+
+def default_masked_mri_roi(image):
+    expected_roi = np.zeros_like(image, dtype=bool)
+    height, width = image.shape
+    h_val, w_val = height // 4, width // 4
+    expected_roi[h_val : height - h_val, w_val : width - w_val] = True
+    return expected_roi
+
+
+class MaskedMRITestGenerator(Generator[MaskedMRIDataset]):
+    @property
+    def name(self) -> str:
+        return "masked_mri_test_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Masked MRI Edge Test Data Generator"
+
+    @property
+    def description(self) -> str:
+        return "Small deterministic masked MRI examples."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["test"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return MaskedMRIEdgeBenchmark().authors
+
+    @property
+    def references(self) -> list[Ref]:
+        return MaskedMRIEdgeBenchmark().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return MaskedMRIEdgeBenchmark().ai_disclosure
+
+    @property
+    def motivation(self) -> str:
+        return "Provide small masked MRI examples for correctness checks."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[MaskedMRIDataset]:
+        return [
+            MaskedMRIDataset(
+                "test_masked_mri_zero_image",
+                "local",
+                "test_masked_mri_zero_image",
+                t1_val=50.0,
+                t2_val=100.0,
+                image=np.zeros((5, 5), dtype=np.float32),
+                roi=np.ones((5, 5), dtype=bool),
+                suites=["test"],
+            ),
+            MaskedMRIDataset(
+                "test_masked_mri_basic_roi",
+                "local",
+                "test_masked_mri_basic_roi",
+                t1_val=75.0,
+                t2_val=125.0,
+                image=np.array(
+                    [
+                        [0, 50, 100, 150, 200],
+                        [0, 50, 100, 150, 200],
+                        [0, 50, 100, 150, 200],
+                        [0, 50, 100, 150, 200],
+                        [0, 50, 100, 150, 200],
+                    ],
+                    dtype=np.float32,
+                ),
+                roi=np.array(
+                    [
+                        [False, False, False, False, False],
+                        [False, True, True, True, False],
+                        [False, True, True, True, False],
+                        [False, True, True, True, False],
+                        [False, False, False, False, False],
+                    ],
+                    dtype=bool,
+                ),
+                suites=["test"],
+            ),
+            MaskedMRIDataset(
+                "test_masked_mri_generator_builds_default_roi",
+                "local",
+                "test_masked_mri_generator_builds_default_roi",
+                t1_val=10.0,
+                t2_val=20.0,
+                image=np.arange(36, dtype=np.float32).reshape(6, 6),
+                suites=["test"],
+                ref_meta={"default_roi": True},
+            ),
+        ]
+
+    def generate(self, dataset: MaskedMRIDataset) -> DataInstance:
+        problem = MaskedMRIGenerator().generate(dataset)
+        roi = dataset.roi
+        if roi is None:
+            roi = default_masked_mri_roi(dataset.image)
+        expected = expected_masked_mri_edge(
+            dataset.image, roi, dataset.t1_val, dataset.t2_val
+        )
+        return DataInstance(
+            inputs=problem.inputs,
+            meta=problem.meta,
+            ref_outputs=[BinsparseFormat.from_numpy(expected)],
+            ref_meta=dataset.ref_meta,
+        )
+
 
 class MaskedMRIGenerator(Generator[MaskedMRIDataset]):
     @property
@@ -322,7 +346,7 @@ class MaskedMRIEdgeBenchmark(Benchmark):
 
     @property
     def generators(self) -> list[Generator[Any]]:
-        return [MaskedMRIGenerator()]
+        return [MaskedMRITestGenerator(), MaskedMRIGenerator()]
 
     def benchmark(self, data: list[Any], meta: dict[str, Any]):
         img, roi, t1, t2 = data
@@ -333,3 +357,34 @@ class MaskedMRIEdgeBenchmark(Benchmark):
         img_post = (img_t2 & roi) ^ (img_t1 & roi)
 
         return [img_post]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+        if self._ref_outputs is None:
+            return
+
+        result = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        expected = self._ref_outputs[0].data["values"].reshape(
+            self._ref_outputs[0].data["shape"]
+        )
+
+        assert self._meta == {}
+        assert result.shape == expected.shape
+        assert np.all(result == expected)
+
+        if self._ref_meta is None:
+            return
+        if self._ref_meta.get("default_roi"):
+            image_arr = self._input[0].data["values"].reshape(
+                self._input[0].data["shape"]
+            )
+            roi_arr = self._input[1].data["values"].reshape(
+                self._input[1].data["shape"]
+            )
+            expected_roi = default_masked_mri_roi(image_arr)
+            assert np.all(roi_arr == expected_roi)
+            assert self._input[2].data["values"].item() == 10.0
+            assert self._input[3].data["values"].item() == 20.0

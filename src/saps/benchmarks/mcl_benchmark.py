@@ -1,6 +1,8 @@
 import os
 from typing import Any
 
+import numpy as np
+
 import saps
 from saps.benchmark import (
     Author,
@@ -37,9 +39,17 @@ def _prune(array_api, matrix, threshold):
 
 
 class MCLDataset(Dataset):
-    def __init__(self, source_name: str):
-        self._suites: list[str] = []
+    def __init__(
+        self,
+        source_name: str,
+        suites: list[str] | None = None,
+        A: Any | None = None,
+        expected_count: int | None = None,
+    ):
+        self._suites = suites or []
         self.source_name = source_name
+        self.A = A
+        self.expected_count = expected_count
 
     @property
     def name(self) -> str:
@@ -62,115 +72,105 @@ class MCLDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-# BEGIN COPIED TEST FILE: tests/test_mcl.py
-# import pytest
-#
-# import numpy as np
-# import scipy.sparse as sp
-#
-# import saps.benchmarks.mcl_benchmark as mcl
-# from frameworks.saps_numpy import NumpyFramework
-# from frameworks.saps_sparse import PyDataSparseFramework
-# from saps_framework import BinsparseFormat
-#
-#
-# def get_cluster_count(matrix):
-#     if hasattr(matrix, "todense") and not sp.isspmatrix(matrix):
-#         matrix = matrix.todense()
-#     if not sp.isspmatrix(matrix):
-#         matrix = sp.csc_matrix(matrix)
-#     elif not sp.isspmatrix_csc(matrix):
-#         matrix = matrix.tocsc()
-#
-#     attractors = matrix.diagonal().nonzero()[0]
-#
-#     clusters = set()
-#     for attractor in attractors:
-#         cluster_indices = matrix.getrow(attractor).nonzero()[1].tolist()
-#         clusters.add(tuple(sorted(cluster_indices)))
-#
-#     return len(clusters)
-#
-#
-# def create_planted_clique(N, k):
-#     A = np.zeros((N, N), dtype=np.float32)
-#     A[:k, :k] = 1.0
-#     np.fill_diagonal(A, 0)
-#     return A
-#
-#
-# def run_mcl_benchmark(xp, A):
-#     benchmark = mcl.MCLBenchmark()
-#     prev_xp = getattr(mcl, "xp", None)
-#     mcl.xp = xp
-#     try:
-#         (result_matrix,) = benchmark.benchmark(
-#             [A], {"expansion": 2, "inflation": 2, "loop_value": 1}
-#         )
-#     finally:
-#         mcl.xp = prev_xp
-#     return result_matrix
-#
-#
-# @pytest.mark.parametrize(
-#     "xp, A, expected_count",
-#     [
-#         (
-#             NumpyFramework(),
-#             np.array(
-#                 [
-#                     [0, 1, 1, 1, 0, 0, 0, 0],
-#                     [1, 0, 0, 0, 0, 0, 0, 0],
-#                     [1, 0, 0, 0, 0, 0, 0, 0],
-#                     [1, 0, 0, 0, 0, 0, 0, 0],
-#                     [0, 0, 0, 0, 0, 1, 1, 1],
-#                     [0, 0, 0, 0, 1, 0, 0, 0],
-#                     [0, 0, 0, 0, 1, 0, 0, 0],
-#                     [0, 0, 0, 0, 1, 0, 0, 0],
-#                 ],
-#                 dtype=np.float32,
-#             ),
-#             2,
-#         ),
-#         (
-#             PyDataSparseFramework(),
-#             np.array(
-#                 [
-#                     [1, 1, 0, 0, 0, 0],
-#                     [1, 1, 0, 0, 0, 0],
-#                     [0, 0, 1, 1, 0, 0],
-#                     [0, 0, 1, 1, 0, 0],
-#                     [0, 0, 0, 0, 1, 1],
-#                     [0, 0, 0, 0, 1, 1],
-#                 ],
-#                 dtype=np.float32,
-#             ),
-#             3,
-#         ),
-#         (
-#             NumpyFramework(),
-#             create_planted_clique(N=10, k=4),
-#             7,
-#         ),
-#     ],
-# )
-# def test_mcl_solver(xp, A, expected_count):
-#     A_sparse = sp.coo_matrix(A)
-#     A_bin = BinsparseFormat.from_coo(
-#         (A_sparse.row, A_sparse.col), A_sparse.data, A_sparse.shape
-#     )
-#     A_input = xp.from_binsparse(A_bin)
-#
-#     result_matrix = run_mcl_benchmark(xp, A_input)
-#
-#     actual_count = get_cluster_count(result_matrix)
-#
-#     assert actual_count == expected_count, (
-#         f"MCL failed for graph {A.shape}. "
-#         f"Found {actual_count} clusters, "
-#         f"but expected {expected_count}."
-#     )
-# END COPIED TEST FILE: tests/test_mcl.py
+class MCLTestGenerator(Generator[MCLDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def name(self) -> str:
+        return "mcl_test_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "MCL Test Data Generator"
+
+    @property
+    def description(self) -> str:
+        return "Small MCL examples with expected cluster counts."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["test"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return MCLBenchmark().authors
+
+    @property
+    def references(self) -> list[Ref]:
+        return MCLBenchmark().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return MCLBenchmark().ai_disclosure
+
+    @property
+    def motivation(self) -> str:
+        return MCLBenchmark().motivation
+
+    @property
+    def datasets(self) -> list[MCLDataset]:
+        planted_clique = np.zeros((10, 10), dtype=np.float32)
+        planted_clique[:4, :4] = 1.0
+        np.fill_diagonal(planted_clique, 0)
+        return [
+            MCLDataset(
+                "two_star_components",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [0, 1, 1, 1, 0, 0, 0, 0],
+                        [1, 0, 0, 0, 0, 0, 0, 0],
+                        [1, 0, 0, 0, 0, 0, 0, 0],
+                        [1, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 1, 1, 1],
+                        [0, 0, 0, 0, 1, 0, 0, 0],
+                        [0, 0, 0, 0, 1, 0, 0, 0],
+                        [0, 0, 0, 0, 1, 0, 0, 0],
+                    ],
+                    dtype=np.float32,
+                ),
+                expected_count=2,
+            ),
+            MCLDataset(
+                "three_block_pairs",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [1, 1, 0, 0, 0, 0],
+                        [1, 1, 0, 0, 0, 0],
+                        [0, 0, 1, 1, 0, 0],
+                        [0, 0, 1, 1, 0, 0],
+                        [0, 0, 0, 0, 1, 1],
+                        [0, 0, 0, 0, 1, 1],
+                    ],
+                    dtype=np.float32,
+                ),
+                expected_count=3,
+            ),
+            MCLDataset(
+                "planted_clique",
+                suites=["test"],
+                A=planted_clique,
+                expected_count=7,
+            ),
+        ]
+
+    def generate(self, dataset: MCLDataset):
+        A = np.asarray(dataset.A)
+        rows, cols = np.nonzero(A)
+        A_bin = BinsparseFormat.from_coo((rows, cols), A[rows, cols], A.shape)
+        return DataInstance(
+            inputs=[A_bin],
+            meta={"expansion": 2, "inflation": 2, "loop_value": 1},
+            ref_meta={"expected_count": dataset.expected_count},
+        )
+
 
 class MCLGenerator(Generator[MCLDataset]):
     @property
@@ -317,7 +317,7 @@ class MCLBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [MCLGenerator()]
+        return [MCLTestGenerator(), MCLGenerator()]
 
     def benchmark(self, data: list[Any], meta: dict[str, Any]):
         """
@@ -378,3 +378,23 @@ class MCLBenchmark(Benchmark):
                 break
 
         return [current_matrix]
+
+    def check(self, param):
+        super().check(param)
+        expected_count = self._ref_meta.get("expected_count")
+        if expected_count is None:
+            return
+
+        output = BinsparseFormat.to_coo(self._output[0])
+        rows = output.data["indices_0"]
+        cols = output.data["indices_1"]
+        values = output.data["values"]
+        present = values != 0
+        rows = rows[present]
+        cols = cols[present]
+        attractors = rows[rows == cols]
+        clusters = {
+            tuple(np.sort(cols[rows == attractor]).tolist())
+            for attractor in attractors
+        }
+        assert len(clusters) == expected_count

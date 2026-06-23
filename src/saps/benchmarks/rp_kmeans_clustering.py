@@ -19,14 +19,25 @@ xp = saps.xp
 
 
 class RPKMeansDataset(Dataset):
-    def __init__(self, source_name: str, points, k: int, eps: float, c=1, max_iter=100):
-        self._suites: list[str] = []
+    def __init__(
+        self,
+        source_name: str,
+        points,
+        k: int,
+        eps: float,
+        c=1,
+        max_iter=100,
+        suites: list[str] | None = None,
+        ref_meta: dict[str, Any] | None = None,
+    ):
+        self._suites = suites or []
         self.source_name = source_name
         self.points = points
         self.k = k
         self.eps = eps
         self.c = c
         self.max_iter = max_iter
+        self.ref_meta = ref_meta
 
     @property
     def name(self) -> str:
@@ -57,73 +68,6 @@ class RPKMeansDataset(Dataset):
         data["max_iter"] = self.max_iter
         return data
 
-
-# BEGIN COPIED TEST FILE: tests/test_rp_kmeans_clustering.py
-# import numpy as np
-#
-# import saps.benchmarks.rp_kmeans_clustering as rp_kmeans
-# from frameworks.saps_numpy import NumpyFramework
-# from saps_framework import BinsparseFormat
-#
-#
-# def run_rp_kmeans(xp, A, k, eps, c=1, max_iter=100):
-#     benchmark = rp_kmeans.RPKMeansBenchmark()
-#     prev_xp = getattr(rp_kmeans, "xp", None)
-#     rp_kmeans.xp = xp
-#     try:
-#         (labels,) = benchmark.benchmark(
-#             [A], {"k": k, "eps": eps, "c": c, "max_iter": max_iter}
-#         )
-#     finally:
-#         rp_kmeans.xp = prev_xp
-#     return labels
-#
-#
-# def test_rp_kmeans_sanity_check():
-#     xp = NumpyFramework()
-#     points = xp.array(
-#         [
-#             [0.0, 0.0, 0.0],
-#             [0.1, -0.1, 0.0],
-#             [5.0, 5.0, 5.0],
-#             [5.1, 5.0, 5.2],
-#             [-10.0, -10.1, -10.2],
-#             [-9.9, -9.8, -9.7],
-#         ],
-#         dtype=np.float32,
-#     )
-#     A_bin = BinsparseFormat.from_numpy(points)
-#     A_input = xp.from_binsparse(A_bin)
-#
-#     labels = run_rp_kmeans(xp, A_input, k=3, eps=0.3, c=0.5, max_iter=5).tolist()
-#
-#     assert (
-#         labels[0] == labels[1]
-#         and labels[2] == labels[3]
-#         and labels[4] == labels[5]
-#         and len(set(labels)) == 3
-#     )
-#
-#
-# def test_rp_kmeans_two_clusters():
-#     xp = NumpyFramework()
-#     points = xp.array(
-#         [
-#             [0.0, 0.0, 0.0],
-#             [0.1, -0.1, 0.0],
-#             [-0.2, 0.0, 0.1],
-#             [0.3, 0.2, 0.1],
-#             [-20.0, -40.0, -60.0],
-#         ],
-#         dtype=np.float32,
-#     )
-#     A_bin = BinsparseFormat.from_numpy(points)
-#     A_input = xp.from_binsparse(A_bin)
-#
-#     labels = run_rp_kmeans(xp, A_input, k=2, eps=0.2, c=1, max_iter=5).tolist()
-#
-#     assert labels[0] == labels[1] == labels[2] == labels[3] and labels[0] != labels[4]
-# END COPIED TEST FILE: tests/test_rp_kmeans_clustering.py
 
 class RPKMeansGenerator(Generator[RPKMeansDataset]):
     @property
@@ -163,6 +107,10 @@ class RPKMeansGenerator(Generator[RPKMeansDataset]):
         return RPKMeansBenchmark().motivation
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[RPKMeansDataset]:
         return [
             RPKMeansDataset(
@@ -182,6 +130,11 @@ class RPKMeansGenerator(Generator[RPKMeansDataset]):
                 eps=0.3,
                 c=0.5,
                 max_iter=5,
+                suites=["test"],
+                ref_meta={
+                    "same": [(0, 1), (2, 3), (4, 5)],
+                    "cluster_count": 3,
+                },
             ),
             RPKMeansDataset(
                 "two_clusters",
@@ -199,6 +152,11 @@ class RPKMeansGenerator(Generator[RPKMeansDataset]):
                 eps=0.2,
                 c=1,
                 max_iter=5,
+                suites=["test"],
+                ref_meta={
+                    "same": [(0, 1), (1, 2), (2, 3)],
+                    "different": [(0, 4)],
+                },
             ),
         ]
 
@@ -212,6 +170,7 @@ class RPKMeansGenerator(Generator[RPKMeansDataset]):
                 "c": dataset.c,
                 "max_iter": dataset.max_iter,
             },
+            ref_meta=dataset.ref_meta,
         )
 
 
@@ -332,3 +291,20 @@ class RPKMeansBenchmark(Benchmark):
                 break
 
         return [labels]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+        if self._ref_meta is None:
+            return
+
+        labels = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+
+        for left, right in self._ref_meta.get("same", []):
+            assert labels[left] == labels[right]
+        for left, right in self._ref_meta.get("different", []):
+            assert labels[left] != labels[right]
+        if "cluster_count" in self._ref_meta:
+            assert len(set(labels.tolist())) == self._ref_meta["cluster_count"]

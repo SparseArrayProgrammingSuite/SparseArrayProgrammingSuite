@@ -3,6 +3,7 @@ import inspect
 import pkgutil
 import re
 from collections import defaultdict
+from typing import cast
 
 import pytest
 
@@ -141,7 +142,10 @@ def _ref_constructor(ref: Ref) -> str:
         if value is None or value == []:
             continue
         if name == "authors":
-            authors = ", ".join(f"Author({author.name!r})" for author in value)
+            authors_value = cast(list[Author], value)
+            authors = ", ".join(
+                f"Author({author.name!r})" for author in authors_value
+            )
             lines.append(f"    authors=[{authors}],")
         else:
             lines.append(f"    {name}={value!r},")

@@ -1,5 +1,5 @@
 import os
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 
@@ -18,6 +18,29 @@ from saps_framework import BinsparseFormat
 xp = saps.xp
 
 
+def _from_binsparse(array):
+    if array.data["format"] == "dense":
+        return array.data["values"].reshape(array.data["shape"])
+    if array.data["format"] == "COO":
+        shape = array.data["shape"]
+        indices = tuple(array.data[f"indices_{dim}"] for dim in range(len(shape)))
+        values = array.data["values"]
+        dense = np.zeros(shape, dtype=values.dtype)
+        dense[indices] = values
+        return dense
+    raise ValueError(f"Unsupported format: {array.data['format']}")
+
+
+def _gcn_loss(adjacency, features, weights1, bias1, weights2, bias2, targets):
+    z1 = adjacency @ features
+    h1_pre = z1 @ weights1 + bias1
+    h1 = np.maximum(h1_pre, 0)
+    z2 = adjacency @ h1
+    predictions = z2 @ weights2 + bias2
+    diff = predictions - targets
+    return np.sum(diff * diff) / predictions.shape[0]
+
+
 class GCNTrainingDataset(Dataset):
     def __init__(
         self,
@@ -30,8 +53,17 @@ class GCNTrainingDataset(Dataset):
         out_dim: int = 1,
         num_iterations: int = 10,
         learning_rate: float = 0.01,
+        suites: list[str] | None = None,
+        adjacency: np.ndarray | None = None,
+        features: np.ndarray | None = None,
+        weights1: np.ndarray | None = None,
+        bias1: np.ndarray | None = None,
+        weights2: np.ndarray | None = None,
+        bias2: np.ndarray | None = None,
+        targets: np.ndarray | None = None,
+        ref_meta: dict[str, Any] | None = None,
     ):
-        self._suites: list[str] = []
+        self._suites = suites or []
         self._name = name
         self._description = description
         self.source_name = source_name or name
@@ -40,6 +72,14 @@ class GCNTrainingDataset(Dataset):
         self.out_dim = out_dim
         self.num_iterations = num_iterations
         self.learning_rate = learning_rate
+        self.adjacency = adjacency
+        self.features = features
+        self.weights1 = weights1
+        self.bias1 = bias1
+        self.weights2 = weights2
+        self.bias2 = bias2
+        self.targets = targets
+        self.ref_meta = ref_meta or {}
 
     @property
     def name(self) -> str:
@@ -75,289 +115,212 @@ class GCNTrainingDataset(Dataset):
         return data
 
 
-# BEGIN COPIED TEST FILE: tests/test_gcn_backward.py
-# import numpy as np
-#
-# import saps.benchmarks.gcn_backward as gcn_backward
-# from frameworks.saps_numpy import NumpyFramework
-#
-#
-# def run_gcn_backward_benchmark(
-#     xp,
-#     adjacency,
-#     adjacency_T,
-#     features,
-#     weights1,
-#     bias1,
-#     weights2,
-#     bias2,
-#     targets,
-#     num_iterations=10,
-#     learning_rate=0.01,
-# ):
-#     benchmark = gcn_backward.GCNBackwardBenchmark()
-#     prev_xp = getattr(gcn_backward, "xp", None)
-#     gcn_backward.xp = xp
-#     try:
-#         return benchmark.benchmark(
-#             [
-#                 adjacency,
-#                 adjacency_T,
-#                 features,
-#                 weights1,
-#                 bias1,
-#                 weights2,
-#                 bias2,
-#                 targets,
-#             ],
-#             {
-#                 "num_iterations": num_iterations,
-#                 "learning_rate": learning_rate,
-#             },
-#         )
-#     finally:
-#         gcn_backward.xp = prev_xp
-#
-#
-# def test_gcn_backward_2node():
-#     """Test backward pass on simple 2-node graph."""
-#     # Graph: 0 -- 1
-#     adjacency = np.array([[0, 1], [1, 0]], dtype=np.float64)
-#     adjacency_T = adjacency.T
-#     features = np.array([[1.0], [2.0]])
-#     weights1 = np.array([[1.0]])
-#     bias1 = np.array([0.0])
-#     weights2 = np.array([[1.0]])
-#     bias2 = np.array([0.0])
-#     targets = np.array([[2.0], [1.0]])
-#
-#     xp = NumpyFramework()
-#
-#     loss, w1, b1, w2, b2 = run_gcn_backward_benchmark(
-#         xp,
-#         adjacency,
-#         adjacency_T,
-#         features,
-#         weights1,
-#         bias1,
-#         weights2,
-#         bias2,
-#         targets,
-#         num_iterations=10,
-#         learning_rate=0.01,
-#     )
-#
-#     # Should return valid outputs
-#     assert loss is not None
-#     assert w1 is not None
-#     assert b1 is not None
-#     assert w2 is not None
-#     assert b2 is not None
-#
-#
-# def test_gcn_backward_multidim():
-#     """Test backward pass with multi-dimensional features and hidden layers."""
-#     # 4-node graph with 2D features, 3D hidden, 2D output
-#     adjacency = np.array(
-#         [
-#             [0, 1, 1, 0],
-#             [1, 0, 1, 1],
-#             [1, 1, 0, 1],
-#             [0, 1, 1, 0],
-#         ],
-#         dtype=np.float64,
-#     )
-#     adjacency_T = adjacency.T
-#
-#     features = np.array(
-#         [
-#             [1.0, 0.5],
-#             [0.0, 1.0],
-#             [1.0, 1.0],
-#             [0.5, 0.5],
-#         ]
-#     )
-#     weights1 = np.array([[0.5, 0.3, 0.1], [0.2, 0.4, 0.6]])  # (2, 3)
-#     bias1 = np.zeros(3)
-#     weights2 = np.array([[0.5, 0.5], [0.3, 0.7], [0.2, 0.8]])  # (3, 2)
-#     bias2 = np.zeros(2)
-#     targets = np.array(
-#         [
-#             [1.0, 0.0],
-#             [0.0, 1.0],
-#             [1.0, 1.0],
-#             [0.5, 0.5],
-#         ]
-#     )
-#
-#     xp = NumpyFramework()
-#
-#     # Get initial loss (1 iteration)
-#     loss_1, _, _, _, _ = run_gcn_backward_benchmark(
-#         xp,
-#         adjacency,
-#         adjacency_T,
-#         features,
-#         weights1,
-#         bias1,
-#         weights2,
-#         bias2,
-#         targets,
-#         num_iterations=1,
-#         learning_rate=0.01,
-#     )
-#
-#     # Get loss after training
-#     loss_100, w1, b1, w2, b2 = run_gcn_backward_benchmark(
-#         xp,
-#         adjacency,
-#         adjacency_T,
-#         features,
-#         weights1,
-#         bias1,
-#         weights2,
-#         bias2,
-#         targets,
-#         num_iterations=100,
-#         learning_rate=0.01,
-#     )
-#
-#     assert loss_100 < loss_1, f"Loss should decrease: {loss_100} < {loss_1}"
-#
-#     # Check output shapes
-#     w1_np = w1
-#     b1_np = b1
-#     w2_np = w2
-#     b2_np = b2
-#
-#     assert w1_np.shape == (2, 3)
-#     assert b1_np.shape == (3,)
-#     assert w2_np.shape == (3, 2)
-#     assert b2_np.shape == (2,)
-#
-#
-# def test_gcn_backward_degree_prediction():
-#     """Test that GCN learns to predict node degrees from graph structure.
-#
-#     Training graph: Star with tail + singleton (7 nodes)
-#         Node 0 is hub connected to nodes 1, 2, 3, 4
-#         Node 4 is bridge also connected to node 5
-#         Node 6 is a singleton (no connections)
-#         Degrees: [4, 1, 1, 1, 2, 1, 0]
-#
-#     Test graph: Different structure (6 nodes)
-#         Node 0 connected to 1, 2, 3 (degree 3)
-#         Node 1 connected to 0, 2 (degree 2)
-#         Node 2 connected to 0, 1, 4 (degree 3)
-#         Node 3 connected to 0 (degree 1)
-#         Node 4 connected to 2 (degree 1)
-#         Node 5 is a singleton (degree 0)
-#         Degrees: [3, 2, 3, 1, 1, 0]
-#
-#     Uses constant features (all 1s) to force learning from structure alone.
-#     After training on one graph, tests on a different graph to verify the
-#     network learned to predict degrees, not just memorize the training data.
-#     """
-#     # Training graph: Star with tail + singleton (7 nodes)
-#     train_adj = np.array(
-#         [
-#             [0, 1, 1, 1, 1, 0, 0],  # node 0: degree 4
-#             [1, 0, 0, 0, 0, 0, 0],  # node 1: degree 1
-#             [1, 0, 0, 0, 0, 0, 0],  # node 2: degree 1
-#             [1, 0, 0, 0, 0, 0, 0],  # node 3: degree 1
-#             [1, 0, 0, 0, 0, 1, 0],  # node 4: degree 2
-#             [0, 0, 0, 0, 1, 0, 0],  # node 5: degree 1
-#             [0, 0, 0, 0, 0, 0, 0],  # node 6: degree 0 (singleton)
-#         ],
-#         dtype=np.float64,
-#     )
-#     train_adj_T = train_adj.T
-#     train_features = np.ones((7, 1))
-#     train_degrees = train_adj.sum(axis=1, keepdims=True)
-#     train_targets = train_degrees / train_degrees.max()
-#
-#     # Test graph: Different structure (6 nodes)
-#     test_adj = np.array(
-#         [
-#             [0, 1, 1, 1, 0, 0],  # node 0: degree 3
-#             [1, 0, 1, 0, 0, 0],  # node 1: degree 2
-#             [1, 1, 0, 0, 1, 0],  # node 2: degree 3
-#             [1, 0, 0, 0, 0, 0],  # node 3: degree 1
-#             [0, 0, 1, 0, 0, 0],  # node 4: degree 1
-#             [0, 0, 0, 0, 0, 0],  # node 5: degree 0 (singleton)
-#         ],
-#         dtype=np.float64,
-#     )
-#     test_features = np.ones((6, 1))
-#
-#     # Initialize weights (input_dim=1, hidden_dim=4, output_dim=1)
-#     rng = np.random.default_rng(42)
-#     weights1 = rng.standard_normal((1, 4)) * 0.5
-#     bias1 = np.zeros(4)
-#     weights2 = rng.standard_normal((4, 1)) * 0.5
-#     bias2 = np.zeros(1)
-#
-#     xp = NumpyFramework()
-#
-#     _, w1_b, b1_b, w2_b, b2_b = run_gcn_backward_benchmark(
-#         xp,
-#         train_adj,
-#         train_adj_T,
-#         train_features,
-#         weights1,
-#         bias1,
-#         weights2,
-#         bias2,
-#         train_targets,
-#         num_iterations=500,
-#         learning_rate=0.01,
-#     )
-#
-#     # Get trained weights
-#     w1_trained = w1_b
-#     b1_trained = b1_b
-#     w2_trained = w2_b
-#     b2_trained = b2_b
-#
-#     # Run forward pass on TEST graph with trained weights
-#     Z1 = test_adj @ test_features
-#     H1_pre = Z1 @ w1_trained + b1_trained
-#     H1 = np.maximum(H1_pre, 0)
-#     Z2 = test_adj @ H1
-#     predictions = Z2 @ w2_trained + b2_trained
-#
-#     # Test graph degrees: [3, 2, 3, 1, 1, 0]
-#     # Nodes 0 and 2 have degree 3 (highest)
-#     # Node 1 has degree 2 (middle)
-#     # Nodes 3 and 4 have degree 1 (low)
-#     # Node 5 has degree 0 (singleton)
-#     high_degree_preds = [predictions[0, 0], predictions[2, 0]]
-#     mid_degree_pred = predictions[1, 0]
-#     low_degree_preds = [predictions[3, 0], predictions[4, 0]]
-#     singleton_pred = predictions[5, 0]
-#
-#     min_high = min(high_degree_preds)
-#     max_low = max(low_degree_preds)
-#
-#     # High degree nodes should have higher predictions than low degree nodes
-#     assert min_high > max_low, (
-#         f"High degree predictions ({high_degree_preds}) should be > "
-#         f"low degree predictions ({low_degree_preds})"
-#     )
-#     # Mid degree node should be between high and low
-#     assert min_high > mid_degree_pred > max_low, (
-#         f"Mid degree prediction ({mid_degree_pred:.3f}) should be between "
-#         f"high ({min_high:.3f}) and low ({max_low:.3f})"
-#     )
-#     # Singleton should have lowest prediction (near zero)
-#     assert max_low > singleton_pred, (
-#         f"Low degree predictions ({low_degree_preds}) should be > "
-#         f"singleton prediction ({singleton_pred:.3f})"
-#     )
-#     assert abs(singleton_pred) < 0.1, (
-#         f"Singleton prediction ({singleton_pred:.3f}) should be near zero"
-#     )
-# END COPIED TEST FILE: tests/test_gcn_backward.py
+class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
+    @property
+    def name(self) -> str:
+        return "gcn_backward_test_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "GCN Backward Test Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Small inlined GCN training examples."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["test"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Tarun Devi", "tdevi3@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return GCNBackwardBenchmark().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return GCNBackwardBenchmark().ai_disclosure
+
+    @property
+    def motivation(self) -> str:
+        return "Uses small graph examples to verify the GCN training loop."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[GCNTrainingDataset]:
+        rng = np.random.default_rng(42)
+        degree_train_adj = np.array(
+            [
+                [0, 1, 1, 1, 1, 0, 0],
+                [1, 0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0],
+            ],
+            dtype=float,
+        )
+        degree_targets = degree_train_adj.sum(axis=1, keepdims=True)
+        degree_targets = degree_targets / degree_targets.max()
+        degree_test_adj = np.array(
+            [
+                [0, 1, 1, 1, 0, 0],
+                [1, 0, 1, 0, 0, 0],
+                [1, 1, 0, 0, 1, 0],
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+            ],
+            dtype=float,
+        )
+        degree_test_targets = degree_test_adj.sum(axis=1, keepdims=True)
+        degree_test_targets = degree_test_targets / degree_test_targets.max()
+        degree_weights1 = rng.standard_normal((1, 4)) * 0.5
+        degree_weights2 = rng.standard_normal((4, 1)) * 0.5
+        return [
+            GCNTrainingDataset(
+                "test_gcn_backward_2node",
+                suites=["test"],
+                adjacency=np.array([[0, 1], [1, 0]], dtype=float),
+                features=np.array([[1.0], [2.0]]),
+                weights1=np.array([[1.0]]),
+                bias1=np.array([0.0]),
+                weights2=np.array([[1.0]]),
+                bias2=np.array([0.0]),
+                targets=np.array([[2.0], [1.0]]),
+                num_iterations=10,
+                learning_rate=0.01,
+                ref_meta={
+                    "check_loss_reduction": True,
+                    "output_shapes": [(), (1, 1), (1,), (1, 1), (1,)],
+                },
+            ),
+            GCNTrainingDataset(
+                "test_gcn_backward_multidim",
+                suites=["test"],
+                adjacency=np.array(
+                    [
+                        [0, 1, 1, 0],
+                        [1, 0, 1, 1],
+                        [1, 1, 0, 1],
+                        [0, 1, 1, 0],
+                    ],
+                    dtype=float,
+                ),
+                features=np.array(
+                    [
+                        [1.0, 0.5],
+                        [0.0, 1.0],
+                        [1.0, 1.0],
+                        [0.5, 0.5],
+                    ]
+                ),
+                weights1=np.array([[0.5, 0.3, 0.1], [0.2, 0.4, 0.6]]),
+                bias1=np.zeros(3),
+                weights2=np.array([[0.5, 0.5], [0.3, 0.7], [0.2, 0.8]]),
+                bias2=np.zeros(2),
+                targets=np.array(
+                    [
+                        [1.0, 0.0],
+                        [0.0, 1.0],
+                        [1.0, 1.0],
+                        [0.5, 0.5],
+                    ]
+                ),
+                num_iterations=100,
+                learning_rate=0.01,
+                ref_meta={
+                    "check_loss_reduction": True,
+                    "output_shapes": [(), (2, 3), (3,), (3, 2), (2,)],
+                },
+            ),
+            GCNTrainingDataset(
+                "test_gcn_backward_degree_loss",
+                suites=["test"],
+                adjacency=degree_train_adj,
+                features=np.ones((7, 1)),
+                weights1=degree_weights1.copy(),
+                bias1=np.zeros(4),
+                weights2=degree_weights2.copy(),
+                bias2=np.zeros(1),
+                targets=degree_targets,
+                num_iterations=500,
+                learning_rate=0.01,
+                ref_meta={
+                    "check_loss_reduction": True,
+                    "output_shapes": [(), (1, 4), (4,), (4, 1), (1,)],
+                },
+            ),
+            GCNTrainingDataset(
+                "test_gcn_backward_degree_test_graph_loss",
+                suites=["test"],
+                adjacency=degree_test_adj,
+                features=np.ones((6, 1)),
+                weights1=degree_weights1.copy(),
+                bias1=np.zeros(4),
+                weights2=degree_weights2.copy(),
+                bias2=np.zeros(1),
+                targets=degree_test_targets,
+                num_iterations=500,
+                learning_rate=0.01,
+                ref_meta={
+                    "check_loss_reduction": True,
+                    "output_shapes": [(), (1, 4), (4,), (4, 1), (1,)],
+                },
+            ),
+        ]
+
+    def generate(self, dataset: GCNTrainingDataset):
+        required = (
+            dataset.adjacency,
+            dataset.features,
+            dataset.weights1,
+            dataset.bias1,
+            dataset.weights2,
+            dataset.bias2,
+            dataset.targets,
+        )
+        if any(item is None for item in required):
+            raise ValueError("GCN backward test datasets must define all arrays.")
+
+        ref_meta = dict(dataset.ref_meta)
+        adjacency = cast(np.ndarray, dataset.adjacency)
+        features = cast(np.ndarray, dataset.features)
+        weights1 = cast(np.ndarray, dataset.weights1)
+        bias1 = cast(np.ndarray, dataset.bias1)
+        weights2 = cast(np.ndarray, dataset.weights2)
+        bias2 = cast(np.ndarray, dataset.bias2)
+        targets = cast(np.ndarray, dataset.targets)
+
+        return DataInstance(
+            inputs=[
+                BinsparseFormat.from_numpy(adjacency),
+                BinsparseFormat.from_numpy(adjacency.T),
+                BinsparseFormat.from_numpy(features),
+                BinsparseFormat.from_numpy(weights1),
+                BinsparseFormat.from_numpy(bias1),
+                BinsparseFormat.from_numpy(weights2),
+                BinsparseFormat.from_numpy(bias2),
+                BinsparseFormat.from_numpy(targets),
+            ],
+            meta={
+                "num_iterations": dataset.num_iterations,
+                "learning_rate": dataset.learning_rate,
+            },
+            ref_meta=ref_meta,
+        )
+
 
 class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
     @property
@@ -698,7 +661,63 @@ Each iteration:
 
     @property
     def generators(self):
-        return [GCNTrainingGenerator()]
+        return [GCNTrainingTestGenerator(), GCNTrainingGenerator()]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+
+        if not self._ref_meta:
+            return
+
+        outputs = [_from_binsparse(item) for item in self._output]
+
+        output_shapes = self._ref_meta.get("output_shapes")
+        if output_shapes is not None:
+            for output, shape in zip(outputs, output_shapes, strict=True):
+                assert output.shape == tuple(shape)
+
+        if self._ref_meta.get("check_loss_reduction"):
+            (
+                adjacency,
+                _adjacency_t,
+                features,
+                initial_w1,
+                initial_b1,
+                initial_w2,
+                initial_b2,
+                targets,
+            ) = [_from_binsparse(item) for item in self._input]
+            reported_loss, final_w1, final_b1, final_w2, final_b2 = outputs
+
+            initial_loss = _gcn_loss(
+                adjacency,
+                features,
+                initial_w1,
+                initial_b1,
+                initial_w2,
+                initial_b2,
+                targets,
+            )
+            final_weight_loss = _gcn_loss(
+                adjacency,
+                features,
+                final_w1,
+                final_b1,
+                final_w2,
+                final_b2,
+                targets,
+            )
+            assert reported_loss.item() < initial_loss, (
+                f"Reported loss should decrease: {reported_loss.item()} < "
+                f"{initial_loss}"
+            )
+            assert final_weight_loss < initial_loss, (
+                f"Final weights should reduce loss: {final_weight_loss} < "
+                f"{initial_loss}"
+            )
 
     """
     Args:

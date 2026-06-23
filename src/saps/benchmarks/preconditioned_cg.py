@@ -3,6 +3,8 @@ from typing import Any
 
 import numpy as np
 
+import sparse as pydata_sparse
+
 import saps
 from saps.benchmark import (
     Author,
@@ -67,12 +69,15 @@ class PreconditionedCGDataset(Dataset):
         condition_number: str,
         has_b_file=False,
         A=None,
+        suites: list[str] | None = None,
+        ref_meta: dict[str, Any] | None = None,
     ):
-        self._suites: list[str] = []
+        self._suites = suites or []
         self.source_name = source_name
         self.condition_number = condition_number
         self.has_b_file = has_b_file
         self.A = A
+        self.ref_meta = ref_meta
 
     @property
     def name(self) -> str:
@@ -101,87 +106,6 @@ class PreconditionedCGDataset(Dataset):
         data["has_b_file"] = self.has_b_file
         return data
 
-
-# BEGIN COPIED TEST FILE: tests/test_preconditioned_cg.py
-# import pytest
-#
-# import numpy as np
-#
-# import saps.benchmarks.preconditioned_cg as pcg
-# from frameworks.saps_numpy import NumpyFramework
-#
-#
-# def as_dense(array):
-#     if hasattr(array, "todense"):
-#         return np.asarray(array.todense()).ravel()
-#     return np.asarray(array).ravel()
-#
-#
-# def run_preconditioned_cg(xp, data, meta):
-#     benchmark = pcg.PreconditionedCGBenchmark()
-#     prev_xp = getattr(pcg, "xp", None)
-#     pcg.xp = xp
-#     try:
-#         (x_sol,) = benchmark.benchmark(data, meta)
-#     finally:
-#         pcg.xp = prev_xp
-#     return x_sol
-#
-#
-# A0 = np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]])
-# A1 = np.array([[7.0, 2.0, 1.0], [2.0, 6.0, -1.0], [1.0, -1.0, 5.0]])
-# A2 = np.array(
-#     [
-#         [8.0, -1.0, 0.0, 0.0],
-#         [-1.0, 8.0, -1.0, 0.0],
-#         [0.0, -1.0, 8.0, -1.0],
-#         [0.0, 0.0, -1.0, 8.0],
-#     ]
-# )
-# A3 = np.array([[12.0, 2.0, -1.0], [2.0, 10.0, 3.0], [-1.0, 3.0, 9.0]])
-# A4 = np.array([[120.0, -2.0, 0.0], [-2.0, 120.0, -2.0], [0.0, -2.0, 120.0]])
-# A5 = np.array(
-#     [
-#         [15.0, -2.0, 0.0, 0.0, -1.0],
-#         [-2.0, 14.0, -3.0, 0.0, 0.0],
-#         [0.0, -3.0, 16.0, -2.0, 0.0],
-#         [0.0, 0.0, -2.0, 15.0, -3.0],
-#         [-1.0, 0.0, 0.0, -3.0, 17.0],
-#     ]
-# )
-#
-#
-# @pytest.mark.parametrize(
-#     "generator",
-#     [
-#         pcg.BlockJacobiCGGenerator(),
-#         pcg.JacobiCGGenerator(),
-#     ],
-# )
-# @pytest.mark.parametrize(
-#     "dataset",
-#     [
-#         pcg.PreconditionedCGDataset("A0", "", A=A0),
-#         pcg.PreconditionedCGDataset("A1", "", A=A1),
-#         pcg.PreconditionedCGDataset("A2", "", A=A2),
-#         pcg.PreconditionedCGDataset("A3", "", A=A3),
-#         pcg.PreconditionedCGDataset("A4", "", A=A4),
-#         pcg.PreconditionedCGDataset("A5", "", A=A5),
-#     ],
-# )
-# def test_preconditioned_cg(generator, dataset):
-#     xp = NumpyFramework()
-#     problem = generator.generate(dataset)
-#     data_bin = problem.inputs
-#     meta = problem.meta
-#     data = [xp.from_binsparse(array) for array in data_bin]
-#
-#     A, b, x, M = data
-#     x_sol = run_preconditioned_cg(xp, [A, b, x, M], meta)
-#
-#     residual = as_dense(b - A @ x_sol)
-#     assert np.linalg.norm(residual) < 1e-6 * np.linalg.norm(as_dense(b)) + 1e-6
-# END COPIED TEST FILE: tests/test_preconditioned_cg.py
 
 class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
     @property
@@ -225,8 +149,73 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
         return PreconditionedCGBenchmark().motivation
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[PreconditionedCGDataset]:
         return [
+            PreconditionedCGDataset(
+                "test_A0",
+                "",
+                suites=["test"],
+                A=np.array(
+                    [[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]
+                ),
+                ref_meta={"check_residual": True},
+            ),
+            PreconditionedCGDataset(
+                "test_A1",
+                "",
+                suites=["test"],
+                A=np.array([[7.0, 2.0, 1.0], [2.0, 6.0, -1.0], [1.0, -1.0, 5.0]]),
+                ref_meta={"check_residual": True},
+            ),
+            PreconditionedCGDataset(
+                "test_A2",
+                "",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [8.0, -1.0, 0.0, 0.0],
+                        [-1.0, 8.0, -1.0, 0.0],
+                        [0.0, -1.0, 8.0, -1.0],
+                        [0.0, 0.0, -1.0, 8.0],
+                    ]
+                ),
+                ref_meta={"check_residual": True},
+            ),
+            PreconditionedCGDataset(
+                "test_A3",
+                "",
+                suites=["test"],
+                A=np.array([[12.0, 2.0, -1.0], [2.0, 10.0, 3.0], [-1.0, 3.0, 9.0]]),
+                ref_meta={"check_residual": True},
+            ),
+            PreconditionedCGDataset(
+                "test_A4",
+                "",
+                suites=["test"],
+                A=np.array(
+                    [[120.0, -2.0, 0.0], [-2.0, 120.0, -2.0], [0.0, -2.0, 120.0]]
+                ),
+                ref_meta={"check_residual": True},
+            ),
+            PreconditionedCGDataset(
+                "test_A5",
+                "",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [15.0, -2.0, 0.0, 0.0, -1.0],
+                        [-2.0, 14.0, -3.0, 0.0, 0.0],
+                        [0.0, -3.0, 16.0, -2.0, 0.0],
+                        [0.0, 0.0, -2.0, 15.0, -3.0],
+                        [-1.0, 0.0, 0.0, -3.0, 17.0],
+                    ]
+                ),
+                ref_meta={"check_residual": True},
+            ),
             PreconditionedCGDataset("mhdb416", "3994223509->6.24"),
             PreconditionedCGDataset("lund_b", "30036->36.3"),
             PreconditionedCGDataset("Chem97ZtZ", "247->8.48"),
@@ -234,9 +223,7 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
             PreconditionedCGDataset("mesh1em1", "19->11.4"),
         ]
 
-    def generate(
-        self, dataset: PreconditionedCGDataset
-    ) -> tuple[list[BinsparseFormat], dict[str, Any]]:
+    def generate(self, dataset: PreconditionedCGDataset) -> DataInstance:
         import scipy.sparse as sp
 
         A, b, x = _generate_cg_data(dataset.source_name, dataset.has_b_file, dataset.A)
@@ -262,6 +249,7 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
         return DataInstance(
             inputs=[A_bin, b_bin, x_bin, M_bin],
             meta={"solve": solve_block_jacobi_cg},
+            ref_meta=dataset.ref_meta,
         )
 
 
@@ -307,8 +295,73 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
         return PreconditionedCGBenchmark().motivation
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[PreconditionedCGDataset]:
         return [
+            PreconditionedCGDataset(
+                "test_A0",
+                "",
+                suites=["test"],
+                A=np.array(
+                    [[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]
+                ),
+                ref_meta={"check_residual": True},
+            ),
+            PreconditionedCGDataset(
+                "test_A1",
+                "",
+                suites=["test"],
+                A=np.array([[7.0, 2.0, 1.0], [2.0, 6.0, -1.0], [1.0, -1.0, 5.0]]),
+                ref_meta={"check_residual": True},
+            ),
+            PreconditionedCGDataset(
+                "test_A2",
+                "",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [8.0, -1.0, 0.0, 0.0],
+                        [-1.0, 8.0, -1.0, 0.0],
+                        [0.0, -1.0, 8.0, -1.0],
+                        [0.0, 0.0, -1.0, 8.0],
+                    ]
+                ),
+                ref_meta={"check_residual": True},
+            ),
+            PreconditionedCGDataset(
+                "test_A3",
+                "",
+                suites=["test"],
+                A=np.array([[12.0, 2.0, -1.0], [2.0, 10.0, 3.0], [-1.0, 3.0, 9.0]]),
+                ref_meta={"check_residual": True},
+            ),
+            PreconditionedCGDataset(
+                "test_A4",
+                "",
+                suites=["test"],
+                A=np.array(
+                    [[120.0, -2.0, 0.0], [-2.0, 120.0, -2.0], [0.0, -2.0, 120.0]]
+                ),
+                ref_meta={"check_residual": True},
+            ),
+            PreconditionedCGDataset(
+                "test_A5",
+                "",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [15.0, -2.0, 0.0, 0.0, -1.0],
+                        [-2.0, 14.0, -3.0, 0.0, 0.0],
+                        [0.0, -3.0, 16.0, -2.0, 0.0],
+                        [0.0, 0.0, -2.0, 15.0, -3.0],
+                        [-1.0, 0.0, 0.0, -3.0, 17.0],
+                    ]
+                ),
+                ref_meta={"check_residual": True},
+            ),
             PreconditionedCGDataset("mhdb416", "3994223509->69.7"),
             PreconditionedCGDataset("lund_b", "30036->144"),
             PreconditionedCGDataset("Chem97ZtZ", "247->8.48"),
@@ -316,9 +369,7 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
             PreconditionedCGDataset("mesh1em1", "19->11.6"),
         ]
 
-    def generate(
-        self, dataset: PreconditionedCGDataset
-    ) -> tuple[list[BinsparseFormat], dict[str, Any]]:
+    def generate(self, dataset: PreconditionedCGDataset) -> DataInstance:
         A, b, x = _generate_cg_data(dataset.source_name, dataset.has_b_file, dataset.A)
         M = A.diagonal()
         M_bin = BinsparseFormat.from_numpy(M)
@@ -328,6 +379,7 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
         return DataInstance(
             inputs=[A_bin, b_bin, x_bin, M_bin],
             meta={"solve": solve_jacobi_cg},
+            ref_meta=dataset.ref_meta,
         )
 
 
@@ -407,6 +459,29 @@ class PreconditionedCGBenchmark(Benchmark):
     @property
     def generators(self):
         return [BlockJacobiCGGenerator(), JacobiCGGenerator()]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+
+        if not self._ref_meta or not self._ref_meta.get("check_residual"):
+            return
+
+        A_bin, b_bin, _x_bin, _M_bin = self._input
+        A_coo = BinsparseFormat.to_coo(A_bin)
+        A = pydata_sparse.COO(
+            coords=np.stack((A_coo.data["indices_0"], A_coo.data["indices_1"])),
+            data=A_coo.data["values"],
+            shape=A_coo.data["shape"],
+        )
+        b = b_bin.data["values"].reshape(b_bin.data["shape"])
+        x_sol = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        residual = b - A @ x_sol
+        assert np.linalg.norm(residual) < 1e-6 * np.linalg.norm(b) + 1e-6, (
+            f"Preconditioned CG residual too high for {param.dataset.name}"
+        )
 
     def benchmark(self, data: list[Any], meta: dict[str, Any]):
         A, b, x, M = data

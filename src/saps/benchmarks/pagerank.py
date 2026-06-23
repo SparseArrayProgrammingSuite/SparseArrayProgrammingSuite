@@ -1,3 +1,5 @@
+import numpy as np
+
 import saps
 from saps.benchmark import (
     Author,
@@ -9,6 +11,7 @@ from saps.benchmark import (
     Ref,
 )
 from saps.downloaders.snap import download_snap_dataset
+from saps_framework.binsparse_format import BinsparseFormat
 
 xp = saps.xp
 
@@ -20,11 +23,17 @@ class PageRankDataset(Dataset):
         pretty_name: str | None = None,
         description: str | None = None,
         suites: list[str] | None = None,
+        A: np.ndarray | None = None,
+        expected: np.ndarray | None = None,
+        ref_meta: dict | None = None,
     ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"PageRank input {name}."
         self._suites = suites or []
+        self.A = A
+        self.expected = expected
+        self.ref_meta = ref_meta
 
     @property
     def name(self) -> str:
@@ -47,82 +56,142 @@ class PageRankDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-# BEGIN COPIED TEST FILE: tests/test_pagerank.py
-# import pytest
-#
-# import numpy as np
-#
-# import networkx as nx
-#
-# import saps.benchmarks.pagerank as pr
-# from frameworks.saps_numpy import NumpyFramework
-# from saps.downloaders.snap import load_toy_dataset
-# from saps_framework.binsparse_format import BinsparseFormat
-#
-#
-# @pytest.mark.parametrize(
-#     "A,expected",
-#     [
-#         (np.array([[0, 1], [1, 0]], dtype=float), np.array([0.5, 0.5], dtype=float)),
-#         (np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0]], dtype=float), None),
-#         (np.array([[0, 0], [1, 0]], dtype=float), None),
-#     ],
-# )
-# def test_basic_pagerank_cases(A: np.ndarray, expected: float):
-#     xp = NumpyFramework()
-#
-#     pr.xp = xp
-#     A_bin = BinsparseFormat.from_numpy(A)
-#     (result,) = pr.PageRankBenchmark().benchmark([A_bin], {})
-#
-#     result = result.ravel()
-#
-#     if expected is not None:
-#         assert np.allclose(result, expected, atol=1e-2)
-#     else:
-#         assert np.isclose(np.sum(result), 1.0, atol=1e-6)
-#         assert np.all(result >= 0)
-#
-#         if A.shape == (3, 3) and np.all(
-#             np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0]]) == A
-#         ):
-#             eps = 1e-6
-#             assert (result[0] < result[1] - eps) and (result[1] < result[2] - eps)
-#
-#         if A.shape == (2, 2) and np.all(np.array([[0, 0], [1, 0]]) == A):
-#             eps = 1e-6
-#             assert result[0] < result[1] - eps
-#
-#
-# def test_pagerank_against_networkx():
-#     xp = NumpyFramework()
-#     G = nx.DiGraph()
-#     G.add_edges_from([(0, 1), (1, 2), (2, 0), (2, 3), (3, 4), (4, 2)])
-#     A = nx.to_numpy_array(G, dtype=float)
-#
-#     pr.xp = xp
-#     A_bin = BinsparseFormat.from_numpy(A)
-#     (result,) = pr.PageRankBenchmark().benchmark([A_bin], {})
-#     result = result.ravel()
-#
-#     expected_dict = nx.pagerank(G, alpha=0.85, max_iter=100, tol=1e-6)
-#     expected = np.array([expected_dict[i] for i in range(len(G))])
-#
-#     assert np.allclose(result, expected, atol=1e-2)
-#
-#
-# def test_pagerank_snap_toy():
-#     data, meta = load_toy_dataset()
-#     (result,) = pr.PageRankBenchmark().benchmark(data, meta)
-#     result = result.ravel()
-#
-#     G = nx.DiGraph()
-#     G.add_edges_from([(1, 0), (2, 1)])  # The toy edges
-#     expected_dict = nx.pagerank(G, alpha=0.85, max_iter=100, tol=1e-6)
-#     expected = np.array([expected_dict[i] for i in range(len(G))])
-#
-#     assert np.allclose(result, expected, atol=1e-2)
-# END COPIED TEST FILE: tests/test_pagerank.py
+def pagerank_networkx_reference(A: np.ndarray) -> np.ndarray:
+    import networkx as nx
+
+    graph = nx.from_numpy_array(A, create_using=nx.DiGraph)
+    expected_dict = nx.pagerank(graph, alpha=0.85, max_iter=100, tol=1e-6)
+    return np.array([expected_dict[i] for i in range(len(graph))])
+
+
+class PageRankTestGenerator(Generator[PageRankDataset]):
+    @property
+    def name(self) -> str:
+        return "pagerank_test_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "PageRank Test Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Small deterministic PageRank examples."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["test"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI might have been used to construct tests. This statement "
+            "was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Provide small graph examples for PageRank correctness checks."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[PageRankDataset]:
+        return [
+            PageRankDataset(
+                name="test_pagerank_two_node_cycle",
+                suites=["test"],
+                A=np.array([[0, 1], [1, 0]], dtype=float),
+                expected=np.array([0.5, 0.5], dtype=float),
+            ),
+            PageRankDataset(
+                name="test_pagerank_three_node_chain",
+                suites=["test"],
+                A=np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0]], dtype=float),
+                ref_meta={"rank_order": [0, 1, 2]},
+            ),
+            PageRankDataset(
+                name="test_pagerank_two_node_sink",
+                suites=["test"],
+                A=np.array([[0, 0], [1, 0]], dtype=float),
+                ref_meta={"rank_order": [0, 1]},
+            ),
+            PageRankDataset(
+                name="test_pagerank_against_networkx",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [0, 1, 0, 0, 0],
+                        [0, 0, 1, 0, 0],
+                        [1, 0, 0, 1, 0],
+                        [0, 0, 0, 0, 1],
+                        [0, 0, 1, 0, 0],
+                    ],
+                    dtype=float,
+                ),
+                expected=pagerank_networkx_reference(
+                    np.array(
+                        [
+                            [0, 1, 0, 0, 0],
+                            [0, 0, 1, 0, 0],
+                            [1, 0, 0, 1, 0],
+                            [0, 0, 0, 0, 1],
+                            [0, 0, 1, 0, 0],
+                        ],
+                        dtype=float,
+                    )
+                ),
+            ),
+            PageRankDataset(
+                name="test_pagerank_snap_toy",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [0, 1, 0],
+                        [0, 0, 1],
+                        [0, 0, 0],
+                    ],
+                    dtype=float,
+                ),
+                expected=pagerank_networkx_reference(
+                    np.array(
+                        [
+                            [0, 0, 0],
+                            [1, 0, 0],
+                            [0, 1, 0],
+                        ],
+                        dtype=float,
+                    )
+                ),
+            ),
+        ]
+
+    def generate(self, dataset: PageRankDataset) -> DataInstance:
+        if dataset.A is None:
+            raise ValueError("PageRank test datasets must define A.")
+        ref_outputs = None
+        if dataset.expected is not None:
+            ref_outputs = [BinsparseFormat.from_numpy(dataset.expected)]
+        return DataInstance(
+            inputs=[BinsparseFormat.from_numpy(dataset.A)],
+            meta={},
+            ref_outputs=ref_outputs,
+            ref_meta=dataset.ref_meta,
+        )
+
 
 class PageRankGenerator(Generator[PageRankDataset]):
     @property
@@ -280,14 +349,14 @@ class PageRankBenchmark(Benchmark):
 
     @property
     def generators(self) -> list[Generator[PageRankDataset]]:
-        return [PageRankGenerator()]
+        return [PageRankTestGenerator(), PageRankGenerator()]
 
     def benchmark(self, data, meta):
         alpha = meta.get("alpha", 0.85)
         max_iter = meta.get("max_iter", 100)
         tol = meta.get("tol", 1e-8)
 
-        A = xp.from_binsparse(data[0])
+        A = data[0]
         out_degree = xp.sum(A, axis=0)
         M = xp.array(A, dtype=float)
         N = A.shape[0]
@@ -306,3 +375,30 @@ class PageRankBenchmark(Benchmark):
                 break
             x = x_new
         return [x]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+
+        result = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+
+        if self._ref_outputs is not None:
+            expected = self._ref_outputs[0].data["values"].reshape(
+                self._ref_outputs[0].data["shape"]
+            )
+            assert np.allclose(result, expected, atol=1e-2), (
+                f"PageRank output mismatch for {param.dataset.name}"
+            )
+
+        if self._ref_meta is None:
+            return
+        assert np.isclose(np.sum(result), 1.0, atol=1e-6)
+        assert np.all(result >= 0)
+
+        eps = 1e-6
+        rank_order = self._ref_meta.get("rank_order")
+        if rank_order is not None:
+            for lower, higher in zip(rank_order, rank_order[1:], strict=False):
+                assert result[lower] < result[higher] - eps

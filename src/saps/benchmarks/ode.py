@@ -284,76 +284,11 @@ _AI_DISCLOSURE = (
 )
 
 
-# BEGIN COPIED TEST FILE: tests/test_ode.py
-# import pytest
-#
-# import numpy as np
-# from scipy.integrate import solve_ivp
-#
-# from saps.benchmarks.ode import (
-#     RCRK4,
-#     RLCRK4,
-#     BrusselatorBackwardEuler,
-#     BrusselatorForwardEuler,
-#     BrusselatorRK4,
-#     LotkaVolterraBackwardEuler,
-#     LotkaVolterraForwardEuler,
-#     LotkaVolterraRK4,
-#     RCBackwardEuler,
-#     RCForwardEuler,
-#     RLCBackwardEuler,
-#     RLCForwardEuler,
-# )
-#
-#
-# def _run(bench_cls):
-#     bench = bench_cls()
-#     generator = bench.generators[0]
-#     dataset = generator.datasets[0]
-#     problem = generator.generate(dataset)
-#     data = problem.inputs
-#     meta = problem.meta
-#     time, y_out = bench.benchmark(data, meta)
-#     rhs = lambda t, y: bench._dydt(t, list(y), meta)  # noqa: E731
-#     actual = solve_ivp(rhs, meta["span"], meta["y0"], t_eval=time)
-#     return np.array(y_out), actual.y.T
-#
-#
-# @pytest.mark.parametrize("bench_cls", [RCForwardEuler, RCBackwardEuler, RCRK4])
-# def test_rc(bench_cls):
-#     y, ref = _run(bench_cls)
-#     error = np.max(np.abs(y - ref))
-#     assert error < 0.05, f"{bench_cls.__name__}: error {error} exceeds tolerance"
-#
-#
-# @pytest.mark.parametrize("bench_cls", [RLCForwardEuler, RLCBackwardEuler, RLCRK4])
-# def test_rlc(bench_cls):
-#     y, ref = _run(bench_cls)
-#     error = np.max(np.abs(y[:, 0] - ref[:, 0]))
-#     assert error < 0.05, f"{bench_cls.__name__}: error {error} exceeds tolerance"
-#
-#
-# @pytest.mark.parametrize(
-#     "bench_cls",
-#     [LotkaVolterraForwardEuler, LotkaVolterraBackwardEuler, LotkaVolterraRK4],
-# )
-# def test_lotka_volterra(bench_cls):
-#     y, ref = _run(bench_cls)
-#     error = np.max(np.abs(y - ref))
-#     assert error < 10.0, f"{bench_cls.__name__}: error {error} exceeds tolerance"
-#
-#
-# @pytest.mark.parametrize(
-#     "bench_cls", [BrusselatorForwardEuler, BrusselatorBackwardEuler, BrusselatorRK4]
-# )
-# def test_brusselator(bench_cls):
-#     y, ref = _run(bench_cls)
-#     y = y.real
-#     error = np.max(np.abs(y - ref))
-#     assert error < 0.5, f"{bench_cls.__name__}: error {error} exceeds tolerance"
-# END COPIED TEST FILE: tests/test_ode.py
-
 class RCGenerator(Generator[RCDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
     @property
     def name(self) -> str:
         return "rc"
@@ -397,7 +332,7 @@ class RCGenerator(Generator[RCDataset]):
                 name="rc_small",
                 pretty_name="RC Small",
                 description="Small RC circuit",
-                suites=[],
+                suites=["test"],
                 R=1000.0,
                 C=0.001,
                 t_max=5.0,
@@ -418,6 +353,10 @@ class RCGenerator(Generator[RCDataset]):
 
 
 class RLCGenerator(Generator[RLCDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
     @property
     def name(self) -> str:
         return "rlc"
@@ -461,7 +400,7 @@ class RLCGenerator(Generator[RLCDataset]):
                 name="rlc_small",
                 pretty_name="RLC Small",
                 description="Small RLC circuit",
-                suites=[],
+                suites=["test"],
                 R=100.0,
                 L=0.001,
                 C=0.0000001,
@@ -484,6 +423,10 @@ class RLCGenerator(Generator[RLCDataset]):
 
 
 class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
     @property
     def name(self) -> str:
         return "lotka_volterra"
@@ -527,7 +470,7 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
                 name="lotka_volterra_small",
                 pretty_name="Lotka-Volterra Small",
                 description="Small Lotka-Volterra system",
-                suites=[],
+                suites=["test"],
                 a=0.1,
                 b=0.02,
                 c=0.3,
@@ -552,6 +495,10 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
 
 
 class BrusselatorGenerator(Generator[BrusselatorDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
     @property
     def name(self) -> str:
         return "brusselator"
@@ -595,7 +542,7 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
                 name="brusselator_4",
                 pretty_name="Brusselator 4x4",
                 description="2D Brusselator with 4x4 grid",
-                suites=[],
+                suites=["test"],
                 n=4,
                 a=3.4,
                 b=1.0,
@@ -645,9 +592,32 @@ class _OdeBenchmarkBase(Benchmark, ABC):
     def motivation(self):
         return ""
 
+    def _error_tolerance(self):
+        return 0.05
+
+    def _comparison_output(self, y, ref):
+        return y, ref
+
     @abstractmethod
     def _dydt(self, t, y, meta):
         raise NotImplementedError
+
+    def check(self, param):
+        super().check(param)
+        from scipy.integrate import solve_ivp
+
+        time = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        y_out = self._output[1].data["values"].reshape(self._output[1].data["shape"])
+        rhs = lambda t, y: self._dydt(t, list(y), self._meta)  # noqa: E731
+        ref = solve_ivp(
+            rhs,
+            self._meta["span"],
+            self._meta["y0"],
+            t_eval=time,
+        ).y.T
+        actual_y, ref_y = self._comparison_output(np.asarray(y_out), ref)
+        error = np.max(np.abs(actual_y - ref_y))
+        assert error < self._error_tolerance()
 
 
 class _ForwardEulerBase(_OdeBenchmarkBase):
@@ -672,7 +642,7 @@ class _ForwardEulerBase(_OdeBenchmarkBase):
             outputs[i] = [
                 outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
             ]
-        return (inputs, outputs)
+        return (np.asarray(inputs), np.asarray(outputs))
 
 
 class _BackwardEulerBase(_OdeBenchmarkBase):
@@ -700,7 +670,7 @@ class _BackwardEulerBase(_OdeBenchmarkBase):
                     outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
                 ]
             outputs[i] = y_guess
-        return (inputs, outputs)
+        return (np.asarray(inputs), np.asarray(outputs))
 
 
 class _RK4Base(_OdeBenchmarkBase):
@@ -733,7 +703,7 @@ class _RK4Base(_OdeBenchmarkBase):
                 y_prev[j] + (step / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j])
                 for j in range(len(y0))
             ]
-        return (inputs, outputs)
+        return (np.asarray(inputs), np.asarray(outputs))
 
 
 # ---------------------------------------------------------------------------
@@ -801,6 +771,9 @@ class _RLCMixin:
     def _dydt(self, t, y, meta):
         return _rlc_derivatives(t, y, meta["R"], meta["L"], meta["C"], _step_input)
 
+    def _comparison_output(self, y, ref):
+        return y[:, 0], ref[:, 0]
+
 
 class RLCForwardEuler(_RLCMixin, _ForwardEulerBase):
     @property
@@ -850,6 +823,9 @@ class _LotkaVolterraMixin:
         return _lotka_volterra_derivatives(
             t, y, meta["a"], meta["b"], meta["c"], meta["d"]
         )
+
+    def _error_tolerance(self):
+        return 10.0
 
 
 class LotkaVolterraForwardEuler(_LotkaVolterraMixin, _ForwardEulerBase):
@@ -906,6 +882,12 @@ class _BrusselatorMixin:
             meta["C"],
             meta["brusselator_cb"],
         )
+
+    def _error_tolerance(self):
+        return 0.5
+
+    def _comparison_output(self, y, ref):
+        return y.real, ref
 
 
 class BrusselatorForwardEuler(_BrusselatorMixin, _ForwardEulerBase):
