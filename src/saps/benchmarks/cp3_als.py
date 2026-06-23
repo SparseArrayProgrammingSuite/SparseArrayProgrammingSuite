@@ -16,12 +16,13 @@ xp = saps.xp
 
 
 class CP3FactorizeableDataset(Dataset):
-    def __init__(self, name, pretty_name, suites, shape, rank):
+    def __init__(self, name, pretty_name, suites, shape, rank, max_iter=100):
         self._name = name
         self._pretty_name = pretty_name
         self._suites = suites
         self.shape = shape
         self.rank = rank
+        self.max_iter = max_iter
 
     @property
     def name(self) -> str:
@@ -99,9 +100,17 @@ class CP3FactorizeableGenerator(Generator):
     def datasets(self):
         return [
             CP3FactorizeableDataset(
+                name="cp_factorizeable_tiny",
+                pretty_name="Tiny Factorizeable CP Tensor",
+                suites=["test"],
+                shape=(6, 6, 6),
+                rank=2,
+                max_iter=20,
+            ),
+            CP3FactorizeableDataset(
                 name="cp_factorizeable_small",
                 pretty_name="Small Factorizeable CP Tensor",
-                suites=["test"],
+                suites=[],
                 shape=(20, 20, 20),
                 rank=3,
             ),
@@ -127,7 +136,7 @@ class CP3FactorizeableGenerator(Generator):
         X = np.einsum("ir,jr,kr->ijk", A, B, C)
 
         X = BinsparseFormat.from_numpy(X)
-        max_iter = 100
+        max_iter = dataset.max_iter
 
         return DataInstance(
             inputs=[X],

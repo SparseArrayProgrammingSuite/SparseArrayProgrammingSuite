@@ -7,6 +7,8 @@ import json
 import logging
 import os
 import re
+import time
+import traceback
 from itertools import product
 from pathlib import Path
 
@@ -48,6 +50,66 @@ def format_results(results: Results, benchmarks: Benchmarks) -> dict:
         "env_name": results.env_name,
         "env_vars": results.env_vars,
         "params": results.params,
+        "result_count": len(entries),
+        "results": entries,
+    }
+
+
+def _run_check_suite(benchmarks: Benchmarks, machine_params, commit_hash, commit_date):
+    """Run selected benchmark cases once in-process and print result JSON."""
+    entries: dict[str, dict] = {}
+    for name in sorted(benchmarks):
+        module_name, class_name, _method_name = name.rsplit(".", 2)
+        benchmark_module = importlib.import_module(f"saps.benchmarks.{module_name}")
+        benchmark = getattr(benchmark_module, class_name)()
+
+        param_combos = list(product(*benchmarks[name]["params"]))
+        selected = set(
+            benchmarks.benchmark_selection.get(name, range(len(param_combos)))
+        )
+        values = [float("nan")] * len(param_combos)
+        stderr = []
+        started_at = int(time.time() * 1000)
+        start = time.monotonic()
+
+        for idx in sorted(selected):
+            param = benchmark.params[idx]
+            try:
+                benchmark.setup(param)
+                benchmark.run(param)
+                benchmark.teardown(param)
+                values[idx] = 1
+            except Exception:  # noqa: BLE001
+                stderr.append(
+                    f"For parameters: {param}\n{traceback.format_exc()}"
+                )
+                for attr in (
+                    "_output",
+                    "_meta",
+                    "_ref_outputs",
+                    "_ref_meta",
+                    "_input",
+                ):
+                    if hasattr(benchmark, attr):
+                        delattr(benchmark, attr)
+
+        entries[name] = {
+            "result": values,
+            "stats": [None] * len(param_combos),
+            "samples": [None] * len(param_combos),
+            "duration_seconds": time.monotonic() - start,
+            "started_at": started_at,
+            "errcode": 1 if stderr else 0,
+            "stderr": "\n".join(stderr),
+        }
+
+    params = dict(machine_params.__dict__)
+    return {
+        "commit_hash": commit_hash,
+        "date": commit_date,
+        "env_name": "check-suite",
+        "env_vars": {},
+        "params": params,
         "result_count": len(entries),
         "results": entries,
     }
@@ -610,6 +672,14 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--check-suite",
+        action="store_true",
+        help=(
+            "Run selected benchmark cases once in-process and print result JSON. "
+            "Honors --re/--no-re/--tag/--no-tag filters."
+        ),
+    )
+    parser.add_argument(
         "--convert-concepts",
         dest="convert_concepts",
         action="store_true",
@@ -982,6 +1052,17 @@ def main() -> int:
             timeout=timeout,
             show_stderr=args.show_stderr,
         )
+
+    if args.check_suite:
+        print(f"Discovered {len(benchmarks)} benchmark entries")
+        result_json = _run_check_suite(
+            benchmarks=benchmarks,
+            machine_params=machine_params,
+            commit_hash=commit_hash,
+            commit_date=commit_date,
+        )
+        print(json.dumps(result_json, indent=2, default=str))
+        return 0
 
     print(f"Discovered {len(benchmarks)} benchmark entries")
     print(f"Using timeout: {timeout} seconds")

@@ -251,22 +251,47 @@ class Benchmark(Tagged, Attributed, Motivated):
         benchmark_source = inspect.getsource(cls.benchmark)
         cls.benchmark = cls.benchmark if xp is None else xp.compile(cls.benchmark)
 
-        def _mem_run(self, param):
-            self.run(param)
+        benchmark_kinds = {
+            kind.strip()
+            for kind in os.environ.get(
+                "SAPS_ASV_BENCHMARK_KINDS", "peakmem,time"
+            ).split(",")
+            if kind.strip()
+        }
 
-        def _time_run(self, param):
-            self.run(param)
+        if "peakmem" in benchmark_kinds:
 
-        setattr(cls, f"mem_{instance.name}", _mem_run)
-        getattr(cls, f"mem_{instance.name}").pretty_source = benchmark_source
+            def _peakmem_run(self, param):
+                self.run(param)
 
-        setattr(cls, f"time_{instance.name}", _time_run)
-        getattr(cls, f"time_{instance.name}").pretty_source = benchmark_source
+            setattr(cls, f"peakmem_{instance.name}", _peakmem_run)
+            getattr(cls, f"peakmem_{instance.name}").pretty_source = benchmark_source
+
+        if "time" in benchmark_kinds:
+
+            def _time_run(self, param):
+                self.run(param)
+
+            setattr(cls, f"time_{instance.name}", _time_run)
+            getattr(cls, f"time_{instance.name}").pretty_source = benchmark_source
+
+        if "track" in benchmark_kinds:
+
+            def _track_run(self, param):
+                self.run(param)
+                return 1
+
+            setattr(cls, f"track_{instance.name}", _track_run)
+            getattr(cls, f"track_{instance.name}").pretty_source = benchmark_source
         if os.environ.get("SAPS_ASV_SINGLE_RUN") == "1":
-            for method in (
-                getattr(cls, f"mem_{instance.name}"),
-                getattr(cls, f"time_{instance.name}"),
+            for method_name in (
+                f"peakmem_{instance.name}",
+                f"time_{instance.name}",
+                f"track_{instance.name}",
             ):
+                method = getattr(cls, method_name, None)
+                if method is None:
+                    continue
                 method.number = 1
                 method.repeat = 1
                 method.rounds = 1

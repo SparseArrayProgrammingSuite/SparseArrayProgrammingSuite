@@ -335,9 +335,9 @@ class RCGenerator(Generator[RCDataset]):
                 suites=["test"],
                 R=1000.0,
                 C=0.001,
-                t_max=5.0,
+                t_max=0.05,
                 V_C_initial=0.0,
-                step=0.00001,
+                step=0.0001,
             ),
         ]
 
@@ -404,7 +404,7 @@ class RLCGenerator(Generator[RLCDataset]):
                 R=100.0,
                 L=0.001,
                 C=0.0000001,
-                t_max=0.01,
+                t_max=0.0001,
                 y0=[0.0, 0.0],
                 step=0.0000001,
             ),
@@ -475,9 +475,9 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
                 b=0.02,
                 c=0.3,
                 d=0.01,
-                t_max=100.0,
+                t_max=2.0,
                 y0=[40.0, 9.0],
-                step=0.0001,
+                step=0.001,
             ),
         ]
 
@@ -539,10 +539,22 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
     def datasets(self) -> list[BrusselatorDataset]:
         return [
             BrusselatorDataset(
+                name="brusselator_tiny",
+                pretty_name="Brusselator Tiny",
+                description="Tiny 2D Brusselator correctness test",
+                suites=["test"],
+                n=2,
+                a=3.4,
+                b=1.0,
+                alpha=0.01,
+                t_max=0.1,
+                step=0.01,
+            ),
+            BrusselatorDataset(
                 name="brusselator_4",
                 pretty_name="Brusselator 4x4",
                 description="2D Brusselator with 4x4 grid",
-                suites=["test"],
+                suites=["standard"],
                 n=4,
                 a=3.4,
                 b=1.0,

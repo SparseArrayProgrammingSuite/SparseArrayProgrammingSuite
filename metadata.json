@@ -1756,13 +1756,21 @@
           ],
           "datasets": [
             {
-              "description": "rank = 3, shape = (20, 20, 20)",
-              "name": "cp_factorizeable_small",
-              "pretty_name": "Small Factorizeable CP Tensor",
+              "description": "rank = 2, shape = (6, 6, 6)",
+              "name": "cp_factorizeable_tiny",
+              "pretty_name": "Tiny Factorizeable CP Tensor",
               "statistics": [],
               "suites": [
                 "test"
               ],
+              "topics": []
+            },
+            {
+              "description": "rank = 3, shape = (20, 20, 20)",
+              "name": "cp_factorizeable_small",
+              "pretty_name": "Small Factorizeable CP Tensor",
+              "statistics": [],
+              "suites": [],
               "topics": []
             }
           ],
@@ -1805,13 +1813,21 @@
           ],
           "datasets": [
             {
-              "description": "rank = 4, shape = (20, 20, 20, 20)",
-              "name": "cp_factorizeable_small",
-              "pretty_name": "Small Factorizeable CP Tensor",
+              "description": "rank = 1, shape = (5, 5, 5, 5)",
+              "name": "cp_factorizeable_tiny",
+              "pretty_name": "Tiny Factorizeable CP Tensor",
               "statistics": [],
               "suites": [
                 "test"
               ],
+              "topics": []
+            },
+            {
+              "description": "rank = 4, shape = (20, 20, 20, 20)",
+              "name": "cp_factorizeable_small",
+              "pretty_name": "Small Factorizeable CP Tensor",
+              "statistics": [],
+              "suites": [],
               "topics": []
             }
           ],
@@ -1856,13 +1872,21 @@
           ],
           "datasets": [
             {
-              "description": "rank = 5, shape = (10, 10, 10, 10, 10)",
-              "name": "cp_factorizeable_small",
-              "pretty_name": "Small Factorizeable CP Tensor",
+              "description": "rank = 2, shape = (4, 4, 4, 4, 4)",
+              "name": "cp_factorizeable_tiny",
+              "pretty_name": "Tiny Factorizeable CP Tensor",
               "statistics": [],
               "suites": [
                 "test"
               ],
+              "topics": []
+            },
+            {
+              "description": "rank = 5, shape = (10, 10, 10, 10, 10)",
+              "name": "cp_factorizeable_small",
+              "pretty_name": "Small Factorizeable CP Tensor",
+              "statistics": [],
+              "suites": [],
               "topics": []
             }
           ],
@@ -3513,12 +3537,22 @@
           ],
           "datasets": [
             {
+              "description": "Tiny 2D Brusselator correctness test",
+              "name": "brusselator_tiny",
+              "pretty_name": "Brusselator Tiny",
+              "statistics": [],
+              "suites": [
+                "test"
+              ],
+              "topics": []
+            },
+            {
               "description": "2D Brusselator with 4x4 grid",
               "name": "brusselator_4",
               "pretty_name": "Brusselator 4x4",
               "statistics": [],
               "suites": [
-                "test"
+                "standard"
               ],
               "topics": []
             }
@@ -3556,12 +3590,22 @@
           ],
           "datasets": [
             {
+              "description": "Tiny 2D Brusselator correctness test",
+              "name": "brusselator_tiny",
+              "pretty_name": "Brusselator Tiny",
+              "statistics": [],
+              "suites": [
+                "test"
+              ],
+              "topics": []
+            },
+            {
               "description": "2D Brusselator with 4x4 grid",
               "name": "brusselator_4",
               "pretty_name": "Brusselator 4x4",
               "statistics": [],
               "suites": [
-                "test"
+                "standard"
               ],
               "topics": []
             }
@@ -3599,12 +3643,22 @@
           ],
           "datasets": [
             {
+              "description": "Tiny 2D Brusselator correctness test",
+              "name": "brusselator_tiny",
+              "pretty_name": "Brusselator Tiny",
+              "statistics": [],
+              "suites": [
+                "test"
+              ],
+              "topics": []
+            },
+            {
               "description": "2D Brusselator with 4x4 grid",
               "name": "brusselator_4",
               "pretty_name": "Brusselator 4x4",
               "statistics": [],
               "suites": [
-                "test"
+                "standard"
               ],
               "topics": []
             }

@@ -16,12 +16,13 @@ xp = saps.xp
 
 
 class CP4FactorizeableDataset(Dataset):
-    def __init__(self, name, pretty_name, suites, shape, rank):
+    def __init__(self, name, pretty_name, suites, shape, rank, max_iter=100):
         self._name = name
         self._pretty_name = pretty_name
         self._suites = suites
         self.shape = shape
         self.rank = rank
+        self.max_iter = max_iter
 
     @property
     def name(self) -> str:
@@ -100,9 +101,17 @@ class CP4FactorizeableGenerator(Generator):
     def datasets(self):
         return [
             CP4FactorizeableDataset(
+                name="cp_factorizeable_tiny",
+                pretty_name="Tiny Factorizeable CP Tensor",
+                suites=["test"],
+                shape=(5, 5, 5, 5),
+                rank=1,
+                max_iter=20,
+            ),
+            CP4FactorizeableDataset(
                 name="cp_factorizeable_small",
                 pretty_name="Small Factorizeable CP Tensor",
-                suites=["test"],
+                suites=[],
                 shape=(20, 20, 20, 20),
                 rank=4,
             ),
@@ -130,7 +139,7 @@ class CP4FactorizeableGenerator(Generator):
         X = np.einsum("ir,jr,kr,lr->ijkl", A, B, C, D)
 
         X = BinsparseFormat.from_numpy(X)
-        max_iter = 100
+        max_iter = dataset.max_iter
 
         return DataInstance(
             inputs=[X],

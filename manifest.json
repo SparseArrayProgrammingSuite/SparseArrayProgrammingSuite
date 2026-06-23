@@ -52,5 +52,8 @@
   },
   "jl_projection_inputs.small": {
     "digest": "a1d72e1a6c7e2c8b87363ea4e673d37bdd7efc6f4e6350e3dbeb22776ca73e2d"
+  },
+  "quantum_state_inputs.single_layer_tiny": {
+    "digest": "6dad9e3ce5afdb538213f61e252eed18e375c17b3e46ef10dc33cc533e8a8047"
   }
 }
