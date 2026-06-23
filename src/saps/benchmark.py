@@ -263,20 +263,6 @@ class Benchmark(Tagged, Attributed, Motivated):
         setattr(cls, f"time_{instance.name}", _time_run)
         getattr(cls, f"time_{instance.name}").pretty_source = benchmark_source
 
-        if os.environ.get("SAPS_ASV_SINGLE_RUN") == "1":
-            for method_name in (
-                f"peakmem_{instance.name}",
-                f"time_{instance.name}",
-            ):
-                method = getattr(cls, method_name, None)
-                if method is None:
-                    continue
-                method.number = 1
-                method.repeat = 1
-                method.rounds = 1
-                method.warmup_time = 0
-                method.min_run_count = 1
-
         cls.setup.pretty_source = "\n".join(
             inspect.getsource(generator.generate) for generator in instance.generators
         )

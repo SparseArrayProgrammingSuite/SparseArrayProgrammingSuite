@@ -703,7 +703,6 @@ def main() -> int:
         "--metric",
         "--metrics",
         dest="metrics",
-        action="extend",
         nargs="+",
         choices=("peakmem", "time"),
         default=("time",),
@@ -827,7 +826,6 @@ def main() -> int:
         if args.trace_statistics:
             tagger_stats_dir = str(outputs_dir / "tagger_stats")
             os.environ["SAPS_TAGGER_STATS_DIR"] = tagger_stats_dir
-            os.environ["SAPS_ASV_SINGLE_RUN"] = "1"
 
     uses_parent_environment = (
         args.trace_statistics
