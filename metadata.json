@@ -663,7 +663,9 @@
             "Tamara G. Kolda, Brett W. Bader. \"Tensor Decompositions and Applications\", SIAM Review, Society for Industrial & Applied Mathematics (SIAM), Vol. 51, No. 3, pp. 455-500, 2009, URL: https://doi.org/10.1137/07070111x, DOI: 10.1137/07070111x.",
             "Evgeni Rustik, Emiliya Viktoriia, Aliona Tatyana. \"Harnessing Tensor Decomposition for High-Dimensional Machine Learning\", Institute of Electrical and Electronics Engineers (IEEE), 2025, URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1, DOI: 10.36227/techrxiv.174417403.38431928/v1."
           ],
-          "statistics": [],
+          "statistics": [
+            "tensor"
+          ],
           "suites": [],
           "topics": []
         },
@@ -718,7 +720,13 @@
         "Tamara G. Kolda, Brett W. Bader. \"Tensor Decompositions and Applications\", SIAM Review, Society for Industrial & Applied Mathematics (SIAM), Vol. 51, No. 3, pp. 455-500, 2009, URL: https://doi.org/10.1137/07070111x, DOI: 10.1137/07070111x.",
         "Evgeni Rustik, Emiliya Viktoriia, Aliona Tatyana. \"Harnessing Tensor Decomposition for High-Dimensional Machine Learning\", Institute of Electrical and Electronics Engineers (IEEE), 2025, URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1, DOI: 10.36227/techrxiv.174417403.38431928/v1."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "index-ops",
+        "large-query",
+        "linalg-ops",
+        "shape-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -979,7 +987,9 @@
             "Riley Murray, James Demmel, Michael W. Mahoney, N. Benjamin Erichson, Maksim Melnichenko, Osman Asif Malik, Laura Grigori, Piotr Luszczek, Micha\u0142 Derezi\u0144ski, Miles E. Lopes, Tianyu Liang, Hengrui Luo, Jack Dongarra. \"Randomized Numerical Linear Algebra : A Perspective on the Field With an Eye to Software\", 2023, URL: https://arxiv.org/abs/2302.11474.",
             "scikit-learn contributors. \"Random projection implementation reference\", URL: https://github.com/scikit-learn/scikit-learn/blob/d3898d9d57aeb1e960d266613a2e31b07bca39d7/sklearn/random_projection.py#L615."
           ],
-          "statistics": [],
+          "statistics": [
+            "tensor"
+          ],
           "suites": [
             "test"
           ],
@@ -1038,7 +1048,12 @@
         "scikit-learn contributors. \"Random projection implementation reference\", URL: https://github.com/scikit-learn/scikit-learn/blob/d3898d9d57aeb1e960d266613a2e31b07bca39d7/sklearn/random_projection.py#L615.",
         "Riley Murray, James Demmel, Michael W. Mahoney, N. Benjamin Erichson, Maksim Melnichenko, Osman Asif Malik, Laura Grigori, Piotr Luszczek, Micha\u0142 Derezi\u0144ski, Miles E. Lopes, Tianyu Liang, Hengrui Luo, Jack Dongarra. \"Randomized Numerical Linear Algebra : A Perspective on the Field With an Eye to Software\", Arxiv, Vol. arXiv:2302.11474, 2023, URL: https://arxiv.org/abs/2302.11474."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "index-ops",
+        "linalg-ops",
+        "transcendental-ops"
+      ],
       "suites": [],
       "topics": [
         "computing-methodologies",
@@ -1286,7 +1301,9 @@
           "name": "betweenness_centrality_test_inputs",
           "pretty_name": "Betweenness Centrality Test Input Generator",
           "references": [],
-          "statistics": [],
+          "statistics": [
+            "dense"
+          ],
           "suites": [
             "test"
           ],
@@ -1331,7 +1348,11 @@
         "John Matta, Gunes Ercal, Koushik Sinha. \"Comparing the speed and accuracy of approaches to betweenness centrality approximation\", Computational Social Networks, Springer Science and Business Media LLC, Vol. 6, No. 1, 2019, URL: https://doi.org/10.1186/s40649-019-0062-5, DOI: 10.1186/s40649-019-0062-5.",
         "Kepner, Jeremy, Gilbert, John. \"Graph Algorithms in the Language of Linear Algebra\", Society for Industrial and Applied Mathematics (SIAM), Philadelphia, 2011."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "index-ops",
+        "linalg-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -1426,7 +1447,9 @@
           "name": "cg_test_inputs",
           "pretty_name": "Conjugate Gradient Test Data Generator",
           "references": [],
-          "statistics": [],
+          "statistics": [
+            "dense"
+          ],
           "suites": [
             "test"
           ],
@@ -1536,7 +1559,12 @@
       "references": [
         "Yousef Saad. \"Iterative Methods for Sparse Linear Systems\", SIAM, 2003."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "index-ops",
+        "linalg-ops",
+        "transcendental-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -1619,7 +1647,9 @@
           "name": "connected_components_test_inputs",
           "pretty_name": "Connected Components Test Input Generator",
           "references": [],
-          "statistics": [],
+          "statistics": [
+            "dense"
+          ],
           "suites": [
             "test"
           ],
@@ -1673,7 +1703,10 @@
       "references": [
         "Kepner, Jeremy, Gilbert, John. \"Graph Algorithms in the Language of Linear Algebra\", Society for Industrial and Applied Mathematics (SIAM), Philadelphia, 2011."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "nonzero-fill"
+      ],
       "suites": [],
       "topics": []
     },
@@ -2124,7 +2157,9 @@
           "name": "floyd_warshall_test_inputs",
           "pretty_name": "Floyd-Warshall Test Input Generator",
           "references": [],
-          "statistics": [],
+          "statistics": [
+            "dense"
+          ],
           "suites": [
             "test"
           ],
@@ -2222,7 +2257,11 @@
       "references": [
         "Kepner, Jeremy, Gilbert, John. \"Graph Algorithms in the Language of Linear Algebra\", Society for Industrial and Applied Mathematics (SIAM), SIAM, 2011."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "index-ops",
+        "shape-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -2304,7 +2343,9 @@
             "Bobby Yan, Alexander J. Root, Trevor Gale, David Broman, Fredrik Kjolstad. \"Scorch: A Library for Sparse Deep Learning\", Arxiv, Vol. arXiv:2405.16883, 2024, URL: https://anonymous.4open.science/r/scorch/README.md.",
             "Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graphs\", Arxiv, Vol. arXiv:2005.00687, 2020, URL: https://arxiv.org/abs/2005.00687."
           ],
-          "statistics": [],
+          "statistics": [
+            "dense"
+          ],
           "suites": [
             "test"
           ],
@@ -2458,7 +2499,10 @@
         "Bobby Yan, Alexander J. Root, Trevor Gale, David Broman, Fredrik Kjolstad. \"Scorch: A Library for Sparse Deep Learning\", Arxiv, Vol. arXiv:2405.16883, 2024, URL: https://anonymous.4open.science/r/scorch/README.md.",
         "Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graphs\", Arxiv, Vol. arXiv:2005.00687, 2020, URL: https://arxiv.org/abs/2005.00687."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "linalg-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -2781,7 +2825,9 @@
           "name": "jacobi_test_inputs",
           "pretty_name": "Jacobi Test Data Generator",
           "references": [],
-          "statistics": [],
+          "statistics": [
+            "dense"
+          ],
           "suites": [
             "test"
           ],
@@ -2891,7 +2937,12 @@
       "references": [
         "J. Cockayne, I. C. F. Ipsen, C. J. Oates, T. W. Reid. \"Probabilistic iterative methods for linear systems\", J. Mach. Learn. Res., Vol. 22, pp. 1-34, 2021, URL: https://www.jmlr.org/papers/volume22/21-0031/21-0031.pdf."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "index-ops",
+        "linalg-ops",
+        "transcendental-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -3034,7 +3085,9 @@
             ". \"\", URL: https://web.stanford.edu/group/SOL/software/lsqr/lsqr-toms82a.pdf.",
             ". \"\", URL: https://github.com/PythonOptimizers/pykrylov/blob/master/pykrylov/lls/lsqr.py#L293."
           ],
-          "statistics": [],
+          "statistics": [
+            "dense"
+          ],
           "suites": [
             "test"
           ],
@@ -3134,7 +3187,11 @@
         ". \"\", URL: https://web.stanford.edu/group/SOL/software/lsqr/lsqr-toms82a.pdf.",
         ". \"\", URL: https://github.com/PythonOptimizers/pykrylov/blob/master/pykrylov/lls/lsqr.py#L293."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "linalg-ops",
+        "transcendental-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -3192,7 +3249,10 @@
             ". \"Graph Algorithms in the Language of Linear Algebra\", Society for Industrial and Applied Mathematics, 2011, URL: https://doi.org/10.1137/1.9780898719918, DOI: 10.1137/1.9780898719918.",
             "Guy Allard. \"markov_clustering\", URL: https://github.com/GuyAllard/markov_clustering."
           ],
-          "statistics": [],
+          "statistics": [
+            "dynamic-sparsity",
+            "hypersparse"
+          ],
           "suites": [
             "test"
           ],
@@ -3291,7 +3351,12 @@
         ". \"Graph Algorithms in the Language of Linear Algebra\", Society for Industrial and Applied Mathematics, 2011, URL: https://doi.org/10.1137/1.9780898719918, DOI: 10.1137/1.9780898719918.",
         "Guy Allard. \"markov_clustering\", URL: https://github.com/GuyAllard/markov_clustering."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "linalg-ops",
+        "nonzero-fill",
+        "transcendental-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -3435,7 +3500,9 @@
             ". \"\", URL: https://www.researchgate.net/publication/310464068_EDGE_DETECTION_OF_MRI_IMAGES_-A_REVIEW.",
             ". \"\", URL: https://pmc.ncbi.nlm.nih.gov/articles/PMC4948115/."
           ],
-          "statistics": [],
+          "statistics": [
+            "dense"
+          ],
           "suites": [
             "test"
           ],
@@ -3519,7 +3586,9 @@
         ". \"\", URL: https://www.researchgate.net/publication/310464068_EDGE_DETECTION_OF_MRI_IMAGES_-A_REVIEW.",
         ". \"\", URL: https://pmc.ncbi.nlm.nih.gov/articles/PMC4948115/."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -4136,7 +4205,9 @@
           "name": "pagerank_test_inputs",
           "pretty_name": "PageRank Test Input Generator",
           "references": [],
-          "statistics": [],
+          "statistics": [
+            "dense"
+          ],
           "suites": [
             "test"
           ],
@@ -4190,7 +4261,11 @@
         "GeeksforGeeks contributors. \"Page Rank Algorithm and Implementation\", 2025, URL: https://www.geeksforgeeks.org/python/page-rank-algorithm-implementation/.",
         "Sergey Brin, Lawrence Page. \"The anatomy of a large-scale hypertextual Web search engine\", Computer Networks and ISDN Systems, pp. 107-117, 1998, URL: https://doi.org/10.1016/S0169-7552(98)00110-X, DOI: 10.1016/S0169-7552(98)00110-X."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "linalg-ops",
+        "transcendental-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -4417,7 +4492,10 @@
             "M. Hegland, P. E. Saylor. \"Block Jacobi Preconditioning of the Conjugate Gradient Method on a Vector Processor\", International Journal of Computer Mathematics, Vol. 44, No. 1-4, pp. 71-89, 1992.",
             ". \"\", URL: https://www.netlib.org/templates/templates.pdf."
           ],
-          "statistics": [],
+          "statistics": [
+            "dynamic-sparsity",
+            "hypersparse"
+          ],
           "suites": [],
           "topics": []
         },
@@ -4558,7 +4636,9 @@
             "M. Hegland, P. E. Saylor. \"Block Jacobi Preconditioning of the Conjugate Gradient Method on a Vector Processor\", International Journal of Computer Mathematics, Vol. 44, No. 1-4, pp. 71-89, 1992.",
             ". \"\", URL: https://www.netlib.org/templates/templates.pdf."
           ],
-          "statistics": [],
+          "statistics": [
+            "dense"
+          ],
           "suites": [],
           "topics": []
         }
@@ -4571,7 +4651,12 @@
         "M. Hegland, P. E. Saylor. \"Block Jacobi Preconditioning of the Conjugate Gradient Method on a Vector Processor\", International Journal of Computer Mathematics, Vol. 44, No. 1-4, pp. 71-89, 1992.",
         ". \"\", URL: https://www.netlib.org/templates/templates.pdf."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "index-ops",
+        "linalg-ops",
+        "transcendental-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -5072,7 +5157,10 @@
           "name": "quantum_test_inputs",
           "pretty_name": "Quantum Test Inputs",
           "references": [],
-          "statistics": [],
+          "statistics": [
+            "hypersparse",
+            "tensor"
+          ],
           "suites": [
             "test"
           ],
@@ -5343,7 +5431,9 @@
           "name": "quantum_state_inputs",
           "pretty_name": "Quantum Statevector Data Generator",
           "references": [],
-          "statistics": [],
+          "statistics": [
+            "tensor"
+          ],
           "suites": [],
           "topics": []
         }
@@ -5353,7 +5443,10 @@
       "name": "rqc_statevector",
       "pretty_name": "Quantum Circuit Statevector",
       "references": [],
-      "statistics": [],
+      "statistics": [
+        "nonzero-fill",
+        "shape-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -5569,7 +5662,10 @@
         ". \"\", URL: https://www.researchgate.net/publication/310464068_EDGE_DETECTION_OF_MRI_IMAGES_-A_REVIEW.",
         ". \"\", URL: https://pmc.ncbi.nlm.nih.gov/articles/PMC4948115/."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "linalg-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -23554,7 +23650,10 @@
           "name": "transitive_closure_test_inputs",
           "pretty_name": "Transitive Closure Test Input Generator",
           "references": [],
-          "statistics": [],
+          "statistics": [
+            "dynamic-sparsity",
+            "hypersparse"
+          ],
           "suites": [
             "test"
           ],
@@ -23568,7 +23667,10 @@
       "references": [
         "Kepner, Jeremy, Gilbert, John. \"Graph Algorithms in the Language of Linear Algebra\", Society for Industrial and Applied Mathematics (SIAM), Philadelphia, 2011."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "nonzero-fill"
+      ],
       "suites": [],
       "topics": []
     },
@@ -23629,7 +23731,9 @@
           "name": "transitive_reduction_test_inputs",
           "pretty_name": "Transitive Reduction Test Inputs",
           "references": [],
-          "statistics": [],
+          "statistics": [
+            "hypersparse"
+          ],
           "suites": [
             "test"
           ],
@@ -23643,7 +23747,12 @@
       "references": [
         "Giulia Guidi, Oguz Selvitopi, Marquita Ellis, Leonid Oliker, Katherine Yelick, Aydin Buluc. \"Parallel String Graph Construction and Transitive Reduction for De Novo Genome Assembly\", IEEE International Parallel and Distributed Processing Symposium (IPDPS), pp. 517-526, 2021, DOI: 10.1109/IPDPS49936.2021.00060."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "index-ops",
+        "nonzero-fill",
+        "shape-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -23704,7 +23813,9 @@
           "name": "four_clique_count_test_inputs",
           "pretty_name": "4-Clique Count Test Input Generator",
           "references": [],
-          "statistics": [],
+          "statistics": [
+            "hypersparse"
+          ],
           "suites": [
             "test"
           ],
@@ -23751,7 +23862,10 @@
         "T. M. Low, V. N. Rao, M. Lee, D. Popovici, F. Franchetti, S. McMillan. \"First look: Linear algebra-based triangle counting without matrix multiplication\", IEEE High Performance Extreme Computing Conference (HPEC), 2017, URL: https://doi.org/10.1109/HPEC.2017.8091046.",
         "Kepner, Jeremy, Gilbert, John. \"Graph Algorithms in the Language of Linear Algebra\", Society for Industrial and Applied Mathematics, 2011, URL: https://doi.org/10.1137/1.9780898719918."
       ],
-      "statistics": [],
+      "statistics": [
+        "elementary-ops",
+        "nonzero-fill"
+      ],
       "suites": [],
       "topics": []
     },
@@ -23812,7 +23926,9 @@
           "name": "triangle_count_test_inputs",
           "pretty_name": "Triangle Count Test Input Generator",
           "references": [],
-          "statistics": [],
+          "statistics": [
+            "hypersparse"
+          ],
           "suites": [
             "test"
           ],
@@ -23859,7 +23975,10 @@
         "T. M. Low, V. N. Rao, M. Lee, D. Popovici, F. Franchetti, S. McMillan. \"First look: Linear algebra-based triangle counting without matrix multiplication\", IEEE High Performance Extreme Computing Conference (HPEC), 2017, URL: https://doi.org/10.1109/HPEC.2017.8091046.",
         "Kepner, Jeremy, Gilbert, John. \"Graph Algorithms in the Language of Linear Algebra\", Society for Industrial and Applied Mathematics, 2011, URL: https://doi.org/10.1137/1.9780898719918."
       ],
-      "statistics": [],
+      "statistics": [
+        "elementary-ops",
+        "nonzero-fill"
+      ],
       "suites": [],
       "topics": []
     },
