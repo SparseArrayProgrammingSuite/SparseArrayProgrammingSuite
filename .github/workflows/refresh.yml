@@ -1,0 +1,248 @@
+defaults:
+      run:
+        shell: bash -el {0}
+
+name: refresh
+jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - name: Configure Poetry
+        run: poetry env use python3.12
+      - name: Install package
+        run: poetry install --extras test
+      - name: Generate metadata and topics
+        run: |
+          poetry run ./bin/run_benchmark.py --generate-metadata
+          poetry run ./bin/run_benchmark.py --convert-concepts
+      - name: Upload metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: saps-metadata
+          path: metadata.json
+
+  trace:
+    needs: metadata
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        chunk: [0, 1, 2, 3]
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      - name: Download metadata
+        uses: actions/download-artifact@v4
+        with:
+          name: saps-metadata
+          path: .
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - name: Configure Poetry
+        run: poetry env use python3.12
+      - name: Install package
+        run: poetry install --extras test
+      - name: Trace statistics chunk
+        run: |
+          poetry run ./bin/run_benchmark.py \
+            --trace-statistics \
+            --chunk-count 4 \
+            --chunk-index ${{ matrix.chunk }} \
+            --timeout 30 \
+            --show-stderr \
+            --remote-storage-backend local \
+            --remote-storage-bucket .saps/remote-storage
+      - name: Upload trace chunk
+        uses: actions/upload-artifact@v4
+        with:
+          name: saps-trace-${{ matrix.chunk }}
+          path: |
+            metadata.json
+            .saps/outputs/tagger_stats
+            .saps/outputs/results
+
+  data:
+    needs: metadata
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        chunk: [0, 1, 2, 3]
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      - name: Download metadata
+        uses: actions/download-artifact@v4
+        with:
+          name: saps-metadata
+          path: .
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - name: Configure Poetry
+        run: poetry env use python3.12
+      - name: Install package
+        run: poetry install --extras test
+      - name: Cache datasets chunk
+        run: |
+          poetry run ./bin/run_benchmark.py \
+            --cache-datasets \
+            --chunk-count 4 \
+            --chunk-index ${{ matrix.chunk }} \
+            --remote-storage-backend local \
+            --remote-storage-bucket .saps/remote-storage
+      - name: Upload data chunk
+        uses: actions/upload-artifact@v4
+        with:
+          name: saps-data-${{ matrix.chunk }}
+          path: |
+            manifest.json
+            .saps/remote-storage
+            .saps/outputs/cache
+
+  merge-metadata:
+    needs: trace
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download metadata
+        uses: actions/download-artifact@v4
+        with:
+          name: saps-metadata
+          path: artifacts/metadata
+      - name: Download trace chunks
+        uses: actions/download-artifact@v4
+        with:
+          pattern: saps-trace-*
+          path: artifacts/trace
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Merge metadata
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("artifacts")
+          out = Path("merged")
+          out.mkdir(exist_ok=True)
+
+          def load_json(path):
+              return json.loads(path.read_text(encoding="utf-8"))
+
+          def write_json(path, data):
+              path.parent.mkdir(parents=True, exist_ok=True)
+              path.write_text(
+                  json.dumps(data, indent=2, sort_keys=True) + "\n",
+                  encoding="utf-8",
+              )
+
+          def record_key(record):
+              return record.get("id", record["name"])
+
+          def merge_statistics(target, source):
+              target["statistics"] = sorted(
+                  {*target.get("statistics", []), *source.get("statistics", [])}
+              )
+
+          metadata = load_json(root / "metadata" / "metadata.json")
+          benchmarks = {
+              record_key(record): record
+              for record in metadata.get("benchmarks", [])
+          }
+
+          for trace_path in sorted((root / "trace").glob("*/metadata.json")):
+              trace_doc = load_json(trace_path)
+              for source_benchmark in trace_doc.get("benchmarks", []):
+                  benchmark = benchmarks[record_key(source_benchmark)]
+                  merge_statistics(benchmark, source_benchmark)
+
+                  generators = {
+                      generator["name"]: generator
+                      for generator in benchmark.get("generators", [])
+                  }
+                  for source_generator in source_benchmark.get("generators", []):
+                      generator = generators[source_generator["name"]]
+                      merge_statistics(generator, source_generator)
+
+                      datasets = {
+                          dataset["name"]: dataset
+                          for dataset in generator.get("datasets", [])
+                      }
+                      for source_dataset in source_generator.get("datasets", []):
+                          dataset = datasets[source_dataset["name"]]
+                          merge_statistics(dataset, source_dataset)
+
+          write_json(out / "metadata.json", metadata)
+          PY
+      - name: Upload merged metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: saps-metadata-final
+          path: merged/metadata.json
+
+  merge-manifest:
+    needs: data
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download data chunks
+        uses: actions/download-artifact@v4
+        with:
+          pattern: saps-data-*
+          path: artifacts/data
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Merge manifest
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("artifacts")
+          out = Path("merged")
+          out.mkdir(exist_ok=True)
+
+          def load_json(path):
+              return json.loads(path.read_text(encoding="utf-8"))
+
+          def write_json(path, data):
+              path.parent.mkdir(parents=True, exist_ok=True)
+              path.write_text(
+                  json.dumps(data, indent=2, sort_keys=True) + "\n",
+                  encoding="utf-8",
+              )
+
+          manifest = {}
+          for manifest_path in sorted((root / "data").glob("*/manifest.json")):
+              fragment = load_json(manifest_path)
+              for key, value in fragment.items():
+                  if key in manifest and manifest[key] != value:
+                      raise RuntimeError(
+                          f"Conflicting manifest entry for {key}: "
+                          f"{manifest[key]} != {value}"
+                      )
+                  manifest[key] = value
+
+          write_json(out / "manifest.json", manifest)
+          PY
+      - name: Upload merged manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: saps-manifest-final
+          path: merged/manifest.json
+
+on:
+  workflow_dispatch:
