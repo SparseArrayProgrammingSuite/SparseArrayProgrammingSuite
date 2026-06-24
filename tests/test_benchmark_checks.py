@@ -47,14 +47,37 @@ def _test_params():
                 yield pytest.param(cls, param, id=f"{cls.__name__}[{param}]")
 
 
+def test_saps_does_not_export_global_xp():
+    assert not hasattr(saps, "xp")
+
+
+def test_benchmark_methods_accept_explicit_xp():
+    for cls in _benchmark_classes():
+        signature = inspect.signature(cls.benchmark)
+        assert list(signature.parameters)[:4] == ["self", "xp", "data", "meta"]
+
+
+def test_benchmark_modules_do_not_define_global_xp():
+    root = Path(__file__).parents[1]
+    violations = []
+    for path in (root / "src" / "saps" / "benchmarks").glob("*.py"):
+        tree = ast.parse(path.read_text(), filename=str(path))
+        for node in tree.body:
+            if isinstance(node, ast.Assign):
+                for target in node.targets:
+                    if isinstance(target, ast.Name) and target.id == "xp":
+                        violations.append(f"{path.relative_to(root)}:{node.lineno}")
+
+    assert not violations, "benchmark module global xp definitions found: " + ", ".join(
+        violations
+    )
+
+
 @pytest.mark.parametrize(("benchmark_cls", "param"), list(_test_params()))
 @pytest.mark.parametrize("framework_cls", _framework_params())
 def test_benchmark_check(benchmark_cls: type[Benchmark], param, framework_cls):
-    saps.xp = framework_cls()
+    xp = framework_cls()
     benchmark = benchmark_cls()
-    try:
-        benchmark.setup(param, use_cache=False)
-        benchmark.run(param)
-        benchmark.teardown(param)
-    finally:
-        saps.xp = None
+    benchmark.setup(param, use_cache=False, xp=xp)
+    benchmark.run(param)
+    benchmark.teardown(param)

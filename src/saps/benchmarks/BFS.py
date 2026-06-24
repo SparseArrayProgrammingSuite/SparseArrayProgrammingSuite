@@ -1,6 +1,5 @@
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -13,7 +12,6 @@ from saps.benchmark import (
 from saps.downloaders.snap import download_snap_dataset
 from saps_framework.binsparse_format import BinsparseFormat
 
-xp = saps.xp
 
 
 class BreadthFirstSearchDataset(Dataset):
@@ -357,7 +355,7 @@ class BreadthFirstSearchBenchmark(Benchmark):
     def generators(self):
         return [BreadthFirstSearchGenerator(), BreadthFirstSearchTestGenerator()]
 
-    def benchmark(self, data: list, meta: dict):
+    def benchmark(self, xp, data: list, meta: dict):
         edges = data[0]
         src = meta["src"]
 

@@ -1,6 +1,5 @@
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -13,7 +12,6 @@ from saps.benchmark import (
 from saps.downloaders.snap import download_snap_dataset
 from saps_framework.binsparse_format import BinsparseFormat
 
-xp = saps.xp
 
 
 class PageRankDataset(Dataset):
@@ -351,7 +349,7 @@ class PageRankBenchmark(Benchmark):
     def generators(self) -> list[Generator[PageRankDataset]]:
         return [PageRankTestGenerator(), PageRankGenerator()]
 
-    def benchmark(self, data, meta):
+    def benchmark(self, xp, data, meta):
         alpha = meta.get("alpha", 0.85)
         max_iter = meta.get("max_iter", 100)
         tol = meta.get("tol", 1e-8)

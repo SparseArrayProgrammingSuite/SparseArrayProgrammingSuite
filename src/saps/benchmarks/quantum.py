@@ -2,11 +2,9 @@ from typing import Any
 
 import numpy as np
 
-import saps
 from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
 
 
 class QuantumDataset(Dataset):
@@ -590,7 +588,7 @@ class QuantumStatevectorBenchmark(Benchmark):
     def generators(self):
         return [QuantumTestGenerator(), QuantumStateGenerator()]
 
-    def benchmark(self, data: list[Any], meta: dict[str, Any]):
+    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
         nqubits = meta["nqubits"]
         state, H, X, Y, Z, S, T = data
 

@@ -1,6 +1,5 @@
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -13,7 +12,6 @@ from saps.benchmark import (
 from saps.downloaders.snap import download_snap_dataset
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
 
 
 class BetweennessCentralityDataset(Dataset):
@@ -394,7 +392,7 @@ class BetweennessCentralityBenchmark(Benchmark):
     def generators(self) -> list[Generator[BetweennessCentralityDataset]]:
         return [BetweennessCentralityTestGenerator(), BetweennessCentralityGenerator()]
 
-    def benchmark(self, data, meta):
+    def benchmark(self, xp, data, meta):
         G = data[0]
         n = G.shape[0]
         bc_scores = xp.zeros((n,), dtype=float)

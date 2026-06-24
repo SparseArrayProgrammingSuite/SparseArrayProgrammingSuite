@@ -2,7 +2,6 @@ import math
 
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -14,7 +13,6 @@ from saps.benchmark import (
 )
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
 
 
 mass = 0.01
@@ -302,7 +300,7 @@ class ParticleSimBenchmark(Benchmark):
     def generators(self):
         return [ParticleSimTestGenerator()]
 
-    def benchmark(self, data, meta):
+    def benchmark(self, xp, data, meta):
         x, y, vx, vy = data
         size = meta["size"]
         steps = meta["steps"]

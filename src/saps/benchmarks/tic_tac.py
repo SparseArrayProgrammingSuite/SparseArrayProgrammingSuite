@@ -1,6 +1,5 @@
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Benchmark,
     BinsparseFormat,
@@ -11,7 +10,6 @@ from saps.benchmark import (
     Ref,
 )
 
-xp = saps.xp
 
 
 def build_win_masks(xp):
@@ -409,7 +407,7 @@ class TicTacToeBenchmark(Benchmark):
     def generators(self):
         return [TicTacToeGenerator()]
 
-    def benchmark(self, data: list, meta: dict):
+    def benchmark(self, xp, data: list, meta: dict):
         depth = meta.get("depth", 9)
         S = data[0]
         W = build_win_masks(xp)

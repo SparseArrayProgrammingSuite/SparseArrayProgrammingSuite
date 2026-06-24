@@ -2,7 +2,6 @@ from typing import Any
 
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Benchmark,
     BinsparseFormat,
@@ -13,7 +12,6 @@ from saps.benchmark import (
     Ref,
 )
 
-xp = saps.xp
 
 
 def parse_dimacs(text):
@@ -287,7 +285,7 @@ class ModelCounting(Benchmark):
     def generators(self) -> list[Generator[Any]]:
         return [MCGenerator()]
 
-    def benchmark(self, data: list[Any], meta: dict[str, Any]) -> list[Any]:
+    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]) -> list[Any]:
         expr = meta["expr"]
 
         if expr is None:

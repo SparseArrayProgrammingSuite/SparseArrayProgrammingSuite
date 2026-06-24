@@ -3,7 +3,6 @@ from typing import Any, cast
 
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -15,7 +14,6 @@ from saps.benchmark import (
 )
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
 
 
 class GCNDataset(Dataset):
@@ -552,7 +550,7 @@ class GCNBenchmark(Benchmark):
         Output node embeddings after 2-layer GCN
     """
 
-    def benchmark(self, data: list, meta: dict):
+    def benchmark(self, xp, data: list, meta: dict):
         (
             adjacency,
             features,

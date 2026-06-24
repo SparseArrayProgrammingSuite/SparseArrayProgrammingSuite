@@ -5,7 +5,6 @@ import numpy as np
 
 import sparse as pydata_sparse
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -59,7 +58,6 @@ def _generate_cg_data(source, has_b_file, A=None):
     return (A, b, x)
 
 
-xp = saps.xp
 
 
 class PreconditionedCGDataset(Dataset):
@@ -483,7 +481,7 @@ class PreconditionedCGBenchmark(Benchmark):
             f"Preconditioned CG residual too high for {param.dataset.name}"
         )
 
-    def benchmark(self, data: list[Any], meta: dict[str, Any]):
+    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
         A, b, x, M = data
         solve_cg = meta["solve"]
         rel_tol = meta.get("rel_tol", 1e-8)

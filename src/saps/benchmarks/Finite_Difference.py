@@ -2,7 +2,6 @@ import numpy as np
 
 import sparse as pydata_sparse
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -14,7 +13,6 @@ from saps.benchmark import (
 )
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
 
 
 def _from_binsparse(array):
@@ -342,7 +340,7 @@ class BurgersFiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkBase):
     def flux(self, u):
         return 0.5 * u * u
 
-    def benchmark(self, data: list, meta: dict):
+    def benchmark(self, xp, data: list, meta: dict):
         u_0, matrix, dif = data
         timesteps = meta["timesteps"]
         dt = meta["dt"]
@@ -372,7 +370,7 @@ class BuckleyLeverettFiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkBase):
         sq = u * u
         return sq / (sq + (0.25 * (1 - u) * (1 - u)))
 
-    def benchmark(self, data: list, meta: dict):
+    def benchmark(self, xp, data: list, meta: dict):
         u_0, matrix, dif = data
         timesteps = meta["timesteps"]
         dt = meta["dt"]
@@ -403,7 +401,7 @@ class LinearAdvectionFiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkBase):
     def flux(self, u):
         return self.C * u
 
-    def benchmark(self, data: list, meta: dict):
+    def benchmark(self, xp, data: list, meta: dict):
         u_0, matrix, dif = data
         timesteps = meta["timesteps"]
         dt = meta["dt"]

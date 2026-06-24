@@ -2,7 +2,6 @@ from typing import Any
 
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -15,7 +14,6 @@ from saps.benchmark import (
 from saps.downloaders.snap import download_snap_dataset
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
 
 
 class FastSVDataset(Dataset):
@@ -331,7 +329,7 @@ class FastSVBenchmark(Benchmark):
     def generators(self) -> list[Generator[FastSVDataset]]:
         return [FastSVTestGenerator(), FastSVGenerator()]
 
-    def benchmark(self, data, meta):
+    def benchmark(self, xp, data, meta):
         A = data[0]
         A = A != 0
 

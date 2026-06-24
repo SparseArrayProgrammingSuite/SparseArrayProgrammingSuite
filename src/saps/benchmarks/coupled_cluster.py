@@ -1,6 +1,5 @@
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -12,7 +11,6 @@ from saps.benchmark import (
 )
 from saps_framework.binsparse_format import BinsparseFormat
 
-xp = saps.xp
 
 
 def _as2d_full(xp, F):
@@ -448,7 +446,7 @@ class CCSD(Benchmark):
     def generators(self):
         return [CCSDGenerator()]
 
-    def benchmark(self, data, meta):
+    def benchmark(self, xp, data, meta):
         (
             Vme,  # (no, nv)
             Vae,  # (nv, nv)

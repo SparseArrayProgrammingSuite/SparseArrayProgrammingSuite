@@ -1,6 +1,5 @@
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -16,7 +15,6 @@ from saps.downloaders.gcare import (
 )
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
 
 
 class GCareGraphDataset(Dataset):
@@ -2720,7 +2718,7 @@ class SubgraphMatching(Benchmark):
             GCareYAGOGenerator(),
         ]
 
-    def benchmark(self, data, meta):
+    def benchmark(self, xp, data, meta):
         sp_mats = dict(zip(meta["matrix_names"], data, strict=True))
         return [xp.einsum(meta["expr"], **sp_mats)]
 

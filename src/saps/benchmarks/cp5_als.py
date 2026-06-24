@@ -1,6 +1,5 @@
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -12,7 +11,6 @@ from saps.benchmark import (
 )
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
 
 
 class CP5FactorizeableDataset(Dataset):
@@ -320,7 +318,7 @@ class CP5_ALS(Benchmark):
     - lambda are the component weights
     """
 
-    def benchmark(self, data, meta):
+    def benchmark(self, xp, data, meta):
         X, A, B, C, D, E = data
         max_iter = meta["max_iter"]
 

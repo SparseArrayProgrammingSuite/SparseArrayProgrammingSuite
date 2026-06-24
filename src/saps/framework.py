@@ -4,11 +4,27 @@ from pathlib import Path
 
 from saps_framework import Framework
 
-framework_path = os.environ.get("SAPS_FRAMEWORK")
-if framework_path is not None:
+_xp: Framework | None = None
+_xp_path: Path | None = None
+
+
+def load_framework(framework_path: str | os.PathLike[str] | None = None) -> Framework:
+    global _xp, _xp_path
+
+    framework_path = framework_path or os.environ.get("SAPS_FRAMEWORK")
+    if framework_path is None:
+        if _xp is not None:
+            return _xp
+        raise RuntimeError(
+            "No SAPS framework was supplied. Pass an xp framework explicitly or set "
+            "SAPS_FRAMEWORK."
+        )
+
     import importlib.util
 
     resolved_path = Path(framework_path)
+    if _xp is not None and _xp_path == resolved_path.resolve():
+        return _xp
 
     # Verify the file exists
     if not resolved_path.exists():
@@ -27,10 +43,11 @@ if framework_path is not None:
     # Register before exec so the module is importable by name
     sys.modules["custom_framework"] = custom_framework
     spec.loader.exec_module(custom_framework)
-    xp = custom_framework.xp
-    assert isinstance(xp, Framework), (
+    framework = custom_framework.xp
+    assert isinstance(framework, Framework), (
         "The custom framework must define an 'xp' variable referring to an "
         "instance of a saps.Framework subclass."
     )
-else:
-    xp = None
+    _xp = framework
+    _xp_path = resolved_path.resolve()
+    return framework

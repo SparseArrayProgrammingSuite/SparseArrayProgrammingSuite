@@ -1,6 +1,5 @@
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -13,7 +12,6 @@ from saps.benchmark import (
 from saps.downloaders.snap import download_snap_dataset
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
 
 
 class GraphCountingDataset(Dataset):
@@ -532,7 +530,7 @@ class TriangleCountBenchmark(Benchmark):
     def generators(self) -> list[Generator[GraphCountingDataset]]:
         return [TriangleCountTestGenerator(), TriangleCountGenerator()]
 
-    def benchmark(self, data: list, meta: dict):
+    def benchmark(self, xp, data: list, meta: dict):
         A = data[0]
         triangles = xp.einsum("S[] += A[i,j] * A[j,k] * A[k,i]", A=A) / 6
         return [xp.asarray(triangles)]
@@ -647,7 +645,7 @@ class FourCliqueCountBenchmark(Benchmark):
     def generators(self) -> list[Generator[GraphCountingDataset]]:
         return [FourCliqueCountTestGenerator(), FourCliqueCountGenerator()]
 
-    def benchmark(self, data: list, meta: dict):
+    def benchmark(self, xp, data: list, meta: dict):
         A = data[0]
         cliq_4 = (
             xp.einsum(

@@ -11,6 +11,14 @@ from saps_framework import BinsparseFormat, Framework, einsum
 
 class PyDataSparseLinalg:
     @staticmethod
+    def _dense(array):
+        if hasattr(array, "todense"):
+            return np.asarray(array.todense())
+        if hasattr(array, "toarray"):
+            return np.asarray(array.toarray())
+        return np.asarray(array)
+
+    @staticmethod
     def _scipy_sparse(array):
         if hasattr(array, "to_scipy_sparse"):
             if array.ndim == 2:
@@ -48,11 +56,13 @@ class PyDataSparseLinalg:
 
     @staticmethod
     def pinv(A, **kwargs):
-        if hasattr(A, "todense"):
-            A = A.todense()
-        else:
-            A = np.asarray(A)
-        return np.linalg.pinv(A, **kwargs)
+        return np.linalg.pinv(PyDataSparseLinalg._dense(A), **kwargs)
+
+    @staticmethod
+    def lstsq(A, b, **kwargs):
+        return np.linalg.lstsq(
+            PyDataSparseLinalg._dense(A), PyDataSparseLinalg._dense(b), **kwargs
+        )
 
     @staticmethod
     def svd(A, full_matrices=False, k=None, **kwargs):

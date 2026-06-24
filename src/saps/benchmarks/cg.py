@@ -5,7 +5,6 @@ import numpy as np
 
 import sparse as pydata_sparse
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -17,7 +16,6 @@ from saps.benchmark import (
 )
 from saps_framework.binsparse_format import BinsparseFormat
 
-xp = saps.xp
 
 
 class CGDataset(Dataset):
@@ -385,7 +383,7 @@ class CGBenchmark(Benchmark):
         expected_b = BinsparseFormat.to_coo(b_bin)
         assert expected_b == actual_b, f"CG residual mismatch for {param.dataset.name}"
 
-    def benchmark(self, data: list, meta: dict):
+    def benchmark(self, xp, data: list, meta: dict):
         A, b, x = data
         rel_tol = 1e-8
         abs_tol = 1e-20

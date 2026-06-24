@@ -3,7 +3,6 @@ from typing import Any
 
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -15,7 +14,6 @@ from saps.benchmark import (
 )
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
 
 
 def _normalize(array_api, matrix):
@@ -319,7 +317,7 @@ class MCLBenchmark(Benchmark):
     def generators(self):
         return [MCLTestGenerator(), MCLGenerator()]
 
-    def benchmark(self, data: list[Any], meta: dict[str, Any]):
+    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
         """
                 benchmark(data, meta)
 

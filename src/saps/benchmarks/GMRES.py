@@ -5,7 +5,6 @@ import numpy as np
 
 import sparse as pydata_sparse
 
-import saps
 from saps.benchmark import (
     Benchmark,
     Contributor,
@@ -16,7 +15,6 @@ from saps.benchmark import (
 )
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
 
 
 class GMRESDataset(Dataset):
@@ -411,7 +409,7 @@ class GMRESBenchmark(Benchmark):
             f"GMRES residual too high for {param.dataset.name}: {residual}"
         )
 
-    def benchmark(self, data: list, meta: dict):
+    def benchmark(self, xp, data: list, meta: dict):
         A, b, x0 = data
         restart = meta.get("restart", 50)
         tol = meta.get("tol", 1e-8)

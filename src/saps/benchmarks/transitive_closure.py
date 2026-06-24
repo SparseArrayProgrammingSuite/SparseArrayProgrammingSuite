@@ -1,6 +1,5 @@
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -13,7 +12,6 @@ from saps.benchmark import (
 from saps.downloaders.snap import download_snap_dataset
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
 
 
 class TransitiveClosureDataset(Dataset):
@@ -306,7 +304,7 @@ class TransitiveClosureBenchmark(Benchmark):
     def generators(self) -> list[Generator[TransitiveClosureDataset]]:
         return [TransitiveClosureGenerator(), TransitiveClosureTestGenerator()]
 
-    def benchmark(self, data, meta):
+    def benchmark(self, xp, data, meta):
         edges = data[0]
         (n, m) = edges.shape
         assert m == n

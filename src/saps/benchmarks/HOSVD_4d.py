@@ -2,7 +2,6 @@ from typing import Any
 
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -14,7 +13,6 @@ from saps.benchmark import (
 )
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
 
 
 class HOSVD4DDataset(Dataset):
@@ -346,7 +344,7 @@ class HOSVD4DBenchmark(Benchmark):
     def generators(self):
         return [HOSVD4DDenseGenerator(), HOSVD4DSparseGenerator()]
 
-    def benchmark(self, data: list, meta: dict):
+    def benchmark(self, xp, data: list, meta: dict):
         X, ranks = data
         max_iter = meta.get("max_iter", 50)
         tolerance = meta.get("tolerance", 1e-8)

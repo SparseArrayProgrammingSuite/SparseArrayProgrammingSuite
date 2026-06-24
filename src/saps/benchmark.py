@@ -8,9 +8,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Generic, TypeVar
 
-from saps.framework import xp
+from saps.framework import load_framework
 from saps.storage import build_storage_backend
 from saps_framework.binsparse_format import BinsparseFormat as BinsparseFormat
+from saps_framework.framework import Framework
 
 
 @dataclass
@@ -236,7 +237,7 @@ class Benchmark(Tagged, Attributed, Motivated):
     def generators(self) -> list[Generator[Any]]: ...
 
     @abstractmethod
-    def benchmark(self, data: list[Any], meta: Any) -> Any: ...
+    def benchmark(self, xp: Framework, data: list[Any], meta: Any) -> Any: ...
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -249,7 +250,6 @@ class Benchmark(Tagged, Attributed, Motivated):
             return
 
         benchmark_source = inspect.getsource(cls.benchmark)
-        cls.benchmark = cls.benchmark if xp is None else xp.compile(cls.benchmark)
 
         def _peakmem_run(self, param):
             self.run(param)
@@ -277,7 +277,9 @@ class Benchmark(Tagged, Attributed, Motivated):
 
     param_names = ["dataset"]
 
-    def setup(self, param, *, use_cache: bool = True):
+    def setup(
+        self, param, *, use_cache: bool = True, xp: Framework | None = None
+    ):
         import logging
 
         if not logging.getLogger().handlers:
@@ -285,7 +287,6 @@ class Benchmark(Tagged, Attributed, Motivated):
                 level=logging.INFO,
                 format="%(levelname)s %(name)s: %(message)s",
             )
-        self._refresh_xp()
         problem = (
             param.generator.cached_generate(param.dataset)
             if use_cache
@@ -295,31 +296,35 @@ class Benchmark(Tagged, Attributed, Motivated):
         self._meta = problem.meta
         self._ref_outputs = problem.ref_outputs
         self._ref_meta = problem.ref_meta
+        if xp is None:
+            try:
+                xp = load_framework()
+            except RuntimeError:
+                xp = None
+        if xp is not None:
+            self._xp = xp
+
+            def benchmark(data, meta):
+                return self.benchmark(xp, data, meta)
+
+            self._compiled_benchmark = xp.compile(benchmark)
 
     def run(self, param):
-        self._refresh_xp()
+        if not hasattr(self, "_xp") or not hasattr(self, "_compiled_benchmark"):
+            raise RuntimeError(
+                "Benchmark.setup must bind a framework before run. Pass xp to "
+                "setup or set SAPS_FRAMEWORK."
+            )
+        xp = self._xp
         if hasattr(xp, "reset_stats"):
             xp.reset_stats()
         input = [xp.from_binsparse(d) for d in self._input]
-        output = self.benchmark(input, self._meta)
+        output = self._compiled_benchmark(input, self._meta)
         output = [xp.to_binsparse(o) for o in output]
         self._output = output
-        self._write_tagger_stats(param)
+        self._write_tagger_stats(param, xp)
 
-    def _refresh_xp(self):
-        import sys
-
-        import saps as saps_pkg
-
-        global xp
-        if saps_pkg.xp is not None:
-            xp = saps_pkg.xp
-
-        module = sys.modules.get(self.__class__.__module__)
-        if module is not None:
-            module.xp = xp
-
-    def _write_tagger_stats(self, param):
+    def _write_tagger_stats(self, param, xp: Framework):
         stats_dir = os.environ.get("SAPS_TAGGER_STATS_DIR")
         if not stats_dir or not hasattr(xp, "stats"):
             return
@@ -358,6 +363,10 @@ class Benchmark(Tagged, Attributed, Motivated):
             del self._ref_meta
         if hasattr(self, "_input"):
             del self._input
+        if hasattr(self, "_xp"):
+            del self._xp
+        if hasattr(self, "_compiled_benchmark"):
+            del self._compiled_benchmark
 
     def check(self, param):
         for item in self._output:

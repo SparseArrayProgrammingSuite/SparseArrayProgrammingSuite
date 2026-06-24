@@ -1,6 +1,5 @@
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -12,7 +11,6 @@ from saps.benchmark import (
 )
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
 
 
 class TransitiveReductionDataset(Dataset):
@@ -202,7 +200,7 @@ class TransitiveReductionBenchmark(Benchmark):
     def generators(self):
         return [TransitiveReductionTestGenerator()]
 
-    def benchmark(self, data, meta):
+    def benchmark(self, xp, data, meta):
         R = data[0]
         x = meta.get("x", 1)
         max_iters = meta.get("max_iters", 10)

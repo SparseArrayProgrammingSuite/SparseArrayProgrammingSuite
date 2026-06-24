@@ -5,7 +5,6 @@ import numpy as np
 
 import sparse as pydata_sparse
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -17,7 +16,6 @@ from saps.benchmark import (
 )
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
 
 
 class JacobiDataset(Dataset):
@@ -372,7 +370,7 @@ class JacobiBenchmark(Benchmark):
     def _norm(self, xp, v):
         return xp.sqrt(xp.sum(xp.multiply(v, v)))
 
-    def benchmark(self, data: list, meta: dict):
+    def benchmark(self, xp, data: list, meta: dict):
         A, b, x = data
 
         rel_tol = 1e-6

@@ -3,7 +3,6 @@ from typing import Any
 
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -15,7 +14,6 @@ from saps.benchmark import (
 )
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
 
 
 class RPKMeansDataset(Dataset):
@@ -240,7 +238,7 @@ class RPKMeansBenchmark(Benchmark):
     def generators(self):
         return [RPKMeansGenerator()]
 
-    def benchmark(self, data: list[Any], meta: dict[str, Any]):
+    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
         """
                 Labels points into k clusters.
 

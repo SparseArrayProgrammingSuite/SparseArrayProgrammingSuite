@@ -3,11 +3,9 @@ from typing import Any
 
 import numpy as np
 
-import saps
 from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
 
 
 class MaskedMRIDataset(Dataset):
@@ -348,7 +346,7 @@ class MaskedMRIEdgeBenchmark(Benchmark):
     def generators(self) -> list[Generator[Any]]:
         return [MaskedMRITestGenerator(), MaskedMRIGenerator()]
 
-    def benchmark(self, data: list[Any], meta: dict[str, Any]):
+    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
         img, roi, t1, t2 = data
 
         img_t1 = img > t1

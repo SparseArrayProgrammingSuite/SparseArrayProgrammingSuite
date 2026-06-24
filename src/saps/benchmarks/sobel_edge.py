@@ -3,11 +3,9 @@ from typing import Any
 
 import numpy as np
 
-import saps
 from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
 
 
 def generate_1d_sobel_matrices(Nx, Ny):
@@ -393,7 +391,7 @@ class MRISobelEdgeBenchmark(Benchmark):
     def generators(self) -> list[Generator[Any]]:
         return [MRISobelTestGenerator(), MRISobelGenerator()]
 
-    def benchmark(self, data: list[Any], meta: dict[str, Any]):
+    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
         image, D_x, S_y, S_x, D_y, threshold = data
 
         gx = D_x @ image @ S_y

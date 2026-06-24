@@ -4,7 +4,6 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Benchmark,
     Contributor,
@@ -14,7 +13,6 @@ from saps.benchmark import (
     Ref,
 )
 
-xp = saps.xp
 
 
 def _step_input(t):
@@ -637,7 +635,7 @@ class _ForwardEulerBase(_OdeBenchmarkBase):
     def suites(self):
         return []
 
-    def benchmark(self, data, meta):
+    def benchmark(self, xp, data, meta):
         span = meta["span"]
         y0 = meta["y0"]
         step = meta["step"]
@@ -662,7 +660,7 @@ class _BackwardEulerBase(_OdeBenchmarkBase):
     def suites(self):
         return []
 
-    def benchmark(self, data, meta):
+    def benchmark(self, xp, data, meta):
         span = meta["span"]
         y0 = meta["y0"]
         step = meta["step"]
@@ -690,7 +688,7 @@ class _RK4Base(_OdeBenchmarkBase):
     def suites(self):
         return []
 
-    def benchmark(self, data, meta):
+    def benchmark(self, xp, data, meta):
         span = meta["span"]
         y0 = meta["y0"]
         step = meta["step"]

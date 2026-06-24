@@ -4,7 +4,6 @@ import numpy as np
 
 import sparse as sp
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -16,7 +15,6 @@ from saps.benchmark import (
 )
 from saps_framework.binsparse_format import BinsparseFormat
 
-xp = saps.xp
 
 
 class FloydWarshallDataset(Dataset):
@@ -592,7 +590,7 @@ class FloydWarshallBenchmark(Benchmark):
     def generators(self):
         return [FloydWarshallTestGenerator(), FloydWarshallGenerator()]
 
-    def benchmark(self, data, meta):
+    def benchmark(self, xp, data, meta):
         """
         Returns the all pair shortest path i.e. A[i,j] is the shortest
         path from i to j

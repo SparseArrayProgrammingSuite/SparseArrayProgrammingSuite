@@ -3,7 +3,6 @@ from typing import Any
 
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Benchmark,
     Contributor,
@@ -14,7 +13,6 @@ from saps.benchmark import (
 )
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
 
 
 def normof2(xp, x, y):
@@ -429,7 +427,7 @@ class LSQRBenchmark(Benchmark):
                 1e-5 * np.linalg.norm(A.T @ b) + 1e-5
             )
 
-    def benchmark(self, data: list, meta: dict):
+    def benchmark(self, xp, data: list, meta: dict):
         A, b = data
         atol = meta.get("atol", 1e-9)
         btol = meta.get("btol", 1e-9)

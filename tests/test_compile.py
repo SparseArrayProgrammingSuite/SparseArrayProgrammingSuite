@@ -17,7 +17,7 @@ def arithmetic_op_eager(x, y, z):
 
 def make_benchmark_cls():
     class ToyFusionBenchmark:
-        def benchmark(self, data, meta):
+        def benchmark(self, xp, data, meta):
             x, y, z = data
             return [arithmetic_op_eager(x, y, z)]
 
@@ -35,7 +35,7 @@ def test_numpy_passes_through():
 
     rng = np.random.default_rng(0)
     x, y, z = (rng.random(100_000) for _ in range(3))
-    output = cls().benchmark([x, y, z], {})[0]
+    output = cls().benchmark(xp, [x, y, z], {})[0]
 
     np.testing.assert_allclose(output, arithmetic_op_eager(x, y, z))
 
@@ -50,7 +50,7 @@ def test_pytorch_compiles():
     assert cls.benchmark is not original
 
     x, y, z = (torch.rand(100_000) for _ in range(3))
-    output = cls().benchmark([x, y, z], {})[0]
+    output = cls().benchmark(xp, [x, y, z], {})[0]
 
     torch.testing.assert_close(output, arithmetic_op_eager(x, y, z))
 
@@ -82,11 +82,11 @@ def test_pytorch_compiled_is_faster():
     data = [x, y, z]
 
     torch.testing.assert_close(
-        compiled.benchmark(data, {})[0], eager.benchmark(data, {})[0]
+        compiled.benchmark(xp, data, {})[0], eager.benchmark(xp, data, {})[0]
     )
 
-    eager_time = _median_time(lambda: eager.benchmark(data, {}), ())
-    compiled_time = _median_time(lambda: compiled.benchmark(data, {}), ())
+    eager_time = _median_time(lambda: eager.benchmark(xp, data, {}), ())
+    compiled_time = _median_time(lambda: compiled.benchmark(xp, data, {}), ())
 
     speedup = eager_time / compiled_time
     print(

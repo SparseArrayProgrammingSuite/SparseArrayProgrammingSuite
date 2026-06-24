@@ -4,7 +4,6 @@ import numpy as np
 
 from pyparsing import Any
 
-import saps
 from saps.benchmark import (
     Benchmark,
     BinsparseFormat,
@@ -15,7 +14,6 @@ from saps.benchmark import (
     Ref,
 )
 
-xp = saps.xp
 
 # TODO add generator for https://github.com/arijitsh/mccomp-test-instances/tree/main/Track4_PWMC
 
@@ -410,7 +408,7 @@ class WeightedModelCounting(Benchmark):
     def generators(self) -> list[Generator[Any]]:
         return [WMCGenerator()]
 
-    def benchmark(self, data: list[Any], meta: dict[str, Any]) -> list[Any]:
+    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]) -> list[Any]:
         expr = meta["expr"]
 
         if expr is None:

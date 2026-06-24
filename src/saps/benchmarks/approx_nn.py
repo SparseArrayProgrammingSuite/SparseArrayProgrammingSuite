@@ -2,7 +2,6 @@ import logging
 
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -14,7 +13,6 @@ from saps.benchmark import (
 )
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
 
 
 class JLApproxNNDataset(Dataset):
@@ -420,7 +418,7 @@ class JLApproxNearestNeighbor(Benchmark):
     def generators(self):
         return [JLApproxNNTestGenerator(), JLApproxNNGenerator()]
 
-    def benchmark(self, data, meta):
+    def benchmark(self, xp, data, meta):
         data, query, P = data
         k = meta["k"]
         eps = meta["eps"]

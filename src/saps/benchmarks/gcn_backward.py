@@ -3,7 +3,6 @@ from typing import Any, cast
 
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -15,7 +14,6 @@ from saps.benchmark import (
 )
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
 
 
 def _from_binsparse(array):
@@ -751,7 +749,7 @@ Each iteration:
         (final_loss, final_W1, final_b1, final_W2, final_b2)
     """
 
-    def benchmark(self, data: list, meta: dict):
+    def benchmark(self, xp, data: list, meta: dict):
         adjacency, adjacency_T, features, weights1, bias1, weights2, bias2, targets = (
             data
         )
