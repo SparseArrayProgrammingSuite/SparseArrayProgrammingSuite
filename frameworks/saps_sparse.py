@@ -111,7 +111,7 @@ class PyDataSparseLinalg:
 
 
 class PyDataSparseFramework(Framework):
-    _sparse_first = {"asarray", "eye", "ones"}
+    _sparse_first: set[str] = set()
     _dtype_attrs = {
         "bool",
         "float32",
@@ -139,6 +139,25 @@ class PyDataSparseFramework(Framework):
     def _array_namespace(*arrays):
         return array_api_compat.array_namespace(*arrays, use_compat=True)
 
+    @staticmethod
+    def _fill_value_is_zero(array):
+        fill_value = getattr(array, "fill_value", 0)
+        return np.all(np.asarray(fill_value) == 0)
+
+    @staticmethod
+    def _dense(array):
+        if hasattr(array, "todense"):
+            return np.asarray(array.todense())
+        if hasattr(array, "toarray"):
+            return np.asarray(array.toarray())
+        return np.asarray(array)
+
+    @staticmethod
+    def _sparse_compatible_arg(arg):
+        if isinstance(arg, np.ndarray):
+            return sp.asarray(arg)
+        return arg
+
     def from_binsparse(self, array):
         if array.data["format"] == "dense":
             return np.asarray(array.data["values"]).reshape(array.data["shape"])
@@ -155,8 +174,12 @@ class PyDataSparseFramework(Framework):
 
     def to_binsparse(self, array):
         if isinstance(array, sp.COO):
+            if array.ndim == 0 or not self._fill_value_is_zero(array):
+                return BinsparseFormat.from_numpy(self._dense(array))
             return BinsparseFormat.from_coo(array.coords, array.data, array.shape)
         if isinstance(array, sp.SparseArray):
+            if array.ndim == 0 or not self._fill_value_is_zero(array):
+                return BinsparseFormat.from_numpy(self._dense(array))
             return self.to_binsparse(array.tocoo())
         if isinstance(array, np.ndarray):
             return BinsparseFormat.from_numpy(array)
@@ -194,6 +217,41 @@ class PyDataSparseFramework(Framework):
     def arange(self, *args, **kwargs):
         return compat_np.arange(*args, **kwargs)
 
+    def asarray(self, obj, *args, **kwargs):
+        if isinstance(obj, sp.SparseArray):
+            return sp.asarray(obj, *args, **kwargs)
+        return compat_np.asarray(obj, *args, **kwargs)
+
+    def array(self, obj, *args, **kwargs):
+        if isinstance(obj, sp.SparseArray):
+            return sp.asarray(obj, *args, **kwargs)
+        return np.array(obj, *args, **kwargs)
+
+    def eye(self, *args, **kwargs):
+        return compat_np.eye(*args, **kwargs)
+
+    def ones(self, *args, **kwargs):
+        return compat_np.ones(*args, **kwargs)
+
+    def expand_dims(self, a, axis):
+        if isinstance(a, sp.SparseArray):
+            return sp.expand_dims(a, axis=axis)
+        xp = self._array_namespace(a)
+        return xp.expand_dims(a, axis=axis)
+
+    def take(self, x, indices, /, *args, **kwargs):
+        if isinstance(indices, sp.SparseArray):
+            indices = self._dense(indices)
+        if isinstance(x, sp.SparseArray):
+            return sp.take(x, indices, *args, **kwargs)
+        xp = self._array_namespace(x)
+        return xp.take(x, indices, *args, **kwargs)
+
+    def item(self, array):
+        if isinstance(array, sp.SparseArray):
+            return self._dense(array).item()
+        return array.item()
+
     def with_fill_value(self, array, value):
         if isinstance(array, sp.SparseArray):
             res = array.copy(deep=False)
@@ -212,17 +270,24 @@ class PyDataSparseFramework(Framework):
             return compat_attr
         if name in self._sparse_first and sparse_attr is not None:
             return sparse_attr
-        if sparse_attr is not None and compat_attr is not None:
+        if callable(sparse_attr) and callable(compat_attr):
 
             def wrapped(*args, **kwargs):
-                attr = (
-                    sparse_attr
-                    if self._has_sparse_arg(*args, **kwargs)
-                    else compat_attr
-                )
+                if self._has_sparse_arg(*args, **kwargs):
+                    args = tuple(self._sparse_compatible_arg(arg) for arg in args)
+                    kwargs = {
+                        key: self._sparse_compatible_arg(value)
+                        for key, value in kwargs.items()
+                    }
+                    attr = sparse_attr
+                else:
+                    attr = compat_attr
                 return attr(*args, **kwargs)
 
             return wrapped
+
+        if sparse_attr is not None and compat_attr is not None:
+            return compat_attr
 
         for attr in (sparse_attr, compat_attr, getattr(np, name, None)):
             if attr is not None:
