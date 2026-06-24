@@ -55,6 +55,34 @@ def format_results(results: Results, benchmarks: Benchmarks) -> dict:
     }
 
 
+def _apply_chunk_selection(
+    benchmarks: Benchmarks, chunk_count: int, chunk_index: int
+) -> tuple[int, int]:
+    """Restrict selected benchmark parameter cases to one deterministic chunk."""
+    if chunk_count == 1:
+        total = sum(
+            len(benchmarks.benchmark_selection.get(name, [])) for name in benchmarks
+        )
+        return total, total
+
+    selected_cases: list[tuple[str, int]] = []
+    for name in sorted(benchmarks):
+        selected_cases.extend(
+            (name, idx) for idx in sorted(benchmarks.benchmark_selection.get(name, []))
+        )
+
+    kept_by_name: dict[str, list[int]] = {name: [] for name in benchmarks}
+    for ordinal, (name, param_index) in enumerate(selected_cases):
+        if ordinal % chunk_count == chunk_index:
+            kept_by_name[name].append(param_index)
+
+    for name, selected in kept_by_name.items():
+        benchmarks._benchmark_selection[name] = selected
+
+    kept = sum(len(selected) for selected in kept_by_name.values())
+    return len(selected_cases), kept
+
+
 def _run_check_suite(benchmarks: Benchmarks, machine_params, commit_hash, commit_date):
     """Run selected benchmark cases once in-process and print result JSON."""
     entries: dict[str, dict] = {}
@@ -734,7 +762,26 @@ def main() -> int:
             " (default: config timeout or 5 seconds)"
         ),
     )
+    parser.add_argument(
+        "--chunk-count",
+        type=int,
+        default=1,
+        help=(
+            "Split the selected benchmark parameter cases into this many chunks. "
+            "Run one process per chunk with a distinct --chunk-index."
+        ),
+    )
+    parser.add_argument(
+        "--chunk-index",
+        type=int,
+        default=0,
+        help="Zero-based chunk index to run when --chunk-count is greater than 1.",
+    )
     args = parser.parse_args()
+    if args.chunk_count < 1:
+        parser.error("--chunk-count must be at least 1")
+    if args.chunk_index < 0 or args.chunk_index >= args.chunk_count:
+        parser.error("--chunk-index must be between 0 and --chunk-count - 1")
 
     import logging as _logging
 
@@ -1023,6 +1070,22 @@ def main() -> int:
             skips.append(name)
 
     benchmarks = benchmarks.filter_out(set(skips))
+    chunk_total, chunk_kept = _apply_chunk_selection(
+        benchmarks, args.chunk_count, args.chunk_index
+    )
+    if args.chunk_count > 1:
+        benchmarks = benchmarks.filter_out(
+            {
+                name
+                for name in benchmarks
+                if not benchmarks.benchmark_selection.get(name)
+            }
+        )
+        print(
+            "Selected benchmark chunk "
+            f"{args.chunk_index}/{args.chunk_count}: "
+            f"{chunk_kept} of {chunk_total} parameter cases"
+        )
     selected_source_metadata = {
         name: source_metadata[name] for name in benchmarks if name in source_metadata
     }

@@ -62,6 +62,8 @@ def concepts(self) -> str:
 
 Run `poetry run ./bin/run_benchmark.py --generate-metadata` after changing benchmark metadata, then run `poetry run ./bin/run_benchmark.py --convert-concepts` to replace the generated `topics` field without changing `suites` or generated `statistics`.
 
+To split a benchmark run across processors, launch one harness process per chunk with the same filters and a distinct zero-based chunk index, for example `--chunk-count 4 --chunk-index 0` through `--chunk-count 4 --chunk-index 3`.
+
 ### Problem qualities
 
 Tags describe the general character of a problem:
