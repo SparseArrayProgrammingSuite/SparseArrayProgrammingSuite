@@ -124,7 +124,9 @@
           "name": "bfs_test_inputs",
           "pretty_name": "Breadth-First Search Test Input Generator",
           "references": [],
-          "statistics": [],
+          "statistics": [
+            "dense"
+          ],
           "suites": [
             "test"
           ],
@@ -138,7 +140,10 @@
       "references": [
         "Kepner, Jeremy, Gilbert, John. \"Graph Algorithms in the Language of Linear Algebra\", Society for Industrial and Applied Mathematics (SIAM), Philadelphia, 2011."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "index-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -185,7 +190,10 @@
       "references": [
         "Jacob Laurel, Ignacio Laguna, Jan H\u00fcckelheim. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Association for Computing Machinery (ACM), Vol. 9, No. OOPSLA2, pp. 1063-1091, 2025, URL: https://doi.org/10.1145/3763088, DOI: 10.1145/3763088."
       ],
-      "statistics": [],
+      "statistics": [
+        "index-ops",
+        "linalg-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -232,7 +240,10 @@
       "references": [
         "Jacob Laurel, Ignacio Laguna, Jan H\u00fcckelheim. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Association for Computing Machinery (ACM), Vol. 9, No. OOPSLA2, pp. 1063-1091, 2025, URL: https://doi.org/10.1145/3763088, DOI: 10.1145/3763088."
       ],
-      "statistics": [],
+      "statistics": [
+        "index-ops",
+        "linalg-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -279,7 +290,10 @@
       "references": [
         "Jacob Laurel, Ignacio Laguna, Jan H\u00fcckelheim. \"Synthesizing Sound and Precise Abstract Transformers for Nonlinear Hyperbolic PDE Solvers.\", Proceedings of the ACM on Programming Languages, Association for Computing Machinery (ACM), Vol. 9, No. OOPSLA2, pp. 1063-1091, 2025, URL: https://doi.org/10.1145/3763088, DOI: 10.1145/3763088."
       ],
-      "statistics": [],
+      "statistics": [
+        "index-ops",
+        "linalg-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -500,7 +514,9 @@
             ". \"\", URL: https://www.netlib.org/templates/templates.pdf.",
             ". \"\", URL: https://www.netlib.org/utk/people/JackDongarra/PAPERS/sparse-bench.pdf."
           ],
-          "statistics": [],
+          "statistics": [
+            "dense"
+          ],
           "suites": [
             "test"
           ],
@@ -613,7 +629,11 @@
         ". \"\", URL: https://www.netlib.org/templates/templates.pdf.",
         ". \"\", URL: https://www.netlib.org/utk/people/JackDongarra/PAPERS/sparse-bench.pdf."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "index-ops",
+        "linalg-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -664,6 +684,7 @@
             "Evgeni Rustik, Emiliya Viktoriia, Aliona Tatyana. \"Harnessing Tensor Decomposition for High-Dimensional Machine Learning\", Institute of Electrical and Electronics Engineers (IEEE), 2025, URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1, DOI: 10.36227/techrxiv.174417403.38431928/v1."
           ],
           "statistics": [
+            "dense",
             "tensor"
           ],
           "suites": [],
@@ -778,7 +799,10 @@
             "Tamara G. Kolda, Brett W. Bader. \"Tensor Decompositions and Applications\", SIAM Review, Society for Industrial & Applied Mathematics (SIAM), Vol. 51, No. 3, pp. 455-500, 2009, URL: https://doi.org/10.1137/07070111x, DOI: 10.1137/07070111x.",
             "Evgeni Rustik, Emiliya Viktoriia, Aliona Tatyana. \"Harnessing Tensor Decomposition for High-Dimensional Machine Learning\", Institute of Electrical and Electronics Engineers (IEEE), 2025, URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1, DOI: 10.36227/techrxiv.174417403.38431928/v1."
           ],
-          "statistics": [],
+          "statistics": [
+            "dense",
+            "tensor"
+          ],
           "suites": [],
           "topics": []
         },
@@ -835,7 +859,13 @@
         "Tamara G. Kolda, Brett W. Bader. \"Tensor Decompositions and Applications\", SIAM Review, Society for Industrial & Applied Mathematics (SIAM), Vol. 51, No. 3, pp. 455-500, 2009, URL: https://doi.org/10.1137/07070111x, DOI: 10.1137/07070111x.",
         "Evgeni Rustik, Emiliya Viktoriia, Aliona Tatyana. \"Harnessing Tensor Decomposition for High-Dimensional Machine Learning\", Institute of Electrical and Electronics Engineers (IEEE), 2025, URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1, DOI: 10.36227/techrxiv.174417403.38431928/v1."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "index-ops",
+        "large-query",
+        "linalg-ops",
+        "shape-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -889,7 +919,11 @@
             "Tamara G. Kolda, Brett W. Bader. \"Tensor Decompositions and Applications\", SIAM Review, Society for Industrial & Applied Mathematics (SIAM), Vol. 51, No. 3, pp. 455-500, 2009, URL: https://doi.org/10.1137/07070111x, DOI: 10.1137/07070111x.",
             "Evgeni Rustik, Emiliya Viktoriia, Aliona Tatyana. \"Harnessing Tensor Decomposition for High-Dimensional Machine Learning\", Institute of Electrical and Electronics Engineers (IEEE), 2025, URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1, DOI: 10.36227/techrxiv.174417403.38431928/v1."
           ],
-          "statistics": [],
+          "statistics": [
+            "dense",
+            "high-dimensional",
+            "tensor"
+          ],
           "suites": [],
           "topics": []
         },
@@ -948,7 +982,13 @@
         "Tamara G. Kolda, Brett W. Bader. \"Tensor Decompositions and Applications\", SIAM Review, Society for Industrial & Applied Mathematics (SIAM), Vol. 51, No. 3, pp. 455-500, 2009, URL: https://doi.org/10.1137/07070111x, DOI: 10.1137/07070111x.",
         "Evgeni Rustik, Emiliya Viktoriia, Aliona Tatyana. \"Harnessing Tensor Decomposition for High-Dimensional Machine Learning\", Institute of Electrical and Electronics Engineers (IEEE), 2025, URL: https://doi.org/10.36227/techrxiv.174417403.38431928/v1, DOI: 10.36227/techrxiv.174417403.38431928/v1."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "index-ops",
+        "large-query",
+        "linalg-ops",
+        "shape-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -1132,7 +1172,9 @@
           "name": "bellman_ford_test_inputs",
           "pretty_name": "Bellman-Ford Test Input Generator",
           "references": [],
-          "statistics": [],
+          "statistics": [
+            "dense"
+          ],
           "suites": [
             "test"
           ],
@@ -1200,7 +1242,11 @@
       "references": [
         "Kepner, Jeremy, Gilbert, John. \"Graph Algorithms in the Language of Linear Algebra\", Society for Industrial and Applied Mathematics (SIAM), Philadelphia, 2011."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "index-ops",
+        "shape-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -1704,8 +1750,7 @@
         "Kepner, Jeremy, Gilbert, John. \"Graph Algorithms in the Language of Linear Algebra\", Society for Industrial and Applied Mathematics (SIAM), Philadelphia, 2011."
       ],
       "statistics": [
-        "fancy-ops",
-        "nonzero-fill"
+        "fancy-ops"
       ],
       "suites": [],
       "topics": []
@@ -1758,7 +1803,10 @@
             "G. D. Purvis, R. J. Bartlett. \"A full coupled-cluster singles and doubles model: The inclusion of disconnected triples\", J. Chem. Phys., Vol. 76, No. 4, pp. 1910-1918, 1982, URL: https://doi.org/10.1063/1.443164.",
             "E. Solomonik, D. Matthews, J. R. Hammond, J. F. Stanton, J. Demmel. \"A massively parallel tensor contraction framework for coupled-cluster computations\", J. Parallel Distrib. Comput., Vol. 74, No. 12, pp. 3176-3190, 2014, URL: https://doi.org/10.1016/j.jpdc.2014.06.002."
           ],
-          "statistics": [],
+          "statistics": [
+            "dense",
+            "tensor"
+          ],
           "suites": [],
           "topics": []
         }
@@ -1771,7 +1819,9 @@
         "G. D. Purvis, R. J. Bartlett. \"A full coupled-cluster singles and doubles model: The inclusion of disconnected triples\", J. Chem. Phys., Vol. 76, No. 4, pp. 1910-1918, 1982, URL: https://doi.org/10.1063/1.443164.",
         "E. Solomonik, D. Matthews, J. R. Hammond, J. F. Stanton, J. Demmel. \"A massively parallel tensor contraction framework for coupled-cluster computations\", J. Parallel Distrib. Comput., Vol. 74, No. 12, pp. 3176-3190, 2014, URL: https://doi.org/10.1016/j.jpdc.2014.06.002."
       ],
-      "statistics": [],
+      "statistics": [
+        "elementary-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -1812,7 +1862,10 @@
           "name": "cp_factorizable",
           "pretty_name": "Factorizable Tensor for CP Decomposition",
           "references": [],
-          "statistics": [],
+          "statistics": [
+            "dense",
+            "tensor"
+          ],
           "suites": [],
           "topics": []
         }
@@ -1826,7 +1879,12 @@
         "Willow Ahrens, Alvin Shi. \"CS 18.335 Final Project: CP Decomposition\", 2025, URL: https://github.com/willow-ahrens/18.335FinalProject/blob/submit/TFGDCANDECOMP.py.",
         "Tensorly Contributors. \"Tensorly\", 2025, URL: https://github.com/tensorly/tensorly/blob/main/tensorly/decomposition/_cp.py."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "linalg-ops",
+        "shape-ops",
+        "transcendental-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -1869,7 +1927,10 @@
           "name": "cp_factorizable",
           "pretty_name": "Factorizable Tensor for CP Decomposition",
           "references": [],
-          "statistics": [],
+          "statistics": [
+            "dense",
+            "tensor"
+          ],
           "suites": [],
           "topics": []
         }
@@ -1883,7 +1944,13 @@
         "Willow Ahrens, Alvin Shi. \"CS 18.335 Final Project: CP Decomposition\", 2025, URL: https://github.com/willow-ahrens/18.335FinalProject/blob/submit/TFGDCANDECOMP.py.",
         "Tensorly Contributors. \"Tensorly\", 2025, URL: https://github.com/tensorly/tensorly/blob/main/tensorly/decomposition/_cp.py."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "large-query",
+        "linalg-ops",
+        "shape-ops",
+        "transcendental-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -1928,7 +1995,11 @@
           "name": "cp_factorizable",
           "pretty_name": "Factorizable Tensor for CP Decomposition",
           "references": [],
-          "statistics": [],
+          "statistics": [
+            "dense",
+            "high-dimensional",
+            "tensor"
+          ],
           "suites": [],
           "topics": []
         }
@@ -1942,7 +2013,13 @@
         "Willow Ahrens, Alvin Shi. \"CS 18.335 Final Project: CP Decomposition\", 2025, URL: https://github.com/willow-ahrens/18.335FinalProject/blob/submit/TFGDCANDECOMP.py.",
         "Tensorly Contributors. \"Tensorly\", 2025, URL: https://github.com/tensorly/tensorly/blob/main/tensorly/decomposition/_cp.py."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "large-query",
+        "linalg-ops",
+        "shape-ops",
+        "transcendental-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -2023,7 +2100,9 @@
           "name": "fastsv_test_inputs",
           "pretty_name": "FastSV Test Input Generator",
           "references": [],
-          "statistics": [],
+          "statistics": [
+            "dense"
+          ],
           "suites": [
             "test"
           ],
@@ -2075,7 +2154,11 @@
       "references": [
         "Zhang, Y., Azad, A., Hu, Z.. \"FastSV: A distributed-memory connected component algorithm with fast convergence.\", Proceedings of the 2020 SIAM Conference on Parallel Processing for Scientific Computing, Society for Industrial and Applied Mathematics, pp. 46-57, 2020."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "index-ops",
+        "shape-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -2592,7 +2675,9 @@
             "Bobby Yan, Alexander J. Root, Trevor Gale, David Broman, Fredrik Kjolstad. \"Scorch: A Library for Sparse Deep Learning\", Arxiv, Vol. arXiv:2405.16883, 2024, URL: https://anonymous.4open.science/r/scorch/README.md.",
             "Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graphs\", Arxiv, Vol. arXiv:2005.00687, 2020, URL: https://arxiv.org/abs/2005.00687."
           ],
-          "statistics": [],
+          "statistics": [
+            "dense"
+          ],
           "suites": [
             "test"
           ],
@@ -2766,7 +2851,10 @@
         "Bobby Yan, Alexander J. Root, Trevor Gale, David Broman, Fredrik Kjolstad. \"Scorch: A Library for Sparse Deep Learning\", Arxiv, Vol. arXiv:2405.16883, 2024, URL: https://anonymous.4open.science/r/scorch/README.md.",
         "Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graphs\", Arxiv, Vol. arXiv:2005.00687, 2020, URL: https://arxiv.org/abs/2005.00687."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "linalg-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -3249,10 +3337,7 @@
             ". \"Graph Algorithms in the Language of Linear Algebra\", Society for Industrial and Applied Mathematics, 2011, URL: https://doi.org/10.1137/1.9780898719918, DOI: 10.1137/1.9780898719918.",
             "Guy Allard. \"markov_clustering\", URL: https://github.com/GuyAllard/markov_clustering."
           ],
-          "statistics": [
-            "dynamic-sparsity",
-            "hypersparse"
-          ],
+          "statistics": [],
           "suites": [
             "test"
           ],
@@ -3354,7 +3439,6 @@
       "statistics": [
         "fancy-ops",
         "linalg-ops",
-        "nonzero-fill",
         "transcendental-ops"
       ],
       "suites": [],
@@ -3419,7 +3503,9 @@
           "name": "mc_generator",
           "pretty_name": "Model Counting Generator",
           "references": [],
-          "statistics": [],
+          "statistics": [
+            "dense"
+          ],
           "suites": [
             "test"
           ],
@@ -4330,7 +4416,9 @@
           "references": [
             "CS 267 Staff. \"Particle Simulation Algorithm\", URL: https://github.com/Berkeley-CS267/hw2-1/blob/master/serial.cpp."
           ],
-          "statistics": [],
+          "statistics": [
+            "dense"
+          ],
           "suites": [
             "test"
           ],
@@ -4344,7 +4432,11 @@
       "references": [
         "CS 267 Staff. \"Particle Simulation Algorithm\", URL: https://github.com/Berkeley-CS267/hw2-1/blob/master/serial.cpp."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "shape-ops",
+        "transcendental-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -5158,7 +5250,7 @@
           "pretty_name": "Quantum Test Inputs",
           "references": [],
           "statistics": [
-            "hypersparse",
+            "dense",
             "tensor"
           ],
           "suites": [
@@ -5432,6 +5524,7 @@
           "pretty_name": "Quantum Statevector Data Generator",
           "references": [],
           "statistics": [
+            "dense",
             "tensor"
           ],
           "suites": [],
@@ -5444,7 +5537,6 @@
       "pretty_name": "Quantum Circuit Statevector",
       "references": [],
       "statistics": [
-        "nonzero-fill",
         "shape-ops"
       ],
       "suites": [],
@@ -5499,7 +5591,10 @@
           "references": [
             "Christos Boutsidis, Anastasios Zouzias, Petros Drineas. \"Random Projections for $k$-means Clustering\", Arxiv, Vol. arXiv:1011.4632, 2010, URL: https://arxiv.org/abs/1011.4632."
           ],
-          "statistics": [],
+          "statistics": [
+            "dense",
+            "tensor"
+          ],
           "suites": [],
           "topics": []
         }
@@ -5511,7 +5606,13 @@
       "references": [
         "Christos Boutsidis, Anastasios Zouzias, Petros Drineas. \"Random Projections for $k$-means Clustering\", Arxiv, Vol. arXiv:1011.4632, 2010, URL: https://arxiv.org/abs/1011.4632."
       ],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "index-ops",
+        "linalg-ops",
+        "shape-ops",
+        "transcendental-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -5730,7 +5831,9 @@
           "name": "subgraph_matching_test_inputs",
           "pretty_name": "Subgraph Matching Test Inputs",
           "references": [],
-          "statistics": [],
+          "statistics": [
+            "dynamic-sparsity"
+          ],
           "suites": [
             "test"
           ],
@@ -23538,7 +23641,11 @@
           "name": "tictactoe_boards",
           "pretty_name": "Fixed Boards for testing.",
           "references": [],
-          "statistics": [],
+          "statistics": [
+            "dense",
+            "high-dimensional",
+            "tensor"
+          ],
           "suites": [],
           "topics": []
         }
@@ -23548,7 +23655,11 @@
       "name": "tictactoe_minimax",
       "pretty_name": "Tensorized Minimax Tic-Tac-Toe",
       "references": [],
-      "statistics": [],
+      "statistics": [
+        "fancy-ops",
+        "index-ops",
+        "shape-ops"
+      ],
       "suites": [],
       "topics": []
     },
@@ -23651,8 +23762,7 @@
           "pretty_name": "Transitive Closure Test Input Generator",
           "references": [],
           "statistics": [
-            "dynamic-sparsity",
-            "hypersparse"
+            "dense"
           ],
           "suites": [
             "test"
@@ -23668,8 +23778,7 @@
         "Kepner, Jeremy, Gilbert, John. \"Graph Algorithms in the Language of Linear Algebra\", Society for Industrial and Applied Mathematics (SIAM), Philadelphia, 2011."
       ],
       "statistics": [
-        "fancy-ops",
-        "nonzero-fill"
+        "fancy-ops"
       ],
       "suites": [],
       "topics": []
@@ -23732,7 +23841,7 @@
           "pretty_name": "Transitive Reduction Test Inputs",
           "references": [],
           "statistics": [
-            "hypersparse"
+            "dense"
           ],
           "suites": [
             "test"
@@ -23750,7 +23859,6 @@
       "statistics": [
         "fancy-ops",
         "index-ops",
-        "nonzero-fill",
         "shape-ops"
       ],
       "suites": [],
@@ -23814,7 +23922,7 @@
           "pretty_name": "4-Clique Count Test Input Generator",
           "references": [],
           "statistics": [
-            "hypersparse"
+            "dense"
           ],
           "suites": [
             "test"
@@ -23863,8 +23971,7 @@
         "Kepner, Jeremy, Gilbert, John. \"Graph Algorithms in the Language of Linear Algebra\", Society for Industrial and Applied Mathematics, 2011, URL: https://doi.org/10.1137/1.9780898719918."
       ],
       "statistics": [
-        "elementary-ops",
-        "nonzero-fill"
+        "elementary-ops"
       ],
       "suites": [],
       "topics": []
@@ -23927,7 +24034,7 @@
           "pretty_name": "Triangle Count Test Input Generator",
           "references": [],
           "statistics": [
-            "hypersparse"
+            "dense"
           ],
           "suites": [
             "test"
@@ -23976,8 +24083,7 @@
         "Kepner, Jeremy, Gilbert, John. \"Graph Algorithms in the Language of Linear Algebra\", Society for Industrial and Applied Mathematics, 2011, URL: https://doi.org/10.1137/1.9780898719918."
       ],
       "statistics": [
-        "elementary-ops",
-        "nonzero-fill"
+        "elementary-ops"
       ],
       "suites": [],
       "topics": []
@@ -24061,7 +24167,9 @@
           "name": "wmc_generator",
           "pretty_name": "Weighted Model Counting Generator",
           "references": [],
-          "statistics": [],
+          "statistics": [
+            "dense"
+          ],
           "suites": [
             "test"
           ],
@@ -24073,7 +24181,9 @@
       "name": "Weighted Model Counting using einsum",
       "pretty_name": "Weighted Model Counting using einsum",
       "references": [],
-      "statistics": [],
+      "statistics": [
+        "large-query"
+      ],
       "suites": [],
       "topics": []
     }

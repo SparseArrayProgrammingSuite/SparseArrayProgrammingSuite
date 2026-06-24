@@ -137,6 +137,18 @@ class TaggedArray:
     def __len__(self):
         return len(self.array)
 
+    @property
+    def shape(self):
+        return self.array.shape
+
+    @property
+    def dtype(self):
+        return self.array.dtype
+
+    @property
+    def ndim(self):
+        return self.array.ndim
+
     def __iter__(self):
         for item in self.array:
             yield self.framework._wrap(
@@ -480,10 +492,9 @@ class TaggerFramework(Framework):
         )
 
     def _tensor_stats(self, array, elementwise_ops_since_reduction=0):
-        shape = getattr(array, "shape", None)
+        shape = array.shape
         if shape is not None:
             shape = tuple(int(dim) for dim in shape)
-
         nnz = getattr(array, "nnz", None)
         if nnz is None and hasattr(array, "data"):
             data = array.data
@@ -542,6 +553,8 @@ class TaggerFramework(Framework):
             for item in value:
                 operands.extend(self._collect_operand_stats(item))
             return operands
+        if isinstance(value, type):
+            return []
         if hasattr(value, "ndim"):
             return [self._tensor_stats(value)]
         return []
