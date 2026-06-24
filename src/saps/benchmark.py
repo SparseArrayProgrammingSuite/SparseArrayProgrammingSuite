@@ -158,6 +158,7 @@ class Dataset(Tagged):
             "pretty_name": self.pretty_name,
             "description": self.description,
             "suites": self.suites,
+            "concepts": self.concepts,
             "topics": self.topics,
             "statistics": [],
         }
@@ -212,6 +213,7 @@ class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
             "pretty_name": self.pretty_name,
             "description": self.description,
             "suites": self.suites,
+            "concepts": self.concepts,
             "topics": self.topics,
             "statistics": [],
             "authors": [str(a) for a in self.authors],
@@ -382,6 +384,7 @@ class Benchmark(Tagged, Attributed, Motivated):
             "id": f"{self.__class__.__module__}.{self.__class__.__name__}.{self.name}",
             "description": self.description,
             "suites": self.suites,
+            "concepts": self.concepts,
             "topics": self.topics,
             "statistics": [],
             "authors": [str(a) for a in self.authors],

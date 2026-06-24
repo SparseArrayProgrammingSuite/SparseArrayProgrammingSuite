@@ -18,10 +18,8 @@ jobs:
         run: poetry env use python3.12
       - name: Install package
         run: poetry install --extras test
-      - name: Generate metadata and topics
-        run: |
-          poetry run ./bin/run_benchmark.py --generate-metadata
-          poetry run ./bin/run_benchmark.py --convert-concepts
+      - name: Generate metadata
+        run: poetry run ./bin/run_benchmark.py --generate-metadata
       - name: Upload metadata
         uses: actions/upload-artifact@v4
         with:

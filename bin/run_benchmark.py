@@ -466,7 +466,7 @@ def _load_metadata_document(metadata_path: Path) -> dict:
     return {"benchmarks": document.get("benchmarks", [])}
 
 
-def _generate_metadata(
+def _refresh_metadata(
     metadata: dict[str, dict],
     metadata_path: Path,
 ) -> int:
@@ -479,63 +479,10 @@ def _generate_metadata(
         json.dumps(document, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    print(f"generated metadata for {len(document['benchmarks'])} benchmarks")
-    return 0
-
-
-def _convert_concepts(
-    metadata: dict[str, dict],
-    metadata_path: Path,
-) -> int:
-    document = _load_metadata_document(metadata_path)
-    existing_benchmarks = {
-        _record_key(record): record for record in document.get("benchmarks", [])
-    }
-
-    updated = 0
-    records: dict[str, dict] = {}
-    for record in metadata.values():
-        records.setdefault(_record_key(record), record)
-
-    for key, source_benchmark in records.items():
-        if key not in existing_benchmarks:
-            raise RuntimeError(
-                f"Missing metadata entry for {key}; run generate metadata first with "
-                "`poetry run ./bin/run_benchmark.py --generate-metadata`."
-            )
-        benchmark = existing_benchmarks[key]
-        benchmark["topics"] = source_benchmark.get("topics", [])
-
-        generators = {gen["name"]: gen for gen in benchmark.get("generators", [])}
-        for source_generator in source_benchmark.get("generators", []):
-            generator_name = source_generator["name"]
-            if generator_name not in generators:
-                raise RuntimeError(
-                    f"Missing metadata entry for generator {generator_name}; run "
-                    "generate metadata first with "
-                    "`poetry run ./bin/run_benchmark.py --generate-metadata`."
-                )
-            generator = generators[generator_name]
-            generator["topics"] = source_generator.get("topics", [])
-
-            datasets = {ds["name"]: ds for ds in generator.get("datasets", [])}
-            for source_dataset in source_generator.get("datasets", []):
-                dataset_name = source_dataset["name"]
-                if dataset_name not in datasets:
-                    raise RuntimeError(
-                        f"Missing metadata entry for dataset "
-                        f"{generator_name}.{dataset_name}; run generate metadata "
-                        "first with "
-                        "`poetry run ./bin/run_benchmark.py --generate-metadata`."
-                    )
-                datasets[dataset_name]["topics"] = source_dataset.get("topics", [])
-        updated += 1
-
-    metadata_path.write_text(
-        json.dumps(document, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
+    print(
+        "generated metadata for "
+        f"{len(document['benchmarks'])} benchmarks"
     )
-    print(f"converted concepts for {updated} benchmarks")
     return 0
 
 
@@ -708,16 +655,6 @@ def main() -> int:
         ),
     )
     parser.add_argument(
-        "--convert-concepts",
-        dest="convert_concepts",
-        action="store_true",
-        help=(
-            "Skip benchmark execution. Convert ACM CCS concepts into topic tags "
-            "in metadata.json "
-            "from pasted ACM CCS XML. Honors --re/--no-re/--tag/--no-tag filters."
-        ),
-    )
-    parser.add_argument(
         "--no-tag",
         action="append",
         default=[],
@@ -878,7 +815,6 @@ def main() -> int:
         args.trace_statistics
         or args.cache_datasets
         or args.generate_metadata
-        or args.convert_concepts
     )
 
     # Construct ASV config dict with all fields visible
@@ -994,7 +930,7 @@ def main() -> int:
     )
 
     if args.generate_metadata:
-        return _generate_metadata(source_metadata, persistent_metadata_path)
+        return _refresh_metadata(source_metadata, persistent_metadata_path)
 
     include_set = {tag.strip() for tag in args.tag if tag and tag.strip()}
     exclude_set = {tag.strip() for tag in args.no_tag if tag and tag.strip()}
@@ -1110,12 +1046,6 @@ def main() -> int:
             benchmarks=benchmarks,
             metadata=metadata,
             environments=environments,
-        )
-
-    if args.convert_concepts:
-        return _convert_concepts(
-            metadata=selected_source_metadata,
-            metadata_path=persistent_metadata_path,
         )
 
     if args.trace_statistics:
