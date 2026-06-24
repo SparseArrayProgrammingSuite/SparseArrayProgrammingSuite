@@ -147,9 +147,7 @@ class HOSVD4DDenseGenerator(Generator[HOSVD4DDataset]):
 
         X_dense = np.einsum("pqrs,ip,jq,kr,ls->ijkl", G, A, B, C, D)
 
-        indices = np.nonzero(np.ones_like(X_dense))
-        values = X_dense[indices]
-        X_bin = BinsparseFormat.from_coo(indices, values, (dim1, dim2, dim3, dim4))
+        X_bin = BinsparseFormat.from_numpy(X_dense)
 
         ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
         return DataInstance(

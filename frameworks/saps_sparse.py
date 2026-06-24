@@ -66,6 +66,16 @@ class PyDataSparseLinalg:
 
     @staticmethod
     def svd(A, full_matrices=False, k=None, **kwargs):
+        if not isinstance(A, sp.SparseArray):
+            U, S, Vt = np.linalg.svd(
+                np.asarray(A), full_matrices=full_matrices, **kwargs
+            )
+            if k is not None:
+                U = U[:, :k]
+                S = S[:k]
+                Vt = Vt[:k, :]
+            return U, S, Vt
+
         if full_matrices:
             raise ValueError("Sparse SVD does not support full_matrices=True.")
 
