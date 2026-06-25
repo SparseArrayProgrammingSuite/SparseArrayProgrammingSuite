@@ -1,7 +1,6 @@
 import ast
 import hashlib
 import inspect
-import importlib.metadata
 import importlib.util
 import json
 import os
@@ -14,6 +13,7 @@ from functools import cache
 from pathlib import Path
 from typing import Any, Generic, TypeVar
 
+from saps.dependencies import dependency_versions
 from saps.framework import load_framework
 from saps.storage import build_storage_backend
 from saps_framework.binsparse_format import BinsparseFormat as BinsparseFormat
@@ -66,40 +66,13 @@ def _imported_modules(path: Path) -> set[str]:
 
 
 @cache
-def _packages_distributions() -> dict[str, list[str]]:
-    return importlib.metadata.packages_distributions()
-
-
-@cache
-def _external_dependencies(module_name: str) -> tuple[tuple[str, str], ...]:
-    package_name = module_name.split(".", 1)[0]
-    if package_name in sys.stdlib_module_names:
-        return ()
-    if _module_path(package_name) is not None:
-        return ()
-
-    distributions = _packages_distributions().get(package_name)
-    if not distributions:
-        distributions = [package_name]
-
-    dependencies = []
-    for distribution in distributions:
-        try:
-            version = importlib.metadata.version(distribution)
-        except importlib.metadata.PackageNotFoundError:
-            continue
-        dependencies.append((distribution, version))
-    return tuple(sorted(dependencies))
-
-
-@cache
 def _freshness_inputs(
     module_name: str,
-) -> tuple[tuple[Path, ...], tuple[tuple[str, str], ...]]:
+) -> tuple[tuple[Path, ...], tuple[str, ...]]:
     pending = [module_name]
     seen_modules: set[str] = set()
     seen_files: set[Path] = set()
-    external_dependencies: set[tuple[str, str]] = set()
+    external_modules: set[str] = set()
     while pending:
         current = pending.pop()
         if current in seen_modules:
@@ -108,7 +81,11 @@ def _freshness_inputs(
 
         path = _module_path(current)
         if path is None:
-            external_dependencies.update(_external_dependencies(current))
+            if (
+                current.split(".", 1)[0] not in sys.stdlib_module_names
+                and _module_path(current.split(".", 1)[0]) is None
+            ):
+                external_modules.add(current)
             continue
         if path in seen_files:
             continue
@@ -118,7 +95,7 @@ def _freshness_inputs(
             if dependency not in seen_modules:
                 pending.append(dependency)
 
-    return tuple(sorted(seen_files)), tuple(sorted(external_dependencies))
+    return tuple(sorted(seen_files)), tuple(sorted(external_modules))
 
 
 @cache
@@ -142,15 +119,9 @@ def _source_file(cls: type) -> str:
 
 
 @cache
-def _source_dependencies(module_name: str) -> list[dict[str, str]]:
-    _, external_dependencies = _freshness_inputs(module_name)
-    return [
-        {
-            "name": name,
-            "version": version,
-        }
-        for name, version in external_dependencies
-    ]
+def _source_dependencies(module_name: str) -> list[str]:
+    _, external_modules = _freshness_inputs(module_name)
+    return list(external_modules)
 
 
 def _file_signature(path: Path) -> tuple[str, int, int]:
@@ -283,8 +254,12 @@ def _write_statistics_tags(
     benchmark_name: str,
     generator_name: str,
     dataset_name: str,
+    dataset_file: str,
+    dataset_freshness: str,
+    dataset_dependencies: list[str],
     tags: list[str],
 ):
+    version_records = dependency_versions(dataset_dependencies)
     statistics_path.parent.mkdir(parents=True, exist_ok=True)
     if statistics_path.exists():
         document = json.loads(statistics_path.read_text(encoding="utf-8"))
@@ -312,8 +287,18 @@ def _write_statistics_tags(
         generator.setdefault("datasets", []),
         "name",
         dataset_name,
-        {"statistics": []},
+        {
+            "dependencies": dataset_dependencies,
+            "dependency_versions": version_records,
+            "file": dataset_file,
+            "freshness": dataset_freshness,
+            "statistics": [],
+        },
     )
+    dataset["dependencies"] = dataset_dependencies
+    dataset["dependency_versions"] = version_records
+    dataset["file"] = dataset_file
+    dataset["freshness"] = dataset_freshness
     dataset["statistics"] = sorted({*dataset.get("statistics", []), *tags})
 
     document["benchmarks"] = sorted(
@@ -379,7 +364,7 @@ class Tagged(Metadata):
         )
 
     @property
-    def dependencies(self) -> list[dict[str, str]]:
+    def dependencies(self) -> list[str]:
         return _source_dependencies(self.__class__.__module__)
 
 
@@ -411,7 +396,6 @@ class Dataset(Tagged):
             "freshness": self.freshness,
             "name": self.name,
             "pretty_name": self.pretty_name,
-            "dependencies": self.dependencies,
             "description": self.description,
             "suites": self.suites,
             "concepts": self.concepts,
@@ -468,7 +452,6 @@ class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
             "freshness": self.freshness,
             "name": self.name,
             "pretty_name": self.pretty_name,
-            "dependencies": self.dependencies,
             "description": self.description,
             "suites": self.suites,
             "concepts": self.concepts,
@@ -622,6 +605,9 @@ class Benchmark(Tagged, Attributed, Motivated):
                 self.name,
                 param.generator.name,
                 param.dataset.name,
+                param.dataset.file,
+                param.dataset.freshness,
+                param.dataset.dependencies,
                 tags,
             )
 
@@ -656,7 +642,6 @@ class Benchmark(Tagged, Attributed, Motivated):
             "name": self.name,
             "pretty_name": self.pretty_name,
             "id": f"{self.__class__.__module__}.{self.__class__.__name__}.{self.name}",
-            "dependencies": self.dependencies,
             "description": self.description,
             "suites": self.suites,
             "concepts": self.concepts,

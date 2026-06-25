@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from saps.dependencies import dependency_versions
 from saps_framework.binsparse_format import BinsparseFormat
 
 if TYPE_CHECKING:
@@ -97,11 +98,22 @@ class StorageBackend(ABC):
     def _dataset_key(self, generator: Generator, dataset: Dataset) -> str:
         return f"{generator.name}.{dataset.name}"
 
+    def _dataset_manifest_metadata(self, dataset: Dataset) -> dict:
+        return {
+            "file": dataset.file,
+            "freshness": dataset.freshness,
+            "dependencies": dataset.dependencies,
+            "dependency_versions": dependency_versions(dataset.dependencies),
+        }
+
     def update_manifest(
         self, generator: Generator, dataset: Dataset, digest: str
     ) -> None:
         manifest = self._read_manifest()
-        manifest[self._dataset_key(generator, dataset)] = {"digest": digest}
+        manifest[self._dataset_key(generator, dataset)] = {
+            "digest": digest,
+            **self._dataset_manifest_metadata(dataset),
+        }
         self.manifest_path.write_text(
             json.dumps(manifest, indent=2, sort_keys=True) + "\n",
             encoding="utf-8",
@@ -112,13 +124,24 @@ class StorageBackend(ABC):
         dataset_key = self._dataset_key(generator, dataset)
         if dataset_key not in manifest:
             return None
-        return manifest[dataset_key]["digest"]
+        record = manifest[dataset_key]
+        if {
+            key: record.get(key)
+            for key in ("file", "freshness", "dependencies", "dependency_versions")
+        } != self._dataset_manifest_metadata(dataset):
+            logging.info(
+                f"Dataset {generator.name}.{dataset.name} manifest metadata "
+                "is stale."
+            )
+            return None
+        return record["digest"]
 
     def upload_dataset(self, generator: Generator, dataset: Dataset) -> bool:
         data = generator.generate(dataset)
         digest = self.code_and_data_hash(generator, dataset, data)
         prefix = self.prefix(generator, dataset, digest)
         if self.file_exists(prefix):
+            self.update_manifest(generator, dataset, digest)
             return True
         local_path = self.cache_dir / prefix
         self.serialize_data_to_file(data, local_path)
