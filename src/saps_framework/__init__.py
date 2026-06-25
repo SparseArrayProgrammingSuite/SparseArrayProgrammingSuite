@@ -1,5 +1,5 @@
-from .binsparse_format import BinsparseFormat
-from .einsum import einsum
-from .framework import Framework
+from saps_framework.binsparse_format import BinsparseFormat
+from saps_framework.einsum import einsum
+from saps_framework.framework import Framework
 
 __all__ = ["BinsparseFormat", "Framework", "einsum"]

@@ -1,10 +1,16 @@
+import ast
+import hashlib
 import inspect
+import importlib.metadata
+import importlib.util
 import json
 import os
 import re
+import sys
 import xml.etree.ElementTree as ET
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from functools import cache
 from pathlib import Path
 from typing import Any, Generic, TypeVar
 
@@ -12,6 +18,170 @@ from saps.framework import load_framework
 from saps.storage import build_storage_backend
 from saps_framework.binsparse_format import BinsparseFormat as BinsparseFormat
 from saps_framework.framework import Framework
+
+
+def _repo_root() -> Path:
+    root = os.environ.get("SAPS_REPO_ROOT")
+    if root:
+        return Path(root).resolve()
+    return Path(__file__).resolve().parents[2]
+
+
+def _module_path(module_name: str) -> Path | None:
+    try:
+        spec = importlib.util.find_spec(module_name)
+    except (ImportError, ModuleNotFoundError, ValueError):
+        return None
+    if spec is None or spec.origin is None:
+        return None
+    path = Path(spec.origin).resolve()
+    if path.suffix != ".py":
+        return None
+    try:
+        path.relative_to(_repo_root())
+    except ValueError:
+        return None
+    return path
+
+
+def _imported_modules(path: Path) -> set[str]:
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    except SyntaxError:
+        return set()
+
+    modules: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            modules.update(alias.name for alias in node.names)
+        elif isinstance(node, ast.ImportFrom):
+            if node.level:
+                raise RuntimeError(
+                    f"Relative import in {path}:{node.lineno}. "
+                    "Use an absolute import so freshness hashes are stable."
+            )
+            if node.module:
+                modules.add(node.module)
+    return modules
+
+
+@cache
+def _packages_distributions() -> dict[str, list[str]]:
+    return importlib.metadata.packages_distributions()
+
+
+@cache
+def _external_dependencies(module_name: str) -> tuple[tuple[str, str], ...]:
+    package_name = module_name.split(".", 1)[0]
+    if package_name in sys.stdlib_module_names:
+        return ()
+    if _module_path(package_name) is not None:
+        return ()
+
+    distributions = _packages_distributions().get(package_name)
+    if not distributions:
+        distributions = [package_name]
+
+    dependencies = []
+    for distribution in distributions:
+        try:
+            version = importlib.metadata.version(distribution)
+        except importlib.metadata.PackageNotFoundError:
+            continue
+        dependencies.append((distribution, version))
+    return tuple(sorted(dependencies))
+
+
+@cache
+def _freshness_inputs(
+    module_name: str,
+) -> tuple[tuple[Path, ...], tuple[tuple[str, str], ...]]:
+    pending = [module_name]
+    seen_modules: set[str] = set()
+    seen_files: set[Path] = set()
+    external_dependencies: set[tuple[str, str]] = set()
+    while pending:
+        current = pending.pop()
+        if current in seen_modules:
+            continue
+        seen_modules.add(current)
+
+        path = _module_path(current)
+        if path is None:
+            external_dependencies.update(_external_dependencies(current))
+            continue
+        if path in seen_files:
+            continue
+        seen_files.add(path)
+
+        for dependency in _imported_modules(path):
+            if dependency not in seen_modules:
+                pending.append(dependency)
+
+    return tuple(sorted(seen_files)), tuple(sorted(external_dependencies))
+
+
+@cache
+def _file_content_hash(path: str, _mtime_ns: int, _size: int) -> str:
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def _cached_file_content_hash(path: Path) -> str:
+    stat = path.stat()
+    return _file_content_hash(str(path), stat.st_mtime_ns, stat.st_size)
+
+
+@cache
+def _class_source_path(cls: type) -> Path:
+    return Path(inspect.getfile(cls)).resolve()
+
+
+@cache
+def _source_file(cls: type) -> str:
+    return _class_source_path(cls).relative_to(_repo_root()).as_posix()
+
+
+@cache
+def _source_dependencies(module_name: str) -> list[dict[str, str]]:
+    _, external_dependencies = _freshness_inputs(module_name)
+    return [
+        {
+            "name": name,
+            "version": version,
+        }
+        for name, version in external_dependencies
+    ]
+
+
+def _file_signature(path: Path) -> tuple[str, int, int]:
+    stat = path.stat()
+    return str(path), stat.st_mtime_ns, stat.st_size
+
+
+@cache
+def _source_freshness_for_files(
+    root: str, file_signatures: tuple[tuple[str, int, int], ...]
+) -> str:
+    root_path = Path(root)
+    digest = hashlib.sha256()
+    for path, _, _ in file_signatures:
+        file_path = Path(path)
+        relative = file_path.relative_to(root_path).as_posix()
+        digest.update(relative.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(_cached_file_content_hash(file_path).encode("utf-8"))
+        digest.update(b"\0")
+
+    return digest.hexdigest()
+
+
+def _source_freshness(module_name: str, source_path: Path) -> str:
+    files, _ = _freshness_inputs(module_name)
+    if not files:
+        files = (source_path,)
+    return _source_freshness_for_files(
+        str(_repo_root()), tuple(_file_signature(path) for path in files)
+    )
 
 
 @dataclass
@@ -198,6 +368,20 @@ class Tagged(Metadata):
     def topics(self) -> list[str]:
         return ccs_xml_to_tags(self.concepts)
 
+    @property
+    def file(self) -> str:
+        return _source_file(self.__class__)
+
+    @property
+    def freshness(self) -> str:
+        return _source_freshness(
+            self.__class__.__module__, _class_source_path(self.__class__)
+        )
+
+    @property
+    def dependencies(self) -> list[dict[str, str]]:
+        return _source_dependencies(self.__class__.__module__)
+
 
 class Attributed(ABC):
     @property
@@ -223,8 +407,11 @@ class Dataset(Tagged):
     @property
     def metadata(self) -> dict[str, Any]:
         return {
+            "file": self.file,
+            "freshness": self.freshness,
             "name": self.name,
             "pretty_name": self.pretty_name,
+            "dependencies": self.dependencies,
             "description": self.description,
             "suites": self.suites,
             "concepts": self.concepts,
@@ -277,8 +464,11 @@ class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
     @property
     def metadata(self) -> dict[str, Any]:
         return {
+            "file": self.file,
+            "freshness": self.freshness,
             "name": self.name,
             "pretty_name": self.pretty_name,
+            "dependencies": self.dependencies,
             "description": self.description,
             "suites": self.suites,
             "concepts": self.concepts,
@@ -461,9 +651,12 @@ class Benchmark(Tagged, Attributed, Motivated):
     @property
     def metadata(self) -> dict[str, Any]:
         return {
+            "file": self.file,
+            "freshness": self.freshness,
             "name": self.name,
             "pretty_name": self.pretty_name,
             "id": f"{self.__class__.__module__}.{self.__class__.__name__}.{self.name}",
+            "dependencies": self.dependencies,
             "description": self.description,
             "suites": self.suites,
             "concepts": self.concepts,

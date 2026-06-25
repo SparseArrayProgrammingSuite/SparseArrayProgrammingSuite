@@ -1,4 +1,4 @@
-from .benchmark import (
+from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
@@ -6,8 +6,8 @@ from .benchmark import (
     Ref,
     ccs_xml_to_tags,
 )
-from .framework import load_framework
-from .storage import build_storage_backend
+from saps.framework import load_framework
+from saps.storage import build_storage_backend
 
 __all__ = [
     "Author",

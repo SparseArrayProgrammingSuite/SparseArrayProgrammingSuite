@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 from saps_framework.binsparse_format import BinsparseFormat
 
 if TYPE_CHECKING:
-    from .benchmark import DataInstance, Dataset, Generator
+    from saps.benchmark import DataInstance, Dataset, Generator
 
 
 class StorageBackend(ABC):
@@ -64,7 +64,7 @@ class StorageBackend(ABC):
         return [BinsparseFormat.deserialize(string) for string in values]
 
     def deserialize_data(self, json_str: str) -> DataInstance:
-        from .benchmark import DataInstance
+        from saps.benchmark import DataInstance
 
         data = json.loads(json_str)
         inputs = data.get("inputs", data.get("binsparse"))
