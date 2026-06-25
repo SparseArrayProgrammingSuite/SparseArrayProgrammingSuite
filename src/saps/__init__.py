@@ -4,6 +4,7 @@ from saps.benchmark import (
     Contributor,
     DataInstance,
     Ref,
+    ShellBenchmark,
     ccs_xml_to_tags,
 )
 from saps.framework import load_framework
@@ -15,6 +16,7 @@ __all__ = [
     "Contributor",
     "DataInstance",
     "Ref",
+    "ShellBenchmark",
     "build_storage_backend",
     "ccs_xml_to_tags",
     "load_framework",

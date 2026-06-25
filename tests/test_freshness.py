@@ -13,9 +13,8 @@ from packaging.requirements import Requirement
 from packaging.utils import canonicalize_name
 from packaging.version import Version
 
-import saps
 import saps.benchmarks
-from saps.benchmark import Benchmark
+from saps.benchmark import Benchmark, Generator
 from saps.dependencies import dependency_versions
 
 ROOT = Path(__file__).parents[1]
@@ -38,6 +37,20 @@ def _benchmark_instances() -> Iterator[Benchmark]:
                 and not inspect.isabstract(cls)
             ):
                 yield cls()
+
+
+def _generator_classes() -> Iterator[type[Generator]]:
+    for module_info in pkgutil.iter_modules(saps.benchmarks.__path__):
+        module = importlib.import_module(f"saps.benchmarks.{module_info.name}")
+        for _, cls in inspect.getmembers(module, inspect.isclass):
+            if cls.__module__ != module.__name__:
+                continue
+            if (
+                issubclass(cls, Generator)
+                and cls is not Generator
+                and not inspect.isabstract(cls)
+            ):
+                yield cls
 
 
 @cache
@@ -142,6 +155,24 @@ def test_metadata_json_is_fresh():
     expected = _fresh_metadata_document()
     actual = _read_json(ROOT / "metadata.json")
     assert actual == expected
+
+
+def test_all_concrete_generators_have_parent_benchmarks():
+    parented = {
+        type(generator)
+        for benchmark in _benchmark_instances()
+        for generator in benchmark.generators
+    }
+    floating = sorted(
+        {
+            f"{cls.__module__}.{cls.__qualname__}"
+            for cls in _generator_classes()
+            if cls not in parented
+        }
+    )
+    assert not floating, (
+        "concrete generators without parent benchmarks: " + ", ".join(floating)
+    )
 
 
 def test_trace_suite_has_fresh_statistics():

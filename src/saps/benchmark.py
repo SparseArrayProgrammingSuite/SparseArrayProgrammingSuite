@@ -644,3 +644,52 @@ class Benchmark(Tagged, Attributed, Motivated):
             "motivation": self.motivation,
             "generators": [generator.metadata for generator in self.generators],
         }
+
+
+class ShellBenchmark(Benchmark, ABC):
+    @property
+    @abstractmethod
+    def generator(self) -> Generator[Any]: ...
+
+    @property
+    def name(self) -> str:
+        return f"{self.generator.name}_shell"
+
+    @property
+    def pretty_name(self) -> str:
+        return self.generator.pretty_name
+
+    @property
+    def description(self) -> str:
+        return ""
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return ""
+
+    @property
+    def motivation(self) -> str:
+        return ""
+
+    @property
+    def generators(self) -> list[Generator[Any]]:
+        return [self.generator]
+
+    def benchmark(self, xp: Framework, data: list[Any], meta: Any) -> Any:
+        return []

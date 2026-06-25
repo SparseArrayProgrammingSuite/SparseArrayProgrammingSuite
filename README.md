@@ -29,6 +29,8 @@ to install the current project and dev dependencies.
 - Benchmarks are the algorithms being run.
 - Tags can be applied to datasets, generators, or benchmarks. If a generator or benchmark is tagged, the dataset inherits that tag.
 
+Concrete generators should be reachable from a benchmark so metadata, freshness checks, and dataset caching can discover them. If a generator is intentionally standalone data plumbing rather than part of a runnable benchmark, wrap it in a small `ShellBenchmark`: implement only the `generator` property and let the shell expose the generator under a `{generator.name}_shell` benchmark record.
+
 ### Test sets
 
 - `test`: datasets that run in CI and cover dense/sparse cases, different sizes, and code paths.

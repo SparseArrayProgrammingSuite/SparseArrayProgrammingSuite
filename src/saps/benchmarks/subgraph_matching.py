@@ -8,6 +8,7 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ShellBenchmark,
 )
 from saps.downloaders.gcare import (
     load_gcare_graph,
@@ -316,6 +317,12 @@ class GCareGraphGenerator(Generator[GCareGraphDataset]):
     def generate(self, dataset: GCareGraphDataset):
         inputs, meta = load_gcare_graph(dataset.name)
         return DataInstance(inputs=inputs, meta=meta)
+
+
+class GCareGraphBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return GCareGraphGenerator()
 
 
 class GCareGenerator(Generator[GCareDataset]):
