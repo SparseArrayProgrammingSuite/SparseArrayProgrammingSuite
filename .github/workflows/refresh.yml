@@ -65,7 +65,7 @@ jobs:
         with:
           name: saps-trace-${{ matrix.chunk }}
           path: |
-            metadata.json
+            statistics.json
             .saps/outputs/tagger_stats
             .saps/outputs/results
 
@@ -110,15 +110,10 @@ jobs:
             .saps/remote-storage
             .saps/outputs/cache
 
-  merge-metadata:
+  merge-statistics:
     needs: trace
     runs-on: ubuntu-latest
     steps:
-      - name: Download metadata
-        uses: actions/download-artifact@v4
-        with:
-          name: saps-metadata
-          path: artifacts/metadata
       - name: Download trace chunks
         uses: actions/download-artifact@v4
         with:
@@ -127,7 +122,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Merge metadata
+      - name: Merge statistics
         run: |
           python - <<'PY'
           import json
@@ -150,21 +145,39 @@ jobs:
           def record_key(record):
               return record.get("id", record["name"])
 
+          def get_or_add(records, key, value, defaults):
+              for record in records:
+                  if record.get(key) == value:
+                      return record
+              record = {key: value, **defaults}
+              records.append(record)
+              return record
+
           def merge_statistics(target, source):
               target["statistics"] = sorted(
                   {*target.get("statistics", []), *source.get("statistics", [])}
               )
 
-          metadata = load_json(root / "metadata" / "metadata.json")
-          benchmarks = {
-              record_key(record): record
-              for record in metadata.get("benchmarks", [])
-          }
+          statistics = {"benchmarks": []}
+          benchmarks = {}
 
-          for trace_path in sorted((root / "trace").glob("*/metadata.json")):
+          for trace_path in sorted((root / "trace").glob("*/statistics.json")):
               trace_doc = load_json(trace_path)
               for source_benchmark in trace_doc.get("benchmarks", []):
-                  benchmark = benchmarks[record_key(source_benchmark)]
+                  key = record_key(source_benchmark)
+                  benchmark = benchmarks.get(key)
+                  if benchmark is None:
+                      benchmark = get_or_add(
+                          statistics["benchmarks"],
+                          "id",
+                          source_benchmark.get("id", source_benchmark["name"]),
+                          {
+                              "name": source_benchmark["name"],
+                              "statistics": [],
+                              "generators": [],
+                          },
+                      )
+                      benchmarks[key] = benchmark
                   merge_statistics(benchmark, source_benchmark)
 
                   generators = {
@@ -172,7 +185,15 @@ jobs:
                       for generator in benchmark.get("generators", [])
                   }
                   for source_generator in source_benchmark.get("generators", []):
-                      generator = generators[source_generator["name"]]
+                      generator = generators.get(source_generator["name"])
+                      if generator is None:
+                          generator = get_or_add(
+                              benchmark.setdefault("generators", []),
+                              "name",
+                              source_generator["name"],
+                              {"statistics": [], "datasets": []},
+                          )
+                          generators[source_generator["name"]] = generator
                       merge_statistics(generator, source_generator)
 
                       datasets = {
@@ -180,16 +201,36 @@ jobs:
                           for dataset in generator.get("datasets", [])
                       }
                       for source_dataset in source_generator.get("datasets", []):
-                          dataset = datasets[source_dataset["name"]]
+                          dataset = datasets.get(source_dataset["name"])
+                          if dataset is None:
+                              dataset = get_or_add(
+                                  generator.setdefault("datasets", []),
+                                  "name",
+                                  source_dataset["name"],
+                                  {"statistics": []},
+                              )
+                              datasets[source_dataset["name"]] = dataset
                           merge_statistics(dataset, source_dataset)
 
-          write_json(out / "metadata.json", metadata)
+          statistics["benchmarks"] = sorted(statistics["benchmarks"], key=record_key)
+          for benchmark in statistics["benchmarks"]:
+              benchmark["generators"] = sorted(
+                  benchmark.get("generators", []),
+                  key=lambda generator: generator["name"],
+              )
+              for generator in benchmark["generators"]:
+                  generator["datasets"] = sorted(
+                      generator.get("datasets", []),
+                      key=lambda dataset: dataset["name"],
+                  )
+
+          write_json(out / "statistics.json", statistics)
           PY
-      - name: Upload merged metadata
+      - name: Upload merged statistics
         uses: actions/upload-artifact@v4
         with:
-          name: saps-metadata-final
-          path: merged/metadata.json
+          name: saps-statistics-final
+          path: merged/statistics.json
 
   merge-manifest:
     needs: data

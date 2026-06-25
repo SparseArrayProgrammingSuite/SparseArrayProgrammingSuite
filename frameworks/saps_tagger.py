@@ -117,6 +117,176 @@ _NUMPY_FALLBACKS = {
 }
 
 
+def _fill_is_nonzero(value) -> bool:
+    if value is None:
+        return False
+    try:
+        return bool(value != 0)
+    except ValueError:
+        return True
+
+
+def tags_from_stats(stats: dict) -> list[str]:
+    tensors = stats.get("tensors", [])
+    operators = set(stats.get("operators", {}))
+    operator_names = {op.rsplit(".", 1)[-1] for op in operators}
+    arg_counts = [
+        count
+        for counts in stats.get("operator_arg_counts", {}).values()
+        for count in counts
+    ]
+    operand_stats = [
+        operands
+        for invocations in stats.get("operator_operand_stats", {}).values()
+        for operands in invocations
+    ]
+
+    tags: set[str] = set()
+
+    if any(t.get("ndim", 0) >= 5 for t in tensors):
+        tags.add("high-dimensional")
+    if any(t.get("ndim", 0) >= 3 for t in tensors):
+        tags.add("tensor")
+    if any(count >= 5 for count in arg_counts):
+        tags.add("large-query")
+
+    transcendental_ops = {
+        "acos",
+        "acosh",
+        "asin",
+        "asinh",
+        "atan",
+        "atan2",
+        "atanh",
+        "cos",
+        "cosh",
+        "exp",
+        "expm1",
+        "log",
+        "log1p",
+        "log2",
+        "log10",
+        "logaddexp",
+        "power",
+        "sin",
+        "sinh",
+        "sqrt",
+        "tan",
+        "tanh",
+    }
+    shape_ops = {
+        "broadcast_to",
+        "concatenate",
+        "concat",
+        "expand_dims",
+        "flatten",
+        "moveaxis",
+        "permute_dims",
+        "ravel",
+        "reshape",
+        "squeeze",
+        "stack",
+        "transpose",
+    }
+    fancy_ops = {
+        "all",
+        "any",
+        "bitwise_and",
+        "bitwise_invert",
+        "bitwise_left_shift",
+        "bitwise_or",
+        "bitwise_right_shift",
+        "bitwise_xor",
+        "equal",
+        "greater",
+        "greater_equal",
+        "less",
+        "less_equal",
+        "logical_and",
+        "logical_not",
+        "logical_or",
+        "logical_xor",
+        "max",
+        "maximum",
+        "min",
+        "minimum",
+        "not_equal",
+        "sort",
+        "where",
+    }
+    index_ops = {"getitem", "setitem", "take", "nonzero", "argwhere"}
+    linalg_ops = {
+        "cholesky",
+        "dot",
+        "eig",
+        "inv",
+        "matmul",
+        "norm",
+        "pinv",
+        "qr",
+        "solve",
+        "svd",
+        "tensordot",
+    }
+    elementary_ops = {
+        "add",
+        "divide",
+        "floor_divide",
+        "multiply",
+        "negative",
+        "positive",
+        "remainder",
+        "subtract",
+    }
+
+    if operator_names.intersection(transcendental_ops):
+        tags.add("transcendental-ops")
+    if operator_names.intersection(shape_ops):
+        tags.add("shape-ops")
+    if operator_names.intersection(fancy_ops):
+        tags.add("fancy-ops")
+    if index_ops.intersection(operator_names) or {
+        "array.getitem",
+        "array.setitem",
+    }.intersection(operators):
+        tags.add("index-ops")
+    if any(op.startswith("linalg.") for op in operators) or operator_names.intersection(
+        linalg_ops
+    ):
+        tags.add("linalg-ops")
+    if operator_names.intersection(elementary_ops) and not tags.intersection(
+        {
+            "transcendental-ops",
+            "shape-ops",
+            "fancy-ops",
+            "index-ops",
+            "linalg-ops",
+        }
+    ):
+        tags.add("elementary-ops")
+
+    if any(_fill_is_nonzero(t.get("fill_value")) for t in tensors):
+        tags.add("nonzero-fill")
+
+    sparsities = [t.get("sparsity") for t in tensors if t.get("sparsity") is not None]
+    if sparsities and all(sparsity == 1 for sparsity in sparsities):
+        tags.add("dense")
+    if any(t.get("sparsity") is not None and t["sparsity"] <= 0.01 for t in tensors):
+        tags.add("hypersparse")
+    if any(
+        sum(
+            1
+            for operand in operands
+            if operand.get("sparsity") is not None and operand["sparsity"] < 1
+        )
+        >= 2
+        for operands in operand_stats
+    ):
+        tags.add("dynamic-sparsity")
+
+    return sorted(tags)
+
+
 class TaggedArray:
     __array_priority__ = 1000
 
@@ -480,6 +650,10 @@ class TaggerFramework(Framework):
         self.stats["operator_arg_counts"].clear()
         self.stats["operator_operand_stats"].clear()
         self.stats["tensors"].clear()
+
+    @property
+    def tags(self) -> list[str]:
+        return tags_from_stats(self.stats)
 
     def _record_operation(self, namespace, name, args, kwargs):
         key = f"{namespace}.{name}" if namespace else name

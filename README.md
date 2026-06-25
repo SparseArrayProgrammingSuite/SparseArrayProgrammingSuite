@@ -44,7 +44,9 @@ Use ACM CCS XML to describe problem domains. Paste the XML into `concepts`, and 
 - `physical-sciences-and-engineering`
 - `aerospace`
 
-Manual benchmark suite tags are written to metadata verbatim under `suites`. Topic tags generated from ACM CCS XML are written under `topics`, and trace-derived tags are written under `statistics`; benchmark selection builds its tag set from all three fields.
+Manual benchmark suite tags are written to `metadata.json` verbatim under `suites`.
+Topic tags generated from ACM CCS XML are written under `topics`. Trace-derived
+tags are written to the parallel `statistics.json` hierarchy under `statistics`.
 
 Every benchmark, generator, and dataset provides `concepts`. Use `"<ccs2012></ccs2012>"` as a stub until you have a classification. You can use the [ACM CCS 2012 generator](https://dl.acm.org/ccs/ccs.cfm), copy its XML output, and paste it in as `concepts`. SAPS converts each `concept_desc` path component into `topics`:
 

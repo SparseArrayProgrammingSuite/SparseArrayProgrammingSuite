@@ -98,6 +98,75 @@ def ccs_xml_to_tags(xml_text: str | None) -> list[str]:
     return sorted(tags)
 
 
+def _get_or_add_record(records: list[dict], key: str, value: str, defaults: dict):
+    for record in records:
+        if record.get(key) == value:
+            return record
+    record = {key: value, **defaults}
+    records.append(record)
+    return record
+
+
+def _write_statistics_tags(
+    statistics_path: Path,
+    benchmark_id: str,
+    benchmark_name: str,
+    generator_name: str,
+    dataset_name: str,
+    tags: list[str],
+):
+    statistics_path.parent.mkdir(parents=True, exist_ok=True)
+    if statistics_path.exists():
+        document = json.loads(statistics_path.read_text(encoding="utf-8"))
+    else:
+        document = {"benchmarks": []}
+
+    benchmark = _get_or_add_record(
+        document.setdefault("benchmarks", []),
+        "id",
+        benchmark_id,
+        {"name": benchmark_name, "statistics": [], "generators": []},
+    )
+    benchmark.setdefault("name", benchmark_name)
+    benchmark.setdefault("statistics", [])
+
+    generator = _get_or_add_record(
+        benchmark.setdefault("generators", []),
+        "name",
+        generator_name,
+        {"statistics": [], "datasets": []},
+    )
+    generator.setdefault("statistics", [])
+
+    dataset = _get_or_add_record(
+        generator.setdefault("datasets", []),
+        "name",
+        dataset_name,
+        {"statistics": []},
+    )
+    dataset["statistics"] = sorted({*dataset.get("statistics", []), *tags})
+
+    document["benchmarks"] = sorted(
+        document.get("benchmarks", []),
+        key=lambda record: record.get("id", ""),
+    )
+    for record in document["benchmarks"]:
+        record["generators"] = sorted(
+            record.get("generators", []),
+            key=lambda generator: generator["name"],
+        )
+        for generator in record["generators"]:
+            generator["datasets"] = sorted(
+                generator.get("datasets", []),
+                key=lambda dataset: dataset["name"],
+            )
+
+    statistics_path.write_text(
+        json.dumps(document, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+
 class Metadata(ABC):
     @property
     @abstractmethod
@@ -160,7 +229,6 @@ class Dataset(Tagged):
             "suites": self.suites,
             "concepts": self.concepts,
             "topics": self.topics,
-            "statistics": [],
         }
 
 
@@ -215,7 +283,6 @@ class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
             "suites": self.suites,
             "concepts": self.concepts,
             "topics": self.topics,
-            "statistics": [],
             "authors": [str(a) for a in self.authors],
             "references": [str(r) for r in self.references],
             "ai_disclosure": self.ai_disclosure,
@@ -328,30 +395,45 @@ class Benchmark(Tagged, Attributed, Motivated):
 
     def _write_tagger_stats(self, param, xp: Framework):
         stats_dir = os.environ.get("SAPS_TAGGER_STATS_DIR")
-        if not stats_dir or not hasattr(xp, "stats"):
+        statistics_path = os.environ.get("SAPS_STATISTICS_PATH")
+        if not hasattr(xp, "tags"):
             return
 
-        path = Path(stats_dir)
-        path.mkdir(parents=True, exist_ok=True)
         benchmark_id = (
             f"{self.__class__.__module__}.{self.__class__.__name__}.{self.name}"
         )
+        tags = sorted(getattr(xp, "tags", []))
         data = {
             "benchmark_id": benchmark_id,
             "benchmark_name": self.name,
             "generator_name": param.generator.name,
             "dataset_name": param.dataset.name,
-            "stats": xp.stats,
+            "tags": tags,
         }
-        safe_id = "".join(
-            char if char.isalnum() or char in "._-" else "_"
-            for char in f"{benchmark_id}.{param.generator.name}.{param.dataset.name}"
-        )
-        output_path = path / f"{safe_id}.json"
-        output_path.write_text(
-            json.dumps(data, indent=2, default=str) + "\n",
-            encoding="utf-8",
-        )
+        if stats_dir:
+            path = Path(stats_dir)
+            path.mkdir(parents=True, exist_ok=True)
+            record_id = (
+                f"{benchmark_id}.{param.generator.name}.{param.dataset.name}"
+            )
+            safe_id = "".join(
+                char if char.isalnum() or char in "._-" else "_"
+                for char in record_id
+            )
+            output_path = path / f"{safe_id}.json"
+            output_path.write_text(
+                json.dumps(data, indent=2, default=str) + "\n",
+                encoding="utf-8",
+            )
+        if statistics_path:
+            _write_statistics_tags(
+                Path(statistics_path),
+                benchmark_id,
+                self.name,
+                param.generator.name,
+                param.dataset.name,
+                tags,
+            )
 
     def teardown(self, param):
         if hasattr(self, "_output"):
@@ -386,7 +468,6 @@ class Benchmark(Tagged, Attributed, Motivated):
             "suites": self.suites,
             "concepts": self.concepts,
             "topics": self.topics,
-            "statistics": [],
             "authors": [str(a) for a in self.authors],
             "references": [str(r) for r in self.references],
             "ai_disclosure": self.ai_disclosure,
