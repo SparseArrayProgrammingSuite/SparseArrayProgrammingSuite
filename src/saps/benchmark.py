@@ -41,7 +41,18 @@ def _module_path(module_name: str) -> Path | None:
         path.relative_to(_repo_root())
     except ValueError:
         return None
+    if "site-packages" in path.parts or _is_under_venv(path):
+        return None
     return path
+
+def _is_under_venv(path: Path) -> bool:
+    for prefix in (sys.prefix, sys.base_prefix):
+        try:
+            path.relative_to(Path(prefix).resolve())
+            return True
+        except ValueError:
+            continue
+    return False
 
 
 def _imported_modules(path: Path) -> set[str]:
@@ -90,10 +101,9 @@ def _freshness_inputs(
         if path in seen_files:
             continue
         seen_files.add(path)
-
         pending.extend(
             dependency
-            for dependency in _imported_modules(path)
+            for dependency in _imported_modules(path.resolve())
             if dependency not in seen_modules
         )
 

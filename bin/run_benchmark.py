@@ -550,6 +550,7 @@ def main() -> int:
                 "sparse": ["0.17.0"],
                 "lark": ["1.3.0"],
                 "ssgetpy": ["1.0rc2"],
+                "networkx": ["3.6"],
             },
             "env_nobuild": {
                 "SAPS_FRAMEWORK": [
