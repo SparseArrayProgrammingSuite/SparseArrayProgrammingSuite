@@ -94,8 +94,8 @@ def _trace_dataset_lookup(metadata: dict) -> dict[tuple[str, str, str], dict]:
         benchmark_name = benchmark["name"]
         benchmark_is_trace = "trace" in benchmark.get("suites", [])
         for generator in benchmark["generators"]:
-            generator_is_trace = (
-                benchmark_is_trace or "trace" in generator.get("suites", [])
+            generator_is_trace = benchmark_is_trace or "trace" in generator.get(
+                "suites", []
             )
             for dataset in generator["datasets"]:
                 if generator_is_trace or "trace" in dataset.get("suites", []):
@@ -111,9 +111,7 @@ def _statistics_dataset_lookup(statistics: dict) -> dict[tuple[str, str, str], d
         benchmark_name = benchmark["name"]
         for generator in benchmark.get("generators", []):
             for dataset in generator.get("datasets", []):
-                datasets[(benchmark_name, generator["name"], dataset["name"])] = (
-                    dataset
-                )
+                datasets[(benchmark_name, generator["name"], dataset["name"])] = dataset
     return datasets
 
 
@@ -170,8 +168,8 @@ def test_all_concrete_generators_have_parent_benchmarks():
             if cls not in parented
         }
     )
-    assert not floating, (
-        "concrete generators without parent benchmarks: " + ", ".join(floating)
+    assert not floating, "concrete generators without parent benchmarks: " + ", ".join(
+        floating
     )
 
 

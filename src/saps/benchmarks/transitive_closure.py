@@ -329,13 +329,13 @@ class TransitiveClosureBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(
-                item, BinsparseFormat
-            ), "Output must be in binsparse format"
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
         if self._ref_outputs is not None:
-            assert (
-                self._output[0] == self._ref_outputs[0]
-            ), f"Transitive closure mismatch for {param.dataset.name}"
+            assert self._output[0] == self._ref_outputs[0], (
+                f"Transitive closure mismatch for {param.dataset.name}"
+            )
         if self._ref_meta and "strong_component_count" in self._ref_meta:
             output = self._output[0]
             matrix = output.data["values"].reshape(output.data["shape"])
