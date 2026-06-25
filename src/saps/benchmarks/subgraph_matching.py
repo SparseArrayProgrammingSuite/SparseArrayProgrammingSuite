@@ -2731,7 +2731,7 @@ class SubgraphMatching(Benchmark):
 
     def check(self, param):
         super().check(param)
-        if "gt" not in self._ref_meta:
+        if not self._ref_meta or "gt" not in self._ref_meta:
             return
         result = self._output[0].data["values"].reshape(self._output[0].data["shape"])
         assert int(np.asarray(result).ravel()[0]) == self._ref_meta["gt"]

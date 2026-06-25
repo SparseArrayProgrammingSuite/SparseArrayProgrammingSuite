@@ -378,9 +378,9 @@ class MCLBenchmark(Benchmark):
 
     def check(self, param):
         super().check(param)
-        expected_count = self._ref_meta.get("expected_count")
-        if expected_count is None:
+        if not self._ref_meta or "expected_count" not in self._ref_meta:
             return
+        expected_count = self._ref_meta["expected_count"]
 
         output = BinsparseFormat.to_coo(self._output[0])
         rows = output.data["indices_0"]

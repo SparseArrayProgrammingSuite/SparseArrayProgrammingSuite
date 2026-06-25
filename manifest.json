@@ -3780,9 +3780,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "3906026828a6d5aced8f3537ca895c0996ba3950c7768a7e1e9d338390adcd3e",
+    "digest": "8a36df4491b8542aba2451e00c52f93c30fdfcd4870859b4db70db5eae705732",
     "file": "src/saps/benchmarks/gcn_backward.py",
-    "freshness": "40fc2123852547fffd1aff7f7edc05d07e5980665262393c408e4679a1ae772f"
+    "freshness": "adbff31421d42ac851b4d6b73fbe084e6541a7ae93139ecac6c4630570fdf2a0"
   },
   "gcn_backward_test_inputs.test_gcn_backward_degree_loss": {
     "dependencies": [
@@ -3824,9 +3824,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "62ff44be4ed187a397d4736d7a93dc57db1938fdd460794961f2cfd63276ffc2",
+    "digest": "1ed1669c590ca91e168a188d1c86df580176ff1be690bb00756fd7bbf5663897",
     "file": "src/saps/benchmarks/gcn_backward.py",
-    "freshness": "40fc2123852547fffd1aff7f7edc05d07e5980665262393c408e4679a1ae772f"
+    "freshness": "adbff31421d42ac851b4d6b73fbe084e6541a7ae93139ecac6c4630570fdf2a0"
   },
   "gcn_backward_test_inputs.test_gcn_backward_degree_test_graph_loss": {
     "dependencies": [
@@ -3868,9 +3868,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "086c4753d8b363e3236ce9eaadc62058ce5f4974e0243c2d7c052c0fd4ca25c3",
+    "digest": "74a37c069a12ad22c46de0d38b682443aee67f9250f1ab23a0e266a07ec03f11",
     "file": "src/saps/benchmarks/gcn_backward.py",
-    "freshness": "40fc2123852547fffd1aff7f7edc05d07e5980665262393c408e4679a1ae772f"
+    "freshness": "adbff31421d42ac851b4d6b73fbe084e6541a7ae93139ecac6c4630570fdf2a0"
   },
   "gcn_backward_test_inputs.test_gcn_backward_multidim": {
     "dependencies": [
@@ -3912,9 +3912,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "e5e9551f5b3a97dfcb882a0748d8ae7a53dcb35f60bd47a7d710afd09412396f",
+    "digest": "e817a07c7718998346a7e1a535640522273e0c500a5b7916fbb8351f36de00fd",
     "file": "src/saps/benchmarks/gcn_backward.py",
-    "freshness": "40fc2123852547fffd1aff7f7edc05d07e5980665262393c408e4679a1ae772f"
+    "freshness": "adbff31421d42ac851b4d6b73fbe084e6541a7ae93139ecac6c4630570fdf2a0"
   },
   "gcn_test_inputs.test_gcn_3node": {
     "dependencies": [
@@ -3956,9 +3956,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "f56714382f89c6029ebafdb5e1dfcbcdc5ad0364024956ddef3fe867a29b0be6",
+    "digest": "9b1df48745dc5af72901c13a9d5bd5e5439894cc1d281344d749ab3496327515",
     "file": "src/saps/benchmarks/gcn.py",
-    "freshness": "36d6efd05dead41da304fb923814a3809a1b8bdb4ee196a9039b47fc9c7a7b44"
+    "freshness": "933a421988a3fe01a225370d59c4629cd39e2393ab4b73d658415a2cf5b9e242"
   },
   "gcn_test_inputs.test_gcn_simple_2node": {
     "dependencies": [
@@ -4000,9 +4000,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "3834ed85533c04250bb14e66cb1bc4650c3d6700e7aced2f98bbd1e8e6f927ea",
+    "digest": "4be5e64da7467c6f6521fe21dcd51cedd6ba70598e2055da8ee3cee3df45d84c",
     "file": "src/saps/benchmarks/gcn.py",
-    "freshness": "36d6efd05dead41da304fb923814a3809a1b8bdb4ee196a9039b47fc9c7a7b44"
+    "freshness": "933a421988a3fe01a225370d59c4629cd39e2393ab4b73d658415a2cf5b9e242"
   },
   "gcn_test_inputs.test_gcn_simple_3node_line": {
     "dependencies": [
@@ -4044,9 +4044,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "77deb35925982276582c57925e98e8fb89a374e80496e26c1294f2e417f4a6af",
+    "digest": "6dd7e4efe5087fb272aa442eafa5be917c4b08dee1dae19e9f4eb59c7250a99a",
     "file": "src/saps/benchmarks/gcn.py",
-    "freshness": "36d6efd05dead41da304fb923814a3809a1b8bdb4ee196a9039b47fc9c7a7b44"
+    "freshness": "933a421988a3fe01a225370d59c4629cd39e2393ab4b73d658415a2cf5b9e242"
   },
   "gcn_test_inputs.test_gcn_with_relu_activation": {
     "dependencies": [
@@ -4088,9 +4088,141 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "470fa9231ea4a5f8780df0c3a263b578631d18d9529475a94d32e73e7cf78de7",
+    "digest": "26f3e890251a2b4601da0bcaa200385e228b487a274ce1c7fa9b47e2d98f6a04",
     "file": "src/saps/benchmarks/gcn.py",
-    "freshness": "36d6efd05dead41da304fb923814a3809a1b8bdb4ee196a9039b47fc9c7a7b44"
+    "freshness": "933a421988a3fe01a225370d59c4629cd39e2393ab4b73d658415a2cf5b9e242"
+  },
+  "gcn_weights.dg_gcn_bcsstk01": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "8eebb8ef2beae0b3c06d429e9c78753a493a3c922bba9cde010e7be0c34474d0",
+    "file": "src/saps/benchmarks/gcn.py",
+    "freshness": "933a421988a3fe01a225370d59c4629cd39e2393ab4b73d658415a2cf5b9e242"
+  },
+  "gcn_weights.dg_gcn_citation_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "024972124b2cfb302c10acd844b13de72ae12ef45f8f75a69ab82a67d76e347d",
+    "file": "src/saps/benchmarks/gcn.py",
+    "freshness": "933a421988a3fe01a225370d59c4629cd39e2393ab4b73d658415a2cf5b9e242"
+  },
+  "gcn_weights.dg_gcn_molecular_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "02846dab41812f366e6c0b4faa8025f9a2d6b2005ac8eccf48e3fe24c466696c",
+    "file": "src/saps/benchmarks/gcn.py",
+    "freshness": "933a421988a3fe01a225370d59c4629cd39e2393ab4b73d658415a2cf5b9e242"
   },
   "gcn_weights.dg_gcn_molecular_2": {
     "dependencies": [
@@ -4132,9 +4264,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "756e46374d7e9662eaf60343b509fb73b7dafeddea607415014fb77c5c4d2119",
+    "digest": "e9e7a9f195a9e1622744a19c84f636f41a0428ce3810a4fe32d4f0b8da50537e",
     "file": "src/saps/benchmarks/gcn.py",
-    "freshness": "bff278295057b9ea4bedac2b3978c6cb73e3bb0c998b450235c55198758a287e"
+    "freshness": "933a421988a3fe01a225370d59c4629cd39e2393ab4b73d658415a2cf5b9e242"
   },
   "gcn_weights.dg_gcn_road_1": {
     "dependencies": [
@@ -4176,9 +4308,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "aded7f25ffca214cbbf01fb3626255e91845e1995695c8667cc795ed3b4bb142",
+    "digest": "1e4a21d43b8f936cda76bb57923a0258a37e345b9123df9fcedb63d3da63e9a3",
     "file": "src/saps/benchmarks/gcn.py",
-    "freshness": "36d6efd05dead41da304fb923814a3809a1b8bdb4ee196a9039b47fc9c7a7b44"
+    "freshness": "933a421988a3fe01a225370d59c4629cd39e2393ab4b73d658415a2cf5b9e242"
   },
   "gcn_weights.dg_gcn_social_1": {
     "dependencies": [
@@ -4220,9 +4352,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "8774df51a9bf78ba2e1cc86dd2791e759ce44eb2eea805506752ca07f06ded17",
+    "digest": "2b9b10df361b9a6e6372cfd202ec1c29b5c855392247c00cae2e514c57a95186",
     "file": "src/saps/benchmarks/gcn.py",
-    "freshness": "36d6efd05dead41da304fb923814a3809a1b8bdb4ee196a9039b47fc9c7a7b44"
+    "freshness": "933a421988a3fe01a225370d59c4629cd39e2393ab4b73d658415a2cf5b9e242"
   },
   "gcn_weights.dg_gcn_social_2": {
     "dependencies": [
@@ -4264,9 +4396,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "213993ee4f9c642563a80383bddcf8733fa37d1a86fa776ee9fc83f7bc1e34f8",
+    "digest": "3fed44011bb1ebcaf37c4d65bb805e03bc407d3f15fe3020ebd59ba9c077e281",
     "file": "src/saps/benchmarks/gcn.py",
-    "freshness": "36d6efd05dead41da304fb923814a3809a1b8bdb4ee196a9039b47fc9c7a7b44"
+    "freshness": "933a421988a3fe01a225370d59c4629cd39e2393ab4b73d658415a2cf5b9e242"
   },
   "gcn_weights.dg_gcn_social_3": {
     "dependencies": [
@@ -4308,9 +4440,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "6d324241803bbe2c05349e64f1ca9a5ecb335e4669008117af340ef12df61bb6",
+    "digest": "5a223234c10f67ce4a53e8ba8d50639c391c87fc69220d0c6a7af4f09d439a0a",
     "file": "src/saps/benchmarks/gcn.py",
-    "freshness": "36d6efd05dead41da304fb923814a3809a1b8bdb4ee196a9039b47fc9c7a7b44"
+    "freshness": "933a421988a3fe01a225370d59c4629cd39e2393ab4b73d658415a2cf5b9e242"
   },
   "gmres_inputs.Chem97ZtZ": {
     "dependencies": [

@@ -218,7 +218,7 @@ class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
             FiniteDifference2DDataset(
                 name="default",
                 pretty_name="Default",
-                suites=[],
+                suites=["test"],
                 Nx=100,
                 dx=0.1,
                 Ny=100,
