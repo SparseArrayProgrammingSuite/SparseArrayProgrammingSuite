@@ -24,6 +24,7 @@ from asv.results import Results
 from asv.runner import run_benchmarks
 
 import saps
+from saps.storage import DEFAULT_REMOTE_STORAGE_BACKEND, DEFAULT_REMOTE_STORAGE_BUCKET
 
 logging.basicConfig(level=logging.INFO)
 
@@ -397,7 +398,7 @@ def main() -> int:
         default=None,
         help=(
             "Remote storage bucket name to use for uploading and downloading datasets. "
-            "The standard s3 bucket is 'sparse-array-programming-suite' "
+            f"The standard s3 bucket is '{DEFAULT_REMOTE_STORAGE_BUCKET}' "
             "(local backend will use this as a directory path)."
         ),
     )
@@ -560,8 +561,8 @@ def main() -> int:
         },
     )
     matrix.setdefault("env_nobuild", {})
-    storage_backend = args.remote_storage_backend or "s3"
-    storage_bucket = args.remote_storage_bucket or "sparse-array-programming-suite"
+    storage_backend = args.remote_storage_backend or DEFAULT_REMOTE_STORAGE_BACKEND
+    storage_bucket = args.remote_storage_bucket or DEFAULT_REMOTE_STORAGE_BUCKET
     if (
         args.remote_storage_backend is not None
         or "REMOTE_STORAGE_BACKEND" not in matrix["env_nobuild"]

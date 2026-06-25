@@ -14,6 +14,22 @@ from saps_framework.binsparse_format import BinsparseFormat
 if TYPE_CHECKING:
     from saps.benchmark import DataInstance, Dataset, Generator
 
+DEFAULT_REMOTE_STORAGE_BACKEND = "s3"
+DEFAULT_REMOTE_STORAGE_BUCKET = "sparse-array-programming-suite"
+DEFAULT_CACHE_DIR = ".saps/outputs/cache"
+DEFAULT_MANIFEST_PATH = "manifest.json"
+
+
+def normalize_storage_bucket(bucket: str) -> str:
+    if bucket.startswith("s3://"):
+        bucket = bucket[len("s3://") :]
+    return bucket.split("/", 1)[0]
+
+
+def manifest_record_prefix(manifest_key: str, digest: str) -> str:
+    generator_name, dataset_name = manifest_key.split(".", 1)
+    return f"{generator_name}/{dataset_name}/{digest}.json"
+
 
 class StorageBackend(ABC):
     def __init__(self, manifest_path: Path, cache_dir: Path) -> None:
@@ -36,6 +52,15 @@ class StorageBackend(ABC):
 
     def prefix(self, generator: Generator, dataset: Dataset, digest: str) -> str:
         return f"{generator.name}/{dataset.name}/{digest}.json"
+
+    def manifest_record_prefix(self, manifest_key: str, record: dict) -> str:
+        return manifest_record_prefix(manifest_key, record["digest"])
+
+    def manifest_record_exists(self, manifest_key: str, record: dict) -> bool:
+        return self.file_exists(self.manifest_record_prefix(manifest_key, record))
+
+    def uri_for_prefix(self, remote_prefix: str) -> str:
+        return remote_prefix
 
     def _serialize_binsparse_list(self, values: list[BinsparseFormat] | None):
         if values is None:
@@ -218,6 +243,9 @@ class LocalStorageBackend(StorageBackend):
     def file_exists(self, remote_prefix: str) -> bool:
         return os.path.exists(self.base_path / remote_prefix)
 
+    def uri_for_prefix(self, remote_prefix: str) -> str:
+        return str(self.base_path / remote_prefix)
+
     def download_file(self, remote_prefix: str, local_path: Path) -> bool:
         source_path = self.base_path / remote_prefix
         if not source_path.exists():
@@ -236,12 +264,22 @@ class S3StorageBackend(StorageBackend):
         import boto3
 
         super().__init__(manifest_path, cache_dir)
-        # Accept either "s3://bucket" or plain "bucket"
-        if bucket_name.startswith("s3://"):
-            bucket_name = bucket_name[len("s3://") :]
-        bucket_name = bucket_name.split("/", 1)[0]
-        self.bucket_name = bucket_name
+        self.bucket_name = normalize_storage_bucket(bucket_name)
         self.s3 = boto3.client("s3")
+        self._unsigned_s3 = None
+
+    @property
+    def unsigned_s3(self):
+        if self._unsigned_s3 is None:
+            import boto3
+            from botocore import UNSIGNED
+
+            Config = __import__("botocore.config", fromlist=["Config"]).Config
+
+            self._unsigned_s3 = boto3.client(
+                "s3", config=Config(signature_version=UNSIGNED)
+            )
+        return self._unsigned_s3
 
     def upload_file(self, local_path: Path, remote_prefix: str) -> bool:
         import botocore
@@ -259,11 +297,28 @@ class S3StorageBackend(StorageBackend):
     def file_exists(self, remote_prefix: str) -> bool:
         import botocore
 
+        if self.public_file_exists(remote_prefix):
+            return True
+
         try:
             self.s3.head_object(Bucket=self.bucket_name, Key=remote_prefix)
             return True
+        except botocore.exceptions.NoCredentialsError:
+            return False
         except botocore.exceptions.ClientError:
             return False
+
+    def public_file_exists(self, remote_prefix: str) -> bool:
+        import botocore
+
+        try:
+            self.unsigned_s3.head_object(Bucket=self.bucket_name, Key=remote_prefix)
+            return True
+        except botocore.exceptions.ClientError:
+            return False
+
+    def uri_for_prefix(self, remote_prefix: str) -> str:
+        return f"s3://{self.bucket_name}/{remote_prefix}"
 
     def download_file(self, remote_prefix: str, local_path: Path) -> bool:
         import botocore
@@ -280,15 +335,30 @@ class S3StorageBackend(StorageBackend):
 
 
 def build_storage_backend(
-    type: str,
-    bucket: str,
+    type: str | None = None,
+    bucket: str | None = None,
+    *,
+    manifest_path: Path | str | None = None,
+    cache_dir: Path | str | None = None,
 ) -> StorageBackend:
-    manifest_path = Path(os.environ["SAPS_MANIFEST_PATH"])
-    cache_dir = Path(os.environ["SAPS_CACHE_DIR"])
+    backend_type = (
+        type
+        or os.environ.get("REMOTE_STORAGE_BACKEND")
+        or DEFAULT_REMOTE_STORAGE_BACKEND
+    )
+    backend_bucket = (
+        bucket
+        or os.environ.get("REMOTE_STORAGE_BUCKET")
+        or DEFAULT_REMOTE_STORAGE_BUCKET
+    )
+    manifest_path = Path(
+        manifest_path or os.environ.get("SAPS_MANIFEST_PATH", DEFAULT_MANIFEST_PATH)
+    )
+    cache_dir = Path(cache_dir or os.environ.get("SAPS_CACHE_DIR", DEFAULT_CACHE_DIR))
     print(f"manifest_path: {manifest_path}")
     print(f"cache_dir: {cache_dir}")
-    if type == "local":
-        return LocalStorageBackend(bucket, manifest_path, cache_dir)
-    if type == "s3":
-        return S3StorageBackend(bucket, manifest_path, cache_dir)
-    raise ValueError(f"Unsupported storage backend type: {type}")
+    if backend_type == "local":
+        return LocalStorageBackend(backend_bucket, manifest_path, cache_dir)
+    if backend_type == "s3":
+        return S3StorageBackend(backend_bucket, manifest_path, cache_dir)
+    raise ValueError(f"Unsupported storage backend type: {backend_type}")

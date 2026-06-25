@@ -16,6 +16,7 @@ from packaging.version import Version
 import saps.benchmarks
 from saps.benchmark import Benchmark, Generator
 from saps.dependencies import dependency_versions
+from saps.storage import build_storage_backend
 
 ROOT = Path(__file__).parents[1]
 FRESHNESS_KEYS = ("file", "freshness", "dependencies")
@@ -201,3 +202,22 @@ def test_manifest_freshness_matches_benchmark_metadata():
         expected_records = [_freshness_record(dataset) for dataset in datasets[key]]
         assert _freshness_record(record) in expected_records
         _assert_dependency_versions_current(record, f"manifest.json:{key}")
+
+
+def test_manifest_datasets_exist_in_remote_storage():
+    manifest = _read_json(ROOT / "manifest.json")
+    backend = build_storage_backend(
+        manifest_path=ROOT / "manifest.json",
+        cache_dir=ROOT / ".saps" / "outputs" / "cache",
+    )
+    missing = []
+
+    for key, record in manifest.items():
+        if not backend.manifest_record_exists(key, record):
+            prefix = backend.manifest_record_prefix(key, record)
+            missing.append(f"{key}: {backend.uri_for_prefix(prefix)}")
+
+    assert not missing, (
+        "manifest datasets missing or inaccessible in remote storage:\n"
+        + "\n".join(missing)
+    )
