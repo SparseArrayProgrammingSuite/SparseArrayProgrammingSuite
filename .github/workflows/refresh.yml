@@ -62,6 +62,7 @@ jobs:
         run: |
           poetry run ./bin/run_benchmark.py \
             --trace-statistics \
+            --tag trace \
             --chunk-count 4 \
             --chunk-index ${{ matrix.chunk }} \
             --timeout 30 \
