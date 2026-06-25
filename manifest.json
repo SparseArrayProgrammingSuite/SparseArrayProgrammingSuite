@@ -10383,6 +10383,4725 @@
     "file": "src/saps/benchmarks/rp_kmeans_clustering.py",
     "freshness": "ea8d0e1dc6975243d39056c686204b3a6f122050aabc67c7b8e380e5a1f1b54c"
   },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_3_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "dbc0b231a93258bb35e8e54fe323441eb0318d25f8d07e54315e407cdcf868c7",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_3_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "794baaebff83371b29612d6d09485c2ce175c79c73406b6bd8af8c2cd48f63cb",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_3_3": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "2d397801e4bac3424f88a82f823d3b7c13f725e08a621d9900a32d8d08713b46",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_4_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "53cc97723695c2b9db70f6c095a73174b126d99f5b962dd19b59b50a9164f134",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_4_10": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "2178c1b88242bd49d0886d064a28b328a1bdd5e6a408924f82f099b811ed6c19",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_4_11": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "619f6b997002922a2acf38d5192c531bcdf234f48c507b7f49435c7df76039a3",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_4_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "7b9a94beebafd41a46e0cf4326a8136962a8aee346b88b66db3ac907c868f6ce",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_4_3": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "a67ef72bd3c44f64e3e882f97e8b8608d07a5003343319945625ed16dbec93ca",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_4_4": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "60b2e079677ea537e8f2d607d3ac6b3364a9eddde71ee4c5c87fe4e2be768eb4",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_4_5": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "82401521e5f56b3087f8dba21ba5b0376637b4e5981cb12facdcfa31019c1062",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_4_6": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "0d02baab35710fcde5387e6b2671368d6151c61d96593f2052a8ad205740742b",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_4_7": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "a666b1507d6ceaba236aff91fbe8528aeaf3b50cfe9f2bc0f9e209995e419854",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_4_8": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "cbbdddb6032f991d539e6ffd31037fc83a2a48c99ee590ae6bbb3d62ffd9d6dd",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_4_9": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "20ad1d1dd43788c25642cb9f8c0c1b3b1a0246c35505ed27caa2f9350b11ff27",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_5_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "0f66922047d16088481ea45e1e9e54f067e50dbdcfceb095650c5261f1c829a3",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_5_10": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "45e1cddb21a121edb7f3c091aef950d8396171a2704826efe48717f3940d3acd",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_5_11": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "981cec2e41f1941d9f1ee189055a81cb19b569d14084c6e826c887212c919aea",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_5_12": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "11c3add67ab70c412c770d214e0a6c0dbdb06e8fbfa9de9fb11ea89028605d10",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_5_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "fd5164bc5f21d582dad77143b48143da97e55d36e3d50159126587d3b5a8e799",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_5_3": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "250b9f675418243eb16f84cdb1ff1840858a586a447c98e4840f4cb331824465",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_5_4": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "9a4868db0a413ec8be3bdec3e1f112de4e4766d97e3649688cb11f1a4946199e",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_5_5": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "fcabf172cde6340b456cdc4df6af8c560b3d8d7dfe30d456c79a989ffc12f84b",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_5_6": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "ad7185b16cb6da84b61db7b89464e2968c8f36d72796eac001bc798bb9495f16",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_5_7": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "b7a781187e26144d5ced240a61c0cf4a7224bb7a6d2c49e2b8cd216fa771a64f",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_5_8": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "cc9e5217d7f2eb35f6c676e0d5f4ba40e37115e76a8defb7b7a46471ac7c588a",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_12/uf_Q_5_9": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "188b5949c6e034cd9cd693f1eddbc43b99514bd01d27371937de8989acf3e835",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_0_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "c7f475dd4a2277fd9cc951e0c19970825109e2ff6c67181334270c285643daab",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_0_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "b8474dd662c2e25e755a10d54ebe653da030dee1d531adcb1842b00ef66c85cb",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_0_3": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "bb2a41a4d435ef1c49b78192b800faf69db19b873f6870b35f5c2acb03a1e11b",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_0_4": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "6095382755017dc27969ce46cbffc752e2d6ca77dce6fa3abd61e1783a8387f5",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_0_5": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "3efbf907542a00c344176b71e15b46dc8411d091b72c7791e78ddd62a47022b1",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_1_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "8eea20e4601e92c7cbae6407b185033f7390d8c474bbe42e9511e4b1c08294d6",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_1_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "903d3e2c680bd77194488a1237f4507428b839cbb1cae9fdded06a5d3696f7d5",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_1_3": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "f83d424fb2d33154d3f0815dc21519c094ced337a02de7ed61ba2a39f6cb25db",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_1_4": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "02c83b3ef78240eb65421d488dcdd0134b6bd9c4e91273abda29328042b87e57",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_2_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "cdb58bed519530ca914035871cad9f272e01e430a4521080b13832a22cb50ac6",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_2_10": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "0433767870b63b4c25b9502202bd99e0df7ef0268e86db0f08671cc84f4e626b",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_2_11": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "0e470d1f169ca9773e669cd9d3f674428ce92c5a186420d14d9ef240ecc7e04d",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_2_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "916ec878c997c8bbcbdda431fbeed744525bf39bd09e84fd03423ec1a9feca61",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_2_3": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "edd718d22267edb0e47a08e6860a4ab18c70fe598a10bc7bd792f1ed3a8d152d",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_2_4": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "321c10d4b553516d08d1f7aebb353e97071ef081f55494e00071619f94ec9a86",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_2_5": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "dbd700d01b9e00c4df55b45b198b3fcac8b361ade79e884d97cacb7e914f69b8",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_2_6": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "b6edbbe7040e052dcb01a78b9c90243fff646223a9e29d860d85f7abf6847e78",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_2_7": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "9bafc9a1537ca73ac9e9fbfb07f21d65b3e4f90afb0535d587b353f928bc52bd",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_2_8": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "9a1740bb653f5634e3b4806f90ab44d60851baf08271f392568c9f3e33df0690",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_2_9": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "22f131b9b5eb174ceac34501ebd1c962276a7760b3fe3607956c8576a4a6b5c8",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_3_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "069a68e0f666a7512562e19c4978d76e7c452b47b640b810af9861cc5606a4d6",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_3_10": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "9cff6554d8f860f90b2303cc063e1b391d66faa79602ba5ea108be19ad950601",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_3_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "b78c358a5e7478229da39787693170e39518829e3789d4907d8c6457c6f4fbe1",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_3_3": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "8d076f0680378fcfc6cf37cb1feafb6048027745e3cdba5c4515bd9c962e3624",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_3_4": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "b66ae3592d9b06c01b2a6bcb397b861813f4008accb259c52cbb47ce6083cba9",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_3_5": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "67a2b7f66873df14be8a32eefd6b53ca371995aa632ac8406feec7958799cf2f",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_3_6": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "59f7f20a74b92cd4d4577d6679bfa7ec39a841dfbb0f73b46e90d21fb07bf26f",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_3_7": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "0638609e6e10838a4a594db9ae15451966a5c671e1b8b4d9e010f38d73dcf593",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_3_8": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "e66ac0b5c75cb5f0f7c3819b4a8055ffd02e136c36672977d23bf858250379e0",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_3_9": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "2513b19280ad278cc95cac207544aa702bf8d6c8017dba7d1b083f93e863cb72",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_4_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "4b470c3fc3384c0ce20ac1110d53db626925122048e993e7043cd10d5ee8e3a5",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_4_10": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "d323d045bd886a016b949309bb3ab9ca3ccb8a26b72e150e0cd0ed63e81efd25",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_4_11": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "9eac5a8d5a35810d84c2b01dac49db291171d955a3705fa8f68a55abbb08453a",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_4_12": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "12cc5f10fae5ccc779132768105d59c3dfa1bb32b1a33f143125568e9cb91e6e",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_4_13": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "915409202803377ff7a6373a0f6743591aaf094939a4af969e93741affc4de47",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_4_14": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "8515001f0fd552b46723279db5b2e8ee85f234800a2e0af28352558b9c188cc9",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_4_15": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "dd22b9d3a5e75736f6a5d5d300bd2dc936a3853feee5ef753e9b51a0fd2ef88f",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_4_16": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "ff2ed026273d4ba5e10b1180807821708df125802fcd3ecf33ec8b334d4b8502",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_4_17": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "554e4b65fbef1d19c70521cbe0b3f3315f9dad60ba3b6b1d51e263de1b06f591",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_4_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "c6ca8953649c60651beb21e3dba289f9fe8439b743ee0872cc02bebcdc610506",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_4_3": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "66db86a3f533d90e417adf64a8ae91e17c06768ff16d077129b1b02f9e8e9135",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_4_4": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "3df33ebd00911a580069b270c1b9e2a87ebff4055d3f6b8372e28e3939541525",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_4_5": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "10eae155b17681b500480fd9e5839b14da8ff25ab50506a0ba9b25adfaaf1e46",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_4_6": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "6da358314ca5c3efec87fb9c21bc2d1f2c7b7395d40b83cdddf317b518227a7c",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_4_7": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "936038e59a50b63c626fa020197513d651c406e5193ca426349aea75e2d3297c",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_4_8": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "ae44ad5a68d523eeeb5b682229f3a5ffbb6f415cc6cfb4283475211d7a0b780d",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_4_9": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "7278ebea67e95139a4555c51f84104f571247153f1d5c06a8efcf7258e02b304",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_5_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "434de5ee097425ec2045bd95eeaf62b7fdd6684c104784ad9c2b9307df27326b",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_5_10": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "138498594486b957dacd762b2474e5c9de7bd55c08f116864a844bdd8987de90",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_5_11": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "fb296248db2ab6497d55baf05f0693f0c928fd13e67fa41d6894ac1515bb127a",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_5_12": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "b42e0a6da284c4e04ba5defcea898cec483019d95087b7f633cfa1f9640c98d4",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_5_13": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "c9db63fe6cc51007fa7035c364ccede047243a8bc469dd4663fda91dfa69b987",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_5_14": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "53efb816aba09c99145088871690616ae553bfddc28bf8bd36390bc9d7dbefed",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_5_15": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "9a805294f0d365f1bc4ef08e348d193456d7a02fb2197a2af4da30abc94b82a5",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_5_16": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "b9197364aeb20ac6782280ad0209354caa48a99c401afc34f2c47e7c7f77ff8c",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_5_17": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "a918333bcac016e518fc5bac304f73032c3c2dd539b3d76d2c7bb97a5d375869",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_5_18": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "3248451e3f0b48e9756596fee0323b65c336915668930f2cd0ae4429db590ff3",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_5_19": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "dab147a19c8f17a0591ec927cd974e49c44d03fa6c74bbce16f2ac4c1df1a82c",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_5_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "2e0422df4ca203e34b03547f263225e71c5cd7526f2e127f6b2f7f8ed47868c8",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_5_20": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "629fcdfb64d5c6516f319ae23842d6d9f9042d19c5724e922db98b91f76ac345",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_5_3": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "685d3e714021bfce2098d7e0fd0a0422d6cd88a19cc2bf8e029acc986cf55371",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_5_4": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "2e461635515813548fb2833a7eb62149f382b50339ad1c1cdafd8e3beb291d5b",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_5_5": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "cd7c760ffcede42e49498357047d326765485928074c0ccc147de4810a9e5a72",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_5_6": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "c0954a69b18c1b9f11443b864cec391244ab375ad453d9981e2c583ec981c05d",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_5_7": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "2361f192808da6adcd2f5323b96993924fbb2e4491a1e2dede29c64dcade6712",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_5_8": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "461f61cf20de37753eb08393688042c15307b64e455238ee8b0b1ad5217c21f5",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_6/uf_Q_5_9": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "5705c84ab397fded4e04f0213f40e881d2a6525a96746392e0efcc8f9ddde5c6",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_2_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "5f6c7addf255a54bcd25a4bab391be380aa314bd8eb14214020405e6172974fe",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_2_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "ca85ac399772ff5eeb85ec3d3f280554788f22ccf396f961560bb3611006c1dc",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_3_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "fbd64ca45941371b7286742b07593106cde8af3e54e4ae5c8cf67fcf10cff02b",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "c1ea0c6265000356bee76d2f0cdcc4aec75afde856107dfa623e53205a72a02a"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_3_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "e41d4929f21553d5bea42895da828bab522bbdd2354ae9999f55f688a8af4809",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "c1ea0c6265000356bee76d2f0cdcc4aec75afde856107dfa623e53205a72a02a"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_3_3": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "0cbaaf2541582093e447fcf645aedc30274e2df5a0394deb83e3b19d50d57f30",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "c1ea0c6265000356bee76d2f0cdcc4aec75afde856107dfa623e53205a72a02a"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_3_4": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "6f1d1516243780b099fe0fd752642c01faea7d1954a8f0ee58cfff86e9c88c68",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "c1ea0c6265000356bee76d2f0cdcc4aec75afde856107dfa623e53205a72a02a"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_3_5": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "653e0ef29cf3e3e5325695549cfd589dbdb1120dc44e2f3dac39a3028c76452b",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "c1ea0c6265000356bee76d2f0cdcc4aec75afde856107dfa623e53205a72a02a"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_4_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "08b6cadde5dd7512fea1426944622c7fa762776d0628bf8bdee54e9170d8f7e6",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_4_10": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "b1d4c7cbd89840803df10e4661bd1e2e964ea1761837f76b56f6b82548a2ad39",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "c1ea0c6265000356bee76d2f0cdcc4aec75afde856107dfa623e53205a72a02a"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_4_11": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "ae838b69377645f2241ce0c4fd6938a592ecdb1280476ff1eed93485df643561",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "c1ea0c6265000356bee76d2f0cdcc4aec75afde856107dfa623e53205a72a02a"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_4_14": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "bb288b562f7d3399815cac851f7d45e8acecb40cb2eb2c69bd8d0fd924d672b3",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "c1ea0c6265000356bee76d2f0cdcc4aec75afde856107dfa623e53205a72a02a"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_4_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "078f55d49f9a8e8029e85af71ad9dcfad8d83a4f50ba1b8e57c64522f6ea89fc",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_4_3": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "d9e4ab409f82de9299c9bd308ebf3f58653e0ed0fac2457bf4d00c265e3e70f9",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_4_4": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "7560f20bc421f31fdc4e369fc27eb75e79308e847603d595f98496849932518d",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_4_5": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "b1dbce7f10872b4814a7a61ab5c8f5c671f495fcc32479c82e222761ecc9591a",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_4_6": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "8db4b0fdcf616a98201bd10157ede6afcc802561bb028b062ca18c63765b178d",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_4_7": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "156ee73e799058753eea7ad2fc4ed4d0ac60aeb817ffdeafe3441e16184aefc5",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_5_18": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "b7469f7ce9fd92be966df188bf4c8c6519b6cc101e5f30e044ffc97719491277",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "c1ea0c6265000356bee76d2f0cdcc4aec75afde856107dfa623e53205a72a02a"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_5_19": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "a0f0711f03d78dfac885b8ebe0d60c89544d1b124fc97f533edf3cc3c7b017ae",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_5_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "035df585bceb305e6cddaee76ceab37d34f167d709094eeb7a8e24f2931e8d1f",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "c1ea0c6265000356bee76d2f0cdcc4aec75afde856107dfa623e53205a72a02a"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_5_3": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "628665dce5fee9c0b1fd979bd80b20e78c41a48630e9275f989a6247e634b943",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "c1ea0c6265000356bee76d2f0cdcc4aec75afde856107dfa623e53205a72a02a"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_5_4": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "ae8584dce43bf7aa5097aa2993b5b0067798eae929f77f0f0a8f93f38489572e",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "c1ea0c6265000356bee76d2f0cdcc4aec75afde856107dfa623e53205a72a02a"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_5_5": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "d9c2fb62edc26d060496076bccafea0e2f47964e8c9783f3cb9b9fc653c0eee9",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "c1ea0c6265000356bee76d2f0cdcc4aec75afde856107dfa623e53205a72a02a"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_5_6": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "bea1fc361cb492da1f5830fb7d643b634b0c21de565e47d11f6f9638652f9afe",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "c1ea0c6265000356bee76d2f0cdcc4aec75afde856107dfa623e53205a72a02a"
+  },
+  "subgraph_gcare_aids.aids/Chain_9/uf_Q_5_7": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "31b570ecc9b9932b001a99b4808c5da6ed2461e0ae32db4d1dd1109746476587",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "c1ea0c6265000356bee76d2f0cdcc4aec75afde856107dfa623e53205a72a02a"
+  },
+  "subgraph_gcare_aids.aids/Graph_12/uf_Q_0_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "512515c470a4d4f5e0e725b1831d4f0831a9890a7af010d486b070c3d051d515",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Star_12/uf_Q_4_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "40b417aae5315edb338c4686cd6e318ca483918a76269378cd32c545e3131a8b",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_aids.aids/Star_12/uf_Q_4_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "4061b56e547c190d183070150d649f846e515a9a84d29a4c49aa2c6af2e244bf",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
   "subgraph_gcare_graph.aids": {
     "dependencies": [
       "boto3",
@@ -10418,9 +15137,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "bc8675bb0ffe464d5a00d863c108224f967a73847a47b2aab6f91dc84cd9c3ff",
+    "digest": "f78bf01511f3d2c718e36c810e738306361177a69dab3c3aa6f1804b0e022ea2",
     "file": "src/saps/benchmarks/subgraph_matching.py",
-    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+    "freshness": "c1ea0c6265000356bee76d2f0cdcc4aec75afde856107dfa623e53205a72a02a"
   },
   "subgraph_gcare_graph.human": {
     "dependencies": [
@@ -10500,6 +15219,1956 @@
     "file": "src/saps/benchmarks/subgraph_matching.py",
     "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
   },
+  "subgraph_gcare_graph.yago": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "e50c3076ebe9820ce8cec431bc3d9a4a31e64a7257f691e534a94560b1c1d4a1",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Chain_3/uf_Q_1_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "dfa621e30db481b702b157f9d01f02694ff9db9e403c265cc165e647c964d05c",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Chain_3/uf_Q_1_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "8f51ce5e2ca35c93a736ef51ba355e19ae56e77749827b6a667a48a2402dc008",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Chain_3/uf_Q_1_3": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "2e2a5a59e9d4b922ed4f0fa20f1a398eb7defb72a178d1113f7ea9f87971d7c7",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_0_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "a5b515c7d26a187b910182c142471df0cdf78d8e5db3a17a677a0d577e0aa02d",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_0_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "a22268f2e5d79abd92576443bc5b86290dde0c3ff2211537e68a0b38b1fc94b9",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_0_3": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "8a6c1b1c0c8c1dd1123980dd70b2784dddbe4dc86cacd74e192e42bc8f2023b2",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_0_4": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "fdb92c192d7266408ac0da8d1fdc899489ef8789882540ac6a6c175bce75087d",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_0_5": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "0a40368da95e625b7a28aaae3e9e10908eb23c6344f23c3d50a363df26d3eff1",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_0_6": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "c9f3f8d1bc3ff12d33ffccbf56175f3a05bae6149dcb98022e32b0618f8c6c00",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_1_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "177246bb977b046d177aa3218110fcbfd6bf98366aaef791c0722dad533f272b",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_1_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "943e14ebb7de6f78dbc2f1db21e03908e593cda4fd6d2118c9ed271d048f38b3",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_1_3": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "e216dc6bf009fba36db02c3e1101c7a57ec172326890f9cb494bbe1e24ffc811",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_1_4": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "9a36119e40217a9693c57125f1dfc196387bb0bad45b24120993c74e11e267b2",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_2_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "77934b50f5dffe6dd0982f9f33dd777693db8c71348ac70ed868c170c90ec346",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_2_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "918f0a7f857a18cc132fa0e8051c55671636d0d23bf7c6f39d898f4ba25bc74b",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_2_3": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "03e7816be92458db75880df557a0685e9249690a2eb5bff0f29273452afabe99",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_2_4": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "a3e86a57690efccc619f5e98716ef66d2ff2f3d3963f8694bef91346d5e9f165",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_2_5": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "d302001f3b1e9dbdd3c6abe6a705296f019c23dd8e0b2b06a741f0c7c812ac2a",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_2_6": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "31d362fa0abf1da3ea12c635d42c1f1fa5a912f9c31573f45f94d956484f357a",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_3_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "b62f3a4628f99a0c8f8b702f665300abf6766a67561d5286c1aab478c60c0f46",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_3_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "61f38ba805ea1a1699aa9db7335ed91ac2ecdc646dc06a60d929899d6224723c",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_3_3": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "b5590ada5dfdbff93709d3e19e6d9e0464ac2d1d3e89ceeafa78af4120ad88bb",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_3_4": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "ba3ca0dcb7bc3d8a758f953a30e3042ac2db184dcfda732e68bac7f80629f7fe",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_3_5": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "1c2d7592dd403cc7a40e7ca7bcb7219376bc11c42839fdb95fe6b36cf6df8e3e",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_3_6": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "7cc16bd7a56ed05419bdd72a3b0a44af04017c8a041dd80ae5205d1002e39608",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_3_7": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "4285da0d4a6c5bea16e7139a693d2b8ff2ed7cb46bd6d5ccb12a8a2cfe42f8c4",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_3_8": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "8d6794d35e4497c6cefd4c51a063e0b95feccd320d97b93e70f0b3bfd1ff40a4",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Graph_3/uf_Q_3_9": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "732df407dc851d1df86dab68d50ebe4745c8f5fdadc8c7fa63065e66d3e6f668",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Star_3/uf_Q_0_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "4ac5d39fe8dcaa4fc128e4ddc90d7a1bf4775b302c73866d3f3818a5efa5b134",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Star_3/uf_Q_0_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "b82b6cd0a916abfcfd406170610a6ec0d88be9333cfdfdcab057a771a9e1eb26",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Star_3/uf_Q_1_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "22eaf9144b9f6b46ef66a78ad40340d7bd96f8ea81b978c067acbe7f362c3e71",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Star_3/uf_Q_1_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "546b2949bc0acae646e56391d192b67317f2e2a463be9a45ed4fb200c6017834",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Star_3/uf_Q_1_3": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "50d0ad103e3cf5d79eca8535c3bdf964ff175d26342b9801671dd0ad69c2236a",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Star_3/uf_Q_1_4": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "07b796661cde9104382e35569a92f6ba106163b10d8c29c4cddb37d15baa291c",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Star_3/uf_Q_1_5": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "ebf1009fc62a4247f0c64a25ec95da9924db685ce44b5ecc49c006d246c2aba9",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Star_3/uf_Q_1_6": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "3910f617f73041ed8d85cac8cd1cdd18a676537db76686958e928d279824da00",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Star_3/uf_Q_2_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "b1d5b07c76a4c74c8f38645830893b862086df411846800dc93199a1d66cd53d",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Star_3/uf_Q_2_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "54daa5bffba3fd3f70c7e83a6efe232af147806b6205f07c8d2d4dca5f6c8c51",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Star_3/uf_Q_2_3": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "e8f8485b47b3e8bf650a73e689207bb6718b1a02b403db90dc29afdbb0a3db32",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Tree_3/uf_Q_0_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "ee1fe804e2e823533a1f4b2acc05361fe9c72c4d16f17d2614542f88b021d526",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Tree_3/uf_Q_0_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "dc8560deb8f25a60af7cc6f4f89c58c1ba623592d51ccc66673a1ab85ba38c8f",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Tree_3/uf_Q_0_3": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "f0fd00ee166616c4a7dac7897443754f60b6f32de15a1f44169b8e53a03ffe46",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Tree_3/uf_Q_1_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "fae36582becc157463606e984e863fdf7df5b75de333895b3e052f92afd07821",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Tree_3/uf_Q_2_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "d0ab5f129bc77611719515e767be1fa4567d26081498612c902fbc78693a08e7",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Tree_3/uf_Q_2_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "b38f74a3b6129af396d84802099006d92855323fc479c6b44bc3126b3eb562fc",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Tree_3/uf_Q_2_3": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "02cdabdf74d19c3dea7df0f5cb6d31e7572e55546a77d1750dbbbedd55a673b1",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Tree_3/uf_Q_2_4": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "14318e5c331e43ff1901cb2310a24e1f7bdb7380b5fdfaa192549a193dbc122c",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Tree_3/uf_Q_3_1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "969581fd60d1a2de93cfb3d2a8b7e8a154df34ccd904c73838aae80949f2ee77",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_human.human/Tree_3/uf_Q_3_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "26517c84e1f1c0ee82f49bbd39fbfeee11a647df63c9c1ed2ee507eb044e3036",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
   "subgraph_matching_test_inputs.a_to_b": {
     "dependencies": [
       "boto3",
@@ -10535,9 +17204,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "6cc4d5130897342ce8da74ad56000203c2eb5cb0f9bcc56dfff9d64cf5fe93c3",
+    "digest": "83de191a5c5a35adba304be2252fed6cedae2c67bb9d120158c630730c941e02",
     "file": "src/saps/benchmarks/subgraph_matching.py",
-    "freshness": "41d9eca0e6d09ce27947822b17eea5be992fd59ac2ba4340751917f8c292a7ef"
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
   },
   "subgraph_matching_test_inputs.all_edges": {
     "dependencies": [
@@ -10574,9 +17243,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "59bef084293023ec6b8491252563c696e7b0f864b952a7b59878d803e3b7d0dd",
+    "digest": "fc7bf5e9f9f73b324a927299a8d2ceecec91e472bfe8f9987145fad9d847e9db",
     "file": "src/saps/benchmarks/subgraph_matching.py",
-    "freshness": "41d9eca0e6d09ce27947822b17eea5be992fd59ac2ba4340751917f8c292a7ef"
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
   },
   "subgraph_matching_test_inputs.b_to_a": {
     "dependencies": [
@@ -10613,9 +17282,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "4f0ddd6761529a6cffcd2a34cb62bd304e2e925fa9bcc61fcb0ffdc74a0d6fed",
+    "digest": "b033cbadb4b83b4e78e0f2458df431e9f6fa237e1e5dfa478afe155bd5d93571",
     "file": "src/saps/benchmarks/subgraph_matching.py",
-    "freshness": "41d9eca0e6d09ce27947822b17eea5be992fd59ac2ba4340751917f8c292a7ef"
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
   },
   "subgraph_matching_test_inputs.label_a_count": {
     "dependencies": [
@@ -10652,9 +17321,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "00735814377ffd4234a231c401b68168a2ac8a80ab04752034f0a2342c4efaa0",
+    "digest": "bc72ed5e4ed60857440bb24b9563a55300e85ee2497d3a6ef3c64b80c6c5c9cd",
     "file": "src/saps/benchmarks/subgraph_matching.py",
-    "freshness": "41d9eca0e6d09ce27947822b17eea5be992fd59ac2ba4340751917f8c292a7ef"
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
   },
   "tictactoe_boards.batch_near": {
     "dependencies": [

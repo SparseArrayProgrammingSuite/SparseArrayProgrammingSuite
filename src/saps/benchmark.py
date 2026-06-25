@@ -620,11 +620,9 @@ class Benchmark(Tagged, Attributed, Motivated):
         if hasattr(self, "_compiled_benchmark"):
             del self._compiled_benchmark
 
+    @abstractmethod
     def check(self, param):
-        for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
-                "Output must be in binsparse format"
-            )
+        ...
 
     @property
     def metadata(self) -> dict[str, Any]:
