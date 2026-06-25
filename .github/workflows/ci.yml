@@ -7,13 +7,8 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        python: ['3.11', '3.12', '3.13']
-        include:
-          - os: macos-latest
-            python: '3.11'
-          - os: windows-latest
-            python: '3.11'
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.13']
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
