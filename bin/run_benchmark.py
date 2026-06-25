@@ -159,6 +159,11 @@ backend = saps.build_storage_backend(
     type=os.environ.get("REMOTE_STORAGE_BACKEND"),
     bucket=os.environ.get("REMOTE_STORAGE_BUCKET"),
 )
+digest = backend.check_manifest(generator, dataset)
+prefix = None if digest is None else backend.prefix(generator, dataset, digest)
+if prefix is not None and backend.file_exists(prefix):
+    print("fresh")
+    raise SystemExit(0)
 raise SystemExit(0 if backend.upload_dataset(generator, dataset) else 1)
 """
 
@@ -195,7 +200,7 @@ def _cache_datasets(benchmarks, metadata, environments) -> int:
                     seen.add(key)
                     label = f"{bench_meta['name']} / {generator_name} / {dataset_name}"
                     try:
-                        env.run(
+                        output = env.run(
                             [
                                 "-c",
                                 _UPLOAD_DATASET_CODE,
@@ -205,8 +210,12 @@ def _cache_datasets(benchmarks, metadata, environments) -> int:
                                 dataset_name,
                             ]
                         )
-                        uploaded += 1
-                        print(f"[uploaded] {label}")
+                        if output.splitlines()[-1:] == ["fresh"]:
+                            skipped += 1
+                            print(f"[fresh]    {label}")
+                        else:
+                            uploaded += 1
+                            print(f"[uploaded] {label}")
                     except (
                         OSError,
                         RuntimeError,
@@ -245,6 +254,19 @@ def _load_metadata_document(metadata_path: Path) -> dict:
     return {"benchmarks": document.get("benchmarks", [])}
 
 
+def _statistics_freshness(statistics_path: Path) -> dict[tuple[str, str, str], str]:
+    if not statistics_path.exists():
+        return {}
+    document = json.loads(statistics_path.read_text(encoding="utf-8"))
+    return {
+        (benchmark["name"], generator["name"], dataset["name"]): dataset["freshness"]
+        for benchmark in document.get("benchmarks", [])
+        for generator in benchmark.get("generators", [])
+        for dataset in generator.get("datasets", [])
+        if "freshness" in dataset
+    }
+
+
 def _refresh_metadata(
     metadata: dict[str, dict],
     metadata_path: Path,
@@ -274,15 +296,13 @@ def _trace_statistics(
     outputs_dir,
     timeout,
     show_stderr,
+    skipped_fresh=0,
 ) -> int:
     """Run selected benchmarks under ASV with the tagger framework."""
     stats_dir = outputs_dir / "tagger_stats"
     stats_dir.mkdir(parents=True, exist_ok=True)
     for stats_path in stats_dir.glob("*.json"):
         stats_path.unlink()
-    statistics_path = os.environ.get("SAPS_STATISTICS_PATH")
-    if statistics_path:
-        Path(statistics_path).unlink(missing_ok=True)
 
     print(f"Discovered {len(benchmarks)} benchmark entries for tagger")
     print(f"Using timeout: {timeout} seconds")
@@ -319,8 +339,13 @@ def _trace_statistics(
         results.save(outputs_dir / "results")
 
     tagged = sum(1 for _ in stats_dir.glob("*.json"))
-    print(f"tag summary: tagged_records={tagged} failed_benchmark_entries={failed}")
-    return 0 if tagged > 0 else 1
+    print(
+        "tag summary: "
+        f"tagged_records={tagged} "
+        f"failed_benchmark_entries={failed} "
+        f"skipped_fresh={skipped_fresh}"
+    )
+    return 0 if failed == 0 and (tagged > 0 or skipped_fresh > 0) else 1
 
 
 def main() -> int:
@@ -676,12 +701,14 @@ def main() -> int:
         }
     )
 
+    source_benchmarks: dict[str, saps.Benchmark] = {}
     source_metadata: dict[str, dict] = {}
     for name in benchmarks:
         module_name, class_name, _method_name = name.rsplit(".", 2)
         benchmark_module = importlib.import_module(f"saps.benchmarks.{module_name}")
         benchmark = getattr(benchmark_module, class_name)()
         assert isinstance(benchmark, saps.Benchmark)
+        source_benchmarks[name] = benchmark
         source_metadata[name] = benchmark.metadata
     metadata = dict(source_metadata)
 
@@ -701,6 +728,12 @@ def main() -> int:
     exclude_set = {tag.strip() for tag in args.no_tag if tag and tag.strip()}
     include_res = args.re or []
     exclude_res = args.no_re or []
+    stats_freshness = (
+        _statistics_freshness(persistent_statistics_path)
+        if args.trace_statistics
+        else {}
+    )
+    skipped_fresh_statistics = 0
 
     def match_target(obj: dict) -> str:
         return obj["name"]
@@ -765,6 +798,16 @@ def main() -> int:
                 )
             ):
                 continue
+            if args.trace_statistics:
+                benchmark_param = source_benchmarks[name].params[idx]
+                stats_key = (
+                    source_benchmarks[name].name,
+                    benchmark_param.generator.name,
+                    benchmark_param.dataset.name,
+                )
+                if benchmark_param.dataset.freshness == stats_freshness.get(stats_key):
+                    skipped_fresh_statistics += 1
+                    continue
             benchmarks._benchmark_selection[name].append(idx)
 
         if not benchmarks._benchmark_selection[name]:
@@ -823,6 +866,7 @@ def main() -> int:
             outputs_dir=outputs_dir,
             timeout=timeout,
             show_stderr=args.show_stderr,
+            skipped_fresh=skipped_fresh_statistics,
         )
 
     if args.check_suite:
