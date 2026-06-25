@@ -167,7 +167,7 @@ raise SystemExit(0 if backend.upload_dataset(generator, dataset) else 1)
 """
 
 
-def _cache_datasets(benchmarks, metadata, environments) -> int:
+def _cache_datasets(benchmarks, metadata, environments, source_benchmarks) -> int:
     """Upload the selected (benchmark, generator, dataset) triples."""
     uploaded = failed = skipped = 0
     seen: set[tuple[str, str]] = set()
@@ -186,8 +186,13 @@ def _cache_datasets(benchmarks, metadata, environments) -> int:
                 }
             module_name, class_name, _method = name.rsplit(".", 2)
             bench_meta = metadata[name]
+            source_generators = {
+                generator.name: generator
+                for generator in source_benchmarks[name].generators
+            }
             generators = {gen["name"]: gen for gen in bench_meta["generators"]}
             for generator_name, gen_meta in generators.items():
+                source_generator = source_generators[generator_name]
                 for ds_meta in gen_meta["datasets"]:
                     dataset_name = ds_meta["name"]
                     key = (generator_name, dataset_name)
@@ -198,6 +203,10 @@ def _cache_datasets(benchmarks, metadata, environments) -> int:
                         continue
                     seen.add(key)
                     label = f"{bench_meta['name']} / {generator_name} / {dataset_name}"
+                    if not source_generator.cacheable:
+                        skipped += 1
+                        print(f"[uncached] {label}")
+                        continue
                     print(f"[caching]  {label}", flush=True)
                     try:
                         output = env.run(
@@ -849,6 +858,7 @@ def main() -> int:
             benchmarks=benchmarks,
             metadata=metadata,
             environments=environments,
+            source_benchmarks=source_benchmarks,
         )
 
     if args.trace_statistics:
