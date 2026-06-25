@@ -12,7 +12,13 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps_framework import BinsparseFormat
 
+
+def _dense_binsparse_array(array: BinsparseFormat):
+    if array.data["format"] != "dense":
+        raise ValueError(f"Expected dense binsparse data, got {array.data['format']}")
+    return np.asarray(array.data["values"]).reshape(array.data["shape"])
 
 
 def _step_input(t):
@@ -570,10 +576,14 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
             "n": dataset.n,
             "a": dataset.a,
             "alpha": dataset.alpha,
-            "C": dataset.C,
-            "brusselator_cb": dataset.brusselator_cb,
         }
-        return DataInstance(inputs=[], meta=meta)
+        return DataInstance(
+            inputs=[
+                BinsparseFormat.from_numpy(dataset.C),
+                BinsparseFormat.from_numpy(np.asarray(dataset.brusselator_cb)),
+            ],
+            meta=meta,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -608,8 +618,11 @@ class _OdeBenchmarkBase(Benchmark, ABC):
     def _comparison_output(self, y, ref):
         return y, ref
 
+    def _check_data(self):
+        return [_dense_binsparse_array(item) for item in self._input]
+
     @abstractmethod
-    def _dydt(self, t, y, meta):
+    def _dydt(self, t, y, data, meta):
         raise NotImplementedError
 
     def check(self, param):
@@ -618,7 +631,8 @@ class _OdeBenchmarkBase(Benchmark, ABC):
 
         time = self._output[0].data["values"].reshape(self._output[0].data["shape"])
         y_out = self._output[1].data["values"].reshape(self._output[1].data["shape"])
-        rhs = lambda t, y: self._dydt(t, list(y), self._meta)  # noqa: E731
+        data = self._check_data()
+        rhs = lambda t, y: self._dydt(t, list(y), data, self._meta)  # noqa: E731
         ref = solve_ivp(
             rhs,
             self._meta["span"],
@@ -648,7 +662,7 @@ class _ForwardEulerBase(_OdeBenchmarkBase):
         outputs = [None for _ in inputs]
         outputs[0] = y0
         for i in range(1, len(inputs)):
-            dydt_vector = self._dydt(inputs[i - 1], outputs[i - 1], meta)
+            dydt_vector = self._dydt(inputs[i - 1], outputs[i - 1], data, meta)
             outputs[i] = [
                 outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
             ]
@@ -675,7 +689,7 @@ class _BackwardEulerBase(_OdeBenchmarkBase):
         for i in range(1, len(inputs)):
             y_guess = outputs[i - 1]
             for _ in range(10):
-                dydt_vector = self._dydt(inputs[i], y_guess, meta)
+                dydt_vector = self._dydt(inputs[i], y_guess, data, meta)
                 y_guess = [
                     outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
                 ]
@@ -702,13 +716,13 @@ class _RK4Base(_OdeBenchmarkBase):
         outputs[0] = y0
         for i in range(1, len(inputs)):
             y_prev = outputs[i - 1]
-            k1 = self._dydt(inputs[i - 1], y_prev, meta)
+            k1 = self._dydt(inputs[i - 1], y_prev, data, meta)
             k2_state = [y_prev[j] + (step / 2) * k1[j] for j in range(len(y0))]
-            k2 = self._dydt(inputs[i - 1] + step / 2, k2_state, meta)
+            k2 = self._dydt(inputs[i - 1] + step / 2, k2_state, data, meta)
             k3_state = [y_prev[j] + (step / 2) * k2[j] for j in range(len(y0))]
-            k3 = self._dydt(inputs[i - 1] + step / 2, k3_state, meta)
+            k3 = self._dydt(inputs[i - 1] + step / 2, k3_state, data, meta)
             k4_state = [y_prev[j] + step * k3[j] for j in range(len(y0))]
-            k4 = self._dydt(inputs[i - 1] + step, k4_state, meta)
+            k4 = self._dydt(inputs[i - 1] + step, k4_state, data, meta)
             outputs[i] = [
                 y_prev[j] + (step / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j])
                 for j in range(len(y0))
@@ -730,7 +744,7 @@ class _RCMixin:
     def generators(self):
         return [RCGenerator()]
 
-    def _dydt(self, t, y, meta):
+    def _dydt(self, t, y, data, meta):
         return _rc_derivatives(t, y, meta["R"], meta["C"], _step_input)
 
 
@@ -778,7 +792,7 @@ class _RLCMixin:
     def generators(self):
         return [RLCGenerator()]
 
-    def _dydt(self, t, y, meta):
+    def _dydt(self, t, y, data, meta):
         return _rlc_derivatives(t, y, meta["R"], meta["L"], meta["C"], _step_input)
 
     def _comparison_output(self, y, ref):
@@ -829,7 +843,7 @@ class _LotkaVolterraMixin:
     def generators(self):
         return [LotkaVolterraGenerator()]
 
-    def _dydt(self, t, y, meta):
+    def _dydt(self, t, y, data, meta):
         return _lotka_volterra_derivatives(
             t, y, meta["a"], meta["b"], meta["c"], meta["d"]
         )
@@ -882,15 +896,16 @@ class _BrusselatorMixin:
     def generators(self):
         return [BrusselatorGenerator()]
 
-    def _dydt(self, t, y, meta):
+    def _dydt(self, t, y, data, meta):
+        C, brusselator_cb = data
         return _brusselator_derivatives(
             t,
             y,
             meta["n"],
             meta["a"],
             meta["alpha"],
-            meta["C"],
-            meta["brusselator_cb"],
+            C,
+            brusselator_cb,
         )
 
     def _error_tolerance(self):

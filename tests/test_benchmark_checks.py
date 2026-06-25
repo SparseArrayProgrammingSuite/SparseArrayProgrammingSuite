@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 import importlib
 import inspect
+import json
 import pkgutil
 from collections.abc import Iterator
 from pathlib import Path
@@ -62,11 +63,13 @@ def test_benchmark_modules_do_not_define_global_xp():
     violations = []
     for path in (root / "src" / "saps" / "benchmarks").glob("*.py"):
         tree = ast.parse(path.read_text(), filename=str(path))
-        for node in tree.body:
-            if isinstance(node, ast.Assign):
-                for target in node.targets:
-                    if isinstance(target, ast.Name) and target.id == "xp":
-                        violations.append(f"{path.relative_to(root)}:{node.lineno}")
+        violations.extend(
+            f"{path.relative_to(root)}:{node.lineno}"
+            for node in tree.body
+            if isinstance(node, ast.Assign)
+            for target in node.targets
+            if isinstance(target, ast.Name) and target.id == "xp"
+        )
 
     assert not violations, "benchmark module global xp definitions found: " + ", ".join(
         violations
@@ -81,3 +84,12 @@ def test_benchmark_check(benchmark_cls: type[Benchmark], param, framework_cls):
     benchmark.setup(param, use_cache=False, xp=xp)
     benchmark.run(param)
     benchmark.teardown(param)
+
+
+@pytest.mark.parametrize(("benchmark_cls", "param"), list(_test_params()))
+def test_benchmark_generated_metadata_is_json_serializable(
+    benchmark_cls: type[Benchmark], param
+):
+    problem = param.generator.generate(param.dataset)
+    json.dumps(problem.meta, sort_keys=True)
+    json.dumps(problem.ref_meta, sort_keys=True)
