@@ -262,30 +262,28 @@ class LocalStorageBackend(StorageBackend):
 class S3StorageBackend(StorageBackend):
     def __init__(self, bucket_name: str, manifest_path: Path, cache_dir: Path):
         import boto3
+        from botocore import UNSIGNED
+
+        Config = __import__("botocore.config", fromlist=["Config"]).Config
 
         super().__init__(manifest_path, cache_dir)
         self.bucket_name = normalize_storage_bucket(bucket_name)
-        self.s3 = boto3.client("s3")
-        self._unsigned_s3 = None
+        self.s3 = boto3.client("s3", config=Config(signature_version=UNSIGNED))
+        self._upload_s3 = None
 
     @property
-    def unsigned_s3(self):
-        if self._unsigned_s3 is None:
+    def upload_s3(self):
+        if self._upload_s3 is None:
             import boto3
-            from botocore import UNSIGNED
 
-            Config = __import__("botocore.config", fromlist=["Config"]).Config
-
-            self._unsigned_s3 = boto3.client(
-                "s3", config=Config(signature_version=UNSIGNED)
-            )
-        return self._unsigned_s3
+            self._upload_s3 = boto3.client("s3")
+        return self._upload_s3
 
     def upload_file(self, local_path: Path, remote_prefix: str) -> bool:
         import botocore
 
         try:
-            self.s3.upload_file(str(local_path), self.bucket_name, remote_prefix)
+            self.upload_s3.upload_file(str(local_path), self.bucket_name, remote_prefix)
             return True
         except (
             botocore.exceptions.BotoCoreError,
@@ -297,22 +295,8 @@ class S3StorageBackend(StorageBackend):
     def file_exists(self, remote_prefix: str) -> bool:
         import botocore
 
-        if self.public_file_exists(remote_prefix):
-            return True
-
         try:
             self.s3.head_object(Bucket=self.bucket_name, Key=remote_prefix)
-            return True
-        except botocore.exceptions.NoCredentialsError:
-            return False
-        except botocore.exceptions.ClientError:
-            return False
-
-    def public_file_exists(self, remote_prefix: str) -> bool:
-        import botocore
-
-        try:
-            self.unsigned_s3.head_object(Bucket=self.bucket_name, Key=remote_prefix)
             return True
         except botocore.exceptions.ClientError:
             return False

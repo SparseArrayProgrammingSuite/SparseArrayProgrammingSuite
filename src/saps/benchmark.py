@@ -45,6 +45,7 @@ def _module_path(module_name: str) -> Path | None:
         return None
     return path
 
+
 def _is_under_venv(path: Path) -> bool:
     for prefix in (sys.prefix, sys.base_prefix):
         try:
@@ -631,8 +632,7 @@ class Benchmark(Tagged, Attributed, Motivated):
             del self._compiled_benchmark
 
     @abstractmethod
-    def check(self, param):
-        ...
+    def check(self, param): ...
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -701,3 +701,6 @@ class ShellBenchmark(Benchmark, ABC):
 
     def benchmark(self, xp: Framework, data: list[Any], meta: Any) -> Any:
         return []
+
+    def check(self, param):
+        pass
