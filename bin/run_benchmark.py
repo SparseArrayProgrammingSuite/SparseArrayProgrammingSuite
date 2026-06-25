@@ -198,6 +198,7 @@ def _cache_datasets(benchmarks, metadata, environments) -> int:
                         continue
                     seen.add(key)
                     label = f"{bench_meta['name']} / {generator_name} / {dataset_name}"
+                    print(f"[caching]  {label}", flush=True)
                     try:
                         output = env.run(
                             [
