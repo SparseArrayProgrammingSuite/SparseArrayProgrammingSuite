@@ -105,9 +105,7 @@ class StorageBackend(ABC):
         with open(local_path) as f:
             return self.deserialize_data(f.read())
 
-    def data_hash(
-        self, data: DataInstance
-    ) -> str:
+    def data_hash(self, data: DataInstance) -> str:
         m = hashlib.sha256()
         m.update(self.serialize_data(data).encode("utf-8"))
         return m.hexdigest()
