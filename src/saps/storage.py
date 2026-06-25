@@ -105,14 +105,11 @@ class StorageBackend(ABC):
         with open(local_path) as f:
             return self.deserialize_data(f.read())
 
-    def code_and_data_hash(
-        self, generator: Generator, dataset: Dataset, data: DataInstance
+    def data_hash(
+        self, data: DataInstance
     ) -> str:
         m = hashlib.sha256()
         m.update(self.serialize_data(data).encode("utf-8"))
-        m.update(json.dumps(dataset.metadata, sort_keys=True).encode("utf-8"))
-        #        m.update(generator.generate.__code__.co_code)
-        print(f"Generator Name: {generator.name} Code and data hash: {m.hexdigest()}")
         return m.hexdigest()
 
     def _read_manifest(self) -> dict:
@@ -162,7 +159,7 @@ class StorageBackend(ABC):
 
     def upload_dataset(self, generator: Generator, dataset: Dataset) -> bool:
         data = generator.generate(dataset)
-        digest = self.code_and_data_hash(generator, dataset, data)
+        digest = self.data_hash(data)
         prefix = self.prefix(generator, dataset, digest)
         if self.file_exists(prefix):
             self.update_manifest(generator, dataset, digest)
@@ -185,7 +182,7 @@ class StorageBackend(ABC):
         digest = self.check_manifest(generator, dataset)
         if not digest:
             data = generator.generate(dataset)
-            digest = self.code_and_data_hash(generator, dataset, data)
+            digest = self.data_hash(data)
             prefix = self.prefix(generator, dataset, digest)
             self.serialize_data_to_file(data, self.cache_dir / prefix)
             self.update_manifest(generator, dataset, digest)
@@ -210,7 +207,7 @@ class StorageBackend(ABC):
                     f"{generator.name}.{dataset.name} from remote storage."
                 )
                 data = generator.generate(dataset)
-                digest = self.code_and_data_hash(generator, dataset, data)
+                digest = self.data_hash(data)
                 prefix = self.prefix(generator, dataset, digest)
                 cache_path = self.cache_dir / prefix
                 self.serialize_data_to_file(data, cache_path)
@@ -218,7 +215,7 @@ class StorageBackend(ABC):
                 logging.info(f"Dataset {generator.name}.{dataset.name} regenerated.")
                 return data
         data = self.deserialize_data_from_file(cache_path)
-        assert digest == self.code_and_data_hash(generator, dataset, data), (
+        assert digest == self.data_hash(data), (
             "Data integrity check failed: hash mismatch"
         )
         return data
