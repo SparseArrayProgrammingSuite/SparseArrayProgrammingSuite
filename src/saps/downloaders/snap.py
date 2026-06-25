@@ -101,20 +101,20 @@ def parse_snap_edge_list(
         )
 
     if remap_nodes:
-        raw_node_ids, inverse = np.unique(
+        raw_node_ids_array, inverse = np.unique(
             np.concatenate((rows, cols)), return_inverse=True
         )
         edge_count = len(rows)
         rows = inverse[:edge_count]
         cols = inverse[edge_count:]
-        node_count = len(raw_node_ids)
+        node_count = len(raw_node_ids_array)
     else:
-        raw_node_ids = np.unique(np.concatenate((rows, cols)))
+        raw_node_ids_array = np.unique(np.concatenate((rows, cols)))
         node_count = int(max(rows.max(), cols.max())) + 1
 
     values = np.ones(rows.shape, dtype=bool)
     adjacency = BinsparseFormat.from_coo((rows, cols), values, (node_count, node_count))
-    raw_node_ids = BinsparseFormat.from_numpy(raw_node_ids)
+    raw_node_ids = BinsparseFormat.from_numpy(raw_node_ids_array)
     meta = {
         "directed": directed,
         "num_nodes": node_count,

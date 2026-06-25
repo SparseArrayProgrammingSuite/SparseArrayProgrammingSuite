@@ -4,7 +4,7 @@ from functools import cache
 
 @cache
 def _packages_distributions() -> dict[str, list[str]]:
-    return importlib.metadata.packages_distributions()
+    return dict(importlib.metadata.packages_distributions())
 
 
 def dependency_versions(dependencies: list[str]) -> list[dict[str, str]]:
