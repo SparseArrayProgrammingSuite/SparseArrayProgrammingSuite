@@ -1,4 +1,5 @@
 import os
+from abc import ABC, abstractmethod
 from typing import Any
 
 import numpy as np
@@ -54,8 +55,8 @@ def _generate_cg_data(source, has_b_file, A=None):
         )
         b = A @ x
         b = b.toarray().flatten()
-    x = np.zeros(A.shape[1])
-    return (A, b, x)
+    x0 = np.zeros(A.shape[1])
+    return (A, b, x0)
 
 
 
@@ -224,7 +225,9 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
     def generate(self, dataset: PreconditionedCGDataset) -> DataInstance:
         import scipy.sparse as sp
 
-        A, b, x = _generate_cg_data(dataset.source_name, dataset.has_b_file, dataset.A)
+        A, b, x0 = _generate_cg_data(
+            dataset.source_name, dataset.has_b_file, dataset.A
+        )
         A_csr = A.tocsr()
         n = A_csr.shape[0]
         # Create one block for every processor modelled after
@@ -243,10 +246,10 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
         M_bin = BinsparseFormat.from_coo((M.row, M.col), M.data, M.shape)
         A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
         b_bin = BinsparseFormat.from_numpy(b)
-        x_bin = BinsparseFormat.from_numpy(x)
+        x0_bin = BinsparseFormat.from_numpy(x0)
         return DataInstance(
-            inputs=[A_bin, b_bin, x_bin, M_bin],
-            meta={"solve": solve_block_jacobi_cg},
+            inputs=[A_bin, b_bin, x0_bin, M_bin],
+            meta={},
             ref_meta=dataset.ref_meta,
         )
 
@@ -368,28 +371,22 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
         ]
 
     def generate(self, dataset: PreconditionedCGDataset) -> DataInstance:
-        A, b, x = _generate_cg_data(dataset.source_name, dataset.has_b_file, dataset.A)
+        A, b, x0 = _generate_cg_data(
+            dataset.source_name, dataset.has_b_file, dataset.A
+        )
         M = A.diagonal()
         M_bin = BinsparseFormat.from_numpy(M)
         A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
         b_bin = BinsparseFormat.from_numpy(b)
-        x_bin = BinsparseFormat.from_numpy(x)
+        x0_bin = BinsparseFormat.from_numpy(x0)
         return DataInstance(
-            inputs=[A_bin, b_bin, x_bin, M_bin],
-            meta={"solve": solve_jacobi_cg},
+            inputs=[A_bin, b_bin, x0_bin, M_bin],
+            meta={},
             ref_meta=dataset.ref_meta,
         )
 
 
-class PreconditionedCGBenchmark(Benchmark):
-    @property
-    def name(self) -> str:
-        return "preconditioned_cg"
-
-    @property
-    def pretty_name(self) -> str:
-        return "Preconditioned Conjugate Gradient (Block Jacobi)"
-
+class _PreconditionedCGBase(Benchmark, ABC):
     @property
     def authors(self) -> list[Contributor]:
         return [Contributor("Benjamin Berol", "bberol3@gatech.edu")]
@@ -454,9 +451,9 @@ class PreconditionedCGBenchmark(Benchmark):
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
-    @property
-    def generators(self):
-        return [BlockJacobiCGGenerator(), JacobiCGGenerator()]
+    @abstractmethod
+    def _solve_cg(self, xp, M, r):
+        raise NotImplementedError
 
     def check(self, param):
         for item in self._output:
@@ -467,7 +464,7 @@ class PreconditionedCGBenchmark(Benchmark):
         if not self._ref_meta or not self._ref_meta.get("check_residual"):
             return
 
-        A_bin, b_bin, _x_bin, _M_bin = self._input
+        A_bin, b_bin, _x0_bin, _M_bin = self._input
         A_coo = BinsparseFormat.to_coo(A_bin)
         A = pydata_sparse.COO(
             coords=np.stack((A_coo.data["indices_0"], A_coo.data["indices_1"])),
@@ -482,8 +479,7 @@ class PreconditionedCGBenchmark(Benchmark):
         )
 
     def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
-        A, b, x, M = data
-        solve_cg = meta["solve"]
+        A, b, x0, M = data
         rel_tol = meta.get("rel_tol", 1e-8)
         abs_tol = meta.get("abs_tol", 1e-20)
         max_iters = meta.get("max_iters", 10000)
@@ -492,8 +488,9 @@ class PreconditionedCGBenchmark(Benchmark):
         # tol_sq used to avoid having to sqrt dot products when checking tolerance
         tol_sq = tolerance * tolerance
 
+        x = x0
         r = b - A @ x
-        z = solve_cg(xp, M, r)
+        z = self._solve_cg(xp, M, r)
         rho = xp.vecdot(r, z)
         p = z
         it = 0
@@ -513,7 +510,7 @@ class PreconditionedCGBenchmark(Benchmark):
                 if new_rr < tol_sq:
                     break
 
-                z = solve_cg(xp, M, r)
+                z = self._solve_cg(xp, M, r)
                 new_rho = xp.vecdot(r, z)
                 beta = new_rho / rho
                 p = z + beta * p
@@ -524,11 +521,43 @@ class PreconditionedCGBenchmark(Benchmark):
         return [x_solution]
 
 
-def solve_block_jacobi_cg(xp, M, r):
-    y = xp.linalg.solve(M, r)
-    return xp.linalg.solve(M.T, y)
+class _BlockJacobiCGMixin:
+    @property
+    def generators(self):
+        return [BlockJacobiCGGenerator()]
+
+    def _solve_cg(self, xp, M, r):
+        y = xp.linalg.solve(M, r)
+        return xp.linalg.solve(M.T, y)
 
 
-def solve_jacobi_cg(xp, M, r):
-    output = r / M
-    return xp.with_fill_value(output, 0) if hasattr(xp, "with_fill_value") else output
+class _JacobiCGMixin:
+    @property
+    def generators(self):
+        return [JacobiCGGenerator()]
+
+    def _solve_cg(self, xp, M, r):
+        output = r / M
+        if hasattr(xp, "with_fill_value"):
+            return xp.with_fill_value(output, 0)
+        return output
+
+
+class PreconditionedCGBenchmark(_BlockJacobiCGMixin, _PreconditionedCGBase):
+    @property
+    def name(self) -> str:
+        return "preconditioned_cg"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Preconditioned Conjugate Gradient (Block Jacobi)"
+
+
+class JacobiPreconditionedCGBenchmark(_JacobiCGMixin, _PreconditionedCGBase):
+    @property
+    def name(self) -> str:
+        return "jacobi_preconditioned_cg"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Preconditioned Conjugate Gradient (Jacobi)"

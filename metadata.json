@@ -7674,7 +7674,7 @@
       ],
       "description": "Hand-written code modelling the algorithm structure outlined in https://www.netlib.org/templates/templates.pdf Page 13.",
       "file": "src/saps/benchmarks/preconditioned_cg.py",
-      "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
+      "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
@@ -7699,7 +7699,7 @@
               ],
               "description": "SuiteSparse matrix test_A0.",
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
+              "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
               "has_b_file": false,
               "name": "test_A0",
               "pretty_name": "Preconditioned CG test_A0",
@@ -7724,7 +7724,7 @@
               ],
               "description": "SuiteSparse matrix test_A1.",
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
+              "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
               "has_b_file": false,
               "name": "test_A1",
               "pretty_name": "Preconditioned CG test_A1",
@@ -7749,7 +7749,7 @@
               ],
               "description": "SuiteSparse matrix test_A2.",
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
+              "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
               "has_b_file": false,
               "name": "test_A2",
               "pretty_name": "Preconditioned CG test_A2",
@@ -7774,7 +7774,7 @@
               ],
               "description": "SuiteSparse matrix test_A3.",
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
+              "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
               "has_b_file": false,
               "name": "test_A3",
               "pretty_name": "Preconditioned CG test_A3",
@@ -7799,7 +7799,7 @@
               ],
               "description": "SuiteSparse matrix test_A4.",
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
+              "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
               "has_b_file": false,
               "name": "test_A4",
               "pretty_name": "Preconditioned CG test_A4",
@@ -7824,304 +7824,7 @@
               ],
               "description": "SuiteSparse matrix test_A5.",
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
-              "has_b_file": false,
-              "name": "test_A5",
-              "pretty_name": "Preconditioned CG test_A5",
-              "suites": [
-                "test"
-              ],
-              "topics": []
-            },
-            {
-              "concepts": "<ccs2012></ccs2012>",
-              "condition_number": "3994223509->6.24",
-              "dependencies": [
-                "boto3",
-                "botocore",
-                "lark",
-                "numpy",
-                "pyparsing",
-                "scipy.io",
-                "scipy.sparse",
-                "sparse",
-                "ssgetpy"
-              ],
-              "description": "SuiteSparse matrix mhdb416.",
-              "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
-              "has_b_file": false,
-              "name": "mhdb416",
-              "pretty_name": "Preconditioned CG mhdb416",
-              "suites": [],
-              "topics": []
-            },
-            {
-              "concepts": "<ccs2012></ccs2012>",
-              "condition_number": "30036->36.3",
-              "dependencies": [
-                "boto3",
-                "botocore",
-                "lark",
-                "numpy",
-                "pyparsing",
-                "scipy.io",
-                "scipy.sparse",
-                "sparse",
-                "ssgetpy"
-              ],
-              "description": "SuiteSparse matrix lund_b.",
-              "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
-              "has_b_file": false,
-              "name": "lund_b",
-              "pretty_name": "Preconditioned CG lund_b",
-              "suites": [],
-              "topics": []
-            },
-            {
-              "concepts": "<ccs2012></ccs2012>",
-              "condition_number": "247->8.48",
-              "dependencies": [
-                "boto3",
-                "botocore",
-                "lark",
-                "numpy",
-                "pyparsing",
-                "scipy.io",
-                "scipy.sparse",
-                "sparse",
-                "ssgetpy"
-              ],
-              "description": "SuiteSparse matrix Chem97ZtZ.",
-              "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
-              "has_b_file": false,
-              "name": "Chem97ZtZ",
-              "pretty_name": "Preconditioned CG Chem97ZtZ",
-              "suites": [],
-              "topics": []
-            },
-            {
-              "concepts": "<ccs2012></ccs2012>",
-              "condition_number": "633194->7.14",
-              "dependencies": [
-                "boto3",
-                "botocore",
-                "lark",
-                "numpy",
-                "pyparsing",
-                "scipy.io",
-                "scipy.sparse",
-                "sparse",
-                "ssgetpy"
-              ],
-              "description": "SuiteSparse matrix bcsstm12.",
-              "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
-              "has_b_file": false,
-              "name": "bcsstm12",
-              "pretty_name": "Preconditioned CG bcsstm12",
-              "suites": [],
-              "topics": []
-            },
-            {
-              "concepts": "<ccs2012></ccs2012>",
-              "condition_number": "19->11.4",
-              "dependencies": [
-                "boto3",
-                "botocore",
-                "lark",
-                "numpy",
-                "pyparsing",
-                "scipy.io",
-                "scipy.sparse",
-                "sparse",
-                "ssgetpy"
-              ],
-              "description": "SuiteSparse matrix mesh1em1.",
-              "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
-              "has_b_file": false,
-              "name": "mesh1em1",
-              "pretty_name": "Preconditioned CG mesh1em1",
-              "suites": [],
-              "topics": []
-            }
-          ],
-          "dependencies": [
-            "boto3",
-            "botocore",
-            "lark",
-            "numpy",
-            "pyparsing",
-            "scipy.io",
-            "scipy.sparse",
-            "sparse",
-            "ssgetpy"
-          ],
-          "description": "Data collected from SuiteSparse Matrix Collection consisting of symmetric positive definite matrices, particularly those with a low convergence criteria.",
-          "file": "src/saps/benchmarks/preconditioned_cg.py",
-          "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
-          "motivation": "\"The preconditioned conjugate gradient method is well established for solving linear systems of equations that arise from the discretization of partial differential equations. Point and block Jacobi preconditioning are both common preconditioning techniques.\" Sparsity enhances the functionality of both the solver and the preconditioner. Similar to normal conjugate gradient, the SpMV done once per iteration reduces complexity from O(n^2) to O(nnz). Furthermore, the sparse block Jacobi preconditioner avoids filling in all the 0s around the blocks, which prevents memory overhead and keeps the per-iteration block solve cost proportional to the block size instead of the full matrix dimension.",
-          "name": "block_jacobi_cg_inputs",
-          "pretty_name": "Block Jacobi CG SuiteSparse Data Generator",
-          "references": [
-            "M. Hegland, P. E. Saylor. \"Block Jacobi Preconditioning of the Conjugate Gradient Method on a Vector Processor\", International Journal of Computer Mathematics, Vol. 44, No. 1-4, pp. 71-89, 1992.",
-            ". \"\", URL: https://www.netlib.org/templates/templates.pdf."
-          ],
-          "suites": [],
-          "topics": []
-        },
-        {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
-          "authors": [
-            "Benjamin Berol <bberol3@gatech.edu>"
-          ],
-          "concepts": "<ccs2012></ccs2012>",
-          "datasets": [
-            {
-              "concepts": "<ccs2012></ccs2012>",
-              "condition_number": "",
-              "dependencies": [
-                "boto3",
-                "botocore",
-                "lark",
-                "numpy",
-                "pyparsing",
-                "scipy.io",
-                "scipy.sparse",
-                "sparse",
-                "ssgetpy"
-              ],
-              "description": "SuiteSparse matrix test_A0.",
-              "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
-              "has_b_file": false,
-              "name": "test_A0",
-              "pretty_name": "Preconditioned CG test_A0",
-              "suites": [
-                "test"
-              ],
-              "topics": []
-            },
-            {
-              "concepts": "<ccs2012></ccs2012>",
-              "condition_number": "",
-              "dependencies": [
-                "boto3",
-                "botocore",
-                "lark",
-                "numpy",
-                "pyparsing",
-                "scipy.io",
-                "scipy.sparse",
-                "sparse",
-                "ssgetpy"
-              ],
-              "description": "SuiteSparse matrix test_A1.",
-              "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
-              "has_b_file": false,
-              "name": "test_A1",
-              "pretty_name": "Preconditioned CG test_A1",
-              "suites": [
-                "test"
-              ],
-              "topics": []
-            },
-            {
-              "concepts": "<ccs2012></ccs2012>",
-              "condition_number": "",
-              "dependencies": [
-                "boto3",
-                "botocore",
-                "lark",
-                "numpy",
-                "pyparsing",
-                "scipy.io",
-                "scipy.sparse",
-                "sparse",
-                "ssgetpy"
-              ],
-              "description": "SuiteSparse matrix test_A2.",
-              "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
-              "has_b_file": false,
-              "name": "test_A2",
-              "pretty_name": "Preconditioned CG test_A2",
-              "suites": [
-                "test"
-              ],
-              "topics": []
-            },
-            {
-              "concepts": "<ccs2012></ccs2012>",
-              "condition_number": "",
-              "dependencies": [
-                "boto3",
-                "botocore",
-                "lark",
-                "numpy",
-                "pyparsing",
-                "scipy.io",
-                "scipy.sparse",
-                "sparse",
-                "ssgetpy"
-              ],
-              "description": "SuiteSparse matrix test_A3.",
-              "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
-              "has_b_file": false,
-              "name": "test_A3",
-              "pretty_name": "Preconditioned CG test_A3",
-              "suites": [
-                "test"
-              ],
-              "topics": []
-            },
-            {
-              "concepts": "<ccs2012></ccs2012>",
-              "condition_number": "",
-              "dependencies": [
-                "boto3",
-                "botocore",
-                "lark",
-                "numpy",
-                "pyparsing",
-                "scipy.io",
-                "scipy.sparse",
-                "sparse",
-                "ssgetpy"
-              ],
-              "description": "SuiteSparse matrix test_A4.",
-              "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
-              "has_b_file": false,
-              "name": "test_A4",
-              "pretty_name": "Preconditioned CG test_A4",
-              "suites": [
-                "test"
-              ],
-              "topics": []
-            },
-            {
-              "concepts": "<ccs2012></ccs2012>",
-              "condition_number": "",
-              "dependencies": [
-                "boto3",
-                "botocore",
-                "lark",
-                "numpy",
-                "pyparsing",
-                "scipy.io",
-                "scipy.sparse",
-                "sparse",
-                "ssgetpy"
-              ],
-              "description": "SuiteSparse matrix test_A5.",
-              "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
+              "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
               "has_b_file": false,
               "name": "test_A5",
               "pretty_name": "Preconditioned CG test_A5",
@@ -8146,7 +7849,7 @@
               ],
               "description": "SuiteSparse matrix mhdb416.",
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
+              "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
               "has_b_file": false,
               "name": "mhdb416",
               "pretty_name": "Preconditioned CG mhdb416",
@@ -8169,7 +7872,7 @@
               ],
               "description": "SuiteSparse matrix lund_b.",
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
+              "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
               "has_b_file": false,
               "name": "lund_b",
               "pretty_name": "Preconditioned CG lund_b",
@@ -8192,7 +7895,7 @@
               ],
               "description": "SuiteSparse matrix Chem97ZtZ.",
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
+              "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
               "has_b_file": false,
               "name": "Chem97ZtZ",
               "pretty_name": "Preconditioned CG Chem97ZtZ",
@@ -8215,7 +7918,7 @@
               ],
               "description": "SuiteSparse matrix bcsstm12.",
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
+              "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
               "has_b_file": false,
               "name": "bcsstm12",
               "pretty_name": "Preconditioned CG bcsstm12",
@@ -8238,7 +7941,7 @@
               ],
               "description": "SuiteSparse matrix mesh1em1.",
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
+              "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
               "has_b_file": false,
               "name": "mesh1em1",
               "pretty_name": "Preconditioned CG mesh1em1",
@@ -8259,10 +7962,340 @@
           ],
           "description": "Data collected from SuiteSparse Matrix Collection consisting of symmetric positive definite matrices, particularly those with a low convergence criteria.",
           "file": "src/saps/benchmarks/preconditioned_cg.py",
-          "freshness": "8fa7467955bd0cf8d34d8d2b9f5b8df3b658cabc889334a5914c6547f978b812",
+          "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
           "motivation": "\"The preconditioned conjugate gradient method is well established for solving linear systems of equations that arise from the discretization of partial differential equations. Point and block Jacobi preconditioning are both common preconditioning techniques.\" Sparsity enhances the functionality of both the solver and the preconditioner. Similar to normal conjugate gradient, the SpMV done once per iteration reduces complexity from O(n^2) to O(nnz). Furthermore, the sparse block Jacobi preconditioner avoids filling in all the 0s around the blocks, which prevents memory overhead and keeps the per-iteration block solve cost proportional to the block size instead of the full matrix dimension.",
           "name": "jacobi_cg_inputs",
           "pretty_name": "Jacobi CG SuiteSparse Data Generator",
+          "references": [
+            "M. Hegland, P. E. Saylor. \"Block Jacobi Preconditioning of the Conjugate Gradient Method on a Vector Processor\", International Journal of Computer Mathematics, Vol. 44, No. 1-4, pp. 71-89, 1992.",
+            ". \"\", URL: https://www.netlib.org/templates/templates.pdf."
+          ],
+          "suites": [],
+          "topics": []
+        }
+      ],
+      "id": "saps.benchmarks.preconditioned_cg.JacobiPreconditionedCGBenchmark.jacobi_preconditioned_cg",
+      "motivation": "\"The preconditioned conjugate gradient method is well established for solving linear systems of equations that arise from the discretization of partial differential equations. Point and block Jacobi preconditioning are both common preconditioning techniques.\" Sparsity enhances the functionality of both the solver and the preconditioner. Similar to normal conjugate gradient, the SpMV done once per iteration reduces complexity from O(n^2) to O(nnz). Furthermore, the sparse block Jacobi preconditioner avoids filling in all the 0s around the blocks, which prevents memory overhead and keeps the per-iteration block solve cost proportional to the block size instead of the full matrix dimension.",
+      "name": "jacobi_preconditioned_cg",
+      "pretty_name": "Preconditioned Conjugate Gradient (Jacobi)",
+      "references": [
+        "M. Hegland, P. E. Saylor. \"Block Jacobi Preconditioning of the Conjugate Gradient Method on a Vector Processor\", International Journal of Computer Mathematics, Vol. 44, No. 1-4, pp. 71-89, 1992.",
+        ". \"\", URL: https://www.netlib.org/templates/templates.pdf."
+      ],
+      "suites": [],
+      "topics": []
+    },
+    {
+      "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
+      "authors": [
+        "Benjamin Berol <bberol3@gatech.edu>"
+      ],
+      "concepts": "<ccs2012></ccs2012>",
+      "dependencies": [
+        "boto3",
+        "botocore",
+        "lark",
+        "numpy",
+        "pyparsing",
+        "scipy.io",
+        "scipy.sparse",
+        "sparse",
+        "ssgetpy"
+      ],
+      "description": "Hand-written code modelling the algorithm structure outlined in https://www.netlib.org/templates/templates.pdf Page 13.",
+      "file": "src/saps/benchmarks/preconditioned_cg.py",
+      "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
+      "generators": [
+        {
+          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
+          "authors": [
+            "Benjamin Berol <bberol3@gatech.edu>"
+          ],
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "condition_number": "",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing",
+                "scipy.io",
+                "scipy.sparse",
+                "sparse",
+                "ssgetpy"
+              ],
+              "description": "SuiteSparse matrix test_A0.",
+              "file": "src/saps/benchmarks/preconditioned_cg.py",
+              "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
+              "has_b_file": false,
+              "name": "test_A0",
+              "pretty_name": "Preconditioned CG test_A0",
+              "suites": [
+                "test"
+              ],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "condition_number": "",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing",
+                "scipy.io",
+                "scipy.sparse",
+                "sparse",
+                "ssgetpy"
+              ],
+              "description": "SuiteSparse matrix test_A1.",
+              "file": "src/saps/benchmarks/preconditioned_cg.py",
+              "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
+              "has_b_file": false,
+              "name": "test_A1",
+              "pretty_name": "Preconditioned CG test_A1",
+              "suites": [
+                "test"
+              ],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "condition_number": "",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing",
+                "scipy.io",
+                "scipy.sparse",
+                "sparse",
+                "ssgetpy"
+              ],
+              "description": "SuiteSparse matrix test_A2.",
+              "file": "src/saps/benchmarks/preconditioned_cg.py",
+              "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
+              "has_b_file": false,
+              "name": "test_A2",
+              "pretty_name": "Preconditioned CG test_A2",
+              "suites": [
+                "test"
+              ],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "condition_number": "",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing",
+                "scipy.io",
+                "scipy.sparse",
+                "sparse",
+                "ssgetpy"
+              ],
+              "description": "SuiteSparse matrix test_A3.",
+              "file": "src/saps/benchmarks/preconditioned_cg.py",
+              "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
+              "has_b_file": false,
+              "name": "test_A3",
+              "pretty_name": "Preconditioned CG test_A3",
+              "suites": [
+                "test"
+              ],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "condition_number": "",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing",
+                "scipy.io",
+                "scipy.sparse",
+                "sparse",
+                "ssgetpy"
+              ],
+              "description": "SuiteSparse matrix test_A4.",
+              "file": "src/saps/benchmarks/preconditioned_cg.py",
+              "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
+              "has_b_file": false,
+              "name": "test_A4",
+              "pretty_name": "Preconditioned CG test_A4",
+              "suites": [
+                "test"
+              ],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "condition_number": "",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing",
+                "scipy.io",
+                "scipy.sparse",
+                "sparse",
+                "ssgetpy"
+              ],
+              "description": "SuiteSparse matrix test_A5.",
+              "file": "src/saps/benchmarks/preconditioned_cg.py",
+              "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
+              "has_b_file": false,
+              "name": "test_A5",
+              "pretty_name": "Preconditioned CG test_A5",
+              "suites": [
+                "test"
+              ],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "condition_number": "3994223509->6.24",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing",
+                "scipy.io",
+                "scipy.sparse",
+                "sparse",
+                "ssgetpy"
+              ],
+              "description": "SuiteSparse matrix mhdb416.",
+              "file": "src/saps/benchmarks/preconditioned_cg.py",
+              "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
+              "has_b_file": false,
+              "name": "mhdb416",
+              "pretty_name": "Preconditioned CG mhdb416",
+              "suites": [],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "condition_number": "30036->36.3",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing",
+                "scipy.io",
+                "scipy.sparse",
+                "sparse",
+                "ssgetpy"
+              ],
+              "description": "SuiteSparse matrix lund_b.",
+              "file": "src/saps/benchmarks/preconditioned_cg.py",
+              "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
+              "has_b_file": false,
+              "name": "lund_b",
+              "pretty_name": "Preconditioned CG lund_b",
+              "suites": [],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "condition_number": "247->8.48",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing",
+                "scipy.io",
+                "scipy.sparse",
+                "sparse",
+                "ssgetpy"
+              ],
+              "description": "SuiteSparse matrix Chem97ZtZ.",
+              "file": "src/saps/benchmarks/preconditioned_cg.py",
+              "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
+              "has_b_file": false,
+              "name": "Chem97ZtZ",
+              "pretty_name": "Preconditioned CG Chem97ZtZ",
+              "suites": [],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "condition_number": "633194->7.14",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing",
+                "scipy.io",
+                "scipy.sparse",
+                "sparse",
+                "ssgetpy"
+              ],
+              "description": "SuiteSparse matrix bcsstm12.",
+              "file": "src/saps/benchmarks/preconditioned_cg.py",
+              "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
+              "has_b_file": false,
+              "name": "bcsstm12",
+              "pretty_name": "Preconditioned CG bcsstm12",
+              "suites": [],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "condition_number": "19->11.4",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing",
+                "scipy.io",
+                "scipy.sparse",
+                "sparse",
+                "ssgetpy"
+              ],
+              "description": "SuiteSparse matrix mesh1em1.",
+              "file": "src/saps/benchmarks/preconditioned_cg.py",
+              "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
+              "has_b_file": false,
+              "name": "mesh1em1",
+              "pretty_name": "Preconditioned CG mesh1em1",
+              "suites": [],
+              "topics": []
+            }
+          ],
+          "dependencies": [
+            "boto3",
+            "botocore",
+            "lark",
+            "numpy",
+            "pyparsing",
+            "scipy.io",
+            "scipy.sparse",
+            "sparse",
+            "ssgetpy"
+          ],
+          "description": "Data collected from SuiteSparse Matrix Collection consisting of symmetric positive definite matrices, particularly those with a low convergence criteria.",
+          "file": "src/saps/benchmarks/preconditioned_cg.py",
+          "freshness": "71ae51c08c4fb7baa093176e215afdd476cef3b9ec232be90362ad47026dfb21",
+          "motivation": "\"The preconditioned conjugate gradient method is well established for solving linear systems of equations that arise from the discretization of partial differential equations. Point and block Jacobi preconditioning are both common preconditioning techniques.\" Sparsity enhances the functionality of both the solver and the preconditioner. Similar to normal conjugate gradient, the SpMV done once per iteration reduces complexity from O(n^2) to O(nnz). Furthermore, the sparse block Jacobi preconditioner avoids filling in all the 0s around the blocks, which prevents memory overhead and keeps the per-iteration block solve cost proportional to the block size instead of the full matrix dimension.",
+          "name": "block_jacobi_cg_inputs",
+          "pretty_name": "Block Jacobi CG SuiteSparse Data Generator",
           "references": [
             "M. Hegland, P. E. Saylor. \"Block Jacobi Preconditioning of the Conjugate Gradient Method on a Vector Processor\", International Journal of Computer Mathematics, Vol. 44, No. 1-4, pp. 71-89, 1992.",
             ". \"\", URL: https://www.netlib.org/templates/templates.pdf."
