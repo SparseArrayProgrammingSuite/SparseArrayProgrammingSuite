@@ -13,7 +13,6 @@ from saps.downloaders.snap import download_snap_dataset
 from saps_framework.binsparse_format import BinsparseFormat
 
 
-
 class PageRankDataset(Dataset):
     def __init__(
         self,
@@ -383,8 +382,10 @@ class PageRankBenchmark(Benchmark):
         result = self._output[0].data["values"].reshape(self._output[0].data["shape"])
 
         if self._ref_outputs is not None:
-            expected = self._ref_outputs[0].data["values"].reshape(
-                self._ref_outputs[0].data["shape"]
+            expected = (
+                self._ref_outputs[0]
+                .data["values"]
+                .reshape(self._ref_outputs[0].data["shape"])
             )
             assert np.allclose(result, expected, atol=1e-2), (
                 f"PageRank output mismatch for {param.dataset.name}"

@@ -14,7 +14,6 @@ from saps.benchmark import (
     Ref,
 )
 
-
 # TODO add generator for https://github.com/arijitsh/mccomp-test-instances/tree/main/Track4_PWMC
 
 

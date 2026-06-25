@@ -15,7 +15,6 @@ from saps.benchmark import (
 from saps_framework import BinsparseFormat
 
 
-
 def _normalize(array_api, matrix):
     col_sums = array_api.sum(matrix, axis=0)
     col_sums = array_api.maximum(col_sums, array_api.finfo(matrix.dtype).eps)
@@ -392,7 +391,6 @@ class MCLBenchmark(Benchmark):
         cols = cols[present]
         attractors = rows[rows == cols]
         clusters = {
-            tuple(np.sort(cols[rows == attractor]).tolist())
-            for attractor in attractors
+            tuple(np.sort(cols[rows == attractor]).tolist()) for attractor in attractors
         }
         assert len(clusters) == expected_count

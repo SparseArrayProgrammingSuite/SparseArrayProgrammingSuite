@@ -12,7 +12,6 @@ from saps.benchmark import (
 from saps_framework.binsparse_format import BinsparseFormat
 
 
-
 def _as2d_full(xp, F):
     """Full 2D antisymmetrizer: F[a,e] - F[e,a]."""
     F_T = xp.einsum("FT[i,j] = F[j,i]", F=F)
@@ -326,9 +325,7 @@ class CCSDGenerator(Generator[CCSDDataset]):
                 suites=["test"],
                 no=4,
                 nv=6,
-                ref_outputs=[
-                    BinsparseFormat.from_numpy(np.array(380638.269079))
-                ],
+                ref_outputs=[BinsparseFormat.from_numpy(np.array(380638.269079))],
             ),
             CCSDDataset(
                 name="ccsd_medium",
@@ -594,9 +591,11 @@ class CCSD(Benchmark):
         if self._ref_outputs is None:
             return
 
-        reference_norm = self._ref_outputs[0].data["values"].reshape(
-            self._ref_outputs[0].data["shape"]
-        )[()]
+        reference_norm = (
+            self._ref_outputs[0]
+            .data["values"]
+            .reshape(self._ref_outputs[0].data["shape"])[()]
+        )
         T1_out = self._output[0].data["values"].reshape(self._output[0].data["shape"])
         T2_out = self._output[1].data["values"].reshape(self._output[1].data["shape"])
         assert T1_out.shape == (6, 4)

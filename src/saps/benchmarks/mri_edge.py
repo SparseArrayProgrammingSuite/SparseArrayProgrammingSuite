@@ -7,7 +7,6 @@ from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Genera
 from saps_framework import BinsparseFormat
 
 
-
 class MaskedMRIDataset(Dataset):
     def __init__(
         self,
@@ -365,8 +364,10 @@ class MaskedMRIEdgeBenchmark(Benchmark):
             return
 
         result = self._output[0].data["values"].reshape(self._output[0].data["shape"])
-        expected = self._ref_outputs[0].data["values"].reshape(
-            self._ref_outputs[0].data["shape"]
+        expected = (
+            self._ref_outputs[0]
+            .data["values"]
+            .reshape(self._ref_outputs[0].data["shape"])
         )
 
         assert self._meta == {}
@@ -376,11 +377,11 @@ class MaskedMRIEdgeBenchmark(Benchmark):
         if self._ref_meta is None:
             return
         if self._ref_meta.get("default_roi"):
-            image_arr = self._input[0].data["values"].reshape(
-                self._input[0].data["shape"]
+            image_arr = (
+                self._input[0].data["values"].reshape(self._input[0].data["shape"])
             )
-            roi_arr = self._input[1].data["values"].reshape(
-                self._input[1].data["shape"]
+            roi_arr = (
+                self._input[1].data["values"].reshape(self._input[1].data["shape"])
             )
             expected_roi = default_masked_mri_roi(image_arr)
             assert np.all(roi_arr == expected_roi)

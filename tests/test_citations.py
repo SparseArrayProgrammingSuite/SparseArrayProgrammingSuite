@@ -143,9 +143,7 @@ def _ref_constructor(ref: Ref) -> str:
             continue
         if name == "authors":
             authors_value = cast(list[Author], value)
-            authors = ", ".join(
-                f"Author({author.name!r})" for author in authors_value
-            )
+            authors = ", ".join(f"Author({author.name!r})" for author in authors_value)
             lines.append(f"    authors=[{authors}],")
         else:
             lines.append(f"    {name}={value!r},")

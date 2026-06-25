@@ -130,8 +130,7 @@ class StorageBackend(ABC):
             for key in ("file", "freshness", "dependencies", "dependency_versions")
         } != self._dataset_manifest_metadata(dataset):
             logging.info(
-                f"Dataset {generator.name}.{dataset.name} manifest metadata "
-                "is stale."
+                f"Dataset {generator.name}.{dataset.name} manifest metadata is stale."
             )
             return None
         return record["digest"]

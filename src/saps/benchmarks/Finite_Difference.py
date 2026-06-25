@@ -14,15 +14,12 @@ from saps.benchmark import (
 from saps_framework import BinsparseFormat
 
 
-
 def _from_binsparse(array):
     if array.data["format"] == "dense":
         return array.data["values"].reshape(array.data["shape"])
     if array.data["format"] == "COO":
         shape = array.data["shape"]
-        coords = np.array(
-            [array.data[f"indices_{dim}"] for dim in range(len(shape))]
-        )
+        coords = np.array([array.data[f"indices_{dim}"] for dim in range(len(shape))])
         return pydata_sparse.COO(coords, array.data["values"], shape=shape).todense()
     raise ValueError(f"Unsupported format: {array.data['format']}")
 

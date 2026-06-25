@@ -12,7 +12,6 @@ from saps.benchmark import (
 from saps_framework import BinsparseFormat
 
 
-
 class CP4FactorizeableDataset(Dataset):
     def __init__(self, name, pretty_name, suites, shape, rank, max_iter=100):
         self._name = name
@@ -274,8 +273,8 @@ class CP4_ALS(Benchmark):
         B = self._output[1].data["values"].reshape(self._output[1].data["shape"])
         C = self._output[2].data["values"].reshape(self._output[2].data["shape"])
         D = self._output[3].data["values"].reshape(self._output[3].data["shape"])
-        lambda_vals = self._output[4].data["values"].reshape(
-            self._output[4].data["shape"]
+        lambda_vals = (
+            self._output[4].data["values"].reshape(self._output[4].data["shape"])
         )
         dim1, dim2, dim3, dim4 = X.shape
         rank = self._meta["rank"]

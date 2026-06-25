@@ -224,9 +224,7 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
                     ],
                     dtype=np.float32,
                 ),
-                weights1=np.array(
-                    [[0.5, 0.3, 0.1], [0.2, 0.4, 0.6]], dtype=np.float32
-                ),
+                weights1=np.array([[0.5, 0.3, 0.1], [0.2, 0.4, 0.6]], dtype=np.float32),
                 bias1=np.zeros(3, dtype=np.float32),
                 weights2=np.array(
                     [[0.5, 0.5], [0.3, 0.7], [0.2, 0.8]], dtype=np.float32

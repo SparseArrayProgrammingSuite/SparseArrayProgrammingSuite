@@ -17,7 +17,6 @@ from saps.benchmark import (
 from saps_framework import BinsparseFormat
 
 
-
 class JacobiDataset(Dataset):
     def __init__(
         self,
@@ -115,9 +114,7 @@ class JacobiTestGenerator(Generator[JacobiDataset]):
             JacobiDataset(
                 "test_3x3",
                 suites=["test"],
-                A=np.array(
-                    [[4.0, 1.0, 0.0], [1.0, 5.0, 2.0], [0.0, 2.0, 6.0]]
-                ),
+                A=np.array([[4.0, 1.0, 0.0], [1.0, 5.0, 2.0], [0.0, 2.0, 6.0]]),
                 b=np.array([5.0, 8.0, 8.0]),
                 x=np.zeros((3,)),
             ),
@@ -138,9 +135,7 @@ class JacobiTestGenerator(Generator[JacobiDataset]):
             JacobiDataset(
                 "test_3x3_dominant",
                 suites=["test"],
-                A=np.array(
-                    [[20.0, 3.0, 1.0], [2.0, 15.0, 4.0], [1.0, 2.0, 18.0]]
-                ),
+                A=np.array([[20.0, 3.0, 1.0], [2.0, 15.0, 4.0], [1.0, 2.0, 18.0]]),
                 b=np.array([24.0, 21.0, 21.0]),
                 x=np.zeros((3,)),
             ),
@@ -159,6 +154,7 @@ class JacobiTestGenerator(Generator[JacobiDataset]):
             meta={},
             ref_meta={"check_rounded_residual": True, "round_decimals": 4},
         )
+
 
 class JacobiGenerator(Generator[JacobiDataset]):
     @property

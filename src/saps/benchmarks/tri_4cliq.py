@@ -13,7 +13,6 @@ from saps.downloaders.snap import download_snap_dataset
 from saps_framework import BinsparseFormat
 
 
-
 class GraphCountingDataset(Dataset):
     def __init__(
         self,
@@ -543,8 +542,10 @@ class TriangleCountBenchmark(Benchmark):
         if self._ref_outputs is None:
             return
         result = self._output[0].data["values"].reshape(self._output[0].data["shape"])
-        expected = self._ref_outputs[0].data["values"].reshape(
-            self._ref_outputs[0].data["shape"]
+        expected = (
+            self._ref_outputs[0]
+            .data["values"]
+            .reshape(self._ref_outputs[0].data["shape"])
         )
         assert np.allclose(result, expected)
 
@@ -664,7 +665,9 @@ class FourCliqueCountBenchmark(Benchmark):
         if self._ref_outputs is None:
             return
         result = self._output[0].data["values"].reshape(self._output[0].data["shape"])
-        expected = self._ref_outputs[0].data["values"].reshape(
-            self._ref_outputs[0].data["shape"]
+        expected = (
+            self._ref_outputs[0]
+            .data["values"]
+            .reshape(self._ref_outputs[0].data["shape"])
         )
         assert np.allclose(result, expected)

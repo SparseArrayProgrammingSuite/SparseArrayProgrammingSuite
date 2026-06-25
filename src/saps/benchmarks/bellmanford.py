@@ -555,8 +555,10 @@ class BellmanFordBenchmark(Benchmark):
             return
 
         result = self._output[0].data["values"].reshape(self._output[0].data["shape"])
-        expected = self._ref_outputs[0].data["values"].reshape(
-            self._ref_outputs[0].data["shape"]
+        expected = (
+            self._ref_outputs[0]
+            .data["values"]
+            .reshape(self._ref_outputs[0].data["shape"])
         )
         assert np.allclose(result, expected, equal_nan=True), (
             f"Bellman-Ford output mismatch for {param.dataset.name}"

@@ -11,7 +11,6 @@ from saps.benchmark import (
 )
 
 
-
 def build_win_masks(xp):
     return xp.asarray(
         [
@@ -428,7 +427,9 @@ class TicTacToeBenchmark(Benchmark):
         if self._ref_outputs is None:
             return
         actual = self._output[0].data["values"].reshape(self._output[0].data["shape"])
-        expected = self._ref_outputs[0].data["values"].reshape(
-            self._ref_outputs[0].data["shape"]
+        expected = (
+            self._ref_outputs[0]
+            .data["values"]
+            .reshape(self._ref_outputs[0].data["shape"])
         )
         assert np.allclose(actual, expected, atol=1e-6)

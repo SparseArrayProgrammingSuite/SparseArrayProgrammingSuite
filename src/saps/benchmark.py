@@ -59,7 +59,7 @@ def _imported_modules(path: Path) -> set[str]:
                 raise RuntimeError(
                     f"Relative import in {path}:{node.lineno}. "
                     "Use an absolute import so freshness hashes are stable."
-            )
+                )
             if node.module:
                 modules.add(node.module)
     return modules
@@ -521,9 +521,7 @@ class Benchmark(Tagged, Attributed, Motivated):
 
     param_names = ["dataset"]
 
-    def setup(
-        self, param, *, use_cache: bool = True, xp: Framework | None = None
-    ):
+    def setup(self, param, *, use_cache: bool = True, xp: Framework | None = None):
         import logging
 
         if not logging.getLogger().handlers:
@@ -584,12 +582,9 @@ class Benchmark(Tagged, Attributed, Motivated):
         if stats_dir:
             path = Path(stats_dir)
             path.mkdir(parents=True, exist_ok=True)
-            record_id = (
-                f"{self.name}.{param.generator.name}.{param.dataset.name}"
-            )
+            record_id = f"{self.name}.{param.generator.name}.{param.dataset.name}"
             safe_id = "".join(
-                char if char.isalnum() or char in "._-" else "_"
-                for char in record_id
+                char if char.isalnum() or char in "._-" else "_" for char in record_id
             )
             output_path = path / f"{safe_id}.json"
             output_path.write_text(

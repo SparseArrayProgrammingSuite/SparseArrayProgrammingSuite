@@ -345,10 +345,6 @@ class TaggedArray:
             return data.astype(dtype)
         return data
 
-    @property
-    def ndim(self):
-        return self.array.ndim
-
     def __getattr__(self, name):
         attr = getattr(self.array, name)
         if callable(attr):

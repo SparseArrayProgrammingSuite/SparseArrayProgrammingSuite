@@ -15,7 +15,6 @@ from saps.downloaders.snap import download_snap_dataset
 from saps_framework import BinsparseFormat
 
 
-
 class FastSVDataset(Dataset):
     def __init__(
         self,

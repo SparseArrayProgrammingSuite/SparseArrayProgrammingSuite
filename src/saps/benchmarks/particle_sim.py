@@ -13,8 +13,6 @@ from saps.benchmark import (
 )
 from saps_framework import BinsparseFormat
 
-
-
 mass = 0.01
 cutoff = 0.01
 min_r = cutoff / 100
@@ -74,6 +72,7 @@ class Particle:
         self.vy = vy
         self.ax = ax
         self.ay = ay
+
 
 def apply_force(particle, neighbor):
     dx = neighbor.x - particle.x

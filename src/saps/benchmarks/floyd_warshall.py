@@ -16,7 +16,6 @@ from saps.benchmark import (
 from saps_framework.binsparse_format import BinsparseFormat
 
 
-
 class FloydWarshallDataset(Dataset):
     def __init__(
         self,
@@ -336,9 +335,7 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
 
     def generate(self, dataset: FloydWarshallDataset):
         inputs = (
-            dataset.A.todense()
-            if isinstance(dataset.A, sp.SparseArray)
-            else dataset.A
+            dataset.A.todense() if isinstance(dataset.A, sp.SparseArray) else dataset.A
         )
         return DataInstance(
             inputs=[BinsparseFormat.from_numpy(inputs)],
@@ -610,8 +607,10 @@ class FloydWarshallBenchmark(Benchmark):
             )
         output = self._output[0].data["values"].reshape(self._output[0].data["shape"])
         if self._ref_outputs is not None:
-            expected = self._ref_outputs[0].data["values"].reshape(
-                self._ref_outputs[0].data["shape"]
+            expected = (
+                self._ref_outputs[0]
+                .data["values"]
+                .reshape(self._ref_outputs[0].data["shape"])
             )
             both_inf = np.isinf(output) & np.isinf(expected)
             both_finite = np.isfinite(output) & np.isfinite(expected)

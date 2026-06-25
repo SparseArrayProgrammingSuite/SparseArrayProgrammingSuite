@@ -7,7 +7,6 @@ from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Genera
 from saps_framework import BinsparseFormat
 
 
-
 def generate_1d_sobel_matrices(Nx, Ny):
     rows = np.arange(Nx)
     cols1 = (rows + 1) % Nx
@@ -110,16 +109,12 @@ def expected_sobel_edge(image, threshold):
     img_p1_0 = np.roll(image, -1, axis=0)
     img_p1_p1 = np.roll(np.roll(image, -1, axis=0), -1, axis=1)
 
-    gx = (img_p1_m1 + 2 * img_p1_0 + img_p1_p1) - (
-        img_m1_m1 + 2 * img_m1_0 + img_m1_p1
-    )
+    gx = (img_p1_m1 + 2 * img_p1_0 + img_p1_p1) - (img_m1_m1 + 2 * img_m1_0 + img_m1_p1)
 
     img_0_m1 = np.roll(image, 1, axis=1)
     img_0_p1 = np.roll(image, -1, axis=1)
 
-    gy = (img_m1_p1 + 2 * img_0_p1 + img_p1_p1) - (
-        img_m1_m1 + 2 * img_0_m1 + img_p1_m1
-    )
+    gy = (img_m1_p1 + 2 * img_0_p1 + img_p1_p1) - (img_m1_m1 + 2 * img_0_m1 + img_p1_m1)
 
     magnitude = np.abs(gx) + np.abs(gy)
     return magnitude > threshold
@@ -411,8 +406,10 @@ class MRISobelEdgeBenchmark(Benchmark):
             return
 
         actual = self._output[0].data["values"].reshape(self._output[0].data["shape"])
-        expected = self._ref_outputs[0].data["values"].reshape(
-            self._ref_outputs[0].data["shape"]
+        expected = (
+            self._ref_outputs[0]
+            .data["values"]
+            .reshape(self._ref_outputs[0].data["shape"])
         )
 
         assert self._meta == {}

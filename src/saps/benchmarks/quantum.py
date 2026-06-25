@@ -6,7 +6,6 @@ from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Genera
 from saps_framework import BinsparseFormat
 
 
-
 class QuantumDataset(Dataset):
     def __init__(
         self,
@@ -625,8 +624,10 @@ class QuantumStatevectorBenchmark(Benchmark):
             assert abs(norm - 1.0) < self._ref_meta["norm_atol"]
 
         if self._ref_outputs is not None:
-            expected = self._ref_outputs[0].data["values"].reshape(
-                self._ref_outputs[0].data["shape"]
+            expected = (
+                self._ref_outputs[0]
+                .data["values"]
+                .reshape(self._ref_outputs[0].data["shape"])
             )
             np.testing.assert_allclose(
                 result,

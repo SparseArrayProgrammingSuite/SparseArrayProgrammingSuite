@@ -108,9 +108,7 @@ def _run_check_suite(benchmarks: Benchmarks, machine_params, commit_hash, commit
                 benchmark.teardown(param)
                 values[idx] = 1
             except Exception:  # noqa: BLE001
-                stderr.append(
-                    f"For parameters: {param}\n{traceback.format_exc()}"
-                )
+                stderr.append(f"For parameters: {param}\n{traceback.format_exc()}")
                 for attr in (
                     "_output",
                     "_meta",
@@ -280,10 +278,7 @@ def _refresh_metadata(
         json.dumps(document, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    print(
-        "generated metadata for "
-        f"{len(document['benchmarks'])} benchmarks"
-    )
+    print(f"generated metadata for {len(document['benchmarks'])} benchmarks")
     return 0
 
 
@@ -602,9 +597,7 @@ def main() -> int:
             os.environ["SAPS_STATISTICS_PATH"] = str(persistent_statistics_path)
 
     uses_parent_environment = (
-        args.trace_statistics
-        or args.cache_datasets
-        or args.generate_metadata
+        args.trace_statistics or args.cache_datasets or args.generate_metadata
     )
 
     # Construct ASV config dict with all fields visible

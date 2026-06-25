@@ -14,7 +14,6 @@ from saps.benchmark import (
 from saps_framework import BinsparseFormat
 
 
-
 def normof2(xp, x, y):
     return xp.sqrt(xp.sum(xp.multiply(x, y)))
 
@@ -137,9 +136,7 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
             LSQRDataset(
                 "test_lsqr_exact_3",
                 suites=["test"],
-                A=np.array(
-                    [[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]
-                ),
+                A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]),
                 b=np.array([4.0, 8.0, 16.0]),
                 convergence="residual",
             ),
@@ -228,6 +225,7 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
             meta={},
             ref_meta={"convergence": dataset.convergence},
         )
+
 
 class LSQRGenerator(Generator[LSQRDataset]):
     @property

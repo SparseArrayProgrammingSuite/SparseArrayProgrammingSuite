@@ -14,7 +14,6 @@ from saps.benchmark import (
 from saps_framework import BinsparseFormat
 
 
-
 class HOSVDDataset(Dataset):
     def __init__(
         self,

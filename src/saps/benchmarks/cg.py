@@ -17,7 +17,6 @@ from saps.benchmark import (
 from saps_framework.binsparse_format import BinsparseFormat
 
 
-
 class CGDataset(Dataset):
     def __init__(
         self,
@@ -115,9 +114,7 @@ class CGTestGenerator(Generator[CGDataset]):
             CGDataset(
                 "test_3x3_tridiagonal",
                 suites=["test"],
-                A=np.array(
-                    [[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]
-                ),
+                A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]),
                 b=np.array([4.0, 8.0, 16.0]),
                 x=np.zeros((3,)),
             ),
@@ -188,6 +185,7 @@ class CGTestGenerator(Generator[CGDataset]):
             meta={},
             ref_meta={"check_rounded_residual": True, "round_decimals": 4},
         )
+
 
 class CGGenerator(Generator[CGDataset]):
     @property

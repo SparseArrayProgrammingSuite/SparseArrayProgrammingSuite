@@ -16,7 +16,6 @@ from saps.benchmark import (
 from saps_framework import BinsparseFormat
 
 
-
 class GMRESDataset(Dataset):
     def __init__(
         self,
@@ -198,6 +197,7 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
             meta=dataset.benchmark_meta,
             ref_meta=dataset.ref_meta,
         )
+
 
 class GMRESGenerator(Generator[GMRESDataset]):
     @property

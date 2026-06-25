@@ -15,7 +15,6 @@ from saps.benchmark import (
 from saps_framework import BinsparseFormat
 
 
-
 class RPKMeansDataset(Dataset):
     def __init__(
         self,

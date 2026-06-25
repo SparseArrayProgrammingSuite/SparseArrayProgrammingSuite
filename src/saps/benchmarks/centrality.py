@@ -13,7 +13,6 @@ from saps.downloaders.snap import download_snap_dataset
 from saps_framework import BinsparseFormat
 
 
-
 class BetweennessCentralityDataset(Dataset):
     def __init__(
         self,
@@ -454,8 +453,10 @@ class BetweennessCentralityBenchmark(Benchmark):
             return
 
         result = self._output[0].data["values"].reshape(self._output[0].data["shape"])
-        expected = self._ref_outputs[0].data["values"].reshape(
-            self._ref_outputs[0].data["shape"]
+        expected = (
+            self._ref_outputs[0]
+            .data["values"]
+            .reshape(self._ref_outputs[0].data["shape"])
         )
         assert np.allclose(result, expected, atol=1e-6), (
             f"Betweenness centrality output mismatch for {param.dataset.name}"

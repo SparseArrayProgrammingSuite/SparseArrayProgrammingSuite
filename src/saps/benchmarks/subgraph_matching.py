@@ -16,7 +16,6 @@ from saps.downloaders.gcare import (
 from saps_framework import BinsparseFormat
 
 
-
 class GCareGraphDataset(Dataset):
     def __init__(
         self,
@@ -218,6 +217,7 @@ class SubgraphMatchingTestGenerator(Generator[SubgraphMatchingTestDataset]):
             },
             ref_meta={"gt": dataset.gt},
         )
+
 
 class GCareGraphGenerator(Generator[GCareGraphDataset]):
     @property

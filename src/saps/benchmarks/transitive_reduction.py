@@ -12,7 +12,6 @@ from saps.benchmark import (
 from saps_framework import BinsparseFormat
 
 
-
 class TransitiveReductionDataset(Dataset):
     def __init__(self, name, edges, expected_edges, suites=None):
         self._name = name
@@ -235,8 +234,10 @@ class TransitiveReductionBenchmark(Benchmark):
 
     def check(self, param):
         super().check(param)
-        expected = self._ref_outputs[0].data["values"].reshape(
-            self._ref_outputs[0].data["shape"]
+        expected = (
+            self._ref_outputs[0]
+            .data["values"]
+            .reshape(self._ref_outputs[0].data["shape"])
         )
         actual = self._output[0].data["values"].reshape(self._output[0].data["shape"])
         assert np.array_equal(actual, expected)

@@ -14,7 +14,6 @@ from saps.benchmark import (
 from saps_framework import BinsparseFormat
 
 
-
 class JLApproxNNDataset(Dataset):
     def __init__(
         self,
@@ -128,6 +127,7 @@ class JLApproxNNTestGenerator(Generator[JLApproxNNDataset]):
             meta=problem.meta,
             ref_meta={"check": "jl_preserves_distance"},
         )
+
 
 class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
     @property
@@ -466,8 +466,8 @@ class JLApproxNearestNeighbor(Benchmark):
 
         data = self._input[0].data["values"].reshape(self._input[0].data["shape"])
         query = self._input[1].data["values"].reshape(self._input[1].data["shape"])
-        nearest_ind = self._output[0].data["values"].reshape(
-            self._output[0].data["shape"]
+        nearest_ind = (
+            self._output[0].data["values"].reshape(self._output[0].data["shape"])
         )
 
         diff = np.expand_dims(query, axis=1) - np.expand_dims(data, axis=0)

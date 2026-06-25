@@ -13,7 +13,6 @@ from saps.benchmark import (
 )
 
 
-
 def parse_dimacs(text):
     lines = [line.strip() for line in text.strip().split("\n")]
     cleaned = [line for line in lines if not line.startswith("c") and line]

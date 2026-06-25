@@ -133,9 +133,7 @@ class GCNTestGenerator(Generator[GCNDataset]):
             GCNDataset(
                 "test_gcn_3node",
                 suites=["test"],
-                adjacency=np.array(
-                    [[0, 1, 0], [1, 0, 1], [0, 1, 0]], dtype=np.float32
-                ),
+                adjacency=np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]], dtype=np.float32),
                 features=np.array(
                     [[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]], dtype=np.float32
                 ),
@@ -158,9 +156,7 @@ class GCNTestGenerator(Generator[GCNDataset]):
             GCNDataset(
                 "test_gcn_simple_3node_line",
                 suites=["test"],
-                adjacency=np.array(
-                    [[0, 1, 0], [1, 0, 1], [0, 1, 0]], dtype=np.float32
-                ),
+                adjacency=np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]], dtype=np.float32),
                 features=np.array([[1.0], [0.0], [1.0]], dtype=np.float32),
                 weights1=np.array([[1.0]], dtype=np.float32),
                 bias1=np.array([0.0], dtype=np.float32),
@@ -204,6 +200,7 @@ class GCNTestGenerator(Generator[GCNDataset]):
             ref_outputs=[BinsparseFormat.from_numpy(expected)],
             ref_meta={"rtol": 1e-10},
         )
+
 
 class GCNGenerator(Generator[GCNDataset]):
     @property
@@ -521,8 +518,10 @@ class GCNBenchmark(Benchmark):
             return
 
         result = self._output[0].data["values"].reshape(self._output[0].data["shape"])
-        expected = self._ref_outputs[0].data["values"].reshape(
-            self._ref_outputs[0].data["shape"]
+        expected = (
+            self._ref_outputs[0]
+            .data["values"]
+            .reshape(self._ref_outputs[0].data["shape"])
         )
         np.testing.assert_allclose(
             result,
