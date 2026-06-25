@@ -88,7 +88,7 @@ class MCLTestGenerator(Generator[MCLDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test"]
+        return ["test", "trace"]
 
     @property
     def concepts(self) -> str:
@@ -118,7 +118,7 @@ class MCLTestGenerator(Generator[MCLDataset]):
         return [
             MCLDataset(
                 "two_star_components",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [
                         [0, 1, 1, 1, 0, 0, 0, 0],
@@ -136,7 +136,7 @@ class MCLTestGenerator(Generator[MCLDataset]):
             ),
             MCLDataset(
                 "three_block_pairs",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [
                         [1, 1, 0, 0, 0, 0],
@@ -152,7 +152,7 @@ class MCLTestGenerator(Generator[MCLDataset]):
             ),
             MCLDataset(
                 "planted_clique",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=planted_clique,
                 expected_count=7,
             ),

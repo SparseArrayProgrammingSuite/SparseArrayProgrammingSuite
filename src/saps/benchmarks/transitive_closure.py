@@ -62,7 +62,7 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test"]
+        return ["test", "trace"]
 
     @property
     def concepts(self) -> str:
@@ -94,11 +94,13 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
     @property
     def datasets(self) -> list[TransitiveClosureDataset]:
         return [
-            TransitiveClosureDataset("dag", suites=["test"]),
-            TransitiveClosureDataset("strong-component-count", suites=["test"]),
-            TransitiveClosureDataset("cycle", suites=["test"]),
-            TransitiveClosureDataset("one-node", suites=["test"]),
-            TransitiveClosureDataset("snap-toy", suites=["test"]),
+            TransitiveClosureDataset("dag", suites=["test", "trace"]),
+            TransitiveClosureDataset(
+                "strong-component-count", suites=["test", "trace"]
+            ),
+            TransitiveClosureDataset("cycle", suites=["test", "trace"]),
+            TransitiveClosureDataset("one-node", suites=["test", "trace"]),
+            TransitiveClosureDataset("snap-toy", suites=["test", "trace"]),
         ]
 
     def generate(self, dataset: TransitiveClosureDataset) -> DataInstance:
@@ -327,13 +329,13 @@ class TransitiveClosureBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
-                "Output must be in binsparse format"
-            )
+            assert isinstance(
+                item, BinsparseFormat
+            ), "Output must be in binsparse format"
         if self._ref_outputs is not None:
-            assert self._output[0] == self._ref_outputs[0], (
-                f"Transitive closure mismatch for {param.dataset.name}"
-            )
+            assert (
+                self._output[0] == self._ref_outputs[0]
+            ), f"Transitive closure mismatch for {param.dataset.name}"
         if self._ref_meta and "strong_component_count" in self._ref_meta:
             output = self._output[0]
             matrix = output.data["values"].reshape(output.data["shape"])

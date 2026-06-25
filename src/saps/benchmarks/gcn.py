@@ -101,7 +101,7 @@ class GCNTestGenerator(Generator[GCNDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test"]
+        return ["test", "trace"]
 
     @property
     def concepts(self) -> str:
@@ -132,7 +132,7 @@ class GCNTestGenerator(Generator[GCNDataset]):
         return [
             GCNDataset(
                 "test_gcn_3node",
-                suites=["test"],
+                suites=["test", "trace"],
                 adjacency=np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]], dtype=np.float32),
                 features=np.array(
                     [[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]], dtype=np.float32
@@ -144,7 +144,7 @@ class GCNTestGenerator(Generator[GCNDataset]):
             ),
             GCNDataset(
                 "test_gcn_simple_2node",
-                suites=["test"],
+                suites=["test", "trace"],
                 adjacency=np.array([[0, 1], [1, 0]], dtype=np.float32),
                 features=np.array([[1.0], [2.0]], dtype=np.float32),
                 weights1=np.array([[2.0]], dtype=np.float32),
@@ -155,7 +155,7 @@ class GCNTestGenerator(Generator[GCNDataset]):
             ),
             GCNDataset(
                 "test_gcn_simple_3node_line",
-                suites=["test"],
+                suites=["test", "trace"],
                 adjacency=np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]], dtype=np.float32),
                 features=np.array([[1.0], [0.0], [1.0]], dtype=np.float32),
                 weights1=np.array([[1.0]], dtype=np.float32),
@@ -166,7 +166,7 @@ class GCNTestGenerator(Generator[GCNDataset]):
             ),
             GCNDataset(
                 "test_gcn_with_relu_activation",
-                suites=["test"],
+                suites=["test", "trace"],
                 adjacency=np.array([[0, 1], [1, 0]], dtype=np.float32),
                 features=np.array([[1.0], [-1.0]], dtype=np.float32),
                 weights1=np.array([[1.0]], dtype=np.float32),

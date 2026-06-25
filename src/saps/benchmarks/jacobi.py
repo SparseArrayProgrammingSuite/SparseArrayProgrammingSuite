@@ -79,7 +79,7 @@ class JacobiTestGenerator(Generator[JacobiDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test"]
+        return ["test", "trace"]
 
     @property
     def concepts(self) -> str:
@@ -113,14 +113,14 @@ class JacobiTestGenerator(Generator[JacobiDataset]):
         return [
             JacobiDataset(
                 "test_3x3",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array([[4.0, 1.0, 0.0], [1.0, 5.0, 2.0], [0.0, 2.0, 6.0]]),
                 b=np.array([5.0, 8.0, 8.0]),
                 x=np.zeros((3,)),
             ),
             JacobiDataset(
                 "test_4x4",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [
                         [10.0, 1.0, 0.0, 2.0],
@@ -134,7 +134,7 @@ class JacobiTestGenerator(Generator[JacobiDataset]):
             ),
             JacobiDataset(
                 "test_3x3_dominant",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array([[20.0, 3.0, 1.0], [2.0, 15.0, 4.0], [1.0, 2.0, 18.0]]),
                 b=np.array([24.0, 21.0, 21.0]),
                 x=np.zeros((3,)),

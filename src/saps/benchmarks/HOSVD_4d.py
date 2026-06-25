@@ -127,7 +127,7 @@ class HOSVD4DDenseGenerator(Generator[HOSVD4DDataset]):
                 "Small dense 4d HOSVD Tensor",
                 "random_small Small Dense 4D HOSVD Tensor Dense low-rank 4D tensor"
                 " using random factor matrices.",
-                ["small", "dense", "tensor", "test"],
+                ["test", "trace"],
                 (10, 10, 10, 10),
                 (3, 3, 3, 3),
             )
@@ -205,7 +205,7 @@ class HOSVD4DSparseGenerator(Generator[HOSVD4DDataset]):
                 "Small sparse 4d HOSVD Tensor",
                 "sparse_small Small Sparse 4D HOSVD Tensor Sparse low-rank 4D tensor"
                 " using random factor matrices.",
-                ["small", "sparse", "tensor"],
+                [],
                 (20, 20, 20, 20),
                 (3, 3, 3, 3),
             )

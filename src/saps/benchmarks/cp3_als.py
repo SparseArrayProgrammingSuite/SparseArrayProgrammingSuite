@@ -99,7 +99,7 @@ class CP3FactorizeableGenerator(Generator):
             CP3FactorizeableDataset(
                 name="cp_factorizeable_tiny",
                 pretty_name="Tiny Factorizeable CP Tensor",
-                suites=["test"],
+                suites=["test", "trace"],
                 shape=(6, 6, 6),
                 rank=2,
                 max_iter=20,

@@ -75,6 +75,35 @@ def _dataset_lookups(
     return by_full_key, by_manifest_key
 
 
+def _trace_dataset_lookup(metadata: dict) -> dict[tuple[str, str, str], dict]:
+    datasets = {}
+    for benchmark in metadata["benchmarks"]:
+        benchmark_name = benchmark["name"]
+        benchmark_is_trace = "trace" in benchmark.get("suites", [])
+        for generator in benchmark["generators"]:
+            generator_is_trace = (
+                benchmark_is_trace or "trace" in generator.get("suites", [])
+            )
+            for dataset in generator["datasets"]:
+                if generator_is_trace or "trace" in dataset.get("suites", []):
+                    datasets[(benchmark_name, generator["name"], dataset["name"])] = (
+                        dataset
+                    )
+    return datasets
+
+
+def _statistics_dataset_lookup(statistics: dict) -> dict[tuple[str, str, str], dict]:
+    datasets = {}
+    for benchmark in statistics.get("benchmarks", []):
+        benchmark_name = benchmark["name"]
+        for generator in benchmark.get("generators", []):
+            for dataset in generator.get("datasets", []):
+                datasets[(benchmark_name, generator["name"], dataset["name"])] = (
+                    dataset
+                )
+    return datasets
+
+
 @cache
 def _pyproject_requirements() -> dict[str, Requirement]:
     pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
@@ -115,21 +144,22 @@ def test_metadata_json_is_fresh():
     assert actual == expected
 
 
-def test_statistics_freshness_matches_benchmark_metadata():
+def test_trace_suite_has_fresh_statistics():
     metadata = _fresh_metadata_document()
-    datasets, _ = _dataset_lookups(metadata)
+    trace_datasets = _trace_dataset_lookup(metadata)
     statistics = _read_json(ROOT / "statistics.json")
+    statistic_datasets = _statistics_dataset_lookup(statistics)
 
-    for benchmark in statistics.get("benchmarks", []):
-        benchmark_name = benchmark["name"]
-        for generator in benchmark.get("generators", []):
-            for dataset in generator.get("datasets", []):
-                key = (benchmark_name, generator["name"], dataset["name"])
-                assert key in datasets, f"unknown statistics dataset {key}"
-                assert _freshness_record(dataset) == _freshness_record(datasets[key])
-                _assert_dependency_versions_current(
-                    dataset, f"statistics.json:{'.'.join(key)}"
-                )
+    assert trace_datasets, "no trace suite datasets found in metadata"
+    for key, dataset in trace_datasets.items():
+        assert key in statistic_datasets, f"missing statistics dataset {key}"
+        statistic_dataset = statistic_datasets[key]
+        assert _freshness_record(statistic_dataset) == _freshness_record(dataset), (
+            f"stale statistics dataset {key}"
+        )
+        _assert_dependency_versions_current(
+            statistic_dataset, f"statistics.json:{'.'.join(key)}"
+        )
 
 
 def test_manifest_freshness_matches_benchmark_metadata():

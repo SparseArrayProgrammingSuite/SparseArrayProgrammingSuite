@@ -127,7 +127,7 @@ class HOSVD5DDenseGenerator(Generator[HOSVD5DDataset]):
                 "Small dense 5d HOSVD Tensor",
                 "random_small Small Dense 5D HOSVD Tensor Dense low-rank 5D tensor"
                 " using random factor matrices.",
-                ["small", "dense", "tensor", "test"],
+                ["test", "trace"],
                 (10, 10, 10, 10, 10),
                 (3, 3, 3, 3, 3),
             )
@@ -206,7 +206,7 @@ class HOSVD5DSparseGenerator(Generator[HOSVD5DDataset]):
                 "Small sparse 5d HOSVD Tensor",
                 "sparse_small Small Sparse 5D HOSVD Tensor Sparse low-rank 5D tensor"
                 " using random factor matrices.",
-                ["small", "sparse", "tensor"],
+                [],
                 (20, 20, 20, 20, 20),
                 (3, 3, 3, 3, 3),
             )

@@ -129,7 +129,7 @@ class MCGenerator(Generator[MCDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test"]
+        return ["test", "trace"]
 
     @property
     def concepts(self) -> str:
@@ -163,7 +163,7 @@ class MCGenerator(Generator[MCDataset]):
                 name="test_1",
                 pretty_name="Test 1: Standard SAT",
                 description="3 variables, 2 clauses",
-                suites=["test"],
+                suites=["test", "trace"],
                 cnf_text="""
                     p cnf 3 2
                     1 -3 0
@@ -175,7 +175,7 @@ class MCGenerator(Generator[MCDataset]):
                 name="test_2",
                 pretty_name="Test 2: Contradiction",
                 description="V1 and not V1",
-                suites=["test"],
+                suites=["test", "trace"],
                 cnf_text="""
                     c contradiction
                     p cnf 1 2
@@ -188,7 +188,7 @@ class MCGenerator(Generator[MCDataset]):
                 name="test_3",
                 pretty_name="Test 3: Single Solution",
                 description="Forces all 3 variables to be true",
-                suites=["test"],
+                suites=["test", "trace"],
                 cnf_text="""
                     c single_solution
                     p cnf 3 3
@@ -202,7 +202,7 @@ class MCGenerator(Generator[MCDataset]):
                 name="test_4",
                 pretty_name="Test 4: Empty Formula",
                 description="No clauses, 2 variables",
-                suites=["test"],
+                suites=["test", "trace"],
                 cnf_text="""
                     c empty_formula
                     p cnf 2 0

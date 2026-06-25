@@ -138,7 +138,7 @@ class SubgraphMatchingTestGenerator(Generator[SubgraphMatchingTestDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test"]
+        return ["test", "trace"]
 
     @property
     def concepts(self) -> str:
@@ -168,28 +168,28 @@ class SubgraphMatchingTestGenerator(Generator[SubgraphMatchingTestDataset]):
                 "S[] += E0[i,j]",
                 ["E0"],
                 3,
-                suites=["test"],
+                suites=["test", "trace"],
             ),
             SubgraphMatchingTestDataset(
                 "label_a_count",
                 "S[] += VA[v]",
                 ["VA"],
                 2,
-                suites=["test"],
+                suites=["test", "trace"],
             ),
             SubgraphMatchingTestDataset(
                 "a_to_b",
                 "S[] += VA[u] * E0[u,v] * VB[v]",
                 ["VA", "E0", "VB"],
                 2,
-                suites=["test"],
+                suites=["test", "trace"],
             ),
             SubgraphMatchingTestDataset(
                 "b_to_a",
                 "S[] += VB[u] * E0[u,v] * VA[v]",
                 ["VB", "E0", "VA"],
                 0,
-                suites=["test"],
+                suites=["test", "trace"],
             ),
         ]
 

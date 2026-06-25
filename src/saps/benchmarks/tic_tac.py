@@ -291,44 +291,60 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
     def datasets(self) -> list[TicTacToeDataset]:
         return [
             TicTacToeDataset(
-                "x_wins_near", BOARD_X_WINS_NEAR, depth=2, expected=1.0, suites=["test"]
+                "x_wins_near",
+                BOARD_X_WINS_NEAR,
+                depth=2,
+                expected=1.0,
+                suites=["test", "trace"],
             ),
             TicTacToeDataset(
                 "o_wins_near",
                 BOARD_O_WINS_NEAR,
                 depth=2,
                 expected=-1.0,
-                suites=["test"],
+                suites=["test", "trace"],
             ),
             TicTacToeDataset(
-                "draw_near", BOARD_DRAW_NEAR, depth=2, expected=0.0, suites=["test"]
+                "draw_near",
+                BOARD_DRAW_NEAR,
+                depth=2,
+                expected=0.0,
+                suites=["test", "trace"],
             ),
             TicTacToeDataset(
                 "batch_near",
                 BOARD_BATCH_NEAR,
                 depth=2,
                 expected=np.array([1.0, -1.0, 0.0]),
-                suites=["test"],
+                suites=["test", "trace"],
             ),
             TicTacToeDataset(
-                "x_wins_mid", BOARD_X_WINS_MID, depth=3, expected=1.0, suites=["test"]
+                "x_wins_mid",
+                BOARD_X_WINS_MID,
+                depth=3,
+                expected=1.0,
+                suites=["test", "trace"],
             ),
             TicTacToeDataset(
                 "o_wins_mid",
                 BOARD_O_WINS_MID,
                 depth=3,
                 expected=-1.0,
-                suites=["test"],
+                suites=["test", "trace"],
             ),
             TicTacToeDataset(
                 "x_wins_early",
                 BOARD_X_WINS_EARLY,
                 depth=5,
                 expected=1.0,
-                suites=["test"],
+                suites=["test", "trace"],
             ),
             TicTacToeDataset(
-                "draw_early", BOARD_DRAW_EARLY, depth=5, expected=0.0, suites=["test"]
+                "draw_early",
+                BOARD_DRAW_EARLY,
+                depth=5,
+                expected=0.0,
+                suites=["test", "trace"],
             ),
             TicTacToeDataset("empty_board", BOARD_EMPTY, depth=9),
         ]

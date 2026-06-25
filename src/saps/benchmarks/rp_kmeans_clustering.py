@@ -127,7 +127,7 @@ class RPKMeansGenerator(Generator[RPKMeansDataset]):
                 eps=0.3,
                 c=0.5,
                 max_iter=5,
-                suites=["test"],
+                suites=["test", "trace"],
                 ref_meta={
                     "same": [(0, 1), (2, 3), (4, 5)],
                     "cluster_count": 3,
@@ -149,7 +149,7 @@ class RPKMeansGenerator(Generator[RPKMeansDataset]):
                 eps=0.2,
                 c=1,
                 max_iter=5,
-                suites=["test"],
+                suites=["test", "trace"],
                 ref_meta={
                     "same": [(0, 1), (1, 2), (2, 3)],
                     "different": [(0, 4)],

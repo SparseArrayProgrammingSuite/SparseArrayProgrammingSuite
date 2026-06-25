@@ -66,7 +66,7 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test"]
+        return ["test", "trace"]
 
     @property
     def concepts(self) -> str:
@@ -100,7 +100,7 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
         return [
             GraphCountingDataset(
                 "test_triangle_count_single_triangle",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [
                         [0, 1, 1],
@@ -113,7 +113,7 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
             ),
             GraphCountingDataset(
                 "test_triangle_count_path",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [
                         [0, 1, 0, 0],
@@ -127,7 +127,7 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
             ),
             GraphCountingDataset(
                 "test_triangle_count_4_clique",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [
                         [0, 1, 1, 1],
@@ -141,7 +141,7 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
             ),
             GraphCountingDataset(
                 "test_triangle_snap_toy",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [
                         [0, 1, 0],
@@ -179,7 +179,7 @@ class FourCliqueCountTestGenerator(Generator[GraphCountingDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test"]
+        return ["test", "trace"]
 
     @property
     def concepts(self) -> str:
@@ -213,7 +213,7 @@ class FourCliqueCountTestGenerator(Generator[GraphCountingDataset]):
         return [
             GraphCountingDataset(
                 "test_4clique_count_complete_k3",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [
                         [0, 1, 1],
@@ -226,7 +226,7 @@ class FourCliqueCountTestGenerator(Generator[GraphCountingDataset]):
             ),
             GraphCountingDataset(
                 "test_4clique_count_single_k4",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [
                         [0, 1, 1, 1],
@@ -240,7 +240,7 @@ class FourCliqueCountTestGenerator(Generator[GraphCountingDataset]):
             ),
             GraphCountingDataset(
                 "test_4clique_count_overlapping",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [
                         [0, 1, 1, 1, 0],
@@ -255,7 +255,7 @@ class FourCliqueCountTestGenerator(Generator[GraphCountingDataset]):
             ),
             GraphCountingDataset(
                 "test_4clique_snap_toy",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [
                         [0, 1, 0],

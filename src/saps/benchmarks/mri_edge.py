@@ -92,7 +92,7 @@ class MaskedMRITestGenerator(Generator[MaskedMRIDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test"]
+        return ["test", "trace"]
 
     @property
     def concepts(self) -> str:
@@ -129,7 +129,7 @@ class MaskedMRITestGenerator(Generator[MaskedMRIDataset]):
                 t2_val=100.0,
                 image=np.zeros((5, 5), dtype=np.float32),
                 roi=np.ones((5, 5), dtype=bool),
-                suites=["test"],
+                suites=["test", "trace"],
             ),
             MaskedMRIDataset(
                 "test_masked_mri_basic_roi",
@@ -157,7 +157,7 @@ class MaskedMRITestGenerator(Generator[MaskedMRIDataset]):
                     ],
                     dtype=bool,
                 ),
-                suites=["test"],
+                suites=["test", "trace"],
             ),
             MaskedMRIDataset(
                 "test_masked_mri_generator_builds_default_roi",
@@ -166,7 +166,7 @@ class MaskedMRITestGenerator(Generator[MaskedMRIDataset]):
                 t1_val=10.0,
                 t2_val=20.0,
                 image=np.arange(36, dtype=np.float32).reshape(6, 6),
-                suites=["test"],
+                suites=["test", "trace"],
                 ref_meta={"default_roi": True},
             ),
         ]

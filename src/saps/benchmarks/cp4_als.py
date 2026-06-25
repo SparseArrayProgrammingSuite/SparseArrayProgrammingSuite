@@ -100,7 +100,7 @@ class CP4FactorizeableGenerator(Generator):
             CP4FactorizeableDataset(
                 name="cp_factorizeable_tiny",
                 pretty_name="Tiny Factorizeable CP Tensor",
-                suites=["test"],
+                suites=["test", "trace"],
                 shape=(5, 5, 5, 5),
                 rank=1,
                 max_iter=20,

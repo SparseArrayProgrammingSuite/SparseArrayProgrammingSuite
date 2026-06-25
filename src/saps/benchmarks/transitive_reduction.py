@@ -59,7 +59,7 @@ class TransitiveReductionTestGenerator(Generator[TransitiveReductionDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test"]
+        return ["test", "trace"]
 
     @property
     def concepts(self) -> str:
@@ -88,25 +88,25 @@ class TransitiveReductionTestGenerator(Generator[TransitiveReductionDataset]):
                 "remove_long_direct_edge",
                 edges=[(0, 1, 10.0), (1, 2, 10.0), (0, 2, 30.0)],
                 expected_edges=[(0, 1, 10.0), (1, 2, 10.0)],
-                suites=["test"],
+                suites=["test", "trace"],
             ),
             TransitiveReductionDataset(
                 "keep_short_direct_edge",
                 edges=[(0, 1, 10.0), (1, 2, 10.0), (0, 2, 15.0)],
                 expected_edges=[(0, 1, 10.0), (1, 2, 10.0), (0, 2, 15.0)],
-                suites=["test"],
+                suites=["test", "trace"],
             ),
             TransitiveReductionDataset(
                 "keep_when_indirect_is_long",
                 edges=[(0, 1, 40.0), (1, 2, 40.0), (0, 2, 30.0)],
                 expected_edges=[(0, 1, 40.0), (1, 2, 40.0), (0, 2, 30.0)],
-                suites=["test"],
+                suites=["test", "trace"],
             ),
             TransitiveReductionDataset(
                 "remove_equal_direct_edge",
                 edges=[(0, 1, 10.0), (1, 2, 10.0), (0, 2, 20.0)],
                 expected_edges=[(0, 1, 10.0), (1, 2, 10.0)],
-                suites=["test"],
+                suites=["test", "trace"],
             ),
         ]
 

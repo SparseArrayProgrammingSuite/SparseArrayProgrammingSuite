@@ -94,7 +94,7 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test"]
+        return ["test", "trace"]
 
     @property
     def concepts(self) -> str:
@@ -127,7 +127,7 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
         return [
             GMRESDataset(
                 "test_gmres_random_42",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=random_42[0],
                 b=random_42[1],
                 x0=random_42[2],
@@ -136,7 +136,7 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
             ),
             GMRESDataset(
                 "test_gmres_random_123",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=random_123[0],
                 b=random_123[1],
                 x0=random_123[2],
@@ -145,7 +145,7 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
             ),
             GMRESDataset(
                 "test_gmres_diagonal",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array([[2.0, 0.0], [0.0, 3.0]]),
                 b=np.array([4.0, 9.0]),
                 x0=np.zeros(2),
@@ -154,7 +154,7 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
             ),
             GMRESDataset(
                 "test_gmres_3x3",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array([[10.0, 2.0, 1.0], [1.0, 20.0, 1.0], [1.0, 2.0, 10.0]]),
                 b=np.array([13.0, 22.0, 13.0]),
                 x0=np.zeros(3),
@@ -163,7 +163,7 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
             ),
             GMRESDataset(
                 "test_gmres_4x4",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [
                         [4.0, -1.0, 0.0, 0.0],

@@ -155,21 +155,21 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
             PreconditionedCGDataset(
                 "test_A0",
                 "",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]),
                 ref_meta={"check_residual": True},
             ),
             PreconditionedCGDataset(
                 "test_A1",
                 "",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array([[7.0, 2.0, 1.0], [2.0, 6.0, -1.0], [1.0, -1.0, 5.0]]),
                 ref_meta={"check_residual": True},
             ),
             PreconditionedCGDataset(
                 "test_A2",
                 "",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [
                         [8.0, -1.0, 0.0, 0.0],
@@ -183,14 +183,14 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
             PreconditionedCGDataset(
                 "test_A3",
                 "",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array([[12.0, 2.0, -1.0], [2.0, 10.0, 3.0], [-1.0, 3.0, 9.0]]),
                 ref_meta={"check_residual": True},
             ),
             PreconditionedCGDataset(
                 "test_A4",
                 "",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [[120.0, -2.0, 0.0], [-2.0, 120.0, -2.0], [0.0, -2.0, 120.0]]
                 ),
@@ -199,7 +199,7 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
             PreconditionedCGDataset(
                 "test_A5",
                 "",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [
                         [15.0, -2.0, 0.0, 0.0, -1.0],
@@ -299,21 +299,21 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
             PreconditionedCGDataset(
                 "test_A0",
                 "",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]),
                 ref_meta={"check_residual": True},
             ),
             PreconditionedCGDataset(
                 "test_A1",
                 "",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array([[7.0, 2.0, 1.0], [2.0, 6.0, -1.0], [1.0, -1.0, 5.0]]),
                 ref_meta={"check_residual": True},
             ),
             PreconditionedCGDataset(
                 "test_A2",
                 "",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [
                         [8.0, -1.0, 0.0, 0.0],
@@ -327,14 +327,14 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
             PreconditionedCGDataset(
                 "test_A3",
                 "",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array([[12.0, 2.0, -1.0], [2.0, 10.0, 3.0], [-1.0, 3.0, 9.0]]),
                 ref_meta={"check_residual": True},
             ),
             PreconditionedCGDataset(
                 "test_A4",
                 "",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [[120.0, -2.0, 0.0], [-2.0, 120.0, -2.0], [0.0, -2.0, 120.0]]
                 ),
@@ -343,7 +343,7 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
             PreconditionedCGDataset(
                 "test_A5",
                 "",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [
                         [15.0, -2.0, 0.0, 0.0, -1.0],

@@ -112,7 +112,7 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test"]
+        return ["test", "trace"]
 
     @property
     def concepts(self) -> str:
@@ -148,7 +148,7 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
                 name="single-node",
                 pretty_name="single-node",
                 description="Floyd-Warshall test case single-node.",
-                suites=["test"],
+                suites=["test", "trace"],
                 source="single-node",
                 A=np.array([[0.0]]),
                 expected=np.array([[0.0]]),
@@ -157,7 +157,7 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
                 name="two-node-directed",
                 pretty_name="two-node-directed",
                 description="Floyd-Warshall test case two-node-directed.",
-                suites=["test"],
+                suites=["test", "trace"],
                 source="two-node-directed",
                 A=np.array([[0.0, 1.0], [np.inf, 0.0]]),
                 expected=np.array([[0.0, 1.0], [np.inf, 0.0]]),
@@ -166,7 +166,7 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
                 name="three-node-chain",
                 pretty_name="three-node-chain",
                 description="Floyd-Warshall test case three-node-chain.",
-                suites=["test"],
+                suites=["test", "trace"],
                 source="three-node-chain",
                 A=np.array(
                     [
@@ -187,7 +187,7 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
                 name="three-node-shortcut",
                 pretty_name="three-node-shortcut",
                 description="Floyd-Warshall test case three-node-shortcut.",
-                suites=["test"],
+                suites=["test", "trace"],
                 source="three-node-shortcut",
                 A=np.array(
                     [
@@ -208,7 +208,7 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
                 name="two-components",
                 pretty_name="two-components",
                 description="Floyd-Warshall test case two-components.",
-                suites=["test"],
+                suites=["test", "trace"],
                 source="two-components",
                 A=np.array(
                     [
@@ -231,7 +231,7 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
                 name="large-symmetric",
                 pretty_name="large-symmetric",
                 description="Floyd-Warshall test case large-symmetric.",
-                suites=["test"],
+                suites=["test", "trace"],
                 source="large-symmetric",
                 A=floyd_warshall_input_from_edges(
                     39,

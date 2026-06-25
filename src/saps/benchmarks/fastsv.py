@@ -64,7 +64,7 @@ class FastSVTestGenerator(Generator[FastSVDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test"]
+        return ["test", "trace"]
 
     @property
     def concepts(self) -> str:
@@ -96,12 +96,12 @@ class FastSVTestGenerator(Generator[FastSVDataset]):
     @property
     def datasets(self) -> list[FastSVDataset]:
         return [
-            FastSVDataset("no-edges", suites=["test"]),
-            FastSVDataset("single-component", suites=["test"]),
-            FastSVDataset("two-components", suites=["test"]),
-            FastSVDataset("chain", suites=["test"]),
-            FastSVDataset("star", suites=["test"]),
-            FastSVDataset("isolated-and-connected", suites=["test"]),
+            FastSVDataset("no-edges", suites=["test", "trace"]),
+            FastSVDataset("single-component", suites=["test", "trace"]),
+            FastSVDataset("two-components", suites=["test", "trace"]),
+            FastSVDataset("chain", suites=["test", "trace"]),
+            FastSVDataset("star", suites=["test", "trace"]),
+            FastSVDataset("isolated-and-connected", suites=["test", "trace"]),
         ]
 
     def generate(self, dataset: FastSVDataset) -> DataInstance:

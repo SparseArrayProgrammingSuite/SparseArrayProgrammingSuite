@@ -126,7 +126,7 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
                 "small_dense_hosvd",
                 "Small Dense HOSVD Tensor",
                 "Dense low-rank 3D tensor using random factor matrices.",
-                ["small", "dense", "tensor", "test"],
+                ["test", "trace"],
                 (10, 10, 10),
                 (3, 3, 3),
             )
@@ -203,7 +203,7 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
                 "Small sparse HOSVD Tensor",
                 "sparse_small Small Sparse HOSVD Tensor Sparse low-rank 3D tensor"
                 " using random factor matrices.",
-                ["small", "sparse", "tensor"],
+                [],
                 (20, 20, 20),
                 (3, 3, 3),
             )

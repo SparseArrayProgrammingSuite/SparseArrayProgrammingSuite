@@ -127,7 +127,7 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test"]
+        return ["test", "trace"]
 
     @property
     def concepts(self) -> str:
@@ -188,7 +188,7 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
         return [
             GCNTrainingDataset(
                 "test_gcn_backward_2node",
-                suites=["test"],
+                suites=["test", "trace"],
                 adjacency=np.array([[0, 1], [1, 0]], dtype=np.float32),
                 features=np.array([[1.0], [2.0]], dtype=np.float32),
                 weights1=np.array([[1.0]], dtype=np.float32),
@@ -205,7 +205,7 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
             ),
             GCNTrainingDataset(
                 "test_gcn_backward_multidim",
-                suites=["test"],
+                suites=["test", "trace"],
                 adjacency=np.array(
                     [
                         [0, 1, 1, 0],
@@ -248,7 +248,7 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
             ),
             GCNTrainingDataset(
                 "test_gcn_backward_degree_loss",
-                suites=["test"],
+                suites=["test", "trace"],
                 adjacency=degree_train_adj,
                 features=np.ones((7, 1), dtype=np.float32),
                 weights1=degree_weights1.copy(),
@@ -265,7 +265,7 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
             ),
             GCNTrainingDataset(
                 "test_gcn_backward_degree_test_graph_loss",
-                suites=["test"],
+                suites=["test", "trace"],
                 adjacency=degree_test_adj,
                 features=np.ones((6, 1), dtype=np.float32),
                 weights1=degree_weights1.copy(),

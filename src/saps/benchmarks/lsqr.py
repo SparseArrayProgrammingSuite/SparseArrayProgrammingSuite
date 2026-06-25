@@ -83,7 +83,7 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test"]
+        return ["test", "trace"]
 
     @property
     def concepts(self) -> str:
@@ -114,14 +114,14 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
         return [
             LSQRDataset(
                 "test_lsqr_underdetermined_3",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0]]),
                 b=np.array([4.1, 10.1]),
                 convergence="residual",
             ),
             LSQRDataset(
                 "test_lsqr_overdetermined_3",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [
                         [7.0, 2.0, 1.0],
@@ -135,14 +135,14 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
             ),
             LSQRDataset(
                 "test_lsqr_exact_3",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]),
                 b=np.array([4.0, 8.0, 16.0]),
                 convergence="residual",
             ),
             LSQRDataset(
                 "test_lsqr_underdetermined_4",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [
                         [8.0, -1.0, 0.0, 0.0],
@@ -155,7 +155,7 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
             ),
             LSQRDataset(
                 "test_lsqr_overdetermined_sparse",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [
                         [12.0, 2.0, -1.0],
@@ -169,7 +169,7 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
             ),
             LSQRDataset(
                 "test_lsqr_exact_4",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [
                         [8.0, -1.0, 0.0, 0.0],
@@ -183,14 +183,14 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
             ),
             LSQRDataset(
                 "test_lsqr_scaled_underdetermined",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array([[120.0, -2.0, 0.0], [-2.0, 120.0, -2.0]]),
                 b=np.array([118.1, 116.1]),
                 convergence="residual",
             ),
             LSQRDataset(
                 "test_lsqr_overdetermined_dense",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [[1.0, 2.0, 0.0], [0.0, 3.0, 1.0], [1.0, 0.0, 4.0], [2.0, 1.0, 3.0]]
                 ),
@@ -199,7 +199,7 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
             ),
             LSQRDataset(
                 "test_lsqr_exact_5",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [
                         [15.0, -2.0, 0.0, 0.0, -1.0],

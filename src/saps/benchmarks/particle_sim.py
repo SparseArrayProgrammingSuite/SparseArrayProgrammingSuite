@@ -157,7 +157,7 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
 
     @property
     def suites(self):
-        return ["test"]
+        return ["test", "trace"]
 
     @property
     def concepts(self) -> str:
@@ -188,7 +188,7 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
         return [
             ParticleSimDataset(
                 "test_particle_sim_two_particles_within_cutoff",
-                suites=["test"],
+                suites=["test", "trace"],
                 values=(
                     np.array([0.001, 0.002]),
                     np.array([0.001, 0.001]),
@@ -200,7 +200,7 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
             ),
             ParticleSimDataset(
                 "test_particle_sim_wall_bounce",
-                suites=["test"],
+                suites=["test", "trace"],
                 values=(
                     np.array([0.0001]),
                     np.array([0.05]),
@@ -212,12 +212,12 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
             ),
             ParticleSimDataset(
                 "test_particle_sim_random_10",
-                suites=["test"],
+                suites=["test", "trace"],
                 values=generate_particle_test_data(10, 2, 10),
             ),
             ParticleSimDataset(
                 "test_particle_sim_random_50",
-                suites=["test"],
+                suites=["test", "trace"],
                 values=generate_particle_test_data(50, 2, 20),
             ),
         ]

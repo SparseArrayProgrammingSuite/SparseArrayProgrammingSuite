@@ -135,7 +135,7 @@ class MRISobelTestGenerator(Generator[MRISobelDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test"]
+        return ["test", "trace"]
 
     @property
     def concepts(self) -> str:

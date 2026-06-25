@@ -79,7 +79,7 @@ class CGTestGenerator(Generator[CGDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test"]
+        return ["test", "trace"]
 
     @property
     def concepts(self) -> str:
@@ -113,21 +113,21 @@ class CGTestGenerator(Generator[CGDataset]):
         return [
             CGDataset(
                 "test_3x3_tridiagonal",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]),
                 b=np.array([4.0, 8.0, 16.0]),
                 x=np.zeros((3,)),
             ),
             CGDataset(
                 "test_3x3_dense",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array([[7.0, 2.0, 1.0], [2.0, 6.0, -1.0], [1.0, -1.0, 5.0]]),
                 b=np.array([13.0, -3.0, 8.0]),
                 x=np.zeros((3,)),
             ),
             CGDataset(
                 "test_4x4_tridiagonal",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [
                         [8.0, -1.0, 0.0, 0.0],
@@ -141,14 +141,14 @@ class CGTestGenerator(Generator[CGDataset]):
             ),
             CGDataset(
                 "test_3x3_indefinite_sparse",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array([[12.0, 2.0, -1.0], [2.0, 10.0, 3.0], [-1.0, 3.0, 9.0]]),
                 b=np.array([40.0, 10.0, -18.0]),
                 x=np.zeros((3,)),
             ),
             CGDataset(
                 "test_3x3_scaled_tridiagonal",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [[120.0, -2.0, 0.0], [-2.0, 120.0, -2.0], [0.0, -2.0, 120.0]]
                 ),
@@ -157,7 +157,7 @@ class CGTestGenerator(Generator[CGDataset]):
             ),
             CGDataset(
                 "test_5x5_sparse",
-                suites=["test"],
+                suites=["test", "trace"],
                 A=np.array(
                     [
                         [15.0, -2.0, 0.0, 0.0, -1.0],

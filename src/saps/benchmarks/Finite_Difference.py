@@ -181,7 +181,7 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
             FiniteDifferenceDataset(
                 name="default",
                 pretty_name="Default",
-                suites=["test"],
+                suites=["test", "trace"],
                 Nx=100,
                 dx=0.1,
                 Nt=100,
