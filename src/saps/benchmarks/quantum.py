@@ -93,7 +93,7 @@ class QuantumStateGenerator(Generator[QuantumDataset]):
     @property
     def datasets(self) -> list[QuantumDataset]:
         return [
-            #QuantumDataset(
+            # QuantumDataset(
             #    "single_layer_large",
             #    40,
             #    "Large instance of 40 qubits, 1 layer",
@@ -139,7 +139,7 @@ class QuantumStateGenerator(Generator[QuantumDataset]):
             #        ("X", 38),
             #        ("Z", 39),
             #    ],
-            #),
+            # ),
             QuantumDataset(
                 "single_layer_small",
                 10,
