@@ -159,6 +159,42 @@ poetry run ./bin/run_benchmark.py --cache-datasets
 
 Do not edit freshness hashes by hand.
 
+## Refresh Workflow And Dataset Uploads
+
+The repository has a manually dispatched GitHub Actions workflow named `refresh` that can regenerate the large derived artifacts in CI. Use it when a PR changes benchmark metadata, trace behavior, generator output, dataset freshness, dependency versions, or storage behavior enough that local regeneration is inconvenient or likely to differ from CI.
+
+The refresh workflow does three things:
+
+- Builds `metadata.json` once and shares it with later jobs.
+- Runs trace statistics in four chunks, then merges the chunks into `statistics.json`.
+- Runs dataset caching/upload in four chunks, then merges the chunks into `manifest.json`.
+
+The data jobs use the configured S3 backend and bucket from `.github/workflows/refresh.yml`. Public dataset reads do not need credentials, but uploads do need the repository AWS secrets. The workflow uploads generated JSON as GitHub Actions artifacts:
+
+- `saps-metadata`: generated `metadata.json`.
+- `saps-statistics-final`: merged `statistics.json`.
+- `saps-manifest-final`: merged `manifest.json`.
+
+After the workflow finishes, download the final artifacts, replace the corresponding files in the PR, and run the freshness tests locally:
+
+```bash
+poetry install --extras test
+poetry run pytest tests/test_freshness.py
+```
+
+Do not commit `.saps/outputs/cache`, `.saps/outputs/results`, or trace scratch output. Only commit the source changes and the refreshed JSON files.
+
+If you run the uploader locally, use the same test-pinned environment that CI uses:
+
+```bash
+poetry install --extras test
+REMOTE_STORAGE_BACKEND=s3 \
+REMOTE_STORAGE_BUCKET=sparse-array-programming-suite \
+poetry run ./bin/run_benchmark.py --cache-datasets
+```
+
+Dataset digests should be content hashes of serialized data. Freshness records and dependency versions belong in manifest metadata; they should not force a new remote object when the data bytes have not changed.
+
 ## Tracing
 
 Tracing runs selected benchmark cases with `frameworks/saps_tagger.py`. The tagger records observed array operations and sparsity-relevant behavior, then writes those derived tags to `statistics.json`.
