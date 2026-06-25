@@ -43226,7 +43226,7 @@
       ],
       "description": "Computes a 2-layer Graph Convolutional Network forward pass: h1 = ReLU(adjacency @ features @ weights1 + bias1) output = adjacency @ h1 @ weights2 + bias2 Implementation based on Scorch (Yan et al., 2024).",
       "file": "src/saps/benchmarks/gcn.py",
-      "freshness": "b24f797b5cf911b3e19aa190852d9a09400a7e8990c28115be2dd1da7bff561b",
+      "freshness": "c8b7ffe1630de9c064b9907bfe6d37ce3bc626d99e6cfb1d0770de8f49c7f4aa",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI might have been used to construct tests. This statement was written by hand.",
@@ -43249,7 +43249,7 @@
               "description": "SuiteSparse matrix test_gcn_3node.",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "b24f797b5cf911b3e19aa190852d9a09400a7e8990c28115be2dd1da7bff561b",
+              "freshness": "c8b7ffe1630de9c064b9907bfe6d37ce3bc626d99e6cfb1d0770de8f49c7f4aa",
               "hidden_dim": 8,
               "name": "test_gcn_3node",
               "out_dim": 1,
@@ -43275,7 +43275,7 @@
               "description": "SuiteSparse matrix test_gcn_simple_2node.",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "b24f797b5cf911b3e19aa190852d9a09400a7e8990c28115be2dd1da7bff561b",
+              "freshness": "c8b7ffe1630de9c064b9907bfe6d37ce3bc626d99e6cfb1d0770de8f49c7f4aa",
               "hidden_dim": 8,
               "name": "test_gcn_simple_2node",
               "out_dim": 1,
@@ -43301,7 +43301,7 @@
               "description": "SuiteSparse matrix test_gcn_simple_3node_line.",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "b24f797b5cf911b3e19aa190852d9a09400a7e8990c28115be2dd1da7bff561b",
+              "freshness": "c8b7ffe1630de9c064b9907bfe6d37ce3bc626d99e6cfb1d0770de8f49c7f4aa",
               "hidden_dim": 8,
               "name": "test_gcn_simple_3node_line",
               "out_dim": 1,
@@ -43327,7 +43327,7 @@
               "description": "SuiteSparse matrix test_gcn_with_relu_activation.",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "b24f797b5cf911b3e19aa190852d9a09400a7e8990c28115be2dd1da7bff561b",
+              "freshness": "c8b7ffe1630de9c064b9907bfe6d37ce3bc626d99e6cfb1d0770de8f49c7f4aa",
               "hidden_dim": 8,
               "name": "test_gcn_with_relu_activation",
               "out_dim": 1,
@@ -43351,7 +43351,7 @@
           ],
           "description": "Small inlined GCN forward-pass examples.",
           "file": "src/saps/benchmarks/gcn.py",
-          "freshness": "b24f797b5cf911b3e19aa190852d9a09400a7e8990c28115be2dd1da7bff561b",
+          "freshness": "c8b7ffe1630de9c064b9907bfe6d37ce3bc626d99e6cfb1d0770de8f49c7f4aa",
           "motivation": "Uses small graph examples to verify the GCN forward pass.",
           "name": "gcn_test_inputs",
           "pretty_name": "GCN Test Input Generator",
@@ -43386,7 +43386,7 @@
               "description": "Small social network graph.",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "b24f797b5cf911b3e19aa190852d9a09400a7e8990c28115be2dd1da7bff561b",
+              "freshness": "c8b7ffe1630de9c064b9907bfe6d37ce3bc626d99e6cfb1d0770de8f49c7f4aa",
               "hidden_dim": 8,
               "name": "dg_gcn_social_1",
               "out_dim": 1,
@@ -43409,7 +43409,7 @@
               "description": "Medium social network graph.",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "b24f797b5cf911b3e19aa190852d9a09400a7e8990c28115be2dd1da7bff561b",
+              "freshness": "c8b7ffe1630de9c064b9907bfe6d37ce3bc626d99e6cfb1d0770de8f49c7f4aa",
               "hidden_dim": 8,
               "name": "dg_gcn_social_2",
               "out_dim": 1,
@@ -43432,7 +43432,7 @@
               "description": "Larger social network graph.",
               "feature_dim": 8,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "b24f797b5cf911b3e19aa190852d9a09400a7e8990c28115be2dd1da7bff561b",
+              "freshness": "c8b7ffe1630de9c064b9907bfe6d37ce3bc626d99e6cfb1d0770de8f49c7f4aa",
               "hidden_dim": 16,
               "name": "dg_gcn_social_3",
               "out_dim": 1,
@@ -43455,7 +43455,7 @@
               "description": "Small road network graph.",
               "feature_dim": 8,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "b24f797b5cf911b3e19aa190852d9a09400a7e8990c28115be2dd1da7bff561b",
+              "freshness": "c8b7ffe1630de9c064b9907bfe6d37ce3bc626d99e6cfb1d0770de8f49c7f4aa",
               "hidden_dim": 4,
               "name": "dg_gcn_road_1",
               "out_dim": 1,
@@ -43478,7 +43478,7 @@
               "description": "Small molecular graph. - Email network.",
               "feature_dim": 4,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "b24f797b5cf911b3e19aa190852d9a09400a7e8990c28115be2dd1da7bff561b",
+              "freshness": "c8b7ffe1630de9c064b9907bfe6d37ce3bc626d99e6cfb1d0770de8f49c7f4aa",
               "hidden_dim": 8,
               "name": "dg_gcn_molecular_1",
               "out_dim": 1,
@@ -43501,7 +43501,7 @@
               "description": "Medium molecular graph - PDDB protein structure.",
               "feature_dim": 6,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "b24f797b5cf911b3e19aa190852d9a09400a7e8990c28115be2dd1da7bff561b",
+              "freshness": "c8b7ffe1630de9c064b9907bfe6d37ce3bc626d99e6cfb1d0770de8f49c7f4aa",
               "hidden_dim": 12,
               "name": "dg_gcn_molecular_2",
               "out_dim": 1,
@@ -43524,7 +43524,7 @@
               "description": "Large citation network graph (AIDS-like size).",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "b24f797b5cf911b3e19aa190852d9a09400a7e8990c28115be2dd1da7bff561b",
+              "freshness": "c8b7ffe1630de9c064b9907bfe6d37ce3bc626d99e6cfb1d0770de8f49c7f4aa",
               "hidden_dim": 32,
               "name": "dg_gcn_citation_1",
               "out_dim": 1,
@@ -43547,7 +43547,7 @@
               "description": "Original small structural engineering matrix (for backward compatibility).",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "b24f797b5cf911b3e19aa190852d9a09400a7e8990c28115be2dd1da7bff561b",
+              "freshness": "c8b7ffe1630de9c064b9907bfe6d37ce3bc626d99e6cfb1d0770de8f49c7f4aa",
               "hidden_dim": 8,
               "name": "dg_gcn_bcsstk01",
               "out_dim": 1,
@@ -43568,7 +43568,7 @@
           ],
           "description": "Generates random weights for a 2-layer Graph Convolutional Network.",
           "file": "src/saps/benchmarks/gcn.py",
-          "freshness": "b24f797b5cf911b3e19aa190852d9a09400a7e8990c28115be2dd1da7bff561b",
+          "freshness": "c8b7ffe1630de9c064b9907bfe6d37ce3bc626d99e6cfb1d0770de8f49c7f4aa",
           "motivation": "Graphs are widely used for abstracting systems of interacting objects, such as social networks (Easley et al., 2010), knowledge graphs (Nickel et al., 2015), molecular graphs (Wu et al., 2018), and biological networks (Barabasi & Oltvai, 2004), as well as for modeling 3D objects (Simonovsky & Komodakis, 2017), manifolds (Bronstein et al., 2017), and source code (Allamanis et al., 2017). Machine learning (ML), especially deep learning, on graphs is an emerging field (Hamilton et al., 2017b; Bronstein et al., 2017). W. Hu et al. To represent a graph, an adjaceny matrix is used, which is inherently sparse.",
           "name": "gcn_weights",
           "pretty_name": "Graph Convolutional Network Weights",
@@ -43607,7 +43607,7 @@
       ],
       "description": "\nBenchmarks 2-layer GCN training loop (forward, backward, weight updates).\n\nEach iteration:\n    Forward pass:\n        Z1 = A @ X\n        H1_pre = Z1 @ W1 + b1\n        H1 = ReLU(H1_pre)\n        Z2 = A @ H1\n        Y = Z2 @ W2 + b2\n\n    Backward pass (MSE loss):\n        dY = (2/N) * (Y - T)\n        dW2 = Z2.T @ dY\n        db2 = sum(dY, axis=0)\n        dZ2 = dY @ W2.T\n        dH1 = A.T @ dZ2\n        dH1_pre = dH1 * (H1_pre > 0)\n        dW1 = Z1.T @ dH1_pre\n        db1 = sum(dH1_pre, axis=0)\n\n    Weight updates:\n        W1 = W1 - lr * dW1\n        b1 = b1 - lr * db1\n        W2 = W2 - lr * dW2\n        b2 = b2 - lr * db2\n        ",
       "file": "src/saps/benchmarks/gcn_backward.py",
-      "freshness": "8e759dae8d73ee48ba8837f98978bb7c492d4e3c0d7b3d62ca344ffec9660dcf",
+      "freshness": "1505b2a6eaf2b3a6ba6e20e4edf2a513a0920e0ea68d17fc086cc43a1f526a58",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI might have been used to construct tests. This statement was written by hand.",
@@ -43630,7 +43630,7 @@
               "description": "SuiteSparse matrix test_gcn_backward_2node.",
               "feature_dim": 1,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "8e759dae8d73ee48ba8837f98978bb7c492d4e3c0d7b3d62ca344ffec9660dcf",
+              "freshness": "1505b2a6eaf2b3a6ba6e20e4edf2a513a0920e0ea68d17fc086cc43a1f526a58",
               "hidden_dim": 4,
               "learning_rate": 0.01,
               "name": "test_gcn_backward_2node",
@@ -43658,7 +43658,7 @@
               "description": "SuiteSparse matrix test_gcn_backward_multidim.",
               "feature_dim": 1,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "8e759dae8d73ee48ba8837f98978bb7c492d4e3c0d7b3d62ca344ffec9660dcf",
+              "freshness": "1505b2a6eaf2b3a6ba6e20e4edf2a513a0920e0ea68d17fc086cc43a1f526a58",
               "hidden_dim": 4,
               "learning_rate": 0.01,
               "name": "test_gcn_backward_multidim",
@@ -43686,7 +43686,7 @@
               "description": "SuiteSparse matrix test_gcn_backward_degree_loss.",
               "feature_dim": 1,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "8e759dae8d73ee48ba8837f98978bb7c492d4e3c0d7b3d62ca344ffec9660dcf",
+              "freshness": "1505b2a6eaf2b3a6ba6e20e4edf2a513a0920e0ea68d17fc086cc43a1f526a58",
               "hidden_dim": 4,
               "learning_rate": 0.01,
               "name": "test_gcn_backward_degree_loss",
@@ -43714,7 +43714,7 @@
               "description": "SuiteSparse matrix test_gcn_backward_degree_test_graph_loss.",
               "feature_dim": 1,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "8e759dae8d73ee48ba8837f98978bb7c492d4e3c0d7b3d62ca344ffec9660dcf",
+              "freshness": "1505b2a6eaf2b3a6ba6e20e4edf2a513a0920e0ea68d17fc086cc43a1f526a58",
               "hidden_dim": 4,
               "learning_rate": 0.01,
               "name": "test_gcn_backward_degree_test_graph_loss",
@@ -43740,7 +43740,7 @@
           ],
           "description": "Small inlined GCN training examples.",
           "file": "src/saps/benchmarks/gcn_backward.py",
-          "freshness": "8e759dae8d73ee48ba8837f98978bb7c492d4e3c0d7b3d62ca344ffec9660dcf",
+          "freshness": "1505b2a6eaf2b3a6ba6e20e4edf2a513a0920e0ea68d17fc086cc43a1f526a58",
           "motivation": "Uses small graph examples to verify the GCN training loop.",
           "name": "gcn_backward_test_inputs",
           "pretty_name": "GCN Backward Test Input Generator",
@@ -43775,7 +43775,7 @@
               "description": "Small social network graph.",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "8e759dae8d73ee48ba8837f98978bb7c492d4e3c0d7b3d62ca344ffec9660dcf",
+              "freshness": "1505b2a6eaf2b3a6ba6e20e4edf2a513a0920e0ea68d17fc086cc43a1f526a58",
               "hidden_dim": 8,
               "learning_rate": 0.01,
               "name": "dg_gcn_social_1",
@@ -43800,7 +43800,7 @@
               "description": "Medium social network graph.",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "8e759dae8d73ee48ba8837f98978bb7c492d4e3c0d7b3d62ca344ffec9660dcf",
+              "freshness": "1505b2a6eaf2b3a6ba6e20e4edf2a513a0920e0ea68d17fc086cc43a1f526a58",
               "hidden_dim": 8,
               "learning_rate": 0.01,
               "name": "dg_gcn_social_2",
@@ -43825,7 +43825,7 @@
               "description": "Larger social network graph.",
               "feature_dim": 8,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "8e759dae8d73ee48ba8837f98978bb7c492d4e3c0d7b3d62ca344ffec9660dcf",
+              "freshness": "1505b2a6eaf2b3a6ba6e20e4edf2a513a0920e0ea68d17fc086cc43a1f526a58",
               "hidden_dim": 16,
               "learning_rate": 0.01,
               "name": "dg_gcn_social_3",
@@ -43850,7 +43850,7 @@
               "description": "Small road network graph.",
               "feature_dim": 8,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "8e759dae8d73ee48ba8837f98978bb7c492d4e3c0d7b3d62ca344ffec9660dcf",
+              "freshness": "1505b2a6eaf2b3a6ba6e20e4edf2a513a0920e0ea68d17fc086cc43a1f526a58",
               "hidden_dim": 4,
               "learning_rate": 0.01,
               "name": "dg_gcn_road_1",
@@ -43875,7 +43875,7 @@
               "description": "Small molecular graph. - Email network.",
               "feature_dim": 4,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "8e759dae8d73ee48ba8837f98978bb7c492d4e3c0d7b3d62ca344ffec9660dcf",
+              "freshness": "1505b2a6eaf2b3a6ba6e20e4edf2a513a0920e0ea68d17fc086cc43a1f526a58",
               "hidden_dim": 8,
               "learning_rate": 0.01,
               "name": "dg_gcn_molecular_1",
@@ -43900,7 +43900,7 @@
               "description": "Medium molecular graph - PDDB protein structure.",
               "feature_dim": 6,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "8e759dae8d73ee48ba8837f98978bb7c492d4e3c0d7b3d62ca344ffec9660dcf",
+              "freshness": "1505b2a6eaf2b3a6ba6e20e4edf2a513a0920e0ea68d17fc086cc43a1f526a58",
               "hidden_dim": 12,
               "learning_rate": 0.01,
               "name": "dg_gcn_molecular_2",
@@ -43925,7 +43925,7 @@
               "description": "Large citation network graph (AIDS-like size).",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "8e759dae8d73ee48ba8837f98978bb7c492d4e3c0d7b3d62ca344ffec9660dcf",
+              "freshness": "1505b2a6eaf2b3a6ba6e20e4edf2a513a0920e0ea68d17fc086cc43a1f526a58",
               "hidden_dim": 32,
               "learning_rate": 0.01,
               "name": "dg_gcn_citation_1",
@@ -43950,7 +43950,7 @@
               "description": "Original small structural engineering matrix (for backward compatibility).",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "8e759dae8d73ee48ba8837f98978bb7c492d4e3c0d7b3d62ca344ffec9660dcf",
+              "freshness": "1505b2a6eaf2b3a6ba6e20e4edf2a513a0920e0ea68d17fc086cc43a1f526a58",
               "hidden_dim": 8,
               "learning_rate": 0.01,
               "name": "dg_gcn_bcsstk01",
@@ -43973,7 +43973,7 @@
           ],
           "description": "Generates random weights for a 2-layer Graph Convolutional Network.",
           "file": "src/saps/benchmarks/gcn_backward.py",
-          "freshness": "8e759dae8d73ee48ba8837f98978bb7c492d4e3c0d7b3d62ca344ffec9660dcf",
+          "freshness": "1505b2a6eaf2b3a6ba6e20e4edf2a513a0920e0ea68d17fc086cc43a1f526a58",
           "motivation": "Graphs are widely used for abstracting systems of interacting objects, such as social networks (Easley et al., 2010), knowledge graphs (Nickel et al., 2015), molecular graphs (Wu et al., 2018), and biological networks (Barabasi & Oltvai, 2004), as well as for modeling 3D objects (Simonovsky & Komodakis, 2017), manifolds (Bronstein et al., 2017), and source code (Allamanis et al., 2017). Machine learning (ML), especially deep learning, on graphs is an emerging field (Hamilton et al., 2017b; Bronstein et al., 2017). W. Hu et al. To represent a graph, an adjaceny matrix is used, which is inherently sparse.",
           "name": "gcn_weights",
           "pretty_name": "Graph Convolutional Network Weights",
@@ -48668,7 +48668,7 @@
       ],
       "description": "Simulates a specified quantum circuit on an n-qubit state vector, using the standard reshape + einsum gate application pattern.",
       "file": "src/saps/benchmarks/quantum.py",
-      "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+      "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
       "generators": [
         {
           "ai_disclosure": "",
@@ -48686,7 +48686,7 @@
               ],
               "description": "RQC statevector sanity check.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "H",
@@ -48749,7 +48749,7 @@
               ],
               "description": "H on qubit 0.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "H",
@@ -48776,7 +48776,7 @@
               ],
               "description": "H on qubit 1.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "H",
@@ -48803,7 +48803,7 @@
               ],
               "description": "H on qubit 2.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "H",
@@ -48830,7 +48830,7 @@
               ],
               "description": "H on qubit 3.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "H",
@@ -48857,7 +48857,7 @@
               ],
               "description": "X on qubit 0.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "X",
@@ -48884,7 +48884,7 @@
               ],
               "description": "X on qubit 1.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "X",
@@ -48911,7 +48911,7 @@
               ],
               "description": "X on qubit 2.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "X",
@@ -48938,7 +48938,7 @@
               ],
               "description": "X on qubit 3.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "X",
@@ -48965,7 +48965,7 @@
               ],
               "description": "Y on qubit 0.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "Y",
@@ -48992,7 +48992,7 @@
               ],
               "description": "Y on qubit 1.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "Y",
@@ -49019,7 +49019,7 @@
               ],
               "description": "Y on qubit 2.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "Y",
@@ -49046,7 +49046,7 @@
               ],
               "description": "Y on qubit 3.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "Y",
@@ -49073,7 +49073,7 @@
               ],
               "description": "Z on qubit 0.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "Z",
@@ -49100,7 +49100,7 @@
               ],
               "description": "Z on qubit 1.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "Z",
@@ -49127,7 +49127,7 @@
               ],
               "description": "Z on qubit 2.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "Z",
@@ -49154,7 +49154,7 @@
               ],
               "description": "Z on qubit 3.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "Z",
@@ -49181,7 +49181,7 @@
               ],
               "description": "S on qubit 0.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "S",
@@ -49208,7 +49208,7 @@
               ],
               "description": "S on qubit 1.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "S",
@@ -49235,7 +49235,7 @@
               ],
               "description": "S on qubit 2.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "S",
@@ -49262,7 +49262,7 @@
               ],
               "description": "S on qubit 3.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "S",
@@ -49289,7 +49289,7 @@
               ],
               "description": "T on qubit 0.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "T",
@@ -49316,7 +49316,7 @@
               ],
               "description": "T on qubit 1.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "T",
@@ -49343,7 +49343,7 @@
               ],
               "description": "T on qubit 2.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "T",
@@ -49370,7 +49370,7 @@
               ],
               "description": "T on qubit 3.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "T",
@@ -49397,7 +49397,7 @@
               ],
               "description": "Applying H twice returns to the original state.",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "H",
@@ -49427,7 +49427,7 @@
           ],
           "description": "Small statevector and single-qubit circuit checks.",
           "file": "src/saps/benchmarks/quantum.py",
-          "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+          "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
           "motivation": "Simulates a specified quantum circuit on an n-qubit state vector, using the standard reshape + einsum gate application pattern.",
           "name": "quantum_test_inputs",
           "pretty_name": "Quantum Test Inputs",
@@ -49454,7 +49454,7 @@
               ],
               "description": "Small instance of 10 qubits, 1 layer",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "H",
@@ -49514,7 +49514,7 @@
               ],
               "description": "Tiny instance of 5 qubits, 1 layer",
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+              "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
               "gate_sequence": [
                 [
                   "H",
@@ -49556,7 +49556,7 @@
           ],
           "description": "Generates zero-initialized n-qubit state vectors.",
           "file": "src/saps/benchmarks/quantum.py",
-          "freshness": "ce484d204a42506cf5adcae6cc064c7f7f6c286cffa41c7dbcc9d0d425020037",
+          "freshness": "560c9df1231d438f2e9179544d3587f6d2a82638b0d3002ffd0e3b3a13efea70",
           "motivation": "Simulates a specified quantum circuit on an n-qubit state vector, using the standard reshape + einsum gate application pattern.",
           "name": "quantum_state_inputs",
           "pretty_name": "Quantum Statevector Data Generator",
