@@ -35,7 +35,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/model_counting.py",
-              "freshness": "263d376a9fb4e236f3949b7386b709f9c9ccf927d0151aa2dad98ddb43f28bef",
+              "freshness": "e1820cc8b29499d312da55c813ef9f4e1998730ae99735f9998a5e615bd48496",
               "name": "test_1",
               "statistics": [
                 "dense"
@@ -72,7 +72,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/model_counting.py",
-              "freshness": "263d376a9fb4e236f3949b7386b709f9c9ccf927d0151aa2dad98ddb43f28bef",
+              "freshness": "e1820cc8b29499d312da55c813ef9f4e1998730ae99735f9998a5e615bd48496",
               "name": "test_2",
               "statistics": [
                 "dense"
@@ -109,7 +109,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/model_counting.py",
-              "freshness": "263d376a9fb4e236f3949b7386b709f9c9ccf927d0151aa2dad98ddb43f28bef",
+              "freshness": "e1820cc8b29499d312da55c813ef9f4e1998730ae99735f9998a5e615bd48496",
               "name": "test_3",
               "statistics": [
                 "dense"
@@ -146,7 +146,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/model_counting.py",
-              "freshness": "263d376a9fb4e236f3949b7386b709f9c9ccf927d0151aa2dad98ddb43f28bef",
+              "freshness": "e1820cc8b29499d312da55c813ef9f4e1998730ae99735f9998a5e615bd48496",
               "name": "test_4",
               "statistics": [
                 "dense"
@@ -200,7 +200,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/subgraph_matching.py",
-              "freshness": "e63a50bd222fa68a2769d2779bd7700995adcf38812471e54ae703c36840f209",
+              "freshness": "5aeae2ab71c5557ba4a90125b7cd9530e3bcef9a2db983ffca0abb4276a585d8",
               "name": "a_to_b",
               "statistics": [
                 "dynamic-sparsity"
@@ -242,7 +242,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/subgraph_matching.py",
-              "freshness": "e63a50bd222fa68a2769d2779bd7700995adcf38812471e54ae703c36840f209",
+              "freshness": "5aeae2ab71c5557ba4a90125b7cd9530e3bcef9a2db983ffca0abb4276a585d8",
               "name": "all_edges",
               "statistics": []
             },
@@ -282,7 +282,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/subgraph_matching.py",
-              "freshness": "e63a50bd222fa68a2769d2779bd7700995adcf38812471e54ae703c36840f209",
+              "freshness": "5aeae2ab71c5557ba4a90125b7cd9530e3bcef9a2db983ffca0abb4276a585d8",
               "name": "b_to_a",
               "statistics": [
                 "dynamic-sparsity"
@@ -324,7 +324,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/subgraph_matching.py",
-              "freshness": "e63a50bd222fa68a2769d2779bd7700995adcf38812471e54ae703c36840f209",
+              "freshness": "5aeae2ab71c5557ba4a90125b7cd9530e3bcef9a2db983ffca0abb4276a585d8",
               "name": "label_a_count",
               "statistics": []
             }
@@ -371,7 +371,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/weighted_model_counting.py",
-              "freshness": "c52b46622485c2b53b77011b9cd85fc995543117e38a9db90d1cda7673cf0299",
+              "freshness": "4bbd200c0ce83ba6ee89cdd5fd02cc985b099e64afd8807f6b50e832c139a3c3",
               "name": "test_1",
               "statistics": [
                 "dense"
@@ -408,7 +408,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/weighted_model_counting.py",
-              "freshness": "c52b46622485c2b53b77011b9cd85fc995543117e38a9db90d1cda7673cf0299",
+              "freshness": "4bbd200c0ce83ba6ee89cdd5fd02cc985b099e64afd8807f6b50e832c139a3c3",
               "name": "test_2",
               "statistics": [
                 "dense"
@@ -445,7 +445,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/weighted_model_counting.py",
-              "freshness": "c52b46622485c2b53b77011b9cd85fc995543117e38a9db90d1cda7673cf0299",
+              "freshness": "4bbd200c0ce83ba6ee89cdd5fd02cc985b099e64afd8807f6b50e832c139a3c3",
               "name": "test_3",
               "statistics": [
                 "dense"
@@ -482,7 +482,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/weighted_model_counting.py",
-              "freshness": "c52b46622485c2b53b77011b9cd85fc995543117e38a9db90d1cda7673cf0299",
+              "freshness": "4bbd200c0ce83ba6ee89cdd5fd02cc985b099e64afd8807f6b50e832c139a3c3",
               "name": "test_4",
               "statistics": [
                 "dense"
@@ -519,7 +519,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/weighted_model_counting.py",
-              "freshness": "c52b46622485c2b53b77011b9cd85fc995543117e38a9db90d1cda7673cf0299",
+              "freshness": "4bbd200c0ce83ba6ee89cdd5fd02cc985b099e64afd8807f6b50e832c139a3c3",
               "name": "test_5",
               "statistics": [
                 "dense",
@@ -557,7 +557,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/weighted_model_counting.py",
-              "freshness": "c52b46622485c2b53b77011b9cd85fc995543117e38a9db90d1cda7673cf0299",
+              "freshness": "4bbd200c0ce83ba6ee89cdd5fd02cc985b099e64afd8807f6b50e832c139a3c3",
               "name": "test_6",
               "statistics": [
                 "dense",
@@ -607,7 +607,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/bellmanford.py",
-              "freshness": "7d214e7368c5726bffb175b94baabed856307647bb391bd794ed537ee28c262e",
+              "freshness": "28c41906095452bc79e1c46d996eeca11f9d3124f18cb0ac2c70ab4227777321",
               "name": "test_bellman_ford_chesapeake_src_0",
               "statistics": [
                 "dense",
@@ -647,7 +647,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/bellmanford.py",
-              "freshness": "7d214e7368c5726bffb175b94baabed856307647bb391bd794ed537ee28c262e",
+              "freshness": "28c41906095452bc79e1c46d996eeca11f9d3124f18cb0ac2c70ab4227777321",
               "name": "test_bellman_ford_chesapeake_src_10",
               "statistics": [
                 "dense",
@@ -687,7 +687,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/bellmanford.py",
-              "freshness": "7d214e7368c5726bffb175b94baabed856307647bb391bd794ed537ee28c262e",
+              "freshness": "28c41906095452bc79e1c46d996eeca11f9d3124f18cb0ac2c70ab4227777321",
               "name": "test_bellman_ford_chesapeake_src_38",
               "statistics": [
                 "dense",
@@ -727,7 +727,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/bellmanford.py",
-              "freshness": "7d214e7368c5726bffb175b94baabed856307647bb391bd794ed537ee28c262e",
+              "freshness": "28c41906095452bc79e1c46d996eeca11f9d3124f18cb0ac2c70ab4227777321",
               "name": "test_bellman_ford_snap_toy",
               "statistics": [
                 "dense",
@@ -767,7 +767,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/bellmanford.py",
-              "freshness": "7d214e7368c5726bffb175b94baabed856307647bb391bd794ed537ee28c262e",
+              "freshness": "28c41906095452bc79e1c46d996eeca11f9d3124f18cb0ac2c70ab4227777321",
               "name": "test_bellman_ford_tribes_src_0",
               "statistics": [
                 "dense",
@@ -819,7 +819,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/centrality.py",
-              "freshness": "5ff0d0461efccac83da7f89888b147b51dcd592cfa1320b7b17ed7d6601458a4",
+              "freshness": "3cc63c843aaa41547a88f624dc9c268c5d00651b2e251429a60102ed42ba4c71",
               "name": "test_basic_chain",
               "statistics": [
                 "dense",
@@ -859,7 +859,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/centrality.py",
-              "freshness": "5ff0d0461efccac83da7f89888b147b51dcd592cfa1320b7b17ed7d6601458a4",
+              "freshness": "3cc63c843aaa41547a88f624dc9c268c5d00651b2e251429a60102ed42ba4c71",
               "name": "test_basic_empty",
               "statistics": [
                 "dense",
@@ -898,7 +898,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/centrality.py",
-              "freshness": "5ff0d0461efccac83da7f89888b147b51dcd592cfa1320b7b17ed7d6601458a4",
+              "freshness": "3cc63c843aaa41547a88f624dc9c268c5d00651b2e251429a60102ed42ba4c71",
               "name": "test_basic_two_components",
               "statistics": [
                 "dense",
@@ -938,7 +938,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/centrality.py",
-              "freshness": "5ff0d0461efccac83da7f89888b147b51dcd592cfa1320b7b17ed7d6601458a4",
+              "freshness": "3cc63c843aaa41547a88f624dc9c268c5d00651b2e251429a60102ed42ba4c71",
               "name": "test_centrality_snap_toy",
               "statistics": [
                 "dense",
@@ -978,7 +978,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/centrality.py",
-              "freshness": "5ff0d0461efccac83da7f89888b147b51dcd592cfa1320b7b17ed7d6601458a4",
+              "freshness": "3cc63c843aaa41547a88f624dc9c268c5d00651b2e251429a60102ed42ba4c71",
               "name": "test_joels_case",
               "statistics": [
                 "dense",
@@ -1018,7 +1018,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/centrality.py",
-              "freshness": "5ff0d0461efccac83da7f89888b147b51dcd592cfa1320b7b17ed7d6601458a4",
+              "freshness": "3cc63c843aaa41547a88f624dc9c268c5d00651b2e251429a60102ed42ba4c71",
               "name": "test_matrix_vertex_algorithm_comparison",
               "statistics": [
                 "dense",
@@ -1058,7 +1058,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/centrality.py",
-              "freshness": "5ff0d0461efccac83da7f89888b147b51dcd592cfa1320b7b17ed7d6601458a4",
+              "freshness": "3cc63c843aaa41547a88f624dc9c268c5d00651b2e251429a60102ed42ba4c71",
               "name": "test_networkx",
               "statistics": [
                 "dense",
@@ -1098,7 +1098,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/centrality.py",
-              "freshness": "5ff0d0461efccac83da7f89888b147b51dcd592cfa1320b7b17ed7d6601458a4",
+              "freshness": "3cc63c843aaa41547a88f624dc9c268c5d00651b2e251429a60102ed42ba4c71",
               "name": "test_undirected_graph",
               "statistics": [
                 "dense",
@@ -1150,7 +1150,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/BFS.py",
-              "freshness": "abe6909e98e1cda4c58bceb40f3ccee76e521022a0911dfc83b4af66ca2ff8ad",
+              "freshness": "f61925f76729c53975b7abacf2ae61d6bd210ebb882529f474d9fd7e1b342f10",
               "name": "test_bfs_basic",
               "statistics": [
                 "dense",
@@ -1189,7 +1189,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/BFS.py",
-              "freshness": "abe6909e98e1cda4c58bceb40f3ccee76e521022a0911dfc83b4af66ca2ff8ad",
+              "freshness": "f61925f76729c53975b7abacf2ae61d6bd210ebb882529f474d9fd7e1b342f10",
               "name": "test_bfs_cycle",
               "statistics": [
                 "dense",
@@ -1228,7 +1228,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/BFS.py",
-              "freshness": "abe6909e98e1cda4c58bceb40f3ccee76e521022a0911dfc83b4af66ca2ff8ad",
+              "freshness": "f61925f76729c53975b7abacf2ae61d6bd210ebb882529f474d9fd7e1b342f10",
               "name": "test_bfs_disconnected",
               "statistics": [
                 "dense",
@@ -1267,7 +1267,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/BFS.py",
-              "freshness": "abe6909e98e1cda4c58bceb40f3ccee76e521022a0911dfc83b4af66ca2ff8ad",
+              "freshness": "f61925f76729c53975b7abacf2ae61d6bd210ebb882529f474d9fd7e1b342f10",
               "name": "test_bfs_single_node",
               "statistics": [
                 "dense",
@@ -1306,7 +1306,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/BFS.py",
-              "freshness": "abe6909e98e1cda4c58bceb40f3ccee76e521022a0911dfc83b4af66ca2ff8ad",
+              "freshness": "f61925f76729c53975b7abacf2ae61d6bd210ebb882529f474d9fd7e1b342f10",
               "name": "test_bfs_snap_toy",
               "statistics": [
                 "dense",
@@ -1345,7 +1345,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/BFS.py",
-              "freshness": "abe6909e98e1cda4c58bceb40f3ccee76e521022a0911dfc83b4af66ca2ff8ad",
+              "freshness": "f61925f76729c53975b7abacf2ae61d6bd210ebb882529f474d9fd7e1b342f10",
               "name": "test_bfs_undirected",
               "statistics": [
                 "dense",
@@ -1401,7 +1401,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "36880c0cee9233531271d15623aeb14460bf149b0e787a47bf6c9ae41bdb6395",
+              "freshness": "43b81a69e61442f99616efe83dd1f80bca568fedd9be1226cadb1633e5d1a19b",
               "name": "brusselator_tiny",
               "statistics": [
                 "dense",
@@ -1457,7 +1457,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "36880c0cee9233531271d15623aeb14460bf149b0e787a47bf6c9ae41bdb6395",
+              "freshness": "43b81a69e61442f99616efe83dd1f80bca568fedd9be1226cadb1633e5d1a19b",
               "name": "brusselator_tiny",
               "statistics": [
                 "dense",
@@ -1513,7 +1513,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "36880c0cee9233531271d15623aeb14460bf149b0e787a47bf6c9ae41bdb6395",
+              "freshness": "43b81a69e61442f99616efe83dd1f80bca568fedd9be1226cadb1633e5d1a19b",
               "name": "brusselator_tiny",
               "statistics": [
                 "dense",
@@ -1569,7 +1569,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/Finite_Difference.py",
-              "freshness": "67770087e0e442f768b5c1c4303426a0037bfc8be73a8c60f281bd7a1cdeefa4",
+              "freshness": "23e3fdc7e5c40cc57a0f93f596f9e8e301f01da48b6e497e70089d98e589a0d7",
               "name": "default",
               "statistics": [
                 "index-ops",
@@ -1624,7 +1624,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/Finite_Difference.py",
-              "freshness": "67770087e0e442f768b5c1c4303426a0037bfc8be73a8c60f281bd7a1cdeefa4",
+              "freshness": "23e3fdc7e5c40cc57a0f93f596f9e8e301f01da48b6e497e70089d98e589a0d7",
               "name": "default",
               "statistics": [
                 "index-ops",
@@ -1674,7 +1674,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/coupled_cluster.py",
-              "freshness": "9bb891ad1d04d7d84a40c15e964b42a27baf61acfb8963363eda69190e56d777",
+              "freshness": "68464065554854837ef4716ea23511f1f56d936e2fd621f146fbdc0bcbf3f514",
               "name": "ccsd_small",
               "statistics": [
                 "dense",
@@ -1741,7 +1741,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/cg.py",
-              "freshness": "ab021e768b9a238fea4e7976aed0d7b0b5a986e2f9542e52502fb59ae5ad46db",
+              "freshness": "3863e5c32d751dcd25d6fffa40ce3bedbc15a1f9f274aefbd9d0412cf9f6ad88",
               "name": "test_3x3_dense",
               "statistics": [
                 "dense",
@@ -1798,7 +1798,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/cg.py",
-              "freshness": "ab021e768b9a238fea4e7976aed0d7b0b5a986e2f9542e52502fb59ae5ad46db",
+              "freshness": "3863e5c32d751dcd25d6fffa40ce3bedbc15a1f9f274aefbd9d0412cf9f6ad88",
               "name": "test_3x3_indefinite_sparse",
               "statistics": [
                 "dense",
@@ -1855,7 +1855,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/cg.py",
-              "freshness": "ab021e768b9a238fea4e7976aed0d7b0b5a986e2f9542e52502fb59ae5ad46db",
+              "freshness": "3863e5c32d751dcd25d6fffa40ce3bedbc15a1f9f274aefbd9d0412cf9f6ad88",
               "name": "test_3x3_scaled_tridiagonal",
               "statistics": [
                 "dense",
@@ -1912,7 +1912,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/cg.py",
-              "freshness": "ab021e768b9a238fea4e7976aed0d7b0b5a986e2f9542e52502fb59ae5ad46db",
+              "freshness": "3863e5c32d751dcd25d6fffa40ce3bedbc15a1f9f274aefbd9d0412cf9f6ad88",
               "name": "test_3x3_tridiagonal",
               "statistics": [
                 "dense",
@@ -1969,7 +1969,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/cg.py",
-              "freshness": "ab021e768b9a238fea4e7976aed0d7b0b5a986e2f9542e52502fb59ae5ad46db",
+              "freshness": "3863e5c32d751dcd25d6fffa40ce3bedbc15a1f9f274aefbd9d0412cf9f6ad88",
               "name": "test_4x4_tridiagonal",
               "statistics": [
                 "dense",
@@ -2026,7 +2026,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/cg.py",
-              "freshness": "ab021e768b9a238fea4e7976aed0d7b0b5a986e2f9542e52502fb59ae5ad46db",
+              "freshness": "3863e5c32d751dcd25d6fffa40ce3bedbc15a1f9f274aefbd9d0412cf9f6ad88",
               "name": "test_5x5_sparse",
               "statistics": [
                 "dense",
@@ -2079,7 +2079,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/cp3_als.py",
-              "freshness": "1c38d60aa18a3c53d63a9ec97475ee09aea919e45a45c59fd6f68f768572e6c9",
+              "freshness": "693be68763c9e39e1e646ca480ab89995138850bec311906642163bad7891c12",
               "name": "cp_factorizeable_tiny",
               "statistics": [
                 "dense",
@@ -2133,7 +2133,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/cp4_als.py",
-              "freshness": "bad13b0d2d04984ff9549068cbbb6a0abebba11a43be6b1318a0027952aa27fc",
+              "freshness": "f92b9817575f6f6708002a6e8543e6a5cc27f0b1e026048811710feb1228e89d",
               "name": "cp_factorizeable_tiny",
               "statistics": [
                 "dense",
@@ -2188,7 +2188,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/cp5_als.py",
-              "freshness": "d64f65964be7203c67bbb13e8663d9ae32d7daf6b48e63445532f43913c85e68",
+              "freshness": "2441771db29a53a1e0a7ad4522bed1d59c7fefb9fc4135875013b4961024f231",
               "name": "cp_factorizeable_tiny",
               "statistics": [
                 "dense",
@@ -2244,7 +2244,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/fastsv.py",
-              "freshness": "3104891ab49f011856f7076f8182fe8b90f6873a38d2b8fc0c09188c1022adc0",
+              "freshness": "2f48932be706148732c1a5cbba6effa3f145ff8dd977f430d97b6a5e3313aad2",
               "name": "chain",
               "statistics": [
                 "dense",
@@ -2284,7 +2284,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/fastsv.py",
-              "freshness": "3104891ab49f011856f7076f8182fe8b90f6873a38d2b8fc0c09188c1022adc0",
+              "freshness": "2f48932be706148732c1a5cbba6effa3f145ff8dd977f430d97b6a5e3313aad2",
               "name": "isolated-and-connected",
               "statistics": [
                 "dense",
@@ -2324,7 +2324,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/fastsv.py",
-              "freshness": "3104891ab49f011856f7076f8182fe8b90f6873a38d2b8fc0c09188c1022adc0",
+              "freshness": "2f48932be706148732c1a5cbba6effa3f145ff8dd977f430d97b6a5e3313aad2",
               "name": "no-edges",
               "statistics": [
                 "dense",
@@ -2364,7 +2364,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/fastsv.py",
-              "freshness": "3104891ab49f011856f7076f8182fe8b90f6873a38d2b8fc0c09188c1022adc0",
+              "freshness": "2f48932be706148732c1a5cbba6effa3f145ff8dd977f430d97b6a5e3313aad2",
               "name": "single-component",
               "statistics": [
                 "dense",
@@ -2404,7 +2404,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/fastsv.py",
-              "freshness": "3104891ab49f011856f7076f8182fe8b90f6873a38d2b8fc0c09188c1022adc0",
+              "freshness": "2f48932be706148732c1a5cbba6effa3f145ff8dd977f430d97b6a5e3313aad2",
               "name": "star",
               "statistics": [
                 "dense",
@@ -2444,7 +2444,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/fastsv.py",
-              "freshness": "3104891ab49f011856f7076f8182fe8b90f6873a38d2b8fc0c09188c1022adc0",
+              "freshness": "2f48932be706148732c1a5cbba6effa3f145ff8dd977f430d97b6a5e3313aad2",
               "name": "two-components",
               "statistics": [
                 "dense",
@@ -2511,7 +2511,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/floyd_warshall.py",
-              "freshness": "be85d2c083696eeaddd685fcfd73f89cbcd61d2fe061927c6f6365b34fb04b9c",
+              "freshness": "d68d9bbd6ad569e28f69101b8f44424a636b17090fc7f90d7e090d53cdc9d0f8",
               "name": "large-symmetric",
               "statistics": [
                 "dense",
@@ -2566,7 +2566,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/floyd_warshall.py",
-              "freshness": "be85d2c083696eeaddd685fcfd73f89cbcd61d2fe061927c6f6365b34fb04b9c",
+              "freshness": "d68d9bbd6ad569e28f69101b8f44424a636b17090fc7f90d7e090d53cdc9d0f8",
               "name": "single-node",
               "statistics": [
                 "dense",
@@ -2621,7 +2621,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/floyd_warshall.py",
-              "freshness": "be85d2c083696eeaddd685fcfd73f89cbcd61d2fe061927c6f6365b34fb04b9c",
+              "freshness": "d68d9bbd6ad569e28f69101b8f44424a636b17090fc7f90d7e090d53cdc9d0f8",
               "name": "three-node-chain",
               "statistics": [
                 "dense",
@@ -2676,7 +2676,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/floyd_warshall.py",
-              "freshness": "be85d2c083696eeaddd685fcfd73f89cbcd61d2fe061927c6f6365b34fb04b9c",
+              "freshness": "d68d9bbd6ad569e28f69101b8f44424a636b17090fc7f90d7e090d53cdc9d0f8",
               "name": "three-node-shortcut",
               "statistics": [
                 "dense",
@@ -2731,7 +2731,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/floyd_warshall.py",
-              "freshness": "be85d2c083696eeaddd685fcfd73f89cbcd61d2fe061927c6f6365b34fb04b9c",
+              "freshness": "d68d9bbd6ad569e28f69101b8f44424a636b17090fc7f90d7e090d53cdc9d0f8",
               "name": "two-components",
               "statistics": [
                 "dense",
@@ -2786,7 +2786,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/floyd_warshall.py",
-              "freshness": "be85d2c083696eeaddd685fcfd73f89cbcd61d2fe061927c6f6365b34fb04b9c",
+              "freshness": "d68d9bbd6ad569e28f69101b8f44424a636b17090fc7f90d7e090d53cdc9d0f8",
               "name": "two-node-directed",
               "statistics": [
                 "dense",
@@ -2838,7 +2838,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/tri_4cliq.py",
-              "freshness": "616eb10b3c77fa79256c70bde6ea01c11b3799ffb57b4fa9d398b4eb7c301bc2",
+              "freshness": "73f44ff72e6c5f00bcb2ca524ac8502a012d66f747550ea314fd94388c375743",
               "name": "test_4clique_count_complete_k3",
               "statistics": [
                 "dense",
@@ -2876,7 +2876,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/tri_4cliq.py",
-              "freshness": "616eb10b3c77fa79256c70bde6ea01c11b3799ffb57b4fa9d398b4eb7c301bc2",
+              "freshness": "73f44ff72e6c5f00bcb2ca524ac8502a012d66f747550ea314fd94388c375743",
               "name": "test_4clique_count_overlapping",
               "statistics": [
                 "dense",
@@ -2914,7 +2914,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/tri_4cliq.py",
-              "freshness": "616eb10b3c77fa79256c70bde6ea01c11b3799ffb57b4fa9d398b4eb7c301bc2",
+              "freshness": "73f44ff72e6c5f00bcb2ca524ac8502a012d66f747550ea314fd94388c375743",
               "name": "test_4clique_count_single_k4",
               "statistics": [
                 "dense",
@@ -2952,7 +2952,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/tri_4cliq.py",
-              "freshness": "616eb10b3c77fa79256c70bde6ea01c11b3799ffb57b4fa9d398b4eb7c301bc2",
+              "freshness": "73f44ff72e6c5f00bcb2ca524ac8502a012d66f747550ea314fd94388c375743",
               "name": "test_4clique_snap_toy",
               "statistics": [
                 "dense",
@@ -3012,7 +3012,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "27b04245cda1818cc07dde31212bcabb477bebfb36af422d08c05cec9c419397",
+              "freshness": "36d6efd05dead41da304fb923814a3809a1b8bdb4ee196a9039b47fc9c7a7b44",
               "name": "test_gcn_3node",
               "statistics": [
                 "dense",
@@ -3061,7 +3061,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "27b04245cda1818cc07dde31212bcabb477bebfb36af422d08c05cec9c419397",
+              "freshness": "36d6efd05dead41da304fb923814a3809a1b8bdb4ee196a9039b47fc9c7a7b44",
               "name": "test_gcn_simple_2node",
               "statistics": [
                 "dense",
@@ -3110,7 +3110,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "27b04245cda1818cc07dde31212bcabb477bebfb36af422d08c05cec9c419397",
+              "freshness": "36d6efd05dead41da304fb923814a3809a1b8bdb4ee196a9039b47fc9c7a7b44",
               "name": "test_gcn_simple_3node_line",
               "statistics": [
                 "dense",
@@ -3159,7 +3159,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "27b04245cda1818cc07dde31212bcabb477bebfb36af422d08c05cec9c419397",
+              "freshness": "36d6efd05dead41da304fb923814a3809a1b8bdb4ee196a9039b47fc9c7a7b44",
               "name": "test_gcn_with_relu_activation",
               "statistics": [
                 "dense",
@@ -3220,7 +3220,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "640420119f8cf1ae44870d0be7385fb58dca85387b35c5f556dc8b1c094a60ad",
+              "freshness": "adbff31421d42ac851b4d6b73fbe084e6541a7ae93139ecac6c4630570fdf2a0",
               "name": "test_gcn_backward_2node",
               "statistics": [
                 "dense",
@@ -3269,7 +3269,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "640420119f8cf1ae44870d0be7385fb58dca85387b35c5f556dc8b1c094a60ad",
+              "freshness": "adbff31421d42ac851b4d6b73fbe084e6541a7ae93139ecac6c4630570fdf2a0",
               "name": "test_gcn_backward_degree_loss",
               "statistics": [
                 "dense",
@@ -3318,7 +3318,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "640420119f8cf1ae44870d0be7385fb58dca85387b35c5f556dc8b1c094a60ad",
+              "freshness": "adbff31421d42ac851b4d6b73fbe084e6541a7ae93139ecac6c4630570fdf2a0",
               "name": "test_gcn_backward_degree_test_graph_loss",
               "statistics": [
                 "dense",
@@ -3367,7 +3367,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "640420119f8cf1ae44870d0be7385fb58dca85387b35c5f556dc8b1c094a60ad",
+              "freshness": "adbff31421d42ac851b4d6b73fbe084e6541a7ae93139ecac6c4630570fdf2a0",
               "name": "test_gcn_backward_multidim",
               "statistics": [
                 "dense",
@@ -3434,7 +3434,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "7c58ff772e2c4b680ae629346a3f3aaae577ec1c43242de799b9e5ac5840643e",
+              "freshness": "0341877cea159f6f62d54e15c604acad1d2d3d197a6625dcde5f97a33cad9766",
               "name": "test_gmres_3x3",
               "statistics": [
                 "dense",
@@ -3490,7 +3490,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "7c58ff772e2c4b680ae629346a3f3aaae577ec1c43242de799b9e5ac5840643e",
+              "freshness": "0341877cea159f6f62d54e15c604acad1d2d3d197a6625dcde5f97a33cad9766",
               "name": "test_gmres_4x4",
               "statistics": [
                 "dense",
@@ -3546,7 +3546,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "7c58ff772e2c4b680ae629346a3f3aaae577ec1c43242de799b9e5ac5840643e",
+              "freshness": "0341877cea159f6f62d54e15c604acad1d2d3d197a6625dcde5f97a33cad9766",
               "name": "test_gmres_diagonal",
               "statistics": [
                 "dense",
@@ -3602,7 +3602,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "7c58ff772e2c4b680ae629346a3f3aaae577ec1c43242de799b9e5ac5840643e",
+              "freshness": "0341877cea159f6f62d54e15c604acad1d2d3d197a6625dcde5f97a33cad9766",
               "name": "test_gmres_random_123",
               "statistics": [
                 "fancy-ops",
@@ -3657,7 +3657,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "7c58ff772e2c4b680ae629346a3f3aaae577ec1c43242de799b9e5ac5840643e",
+              "freshness": "0341877cea159f6f62d54e15c604acad1d2d3d197a6625dcde5f97a33cad9766",
               "name": "test_gmres_random_42",
               "statistics": [
                 "fancy-ops",
@@ -3708,7 +3708,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "2caacde5101ccc7dcd78d8ae8181d74bef0c2a53a2b35bbd1852167e5b55d5a1",
+              "freshness": "714e01583450c81498993d9d5ce31b4d8ea68cb0d7f020fad46ffc7a8c013fab",
               "name": "small_dense_hosvd",
               "statistics": [
                 "dense",
@@ -3763,7 +3763,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/HOSVD_4d.py",
-              "freshness": "7eb163fb0539c8752f1ba9998ea0f23ac37afa4f21c3670e029720e2f55da306",
+              "freshness": "221e82f2ea08b4120f9f5a6dd2aca5d4ba2a9387a2f5f4a1a42ed60a34c3188c",
               "name": "small_dense_4d",
               "statistics": [
                 "dense",
@@ -3818,7 +3818,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/HOSVD_5d.py",
-              "freshness": "52c03e7b1ac5710cf87b7ed07f7de427b8801026c8b8fb2c0b3e24107cde1d75",
+              "freshness": "a29da66cb32e14b1f86a3030a71502d3c659be23b4b176e440509fd16c7dc7cb",
               "name": "small_dense_5d",
               "statistics": [
                 "dense",
@@ -3890,7 +3890,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "09d54defa669f178fcc7531bd30572a32e627601955e0424e00d3b26d88d39ff",
+              "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247",
               "name": "test_A0",
               "statistics": [
                 "fancy-ops",
@@ -3946,7 +3946,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "09d54defa669f178fcc7531bd30572a32e627601955e0424e00d3b26d88d39ff",
+              "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247",
               "name": "test_A1",
               "statistics": [
                 "dense",
@@ -4003,7 +4003,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "09d54defa669f178fcc7531bd30572a32e627601955e0424e00d3b26d88d39ff",
+              "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247",
               "name": "test_A2",
               "statistics": [
                 "fancy-ops",
@@ -4059,7 +4059,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "09d54defa669f178fcc7531bd30572a32e627601955e0424e00d3b26d88d39ff",
+              "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247",
               "name": "test_A3",
               "statistics": [
                 "dense",
@@ -4116,7 +4116,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "09d54defa669f178fcc7531bd30572a32e627601955e0424e00d3b26d88d39ff",
+              "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247",
               "name": "test_A4",
               "statistics": [
                 "fancy-ops",
@@ -4172,7 +4172,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "09d54defa669f178fcc7531bd30572a32e627601955e0424e00d3b26d88d39ff",
+              "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247",
               "name": "test_A5",
               "statistics": [
                 "fancy-ops",
@@ -4240,7 +4240,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/jacobi.py",
-              "freshness": "968adc0a3174ba570880357559e77ab4befd94b4bb06eb138c99b20478a6d973",
+              "freshness": "28f78ac862d44408871b2394c44452eb4833bc39c4abfb2070e667a84f806221",
               "name": "test_3x3",
               "statistics": [
                 "dense",
@@ -4297,7 +4297,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/jacobi.py",
-              "freshness": "968adc0a3174ba570880357559e77ab4befd94b4bb06eb138c99b20478a6d973",
+              "freshness": "28f78ac862d44408871b2394c44452eb4833bc39c4abfb2070e667a84f806221",
               "name": "test_3x3_dominant",
               "statistics": [
                 "dense",
@@ -4354,7 +4354,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/jacobi.py",
-              "freshness": "968adc0a3174ba570880357559e77ab4befd94b4bb06eb138c99b20478a6d973",
+              "freshness": "28f78ac862d44408871b2394c44452eb4833bc39c4abfb2070e667a84f806221",
               "name": "test_4x4",
               "statistics": [
                 "dense",
@@ -4412,7 +4412,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "af58d78b003f35f87281177f2e85612cec8a31ff70d1517335067f6deba79209",
+              "freshness": "b1249b8c0d211ed11a35093d823db2625945b80e984159e1655d79e4ee66a54f",
               "name": "test_jl_preserves_distance",
               "statistics": [
                 "fancy-ops",
@@ -4470,7 +4470,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/Finite_Difference.py",
-              "freshness": "67770087e0e442f768b5c1c4303426a0037bfc8be73a8c60f281bd7a1cdeefa4",
+              "freshness": "23e3fdc7e5c40cc57a0f93f596f9e8e301f01da48b6e497e70089d98e589a0d7",
               "name": "default",
               "statistics": [
                 "index-ops",
@@ -4525,7 +4525,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "36880c0cee9233531271d15623aeb14460bf149b0e787a47bf6c9ae41bdb6395",
+              "freshness": "43b81a69e61442f99616efe83dd1f80bca568fedd9be1226cadb1633e5d1a19b",
               "name": "lotka_volterra_small",
               "statistics": []
             }
@@ -4577,7 +4577,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "36880c0cee9233531271d15623aeb14460bf149b0e787a47bf6c9ae41bdb6395",
+              "freshness": "43b81a69e61442f99616efe83dd1f80bca568fedd9be1226cadb1633e5d1a19b",
               "name": "lotka_volterra_small",
               "statistics": []
             }
@@ -4629,7 +4629,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "36880c0cee9233531271d15623aeb14460bf149b0e787a47bf6c9ae41bdb6395",
+              "freshness": "43b81a69e61442f99616efe83dd1f80bca568fedd9be1226cadb1633e5d1a19b",
               "name": "lotka_volterra_small",
               "statistics": []
             }
@@ -4687,7 +4687,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "15c6e39ab5e3b47d57fd6725541c8c4964dea27bd800492c2ff7ab8193ea5bb2",
+              "freshness": "418156c2c47ea2394c427246970f33d68a6bade1d4e9c5eb7bb25570a5f38222",
               "name": "test_lsqr_exact_3",
               "statistics": [
                 "dense",
@@ -4738,7 +4738,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "15c6e39ab5e3b47d57fd6725541c8c4964dea27bd800492c2ff7ab8193ea5bb2",
+              "freshness": "418156c2c47ea2394c427246970f33d68a6bade1d4e9c5eb7bb25570a5f38222",
               "name": "test_lsqr_exact_4",
               "statistics": [
                 "dense",
@@ -4789,7 +4789,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "15c6e39ab5e3b47d57fd6725541c8c4964dea27bd800492c2ff7ab8193ea5bb2",
+              "freshness": "418156c2c47ea2394c427246970f33d68a6bade1d4e9c5eb7bb25570a5f38222",
               "name": "test_lsqr_exact_5",
               "statistics": [
                 "dense",
@@ -4840,7 +4840,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "15c6e39ab5e3b47d57fd6725541c8c4964dea27bd800492c2ff7ab8193ea5bb2",
+              "freshness": "418156c2c47ea2394c427246970f33d68a6bade1d4e9c5eb7bb25570a5f38222",
               "name": "test_lsqr_overdetermined_3",
               "statistics": [
                 "dense",
@@ -4891,7 +4891,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "15c6e39ab5e3b47d57fd6725541c8c4964dea27bd800492c2ff7ab8193ea5bb2",
+              "freshness": "418156c2c47ea2394c427246970f33d68a6bade1d4e9c5eb7bb25570a5f38222",
               "name": "test_lsqr_overdetermined_dense",
               "statistics": [
                 "dense",
@@ -4942,7 +4942,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "15c6e39ab5e3b47d57fd6725541c8c4964dea27bd800492c2ff7ab8193ea5bb2",
+              "freshness": "418156c2c47ea2394c427246970f33d68a6bade1d4e9c5eb7bb25570a5f38222",
               "name": "test_lsqr_overdetermined_sparse",
               "statistics": [
                 "dense",
@@ -4993,7 +4993,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "15c6e39ab5e3b47d57fd6725541c8c4964dea27bd800492c2ff7ab8193ea5bb2",
+              "freshness": "418156c2c47ea2394c427246970f33d68a6bade1d4e9c5eb7bb25570a5f38222",
               "name": "test_lsqr_scaled_underdetermined",
               "statistics": [
                 "dense",
@@ -5044,7 +5044,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "15c6e39ab5e3b47d57fd6725541c8c4964dea27bd800492c2ff7ab8193ea5bb2",
+              "freshness": "418156c2c47ea2394c427246970f33d68a6bade1d4e9c5eb7bb25570a5f38222",
               "name": "test_lsqr_underdetermined_3",
               "statistics": [
                 "dense",
@@ -5095,7 +5095,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "15c6e39ab5e3b47d57fd6725541c8c4964dea27bd800492c2ff7ab8193ea5bb2",
+              "freshness": "418156c2c47ea2394c427246970f33d68a6bade1d4e9c5eb7bb25570a5f38222",
               "name": "test_lsqr_underdetermined_4",
               "statistics": [
                 "dense",
@@ -5157,7 +5157,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/mri_edge.py",
-              "freshness": "f14922839adf2feae0e3eeefc99b525e42b9cc2ec3c2747f8022825c98b016b5",
+              "freshness": "e8a0a4d61f50359bfe52c8eceb177b7611910aa3358f6771e34f60b6eda965cd",
               "name": "test_masked_mri_basic_roi",
               "statistics": [
                 "dense",
@@ -5205,7 +5205,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/mri_edge.py",
-              "freshness": "f14922839adf2feae0e3eeefc99b525e42b9cc2ec3c2747f8022825c98b016b5",
+              "freshness": "e8a0a4d61f50359bfe52c8eceb177b7611910aa3358f6771e34f60b6eda965cd",
               "name": "test_masked_mri_generator_builds_default_roi",
               "statistics": [
                 "dense",
@@ -5253,7 +5253,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/mri_edge.py",
-              "freshness": "f14922839adf2feae0e3eeefc99b525e42b9cc2ec3c2747f8022825c98b016b5",
+              "freshness": "e8a0a4d61f50359bfe52c8eceb177b7611910aa3358f6771e34f60b6eda965cd",
               "name": "test_masked_mri_zero_image",
               "statistics": [
                 "dense",
@@ -5313,7 +5313,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "46aed6d54e2cc5ec8b102daffcae3709e6f6aec227cbd569c8a0e3f269a368da",
+              "freshness": "f7f3d26c26958eedc13b88337226035cbb2135e6ae077d6d8bcbf1d2e828e3f5",
               "name": "planted_clique",
               "statistics": [
                 "fancy-ops",
@@ -5362,7 +5362,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "46aed6d54e2cc5ec8b102daffcae3709e6f6aec227cbd569c8a0e3f269a368da",
+              "freshness": "f7f3d26c26958eedc13b88337226035cbb2135e6ae077d6d8bcbf1d2e828e3f5",
               "name": "three_block_pairs",
               "statistics": [
                 "fancy-ops",
@@ -5411,7 +5411,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "46aed6d54e2cc5ec8b102daffcae3709e6f6aec227cbd569c8a0e3f269a368da",
+              "freshness": "f7f3d26c26958eedc13b88337226035cbb2135e6ae077d6d8bcbf1d2e828e3f5",
               "name": "two_star_components",
               "statistics": [
                 "fancy-ops",
@@ -5472,7 +5472,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/sobel_edge.py",
-              "freshness": "69dde9a06b233b61007b17d9b9cf764e286b56ddba03d3012c4d36dc9e48a8c2",
+              "freshness": "10414bccd20897f1b7eb3733cfedb421b299a6ee03b2a63f562130200cc8d8dc",
               "name": "test_sobel_generator_metadata",
               "statistics": [
                 "fancy-ops",
@@ -5520,7 +5520,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/sobel_edge.py",
-              "freshness": "69dde9a06b233b61007b17d9b9cf764e286b56ddba03d3012c4d36dc9e48a8c2",
+              "freshness": "10414bccd20897f1b7eb3733cfedb421b299a6ee03b2a63f562130200cc8d8dc",
               "name": "test_sobel_horizontal_edge",
               "statistics": [
                 "fancy-ops",
@@ -5568,7 +5568,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/sobel_edge.py",
-              "freshness": "69dde9a06b233b61007b17d9b9cf764e286b56ddba03d3012c4d36dc9e48a8c2",
+              "freshness": "10414bccd20897f1b7eb3733cfedb421b299a6ee03b2a63f562130200cc8d8dc",
               "name": "test_sobel_vertical_edge",
               "statistics": [
                 "fancy-ops",
@@ -5616,7 +5616,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/sobel_edge.py",
-              "freshness": "69dde9a06b233b61007b17d9b9cf764e286b56ddba03d3012c4d36dc9e48a8c2",
+              "freshness": "10414bccd20897f1b7eb3733cfedb421b299a6ee03b2a63f562130200cc8d8dc",
               "name": "test_sobel_zero_image",
               "statistics": [
                 "fancy-ops",
@@ -5671,7 +5671,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/pagerank.py",
-              "freshness": "db10a2edc7274ab85c6f106a2fff9be14342beaa524131d23f673cce90556c69",
+              "freshness": "dfedd63060436919567f1a1b0940f1084bd678644ef150027617e2a911ca45ed",
               "name": "test_pagerank_against_networkx",
               "statistics": [
                 "dense",
@@ -5716,7 +5716,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/pagerank.py",
-              "freshness": "db10a2edc7274ab85c6f106a2fff9be14342beaa524131d23f673cce90556c69",
+              "freshness": "dfedd63060436919567f1a1b0940f1084bd678644ef150027617e2a911ca45ed",
               "name": "test_pagerank_snap_toy",
               "statistics": [
                 "dense",
@@ -5761,7 +5761,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/pagerank.py",
-              "freshness": "db10a2edc7274ab85c6f106a2fff9be14342beaa524131d23f673cce90556c69",
+              "freshness": "dfedd63060436919567f1a1b0940f1084bd678644ef150027617e2a911ca45ed",
               "name": "test_pagerank_three_node_chain",
               "statistics": [
                 "dense",
@@ -5806,7 +5806,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/pagerank.py",
-              "freshness": "db10a2edc7274ab85c6f106a2fff9be14342beaa524131d23f673cce90556c69",
+              "freshness": "dfedd63060436919567f1a1b0940f1084bd678644ef150027617e2a911ca45ed",
               "name": "test_pagerank_two_node_cycle",
               "statistics": [
                 "dense",
@@ -5851,7 +5851,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/pagerank.py",
-              "freshness": "db10a2edc7274ab85c6f106a2fff9be14342beaa524131d23f673cce90556c69",
+              "freshness": "dfedd63060436919567f1a1b0940f1084bd678644ef150027617e2a911ca45ed",
               "name": "test_pagerank_two_node_sink",
               "statistics": [
                 "dense",
@@ -5903,7 +5903,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/particle_sim.py",
-              "freshness": "bcade80df8e6faf792eebdc76b29ca9c553d5e351a9eac3c7f46e740159419b8",
+              "freshness": "56c8af0d30d7a143d0f9fcc2d212cce6e038429933421dc0dee298d3e7e2878f",
               "name": "test_particle_sim_random_10",
               "statistics": [
                 "dense",
@@ -5943,7 +5943,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/particle_sim.py",
-              "freshness": "bcade80df8e6faf792eebdc76b29ca9c553d5e351a9eac3c7f46e740159419b8",
+              "freshness": "56c8af0d30d7a143d0f9fcc2d212cce6e038429933421dc0dee298d3e7e2878f",
               "name": "test_particle_sim_random_50",
               "statistics": [
                 "dense",
@@ -5983,7 +5983,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/particle_sim.py",
-              "freshness": "bcade80df8e6faf792eebdc76b29ca9c553d5e351a9eac3c7f46e740159419b8",
+              "freshness": "56c8af0d30d7a143d0f9fcc2d212cce6e038429933421dc0dee298d3e7e2878f",
               "name": "test_particle_sim_two_particles_within_cutoff",
               "statistics": [
                 "dense",
@@ -6023,7 +6023,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/particle_sim.py",
-              "freshness": "bcade80df8e6faf792eebdc76b29ca9c553d5e351a9eac3c7f46e740159419b8",
+              "freshness": "56c8af0d30d7a143d0f9fcc2d212cce6e038429933421dc0dee298d3e7e2878f",
               "name": "test_particle_sim_wall_bounce",
               "statistics": [
                 "dense",
@@ -6091,7 +6091,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "09d54defa669f178fcc7531bd30572a32e627601955e0424e00d3b26d88d39ff",
+              "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247",
               "name": "test_A0",
               "statistics": [
                 "dynamic-sparsity",
@@ -6149,7 +6149,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "09d54defa669f178fcc7531bd30572a32e627601955e0424e00d3b26d88d39ff",
+              "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247",
               "name": "test_A1",
               "statistics": [
                 "dynamic-sparsity",
@@ -6207,7 +6207,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "09d54defa669f178fcc7531bd30572a32e627601955e0424e00d3b26d88d39ff",
+              "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247",
               "name": "test_A2",
               "statistics": [
                 "dynamic-sparsity",
@@ -6265,7 +6265,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "09d54defa669f178fcc7531bd30572a32e627601955e0424e00d3b26d88d39ff",
+              "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247",
               "name": "test_A3",
               "statistics": [
                 "dynamic-sparsity",
@@ -6323,7 +6323,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "09d54defa669f178fcc7531bd30572a32e627601955e0424e00d3b26d88d39ff",
+              "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247",
               "name": "test_A4",
               "statistics": [
                 "dynamic-sparsity",
@@ -6381,7 +6381,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "09d54defa669f178fcc7531bd30572a32e627601955e0424e00d3b26d88d39ff",
+              "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247",
               "name": "test_A5",
               "statistics": [
                 "dynamic-sparsity",
@@ -6440,7 +6440,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "36880c0cee9233531271d15623aeb14460bf149b0e787a47bf6c9ae41bdb6395",
+              "freshness": "43b81a69e61442f99616efe83dd1f80bca568fedd9be1226cadb1633e5d1a19b",
               "name": "rc_small",
               "statistics": []
             }
@@ -6492,7 +6492,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "36880c0cee9233531271d15623aeb14460bf149b0e787a47bf6c9ae41bdb6395",
+              "freshness": "43b81a69e61442f99616efe83dd1f80bca568fedd9be1226cadb1633e5d1a19b",
               "name": "rc_small",
               "statistics": []
             }
@@ -6544,7 +6544,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "36880c0cee9233531271d15623aeb14460bf149b0e787a47bf6c9ae41bdb6395",
+              "freshness": "43b81a69e61442f99616efe83dd1f80bca568fedd9be1226cadb1633e5d1a19b",
               "name": "rc_small",
               "statistics": []
             }
@@ -6596,7 +6596,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "36880c0cee9233531271d15623aeb14460bf149b0e787a47bf6c9ae41bdb6395",
+              "freshness": "43b81a69e61442f99616efe83dd1f80bca568fedd9be1226cadb1633e5d1a19b",
               "name": "rlc_small",
               "statistics": []
             }
@@ -6648,7 +6648,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "36880c0cee9233531271d15623aeb14460bf149b0e787a47bf6c9ae41bdb6395",
+              "freshness": "43b81a69e61442f99616efe83dd1f80bca568fedd9be1226cadb1633e5d1a19b",
               "name": "rlc_small",
               "statistics": []
             }
@@ -6700,7 +6700,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "36880c0cee9233531271d15623aeb14460bf149b0e787a47bf6c9ae41bdb6395",
+              "freshness": "43b81a69e61442f99616efe83dd1f80bca568fedd9be1226cadb1633e5d1a19b",
               "name": "rlc_small",
               "statistics": []
             }
@@ -6747,7 +6747,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/rp_kmeans_clustering.py",
-              "freshness": "22348d90ebc7d19b985fdfb8cf94ade09216da07ebe25e694d6b877051db7152",
+              "freshness": "ea8d0e1dc6975243d39056c686204b3a6f122050aabc67c7b8e380e5a1f1b54c",
               "name": "three_clusters",
               "statistics": [
                 "dense",
@@ -6790,7 +6790,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/rp_kmeans_clustering.py",
-              "freshness": "22348d90ebc7d19b985fdfb8cf94ade09216da07ebe25e694d6b877051db7152",
+              "freshness": "ea8d0e1dc6975243d39056c686204b3a6f122050aabc67c7b8e380e5a1f1b54c",
               "name": "two_clusters",
               "statistics": [
                 "dense",
@@ -6845,7 +6845,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "single_layer_tiny",
               "statistics": [
                 "dense",
@@ -6890,7 +6890,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "gate_H_q0",
               "statistics": [
                 "dense",
@@ -6929,7 +6929,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "gate_H_q1",
               "statistics": [
                 "dense",
@@ -6968,7 +6968,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "gate_H_q2",
               "statistics": [
                 "dense",
@@ -7007,7 +7007,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "gate_H_q3",
               "statistics": [
                 "dense",
@@ -7046,7 +7046,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "gate_S_q0",
               "statistics": [
                 "dense",
@@ -7085,7 +7085,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "gate_S_q1",
               "statistics": [
                 "dense",
@@ -7124,7 +7124,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "gate_S_q2",
               "statistics": [
                 "dense",
@@ -7163,7 +7163,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "gate_S_q3",
               "statistics": [
                 "dense",
@@ -7202,7 +7202,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "gate_T_q0",
               "statistics": [
                 "dense",
@@ -7241,7 +7241,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "gate_T_q1",
               "statistics": [
                 "dense",
@@ -7280,7 +7280,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "gate_T_q2",
               "statistics": [
                 "dense",
@@ -7319,7 +7319,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "gate_T_q3",
               "statistics": [
                 "dense",
@@ -7358,7 +7358,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "gate_X_q0",
               "statistics": [
                 "dense",
@@ -7397,7 +7397,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "gate_X_q1",
               "statistics": [
                 "dense",
@@ -7436,7 +7436,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "gate_X_q2",
               "statistics": [
                 "dense",
@@ -7475,7 +7475,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "gate_X_q3",
               "statistics": [
                 "dense",
@@ -7514,7 +7514,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "gate_Y_q0",
               "statistics": [
                 "dense",
@@ -7553,7 +7553,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "gate_Y_q1",
               "statistics": [
                 "dense",
@@ -7592,7 +7592,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "gate_Y_q2",
               "statistics": [
                 "dense",
@@ -7631,7 +7631,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "gate_Y_q3",
               "statistics": [
                 "dense",
@@ -7670,7 +7670,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "gate_Z_q0",
               "statistics": [
                 "dense",
@@ -7709,7 +7709,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "gate_Z_q1",
               "statistics": [
                 "dense",
@@ -7748,7 +7748,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "gate_Z_q2",
               "statistics": [
                 "dense",
@@ -7787,7 +7787,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "gate_Z_q3",
               "statistics": [
                 "dense",
@@ -7826,7 +7826,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "h_twice_returns_to_original",
               "statistics": [
                 "dense",
@@ -7865,7 +7865,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591",
               "name": "statevector_basic",
               "statistics": [
                 "dense",
@@ -7916,7 +7916,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/connected_components.py",
-              "freshness": "651a0a261d798df77c9f4b2b301ea81c4702b632f3cc430a61e6e03bc58c1bba",
+              "freshness": "2dc471960a1d46131ea6c3a3527107202bb9da5e3637f21d53a316a7a77be2c0",
               "name": "test_cc_directed_star_pointing_inward",
               "statistics": [
                 "dense",
@@ -7954,7 +7954,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/connected_components.py",
-              "freshness": "651a0a261d798df77c9f4b2b301ea81c4702b632f3cc430a61e6e03bc58c1bba",
+              "freshness": "2dc471960a1d46131ea6c3a3527107202bb9da5e3637f21d53a316a7a77be2c0",
               "name": "test_cc_fully_connected",
               "statistics": [
                 "dense",
@@ -7992,7 +7992,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/connected_components.py",
-              "freshness": "651a0a261d798df77c9f4b2b301ea81c4702b632f3cc430a61e6e03bc58c1bba",
+              "freshness": "2dc471960a1d46131ea6c3a3527107202bb9da5e3637f21d53a316a7a77be2c0",
               "name": "test_cc_isolated_nodes",
               "statistics": [
                 "dense",
@@ -8030,7 +8030,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/connected_components.py",
-              "freshness": "651a0a261d798df77c9f4b2b301ea81c4702b632f3cc430a61e6e03bc58c1bba",
+              "freshness": "2dc471960a1d46131ea6c3a3527107202bb9da5e3637f21d53a316a7a77be2c0",
               "name": "test_cc_single_node",
               "statistics": [
                 "dense",
@@ -8068,7 +8068,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/connected_components.py",
-              "freshness": "651a0a261d798df77c9f4b2b301ea81c4702b632f3cc430a61e6e03bc58c1bba",
+              "freshness": "2dc471960a1d46131ea6c3a3527107202bb9da5e3637f21d53a316a7a77be2c0",
               "name": "test_cc_snap_toy",
               "statistics": [
                 "dense",
@@ -8106,7 +8106,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/connected_components.py",
-              "freshness": "651a0a261d798df77c9f4b2b301ea81c4702b632f3cc430a61e6e03bc58c1bba",
+              "freshness": "2dc471960a1d46131ea6c3a3527107202bb9da5e3637f21d53a316a7a77be2c0",
               "name": "test_cc_two_disconnected_components",
               "statistics": [
                 "dense",
@@ -8156,7 +8156,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/tic_tac.py",
-              "freshness": "699e61eed1f692eb82524e6a9f3726bd2cc724f5d65b9906ff0c563692927cc5",
+              "freshness": "dc390339d143c686a5df3c5b98a40cce6c0398500ce2fffc0a0195b071026177",
               "name": "batch_near",
               "statistics": [
                 "dense",
@@ -8198,7 +8198,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/tic_tac.py",
-              "freshness": "699e61eed1f692eb82524e6a9f3726bd2cc724f5d65b9906ff0c563692927cc5",
+              "freshness": "dc390339d143c686a5df3c5b98a40cce6c0398500ce2fffc0a0195b071026177",
               "name": "draw_early",
               "statistics": [
                 "dense",
@@ -8240,7 +8240,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/tic_tac.py",
-              "freshness": "699e61eed1f692eb82524e6a9f3726bd2cc724f5d65b9906ff0c563692927cc5",
+              "freshness": "dc390339d143c686a5df3c5b98a40cce6c0398500ce2fffc0a0195b071026177",
               "name": "draw_near",
               "statistics": [
                 "dense",
@@ -8282,7 +8282,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/tic_tac.py",
-              "freshness": "699e61eed1f692eb82524e6a9f3726bd2cc724f5d65b9906ff0c563692927cc5",
+              "freshness": "dc390339d143c686a5df3c5b98a40cce6c0398500ce2fffc0a0195b071026177",
               "name": "o_wins_mid",
               "statistics": [
                 "dense",
@@ -8324,7 +8324,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/tic_tac.py",
-              "freshness": "699e61eed1f692eb82524e6a9f3726bd2cc724f5d65b9906ff0c563692927cc5",
+              "freshness": "dc390339d143c686a5df3c5b98a40cce6c0398500ce2fffc0a0195b071026177",
               "name": "o_wins_near",
               "statistics": [
                 "dense",
@@ -8366,7 +8366,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/tic_tac.py",
-              "freshness": "699e61eed1f692eb82524e6a9f3726bd2cc724f5d65b9906ff0c563692927cc5",
+              "freshness": "dc390339d143c686a5df3c5b98a40cce6c0398500ce2fffc0a0195b071026177",
               "name": "x_wins_early",
               "statistics": [
                 "dense",
@@ -8408,7 +8408,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/tic_tac.py",
-              "freshness": "699e61eed1f692eb82524e6a9f3726bd2cc724f5d65b9906ff0c563692927cc5",
+              "freshness": "dc390339d143c686a5df3c5b98a40cce6c0398500ce2fffc0a0195b071026177",
               "name": "x_wins_mid",
               "statistics": [
                 "dense",
@@ -8450,7 +8450,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/tic_tac.py",
-              "freshness": "699e61eed1f692eb82524e6a9f3726bd2cc724f5d65b9906ff0c563692927cc5",
+              "freshness": "dc390339d143c686a5df3c5b98a40cce6c0398500ce2fffc0a0195b071026177",
               "name": "x_wins_near",
               "statistics": [
                 "dense",
@@ -8504,7 +8504,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/transitive_closure.py",
-              "freshness": "9e014483fbd919b09a807430be1ddf5db2104a8723729c6b34cc3f508b7bb215",
+              "freshness": "03eed4acfea0b68787ebb3bf530b9d78d900cadeb946d3f2b7ae39b69b309656",
               "name": "cycle",
               "statistics": [
                 "dense",
@@ -8542,7 +8542,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/transitive_closure.py",
-              "freshness": "9e014483fbd919b09a807430be1ddf5db2104a8723729c6b34cc3f508b7bb215",
+              "freshness": "03eed4acfea0b68787ebb3bf530b9d78d900cadeb946d3f2b7ae39b69b309656",
               "name": "dag",
               "statistics": [
                 "dense",
@@ -8580,7 +8580,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/transitive_closure.py",
-              "freshness": "9e014483fbd919b09a807430be1ddf5db2104a8723729c6b34cc3f508b7bb215",
+              "freshness": "03eed4acfea0b68787ebb3bf530b9d78d900cadeb946d3f2b7ae39b69b309656",
               "name": "one-node",
               "statistics": [
                 "dense",
@@ -8618,7 +8618,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/transitive_closure.py",
-              "freshness": "9e014483fbd919b09a807430be1ddf5db2104a8723729c6b34cc3f508b7bb215",
+              "freshness": "03eed4acfea0b68787ebb3bf530b9d78d900cadeb946d3f2b7ae39b69b309656",
               "name": "snap-toy",
               "statistics": [
                 "dense",
@@ -8656,7 +8656,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/transitive_closure.py",
-              "freshness": "9e014483fbd919b09a807430be1ddf5db2104a8723729c6b34cc3f508b7bb215",
+              "freshness": "03eed4acfea0b68787ebb3bf530b9d78d900cadeb946d3f2b7ae39b69b309656",
               "name": "strong-component-count",
               "statistics": [
                 "dense",
@@ -8706,7 +8706,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/transitive_reduction.py",
-              "freshness": "0944c9578a35d30d0b1966922743aa9e33e740806f5f1836533e53fc2e88f361",
+              "freshness": "b5101a624a362c9e0854eaa510fb59875171dbc98aa3c504cd59f27f2b03cdf1",
               "name": "keep_short_direct_edge",
               "statistics": [
                 "dense",
@@ -8746,7 +8746,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/transitive_reduction.py",
-              "freshness": "0944c9578a35d30d0b1966922743aa9e33e740806f5f1836533e53fc2e88f361",
+              "freshness": "b5101a624a362c9e0854eaa510fb59875171dbc98aa3c504cd59f27f2b03cdf1",
               "name": "keep_when_indirect_is_long",
               "statistics": [
                 "dense",
@@ -8786,7 +8786,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/transitive_reduction.py",
-              "freshness": "0944c9578a35d30d0b1966922743aa9e33e740806f5f1836533e53fc2e88f361",
+              "freshness": "b5101a624a362c9e0854eaa510fb59875171dbc98aa3c504cd59f27f2b03cdf1",
               "name": "remove_equal_direct_edge",
               "statistics": [
                 "dense",
@@ -8826,7 +8826,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/transitive_reduction.py",
-              "freshness": "0944c9578a35d30d0b1966922743aa9e33e740806f5f1836533e53fc2e88f361",
+              "freshness": "b5101a624a362c9e0854eaa510fb59875171dbc98aa3c504cd59f27f2b03cdf1",
               "name": "remove_long_direct_edge",
               "statistics": [
                 "dense",
@@ -8878,7 +8878,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/tri_4cliq.py",
-              "freshness": "616eb10b3c77fa79256c70bde6ea01c11b3799ffb57b4fa9d398b4eb7c301bc2",
+              "freshness": "73f44ff72e6c5f00bcb2ca524ac8502a012d66f747550ea314fd94388c375743",
               "name": "test_triangle_count_4_clique",
               "statistics": [
                 "dense",
@@ -8916,7 +8916,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/tri_4cliq.py",
-              "freshness": "616eb10b3c77fa79256c70bde6ea01c11b3799ffb57b4fa9d398b4eb7c301bc2",
+              "freshness": "73f44ff72e6c5f00bcb2ca524ac8502a012d66f747550ea314fd94388c375743",
               "name": "test_triangle_count_path",
               "statistics": [
                 "dense",
@@ -8954,7 +8954,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/tri_4cliq.py",
-              "freshness": "616eb10b3c77fa79256c70bde6ea01c11b3799ffb57b4fa9d398b4eb7c301bc2",
+              "freshness": "73f44ff72e6c5f00bcb2ca524ac8502a012d66f747550ea314fd94388c375743",
               "name": "test_triangle_count_single_triangle",
               "statistics": [
                 "dense",
@@ -8992,7 +8992,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/tri_4cliq.py",
-              "freshness": "616eb10b3c77fa79256c70bde6ea01c11b3799ffb57b4fa9d398b4eb7c301bc2",
+              "freshness": "73f44ff72e6c5f00bcb2ca524ac8502a012d66f747550ea314fd94388c375743",
               "name": "test_triangle_snap_toy",
               "statistics": [
                 "dense",
