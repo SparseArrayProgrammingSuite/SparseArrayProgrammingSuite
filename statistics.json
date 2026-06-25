@@ -35,7 +35,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/model_counting.py",
-              "freshness": "ccd5be1f221041c5d8d8792b2d1ddb80ca804a30b37aca325ffe41906580ae43",
+              "freshness": "263d376a9fb4e236f3949b7386b709f9c9ccf927d0151aa2dad98ddb43f28bef",
               "name": "test_1",
               "statistics": [
                 "dense"
@@ -72,7 +72,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/model_counting.py",
-              "freshness": "ccd5be1f221041c5d8d8792b2d1ddb80ca804a30b37aca325ffe41906580ae43",
+              "freshness": "263d376a9fb4e236f3949b7386b709f9c9ccf927d0151aa2dad98ddb43f28bef",
               "name": "test_2",
               "statistics": [
                 "dense"
@@ -109,7 +109,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/model_counting.py",
-              "freshness": "ccd5be1f221041c5d8d8792b2d1ddb80ca804a30b37aca325ffe41906580ae43",
+              "freshness": "263d376a9fb4e236f3949b7386b709f9c9ccf927d0151aa2dad98ddb43f28bef",
               "name": "test_3",
               "statistics": [
                 "dense"
@@ -146,7 +146,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/model_counting.py",
-              "freshness": "ccd5be1f221041c5d8d8792b2d1ddb80ca804a30b37aca325ffe41906580ae43",
+              "freshness": "263d376a9fb4e236f3949b7386b709f9c9ccf927d0151aa2dad98ddb43f28bef",
               "name": "test_4",
               "statistics": [
                 "dense"
@@ -158,6 +158,418 @@
         }
       ],
       "name": "Model Counting using einsum",
+      "statistics": []
+    },
+    {
+      "generators": [
+        {
+          "datasets": [
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "gdown",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "gdown",
+                  "version": "6.1.0"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/subgraph_matching.py",
+              "freshness": "e63a50bd222fa68a2769d2779bd7700995adcf38812471e54ae703c36840f209",
+              "name": "a_to_b",
+              "statistics": [
+                "dynamic-sparsity"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "gdown",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "gdown",
+                  "version": "6.1.0"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/subgraph_matching.py",
+              "freshness": "e63a50bd222fa68a2769d2779bd7700995adcf38812471e54ae703c36840f209",
+              "name": "all_edges",
+              "statistics": []
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "gdown",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "gdown",
+                  "version": "6.1.0"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/subgraph_matching.py",
+              "freshness": "e63a50bd222fa68a2769d2779bd7700995adcf38812471e54ae703c36840f209",
+              "name": "b_to_a",
+              "statistics": [
+                "dynamic-sparsity"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "gdown",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "gdown",
+                  "version": "6.1.0"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/subgraph_matching.py",
+              "freshness": "e63a50bd222fa68a2769d2779bd7700995adcf38812471e54ae703c36840f209",
+              "name": "label_a_count",
+              "statistics": []
+            }
+          ],
+          "name": "subgraph_matching_test_inputs",
+          "statistics": []
+        }
+      ],
+      "name": "Subgraph Matching Algorithm using einsum",
+      "statistics": []
+    },
+    {
+      "generators": [
+        {
+          "datasets": [
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/weighted_model_counting.py",
+              "freshness": "c52b46622485c2b53b77011b9cd85fc995543117e38a9db90d1cda7673cf0299",
+              "name": "test_1",
+              "statistics": [
+                "dense"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/weighted_model_counting.py",
+              "freshness": "c52b46622485c2b53b77011b9cd85fc995543117e38a9db90d1cda7673cf0299",
+              "name": "test_2",
+              "statistics": [
+                "dense"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/weighted_model_counting.py",
+              "freshness": "c52b46622485c2b53b77011b9cd85fc995543117e38a9db90d1cda7673cf0299",
+              "name": "test_3",
+              "statistics": [
+                "dense"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/weighted_model_counting.py",
+              "freshness": "c52b46622485c2b53b77011b9cd85fc995543117e38a9db90d1cda7673cf0299",
+              "name": "test_4",
+              "statistics": [
+                "dense"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/weighted_model_counting.py",
+              "freshness": "c52b46622485c2b53b77011b9cd85fc995543117e38a9db90d1cda7673cf0299",
+              "name": "test_5",
+              "statistics": [
+                "dense",
+                "large-query"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/weighted_model_counting.py",
+              "freshness": "c52b46622485c2b53b77011b9cd85fc995543117e38a9db90d1cda7673cf0299",
+              "name": "test_6",
+              "statistics": [
+                "dense",
+                "large-query"
+              ]
+            }
+          ],
+          "name": "wmc_generator",
+          "statistics": []
+        }
+      ],
+      "name": "Weighted Model Counting using einsum",
       "statistics": []
     },
     {
@@ -195,7 +607,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/bellmanford.py",
-              "freshness": "534cdc3eda7d76e2c3557a9efde589bfda103092f60c48b477bc119eac76fca7",
+              "freshness": "7d214e7368c5726bffb175b94baabed856307647bb391bd794ed537ee28c262e",
               "name": "test_bellman_ford_chesapeake_src_0",
               "statistics": [
                 "dense",
@@ -235,7 +647,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/bellmanford.py",
-              "freshness": "534cdc3eda7d76e2c3557a9efde589bfda103092f60c48b477bc119eac76fca7",
+              "freshness": "7d214e7368c5726bffb175b94baabed856307647bb391bd794ed537ee28c262e",
               "name": "test_bellman_ford_chesapeake_src_10",
               "statistics": [
                 "dense",
@@ -275,7 +687,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/bellmanford.py",
-              "freshness": "534cdc3eda7d76e2c3557a9efde589bfda103092f60c48b477bc119eac76fca7",
+              "freshness": "7d214e7368c5726bffb175b94baabed856307647bb391bd794ed537ee28c262e",
               "name": "test_bellman_ford_chesapeake_src_38",
               "statistics": [
                 "dense",
@@ -315,7 +727,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/bellmanford.py",
-              "freshness": "534cdc3eda7d76e2c3557a9efde589bfda103092f60c48b477bc119eac76fca7",
+              "freshness": "7d214e7368c5726bffb175b94baabed856307647bb391bd794ed537ee28c262e",
               "name": "test_bellman_ford_snap_toy",
               "statistics": [
                 "dense",
@@ -355,7 +767,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/bellmanford.py",
-              "freshness": "534cdc3eda7d76e2c3557a9efde589bfda103092f60c48b477bc119eac76fca7",
+              "freshness": "7d214e7368c5726bffb175b94baabed856307647bb391bd794ed537ee28c262e",
               "name": "test_bellman_ford_tribes_src_0",
               "statistics": [
                 "dense",
@@ -407,7 +819,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/centrality.py",
-              "freshness": "09b1aa6bbd7324063798b1d0cab5b28f5a7bab47fb209475bda058710b4f8972",
+              "freshness": "5ff0d0461efccac83da7f89888b147b51dcd592cfa1320b7b17ed7d6601458a4",
               "name": "test_basic_chain",
               "statistics": [
                 "dense",
@@ -447,7 +859,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/centrality.py",
-              "freshness": "09b1aa6bbd7324063798b1d0cab5b28f5a7bab47fb209475bda058710b4f8972",
+              "freshness": "5ff0d0461efccac83da7f89888b147b51dcd592cfa1320b7b17ed7d6601458a4",
               "name": "test_basic_empty",
               "statistics": [
                 "dense",
@@ -486,7 +898,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/centrality.py",
-              "freshness": "09b1aa6bbd7324063798b1d0cab5b28f5a7bab47fb209475bda058710b4f8972",
+              "freshness": "5ff0d0461efccac83da7f89888b147b51dcd592cfa1320b7b17ed7d6601458a4",
               "name": "test_basic_two_components",
               "statistics": [
                 "dense",
@@ -526,7 +938,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/centrality.py",
-              "freshness": "09b1aa6bbd7324063798b1d0cab5b28f5a7bab47fb209475bda058710b4f8972",
+              "freshness": "5ff0d0461efccac83da7f89888b147b51dcd592cfa1320b7b17ed7d6601458a4",
               "name": "test_centrality_snap_toy",
               "statistics": [
                 "dense",
@@ -566,7 +978,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/centrality.py",
-              "freshness": "09b1aa6bbd7324063798b1d0cab5b28f5a7bab47fb209475bda058710b4f8972",
+              "freshness": "5ff0d0461efccac83da7f89888b147b51dcd592cfa1320b7b17ed7d6601458a4",
               "name": "test_joels_case",
               "statistics": [
                 "dense",
@@ -606,7 +1018,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/centrality.py",
-              "freshness": "09b1aa6bbd7324063798b1d0cab5b28f5a7bab47fb209475bda058710b4f8972",
+              "freshness": "5ff0d0461efccac83da7f89888b147b51dcd592cfa1320b7b17ed7d6601458a4",
               "name": "test_matrix_vertex_algorithm_comparison",
               "statistics": [
                 "dense",
@@ -646,7 +1058,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/centrality.py",
-              "freshness": "09b1aa6bbd7324063798b1d0cab5b28f5a7bab47fb209475bda058710b4f8972",
+              "freshness": "5ff0d0461efccac83da7f89888b147b51dcd592cfa1320b7b17ed7d6601458a4",
               "name": "test_networkx",
               "statistics": [
                 "dense",
@@ -686,7 +1098,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/centrality.py",
-              "freshness": "09b1aa6bbd7324063798b1d0cab5b28f5a7bab47fb209475bda058710b4f8972",
+              "freshness": "5ff0d0461efccac83da7f89888b147b51dcd592cfa1320b7b17ed7d6601458a4",
               "name": "test_undirected_graph",
               "statistics": [
                 "dense",
@@ -989,7 +1401,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "a0fc8934e14d3c7802fc3f86dd8b3e701ab1986c33b3552ef6fbdf099ff079c2",
+              "freshness": "36880c0cee9233531271d15623aeb14460bf149b0e787a47bf6c9ae41bdb6395",
               "name": "brusselator_tiny",
               "statistics": [
                 "dense",
@@ -1045,7 +1457,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "a0fc8934e14d3c7802fc3f86dd8b3e701ab1986c33b3552ef6fbdf099ff079c2",
+              "freshness": "36880c0cee9233531271d15623aeb14460bf149b0e787a47bf6c9ae41bdb6395",
               "name": "brusselator_tiny",
               "statistics": [
                 "dense",
@@ -1101,7 +1513,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "a0fc8934e14d3c7802fc3f86dd8b3e701ab1986c33b3552ef6fbdf099ff079c2",
+              "freshness": "36880c0cee9233531271d15623aeb14460bf149b0e787a47bf6c9ae41bdb6395",
               "name": "brusselator_tiny",
               "statistics": [
                 "dense",
@@ -1262,7 +1674,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/coupled_cluster.py",
-              "freshness": "84d89edcfab2462c920ba29af03795a396a9a8bf575b8c450659b48382d5d0b4",
+              "freshness": "9bb891ad1d04d7d84a40c15e964b42a27baf61acfb8963363eda69190e56d777",
               "name": "ccsd_small",
               "statistics": [
                 "dense",
@@ -1329,7 +1741,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/cg.py",
-              "freshness": "6c7bdf64d1f146a5d0b0a653bbe056ff2b1b25aba58d3caccfd59ce0f7fe38ec",
+              "freshness": "ab021e768b9a238fea4e7976aed0d7b0b5a986e2f9542e52502fb59ae5ad46db",
               "name": "test_3x3_dense",
               "statistics": [
                 "dense",
@@ -1386,7 +1798,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/cg.py",
-              "freshness": "6c7bdf64d1f146a5d0b0a653bbe056ff2b1b25aba58d3caccfd59ce0f7fe38ec",
+              "freshness": "ab021e768b9a238fea4e7976aed0d7b0b5a986e2f9542e52502fb59ae5ad46db",
               "name": "test_3x3_indefinite_sparse",
               "statistics": [
                 "dense",
@@ -1443,7 +1855,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/cg.py",
-              "freshness": "6c7bdf64d1f146a5d0b0a653bbe056ff2b1b25aba58d3caccfd59ce0f7fe38ec",
+              "freshness": "ab021e768b9a238fea4e7976aed0d7b0b5a986e2f9542e52502fb59ae5ad46db",
               "name": "test_3x3_scaled_tridiagonal",
               "statistics": [
                 "dense",
@@ -1500,7 +1912,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/cg.py",
-              "freshness": "6c7bdf64d1f146a5d0b0a653bbe056ff2b1b25aba58d3caccfd59ce0f7fe38ec",
+              "freshness": "ab021e768b9a238fea4e7976aed0d7b0b5a986e2f9542e52502fb59ae5ad46db",
               "name": "test_3x3_tridiagonal",
               "statistics": [
                 "dense",
@@ -1557,7 +1969,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/cg.py",
-              "freshness": "6c7bdf64d1f146a5d0b0a653bbe056ff2b1b25aba58d3caccfd59ce0f7fe38ec",
+              "freshness": "ab021e768b9a238fea4e7976aed0d7b0b5a986e2f9542e52502fb59ae5ad46db",
               "name": "test_4x4_tridiagonal",
               "statistics": [
                 "dense",
@@ -1614,7 +2026,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/cg.py",
-              "freshness": "6c7bdf64d1f146a5d0b0a653bbe056ff2b1b25aba58d3caccfd59ce0f7fe38ec",
+              "freshness": "ab021e768b9a238fea4e7976aed0d7b0b5a986e2f9542e52502fb59ae5ad46db",
               "name": "test_5x5_sparse",
               "statistics": [
                 "dense",
@@ -1667,7 +2079,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/cp3_als.py",
-              "freshness": "194c1dad30f3c2d2ff643121ef64c424dca0f2f16c1a866524907a952ee2f368",
+              "freshness": "1c38d60aa18a3c53d63a9ec97475ee09aea919e45a45c59fd6f68f768572e6c9",
               "name": "cp_factorizeable_tiny",
               "statistics": [
                 "dense",
@@ -1721,7 +2133,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/cp4_als.py",
-              "freshness": "288c39028a6d2456d7a6d6af0b9166a47430f2c0c9354d29e9642eab778f2286",
+              "freshness": "bad13b0d2d04984ff9549068cbbb6a0abebba11a43be6b1318a0027952aa27fc",
               "name": "cp_factorizeable_tiny",
               "statistics": [
                 "dense",
@@ -1776,7 +2188,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/cp5_als.py",
-              "freshness": "d9952c5eeda0e6a3b04aa5ddf2c647871c68442f975e9be2f06d1912f6e1fa25",
+              "freshness": "d64f65964be7203c67bbb13e8663d9ae32d7daf6b48e63445532f43913c85e68",
               "name": "cp_factorizeable_tiny",
               "statistics": [
                 "dense",
@@ -1832,7 +2244,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/fastsv.py",
-              "freshness": "5908679ff20696025939a50b3559bf1007515021753b2be9897a7a0ccf9d65e2",
+              "freshness": "3104891ab49f011856f7076f8182fe8b90f6873a38d2b8fc0c09188c1022adc0",
               "name": "chain",
               "statistics": [
                 "dense",
@@ -1872,7 +2284,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/fastsv.py",
-              "freshness": "5908679ff20696025939a50b3559bf1007515021753b2be9897a7a0ccf9d65e2",
+              "freshness": "3104891ab49f011856f7076f8182fe8b90f6873a38d2b8fc0c09188c1022adc0",
               "name": "isolated-and-connected",
               "statistics": [
                 "dense",
@@ -1912,7 +2324,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/fastsv.py",
-              "freshness": "5908679ff20696025939a50b3559bf1007515021753b2be9897a7a0ccf9d65e2",
+              "freshness": "3104891ab49f011856f7076f8182fe8b90f6873a38d2b8fc0c09188c1022adc0",
               "name": "no-edges",
               "statistics": [
                 "dense",
@@ -1952,7 +2364,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/fastsv.py",
-              "freshness": "5908679ff20696025939a50b3559bf1007515021753b2be9897a7a0ccf9d65e2",
+              "freshness": "3104891ab49f011856f7076f8182fe8b90f6873a38d2b8fc0c09188c1022adc0",
               "name": "single-component",
               "statistics": [
                 "dense",
@@ -1992,7 +2404,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/fastsv.py",
-              "freshness": "5908679ff20696025939a50b3559bf1007515021753b2be9897a7a0ccf9d65e2",
+              "freshness": "3104891ab49f011856f7076f8182fe8b90f6873a38d2b8fc0c09188c1022adc0",
               "name": "star",
               "statistics": [
                 "dense",
@@ -2032,7 +2444,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/fastsv.py",
-              "freshness": "5908679ff20696025939a50b3559bf1007515021753b2be9897a7a0ccf9d65e2",
+              "freshness": "3104891ab49f011856f7076f8182fe8b90f6873a38d2b8fc0c09188c1022adc0",
               "name": "two-components",
               "statistics": [
                 "dense",
@@ -2099,7 +2511,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/floyd_warshall.py",
-              "freshness": "73dfd25fff3fb6ce01f7702d90a748267c7af4ba321310490b456dc845f12cb8",
+              "freshness": "be85d2c083696eeaddd685fcfd73f89cbcd61d2fe061927c6f6365b34fb04b9c",
               "name": "large-symmetric",
               "statistics": [
                 "dense",
@@ -2154,7 +2566,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/floyd_warshall.py",
-              "freshness": "73dfd25fff3fb6ce01f7702d90a748267c7af4ba321310490b456dc845f12cb8",
+              "freshness": "be85d2c083696eeaddd685fcfd73f89cbcd61d2fe061927c6f6365b34fb04b9c",
               "name": "single-node",
               "statistics": [
                 "dense",
@@ -2209,7 +2621,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/floyd_warshall.py",
-              "freshness": "73dfd25fff3fb6ce01f7702d90a748267c7af4ba321310490b456dc845f12cb8",
+              "freshness": "be85d2c083696eeaddd685fcfd73f89cbcd61d2fe061927c6f6365b34fb04b9c",
               "name": "three-node-chain",
               "statistics": [
                 "dense",
@@ -2264,7 +2676,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/floyd_warshall.py",
-              "freshness": "73dfd25fff3fb6ce01f7702d90a748267c7af4ba321310490b456dc845f12cb8",
+              "freshness": "be85d2c083696eeaddd685fcfd73f89cbcd61d2fe061927c6f6365b34fb04b9c",
               "name": "three-node-shortcut",
               "statistics": [
                 "dense",
@@ -2319,7 +2731,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/floyd_warshall.py",
-              "freshness": "73dfd25fff3fb6ce01f7702d90a748267c7af4ba321310490b456dc845f12cb8",
+              "freshness": "be85d2c083696eeaddd685fcfd73f89cbcd61d2fe061927c6f6365b34fb04b9c",
               "name": "two-components",
               "statistics": [
                 "dense",
@@ -2374,7 +2786,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/floyd_warshall.py",
-              "freshness": "73dfd25fff3fb6ce01f7702d90a748267c7af4ba321310490b456dc845f12cb8",
+              "freshness": "be85d2c083696eeaddd685fcfd73f89cbcd61d2fe061927c6f6365b34fb04b9c",
               "name": "two-node-directed",
               "statistics": [
                 "dense",
@@ -2389,6 +2801,170 @@
         }
       ],
       "name": "floyd_warshall",
+      "statistics": []
+    },
+    {
+      "generators": [
+        {
+          "datasets": [
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/tri_4cliq.py",
+              "freshness": "616eb10b3c77fa79256c70bde6ea01c11b3799ffb57b4fa9d398b4eb7c301bc2",
+              "name": "test_4clique_count_complete_k3",
+              "statistics": [
+                "dense",
+                "elementary-ops"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/tri_4cliq.py",
+              "freshness": "616eb10b3c77fa79256c70bde6ea01c11b3799ffb57b4fa9d398b4eb7c301bc2",
+              "name": "test_4clique_count_overlapping",
+              "statistics": [
+                "dense",
+                "elementary-ops"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/tri_4cliq.py",
+              "freshness": "616eb10b3c77fa79256c70bde6ea01c11b3799ffb57b4fa9d398b4eb7c301bc2",
+              "name": "test_4clique_count_single_k4",
+              "statistics": [
+                "dense",
+                "elementary-ops"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/tri_4cliq.py",
+              "freshness": "616eb10b3c77fa79256c70bde6ea01c11b3799ffb57b4fa9d398b4eb7c301bc2",
+              "name": "test_4clique_snap_toy",
+              "statistics": [
+                "dense",
+                "elementary-ops"
+              ]
+            }
+          ],
+          "name": "four_clique_count_test_inputs",
+          "statistics": []
+        }
+      ],
+      "name": "four_clique_count",
       "statistics": []
     },
     {
@@ -2436,7 +3012,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "bff278295057b9ea4bedac2b3978c6cb73e3bb0c998b450235c55198758a287e",
+              "freshness": "27b04245cda1818cc07dde31212bcabb477bebfb36af422d08c05cec9c419397",
               "name": "test_gcn_3node",
               "statistics": [
                 "dense",
@@ -2485,7 +3061,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "bff278295057b9ea4bedac2b3978c6cb73e3bb0c998b450235c55198758a287e",
+              "freshness": "27b04245cda1818cc07dde31212bcabb477bebfb36af422d08c05cec9c419397",
               "name": "test_gcn_simple_2node",
               "statistics": [
                 "dense",
@@ -2534,7 +3110,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "bff278295057b9ea4bedac2b3978c6cb73e3bb0c998b450235c55198758a287e",
+              "freshness": "27b04245cda1818cc07dde31212bcabb477bebfb36af422d08c05cec9c419397",
               "name": "test_gcn_simple_3node_line",
               "statistics": [
                 "dense",
@@ -2583,7 +3159,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "bff278295057b9ea4bedac2b3978c6cb73e3bb0c998b450235c55198758a287e",
+              "freshness": "27b04245cda1818cc07dde31212bcabb477bebfb36af422d08c05cec9c419397",
               "name": "test_gcn_with_relu_activation",
               "statistics": [
                 "dense",
@@ -2644,7 +3220,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "40fc2123852547fffd1aff7f7edc05d07e5980665262393c408e4679a1ae772f",
+              "freshness": "640420119f8cf1ae44870d0be7385fb58dca85387b35c5f556dc8b1c094a60ad",
               "name": "test_gcn_backward_2node",
               "statistics": [
                 "dense",
@@ -2693,7 +3269,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "40fc2123852547fffd1aff7f7edc05d07e5980665262393c408e4679a1ae772f",
+              "freshness": "640420119f8cf1ae44870d0be7385fb58dca85387b35c5f556dc8b1c094a60ad",
               "name": "test_gcn_backward_degree_loss",
               "statistics": [
                 "dense",
@@ -2742,7 +3318,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "40fc2123852547fffd1aff7f7edc05d07e5980665262393c408e4679a1ae772f",
+              "freshness": "640420119f8cf1ae44870d0be7385fb58dca85387b35c5f556dc8b1c094a60ad",
               "name": "test_gcn_backward_degree_test_graph_loss",
               "statistics": [
                 "dense",
@@ -2791,7 +3367,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "40fc2123852547fffd1aff7f7edc05d07e5980665262393c408e4679a1ae772f",
+              "freshness": "640420119f8cf1ae44870d0be7385fb58dca85387b35c5f556dc8b1c094a60ad",
               "name": "test_gcn_backward_multidim",
               "statistics": [
                 "dense",
@@ -2858,7 +3434,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "00a00e4030af3f27d359c3f4c2f932b3f28e785ca049fb487c4bd4e0c135cafb",
+              "freshness": "7c58ff772e2c4b680ae629346a3f3aaae577ec1c43242de799b9e5ac5840643e",
               "name": "test_gmres_3x3",
               "statistics": [
                 "dense",
@@ -2914,7 +3490,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "00a00e4030af3f27d359c3f4c2f932b3f28e785ca049fb487c4bd4e0c135cafb",
+              "freshness": "7c58ff772e2c4b680ae629346a3f3aaae577ec1c43242de799b9e5ac5840643e",
               "name": "test_gmres_4x4",
               "statistics": [
                 "dense",
@@ -2970,7 +3546,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "00a00e4030af3f27d359c3f4c2f932b3f28e785ca049fb487c4bd4e0c135cafb",
+              "freshness": "7c58ff772e2c4b680ae629346a3f3aaae577ec1c43242de799b9e5ac5840643e",
               "name": "test_gmres_diagonal",
               "statistics": [
                 "dense",
@@ -3026,7 +3602,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "00a00e4030af3f27d359c3f4c2f932b3f28e785ca049fb487c4bd4e0c135cafb",
+              "freshness": "7c58ff772e2c4b680ae629346a3f3aaae577ec1c43242de799b9e5ac5840643e",
               "name": "test_gmres_random_123",
               "statistics": [
                 "fancy-ops",
@@ -3081,7 +3657,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "00a00e4030af3f27d359c3f4c2f932b3f28e785ca049fb487c4bd4e0c135cafb",
+              "freshness": "7c58ff772e2c4b680ae629346a3f3aaae577ec1c43242de799b9e5ac5840643e",
               "name": "test_gmres_random_42",
               "statistics": [
                 "fancy-ops",
@@ -3132,7 +3708,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "0ce9fb70d8e588629dc98d51fe7004520e32548696a97ed5062fd73f937aad6e",
+              "freshness": "2caacde5101ccc7dcd78d8ae8181d74bef0c2a53a2b35bbd1852167e5b55d5a1",
               "name": "small_dense_hosvd",
               "statistics": [
                 "dense",
@@ -3187,7 +3763,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/HOSVD_4d.py",
-              "freshness": "0c17018fef07e53074518f607bc3e8e7222eb012234d1a54b19cb9dd1128c488",
+              "freshness": "7eb163fb0539c8752f1ba9998ea0f23ac37afa4f21c3670e029720e2f55da306",
               "name": "small_dense_4d",
               "statistics": [
                 "dense",
@@ -3242,7 +3818,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/HOSVD_5d.py",
-              "freshness": "70db2e2dc24c1ab6604664fb157cd6551b7d3f2e7dcbfca1263f618b0a62bb76",
+              "freshness": "52c03e7b1ac5710cf87b7ed07f7de427b8801026c8b8fb2c0b3e24107cde1d75",
               "name": "small_dense_5d",
               "statistics": [
                 "dense",
@@ -3314,7 +3890,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "5416fa03c76fe8b28d765d37f838b1e559c620d7b29ffe0ed306c1141811cb63",
+              "freshness": "09d54defa669f178fcc7531bd30572a32e627601955e0424e00d3b26d88d39ff",
               "name": "test_A0",
               "statistics": [
                 "fancy-ops",
@@ -3370,7 +3946,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "5416fa03c76fe8b28d765d37f838b1e559c620d7b29ffe0ed306c1141811cb63",
+              "freshness": "09d54defa669f178fcc7531bd30572a32e627601955e0424e00d3b26d88d39ff",
               "name": "test_A1",
               "statistics": [
                 "dense",
@@ -3427,7 +4003,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "5416fa03c76fe8b28d765d37f838b1e559c620d7b29ffe0ed306c1141811cb63",
+              "freshness": "09d54defa669f178fcc7531bd30572a32e627601955e0424e00d3b26d88d39ff",
               "name": "test_A2",
               "statistics": [
                 "fancy-ops",
@@ -3483,7 +4059,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "5416fa03c76fe8b28d765d37f838b1e559c620d7b29ffe0ed306c1141811cb63",
+              "freshness": "09d54defa669f178fcc7531bd30572a32e627601955e0424e00d3b26d88d39ff",
               "name": "test_A3",
               "statistics": [
                 "dense",
@@ -3540,7 +4116,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "5416fa03c76fe8b28d765d37f838b1e559c620d7b29ffe0ed306c1141811cb63",
+              "freshness": "09d54defa669f178fcc7531bd30572a32e627601955e0424e00d3b26d88d39ff",
               "name": "test_A4",
               "statistics": [
                 "fancy-ops",
@@ -3596,7 +4172,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "5416fa03c76fe8b28d765d37f838b1e559c620d7b29ffe0ed306c1141811cb63",
+              "freshness": "09d54defa669f178fcc7531bd30572a32e627601955e0424e00d3b26d88d39ff",
               "name": "test_A5",
               "statistics": [
                 "fancy-ops",
@@ -3664,7 +4240,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/jacobi.py",
-              "freshness": "397dbb56f82b01de2aa4f83f939739a6fdfa3faf3ca632ee851f9a976e45d14f",
+              "freshness": "968adc0a3174ba570880357559e77ab4befd94b4bb06eb138c99b20478a6d973",
               "name": "test_3x3",
               "statistics": [
                 "dense",
@@ -3721,7 +4297,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/jacobi.py",
-              "freshness": "397dbb56f82b01de2aa4f83f939739a6fdfa3faf3ca632ee851f9a976e45d14f",
+              "freshness": "968adc0a3174ba570880357559e77ab4befd94b4bb06eb138c99b20478a6d973",
               "name": "test_3x3_dominant",
               "statistics": [
                 "dense",
@@ -3778,7 +4354,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/jacobi.py",
-              "freshness": "397dbb56f82b01de2aa4f83f939739a6fdfa3faf3ca632ee851f9a976e45d14f",
+              "freshness": "968adc0a3174ba570880357559e77ab4befd94b4bb06eb138c99b20478a6d973",
               "name": "test_4x4",
               "statistics": [
                 "dense",
@@ -3836,7 +4412,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "38f35228b8eca91de1b8d685f4123cc7c77c300580165632e0e0bc02df897c31",
+              "freshness": "af58d78b003f35f87281177f2e85612cec8a31ff70d1517335067f6deba79209",
               "name": "test_jl_preserves_distance",
               "statistics": [
                 "fancy-ops",
@@ -3894,7 +4470,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/Finite_Difference.py",
-              "freshness": "1b148da346261c22d255ae4efe0f7f0482159208058bf27c66a6d72aa28acafa",
+              "freshness": "67770087e0e442f768b5c1c4303426a0037bfc8be73a8c60f281bd7a1cdeefa4",
               "name": "default",
               "statistics": [
                 "index-ops",
@@ -3949,7 +4525,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "a0fc8934e14d3c7802fc3f86dd8b3e701ab1986c33b3552ef6fbdf099ff079c2",
+              "freshness": "36880c0cee9233531271d15623aeb14460bf149b0e787a47bf6c9ae41bdb6395",
               "name": "lotka_volterra_small",
               "statistics": []
             }
@@ -4001,7 +4577,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "a0fc8934e14d3c7802fc3f86dd8b3e701ab1986c33b3552ef6fbdf099ff079c2",
+              "freshness": "36880c0cee9233531271d15623aeb14460bf149b0e787a47bf6c9ae41bdb6395",
               "name": "lotka_volterra_small",
               "statistics": []
             }
@@ -4053,7 +4629,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "a0fc8934e14d3c7802fc3f86dd8b3e701ab1986c33b3552ef6fbdf099ff079c2",
+              "freshness": "36880c0cee9233531271d15623aeb14460bf149b0e787a47bf6c9ae41bdb6395",
               "name": "lotka_volterra_small",
               "statistics": []
             }
@@ -4111,7 +4687,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "b3c396b4ce8d78c4cb305ce6b886c134ce83bb728909c7ea6af3ed0ce6069d97",
+              "freshness": "15c6e39ab5e3b47d57fd6725541c8c4964dea27bd800492c2ff7ab8193ea5bb2",
               "name": "test_lsqr_exact_3",
               "statistics": [
                 "dense",
@@ -4162,7 +4738,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "b3c396b4ce8d78c4cb305ce6b886c134ce83bb728909c7ea6af3ed0ce6069d97",
+              "freshness": "15c6e39ab5e3b47d57fd6725541c8c4964dea27bd800492c2ff7ab8193ea5bb2",
               "name": "test_lsqr_exact_4",
               "statistics": [
                 "dense",
@@ -4213,7 +4789,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "b3c396b4ce8d78c4cb305ce6b886c134ce83bb728909c7ea6af3ed0ce6069d97",
+              "freshness": "15c6e39ab5e3b47d57fd6725541c8c4964dea27bd800492c2ff7ab8193ea5bb2",
               "name": "test_lsqr_exact_5",
               "statistics": [
                 "dense",
@@ -4264,7 +4840,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "b3c396b4ce8d78c4cb305ce6b886c134ce83bb728909c7ea6af3ed0ce6069d97",
+              "freshness": "15c6e39ab5e3b47d57fd6725541c8c4964dea27bd800492c2ff7ab8193ea5bb2",
               "name": "test_lsqr_overdetermined_3",
               "statistics": [
                 "dense",
@@ -4315,7 +4891,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "b3c396b4ce8d78c4cb305ce6b886c134ce83bb728909c7ea6af3ed0ce6069d97",
+              "freshness": "15c6e39ab5e3b47d57fd6725541c8c4964dea27bd800492c2ff7ab8193ea5bb2",
               "name": "test_lsqr_overdetermined_dense",
               "statistics": [
                 "dense",
@@ -4366,7 +4942,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "b3c396b4ce8d78c4cb305ce6b886c134ce83bb728909c7ea6af3ed0ce6069d97",
+              "freshness": "15c6e39ab5e3b47d57fd6725541c8c4964dea27bd800492c2ff7ab8193ea5bb2",
               "name": "test_lsqr_overdetermined_sparse",
               "statistics": [
                 "dense",
@@ -4417,7 +4993,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "b3c396b4ce8d78c4cb305ce6b886c134ce83bb728909c7ea6af3ed0ce6069d97",
+              "freshness": "15c6e39ab5e3b47d57fd6725541c8c4964dea27bd800492c2ff7ab8193ea5bb2",
               "name": "test_lsqr_scaled_underdetermined",
               "statistics": [
                 "dense",
@@ -4468,7 +5044,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "b3c396b4ce8d78c4cb305ce6b886c134ce83bb728909c7ea6af3ed0ce6069d97",
+              "freshness": "15c6e39ab5e3b47d57fd6725541c8c4964dea27bd800492c2ff7ab8193ea5bb2",
               "name": "test_lsqr_underdetermined_3",
               "statistics": [
                 "dense",
@@ -4519,7 +5095,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "b3c396b4ce8d78c4cb305ce6b886c134ce83bb728909c7ea6af3ed0ce6069d97",
+              "freshness": "15c6e39ab5e3b47d57fd6725541c8c4964dea27bd800492c2ff7ab8193ea5bb2",
               "name": "test_lsqr_underdetermined_4",
               "statistics": [
                 "dense",
@@ -4581,7 +5157,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/mri_edge.py",
-              "freshness": "9556cf9ac4529103d4e8926918587d045137a04cf82e249245ba41205070943a",
+              "freshness": "f14922839adf2feae0e3eeefc99b525e42b9cc2ec3c2747f8022825c98b016b5",
               "name": "test_masked_mri_basic_roi",
               "statistics": [
                 "dense",
@@ -4629,7 +5205,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/mri_edge.py",
-              "freshness": "9556cf9ac4529103d4e8926918587d045137a04cf82e249245ba41205070943a",
+              "freshness": "f14922839adf2feae0e3eeefc99b525e42b9cc2ec3c2747f8022825c98b016b5",
               "name": "test_masked_mri_generator_builds_default_roi",
               "statistics": [
                 "dense",
@@ -4677,7 +5253,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/mri_edge.py",
-              "freshness": "9556cf9ac4529103d4e8926918587d045137a04cf82e249245ba41205070943a",
+              "freshness": "f14922839adf2feae0e3eeefc99b525e42b9cc2ec3c2747f8022825c98b016b5",
               "name": "test_masked_mri_zero_image",
               "statistics": [
                 "dense",
@@ -4737,7 +5313,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "5cdc167cb49b1b427d3f3bd797e69b0ba53d1655576fd97e79aabd9f513ec600",
+              "freshness": "46aed6d54e2cc5ec8b102daffcae3709e6f6aec227cbd569c8a0e3f269a368da",
               "name": "planted_clique",
               "statistics": [
                 "fancy-ops",
@@ -4786,7 +5362,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "5cdc167cb49b1b427d3f3bd797e69b0ba53d1655576fd97e79aabd9f513ec600",
+              "freshness": "46aed6d54e2cc5ec8b102daffcae3709e6f6aec227cbd569c8a0e3f269a368da",
               "name": "three_block_pairs",
               "statistics": [
                 "fancy-ops",
@@ -4835,7 +5411,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "5cdc167cb49b1b427d3f3bd797e69b0ba53d1655576fd97e79aabd9f513ec600",
+              "freshness": "46aed6d54e2cc5ec8b102daffcae3709e6f6aec227cbd569c8a0e3f269a368da",
               "name": "two_star_components",
               "statistics": [
                 "fancy-ops",
@@ -4849,6 +5425,210 @@
         }
       ],
       "name": "mcl",
+      "statistics": []
+    },
+    {
+      "generators": [
+        {
+          "datasets": [
+            {
+              "dependencies": [
+                "PIL",
+                "boto3",
+                "botocore",
+                "kagglehub",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "kagglehub",
+                  "version": "0.4.3"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pillow",
+                  "version": "12.2.0"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/sobel_edge.py",
+              "freshness": "69dde9a06b233b61007b17d9b9cf764e286b56ddba03d3012c4d36dc9e48a8c2",
+              "name": "test_sobel_generator_metadata",
+              "statistics": [
+                "fancy-ops",
+                "linalg-ops"
+              ]
+            },
+            {
+              "dependencies": [
+                "PIL",
+                "boto3",
+                "botocore",
+                "kagglehub",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "kagglehub",
+                  "version": "0.4.3"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pillow",
+                  "version": "12.2.0"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/sobel_edge.py",
+              "freshness": "69dde9a06b233b61007b17d9b9cf764e286b56ddba03d3012c4d36dc9e48a8c2",
+              "name": "test_sobel_horizontal_edge",
+              "statistics": [
+                "fancy-ops",
+                "linalg-ops"
+              ]
+            },
+            {
+              "dependencies": [
+                "PIL",
+                "boto3",
+                "botocore",
+                "kagglehub",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "kagglehub",
+                  "version": "0.4.3"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pillow",
+                  "version": "12.2.0"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/sobel_edge.py",
+              "freshness": "69dde9a06b233b61007b17d9b9cf764e286b56ddba03d3012c4d36dc9e48a8c2",
+              "name": "test_sobel_vertical_edge",
+              "statistics": [
+                "fancy-ops",
+                "linalg-ops"
+              ]
+            },
+            {
+              "dependencies": [
+                "PIL",
+                "boto3",
+                "botocore",
+                "kagglehub",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "kagglehub",
+                  "version": "0.4.3"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pillow",
+                  "version": "12.2.0"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/sobel_edge.py",
+              "freshness": "69dde9a06b233b61007b17d9b9cf764e286b56ddba03d3012c4d36dc9e48a8c2",
+              "name": "test_sobel_zero_image",
+              "statistics": [
+                "fancy-ops",
+                "linalg-ops"
+              ]
+            }
+          ],
+          "name": "mri_sobel_test_inputs",
+          "statistics": []
+        }
+      ],
+      "name": "mri_sobel_edge",
       "statistics": []
     },
     {
@@ -4891,7 +5671,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/pagerank.py",
-              "freshness": "451f6f7dd802b9d493e5f6affbe923e558f9c114c195fed01065f356f0bfc45d",
+              "freshness": "db10a2edc7274ab85c6f106a2fff9be14342beaa524131d23f673cce90556c69",
               "name": "test_pagerank_against_networkx",
               "statistics": [
                 "dense",
@@ -4936,7 +5716,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/pagerank.py",
-              "freshness": "451f6f7dd802b9d493e5f6affbe923e558f9c114c195fed01065f356f0bfc45d",
+              "freshness": "db10a2edc7274ab85c6f106a2fff9be14342beaa524131d23f673cce90556c69",
               "name": "test_pagerank_snap_toy",
               "statistics": [
                 "dense",
@@ -4981,7 +5761,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/pagerank.py",
-              "freshness": "451f6f7dd802b9d493e5f6affbe923e558f9c114c195fed01065f356f0bfc45d",
+              "freshness": "db10a2edc7274ab85c6f106a2fff9be14342beaa524131d23f673cce90556c69",
               "name": "test_pagerank_three_node_chain",
               "statistics": [
                 "dense",
@@ -5026,7 +5806,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/pagerank.py",
-              "freshness": "451f6f7dd802b9d493e5f6affbe923e558f9c114c195fed01065f356f0bfc45d",
+              "freshness": "db10a2edc7274ab85c6f106a2fff9be14342beaa524131d23f673cce90556c69",
               "name": "test_pagerank_two_node_cycle",
               "statistics": [
                 "dense",
@@ -5071,7 +5851,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/pagerank.py",
-              "freshness": "451f6f7dd802b9d493e5f6affbe923e558f9c114c195fed01065f356f0bfc45d",
+              "freshness": "db10a2edc7274ab85c6f106a2fff9be14342beaa524131d23f673cce90556c69",
               "name": "test_pagerank_two_node_sink",
               "statistics": [
                 "dense",
@@ -5123,7 +5903,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/particle_sim.py",
-              "freshness": "6213a8a2081ffc439a0784dd03446341facd8298434f6c26ce61bc28bd378853",
+              "freshness": "bcade80df8e6faf792eebdc76b29ca9c553d5e351a9eac3c7f46e740159419b8",
               "name": "test_particle_sim_random_10",
               "statistics": [
                 "dense",
@@ -5163,7 +5943,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/particle_sim.py",
-              "freshness": "6213a8a2081ffc439a0784dd03446341facd8298434f6c26ce61bc28bd378853",
+              "freshness": "bcade80df8e6faf792eebdc76b29ca9c553d5e351a9eac3c7f46e740159419b8",
               "name": "test_particle_sim_random_50",
               "statistics": [
                 "dense",
@@ -5203,7 +5983,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/particle_sim.py",
-              "freshness": "6213a8a2081ffc439a0784dd03446341facd8298434f6c26ce61bc28bd378853",
+              "freshness": "bcade80df8e6faf792eebdc76b29ca9c553d5e351a9eac3c7f46e740159419b8",
               "name": "test_particle_sim_two_particles_within_cutoff",
               "statistics": [
                 "dense",
@@ -5243,7 +6023,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/particle_sim.py",
-              "freshness": "6213a8a2081ffc439a0784dd03446341facd8298434f6c26ce61bc28bd378853",
+              "freshness": "bcade80df8e6faf792eebdc76b29ca9c553d5e351a9eac3c7f46e740159419b8",
               "name": "test_particle_sim_wall_bounce",
               "statistics": [
                 "dense",
@@ -5311,7 +6091,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "5416fa03c76fe8b28d765d37f838b1e559c620d7b29ffe0ed306c1141811cb63",
+              "freshness": "09d54defa669f178fcc7531bd30572a32e627601955e0424e00d3b26d88d39ff",
               "name": "test_A0",
               "statistics": [
                 "dynamic-sparsity",
@@ -5369,7 +6149,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "5416fa03c76fe8b28d765d37f838b1e559c620d7b29ffe0ed306c1141811cb63",
+              "freshness": "09d54defa669f178fcc7531bd30572a32e627601955e0424e00d3b26d88d39ff",
               "name": "test_A1",
               "statistics": [
                 "dynamic-sparsity",
@@ -5427,7 +6207,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "5416fa03c76fe8b28d765d37f838b1e559c620d7b29ffe0ed306c1141811cb63",
+              "freshness": "09d54defa669f178fcc7531bd30572a32e627601955e0424e00d3b26d88d39ff",
               "name": "test_A2",
               "statistics": [
                 "dynamic-sparsity",
@@ -5485,7 +6265,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "5416fa03c76fe8b28d765d37f838b1e559c620d7b29ffe0ed306c1141811cb63",
+              "freshness": "09d54defa669f178fcc7531bd30572a32e627601955e0424e00d3b26d88d39ff",
               "name": "test_A3",
               "statistics": [
                 "dynamic-sparsity",
@@ -5543,8 +6323,66 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "5416fa03c76fe8b28d765d37f838b1e559c620d7b29ffe0ed306c1141811cb63",
+              "freshness": "09d54defa669f178fcc7531bd30572a32e627601955e0424e00d3b26d88d39ff",
               "name": "test_A4",
+              "statistics": [
+                "dynamic-sparsity",
+                "fancy-ops",
+                "hypersparse",
+                "index-ops",
+                "linalg-ops",
+                "transcendental-ops"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing",
+                "scipy.io",
+                "scipy.sparse",
+                "sparse",
+                "ssgetpy"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
+                },
+                {
+                  "name": "sparse",
+                  "version": "0.17.0"
+                },
+                {
+                  "name": "ssgetpy",
+                  "version": "1.0rc2"
+                }
+              ],
+              "file": "src/saps/benchmarks/preconditioned_cg.py",
+              "freshness": "09d54defa669f178fcc7531bd30572a32e627601955e0424e00d3b26d88d39ff",
+              "name": "test_A5",
               "statistics": [
                 "dynamic-sparsity",
                 "fancy-ops",
@@ -5602,7 +6440,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "a0fc8934e14d3c7802fc3f86dd8b3e701ab1986c33b3552ef6fbdf099ff079c2",
+              "freshness": "36880c0cee9233531271d15623aeb14460bf149b0e787a47bf6c9ae41bdb6395",
               "name": "rc_small",
               "statistics": []
             }
@@ -5654,7 +6492,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "a0fc8934e14d3c7802fc3f86dd8b3e701ab1986c33b3552ef6fbdf099ff079c2",
+              "freshness": "36880c0cee9233531271d15623aeb14460bf149b0e787a47bf6c9ae41bdb6395",
               "name": "rc_small",
               "statistics": []
             }
@@ -5706,7 +6544,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "a0fc8934e14d3c7802fc3f86dd8b3e701ab1986c33b3552ef6fbdf099ff079c2",
+              "freshness": "36880c0cee9233531271d15623aeb14460bf149b0e787a47bf6c9ae41bdb6395",
               "name": "rc_small",
               "statistics": []
             }
@@ -5758,7 +6596,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "a0fc8934e14d3c7802fc3f86dd8b3e701ab1986c33b3552ef6fbdf099ff079c2",
+              "freshness": "36880c0cee9233531271d15623aeb14460bf149b0e787a47bf6c9ae41bdb6395",
               "name": "rlc_small",
               "statistics": []
             }
@@ -5810,7 +6648,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "a0fc8934e14d3c7802fc3f86dd8b3e701ab1986c33b3552ef6fbdf099ff079c2",
+              "freshness": "36880c0cee9233531271d15623aeb14460bf149b0e787a47bf6c9ae41bdb6395",
               "name": "rlc_small",
               "statistics": []
             }
@@ -5862,7 +6700,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "a0fc8934e14d3c7802fc3f86dd8b3e701ab1986c33b3552ef6fbdf099ff079c2",
+              "freshness": "36880c0cee9233531271d15623aeb14460bf149b0e787a47bf6c9ae41bdb6395",
               "name": "rlc_small",
               "statistics": []
             }
@@ -5908,8 +6746,1177 @@
                   "version": "3.3.2"
                 }
               ],
+              "file": "src/saps/benchmarks/rp_kmeans_clustering.py",
+              "freshness": "22348d90ebc7d19b985fdfb8cf94ade09216da07ebe25e694d6b877051db7152",
+              "name": "three_clusters",
+              "statistics": [
+                "dense",
+                "fancy-ops",
+                "index-ops",
+                "linalg-ops",
+                "shape-ops",
+                "tensor",
+                "transcendental-ops"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/rp_kmeans_clustering.py",
+              "freshness": "22348d90ebc7d19b985fdfb8cf94ade09216da07ebe25e694d6b877051db7152",
+              "name": "two_clusters",
+              "statistics": [
+                "dense",
+                "fancy-ops",
+                "index-ops",
+                "linalg-ops",
+                "shape-ops",
+                "tensor",
+                "transcendental-ops"
+              ]
+            }
+          ],
+          "name": "rp_kmeans_inputs",
+          "statistics": []
+        }
+      ],
+      "name": "rp_kmeans_clustering",
+      "statistics": []
+    },
+    {
+      "generators": [
+        {
+          "datasets": [
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "single_layer_tiny",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            }
+          ],
+          "name": "quantum_state_inputs",
+          "statistics": []
+        },
+        {
+          "datasets": [
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "gate_H_q0",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "gate_H_q1",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "gate_H_q2",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "gate_H_q3",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "gate_S_q0",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "gate_S_q1",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "gate_S_q2",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "gate_S_q3",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "gate_T_q0",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "gate_T_q1",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "gate_T_q2",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "gate_T_q3",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "gate_X_q0",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "gate_X_q1",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "gate_X_q2",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "gate_X_q3",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "gate_Y_q0",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "gate_Y_q1",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "gate_Y_q2",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "gate_Y_q3",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "gate_Z_q0",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "gate_Z_q1",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "gate_Z_q2",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "gate_Z_q3",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "h_twice_returns_to_original",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1",
+              "name": "statevector_basic",
+              "statistics": [
+                "dense",
+                "shape-ops",
+                "tensor"
+              ]
+            }
+          ],
+          "name": "quantum_test_inputs",
+          "statistics": []
+        }
+      ],
+      "name": "rqc_statevector",
+      "statistics": []
+    },
+    {
+      "generators": [
+        {
+          "datasets": [
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
               "file": "src/saps/benchmarks/connected_components.py",
-              "freshness": "292f240d1df16c0d1c46ca0ed9e63c25fc2313936338cab7dad15912caf1c31c",
+              "freshness": "651a0a261d798df77c9f4b2b301ea81c4702b632f3cc430a61e6e03bc58c1bba",
               "name": "test_cc_directed_star_pointing_inward",
               "statistics": [
                 "dense",
@@ -5947,7 +7954,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/connected_components.py",
-              "freshness": "292f240d1df16c0d1c46ca0ed9e63c25fc2313936338cab7dad15912caf1c31c",
+              "freshness": "651a0a261d798df77c9f4b2b301ea81c4702b632f3cc430a61e6e03bc58c1bba",
               "name": "test_cc_fully_connected",
               "statistics": [
                 "dense",
@@ -5985,7 +7992,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/connected_components.py",
-              "freshness": "292f240d1df16c0d1c46ca0ed9e63c25fc2313936338cab7dad15912caf1c31c",
+              "freshness": "651a0a261d798df77c9f4b2b301ea81c4702b632f3cc430a61e6e03bc58c1bba",
               "name": "test_cc_isolated_nodes",
               "statistics": [
                 "dense",
@@ -6023,7 +8030,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/connected_components.py",
-              "freshness": "292f240d1df16c0d1c46ca0ed9e63c25fc2313936338cab7dad15912caf1c31c",
+              "freshness": "651a0a261d798df77c9f4b2b301ea81c4702b632f3cc430a61e6e03bc58c1bba",
               "name": "test_cc_single_node",
               "statistics": [
                 "dense",
@@ -6061,7 +8068,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/connected_components.py",
-              "freshness": "292f240d1df16c0d1c46ca0ed9e63c25fc2313936338cab7dad15912caf1c31c",
+              "freshness": "651a0a261d798df77c9f4b2b301ea81c4702b632f3cc430a61e6e03bc58c1bba",
               "name": "test_cc_snap_toy",
               "statistics": [
                 "dense",
@@ -6099,7 +8106,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/connected_components.py",
-              "freshness": "292f240d1df16c0d1c46ca0ed9e63c25fc2313936338cab7dad15912caf1c31c",
+              "freshness": "651a0a261d798df77c9f4b2b301ea81c4702b632f3cc430a61e6e03bc58c1bba",
               "name": "test_cc_two_disconnected_components",
               "statistics": [
                 "dense",
@@ -6112,6 +8119,892 @@
         }
       ],
       "name": "simply_connected_components",
+      "statistics": []
+    },
+    {
+      "generators": [
+        {
+          "datasets": [
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/tic_tac.py",
+              "freshness": "699e61eed1f692eb82524e6a9f3726bd2cc724f5d65b9906ff0c563692927cc5",
+              "name": "batch_near",
+              "statistics": [
+                "dense",
+                "fancy-ops",
+                "high-dimensional",
+                "index-ops",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/tic_tac.py",
+              "freshness": "699e61eed1f692eb82524e6a9f3726bd2cc724f5d65b9906ff0c563692927cc5",
+              "name": "draw_early",
+              "statistics": [
+                "dense",
+                "fancy-ops",
+                "high-dimensional",
+                "index-ops",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/tic_tac.py",
+              "freshness": "699e61eed1f692eb82524e6a9f3726bd2cc724f5d65b9906ff0c563692927cc5",
+              "name": "draw_near",
+              "statistics": [
+                "dense",
+                "fancy-ops",
+                "high-dimensional",
+                "index-ops",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/tic_tac.py",
+              "freshness": "699e61eed1f692eb82524e6a9f3726bd2cc724f5d65b9906ff0c563692927cc5",
+              "name": "o_wins_mid",
+              "statistics": [
+                "dense",
+                "fancy-ops",
+                "high-dimensional",
+                "index-ops",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/tic_tac.py",
+              "freshness": "699e61eed1f692eb82524e6a9f3726bd2cc724f5d65b9906ff0c563692927cc5",
+              "name": "o_wins_near",
+              "statistics": [
+                "dense",
+                "fancy-ops",
+                "high-dimensional",
+                "index-ops",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/tic_tac.py",
+              "freshness": "699e61eed1f692eb82524e6a9f3726bd2cc724f5d65b9906ff0c563692927cc5",
+              "name": "x_wins_early",
+              "statistics": [
+                "dense",
+                "fancy-ops",
+                "high-dimensional",
+                "index-ops",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/tic_tac.py",
+              "freshness": "699e61eed1f692eb82524e6a9f3726bd2cc724f5d65b9906ff0c563692927cc5",
+              "name": "x_wins_mid",
+              "statistics": [
+                "dense",
+                "fancy-ops",
+                "high-dimensional",
+                "index-ops",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/tic_tac.py",
+              "freshness": "699e61eed1f692eb82524e6a9f3726bd2cc724f5d65b9906ff0c563692927cc5",
+              "name": "x_wins_near",
+              "statistics": [
+                "dense",
+                "fancy-ops",
+                "high-dimensional",
+                "index-ops",
+                "shape-ops",
+                "tensor"
+              ]
+            }
+          ],
+          "name": "tictactoe_boards",
+          "statistics": []
+        }
+      ],
+      "name": "tictactoe_minimax",
+      "statistics": []
+    },
+    {
+      "generators": [
+        {
+          "datasets": [
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/transitive_closure.py",
+              "freshness": "9e014483fbd919b09a807430be1ddf5db2104a8723729c6b34cc3f508b7bb215",
+              "name": "cycle",
+              "statistics": [
+                "dense",
+                "fancy-ops"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/transitive_closure.py",
+              "freshness": "9e014483fbd919b09a807430be1ddf5db2104a8723729c6b34cc3f508b7bb215",
+              "name": "dag",
+              "statistics": [
+                "dense",
+                "fancy-ops"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/transitive_closure.py",
+              "freshness": "9e014483fbd919b09a807430be1ddf5db2104a8723729c6b34cc3f508b7bb215",
+              "name": "one-node",
+              "statistics": [
+                "dense",
+                "fancy-ops"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/transitive_closure.py",
+              "freshness": "9e014483fbd919b09a807430be1ddf5db2104a8723729c6b34cc3f508b7bb215",
+              "name": "snap-toy",
+              "statistics": [
+                "dense",
+                "fancy-ops"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/transitive_closure.py",
+              "freshness": "9e014483fbd919b09a807430be1ddf5db2104a8723729c6b34cc3f508b7bb215",
+              "name": "strong-component-count",
+              "statistics": [
+                "dense",
+                "fancy-ops"
+              ]
+            }
+          ],
+          "name": "transitive_closure_test_inputs",
+          "statistics": []
+        }
+      ],
+      "name": "transitive_closure",
+      "statistics": []
+    },
+    {
+      "generators": [
+        {
+          "datasets": [
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/transitive_reduction.py",
+              "freshness": "0944c9578a35d30d0b1966922743aa9e33e740806f5f1836533e53fc2e88f361",
+              "name": "keep_short_direct_edge",
+              "statistics": [
+                "dense",
+                "fancy-ops",
+                "index-ops",
+                "shape-ops"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/transitive_reduction.py",
+              "freshness": "0944c9578a35d30d0b1966922743aa9e33e740806f5f1836533e53fc2e88f361",
+              "name": "keep_when_indirect_is_long",
+              "statistics": [
+                "dense",
+                "fancy-ops",
+                "index-ops",
+                "shape-ops"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/transitive_reduction.py",
+              "freshness": "0944c9578a35d30d0b1966922743aa9e33e740806f5f1836533e53fc2e88f361",
+              "name": "remove_equal_direct_edge",
+              "statistics": [
+                "dense",
+                "fancy-ops",
+                "index-ops",
+                "shape-ops"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/transitive_reduction.py",
+              "freshness": "0944c9578a35d30d0b1966922743aa9e33e740806f5f1836533e53fc2e88f361",
+              "name": "remove_long_direct_edge",
+              "statistics": [
+                "dense",
+                "fancy-ops",
+                "index-ops",
+                "shape-ops"
+              ]
+            }
+          ],
+          "name": "transitive_reduction_test_inputs",
+          "statistics": []
+        }
+      ],
+      "name": "transitive_reduction",
+      "statistics": []
+    },
+    {
+      "generators": [
+        {
+          "datasets": [
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/tri_4cliq.py",
+              "freshness": "616eb10b3c77fa79256c70bde6ea01c11b3799ffb57b4fa9d398b4eb7c301bc2",
+              "name": "test_triangle_count_4_clique",
+              "statistics": [
+                "dense",
+                "elementary-ops"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/tri_4cliq.py",
+              "freshness": "616eb10b3c77fa79256c70bde6ea01c11b3799ffb57b4fa9d398b4eb7c301bc2",
+              "name": "test_triangle_count_path",
+              "statistics": [
+                "dense",
+                "elementary-ops"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/tri_4cliq.py",
+              "freshness": "616eb10b3c77fa79256c70bde6ea01c11b3799ffb57b4fa9d398b4eb7c301bc2",
+              "name": "test_triangle_count_single_triangle",
+              "statistics": [
+                "dense",
+                "elementary-ops"
+              ]
+            },
+            {
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "pyparsing"
+              ],
+              "dependency_versions": [
+                {
+                  "name": "boto3",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "botocore",
+                  "version": "1.43.34"
+                },
+                {
+                  "name": "lark",
+                  "version": "1.3.1"
+                },
+                {
+                  "name": "numpy",
+                  "version": "2.3.5"
+                },
+                {
+                  "name": "pyparsing",
+                  "version": "3.3.2"
+                }
+              ],
+              "file": "src/saps/benchmarks/tri_4cliq.py",
+              "freshness": "616eb10b3c77fa79256c70bde6ea01c11b3799ffb57b4fa9d398b4eb7c301bc2",
+              "name": "test_triangle_snap_toy",
+              "statistics": [
+                "dense",
+                "elementary-ops"
+              ]
+            }
+          ],
+          "name": "triangle_count_test_inputs",
+          "statistics": []
+        }
+      ],
+      "name": "triangle_count",
       "statistics": []
     }
   ]

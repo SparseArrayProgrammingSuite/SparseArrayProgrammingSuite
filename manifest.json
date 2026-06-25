@@ -7153,9 +7153,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "5a560efc0f5afc544378345fd3570ebb2fa168ce67684ab6733456fbabe21685",
+    "digest": "d0c5cd7f062a18ec37023fb42056888f3a198c7709471503644d9e031403cb82",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "ef6472a17e384186774c63ff1a68c213ebf49565a26a2df2599885c4b090b0a1"
   },
   "quantum_test_inputs.gate_H_q0": {
     "dependencies": [
