@@ -15,7 +15,6 @@ from saps.benchmark import (
 from saps_framework import BinsparseFormat
 
 
-
 def _from_binsparse(array):
     if array.data["format"] == "dense":
         return array.data["values"].reshape(array.data["shape"])
@@ -167,7 +166,7 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
                 [0, 0, 0, 0, 1, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0],
             ],
-            dtype=float,
+            dtype=np.float32,
         )
         degree_targets = degree_train_adj.sum(axis=1, keepdims=True)
         degree_targets = degree_targets / degree_targets.max()
@@ -180,23 +179,23 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
                 [0, 0, 1, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0],
             ],
-            dtype=float,
+            dtype=np.float32,
         )
         degree_test_targets = degree_test_adj.sum(axis=1, keepdims=True)
         degree_test_targets = degree_test_targets / degree_test_targets.max()
-        degree_weights1 = rng.standard_normal((1, 4)) * 0.5
-        degree_weights2 = rng.standard_normal((4, 1)) * 0.5
+        degree_weights1 = rng.standard_normal((1, 4), dtype=np.float32) * 0.5
+        degree_weights2 = rng.standard_normal((4, 1), dtype=np.float32) * 0.5
         return [
             GCNTrainingDataset(
                 "test_gcn_backward_2node",
                 suites=["test"],
-                adjacency=np.array([[0, 1], [1, 0]], dtype=float),
-                features=np.array([[1.0], [2.0]]),
-                weights1=np.array([[1.0]]),
-                bias1=np.array([0.0]),
-                weights2=np.array([[1.0]]),
-                bias2=np.array([0.0]),
-                targets=np.array([[2.0], [1.0]]),
+                adjacency=np.array([[0, 1], [1, 0]], dtype=np.float32),
+                features=np.array([[1.0], [2.0]], dtype=np.float32),
+                weights1=np.array([[1.0]], dtype=np.float32),
+                bias1=np.array([0.0], dtype=np.float32),
+                weights2=np.array([[1.0]], dtype=np.float32),
+                bias2=np.array([0.0], dtype=np.float32),
+                targets=np.array([[2.0], [1.0]], dtype=np.float32),
                 num_iterations=10,
                 learning_rate=0.01,
                 ref_meta={
@@ -214,7 +213,7 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
                         [1, 1, 0, 1],
                         [0, 1, 1, 0],
                     ],
-                    dtype=float,
+                    dtype=np.float32,
                 ),
                 features=np.array(
                     [
@@ -222,19 +221,25 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
                         [0.0, 1.0],
                         [1.0, 1.0],
                         [0.5, 0.5],
-                    ]
+                    ],
+                    dtype=np.float32,
                 ),
-                weights1=np.array([[0.5, 0.3, 0.1], [0.2, 0.4, 0.6]]),
-                bias1=np.zeros(3),
-                weights2=np.array([[0.5, 0.5], [0.3, 0.7], [0.2, 0.8]]),
-                bias2=np.zeros(2),
+                weights1=np.array(
+                    [[0.5, 0.3, 0.1], [0.2, 0.4, 0.6]], dtype=np.float32
+                ),
+                bias1=np.zeros(3, dtype=np.float32),
+                weights2=np.array(
+                    [[0.5, 0.5], [0.3, 0.7], [0.2, 0.8]], dtype=np.float32
+                ),
+                bias2=np.zeros(2, dtype=np.float32),
                 targets=np.array(
                     [
                         [1.0, 0.0],
                         [0.0, 1.0],
                         [1.0, 1.0],
                         [0.5, 0.5],
-                    ]
+                    ],
+                    dtype=np.float32,
                 ),
                 num_iterations=100,
                 learning_rate=0.01,
@@ -247,11 +252,11 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
                 "test_gcn_backward_degree_loss",
                 suites=["test"],
                 adjacency=degree_train_adj,
-                features=np.ones((7, 1)),
+                features=np.ones((7, 1), dtype=np.float32),
                 weights1=degree_weights1.copy(),
-                bias1=np.zeros(4),
+                bias1=np.zeros(4, dtype=np.float32),
                 weights2=degree_weights2.copy(),
-                bias2=np.zeros(1),
+                bias2=np.zeros(1, dtype=np.float32),
                 targets=degree_targets,
                 num_iterations=500,
                 learning_rate=0.01,
@@ -264,11 +269,11 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
                 "test_gcn_backward_degree_test_graph_loss",
                 suites=["test"],
                 adjacency=degree_test_adj,
-                features=np.ones((6, 1)),
+                features=np.ones((6, 1), dtype=np.float32),
                 weights1=degree_weights1.copy(),
-                bias1=np.zeros(4),
+                bias1=np.zeros(4, dtype=np.float32),
                 weights2=degree_weights2.copy(),
-                bias2=np.zeros(1),
+                bias2=np.zeros(1, dtype=np.float32),
                 targets=degree_test_targets,
                 num_iterations=500,
                 learning_rate=0.01,
@@ -426,7 +431,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
                 "dg_gcn_social_3",
                 "Larger social network graph.",
                 "ca-GrQc",
-                feature_dim=32,
+                feature_dim=8,
                 hidden_dim=16,
                 out_dim=1,
             ),
@@ -442,7 +447,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
                 "dg_gcn_road_2",
                 "Medium road network graph.",
                 "road_central",
-                feature_dim=16,
+                feature_dim=4,
                 hidden_dim=8,
                 out_dim=1,
             ),
@@ -450,7 +455,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
                 "dg_gcn_molecular_1",
                 "Small molecular graph. - Email network.",
                 "email",
-                feature_dim=16,
+                feature_dim=4,
                 hidden_dim=8,
                 out_dim=1,
             ),
@@ -458,7 +463,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
                 "dg_gcn_molecular_2",
                 "Medium molecular graph - PDDB protein structure.",
                 "Chebyshev3",
-                feature_dim=24,
+                feature_dim=6,
                 hidden_dim=12,
                 out_dim=1,
             ),
@@ -466,7 +471,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
                 "dg_gcn_citation_1",
                 "Large citation network graph (AIDS-like size).",
                 "ca-HepPh",
-                feature_dim=64,
+                feature_dim=16,
                 hidden_dim=32,
                 out_dim=1,
             ),
@@ -474,7 +479,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
                 "dg_gcn_large_2",
                 "Very large road network.",
                 "road_usa",
-                feature_dim=64,
+                feature_dim=16,
                 hidden_dim=32,
                 out_dim=1,
             ),
@@ -514,16 +519,20 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
 
         # Create feature/weight arrays using the RNG (deterministic)
         n = A.shape[0]
-        features = rng.standard_normal((n, feature_dim))
-        weights1 = rng.standard_normal((feature_dim, hidden_dim))
-        bias1 = np.zeros((hidden_dim,))
-        weights2 = rng.standard_normal((hidden_dim, out_dim))
-        bias2 = np.zeros((out_dim,))
-        targets = rng.standard_normal((n, out_dim))
+        features = rng.standard_normal((n, feature_dim), dtype=np.float32)
+        weights1 = rng.standard_normal((feature_dim, hidden_dim), dtype=np.float32)
+        bias1 = np.zeros((hidden_dim,), dtype=np.float32)
+        weights2 = rng.standard_normal((hidden_dim, out_dim), dtype=np.float32)
+        bias2 = np.zeros((out_dim,), dtype=np.float32)
+        targets = rng.standard_normal((n, out_dim), dtype=np.float32)
         A_T = A.T.tocoo()
 
-        A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
-        A_T_bin = BinsparseFormat.from_coo((A_T.row, A_T.col), A_T.data, A_T.shape)
+        A_bin = BinsparseFormat.from_coo(
+            (A.row, A.col), A.data.astype(np.float32, copy=False), A.shape
+        )
+        A_T_bin = BinsparseFormat.from_coo(
+            (A_T.row, A_T.col), A_T.data.astype(np.float32, copy=False), A_T.shape
+        )
         features_b = BinsparseFormat.from_numpy(features)
         weights1_b = BinsparseFormat.from_numpy(weights1)
         bias1_b = BinsparseFormat.from_numpy(bias1)
@@ -793,7 +802,7 @@ Each iteration:
             bias2 = bias2 - learning_rate * db2
 
         # Compute final outputs
-        loss_out = loss
+        loss_out = xp.asarray([loss])
         weights1_out = weights1
         bias1_out = bias1
         weights2_out = weights2

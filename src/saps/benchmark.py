@@ -1,7 +1,7 @@
 import ast
 import hashlib
-import inspect
 import importlib.util
+import inspect
 import json
 import os
 import re
@@ -91,9 +91,11 @@ def _freshness_inputs(
             continue
         seen_files.add(path)
 
-        for dependency in _imported_modules(path):
-            if dependency not in seen_modules:
-                pending.append(dependency)
+        pending.extend(
+            dependency
+            for dependency in _imported_modules(path)
+            if dependency not in seen_modules
+        )
 
     return tuple(sorted(seen_files)), tuple(sorted(external_modules))
 
@@ -250,7 +252,6 @@ def _get_or_add_record(records: list[dict], key: str, value: str, defaults: dict
 
 def _write_statistics_tags(
     statistics_path: Path,
-    benchmark_id: str,
     benchmark_name: str,
     generator_name: str,
     dataset_name: str,
@@ -268,11 +269,10 @@ def _write_statistics_tags(
 
     benchmark = _get_or_add_record(
         document.setdefault("benchmarks", []),
-        "id",
-        benchmark_id,
-        {"name": benchmark_name, "statistics": [], "generators": []},
+        "name",
+        benchmark_name,
+        {"statistics": [], "generators": []},
     )
-    benchmark.setdefault("name", benchmark_name)
     benchmark.setdefault("statistics", [])
 
     generator = _get_or_add_record(
@@ -303,7 +303,7 @@ def _write_statistics_tags(
 
     document["benchmarks"] = sorted(
         document.get("benchmarks", []),
-        key=lambda record: record.get("id", ""),
+        key=lambda record: record["name"],
     )
     for record in document["benchmarks"]:
         record["generators"] = sorted(
@@ -574,12 +574,8 @@ class Benchmark(Tagged, Attributed, Motivated):
         if not hasattr(xp, "tags"):
             return
 
-        benchmark_id = (
-            f"{self.__class__.__module__}.{self.__class__.__name__}.{self.name}"
-        )
         tags = sorted(getattr(xp, "tags", []))
         data = {
-            "benchmark_id": benchmark_id,
             "benchmark_name": self.name,
             "generator_name": param.generator.name,
             "dataset_name": param.dataset.name,
@@ -589,7 +585,7 @@ class Benchmark(Tagged, Attributed, Motivated):
             path = Path(stats_dir)
             path.mkdir(parents=True, exist_ok=True)
             record_id = (
-                f"{benchmark_id}.{param.generator.name}.{param.dataset.name}"
+                f"{self.name}.{param.generator.name}.{param.dataset.name}"
             )
             safe_id = "".join(
                 char if char.isalnum() or char in "._-" else "_"
@@ -603,7 +599,6 @@ class Benchmark(Tagged, Attributed, Motivated):
         if statistics_path:
             _write_statistics_tags(
                 Path(statistics_path),
-                benchmark_id,
                 self.name,
                 param.generator.name,
                 param.dataset.name,
@@ -644,7 +639,6 @@ class Benchmark(Tagged, Attributed, Motivated):
             "freshness": self.freshness,
             "name": self.name,
             "pretty_name": self.pretty_name,
-            "id": f"{self.__class__.__module__}.{self.__class__.__name__}.{self.name}",
             "description": self.description,
             "suites": self.suites,
             "concepts": self.concepts,

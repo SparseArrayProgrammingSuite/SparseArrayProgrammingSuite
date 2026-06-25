@@ -4,7 +4,6 @@ import importlib
 import inspect
 import json
 import pkgutil
-import re
 import tomllib
 from collections.abc import Iterator
 from functools import cache
@@ -23,18 +22,8 @@ ROOT = Path(__file__).parents[1]
 FRESHNESS_KEYS = ("file", "freshness", "dependencies")
 
 
-def _normalize_benchmark_id(benchmark_id: str) -> str:
-    if benchmark_id.startswith("benchmarks."):
-        return f"saps.{benchmark_id}"
-    return benchmark_id
-
-
 def _record_key(record: dict) -> str:
-    benchmark_id = _normalize_benchmark_id(record.get("id", record["name"]))
-    match = re.search(r"(?:^|\.)benchmarks\.([^.]+\.[^.]+)(?:\.|$)", benchmark_id)
-    if match is not None:
-        return match.group(1)
-    return benchmark_id
+    return record["name"]
 
 
 def _benchmark_instances() -> Iterator[Benchmark]:
@@ -75,10 +64,12 @@ def _dataset_lookups(
     by_full_key: dict[tuple[str, str, str], dict] = {}
     by_manifest_key: dict[str, list[dict]] = {}
     for benchmark in metadata["benchmarks"]:
-        benchmark_id = benchmark["id"]
+        benchmark_name = benchmark["name"]
         for generator in benchmark["generators"]:
             for dataset in generator["datasets"]:
-                by_full_key[(benchmark_id, generator["name"], dataset["name"])] = dataset
+                by_full_key[(benchmark_name, generator["name"], dataset["name"])] = (
+                    dataset
+                )
                 manifest_key = f"{generator['name']}.{dataset['name']}"
                 by_manifest_key.setdefault(manifest_key, []).append(dataset)
     return by_full_key, by_manifest_key
@@ -130,10 +121,10 @@ def test_statistics_freshness_matches_benchmark_metadata():
     statistics = _read_json(ROOT / "statistics.json")
 
     for benchmark in statistics.get("benchmarks", []):
-        benchmark_id = benchmark["id"]
+        benchmark_name = benchmark["name"]
         for generator in benchmark.get("generators", []):
             for dataset in generator.get("datasets", []):
-                key = (benchmark_id, generator["name"], dataset["name"])
+                key = (benchmark_name, generator["name"], dataset["name"])
                 assert key in datasets, f"unknown statistics dataset {key}"
                 assert _freshness_record(dataset) == _freshness_record(datasets[key])
                 _assert_dependency_versions_current(

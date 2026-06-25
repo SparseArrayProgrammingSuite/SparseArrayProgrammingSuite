@@ -231,18 +231,8 @@ def regex_any_match(patterns: list[str], value: str) -> bool:
     return any(re.search(pattern, value) for pattern in patterns)
 
 
-def _normalize_benchmark_id(benchmark_id: str) -> str:
-    if benchmark_id.startswith("benchmarks."):
-        return f"saps.{benchmark_id}"
-    return benchmark_id
-
-
 def _record_key(record: dict) -> str:
-    benchmark_id = _normalize_benchmark_id(record.get("id", record["name"]))
-    match = re.search(r"(?:^|\.)benchmarks\.([^.]+\.[^.]+)(?:\.|$)", benchmark_id)
-    if match is not None:
-        return match.group(1)
-    return benchmark_id
+    return record["name"]
 
 
 def _load_metadata_document(metadata_path: Path) -> dict:
@@ -290,6 +280,9 @@ def _trace_statistics(
     stats_dir.mkdir(parents=True, exist_ok=True)
     for stats_path in stats_dir.glob("*.json"):
         stats_path.unlink()
+    statistics_path = os.environ.get("SAPS_STATISTICS_PATH")
+    if statistics_path:
+        Path(statistics_path).unlink(missing_ok=True)
 
     print(f"Discovered {len(benchmarks)} benchmark entries for tagger")
     print(f"Using timeout: {timeout} seconds")
@@ -710,7 +703,7 @@ def main() -> int:
     exclude_res = args.no_re or []
 
     def match_target(obj: dict) -> str:
-        return obj.get("id", obj["name"])
+        return obj["name"]
 
     def is_include(obj) -> bool:
         if include_res and not regex_any_match(include_res, match_target(obj)):

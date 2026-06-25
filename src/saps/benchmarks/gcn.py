@@ -15,7 +15,6 @@ from saps.benchmark import (
 from saps_framework import BinsparseFormat
 
 
-
 class GCNDataset(Dataset):
     def __init__(
         self,
@@ -134,45 +133,51 @@ class GCNTestGenerator(Generator[GCNDataset]):
             GCNDataset(
                 "test_gcn_3node",
                 suites=["test"],
-                adjacency=np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]], dtype=float),
-                features=np.array([[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]]),
-                weights1=np.array([[1.0, 0.0], [0.0, 1.0]]),
-                bias1=np.array([0.0, 0.0]),
-                weights2=np.array([[1.0], [1.0]]),
-                bias2=np.array([0.0]),
+                adjacency=np.array(
+                    [[0, 1, 0], [1, 0, 1], [0, 1, 0]], dtype=np.float32
+                ),
+                features=np.array(
+                    [[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]], dtype=np.float32
+                ),
+                weights1=np.array([[1.0, 0.0], [0.0, 1.0]], dtype=np.float32),
+                bias1=np.array([0.0, 0.0], dtype=np.float32),
+                weights2=np.array([[1.0], [1.0]], dtype=np.float32),
+                bias2=np.array([0.0], dtype=np.float32),
             ),
             GCNDataset(
                 "test_gcn_simple_2node",
                 suites=["test"],
-                adjacency=np.array([[0, 1], [1, 0]], dtype=float),
-                features=np.array([[1.0], [2.0]]),
-                weights1=np.array([[2.0]]),
-                bias1=np.array([0.0]),
-                weights2=np.array([[3.0]]),
-                bias2=np.array([0.0]),
-                expected=np.array([[6.0], [12.0]]),
+                adjacency=np.array([[0, 1], [1, 0]], dtype=np.float32),
+                features=np.array([[1.0], [2.0]], dtype=np.float32),
+                weights1=np.array([[2.0]], dtype=np.float32),
+                bias1=np.array([0.0], dtype=np.float32),
+                weights2=np.array([[3.0]], dtype=np.float32),
+                bias2=np.array([0.0], dtype=np.float32),
+                expected=np.array([[6.0], [12.0]], dtype=np.float32),
             ),
             GCNDataset(
                 "test_gcn_simple_3node_line",
                 suites=["test"],
-                adjacency=np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]], dtype=float),
-                features=np.array([[1.0], [0.0], [1.0]]),
-                weights1=np.array([[1.0]]),
-                bias1=np.array([0.0]),
-                weights2=np.array([[1.0]]),
-                bias2=np.array([0.0]),
-                expected=np.array([[2.0], [0.0], [2.0]]),
+                adjacency=np.array(
+                    [[0, 1, 0], [1, 0, 1], [0, 1, 0]], dtype=np.float32
+                ),
+                features=np.array([[1.0], [0.0], [1.0]], dtype=np.float32),
+                weights1=np.array([[1.0]], dtype=np.float32),
+                bias1=np.array([0.0], dtype=np.float32),
+                weights2=np.array([[1.0]], dtype=np.float32),
+                bias2=np.array([0.0], dtype=np.float32),
+                expected=np.array([[2.0], [0.0], [2.0]], dtype=np.float32),
             ),
             GCNDataset(
                 "test_gcn_with_relu_activation",
                 suites=["test"],
-                adjacency=np.array([[0, 1], [1, 0]], dtype=float),
-                features=np.array([[1.0], [-1.0]]),
-                weights1=np.array([[1.0]]),
-                bias1=np.array([0.0]),
-                weights2=np.array([[2.0]]),
-                bias2=np.array([0.0]),
-                expected=np.array([[2.0], [0.0]]),
+                adjacency=np.array([[0, 1], [1, 0]], dtype=np.float32),
+                features=np.array([[1.0], [-1.0]], dtype=np.float32),
+                weights1=np.array([[1.0]], dtype=np.float32),
+                bias1=np.array([0.0], dtype=np.float32),
+                weights2=np.array([[2.0]], dtype=np.float32),
+                bias2=np.array([0.0], dtype=np.float32),
+                expected=np.array([[2.0], [0.0]], dtype=np.float32),
             ),
         ]
 
@@ -188,13 +193,11 @@ class GCNTestGenerator(Generator[GCNDataset]):
         if any(item is None for item in required):
             raise ValueError("GCN test datasets must define all input arrays.")
 
+        arrays = tuple(cast(np.ndarray, item) for item in required)
         expected = dataset.expected
-        if expected is None:
-            expected = gcn_reference_np(*required)
+        expected = gcn_reference_np(*arrays) if expected is None else expected
 
-        inputs = [
-            BinsparseFormat.from_numpy(cast(np.ndarray, item)) for item in required
-        ]
+        inputs = [BinsparseFormat.from_numpy(item) for item in arrays]
         return DataInstance(
             inputs=inputs,
             meta={},
@@ -308,7 +311,7 @@ class GCNGenerator(Generator[GCNDataset]):
                 "dg_gcn_social_3",
                 "Larger social network graph.",
                 "ca-GrQc",
-                feature_dim=32,
+                feature_dim=8,
                 hidden_dim=16,
                 out_dim=1,
             ),
@@ -324,7 +327,7 @@ class GCNGenerator(Generator[GCNDataset]):
                 "dg_gcn_road_2",
                 "Medium road network graph.",
                 "road_central",
-                feature_dim=16,
+                feature_dim=4,
                 hidden_dim=8,
                 out_dim=1,
             ),
@@ -332,7 +335,7 @@ class GCNGenerator(Generator[GCNDataset]):
                 "dg_gcn_molecular_1",
                 "Small molecular graph. - Email network.",
                 "email",
-                feature_dim=16,
+                feature_dim=4,
                 hidden_dim=8,
                 out_dim=1,
             ),
@@ -340,7 +343,7 @@ class GCNGenerator(Generator[GCNDataset]):
                 "dg_gcn_molecular_2",
                 "Medium molecular graph - PDDB protein structure.",
                 "Chebyshev3",
-                feature_dim=24,
+                feature_dim=6,
                 hidden_dim=12,
                 out_dim=1,
             ),
@@ -348,7 +351,7 @@ class GCNGenerator(Generator[GCNDataset]):
                 "dg_gcn_citation_1",
                 "Large citation network graph (AIDS-like size).",
                 "ca-HepPh",
-                feature_dim=64,
+                feature_dim=16,
                 hidden_dim=32,
                 out_dim=1,
             ),
@@ -356,7 +359,7 @@ class GCNGenerator(Generator[GCNDataset]):
                 "dg_gcn_large_2",
                 "Very large road network.",
                 "road_usa",
-                feature_dim=64,
+                feature_dim=16,
                 hidden_dim=32,
                 out_dim=1,
             ),
@@ -396,13 +399,15 @@ class GCNGenerator(Generator[GCNDataset]):
 
         # Create feature/weight arrays using the RNG (deterministic)
         n = A.shape[0]
-        features = rng.standard_normal((n, feature_dim))
-        weights1 = rng.standard_normal((feature_dim, hidden_dim))
-        bias1 = np.zeros((hidden_dim,))
-        weights2 = rng.standard_normal((hidden_dim, out_dim))
-        bias2 = np.zeros((out_dim,))
+        features = rng.standard_normal((n, feature_dim), dtype=np.float32)
+        weights1 = rng.standard_normal((feature_dim, hidden_dim), dtype=np.float32)
+        bias1 = np.zeros((hidden_dim,), dtype=np.float32)
+        weights2 = rng.standard_normal((hidden_dim, out_dim), dtype=np.float32)
+        bias2 = np.zeros((out_dim,), dtype=np.float32)
 
-        A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
+        A_bin = BinsparseFormat.from_coo(
+            (A.row, A.col), A.data.astype(np.float32, copy=False), A.shape
+        )
         features_b = BinsparseFormat.from_numpy(features)
         weights1_b = BinsparseFormat.from_numpy(weights1)
         bias1_b = BinsparseFormat.from_numpy(bias1)
