@@ -1019,6 +1019,256 @@
     "file": "src/saps/benchmarks/BFS.py",
     "freshness": "f61925f76729c53975b7abacf2ae61d6bd210ebb882529f474d9fd7e1b342f10"
   },
+  "block_jacobi_cg_inputs.Chem97ZtZ": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "sparse",
+        "version": "0.17.0"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "f16021c83ce9ba5cf122f4c7b53d1f3c16d1967f0f51b2fad9f49f065eeb42c4",
+    "file": "src/saps/benchmarks/preconditioned_cg.py",
+    "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247"
+  },
+  "block_jacobi_cg_inputs.bcsstm12": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "sparse",
+        "version": "0.17.0"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "c98d255433c32b8d736369f52a5fe8434077ba671b9836b39a86ef024f5bb7d2",
+    "file": "src/saps/benchmarks/preconditioned_cg.py",
+    "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247"
+  },
+  "block_jacobi_cg_inputs.lund_b": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "sparse",
+        "version": "0.17.0"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "de6645c9236b58fc325c07cade2c33bb2362abfa5b32667a5e0a7cd6cb1b5e64",
+    "file": "src/saps/benchmarks/preconditioned_cg.py",
+    "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247"
+  },
+  "block_jacobi_cg_inputs.mesh1em1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "sparse",
+        "version": "0.17.0"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "b6a7322820f8eb2013bfbed8743f15425bb82ec5cd39c837a23cd08fa02d1909",
+    "file": "src/saps/benchmarks/preconditioned_cg.py",
+    "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247"
+  },
+  "block_jacobi_cg_inputs.mhdb416": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "sparse",
+        "version": "0.17.0"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "f8a7ea799a85afd507f1aae321eb5096e55f2d1b275d9a0addb4d8860d8458ac",
+    "file": "src/saps/benchmarks/preconditioned_cg.py",
+    "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247"
+  },
   "block_jacobi_cg_inputs.test_A0": {
     "dependencies": [
       "boto3",
@@ -1065,9 +1315,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "4b95186346ee85de6099a8a86906d771075efe87433f9436f6fd487401cbff12",
+    "digest": "d53b53f39ba2b1005d3ea9ea5599af6eaa14ff09fa4c0dc58185b79cde1c976a",
     "file": "src/saps/benchmarks/preconditioned_cg.py",
-    "freshness": "5416fa03c76fe8b28d765d37f838b1e559c620d7b29ffe0ed306c1141811cb63"
+    "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247"
   },
   "block_jacobi_cg_inputs.test_A1": {
     "dependencies": [
@@ -1115,9 +1365,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "78f5eea5cdaba1e5246c9fb22f592fc4f091315889c7e5640b294e8236441a97",
+    "digest": "a2390b4b521f4a181a73a456fdd275927c3a88ab037ccff4d94de06b2a942e73",
     "file": "src/saps/benchmarks/preconditioned_cg.py",
-    "freshness": "5416fa03c76fe8b28d765d37f838b1e559c620d7b29ffe0ed306c1141811cb63"
+    "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247"
   },
   "block_jacobi_cg_inputs.test_A2": {
     "dependencies": [
@@ -1165,9 +1415,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "c742f43fedd2c22342b0bfd280c18aba10c8449b9e7a4ff7b18641b768a73781",
+    "digest": "f37dc8373eba7a543f13f0fc2be9fc8138473cf490c191abe81f392a233f0682",
     "file": "src/saps/benchmarks/preconditioned_cg.py",
-    "freshness": "5416fa03c76fe8b28d765d37f838b1e559c620d7b29ffe0ed306c1141811cb63"
+    "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247"
   },
   "block_jacobi_cg_inputs.test_A3": {
     "dependencies": [
@@ -1215,9 +1465,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "92def4ba27dd063fa6b2365439f63a6d04e9fc2d082e1574f141d0779d3fdb6e",
+    "digest": "964d445b0c43a2b5d7997fd9a88454beac4da710777310d678122302a5aedb96",
     "file": "src/saps/benchmarks/preconditioned_cg.py",
-    "freshness": "5416fa03c76fe8b28d765d37f838b1e559c620d7b29ffe0ed306c1141811cb63"
+    "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247"
   },
   "block_jacobi_cg_inputs.test_A4": {
     "dependencies": [
@@ -1265,9 +1515,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "8e208a149d3655718cf729ad7a09d4baafdbf1c89f4ffa00362eaf523e05eeae",
+    "digest": "ac49e6da7e2581984be0c42ddc69adaaa51c73b0efca3ff74389150d33ba41eb",
     "file": "src/saps/benchmarks/preconditioned_cg.py",
-    "freshness": "5416fa03c76fe8b28d765d37f838b1e559c620d7b29ffe0ed306c1141811cb63"
+    "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247"
   },
   "block_jacobi_cg_inputs.test_A5": {
     "dependencies": [
@@ -1315,9 +1565,48 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "25a6cd93096a789aa3e191bb49be846ba1afa7d5a7c8c56608218851b17e7e09",
+    "digest": "d1ceb5d234f8487011e22d6f5e904a912bae834a183b22637c75c5d9da61f935",
     "file": "src/saps/benchmarks/preconditioned_cg.py",
-    "freshness": "5416fa03c76fe8b28d765d37f838b1e559c620d7b29ffe0ed306c1141811cb63"
+    "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247"
+  },
+  "brusselator.brusselator_4": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.integrate"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      }
+    ],
+    "digest": "d51931c6f02dccbddef5524af691906caceaee5e79cafc57525d1094b1344cb0",
+    "file": "src/saps/benchmarks/ode.py",
+    "freshness": "43b81a69e61442f99616efe83dd1f80bca568fedd9be1226cadb1633e5d1a19b"
   },
   "brusselator.brusselator_tiny": {
     "dependencies": [
@@ -1354,9 +1643,9 @@
         "version": "1.17.1"
       }
     ],
-    "digest": "2eb9f657beac69c226c16f21d59dc30e02653e10d542dfaf793fc3aa8056f7ea",
+    "digest": "4c7c5e3bb23f614b74d6d6767b8458292f8788c598b25f6a9338638272b1f57e",
     "file": "src/saps/benchmarks/ode.py",
-    "freshness": "a0fc8934e14d3c7802fc3f86dd8b3e701ab1986c33b3552ef6fbdf099ff079c2"
+    "freshness": "43b81a69e61442f99616efe83dd1f80bca568fedd9be1226cadb1633e5d1a19b"
   },
   "ccsd_inputs.ccsd_large": {
     "dependencies": [
@@ -3780,9 +4069,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "8a36df4491b8542aba2451e00c52f93c30fdfcd4870859b4db70db5eae705732",
+    "digest": "35457c0bbf685e551fb63d69713a9b2dbf6800095ab1ef2c321b3bd214ecd268",
     "file": "src/saps/benchmarks/gcn_backward.py",
-    "freshness": "adbff31421d42ac851b4d6b73fbe084e6541a7ae93139ecac6c4630570fdf2a0"
+    "freshness": "6cf02d435fc484b656df181e0b1243827be14045ef500e64e36864747b69be98"
   },
   "gcn_backward_test_inputs.test_gcn_backward_degree_loss": {
     "dependencies": [
@@ -3824,9 +4113,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "1ed1669c590ca91e168a188d1c86df580176ff1be690bb00756fd7bbf5663897",
+    "digest": "de3faa1b0842423567cbc4f449a651c9c19caa317e5408cd0d1ed24167f225d8",
     "file": "src/saps/benchmarks/gcn_backward.py",
-    "freshness": "adbff31421d42ac851b4d6b73fbe084e6541a7ae93139ecac6c4630570fdf2a0"
+    "freshness": "6cf02d435fc484b656df181e0b1243827be14045ef500e64e36864747b69be98"
   },
   "gcn_backward_test_inputs.test_gcn_backward_degree_test_graph_loss": {
     "dependencies": [
@@ -3868,9 +4157,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "74a37c069a12ad22c46de0d38b682443aee67f9250f1ab23a0e266a07ec03f11",
+    "digest": "dec3390b7589c7e543292bd97bf11bbbc2179ad9a447d9f2ae3828e353735b8b",
     "file": "src/saps/benchmarks/gcn_backward.py",
-    "freshness": "adbff31421d42ac851b4d6b73fbe084e6541a7ae93139ecac6c4630570fdf2a0"
+    "freshness": "6cf02d435fc484b656df181e0b1243827be14045ef500e64e36864747b69be98"
   },
   "gcn_backward_test_inputs.test_gcn_backward_multidim": {
     "dependencies": [
@@ -3912,9 +4201,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "e817a07c7718998346a7e1a535640522273e0c500a5b7916fbb8351f36de00fd",
+    "digest": "58f9cd96989a81ab0165c869950412fca4e5137021f20914e0f52b067a7cdeec",
     "file": "src/saps/benchmarks/gcn_backward.py",
-    "freshness": "adbff31421d42ac851b4d6b73fbe084e6541a7ae93139ecac6c4630570fdf2a0"
+    "freshness": "6cf02d435fc484b656df181e0b1243827be14045ef500e64e36864747b69be98"
   },
   "gcn_test_inputs.test_gcn_3node": {
     "dependencies": [
@@ -5298,6 +5587,256 @@
     "file": "src/saps/benchmarks/HOSVD.py",
     "freshness": "714e01583450c81498993d9d5ce31b4d8ea68cb0d7f020fad46ffc7a8c013fab"
   },
+  "jacobi_cg_inputs.Chem97ZtZ": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "sparse",
+        "version": "0.17.0"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "7fc978db182bd914639d05af97a2e75c04a7d211c8a5c2a31c076adf3597abdd",
+    "file": "src/saps/benchmarks/preconditioned_cg.py",
+    "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247"
+  },
+  "jacobi_cg_inputs.bcsstm12": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "sparse",
+        "version": "0.17.0"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "3dfdb4f0001ef4e3f4c8b03ef8d3af81689b664231575d6e91161de6911acbce",
+    "file": "src/saps/benchmarks/preconditioned_cg.py",
+    "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247"
+  },
+  "jacobi_cg_inputs.lund_b": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "sparse",
+        "version": "0.17.0"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "9d06d0b40b8ed384cfaa7194d7f3a24b60543e5f0444782deefbc0c9b66f40b8",
+    "file": "src/saps/benchmarks/preconditioned_cg.py",
+    "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247"
+  },
+  "jacobi_cg_inputs.mesh1em1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "sparse",
+        "version": "0.17.0"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "b0bdff6ae31c754a92128a0b055abf3c4e154981f1e7eb41622461c401819220",
+    "file": "src/saps/benchmarks/preconditioned_cg.py",
+    "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247"
+  },
+  "jacobi_cg_inputs.mhdb416": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "sparse",
+        "version": "0.17.0"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "c6bfe2090eccd3299e5dbcdada53d76f0c5dee0ac9393672797cf4d4bfaaedf0",
+    "file": "src/saps/benchmarks/preconditioned_cg.py",
+    "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247"
+  },
   "jacobi_cg_inputs.test_A0": {
     "dependencies": [
       "boto3",
@@ -5344,9 +5883,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "15b4067e495be4ae5127c8b5c0fa060eaf95469f415eab7528dc8650a7dc242a",
+    "digest": "48ea024afd0000d7ed106fc477027d5026d6701600c95599acd11b9d8ae0117d",
     "file": "src/saps/benchmarks/preconditioned_cg.py",
-    "freshness": "5416fa03c76fe8b28d765d37f838b1e559c620d7b29ffe0ed306c1141811cb63"
+    "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247"
   },
   "jacobi_cg_inputs.test_A1": {
     "dependencies": [
@@ -5394,9 +5933,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "a7cef0398f6c42f98319531da66daa8400cac5b4b43c2852421e1825670e362c",
+    "digest": "fcdbf026df2847160e045142735372aeb648827e17c3e5b909eb9dd9f860279f",
     "file": "src/saps/benchmarks/preconditioned_cg.py",
-    "freshness": "5416fa03c76fe8b28d765d37f838b1e559c620d7b29ffe0ed306c1141811cb63"
+    "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247"
   },
   "jacobi_cg_inputs.test_A2": {
     "dependencies": [
@@ -5444,9 +5983,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "368abd0005747ef4e1137b8b8c37a7c72af5b0ac4b95ede5861ef75f6362c48c",
+    "digest": "bfb028cba32c0ccf2f2b98811fb1f20852bfea57e912c4643be95e4d85b22c49",
     "file": "src/saps/benchmarks/preconditioned_cg.py",
-    "freshness": "5416fa03c76fe8b28d765d37f838b1e559c620d7b29ffe0ed306c1141811cb63"
+    "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247"
   },
   "jacobi_cg_inputs.test_A3": {
     "dependencies": [
@@ -5494,9 +6033,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "941fd27a9422f8e683283fa0f15c28cb3edd4be837e2d817cdb134c5fdff49b1",
+    "digest": "12a18d9ba1f1ec39c6ca530513fc70fa97353facc228b75a9162fb110de53c41",
     "file": "src/saps/benchmarks/preconditioned_cg.py",
-    "freshness": "5416fa03c76fe8b28d765d37f838b1e559c620d7b29ffe0ed306c1141811cb63"
+    "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247"
   },
   "jacobi_cg_inputs.test_A4": {
     "dependencies": [
@@ -5544,9 +6083,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "7608082a257181feec751d4836fddcf700621f15d21b1a4f9e7aec1561d5d5a3",
+    "digest": "2c0f2e98236d7671969e2942f89b2bcacd10ec2ad0c2c344648ad4818df70bea",
     "file": "src/saps/benchmarks/preconditioned_cg.py",
-    "freshness": "5416fa03c76fe8b28d765d37f838b1e559c620d7b29ffe0ed306c1141811cb63"
+    "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247"
   },
   "jacobi_cg_inputs.test_A5": {
     "dependencies": [
@@ -5594,9 +6133,409 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "9e714dd81d5ca7fd37386b3fab89ddffa77239c73f477b838672076580169a6c",
+    "digest": "a7acc6d24d666bb75ffde19065978f525a3d5d78258d13b2ed35ac838e33a444",
     "file": "src/saps/benchmarks/preconditioned_cg.py",
-    "freshness": "5416fa03c76fe8b28d765d37f838b1e559c620d7b29ffe0ed306c1141811cb63"
+    "freshness": "e1972fab1168e58adb3adc33032b709a08e804a39b5ae679e2a81184da3f9247"
+  },
+  "jacobi_inputs.Chem97ZtZ": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "sparse",
+        "version": "0.17.0"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "7b8d681ee487dd5a21b6602cd6e9629b90033aed633177de7c0812fadf351765",
+    "file": "src/saps/benchmarks/jacobi.py",
+    "freshness": "28f78ac862d44408871b2394c44452eb4833bc39c4abfb2070e667a84f806221"
+  },
+  "jacobi_inputs.Trefethen_200": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "sparse",
+        "version": "0.17.0"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "a024ea697cc3eb79df0d4037ebc14639adb9b1dd2a695d5168bc04c677efc7fe",
+    "file": "src/saps/benchmarks/jacobi.py",
+    "freshness": "28f78ac862d44408871b2394c44452eb4833bc39c4abfb2070e667a84f806221"
+  },
+  "jacobi_inputs.Trefethen_20000": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "sparse",
+        "version": "0.17.0"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "aacf623fdefa868a713756613b7d179b60e3a09353087f9660bc524f81776536",
+    "file": "src/saps/benchmarks/jacobi.py",
+    "freshness": "28f78ac862d44408871b2394c44452eb4833bc39c4abfb2070e667a84f806221"
+  },
+  "jacobi_inputs.Trefethen_500": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "sparse",
+        "version": "0.17.0"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "f25c4de5546e35f0885968f0d697d868f57e60e14dcc44b6441dd96547bddedc",
+    "file": "src/saps/benchmarks/jacobi.py",
+    "freshness": "28f78ac862d44408871b2394c44452eb4833bc39c4abfb2070e667a84f806221"
+  },
+  "jacobi_inputs.Trefethen_700": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "sparse",
+        "version": "0.17.0"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "a2aace82f8bf6f046c93ed893a4fc9906934cff4a358886c73255f5db7bb09a1",
+    "file": "src/saps/benchmarks/jacobi.py",
+    "freshness": "28f78ac862d44408871b2394c44452eb4833bc39c4abfb2070e667a84f806221"
+  },
+  "jacobi_inputs.fv1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "sparse",
+        "version": "0.17.0"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "a24eb26baae9131a394b04225c93c90c9d87151d42e5fcfde4f0536e0f850f67",
+    "file": "src/saps/benchmarks/jacobi.py",
+    "freshness": "28f78ac862d44408871b2394c44452eb4833bc39c4abfb2070e667a84f806221"
+  },
+  "jacobi_inputs.fv2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "sparse",
+        "version": "0.17.0"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "830fafc2b9c9239501ecd9ea44706eb1d6e73593e8886bc8a3271ab07868d8dc",
+    "file": "src/saps/benchmarks/jacobi.py",
+    "freshness": "28f78ac862d44408871b2394c44452eb4833bc39c4abfb2070e667a84f806221"
+  },
+  "jacobi_inputs.mesh3em5": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "sparse",
+        "version": "0.17.0"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "e7b2b6440842c03d2c2b0bd08e30f7a3f74b933497bbdac9e92bc5ffe8d1c3aa",
+    "file": "src/saps/benchmarks/jacobi.py",
+    "freshness": "28f78ac862d44408871b2394c44452eb4833bc39c4abfb2070e667a84f806221"
   },
   "jacobi_test_inputs.test_3x3": {
     "dependencies": [
@@ -5644,9 +6583,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "6a79fcf8b73ca90931634a8cd8e6e3a34944563c79eaaf9ae7b903c6a10d525b",
+    "digest": "7afb8e109b45d0203a88cd88928cb6a3a7932645519e43c05848df631aaa3407",
     "file": "src/saps/benchmarks/jacobi.py",
-    "freshness": "397dbb56f82b01de2aa4f83f939739a6fdfa3faf3ca632ee851f9a976e45d14f"
+    "freshness": "28f78ac862d44408871b2394c44452eb4833bc39c4abfb2070e667a84f806221"
   },
   "jacobi_test_inputs.test_3x3_dominant": {
     "dependencies": [
@@ -5694,9 +6633,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "fe998d5fd6b225ebe50968408fe86abe0d7b3fae8bcb72048d8cb4e60813098d",
+    "digest": "3345d890e1238eb2c983ef427fb8c8d9b5d87235a8d3e7f948686567e81e7025",
     "file": "src/saps/benchmarks/jacobi.py",
-    "freshness": "397dbb56f82b01de2aa4f83f939739a6fdfa3faf3ca632ee851f9a976e45d14f"
+    "freshness": "28f78ac862d44408871b2394c44452eb4833bc39c4abfb2070e667a84f806221"
   },
   "jacobi_test_inputs.test_4x4": {
     "dependencies": [
@@ -5744,9 +6683,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "8bed82b02f5ab3e8c75d36147a2caee95d76f66f4363afd23209ab3c6507e624",
+    "digest": "aa0b186eaec9a9a75e4a99e70ad93f67fa8286baea8b9b8680e38fd2634c58e6",
     "file": "src/saps/benchmarks/jacobi.py",
-    "freshness": "397dbb56f82b01de2aa4f83f939739a6fdfa3faf3ca632ee851f9a976e45d14f"
+    "freshness": "28f78ac862d44408871b2394c44452eb4833bc39c4abfb2070e667a84f806221"
   },
   "jl_projection_inputs.large": {
     "dependencies": [
@@ -5939,9 +6878,279 @@
         "version": "1.17.1"
       }
     ],
-    "digest": "cba9a534eff76da8de0a4a2e72a36a5d5867c4385ca040ac79fe7cda24a84dad",
+    "digest": "2c18f13565211bd6216e29d372fdc3e74a8133f8415a29594333387e6ae275f0",
     "file": "src/saps/benchmarks/ode.py",
-    "freshness": "a0fc8934e14d3c7802fc3f86dd8b3e701ab1986c33b3552ef6fbdf099ff079c2"
+    "freshness": "43b81a69e61442f99616efe83dd1f80bca568fedd9be1226cadb1633e5d1a19b"
+  },
+  "lsqr_inputs.Maragal_5": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "189d26db147fc0cff4d72f9d94eb3baa2bb19d345ee63112247b8f4be842ba0c",
+    "file": "src/saps/benchmarks/lsqr.py",
+    "freshness": "418156c2c47ea2394c427246970f33d68a6bade1d4e9c5eb7bb25570a5f38222"
+  },
+  "lsqr_inputs.abb313": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "3cc7b59f0b06a8ac9e35e5221b49a012a27bb4b0c007d3918dd93a56de72129a",
+    "file": "src/saps/benchmarks/lsqr.py",
+    "freshness": "418156c2c47ea2394c427246970f33d68a6bade1d4e9c5eb7bb25570a5f38222"
+  },
+  "lsqr_inputs.ash958": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "a66608256be35cc64f9b35e4f6dc1b64b59541fb222990e19b6113c0808d6d5b",
+    "file": "src/saps/benchmarks/lsqr.py",
+    "freshness": "418156c2c47ea2394c427246970f33d68a6bade1d4e9c5eb7bb25570a5f38222"
+  },
+  "lsqr_inputs.bayer06": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "f9ad655dfc4d8fc58e4ff1e5fb89eccfc5ea58454cf94f91944d85f7a6003c32",
+    "file": "src/saps/benchmarks/lsqr.py",
+    "freshness": "418156c2c47ea2394c427246970f33d68a6bade1d4e9c5eb7bb25570a5f38222"
+  },
+  "lsqr_inputs.illc1850": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "335642c89be56abb7d48a9ae4debec7384944c1bb7e7488f315723036462aa77",
+    "file": "src/saps/benchmarks/lsqr.py",
+    "freshness": "418156c2c47ea2394c427246970f33d68a6bade1d4e9c5eb7bb25570a5f38222"
+  },
+  "lsqr_inputs.well1033": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "028ab95b6d47366dc40d0c9564465fccbd6554b33fa2bf88617b87972c2ed588",
+    "file": "src/saps/benchmarks/lsqr.py",
+    "freshness": "418156c2c47ea2394c427246970f33d68a6bade1d4e9c5eb7bb25570a5f38222"
   },
   "lsqr_test_inputs.test_lsqr_exact_3": {
     "dependencies": [
@@ -5984,9 +7193,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "53d50dad058d7c0d6b5ffdfb593540a8299556c00575dfb667232a1d515b904c",
+    "digest": "edfbe4b978b124b49e34c14953897a363d8591c7b9ed2d6570b389a8fb68bdef",
     "file": "src/saps/benchmarks/lsqr.py",
-    "freshness": "b3c396b4ce8d78c4cb305ce6b886c134ce83bb728909c7ea6af3ed0ce6069d97"
+    "freshness": "418156c2c47ea2394c427246970f33d68a6bade1d4e9c5eb7bb25570a5f38222"
   },
   "lsqr_test_inputs.test_lsqr_exact_4": {
     "dependencies": [
@@ -6029,9 +7238,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "854e28e2b15405178f8f6b934e7911e94257716db1351d6f2befa1afd86a7316",
+    "digest": "1696041e79eb9bf09b72d83217637b0d01990877de4273ffa0e991a69ec47982",
     "file": "src/saps/benchmarks/lsqr.py",
-    "freshness": "b3c396b4ce8d78c4cb305ce6b886c134ce83bb728909c7ea6af3ed0ce6069d97"
+    "freshness": "418156c2c47ea2394c427246970f33d68a6bade1d4e9c5eb7bb25570a5f38222"
   },
   "lsqr_test_inputs.test_lsqr_exact_5": {
     "dependencies": [
@@ -6074,9 +7283,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "7afa2bb42b94067f8a6ca71cce07cfb41515e2957fe0ebc98e1f1f344db40c5d",
+    "digest": "8506e69f1fe1368e8eb8ee3cfce04bcc656e9677e1ad8fe1a66eb48853a9476a",
     "file": "src/saps/benchmarks/lsqr.py",
-    "freshness": "b3c396b4ce8d78c4cb305ce6b886c134ce83bb728909c7ea6af3ed0ce6069d97"
+    "freshness": "418156c2c47ea2394c427246970f33d68a6bade1d4e9c5eb7bb25570a5f38222"
   },
   "lsqr_test_inputs.test_lsqr_overdetermined_3": {
     "dependencies": [
@@ -6119,9 +7328,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "db513f34c0bfb248de6e213d4d9f3d0a2d4af8091a48664b8300e464b2e37125",
+    "digest": "4a3337e48f5637a840352eb640de4d1b3da256ee5abd989e1f91b29721afe4cb",
     "file": "src/saps/benchmarks/lsqr.py",
-    "freshness": "b3c396b4ce8d78c4cb305ce6b886c134ce83bb728909c7ea6af3ed0ce6069d97"
+    "freshness": "418156c2c47ea2394c427246970f33d68a6bade1d4e9c5eb7bb25570a5f38222"
   },
   "lsqr_test_inputs.test_lsqr_overdetermined_dense": {
     "dependencies": [
@@ -6164,9 +7373,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "3b3c289c557fe3ab5281469fa43bce4c51a7f9be59ff010234d7c05cb0e67333",
+    "digest": "70cccf2c89d31c45e259fcd21d448f466da8fe6091184db2021a0d4a2e73077e",
     "file": "src/saps/benchmarks/lsqr.py",
-    "freshness": "b3c396b4ce8d78c4cb305ce6b886c134ce83bb728909c7ea6af3ed0ce6069d97"
+    "freshness": "418156c2c47ea2394c427246970f33d68a6bade1d4e9c5eb7bb25570a5f38222"
   },
   "lsqr_test_inputs.test_lsqr_overdetermined_sparse": {
     "dependencies": [
@@ -6209,9 +7418,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "381e7d35b898b4f05abde8f968de49e8c0fd4666b318907d83457666311b4e37",
+    "digest": "d7333cf364a576b549407c96b1f1db606909bb3a67c9d8cf6b8d57e25b43734f",
     "file": "src/saps/benchmarks/lsqr.py",
-    "freshness": "b3c396b4ce8d78c4cb305ce6b886c134ce83bb728909c7ea6af3ed0ce6069d97"
+    "freshness": "418156c2c47ea2394c427246970f33d68a6bade1d4e9c5eb7bb25570a5f38222"
   },
   "lsqr_test_inputs.test_lsqr_scaled_underdetermined": {
     "dependencies": [
@@ -6254,9 +7463,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "775041adda850222e113e7072f33082abe294ca24c324dcf98fd52f22e730ad2",
+    "digest": "2443e7344ba13cb4311bbc81c3fc0b6664b94e9cd8f82e6b000b46be4ca95b3d",
     "file": "src/saps/benchmarks/lsqr.py",
-    "freshness": "b3c396b4ce8d78c4cb305ce6b886c134ce83bb728909c7ea6af3ed0ce6069d97"
+    "freshness": "418156c2c47ea2394c427246970f33d68a6bade1d4e9c5eb7bb25570a5f38222"
   },
   "lsqr_test_inputs.test_lsqr_underdetermined_3": {
     "dependencies": [
@@ -6299,9 +7508,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "c97972ccf55d5223627e4a3c47c0278288a515e9772ccf4850710f7670c94f76",
+    "digest": "edfc8138182dd5c1c56065217d59905cf59e8b7c31c2758a7083ec1be3fd34df",
     "file": "src/saps/benchmarks/lsqr.py",
-    "freshness": "b3c396b4ce8d78c4cb305ce6b886c134ce83bb728909c7ea6af3ed0ce6069d97"
+    "freshness": "418156c2c47ea2394c427246970f33d68a6bade1d4e9c5eb7bb25570a5f38222"
   },
   "lsqr_test_inputs.test_lsqr_underdetermined_4": {
     "dependencies": [
@@ -6344,9 +7553,185 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "cb6bd4d6037041bc63002cac3bf329d8278f65b3c21e2791dcb0ebacc122c28d",
+    "digest": "1013d2c51ce62aca174bbfbe9cbeef9327ee1ae1b74cad3e61f04503be3cbdee",
     "file": "src/saps/benchmarks/lsqr.py",
-    "freshness": "b3c396b4ce8d78c4cb305ce6b886c134ce83bb728909c7ea6af3ed0ce6069d97"
+    "freshness": "418156c2c47ea2394c427246970f33d68a6bade1d4e9c5eb7bb25570a5f38222"
+  },
+  "masked_mri_inputs.masked_mri_1": {
+    "dependencies": [
+      "PIL",
+      "boto3",
+      "botocore",
+      "kagglehub",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "kagglehub",
+        "version": "0.4.3"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pillow",
+        "version": "12.2.0"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "15b2e88454902033b5ab5b7bf2756aa7a90ee16dee77d5e7daad34e5a5c86576",
+    "file": "src/saps/benchmarks/mri_edge.py",
+    "freshness": "e8a0a4d61f50359bfe52c8eceb177b7611910aa3358f6771e34f60b6eda965cd"
+  },
+  "masked_mri_inputs.masked_mri_2": {
+    "dependencies": [
+      "PIL",
+      "boto3",
+      "botocore",
+      "kagglehub",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "kagglehub",
+        "version": "0.4.3"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pillow",
+        "version": "12.2.0"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "0769b1028418779e65cec89afd32d9d82b506c085684bd3f4af8515c14caf40f",
+    "file": "src/saps/benchmarks/mri_edge.py",
+    "freshness": "e8a0a4d61f50359bfe52c8eceb177b7611910aa3358f6771e34f60b6eda965cd"
+  },
+  "masked_mri_inputs.masked_mri_3": {
+    "dependencies": [
+      "PIL",
+      "boto3",
+      "botocore",
+      "kagglehub",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "kagglehub",
+        "version": "0.4.3"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pillow",
+        "version": "12.2.0"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "8d0d4e7f675f51698426340757116bf293e7dcdf2785f2a44dc7c7d80b4c6730",
+    "file": "src/saps/benchmarks/mri_edge.py",
+    "freshness": "e8a0a4d61f50359bfe52c8eceb177b7611910aa3358f6771e34f60b6eda965cd"
+  },
+  "masked_mri_inputs.masked_mri_4": {
+    "dependencies": [
+      "PIL",
+      "boto3",
+      "botocore",
+      "kagglehub",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "kagglehub",
+        "version": "0.4.3"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pillow",
+        "version": "12.2.0"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "9ee57be1c1482de7aee47194e8561c101f87a577c2285268861a9a8941cad0ee",
+    "file": "src/saps/benchmarks/mri_edge.py",
+    "freshness": "e8a0a4d61f50359bfe52c8eceb177b7611910aa3358f6771e34f60b6eda965cd"
   },
   "masked_mri_test_inputs.test_masked_mri_basic_roi": {
     "dependencies": [
@@ -6388,9 +7773,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "6e68d00e0b37e2029a09fb0c1a2fffc3bf4b3f0ed8955664205c3c37959e1b6f",
+    "digest": "4aea0d45aa76b892f0bc7567e6e5cd5d14b597ded0395a1800e3237188a07a2e",
     "file": "src/saps/benchmarks/mri_edge.py",
-    "freshness": "9556cf9ac4529103d4e8926918587d045137a04cf82e249245ba41205070943a"
+    "freshness": "e8a0a4d61f50359bfe52c8eceb177b7611910aa3358f6771e34f60b6eda965cd"
   },
   "masked_mri_test_inputs.test_masked_mri_generator_builds_default_roi": {
     "dependencies": [
@@ -6432,9 +7817,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "43573789447a00633490d9527d670697a93f4a7e99c6391fff41aa2eef86cfcf",
+    "digest": "f7417682a24baf52c1659654f3daad3f45a177a315477794e2e80f9e0dc2611f",
     "file": "src/saps/benchmarks/mri_edge.py",
-    "freshness": "9556cf9ac4529103d4e8926918587d045137a04cf82e249245ba41205070943a"
+    "freshness": "e8a0a4d61f50359bfe52c8eceb177b7611910aa3358f6771e34f60b6eda965cd"
   },
   "masked_mri_test_inputs.test_masked_mri_zero_image": {
     "dependencies": [
@@ -6476,9 +7861,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "3dbea57fb9e9a7d266d28df6d3c3a0b5a7b9f6f380532554428b267e3ae6cdcc",
+    "digest": "139b7c0132b893e4498c958e6c2a1009509a351fca126634182ad9d55794e423",
     "file": "src/saps/benchmarks/mri_edge.py",
-    "freshness": "9556cf9ac4529103d4e8926918587d045137a04cf82e249245ba41205070943a"
+    "freshness": "e8a0a4d61f50359bfe52c8eceb177b7611910aa3358f6771e34f60b6eda965cd"
   },
   "mc_generator.test_1": {
     "dependencies": [
@@ -6510,9 +7895,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "3349a8fe117bec22ea19392aa4d3028fa06127f02261318466a1cc85b73cdca8",
+    "digest": "eb7a524afa980867895bcc329e5f3910ecef07a9d097779e960984765dbe9e9d",
     "file": "src/saps/benchmarks/model_counting.py",
-    "freshness": "ccd5be1f221041c5d8d8792b2d1ddb80ca804a30b37aca325ffe41906580ae43"
+    "freshness": "e1820cc8b29499d312da55c813ef9f4e1998730ae99735f9998a5e615bd48496"
   },
   "mc_generator.test_2": {
     "dependencies": [
@@ -6544,9 +7929,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "64abdcae7d84e064480daf22c811313b5591b17bbc4eb9f5d967225100851f6c",
+    "digest": "ce6ec6efd4033eb252f61a38d2324caeebf3e9a1e43b0b6f2f585b6683aa93a8",
     "file": "src/saps/benchmarks/model_counting.py",
-    "freshness": "ccd5be1f221041c5d8d8792b2d1ddb80ca804a30b37aca325ffe41906580ae43"
+    "freshness": "e1820cc8b29499d312da55c813ef9f4e1998730ae99735f9998a5e615bd48496"
   },
   "mc_generator.test_3": {
     "dependencies": [
@@ -6578,9 +7963,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "eb39350d74b18fa79386918056ceb0176a11e8c89f57c047cc666d6014c7190e",
+    "digest": "b76107c96cb14dac27ad850125799d053fb1e3865d8e0a70a11f757756839bdf",
     "file": "src/saps/benchmarks/model_counting.py",
-    "freshness": "ccd5be1f221041c5d8d8792b2d1ddb80ca804a30b37aca325ffe41906580ae43"
+    "freshness": "e1820cc8b29499d312da55c813ef9f4e1998730ae99735f9998a5e615bd48496"
   },
   "mc_generator.test_4": {
     "dependencies": [
@@ -6612,9 +7997,361 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "cba38cabc134d05c1693bfab400069a39eb985b7ee5dad8a7ceda47dce284a0c",
+    "digest": "075a0a677143f84a93047aeda2aeaa0f374883b31c92f1013f9fe3f6a0bb5c64",
     "file": "src/saps/benchmarks/model_counting.py",
-    "freshness": "ccd5be1f221041c5d8d8792b2d1ddb80ca804a30b37aca325ffe41906580ae43"
+    "freshness": "e1820cc8b29499d312da55c813ef9f4e1998730ae99735f9998a5e615bd48496"
+  },
+  "mcl_inputs.Trefethen_200": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "c3bdce8db111d3716bdd81e586ef62dea1779b62e98c3c77f4b46dc01b15a20c",
+    "file": "src/saps/benchmarks/mcl_benchmark.py",
+    "freshness": "7d0a19f6c5e5aa49924ba26a2d66fef851c169189d017cce9da827bcbbf4dad0"
+  },
+  "mcl_inputs.bcsstk05": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "1574481dc1af895f68d4a3123cefbe32a7c6d3d8d816f2193ef483451b099971",
+    "file": "src/saps/benchmarks/mcl_benchmark.py",
+    "freshness": "7d0a19f6c5e5aa49924ba26a2d66fef851c169189d017cce9da827bcbbf4dad0"
+  },
+  "mcl_inputs.dwt_59": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "01fffc1198a980a73f708b352a40bb70dea9ca0a7dbc614526483db6d6ae205d",
+    "file": "src/saps/benchmarks/mcl_benchmark.py",
+    "freshness": "7d0a19f6c5e5aa49924ba26a2d66fef851c169189d017cce9da827bcbbf4dad0"
+  },
+  "mcl_inputs.fv1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "c246c707c6013dab4efc511860e4a4485c6944c6c3cd65dffbf419ba03b16be6",
+    "file": "src/saps/benchmarks/mcl_benchmark.py",
+    "freshness": "7d0a19f6c5e5aa49924ba26a2d66fef851c169189d017cce9da827bcbbf4dad0"
+  },
+  "mcl_inputs.mesh3em5": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "0ef7ba7bb66eed6c896c21732db420775e22eaf9caa2653e66a4fe668c8cac36",
+    "file": "src/saps/benchmarks/mcl_benchmark.py",
+    "freshness": "7d0a19f6c5e5aa49924ba26a2d66fef851c169189d017cce9da827bcbbf4dad0"
+  },
+  "mcl_inputs.nos1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "b9665729dd39a08a9ce39f8ea8d9fbf6fb5bb83bf88f83b9098fd85551d22de4",
+    "file": "src/saps/benchmarks/mcl_benchmark.py",
+    "freshness": "7d0a19f6c5e5aa49924ba26a2d66fef851c169189d017cce9da827bcbbf4dad0"
+  },
+  "mcl_inputs.nos2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "36c32ed78c3dd9005ea0b6e1a9c917f34de92bfc7e5e2c7e038fe267c1e6ee29",
+    "file": "src/saps/benchmarks/mcl_benchmark.py",
+    "freshness": "7d0a19f6c5e5aa49924ba26a2d66fef851c169189d017cce9da827bcbbf4dad0"
+  },
+  "mcl_inputs.nos3": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "b31f7454f9b3e493f9b4c100e5c97691881f4ce962c7bfd98d672c00ef4790c9",
+    "file": "src/saps/benchmarks/mcl_benchmark.py",
+    "freshness": "7d0a19f6c5e5aa49924ba26a2d66fef851c169189d017cce9da827bcbbf4dad0"
   },
   "mcl_test_inputs.planted_clique": {
     "dependencies": [
@@ -6656,9 +8393,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "988c1dbd4c2d46be145092107b5eafcd99b957c03a013b645f51e15ee321da98",
+    "digest": "2cc7b9763d6c2d45fc9ba37f1c65e67180b21c254167c0fd551ff001838909b8",
     "file": "src/saps/benchmarks/mcl_benchmark.py",
-    "freshness": "5cdc167cb49b1b427d3f3bd797e69b0ba53d1655576fd97e79aabd9f513ec600"
+    "freshness": "7d0a19f6c5e5aa49924ba26a2d66fef851c169189d017cce9da827bcbbf4dad0"
   },
   "mcl_test_inputs.three_block_pairs": {
     "dependencies": [
@@ -6700,9 +8437,9 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "094a8a4530f938e7d9aaf530d572047a50b2a8cf11e08df023f1143748e4fbf9",
+    "digest": "2d4916396376d11fb5609bfbfaeecd0ccf1639461817ea8eb8d4796559956f95",
     "file": "src/saps/benchmarks/mcl_benchmark.py",
-    "freshness": "5cdc167cb49b1b427d3f3bd797e69b0ba53d1655576fd97e79aabd9f513ec600"
+    "freshness": "7d0a19f6c5e5aa49924ba26a2d66fef851c169189d017cce9da827bcbbf4dad0"
   },
   "mcl_test_inputs.two_star_components": {
     "dependencies": [
@@ -6744,9 +8481,185 @@
         "version": "1.0rc2"
       }
     ],
-    "digest": "e50973ebb0490185dc3aa20ae7c8adf67337b9ddc7b8e5d228d05459de345d08",
+    "digest": "8529d10cc63a9d7225ae1b1c9489449f8a147f0a84b1f8534beeff72c7e6f6d0",
     "file": "src/saps/benchmarks/mcl_benchmark.py",
-    "freshness": "5cdc167cb49b1b427d3f3bd797e69b0ba53d1655576fd97e79aabd9f513ec600"
+    "freshness": "7d0a19f6c5e5aa49924ba26a2d66fef851c169189d017cce9da827bcbbf4dad0"
+  },
+  "mri_sobel_inputs.mri_sobel_1": {
+    "dependencies": [
+      "PIL",
+      "boto3",
+      "botocore",
+      "kagglehub",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "kagglehub",
+        "version": "0.4.3"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pillow",
+        "version": "12.2.0"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "2caae6a1bc06d1b3c378bb7541e0ec61d5183d65d8004f65900d6217583c16bf",
+    "file": "src/saps/benchmarks/sobel_edge.py",
+    "freshness": "10414bccd20897f1b7eb3733cfedb421b299a6ee03b2a63f562130200cc8d8dc"
+  },
+  "mri_sobel_inputs.mri_sobel_2": {
+    "dependencies": [
+      "PIL",
+      "boto3",
+      "botocore",
+      "kagglehub",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "kagglehub",
+        "version": "0.4.3"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pillow",
+        "version": "12.2.0"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "aeff95441bad2b522fce6549ed9ed628f164765af8656f57fa4f6a29c4c29ce4",
+    "file": "src/saps/benchmarks/sobel_edge.py",
+    "freshness": "10414bccd20897f1b7eb3733cfedb421b299a6ee03b2a63f562130200cc8d8dc"
+  },
+  "mri_sobel_inputs.mri_sobel_3": {
+    "dependencies": [
+      "PIL",
+      "boto3",
+      "botocore",
+      "kagglehub",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "kagglehub",
+        "version": "0.4.3"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pillow",
+        "version": "12.2.0"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "05e23e93e69dfa1b6b79ccd0288083121fb32cfe7e0eea0681d63f682f901931",
+    "file": "src/saps/benchmarks/sobel_edge.py",
+    "freshness": "10414bccd20897f1b7eb3733cfedb421b299a6ee03b2a63f562130200cc8d8dc"
+  },
+  "mri_sobel_inputs.mri_sobel_4": {
+    "dependencies": [
+      "PIL",
+      "boto3",
+      "botocore",
+      "kagglehub",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "kagglehub",
+        "version": "0.4.3"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pillow",
+        "version": "12.2.0"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "ab44ce8fb52c238571f83021fac4601f17969aeb36ee0e8c40f71524f4301ad4",
+    "file": "src/saps/benchmarks/sobel_edge.py",
+    "freshness": "10414bccd20897f1b7eb3733cfedb421b299a6ee03b2a63f562130200cc8d8dc"
   },
   "mri_sobel_test_inputs.test_sobel_generator_metadata": {
     "dependencies": [
@@ -6788,9 +8701,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "ddbc4376fd22c634e4fb647ad4bde16aad1b7e6ce69e8d1b2c98509d9e9ddf82",
+    "digest": "a5a6916e0c56690c0383081a412f498400272f489c543fd7610cad775a503f8d",
     "file": "src/saps/benchmarks/sobel_edge.py",
-    "freshness": "647a869ec235690a2f47610f7cf5a7d38dcbd5725b50ff28b5a1c53f1b1be34c"
+    "freshness": "10414bccd20897f1b7eb3733cfedb421b299a6ee03b2a63f562130200cc8d8dc"
   },
   "mri_sobel_test_inputs.test_sobel_horizontal_edge": {
     "dependencies": [
@@ -6832,9 +8745,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "47de9ba1a7fbb42fc5b61c1c472855591dd15b0d85cc0839a411b3f6bf4f45ea",
+    "digest": "bb80c1cfe2000c02f3881f2b4049d6bbebfcb167d0e453c67daeeab88aa9aacd",
     "file": "src/saps/benchmarks/sobel_edge.py",
-    "freshness": "647a869ec235690a2f47610f7cf5a7d38dcbd5725b50ff28b5a1c53f1b1be34c"
+    "freshness": "10414bccd20897f1b7eb3733cfedb421b299a6ee03b2a63f562130200cc8d8dc"
   },
   "mri_sobel_test_inputs.test_sobel_vertical_edge": {
     "dependencies": [
@@ -6876,9 +8789,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "5da9cc39d83b49f47cfda94670ae0a1d1ffd49ccec2cb9d64cb06af573599254",
+    "digest": "07f2c10a0a25638566d9a4c300437ae4ab2c8dadf248bfacb634c8057e9d06a5",
     "file": "src/saps/benchmarks/sobel_edge.py",
-    "freshness": "647a869ec235690a2f47610f7cf5a7d38dcbd5725b50ff28b5a1c53f1b1be34c"
+    "freshness": "10414bccd20897f1b7eb3733cfedb421b299a6ee03b2a63f562130200cc8d8dc"
   },
   "mri_sobel_test_inputs.test_sobel_zero_image": {
     "dependencies": [
@@ -6920,9 +8833,126 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "0f47e6af59a67197fc1b90dc7cca556933475602db61bc0149b80540b9a93fc8",
+    "digest": "7c8c6a20ae6dfc24c2f5f1e72576454f3b0d2572e6f16cb8c5df3e6f2ffbf380",
     "file": "src/saps/benchmarks/sobel_edge.py",
-    "freshness": "647a869ec235690a2f47610f7cf5a7d38dcbd5725b50ff28b5a1c53f1b1be34c"
+    "freshness": "10414bccd20897f1b7eb3733cfedb421b299a6ee03b2a63f562130200cc8d8dc"
+  },
+  "pagerank_inputs.snap-ca-GrQc": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "networkx",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "networkx",
+        "version": "3.6"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "ad3ecf5a23bf9af4eec17ba536e0b0f35c36d7ee9e229e333026abfe9830c6b6",
+    "file": "src/saps/benchmarks/pagerank.py",
+    "freshness": "dfedd63060436919567f1a1b0940f1084bd678644ef150027617e2a911ca45ed"
+  },
+  "pagerank_inputs.snap-email-Eu-core": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "networkx",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "networkx",
+        "version": "3.6"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "b9f86a7bc919aff2d95722de9eb2de6d336e7a66befc42cee7322ef58ea0aff0",
+    "file": "src/saps/benchmarks/pagerank.py",
+    "freshness": "dfedd63060436919567f1a1b0940f1084bd678644ef150027617e2a911ca45ed"
+  },
+  "pagerank_inputs.snap-p2p-Gnutella04": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "networkx",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "networkx",
+        "version": "3.6"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "156947acc6263553e43281475688a9aac5473c599823330c529393482f39a4a5",
+    "file": "src/saps/benchmarks/pagerank.py",
+    "freshness": "dfedd63060436919567f1a1b0940f1084bd678644ef150027617e2a911ca45ed"
   },
   "pagerank_test_inputs.test_pagerank_against_networkx": {
     "dependencies": [
@@ -6959,9 +8989,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "b3cb5bc701fa6e1794a0a4f684981e341d39496c6bfa43840d739b4edef6d8d4",
+    "digest": "7b93c1f5361b7eee5523f57cc6b9d6f39b26d14008b71b561944eefa7ed51b03",
     "file": "src/saps/benchmarks/pagerank.py",
-    "freshness": "451f6f7dd802b9d493e5f6affbe923e558f9c114c195fed01065f356f0bfc45d"
+    "freshness": "dfedd63060436919567f1a1b0940f1084bd678644ef150027617e2a911ca45ed"
   },
   "pagerank_test_inputs.test_pagerank_snap_toy": {
     "dependencies": [
@@ -6998,9 +9028,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "816284fac6f27508090f0a3e39d157193feb8398317cf49fa4ff0fb70c32deaf",
+    "digest": "2fdd22a674a50bbf926592a3d9c054640dd5936412060507fa7a7ea0fcbc24a1",
     "file": "src/saps/benchmarks/pagerank.py",
-    "freshness": "451f6f7dd802b9d493e5f6affbe923e558f9c114c195fed01065f356f0bfc45d"
+    "freshness": "dfedd63060436919567f1a1b0940f1084bd678644ef150027617e2a911ca45ed"
   },
   "pagerank_test_inputs.test_pagerank_three_node_chain": {
     "dependencies": [
@@ -7037,9 +9067,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "ac850f285ad3555ddd26154d037cc91eb695666a53685f67fde1ebccff53c983",
+    "digest": "127b334dee3cca483e5a5a72754479371e8921415d303e0bc1721661598235f9",
     "file": "src/saps/benchmarks/pagerank.py",
-    "freshness": "451f6f7dd802b9d493e5f6affbe923e558f9c114c195fed01065f356f0bfc45d"
+    "freshness": "dfedd63060436919567f1a1b0940f1084bd678644ef150027617e2a911ca45ed"
   },
   "pagerank_test_inputs.test_pagerank_two_node_cycle": {
     "dependencies": [
@@ -7076,9 +9106,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "5f990752fa011d9d7f264bc07272ec3ef88d961371a48b05863330947f636cc8",
+    "digest": "7b2c35a825805ae11878c0793ff46232564869b6c38d7e5181f3dab37a804241",
     "file": "src/saps/benchmarks/pagerank.py",
-    "freshness": "451f6f7dd802b9d493e5f6affbe923e558f9c114c195fed01065f356f0bfc45d"
+    "freshness": "dfedd63060436919567f1a1b0940f1084bd678644ef150027617e2a911ca45ed"
   },
   "pagerank_test_inputs.test_pagerank_two_node_sink": {
     "dependencies": [
@@ -7115,9 +9145,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "8cda891eb14725379d335ad9a1f2999931022cdacca087e64d849b1e08038693",
+    "digest": "ea83108788ec833c001418c848b8234713ef61f6825452fb8748c5e254380877",
     "file": "src/saps/benchmarks/pagerank.py",
-    "freshness": "451f6f7dd802b9d493e5f6affbe923e558f9c114c195fed01065f356f0bfc45d"
+    "freshness": "dfedd63060436919567f1a1b0940f1084bd678644ef150027617e2a911ca45ed"
   },
   "particle_sim_test_inputs.test_particle_sim_random_10": {
     "dependencies": [
@@ -7149,9 +9179,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "f3f8de78886dafa19a8c873318039ae40644e3306e785d08cd27d23bd59e7ead",
+    "digest": "c964159f9fa33e3bae1d065a195f55138889f5f209372c2058c909aea68a75a9",
     "file": "src/saps/benchmarks/particle_sim.py",
-    "freshness": "6213a8a2081ffc439a0784dd03446341facd8298434f6c26ce61bc28bd378853"
+    "freshness": "56c8af0d30d7a143d0f9fcc2d212cce6e038429933421dc0dee298d3e7e2878f"
   },
   "particle_sim_test_inputs.test_particle_sim_random_50": {
     "dependencies": [
@@ -7183,9 +9213,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "2be40a4b05f001fcc992a0d10f438617d6550f011ab260b7940f13d198a5d019",
+    "digest": "01c756022112276ea3ba4e1e9c52249892fac4f366c822d98b0be6d263041488",
     "file": "src/saps/benchmarks/particle_sim.py",
-    "freshness": "6213a8a2081ffc439a0784dd03446341facd8298434f6c26ce61bc28bd378853"
+    "freshness": "56c8af0d30d7a143d0f9fcc2d212cce6e038429933421dc0dee298d3e7e2878f"
   },
   "particle_sim_test_inputs.test_particle_sim_two_particles_within_cutoff": {
     "dependencies": [
@@ -7217,9 +9247,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "6cc325e25700f35bfd85989e25db943bf683651ee104401e33d4208335416731",
+    "digest": "131131c523cd01d06a60f41deaf5a18a821921677cedf0caec7fb7ec34580c80",
     "file": "src/saps/benchmarks/particle_sim.py",
-    "freshness": "6213a8a2081ffc439a0784dd03446341facd8298434f6c26ce61bc28bd378853"
+    "freshness": "56c8af0d30d7a143d0f9fcc2d212cce6e038429933421dc0dee298d3e7e2878f"
   },
   "particle_sim_test_inputs.test_particle_sim_wall_bounce": {
     "dependencies": [
@@ -7251,9 +9281,43 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "54936802adf27993f23473e835adc4253b0d0b2ffaee42e9176141d695f766c5",
+    "digest": "dddb1aefc8b697b1c155fff6f81828035210d6f14cd6b5f74f97b35fe9b467c4",
     "file": "src/saps/benchmarks/particle_sim.py",
-    "freshness": "6213a8a2081ffc439a0784dd03446341facd8298434f6c26ce61bc28bd378853"
+    "freshness": "56c8af0d30d7a143d0f9fcc2d212cce6e038429933421dc0dee298d3e7e2878f"
+  },
+  "quantum_state_inputs.single_layer_small": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "1bf3f3e445d5c2546152e10f109a13e8f369a9dffffb8808f759abab5a78182f",
+    "file": "src/saps/benchmarks/quantum.py",
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_state_inputs.single_layer_tiny": {
     "dependencies": [
@@ -7319,9 +9383,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "540e2c75e125bfe8076e219c0d9822476960d670bee67ac8b92e45bbc53eb33a",
+    "digest": "d907ff8bf01c3c949518d2e3f50f3fdfe57affe2535cd7d8c120bf7d3cc4ef55",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.gate_H_q1": {
     "dependencies": [
@@ -7353,9 +9417,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "dcdce6c694b52b3e2cebad738226aad5af7d90653ddced02bf1fc68009f01f17",
+    "digest": "420616724d1660cafab73155ef8e6a2f9c6970c7a278616a6bc6af2c2cd3d25c",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.gate_H_q2": {
     "dependencies": [
@@ -7387,9 +9451,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "227f929ff5c245450bd2a67d75fe3c838415b41e72e38213eb405b712aa1a676",
+    "digest": "facbea48af5121e0119e5ae03fbacef87e85ca5b42359a0dc6c097e5a91157c4",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.gate_H_q3": {
     "dependencies": [
@@ -7421,9 +9485,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "a78dab8d942dce88d7d2353eef7c620a56286654f3dd351da846495ae9e5c3ad",
+    "digest": "13c50d125e5fa65f34db915bc81b221bcb7ab83dbcc238bda947db3ba1209227",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.gate_S_q0": {
     "dependencies": [
@@ -7455,9 +9519,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "cd0b3673d63399a0390c79d3c26c779a96007f673ee71ba04187d4af7a3173e1",
+    "digest": "590adaa62a43235204533b6ff339f0eb5281b6dd2f7a6e1e08f74a74315ce7f2",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.gate_S_q1": {
     "dependencies": [
@@ -7489,9 +9553,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "c31ced8ac42fb12258235b661f4c19fefe0f2d5c3e086520cc350f94701bdbd5",
+    "digest": "c5ced886aa2872717ad8e41be77e8ffb203431c53475958f8887787857ca4d5b",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.gate_S_q2": {
     "dependencies": [
@@ -7523,9 +9587,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "d9ece6db1ef82769693a6b980eae74aa441d0129e47304910012159ce1ef8383",
+    "digest": "565d15a64264942e5fea77006ad3b5eb54ce8d76f4e3faa7f695256686839e85",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.gate_S_q3": {
     "dependencies": [
@@ -7557,9 +9621,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "4a320299f0ee4003a5e0b2c8137cb66a00e50240a0de4b0c0bfed77d84e08f5f",
+    "digest": "ef092c8a2e732f852278e8d4aa6e43399fda62a8f6666d3be83ff7cc0b36d052",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.gate_T_q0": {
     "dependencies": [
@@ -7591,9 +9655,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "590cb0fff5142f24d5d1303601e75e6e05d949581247b45972f22679c9f62f23",
+    "digest": "e287836b69e382609bb6059fba5b42ec98f5f4bbbbdcc5e2c1315db6ef4f3d6c",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.gate_T_q1": {
     "dependencies": [
@@ -7625,9 +9689,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "822e20b7854f8d2f62ba9326f69a3db16cd39d0857d18e14e5a233ea776b4dc8",
+    "digest": "dcea8832887d39420187cf304cc4f7ccab4c041c58c66d497f7aeeb54f7a3d4d",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.gate_T_q2": {
     "dependencies": [
@@ -7659,9 +9723,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "f37664c92e267755e717515e1bb898efdb69b89e88c34a82816fd65b1acfddee",
+    "digest": "2b9547e5d1b4d2188c79ddf9161141bf6ffde78d8475c4f68cc257f1d228d4d3",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.gate_T_q3": {
     "dependencies": [
@@ -7693,9 +9757,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "8f520cf3889a6797a796d90199d94b0dbbba1f56d9a5b926fbbca6722920e7b5",
+    "digest": "a8df00d690ac1821c4666c1ff3f1519f0df74f253129f9c3679496cc64382482",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.gate_X_q0": {
     "dependencies": [
@@ -7727,9 +9791,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "c595dee2fa1034b5b504b22c20d97d6a6da23d84c2666d53c89de0255b8f9a75",
+    "digest": "8be06fe7e23447494c55c70ece2d879d6c876ebf53c0a6c8191ff537eec905ff",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.gate_X_q1": {
     "dependencies": [
@@ -7761,9 +9825,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "0650481a81eecaf05a9ca1743298598e68dc3dc09a37633c0089ebe68d15b5c1",
+    "digest": "e41f0cd8a624735fde34611d6e84df8ccf51711f176b995a3dc79d498db171a5",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.gate_X_q2": {
     "dependencies": [
@@ -7795,9 +9859,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "6b5c3a59945d1a7d4dd28add68e25c52d69e6f788e85419c18b219bb45036875",
+    "digest": "551266016a642a675adde9df39d125193371ba2254886aa225ecba8b48a022f4",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.gate_X_q3": {
     "dependencies": [
@@ -7829,9 +9893,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "ef8bb0202afa653008a3502817462a9f4679d8c2867f0f605f2f15f4e5be35ff",
+    "digest": "55474d9509dbb0b1cc7803e5754581228fb19af4c8dce49344ea67bd4328b270",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.gate_Y_q0": {
     "dependencies": [
@@ -7863,9 +9927,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "aa7be1c0300535679157292b1415dcece26f83947836cc092b5d8088c365c2e2",
+    "digest": "280198597fe5982d31f30a7aedf624856cad4d64a1a4521eebdaed86111c9479",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.gate_Y_q1": {
     "dependencies": [
@@ -7897,9 +9961,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "5f7d53c13835f6241c8976aabf69b05154c6d6bfa241108bd1dbd0eb92c4a01e",
+    "digest": "ccbf33e48f88c3f1b599b28701d401507e698fe62f65a9f94cf7435e7ccdaae3",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.gate_Y_q2": {
     "dependencies": [
@@ -7931,9 +9995,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "012d7d4221afca9ff40a553a4dec4ab62a5e51d693ca7f844526687679fc6b08",
+    "digest": "f7eb2f7e7ed2a841b234bc3586954d8af19feb2fa02b0a6dbdb66776287c8beb",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.gate_Y_q3": {
     "dependencies": [
@@ -7965,9 +10029,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "97d4f3f636ca98a894c13fb4949966168c7f5cc9f0c55a8354bf96efc96b1f9a",
+    "digest": "8808b473f68e2f1fe5fe1fe31b208c29ed48da674326d73b92d0a89a8d65f059",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.gate_Z_q0": {
     "dependencies": [
@@ -7999,9 +10063,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "dd6de4c2f7c969fbb79f7140a0deae21832866a80856c4c19b66eb56545c6707",
+    "digest": "a0a183069622d2ac00900bcb384e750951a4a1e9323ecc78c402ec26e2e58386",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.gate_Z_q1": {
     "dependencies": [
@@ -8033,9 +10097,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "a9d5526d7124b800da43ccf0153e75469791371d92b72953ad8594a63a59fb14",
+    "digest": "552cc085d98d4c05f2dc0913b79be00db4aaa4d1c86182d0ca3bebfee0ba880e",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.gate_Z_q2": {
     "dependencies": [
@@ -8067,9 +10131,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "a5856fac281aa6aee120ea40b0cc90157b63b45ab9ba6e359c151615b5ffd2e3",
+    "digest": "061836fab36fe02cfa9d8692be109d8cf507442e547a363b7edb11e6bc75a54c",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.gate_Z_q3": {
     "dependencies": [
@@ -8101,9 +10165,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "eda4c8593aea2f3126e7be6ca913a09aadf8d23cc31f75fae247ddd522a08107",
+    "digest": "ddc50e6d5db5797cf1e9c4e92a2a12d056cfa67ae98c9c1bdb5b6fb87e0fea03",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.h_twice_returns_to_original": {
     "dependencies": [
@@ -8135,9 +10199,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "a985a973c5615a44476ba2ed6ae713b2dee6b4950c1276896403b56c3da7486c",
+    "digest": "fea01af7515d061aceb10251b0360eb9a0951436f47f8b65cb8ce31add03bd87",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "quantum_test_inputs.statevector_basic": {
     "dependencies": [
@@ -8169,9 +10233,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "80a9522cab6996e82df3df58f7dc172569f6cc815066c95d16ab20c2b9ba9a01",
+    "digest": "1840bbba639266ad7f1f67700f7c985b7cdb92340448ed34f7d3db119106d51b",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "af943efdd61fc079b5d3e77fb368075b3e90042b837541927676086b2d5a89b0"
+    "freshness": "1dbfbef1c496349a25e1cf770380f49bca3b12386c88dd5972b1339e2b417591"
   },
   "rc.rc_small": {
     "dependencies": [
@@ -8208,9 +10272,9 @@
         "version": "1.17.1"
       }
     ],
-    "digest": "a4aa4b2f216200bb286e8a6ad8b46b7c710f57586ea3d86cd21fc2b40c822be0",
+    "digest": "a8b5f25ff6fdc15ab67e4697f25183fb7a654e2249aaa264dfef373cc756dacb",
     "file": "src/saps/benchmarks/ode.py",
-    "freshness": "a0fc8934e14d3c7802fc3f86dd8b3e701ab1986c33b3552ef6fbdf099ff079c2"
+    "freshness": "43b81a69e61442f99616efe83dd1f80bca568fedd9be1226cadb1633e5d1a19b"
   },
   "rlc.rlc_small": {
     "dependencies": [
@@ -8247,9 +10311,9 @@
         "version": "1.17.1"
       }
     ],
-    "digest": "d72b664b7da3a165574321d0e22755f77572af26127ac05a11bfc7215e3d9d8b",
+    "digest": "af41267866b0e2109656c43e64e47e857a2b2649f649654a40d9ed02e62046fa",
     "file": "src/saps/benchmarks/ode.py",
-    "freshness": "a0fc8934e14d3c7802fc3f86dd8b3e701ab1986c33b3552ef6fbdf099ff079c2"
+    "freshness": "43b81a69e61442f99616efe83dd1f80bca568fedd9be1226cadb1633e5d1a19b"
   },
   "rp_kmeans_inputs.three_clusters": {
     "dependencies": [
@@ -8281,9 +10345,9 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "ba63ee4933b86e97e0e94cf8fa8ba1d2b5083ae2cf47bc65ba924e8873e38175",
+    "digest": "ef0e15d967d0f04c3702f700cadc0d5516d5750e902bf543641347d0cfaac256",
     "file": "src/saps/benchmarks/rp_kmeans_clustering.py",
-    "freshness": "324f7e85df368a5135a0eb35147d6bd2953934dc60d7c5593a9c9af7d2664135"
+    "freshness": "ea8d0e1dc6975243d39056c686204b3a6f122050aabc67c7b8e380e5a1f1b54c"
   },
   "rp_kmeans_inputs.two_clusters": {
     "dependencies": [
@@ -8315,9 +10379,126 @@
         "version": "3.3.2"
       }
     ],
-    "digest": "1921c3f4dc1324e163011f66fb30b81240949ea7fb939b6815b78529c8dd3078",
+    "digest": "7a3afe7fce8f101358214c7d8b74ae767b71551edcd12b7d43db68fb98e001f0",
     "file": "src/saps/benchmarks/rp_kmeans_clustering.py",
-    "freshness": "324f7e85df368a5135a0eb35147d6bd2953934dc60d7c5593a9c9af7d2664135"
+    "freshness": "ea8d0e1dc6975243d39056c686204b3a6f122050aabc67c7b8e380e5a1f1b54c"
+  },
+  "subgraph_gcare_graph.aids": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "bc8675bb0ffe464d5a00d863c108224f967a73847a47b2aab6f91dc84cd9c3ff",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_graph.human": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "1ed2a611f8df12eb71f7dcb567a6eb6d1e926baa76d35b7b41da0f51c6a768c9",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
+  },
+  "subgraph_gcare_graph.lubm80": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "gdown",
+      "lark",
+      "numpy",
+      "pyparsing"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "gdown",
+        "version": "6.1.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      }
+    ],
+    "digest": "9a34bfd8fe682d3f6350ebb11ce5b2ef7d04038e3b2ad723df9ad1fdbaa9daad",
+    "file": "src/saps/benchmarks/subgraph_matching.py",
+    "freshness": "f8d2a9f8d7c9c6fd8f95e3134523bcdab1a0d667b85a8d90835ca54e097b3c2d"
   },
   "subgraph_matching_test_inputs.a_to_b": {
     "dependencies": [
