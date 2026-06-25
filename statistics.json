@@ -2644,7 +2644,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "71cbe6663704736e7b81726667f983fe02fbd58a6d9d8e8836c040eedf0b27f3",
+              "freshness": "40fc2123852547fffd1aff7f7edc05d07e5980665262393c408e4679a1ae772f",
               "name": "test_gcn_backward_2node",
               "statistics": [
                 "dense",
@@ -2693,7 +2693,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "71cbe6663704736e7b81726667f983fe02fbd58a6d9d8e8836c040eedf0b27f3",
+              "freshness": "40fc2123852547fffd1aff7f7edc05d07e5980665262393c408e4679a1ae772f",
               "name": "test_gcn_backward_degree_loss",
               "statistics": [
                 "dense",
@@ -2742,7 +2742,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "71cbe6663704736e7b81726667f983fe02fbd58a6d9d8e8836c040eedf0b27f3",
+              "freshness": "40fc2123852547fffd1aff7f7edc05d07e5980665262393c408e4679a1ae772f",
               "name": "test_gcn_backward_degree_test_graph_loss",
               "statistics": [
                 "dense",
@@ -2791,7 +2791,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "71cbe6663704736e7b81726667f983fe02fbd58a6d9d8e8836c040eedf0b27f3",
+              "freshness": "40fc2123852547fffd1aff7f7edc05d07e5980665262393c408e4679a1ae772f",
               "name": "test_gcn_backward_multidim",
               "statistics": [
                 "dense",

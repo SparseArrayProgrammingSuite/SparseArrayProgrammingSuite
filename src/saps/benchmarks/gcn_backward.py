@@ -200,7 +200,7 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
                 learning_rate=0.01,
                 ref_meta={
                     "check_loss_reduction": True,
-                    "output_shapes": [(), (1, 1), (1,), (1, 1), (1,)],
+                    "output_shapes": [(1,), (1, 1), (1,), (1, 1), (1,)],
                 },
             ),
             GCNTrainingDataset(
@@ -245,7 +245,7 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
                 learning_rate=0.01,
                 ref_meta={
                     "check_loss_reduction": True,
-                    "output_shapes": [(), (2, 3), (3,), (3, 2), (2,)],
+                    "output_shapes": [(1,), (2, 3), (3,), (3, 2), (2,)],
                 },
             ),
             GCNTrainingDataset(
@@ -262,7 +262,7 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
                 learning_rate=0.01,
                 ref_meta={
                     "check_loss_reduction": True,
-                    "output_shapes": [(), (1, 4), (4,), (4, 1), (1,)],
+                    "output_shapes": [(1,), (1, 4), (4,), (4, 1), (1,)],
                 },
             ),
             GCNTrainingDataset(
@@ -279,7 +279,7 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
                 learning_rate=0.01,
                 ref_meta={
                     "check_loss_reduction": True,
-                    "output_shapes": [(), (1, 4), (4,), (4, 1), (1,)],
+                    "output_shapes": [(1,), (1, 4), (4,), (4, 1), (1,)],
                 },
             ),
         ]
