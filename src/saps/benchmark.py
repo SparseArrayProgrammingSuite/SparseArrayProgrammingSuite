@@ -392,6 +392,7 @@ class Dataset(Tagged):
     @property
     def metadata(self) -> dict[str, Any]:
         return {
+            "dependencies": self.dependencies,
             "file": self.file,
             "freshness": self.freshness,
             "name": self.name,
@@ -448,6 +449,7 @@ class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
     @property
     def metadata(self) -> dict[str, Any]:
         return {
+            "dependencies": self.dependencies,
             "file": self.file,
             "freshness": self.freshness,
             "name": self.name,
@@ -637,6 +639,7 @@ class Benchmark(Tagged, Attributed, Motivated):
     @property
     def metadata(self) -> dict[str, Any]:
         return {
+            "dependencies": self.dependencies,
             "file": self.file,
             "freshness": self.freshness,
             "name": self.name,
