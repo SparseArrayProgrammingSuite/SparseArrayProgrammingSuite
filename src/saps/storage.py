@@ -330,14 +330,23 @@ def build_storage_backend(
         or os.environ.get("REMOTE_STORAGE_BUCKET")
         or DEFAULT_REMOTE_STORAGE_BUCKET
     )
-    manifest_path = Path(
-        manifest_path or os.environ.get("SAPS_MANIFEST_PATH", DEFAULT_MANIFEST_PATH)
-    )
-    cache_dir = Path(cache_dir or os.environ.get("SAPS_CACHE_DIR", DEFAULT_CACHE_DIR))
-    print(f"manifest_path: {manifest_path}")
-    print(f"cache_dir: {cache_dir}")
+    manifest_path_value = manifest_path or os.environ.get("SAPS_MANIFEST_PATH")
+    if manifest_path_value is None:
+        manifest_path_value = DEFAULT_MANIFEST_PATH
+    cache_dir_value = cache_dir or os.environ.get("SAPS_CACHE_DIR")
+    if cache_dir_value is None:
+        cache_dir_value = DEFAULT_CACHE_DIR
+
+    manifest_path_resolved = Path(manifest_path_value)
+    cache_dir_resolved = Path(cache_dir_value)
+    print(f"manifest_path: {manifest_path_resolved}")
+    print(f"cache_dir: {cache_dir_resolved}")
     if backend_type == "local":
-        return LocalStorageBackend(backend_bucket, manifest_path, cache_dir)
+        return LocalStorageBackend(
+            backend_bucket, manifest_path_resolved, cache_dir_resolved
+        )
     if backend_type == "s3":
-        return S3StorageBackend(backend_bucket, manifest_path, cache_dir)
+        return S3StorageBackend(
+            backend_bucket, manifest_path_resolved, cache_dir_resolved
+        )
     raise ValueError(f"Unsupported storage backend type: {backend_type}")
