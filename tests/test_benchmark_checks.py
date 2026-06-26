@@ -62,7 +62,7 @@ def test_benchmark_modules_do_not_define_global_xp():
     root = Path(__file__).parents[1]
     violations = []
     for path in (root / "src" / "saps" / "benchmarks").glob("*.py"):
-        tree = ast.parse(path.read_text(), filename=str(path))
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         violations.extend(
             f"{path.relative_to(root)}:{node.lineno}"
             for node in tree.body

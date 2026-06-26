@@ -113,7 +113,8 @@ def _freshness_inputs(
 
 @cache
 def _file_content_hash(path: str, _mtime_ns: int, _size: int) -> str:
-    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+    source = Path(path).read_text(encoding="utf-8")
+    return hashlib.sha256(source.encode("utf-8")).hexdigest()
 
 
 def _cached_file_content_hash(path: Path) -> str:

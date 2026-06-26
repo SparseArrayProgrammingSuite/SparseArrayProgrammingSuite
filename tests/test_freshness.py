@@ -118,9 +118,13 @@ def _statistics_dataset_lookup(statistics: dict) -> dict[tuple[str, str, str], d
 @cache
 def _pyproject_requirements() -> dict[str, Requirement]:
     pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
-    test_dependencies = pyproject.get("tool", {}).get("poetry", {}).get(
-        "group", {}
-    ).get("test", {}).get("dependencies", {})
+    test_dependencies = (
+        pyproject.get("tool", {})
+        .get("poetry", {})
+        .get("group", {})
+        .get("test", {})
+        .get("dependencies", {})
+    )
     test_requirement_strings = []
     for name, constraint in test_dependencies.items():
         if isinstance(constraint, str):

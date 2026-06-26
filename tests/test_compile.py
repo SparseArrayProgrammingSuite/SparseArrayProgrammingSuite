@@ -1,4 +1,7 @@
+import sys
 import time
+
+import pytest
 
 import numpy as np
 
@@ -67,6 +70,10 @@ def _median_time(fn, args):
     return samples[len(samples) // 2]
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="torch.compile CPU timing is too noisy on Windows CI",
+)
 def test_pytorch_compiled_is_faster():
     # Compare PyTorch with and without compilation to confirm a speedup.
     xp = PytorchFramework()
