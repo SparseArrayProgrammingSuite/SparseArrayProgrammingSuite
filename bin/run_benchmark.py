@@ -614,6 +614,9 @@ def main() -> int:
     uses_parent_environment = (
         args.trace_statistics or args.cache_datasets or args.generate_metadata
     )
+    warmup_time = os.environ.get("SAPS_WARMUP_TIME")
+    if warmup_time is not None:
+        matrix["env_nobuild"]["SAPS_WARMUP_TIME"] = [warmup_time]
 
     # Construct ASV config dict with all fields visible
     asv_config_dict = {

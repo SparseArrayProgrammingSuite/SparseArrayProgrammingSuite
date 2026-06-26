@@ -517,12 +517,8 @@ class Benchmark(Tagged, Attributed, Motivated):
         def _time_run(self, param):
             self.run(param)
 
-<<<<<<< HEAD
-=======
-        setattr(cls, f"peakmem_{instance.name}", _peakmem_run)
-        getattr(cls, f"peakmem_{instance.name}").pretty_source = benchmark_source
+        _time_run.warmup_time = float(os.environ.get("SAPS_WARMUP_TIME", "4.0"))
 
->>>>>>> ecf52d7 (Add data visualization)
         setattr(cls, f"time_{instance.name}", _time_run)
         getattr(cls, f"time_{instance.name}").pretty_source = benchmark_source
 
