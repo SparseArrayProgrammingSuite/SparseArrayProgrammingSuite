@@ -5,6 +5,35 @@ import numpy as np
 from pyparsing import Any
 
 
+def canonicalize_coo(
+    indices: tuple[np.ndarray, ...], values: np.ndarray
+) -> tuple[tuple[np.ndarray, ...], np.ndarray]:
+    """Return COO (indices, values) sorted lexicographically with duplicate
+    coordinates summed.
+    """
+    indices = [np.asarray(idx) for idx in indices]
+    values = np.asarray(values)
+    if values.size == 0:
+        return tuple(indices), values
+
+    # lexsort's last key is primary, so reverse to sort by indices[0] first,
+    # then indices[1], and so on.
+    order = np.lexsort(tuple(reversed(indices)))
+    indices = [idx[order] for idx in indices]
+    values = values[order]
+
+    # After sorting, duplicate coordinates are adjacent. Mark the first entry of
+    # each distinct coordinate and accumulate values per group.
+    new_group = np.zeros(values.shape[0], dtype=bool)
+    new_group[0] = True
+    for idx in indices:
+        new_group[1:] |= idx[1:] != idx[:-1]
+    group_ids = np.cumsum(new_group) - 1
+    summed = np.zeros(int(group_ids[-1]) + 1, dtype=values.dtype)
+    np.add.at(summed, group_ids, values)
+    first = np.nonzero(new_group)[0]
+    return tuple(idx[first] for idx in indices), summed
+
 class BinsparseFormat:
     def __init__(self, data):
         self.data = data
@@ -21,6 +50,7 @@ class BinsparseFormat:
     def from_coo(
         I_tuple: tuple[np.ndarray, ...], V: np.ndarray, shape: tuple[int, ...]
     ) -> "BinsparseFormat":
+        I_tuple, V = canonicalize_coo(I_tuple, V)  # sanity check
         data: dict[str, Any] = {}
         data["format"] = "COO"
         for i in range(len(I_tuple)):
