@@ -1,0 +1,225 @@
+import os
+
+import numpy as np
+from saps.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    Ref,
+)
+from saps_framework import BinsparseFormat
+
+class SDDMMSuiteSparseDataset(Dataset):
+    def __init__(self, name: str,
+                middle_dim: int,
+                matrix_name: str,
+                suites: list[str] | None = None,
+                pretty_name: str | None = None,
+                description: str | None = None,):
+        self._name = name
+        self._pretty_name = pretty_name or name
+        self._description = description or f"Dense Matmul Input {self._pretty_name}."
+        self._suites = suites or ["dense", "test"]
+        self.middle_dim = middle_dim
+        self.matrix_name = matrix_name
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+    
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def description(self) -> str:
+        return "A dataset of (dense, dense, sparse) matrix triples for multiplication."
+
+
+class SDDMMSuiteSparseGenerator(Generator):
+
+    @property
+    def name(self) -> str:
+        return "suitesparse_sddmm_generator"
+
+    @property
+    def pretty_name(self) -> str:
+        return "SuiteSparse SDMM Generator"
+
+    @property
+    def description(self) -> str:
+        return "Input generator for SDDMM."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["sparse"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Kyle Deeds", "kdeeds@bu.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title=(
+                    "The University of Florida Sparse Matrix Collection"
+                ),
+                authors=[
+                    Author("T. Davis"),
+                    Author("Y. Hu"),
+                ],
+                journal="ACM Trans. Math. Softw.",
+                year=2011,
+                url="https://dl.acm.org/doi/pdf/10.1145/2049662.2049663",
+            ),]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to write the benchmark function itself. "
+            "Generative AI was used to debug code. This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Generate matrices for sampled dense-dense matrix multiplication."
+
+    @property
+    def datasets(self) -> list[Dataset]:
+        return [
+            SDDMMSuiteSparseDataset("fpga-dcop-17-100", 100, "fpga_dcop_17",  suites=["sparse", "test"]),
+            SDDMMSuiteSparseDataset("email-enron-400", 400, "email-enron",  suites=["sparse"]),
+        ]
+
+    def generate(self, dataset: Dataset) -> DataInstance:
+        from scipy.io import mmread
+        import ssgetpy
+        
+        matrices = ssgetpy.search(name=dataset.matrix_name)
+        if not matrices:
+            raise ValueError(f"No matrix found with name '{dataset.matrix_name}'")
+        matrix = matrices[0]
+        (path, archive) = matrix.download(extract=True)
+        matrix_path = os.path.join(path, matrix.name + ".mtx")
+        if not (matrix_path and os.path.exists(matrix_path)):
+            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
+        sample_matrix = mmread(matrix_path)
+        A = np.random.rand(sample_matrix.shape[0], dataset.middle_dim)
+        B = np.random.rand(dataset.middle_dim, sample_matrix.shape[1])
+        ref_outputs = None
+        if "test" in dataset.suites:
+            ref = sample_matrix.multiply(np.matmul(A, B)).tocoo()
+            ref_outputs = [
+                BinsparseFormat.from_coo((ref.row, ref.col), ref.data, ref.shape)
+            ]
+        return DataInstance([BinsparseFormat.from_coo((sample_matrix.row, sample_matrix.col), sample_matrix.data, sample_matrix.shape),
+                            BinsparseFormat.from_numpy(A),
+                            BinsparseFormat.from_numpy(B)],
+                            meta={"dataset": dataset.name},
+                            ref_outputs=ref_outputs)
+    
+class SDDMMBenchmark(Benchmark):
+    @property
+    def name(self) -> str:
+        return "sddmm"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Sampled Dense-Dense Matrix Multiplication"
+
+    @property
+    def motivation(self) -> str:
+        return (
+            "Sampled matrix multiplication is a performant core primitive" \
+            "for machine learning algorithms like ALS, Sparse Factor Analysis," \
+            " and Graph Neural Networks."
+        )
+
+    @property
+    def description(self) -> str:
+        return (
+            "The multiplication of two matrices."
+            "C_ik = \\sum_k A_ij B_jk" \
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Kyle Deeds", "kdeeds@bu.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title=(
+                    "Sampled Dense Matrix Multiplication for " 
+                    "High-Performance Machine Learning"
+                ),
+                authors=[
+                    Author("I. Nisa"),
+                    Author("A. Sukumaran-Rajam"),
+                    Author("S. Kurt"),
+                    Author("C. Hong"),
+                    Author("P. Sadayappan"),
+                ],
+                journal="IEEE HiPC",
+                year=2018,
+                url="https://ieeexplore.ieee.org/iel7/8632556/8638028/08638042.pdf",
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to write the benchmark function itself. "
+            "Generative AI was used to debug code. This statement was written by hand."
+        )
+
+    @property
+    def generators(self) -> list[Generator]:
+        return [SDDMMSuiteSparseGenerator()]
+
+    def benchmark(self, xp, data: list, meta: dict):
+        S = data[0]
+        A = data[1]
+        B = data[2]
+        return [xp.multiply(S, A @ B)]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+        if self._ref_outputs is None:
+            return
+        ref_coo = BinsparseFormat.to_coo(self._ref_outputs[0])
+        out_coo = BinsparseFormat.to_coo(self._output[0])
+        assert ref_coo.data["shape"] == out_coo.data["shape"]
+        assert np.allclose(ref_coo.data["values"], out_coo.data["values"])
