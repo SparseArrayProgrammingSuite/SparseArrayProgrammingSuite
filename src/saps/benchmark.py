@@ -26,6 +26,37 @@ def _repo_root() -> Path:
         return Path(root).resolve()
     return Path(__file__).resolve().parents[2]
 
+
+def _apply_memory_limit() -> None:
+    """Cap this process's address space to SAPS_MEMORY_LIMIT_BYTES if set, so a
+    runaway benchmark raises MemoryError instead of OOM-killing the machine.
+
+    Only enforced on Linux: macOS accepts setrlimit(RLIMIT_AS) but silently does
+    not enforce it, and Windows has no resource module at all. On those platforms
+    we warn rather than give a false sense of protection.
+    """
+    import logging
+
+    limit = os.environ.get("SAPS_MEMORY_LIMIT_BYTES")
+    if not limit:
+        return
+    if sys.platform != "linux":
+        logging.warning(
+            "Memory limit requested (SAPS_MEMORY_LIMIT_BYTES=%s) but it is only "
+            "enforced on Linux; benchmark memory is uncapped on %s.",
+            limit,
+            sys.platform,
+        )
+        return
+    try:
+        import resource
+    except ImportError:  # non-Unix platforms
+        return
+    nbytes = int(limit)
+    _soft, hard = resource.getrlimit(resource.RLIMIT_AS)
+    new_soft = nbytes if hard == resource.RLIM_INFINITY else min(nbytes, hard)
+    resource.setrlimit(resource.RLIMIT_AS, (new_soft, hard))
+
 _FIRST_PARTY_ROOTS = frozenset({"saps", "saps_framework"})
 
 def _module_path(module_name: str) -> Path | None:
@@ -548,6 +579,7 @@ class Benchmark(Tagged, Attributed, Motivated):
                 level=logging.INFO,
                 format="%(levelname)s %(name)s: %(message)s",
             )
+        _apply_memory_limit()
         problem = (
             param.generator.cached_generate(param.dataset)
             if use_cache

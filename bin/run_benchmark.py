@@ -28,6 +28,22 @@ from saps.storage import DEFAULT_REMOTE_STORAGE_BACKEND, DEFAULT_REMOTE_STORAGE_
 
 logging.basicConfig(level=logging.INFO)
 
+_MEMORY_UNITS = {"": 1, "K": 1024, "M": 1024**2, "G": 1024**3, "T": 1024**4}
+
+
+def _parse_memory_limit(value: str) -> int:
+    """Parse a memory size like '8G', '512M', or a plain byte count into bytes."""
+    text = value.strip().upper().removesuffix("B")
+    unit = text[-1] if text and text[-1] in _MEMORY_UNITS else ""
+    number = text[: -1 if unit else len(text)]
+    try:
+        scaled = float(number) * _MEMORY_UNITS[unit]
+    except (ValueError, KeyError):
+        raise argparse.ArgumentTypeError(f"Invalid memory size: {value!r}") from None
+    if scaled <= 0:
+        raise argparse.ArgumentTypeError("Memory limit must be positive")
+    return int(scaled)
+
 
 def format_results(results: Results, benchmarks: Benchmarks) -> dict:
     """Return a JSON-serializable snapshot of benchmark results."""
@@ -494,6 +510,18 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--memory-limit",
+        type=_parse_memory_limit,
+        default=None,
+        metavar="SIZE",
+        help=(
+            "Maximum address space each benchmark process may use, e.g. '8G', "
+            "'512M', or a plain byte count. Exceeding it raises MemoryError "
+            "(recorded as a failure) instead of OOM-killing the machine. "
+            "Enforced on Linux only (warns on macOS/Windows)."
+        ),
+    )
+    parser.add_argument(
         "--chunk-count",
         type=int,
         default=1,
@@ -584,6 +612,9 @@ def main() -> int:
         or "REMOTE_STORAGE_BUCKET" not in matrix["env_nobuild"]
     ):
         matrix["env_nobuild"]["REMOTE_STORAGE_BUCKET"] = [storage_bucket]
+    if args.memory_limit is not None:
+        os.environ["SAPS_MEMORY_LIMIT_BYTES"] = str(args.memory_limit)
+        matrix["env_nobuild"]["SAPS_MEMORY_LIMIT_BYTES"] = [str(args.memory_limit)]
     cache_dir = str(outputs_dir / "cache")
     os.environ["SAPS_CACHE_DIR"] = cache_dir
     matrix["env_nobuild"]["SAPS_CACHE_DIR"] = [cache_dir]
