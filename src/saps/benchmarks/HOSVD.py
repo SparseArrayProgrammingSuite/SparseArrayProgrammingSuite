@@ -2,17 +2,16 @@ from typing import Any
 
 import numpy as np
 
-import saps
 from saps.benchmark import (
+    Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
 )
 from saps_framework import BinsparseFormat
-
-xp = saps.xp
 
 
 class HOSVDDataset(Dataset):
@@ -21,7 +20,7 @@ class HOSVDDataset(Dataset):
         name: str,
         pretty_name: str,
         description: str,
-        tags: list[str],
+        suites: list[str],
         shape: tuple[int, int, int],
         ranks: tuple[int, int, int],
         seed: int = 42,
@@ -29,7 +28,7 @@ class HOSVDDataset(Dataset):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
-        self._tags = tags
+        self._suites = suites
         self.shape = shape
         self.ranks = ranks
         self.seed = seed
@@ -47,8 +46,12 @@ class HOSVDDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -59,7 +62,23 @@ class HOSVDDataset(Dataset):
         return data
 
 
+def _reconstruct_tensor(core, factors):
+    num_modes = len(factors)
+    core_idx = "".join(chr(65 + m) for m in range(num_modes))
+    result_idx = "".join(chr(97 + m) for m in range(num_modes))
+    terms = [core_idx]
+    operands = [core]
+    for mode, factor in enumerate(factors):
+        terms.append(f"{result_idx[mode]}{core_idx[mode]}")
+        operands.append(factor)
+    return np.einsum(f"{','.join(terms)}->{result_idx}", *operands)
+
+
 class HOSVDDenseGenerator(Generator[HOSVDDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
     @property
     def name(self) -> str:
         return "hosvd_dense_inputs"
@@ -73,8 +92,12 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
         return "Generates a dense low-rank 3D tensor using random factor matrices."
 
     @property
-    def tags(self) -> list[str]:
-        return ["tensor", "dense", "factorizable"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -103,7 +126,7 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
                 "small_dense_hosvd",
                 "Small Dense HOSVD Tensor",
                 "Dense low-rank 3D tensor using random factor matrices.",
-                ["small", "dense", "tensor"],
+                ["test", "trace"],
                 (10, 10, 10),
                 (3, 3, 3),
             )
@@ -121,12 +144,14 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
 
         X_dense = np.einsum("pqr,ip,jq,kr->ijk", G, A, B, C)
 
-        indices = np.nonzero(np.ones_like(X_dense))
-        values = X_dense[indices]
-        X_bin = BinsparseFormat.from_coo(indices, values, (dim1, dim2, dim3))
+        X_bin = BinsparseFormat.from_numpy(X_dense)
 
         ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
-        return [X_bin, ranks_bin], {"max_iter": 50, "tolerance": 1e-8}
+        return DataInstance(
+            inputs=[X_bin, ranks_bin],
+            meta={"max_iter": 50, "tolerance": 1e-8},
+            ref_meta={"check_reconstruction": True},
+        )
 
 
 class HOSVDSparseGenerator(Generator[HOSVDDataset]):
@@ -143,8 +168,12 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
         return "Generates a sparse low-rank 3D tensor using random factor matrices."
 
     @property
-    def tags(self) -> list[str]:
-        return ["tensor", "sparse", "factorizable"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -174,7 +203,7 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
                 "Small sparse HOSVD Tensor",
                 "sparse_small Small Sparse HOSVD Tensor Sparse low-rank 3D tensor"
                 " using random factor matrices.",
-                ["small", "sparse", "tensor"],
+                [],
                 (20, 20, 20),
                 (3, 3, 3),
             )
@@ -207,7 +236,10 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
         X_bin = BinsparseFormat.from_coo(indices, values, (dim1, dim2, dim3))
 
         ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
-        return [X_bin, ranks_bin], {"max_iter": 50, "tolerance": 1e-8}
+        return DataInstance(
+            inputs=[X_bin, ranks_bin],
+            meta={"max_iter": 50, "tolerance": 1e-8},
+        )
 
 
 class HOSVDBenchmark(Benchmark):
@@ -256,14 +288,31 @@ class HOSVDBenchmark(Benchmark):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title="",
-                authors=[],
-                url="https://epubs.siam.org/doi/10.1137/07070111X",
+                title="Tensor Decompositions and Applications",
+                authors=[Author("Tamara G. Kolda"), Author("Brett W. Bader")],
+                journal="SIAM Review",
+                publisher="Society for Industrial & Applied Mathematics (SIAM)",
+                volume="51",
+                number="3",
+                pages="455-500",
+                year=2009,
+                url="https://doi.org/10.1137/07070111x",
+                doi="10.1137/07070111x",
             ),
             Ref(
-                title="",
-                authors=[],
+                title=(
+                    "Harnessing Tensor Decomposition for High-Dimensional "
+                    "Machine Learning"
+                ),
+                authors=[
+                    Author("Evgeni Rustik"),
+                    Author("Emiliya Viktoriia"),
+                    Author("Aliona Tatyana"),
+                ],
+                publisher="Institute of Electrical and Electronics Engineers (IEEE)",
+                year=2025,
                 url="https://doi.org/10.36227/techrxiv.174417403.38431928/v1",
+                doi="10.36227/techrxiv.174417403.38431928/v1",
             ),
         ]
 
@@ -276,14 +325,18 @@ class HOSVDBenchmark(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
-        return ["tensor", "decomposition", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def generators(self):
         return [HOSVDDenseGenerator(), HOSVDSparseGenerator()]
 
-    def benchmark(self, data: list, meta: dict):
+    def benchmark(self, xp, data: list, meta: dict):
         X, ranks = data
         max_iter = meta.get("max_iter", 50)
         tolerance = meta.get("tolerance", 1e-8)
@@ -359,3 +412,17 @@ class HOSVDBenchmark(Benchmark):
             initial_factors[1],
             initial_factors[2],
         ]
+
+    def check(self, param):
+        super().check(param)
+        if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
+            return
+        X = self._input[0].data["values"].reshape(self._input[0].data["shape"])
+        core = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        factors = [
+            output.data["values"].reshape(output.data["shape"])
+            for output in self._output[1:]
+        ]
+        X_rec = _reconstruct_tensor(core, factors)
+        error = np.linalg.norm(X - X_rec) / np.linalg.norm(X)
+        assert error < 1e-5

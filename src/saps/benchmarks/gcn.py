@@ -1,23 +1,18 @@
 import os
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
-from scipy.io import mmread
 
-import ssgetpy
-
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
 )
 from saps_framework import BinsparseFormat
-
-xp = saps.xp
 
 
 class GCNDataset(Dataset):
@@ -29,13 +24,29 @@ class GCNDataset(Dataset):
         feature_dim: int = 16,
         hidden_dim: int = 8,
         out_dim: int = 1,
+        suites: list[str] | None = None,
+        adjacency: np.ndarray | None = None,
+        features: np.ndarray | None = None,
+        weights1: np.ndarray | None = None,
+        bias1: np.ndarray | None = None,
+        weights2: np.ndarray | None = None,
+        bias2: np.ndarray | None = None,
+        expected: np.ndarray | None = None,
     ):
+        self._suites = suites or []
         self.dataset_name = name
         self.dataset_description = description
         self.source_name = source_name if source_name is not None else name
         self.feature_dim = feature_dim
         self.hidden_dim = hidden_dim
         self.out_dim = out_dim
+        self.adjacency = adjacency
+        self.features = features
+        self.weights1 = weights1
+        self.bias1 = bias1
+        self.weights2 = weights2
+        self.bias2 = bias2
+        self.expected = expected
 
     @property
     def name(self) -> str:
@@ -50,8 +61,12 @@ class GCNDataset(Dataset):
         return self.dataset_description or f"SuiteSparse matrix {self.source_name}."
 
     @property
-    def tags(self) -> list[str]:
-        return ["suitesparse", "sparse"]
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -61,6 +76,130 @@ class GCNDataset(Dataset):
         data["hidden_dim"] = self.hidden_dim
         data["out_dim"] = self.out_dim
         return data
+
+
+def gcn_reference_np(adjacency, features, weights1, bias1, weights2, bias2):
+    h1 = adjacency @ features
+    h1 = h1 @ weights1 + bias1
+    h1 = np.maximum(h1, 0)
+    h2 = adjacency @ h1
+    return h2 @ weights2 + bias2
+
+
+class GCNTestGenerator(Generator[GCNDataset]):
+    @property
+    def name(self) -> str:
+        return "gcn_test_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "GCN Test Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Small inlined GCN forward-pass examples."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["test", "trace"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Tarun Devi", "tdevi3@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return GCNBenchmark().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return GCNBenchmark().ai_disclosure
+
+    @property
+    def motivation(self) -> str:
+        return "Uses small graph examples to verify the GCN forward pass."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[GCNDataset]:
+        return [
+            GCNDataset(
+                "test_gcn_3node",
+                suites=["test", "trace"],
+                adjacency=np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]], dtype=np.float32),
+                features=np.array(
+                    [[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]], dtype=np.float32
+                ),
+                weights1=np.array([[1.0, 0.0], [0.0, 1.0]], dtype=np.float32),
+                bias1=np.array([0.0, 0.0], dtype=np.float32),
+                weights2=np.array([[1.0], [1.0]], dtype=np.float32),
+                bias2=np.array([0.0], dtype=np.float32),
+            ),
+            GCNDataset(
+                "test_gcn_simple_2node",
+                suites=["test", "trace"],
+                adjacency=np.array([[0, 1], [1, 0]], dtype=np.float32),
+                features=np.array([[1.0], [2.0]], dtype=np.float32),
+                weights1=np.array([[2.0]], dtype=np.float32),
+                bias1=np.array([0.0], dtype=np.float32),
+                weights2=np.array([[3.0]], dtype=np.float32),
+                bias2=np.array([0.0], dtype=np.float32),
+                expected=np.array([[6.0], [12.0]], dtype=np.float32),
+            ),
+            GCNDataset(
+                "test_gcn_simple_3node_line",
+                suites=["test", "trace"],
+                adjacency=np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]], dtype=np.float32),
+                features=np.array([[1.0], [0.0], [1.0]], dtype=np.float32),
+                weights1=np.array([[1.0]], dtype=np.float32),
+                bias1=np.array([0.0], dtype=np.float32),
+                weights2=np.array([[1.0]], dtype=np.float32),
+                bias2=np.array([0.0], dtype=np.float32),
+                expected=np.array([[2.0], [0.0], [2.0]], dtype=np.float32),
+            ),
+            GCNDataset(
+                "test_gcn_with_relu_activation",
+                suites=["test", "trace"],
+                adjacency=np.array([[0, 1], [1, 0]], dtype=np.float32),
+                features=np.array([[1.0], [-1.0]], dtype=np.float32),
+                weights1=np.array([[1.0]], dtype=np.float32),
+                bias1=np.array([0.0], dtype=np.float32),
+                weights2=np.array([[2.0]], dtype=np.float32),
+                bias2=np.array([0.0], dtype=np.float32),
+                expected=np.array([[2.0], [0.0]], dtype=np.float32),
+            ),
+        ]
+
+    def generate(self, dataset: GCNDataset):
+        required = (
+            dataset.adjacency,
+            dataset.features,
+            dataset.weights1,
+            dataset.bias1,
+            dataset.weights2,
+            dataset.bias2,
+        )
+        if any(item is None for item in required):
+            raise ValueError("GCN test datasets must define all input arrays.")
+
+        arrays = tuple(cast(np.ndarray, item) for item in required)
+        expected = dataset.expected
+        expected = gcn_reference_np(*arrays) if expected is None else expected
+
+        inputs = [BinsparseFormat.from_numpy(item) for item in arrays]
+        return DataInstance(
+            inputs=inputs,
+            meta={},
+            ref_outputs=[BinsparseFormat.from_numpy(expected)],
+            ref_meta={"rtol": 1e-10},
+        )
 
 
 class GCNGenerator(Generator[GCNDataset]):
@@ -77,8 +216,12 @@ class GCNGenerator(Generator[GCNDataset]):
         return "Generates random weights for a 2-layer Graph Convolutional Network."
 
     @property
-    def tags(self) -> list[str]:
-        return ["machine learning", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -102,9 +245,9 @@ class GCNGenerator(Generator[GCNDataset]):
                 url="https://anonymous.4open.science/r/scorch/README.md",
             ),
             Ref(
-                title="Open Graph Benchmark: Datasets for Machine Learning on Graph",
+                title="Open Graph Benchmark: Datasets for Machine Learning on Graphs",
                 authors=[
-                    Author("Wenbing Hu"),
+                    Author("Weihua Hu"),
                     Author("Matthias Fey"),
                     Author("Marinka Zitnik"),
                     Author("Yuxiao Dong"),
@@ -115,7 +258,7 @@ class GCNGenerator(Generator[GCNDataset]):
                 ],
                 journal="Arxiv",
                 volume="arXiv:2005.00687",
-                year=2021,
+                year=2020,
                 url="https://arxiv.org/abs/2005.00687",
             ),
         ]
@@ -165,7 +308,7 @@ class GCNGenerator(Generator[GCNDataset]):
                 "dg_gcn_social_3",
                 "Larger social network graph.",
                 "ca-GrQc",
-                feature_dim=32,
+                feature_dim=8,
                 hidden_dim=16,
                 out_dim=1,
             ),
@@ -177,19 +320,19 @@ class GCNGenerator(Generator[GCNDataset]):
                 hidden_dim=4,
                 out_dim=1,
             ),
-            GCNDataset(
-                "dg_gcn_road_2",
-                "Medium road network graph.",
-                "road_central",
-                feature_dim=16,
-                hidden_dim=8,
-                out_dim=1,
-            ),
+            # GCNDataset( #TODO seems to be too big?
+            #    "dg_gcn_road_2",
+            #    "Medium road network graph.",
+            #    "road_central",
+            #    feature_dim=4,
+            #    hidden_dim=8,
+            #    out_dim=1,
+            # ),
             GCNDataset(
                 "dg_gcn_molecular_1",
                 "Small molecular graph. - Email network.",
                 "email",
-                feature_dim=16,
+                feature_dim=4,
                 hidden_dim=8,
                 out_dim=1,
             ),
@@ -197,7 +340,7 @@ class GCNGenerator(Generator[GCNDataset]):
                 "dg_gcn_molecular_2",
                 "Medium molecular graph - PDDB protein structure.",
                 "Chebyshev3",
-                feature_dim=24,
+                feature_dim=6,
                 hidden_dim=12,
                 out_dim=1,
             ),
@@ -205,18 +348,18 @@ class GCNGenerator(Generator[GCNDataset]):
                 "dg_gcn_citation_1",
                 "Large citation network graph (AIDS-like size).",
                 "ca-HepPh",
-                feature_dim=64,
+                feature_dim=16,
                 hidden_dim=32,
                 out_dim=1,
             ),
-            GCNDataset(
-                "dg_gcn_large_2",
-                "Very large road network.",
-                "road_usa",
-                feature_dim=64,
-                hidden_dim=32,
-                out_dim=1,
-            ),
+            # GCNDataset( # seems to be too big?
+            #    "dg_gcn_large_2",
+            #    "Very large road network.",
+            #    "road_usa",
+            #    feature_dim=16,
+            #    hidden_dim=32,
+            #    out_dim=1,
+            # ),
             GCNDataset(
                 "dg_gcn_bcsstk01",
                 "Original small structural engineering matrix"
@@ -229,6 +372,10 @@ class GCNGenerator(Generator[GCNDataset]):
         ]
 
     def generate(self, dataset: GCNDataset):
+        from scipy.io import mmread
+
+        import ssgetpy
+
         feature_dim = dataset.feature_dim
         hidden_dim = dataset.hidden_dim
         out_dim = dataset.out_dim
@@ -249,19 +396,24 @@ class GCNGenerator(Generator[GCNDataset]):
 
         # Create feature/weight arrays using the RNG (deterministic)
         n = A.shape[0]
-        features = rng.standard_normal((n, feature_dim))
-        weights1 = rng.standard_normal((feature_dim, hidden_dim))
-        bias1 = np.zeros((hidden_dim,))
-        weights2 = rng.standard_normal((hidden_dim, out_dim))
-        bias2 = np.zeros((out_dim,))
+        features = rng.standard_normal((n, feature_dim), dtype=np.float32)
+        weights1 = rng.standard_normal((feature_dim, hidden_dim), dtype=np.float32)
+        bias1 = np.zeros((hidden_dim,), dtype=np.float32)
+        weights2 = rng.standard_normal((hidden_dim, out_dim), dtype=np.float32)
+        bias2 = np.zeros((out_dim,), dtype=np.float32)
 
-        A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
+        A_bin = BinsparseFormat.from_coo(
+            (A.row, A.col), A.data.astype(np.float32, copy=False), A.shape
+        )
         features_b = BinsparseFormat.from_numpy(features)
         weights1_b = BinsparseFormat.from_numpy(weights1)
         bias1_b = BinsparseFormat.from_numpy(bias1)
         weights2_b = BinsparseFormat.from_numpy(weights2)
         bias2_b = BinsparseFormat.from_numpy(bias2)
-        return (A_bin, features_b, weights1_b, bias1_b, weights2_b, bias2_b), {}
+        return DataInstance(
+            inputs=[A_bin, features_b, weights1_b, bias1_b, weights2_b, bias2_b],
+            meta={},
+        )
 
 
 class GCNBenchmark(Benchmark):
@@ -283,8 +435,12 @@ class GCNBenchmark(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
-        return ["machine learning", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -308,9 +464,9 @@ class GCNBenchmark(Benchmark):
                 url="https://anonymous.4open.science/r/scorch/README.md",
             ),
             Ref(
-                title="Open Graph Benchmark: Datasets for Machine Learning on Graph",
+                title="Open Graph Benchmark: Datasets for Machine Learning on Graphs",
                 authors=[
-                    Author("Wenbing Hu"),
+                    Author("Weihua Hu"),
                     Author("Matthias Fey"),
                     Author("Marinka Zitnik"),
                     Author("Yuxiao Dong"),
@@ -321,7 +477,7 @@ class GCNBenchmark(Benchmark):
                 ],
                 journal="Arxiv",
                 volume="arXiv:2005.00687",
-                year=2021,
+                year=2020,
                 url="https://arxiv.org/abs/2005.00687",
             ),
         ]
@@ -350,7 +506,29 @@ class GCNBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [GCNGenerator()]
+        return [GCNTestGenerator(), GCNGenerator()]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+
+        if self._ref_outputs is None:
+            return
+
+        result = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        expected = (
+            self._ref_outputs[0]
+            .data["values"]
+            .reshape(self._ref_outputs[0].data["shape"])
+        )
+        np.testing.assert_allclose(
+            result,
+            expected,
+            rtol=self._ref_meta["rtol"],
+            err_msg=f"GCN output mismatch for {param.dataset.name}",
+        )
 
     """
     Args:
@@ -376,7 +554,7 @@ class GCNBenchmark(Benchmark):
         Output node embeddings after 2-layer GCN
     """
 
-    def benchmark(self, data: list, meta: dict):
+    def benchmark(self, xp, data: list, meta: dict):
         (
             adjacency,
             features,

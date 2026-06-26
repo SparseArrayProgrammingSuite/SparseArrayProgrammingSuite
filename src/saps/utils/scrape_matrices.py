@@ -44,6 +44,7 @@ def append_to_json(
     # Write back to file
     with open(filename, "w") as f:
         json.dump(data, f, indent=2)
+        f.write("\n")
 
 
 def already_in_json(filename, matrix_name):

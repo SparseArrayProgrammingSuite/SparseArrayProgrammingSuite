@@ -1,17 +1,15 @@
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
 )
 from saps_framework.binsparse_format import BinsparseFormat
-
-xp = saps.xp
 
 
 def _as2d_full(xp, F):
@@ -180,14 +178,38 @@ def make_ccsd_inputs(no, nv):
     )
 
 
+def _as_canon_abij(T):
+    nv, _, no, _ = T.shape
+    canon = (
+        np.arange(nv)[:, None, None, None] < np.arange(nv)[None, :, None, None]
+    ) & (np.arange(no)[None, None, :, None] < np.arange(no)[None, None, None, :])
+    T_c = np.where(canon, T, 0.0)
+    return (
+        T_c
+        - T_c.transpose(1, 0, 2, 3)
+        - T_c.transpose(0, 1, 3, 2)
+        + T_c.transpose(1, 0, 3, 2)
+    )
+
+
 class CCSDDataset(Dataset):
-    def __init__(self, name, pretty_name, description, tags, no, nv):
+    def __init__(
+        self,
+        name,
+        pretty_name,
+        description,
+        suites,
+        no,
+        nv,
+        ref_outputs=None,
+    ):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
-        self._tags = tags
+        self._suites = suites
         self.no = no
         self.nv = nv
+        self.ref_outputs = ref_outputs
 
     @property
     def name(self) -> str:
@@ -202,11 +224,19 @@ class CCSDDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
 
 class CCSDGenerator(Generator[CCSDDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
     @property
     def name(self) -> str:
         return "ccsd_inputs"
@@ -226,8 +256,12 @@ class CCSDGenerator(Generator[CCSDDataset]):
         )
 
     @property
-    def tags(self) -> list[str]:
-        return ["quantum-chemistry", "ccsd", "antisymmetric", "tensor-contraction"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -288,15 +322,16 @@ class CCSDGenerator(Generator[CCSDDataset]):
                 name="ccsd_small",
                 pretty_name="CCSD Small",
                 description="no=4, nv=6 — matches the C++ CTF reference.",
-                tags=["small"],
+                suites=["test", "trace"],
                 no=4,
                 nv=6,
+                ref_outputs=[BinsparseFormat.from_numpy(np.array(380638.269079))],
             ),
             CCSDDataset(
                 name="ccsd_medium",
                 pretty_name="CCSD Medium",
                 description="no=8, nv=12.",
-                tags=["medium"],
+                suites=[],
                 no=8,
                 nv=12,
             ),
@@ -304,14 +339,18 @@ class CCSDGenerator(Generator[CCSDDataset]):
                 name="ccsd_large",
                 pretty_name="CCSD Large",
                 description="no=16, nv=24.",
-                tags=["large"],
+                suites=[],
                 no=16,
                 nv=24,
             ),
         ]
 
     def generate(self, dataset: CCSDDataset):
-        return make_ccsd_inputs(dataset.no, dataset.nv), {}
+        return DataInstance(
+            inputs=make_ccsd_inputs(dataset.no, dataset.nv),
+            meta={},
+            ref_outputs=dataset.ref_outputs,
+        )
 
 
 class CCSD(Benchmark):
@@ -331,8 +370,12 @@ class CCSD(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
-        return ["quantum-chemistry", "ccsd", "tensor-contraction"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -400,7 +443,7 @@ class CCSD(Benchmark):
     def generators(self):
         return [CCSDGenerator()]
 
-    def benchmark(self, data, meta):
+    def benchmark(self, xp, data, meta):
         (
             Vme,  # (no, nv)
             Vae,  # (nv, nv)
@@ -542,3 +585,24 @@ class CCSD(Benchmark):
         T2_final = 2 * T2_new / D2
 
         return (T1_final, T2_final)
+
+    def check(self, param):
+        super().check(param)
+        if self._ref_outputs is None:
+            return
+
+        reference_norm = (
+            self._ref_outputs[0]
+            .data["values"]
+            .reshape(self._ref_outputs[0].data["shape"])[()]
+        )
+        T1_out = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        T2_out = self._output[1].data["values"].reshape(self._output[1].data["shape"])
+        assert T1_out.shape == (6, 4)
+        assert T2_out.shape == (6, 6, 4, 4)
+
+        T2_out = _as_canon_abij(T2_out)
+        assert np.allclose(T2_out, -T2_out.transpose(1, 0, 2, 3), atol=1e-10)
+        assert np.allclose(T2_out, -T2_out.transpose(0, 1, 3, 2), atol=1e-10)
+        T_norm = np.linalg.norm(T1_out) + np.linalg.norm(T2_out)
+        assert np.isclose(T_norm, reference_norm, rtol=1e-6)

@@ -24,7 +24,7 @@ class NumpyFramework(Framework):
         raise ValueError("Unsupported format: " + array.data["format"])
 
     def to_binsparse(self, array):
-        return BinsparseFormat.from_numpy(array)
+        return BinsparseFormat.from_numpy(np.asarray(array))
 
     def lazy(self, array):
         return array

@@ -12,12 +12,12 @@ from typing import Any
 
 import numpy as np
 
-import gdown
-
 from saps_framework.binsparse_format import BinsparseFormat
 
 
-def list_gcare_queries(dataset_name: str, data_dir: str | Path | None = None) -> list[str]:
+def list_gcare_queries(
+    dataset_name: str, data_dir: str | Path | None = None
+) -> list[str]:
     """Return query identifiers for *dataset_name* as POSIX paths relative to
     ``queryset/<dataset_name>/``, without the ``.txt`` extension.
 
@@ -27,10 +27,7 @@ def list_gcare_queries(dataset_name: str, data_dir: str | Path | None = None) ->
     _ensure_downloaded(root)
     _, queryset_dir, _ = _get_dirs(root)
     base = queryset_dir / dataset_name
-    return [
-        p.relative_to(base).with_suffix("").as_posix()
-        for p in base.rglob("*.txt")
-    ]
+    return [p.relative_to(base).with_suffix("").as_posix() for p in base.rglob("*.txt")]
 
 
 def load_gcare_graph(
@@ -55,8 +52,14 @@ def load_gcare_graph(
     bin_mats: list[BinsparseFormat] = []
     for name, raw in raw_sp_mats.items():
         matrix_names.append(name)
-        bin_mats.append(BinsparseFormat.from_coo(raw["I_tuple"], raw["V"], raw["shape"]))
-    meta = {"matrix_names": matrix_names, "max_vid": max_vid, "continous_label": continous_label}
+        bin_mats.append(
+            BinsparseFormat.from_coo(raw["I_tuple"], raw["V"], raw["shape"])
+        )
+    meta = {
+        "matrix_names": matrix_names,
+        "max_vid": max_vid,
+        "continous_label": continous_label,
+    }
     return bin_mats, meta
 
 
@@ -84,7 +87,9 @@ def load_gcare_query(
     _ensure_downloaded(root)
     _, queryset_dir, ground_truth_dir = _get_dirs(root)
 
-    all_sp_mats: dict[str, BinsparseFormat] = dict(zip(graph_meta["matrix_names"], bin_mats))
+    all_sp_mats: dict[str, BinsparseFormat] = dict(
+        zip(graph_meta["matrix_names"], bin_mats, strict=True)
+    )
     max_vid: int = graph_meta["max_vid"]
     continous_label: bool = graph_meta["continous_label"]
 
@@ -95,7 +100,9 @@ def load_gcare_query(
 
     query_stem = Path(query_rel_path).name
     gt_matches = list((ground_truth_dir / dataset_name).rglob(f"{query_stem}.txt"))
-    ground_truth = int(gt_matches[0].read_text().strip().split()[0]) if gt_matches else 0
+    ground_truth = (
+        int(gt_matches[0].read_text().strip().split()[0]) if gt_matches else 0
+    )
 
     bin_mats = list(sp_mats_needed.values())
     meta: dict[str, Any] = {
@@ -111,12 +118,15 @@ def load_gcare_query(
 # Download helpers
 # ---------------------------------------------------------------------------
 
+
 def _get_dirs(root: Path) -> tuple[Path, Path, Path]:
     return root / "dataset", root / "queryset", root / "ground_truth"
 
 
 def _ensure_downloaded(root: Path) -> None:
     """Download and extract the three G-CARE tarballs into *root* if not present."""
+    import gdown
+
     dataset_dir, queryset_dir, ground_truth_dir = _get_dirs(root)
 
     dataset_link = "https://drive.google.com/file/d/1HAgSVE-24NOap6_Q1_twH56Dkb2kPvGU/view?usp=sharing"
@@ -154,6 +164,7 @@ def _ensure_downloaded(root: Path) -> None:
 # ---------------------------------------------------------------------------
 # Parsers
 # ---------------------------------------------------------------------------
+
 
 def _parse_graph(p: Path):
     """Parse a G-CARE graph file into raw COO dicts.
@@ -294,9 +305,7 @@ def _build_query_matrices(
     Missing matrix names (not present in *all_sp_mats*) get a zero or one-hot
     placeholder sized to *max_vid*.  Returns ``(sp_mats_needed, expr)``.
     """
-    expr, _, sp_mats_name = _parse_query(
-        query_path, continous_label=continous_label
-    )
+    expr, _, sp_mats_name = _parse_query(query_path, continous_label=continous_label)
 
     sp_mats_needed: dict[str, BinsparseFormat] = {}
     for sp_name in sp_mats_name:
@@ -328,6 +337,7 @@ def _build_query_matrices(
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
+
 
 def _default_data_dir() -> Path:
     # src/saps/downloaders/gcare.py → parents[3] = repo root

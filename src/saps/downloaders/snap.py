@@ -32,7 +32,7 @@ def download_snap_dataset(
     dataset_dir.mkdir(parents=True, exist_ok=True)
 
     edge_list_path = _ensure_downloaded(slug, dataset_dir)
-    adjacency, meta = parse_snap_edge_list(
+    adjacency, raw_node_ids, meta = parse_snap_edge_list(
         edge_list_path, directed=directed, remap_nodes=remap_nodes
     )
     meta.update(
@@ -43,10 +43,12 @@ def download_snap_dataset(
             "path": str(edge_list_path),
         }
     )
-    return [adjacency], meta
+    return [adjacency, raw_node_ids], meta
 
 
-def load_toy_dataset(data_dir: str | Path | None = None) -> tuple[list[BinsparseFormat], dict]:
+def load_toy_dataset(
+    data_dir: str | Path | None = None,
+) -> tuple[list[BinsparseFormat], dict]:
     root = Path(data_dir) if data_dir is not None else _default_data_dir()
     dataset_dir = root / "toy"
     dataset_dir.mkdir(parents=True, exist_ok=True)
@@ -63,7 +65,7 @@ def load_toy_dataset(data_dir: str | Path | None = None) -> tuple[list[Binsparse
             shutil.copyfileobj(source, target)
 
     edge_list_path = txt_path
-    adjacency, meta = parse_snap_edge_list(
+    adjacency, raw_node_ids, meta = parse_snap_edge_list(
         edge_list_path, directed=True, remap_nodes=True
     )
     meta.update(
@@ -74,7 +76,7 @@ def load_toy_dataset(data_dir: str | Path | None = None) -> tuple[list[Binsparse
             "path": str(edge_list_path),
         }
     )
-    return [adjacency], meta
+    return [adjacency, raw_node_ids], meta
 
 
 def parse_snap_edge_list(
@@ -82,7 +84,7 @@ def parse_snap_edge_list(
     *,
     directed: bool = True,
     remap_nodes: bool = True,
-) -> tuple[BinsparseFormat, dict]:
+) -> tuple[BinsparseFormat, BinsparseFormat, dict]:
     """Parse a SNAP ``.txt`` or ``.txt.gz`` edge list into binsparse COO."""
     path = Path(path)
     edges = _read_edges(path)
@@ -99,30 +101,29 @@ def parse_snap_edge_list(
         )
 
     if remap_nodes:
-        original_nodes, inverse = np.unique(
+        raw_node_ids_array, inverse = np.unique(
             np.concatenate((rows, cols)), return_inverse=True
         )
         edge_count = len(rows)
         rows = inverse[:edge_count]
         cols = inverse[edge_count:]
-        node_count = len(original_nodes)
-        raw_node_ids = original_nodes
+        node_count = len(raw_node_ids_array)
     else:
-        raw_node_ids = np.unique(np.concatenate((rows, cols)))
+        raw_node_ids_array = np.unique(np.concatenate((rows, cols)))
         node_count = int(max(rows.max(), cols.max())) + 1
 
     values = np.ones(rows.shape, dtype=bool)
     adjacency = BinsparseFormat.from_coo((rows, cols), values, (node_count, node_count))
+    raw_node_ids = BinsparseFormat.from_numpy(raw_node_ids_array)
     meta = {
         "directed": directed,
         "num_nodes": node_count,
         "num_edges": len(edges),
         "num_matrix_entries": len(rows),
         "remap_nodes": remap_nodes,
-        "raw_node_ids": raw_node_ids,
         "src": 0,
     }
-    return adjacency, meta
+    return adjacency, raw_node_ids, meta
 
 
 def _default_data_dir() -> Path:
@@ -133,7 +134,7 @@ def _snap_slug(dataset_name: str) -> str:
     name = dataset_name.strip()
     for prefix in ("snap://", "snap:", "snap/", "snap-", "snap_"):
         if name.startswith(prefix):
-            name = name[len(prefix):]
+            name = name[len(prefix) :]
             break
     name = name.removesuffix(".txt").removesuffix(".gz")
     if not re.fullmatch(r"[A-Za-z0-9_.-]+", name):

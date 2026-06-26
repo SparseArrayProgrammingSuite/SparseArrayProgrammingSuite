@@ -3,28 +3,38 @@ from typing import Any
 
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
 )
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
-
 
 class RPKMeansDataset(Dataset):
-    def __init__(self, source_name: str, points, k: int, eps: float, c=1, max_iter=100):
+    def __init__(
+        self,
+        source_name: str,
+        points,
+        k: int,
+        eps: float,
+        c=1,
+        max_iter=100,
+        suites: list[str] | None = None,
+        ref_meta: dict[str, Any] | None = None,
+    ):
+        self._suites = suites or []
         self.source_name = source_name
         self.points = points
         self.k = k
         self.eps = eps
         self.c = c
         self.max_iter = max_iter
+        self.ref_meta = ref_meta
 
     @property
     def name(self) -> str:
@@ -39,8 +49,12 @@ class RPKMeansDataset(Dataset):
         return "Manual test points for random-projection k-means clustering."
 
     @property
-    def tags(self) -> list[str]:
-        return ["clustering", "random-projection"]
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -66,8 +80,12 @@ class RPKMeansGenerator(Generator[RPKMeansDataset]):
         return "Test points for this benchmark were created manually."
 
     @property
-    def tags(self) -> list[str]:
-        return ["clustering", "random-projection"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -84,6 +102,10 @@ class RPKMeansGenerator(Generator[RPKMeansDataset]):
     @property
     def motivation(self) -> str:
         return RPKMeansBenchmark().motivation
+
+    @property
+    def cacheable(self) -> bool:
+        return False
 
     @property
     def datasets(self) -> list[RPKMeansDataset]:
@@ -105,6 +127,11 @@ class RPKMeansGenerator(Generator[RPKMeansDataset]):
                 eps=0.3,
                 c=0.5,
                 max_iter=5,
+                suites=["test", "trace"],
+                ref_meta={
+                    "same": [(0, 1), (2, 3), (4, 5)],
+                    "cluster_count": 3,
+                },
             ),
             RPKMeansDataset(
                 "two_clusters",
@@ -122,19 +149,34 @@ class RPKMeansGenerator(Generator[RPKMeansDataset]):
                 eps=0.2,
                 c=1,
                 max_iter=5,
+                suites=["test", "trace"],
+                ref_meta={
+                    "same": [(0, 1), (1, 2), (2, 3)],
+                    "different": [(0, 4)],
+                },
             ),
         ]
 
-    def generate(
-        self, dataset: RPKMeansDataset
-    ) -> tuple[list[BinsparseFormat], dict[str, Any]]:
+    def generate(self, dataset: RPKMeansDataset) -> DataInstance:
         A_bin = BinsparseFormat.from_numpy(dataset.points)
-        return [A_bin], {
-            "k": dataset.k,
-            "eps": dataset.eps,
-            "c": dataset.c,
-            "max_iter": dataset.max_iter,
-        }
+        _, d = dataset.points.shape
+        t = int(dataset.c * math.ceil(dataset.k / dataset.eps**2))
+        value = 1 / (t**0.5)
+        rng = np.random.default_rng(0)
+        R = np.where(rng.random((d, t)) < 0.5, value, -value).astype(
+            dataset.points.dtype
+        )
+        R_bin = BinsparseFormat.from_numpy(R)
+        return DataInstance(
+            inputs=[A_bin, R_bin],
+            meta={
+                "k": dataset.k,
+                "eps": dataset.eps,
+                "c": dataset.c,
+                "max_iter": dataset.max_iter,
+            },
+            ref_meta=dataset.ref_meta,
+        )
 
 
 class RPKMeansBenchmark(Benchmark):
@@ -167,11 +209,14 @@ class RPKMeansBenchmark(Benchmark):
         return [
             Ref(
                 authors=[
-                    Author("C. Boutsidis"),
-                    Author("A. Zouzias"),
-                    Author("P. Drineas"),
+                    Author("Christos Boutsidis"),
+                    Author("Anastasios Zouzias"),
+                    Author("Petros Drineas"),
                 ],
-                title="Random Projection for k-Means Clustering",
+                title="Random Projections for $k$-means Clustering",
+                journal="Arxiv",
+                volume="arXiv:1011.4632",
+                year=2010,
                 url="https://arxiv.org/abs/1011.4632",
             )
         ]
@@ -181,14 +226,18 @@ class RPKMeansBenchmark(Benchmark):
         return "No generative AI was used to implement benchmark functions."
 
     @property
-    def tags(self) -> list[str]:
-        return ["clustering", "random-projection", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def generators(self):
         return [RPKMeansGenerator()]
 
-    def benchmark(self, data: list[Any], meta: dict[str, Any]):
+    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
         """
                 Labels points into k clusters.
 
@@ -218,13 +267,7 @@ class RPKMeansBenchmark(Benchmark):
         assert c > 0
         assert eps > 0 and eps < 1 / 3
         assert k > 0
-        A = data[0]
-        n, d = A.shape
-        t = int(c * math.ceil(k / eps**2))
-        value = 1 / (t**0.5)
-        R = xp.random.rand(d, t)
-        R = R < 0.5
-        R = xp.where(R, value, -value)
+        A, R = data
         A_prime = xp.matmul(A, R)
 
         n, t = A_prime.shape
@@ -247,3 +290,20 @@ class RPKMeansBenchmark(Benchmark):
                 break
 
         return [labels]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+        if self._ref_meta is None:
+            return
+
+        labels = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+
+        for left, right in self._ref_meta.get("same", []):
+            assert labels[left] == labels[right]
+        for left, right in self._ref_meta.get("different", []):
+            assert labels[left] != labels[right]
+        if "cluster_count" in self._ref_meta:
+            assert len(set(labels.tolist())) == self._ref_meta["cluster_count"]

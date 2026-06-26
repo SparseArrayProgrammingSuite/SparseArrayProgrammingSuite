@@ -1,26 +1,25 @@
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
 )
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
-
 
 class CP5FactorizeableDataset(Dataset):
-    def __init__(self, name, pretty_name, tags, shape, rank):
+    def __init__(self, name, pretty_name, suites, shape, rank, max_iter=100):
         self._name = name
         self._pretty_name = pretty_name
-        self._tags = tags
+        self._suites = suites
         self.shape = shape
         self.rank = rank
+        self.max_iter = max_iter
 
     @property
     def name(self) -> str:
@@ -35,8 +34,12 @@ class CP5FactorizeableDataset(Dataset):
         return f"rank = {self.rank}, shape = {self.shape}"
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
 
 class CP5FactorizeableGenerator(Generator):
@@ -73,8 +76,16 @@ class CP5FactorizeableGenerator(Generator):
         return []
 
     @property
-    def tags(self):
-        return ["tensor-factorization", "sparse"]
+    def suites(self):
+        return []
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self):
@@ -88,11 +99,17 @@ class CP5FactorizeableGenerator(Generator):
     def datasets(self):
         return [
             CP5FactorizeableDataset(
+                name="cp_factorizeable_tiny",
+                pretty_name="Tiny Factorizeable CP Tensor",
+                suites=["test", "trace"],
+                shape=(4, 4, 4, 4, 4),
+                rank=2,
+                max_iter=20,
+            ),
+            CP5FactorizeableDataset(
                 name="cp_factorizeable_small",
                 pretty_name="Small Factorizeable CP Tensor",
-                tags=[
-                    "small",
-                ],
+                suites=[],
                 shape=(10, 10, 10, 10, 10),
                 rank=5,
             ),
@@ -120,11 +137,31 @@ class CP5FactorizeableGenerator(Generator):
         A = A * lambdas
 
         X = np.einsum("ir,jr,kr,lr,mr->ijklm", A, B, C, D, E)
+        dtype = X.dtype
+        initial_A = BinsparseFormat.from_numpy(
+            np.random.default_rng(0).random((dim1, rank)).astype(dtype)
+        )
+        initial_B = BinsparseFormat.from_numpy(
+            np.random.default_rng(0).random((dim2, rank)).astype(dtype)
+        )
+        initial_C = BinsparseFormat.from_numpy(
+            np.random.default_rng(0).random((dim3, rank)).astype(dtype)
+        )
+        initial_D = BinsparseFormat.from_numpy(
+            np.random.default_rng(0).random((dim4, rank)).astype(dtype)
+        )
+        initial_E = BinsparseFormat.from_numpy(
+            np.random.default_rng(0).random((dim5, rank)).astype(dtype)
+        )
 
         X = BinsparseFormat.from_numpy(X)
-        max_iter = 100
+        max_iter = dataset.max_iter
 
-        return (X, rank, max_iter)
+        return DataInstance(
+            inputs=[X, initial_A, initial_B, initial_C, initial_D, initial_E],
+            meta={"rank": rank, "max_iter": max_iter},
+            ref_meta={"check_reconstruction": True, "rel_error_tol": 0.1},
+        )
 
 
 class CP5_ALS(Benchmark):
@@ -153,8 +190,12 @@ class CP5_ALS(Benchmark):
         )
 
     @property
-    def tags(self):
-        return ["tensor-factorization", "sparse"]
+    def suites(self):
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self):
@@ -225,6 +266,40 @@ class CP5_ALS(Benchmark):
             CP5FactorizeableGenerator(),
         ]
 
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+
+        if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
+            return
+
+        X = self._input[0].data["values"].reshape(self._input[0].data["shape"])
+        A = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        B = self._output[1].data["values"].reshape(self._output[1].data["shape"])
+        C = self._output[2].data["values"].reshape(self._output[2].data["shape"])
+        D = self._output[3].data["values"].reshape(self._output[3].data["shape"])
+        E = self._output[4].data["values"].reshape(self._output[4].data["shape"])
+        lambda_vals = (
+            self._output[5].data["values"].reshape(self._output[5].data["shape"])
+        )
+        dim1, dim2, dim3, dim4, dim5 = X.shape
+        rank = self._meta["rank"]
+
+        assert A.shape == (dim1, rank)
+        assert B.shape == (dim2, rank)
+        assert C.shape == (dim3, rank)
+        assert D.shape == (dim4, rank)
+        assert E.shape == (dim5, rank)
+        assert lambda_vals.shape == (rank,)
+
+        Y = np.einsum("r,ir,jr,kr,lr,mr->ijklm", lambda_vals, A, B, C, D, E)
+        rel_error = np.linalg.norm(Y - X) / np.linalg.norm(X)
+        assert rel_error < self._ref_meta["rel_error_tol"], (
+            f"CP5 reconstruction error too high: {rel_error:.6f}"
+        )
+
     """
     benchmark(X_bench, rank, max_iter)
 
@@ -242,38 +317,9 @@ class CP5_ALS(Benchmark):
     - lambda are the component weights
     """
 
-    def benchmark(self, data, meta):
-        (X,) = data
-        rank = meta["rank"]
+    def benchmark(self, xp, data, meta):
+        X, A, B, C, D, E = data
         max_iter = meta["max_iter"]
-        dim1, dim2, dim3, dim4, dim5 = X.shape
-        dtype = X.dtype
-
-        A = xp.from_binsparse(
-            BinsparseFormat.from_numpy(
-                np.random.default_rng(0).random((dim1, rank)).astype(dtype)
-            )
-        )
-        B = xp.from_binsparse(
-            BinsparseFormat.from_numpy(
-                np.random.default_rng(0).random((dim2, rank)).astype(dtype)
-            )
-        )
-        C = xp.from_binsparse(
-            BinsparseFormat.from_numpy(
-                np.random.default_rng(0).random((dim3, rank)).astype(dtype)
-            )
-        )
-        D = xp.from_binsparse(
-            BinsparseFormat.from_numpy(
-                np.random.default_rng(0).random((dim4, rank)).astype(dtype)
-            )
-        )
-        E = xp.from_binsparse(
-            BinsparseFormat.from_numpy(
-                np.random.default_rng(0).random((dim5, rank)).astype(dtype)
-            )
-        )
 
         for _iteration in range(max_iter):
             print(_iteration, "/", max_iter)

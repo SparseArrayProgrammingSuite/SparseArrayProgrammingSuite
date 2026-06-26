@@ -1,20 +1,17 @@
 import logging
 
 import numpy as np
-import scipy as sp
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
 )
 from saps_framework import BinsparseFormat
-
-xp = saps.xp
 
 
 class JLApproxNNDataset(Dataset):
@@ -23,7 +20,7 @@ class JLApproxNNDataset(Dataset):
         name,
         pretty_name,
         description,
-        tags,
+        suites,
         n_samples,
         n_features,
         n_queries,
@@ -34,7 +31,7 @@ class JLApproxNNDataset(Dataset):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
-        self._tags = tags
+        self._suites = suites
         self.n_samples = n_samples
         self.n_features = n_features
         self.n_queries = n_queries
@@ -55,8 +52,81 @@ class JLApproxNNDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+
+class JLApproxNNTestGenerator(Generator[JLApproxNNDataset]):
+    @property
+    def name(self) -> str:
+        return "jl_projection_test_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "JL Projection Test Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Small JL approximate nearest-neighbor example."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["test", "trace"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return JLApproxNNGenerator().authors
+
+    @property
+    def references(self) -> list[Ref]:
+        return JLApproxNNGenerator().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return JLApproxNNGenerator().ai_disclosure
+
+    @property
+    def motivation(self) -> str:
+        return "Provide a small JL ANN example for benchmark correctness checks."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[JLApproxNNDataset]:
+        return [
+            JLApproxNNDataset(
+                name="test_jl_preserves_distance",
+                pretty_name="test JL ANN",
+                description=(
+                    "test dense data and query matrices with sparse random projection."
+                ),
+                suites=["test", "trace"],
+                n_samples=20,
+                n_features=10,
+                n_queries=4,
+                k=3,
+                eps=0.01,
+                seed=42,
+            )
+        ]
+
+    def generate(self, dataset: JLApproxNNDataset):
+        problem = JLApproxNNGenerator().generate(dataset)
+        return DataInstance(
+            inputs=problem.inputs,
+            meta=problem.meta,
+            ref_meta={"check": "jl_preserves_distance"},
+        )
 
 
 class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
@@ -76,8 +146,12 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
         )
 
     @property
-    def tags(self) -> list[str]:
-        return ["rnla", "projection", "approximate-nearest-neighbor", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -144,7 +218,7 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
                     "Small random dense data and query matrices with sparse random"
                     " projection."
                 ),
-                tags=["small", "rnla", "sparse"],
+                suites=[],
                 n_samples=256,
                 n_features=128,
                 n_queries=32,
@@ -159,7 +233,7 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
                     "Medium random dense data and query matrices with sparse random"
                     " projection."
                 ),
-                tags=["medium", "rnla", "sparse"],
+                suites=[],
                 n_samples=1024,
                 n_features=256,
                 n_queries=64,
@@ -174,7 +248,7 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
                     "Large random dense data and query matrices with sparse random"
                     " projection."
                 ),
-                tags=["large", "rnla", "sparse"],
+                suites=[],
                 n_samples=4096,
                 n_features=512,
                 n_queries=128,
@@ -185,6 +259,8 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
         ]
 
     def generate(self, dataset: JLApproxNNDataset):
+        import scipy as sp
+
         rng = np.random.default_rng(dataset.seed)
         data = rng.standard_normal((dataset.n_samples, dataset.n_features))
         query = rng.standard_normal((dataset.n_queries, dataset.n_features))
@@ -234,11 +310,14 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
             projection_matrix.shape,
         )
 
-        return [
-            BinsparseFormat.from_numpy(data),
-            BinsparseFormat.from_numpy(query),
-            P,
-        ], meta
+        return DataInstance(
+            inputs=[
+                BinsparseFormat.from_numpy(data),
+                BinsparseFormat.from_numpy(query),
+                P,
+            ],
+            meta=meta,
+        )
 
 
 class JLApproxNearestNeighbor(Benchmark):
@@ -258,8 +337,27 @@ class JLApproxNearestNeighbor(Benchmark):
         )
 
     @property
-    def tags(self):
-        return ["rnla", "approximate-nearest-neighbor", "projection", "sparse"]
+    def suites(self):
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return (
+            "<ccs2012>"
+            "<concept>"
+            "<concept_desc>Computing methodologies~"
+            "Machine learning algorithms</concept_desc>"
+            "</concept>"
+            "<concept>"
+            "<concept_desc>Mathematics of computing~"
+            "Dimensionality reduction</concept_desc>"
+            "</concept>"
+            "<concept>"
+            "<concept_desc>Theory of computation~"
+            "Nearest neighbor algorithms</concept_desc>"
+            "</concept>"
+            "</ccs2012>"
+        )
 
     @property
     def authors(self):
@@ -275,18 +373,26 @@ class JLApproxNearestNeighbor(Benchmark):
             ),
             Ref(
                 title=(
-                    "Randomized numerical linear algebra: "
-                    "A perspective on the field with an eye to software"
+                    "Randomized Numerical Linear Algebra : "
+                    "A Perspective on the Field With an Eye to Software"
                 ),
                 authors=[
-                    Author("Murray, R."),
-                    Author("Demmel, J."),
-                    Author("Mahoney, M. W."),
-                    Author("Erichson, N. B."),
-                    Author("Melnichenko, M."),
-                    Author("Malik, O. A."),
-                    Author("Dongarra, J."),
+                    Author("Riley Murray"),
+                    Author("James Demmel"),
+                    Author("Michael W. Mahoney"),
+                    Author("N. Benjamin Erichson"),
+                    Author("Maksim Melnichenko"),
+                    Author("Osman Asif Malik"),
+                    Author("Laura Grigori"),
+                    Author("Piotr Luszczek"),
+                    Author("Michał Dereziński"),
+                    Author("Miles E. Lopes"),
+                    Author("Tianyu Liang"),
+                    Author("Hengrui Luo"),
+                    Author("Jack Dongarra"),
                 ],
+                journal="Arxiv",
+                volume="arXiv:2302.11474",
                 year=2023,
                 url="https://arxiv.org/abs/2302.11474",
             ),
@@ -310,15 +416,18 @@ class JLApproxNearestNeighbor(Benchmark):
 
     @property
     def generators(self):
-        return [JLApproxNNGenerator()]
+        return [JLApproxNNTestGenerator(), JLApproxNNGenerator()]
 
-    def benchmark(self, data, meta):
+    def benchmark(self, xp, data, meta):
         data, query, P = data
         k = meta["k"]
         eps = meta["eps"]
 
         n_samples, n_features = data.shape
-        logging.info(f"Data shape: {data.shape}, Query shape: {query.shape}, Projection shape: {P.shape}")
+        logging.info(
+            f"Data shape: {data.shape}, Query shape: {query.shape}, "
+            f"Projection shape: {P.shape}"
+        )
         #  Johnson Lindenstrauss Theorem Lemmna.
         # The eps represents the disortion of distance by epsilon,
         # between the the original space and the reduced subspace
@@ -346,3 +455,26 @@ class JLApproxNearestNeighbor(Benchmark):
         nearest_distances = xp.take(xp.sort(distances), xp.arange(k), axis=1)
 
         return [nearest_indices, nearest_distances]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+        if not self._ref_meta:
+            return
+
+        data = self._input[0].data["values"].reshape(self._input[0].data["shape"])
+        query = self._input[1].data["values"].reshape(self._input[1].data["shape"])
+        nearest_ind = (
+            self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        )
+
+        diff = np.expand_dims(query, axis=1) - np.expand_dims(data, axis=0)
+        orig_distances = np.sqrt(np.sum(diff**2, axis=-1))
+
+        true_nearest = np.min(orig_distances, axis=1)
+        approx_nearest = orig_distances[
+            np.arange(param.dataset.n_queries), nearest_ind[:, 0].astype(int)
+        ]
+        assert np.all(approx_nearest <= (1 + param.dataset.eps) * true_nearest)

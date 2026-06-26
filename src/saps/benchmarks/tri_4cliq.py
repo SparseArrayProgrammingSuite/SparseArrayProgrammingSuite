@@ -1,12 +1,16 @@
-from typing import Any
+import numpy as np
 
-import saps
-from saps.benchmark import Author, Benchmark, Contributor, Dataset, Generator, Ref
-
+from saps.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    Ref,
+)
 from saps.downloaders.snap import download_snap_dataset
-from saps_framework.binsparse_format import BinsparseFormat
-
-xp = saps.xp
+from saps_framework import BinsparseFormat
 
 
 class GraphCountingDataset(Dataset):
@@ -15,12 +19,16 @@ class GraphCountingDataset(Dataset):
         name: str,
         pretty_name: str | None = None,
         description: str | None = None,
-        tags: list[str] | None = None,
+        suites: list[str] | None = None,
+        A: np.ndarray | None = None,
+        expected: np.ndarray | None = None,
     ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Graph counting input {name}."
-        self._tags = tags or ["graph", "sparse"]
+        self._suites = suites or []
+        self.A = A
+        self.expected = expected
 
     @property
     def name(self) -> str:
@@ -35,8 +43,239 @@ class GraphCountingDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+
+class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
+    @property
+    def name(self) -> str:
+        return "triangle_count_test_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Triangle Count Test Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Small deterministic triangle-count examples."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["test", "trace"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI might have been used to construct tests. This statement "
+            "was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Provide small graph examples for triangle-count correctness checks."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[GraphCountingDataset]:
+        return [
+            GraphCountingDataset(
+                "test_triangle_count_single_triangle",
+                suites=["test", "trace"],
+                A=np.array(
+                    [
+                        [0, 1, 1],
+                        [1, 0, 1],
+                        [1, 1, 0],
+                    ],
+                    dtype=int,
+                ),
+                expected=np.array(1),
+            ),
+            GraphCountingDataset(
+                "test_triangle_count_path",
+                suites=["test", "trace"],
+                A=np.array(
+                    [
+                        [0, 1, 0, 0],
+                        [1, 0, 1, 0],
+                        [0, 1, 0, 1],
+                        [0, 0, 1, 0],
+                    ],
+                    dtype=int,
+                ),
+                expected=np.array(0),
+            ),
+            GraphCountingDataset(
+                "test_triangle_count_4_clique",
+                suites=["test", "trace"],
+                A=np.array(
+                    [
+                        [0, 1, 1, 1],
+                        [1, 0, 1, 1],
+                        [1, 1, 0, 1],
+                        [1, 1, 1, 0],
+                    ],
+                    dtype=int,
+                ),
+                expected=np.array(4),
+            ),
+            GraphCountingDataset(
+                "test_triangle_snap_toy",
+                suites=["test", "trace"],
+                A=np.array(
+                    [
+                        [0, 1, 0],
+                        [0, 0, 1],
+                        [0, 0, 0],
+                    ],
+                    dtype=int,
+                ),
+                expected=np.array(0),
+            ),
+        ]
+
+    def generate(self, dataset: GraphCountingDataset) -> DataInstance:
+        if dataset.A is None or dataset.expected is None:
+            raise ValueError("Triangle-count test datasets must define A and expected.")
+        return DataInstance(
+            inputs=[BinsparseFormat.from_numpy(dataset.A)],
+            meta={},
+            ref_outputs=[BinsparseFormat.from_numpy(dataset.expected)],
+        )
+
+
+class FourCliqueCountTestGenerator(Generator[GraphCountingDataset]):
+    @property
+    def name(self) -> str:
+        return "four_clique_count_test_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "4-Clique Count Test Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Small deterministic 4-clique-count examples."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["test", "trace"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI might have been used to construct tests. This statement "
+            "was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Provide small graph examples for 4-clique-count correctness checks."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[GraphCountingDataset]:
+        return [
+            GraphCountingDataset(
+                "test_4clique_count_complete_k3",
+                suites=["test", "trace"],
+                A=np.array(
+                    [
+                        [0, 1, 1],
+                        [1, 0, 1],
+                        [1, 1, 0],
+                    ],
+                    dtype=int,
+                ),
+                expected=np.array(0),
+            ),
+            GraphCountingDataset(
+                "test_4clique_count_single_k4",
+                suites=["test", "trace"],
+                A=np.array(
+                    [
+                        [0, 1, 1, 1],
+                        [1, 0, 1, 1],
+                        [1, 1, 0, 1],
+                        [1, 1, 1, 0],
+                    ],
+                    dtype=int,
+                ),
+                expected=np.array(1),
+            ),
+            GraphCountingDataset(
+                "test_4clique_count_overlapping",
+                suites=["test", "trace"],
+                A=np.array(
+                    [
+                        [0, 1, 1, 1, 0],
+                        [1, 0, 1, 1, 1],
+                        [1, 1, 0, 1, 1],
+                        [1, 1, 1, 0, 1],
+                        [0, 1, 1, 1, 0],
+                    ],
+                    dtype=int,
+                ),
+                expected=np.array(2),
+            ),
+            GraphCountingDataset(
+                "test_4clique_snap_toy",
+                suites=["test", "trace"],
+                A=np.array(
+                    [
+                        [0, 1, 0],
+                        [0, 0, 1],
+                        [0, 0, 0],
+                    ],
+                    dtype=int,
+                ),
+                expected=np.array(0),
+            ),
+        ]
+
+    def generate(self, dataset: GraphCountingDataset) -> DataInstance:
+        if dataset.A is None or dataset.expected is None:
+            raise ValueError("4-clique test datasets must define A and expected.")
+        return DataInstance(
+            inputs=[BinsparseFormat.from_numpy(dataset.A)],
+            meta={},
+            ref_outputs=[BinsparseFormat.from_numpy(dataset.expected)],
+        )
 
 
 class TriangleCountGenerator(Generator[GraphCountingDataset]):
@@ -53,8 +292,12 @@ class TriangleCountGenerator(Generator[GraphCountingDataset]):
         return "Input generator for triangle counting benchmarks."
 
     @property
-    def tags(self) -> list[str]:
-        return ["graph", "triangle-counting", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -64,7 +307,9 @@ class TriangleCountGenerator(Generator[GraphCountingDataset]):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title="SNAP: A General Purpose Network Analysis and Graph Mining Library",
+                title=(
+                    "SNAP: A General Purpose Network Analysis and Graph Mining Library"
+                ),
                 authors=[
                     Author("Leskovec, Jure"),
                     Author("Sosič, Rok"),
@@ -98,7 +343,7 @@ class TriangleCountGenerator(Generator[GraphCountingDataset]):
                     "Directed email communication network from a European research"
                     " institution, with 1,005 nodes and 25,571 edges."
                 ),
-                tags=["graph", "triangle-counting", "sparse", "snap", "directed"],
+                suites=[],
             ),
             GraphCountingDataset(
                 name="snap-ca-GrQc",
@@ -107,21 +352,14 @@ class TriangleCountGenerator(Generator[GraphCountingDataset]):
                     "Arxiv General Relativity and Quantum Cosmology collaboration"
                     " network, with 5,242 nodes and 14,496 edges."
                 ),
-                tags=[
-                    "graph",
-                    "triangle-counting",
-                    "sparse",
-                    "snap",
-                    "collaboration-network",
-                ],
+                suites=[],
             ),
         ]
 
-    def generate(
-        self, dataset: GraphCountingDataset
-    ) -> tuple[list[BinsparseFormat], Any]:
+    def generate(self, dataset: GraphCountingDataset) -> DataInstance:
         if dataset.name.startswith("snap"):
-            return download_snap_dataset(dataset.name)
+            inputs, meta = download_snap_dataset(dataset.name)
+            return DataInstance(inputs=inputs, meta=meta)
         raise ValueError(f"Unsupported triangle count dataset: {dataset.name}")
 
 
@@ -139,8 +377,12 @@ class FourCliqueCountGenerator(Generator[GraphCountingDataset]):
         return "Input generator for 4-clique counting benchmarks."
 
     @property
-    def tags(self) -> list[str]:
-        return ["graph", "clique-counting", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -172,7 +414,7 @@ class FourCliqueCountGenerator(Generator[GraphCountingDataset]):
                     "Department 3 email network from the SNAP email-Eu-core"
                     " temporal dataset, with 89 nodes and 1,506 static edges."
                 ),
-                tags=["graph", "clique-counting", "sparse", "snap", "directed"],
+                suites=[],
             ),
             GraphCountingDataset(
                 name="snap-email-Eu-core-temporal-Dept4",
@@ -181,15 +423,14 @@ class FourCliqueCountGenerator(Generator[GraphCountingDataset]):
                     "Department 4 email network from the SNAP email-Eu-core"
                     " temporal dataset, with 142 nodes and 1,375 static edges."
                 ),
-                tags=["graph", "clique-counting", "sparse", "snap", "directed"],
+                suites=[],
             ),
         ]
 
-    def generate(
-        self, dataset: GraphCountingDataset
-    ) -> tuple[list[BinsparseFormat], Any]:
+    def generate(self, dataset: GraphCountingDataset) -> DataInstance:
         if dataset.name.startswith("snap"):
-            return download_snap_dataset(dataset.name)
+            inputs, meta = download_snap_dataset(dataset.name)
+            return DataInstance(inputs=inputs, meta=meta)
         raise ValueError(f"Unsupported 4-clique count dataset: {dataset.name}")
 
 
@@ -234,8 +475,12 @@ class TriangleCountBenchmark(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
-        return ["graph", "triangle-counting", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -282,12 +527,27 @@ class TriangleCountBenchmark(Benchmark):
 
     @property
     def generators(self) -> list[Generator[GraphCountingDataset]]:
-        return [TriangleCountGenerator()]
+        return [TriangleCountTestGenerator(), TriangleCountGenerator()]
 
-    def benchmark(self, data: list, meta: dict):
-        A = xp.from_binsparse(data[0])
+    def benchmark(self, xp, data: list, meta: dict):
+        A = data[0]
         triangles = xp.einsum("S[] += A[i,j] * A[j,k] * A[k,i]", A=A) / 6
         return [xp.asarray(triangles)]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+        if self._ref_outputs is None:
+            return
+        result = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        expected = (
+            self._ref_outputs[0]
+            .data["values"]
+            .reshape(self._ref_outputs[0].data["shape"])
+        )
+        assert np.allclose(result, expected)
 
 
 class FourCliqueCountBenchmark(Benchmark):
@@ -332,8 +592,12 @@ class FourCliqueCountBenchmark(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
-        return ["graph", "clique-counting", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -380,10 +644,10 @@ class FourCliqueCountBenchmark(Benchmark):
 
     @property
     def generators(self) -> list[Generator[GraphCountingDataset]]:
-        return [FourCliqueCountGenerator()]
+        return [FourCliqueCountTestGenerator(), FourCliqueCountGenerator()]
 
-    def benchmark(self, data: list, meta: dict):
-        A = xp.from_binsparse(data[0])
+    def benchmark(self, xp, data: list, meta: dict):
+        A = data[0]
         cliq_4 = (
             xp.einsum(
                 "S[] += A[i,j] * A[i,k] * A[i,l] * A[j,k] * A[j,l] * A[k,l]",
@@ -392,3 +656,18 @@ class FourCliqueCountBenchmark(Benchmark):
             / 24
         )
         return [xp.asarray(cliq_4)]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+        if self._ref_outputs is None:
+            return
+        result = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        expected = (
+            self._ref_outputs[0]
+            .data["values"]
+            .reshape(self._ref_outputs[0].data["shape"])
+        )
+        assert np.allclose(result, expected)

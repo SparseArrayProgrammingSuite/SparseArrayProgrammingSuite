@@ -2,31 +2,42 @@ import os
 from typing import Any
 
 import numpy as np
-from scipy.io import mmread
-from scipy.sparse import random
 
-import ssgetpy
+import sparse as pydata_sparse
 
-import saps
 from saps.benchmark import (
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
 )
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
-
 
 class GMRESDataset(Dataset):
     def __init__(
-        self, source_name: str, has_b_file: bool = False, nnz: int | None = None
+        self,
+        source_name: str,
+        has_b_file: bool = False,
+        nnz: int | None = None,
+        suites: list[str] | None = None,
+        A: Any | None = None,
+        b: np.ndarray | None = None,
+        x0: np.ndarray | None = None,
+        meta: dict[str, Any] | None = None,
+        ref_meta: dict[str, Any] | None = None,
     ):
+        self._suites = suites or []
         self.source_name = source_name
         self.has_b_file = has_b_file
         self.nnz = nnz
+        self.A = A
+        self.b = b
+        self.x0 = x0
+        self.benchmark_meta = meta or {}
+        self.ref_meta = ref_meta or {}
 
     @property
     def name(self) -> str:
@@ -41,8 +52,12 @@ class GMRESDataset(Dataset):
         return f"SuiteSparse matrix {self.source_name}."
 
     @property
-    def tags(self) -> list[str]:
-        return ["suitesparse", "sparse"]
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -50,6 +65,138 @@ class GMRESDataset(Dataset):
         data["nnz"] = self.nnz
         data["has_b_file"] = self.has_b_file
         return data
+
+
+def gmres_random_system(seed):
+    import scipy.sparse
+
+    rng = np.random.default_rng(seed)
+    n = 50
+    A = scipy.sparse.random(n, n, density=0.1, random_state=rng)
+    A = A + scipy.sparse.eye(n) * n
+    x_true = rng.standard_normal(n)
+    b = A @ x_true
+    return A.tocoo(), b, np.zeros(n)
+
+
+class GMRESTestGenerator(Generator[GMRESDataset]):
+    @property
+    def name(self) -> str:
+        return "gmres_test_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "GMRES Test Data Generator"
+
+    @property
+    def description(self) -> str:
+        return "Inlined matrices and seeded systems from the GMRES pytest examples."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["test", "trace"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Aadharsh Rajkumar", "arajkumar34@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return GMRESBenchmark().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return GMRESBenchmark().ai_disclosure
+
+    @property
+    def motivation(self) -> str:
+        return "Uses small inlined linear systems to verify GMRES convergence."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[GMRESDataset]:
+        random_42 = gmres_random_system(42)
+        random_123 = gmres_random_system(123)
+        return [
+            GMRESDataset(
+                "test_gmres_random_42",
+                suites=["test", "trace"],
+                A=random_42[0],
+                b=random_42[1],
+                x0=random_42[2],
+                meta={"restart": 20, "tol": 1e-8, "max_iter": 1000},
+                ref_meta={"residual_tol": 1e-5},
+            ),
+            GMRESDataset(
+                "test_gmres_random_123",
+                suites=["test", "trace"],
+                A=random_123[0],
+                b=random_123[1],
+                x0=random_123[2],
+                meta={"restart": 20, "tol": 1e-8, "max_iter": 1000},
+                ref_meta={"residual_tol": 1e-5},
+            ),
+            GMRESDataset(
+                "test_gmres_diagonal",
+                suites=["test", "trace"],
+                A=np.array([[2.0, 0.0], [0.0, 3.0]]),
+                b=np.array([4.0, 9.0]),
+                x0=np.zeros(2),
+                meta={"restart": 2, "tol": 1e-8, "max_iter": 100},
+                ref_meta={"residual_tol": 1e-6},
+            ),
+            GMRESDataset(
+                "test_gmres_3x3",
+                suites=["test", "trace"],
+                A=np.array([[10.0, 2.0, 1.0], [1.0, 20.0, 1.0], [1.0, 2.0, 10.0]]),
+                b=np.array([13.0, 22.0, 13.0]),
+                x0=np.zeros(3),
+                meta={"restart": 3, "tol": 1e-8, "max_iter": 100},
+                ref_meta={"residual_tol": 1e-6},
+            ),
+            GMRESDataset(
+                "test_gmres_4x4",
+                suites=["test", "trace"],
+                A=np.array(
+                    [
+                        [4.0, -1.0, 0.0, 0.0],
+                        [-1.0, 4.0, -1.0, 0.0],
+                        [0.0, -1.0, 4.0, -1.0],
+                        [0.0, 0.0, -1.0, 3.0],
+                    ]
+                ),
+                b=np.array([3.0, 2.0, 2.0, 2.0]),
+                x0=np.zeros(4),
+                meta={"restart": 4, "tol": 1e-8, "max_iter": 100},
+                ref_meta={"residual_tol": 1e-6},
+            ),
+        ]
+
+    def generate(self, dataset: GMRESDataset) -> DataInstance:
+        if dataset.A is None or dataset.b is None or dataset.x0 is None:
+            raise ValueError("GMRES test datasets must define A, b, and x0.")
+        A = dataset.A.tocoo() if hasattr(dataset.A, "tocoo") else None
+        A_bin = (
+            BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
+            if A is not None
+            else BinsparseFormat.from_numpy(dataset.A)
+        )
+        return DataInstance(
+            inputs=[
+                A_bin,
+                BinsparseFormat.from_numpy(dataset.b),
+                BinsparseFormat.from_numpy(dataset.x0),
+            ],
+            meta=dataset.benchmark_meta,
+            ref_meta=dataset.ref_meta,
+        )
 
 
 class GMRESGenerator(Generator[GMRESDataset]):
@@ -66,8 +213,12 @@ class GMRESGenerator(Generator[GMRESDataset]):
         return "Accesses and prepares sparse matrices from SuiteSparse for GMRES."
 
     @property
-    def tags(self) -> list[str]:
-        return ["iterative", "solver", "suitesparse", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -112,6 +263,11 @@ class GMRESGenerator(Generator[GMRESDataset]):
         ]
 
     def generate(self, dataset: GMRESDataset):
+        from scipy.io import mmread
+        from scipy.sparse import random
+
+        import ssgetpy
+
         source = dataset.source_name
         has_b_file = dataset.metadata.get("has_b_file", False)
         matrices = ssgetpy.search(name=source)
@@ -152,7 +308,7 @@ class GMRESGenerator(Generator[GMRESDataset]):
         A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
         b_bin = BinsparseFormat.from_numpy(b)
         x_bin = BinsparseFormat.from_numpy(x)
-        return [A_bin, b_bin, x_bin], {}
+        return DataInstance(inputs=[A_bin, b_bin, x_bin], meta={})
 
 
 class GMRESBenchmark(Benchmark):
@@ -219,14 +375,41 @@ class GMRESBenchmark(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
-        return ["iterative", "solver", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def generators(self):
-        return [GMRESGenerator()]
+        return [GMRESTestGenerator(), GMRESGenerator()]
 
-    def benchmark(self, data: list, meta: dict):
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+
+        if not self._ref_meta or "residual_tol" not in self._ref_meta:
+            return
+
+        A_bin, b_bin, _x0_bin = self._input
+        A_coo = BinsparseFormat.to_coo(A_bin)
+        A = pydata_sparse.COO(
+            coords=np.stack((A_coo.data["indices_0"], A_coo.data["indices_1"])),
+            data=A_coo.data["values"],
+            shape=A_coo.data["shape"],
+        )
+        b = b_bin.data["values"].reshape(b_bin.data["shape"])
+        x_sol = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        residual = np.linalg.norm(b - A @ x_sol)
+        assert residual < self._ref_meta["residual_tol"], (
+            f"GMRES residual too high for {param.dataset.name}: {residual}"
+        )
+
+    def benchmark(self, xp, data: list, meta: dict):
         A, b, x0 = data
         restart = meta.get("restart", 50)
         tol = meta.get("tol", 1e-8)

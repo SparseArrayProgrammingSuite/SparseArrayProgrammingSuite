@@ -1,23 +1,41 @@
 import os
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
-from scipy.io import mmread
 
-import ssgetpy
-
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
 )
 from saps_framework import BinsparseFormat
 
-xp = saps.xp
+
+def _from_binsparse(array):
+    if array.data["format"] == "dense":
+        return array.data["values"].reshape(array.data["shape"])
+    if array.data["format"] == "COO":
+        shape = array.data["shape"]
+        indices = tuple(array.data[f"indices_{dim}"] for dim in range(len(shape)))
+        values = array.data["values"]
+        dense = np.zeros(shape, dtype=values.dtype)
+        dense[indices] = values
+        return dense
+    raise ValueError(f"Unsupported format: {array.data['format']}")
+
+
+def _gcn_loss(adjacency, features, weights1, bias1, weights2, bias2, targets):
+    z1 = adjacency @ features
+    h1_pre = z1 @ weights1 + bias1
+    h1 = np.maximum(h1_pre, 0)
+    z2 = adjacency @ h1
+    predictions = z2 @ weights2 + bias2
+    diff = predictions - targets
+    return np.sum(diff * diff) / predictions.shape[0]
 
 
 class GCNTrainingDataset(Dataset):
@@ -32,7 +50,17 @@ class GCNTrainingDataset(Dataset):
         out_dim: int = 1,
         num_iterations: int = 10,
         learning_rate: float = 0.01,
+        suites: list[str] | None = None,
+        adjacency: np.ndarray | None = None,
+        features: np.ndarray | None = None,
+        weights1: np.ndarray | None = None,
+        bias1: np.ndarray | None = None,
+        weights2: np.ndarray | None = None,
+        bias2: np.ndarray | None = None,
+        targets: np.ndarray | None = None,
+        ref_meta: dict[str, Any] | None = None,
     ):
+        self._suites = suites or []
         self._name = name
         self._description = description
         self.source_name = source_name or name
@@ -41,6 +69,14 @@ class GCNTrainingDataset(Dataset):
         self.out_dim = out_dim
         self.num_iterations = num_iterations
         self.learning_rate = learning_rate
+        self.adjacency = adjacency
+        self.features = features
+        self.weights1 = weights1
+        self.bias1 = bias1
+        self.weights2 = weights2
+        self.bias2 = bias2
+        self.targets = targets
+        self.ref_meta = ref_meta or {}
 
     @property
     def name(self) -> str:
@@ -57,8 +93,12 @@ class GCNTrainingDataset(Dataset):
         return f"SuiteSparse matrix {self.source_name}."
 
     @property
-    def tags(self) -> list[str]:
-        return ["suitesparse", "sparse"]
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -70,6 +110,217 @@ class GCNTrainingDataset(Dataset):
         data["num_iterations"] = self.num_iterations
         data["learning_rate"] = self.learning_rate
         return data
+
+
+class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
+    @property
+    def name(self) -> str:
+        return "gcn_backward_test_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "GCN Backward Test Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Small inlined GCN training examples."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["test", "trace"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Tarun Devi", "tdevi3@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return GCNBackwardBenchmark().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return GCNBackwardBenchmark().ai_disclosure
+
+    @property
+    def motivation(self) -> str:
+        return "Uses small graph examples to verify the GCN training loop."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[GCNTrainingDataset]:
+        rng = np.random.default_rng(42)
+        degree_train_adj = np.array(
+            [
+                [0, 1, 1, 1, 1, 0, 0],
+                [1, 0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0],
+            ],
+            dtype=np.float32,
+        )
+        degree_targets = degree_train_adj.sum(axis=1, keepdims=True)
+        degree_targets = degree_targets / degree_targets.max()
+        degree_test_adj = np.array(
+            [
+                [0, 1, 1, 1, 0, 0],
+                [1, 0, 1, 0, 0, 0],
+                [1, 1, 0, 0, 1, 0],
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+            ],
+            dtype=np.float32,
+        )
+        degree_test_targets = degree_test_adj.sum(axis=1, keepdims=True)
+        degree_test_targets = degree_test_targets / degree_test_targets.max()
+        degree_weights1 = rng.standard_normal((1, 4), dtype=np.float32) * 0.5
+        degree_weights2 = rng.standard_normal((4, 1), dtype=np.float32) * 0.5
+        return [
+            GCNTrainingDataset(
+                "test_gcn_backward_2node",
+                suites=["test", "trace"],
+                adjacency=np.array([[0, 1], [1, 0]], dtype=np.float32),
+                features=np.array([[1.0], [2.0]], dtype=np.float32),
+                weights1=np.array([[1.0]], dtype=np.float32),
+                bias1=np.array([0.0], dtype=np.float32),
+                weights2=np.array([[1.0]], dtype=np.float32),
+                bias2=np.array([0.0], dtype=np.float32),
+                targets=np.array([[2.0], [1.0]], dtype=np.float32),
+                num_iterations=10,
+                learning_rate=0.01,
+                ref_meta={
+                    "check_loss_reduction": True,
+                    "output_shapes": [(1,), (1, 1), (1,), (1, 1), (1,)],
+                },
+            ),
+            GCNTrainingDataset(
+                "test_gcn_backward_multidim",
+                suites=["test", "trace"],
+                adjacency=np.array(
+                    [
+                        [0, 1, 1, 0],
+                        [1, 0, 1, 1],
+                        [1, 1, 0, 1],
+                        [0, 1, 1, 0],
+                    ],
+                    dtype=np.float32,
+                ),
+                features=np.array(
+                    [
+                        [1.0, 0.5],
+                        [0.0, 1.0],
+                        [1.0, 1.0],
+                        [0.5, 0.5],
+                    ],
+                    dtype=np.float32,
+                ),
+                weights1=np.array([[0.5, 0.3, 0.1], [0.2, 0.4, 0.6]], dtype=np.float32),
+                bias1=np.zeros(3, dtype=np.float32),
+                weights2=np.array(
+                    [[0.5, 0.5], [0.3, 0.7], [0.2, 0.8]], dtype=np.float32
+                ),
+                bias2=np.zeros(2, dtype=np.float32),
+                targets=np.array(
+                    [
+                        [1.0, 0.0],
+                        [0.0, 1.0],
+                        [1.0, 1.0],
+                        [0.5, 0.5],
+                    ],
+                    dtype=np.float32,
+                ),
+                num_iterations=100,
+                learning_rate=0.01,
+                ref_meta={
+                    "check_loss_reduction": True,
+                    "output_shapes": [(1,), (2, 3), (3,), (3, 2), (2,)],
+                },
+            ),
+            GCNTrainingDataset(
+                "test_gcn_backward_degree_loss",
+                suites=["test", "trace"],
+                adjacency=degree_train_adj,
+                features=np.ones((7, 1), dtype=np.float32),
+                weights1=degree_weights1.copy(),
+                bias1=np.zeros(4, dtype=np.float32),
+                weights2=degree_weights2.copy(),
+                bias2=np.zeros(1, dtype=np.float32),
+                targets=degree_targets,
+                num_iterations=500,
+                learning_rate=0.01,
+                ref_meta={
+                    "check_loss_reduction": True,
+                    "output_shapes": [(1,), (1, 4), (4,), (4, 1), (1,)],
+                },
+            ),
+            GCNTrainingDataset(
+                "test_gcn_backward_degree_test_graph_loss",
+                suites=["test", "trace"],
+                adjacency=degree_test_adj,
+                features=np.ones((6, 1), dtype=np.float32),
+                weights1=degree_weights1.copy(),
+                bias1=np.zeros(4, dtype=np.float32),
+                weights2=degree_weights2.copy(),
+                bias2=np.zeros(1, dtype=np.float32),
+                targets=degree_test_targets,
+                num_iterations=500,
+                learning_rate=0.01,
+                ref_meta={
+                    "check_loss_reduction": True,
+                    "output_shapes": [(1,), (1, 4), (4,), (4, 1), (1,)],
+                },
+            ),
+        ]
+
+    def generate(self, dataset: GCNTrainingDataset):
+        required = (
+            dataset.adjacency,
+            dataset.features,
+            dataset.weights1,
+            dataset.bias1,
+            dataset.weights2,
+            dataset.bias2,
+            dataset.targets,
+        )
+        if any(item is None for item in required):
+            raise ValueError("GCN backward test datasets must define all arrays.")
+
+        ref_meta = dict(dataset.ref_meta)
+        adjacency = cast(np.ndarray, dataset.adjacency)
+        features = cast(np.ndarray, dataset.features)
+        weights1 = cast(np.ndarray, dataset.weights1)
+        bias1 = cast(np.ndarray, dataset.bias1)
+        weights2 = cast(np.ndarray, dataset.weights2)
+        bias2 = cast(np.ndarray, dataset.bias2)
+        targets = cast(np.ndarray, dataset.targets)
+
+        return DataInstance(
+            inputs=[
+                BinsparseFormat.from_numpy(adjacency),
+                BinsparseFormat.from_numpy(adjacency.T),
+                BinsparseFormat.from_numpy(features),
+                BinsparseFormat.from_numpy(weights1),
+                BinsparseFormat.from_numpy(bias1),
+                BinsparseFormat.from_numpy(weights2),
+                BinsparseFormat.from_numpy(bias2),
+                BinsparseFormat.from_numpy(targets),
+            ],
+            meta={
+                "num_iterations": dataset.num_iterations,
+                "learning_rate": dataset.learning_rate,
+            },
+            ref_meta=ref_meta,
+        )
 
 
 class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
@@ -86,8 +337,12 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
         return "Generates random weights for a 2-layer Graph Convolutional Network."
 
     @property
-    def tags(self) -> list[str]:
-        return ["machine learning", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -111,9 +366,9 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
                 url="https://anonymous.4open.science/r/scorch/README.md",
             ),
             Ref(
-                title="Open Graph Benchmark: Datasets for Machine Learning on Graph",
+                title="Open Graph Benchmark: Datasets for Machine Learning on Graphs",
                 authors=[
-                    Author("Wenbing Hu"),
+                    Author("Weihua Hu"),
                     Author("Matthias Fey"),
                     Author("Marinka Zitnik"),
                     Author("Yuxiao Dong"),
@@ -124,7 +379,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
                 ],
                 journal="Arxiv",
                 volume="arXiv:2005.00687",
-                year=2021,
+                year=2020,
                 url="https://arxiv.org/abs/2005.00687",
             ),
         ]
@@ -174,7 +429,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
                 "dg_gcn_social_3",
                 "Larger social network graph.",
                 "ca-GrQc",
-                feature_dim=32,
+                feature_dim=8,
                 hidden_dim=16,
                 out_dim=1,
             ),
@@ -186,19 +441,19 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
                 hidden_dim=4,
                 out_dim=1,
             ),
-            GCNTrainingDataset(
-                "dg_gcn_road_2",
-                "Medium road network graph.",
-                "road_central",
-                feature_dim=16,
-                hidden_dim=8,
-                out_dim=1,
-            ),
+            # GCNTrainingDataset(
+            #    "dg_gcn_road_2",
+            #    "Medium road network graph.",
+            #    "road_central",
+            #    feature_dim=4,
+            #    hidden_dim=8,
+            #    out_dim=1,
+            # ),
             GCNTrainingDataset(
                 "dg_gcn_molecular_1",
                 "Small molecular graph. - Email network.",
                 "email",
-                feature_dim=16,
+                feature_dim=4,
                 hidden_dim=8,
                 out_dim=1,
             ),
@@ -206,7 +461,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
                 "dg_gcn_molecular_2",
                 "Medium molecular graph - PDDB protein structure.",
                 "Chebyshev3",
-                feature_dim=24,
+                feature_dim=6,
                 hidden_dim=12,
                 out_dim=1,
             ),
@@ -214,18 +469,18 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
                 "dg_gcn_citation_1",
                 "Large citation network graph (AIDS-like size).",
                 "ca-HepPh",
-                feature_dim=64,
+                feature_dim=16,
                 hidden_dim=32,
                 out_dim=1,
             ),
-            GCNTrainingDataset(
-                "dg_gcn_large_2",
-                "Very large road network.",
-                "road_usa",
-                feature_dim=64,
-                hidden_dim=32,
-                out_dim=1,
-            ),
+            # GCNTrainingDataset(
+            #    "dg_gcn_large_2",
+            #    "Very large road network.",
+            #    "road_usa",
+            #    feature_dim=16,
+            #    hidden_dim=32,
+            #    out_dim=1,
+            # ),
             GCNTrainingDataset(
                 "dg_gcn_bcsstk01",
                 "Original small structural engineering matrix"
@@ -238,6 +493,10 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
         ]
 
     def generate(self, dataset: GCNTrainingDataset):
+        from scipy.io import mmread
+
+        import ssgetpy
+
         feature_dim = dataset.feature_dim
         hidden_dim = dataset.hidden_dim
         out_dim = dataset.out_dim
@@ -258,24 +517,28 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
 
         # Create feature/weight arrays using the RNG (deterministic)
         n = A.shape[0]
-        features = rng.standard_normal((n, feature_dim))
-        weights1 = rng.standard_normal((feature_dim, hidden_dim))
-        bias1 = np.zeros((hidden_dim,))
-        weights2 = rng.standard_normal((hidden_dim, out_dim))
-        bias2 = np.zeros((out_dim,))
-        targets = rng.standard_normal((n, out_dim))
+        features = rng.standard_normal((n, feature_dim), dtype=np.float32)
+        weights1 = rng.standard_normal((feature_dim, hidden_dim), dtype=np.float32)
+        bias1 = np.zeros((hidden_dim,), dtype=np.float32)
+        weights2 = rng.standard_normal((hidden_dim, out_dim), dtype=np.float32)
+        bias2 = np.zeros((out_dim,), dtype=np.float32)
+        targets = rng.standard_normal((n, out_dim), dtype=np.float32)
         A_T = A.T.tocoo()
 
-        A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
-        A_T_bin = BinsparseFormat.from_coo((A_T.row, A_T.col), A_T.data, A_T.shape)
+        A_bin = BinsparseFormat.from_coo(
+            (A.row, A.col), A.data.astype(np.float32, copy=False), A.shape
+        )
+        A_T_bin = BinsparseFormat.from_coo(
+            (A_T.row, A_T.col), A_T.data.astype(np.float32, copy=False), A_T.shape
+        )
         features_b = BinsparseFormat.from_numpy(features)
         weights1_b = BinsparseFormat.from_numpy(weights1)
         bias1_b = BinsparseFormat.from_numpy(bias1)
         weights2_b = BinsparseFormat.from_numpy(weights2)
         bias2_b = BinsparseFormat.from_numpy(bias2)
         targets_b = BinsparseFormat.from_numpy(targets)
-        return (
-            [
+        return DataInstance(
+            inputs=[
                 A_bin,
                 A_T_bin,
                 features_b,
@@ -285,7 +548,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
                 bias2_b,
                 targets_b,
             ],
-            {
+            meta={
                 "num_iterations": dataset.num_iterations,
                 "learning_rate": dataset.learning_rate,
             },
@@ -332,8 +595,12 @@ Each iteration:
         """
 
     @property
-    def tags(self) -> list[str]:
-        return ["machine learning", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -357,9 +624,9 @@ Each iteration:
                 url="https://anonymous.4open.science/r/scorch/README.md",
             ),
             Ref(
-                title="Open Graph Benchmark: Datasets for Machine Learning on Graph",
+                title="Open Graph Benchmark: Datasets for Machine Learning on Graphs",
                 authors=[
-                    Author("Wenbing Hu"),
+                    Author("Weihua Hu"),
                     Author("Matthias Fey"),
                     Author("Marinka Zitnik"),
                     Author("Yuxiao Dong"),
@@ -370,7 +637,7 @@ Each iteration:
                 ],
                 journal="Arxiv",
                 volume="arXiv:2005.00687",
-                year=2021,
+                year=2020,
                 url="https://arxiv.org/abs/2005.00687",
             ),
         ]
@@ -399,7 +666,63 @@ Each iteration:
 
     @property
     def generators(self):
-        return [GCNTrainingGenerator()]
+        return [GCNTrainingTestGenerator(), GCNTrainingGenerator()]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+
+        if not self._ref_meta:
+            return
+
+        outputs = [_from_binsparse(item) for item in self._output]
+
+        output_shapes = self._ref_meta.get("output_shapes")
+        if output_shapes is not None:
+            for output, shape in zip(outputs, output_shapes, strict=True):
+                assert output.shape == tuple(shape)
+
+        if self._ref_meta.get("check_loss_reduction"):
+            (
+                adjacency,
+                _adjacency_t,
+                features,
+                initial_w1,
+                initial_b1,
+                initial_w2,
+                initial_b2,
+                targets,
+            ) = [_from_binsparse(item) for item in self._input]
+            reported_loss, final_w1, final_b1, final_w2, final_b2 = outputs
+
+            initial_loss = _gcn_loss(
+                adjacency,
+                features,
+                initial_w1,
+                initial_b1,
+                initial_w2,
+                initial_b2,
+                targets,
+            )
+            final_weight_loss = _gcn_loss(
+                adjacency,
+                features,
+                final_w1,
+                final_b1,
+                final_w2,
+                final_b2,
+                targets,
+            )
+            assert reported_loss.item() < initial_loss, (
+                f"Reported loss should decrease: {reported_loss.item()} < "
+                f"{initial_loss}"
+            )
+            assert final_weight_loss < initial_loss, (
+                f"Final weights should reduce loss: {final_weight_loss} < "
+                f"{initial_loss}"
+            )
 
     """
     Args:
@@ -433,7 +756,7 @@ Each iteration:
         (final_loss, final_W1, final_b1, final_W2, final_b2)
     """
 
-    def benchmark(self, data: list, meta: dict):
+    def benchmark(self, xp, data: list, meta: dict):
         adjacency, adjacency_T, features, weights1, bias1, weights2, bias2, targets = (
             data
         )
@@ -477,7 +800,7 @@ Each iteration:
             bias2 = bias2 - learning_rate * db2
 
         # Compute final outputs
-        loss_out = loss
+        loss_out = xp.asarray([loss])
         weights1_out = weights1
         bias1_out = bias1
         weights2_out = weights2

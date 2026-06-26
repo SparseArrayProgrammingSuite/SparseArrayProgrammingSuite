@@ -3,14 +3,8 @@ from typing import Any
 
 import numpy as np
 
-import kagglehub
-from PIL import Image
-
-import saps
-from saps.benchmark import Benchmark, Contributor, Dataset, Generator, Ref
+from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
 from saps_framework import BinsparseFormat
-
-xp = saps.xp
 
 
 def generate_1d_sobel_matrices(Nx, Ny):
@@ -67,12 +61,15 @@ class MRISobelDataset(Dataset):
         filename: str,
         threshold_val: float = 150.0,
         image: np.ndarray | None = None,
+        ref_meta: dict[str, Any] | None = None,
     ):
+        self._suites: list[str] = []
         self.source_name = name
         self.category = category
         self.filename = filename
         self.threshold_val = threshold_val
         self.image = image
+        self.ref_meta = ref_meta
 
     @property
     def name(self) -> str:
@@ -87,8 +84,12 @@ class MRISobelDataset(Dataset):
         return f"MRI image {self.filename} with edge threshold {self.threshold_val}."
 
     @property
-    def tags(self) -> list[str]:
-        return ["image-processing", "edge-detection", "sparse"]
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -97,6 +98,134 @@ class MRISobelDataset(Dataset):
         data["filename"] = self.filename
         data["threshold_val"] = self.threshold_val
         return data
+
+
+def expected_sobel_edge(image, threshold):
+    img_m1_m1 = np.roll(np.roll(image, 1, axis=0), 1, axis=1)
+    img_m1_0 = np.roll(image, 1, axis=0)
+    img_m1_p1 = np.roll(np.roll(image, 1, axis=0), -1, axis=1)
+
+    img_p1_m1 = np.roll(np.roll(image, -1, axis=0), 1, axis=1)
+    img_p1_0 = np.roll(image, -1, axis=0)
+    img_p1_p1 = np.roll(np.roll(image, -1, axis=0), -1, axis=1)
+
+    gx = (img_p1_m1 + 2 * img_p1_0 + img_p1_p1) - (img_m1_m1 + 2 * img_m1_0 + img_m1_p1)
+
+    img_0_m1 = np.roll(image, 1, axis=1)
+    img_0_p1 = np.roll(image, -1, axis=1)
+
+    gy = (img_m1_p1 + 2 * img_0_p1 + img_p1_p1) - (img_m1_m1 + 2 * img_0_m1 + img_p1_m1)
+
+    magnitude = np.abs(gx) + np.abs(gy)
+    return magnitude > threshold
+
+
+class MRISobelTestGenerator(Generator[MRISobelDataset]):
+    @property
+    def name(self) -> str:
+        return "mri_sobel_test_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "MRI Sobel Edge Test Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Small deterministic Sobel edge examples with reference outputs."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["test", "trace"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return MRISobelEdgeBenchmark().authors
+
+    @property
+    def references(self) -> list[Ref]:
+        return MRISobelEdgeBenchmark().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return MRISobelEdgeBenchmark().ai_disclosure
+
+    @property
+    def motivation(self) -> str:
+        return "Provide small Sobel edge examples for benchmark correctness checks."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[MRISobelDataset]:
+        return [
+            MRISobelDataset(
+                "test_sobel_zero_image",
+                "local",
+                "test_sobel_zero_image",
+                threshold_val=10.0,
+                image=np.zeros((5, 5), dtype=np.float32),
+            ),
+            MRISobelDataset(
+                "test_sobel_vertical_edge",
+                "local",
+                "test_sobel_vertical_edge",
+                threshold_val=50.0,
+                image=np.array(
+                    [
+                        [0, 0, 100, 100, 0],
+                        [0, 0, 100, 100, 0],
+                        [0, 0, 100, 100, 0],
+                        [0, 0, 100, 100, 0],
+                        [0, 0, 100, 100, 0],
+                    ],
+                    dtype=np.float32,
+                ),
+            ),
+            MRISobelDataset(
+                "test_sobel_horizontal_edge",
+                "local",
+                "test_sobel_horizontal_edge",
+                threshold_val=50.0,
+                image=np.array(
+                    [
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [100, 100, 100, 100, 100],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                    ],
+                    dtype=np.float32,
+                ),
+            ),
+            MRISobelDataset(
+                "test_sobel_generator_metadata",
+                "local",
+                "test_sobel_generator_metadata",
+                threshold_val=7.0,
+                image=np.zeros((3, 4), dtype=np.float32),
+                ref_meta={
+                    "input_count": 6,
+                    "image_shape": (3, 4),
+                    "threshold": 7.0,
+                },
+            ),
+        ]
+
+    def generate(self, dataset: MRISobelDataset) -> DataInstance:
+        problem = MRISobelGenerator().generate(dataset)
+        expected = expected_sobel_edge(dataset.image, dataset.threshold_val)
+        return DataInstance(
+            inputs=problem.inputs,
+            meta=problem.meta,
+            ref_outputs=[BinsparseFormat.from_numpy(expected)],
+            ref_meta=dataset.ref_meta,
+        )
 
 
 class MRISobelGenerator(Generator[MRISobelDataset]):
@@ -118,8 +247,12 @@ class MRISobelGenerator(Generator[MRISobelDataset]):
         )
 
     @property
-    def tags(self) -> list[str]:
-        return ["image-processing", "edge-detection", "mri", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -146,10 +279,11 @@ class MRISobelGenerator(Generator[MRISobelDataset]):
             MRISobelDataset("mri_sobel_4", "yes", "Y180.jpg"),
         ]
 
-    def generate(
-        self, dataset: MRISobelDataset
-    ) -> tuple[list[BinsparseFormat], dict[str, Any]]:
+    def generate(self, dataset: MRISobelDataset) -> DataInstance:
         if dataset.image is None:
+            import kagglehub
+            from PIL import Image
+
             path = kagglehub.dataset_download(
                 "navoneel/brain-mri-images-for-brain-tumor-detection"
             )
@@ -169,7 +303,10 @@ class MRISobelGenerator(Generator[MRISobelDataset]):
 
         Nx, Ny = img_array.shape
         dx_bin, sy_bin, sx_bin, dy_bin = generate_1d_sobel_matrices(Nx, Ny)
-        return [image_bin, dx_bin, sy_bin, sx_bin, dy_bin, threshold_bin], {}
+        return DataInstance(
+            inputs=[image_bin, dx_bin, sy_bin, sx_bin, dy_bin, threshold_bin],
+            meta={},
+        )
 
 
 class MRISobelEdgeBenchmark(Benchmark):
@@ -194,8 +331,12 @@ class MRISobelEdgeBenchmark(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
-        return ["image-processing", "edge-detection", "mri", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -243,9 +384,9 @@ class MRISobelEdgeBenchmark(Benchmark):
 
     @property
     def generators(self) -> list[Generator[Any]]:
-        return [MRISobelGenerator()]
+        return [MRISobelTestGenerator(), MRISobelGenerator()]
 
-    def benchmark(self, data: list[Any], meta: dict[str, Any]):
+    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
         image, D_x, S_y, S_x, D_y, threshold = data
 
         gx = D_x @ image @ S_y
@@ -255,3 +396,28 @@ class MRISobelEdgeBenchmark(Benchmark):
         edges = magnitude > threshold
 
         return [edges]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseFormat), (
+                "Output must be in binsparse format"
+            )
+        if self._ref_outputs is None:
+            return
+
+        actual = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        expected = (
+            self._ref_outputs[0]
+            .data["values"]
+            .reshape(self._ref_outputs[0].data["shape"])
+        )
+
+        assert self._meta == {}
+        assert actual.shape == expected.shape
+        assert np.all(actual == expected)
+
+        if self._ref_meta is None:
+            return
+        assert len(self._input) == self._ref_meta["input_count"]
+        assert tuple(self._input[0].data["shape"]) == self._ref_meta["image_shape"]
+        assert self._input[-1].data["values"].item() == self._ref_meta["threshold"]

@@ -1,16 +1,14 @@
 import numpy as np
 
-import saps
 from saps.benchmark import (
     Benchmark,
     BinsparseFormat,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
 )
-
-xp = saps.xp
 
 
 def build_win_masks(xp):
@@ -203,10 +201,19 @@ BOARD_BATCH_NEAR = np.concatenate(
 
 
 class TicTacToeDataset(Dataset):
-    def __init__(self, name: str, board: np.ndarray, depth: int):
+    def __init__(
+        self,
+        name: str,
+        board: np.ndarray,
+        depth: int,
+        expected: np.ndarray | float | None = None,
+        suites: list[str] | None = None,
+    ):
+        self._suites = suites or []
         self._name = name
         self.board = board
         self.depth = depth
+        self.expected = expected
 
     @property
     def name(self) -> str:
@@ -221,11 +228,19 @@ class TicTacToeDataset(Dataset):
         return f"Batch of {self.board.shape[0]} board(s) at minimax depth {self.depth}."
 
     @property
-    def tags(self) -> list[str]:
-        return ["game", "minimax", f"depth{self.depth}"]
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
 
 class TicTacToeGenerator(Generator[TicTacToeDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
     @property
     def name(self) -> str:
         return "tictactoe_boards"
@@ -242,8 +257,12 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
         )
 
     @property
-    def tags(self) -> list[str]:
-        return ["game", "minimax", "tictactoe"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -271,20 +290,73 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
     @property
     def datasets(self) -> list[TicTacToeDataset]:
         return [
-            TicTacToeDataset("x_wins_near", BOARD_X_WINS_NEAR, depth=2),
-            TicTacToeDataset("o_wins_near", BOARD_O_WINS_NEAR, depth=2),
-            TicTacToeDataset("draw_near", BOARD_DRAW_NEAR, depth=2),
-            TicTacToeDataset("batch_near", BOARD_BATCH_NEAR, depth=2),
-            TicTacToeDataset("x_wins_mid", BOARD_X_WINS_MID, depth=3),
-            TicTacToeDataset("o_wins_mid", BOARD_O_WINS_MID, depth=3),
-            TicTacToeDataset("x_wins_early", BOARD_X_WINS_EARLY, depth=5),
-            TicTacToeDataset("draw_early", BOARD_DRAW_EARLY, depth=5),
+            TicTacToeDataset(
+                "x_wins_near",
+                BOARD_X_WINS_NEAR,
+                depth=2,
+                expected=1.0,
+                suites=["test", "trace"],
+            ),
+            TicTacToeDataset(
+                "o_wins_near",
+                BOARD_O_WINS_NEAR,
+                depth=2,
+                expected=-1.0,
+                suites=["test", "trace"],
+            ),
+            TicTacToeDataset(
+                "draw_near",
+                BOARD_DRAW_NEAR,
+                depth=2,
+                expected=0.0,
+                suites=["test", "trace"],
+            ),
+            TicTacToeDataset(
+                "batch_near",
+                BOARD_BATCH_NEAR,
+                depth=2,
+                expected=np.array([1.0, -1.0, 0.0]),
+                suites=["test", "trace"],
+            ),
+            TicTacToeDataset(
+                "x_wins_mid",
+                BOARD_X_WINS_MID,
+                depth=3,
+                expected=1.0,
+                suites=["test", "trace"],
+            ),
+            TicTacToeDataset(
+                "o_wins_mid",
+                BOARD_O_WINS_MID,
+                depth=3,
+                expected=-1.0,
+                suites=["test", "trace"],
+            ),
+            TicTacToeDataset(
+                "x_wins_early",
+                BOARD_X_WINS_EARLY,
+                depth=5,
+                expected=1.0,
+                suites=["test", "trace"],
+            ),
+            TicTacToeDataset(
+                "draw_early",
+                BOARD_DRAW_EARLY,
+                depth=5,
+                expected=0.0,
+                suites=["test", "trace"],
+            ),
             TicTacToeDataset("empty_board", BOARD_EMPTY, depth=9),
         ]
 
     def generate(self, dataset: TicTacToeDataset):
         S_bin = BinsparseFormat.from_numpy(dataset.board)
-        return ([S_bin], {"depth": dataset.depth})
+        ref_outputs = None
+        if dataset.expected is not None:
+            ref_outputs = [BinsparseFormat.from_numpy(np.asarray(dataset.expected))]
+        return DataInstance(
+            inputs=[S_bin], meta={"depth": dataset.depth}, ref_outputs=ref_outputs
+        )
 
 
 class TicTacToeBenchmark(Benchmark):
@@ -312,8 +384,12 @@ class TicTacToeBenchmark(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
-        return ["minimax", "tensor", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -346,9 +422,9 @@ class TicTacToeBenchmark(Benchmark):
     def generators(self):
         return [TicTacToeGenerator()]
 
-    def benchmark(self, data: list, meta: dict):
+    def benchmark(self, xp, data: list, meta: dict):
         depth = meta.get("depth", 9)
-        S = xp.from_binsparse(data[0])
+        S = data[0]
         W = build_win_masks(xp)
 
         if depth == 2:
@@ -361,3 +437,15 @@ class TicTacToeBenchmark(Benchmark):
             result = minimax(xp, S, W)
 
         return [result]
+
+    def check(self, param):
+        super().check(param)
+        if self._ref_outputs is None:
+            return
+        actual = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        expected = (
+            self._ref_outputs[0]
+            .data["values"]
+            .reshape(self._ref_outputs[0].data["shape"])
+        )
+        assert np.allclose(actual, expected, atol=1e-6)
