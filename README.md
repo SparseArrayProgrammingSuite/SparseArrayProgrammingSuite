@@ -11,7 +11,7 @@ We take inspiration from benchmark suites in the database community, such as [pa
 SparseApplicationBenchmark uses [Poetry](https://python-poetry.org/) for packaging. To install the project and its test/development dependencies:
 
 ```bash
-poetry install --extras test
+poetry install --with test
 ```
 
 Most commands below assume they are run from the repository root.

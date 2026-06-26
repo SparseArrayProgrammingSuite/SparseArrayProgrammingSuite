@@ -19,7 +19,7 @@ jobs:
           poetry env use python3.13
       - name: Install package
         run: |
-          poetry install --extras test
+          poetry install --with test
       - name: Run pre-commit
         run: |
           SKIP=no-commit-to-branch poetry run pre-commit run --all-files --show-diff-on-failure
@@ -48,7 +48,7 @@ jobs:
           fi
       - name: Install package
         run: |
-          poetry install --extras test
+          poetry install --with test
       - name: Run tests
         run: |
           poetry run pytest --junit-xml=test-${{ matrix.os }}-Python-${{ matrix.python }}.xml

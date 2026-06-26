@@ -178,7 +178,7 @@ The data jobs use the configured S3 backend and bucket from `.github/workflows/r
 After the workflow finishes, download the final artifacts, replace the corresponding files in the PR, and run the freshness tests locally:
 
 ```bash
-poetry install --extras test
+poetry install --with test
 poetry run pytest tests/test_freshness.py
 ```
 
@@ -187,7 +187,7 @@ Do not commit `.saps/outputs/cache`, `.saps/outputs/results`, or trace scratch o
 If you run the uploader locally, use the same test-pinned environment that CI uses:
 
 ```bash
-poetry install --extras test
+poetry install --with test
 REMOTE_STORAGE_BACKEND=s3 \
 REMOTE_STORAGE_BUCKET=sparse-array-programming-suite \
 poetry run ./bin/run_benchmark.py --cache-datasets
@@ -256,7 +256,7 @@ poetry run pre-commit run -a
 SparseAutoschedulingBenchmark uses [pytest](https://docs.pytest.org/en/latest/) for testing. To run the tests:
 
 ```bash
-poetry install --extras test
+poetry install --with test
 poetry run pytest
 ```
 
