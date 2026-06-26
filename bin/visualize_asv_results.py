@@ -538,6 +538,31 @@ def _write_html(
       height: 12px;
       border-radius: 2px;
     }}
+    @page {{
+      size: landscape;
+      margin: 0.35in;
+    }}
+    @media print {{
+      * {{
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }}
+      body {{
+        background: white;
+      }}
+      main {{
+        max-width: none;
+        padding: 0;
+      }}
+      section {{
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }}
+      svg {{
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }}
+    }}
   </style>
 </head>
 <body>
