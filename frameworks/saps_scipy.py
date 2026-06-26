@@ -84,6 +84,58 @@ class SciPyFramework(Framework):
         xp = self._array_namespace(x1, x2)
         return xp.matmul(x1, x2, **kwargs)
 
+    # NumPy ufuncs (np.multiply, np.add, ...) treat a scipy sparse operand as a
+    # 0-d object scalar and broadcast it, exploding memory. Scipy's operators are
+    # correctly overloaded for sparse, so route through them when an operand is
+    # sparse and fall back to the array-api namespace for dense inputs.
+
+    def multiply(self, x1, x2, /, **kwargs):
+        if sps.issparse(x1) or sps.issparse(x2):
+            return x1 * x2
+        xp = self._array_namespace(x1, x2)
+        return xp.multiply(x1, x2, **kwargs)
+
+    def add(self, x1, x2, /, **kwargs):
+        if sps.issparse(x1) or sps.issparse(x2):
+            return x1 + x2
+        xp = self._array_namespace(x1, x2)
+        return xp.add(x1, x2, **kwargs)
+
+    def subtract(self, x1, x2, /, **kwargs):
+        if sps.issparse(x1) or sps.issparse(x2):
+            return x1 - x2
+        xp = self._array_namespace(x1, x2)
+        return xp.subtract(x1, x2, **kwargs)
+
+    def divide(self, x1, x2, /, **kwargs):
+        if sps.issparse(x1) or sps.issparse(x2):
+            return x1 / x2
+        xp = self._array_namespace(x1, x2)
+        return xp.divide(x1, x2, **kwargs)
+
+    def maximum(self, x1, x2, /, **kwargs):
+        if sps.issparse(x1):
+            return x1.maximum(x2)
+        if sps.issparse(x2):
+            return x2.maximum(x1)
+        xp = self._array_namespace(x1, x2)
+        return xp.maximum(x1, x2, **kwargs)
+
+    def minimum(self, x1, x2, /, **kwargs):
+        if sps.issparse(x1):
+            return x1.minimum(x2)
+        if sps.issparse(x2):
+            return x2.minimum(x1)
+        xp = self._array_namespace(x1, x2)
+        return xp.minimum(x1, x2, **kwargs)
+
+    def power(self, x1, x2, /, **kwargs):
+        # Scipy sparse only supports a scalar exponent on a sparse base.
+        if sps.issparse(x1) and np.isscalar(x2):
+            return x1**x2
+        xp = self._array_namespace(x1, x2)
+        return xp.power(x1, x2, **kwargs)
+
     def with_fill_value(self, array, value):
         return array
 
