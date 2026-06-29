@@ -11,7 +11,7 @@ def canonicalize_coo(
     """Return COO (indices, values) sorted lexicographically with duplicate
     coordinates summed.
     """
-    indices = [np.asarray(idx) for idx in indices]
+    indices = tuple([np.asarray(idx) for idx in indices])
     values = np.asarray(values)
     if values.size == 0:
         return tuple(indices), values
@@ -19,7 +19,7 @@ def canonicalize_coo(
     # lexsort's last key is primary, so reverse to sort by indices[0] first,
     # then indices[1], and so on.
     order = np.lexsort(tuple(reversed(indices)))
-    indices = [idx[order] for idx in indices]
+    indices = tuple(idx[order] for idx in indices)
     values = values[order]
 
     # After sorting, duplicate coordinates are adjacent. Mark the first entry of

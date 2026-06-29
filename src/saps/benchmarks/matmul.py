@@ -102,7 +102,7 @@ class DenseMatmulGenerator(Generator):
             DenseMatmulDataset("large", 1000, 1000, 1000, suites=["dense"]),
         ]
 
-    def generate(self, dataset: Dataset) -> DataInstance:
+    def generate(self, dataset: DenseMatmulDataset) -> DataInstance:
         gen = np.random.Generator(np.random.PCG64(42))
         A = gen.random((dataset.dim1, dataset.dim2))
         B = gen.random((dataset.dim2, dataset.dim3))
@@ -243,7 +243,7 @@ class SuiteSparseMatmulGenerator(Generator):
             ),
         ]
 
-    def generate(self, dataset: Dataset) -> DataInstance:
+    def generate(self, dataset: SuiteSparseMatmulDataset) -> DataInstance:
         from scipy.io import mmread
 
         import ssgetpy
@@ -408,7 +408,7 @@ class UniformRandomMatmulGenerator(Generator):
             for density in UNIFORM_SPARSE_DENSITIES
         ]
 
-    def generate(self, dataset: Dataset) -> DataInstance:
+    def generate(self, dataset: UniformRandomMatmulDataset) -> DataInstance:
         import scipy.sparse as sps
 
         rng = np.random.default_rng(dataset.seed)

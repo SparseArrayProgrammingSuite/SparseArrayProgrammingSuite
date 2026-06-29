@@ -100,7 +100,7 @@ class DenseMatVecGenerator(Generator):
             DenseMatVecDataset("large", 1000, 1000, suites=["dense"]),
         ]
 
-    def generate(self, dataset: Dataset) -> DataInstance:
+    def generate(self, dataset: DenseMatVecDataset) -> DataInstance:
         gen = np.random.Generator(np.random.PCG64(42))
         A = gen.random((dataset.dim1, dataset.dim2))
         b = gen.random((dataset.dim2,))
@@ -234,7 +234,7 @@ class SuiteSparseMatVecGenerator(Generator):
             SuiteSparseMatVecDataset("wiki-vote", "wiki-vote", suites=["sparse"]),
         ]
 
-    def generate(self, dataset: Dataset) -> DataInstance:
+    def generate(self, dataset: SuiteSparseMatVecDataset) -> DataInstance:
         from scipy.io import mmread
 
         import ssgetpy
@@ -390,7 +390,7 @@ class UniformRandomMatVecGenerator(Generator):
             for density in UNIFORM_SPARSE_DENSITIES
         ]
 
-    def generate(self, dataset: Dataset) -> DataInstance:
+    def generate(self, dataset: UniformRandomMatVecDataset) -> DataInstance:
         import scipy.sparse as sps
 
         rng = np.random.default_rng(dataset.seed)
@@ -401,7 +401,7 @@ class UniformRandomMatVecGenerator(Generator):
             rng=rng,
         )
         gen = np.random.Generator(np.random.PCG64(42))
-        b = gen.random((dataset.dim2,))
+        b = gen.random((dataset.dim,))
         ref_outputs = None
         if "test" in dataset.suites:
             output = A @ b

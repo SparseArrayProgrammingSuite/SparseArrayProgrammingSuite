@@ -114,7 +114,7 @@ class SDDMMSuiteSparseGenerator(Generator):
             ),
         ]
 
-    def generate(self, dataset: Dataset) -> DataInstance:
+    def generate(self, dataset: SDDMMSuiteSparseDataset) -> DataInstance:
         from scipy.io import mmread
 
         import ssgetpy
@@ -274,7 +274,7 @@ class UniformRandomSDDMMGenerator(Generator):
             for density in UNIFORM_SPARSE_DENSITIES
         ]
 
-    def generate(self, dataset: Dataset) -> DataInstance:
+    def generate(self, dataset: UniformRandomSDDMMDataset) -> DataInstance:
         import scipy.sparse as sps
 
         rng = np.random.default_rng(dataset.seed)
