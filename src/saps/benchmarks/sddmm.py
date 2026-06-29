@@ -215,7 +215,22 @@ class UniformRandomSDDMMGenerator(Generator):
 
     @property
     def references(self) -> list[Ref]:
-        return []
+        return [
+            Ref(
+                title="Distributed-Memory Sparse Kernels for Machine Learning",
+                authors=[
+                    Author("V. Bharadwaj"),
+                    Author("A. Buluç"),
+                    Author("J. Demmel"),
+                ],
+                conference=(
+                    "IEEE International Parallel and Distributed Processing "
+                    "Symposium (IPDPS)"
+                ),
+                year=2022,
+                url="https://arxiv.org/abs/2203.07673",
+            ),
+        ]
 
     @property
     def ai_disclosure(self) -> str:

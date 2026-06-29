@@ -342,7 +342,24 @@ class UniformRandomMatmulGenerator(Generator):
 
     @property
     def references(self) -> list[Ref]:
-        return []
+        return [
+            Ref(
+                title=(
+                    "Parallel Sparse Matrix-Matrix Multiplication and Indexing: "
+                    "Implementation and Experiments"
+                ),
+                authors=[
+                    Author("A. Buluç"),
+                    Author("J. R. Gilbert"),
+                ],
+                journal="SIAM Journal on Scientific Computing",
+                volume=34,
+                number=4,
+                pages="170-191",
+                year=2012,
+                doi="10.1137/110848244",
+            ),
+        ]
 
     @property
     def ai_disclosure(self) -> str:
