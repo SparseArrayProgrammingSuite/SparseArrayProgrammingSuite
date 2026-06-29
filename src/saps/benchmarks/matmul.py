@@ -13,14 +13,18 @@ from saps.benchmark import (
 )
 from saps_framework import BinsparseFormat
 
+
 class DenseMatmulDataset(Dataset):
-    def __init__(self, name: str,
-                dim1: int, 
-                dim2: int,
-                dim3: int,
-                suites: list[str] | None = None,
-                pretty_name: str | None = None,
-                description: str | None = None,):
+    def __init__(
+        self,
+        name: str,
+        dim1: int,
+        dim2: int,
+        dim3: int,
+        suites: list[str] | None = None,
+        pretty_name: str | None = None,
+        description: str | None = None,
+    ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Dense Matmul Input {self._pretty_name}."
@@ -44,18 +48,13 @@ class DenseMatmulDataset(Dataset):
     @property
     def suites(self) -> list[str]:
         return self._suites
-    
+
     @property
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
-    @property
-    def description(self) -> str:
-        return "A dataset of dense matrix pairs for multiplication."
-
 
 class DenseMatmulGenerator(Generator):
-
     @property
     def name(self) -> str:
         return "dense_matmul_generator"
@@ -104,29 +103,36 @@ class DenseMatmulGenerator(Generator):
         ]
 
     def generate(self, dataset: Dataset) -> DataInstance:
-        A = np.random.rand(dataset.dim1, dataset.dim2)
-        B = np.random.rand(dataset.dim2, dataset.dim3)
+        gen = np.random.Generator(np.random.PCG64(42))
+        A = gen.random((dataset.dim1, dataset.dim2))
+        B = gen.random((dataset.dim2, dataset.dim3))
         ref_outputs = None
         if "test" in dataset.suites:
             ref_outputs = [BinsparseFormat.from_numpy(np.matmul(A, B))]
-        return DataInstance([BinsparseFormat.from_numpy(A),
-                            BinsparseFormat.from_numpy(B)],
-                            meta={"dataset": dataset.name},
-                            ref_outputs=ref_outputs)
-    
+        return DataInstance(
+            [BinsparseFormat.from_numpy(A), BinsparseFormat.from_numpy(B)],
+            meta={"dataset": dataset.name},
+            ref_outputs=ref_outputs,
+        )
+
 
 class SuiteSparseMatmulDataset(Dataset):
-    def __init__(self, name: str,
-                matrix_1: str,
-                matrix_2: str,
-                suites: list[str] | None = None,
-                pretty_name: str | None = None,
-                description: str | None = None,):
+    def __init__(
+        self,
+        name: str,
+        matrix_1: str,
+        matrix_2: str,
+        suites: list[str] | None = None,
+        pretty_name: str | None = None,
+        description: str | None = None,
+    ):
         self.matrix_1 = matrix_1
         self.matrix_2 = matrix_2
         self._name = name
         self._pretty_name = pretty_name or name
-        self._description = description or f"Suite Sparse Matmul Input {self._pretty_name}."
+        self._description = (
+            description or f"Suite Sparse Matmul Input {self._pretty_name}."
+        )
         self._suites = suites or ["sparse", "test"]
 
     @property
@@ -144,17 +150,13 @@ class SuiteSparseMatmulDataset(Dataset):
     @property
     def suites(self) -> list[str]:
         return self._suites
-    
+
     @property
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
-    @property
-    def description(self) -> str:
-        return "A dataset of sparse matrix pairs for multiplication."
 
 class SuiteSparseMatmulGenerator(Generator):
-
     @property
     def name(self) -> str:
         return "suitesparse_matmul_generator"
@@ -165,8 +167,10 @@ class SuiteSparseMatmulGenerator(Generator):
 
     @property
     def description(self) -> str:
-        return "Sparse input generator for matrix multiplication" \
-        " based on the suite sparse matrix collection."
+        return (
+            "Sparse input generator for matrix multiplication"
+            " based on the suite sparse matrix collection."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -185,8 +189,7 @@ class SuiteSparseMatmulGenerator(Generator):
         return [
             Ref(
                 title=(
-                    "Finch: Sparse and Structured Array Programming "
-                    "with Control Flow"
+                    "Finch: Sparse and Structured Array Programming with Control Flow"
                 ),
                 authors=[
                     Author("W. Ahrens"),
@@ -201,9 +204,7 @@ class SuiteSparseMatmulGenerator(Generator):
                 url="https://dl.acm.org/doi/pdf/10.1145/3720473",
             ),
             Ref(
-                title=(
-                    "The University of Florida Sparse Matrix Collection"
-                ),
+                title=("The University of Florida Sparse Matrix Collection"),
                 authors=[
                     Author("T. Davis"),
                     Author("Y. Hu"),
@@ -211,7 +212,8 @@ class SuiteSparseMatmulGenerator(Generator):
                 journal="ACM Trans. Math. Softw.",
                 year=2011,
                 url="https://dl.acm.org/doi/pdf/10.1145/2049662.2049663",
-            ),]
+            ),
+        ]
 
     @property
     def ai_disclosure(self) -> str:
@@ -227,14 +229,25 @@ class SuiteSparseMatmulGenerator(Generator):
     @property
     def datasets(self) -> list[Dataset]:
         return [
-            SuiteSparseMatmulDataset("email-Eu-core", "email-Eu-core","email-Eu-core",suites=["sparse", "test"]),
-            SuiteSparseMatmulDataset("CollegeMsg", "CollegeMsg","CollegeMsg",suites=["sparse", "test"]),
-            SuiteSparseMatmulDataset("wiki-vote", "wiki-vote","wiki-vote",suites=["sparse"]),
+            SuiteSparseMatmulDataset(
+                "email-Eu-core",
+                "email-Eu-core",
+                "email-Eu-core",
+                suites=["sparse", "test"],
+            ),
+            SuiteSparseMatmulDataset(
+                "CollegeMsg", "CollegeMsg", "CollegeMsg", suites=["sparse", "test"]
+            ),
+            SuiteSparseMatmulDataset(
+                "wiki-vote", "wiki-vote", "wiki-vote", suites=["sparse"]
+            ),
         ]
 
     def generate(self, dataset: Dataset) -> DataInstance:
         from scipy.io import mmread
+
         import ssgetpy
+
         loaded = []
         for matrix_name in [dataset.matrix_1, dataset.matrix_2]:
             matrices = ssgetpy.search(name=matrix_name)
@@ -255,17 +268,24 @@ class SuiteSparseMatmulGenerator(Generator):
         if "test" in dataset.suites:
             output_coo = (A_coo @ B_coo).tocoo()
             ref_outputs = [
-                BinsparseFormat.from_coo( (output_coo.row, output_coo.col), output_coo.data, output_coo.shape)
+                BinsparseFormat.from_coo(
+                    (output_coo.row, output_coo.col), output_coo.data, output_coo.shape
+                )
             ]
 
         return DataInstance(
             [
-                BinsparseFormat.from_coo((A_coo.row, A_coo.col), A_coo.data, A_coo.shape),
-                BinsparseFormat.from_coo((B_coo.row, B_coo.col), B_coo.data, B_coo.shape),
+                BinsparseFormat.from_coo(
+                    (A_coo.row, A_coo.col), A_coo.data, A_coo.shape
+                ),
+                BinsparseFormat.from_coo(
+                    (B_coo.row, B_coo.col), B_coo.data, B_coo.shape
+                ),
             ],
             meta={"dataset": dataset.name},
             ref_outputs=ref_outputs,
         )
+
 
 # Densities (fraction of nonzeros) for the uniform random sparse generator,
 # spanning very sparse to moderately dense.
@@ -273,13 +293,16 @@ UNIFORM_SPARSE_DENSITIES = [0.00001, 0.0001, 0.001, 0.01, 0.1]
 
 
 class UniformRandomMatmulDataset(Dataset):
-    def __init__(self, name: str,
-                dim: int,
-                density: float,
-                seed: int = 0,
-                suites: list[str] | None = None,
-                pretty_name: str | None = None,
-                description: str | None = None,):
+    def __init__(
+        self,
+        name: str,
+        dim: int,
+        density: float,
+        seed: int = 0,
+        suites: list[str] | None = None,
+        pretty_name: str | None = None,
+        description: str | None = None,
+    ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or (
@@ -312,7 +335,6 @@ class UniformRandomMatmulDataset(Dataset):
 
 
 class UniformRandomMatmulGenerator(Generator):
-
     @property
     def name(self) -> str:
         return "uniform_random_matmul_generator"
@@ -370,9 +392,7 @@ class UniformRandomMatmulGenerator(Generator):
 
     @property
     def motivation(self) -> str:
-        return (
-            ""
-        )
+        return ""
 
     @property
     def datasets(self) -> list[Dataset]:
@@ -436,16 +456,13 @@ class MatrixMultiplicationBenchmark(Benchmark):
     @property
     def motivation(self) -> str:
         return (
-            "Matrix multiplication is the key operator in linear algebra" \
+            "Matrix multiplication is the key operator in linear algebra"
             "and it is widely used in almost every sparse array application. "
         )
 
     @property
     def description(self) -> str:
-        return (
-            "The multiplication of two matrices."
-            "C_ik = \\sum_k A_ij B_jk" \
-        )
+        return "The multiplication of two matrices.C_ik = \\sum_k A_ij B_jk"
 
     @property
     def suites(self) -> list[str]:
@@ -464,8 +481,7 @@ class MatrixMultiplicationBenchmark(Benchmark):
         return [
             Ref(
                 title=(
-                    "Finch: Sparse and Structured Array Programming "
-                    "with Control Flow"
+                    "Finch: Sparse and Structured Array Programming with Control Flow"
                 ),
                 authors=[
                     Author("W. Ahrens"),

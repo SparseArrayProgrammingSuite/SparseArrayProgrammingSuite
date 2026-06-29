@@ -13,13 +13,17 @@ from saps.benchmark import (
 )
 from saps_framework import BinsparseFormat
 
+
 class DenseMatVecDataset(Dataset):
-    def __init__(self, name: str,
-                dim1: int, 
-                dim2: int,
-                suites: list[str] | None = None,
-                pretty_name: str | None = None,
-                description: str | None = None,):
+    def __init__(
+        self,
+        name: str,
+        dim1: int,
+        dim2: int,
+        suites: list[str] | None = None,
+        pretty_name: str | None = None,
+        description: str | None = None,
+    ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Dense MatVec Input {self._pretty_name}."
@@ -42,18 +46,13 @@ class DenseMatVecDataset(Dataset):
     @property
     def suites(self) -> list[str]:
         return self._suites
-    
+
     @property
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
-    @property
-    def description(self) -> str:
-        return "A dataset of dense matrix pairs for multiplication."
-
 
 class DenseMatVecGenerator(Generator):
-
     @property
     def name(self) -> str:
         return "dense_matmul_generator"
@@ -102,27 +101,34 @@ class DenseMatVecGenerator(Generator):
         ]
 
     def generate(self, dataset: Dataset) -> DataInstance:
-        A = np.random.rand(dataset.dim1, dataset.dim2)
-        b = np.random.rand(dataset.dim2)
+        gen = np.random.Generator(np.random.PCG64(42))
+        A = gen.random((dataset.dim1, dataset.dim2))
+        b = gen.random((dataset.dim2,))
         ref_outputs = None
         if "test" in dataset.suites:
             ref_outputs = [BinsparseFormat.from_numpy(np.matmul(A, b))]
-        return DataInstance([BinsparseFormat.from_numpy(A),
-                            BinsparseFormat.from_numpy(b)],
-                            meta={"dataset": dataset.name},
-                            ref_outputs=ref_outputs)
-    
+        return DataInstance(
+            [BinsparseFormat.from_numpy(A), BinsparseFormat.from_numpy(b)],
+            meta={"dataset": dataset.name},
+            ref_outputs=ref_outputs,
+        )
+
 
 class SuiteSparseMatVecDataset(Dataset):
-    def __init__(self, name: str,
-                matrix: str,
-                suites: list[str] | None = None,
-                pretty_name: str | None = None,
-                description: str | None = None,):
+    def __init__(
+        self,
+        name: str,
+        matrix: str,
+        suites: list[str] | None = None,
+        pretty_name: str | None = None,
+        description: str | None = None,
+    ):
         self.matrix = matrix
         self._name = name
         self._pretty_name = pretty_name or name
-        self._description = description or f"Suite Sparse MatVec Input {self._pretty_name}."
+        self._description = (
+            description or f"Suite Sparse MatVec Input {self._pretty_name}."
+        )
         self._suites = suites or ["sparse", "test"]
 
     @property
@@ -140,17 +146,13 @@ class SuiteSparseMatVecDataset(Dataset):
     @property
     def suites(self) -> list[str]:
         return self._suites
-    
+
     @property
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
-    @property
-    def description(self) -> str:
-        return "A dataset of sparse matrix pairs for multiplication."
 
 class SuiteSparseMatVecGenerator(Generator):
-
     @property
     def name(self) -> str:
         return "suitesparse_matmul_generator"
@@ -161,8 +163,10 @@ class SuiteSparseMatVecGenerator(Generator):
 
     @property
     def description(self) -> str:
-        return "Sparse input generator for matrix multiplication" \
-        " based on the suite sparse matrix collection."
+        return (
+            "Sparse input generator for matrix multiplication"
+            " based on the suite sparse matrix collection."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -181,8 +185,7 @@ class SuiteSparseMatVecGenerator(Generator):
         return [
             Ref(
                 title=(
-                    "Finch: Sparse and Structured Array Programming "
-                    "with Control Flow"
+                    "Finch: Sparse and Structured Array Programming with Control Flow"
                 ),
                 authors=[
                     Author("W. Ahrens"),
@@ -197,9 +200,7 @@ class SuiteSparseMatVecGenerator(Generator):
                 url="https://dl.acm.org/doi/pdf/10.1145/3720473",
             ),
             Ref(
-                title=(
-                    "The University of Florida Sparse Matrix Collection"
-                ),
+                title=("The University of Florida Sparse Matrix Collection"),
                 authors=[
                     Author("T. Davis"),
                     Author("Y. Hu"),
@@ -207,7 +208,8 @@ class SuiteSparseMatVecGenerator(Generator):
                 journal="ACM Trans. Math. Softw.",
                 year=2011,
                 url="https://dl.acm.org/doi/pdf/10.1145/2049662.2049663",
-            ),]
+            ),
+        ]
 
     @property
     def ai_disclosure(self) -> str:
@@ -223,14 +225,20 @@ class SuiteSparseMatVecGenerator(Generator):
     @property
     def datasets(self) -> list[Dataset]:
         return [
-            SuiteSparseMatVecDataset("email-Eu-core", "email-Eu-core", suites=["sparse", "test"]),
-            SuiteSparseMatVecDataset("CollegeMsg", "CollegeMsg", suites=["sparse", "test"]),
+            SuiteSparseMatVecDataset(
+                "email-Eu-core", "email-Eu-core", suites=["sparse", "test"]
+            ),
+            SuiteSparseMatVecDataset(
+                "CollegeMsg", "CollegeMsg", suites=["sparse", "test"]
+            ),
             SuiteSparseMatVecDataset("wiki-vote", "wiki-vote", suites=["sparse"]),
         ]
 
     def generate(self, dataset: Dataset) -> DataInstance:
         from scipy.io import mmread
+
         import ssgetpy
+
         matrices = ssgetpy.search(name=dataset.matrix)
         if not matrices:
             raise ValueError(f"No matrix found with name '{dataset.matrix}'")
@@ -241,36 +249,42 @@ class SuiteSparseMatVecGenerator(Generator):
             raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
 
         A_coo = mmread(matrix_path).tocoo()
-        b = np.random.rand(A_coo.shape[1])
+        gen = np.random.Generator(np.random.PCG64(42))
+        b = gen.random((A_coo.shape[1],))
 
         ref_outputs = None
         if "test" in dataset.suites:
-            output = (A_coo @ b)
-            ref_outputs = [
-                BinsparseFormat.from_numpy(output)
-            ]
+            output = A_coo @ b
+            ref_outputs = [BinsparseFormat.from_numpy(output)]
 
         return DataInstance(
             [
-                BinsparseFormat.from_coo((A_coo.row, A_coo.col), A_coo.data, A_coo.shape),
+                BinsparseFormat.from_coo(
+                    (A_coo.row, A_coo.col), A_coo.data, A_coo.shape
+                ),
                 BinsparseFormat.from_numpy(b),
             ],
             meta={"dataset": dataset.name},
             ref_outputs=ref_outputs,
         )
 
+
 # Densities (fraction of nonzeros) for the uniform random sparse generator,
 # spanning very sparse to moderately dense.
 UNIFORM_SPARSE_DENSITIES = [0.00001, 0.0001, 0.001, 0.01, 0.1]
 
+
 class UniformRandomMatVecDataset(Dataset):
-    def __init__(self, name: str,
-                dim: int,
-                density: float,
-                seed: int = 0,
-                suites: list[str] | None = None,
-                pretty_name: str | None = None,
-                description: str | None = None,):
+    def __init__(
+        self,
+        name: str,
+        dim: int,
+        density: float,
+        seed: int = 0,
+        suites: list[str] | None = None,
+        pretty_name: str | None = None,
+        description: str | None = None,
+    ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or (
@@ -303,7 +317,6 @@ class UniformRandomMatVecDataset(Dataset):
 
 
 class UniformRandomMatVecGenerator(Generator):
-
     @property
     def name(self) -> str:
         return "uniform_random_matmul_generator"
@@ -361,9 +374,7 @@ class UniformRandomMatVecGenerator(Generator):
 
     @property
     def motivation(self) -> str:
-        return (
-            ""
-        )
+        return ""
 
     @property
     def datasets(self) -> list[Dataset]:
@@ -389,13 +400,12 @@ class UniformRandomMatVecGenerator(Generator):
             format="coo",
             rng=rng,
         )
-        b = np.random.rand(dataset.dim)
+        gen = np.random.Generator(np.random.PCG64(42))
+        b = gen.random((dataset.dim2,))
         ref_outputs = None
         if "test" in dataset.suites:
-            output = (A @ b)
-            ref_outputs = [
-                BinsparseFormat.from_numpy(output)
-            ]
+            output = A @ b
+            ref_outputs = [BinsparseFormat.from_numpy(output)]
         return DataInstance(
             [
                 BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape),
@@ -418,16 +428,13 @@ class MatrixVectorBenchmark(Benchmark):
     @property
     def motivation(self) -> str:
         return (
-            "Matrix-vector multiplication is the key operator in linear algebra" \
+            "Matrix-vector multiplication is the key operator in linear algebra"
             "and it is widely used in almost every sparse array application. "
         )
 
     @property
     def description(self) -> str:
-        return (
-            "The multiplication of a matrix and a vector."
-            "C_i = \\sum_j A_ij B_j" \
-        )
+        return "The multiplication of a matrix and a vector.C_i = \\sum_j A_ij B_j"
 
     @property
     def suites(self) -> list[str]:
@@ -446,8 +453,7 @@ class MatrixVectorBenchmark(Benchmark):
         return [
             Ref(
                 title=(
-                    "Finch: Sparse and Structured Array Programming "
-                    "with Control Flow"
+                    "Finch: Sparse and Structured Array Programming with Control Flow"
                 ),
                 authors=[
                     Author("W. Ahrens"),
@@ -466,7 +472,7 @@ class MatrixVectorBenchmark(Benchmark):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "Generative AI was not used to write the benchmark function." \
+            "Generative AI was not used to write the benchmark function."
             "This statement was written manually."
         )
 

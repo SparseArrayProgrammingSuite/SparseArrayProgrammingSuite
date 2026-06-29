@@ -57,7 +57,9 @@ def _apply_memory_limit() -> None:
     new_soft = nbytes if hard == resource.RLIM_INFINITY else min(nbytes, hard)
     resource.setrlimit(resource.RLIMIT_AS, (new_soft, hard))
 
+
 _FIRST_PARTY_ROOTS = frozenset({"saps", "saps_framework"})
+
 
 def _module_path(module_name: str) -> Path | None:
     try:

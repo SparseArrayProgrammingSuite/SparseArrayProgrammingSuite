@@ -34,6 +34,7 @@ def canonicalize_coo(
     first = np.nonzero(new_group)[0]
     return tuple(idx[first] for idx in indices), summed
 
+
 class BinsparseFormat:
     def __init__(self, data):
         self.data = data

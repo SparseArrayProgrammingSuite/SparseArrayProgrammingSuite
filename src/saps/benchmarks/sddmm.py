@@ -1,6 +1,7 @@
 import os
 
 import numpy as np
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -12,13 +13,17 @@ from saps.benchmark import (
 )
 from saps_framework import BinsparseFormat
 
+
 class SDDMMSuiteSparseDataset(Dataset):
-    def __init__(self, name: str,
-                middle_dim: int,
-                matrix_name: str,
-                suites: list[str] | None = None,
-                pretty_name: str | None = None,
-                description: str | None = None,):
+    def __init__(
+        self,
+        name: str,
+        middle_dim: int,
+        matrix_name: str,
+        suites: list[str] | None = None,
+        pretty_name: str | None = None,
+        description: str | None = None,
+    ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Dense Matmul Input {self._pretty_name}."
@@ -41,18 +46,13 @@ class SDDMMSuiteSparseDataset(Dataset):
     @property
     def suites(self) -> list[str]:
         return self._suites
-    
+
     @property
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
-    @property
-    def description(self) -> str:
-        return "A dataset of (dense, dense, sparse) matrix triples for multiplication."
-
 
 class SDDMMSuiteSparseGenerator(Generator):
-
     @property
     def name(self) -> str:
         return "suitesparse_sddmm_generator"
@@ -81,9 +81,7 @@ class SDDMMSuiteSparseGenerator(Generator):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title=(
-                    "The University of Florida Sparse Matrix Collection"
-                ),
+                title=("The University of Florida Sparse Matrix Collection"),
                 authors=[
                     Author("T. Davis"),
                     Author("Y. Hu"),
@@ -91,7 +89,8 @@ class SDDMMSuiteSparseGenerator(Generator):
                 journal="ACM Trans. Math. Softw.",
                 year=2011,
                 url="https://dl.acm.org/doi/pdf/10.1145/2049662.2049663",
-            ),]
+            ),
+        ]
 
     @property
     def ai_disclosure(self) -> str:
@@ -107,14 +106,19 @@ class SDDMMSuiteSparseGenerator(Generator):
     @property
     def datasets(self) -> list[Dataset]:
         return [
-            SDDMMSuiteSparseDataset("fpga-dcop-17-100", 100, "fpga_dcop_17",  suites=["sparse", "test"]),
-            SDDMMSuiteSparseDataset("email-enron-400", 400, "email-enron",  suites=["sparse"]),
+            SDDMMSuiteSparseDataset(
+                "fpga-dcop-17-100", 100, "fpga_dcop_17", suites=["sparse", "test"]
+            ),
+            SDDMMSuiteSparseDataset(
+                "email-enron-400", 400, "email-enron", suites=["sparse"]
+            ),
         ]
 
     def generate(self, dataset: Dataset) -> DataInstance:
         from scipy.io import mmread
+
         import ssgetpy
-        
+
         matrices = ssgetpy.search(name=dataset.matrix_name)
         if not matrices:
             raise ValueError(f"No matrix found with name '{dataset.matrix_name}'")
@@ -124,34 +128,47 @@ class SDDMMSuiteSparseGenerator(Generator):
         if not (matrix_path and os.path.exists(matrix_path)):
             raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
         sample_matrix = mmread(matrix_path)
-        A = np.random.rand(sample_matrix.shape[0], dataset.middle_dim)
-        B = np.random.rand(dataset.middle_dim, sample_matrix.shape[1])
+        gen = np.random.Generator(np.random.PCG64(42))
+        A = gen.random((sample_matrix.shape[0], dataset.middle_dim))
+        B = gen.random((dataset.middle_dim, sample_matrix.shape[1]))
         ref_outputs = None
         if "test" in dataset.suites:
             ref = sample_matrix.multiply(np.matmul(A, B)).tocoo()
             ref_outputs = [
                 BinsparseFormat.from_coo((ref.row, ref.col), ref.data, ref.shape)
             ]
-        return DataInstance([BinsparseFormat.from_coo((sample_matrix.row, sample_matrix.col), sample_matrix.data, sample_matrix.shape),
-                            BinsparseFormat.from_numpy(A),
-                            BinsparseFormat.from_numpy(B)],
-                            meta={"dataset": dataset.name},
-                            ref_outputs=ref_outputs)
-    
+        return DataInstance(
+            [
+                BinsparseFormat.from_coo(
+                    (sample_matrix.row, sample_matrix.col),
+                    sample_matrix.data,
+                    sample_matrix.shape,
+                ),
+                BinsparseFormat.from_numpy(A),
+                BinsparseFormat.from_numpy(B),
+            ],
+            meta={"dataset": dataset.name},
+            ref_outputs=ref_outputs,
+        )
+
+
 # Densities (fraction of nonzeros) for the uniform random sparse generators,
 # spanning very sparse to moderately dense.
 UNIFORM_SPARSE_DENSITIES = [0.00001, 0.0001, 0.001, 0.01, 0.1]
 
 
 class UniformRandomSDDMMDataset(Dataset):
-    def __init__(self, name: str,
-                dim: int,
-                middle_dim: int,
-                density: float,
-                seed: int = 0,
-                suites: list[str] | None = None,
-                pretty_name: str | None = None,
-                description: str | None = None,):
+    def __init__(
+        self,
+        name: str,
+        dim: int,
+        middle_dim: int,
+        density: float,
+        seed: int = 0,
+        suites: list[str] | None = None,
+        pretty_name: str | None = None,
+        description: str | None = None,
+    ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or (
@@ -185,7 +202,6 @@ class UniformRandomSDDMMDataset(Dataset):
 
 
 class UniformRandomSDDMMGenerator(Generator):
-
     @property
     def name(self) -> str:
         return "uniform_random_sddmm_generator"
@@ -241,9 +257,7 @@ class UniformRandomSDDMMGenerator(Generator):
 
     @property
     def motivation(self) -> str:
-        return (
-            ""
-        )
+        return ""
 
     @property
     def datasets(self) -> list[Dataset]:
@@ -301,17 +315,14 @@ class SDDMMBenchmark(Benchmark):
     @property
     def motivation(self) -> str:
         return (
-            "Sampled matrix multiplication is a performant core primitive" \
-            "for machine learning algorithms like ALS, Sparse Factor Analysis," \
+            "Sampled matrix multiplication is a performant core primitive"
+            "for machine learning algorithms like ALS, Sparse Factor Analysis,"
             " and Graph Neural Networks."
         )
 
     @property
     def description(self) -> str:
-        return (
-            "The multiplication of two matrices."
-            "C_ik = \\sum_k A_ij B_jk" \
-        )
+        return "The multiplication of two matrices.C_ik = \\sum_k A_ij B_jk"
 
     @property
     def suites(self) -> list[str]:
@@ -330,7 +341,7 @@ class SDDMMBenchmark(Benchmark):
         return [
             Ref(
                 title=(
-                    "Sampled Dense Matrix Multiplication for " 
+                    "Sampled Dense Matrix Multiplication for "
                     "High-Performance Machine Learning"
                 ),
                 authors=[
