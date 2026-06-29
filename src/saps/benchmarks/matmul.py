@@ -267,6 +267,146 @@ class SuiteSparseMatmulGenerator(Generator):
             ref_outputs=ref_outputs,
         )
 
+# Densities (fraction of nonzeros) for the uniform random sparse generator,
+# spanning very sparse to moderately dense.
+UNIFORM_SPARSE_DENSITIES = [0.00001, 0.0001, 0.001, 0.01, 0.1]
+
+
+class UniformRandomMatmulDataset(Dataset):
+    def __init__(self, name: str,
+                dim: int,
+                density: float,
+                seed: int = 0,
+                suites: list[str] | None = None,
+                pretty_name: str | None = None,
+                description: str | None = None,):
+        self._name = name
+        self._pretty_name = pretty_name or name
+        self._description = description or (
+            f"Uniform random sparse matmul input {self._pretty_name}."
+        )
+        self._suites = suites or ["sparse", "test"]
+        self.dim = dim
+        self.density = density
+        self.seed = seed
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+
+class UniformRandomMatmulGenerator(Generator):
+
+    @property
+    def name(self) -> str:
+        return "uniform_random_matmul_generator"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Uniform Random Sparse Matmul Generator"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Generates a pair of uniform random sparse matrices for sparse "
+            "general matrix-matrix multiplication (SpGEMM) at a range of densities."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return ["sparse"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Kyle Deeds", "kdeeds@bu.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was not used to write the benchmark function itself."
+            "This statement was written manually."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return (
+            ""
+        )
+
+    @property
+    def datasets(self) -> list[Dataset]:
+        return [
+            UniformRandomMatmulDataset(
+                # No dots in the name: the framework parses params as
+                # "generator.dataset" by splitting on ".".
+                f"uniform-{density:.0e}",
+                dim=5000,
+                density=density,
+                suites=["sparse", "test"],
+            )
+            for density in UNIFORM_SPARSE_DENSITIES
+        ]
+
+    def generate(self, dataset: Dataset) -> DataInstance:
+        import scipy.sparse as sps
+
+        rng = np.random.default_rng(dataset.seed)
+        A = sps.random_array(
+            (dataset.dim, dataset.dim),
+            density=dataset.density,
+            format="coo",
+            rng=rng,
+        )
+        B = sps.random_array(
+            (dataset.dim, dataset.dim),
+            density=dataset.density,
+            format="coo",
+            rng=rng,
+        )
+        ref_outputs = None
+        if "test" in dataset.suites:
+            output_coo = (A @ B).tocoo()
+            ref_outputs = [
+                BinsparseFormat.from_coo(
+                    (output_coo.row, output_coo.col),
+                    output_coo.data,
+                    output_coo.shape,
+                )
+            ]
+        return DataInstance(
+            [
+                BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape),
+                BinsparseFormat.from_coo((B.row, B.col), B.data, B.shape),
+            ],
+            meta={"dataset": dataset.name},
+            ref_outputs=ref_outputs,
+        )
+
+
 class MatrixMultiplicationBenchmark(Benchmark):
     @property
     def name(self) -> str:
@@ -333,7 +473,11 @@ class MatrixMultiplicationBenchmark(Benchmark):
 
     @property
     def generators(self) -> list[Generator]:
-        return [DenseMatmulGenerator(), SuiteSparseMatmulGenerator()]
+        return [
+            DenseMatmulGenerator(),
+            SuiteSparseMatmulGenerator(),
+            UniformRandomMatmulGenerator(),
+        ]
 
     def benchmark(self, xp, data: list, meta: dict):
         A = data[0]

@@ -138,6 +138,142 @@ class SDDMMSuiteSparseGenerator(Generator):
                             meta={"dataset": dataset.name},
                             ref_outputs=ref_outputs)
     
+# Densities (fraction of nonzeros) for the uniform random sparse generators,
+# spanning very sparse to moderately dense.
+UNIFORM_SPARSE_DENSITIES = [0.00001, 0.0001, 0.001, 0.01, 0.1]
+
+
+class UniformRandomSDDMMDataset(Dataset):
+    def __init__(self, name: str,
+                dim: int,
+                middle_dim: int,
+                density: float,
+                seed: int = 0,
+                suites: list[str] | None = None,
+                pretty_name: str | None = None,
+                description: str | None = None,):
+        self._name = name
+        self._pretty_name = pretty_name or name
+        self._description = description or (
+            f"Uniform random SDDMM input {self._pretty_name}."
+        )
+        self._suites = suites or ["sparse", "test"]
+        self.dim = dim
+        self.middle_dim = middle_dim
+        self.density = density
+        self.seed = seed
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+
+class UniformRandomSDDMMGenerator(Generator):
+
+    @property
+    def name(self) -> str:
+        return "uniform_random_sddmm_generator"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Uniform Random SDDMM Generator"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Generates SDDMM inputs with a uniform random sparse sampling matrix "
+            "at a range of densities."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return ["sparse"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Kyle Deeds", "kdeeds@bu.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to write the benchmark function."
+            "This statement was written manually."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return (
+            ""
+        )
+
+    @property
+    def datasets(self) -> list[Dataset]:
+        return [
+            UniformRandomSDDMMDataset(
+                # No dots in the name: the framework parses params as
+                # "generator.dataset" by splitting on ".".
+                f"uniform-{density:.0e}",
+                dim=5000,
+                middle_dim=128,
+                density=density,
+                suites=["sparse", "test"],
+            )
+            for density in UNIFORM_SPARSE_DENSITIES
+        ]
+
+    def generate(self, dataset: Dataset) -> DataInstance:
+        import scipy.sparse as sps
+
+        rng = np.random.default_rng(dataset.seed)
+        S = sps.random_array(
+            (dataset.dim, dataset.dim),
+            density=dataset.density,
+            format="coo",
+            rng=rng,
+        )
+        A = rng.random((dataset.dim, dataset.middle_dim))
+        B = rng.random((dataset.middle_dim, dataset.dim))
+        ref_outputs = None
+        if "test" in dataset.suites:
+            ref = S.multiply(np.matmul(A, B)).tocoo()
+            ref_outputs = [
+                BinsparseFormat.from_coo((ref.row, ref.col), ref.data, ref.shape)
+            ]
+        return DataInstance(
+            [
+                BinsparseFormat.from_coo((S.row, S.col), S.data, S.shape),
+                BinsparseFormat.from_numpy(A),
+                BinsparseFormat.from_numpy(B),
+            ],
+            meta={"dataset": dataset.name},
+            ref_outputs=ref_outputs,
+        )
+
+
 class SDDMMBenchmark(Benchmark):
     @property
     def name(self) -> str:
@@ -204,7 +340,7 @@ class SDDMMBenchmark(Benchmark):
 
     @property
     def generators(self) -> list[Generator]:
-        return [SDDMMSuiteSparseGenerator()]
+        return [SDDMMSuiteSparseGenerator(), UniformRandomSDDMMGenerator()]
 
     def benchmark(self, xp, data: list, meta: dict):
         S = data[0]
