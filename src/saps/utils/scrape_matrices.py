@@ -5,6 +5,7 @@ Script to iterate over all matrices in the SuiteSparse Matrix Collection using s
 
 import argparse
 import json
+import math
 import os
 import random
 import sys
@@ -18,9 +19,17 @@ import ssgetpy
 
 
 def append_to_json(
-    filename, matrix_name, matrix_group, convergence_value, n, nnz, solver
+    filename,
+    matrix_name,
+    matrix_group,
+    convergence_value,
+    estimated_iterations,
+    iteration_tolerance,
+    n,
+    nnz,
+    solver,
 ):
-    """Append matrix name and convergence criteria to JSON file."""
+    """Append matrix name and normalized convergence criteria to JSON file."""
     # Try to load existing data, or create empty list if file doesn't exist
     try:
         with open(filename) as f:
@@ -34,6 +43,8 @@ def append_to_json(
             "matrix_name": matrix_name,
             "matrix_group": matrix_group,
             f"{solver} convergence criteria": convergence_value,
+            f"{solver} estimated iterations": estimated_iterations,
+            "estimated iteration tolerance": iteration_tolerance,
             "n": n,
             "nnz": nnz,
         }
@@ -57,18 +68,26 @@ def already_in_json(filename, matrix_name):
         return False
 
 
-def check_jacobi_iteration_matrix_convergence(A):
+def estimate_iterations(convergence_value, tolerance):
+    if convergence_value == 0:
+        return 1
+    if not 0 < convergence_value < 1:
+        return None
+    return max(1, math.ceil(math.log(tolerance) / math.log(convergence_value)))
+
+
+def check_jacobi_normalized_convergence(A):
     d = A.diagonal()
     D = sp.sparse.diags(1 / d, format="csr")
     M = -(D @ A - sp.sparse.eye(A.shape[0]))
 
     vals = sp.sparse.linalg.eigsh(M, k=1, return_eigenvectors=False, tol=0.001)
-    sr_value = np.max(vals[0])
-    print(f"SR of (A-D)/D: {sr_value}")
+    sr_value = abs(np.max(vals[0]))
+    print(f"Normalized Jacobi convergence factor: {sr_value}")
     return sr_value
 
 
-def check_cg_iteration_matrix_convergence_speed(A, M=None):
+def check_cg_normalized_convergence(A, M=None):
     max_eig = sp.sparse.linalg.eigsh(A, M=M, k=1, return_eigenvectors=False, tol=0.001)[
         0
     ]
@@ -77,16 +96,24 @@ def check_cg_iteration_matrix_convergence_speed(A, M=None):
     )[0]
 
     condition_num = max_eig / min_eig
+    if condition_num < 1:
+        convergence_value = np.inf
+    elif condition_num == 1:
+        convergence_value = 0
+    else:
+        sqrt_kappa = math.sqrt(condition_num)
+        convergence_value = (sqrt_kappa - 1) / (sqrt_kappa + 1)
     print(f"Condition number of A: {condition_num}")
-    return condition_num
+    print(f"Normalized CG convergence factor: {convergence_value}")
+    return convergence_value
 
 
-def check_jacobi_cg_iteration_matrix_convergence_speed(A):
+def check_jacobi_cg_normalized_convergence(A):
     M = sp.sparse.diags(A.diagonal())
-    return check_cg_iteration_matrix_convergence_speed(A, M)
+    return check_cg_normalized_convergence(A, M)
 
 
-def check_block_jacobi_cg_iteration_matrix_convergence_speed(A):
+def check_block_jacobi_cg_normalized_convergence(A):
     A_csr = A.tocsr()
     n = A_csr.shape[0]
     p = min(10, n)
@@ -99,10 +126,10 @@ def check_block_jacobi_cg_iteration_matrix_convergence_speed(A):
         blocks.append(A_ii)
         i = j
     M = sp.sparse.block_diag(blocks)
-    return check_cg_iteration_matrix_convergence_speed(A, M)
+    return check_cg_normalized_convergence(A, M)
 
 
-def check_lsqr_condition_number(A):
+def check_lsqr_normalized_convergence(A):
     try:
         # Compute the largest singular value
         max_s = sp.sparse.linalg.svds(
@@ -122,16 +149,23 @@ def check_lsqr_condition_number(A):
         return np.inf
 
     condition_num = max_s / min_s if min_s != 0 else np.inf
+    if condition_num < 1:
+        convergence_value = np.inf
+    elif condition_num == 1:
+        convergence_value = 0
+    else:
+        convergence_value = (condition_num - 1) / (condition_num + 1)
     print(f"Condition number of A (LSQR): {condition_num}")
-    return condition_num
+    print(f"Normalized LSQR convergence factor: {convergence_value}")
+    return convergence_value
 
 
 SOLVER_DICT = {
-    "jacobi": check_jacobi_iteration_matrix_convergence,
-    "cg": check_cg_iteration_matrix_convergence_speed,
-    "jacobi_cg": check_jacobi_cg_iteration_matrix_convergence_speed,
-    "block_jacobi_cg": check_block_jacobi_cg_iteration_matrix_convergence_speed,
-    "lsqr": check_lsqr_condition_number,
+    "jacobi": check_jacobi_normalized_convergence,
+    "cg": check_cg_normalized_convergence,
+    "jacobi_cg": check_jacobi_cg_normalized_convergence,
+    "block_jacobi_cg": check_block_jacobi_cg_normalized_convergence,
+    "lsqr": check_lsqr_normalized_convergence,
 }
 
 
@@ -161,7 +195,15 @@ def main():
         choices=["jacobi", "cg", "jacobi_cg", "block_jacobi_cg", "lsqr"],
         help="Solver to check convergence for",
     )
+    parser.add_argument(
+        "--iteration-tolerance",
+        type=float,
+        default=1e-8,
+        help="Tolerance used when estimating iteration counts",
+    )
     args = parser.parse_args()
+    if not 0 < args.iteration_tolerance < 1:
+        raise ValueError("--iteration-tolerance must be between 0 and 1.")
 
     search_params = {"nzbounds": (0, args.maxsize), "limit": args.limit}
     if args.solver == "cg" or args.solver == "jacobi":
@@ -197,6 +239,9 @@ def main():
                     convergence_value = SOLVER_DICT[args.solver](A)
                     if np.isinf(convergence_value) or np.isnan(convergence_value):
                         convergence_value = sys.float_info.max
+                    estimated_iterations = estimate_iterations(
+                        convergence_value, args.iteration_tolerance
+                    )
 
                     # Write to JSON file
                     append_to_json(
@@ -204,6 +249,8 @@ def main():
                         matrix.name,
                         matrix.group,
                         float(convergence_value),
+                        estimated_iterations,
+                        args.iteration_tolerance,
                         n,
                         A.nnz,
                         args.solver,
