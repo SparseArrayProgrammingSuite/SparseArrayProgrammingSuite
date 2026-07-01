@@ -235,7 +235,7 @@ def main():
         parser.error("--batch-index must satisfy 0 <= batch-index < num-batches")
     if args.tol < 0:
         parser.error("--tol must be non-negative")
-    search_params = {}
+    search_params = {"limit": -1}
     if args.maxsize is not None:
         search_params["nzbounds"] = (0, args.maxsize)
     matrices = list(ssgetpy.search(**search_params))
@@ -292,7 +292,7 @@ def main():
 
 def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver, tol=1e-2):
     try:
-        convergence_value = SOLVER_DICT[solver](A, tol=0.1e-2)
+        convergence_value = SOLVER_DICT[solver](A, tol=convergence_threshold(solver))
     except (ArpackError, RuntimeError, ValueError, np.linalg.LinAlgError) as e:
         print(f"Error computing {solver} convergence for {matrix.name}: {e}")
         return
@@ -300,7 +300,7 @@ def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver, tol=1
     if np.isinf(convergence_value) or np.isnan(convergence_value):
         convergence_value = sys.float_info.max
 
-    if convergence_value >= convergence_threshold(solver):
+    if convergence_value >= 1:
         print(
             f"Skipping {matrix.name} for {solver}: normalized convergence factor "
             f"{convergence_value} does not prove convergence within "
@@ -308,6 +308,8 @@ def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver, tol=1
             f"(requires < {convergence_threshold})"
         )
         return
+
+    convergence_value = SOLVER_DICT[solver](A, tol=tol)
 
     # Write to JSON file
     saved = append_to_json(
