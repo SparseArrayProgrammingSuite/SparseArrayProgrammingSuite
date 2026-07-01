@@ -343,6 +343,7 @@ class JLApproxNearestNeighbor(Benchmark):
     @property
     def concepts(self) -> str:
         return """
+<ccs2012>
 <concept>
 <concept_id>10002951.10003317.10003347.10003356</concept_id>
 <concept_desc>Information systems~Clustering and classification</concept_desc>
@@ -358,7 +359,6 @@ class JLApproxNearestNeighbor(Benchmark):
 <concept_desc>Information systems~Information retrieval</concept_desc>
 <concept_significance>500</concept_significance>
 </concept>
-<ccs2012>
 <concept>
 <concept_desc>Computing methodologies~
 Machine learning algorithms</concept_desc>
