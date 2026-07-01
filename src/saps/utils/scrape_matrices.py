@@ -192,7 +192,7 @@ def main():
         parser.error("--num-batches must be at least 1")
     if args.batch_index < 0 or args.batch_index >= args.num_batches:
         parser.error("--batch-index must satisfy 0 <= batch-index < num-batches")
-
+    search_params = {}
     if args.maxsize is not None:
         search_params["nzbounds"] = (0, args.maxsize)
     matrices = list(ssgetpy.search(**search_params))
