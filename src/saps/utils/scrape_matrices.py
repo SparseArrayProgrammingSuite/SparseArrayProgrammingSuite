@@ -68,11 +68,20 @@ def already_in_json(filename, matrix_name):
 
 def check_jacobi_normalized_convergence(A, tol=1e-3):
     d = A.diagonal()
-    D = sp.sparse.diags(1 / d, format="csr")
-    M = -(D @ A - sp.sparse.eye(A.shape[0]))
+    if np.any(d == 0):
+        return np.inf
 
-    vals = sp.sparse.linalg.eigs(M, k=1, return_eigenvectors=False, tol=tol)
-    sr_value = abs(np.max(vals[0]))
+    D = sp.sparse.diags(1 / d, format="csr")
+    M = sp.sparse.eye(A.shape[0], format="csr") - D @ A
+    M.eliminate_zeros()
+
+    if M.nnz == 0:
+        sr_value = 0.0
+    elif A.shape[0] <= 2:
+        sr_value = max(abs(np.linalg.eigvals(M.toarray())))
+    else:
+        vals = sp.sparse.linalg.eigs(M, k=1, return_eigenvectors=False, tol=tol)
+        sr_value = abs(vals[0])
     print(f"Normalized Jacobi convergence factor: {sr_value}")
     return sr_value
 
