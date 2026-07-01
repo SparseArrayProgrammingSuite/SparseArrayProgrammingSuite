@@ -290,9 +290,10 @@ def main():
             )
 
 
-def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver, tols=[1e4, 0.9, 0.001]):
+def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver, tol=1e-2):
+    threshold = convergence_threshold(solver)
 
-    for tol in tols:
+    for tol in [0.9, tol]:
         try:
             convergence_value = SOLVER_DICT[solver](A, tol=tol)
         except (ArpackError, RuntimeError, ValueError, np.linalg.LinAlgError) as e:
@@ -302,12 +303,12 @@ def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver, tols=
         if np.isinf(convergence_value) or np.isnan(convergence_value):
             convergence_value = sys.float_info.max
 
-        if convergence_value/(1+tol) >= convergence_threshold(solver):
+        if convergence_value/(1+tol) >= threshold:
             print(
                 f"Skipping {matrix.name} for {solver}: normalized convergence factor "
-                f"{convergence_value} does not prove convergence within "
-                f"{MAXIT_DICT[solver]} iterations at tolerance {TOLERANCE_DICT[solver]} "
-                f"(requires < {convergence_threshold})"
+                f"{convergence_value} cannot converge within "
+                f"{MAXIT_DICT[solver]} iterations to the tolerance {TOLERANCE_DICT[solver]} "
+                f"(requires < {threshold}) (tol={tol})"
             )
             return
 
