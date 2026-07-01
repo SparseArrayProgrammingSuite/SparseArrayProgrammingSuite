@@ -7,7 +7,6 @@ import argparse
 import json
 import math
 import os
-import random
 import sys
 
 import numpy as np
@@ -17,46 +16,13 @@ from scipy.sparse.linalg._eigen.arpack import ArpackError
 
 import ssgetpy
 
-DEFAULT_ITERATION_TOLERANCE = 1e-8
-
-
-MATLAB_SOLVER_DEFAULTS = {
-    "jacobi": {
-        "matlab_solver": None,
-        "tol": 1e-6,
-        "maxit": 20
-    },
-    "cg": {
-        "matlab_solver": "pcg",
-        "tol": 1e-6,
-        "maxit": 20
-    },
-    "jacobi_cg": {
-        "matlab_solver": "pcg",
-        "tol": 1e-6,
-        "maxit": 20
-    },
-    "block_jacobi_cg": {
-        "matlab_solver": "pcg",
-        "tol": 1e-6,
-        "maxit": 20
-    },
-    "lsqr": {
-        "matlab_solver": "lsqr",
-        "tol": 1e-6,
-        "maxit": 20
-    },
-}
-
 
 def append_to_json(
     filename,
     matrix_name,
     matrix_group,
     convergence_value,
-    estimated_iterations,
-    iteration_tolerance,
-    matlab_defaults,
+    m,
     n,
     nnz,
     solver,
@@ -75,9 +41,7 @@ def append_to_json(
             "matrix_name": matrix_name,
             "matrix_group": matrix_group,
             f"{solver} convergence criteria": convergence_value,
-            f"{solver} estimated iterations": estimated_iterations,
-            "estimated iteration tolerance": iteration_tolerance,
-            "matlab default settings": matlab_defaults,
+            "m": m,
             "n": n,
             "nnz": nnz,
         }
@@ -99,21 +63,6 @@ def already_in_json(filename, matrix_name):
             return any(entry["matrix_name"] == matrix_name for entry in data)
     except (FileNotFoundError, json.JSONDecodeError):
         return False
-
-
-def estimate_iterations(convergence_value, tolerance):
-    if convergence_value == 0:
-        return 1
-    if not 0 < convergence_value < 1:
-        return None
-    return max(1, math.ceil(math.log(tolerance) / math.log(convergence_value)))
-
-
-def matlab_defaults_for_solver(solver, A):
-    defaults = MATLAB_SOLVER_DEFAULTS[solver].copy()
-    if defaults["maxit"] is not None:
-        defaults["resolved_maxit"] = min(A.shape[0], 20)
-    return defaults
 
 
 def check_jacobi_normalized_convergence(A):
@@ -264,18 +213,13 @@ def main():
                 output_file,
                 matrix,
                 A,
+                m,
                 n,
                 solver,
             )
 
 
-def calculate_and_save_solver_result(output_file, matrix, A, n, solver):
-    iteration_tolerance = MATLAB_SOLVER_DEFAULTS[solver]["tol"]
-    if iteration_tolerance is None:
-        iteration_tolerance = DEFAULT_ITERATION_TOLERANCE
-    if not 0 < iteration_tolerance < 1:
-        raise ValueError("Iteration tolerance must be between 0 and 1.")
-
+def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver):
     try:
         convergence_value = SOLVER_DICT[solver](A)
     except (ArpackError, RuntimeError, ValueError, np.linalg.LinAlgError) as e:
@@ -284,8 +228,12 @@ def calculate_and_save_solver_result(output_file, matrix, A, n, solver):
 
     if np.isinf(convergence_value) or np.isnan(convergence_value):
         convergence_value = sys.float_info.max
-    estimated_iterations = estimate_iterations(convergence_value, iteration_tolerance)
-    matlab_defaults = matlab_defaults_for_solver(solver, A)
+    if convergence_value >= 1:
+        print(
+            f"Skipping {matrix.name} for {solver}: "
+            f"normalized convergence factor is {convergence_value}"
+        )
+        return
 
     # Write to JSON file
     append_to_json(
@@ -293,9 +241,7 @@ def calculate_and_save_solver_result(output_file, matrix, A, n, solver):
         matrix.name,
         matrix.group,
         float(convergence_value),
-        estimated_iterations,
-        iteration_tolerance,
-        matlab_defaults,
+        m,
         n,
         A.nnz,
         solver,
