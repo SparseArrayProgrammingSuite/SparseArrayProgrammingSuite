@@ -191,6 +191,8 @@ MAXIT_DICT = {
     "lsqr": 1000,
 }
 
+SOLVER_STATUS_KEYS = ("saved", "skipped", "already", "error")
+
 
 def convergence_threshold(solver):
     """Return the largest factor that proves convergence within max iterations."""
@@ -201,6 +203,20 @@ def convergence_threshold(solver):
     if max_iterations <= 0:
         raise ValueError("solver max iterations must be positive")
     return math.pow(tolerance, 1 / max_iterations)
+
+
+def record_solver_status(status_counts, solver, status, total_problems):
+    status_counts[solver][status] += 1
+    processed = sum(status_counts[solver].values())
+    counts = ", ".join(
+        f"{key}={status_counts[solver][key]}" for key in SOLVER_STATUS_KEYS
+    )
+    print(f"Status {solver}: {processed}/{total_problems} problems ({counts})")
+
+
+def record_all_solver_status(status_counts, status, total_problems):
+    for solver in SOLVER_DICT:
+        record_solver_status(status_counts, solver, status, total_problems)
 
 
 def main():
@@ -254,17 +270,26 @@ def main():
         f"Processing batch {args.batch_index + 1}/{args.num_batches}: "
         f"{len(matrices)} of {total_matrices} matrices"
     )
+    status_counts = {
+        solver: {key: 0 for key in SOLVER_STATUS_KEYS} for solver in SOLVER_DICT
+    }
 
-    for matrix in matrices:
+    for problem_index, matrix in enumerate(matrices, start=1):
+        print(
+            f"Starting problem: {matrix.name} "
+            f"({problem_index}/{len(matrices)}, kind={matrix.kind!r})"
+        )
         path, _archive = matrix.download(extract=True)
         matrix_path = os.path.join(path, matrix.name + ".mtx")
         print(f"Matrix: {matrix.name}, Path: {matrix_path}")
         if not matrix_path or not os.path.exists(matrix_path):
+            record_all_solver_status(status_counts, "skipped", len(matrices))
             continue
 
         A = mmread(matrix_path)  # This is the full sparse matrix
         m, n = A.shape
         if A.shape[0] <= 1 or A.shape[1] <= 1:
+            record_all_solver_status(status_counts, "skipped", len(matrices))
             continue
 
         # Convert to CSR format if needed for better diagonal access
@@ -278,11 +303,13 @@ def main():
                 output_file = f"{solver}_batch_{args.batch_index}_{args.output}"
             if already_in_json(output_file, matrix.name):
                 print(f"Skipping {matrix.name}, already in {output_file}")
+                record_solver_status(status_counts, solver, "already", len(matrices))
                 continue
             if solver == "lsqr" and matrix.kind != "Least Squares Problem":
                 print(
                     f"Skipping matrix {matrix.name} of kind {matrix.kind!r} for {solver}"
                 )
+                record_solver_status(status_counts, solver, "skipped", len(matrices))
                 continue
             if solver in ["cg", "jacobi_cg", "block_jacobi_cg", "jacobi"]:
                 if not matrix.kind in [
@@ -335,6 +362,9 @@ def main():
                     print(
                         f"Skipping matrix {matrix.name} of kind {matrix.kind!r} for {solver}"
                     )
+                    record_solver_status(
+                        status_counts, solver, "skipped", len(matrices)
+                    )
                     continue
 
             if solver != "lsqr" and m != n:
@@ -342,11 +372,13 @@ def main():
                     f"Skipping non-square matrix {matrix.name}"
                     f" of shape {A.shape} for {solver}"
                 )
+                record_solver_status(status_counts, solver, "skipped", len(matrices))
                 continue
             if solver != "lsqr" and not matrix.isspd:
                 print(f"Skipping non-SPD matrix {matrix.name} for {solver}")
+                record_solver_status(status_counts, solver, "skipped", len(matrices))
                 continue
-            calculate_and_save_solver_result(
+            status = calculate_and_save_solver_result(
                 output_file,
                 matrix,
                 A,
@@ -355,6 +387,7 @@ def main():
                 solver,
                 args.tol,
             )
+            record_solver_status(status_counts, solver, status, len(matrices))
 
 
 def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver, tol=1e-3):
@@ -365,7 +398,7 @@ def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver, tol=1
             convergence_value = SOLVER_DICT[solver](A, tol=tol)
         except (ArpackError, RuntimeError, ValueError, np.linalg.LinAlgError) as e:
             print(f"Error computing {solver} convergence for {matrix.name}: {e}")
-            return
+            return "error"
 
         if np.isinf(convergence_value) or np.isnan(convergence_value):
             convergence_value = sys.float_info.max
@@ -377,7 +410,7 @@ def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver, tol=1
                 f"{MAXIT_DICT[solver]} iterations to the tolerance {TOLERANCE_DICT[solver]} "
                 f"(requires < {threshold}) (tol={tol})"
             )
-            return
+            return "skipped"
 
     if convergence_value*(1+tol) >= threshold:
         print(
@@ -386,7 +419,7 @@ def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver, tol=1
             f"{MAXIT_DICT[solver]} iterations to the tolerance {TOLERANCE_DICT[solver]} "
             f"(requires < {threshold}) (tol={tol})"
         )
-        return
+        return "skipped"
 
     # Write to JSON file
     saved = append_to_json(
@@ -401,8 +434,10 @@ def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver, tol=1
     )
     if saved:
         print(f"Saved {matrix.name} {solver} convergence criteria to {output_file}")
+        return "saved"
     else:
         print(f"Skipping {matrix.name}, already in {output_file}")
+        return "already"
 
 
 if __name__ == "__main__":
