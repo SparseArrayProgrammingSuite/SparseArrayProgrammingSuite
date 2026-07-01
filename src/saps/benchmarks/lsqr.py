@@ -427,10 +427,11 @@ class LSQRBenchmark(Benchmark):
 
     def benchmark(self, xp, data: list, meta: dict):
         A, b = data
-        atol = meta.get("atol", 1e-9)
-        btol = meta.get("btol", 1e-9)
+        rel_tol = meta.get("rel_tol", 1e-6)
+        atol = meta.get("atol", rel_tol)
+        btol = meta.get("btol", rel_tol)
         conlim = meta.get("conlim", 1.0e8)
-        max_iters = meta.get("max_iters", 10000)
+        max_iters = meta.get("max_iters", 1000)
         exit = 0
 
         u = b

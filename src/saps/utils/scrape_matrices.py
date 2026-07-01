@@ -290,10 +290,10 @@ def main():
             )
 
 
-def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver, tol=1e-5):
+def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver, tol=1e-6):
     threshold = convergence_threshold(solver)
 
-    for tol in [0.9, 1e-3, tol]:
+    for tol in [1e-2, tol]:
         try:
             convergence_value = SOLVER_DICT[solver](A, tol=tol)
         except (ArpackError, RuntimeError, ValueError, np.linalg.LinAlgError) as e:

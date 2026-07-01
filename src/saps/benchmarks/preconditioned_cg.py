@@ -470,9 +470,9 @@ class _PreconditionedCGBase(Benchmark, ABC):
 
     def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
         A, b, x0, M = data
-        rel_tol = meta.get("rel_tol", 1e-8)
+        rel_tol = meta.get("rel_tol", 1e-6)
         abs_tol = meta.get("abs_tol", 1e-20)
-        max_iters = meta.get("max_iters", 10000)
+        max_iters = meta.get("max_iters", 1000)
 
         tolerance = max(rel_tol * xp.sqrt(xp.vecdot(b, b))[()], abs_tol)
         # tol_sq used to avoid having to sqrt dot products when checking tolerance
