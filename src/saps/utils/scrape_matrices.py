@@ -17,6 +17,37 @@ from scipy.sparse.linalg._eigen.arpack import ArpackError
 
 import ssgetpy
 
+DEFAULT_ITERATION_TOLERANCE = 1e-8
+
+
+MATLAB_SOLVER_DEFAULTS = {
+    "jacobi": {
+        "matlab_solver": None,
+        "tol": None,
+        "maxit": None,
+    },
+    "cg": {
+        "matlab_solver": "pcg",
+        "tol": 1e-6,
+        "maxit": "min(size(A,1), 20)",
+    },
+    "jacobi_cg": {
+        "matlab_solver": "pcg",
+        "tol": 1e-6,
+        "maxit": "min(size(A,1), 20)",
+    },
+    "block_jacobi_cg": {
+        "matlab_solver": "pcg",
+        "tol": 1e-6,
+        "maxit": "min(size(A,1), 20)",
+    },
+    "lsqr": {
+        "matlab_solver": "lsqr",
+        "tol": 1e-6,
+        "maxit": "min(size(A,1), 20)",
+    },
+}
+
 
 def append_to_json(
     filename,
@@ -25,6 +56,7 @@ def append_to_json(
     convergence_value,
     estimated_iterations,
     iteration_tolerance,
+    matlab_defaults,
     n,
     nnz,
     solver,
@@ -45,6 +77,7 @@ def append_to_json(
             f"{solver} convergence criteria": convergence_value,
             f"{solver} estimated iterations": estimated_iterations,
             "estimated iteration tolerance": iteration_tolerance,
+            "matlab default settings": matlab_defaults,
             "n": n,
             "nnz": nnz,
         }
@@ -74,6 +107,13 @@ def estimate_iterations(convergence_value, tolerance):
     if not 0 < convergence_value < 1:
         return None
     return max(1, math.ceil(math.log(tolerance) / math.log(convergence_value)))
+
+
+def matlab_defaults_for_solver(solver, A):
+    defaults = MATLAB_SOLVER_DEFAULTS[solver].copy()
+    if defaults["maxit"] is not None:
+        defaults["resolved_maxit"] = min(A.shape[0], 20)
+    return defaults
 
 
 def check_jacobi_normalized_convergence(A):
@@ -175,12 +215,12 @@ def main():
     )
     parser.add_argument(
         "--limit",
-        type=int,
-        default=100000,
+        type=float,
+        default=100000.0,
         help="Maximum number of matrices to retrieve",
     )
     parser.add_argument(
-        "--maxsize", type=int, default=100000, help="Maximum matrix nnz to retrieve"
+        "--maxsize", type=float, default=100000.0, help="Maximum matrix nnz to retrieve"
     )
     parser.add_argument(
         "--output",
@@ -191,42 +231,40 @@ def main():
     parser.add_argument(
         "--solver",
         type=str,
-        default="jacobi",
-        choices=["jacobi", "cg", "jacobi_cg", "block_jacobi_cg", "lsqr"],
-        help="Solver to check convergence for",
-    )
-    parser.add_argument(
-        "--iteration-tolerance",
-        type=float,
-        default=1e-8,
-        help="Tolerance used when estimating iteration counts",
+        required=True,
+        choices=SOLVER_DICT.keys(),
+        help="Solver to check convergence for.",
     )
     args = parser.parse_args()
-    if not 0 < args.iteration_tolerance < 1:
-        raise ValueError("--iteration-tolerance must be between 0 and 1.")
+    solver = args.solver
+    iteration_tolerance = MATLAB_SOLVER_DEFAULTS[solver]["tol"]
+    if iteration_tolerance is None:
+        iteration_tolerance = DEFAULT_ITERATION_TOLERANCE
+    if not 0 < iteration_tolerance < 1:
+        raise ValueError("Iteration tolerance must be between 0 and 1.")
 
     search_params = {"nzbounds": (0, args.maxsize), "limit": args.limit}
-    if args.solver == "cg" or args.solver == "jacobi":
+    if solver != "lsqr":
         search_params["isspd"] = True
     matrices = ssgetpy.search(**search_params)
 
     # Take a random permutation
     matrices = random.sample(list(matrices), len(matrices))
-    output_file = f"{args.solver}_{args.output}"
+    output_file = f"{solver}_{args.output}"
     for matrix in matrices:
         (path, archive) = matrix.download(extract=True)
         matrix_path = os.path.join(path, matrix.name + ".mtx")
-        print(f"Matrix: {matrix.name}, Path: {matrix_path}")
+        print(f"Solver: {solver}, Matrix: {matrix.name}, Path: {matrix_path}")
         if matrix_path and os.path.exists(matrix_path):
             if already_in_json(output_file, matrix.name):
                 print(f"Skipping {matrix.name}, already in {output_file}")
                 continue
             A = mmread(matrix_path)  # This is the full sparse matrix
             (m, n) = A.shape
-            if args.solver != "lsqr" and m != n:
+            if solver != "lsqr" and m != n:
                 print(
                     f"Skipping non-square matrix {matrix.name}"
-                    f" of shape {A.shape} for {args.solver}"
+                    f" of shape {A.shape} for {solver}"
                 )
                 continue
             # Convert to CSR format if needed for better diagonal access
@@ -236,12 +274,13 @@ def main():
             # Calculate the convergence criteria
             try:
                 if A.shape[0] > 1 and A.shape[1] > 1:
-                    convergence_value = SOLVER_DICT[args.solver](A)
+                    convergence_value = SOLVER_DICT[solver](A)
                     if np.isinf(convergence_value) or np.isnan(convergence_value):
                         convergence_value = sys.float_info.max
                     estimated_iterations = estimate_iterations(
-                        convergence_value, args.iteration_tolerance
+                        convergence_value, iteration_tolerance
                     )
+                    matlab_defaults = matlab_defaults_for_solver(solver, A)
 
                     # Write to JSON file
                     append_to_json(
@@ -250,10 +289,11 @@ def main():
                         matrix.group,
                         float(convergence_value),
                         estimated_iterations,
-                        args.iteration_tolerance,
+                        iteration_tolerance,
+                        matlab_defaults,
                         n,
                         A.nnz,
-                        args.solver,
+                        solver,
                     )
                     print(f"Saved {matrix.name} convergence criteria to {output_file}")
 
