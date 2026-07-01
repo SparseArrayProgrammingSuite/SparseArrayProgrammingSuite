@@ -23,28 +23,28 @@ DEFAULT_ITERATION_TOLERANCE = 1e-8
 MATLAB_SOLVER_DEFAULTS = {
     "jacobi": {
         "matlab_solver": None,
-        "tol": None,
-        "maxit": None,
+        "tol": 1e-6,
+        "maxit": 20
     },
     "cg": {
         "matlab_solver": "pcg",
         "tol": 1e-6,
-        "maxit": "min(size(A,1), 20)",
+        "maxit": 20
     },
     "jacobi_cg": {
         "matlab_solver": "pcg",
         "tol": 1e-6,
-        "maxit": "min(size(A,1), 20)",
+        "maxit": 20
     },
     "block_jacobi_cg": {
         "matlab_solver": "pcg",
         "tol": 1e-6,
-        "maxit": "min(size(A,1), 20)",
+        "maxit": 20
     },
     "lsqr": {
         "matlab_solver": "lsqr",
         "tol": 1e-6,
-        "maxit": "min(size(A,1), 20)",
+        "maxit": 20
     },
 }
 
