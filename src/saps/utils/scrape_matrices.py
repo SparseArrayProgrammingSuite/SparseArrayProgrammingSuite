@@ -228,78 +228,79 @@ def main():
         default="matrices.json",
         help="Output JSON file for matrices and convergence criteria",
     )
-    parser.add_argument(
-        "--solver",
-        type=str,
-        required=True,
-        choices=SOLVER_DICT.keys(),
-        help="Solver to check convergence for.",
-    )
     args = parser.parse_args()
-    solver = args.solver
-    iteration_tolerance = MATLAB_SOLVER_DEFAULTS[solver]["tol"]
-    if iteration_tolerance is None:
-        iteration_tolerance = DEFAULT_ITERATION_TOLERANCE
-    if not 0 < iteration_tolerance < 1:
-        raise ValueError("Iteration tolerance must be between 0 and 1.")
 
     search_params = {"nzbounds": (0, args.maxsize), "limit": args.limit}
-    if solver != "lsqr":
-        search_params["isspd"] = True
     matrices = ssgetpy.search(**search_params)
 
-    # Take a random permutation
-    matrices = random.sample(list(matrices), len(matrices))
-    output_file = f"{solver}_{args.output}"
     for matrix in matrices:
-        (path, archive) = matrix.download(extract=True)
+        path, _archive = matrix.download(extract=True)
         matrix_path = os.path.join(path, matrix.name + ".mtx")
-        print(f"Solver: {solver}, Matrix: {matrix.name}, Path: {matrix_path}")
-        if matrix_path and os.path.exists(matrix_path):
+        print(f"Matrix: {matrix.name}, Path: {matrix_path}")
+        if not matrix_path or not os.path.exists(matrix_path):
+            continue
+
+        A = mmread(matrix_path)  # This is the full sparse matrix
+        m, n = A.shape
+        if A.shape[0] <= 1 or A.shape[1] <= 1:
+            continue
+
+        # Convert to CSR format if needed for better diagonal access
+        if not hasattr(A, "diagonal"):
+            A = A.tocsr()
+
+        for solver in SOLVER_DICT:
+            output_file = f"{solver}_{args.output}"
             if already_in_json(output_file, matrix.name):
                 print(f"Skipping {matrix.name}, already in {output_file}")
                 continue
-            A = mmread(matrix_path)  # This is the full sparse matrix
-            (m, n) = A.shape
             if solver != "lsqr" and m != n:
                 print(
                     f"Skipping non-square matrix {matrix.name}"
                     f" of shape {A.shape} for {solver}"
                 )
                 continue
-            # Convert to CSR format if needed for better diagonal access
-            if not hasattr(A, "diagonal"):
-                A = A.tocsr()
+            calculate_and_save_solver_result(
+                output_file,
+                matrix,
+                A,
+                n,
+                solver,
+            )
 
-            # Calculate the convergence criteria
-            try:
-                if A.shape[0] > 1 and A.shape[1] > 1:
-                    convergence_value = SOLVER_DICT[solver](A)
-                    if np.isinf(convergence_value) or np.isnan(convergence_value):
-                        convergence_value = sys.float_info.max
-                    estimated_iterations = estimate_iterations(
-                        convergence_value, iteration_tolerance
-                    )
-                    matlab_defaults = matlab_defaults_for_solver(solver, A)
 
-                    # Write to JSON file
-                    append_to_json(
-                        output_file,
-                        matrix.name,
-                        matrix.group,
-                        float(convergence_value),
-                        estimated_iterations,
-                        iteration_tolerance,
-                        matlab_defaults,
-                        n,
-                        A.nnz,
-                        solver,
-                    )
-                    print(f"Saved {matrix.name} convergence criteria to {output_file}")
+def calculate_and_save_solver_result(output_file, matrix, A, n, solver):
+    iteration_tolerance = MATLAB_SOLVER_DEFAULTS[solver]["tol"]
+    if iteration_tolerance is None:
+        iteration_tolerance = DEFAULT_ITERATION_TOLERANCE
+    if not 0 < iteration_tolerance < 1:
+        raise ValueError("Iteration tolerance must be between 0 and 1.")
 
-            except ArpackError as e:
-                print(f"Error computing convergence criteria for {matrix.name}: {e}")
-                continue
+    try:
+        convergence_value = SOLVER_DICT[solver](A)
+    except (ArpackError, RuntimeError, ValueError, np.linalg.LinAlgError) as e:
+        print(f"Error computing {solver} convergence for {matrix.name}: {e}")
+        return
+
+    if np.isinf(convergence_value) or np.isnan(convergence_value):
+        convergence_value = sys.float_info.max
+    estimated_iterations = estimate_iterations(convergence_value, iteration_tolerance)
+    matlab_defaults = matlab_defaults_for_solver(solver, A)
+
+    # Write to JSON file
+    append_to_json(
+        output_file,
+        matrix.name,
+        matrix.group,
+        float(convergence_value),
+        estimated_iterations,
+        iteration_tolerance,
+        matlab_defaults,
+        n,
+        A.nnz,
+        solver,
+    )
+    print(f"Saved {matrix.name} {solver} convergence criteria to {output_file}")
 
 
 if __name__ == "__main__":
