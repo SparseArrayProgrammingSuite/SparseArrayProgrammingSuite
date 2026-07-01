@@ -263,9 +263,13 @@ def main():
     search_params = {"limit": -1}
     if args.maxsize is not None:
         search_params["nzbounds"] = (0, args.maxsize)
-    matrices = list(ssgetpy.search(**search_params))
-    total_matrices = len(matrices)
-    matrices = matrices[args.batch_index :: args.num_batches]
+    all_matrices = list(ssgetpy.search(**search_params))
+    total_matrices = len(all_matrices)
+    matrices = [
+        matrix
+        for matrix_index, matrix in enumerate(all_matrices)
+        if matrix_index % args.num_batches == args.batch_index
+    ]
     print(
         f"Processing batch {args.batch_index + 1}/{args.num_batches}: "
         f"{len(matrices)} of {total_matrices} matrices"
@@ -305,59 +309,59 @@ def main():
                 print(f"Skipping {matrix.name}, already in {output_file}")
                 record_solver_status(status_counts, solver, "already", len(matrices))
                 continue
-            if solver == "lsqr" and matrix.kind != "Least Squares Problem":
+            if solver == "lsqr" and matrix.kind.lower() != "least squares problem":
                 print(
                     f"Skipping matrix {matrix.name} of kind {matrix.kind!r} for {solver}"
                 )
                 record_solver_status(status_counts, solver, "skipped", len(matrices))
                 continue
             if solver in ["cg", "jacobi_cg", "block_jacobi_cg", "jacobi"]:
-                if not matrix.kind in [
-                    "Tomography Problem",
-                    "Thermal Problem",
-                    "Theoretical/Quantum Chemistry Problem Sequence",
-                    "Theoretical/Quantum Chemistry Problem",
-                    "Subsequent Theoretical/Quantum Chemistry Problem",
-                    "Subsequent Structural Problem",
-                    "Subsequent Semiconductor Device Problem",
-                    "Subsequent Power Network Problem",
-                    "Subsequent Optimization Problem",
-                    "Subsequent Computational Fluid Dynamics Problem",
-                    "Subsequent Circuit Simulation Problem",
-                    "Subsequent 2D/3D Problem",
-                    "Structural Problem Sequence",
-                    "Structural Problem",
-                    "Semiconductor Process Problem",
-                    "Semiconductor Device Problem Sequence",
-                    "Semiconductor Device Problem",
-                    "Robotics Problem",
-                    "Random 2D/3D Problem",
-                    "Power Network Problem Sequence",
-                    "Power Network Problem",
-                    "Optimization Problem Sequence",
-                    "Optimization Problem",
-                    "Optimal Control Problem",
-                    "Model Reduction Problem",
-                    "Materials Problem",
-                    "Frequency Domain Circuit Simulation Problem",
-                    "Electromagnetics Problem",
-                    "Eigenvalue/Model Reduction Problem",
-                    "Economic Problem",
-                    "Data Analytics Problem",
-                    "Computer Vision Problem",
-                    "Computer Graphics/Vision Problem",
-                    "Computational Fluid Dynamics Problem Sequence",
-                    "Computational Fluid Dynamics Problem",
-                    "Computational Fluid Dynamics",
-                    "Computational Chemistry Problem",
-                    "Circuit Simulation Problem Sequence",
-                    "Circuit Simulation Problem",
-                    "Chemical Process Simulation Problem Sequence",
-                    "Chemical Process Simulation Problem",
-                    "Chemical Oceanography Problem",
-                    "Acoustics Problem",
-                    "2D/3D Problem Sequence",
-                    "2D/3D Problem",
+                if not matrix.kind.lower() in [
+                    "tomography problem",
+                    "thermal problem",
+                    "theoretical/quantum chemistry problem sequence",
+                    "theoretical/quantum chemistry problem",
+                    "subsequent theoretical/quantum chemistry problem",
+                    "subsequent structural problem",
+                    "subsequent semiconductor device problem",
+                    "subsequent power network problem",
+                    "subsequent optimization problem",
+                    "subsequent computational fluid dynamics problem",
+                    "subsequent circuit simulation problem",
+                    "subsequent 2d/3d problem",
+                    "structural problem sequence",
+                    "structural problem",
+                    "semiconductor process problem",
+                    "semiconductor device problem sequence",
+                    "semiconductor device problem",
+                    "robotics problem",
+                    "random 2d/3d problem",
+                    "power network problem sequence",
+                    "power network problem",
+                    "optimization problem sequence",
+                    "optimization problem",
+                    "optimal control problem",
+                    "model reduction problem",
+                    "materials problem",
+                    "frequency domain circuit simulation problem",
+                    "electromagnetics problem",
+                    "eigenvalue/model reduction problem",
+                    "economic problem",
+                    "data analytics problem",
+                    "computer vision problem",
+                    "computer graphics/vision problem",
+                    "computational fluid dynamics problem sequence",
+                    "computational fluid dynamics problem",
+                    "computational fluid dynamics",
+                    "computational chemistry problem",
+                    "circuit simulation problem sequence",
+                    "circuit simulation problem",
+                    "chemical process simulation problem sequence",
+                    "chemical process simulation problem",
+                    "chemical oceanography problem",
+                    "acoustics problem",
+                    "2d/3d problem sequence",
+                    "2d/3d problem",
                 ]:
                     print(
                         f"Skipping matrix {matrix.name} of kind {matrix.kind!r} for {solver}"
