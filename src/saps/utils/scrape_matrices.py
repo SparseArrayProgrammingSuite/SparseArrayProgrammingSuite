@@ -28,14 +28,15 @@ def append_to_json(
     solver,
 ):
     """Append matrix name and normalized convergence criteria to JSON file."""
-    # Try to load existing data, or create empty list if file doesn't exist
     try:
         with open(filename) as f:
             data = json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         data = []
 
-    # Append new entry
+    if any(entry["matrix_name"] == matrix_name for entry in data):
+        return False
+
     data.append(
         {
             "matrix_name": matrix_name,
@@ -49,10 +50,10 @@ def append_to_json(
 
     data.sort(key=lambda x: x[f"{solver} convergence criteria"])
 
-    # Write back to file
     with open(filename, "w") as f:
         json.dump(data, f, indent=2)
         f.write("\n")
+    return True
 
 
 def already_in_json(filename, matrix_name):
@@ -177,10 +178,32 @@ def main():
         default="matrices.json",
         help="Output JSON file for matrices and convergence criteria",
     )
+    parser.add_argument(
+        "--num-batches",
+        type=int,
+        default=1,
+        help="Number of disjoint matrix batches to split the search results into",
+    )
+    parser.add_argument(
+        "--batch-index",
+        type=int,
+        default=0,
+        help="Zero-based batch index to process",
+    )
     args = parser.parse_args()
+    if args.num_batches < 1:
+        parser.error("--num-batches must be at least 1")
+    if args.batch_index < 0 or args.batch_index >= args.num_batches:
+        parser.error("--batch-index must satisfy 0 <= batch-index < num-batches")
 
     search_params = {"nzbounds": (0, args.maxsize), "limit": args.limit}
-    matrices = ssgetpy.search(**search_params)
+    matrices = list(ssgetpy.search(**search_params))
+    total_matrices = len(matrices)
+    matrices = matrices[args.batch_index :: args.num_batches]
+    print(
+        f"Processing batch {args.batch_index + 1}/{args.num_batches}: "
+        f"{len(matrices)} of {total_matrices} matrices"
+    )
 
     for matrix in matrices:
         path, _archive = matrix.download(extract=True)
@@ -199,7 +222,10 @@ def main():
             A = A.tocsr()
 
         for solver in SOLVER_DICT:
-            output_file = f"{solver}_{args.output}"
+            if args.num_batches == 1:
+                output_file = f"{solver}_{args.output}"
+            else:
+                output_file = f"{solver}_batch_{args.batch_index}_{args.output}"
             if already_in_json(output_file, matrix.name):
                 print(f"Skipping {matrix.name}, already in {output_file}")
                 continue
@@ -208,6 +234,9 @@ def main():
                     f"Skipping non-square matrix {matrix.name}"
                     f" of shape {A.shape} for {solver}"
                 )
+                continue
+            if solver != "lsqr" and not matrix.isspd:
+                print(f"Skipping non-SPD matrix {matrix.name} for {solver}")
                 continue
             calculate_and_save_solver_result(
                 output_file,
@@ -236,7 +265,7 @@ def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver):
         return
 
     # Write to JSON file
-    append_to_json(
+    saved = append_to_json(
         output_file,
         matrix.name,
         matrix.group,
@@ -246,7 +275,10 @@ def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver):
         A.nnz,
         solver,
     )
-    print(f"Saved {matrix.name} {solver} convergence criteria to {output_file}")
+    if saved:
+        print(f"Saved {matrix.name} {solver} convergence criteria to {output_file}")
+    else:
+        print(f"Skipping {matrix.name}, already in {output_file}")
 
 
 if __name__ == "__main__":
