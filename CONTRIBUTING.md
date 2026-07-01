@@ -17,7 +17,7 @@ Please follow the [SciML Collaborative Practices](https://docs.sciml.ai/ColPrac/
 In this repo, please use the convention <initials>/<branch-name> for pull request branch names, e.g. ms/scheduler-pass.
 This way in bash when you type your initials git checkout ms/ and <tab> you can see all your branches. We will use other names for special purposes.
 
-## Benchmark Contribution Process
+## Benchmark/Dataset Contribution Process
 
 Before implementing a benchmark, claim it. Pick an unclaimed benchmark issue, or open a new issue describing the application you want to add. Include links to the paper, source code, pseudocode, textbook section, or other primary reference you plan to translate. Be specific: line numbers, figure numbers, and section numbers help reviewers understand what you are implementing.
 
