@@ -71,7 +71,7 @@ def check_jacobi_normalized_convergence(A, tol=1e-3):
     D = sp.sparse.diags(1 / d, format="csr")
     M = -(D @ A - sp.sparse.eye(A.shape[0]))
 
-    vals = sp.sparse.linalg.eigsh(M, k=1, return_eigenvectors=False, tol=tol)
+    vals = sp.sparse.linalg.eigs(M, k=1, return_eigenvectors=False, tol=tol)
     sr_value = abs(np.max(vals[0]))
     print(f"Normalized Jacobi convergence factor: {sr_value}")
     return sr_value
@@ -175,11 +175,11 @@ TOLERANCE_DICT = {
 }
 
 MAXIT_DICT = {
-    "jacobi": 20,
-    "cg": 20,
-    "jacobi_cg": 20,
-    "block_jacobi_cg": 20,
-    "lsqr": 20,
+    "jacobi": 1000,
+    "cg": 1000,
+    "jacobi_cg": 1000,
+    "block_jacobi_cg": 1000,
+    "lsqr": 1000,
 }
 
 
@@ -290,10 +290,10 @@ def main():
             )
 
 
-def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver, tol=1e-2):
+def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver, tol=1e-5):
     threshold = convergence_threshold(solver)
 
-    for tol in [0.9, tol]:
+    for tol in [0.9, 1e-3, tol]:
         try:
             convergence_value = SOLVER_DICT[solver](A, tol=tol)
         except (ArpackError, RuntimeError, ValueError, np.linalg.LinAlgError) as e:
@@ -311,6 +311,15 @@ def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver, tol=1
                 f"(requires < {threshold}) (tol={tol})"
             )
             return
+
+    if convergence_value*(1+tol) >= threshold:
+        print(
+            f"Skipping {matrix.name} for {solver}: normalized convergence factor "
+            f"{convergence_value} does not converge within "
+            f"{MAXIT_DICT[solver]} iterations to the tolerance {TOLERANCE_DICT[solver]} "
+            f"(requires < {threshold}) (tol={tol})"
+        )
+        return
 
     # Write to JSON file
     saved = append_to_json(
