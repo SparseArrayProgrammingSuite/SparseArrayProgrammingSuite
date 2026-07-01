@@ -279,6 +279,64 @@ def main():
             if already_in_json(output_file, matrix.name):
                 print(f"Skipping {matrix.name}, already in {output_file}")
                 continue
+            if solver == "lsqr" and matrix.kind != "Least Squares Problem":
+                print(
+                    f"Skipping matrix {matrix.name} of kind {matrix.kind!r} for {solver}"
+                )
+                continue
+            if solver in ["cg", "jacobi_cg", "block_jacobi_cg", "jacobi"]:
+                if not matrix.kind in [
+                    "Tomography Problem",
+                    "Thermal Problem",
+                    "Theoretical/Quantum Chemistry Problem Sequence",
+                    "Theoretical/Quantum Chemistry Problem",
+                    "Subsequent Theoretical/Quantum Chemistry Problem",
+                    "Subsequent Structural Problem",
+                    "Subsequent Semiconductor Device Problem",
+                    "Subsequent Power Network Problem",
+                    "Subsequent Optimization Problem",
+                    "Subsequent Computational Fluid Dynamics Problem",
+                    "Subsequent Circuit Simulation Problem",
+                    "Subsequent 2D/3D Problem",
+                    "Structural Problem Sequence",
+                    "Structural Problem",
+                    "Semiconductor Process Problem",
+                    "Semiconductor Device Problem Sequence",
+                    "Semiconductor Device Problem",
+                    "Robotics Problem",
+                    "Random 2D/3D Problem",
+                    "Power Network Problem Sequence",
+                    "Power Network Problem",
+                    "Optimization Problem Sequence",
+                    "Optimization Problem",
+                    "Optimal Control Problem",
+                    "Model Reduction Problem",
+                    "Materials Problem",
+                    "Frequency Domain Circuit Simulation Problem",
+                    "Electromagnetics Problem",
+                    "Eigenvalue/Model Reduction Problem",
+                    "Economic Problem",
+                    "Data Analytics Problem",
+                    "Computer Vision Problem",
+                    "Computer Graphics/Vision Problem",
+                    "Computational Fluid Dynamics Problem Sequence",
+                    "Computational Fluid Dynamics Problem",
+                    "Computational Fluid Dynamics",
+                    "Computational Chemistry Problem",
+                    "Circuit Simulation Problem Sequence",
+                    "Circuit Simulation Problem",
+                    "Chemical Process Simulation Problem Sequence",
+                    "Chemical Process Simulation Problem",
+                    "Chemical Oceanography Problem",
+                    "Acoustics Problem",
+                    "2D/3D Problem Sequence",
+                    "2D/3D Problem",
+                ]:
+                    print(
+                        f"Skipping matrix {matrix.name} of kind {matrix.kind!r} for {solver}"
+                    )
+                    continue
+
             if solver != "lsqr" and m != n:
                 print(
                     f"Skipping non-square matrix {matrix.name}"
