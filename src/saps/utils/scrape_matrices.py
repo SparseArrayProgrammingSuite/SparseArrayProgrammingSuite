@@ -66,23 +66,23 @@ def already_in_json(filename, matrix_name):
         return False
 
 
-def check_jacobi_normalized_convergence(A):
+def check_jacobi_normalized_convergence(A, tol=1e-3):
     d = A.diagonal()
     D = sp.sparse.diags(1 / d, format="csr")
     M = -(D @ A - sp.sparse.eye(A.shape[0]))
 
-    vals = sp.sparse.linalg.eigsh(M, k=1, return_eigenvectors=False, tol=0.001)
+    vals = sp.sparse.linalg.eigsh(M, k=1, return_eigenvectors=False, tol=tol)
     sr_value = abs(np.max(vals[0]))
     print(f"Normalized Jacobi convergence factor: {sr_value}")
     return sr_value
 
 
-def check_cg_normalized_convergence(A, M=None):
-    max_eig = sp.sparse.linalg.eigsh(A, M=M, k=1, return_eigenvectors=False, tol=0.001)[
-        0
-    ]
+def check_cg_normalized_convergence(A, M=None, tol=1e-3):
+    max_eig = sp.sparse.linalg.eigsh(
+        A, M=M, k=1, return_eigenvectors=False, tol=tol / (tol + 2)
+    )[0]
     min_eig = sp.sparse.linalg.eigsh(
-        A, M=M, k=1, sigma=0, return_eigenvectors=False, tol=0.001
+        A, M=M, k=1, sigma=0, return_eigenvectors=False, tol=tol / (tol + 2)
     )[0]
 
     condition_num = max_eig / min_eig
@@ -98,12 +98,12 @@ def check_cg_normalized_convergence(A, M=None):
     return convergence_value
 
 
-def check_jacobi_cg_normalized_convergence(A):
+def check_jacobi_cg_normalized_convergence(A, tol=1e-3):
     M = sp.sparse.diags(A.diagonal())
-    return check_cg_normalized_convergence(A, M)
+    return check_cg_normalized_convergence(A, M, tol=tol)
 
 
-def check_block_jacobi_cg_normalized_convergence(A):
+def check_block_jacobi_cg_normalized_convergence(A, tol=1e-3):
     A_csr = A.tocsr()
     n = A_csr.shape[0]
     p = min(10, n)
@@ -116,14 +116,18 @@ def check_block_jacobi_cg_normalized_convergence(A):
         blocks.append(A_ii)
         i = j
     M = sp.sparse.block_diag(blocks)
-    return check_cg_normalized_convergence(A, M)
+    return check_cg_normalized_convergence(A, M, tol=tol)
 
 
-def check_lsqr_normalized_convergence(A):
+def check_lsqr_normalized_convergence(A, tol=1e-3):
     try:
         # Compute the largest singular value
         max_s = sp.sparse.linalg.svds(
-            A, k=1, which="LM", return_singular_vectors=False
+            A,
+            k=1,
+            which="LM",
+            return_singular_vectors=False,
+            tol=math.sqrt(tol / (tol + 2)),
         )[0]
     except ArpackError:
         print("Could not compute largest singular value for matrix.")
@@ -132,7 +136,11 @@ def check_lsqr_normalized_convergence(A):
     try:
         # Compute the smallest singular value
         min_s = sp.sparse.linalg.svds(
-            A, k=1, which="SM", return_singular_vectors=False
+            A,
+            k=1,
+            which="SM",
+            return_singular_vectors=False,
+            tol=math.sqrt(tol / (tol + 2)),
         )[0]
     except ArpackError:
         print("Could not compute smallest singular value for matrix.")
@@ -187,11 +195,19 @@ def main():
         default=0,
         help="Zero-based batch index to process",
     )
+    parser.add_argument(
+        "--tol",
+        type=float,
+        default=1e-3,
+        help="Tolerance to use for eigensolver-based convergence estimates",
+    )
     args = parser.parse_args()
     if args.num_batches < 1:
         parser.error("--num-batches must be at least 1")
     if args.batch_index < 0 or args.batch_index >= args.num_batches:
         parser.error("--batch-index must satisfy 0 <= batch-index < num-batches")
+    if args.tol < 0:
+        parser.error("--tol must be non-negative")
     search_params = {}
     if args.maxsize is not None:
         search_params["nzbounds"] = (0, args.maxsize)
@@ -243,12 +259,13 @@ def main():
                 m,
                 n,
                 solver,
+                args.tol,
             )
 
 
-def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver):
+def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver, tol=1e-3):
     try:
-        convergence_value = SOLVER_DICT[solver](A)
+        convergence_value = SOLVER_DICT[solver](A, tol=tol)
     except (ArpackError, RuntimeError, ValueError, np.linalg.LinAlgError) as e:
         print(f"Error computing {solver} convergence for {matrix.name}: {e}")
         return
