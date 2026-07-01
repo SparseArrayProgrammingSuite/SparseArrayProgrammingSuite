@@ -92,10 +92,18 @@ def test_lsqr_convergence_uses_sqrt_corrected_tol_for_svds(monkeypatch):
     ]
 
 
-def test_convergence_value_tolerance_uses_solver_tolerance_and_iterations():
-    assert scrape_matrices.convergence_value_tolerance("jacobi") == pytest.approx(
+def test_convergence_threshold_uses_solver_tolerance_and_iterations():
+    assert scrape_matrices.convergence_threshold("jacobi") == pytest.approx(
         1e-6 ** (1 / 20)
     )
+
+
+def test_normalize_convergence_value_accounts_for_relative_error_bound():
+    threshold = scrape_matrices.convergence_threshold("jacobi")
+
+    assert scrape_matrices.normalize_convergence_value(
+        0.5, "jacobi", 1e-3
+    ) == pytest.approx(0.5 / (threshold * (1 - 1e-3)))
 
 
 def test_calculate_and_save_skips_when_factor_cannot_prove_convergence(monkeypatch):
@@ -118,8 +126,14 @@ def test_calculate_and_save_skips_when_factor_cannot_prove_convergence(monkeypat
 
 def test_calculate_and_save_writes_when_factor_proves_convergence(monkeypatch):
     saved = []
+    calls = []
+    threshold = scrape_matrices.convergence_threshold("jacobi")
 
-    monkeypatch.setitem(scrape_matrices.SOLVER_DICT, "jacobi", lambda A, tol=1e-3: 0.5)
+    def fake_check(A, tol=1e-3):
+        calls.append(tol)
+        return 0.5
+
+    monkeypatch.setitem(scrape_matrices.SOLVER_DICT, "jacobi", fake_check)
     monkeypatch.setattr(
         scrape_matrices,
         "append_to_json",
@@ -132,3 +146,5 @@ def test_calculate_and_save_writes_when_factor_proves_convergence(monkeypatch):
     )
 
     assert len(saved) == 1
+    assert calls == [1e-3]
+    assert saved[0][3] == pytest.approx(0.5 / (threshold * (1 - 1e-3)))

@@ -290,21 +290,15 @@ def main():
             )
 
 
-def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver):
+def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver, tol=1e-2):
     try:
-        convergence_value = SOLVER_DICT[solver](A, tol=1e-6)
+        convergence_value = SOLVER_DICT[solver](A, tol=0.1e-2)
     except (ArpackError, RuntimeError, ValueError, np.linalg.LinAlgError) as e:
         print(f"Error computing {solver} convergence for {matrix.name}: {e}")
         return
 
     if np.isinf(convergence_value) or np.isnan(convergence_value):
         convergence_value = sys.float_info.max
-    if convergence_value >= 1:
-        print(
-            f"Skipping {matrix.name} for {solver}: "
-            f"normalized convergence factor is {convergence_value}"
-        )
-        return
 
     if convergence_value >= convergence_threshold(solver):
         print(
