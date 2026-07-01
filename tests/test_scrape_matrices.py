@@ -10,6 +10,11 @@ import scipy as sp
 import saps.utils.scrape_matrices as scrape_matrices
 
 
+class _Matrix:
+    name = "test_matrix"
+    group = "test_group"
+
+
 def test_jacobi_convergence_forwards_tol_to_eigsh(monkeypatch):
     calls = []
 
@@ -85,3 +90,45 @@ def test_lsqr_convergence_uses_sqrt_corrected_tol_for_svds(monkeypatch):
         math.sqrt(1e-6 / (2 + 1e-6)),
         math.sqrt(1e-6 / (2 + 1e-6)),
     ]
+
+
+def test_convergence_value_tolerance_uses_solver_tolerance_and_iterations():
+    assert scrape_matrices.convergence_value_tolerance("jacobi") == pytest.approx(
+        1e-6 ** (1 / 20)
+    )
+
+
+def test_calculate_and_save_skips_when_factor_cannot_prove_convergence(monkeypatch):
+    saved = []
+
+    monkeypatch.setitem(scrape_matrices.SOLVER_DICT, "jacobi", lambda A, tol=1e-3: 0.6)
+    monkeypatch.setattr(
+        scrape_matrices,
+        "append_to_json",
+        lambda *args: saved.append(args) or True,
+    )
+
+    A = sp.sparse.eye(3, format="csr")
+    scrape_matrices.calculate_and_save_solver_result(
+        "out.json", _Matrix(), A, 3, 3, "jacobi"
+    )
+
+    assert saved == []
+
+
+def test_calculate_and_save_writes_when_factor_proves_convergence(monkeypatch):
+    saved = []
+
+    monkeypatch.setitem(scrape_matrices.SOLVER_DICT, "jacobi", lambda A, tol=1e-3: 0.5)
+    monkeypatch.setattr(
+        scrape_matrices,
+        "append_to_json",
+        lambda *args: saved.append(args) or True,
+    )
+
+    A = sp.sparse.eye(3, format="csr")
+    scrape_matrices.calculate_and_save_solver_result(
+        "out.json", _Matrix(), A, 3, 3, "jacobi"
+    )
+
+    assert len(saved) == 1

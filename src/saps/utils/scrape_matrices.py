@@ -166,6 +166,33 @@ SOLVER_DICT = {
     "lsqr": check_lsqr_normalized_convergence,
 }
 
+TOLERANCE_DICT = {
+    "jacobi": 1e-6,
+    "cg": 1e-6,
+    "jacobi_cg": 1e-6,
+    "block_jacobi_cg": 1e-6,
+    "lsqr": 1e-6,
+}
+
+MAXIT_DICT = {
+    "jacobi": 20,
+    "cg": 20,
+    "jacobi_cg": 20,
+    "block_jacobi_cg": 20,
+    "lsqr": 20,
+}
+
+
+def convergence_threshold(solver):
+    """Return the largest factor that proves convergence within max iterations."""
+    tolerance = TOLERANCE_DICT[solver]
+    max_iterations = MAXIT_DICT[solver]
+    if tolerance <= 0:
+        raise ValueError("solver tolerance must be positive")
+    if max_iterations <= 0:
+        raise ValueError("solver max iterations must be positive")
+    return math.pow(tolerance, 1 / max_iterations)
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -263,9 +290,9 @@ def main():
             )
 
 
-def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver, tol=1e-3):
+def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver):
     try:
-        convergence_value = SOLVER_DICT[solver](A, tol=tol)
+        convergence_value = SOLVER_DICT[solver](A, tol=1e-6)
     except (ArpackError, RuntimeError, ValueError, np.linalg.LinAlgError) as e:
         print(f"Error computing {solver} convergence for {matrix.name}: {e}")
         return
@@ -276,6 +303,15 @@ def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver, tol=1
         print(
             f"Skipping {matrix.name} for {solver}: "
             f"normalized convergence factor is {convergence_value}"
+        )
+        return
+
+    if convergence_value >= convergence_threshold(solver):
+        print(
+            f"Skipping {matrix.name} for {solver}: normalized convergence factor "
+            f"{convergence_value} does not prove convergence within "
+            f"{MAXIT_DICT[solver]} iterations at tolerance {TOLERANCE_DICT[solver]} "
+            f"(requires < {convergence_threshold})"
         )
         return
 
