@@ -16,6 +16,10 @@ from saps.benchmark import (
 )
 from saps_framework.binsparse_format import BinsparseFormat
 
+DEFAULT_REL_TOL = 1e-6
+DEFAULT_ABS_TOL = 1e-20
+DEFAULT_MAX_ITERS = 1000
+
 
 class CGDataset(Dataset):
     def __init__(
@@ -27,6 +31,9 @@ class CGDataset(Dataset):
         A: np.ndarray | None = None,
         b: np.ndarray | None = None,
         x: np.ndarray | None = None,
+        rel_tol: float = DEFAULT_REL_TOL,
+        abs_tol: float = DEFAULT_ABS_TOL,
+        max_iters: int = DEFAULT_MAX_ITERS,
     ):
         self._suites = suites or []
         self.source_name = source_name
@@ -35,6 +42,9 @@ class CGDataset(Dataset):
         self.A = A
         self.b = b
         self.x = x
+        self.rel_tol = rel_tol
+        self.abs_tol = abs_tol
+        self.max_iters = max_iters
 
     @property
     def name(self) -> str:
@@ -61,6 +71,9 @@ class CGDataset(Dataset):
         data = super().metadata
         data["nnz"] = self.nnz
         data["has_b_file"] = self.has_b_file
+        data["rel_tol"] = self.rel_tol
+        data["abs_tol"] = self.abs_tol
+        data["max_iters"] = self.max_iters
         return data
 
 
@@ -182,7 +195,11 @@ class CGTestGenerator(Generator[CGDataset]):
                 BinsparseFormat.from_numpy(dataset.b),
                 BinsparseFormat.from_numpy(dataset.x),
             ],
-            meta={},
+            meta={
+                "rel_tol": dataset.rel_tol,
+                "abs_tol": dataset.abs_tol,
+                "max_iters": dataset.max_iters,
+            },
             ref_meta={"check_rounded_residual": True, "round_decimals": 4},
         )
 
@@ -291,7 +308,14 @@ class CGGenerator(Generator[CGDataset]):
         b_bin = BinsparseFormat.from_numpy(b)
         x_bin = BinsparseFormat.from_numpy(x)
 
-        return DataInstance(inputs=[A_bin, b_bin, x_bin], meta={})
+        return DataInstance(
+            inputs=[A_bin, b_bin, x_bin],
+            meta={
+                "rel_tol": dataset.rel_tol,
+                "abs_tol": dataset.abs_tol,
+                "max_iters": dataset.max_iters,
+            },
+        )
 
 
 class CGBenchmark(Benchmark):
@@ -383,9 +407,9 @@ class CGBenchmark(Benchmark):
 
     def benchmark(self, xp, data: list, meta: dict):
         A, b, x = data
-        rel_tol = 1e-6
-        abs_tol = 1e-20
-        max_iters = 1000
+        rel_tol = meta["rel_tol"]
+        abs_tol = meta["abs_tol"]
+        max_iters = meta["max_iters"]
 
         tolerance = max(rel_tol * xp.sqrt(xp.vecdot(b, b))[()], abs_tol)
         tol_sq = tolerance * tolerance

@@ -13,6 +13,10 @@ from saps.benchmark import (
 )
 from saps_framework import BinsparseFormat
 
+DEFAULT_REL_TOL = 1e-6
+DEFAULT_ABS_TOL = 1e-20
+DEFAULT_MAX_ITERS = 1000
+
 
 def normof2(xp, x, y):
     return xp.sqrt(xp.sum(xp.multiply(x, y)))
@@ -29,6 +33,9 @@ class LSQRDataset(Dataset):
         A: np.ndarray | None = None,
         b: np.ndarray | None = None,
         convergence: str | None = None,
+        rel_tol: float = DEFAULT_REL_TOL,
+        abs_tol: float = DEFAULT_ABS_TOL,
+        max_iters: int = DEFAULT_MAX_ITERS,
     ):
         self._suites = suites or []
         self.source_name = source_name
@@ -38,6 +45,9 @@ class LSQRDataset(Dataset):
         self.A = A
         self.b = b
         self.convergence = convergence
+        self.rel_tol = rel_tol
+        self.abs_tol = abs_tol
+        self.max_iters = max_iters
 
     @property
     def name(self) -> str:
@@ -65,6 +75,9 @@ class LSQRDataset(Dataset):
         data["nnz"] = self.nnz
         data["has_b_file"] = self.has_b_file
         data["noise_amt"] = self.noise_amt
+        data["rel_tol"] = self.rel_tol
+        data["abs_tol"] = self.abs_tol
+        data["max_iters"] = self.max_iters
         return data
 
 
@@ -222,7 +235,11 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
                 BinsparseFormat.from_numpy(dataset.A),
                 BinsparseFormat.from_numpy(dataset.b),
             ],
-            meta={},
+            meta={
+                "rel_tol": dataset.rel_tol,
+                "abs_tol": dataset.abs_tol,
+                "max_iters": dataset.max_iters,
+            },
             ref_meta={"convergence": dataset.convergence},
         )
 
@@ -327,7 +344,14 @@ class LSQRGenerator(Generator[LSQRDataset]):
 
         A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
         b_bin = BinsparseFormat.from_numpy(b)
-        return DataInstance(inputs=[A_bin, b_bin], meta={})
+        return DataInstance(
+            inputs=[A_bin, b_bin],
+            meta={
+                "rel_tol": dataset.rel_tol,
+                "abs_tol": dataset.abs_tol,
+                "max_iters": dataset.max_iters,
+            },
+        )
 
 
 class LSQRBenchmark(Benchmark):
@@ -427,11 +451,12 @@ class LSQRBenchmark(Benchmark):
 
     def benchmark(self, xp, data: list, meta: dict):
         A, b = data
-        rel_tol = meta.get("rel_tol", 1e-6)
+        rel_tol = meta["rel_tol"]
+        abs_tol = meta["abs_tol"]
         atol = meta.get("atol", rel_tol)
         btol = meta.get("btol", rel_tol)
         conlim = meta.get("conlim", 1.0e8)
-        max_iters = meta.get("max_iters", 1000)
+        max_iters = meta["max_iters"]
         exit = 0
 
         u = b
@@ -527,7 +552,7 @@ class LSQRBenchmark(Benchmark):
             if test2 <= atol:
                 exit = 2
             # Exits if the residual is small so we have found the solution
-            if test1 <= reltol:
+            if test1 <= reltol or rnorm <= abs_tol:
                 exit = 1
 
             if exit > 0:

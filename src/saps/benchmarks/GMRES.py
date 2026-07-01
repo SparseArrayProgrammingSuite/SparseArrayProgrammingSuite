@@ -15,6 +15,11 @@ from saps.benchmark import (
 )
 from saps_framework import BinsparseFormat
 
+DEFAULT_REL_TOL = 1e-6
+DEFAULT_ABS_TOL = 1e-20
+DEFAULT_MAX_ITERS = 1000
+DEFAULT_RESTART = 50
+
 
 class GMRESDataset(Dataset):
     def __init__(
@@ -26,8 +31,11 @@ class GMRESDataset(Dataset):
         A: Any | None = None,
         b: np.ndarray | None = None,
         x0: np.ndarray | None = None,
-        meta: dict[str, Any] | None = None,
         ref_meta: dict[str, Any] | None = None,
+        restart: int = DEFAULT_RESTART,
+        rel_tol: float = DEFAULT_REL_TOL,
+        abs_tol: float = DEFAULT_ABS_TOL,
+        max_iters: int = DEFAULT_MAX_ITERS,
     ):
         self._suites = suites or []
         self.source_name = source_name
@@ -36,7 +44,10 @@ class GMRESDataset(Dataset):
         self.A = A
         self.b = b
         self.x0 = x0
-        self.benchmark_meta = meta or {}
+        self.restart = restart
+        self.rel_tol = rel_tol
+        self.abs_tol = abs_tol
+        self.max_iters = max_iters
         self.ref_meta = ref_meta or {}
 
     @property
@@ -64,6 +75,10 @@ class GMRESDataset(Dataset):
         data = super().metadata
         data["nnz"] = self.nnz
         data["has_b_file"] = self.has_b_file
+        data["restart"] = self.restart
+        data["rel_tol"] = self.rel_tol
+        data["abs_tol"] = self.abs_tol
+        data["max_iters"] = self.max_iters
         return data
 
 
@@ -131,7 +146,7 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
                 A=random_42[0],
                 b=random_42[1],
                 x0=random_42[2],
-                meta={"restart": 20, "rel_tol": 1e-6, "max_iter": 1000},
+                restart=20,
                 ref_meta={"residual_tol": 1e-5},
             ),
             GMRESDataset(
@@ -140,7 +155,7 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
                 A=random_123[0],
                 b=random_123[1],
                 x0=random_123[2],
-                meta={"restart": 20, "rel_tol": 1e-6, "max_iter": 1000},
+                restart=20,
                 ref_meta={"residual_tol": 1e-5},
             ),
             GMRESDataset(
@@ -149,7 +164,7 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
                 A=np.array([[2.0, 0.0], [0.0, 3.0]]),
                 b=np.array([4.0, 9.0]),
                 x0=np.zeros(2),
-                meta={"restart": 2, "rel_tol": 1e-6, "max_iter": 1000},
+                restart=2,
                 ref_meta={"residual_tol": 1e-6},
             ),
             GMRESDataset(
@@ -158,7 +173,7 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
                 A=np.array([[10.0, 2.0, 1.0], [1.0, 20.0, 1.0], [1.0, 2.0, 10.0]]),
                 b=np.array([13.0, 22.0, 13.0]),
                 x0=np.zeros(3),
-                meta={"restart": 3, "rel_tol": 1e-6, "max_iter": 1000},
+                restart=3,
                 ref_meta={"residual_tol": 1e-6},
             ),
             GMRESDataset(
@@ -174,7 +189,7 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
                 ),
                 b=np.array([3.0, 2.0, 2.0, 2.0]),
                 x0=np.zeros(4),
-                meta={"restart": 4, "rel_tol": 1e-6, "max_iter": 1000},
+                restart=4,
                 ref_meta={"residual_tol": 1e-6},
             ),
         ]
@@ -194,7 +209,12 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
                 BinsparseFormat.from_numpy(dataset.b),
                 BinsparseFormat.from_numpy(dataset.x0),
             ],
-            meta=dataset.benchmark_meta,
+            meta={
+                "restart": dataset.restart,
+                "rel_tol": dataset.rel_tol,
+                "abs_tol": dataset.abs_tol,
+                "max_iters": dataset.max_iters,
+            },
             ref_meta=dataset.ref_meta,
         )
 
@@ -308,7 +328,15 @@ class GMRESGenerator(Generator[GMRESDataset]):
         A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
         b_bin = BinsparseFormat.from_numpy(b)
         x_bin = BinsparseFormat.from_numpy(x)
-        return DataInstance(inputs=[A_bin, b_bin, x_bin], meta={})
+        return DataInstance(
+            inputs=[A_bin, b_bin, x_bin],
+            meta={
+                "restart": dataset.restart,
+                "rel_tol": dataset.rel_tol,
+                "abs_tol": dataset.abs_tol,
+                "max_iters": dataset.max_iters,
+            },
+        )
 
 
 class GMRESBenchmark(Benchmark):
@@ -392,12 +420,8 @@ class GMRESBenchmark(Benchmark):
                 "Output must be in binsparse format"
             )
 
-        rel_tol = self._meta.get("rel_tol", self._meta.get("tol"))
-        if (
-            (not self._ref_meta or "residual_tol" not in self._ref_meta)
-            and rel_tol is None
-        ):
-            return
+        rel_tol = self._meta["rel_tol"]
+        abs_tol = self._meta["abs_tol"]
 
         A_bin, b_bin, _x0_bin = self._input
         A_coo = BinsparseFormat.to_coo(A_bin)
@@ -410,28 +434,29 @@ class GMRESBenchmark(Benchmark):
         x_sol = self._output[0].data["values"].reshape(self._output[0].data["shape"])
         residual = np.linalg.norm(b - A @ x_sol)
         residual_tol = self._ref_meta.get("residual_tol", 0.0)
-        if rel_tol is not None:
-            residual_tol = max(residual_tol, rel_tol * np.linalg.norm(b))
+        residual_tol = max(residual_tol, rel_tol * np.linalg.norm(b), abs_tol)
         assert residual < residual_tol, (
             f"GMRES residual too high for {param.dataset.name}: {residual}"
         )
 
     def benchmark(self, xp, data: list, meta: dict):
         A, b, x0 = data
-        restart = meta.get("restart", 50)
-        rel_tol = meta.get("rel_tol", meta.get("tol", 1e-6))
-        max_iter = meta.get("max_iter", 1000)
+        restart = meta["restart"]
+        rel_tol = meta["rel_tol"]
+        abs_tol = meta["abs_tol"]
+        max_iters = meta["max_iters"]
 
         itcount = 0
         r0 = b - A @ x0
         initial_beta = xp.linalg.norm(r0)[()]
-        if initial_beta < rel_tol:
+        tolerance = max(rel_tol * initial_beta, abs_tol)
+        if initial_beta < tolerance:
             return [x0]
 
         rcurr = r0 / initial_beta
         beta = initial_beta
 
-        while itcount < max_iter:
+        while itcount < max_iters:
             Q = xp.zeros((A.shape[0], restart + 1), dtype=float)
             H = xp.zeros((restart + 1, restart), dtype=float)
             Q[:, 0] = rcurr
@@ -456,11 +481,11 @@ class GMRESBenchmark(Benchmark):
                 r0 = b - A @ x0
                 r0_norm = xp.linalg.norm(r0)[()]
                 rcurr = r0 / r0_norm
-                if r0_norm / initial_beta < rel_tol:
+                if r0_norm < tolerance:
                     return [x0]
 
                 itcount += 1
-                if itcount >= max_iter:
+                if itcount >= max_iters:
                     break
 
             beta = r0_norm

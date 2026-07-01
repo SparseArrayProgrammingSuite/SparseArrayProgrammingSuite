@@ -17,6 +17,10 @@ from saps.benchmark import (
 )
 from saps_framework import BinsparseFormat
 
+DEFAULT_REL_TOL = 1e-6
+DEFAULT_ABS_TOL = 1e-20
+DEFAULT_MAX_ITERS = 1000
+
 
 def _generate_cg_data(source, has_b_file, A=None):
     import scipy.sparse as sp
@@ -68,6 +72,9 @@ class PreconditionedCGDataset(Dataset):
         A=None,
         suites: list[str] | None = None,
         ref_meta: dict[str, Any] | None = None,
+        rel_tol: float = DEFAULT_REL_TOL,
+        abs_tol: float = DEFAULT_ABS_TOL,
+        max_iters: int = DEFAULT_MAX_ITERS,
     ):
         self._suites = suites or []
         self.source_name = source_name
@@ -75,6 +82,9 @@ class PreconditionedCGDataset(Dataset):
         self.has_b_file = has_b_file
         self.A = A
         self.ref_meta = ref_meta
+        self.rel_tol = rel_tol
+        self.abs_tol = abs_tol
+        self.max_iters = max_iters
 
     @property
     def name(self) -> str:
@@ -101,6 +111,9 @@ class PreconditionedCGDataset(Dataset):
         data = super().metadata
         data["condition_number"] = self.condition_number
         data["has_b_file"] = self.has_b_file
+        data["rel_tol"] = self.rel_tol
+        data["abs_tol"] = self.abs_tol
+        data["max_iters"] = self.max_iters
         return data
 
 
@@ -243,7 +256,11 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
         x0_bin = BinsparseFormat.from_numpy(x0)
         return DataInstance(
             inputs=[A_bin, b_bin, x0_bin, M_bin],
-            meta={},
+            meta={
+                "rel_tol": dataset.rel_tol,
+                "abs_tol": dataset.abs_tol,
+                "max_iters": dataset.max_iters,
+            },
             ref_meta=dataset.ref_meta,
         )
 
@@ -371,7 +388,11 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
         x0_bin = BinsparseFormat.from_numpy(x0)
         return DataInstance(
             inputs=[A_bin, b_bin, x0_bin, M_bin],
-            meta={},
+            meta={
+                "rel_tol": dataset.rel_tol,
+                "abs_tol": dataset.abs_tol,
+                "max_iters": dataset.max_iters,
+            },
             ref_meta=dataset.ref_meta,
         )
 
@@ -470,9 +491,9 @@ class _PreconditionedCGBase(Benchmark, ABC):
 
     def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
         A, b, x0, M = data
-        rel_tol = meta.get("rel_tol", 1e-6)
-        abs_tol = meta.get("abs_tol", 1e-20)
-        max_iters = meta.get("max_iters", 1000)
+        rel_tol = meta["rel_tol"]
+        abs_tol = meta["abs_tol"]
+        max_iters = meta["max_iters"]
 
         tolerance = max(rel_tol * xp.sqrt(xp.vecdot(b, b))[()], abs_tol)
         # tol_sq used to avoid having to sqrt dot products when checking tolerance
