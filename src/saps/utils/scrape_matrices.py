@@ -164,13 +164,10 @@ def main():
         description="Scrape matrices from SuiteSparse Matrix Collection"
     )
     parser.add_argument(
-        "--limit",
+        "--maxsize",
         type=float,
-        default=math.inf
-        help="Maximum number of matrices to retrieve",
-    )
-    parser.add_argument(
-        "--maxsize", type=float, default=math.inf,
+        default=None,
+        help="Maximum matrix nnz to retrieve",
     )
     parser.add_argument(
         "--output",
@@ -196,7 +193,8 @@ def main():
     if args.batch_index < 0 or args.batch_index >= args.num_batches:
         parser.error("--batch-index must satisfy 0 <= batch-index < num-batches")
 
-    search_params = {"nzbounds": (0, args.maxsize), "limit": args.limit}
+    if args.maxsize is not None:
+        search_params["nzbounds"] = (0, args.maxsize)
     matrices = list(ssgetpy.search(**search_params))
     total_matrices = len(matrices)
     matrices = matrices[args.batch_index :: args.num_batches]

@@ -10,7 +10,7 @@ if ! [[ "$JOBS" =~ ^[1-9][0-9]*$ ]]; then
 fi
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
+REPO_ROOT="$(cd -- "$SCRIPT_DIR/../../.." && pwd)"
 SCRAPER="$REPO_ROOT/src/saps/utils/scrape_matrices.py"
 
 cd "$REPO_ROOT"
