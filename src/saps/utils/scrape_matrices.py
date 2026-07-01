@@ -166,11 +166,11 @@ def main():
     parser.add_argument(
         "--limit",
         type=float,
-        default=100000.0,
+        default=math.inf
         help="Maximum number of matrices to retrieve",
     )
     parser.add_argument(
-        "--maxsize", type=float, default=100000.0, help="Maximum matrix nnz to retrieve"
+        "--maxsize", type=float, default=math.inf,
     )
     parser.add_argument(
         "--output",
