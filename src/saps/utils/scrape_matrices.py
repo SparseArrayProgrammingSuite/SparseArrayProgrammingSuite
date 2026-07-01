@@ -292,7 +292,7 @@ def main():
 
 def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver, tol=1e-2):
     try:
-        convergence_value = SOLVER_DICT[solver](A, tol=convergence_threshold(solver))
+        convergence_value = SOLVER_DICT[solver](A, tol=tol)
     except (ArpackError, RuntimeError, ValueError, np.linalg.LinAlgError) as e:
         print(f"Error computing {solver} convergence for {matrix.name}: {e}")
         return
@@ -300,7 +300,7 @@ def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver, tol=1
     if np.isinf(convergence_value) or np.isnan(convergence_value):
         convergence_value = sys.float_info.max
 
-    if convergence_value >= 1:
+    if convergence_value * (1-tol) >= convergence_threshold(solver):
         print(
             f"Skipping {matrix.name} for {solver}: normalized convergence factor "
             f"{convergence_value} does not prove convergence within "
@@ -308,8 +308,6 @@ def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver, tol=1
             f"(requires < {convergence_threshold})"
         )
         return
-
-    convergence_value = SOLVER_DICT[solver](A, tol=tol)
 
     # Write to JSON file
     saved = append_to_json(
