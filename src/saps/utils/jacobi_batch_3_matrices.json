@@ -1,0 +1,18 @@
+[
+  {
+    "matrix_name": "bcsstm05",
+    "matrix_group": "HB",
+    "jacobi convergence metric": 0.0,
+    "m": 153,
+    "n": 153,
+    "nnz": 153
+  },
+  {
+    "matrix_name": "bcsstm26",
+    "matrix_group": "HB",
+    "jacobi convergence metric": 0.0,
+    "m": 1922,
+    "n": 1922,
+    "nnz": 1922
+  }
+]

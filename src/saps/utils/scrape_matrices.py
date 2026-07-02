@@ -138,8 +138,10 @@ def make_benchmark(solver):
     return benchmark_cls()
 
 
-def generate_solver_data(solver, matrix):
-    problem = make_generator(solver).generate(make_dataset(solver, matrix))
+def generate_benchmark_problem(solver, matrix):
+    generator = make_generator(solver)
+    dataset = make_dataset(solver, matrix)
+    problem = generator.generate(dataset)
     data = [SCIPY_XP.from_binsparse(item) for item in problem.inputs]
     return data, problem.meta
 
@@ -313,7 +315,7 @@ def main():
 
 def calculate_and_save_solver_result(output_file, matrix, m, n, solver):
     try:
-        data, meta = generate_solver_data(solver, matrix)
+        data, meta = generate_benchmark_problem(solver, matrix)
         convergence_metric = benchmark_convergence_metric(solver, data, meta)
     except RuntimeError as e:
         if "did not converge" in str(e):

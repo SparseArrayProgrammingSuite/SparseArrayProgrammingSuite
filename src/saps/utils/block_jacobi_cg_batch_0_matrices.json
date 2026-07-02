@@ -1,0 +1,82 @@
+[
+  {
+    "matrix_name": "bcsstm23",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence metric": 1.228068422266406e-10,
+    "m": 3134,
+    "n": 3134,
+    "nnz": 3134
+  },
+  {
+    "matrix_name": "bcsstm02",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence metric": 1.9881480420538974e-10,
+    "m": 66,
+    "n": 66,
+    "nnz": 66
+  },
+  {
+    "matrix_name": "crystm01",
+    "matrix_group": "Boeing",
+    "block_jacobi_cg convergence metric": 0.2947148845901553,
+    "m": 4875,
+    "n": 4875,
+    "nnz": 105339
+  },
+  {
+    "matrix_name": "bcsstk03",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence metric": 0.33173348634094396,
+    "m": 112,
+    "n": 112,
+    "nnz": 640
+  },
+  {
+    "matrix_name": "bcsstk19",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence metric": 0.5795851075155053,
+    "m": 817,
+    "n": 817,
+    "nnz": 6853
+  },
+  {
+    "matrix_name": "bcsstk27",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence metric": 0.853320866296549,
+    "m": 1224,
+    "n": 1224,
+    "nnz": 56126
+  },
+  {
+    "matrix_name": "nos1",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence metric": 0.8564202172700003,
+    "m": 237,
+    "n": 237,
+    "nnz": 1017
+  },
+  {
+    "matrix_name": "msc10848",
+    "matrix_group": "Boeing",
+    "block_jacobi_cg convergence metric": 0.8945536034471115,
+    "m": 10848,
+    "n": 10848,
+    "nnz": 1229776
+  },
+  {
+    "matrix_name": "bcsstk11",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence metric": 0.9509645923889865,
+    "m": 1473,
+    "n": 1473,
+    "nnz": 34241
+  },
+  {
+    "matrix_name": "1138_bus",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence metric": 0.9866046397750746,
+    "m": 1138,
+    "n": 1138,
+    "nnz": 4054
+  }
+]

@@ -1,0 +1,106 @@
+[
+  {
+    "matrix_name": "bcsstm20",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.0,
+    "m": 485,
+    "n": 485,
+    "nnz": 485
+  },
+  {
+    "matrix_name": "lund_a",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.42731518138795443,
+    "m": 147,
+    "n": 147,
+    "nnz": 2449
+  },
+  {
+    "matrix_name": "mesh3em5",
+    "matrix_group": "Pothen",
+    "jacobi_cg convergence metric": 0.7850421266973732,
+    "m": 289,
+    "n": 289,
+    "nnz": 1377
+  },
+  {
+    "matrix_name": "nos6",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.8048461979742968,
+    "m": 675,
+    "n": 675,
+    "nnz": 3255
+  },
+  {
+    "matrix_name": "bcsstm07",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.8829010379272743,
+    "m": 420,
+    "n": 420,
+    "nnz": 7252
+  },
+  {
+    "matrix_name": "ex33",
+    "matrix_group": "FIDAP",
+    "jacobi_cg convergence metric": 0.8840892524960544,
+    "m": 1733,
+    "n": 1733,
+    "nnz": 22189
+  },
+  {
+    "matrix_name": "bcsstk16",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.9081010742963866,
+    "m": 4884,
+    "n": 4884,
+    "nnz": 290378
+  },
+  {
+    "matrix_name": "nasa2146",
+    "matrix_group": "Nasa",
+    "jacobi_cg convergence metric": 0.9399847373999747,
+    "m": 2146,
+    "n": 2146,
+    "nnz": 72250
+  },
+  {
+    "matrix_name": "bcsstk24",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.9477196523507183,
+    "m": 3562,
+    "n": 3562,
+    "nnz": 159910
+  },
+  {
+    "matrix_name": "msc01050",
+    "matrix_group": "Boeing",
+    "jacobi_cg convergence metric": 0.9503116518622614,
+    "m": 1050,
+    "n": 1050,
+    "nnz": 26198
+  },
+  {
+    "matrix_name": "bodyy6",
+    "matrix_group": "Pothen",
+    "jacobi_cg convergence metric": 0.9572481417650377,
+    "m": 19366,
+    "n": 19366,
+    "nnz": 134208
+  },
+  {
+    "matrix_name": "bcsstk08",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.9737278813790474,
+    "m": 1074,
+    "n": 1074,
+    "nnz": 12960
+  },
+  {
+    "matrix_name": "af_shell3",
+    "matrix_group": "Schenk_AFE",
+    "jacobi_cg convergence metric": 0.9959609512056936,
+    "m": 504855,
+    "n": 504855,
+    "nnz": 17562051
+  }
+]

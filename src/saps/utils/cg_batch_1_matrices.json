@@ -1,0 +1,66 @@
+[
+  {
+    "matrix_name": "bcsstm11",
+    "matrix_group": "HB",
+    "cg convergence metric": 0.46395924366414565,
+    "m": 1473,
+    "n": 1473,
+    "nnz": 1473
+  },
+  {
+    "matrix_name": "nos2",
+    "matrix_group": "HB",
+    "cg convergence metric": 0.5980554103853051,
+    "m": 957,
+    "n": 957,
+    "nnz": 4137
+  },
+  {
+    "matrix_name": "bcsstk20",
+    "matrix_group": "HB",
+    "cg convergence metric": 0.7282742254612413,
+    "m": 485,
+    "n": 485,
+    "nnz": 3135
+  },
+  {
+    "matrix_name": "mesh1em6",
+    "matrix_group": "Pothen",
+    "cg convergence metric": 0.7330958677217008,
+    "m": 48,
+    "n": 48,
+    "nnz": 306
+  },
+  {
+    "matrix_name": "bcsstk04",
+    "matrix_group": "HB",
+    "cg convergence metric": 0.7880314217663169,
+    "m": 132,
+    "n": 132,
+    "nnz": 3648
+  },
+  {
+    "matrix_name": "494_bus",
+    "matrix_group": "HB",
+    "cg convergence metric": 0.8041829669553633,
+    "m": 494,
+    "n": 494,
+    "nnz": 1666
+  },
+  {
+    "matrix_name": "bcsstm24",
+    "matrix_group": "HB",
+    "cg convergence metric": 0.8159144467601409,
+    "m": 3562,
+    "n": 3562,
+    "nnz": 3562
+  },
+  {
+    "matrix_name": "crystm02",
+    "matrix_group": "Boeing",
+    "cg convergence metric": 0.931779913529328,
+    "m": 13965,
+    "n": 13965,
+    "nnz": 322905
+  }
+]

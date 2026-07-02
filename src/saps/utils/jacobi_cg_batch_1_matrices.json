@@ -1,0 +1,74 @@
+[
+  {
+    "matrix_name": "bcsstm11",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.0,
+    "m": 1473,
+    "n": 1473,
+    "nnz": 1473
+  },
+  {
+    "matrix_name": "bcsstm24",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.0,
+    "m": 3562,
+    "n": 3562,
+    "nnz": 3562
+  },
+  {
+    "matrix_name": "mesh1em6",
+    "matrix_group": "Pothen",
+    "jacobi_cg convergence metric": 0.2948669029680697,
+    "m": 48,
+    "n": 48,
+    "nnz": 306
+  },
+  {
+    "matrix_name": "bcsstk20",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.6573705980735097,
+    "m": 485,
+    "n": 485,
+    "nnz": 3135
+  },
+  {
+    "matrix_name": "bcsstk04",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.7027375153345183,
+    "m": 132,
+    "n": 132,
+    "nnz": 3648
+  },
+  {
+    "matrix_name": "crystm02",
+    "matrix_group": "Boeing",
+    "jacobi_cg convergence metric": 0.7884700606914865,
+    "m": 13965,
+    "n": 13965,
+    "nnz": 322905
+  },
+  {
+    "matrix_name": "bcsstk12",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.8465013253644579,
+    "m": 1473,
+    "n": 1473,
+    "nnz": 34241
+  },
+  {
+    "matrix_name": "494_bus",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.9252857410373309,
+    "m": 494,
+    "n": 494,
+    "nnz": 1666
+  },
+  {
+    "matrix_name": "nos2",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.9969610947609812,
+    "m": 957,
+    "n": 957,
+    "nnz": 4137
+  }
+]

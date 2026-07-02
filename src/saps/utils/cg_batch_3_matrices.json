@@ -1,0 +1,42 @@
+[
+  {
+    "matrix_name": "bcsstm05",
+    "matrix_group": "HB",
+    "cg convergence metric": 1.7498415536104794e-05,
+    "m": 153,
+    "n": 153,
+    "nnz": 153
+  },
+  {
+    "matrix_name": "bcsstm26",
+    "matrix_group": "HB",
+    "cg convergence metric": 0.49246570337437157,
+    "m": 1922,
+    "n": 1922,
+    "nnz": 1922
+  },
+  {
+    "matrix_name": "bcsstk22",
+    "matrix_group": "HB",
+    "cg convergence metric": 0.7801493923473367,
+    "m": 138,
+    "n": 138,
+    "nnz": 696
+  },
+  {
+    "matrix_name": "nos4",
+    "matrix_group": "HB",
+    "cg convergence metric": 0.8552338700469869,
+    "m": 100,
+    "n": 100,
+    "nnz": 594
+  },
+  {
+    "matrix_name": "685_bus",
+    "matrix_group": "HB",
+    "cg convergence metric": 0.8702694875045125,
+    "m": 685,
+    "n": 685,
+    "nnz": 3249
+  }
+]

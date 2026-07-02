@@ -1,0 +1,10 @@
+[
+  {
+    "matrix_name": "ash85",
+    "matrix_group": "HB",
+    "lsqr convergence metric": 0.09298844720365088,
+    "m": 85,
+    "n": 85,
+    "nnz": 523
+  }
+]

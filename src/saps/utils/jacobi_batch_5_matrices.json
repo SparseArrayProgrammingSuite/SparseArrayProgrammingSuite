@@ -1,0 +1,18 @@
+[
+  {
+    "matrix_name": "bcsstm20",
+    "matrix_group": "HB",
+    "jacobi convergence metric": 0.0,
+    "m": 485,
+    "n": 485,
+    "nnz": 485
+  },
+  {
+    "matrix_name": "mesh3em5",
+    "matrix_group": "Pothen",
+    "jacobi convergence metric": 0.7658468650395202,
+    "m": 289,
+    "n": 289,
+    "nnz": 1377
+  }
+]

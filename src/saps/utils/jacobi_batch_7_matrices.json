@@ -1,0 +1,42 @@
+[
+  {
+    "matrix_name": "bcsstm09",
+    "matrix_group": "HB",
+    "jacobi convergence metric": 0.0,
+    "m": 1083,
+    "n": 1083,
+    "nnz": 1083
+  },
+  {
+    "matrix_name": "bcsstm22",
+    "matrix_group": "HB",
+    "jacobi convergence metric": 0.0,
+    "m": 138,
+    "n": 138,
+    "nnz": 138
+  },
+  {
+    "matrix_name": "finan512",
+    "matrix_group": "Mulvey",
+    "jacobi convergence metric": 0.7863794572774455,
+    "m": 74752,
+    "n": 74752,
+    "nnz": 596992
+  },
+  {
+    "matrix_name": "mesh1e1",
+    "matrix_group": "Pothen",
+    "jacobi convergence metric": 0.8094842222801694,
+    "m": 48,
+    "n": 48,
+    "nnz": 306
+  },
+  {
+    "matrix_name": "fv2",
+    "matrix_group": "Norris",
+    "jacobi convergence metric": 0.9188065364128297,
+    "m": 9801,
+    "n": 9801,
+    "nnz": 87025
+  }
+]

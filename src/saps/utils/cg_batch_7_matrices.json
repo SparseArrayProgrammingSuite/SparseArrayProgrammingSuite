@@ -1,0 +1,74 @@
+[
+  {
+    "matrix_name": "bcsstm22",
+    "matrix_group": "HB",
+    "cg convergence metric": 3.319867920787636e-09,
+    "m": 138,
+    "n": 138,
+    "nnz": 138
+  },
+  {
+    "matrix_name": "bcsstm09",
+    "matrix_group": "HB",
+    "cg convergence metric": 5.210783428849177e-07,
+    "m": 1083,
+    "n": 1083,
+    "nnz": 1083
+  },
+  {
+    "matrix_name": "mesh1e1",
+    "matrix_group": "Pothen",
+    "cg convergence metric": 0.4099845863328122,
+    "m": 48,
+    "n": 48,
+    "nnz": 306
+  },
+  {
+    "matrix_name": "fv2",
+    "matrix_group": "Norris",
+    "cg convergence metric": 0.5240615648769599,
+    "m": 9801,
+    "n": 9801,
+    "nnz": 87025
+  },
+  {
+    "matrix_name": "bcsstk02",
+    "matrix_group": "HB",
+    "cg convergence metric": 0.7505365586085394,
+    "m": 66,
+    "n": 66,
+    "nnz": 4356
+  },
+  {
+    "matrix_name": "ex10hs",
+    "matrix_group": "FIDAP",
+    "cg convergence metric": 0.8299035786102608,
+    "m": 2548,
+    "n": 2548,
+    "nnz": 57308
+  },
+  {
+    "matrix_name": "finan512",
+    "matrix_group": "Mulvey",
+    "cg convergence metric": 0.963661661796225,
+    "m": 74752,
+    "n": 74752,
+    "nnz": 596992
+  },
+  {
+    "matrix_name": "nd3k",
+    "matrix_group": "ND",
+    "cg convergence metric": 0.9678229174462951,
+    "m": 9000,
+    "n": 9000,
+    "nnz": 3279690
+  },
+  {
+    "matrix_name": "ex9",
+    "matrix_group": "FIDAP",
+    "cg convergence metric": 0.9859913373708673,
+    "m": 3363,
+    "n": 3363,
+    "nnz": 99471
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {
+    "matrix_name": "bcsstm25",
+    "matrix_group": "HB",
+    "jacobi convergence metric": 0.0,
+    "m": 15439,
+    "n": 15439,
+    "nnz": 15439
+  },
+  {
+    "matrix_name": "mesh2e1",
+    "matrix_group": "Pothen",
+    "jacobi convergence metric": 0.9978196279879754,
+    "m": 306,
+    "n": 306,
+    "nnz": 2018
+  }
+]

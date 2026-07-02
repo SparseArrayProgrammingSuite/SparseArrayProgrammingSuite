@@ -1,0 +1,10 @@
+[
+  {
+    "matrix_name": "ash608",
+    "matrix_group": "HB",
+    "lsqr convergence metric": 0.4362925531042032,
+    "m": 608,
+    "n": 188,
+    "nnz": 1216
+  }
+]

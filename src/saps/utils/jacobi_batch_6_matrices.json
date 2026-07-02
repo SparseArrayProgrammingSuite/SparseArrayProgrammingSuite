@@ -1,0 +1,34 @@
+[
+  {
+    "matrix_name": "bcsstm08",
+    "matrix_group": "HB",
+    "jacobi convergence metric": 0.0,
+    "m": 1074,
+    "n": 1074,
+    "nnz": 1074
+  },
+  {
+    "matrix_name": "bcsstm21",
+    "matrix_group": "HB",
+    "jacobi convergence metric": 0.0,
+    "m": 3600,
+    "n": 3600,
+    "nnz": 3600
+  },
+  {
+    "matrix_name": "fv1",
+    "matrix_group": "Norris",
+    "jacobi convergence metric": 0.9044055592897828,
+    "m": 9604,
+    "n": 9604,
+    "nnz": 85264
+  },
+  {
+    "matrix_name": "gr_30_30",
+    "matrix_group": "HB",
+    "jacobi convergence metric": 0.9946543215665119,
+    "m": 900,
+    "n": 900,
+    "nnz": 7744
+  }
+]

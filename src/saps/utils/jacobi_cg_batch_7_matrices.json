@@ -1,0 +1,114 @@
+[
+  {
+    "matrix_name": "bcsstm09",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.0,
+    "m": 1083,
+    "n": 1083,
+    "nnz": 1083
+  },
+  {
+    "matrix_name": "bcsstm22",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.0,
+    "m": 138,
+    "n": 138,
+    "nnz": 138
+  },
+  {
+    "matrix_name": "fv2",
+    "matrix_group": "Norris",
+    "jacobi_cg convergence metric": 0.5240615648776363,
+    "m": 9801,
+    "n": 9801,
+    "nnz": 87025
+  },
+  {
+    "matrix_name": "finan512",
+    "matrix_group": "Mulvey",
+    "jacobi_cg convergence metric": 0.7475910659054708,
+    "m": 74752,
+    "n": 74752,
+    "nnz": 596992
+  },
+  {
+    "matrix_name": "bcsstk02",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.7633960914733232,
+    "m": 66,
+    "n": 66,
+    "nnz": 4356
+  },
+  {
+    "matrix_name": "bcsstk10",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.8483688577349091,
+    "m": 1086,
+    "n": 1086,
+    "nnz": 22070
+  },
+  {
+    "matrix_name": "bcsstk26",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.8485327322580453,
+    "m": 1922,
+    "n": 1922,
+    "nnz": 30336
+  },
+  {
+    "matrix_name": "mesh1e1",
+    "matrix_group": "Pothen",
+    "jacobi_cg convergence metric": 0.8540503080564297,
+    "m": 48,
+    "n": 48,
+    "nnz": 306
+  },
+  {
+    "matrix_name": "ex10hs",
+    "matrix_group": "FIDAP",
+    "jacobi_cg convergence metric": 0.8799697691298735,
+    "m": 2548,
+    "n": 2548,
+    "nnz": 57308
+  },
+  {
+    "matrix_name": "Pres_Poisson",
+    "matrix_group": "ACUSIM",
+    "jacobi_cg convergence metric": 0.9163951155628878,
+    "m": 14822,
+    "n": 14822,
+    "nnz": 715804
+  },
+  {
+    "matrix_name": "nd3k",
+    "matrix_group": "ND",
+    "jacobi_cg convergence metric": 0.9501376588046617,
+    "m": 9000,
+    "n": 9000,
+    "nnz": 3279690
+  },
+  {
+    "matrix_name": "bcsstk18",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.9911802933334636,
+    "m": 11948,
+    "n": 11948,
+    "nnz": 149090
+  },
+  {
+    "matrix_name": "shipsec5",
+    "matrix_group": "DNVS",
+    "jacobi_cg convergence metric": 0.9960772126332537,
+    "m": 179860,
+    "n": 179860,
+    "nnz": 4598604
+  },
+  {
+    "matrix_name": "ex9",
+    "matrix_group": "FIDAP",
+    "jacobi_cg convergence metric": 0.9983156672250268,
+    "m": 3363,
+    "n": 3363,
+    "nnz": 99471
+  }
+]

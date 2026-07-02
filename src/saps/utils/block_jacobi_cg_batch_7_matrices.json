@@ -1,0 +1,114 @@
+[
+  {
+    "matrix_name": "bcsstm22",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence metric": 1.2224049604254232e-10,
+    "m": 138,
+    "n": 138,
+    "nnz": 138
+  },
+  {
+    "matrix_name": "bcsstm09",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence metric": 1.8320183032759486e-10,
+    "m": 1083,
+    "n": 1083,
+    "nnz": 1083
+  },
+  {
+    "matrix_name": "bcsstk02",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence metric": 0.011140450068346157,
+    "m": 66,
+    "n": 66,
+    "nnz": 4356
+  },
+  {
+    "matrix_name": "ex9",
+    "matrix_group": "FIDAP",
+    "block_jacobi_cg convergence metric": 0.10761538462322372,
+    "m": 3363,
+    "n": 3363,
+    "nnz": 99471
+  },
+  {
+    "matrix_name": "mesh1e1",
+    "matrix_group": "Pothen",
+    "block_jacobi_cg convergence metric": 0.4035665313990426,
+    "m": 48,
+    "n": 48,
+    "nnz": 306
+  },
+  {
+    "matrix_name": "fv2",
+    "matrix_group": "Norris",
+    "block_jacobi_cg convergence metric": 0.6150679289802975,
+    "m": 9801,
+    "n": 9801,
+    "nnz": 87025
+  },
+  {
+    "matrix_name": "ex10hs",
+    "matrix_group": "FIDAP",
+    "block_jacobi_cg convergence metric": 0.627150338021237,
+    "m": 2548,
+    "n": 2548,
+    "nnz": 57308
+  },
+  {
+    "matrix_name": "finan512",
+    "matrix_group": "Mulvey",
+    "block_jacobi_cg convergence metric": 0.6642115244232085,
+    "m": 74752,
+    "n": 74752,
+    "nnz": 596992
+  },
+  {
+    "matrix_name": "msc04515",
+    "matrix_group": "Boeing",
+    "block_jacobi_cg convergence metric": 0.9047580318143889,
+    "m": 4515,
+    "n": 4515,
+    "nnz": 97707
+  },
+  {
+    "matrix_name": "bcsstk10",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence metric": 0.9257541688181469,
+    "m": 1086,
+    "n": 1086,
+    "nnz": 22070
+  },
+  {
+    "matrix_name": "Pres_Poisson",
+    "matrix_group": "ACUSIM",
+    "block_jacobi_cg convergence metric": 0.9323083206058657,
+    "m": 14822,
+    "n": 14822,
+    "nnz": 715804
+  },
+  {
+    "matrix_name": "bcsstk18",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence metric": 0.9385635387000177,
+    "m": 11948,
+    "n": 11948,
+    "nnz": 149090
+  },
+  {
+    "matrix_name": "bcsstk26",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence metric": 0.9556614377619631,
+    "m": 1922,
+    "n": 1922,
+    "nnz": 30336
+  },
+  {
+    "matrix_name": "nd3k",
+    "matrix_group": "ND",
+    "block_jacobi_cg convergence metric": 0.9752198583922168,
+    "m": 9000,
+    "n": 9000,
+    "nnz": 3279690
+  }
+]

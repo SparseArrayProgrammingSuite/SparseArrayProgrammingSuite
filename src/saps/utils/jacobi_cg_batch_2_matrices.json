@@ -1,0 +1,106 @@
+[
+  {
+    "matrix_name": "bcsstm25",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.0,
+    "m": 15439,
+    "n": 15439,
+    "nnz": 15439
+  },
+  {
+    "matrix_name": "crystm03",
+    "matrix_group": "Boeing",
+    "jacobi_cg convergence metric": 0.7731925700065133,
+    "m": 24696,
+    "n": 24696,
+    "nnz": 583770
+  },
+  {
+    "matrix_name": "bcsstm12",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.8236823951809472,
+    "m": 1473,
+    "n": 1473,
+    "nnz": 19659
+  },
+  {
+    "matrix_name": "ex3",
+    "matrix_group": "FIDAP",
+    "jacobi_cg convergence metric": 0.9134466669967924,
+    "m": 1821,
+    "n": 1821,
+    "nnz": 52685
+  },
+  {
+    "matrix_name": "bcsstk05",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.9199283276597272,
+    "m": 153,
+    "n": 153,
+    "nnz": 2423
+  },
+  {
+    "matrix_name": "662_bus",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.9447508236531524,
+    "m": 662,
+    "n": 662,
+    "nnz": 2474
+  },
+  {
+    "matrix_name": "ex13",
+    "matrix_group": "FIDAP",
+    "jacobi_cg convergence metric": 0.9547023733894938,
+    "m": 2568,
+    "n": 2568,
+    "nnz": 75628
+  },
+  {
+    "matrix_name": "bcsstk21",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.9583591494970599,
+    "m": 3600,
+    "n": 3600,
+    "nnz": 26600
+  },
+  {
+    "matrix_name": "mhdb416",
+    "matrix_group": "Bai",
+    "jacobi_cg convergence metric": 0.9623633906307568,
+    "m": 416,
+    "n": 416,
+    "nnz": 2312
+  },
+  {
+    "matrix_name": "bcsstk34",
+    "matrix_group": "Boeing",
+    "jacobi_cg convergence metric": 0.9677570317223151,
+    "m": 588,
+    "n": 588,
+    "nnz": 21418
+  },
+  {
+    "matrix_name": "bcsstk13",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.9792559213087871,
+    "m": 2003,
+    "n": 2003,
+    "nnz": 83883
+  },
+  {
+    "matrix_name": "nos3",
+    "matrix_group": "HB",
+    "jacobi_cg convergence metric": 0.9953113138065713,
+    "m": 960,
+    "n": 960,
+    "nnz": 15844
+  },
+  {
+    "matrix_name": "mesh2e1",
+    "matrix_group": "Pothen",
+    "jacobi_cg convergence metric": 0.9959515150014798,
+    "m": 306,
+    "n": 306,
+    "nnz": 2018
+  }
+]

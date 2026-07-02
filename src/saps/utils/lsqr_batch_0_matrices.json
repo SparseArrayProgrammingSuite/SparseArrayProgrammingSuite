@@ -1,0 +1,10 @@
+[
+  {
+    "matrix_name": "ash331",
+    "matrix_group": "HB",
+    "lsqr convergence metric": 0.4531651648881643,
+    "m": 331,
+    "n": 104,
+    "nnz": 662
+  }
+]

@@ -1,0 +1,66 @@
+[
+  {
+    "matrix_name": "bcsstm05",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence metric": 1.672415576098313e-10,
+    "m": 153,
+    "n": 153,
+    "nnz": 153
+  },
+  {
+    "matrix_name": "bcsstm26",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence metric": 2.5327720189078145e-10,
+    "m": 1922,
+    "n": 1922,
+    "nnz": 1922
+  },
+  {
+    "matrix_name": "bcsstk06",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence metric": 0.8203514848164841,
+    "m": 420,
+    "n": 420,
+    "nnz": 7860
+  },
+  {
+    "matrix_name": "685_bus",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence metric": 0.8514121724865542,
+    "m": 685,
+    "n": 685,
+    "nnz": 3249
+  },
+  {
+    "matrix_name": "bcsstk22",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence metric": 0.8957538499788755,
+    "m": 138,
+    "n": 138,
+    "nnz": 696
+  },
+  {
+    "matrix_name": "bcsstk14",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence metric": 0.9099557649666918,
+    "m": 1806,
+    "n": 1806,
+    "nnz": 63454
+  },
+  {
+    "matrix_name": "nos4",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence metric": 0.9753967713520744,
+    "m": 100,
+    "n": 100,
+    "nnz": 594
+  },
+  {
+    "matrix_name": "plat1919",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence metric": 0.9946908753995343,
+    "m": 1919,
+    "n": 1919,
+    "nnz": 32399
+  }
+]
