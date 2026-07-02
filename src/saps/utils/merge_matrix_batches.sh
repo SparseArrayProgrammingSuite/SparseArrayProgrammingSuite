@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+if [ -z "${BASH_VERSION:-}" ]; then
+  exec bash "$0" "$@"
+fi
+
 set -euo pipefail
 shopt -s nullglob
 
@@ -32,14 +36,13 @@ if [[ $# -gt 0 ]]; then
 fi
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd -- "$SCRIPT_DIR/../../.." && pwd)"
 
 if ! command -v jq >/dev/null 2>&1; then
   echo "jq is required to merge batch outputs" >&2
   exit 127
 fi
 
-cd "$REPO_ROOT"
+cd "$SCRIPT_DIR"
 
 solvers=(jacobi cg jacobi_cg block_jacobi_cg lsqr)
 

@@ -1,0 +1,50 @@
+[
+  {
+    "matrix_name": "ash85",
+    "matrix_group": "HB",
+    "lsqr convergence metric": 0.09298844720365088,
+    "m": 85,
+    "n": 85,
+    "nnz": 523
+  },
+  {
+    "matrix_name": "ash958",
+    "matrix_group": "HB",
+    "lsqr convergence metric": 0.33060960003821377,
+    "m": 958,
+    "n": 292,
+    "nnz": 1916
+  },
+  {
+    "matrix_name": "ash608",
+    "matrix_group": "HB",
+    "lsqr convergence metric": 0.4362925531042032,
+    "m": 608,
+    "n": 188,
+    "nnz": 1216
+  },
+  {
+    "matrix_name": "ash331",
+    "matrix_group": "HB",
+    "lsqr convergence metric": 0.4531651648881643,
+    "m": 331,
+    "n": 104,
+    "nnz": 662
+  },
+  {
+    "matrix_name": "ash219",
+    "matrix_group": "HB",
+    "lsqr convergence metric": 0.48413155272552694,
+    "m": 219,
+    "n": 85,
+    "nnz": 438
+  },
+  {
+    "matrix_name": "well1033",
+    "matrix_group": "HB",
+    "lsqr convergence metric": 0.5302864939662847,
+    "m": 1033,
+    "n": 320,
+    "nnz": 4732
+  }
+]
