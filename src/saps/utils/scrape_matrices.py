@@ -5,50 +5,64 @@ Script to iterate over all matrices in the SuiteSparse Matrix Collection using s
 
 import argparse
 import json
-import math
-import os
-import sys
-
 import numpy as np
-import scipy as sp
-from scipy.io import mmread
-from scipy.sparse.linalg._eigen.arpack import ArpackError
+import scipy.sparse as sparse
 
 import ssgetpy
+from frameworks.saps_scipy import SciPyFramework
+from saps.benchmarks.cg import CGBenchmark, CGDataset, CGGenerator
+from saps.benchmarks.jacobi import JacobiBenchmark, JacobiDataset, JacobiGenerator
+from saps.benchmarks.lsqr import LSQRBenchmark, LSQRDataset, LSQRGenerator
+from saps.benchmarks.preconditioned_cg import (
+    BlockJacobiCGGenerator,
+    JacobiCGGenerator,
+    JacobiPreconditionedCGBenchmark,
+    PreconditionedCGDataset,
+    PreconditionedCGBenchmark,
+)
 
 
 def append_to_json(
     filename,
     matrix_name,
     matrix_group,
-    convergence_value,
+    convergence_metric,
     m,
     n,
     nnz,
     solver,
 ):
-    """Append matrix name and normalized convergence criteria to JSON file."""
+    """Append matrix name and benchmark convergence metric to JSON file."""
     try:
         with open(filename) as f:
             data = json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         data = []
 
-    if any(entry["matrix_name"] == matrix_name for entry in data):
+    metric_key = f"{solver} convergence metric"
+    if any(
+        entry["matrix_name"] == matrix_name and metric_key in entry
+        for entry in data
+    ):
         return False
 
+    data = [
+        entry
+        for entry in data
+        if metric_key in entry and entry["matrix_name"] != matrix_name
+    ]
     data.append(
         {
             "matrix_name": matrix_name,
             "matrix_group": matrix_group,
-            f"{solver} convergence criteria": convergence_value,
+            metric_key: convergence_metric,
             "m": m,
             "n": n,
             "nnz": nnz,
         }
     )
 
-    data.sort(key=lambda x: x[f"{solver} convergence criteria"])
+    data.sort(key=lambda x: x[metric_key])
 
     with open(filename, "w") as f:
         json.dump(data, f, indent=2)
@@ -56,153 +70,123 @@ def append_to_json(
     return True
 
 
-def already_in_json(filename, matrix_name):
+def already_in_json(filename, matrix_name, solver):
     """Check if a matrix name is already in the JSON file."""
     try:
         with open(filename) as f:
             data = json.load(f)
-            return any(entry["matrix_name"] == matrix_name for entry in data)
+            metric_key = f"{solver} convergence metric"
+            return any(
+                entry["matrix_name"] == matrix_name and metric_key in entry
+                for entry in data
+            )
     except (FileNotFoundError, json.JSONDecodeError):
         return False
 
 
-def check_jacobi_normalized_convergence(A, tol=1e-3):
-    d = A.diagonal()
-    if np.any(d == 0):
-        return np.inf
-
-    D = sp.sparse.diags(1 / d, format="csr")
-    M = sp.sparse.eye(A.shape[0], format="csr") - D @ A
-    M.eliminate_zeros()
-
-    if M.nnz == 0:
-        sr_value = 0.0
-    elif A.shape[0] <= 2:
-        sr_value = max(abs(np.linalg.eigvals(M.toarray())))
-    else:
-        vals = sp.sparse.linalg.eigs(M, k=1, return_eigenvectors=False, tol=tol)
-        sr_value = abs(vals[0])
-    print(f"Normalized Jacobi convergence factor: {sr_value}")
-    return sr_value
-
-
-def check_cg_normalized_convergence(A, M=None, tol=1e-3):
-    max_eig = sp.sparse.linalg.eigsh(
-        A, M=M, k=1, return_eigenvectors=False, tol=tol / (tol + 2)
-    )[0]
-    min_eig = sp.sparse.linalg.eigsh(
-        A, M=M, k=1, sigma=0, return_eigenvectors=False, tol=tol / (tol + 2)
-    )[0]
-
-    condition_num = max_eig / min_eig
-    if condition_num < 1:
-        convergence_value = np.inf
-    elif condition_num == 1:
-        convergence_value = 0
-    else:
-        sqrt_kappa = math.sqrt(condition_num)
-        convergence_value = (sqrt_kappa - 1) / (sqrt_kappa + 1)
-    print(f"Condition number of A: {condition_num}")
-    print(f"Normalized CG convergence factor: {convergence_value}")
-    return convergence_value
-
-
-def check_jacobi_cg_normalized_convergence(A, tol=1e-3):
-    M = sp.sparse.diags(A.diagonal())
-    return check_cg_normalized_convergence(A, M, tol=tol)
-
-
-def check_block_jacobi_cg_normalized_convergence(A, tol=1e-3):
-    A_csr = A.tocsr()
-    n = A_csr.shape[0]
-    p = min(10, n)
-    block_size = n // p
-    blocks = []
-    i = 0
-    while i < n:
-        j = min(i + block_size, n)
-        A_ii = A_csr[i:j, i:j].toarray()
-        blocks.append(A_ii)
-        i = j
-    M = sp.sparse.block_diag(blocks)
-    return check_cg_normalized_convergence(A, M, tol=tol)
-
-
-def check_lsqr_normalized_convergence(A, tol=1e-3):
-    try:
-        # Compute the largest singular value
-        max_s = sp.sparse.linalg.svds(
-            A,
-            k=1,
-            which="LM",
-            return_singular_vectors=False,
-            tol=math.sqrt(tol / (tol + 2)),
-        )[0]
-    except ArpackError:
-        print("Could not compute largest singular value for matrix.")
-        return np.inf
-
-    try:
-        # Compute the smallest singular value
-        min_s = sp.sparse.linalg.svds(
-            A,
-            k=1,
-            which="SM",
-            return_singular_vectors=False,
-            tol=math.sqrt(tol / (tol + 2)),
-        )[0]
-    except ArpackError:
-        print("Could not compute smallest singular value for matrix.")
-        return np.inf
-
-    condition_num = max_s / min_s if min_s != 0 else np.inf
-    if condition_num < 1:
-        convergence_value = np.inf
-    elif condition_num == 1:
-        convergence_value = 0
-    else:
-        convergence_value = (condition_num - 1) / (condition_num + 1)
-    print(f"Condition number of A (LSQR): {condition_num}")
-    print(f"Normalized LSQR convergence factor: {convergence_value}")
-    return convergence_value
-
-
-SOLVER_DICT = {
-    "jacobi": check_jacobi_normalized_convergence,
-    "cg": check_cg_normalized_convergence,
-    "jacobi_cg": check_jacobi_cg_normalized_convergence,
-    "block_jacobi_cg": check_block_jacobi_cg_normalized_convergence,
-    "lsqr": check_lsqr_normalized_convergence,
-}
-
-TOLERANCE_DICT = {
-    "jacobi": 1e-6,
-    "cg": 1e-6,
-    "jacobi_cg": 1e-6,
-    "block_jacobi_cg": 1e-6,
-    "lsqr": 1e-6,
-}
-
-MAXIT_DICT = {
-    "jacobi": 1000,
-    "cg": 1000,
-    "jacobi_cg": 1000,
-    "block_jacobi_cg": 1000,
-    "lsqr": 1000,
-}
+DEFAULT_REL_TOL = 1e-6
+DEFAULT_ABS_TOL = 1e-20
+DEFAULT_MAX_ITERS = 1000
 
 SOLVER_STATUS_KEYS = ("saved", "skipped", "already", "error")
+SCIPY_XP = SciPyFramework()
+
+SOLVER_CONFIGS = {
+    "jacobi": (JacobiDataset, JacobiGenerator, JacobiBenchmark),
+    "cg": (CGDataset, CGGenerator, CGBenchmark),
+    "jacobi_cg": (
+        PreconditionedCGDataset,
+        JacobiCGGenerator,
+        JacobiPreconditionedCGBenchmark,
+    ),
+    "block_jacobi_cg": (
+        PreconditionedCGDataset,
+        BlockJacobiCGGenerator,
+        PreconditionedCGBenchmark,
+    ),
+    "lsqr": (LSQRDataset, LSQRGenerator, LSQRBenchmark),
+}
+SOLVERS = tuple(SOLVER_CONFIGS)
 
 
-def convergence_threshold(solver):
-    """Return the largest factor that proves convergence within max iterations."""
-    tolerance = TOLERANCE_DICT[solver]
-    max_iterations = MAXIT_DICT[solver]
-    if tolerance <= 0:
-        raise ValueError("solver tolerance must be positive")
-    if max_iterations <= 0:
-        raise ValueError("solver max iterations must be positive")
-    return math.pow(tolerance, 1 / max_iterations)
+def make_dataset(solver, matrix):
+    dataset_cls, _generator_cls, _benchmark_cls = SOLVER_CONFIGS[solver]
+    common_kwargs = {
+        "rel_tol": DEFAULT_REL_TOL,
+        "abs_tol": DEFAULT_ABS_TOL,
+        "max_iters": DEFAULT_MAX_ITERS,
+    }
+    if dataset_cls is PreconditionedCGDataset:
+        return dataset_cls(matrix.name, "", **common_kwargs)
+    return dataset_cls(matrix.name, nnz=matrix.nnz, **common_kwargs)
+
+
+def make_generator(solver):
+    _dataset_cls, generator_cls, _benchmark_cls = SOLVER_CONFIGS[solver]
+    return generator_cls()
+
+
+def make_benchmark(solver):
+    _dataset_cls, _generator_cls, benchmark_cls = SOLVER_CONFIGS[solver]
+    return benchmark_cls()
+
+
+def generate_solver_data(solver, matrix):
+    problem = make_generator(solver).generate(make_dataset(solver, matrix))
+    data = [SCIPY_XP.from_binsparse(item) for item in problem.inputs]
+    return data, problem.meta
+
+
+def norm(x):
+    return np.linalg.norm(np.asarray(x).ravel())
+
+
+def frobenius_norm(A):
+    if sparse.issparse(A):
+        return np.sqrt(np.sum(A.data * A.data))
+    return np.linalg.norm(np.asarray(A), ord="fro")
+
+
+def linear_system_convergence_metric(A, b, x, meta):
+    b = np.asarray(b).ravel()
+    x = np.asarray(x).ravel()
+    residual = b - A @ x
+    tolerance = max(meta["rel_tol"] * norm(b), meta["abs_tol"])
+    return norm(residual) / tolerance
+
+
+def lsqr_convergence_metric(A, b, x, meta):
+    b = np.asarray(b).ravel()
+    x = np.asarray(x).ravel()
+    residual = b - A @ x
+    rnorm = norm(residual)
+    if rnorm <= meta["abs_tol"]:
+        return 0.0
+
+    bnorm = norm(b)
+    if bnorm == 0:
+        return 0.0 if rnorm == 0 else np.inf
+
+    anorm = frobenius_norm(A)
+    xnorm = norm(x)
+    residual_threshold = meta["rel_tol"] * anorm * xnorm + meta["rel_tol"] * bnorm
+    residual_metric = rnorm / max(residual_threshold, meta["abs_tol"])
+
+    gradient = A.T @ residual
+    gradient_threshold = meta["rel_tol"] * anorm * rnorm
+    gradient_metric = norm(gradient) / gradient_threshold if gradient_threshold else np.inf
+    return min(residual_metric, gradient_metric)
+
+
+def benchmark_convergence_metric(solver, data, meta):
+    output = make_benchmark(solver).benchmark(SCIPY_XP, data, meta)
+    x = output[0]
+    if solver == "lsqr":
+        A, b = data
+        return lsqr_convergence_metric(A, b, x, meta)
+
+    A, b = data[:2]
+    return linear_system_convergence_metric(A, b, x, meta)
 
 
 def record_solver_status(status_counts, solver, status, total_problems):
@@ -215,7 +199,7 @@ def record_solver_status(status_counts, solver, status, total_problems):
 
 
 def record_all_solver_status(status_counts, status, total_problems):
-    for solver in SOLVER_DICT:
+    for solver in SOLVERS:
         record_solver_status(status_counts, solver, status, total_problems)
 
 
@@ -233,7 +217,7 @@ def main():
         "--output",
         type=str,
         default="matrices.json",
-        help="Output JSON file for matrices and convergence criteria",
+        help="Output JSON file for matrices and benchmark convergence metrics",
     )
     parser.add_argument(
         "--num-batches",
@@ -247,19 +231,11 @@ def main():
         default=0,
         help="Zero-based batch index to process",
     )
-    parser.add_argument(
-        "--tol",
-        type=float,
-        default=1e-3,
-        help="Tolerance to use for eigensolver-based convergence estimates",
-    )
     args = parser.parse_args()
     if args.num_batches < 1:
         parser.error("--num-batches must be at least 1")
     if args.batch_index < 0 or args.batch_index >= args.num_batches:
         parser.error("--batch-index must satisfy 0 <= batch-index < num-batches")
-    if args.tol < 0:
-        parser.error("--tol must be non-negative")
     search_params = {"limit": -1}
     if args.maxsize is not None:
         search_params["nzbounds"] = (0, args.maxsize)
@@ -275,7 +251,7 @@ def main():
         f"{len(matrices)} of {total_matrices} matrices"
     )
     status_counts = {
-        solver: {key: 0 for key in SOLVER_STATUS_KEYS} for solver in SOLVER_DICT
+        solver: {key: 0 for key in SOLVER_STATUS_KEYS} for solver in SOLVERS
     }
 
     for problem_index, matrix in enumerate(matrices, start=1):
@@ -285,84 +261,27 @@ def main():
         )
         m = matrix.rows
         n = matrix.cols
-        A = None
         if m <= 1 or n <= 1:
             print(f"Skipping matrix {matrix.name} with 1 dimensions")
             record_all_solver_status(status_counts, "skipped", len(matrices))
             continue
 
-
-
-        for solver in SOLVER_DICT:
+        matrix_kind = (matrix.kind or "").lower()
+        for solver in SOLVERS:
             if args.num_batches == 1:
                 output_file = f"{solver}_{args.output}"
             else:
                 output_file = f"{solver}_batch_{args.batch_index}_{args.output}"
-            if already_in_json(output_file, matrix.name):
+            if already_in_json(output_file, matrix.name, solver):
                 print(f"Skipping {matrix.name}, already in {output_file}")
                 record_solver_status(status_counts, solver, "already", len(matrices))
                 continue
-            if solver == "lsqr" and matrix.kind.lower() != "least squares problem":
+            if solver == "lsqr" and matrix_kind != "least squares problem":
                 print(
                     f"Skipping matrix {matrix.name} of kind {matrix.kind!r} for {solver}"
                 )
                 record_solver_status(status_counts, solver, "skipped", len(matrices))
                 continue
-            if solver in ["cg", "jacobi_cg", "block_jacobi_cg", "jacobi"]:
-                if not matrix.kind.lower() in [
-                    "tomography problem",
-                    "thermal problem",
-                    "theoretical/quantum chemistry problem sequence",
-                    "theoretical/quantum chemistry problem",
-                    "subsequent theoretical/quantum chemistry problem",
-                    "subsequent structural problem",
-                    "subsequent semiconductor device problem",
-                    "subsequent power network problem",
-                    "subsequent optimization problem",
-                    "subsequent computational fluid dynamics problem",
-                    "subsequent circuit simulation problem",
-                    "subsequent 2d/3d problem",
-                    "structural problem sequence",
-                    "structural problem",
-                    "semiconductor process problem",
-                    "semiconductor device problem sequence",
-                    "semiconductor device problem",
-                    "robotics problem",
-                    "random 2d/3d problem",
-                    "power network problem sequence",
-                    "power network problem",
-                    "optimization problem sequence",
-                    "optimization problem",
-                    "optimal control problem",
-                    "model reduction problem",
-                    "materials problem",
-                    "frequency domain circuit simulation problem",
-                    "electromagnetics problem",
-                    "eigenvalue/model reduction problem",
-                    "economic problem",
-                    "data analytics problem",
-                    "computer vision problem",
-                    "computer graphics/vision problem",
-                    "computational fluid dynamics problem sequence",
-                    "computational fluid dynamics problem",
-                    "computational fluid dynamics",
-                    "computational chemistry problem",
-                    "circuit simulation problem sequence",
-                    "circuit simulation problem",
-                    "chemical process simulation problem sequence",
-                    "chemical process simulation problem",
-                    "chemical oceanography problem",
-                    "acoustics problem",
-                    "2d/3d problem sequence",
-                    "2d/3d problem",
-                ]:
-                    print(
-                        f"Skipping matrix {matrix.name} of kind {matrix.kind!r} for {solver}"
-                    )
-                    record_solver_status(
-                        status_counts, solver, "skipped", len(matrices)
-                    )
-                    continue
 
             if solver != "lsqr" and m != n:
                 print(
@@ -375,73 +294,46 @@ def main():
                 print(f"Skipping non-SPD matrix {matrix.name} for {solver}")
                 record_solver_status(status_counts, solver, "skipped", len(matrices))
                 continue
-            if A is None:
-                path, _archive = matrix.download(extract=True)
-                matrix_path = os.path.join(path, matrix.name + ".mtx")
-                print(f"Matrix: {matrix.name}, Path: {matrix_path}")
-                if not matrix_path or not os.path.exists(matrix_path):
-                    record_solver_status(status_counts, solver, "error", len(matrices))
-                    continue
-                A = mmread(matrix_path)  # This is the full sparse matrix
-                # Convert to CSR format if needed for better diagonal access
-                if not hasattr(A, "diagonal"):
-                    A = A.tocsr()
             status = calculate_and_save_solver_result(
                 output_file,
                 matrix,
-                A,
                 m,
                 n,
                 solver,
-                args.tol,
             )
             record_solver_status(status_counts, solver, status, len(matrices))
 
 
-def calculate_and_save_solver_result(output_file, matrix, A, m, n, solver, tol=1e-3):
-    threshold = convergence_threshold(solver)
+def calculate_and_save_solver_result(output_file, matrix, m, n, solver):
+    try:
+        data, meta = generate_solver_data(solver, matrix)
+        convergence_metric = benchmark_convergence_metric(solver, data, meta)
+    except (RuntimeError, ValueError, np.linalg.LinAlgError) as e:
+        print(f"Error computing {solver} convergence for {matrix.name}: {e}")
+        return "error"
 
-    for tol in [0.05, tol]:
-        try:
-            convergence_value = SOLVER_DICT[solver](A, tol=tol)
-        except (ArpackError, RuntimeError, ValueError, np.linalg.LinAlgError) as e:
-            print(f"Error computing {solver} convergence for {matrix.name}: {e}")
-            return "error"
-
-        if np.isinf(convergence_value) or np.isnan(convergence_value):
-            convergence_value = sys.float_info.max
-
-        if convergence_value/(1+tol) >= threshold:
-            print(
-                f"Skipping {matrix.name} for {solver}: normalized convergence factor "
-                f"{convergence_value} cannot converge within "
-                f"{MAXIT_DICT[solver]} iterations to the tolerance {TOLERANCE_DICT[solver]} "
-                f"(requires < {threshold}) (tol={tol})"
-            )
-            return "skipped"
-
-    if convergence_value*(1+tol) >= threshold:
+    if not np.isfinite(convergence_metric) or convergence_metric > 1:
         print(
-            f"Skipping {matrix.name} for {solver}: normalized convergence factor "
-            f"{convergence_value} does not converge within "
-            f"{MAXIT_DICT[solver]} iterations to the tolerance {TOLERANCE_DICT[solver]} "
-            f"(requires < {threshold}) (tol={tol})"
+            f"Skipping {matrix.name} for {solver}: benchmark convergence metric "
+            f"{convergence_metric} exceeds 1 within {DEFAULT_MAX_ITERS} iterations"
         )
         return "skipped"
 
-    # Write to JSON file
     saved = append_to_json(
         output_file,
         matrix.name,
         matrix.group,
-        float(convergence_value),
+        float(convergence_metric),
         m,
         n,
-        A.nnz,
+        matrix.nnz,
         solver,
     )
     if saved:
-        print(f"Saved {matrix.name} {solver} convergence criteria to {output_file}")
+        print(
+            f"Saved {matrix.name} {solver} convergence metric "
+            f"{convergence_metric} to {output_file}"
+        )
         return "saved"
     else:
         print(f"Skipping {matrix.name}, already in {output_file}")

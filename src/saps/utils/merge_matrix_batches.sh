@@ -51,7 +51,7 @@ for solver in "${solvers[@]}"; do
   fi
 
   target="${solver}_${OUTPUT}"
-  key="${solver} convergence criteria"
+  key="${solver} convergence metric"
   tmp="$(mktemp "${target}.tmp.XXXXXX")"
 
   jq -s --arg key "$key" '
