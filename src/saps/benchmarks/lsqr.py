@@ -1,4 +1,3 @@
-import os
 from typing import Any
 
 import numpy as np
@@ -11,6 +10,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.downloaders.suitesparse import load_suitesparse_linear_system
 from saps_framework import BinsparseFormat
 
 
@@ -281,49 +281,15 @@ class LSQRGenerator(Generator[LSQRDataset]):
         ]
 
     def generate(self, dataset: LSQRDataset):
-        from scipy.io import mmread
-        from scipy.sparse import random
-
-        import ssgetpy
-
-        matrices = ssgetpy.search(name=dataset.source_name)
-        if not matrices:
-            raise ValueError(f"No matrix found with name '{dataset.source_name}'")
-        matrix = matrices[0]
-        (path, archive) = matrix.download(extract=True)
-        matrix_path = os.path.join(path, matrix.name + ".mtx")
-        if matrix_path and os.path.exists(matrix_path):
-            A = mmread(matrix_path)
-        else:
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-        rng = np.random.default_rng(0)
-        A = A.tocoo()
-
-        if dataset.has_b_file:
-            matrix_path = os.path.join(path, matrix.name + "_b.mtx")
-            if matrix_path and os.path.exists(matrix_path):
-                b = mmread(matrix_path)
-            else:
-                raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-            if not isinstance(b, np.ndarray):
-                b = b.toarray() if hasattr(b, "toarray") else np.asarray(b)
-            b = b.flatten()
-        else:
-            x_true = random(
-                A.shape[1],
-                1,
-                density=0.1,
-                format="coo",
-                dtype=np.float64,
-                random_state=rng,
-            )
-            b = A @ x_true
-            b = b.toarray().flatten()
-
+        A, b, _meta = load_suitesparse_linear_system(
+            dataset.source_name, has_b_file=dataset.has_b_file
+        )
+        if not dataset.has_b_file:
             # Adds a small amount of noise so that Ax != b
+            rng = np.random.default_rng(0)
             noise_level = dataset.noise_amt * np.linalg.norm(b)
             noise = rng.standard_normal(b.shape) * noise_level
-            b += noise
+            b = b + noise
 
         A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
         b_bin = BinsparseFormat.from_numpy(b)

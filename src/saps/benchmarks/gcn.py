@@ -1,4 +1,3 @@
-import os
 from typing import Any, cast
 
 import numpy as np
@@ -12,6 +11,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.downloaders.suitesparse import load_suitesparse_matrix
 from saps_framework import BinsparseFormat
 
 
@@ -372,27 +372,12 @@ class GCNGenerator(Generator[GCNDataset]):
         ]
 
     def generate(self, dataset: GCNDataset):
-        from scipy.io import mmread
-
-        import ssgetpy
-
         feature_dim = dataset.feature_dim
         hidden_dim = dataset.hidden_dim
         out_dim = dataset.out_dim
 
-        source = dataset.source_name
-        matrices = ssgetpy.search(name=source)
-        if not matrices:
-            raise ValueError(f"No matrix found with name '{source}'")
-        matrix = matrices[0]
-        (path, archive) = matrix.download(extract=True)
-        matrix_path = os.path.join(path, matrix.name + ".mtx")
-        if matrix_path and os.path.exists(matrix_path):
-            A = mmread(matrix_path)
-        else:
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
+        A, _meta = load_suitesparse_matrix(dataset.source_name)
         rng = np.random.default_rng(0)
-        A = A.tocoo()
 
         # Create feature/weight arrays using the RNG (deterministic)
         n = A.shape[0]

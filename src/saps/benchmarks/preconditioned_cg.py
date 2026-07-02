@@ -1,4 +1,3 @@
-import os
 from abc import ABC, abstractmethod
 from typing import Any
 
@@ -15,46 +14,21 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.downloaders.suitesparse import (
+    load_suitesparse_linear_system,
+    random_rhs_for_matrix,
+)
 from saps_framework import BinsparseFormat
 
 
 def _generate_cg_data(source, has_b_file, A=None):
-    import scipy.sparse as sp
-    from scipy.io import mmread
-
-    import ssgetpy
-
     if A is not None:
-        A = sp.coo_matrix(A)
-    else:
-        matrices = ssgetpy.search(name=source)
-        if not matrices:
-            raise ValueError(f"No matrix found with name '{source}'")
-        matrix = matrices[0]
-        (path, archive) = matrix.download(extract=True)
-        matrix_path = os.path.join(path, matrix.name + ".mtx")
-        if matrix_path and os.path.exists(matrix_path):
-            A = mmread(matrix_path)
-        else:
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-    A = A.tocoo()
-    rng = np.random.default_rng(0)
+        import scipy.sparse as sp
 
-    if has_b_file:
-        matrix_path = os.path.join(path, matrix.name + "_b.mtx")
-        if matrix_path and os.path.exists(matrix_path):
-            b = mmread(matrix_path)
-        else:
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-        if not isinstance(b, np.ndarray):
-            b = b.toarray() if hasattr(b, "toarray") else np.asarray(b)
-        b = b.flatten()
+        A = sp.coo_matrix(A)
+        b = random_rhs_for_matrix(A)
     else:
-        x = sp.random(
-            A.shape[1], 1, density=0.1, format="coo", dtype=np.float64, random_state=rng
-        )
-        b = A @ x
-        b = b.toarray().flatten()
+        A, b, _meta = load_suitesparse_linear_system(source, has_b_file=has_b_file)
     x0 = np.zeros(A.shape[1])
     return (A, b, x0)
 

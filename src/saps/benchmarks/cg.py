@@ -1,4 +1,3 @@
-import os
 from typing import Any
 
 import numpy as np
@@ -14,6 +13,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.downloaders.suitesparse import load_suitesparse_linear_system
 from saps_framework.binsparse_format import BinsparseFormat
 
 
@@ -248,43 +248,9 @@ class CGGenerator(Generator[CGDataset]):
         ]
 
     def generate(self, dataset: CGDataset) -> DataInstance:
-        from scipy.io import mmread
-        from scipy.sparse import random
-
-        import ssgetpy
-
-        matrices = ssgetpy.search(name=dataset.source_name)
-        if not matrices:
-            raise ValueError(f"No matrix found with name '{dataset.source_name}'")
-        matrix = matrices[0]
-        path, _archive = matrix.download(extract=True)
-        matrix_path = os.path.join(path, f"{matrix.name}.mtx")
-        if not os.path.exists(matrix_path):
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-
-        A = mmread(matrix_path).tocoo()
-        rng = np.random.default_rng(0)
-
-        if dataset.has_b_file:
-            b_path = os.path.join(path, f"{matrix.name}_b.mtx")
-            if not os.path.exists(b_path):
-                raise FileNotFoundError(f"Matrix file not found at {b_path}")
-            b = mmread(b_path)
-            if not isinstance(b, np.ndarray):
-                b = b.toarray() if hasattr(b, "toarray") else np.asarray(b)
-            b = b.flatten()
-        else:
-            x_rand = random(
-                A.shape[1],
-                1,
-                density=0.1,
-                format="coo",
-                dtype=np.float64,
-                random_state=rng,
-            )
-            b = A @ x_rand
-            b = b.toarray().flatten()
-
+        A, b, _meta = load_suitesparse_linear_system(
+            dataset.source_name, has_b_file=dataset.has_b_file
+        )
         x = np.zeros(A.shape[1])
 
         A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)

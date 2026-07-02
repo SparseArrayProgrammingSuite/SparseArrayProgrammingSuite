@@ -1,5 +1,3 @@
-import os
-
 import numpy as np
 
 import sparse as sp
@@ -13,6 +11,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.downloaders.suitesparse import load_suitesparse_matrix
 from saps_framework.binsparse_format import BinsparseFormat
 
 
@@ -488,22 +487,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
         ]
 
     def generate(self, dataset: FloydWarshallDataset):
-        from scipy.io import mmread
-
-        import ssgetpy
-
-        matrices = ssgetpy.search(name=dataset.source)
-        if not matrices:
-            raise ValueError(f"No matrix found with name '{dataset.source}'")
-        matrix = matrices[0]
-        (path, archive) = matrix.download(extract=True)
-        matrix_path = os.path.join(path, matrix.name + ".mtx")
-        if matrix_path and os.path.exists(matrix_path):
-            A = mmread(matrix_path)
-        else:
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-
-        A = A.tocoo()
+        A, _meta = load_suitesparse_matrix(dataset.source)
         n, m = A.shape
         if n != m:
             raise ValueError(f"Floyd-Warshall requires a square matrix, got {A.shape}")

@@ -1,4 +1,3 @@
-import os
 from typing import Any
 
 import numpy as np
@@ -12,6 +11,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.downloaders.suitesparse import load_suitesparse_matrix
 from saps_framework import BinsparseFormat
 
 
@@ -223,21 +223,7 @@ class MCLGenerator(Generator[MCLDataset]):
         ]
 
     def generate(self, dataset: MCLDataset):
-        from scipy.io import mmread
-
-        import ssgetpy
-
-        matrices = ssgetpy.search(name=dataset.source_name)
-        if not matrices:
-            raise ValueError(f"No matrix found with name '{dataset.source_name}'")
-        matrix = matrices[0]
-        path, archive = matrix.download(extract=True)
-        matrix_path = os.path.join(path, matrix.name + ".mtx")
-        if matrix_path and os.path.exists(matrix_path):
-            A = mmread(matrix_path)
-        else:
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-        A = A.tocoo()
+        A, _meta = load_suitesparse_matrix(dataset.source_name)
         A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
         return DataInstance(inputs=[A_bin], meta={})
 

@@ -1,4 +1,3 @@
-import os
 from typing import Any
 
 import numpy as np
@@ -13,6 +12,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.downloaders.suitesparse import load_suitesparse_linear_system
 from saps_framework import BinsparseFormat
 
 
@@ -263,46 +263,9 @@ class GMRESGenerator(Generator[GMRESDataset]):
         ]
 
     def generate(self, dataset: GMRESDataset):
-        from scipy.io import mmread
-        from scipy.sparse import random
-
-        import ssgetpy
-
-        source = dataset.source_name
-        has_b_file = dataset.metadata.get("has_b_file", False)
-        matrices = ssgetpy.search(name=source)
-        if not matrices:
-            raise ValueError(f"No matrix found with name '{source}'")
-        matrix = matrices[0]
-        (path, archive) = matrix.download(extract=True)
-        matrix_path = os.path.join(path, matrix.name + ".mtx")
-        if matrix_path and os.path.exists(matrix_path):
-            A = mmread(matrix_path)
-        else:
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-        rng = np.random.default_rng(0)
-        A = A.tocoo()
-
-        if has_b_file:
-            matrix_path = os.path.join(path, matrix.name + "_b.mtx")
-            if matrix_path and os.path.exists(matrix_path):
-                b = mmread(matrix_path)
-            else:
-                raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-            if not isinstance(b, np.ndarray):
-                b = b.toarray() if hasattr(b, "toarray") else np.asarray(b)
-            b = b.flatten()
-        else:
-            x = random(
-                A.shape[1],
-                1,
-                density=0.1,
-                format="coo",
-                dtype=np.float64,
-                random_state=rng,
-            )
-            b = A @ x
-            b = b.toarray().flatten()
+        A, b, _meta = load_suitesparse_linear_system(
+            dataset.source_name, has_b_file=dataset.has_b_file
+        )
         x = np.zeros(A.shape[1])
 
         A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
