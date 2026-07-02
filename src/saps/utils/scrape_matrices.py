@@ -5,6 +5,13 @@ Script to iterate over all matrices in the SuiteSparse Matrix Collection using s
 
 import argparse
 import json
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 import numpy as np
 import scipy.sparse as sparse
 
@@ -308,7 +315,13 @@ def calculate_and_save_solver_result(output_file, matrix, m, n, solver):
     try:
         data, meta = generate_solver_data(solver, matrix)
         convergence_metric = benchmark_convergence_metric(solver, data, meta)
-    except (RuntimeError, ValueError, np.linalg.LinAlgError) as e:
+    except RuntimeError as e:
+        if "did not converge" in str(e):
+            print(f"Skipping {matrix.name} for {solver}: {e}")
+            return "skipped"
+        print(f"Error computing {solver} convergence for {matrix.name}: {e}")
+        return "error"
+    except (ValueError, np.linalg.LinAlgError) as e:
         print(f"Error computing {solver} convergence for {matrix.name}: {e}")
         return "error"
 
