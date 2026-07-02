@@ -17,12 +17,10 @@ import scipy.sparse as sparse
 
 import ssgetpy
 from frameworks.saps_scipy import SciPyFramework
-from saps.benchmarks.cg import CGBenchmark, CGDataset, CGGenerator
-from saps.benchmarks.jacobi import JacobiBenchmark, JacobiDataset, JacobiGenerator
-from saps.benchmarks.lsqr import LSQRBenchmark, LSQRDataset, LSQRGenerator
+from saps.benchmarks.cg import CGBenchmark, CGDataset
+from saps.benchmarks.jacobi import JacobiBenchmark, JacobiDataset
+from saps.benchmarks.lsqr import LSQRBenchmark, LSQRDataset
 from saps.benchmarks.preconditioned_cg import (
-    BlockJacobiCGGenerator,
-    JacobiCGGenerator,
     JacobiPreconditionedCGBenchmark,
     PreconditionedCGDataset,
     PreconditionedCGBenchmark,
@@ -99,25 +97,17 @@ SOLVER_STATUS_KEYS = ("saved", "skipped", "already", "error")
 SCIPY_XP = SciPyFramework()
 
 SOLVER_CONFIGS = {
-    "jacobi": (JacobiDataset, JacobiGenerator, JacobiBenchmark),
-    "cg": (CGDataset, CGGenerator, CGBenchmark),
-    "jacobi_cg": (
-        PreconditionedCGDataset,
-        JacobiCGGenerator,
-        JacobiPreconditionedCGBenchmark,
-    ),
-    "block_jacobi_cg": (
-        PreconditionedCGDataset,
-        BlockJacobiCGGenerator,
-        PreconditionedCGBenchmark,
-    ),
-    "lsqr": (LSQRDataset, LSQRGenerator, LSQRBenchmark),
+    "jacobi": (JacobiDataset, JacobiBenchmark),
+    "cg": (CGDataset, CGBenchmark),
+    "jacobi_cg": (PreconditionedCGDataset, JacobiPreconditionedCGBenchmark),
+    "block_jacobi_cg": (PreconditionedCGDataset, PreconditionedCGBenchmark),
+    "lsqr": (LSQRDataset, LSQRBenchmark),
 }
 SOLVERS = tuple(SOLVER_CONFIGS)
 
 
 def make_dataset(solver, matrix):
-    dataset_cls, _generator_cls, _benchmark_cls = SOLVER_CONFIGS[solver]
+    dataset_cls, _benchmark_cls = SOLVER_CONFIGS[solver]
     common_kwargs = {
         "rel_tol": DEFAULT_REL_TOL,
         "abs_tol": DEFAULT_ABS_TOL,
@@ -128,18 +118,21 @@ def make_dataset(solver, matrix):
     return dataset_cls(matrix.name, nnz=matrix.nnz, **common_kwargs)
 
 
-def make_generator(solver):
-    _dataset_cls, generator_cls, _benchmark_cls = SOLVER_CONFIGS[solver]
-    return generator_cls()
-
-
 def make_benchmark(solver):
-    _dataset_cls, _generator_cls, benchmark_cls = SOLVER_CONFIGS[solver]
+    _dataset_cls, benchmark_cls = SOLVER_CONFIGS[solver]
     return benchmark_cls()
 
 
+def suite_generator(benchmark):
+    for generator in benchmark.generators:
+        if "test" not in generator.suites:
+            return generator
+    raise ValueError(f"No SuiteSparse generator found for {benchmark.name}")
+
+
 def generate_benchmark_problem(solver, matrix):
-    generator = make_generator(solver)
+    benchmark = make_benchmark(solver)
+    generator = suite_generator(benchmark)
     dataset = make_dataset(solver, matrix)
     problem = generator.generate(dataset)
     data = [SCIPY_XP.from_binsparse(item) for item in problem.inputs]
