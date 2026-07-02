@@ -130,10 +130,11 @@ def suite_generator(benchmark):
     raise ValueError(f"No SuiteSparse generator found for {benchmark.name}")
 
 
-def generate_benchmark_problem(solver, matrix):
+def generate_data_with_existing_generator(solver, matrix):
     benchmark = make_benchmark(solver)
     generator = suite_generator(benchmark)
     dataset = make_dataset(solver, matrix)
+    print(f"Generating {matrix.name} for {solver} with {generator.name}")
     problem = generator.generate(dataset)
     data = [SCIPY_XP.from_binsparse(item) for item in problem.inputs]
     return data, problem.meta
@@ -308,7 +309,7 @@ def main():
 
 def calculate_and_save_solver_result(output_file, matrix, m, n, solver):
     try:
-        data, meta = generate_benchmark_problem(solver, matrix)
+        data, meta = generate_data_with_existing_generator(solver, matrix)
         convergence_metric = benchmark_convergence_metric(solver, data, meta)
     except RuntimeError as e:
         if "did not converge" in str(e):
