@@ -48,6 +48,14 @@
     "nnz": 56126
   },
   {
+    "matrix_name": "crankseg_1",
+    "matrix_group": "GHS_psdef",
+    "block_jacobi_cg convergence criteria": 0.9530380567439032,
+    "m": 52804,
+    "n": 52804,
+    "nnz": 10614210
+  },
+  {
     "matrix_name": "bcsstk03",
     "matrix_group": "HB",
     "block_jacobi_cg convergence criteria": 0.9549802711831301,

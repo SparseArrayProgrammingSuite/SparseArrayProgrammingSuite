@@ -40,6 +40,30 @@
     "nnz": 87025
   },
   {
+    "matrix_name": "wathen100",
+    "matrix_group": "GHS_psdef",
+    "jacobi_cg convergence criteria": 0.618475152131125,
+    "m": 30401,
+    "n": 30401,
+    "nnz": 471601
+  },
+  {
+    "matrix_name": "LFAT5",
+    "matrix_group": "Oberwolfach",
+    "jacobi_cg convergence criteria": 0.8496353663923203,
+    "m": 14,
+    "n": 14,
+    "nnz": 46
+  },
+  {
+    "matrix_name": "jnlbrng1",
+    "matrix_group": "GHS_psdef",
+    "jacobi_cg convergence criteria": 0.8561344511445356,
+    "m": 40000,
+    "n": 40000,
+    "nnz": 199200
+  },
+  {
     "matrix_name": "bcsstk02",
     "matrix_group": "HB",
     "jacobi_cg convergence criteria": 0.9540958668314958,
