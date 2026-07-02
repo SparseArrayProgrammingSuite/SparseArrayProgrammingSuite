@@ -6,6 +6,7 @@ Script to iterate over all matrices in the SuiteSparse Matrix Collection using s
 import argparse
 import json
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -13,7 +14,6 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 import numpy as np
-import scipy.sparse as sparse
 
 import ssgetpy
 from frameworks.saps_scipy import SciPyFramework
@@ -27,26 +27,47 @@ from saps.benchmarks.preconditioned_cg import (
 )
 
 
+@dataclass(frozen=True)
+class SolverRunStats:
+    iterations: int
+    tolerance: float
+    converged: bool
+
+
+def iterations_key(solver):
+    return f"{solver} iterations"
+
+
+def tolerance_key(solver):
+    return f"{solver} tolerance"
+
+
+def converged_key(solver):
+    return f"{solver} converged"
+
+
 def append_to_json(
     filename,
     matrix_name,
     matrix_group,
-    convergence_metric,
+    stats,
     m,
     n,
     nnz,
     solver,
 ):
-    """Append matrix name and benchmark convergence metric to JSON file."""
+    """Append matrix name and solver iteration stats to JSON file."""
     try:
         with open(filename) as f:
             data = json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         data = []
 
-    metric_key = f"{solver} convergence metric"
+    iter_key = iterations_key(solver)
+    tol_key = tolerance_key(solver)
+    conv_key = converged_key(solver)
     if any(
-        entry["matrix_name"] == matrix_name and metric_key in entry
+        entry["matrix_name"] == matrix_name and iter_key in entry
         for entry in data
     ):
         return False
@@ -54,20 +75,22 @@ def append_to_json(
     data = [
         entry
         for entry in data
-        if metric_key in entry and entry["matrix_name"] != matrix_name
+        if iter_key in entry and entry["matrix_name"] != matrix_name
     ]
     data.append(
         {
             "matrix_name": matrix_name,
             "matrix_group": matrix_group,
-            metric_key: convergence_metric,
+            iter_key: int(stats.iterations),
+            tol_key: float(stats.tolerance),
+            conv_key: bool(stats.converged),
             "m": m,
             "n": n,
             "nnz": nnz,
         }
     )
 
-    data.sort(key=lambda x: x[metric_key])
+    data.sort(key=lambda x: (x[iter_key], x["matrix_name"]))
 
     with open(filename, "w") as f:
         json.dump(data, f, indent=2)
@@ -80,9 +103,9 @@ def already_in_json(filename, matrix_name, solver):
     try:
         with open(filename) as f:
             data = json.load(f)
-            metric_key = f"{solver} convergence metric"
+            iter_key = iterations_key(solver)
             return any(
-                entry["matrix_name"] == matrix_name and metric_key in entry
+                entry["matrix_name"] == matrix_name and iter_key in entry
                 for entry in data
             )
     except (FileNotFoundError, json.JSONDecodeError):
@@ -140,56 +163,251 @@ def generate_data_with_existing_generator(solver, matrix):
     return data, problem.meta
 
 
-def norm(x):
-    return np.linalg.norm(np.asarray(x).ravel())
+def vector_norm(x):
+    return float(np.linalg.norm(np.asarray(x).ravel()))
 
 
-def frobenius_norm(A):
-    if sparse.issparse(A):
-        return np.sqrt(np.sum(A.data * A.data))
-    return np.linalg.norm(np.asarray(A), ord="fro")
+def vector_dot(x, y):
+    return float(np.dot(np.asarray(x).ravel(), np.asarray(y).ravel()))
 
 
-def linear_system_convergence_metric(A, b, x, meta):
+def linear_system_tolerance(b, meta):
+    b = np.asarray(b).ravel()
+    return float(max(meta["rel_tol"] * vector_norm(b), meta["abs_tol"]))
+
+
+def jacobi_run_stats(data, meta):
+    A, b, x = data
     b = np.asarray(b).ravel()
     x = np.asarray(x).ravel()
-    residual = b - A @ x
-    tolerance = max(meta["rel_tol"] * norm(b), meta["abs_tol"])
-    return norm(residual) / tolerance
+    tolerance = linear_system_tolerance(b, meta)
+    d = np.asarray(A.diagonal()).ravel()
+    if np.any(d == 0):
+        raise ValueError("Jacobi requires nonzero diagonal entries.")
+
+    r = np.asarray(b - A @ x).ravel()
+    rnorm = vector_norm(r)
+    iterations = 0
+
+    while rnorm >= tolerance and iterations < meta["max_iters"]:
+        x = x + r / d
+        r = np.asarray(b - A @ x).ravel()
+        rnorm = vector_norm(r)
+        iterations += 1
+
+    return SolverRunStats(
+        iterations=iterations,
+        tolerance=tolerance,
+        converged=bool(np.isfinite(rnorm) and rnorm < tolerance),
+    )
 
 
-def lsqr_convergence_metric(A, b, x, meta):
+def cg_run_stats(data, meta):
+    A, b, x = data
     b = np.asarray(b).ravel()
     x = np.asarray(x).ravel()
-    residual = b - A @ x
-    rnorm = norm(residual)
-    if rnorm <= meta["abs_tol"]:
-        return 0.0
+    tolerance = linear_system_tolerance(b, meta)
+    tol_sq = tolerance * tolerance
 
-    bnorm = norm(b)
-    if bnorm == 0:
-        return 0.0 if rnorm == 0 else np.inf
+    r = np.asarray(b - A @ x).ravel()
+    p = r
+    rr = vector_dot(r, r)
+    iterations = 0
 
-    anorm = frobenius_norm(A)
-    xnorm = norm(x)
-    residual_threshold = meta["rel_tol"] * anorm * xnorm + meta["rel_tol"] * bnorm
-    residual_metric = rnorm / max(residual_threshold, meta["abs_tol"])
+    if rr >= tol_sq:
+        while iterations < meta["max_iters"]:
+            Ap = np.asarray(A @ p).ravel()
+            denominator = vector_dot(p, Ap)
+            if denominator == 0:
+                raise ValueError("CG encountered a zero search-direction denominator.")
+            alpha = rr / denominator
+            x = x + alpha * p
+            r = r - alpha * Ap
 
-    gradient = A.T @ residual
-    gradient_threshold = meta["rel_tol"] * anorm * rnorm
-    gradient_metric = norm(gradient) / gradient_threshold if gradient_threshold else np.inf
-    return min(residual_metric, gradient_metric)
+            old_rr = rr
+            rr = vector_dot(r, r)
+            iterations += 1
+
+            if rr < tol_sq:
+                break
+
+            beta = rr / old_rr
+            p = r + beta * p
+
+    return SolverRunStats(
+        iterations=iterations,
+        tolerance=tolerance,
+        converged=bool(np.isfinite(rr) and rr < tol_sq),
+    )
 
 
-def benchmark_convergence_metric(solver, data, meta):
-    output = make_benchmark(solver).benchmark(SCIPY_XP, data, meta)
-    x = output[0]
+def preconditioned_cg_run_stats(solver, data, meta):
+    A, b, x, M = data
+    benchmark = make_benchmark(solver)
+    b = np.asarray(b).ravel()
+    x = np.asarray(x).ravel()
+    tolerance = linear_system_tolerance(b, meta)
+    tol_sq = tolerance * tolerance
+
+    r = np.asarray(b - A @ x).ravel()
+    z = benchmark._solve_cg(SCIPY_XP, M, r)
+    rho = vector_dot(r, z)
+    p = z
+    rr = vector_dot(r, r)
+    iterations = 0
+
+    if rr >= tol_sq:
+        while iterations < meta["max_iters"]:
+            Ap = np.asarray(A @ p).ravel()
+            denominator = vector_dot(p, Ap)
+            if denominator == 0:
+                raise ValueError(
+                    "Preconditioned CG encountered a zero search-direction "
+                    "denominator."
+                )
+            alpha = rho / denominator
+            x = x + alpha * p
+            r = r - alpha * Ap
+
+            rr = vector_dot(r, r)
+            iterations += 1
+
+            if rr < tol_sq:
+                break
+
+            z = benchmark._solve_cg(SCIPY_XP, M, r)
+            new_rho = vector_dot(r, z)
+            if rho == 0:
+                raise ValueError("Preconditioned CG encountered a zero rho value.")
+            beta = new_rho / rho
+            p = z + beta * p
+            rho = new_rho
+
+    return SolverRunStats(
+        iterations=iterations,
+        tolerance=tolerance,
+        converged=bool(np.isfinite(rr) and rr < tol_sq),
+    )
+
+
+def lsqr_run_stats(data, meta):
+    A, b = data
+    b = np.asarray(b).ravel()
+    rel_tol = meta["rel_tol"]
+    abs_tol = meta["abs_tol"]
+    atol = meta.get("atol", rel_tol)
+    btol = meta.get("btol", rel_tol)
+    conlim = meta.get("conlim", 1.0e8)
+    max_iters = meta["max_iters"]
+
+    u = b
+    beta = vector_norm(u)
+    if beta == 0:
+        return SolverRunStats(iterations=0, tolerance=float(abs_tol), converged=True)
+    u = u / beta
+
+    v = np.asarray(A.T @ u).ravel()
+    alpha = vector_norm(v)
+    if alpha == 0:
+        return SolverRunStats(iterations=0, tolerance=float(abs_tol), converged=True)
+    v = v / alpha
+
+    solution_is_zero = False
+    bnorm = beta
+    ctol = 1 / conlim
+
+    Arnorm = alpha * beta
+    if Arnorm == 0:
+        solution_is_zero = True
+
+    w = v
+    phi_bar = beta
+    rho_bar = alpha
+    iterations = 0
+
+    Anorm_sq = beta**2
+    xnorm_sq = 0
+    dnorm_sq = 0
+    Acond = 0
+    exit_reason = 0
+    tolerance = float(rel_tol)
+
+    while iterations < max_iters and not solution_is_zero:
+        iterations += 1
+
+        u = np.asarray(A @ v - alpha * u).ravel()
+
+        beta = vector_norm(u)
+        if beta == 0:
+            exit_reason = 1
+            break
+        u = u / beta
+
+        v = np.asarray(A.T @ u - beta * v).ravel()
+        alpha = vector_norm(v)
+        if alpha == 0:
+            exit_reason = 2
+            break
+        v = v / alpha
+
+        rho = np.sqrt(rho_bar**2 + beta**2)
+        c = rho_bar / rho
+        s = beta / rho
+        theta = s * alpha
+        rho_bar = -c * alpha
+        phi = c * phi_bar
+        phi_bar *= s
+        step = phi / rho
+
+        dk = 1.0 / rho * w
+        dnorm_sq += np.sum(np.multiply(dk, dk))
+
+        w = v - (theta / rho) * w
+
+        rnorm = abs(phi_bar)
+        Arnorm = alpha * abs(phi_bar * c)
+
+        Anorm_sq += alpha**2 + beta**2
+        Anorm = np.sqrt(Anorm_sq)
+
+        xnorm_sq += step**2
+        xnorm = np.sqrt(xnorm_sq)
+
+        Acond = Anorm * np.sqrt(dnorm_sq)
+
+        test1 = rnorm / bnorm
+        test2 = Arnorm / (Anorm * rnorm)
+        test3 = 1 / Acond
+
+        tolerance = float(atol * Anorm * xnorm / bnorm + btol)
+
+        if test3 <= ctol:
+            exit_reason = 3
+        if test2 <= atol:
+            exit_reason = 2
+        if test1 <= tolerance or rnorm <= abs_tol:
+            exit_reason = 1
+
+        if exit_reason > 0:
+            break
+
+    return SolverRunStats(
+        iterations=iterations,
+        tolerance=tolerance,
+        converged=exit_reason in (1, 2),
+    )
+
+
+def solver_run_stats(solver, data, meta):
+    if solver == "jacobi":
+        return jacobi_run_stats(data, meta)
+    if solver == "cg":
+        return cg_run_stats(data, meta)
+    if solver in ("jacobi_cg", "block_jacobi_cg"):
+        return preconditioned_cg_run_stats(solver, data, meta)
     if solver == "lsqr":
-        A, b = data
-        return lsqr_convergence_metric(A, b, x, meta)
-
-    A, b = data[:2]
-    return linear_system_convergence_metric(A, b, x, meta)
+        return lsqr_run_stats(data, meta)
+    raise ValueError(f"Unknown solver: {solver}")
 
 
 def record_solver_status(status_counts, solver, status, total_problems):
@@ -220,7 +438,7 @@ def main():
         "--output",
         type=str,
         default="matrices.json",
-        help="Output JSON file for matrices and benchmark convergence metrics",
+        help="Output JSON file for matrices and solver iteration stats",
     )
     parser.add_argument(
         "--num-batches",
@@ -310,29 +528,16 @@ def main():
 def calculate_and_save_solver_result(output_file, matrix, m, n, solver):
     try:
         data, meta = generate_data_with_existing_generator(solver, matrix)
-        convergence_metric = benchmark_convergence_metric(solver, data, meta)
-    except RuntimeError as e:
-        if "did not converge" in str(e):
-            print(f"Skipping {matrix.name} for {solver}: {e}")
-            return "skipped"
-        print(f"Error computing {solver} convergence for {matrix.name}: {e}")
+        stats = solver_run_stats(solver, data, meta)
+    except (RuntimeError, ValueError, np.linalg.LinAlgError) as e:
+        print(f"Error computing {solver} iteration stats for {matrix.name}: {e}")
         return "error"
-    except (ValueError, np.linalg.LinAlgError) as e:
-        print(f"Error computing {solver} convergence for {matrix.name}: {e}")
-        return "error"
-
-    if not np.isfinite(convergence_metric) or convergence_metric > 1:
-        print(
-            f"Skipping {matrix.name} for {solver}: benchmark convergence metric "
-            f"{convergence_metric} exceeds 1 within {DEFAULT_MAX_ITERS} iterations"
-        )
-        return "skipped"
 
     saved = append_to_json(
         output_file,
         matrix.name,
         matrix.group,
-        float(convergence_metric),
+        stats,
         m,
         n,
         matrix.nnz,
@@ -340,8 +545,9 @@ def calculate_and_save_solver_result(output_file, matrix, m, n, solver):
     )
     if saved:
         print(
-            f"Saved {matrix.name} {solver} convergence metric "
-            f"{convergence_metric} to {output_file}"
+            f"Saved {matrix.name} {solver} iterations={stats.iterations}, "
+            f"tolerance={stats.tolerance}, converged={stats.converged} "
+            f"to {output_file}"
         )
         return "saved"
     else:

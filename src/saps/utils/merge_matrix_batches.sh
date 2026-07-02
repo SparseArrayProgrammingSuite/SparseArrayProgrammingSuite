@@ -54,15 +54,22 @@ for solver in "${solvers[@]}"; do
   fi
 
   target="${solver}_${OUTPUT}"
-  key="${solver} convergence metric"
+  key="${solver} iterations"
   tmp="$(mktemp "${target}.tmp.XXXXXX")"
 
   jq -s --arg key "$key" '
     add
+    | map(select(has($key)))
     | unique_by(.matrix_name)
-    | sort_by(.[$key])
+    | sort_by(.[$key], .matrix_name)
   ' "${files[@]}" >"$tmp"
+  count="$(jq length "$tmp")"
+  if [[ "$count" -eq 0 ]]; then
+    rm "$tmp"
+    echo "No iteration-stat batch entries found for $solver"
+    continue
+  fi
   mv "$tmp" "$target"
 
-  echo "Merged ${#files[@]} files into $target"
+  echo "Merged ${#files[@]} files into $target ($count entries)"
 done
