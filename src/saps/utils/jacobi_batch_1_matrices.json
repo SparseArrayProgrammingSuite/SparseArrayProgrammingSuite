@@ -1,0 +1,26 @@
+[
+  {
+    "matrix_name": "bcsstm11",
+    "matrix_group": "HB",
+    "jacobi convergence criteria": 1.1102230246251565e-16,
+    "m": 1473,
+    "n": 1473,
+    "nnz": 1473
+  },
+  {
+    "matrix_name": "bcsstm24",
+    "matrix_group": "HB",
+    "jacobi convergence criteria": 1.1102230246251565e-16,
+    "m": 3562,
+    "n": 3562,
+    "nnz": 3562
+  },
+  {
+    "matrix_name": "mesh1em6",
+    "matrix_group": "Pothen",
+    "jacobi convergence criteria": 0.6756585662840282,
+    "m": 48,
+    "n": 48,
+    "nnz": 306
+  }
+]

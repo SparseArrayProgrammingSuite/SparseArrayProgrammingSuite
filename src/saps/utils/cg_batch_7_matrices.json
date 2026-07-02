@@ -1,0 +1,50 @@
+[
+  {
+    "matrix_name": "mesh1e1",
+    "matrix_group": "Pothen",
+    "cg convergence criteria": 0.3923081580000646,
+    "m": 48,
+    "n": 48,
+    "nnz": 306
+  },
+  {
+    "matrix_name": "fv2",
+    "matrix_group": "Norris",
+    "cg convergence criteria": 0.4959423407063688,
+    "m": 9801,
+    "n": 9801,
+    "nnz": 87025
+  },
+  {
+    "matrix_name": "finan512",
+    "matrix_group": "Mulvey",
+    "cg convergence criteria": 0.6901137812980006,
+    "m": 74752,
+    "n": 74752,
+    "nnz": 596992
+  },
+  {
+    "matrix_name": "bcsstm22",
+    "matrix_group": "HB",
+    "cg convergence criteria": 0.9368697341461185,
+    "m": 138,
+    "n": 138,
+    "nnz": 138
+  },
+  {
+    "matrix_name": "bcsstk02",
+    "matrix_group": "HB",
+    "cg convergence criteria": 0.9700439673101373,
+    "m": 66,
+    "n": 66,
+    "nnz": 4356
+  },
+  {
+    "matrix_name": "bcsstm09",
+    "matrix_group": "HB",
+    "cg convergence criteria": 0.9801980198019802,
+    "m": 1083,
+    "n": 1083,
+    "nnz": 1083
+  }
+]

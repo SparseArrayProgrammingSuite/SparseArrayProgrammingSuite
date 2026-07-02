@@ -1,0 +1,10 @@
+[
+  {
+    "matrix_name": "ash219",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 0.5030880398025729,
+    "m": 219,
+    "n": 85,
+    "nnz": 438
+  }
+]

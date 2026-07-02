@@ -1,0 +1,18 @@
+[
+  {
+    "matrix_name": "mesh1em6",
+    "matrix_group": "Pothen",
+    "cg convergence criteria": 0.423889243716143,
+    "m": 48,
+    "n": 48,
+    "nnz": 306
+  },
+  {
+    "matrix_name": "crystm02",
+    "matrix_group": "Boeing",
+    "cg convergence criteria": 0.8811388062841022,
+    "m": 13965,
+    "n": 13965,
+    "nnz": 322905
+  }
+]

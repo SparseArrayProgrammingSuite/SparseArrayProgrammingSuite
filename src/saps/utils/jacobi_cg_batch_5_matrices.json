@@ -1,0 +1,58 @@
+[
+  {
+    "matrix_name": "bcsstm20",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 0.0,
+    "m": 485,
+    "n": 485,
+    "nnz": 485
+  },
+  {
+    "matrix_name": "mesh3em5",
+    "matrix_group": "Pothen",
+    "jacobi_cg convergence criteria": 0.37663425265299993,
+    "m": 289,
+    "n": 289,
+    "nnz": 1889
+  },
+  {
+    "matrix_name": "bcsstm07",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 0.6788304822477039,
+    "m": 420,
+    "n": 420,
+    "nnz": 7252
+  },
+  {
+    "matrix_name": "bcsstk16",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 0.9317882635442638,
+    "m": 4884,
+    "n": 4884,
+    "nnz": 290378
+  },
+  {
+    "matrix_name": "nasa2146",
+    "matrix_group": "Nasa",
+    "jacobi_cg convergence criteria": 0.9366260196181427,
+    "m": 2146,
+    "n": 2146,
+    "nnz": 72250
+  },
+  {
+    "matrix_name": "bcsstk08",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 0.9679572945442039,
+    "m": 1074,
+    "n": 1074,
+    "nnz": 12960
+  },
+  {
+    "matrix_name": "lund_a",
+    "matrix_group": "HB",
+    "jacobi_cg convergence criteria": 0.9804520436184118,
+    "m": 147,
+    "n": 147,
+    "nnz": 2449
+  }
+]

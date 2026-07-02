@@ -1,0 +1,82 @@
+[
+  {
+    "matrix_name": "bcsstm05",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence criteria": 0.0,
+    "m": 153,
+    "n": 153,
+    "nnz": 153
+  },
+  {
+    "matrix_name": "bcsstm26",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence criteria": 0.0,
+    "m": 1922,
+    "n": 1922,
+    "nnz": 1922
+  },
+  {
+    "matrix_name": "mesh2em5",
+    "matrix_group": "Pothen",
+    "block_jacobi_cg convergence criteria": 0.8372438114701392,
+    "m": 306,
+    "n": 306,
+    "nnz": 2018
+  },
+  {
+    "matrix_name": "bodyy4",
+    "matrix_group": "Pothen",
+    "block_jacobi_cg convergence criteria": 0.8432584993132799,
+    "m": 17546,
+    "n": 17546,
+    "nnz": 121938
+  },
+  {
+    "matrix_name": "nos4",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence criteria": 0.9095666377171315,
+    "m": 100,
+    "n": 100,
+    "nnz": 594
+  },
+  {
+    "matrix_name": "bcsstk14",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence criteria": 0.9233922882407382,
+    "m": 1806,
+    "n": 1806,
+    "nnz": 63454
+  },
+  {
+    "matrix_name": "bcsstk22",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence criteria": 0.9486652342125816,
+    "m": 138,
+    "n": 138,
+    "nnz": 696
+  },
+  {
+    "matrix_name": "685_bus",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence criteria": 0.9577701879060604,
+    "m": 685,
+    "n": 685,
+    "nnz": 3249
+  },
+  {
+    "matrix_name": "bcsstk06",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence criteria": 0.9741925437187304,
+    "m": 420,
+    "n": 420,
+    "nnz": 7860
+  },
+  {
+    "matrix_name": "cfd1",
+    "matrix_group": "Rothberg",
+    "block_jacobi_cg convergence criteria": 0.9851684802514938,
+    "m": 70656,
+    "n": 70656,
+    "nnz": 1828364
+  }
+]

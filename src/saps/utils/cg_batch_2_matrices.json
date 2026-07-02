@@ -1,0 +1,26 @@
+[
+  {
+    "matrix_name": "crystm03",
+    "matrix_group": "Boeing",
+    "cg convergence criteria": 0.884051494523617,
+    "m": 24696,
+    "n": 24696,
+    "nnz": 583770
+  },
+  {
+    "matrix_name": "mesh2e1",
+    "matrix_group": "Pothen",
+    "cg convergence criteria": 0.8891365334774727,
+    "m": 306,
+    "n": 306,
+    "nnz": 2018
+  },
+  {
+    "matrix_name": "bcsstk05",
+    "matrix_group": "HB",
+    "cg convergence criteria": 0.983403004110345,
+    "m": 153,
+    "n": 153,
+    "nnz": 2423
+  }
+]

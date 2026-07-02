@@ -1,0 +1,34 @@
+[
+  {
+    "matrix_name": "bcsstm05",
+    "matrix_group": "HB",
+    "cg convergence criteria": 0.5617347123306314,
+    "m": 153,
+    "n": 153,
+    "nnz": 153
+  },
+  {
+    "matrix_name": "mesh2em5",
+    "matrix_group": "Pothen",
+    "cg convergence criteria": 0.8802822972932925,
+    "m": 306,
+    "n": 306,
+    "nnz": 2018
+  },
+  {
+    "matrix_name": "bodyy4",
+    "matrix_group": "Pothen",
+    "cg convergence criteria": 0.9319401810648063,
+    "m": 17546,
+    "n": 17546,
+    "nnz": 121938
+  },
+  {
+    "matrix_name": "nos4",
+    "matrix_group": "HB",
+    "cg convergence criteria": 0.9508959702313865,
+    "m": 100,
+    "n": 100,
+    "nnz": 594
+  }
+]

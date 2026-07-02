@@ -283,22 +283,15 @@ def main():
             f"Starting problem: {matrix.name} "
             f"({problem_index}/{len(matrices)}, kind={matrix.kind!r})"
         )
-        path, _archive = matrix.download(extract=True)
-        matrix_path = os.path.join(path, matrix.name + ".mtx")
-        print(f"Matrix: {matrix.name}, Path: {matrix_path}")
-        if not matrix_path or not os.path.exists(matrix_path):
+        m = matrix.rows
+        n = matrix.cols
+        A = None
+        if m <= 1 or n <= 1:
+            print(f"Skipping matrix {matrix.name} with 1 dimensions")
             record_all_solver_status(status_counts, "skipped", len(matrices))
             continue
 
-        A = mmread(matrix_path)  # This is the full sparse matrix
-        m, n = A.shape
-        if A.shape[0] <= 1 or A.shape[1] <= 1:
-            record_all_solver_status(status_counts, "skipped", len(matrices))
-            continue
 
-        # Convert to CSR format if needed for better diagonal access
-        if not hasattr(A, "diagonal"):
-            A = A.tocsr()
 
         for solver in SOLVER_DICT:
             if args.num_batches == 1:
@@ -374,7 +367,7 @@ def main():
             if solver != "lsqr" and m != n:
                 print(
                     f"Skipping non-square matrix {matrix.name}"
-                    f" of shape {A.shape} for {solver}"
+                    f" of shape {m}x{n} for {solver}"
                 )
                 record_solver_status(status_counts, solver, "skipped", len(matrices))
                 continue
@@ -382,6 +375,17 @@ def main():
                 print(f"Skipping non-SPD matrix {matrix.name} for {solver}")
                 record_solver_status(status_counts, solver, "skipped", len(matrices))
                 continue
+            if A is None:
+                path, _archive = matrix.download(extract=True)
+                matrix_path = os.path.join(path, matrix.name + ".mtx")
+                print(f"Matrix: {matrix.name}, Path: {matrix_path}")
+                if not matrix_path or not os.path.exists(matrix_path):
+                    record_solver_status(status_counts, solver, "error", len(matrices))
+                    continue
+                A = mmread(matrix_path)  # This is the full sparse matrix
+                # Convert to CSR format if needed for better diagonal access
+                if not hasattr(A, "diagonal"):
+                    A = A.tocsr()
             status = calculate_and_save_solver_result(
                 output_file,
                 matrix,

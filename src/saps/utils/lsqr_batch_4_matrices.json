@@ -1,0 +1,18 @@
+[
+  {
+    "matrix_name": "abb313",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 0.9646188438391818,
+    "m": 313,
+    "n": 176,
+    "nnz": 1557
+  },
+  {
+    "matrix_name": "well1850",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 0.9821926022721159,
+    "m": 1850,
+    "n": 712,
+    "nnz": 8758
+  }
+]

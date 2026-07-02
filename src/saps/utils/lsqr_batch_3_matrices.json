@@ -1,0 +1,10 @@
+[
+  {
+    "matrix_name": "ash958",
+    "matrix_group": "HB",
+    "lsqr convergence criteria": 0.5239634600424696,
+    "m": 958,
+    "n": 292,
+    "nnz": 1916
+  }
+]

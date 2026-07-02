@@ -1,0 +1,42 @@
+[
+  {
+    "matrix_name": "bcsstm11",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence criteria": 0.0,
+    "m": 1473,
+    "n": 1473,
+    "nnz": 1473
+  },
+  {
+    "matrix_name": "bcsstm24",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence criteria": 0.0,
+    "m": 3562,
+    "n": 3562,
+    "nnz": 3562
+  },
+  {
+    "matrix_name": "crystm02",
+    "matrix_group": "Boeing",
+    "block_jacobi_cg convergence criteria": 0.3237483845038852,
+    "m": 13965,
+    "n": 13965,
+    "nnz": 322905
+  },
+  {
+    "matrix_name": "mesh1em6",
+    "matrix_group": "Pothen",
+    "block_jacobi_cg convergence criteria": 0.3587932086700792,
+    "m": 48,
+    "n": 48,
+    "nnz": 306
+  },
+  {
+    "matrix_name": "bcsstk04",
+    "matrix_group": "HB",
+    "block_jacobi_cg convergence criteria": 0.9455257432084478,
+    "m": 132,
+    "n": 132,
+    "nnz": 3648
+  }
+]

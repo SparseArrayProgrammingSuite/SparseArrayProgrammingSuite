@@ -1,0 +1,26 @@
+[
+  {
+    "matrix_name": "bcsstm08",
+    "matrix_group": "HB",
+    "jacobi convergence criteria": 1.1102230246251565e-16,
+    "m": 1074,
+    "n": 1074,
+    "nnz": 1074
+  },
+  {
+    "matrix_name": "bcsstm21",
+    "matrix_group": "HB",
+    "jacobi convergence criteria": 1.1102230246251565e-16,
+    "m": 3600,
+    "n": 3600,
+    "nnz": 3600
+  },
+  {
+    "matrix_name": "fv1",
+    "matrix_group": "Norris",
+    "jacobi convergence criteria": 0.8540568925002276,
+    "m": 9604,
+    "n": 9604,
+    "nnz": 85264
+  }
+]
