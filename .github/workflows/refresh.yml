@@ -2,7 +2,7 @@ defaults:
       run:
         shell: bash -el {0}
 
-name: refresh
+name: Refresh
 jobs:
   metadata:
     runs-on: ubuntu-latest
@@ -60,6 +60,7 @@ jobs:
         run: poetry install --with test
       - name: Trace statistics chunk
         run: |
+          rm -f statistics.json
           poetry run ./bin/run_benchmark.py \
             --trace-statistics \
             --tag trace \
