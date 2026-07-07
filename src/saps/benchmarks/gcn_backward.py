@@ -8,10 +8,10 @@ from saps.benchmark import (
     Benchmark,
     Contributor,
     DataInstance,
-    Dataset,
     Generator,
     Ref,
 )
+from saps.benchmarks.suitespase import SuiteSparseDataset
 from saps_framework import BinsparseFormat
 
 
@@ -38,7 +38,7 @@ def _gcn_loss(adjacency, features, weights1, bias1, weights2, bias2, targets):
     return np.sum(diff * diff) / predictions.shape[0]
 
 
-class GCNTrainingDataset(Dataset):
+class GCNTrainingDataset(SuiteSparseDataset):
     def __init__(
         self,
         name: str,
@@ -60,10 +60,13 @@ class GCNTrainingDataset(Dataset):
         targets: np.ndarray | None = None,
         ref_meta: dict[str, Any] | None = None,
     ):
-        self._suites = suites or []
-        self._name = name
-        self._description = description
-        self.source_name = source_name or name
+        super().__init__(
+            name,
+            source_name=source_name or name,
+            pretty_name=f"GCN {name}",
+            description=description,
+            suites=suites,
+        )
         self.feature_dim = feature_dim
         self.hidden_dim = hidden_dim
         self.out_dim = out_dim
@@ -77,28 +80,6 @@ class GCNTrainingDataset(Dataset):
         self.bias2 = bias2
         self.targets = targets
         self.ref_meta = ref_meta or {}
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def pretty_name(self) -> str:
-        return f"GCN {self._name}"
-
-    @property
-    def description(self) -> str:
-        if self._description is not None:
-            return self._description
-        return f"SuiteSparse matrix {self.source_name}."
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
 
     @property
     def metadata(self) -> dict[str, Any]:

@@ -8,15 +8,15 @@ from saps.benchmark import (
     Benchmark,
     Contributor,
     DataInstance,
-    Dataset,
     Generator,
     Ref,
 )
+from saps.benchmarks.suitespase import SuiteSparseDataset
 from saps.downloaders.suitesparse import load_suitesparse_linear_system
 from saps_framework import BinsparseFormat
 
 
-class GMRESDataset(Dataset):
+class GMRESDataset(SuiteSparseDataset):
     def __init__(
         self,
         source_name: str,
@@ -29,42 +29,18 @@ class GMRESDataset(Dataset):
         meta: dict[str, Any] | None = None,
         ref_meta: dict[str, Any] | None = None,
     ):
-        self._suites = suites or []
-        self.source_name = source_name
-        self.has_b_file = has_b_file
-        self.nnz = nnz
+        super().__init__(
+            source_name,
+            pretty_name=f"GMRES {source_name}",
+            suites=suites,
+            nnz=nnz,
+            has_b_file=has_b_file,
+        )
         self.A = A
         self.b = b
         self.x0 = x0
         self.benchmark_meta = meta or {}
         self.ref_meta = ref_meta or {}
-
-    @property
-    def name(self) -> str:
-        return self.source_name
-
-    @property
-    def pretty_name(self) -> str:
-        return f"GMRES {self.source_name}"
-
-    @property
-    def description(self) -> str:
-        return f"SuiteSparse matrix {self.source_name}."
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
-    @property
-    def metadata(self) -> dict[str, Any]:
-        data = super().metadata
-        data["nnz"] = self.nnz
-        data["has_b_file"] = self.has_b_file
-        return data
 
 
 def gmres_random_system(seed):

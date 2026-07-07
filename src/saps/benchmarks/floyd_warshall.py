@@ -7,15 +7,15 @@ from saps.benchmark import (
     Benchmark,
     Contributor,
     DataInstance,
-    Dataset,
     Generator,
     Ref,
 )
+from saps.benchmarks.suitespase import SuiteSparseDataset
 from saps.downloaders.suitesparse import load_suitesparse_matrix
 from saps_framework.binsparse_format import BinsparseFormat
 
 
-class FloydWarshallDataset(Dataset):
+class FloydWarshallDataset(SuiteSparseDataset):
     def __init__(
         self,
         name,
@@ -28,37 +28,19 @@ class FloydWarshallDataset(Dataset):
         expected=None,
         ref_meta=None,
     ):
-        self._name = name
-        self._pretty_name = pretty_name
-        self._description = description
-        self._suites = suites
-        self.source = source
+        super().__init__(
+            name,
+            source_name=source,
+            pretty_name=pretty_name,
+            description=description,
+            suites=suites,
+        )
         self.symmetrize = symmetrize
         self.A = A
         if expected is None and A is not None:
             expected = floyd_warshall_reference(A)
         self.expected = expected
         self.ref_meta = ref_meta
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def pretty_name(self) -> str:
-        return self._pretty_name
-
-    @property
-    def description(self) -> str:
-        return self._description
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
 
 
 def floyd_warshall_reference(A):
@@ -487,7 +469,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
         ]
 
     def generate(self, dataset: FloydWarshallDataset):
-        A, _meta = load_suitesparse_matrix(dataset.source)
+        A, _meta = load_suitesparse_matrix(dataset.source_name)
         n, m = A.shape
         if n != m:
             raise ValueError(f"Floyd-Warshall requires a square matrix, got {A.shape}")

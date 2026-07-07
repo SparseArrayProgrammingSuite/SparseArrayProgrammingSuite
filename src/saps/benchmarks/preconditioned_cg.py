@@ -10,10 +10,10 @@ from saps.benchmark import (
     Benchmark,
     Contributor,
     DataInstance,
-    Dataset,
     Generator,
     Ref,
 )
+from saps.benchmarks.suitespase import SuiteSparseDataset
 from saps.downloaders.suitesparse import (
     load_suitesparse_linear_system,
     random_rhs_for_matrix,
@@ -33,7 +33,7 @@ def _generate_cg_data(source, has_b_file, A=None):
     return (A, b, x0)
 
 
-class PreconditionedCGDataset(Dataset):
+class PreconditionedCGDataset(SuiteSparseDataset):
     def __init__(
         self,
         source_name: str,
@@ -43,38 +43,20 @@ class PreconditionedCGDataset(Dataset):
         suites: list[str] | None = None,
         ref_meta: dict[str, Any] | None = None,
     ):
-        self._suites = suites or []
-        self.source_name = source_name
+        super().__init__(
+            source_name,
+            pretty_name=f"Preconditioned CG {source_name}",
+            suites=suites,
+            has_b_file=has_b_file,
+        )
         self.condition_number = condition_number
-        self.has_b_file = has_b_file
         self.A = A
         self.ref_meta = ref_meta
-
-    @property
-    def name(self) -> str:
-        return self.source_name
-
-    @property
-    def pretty_name(self) -> str:
-        return f"Preconditioned CG {self.source_name}"
-
-    @property
-    def description(self) -> str:
-        return f"SuiteSparse matrix {self.source_name}."
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
 
     @property
     def metadata(self) -> dict[str, Any]:
         data = super().metadata
         data["condition_number"] = self.condition_number
-        data["has_b_file"] = self.has_b_file
         return data
 
 

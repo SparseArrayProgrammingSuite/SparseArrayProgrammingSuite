@@ -7,10 +7,10 @@ from saps.benchmark import (
     Benchmark,
     Contributor,
     DataInstance,
-    Dataset,
     Generator,
     Ref,
 )
+from saps.benchmarks.suitespase import SuiteSparseDataset
 from saps.downloaders.suitesparse import load_suitesparse_matrix
 from saps_framework import BinsparseFormat
 
@@ -35,7 +35,7 @@ def _prune(array_api, matrix, threshold):
     return matrix * mask
 
 
-class MCLDataset(Dataset):
+class MCLDataset(SuiteSparseDataset):
     def __init__(
         self,
         source_name: str,
@@ -43,30 +43,14 @@ class MCLDataset(Dataset):
         A: Any | None = None,
         expected_count: int | None = None,
     ):
-        self._suites = suites or []
-        self.source_name = source_name
+        super().__init__(
+            source_name,
+            pretty_name=f"MCL {source_name}",
+            description=f"SuiteSparse adjacency matrix {source_name}.",
+            suites=suites,
+        )
         self.A = A
         self.expected_count = expected_count
-
-    @property
-    def name(self) -> str:
-        return self.source_name
-
-    @property
-    def pretty_name(self) -> str:
-        return f"MCL {self.source_name}"
-
-    @property
-    def description(self) -> str:
-        return f"SuiteSparse adjacency matrix {self.source_name}."
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
 
 
 class MCLTestGenerator(Generator[MCLDataset]):

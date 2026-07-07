@@ -7,15 +7,15 @@ from saps.benchmark import (
     Benchmark,
     Contributor,
     DataInstance,
-    Dataset,
     Generator,
     Ref,
 )
+from saps.benchmarks.suitespase import SuiteSparseDataset
 from saps.downloaders.suitesparse import load_suitesparse_matrix
 from saps_framework import BinsparseFormat
 
 
-class GCNDataset(Dataset):
+class GCNDataset(SuiteSparseDataset):
     def __init__(
         self,
         name: str,
@@ -33,10 +33,13 @@ class GCNDataset(Dataset):
         bias2: np.ndarray | None = None,
         expected: np.ndarray | None = None,
     ):
-        self._suites = suites or []
-        self.dataset_name = name
-        self.dataset_description = description
-        self.source_name = source_name if source_name is not None else name
+        super().__init__(
+            name,
+            source_name=source_name if source_name is not None else name,
+            pretty_name=f"GCN {name}",
+            description=description,
+            suites=suites,
+        )
         self.feature_dim = feature_dim
         self.hidden_dim = hidden_dim
         self.out_dim = out_dim
@@ -47,26 +50,6 @@ class GCNDataset(Dataset):
         self.weights2 = weights2
         self.bias2 = bias2
         self.expected = expected
-
-    @property
-    def name(self) -> str:
-        return self.dataset_name
-
-    @property
-    def pretty_name(self) -> str:
-        return f"GCN {self.dataset_name}"
-
-    @property
-    def description(self) -> str:
-        return self.dataset_description or f"SuiteSparse matrix {self.source_name}."
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
 
     @property
     def metadata(self) -> dict[str, Any]:
