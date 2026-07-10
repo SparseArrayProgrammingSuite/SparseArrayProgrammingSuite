@@ -1,4 +1,3 @@
-import os
 from typing import Any, cast
 
 import numpy as np
@@ -11,7 +10,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.suitespase import SuiteSparseDataset
+from saps.benchmarks.suitespase import SuiteSparseDataset, fetch_suitesparse_matrix
 from saps_framework import BinsparseFormat
 
 
@@ -473,45 +472,34 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
             ),
         ]
 
+    @property
+    def cacheable(self) -> bool:
+        return False
+
     def generate(self, dataset: GCNTrainingDataset):
-        from scipy.io import mmread
-
-        import ssgetpy
-
         feature_dim = dataset.feature_dim
         hidden_dim = dataset.hidden_dim
         out_dim = dataset.out_dim
-        source = dataset.source_name
 
-        matrices = ssgetpy.search(name=source)
-        if not matrices:
-            raise ValueError(f"No matrix found with name '{source}'")
-        matrix = matrices[0]
-        (path, archive) = matrix.download(extract=True)
-        matrix_path = os.path.join(path, matrix.name + ".mtx")
-        if matrix_path and os.path.exists(matrix_path):
-            A = mmread(matrix_path)
-        else:
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
+        raw = fetch_suitesparse_matrix(dataset.source_name)
+        coo = BinsparseFormat.to_coo(raw.inputs[0])
         rng = np.random.default_rng(0)
-        A = A.tocoo()
 
         # Create feature/weight arrays using the RNG (deterministic)
-        n = A.shape[0]
+        n = raw.meta["shape"][0]
         features = rng.standard_normal((n, feature_dim), dtype=np.float32)
         weights1 = rng.standard_normal((feature_dim, hidden_dim), dtype=np.float32)
         bias1 = np.zeros((hidden_dim,), dtype=np.float32)
         weights2 = rng.standard_normal((hidden_dim, out_dim), dtype=np.float32)
         bias2 = np.zeros((out_dim,), dtype=np.float32)
         targets = rng.standard_normal((n, out_dim), dtype=np.float32)
-        A_T = A.T.tocoo()
 
-        A_bin = BinsparseFormat.from_coo(
-            (A.row, A.col), A.data.astype(np.float32, copy=False), A.shape
-        )
-        A_T_bin = BinsparseFormat.from_coo(
-            (A_T.row, A_T.col), A_T.data.astype(np.float32, copy=False), A_T.shape
-        )
+        row, col = coo.data["indices_0"], coo.data["indices_1"]
+        shape = coo.data["shape"]
+        values_f32 = coo.data["values"].astype(np.float32, copy=False)
+        A_bin = BinsparseFormat.from_coo((row, col), values_f32, shape)
+        # Transpose of a COO matrix is its indices swapped; same values, shape reversed.
+        A_T_bin = BinsparseFormat.from_coo((col, row), values_f32, (shape[1], shape[0]))
         features_b = BinsparseFormat.from_numpy(features)
         weights1_b = BinsparseFormat.from_numpy(weights1)
         bias1_b = BinsparseFormat.from_numpy(bias1)

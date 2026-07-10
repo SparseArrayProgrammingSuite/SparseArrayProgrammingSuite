@@ -11,8 +11,10 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.suitespase import SuiteSparseDataset
-from saps.downloaders.suitesparse import load_suitesparse_linear_system
+from saps.benchmarks.suitespase import (
+    SuiteSparseDataset,
+    fetch_suitesparse_linear_system,
+)
 from saps_framework import BinsparseFormat
 
 
@@ -226,6 +228,10 @@ class GMRESGenerator(Generator[GMRESDataset]):
         )
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[GMRESDataset]:
         return [
             GMRESDataset("mesh3em5", nnz=1889),
@@ -239,14 +245,9 @@ class GMRESGenerator(Generator[GMRESDataset]):
         ]
 
     def generate(self, dataset: GMRESDataset):
-        A, b, _meta = load_suitesparse_linear_system(
-            dataset.source_name, has_b_file=dataset.has_b_file
-        )
-        x = np.zeros(A.shape[1])
-
-        A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
+        A_bin, b, _has_real_rhs = fetch_suitesparse_linear_system(dataset.source_name)
+        x_bin = BinsparseFormat.from_numpy(np.zeros(A_bin.data["shape"][1]))
         b_bin = BinsparseFormat.from_numpy(b)
-        x_bin = BinsparseFormat.from_numpy(x)
         return DataInstance(inputs=[A_bin, b_bin, x_bin], meta={})
 
 

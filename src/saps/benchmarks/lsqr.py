@@ -9,8 +9,10 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.suitespase import SuiteSparseDataset
-from saps.downloaders.suitesparse import load_suitesparse_linear_system
+from saps.benchmarks.suitespase import (
+    SuiteSparseDataset,
+    fetch_suitesparse_linear_system,
+)
 from saps_framework import BinsparseFormat
 
 
@@ -251,6 +253,10 @@ class LSQRGenerator(Generator[LSQRDataset]):
         return self.description
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[LSQRDataset]:
         return [
             LSQRDataset("abb313"),
@@ -262,17 +268,14 @@ class LSQRGenerator(Generator[LSQRDataset]):
         ]
 
     def generate(self, dataset: LSQRDataset):
-        A, b, _meta = load_suitesparse_linear_system(
-            dataset.source_name, has_b_file=dataset.has_b_file
-        )
-        if not dataset.has_b_file:
+        A_bin, b, has_real_rhs = fetch_suitesparse_linear_system(dataset.source_name)
+        if not has_real_rhs:
             # Adds a small amount of noise so that Ax != b
             rng = np.random.default_rng(0)
             noise_level = dataset.noise_amt * np.linalg.norm(b)
             noise = rng.standard_normal(b.shape) * noise_level
             b = b + noise
 
-        A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
         b_bin = BinsparseFormat.from_numpy(b)
         return DataInstance(inputs=[A_bin, b_bin], meta={})
 

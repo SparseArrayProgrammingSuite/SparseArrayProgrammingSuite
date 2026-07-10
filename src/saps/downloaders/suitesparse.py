@@ -58,8 +58,25 @@ def load_suitesparse_matrix(
         "matrix_group": matrix.group,
         "n": A.shape[0],
         "nnz": A.nnz,
+        "shape": A.shape,
     }
     return A, meta
+
+
+def load_suitesparse_matrix_and_rhs(
+    name: str, *, data_dir: str | Path | None = None
+) -> tuple[Any, np.ndarray, dict[str, Any]]:
+    """Download a SuiteSparse matrix paired with its real ``<name>_b.mtx`` RHS."""
+    matrix_dir, matrix, A = _download_and_read_matrix(name, data_dir)
+    b = load_suitesparse_rhs(matrix_dir, matrix.name)
+    meta = {
+        "dataset_name": name,
+        "matrix_group": matrix.group,
+        "n": A.shape[0],
+        "nnz": A.nnz,
+        "shape": A.shape,
+    }
+    return A, b, meta
 
 
 def load_suitesparse_rhs(matrix_dir: str | Path, matrix_name: str) -> np.ndarray:
@@ -85,32 +102,3 @@ def random_rhs_for_matrix(A: Any, *, seed: int = 0, density: float = 0.1) -> np.
     )
     b = A @ x
     return b.toarray().flatten()
-
-
-def load_suitesparse_linear_system(
-    name: str,
-    *,
-    has_b_file: bool = False,
-    data_dir: str | Path | None = None,
-    rng_seed: int = 0,
-    density: float = 0.1,
-) -> tuple[Any, np.ndarray, dict[str, Any]]:
-    """Download a SuiteSparse matrix paired with a right-hand-side vector ``b``.
-
-    If *has_b_file*, ``b`` is loaded from the matrix's companion ``_b.mtx`` file.
-    Otherwise ``b = A @ x`` for a random sparse ``x`` (deterministic given
-    *rng_seed*), matching how the CG/GMRES/Jacobi generators derive a synthetic RHS.
-    """
-    matrix_dir, matrix, A = _download_and_read_matrix(name, data_dir)
-    b = (
-        load_suitesparse_rhs(matrix_dir, matrix.name)
-        if has_b_file
-        else random_rhs_for_matrix(A, seed=rng_seed, density=density)
-    )
-    meta = {
-        "dataset_name": name,
-        "matrix_group": matrix.group,
-        "n": A.shape[0],
-        "nnz": A.nnz,
-    }
-    return A, b, meta

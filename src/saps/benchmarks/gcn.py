@@ -10,8 +10,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.suitespase import SuiteSparseDataset
-from saps.downloaders.suitesparse import load_suitesparse_matrix
+from saps.benchmarks.suitespase import SuiteSparseDataset, fetch_suitesparse_matrix
 from saps_framework import BinsparseFormat
 
 
@@ -269,6 +268,10 @@ class GCNGenerator(Generator[GCNDataset]):
         )
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[GCNDataset]:
         return [
             GCNDataset(
@@ -359,11 +362,12 @@ class GCNGenerator(Generator[GCNDataset]):
         hidden_dim = dataset.hidden_dim
         out_dim = dataset.out_dim
 
-        A, _meta = load_suitesparse_matrix(dataset.source_name)
+        raw = fetch_suitesparse_matrix(dataset.source_name)
+        coo = BinsparseFormat.to_coo(raw.inputs[0])
         rng = np.random.default_rng(0)
 
         # Create feature/weight arrays using the RNG (deterministic)
-        n = A.shape[0]
+        n = raw.meta["shape"][0]
         features = rng.standard_normal((n, feature_dim), dtype=np.float32)
         weights1 = rng.standard_normal((feature_dim, hidden_dim), dtype=np.float32)
         bias1 = np.zeros((hidden_dim,), dtype=np.float32)
@@ -371,7 +375,9 @@ class GCNGenerator(Generator[GCNDataset]):
         bias2 = np.zeros((out_dim,), dtype=np.float32)
 
         A_bin = BinsparseFormat.from_coo(
-            (A.row, A.col), A.data.astype(np.float32, copy=False), A.shape
+            (coo.data["indices_0"], coo.data["indices_1"]),
+            coo.data["values"].astype(np.float32, copy=False),
+            coo.data["shape"],
         )
         features_b = BinsparseFormat.from_numpy(features)
         weights1_b = BinsparseFormat.from_numpy(weights1)

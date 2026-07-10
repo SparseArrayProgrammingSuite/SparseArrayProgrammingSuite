@@ -13,24 +13,27 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.suitespase import SuiteSparseDataset
-from saps.downloaders.suitesparse import (
-    load_suitesparse_linear_system,
-    random_rhs_for_matrix,
+from saps.benchmarks.suitespase import (
+    SuiteSparseDataset,
+    binsparse_matrix_diagonal,
+    binsparse_matrix_to_scipy_coo,
+    fetch_suitesparse_linear_system,
 )
+from saps.downloaders.suitesparse import random_rhs_for_matrix
 from saps_framework import BinsparseFormat
 
 
-def _generate_cg_data(source, has_b_file, A=None):
+def _generate_cg_data(source, A=None):
     if A is not None:
         import scipy.sparse as sp
 
         A = sp.coo_matrix(A)
         b = random_rhs_for_matrix(A)
+        A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
     else:
-        A, b, _meta = load_suitesparse_linear_system(source, has_b_file=has_b_file)
-    x0 = np.zeros(A.shape[1])
-    return (A, b, x0)
+        A_bin, b, _has_real_rhs = fetch_suitesparse_linear_system(source)
+    x0 = np.zeros(A_bin.data["shape"][1])
+    return (A_bin, b, x0)
 
 
 class PreconditionedCGDataset(SuiteSparseDataset):
@@ -177,8 +180,8 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
     def generate(self, dataset: PreconditionedCGDataset) -> DataInstance:
         import scipy.sparse as sp
 
-        A, b, x0 = _generate_cg_data(dataset.source_name, dataset.has_b_file, dataset.A)
-        A_csr = A.tocsr()
+        A_bin, b, x0 = _generate_cg_data(dataset.source_name, dataset.A)
+        A_csr = binsparse_matrix_to_scipy_coo(A_bin).tocsr()
         n = A_csr.shape[0]
         # Create one block for every processor modelled after
         # this example: https://petsc.org/main/src/ksp/ksp/tutorials/ex7.c.html
@@ -194,7 +197,6 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
             i = j
         M = sp.block_diag(blocks).tocoo()
         M_bin = BinsparseFormat.from_coo((M.row, M.col), M.data, M.shape)
-        A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
         b_bin = BinsparseFormat.from_numpy(b)
         x0_bin = BinsparseFormat.from_numpy(x0)
         return DataInstance(
@@ -319,10 +321,9 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
         ]
 
     def generate(self, dataset: PreconditionedCGDataset) -> DataInstance:
-        A, b, x0 = _generate_cg_data(dataset.source_name, dataset.has_b_file, dataset.A)
-        M = A.diagonal()
+        A_bin, b, x0 = _generate_cg_data(dataset.source_name, dataset.A)
+        M = binsparse_matrix_diagonal(A_bin)
         M_bin = BinsparseFormat.from_numpy(M)
-        A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
         b_bin = BinsparseFormat.from_numpy(b)
         x0_bin = BinsparseFormat.from_numpy(x0)
         return DataInstance(

@@ -10,8 +10,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.suitespase import SuiteSparseDataset
-from saps.downloaders.suitesparse import load_suitesparse_matrix
+from saps.benchmarks.suitespase import SuiteSparseDataset, fetch_suitesparse_matrix
 from saps_framework.binsparse_format import BinsparseFormat
 
 
@@ -468,15 +467,20 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
             ),
         ]
 
-    def generate(self, dataset: FloydWarshallDataset):
-        A, _meta = load_suitesparse_matrix(dataset.source_name)
-        n, m = A.shape
-        if n != m:
-            raise ValueError(f"Floyd-Warshall requires a square matrix, got {A.shape}")
+    @property
+    def cacheable(self) -> bool:
+        return False
 
+    def generate(self, dataset: FloydWarshallDataset):
+        raw = fetch_suitesparse_matrix(dataset.source_name)
+        n, m = raw.meta["shape"]
+        if n != m:
+            raise ValueError(f"Floyd-Warshall requires a square matrix, got {(n, m)}")
+
+        coo = BinsparseFormat.to_coo(raw.inputs[0])
         G = np.full((n, n), np.inf, dtype=np.float64)
-        if A.nnz > 0:
-            G[A.row, A.col] = 1.0
+        if raw.meta["nnz"] > 0:
+            G[coo.data["indices_0"], coo.data["indices_1"]] = 1.0
         np.fill_diagonal(G, 0.0)
 
         if dataset.symmetrize:

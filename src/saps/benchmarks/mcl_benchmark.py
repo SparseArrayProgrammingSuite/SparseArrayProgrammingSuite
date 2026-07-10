@@ -10,8 +10,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.suitespase import SuiteSparseDataset
-from saps.downloaders.suitesparse import load_suitesparse_matrix
+from saps.benchmarks.suitespase import SuiteSparseDataset, fetch_suitesparse_matrix
 from saps_framework import BinsparseFormat
 
 
@@ -194,6 +193,10 @@ class MCLGenerator(Generator[MCLDataset]):
         return MCLBenchmark().motivation
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[MCLDataset]:
         return [
             MCLDataset("Trefethen_200"),
@@ -207,9 +210,8 @@ class MCLGenerator(Generator[MCLDataset]):
         ]
 
     def generate(self, dataset: MCLDataset):
-        A, _meta = load_suitesparse_matrix(dataset.source_name)
-        A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
-        return DataInstance(inputs=[A_bin], meta={})
+        raw = fetch_suitesparse_matrix(dataset.source_name)
+        return DataInstance(inputs=[raw.inputs[0]], meta={})
 
 
 class MCLBenchmark(Benchmark):
