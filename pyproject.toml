@@ -13,6 +13,7 @@ dependencies = [
     "asv>=0.6.5,<0.7.0",
     "boto3>=1.43.8,<2.0.0",
     "botocore[crt]>=1.43.10,<2.0.0",
+    "finch-tensor-lite @ file:///Users/ruchikashirsath/VSCode/finch-tensor-lite ; python_version >= \"3.11\" and python_version < \"3.14\"",
 ]
 
 [tool.poetry]
@@ -51,6 +52,9 @@ scipy = "==1.17.1"
 ssgetpy = "==1.0rc2"
 torch = "==2.12.1"
 
+
+[tool.poetry.dependencies]
+finch-tensor-lite = {develop = true, python = ">=3.11,<3.14"}
 [build-system]
 requires = ["poetry-core>=1.0.8"]
 build-backend = "poetry.core.masonry.api"
