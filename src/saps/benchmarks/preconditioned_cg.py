@@ -13,7 +13,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.suitespase import (
+from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     binsparse_matrix_diagonal,
     binsparse_matrix_to_scipy_coo,

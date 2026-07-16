@@ -10,7 +10,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.suitespase import SuiteSparseDataset, fetch_suitesparse_matrix
+from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
 from saps_framework import BinsparseFormat
 
 

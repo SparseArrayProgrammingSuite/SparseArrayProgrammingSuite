@@ -11,7 +11,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.suitespase import (
+from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     fetch_suitesparse_linear_system,
 )
