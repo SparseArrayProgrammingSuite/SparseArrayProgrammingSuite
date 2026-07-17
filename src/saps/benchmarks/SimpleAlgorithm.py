@@ -51,7 +51,7 @@ def _first_true_index(xp, mask):
     return int(xp.min(xp.where(mask, positions, size)))
 
 
-def _onehot_rows(xp, basis, width):=
+def _onehot_rows(xp, basis, width):
     idx = xp.arange(width)
     return xp.astype(idx[None, :] == basis[:, None], xp.float64)
 
