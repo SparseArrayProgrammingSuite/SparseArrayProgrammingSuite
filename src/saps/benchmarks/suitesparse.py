@@ -69,51 +69,57 @@ class SuiteSparseDataset(Dataset):
         return data
 
 
-_MATRIX_NAMES = [
-    "mesh3em5",
-    "bcsstm02",
-    "fv1",
-    "Muu",
-    "Chem97ZtZ",
-    "Dubcova1",
-    "t3dl_e",
-    "bcsstk09",
-    "Trefethen_200",
-    "Trefethen_500",
-    "Trefethen_700",
-    "fv2",
-    "Trefethen_20000",
-    "abb313",
-    "ash958",
-    "well1033",
-    "Maragal_5",
-    "illc1850",
-    "bayer06",
-    "mhdb416",
-    "lund_b",
-    "bcsstm12",
-    "mesh1em1",
-    "bcsstk05",
-    "nos1",
-    "nos2",
-    "nos3",
-    "dwt_59",
-    "bcspwr01",
-    "bcspwr02",
-    "bcspwr03",
-    "chesapeake",
-    "ash85",
-    "arc130",
-    "bcspwr04",
-    "ash292",
-    "karate",
-    "dolphins",
-    "ca-GrQc",
-    "email",
-    "Chebyshev3",
-    "ca-HepPh",
-    "bcsstk01",
+_MATRICES: list[SuiteSparseDataset] = [
+    SuiteSparseDataset(name)
+    for name in [
+        "mesh3em5",
+        "bcsstm02",
+        "fv1",
+        "Muu",
+        "Chem97ZtZ",
+        "Dubcova1",
+        "t3dl_e",
+        "bcsstk09",
+        "Trefethen_200",
+        "Trefethen_500",
+        "Trefethen_700",
+        "fv2",
+        "Trefethen_20000",
+        "abb313",
+        "ash958",
+        "well1033",
+        "Maragal_5",
+        "illc1850",
+        "bayer06",
+        "mhdb416",
+        "lund_b",
+        "bcsstm12",
+        "mesh1em1",
+        "bcsstk05",
+        "nos1",
+        "nos2",
+        "nos3",
+        "dwt_59",
+        "bcspwr01",
+        "bcspwr02",
+        "bcspwr03",
+        "chesapeake",
+        "ash85",
+        "arc130",
+        "bcspwr04",
+        "ash292",
+        "karate",
+        "dolphins",
+        "ca-GrQc",
+        "email",
+        "Chebyshev3",
+        "ca-HepPh",
+        "bcsstk01",
+    ]
 ]
+# Matrices whose SuiteSparse collection entry ships a real `_b.mtx` RHS go here,
+# e.g. SuiteSparseDataset("some_matrix", has_b_file=True) -- this is the single
+# place that decides it, since every benchmark shares this raw download.
 
 
 class SuiteSparseMatrixGenerator(Generator[SuiteSparseDataset]):
@@ -170,7 +176,7 @@ class SuiteSparseMatrixGenerator(Generator[SuiteSparseDataset]):
 
     @property
     def datasets(self) -> list[SuiteSparseDataset]:
-        return [SuiteSparseDataset(name) for name in _MATRIX_NAMES]
+        return _MATRICES
 
     def generate(self, dataset: SuiteSparseDataset) -> DataInstance:
         if dataset.has_b_file:

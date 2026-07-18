@@ -41,7 +41,6 @@ class PreconditionedCGDataset(SuiteSparseDataset):
         self,
         source_name: str,
         condition_number: str,
-        has_b_file=False,
         A=None,
         suites: list[str] | None = None,
         ref_meta: dict[str, Any] | None = None,
@@ -50,7 +49,6 @@ class PreconditionedCGDataset(SuiteSparseDataset):
             source_name,
             pretty_name=f"Preconditioned CG {source_name}",
             suites=suites,
-            has_b_file=has_b_file,
         )
         self.condition_number = condition_number
         self.A = A

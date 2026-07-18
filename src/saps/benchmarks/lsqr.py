@@ -24,7 +24,6 @@ class LSQRDataset(SuiteSparseDataset):
     def __init__(
         self,
         source_name: str,
-        has_b_file: bool = False,
         nnz: int | None = None,
         noise_amt: float = 0.1,
         suites: list[str] | None = None,
@@ -37,7 +36,6 @@ class LSQRDataset(SuiteSparseDataset):
             pretty_name=f"LSQR {source_name}",
             suites=suites,
             nnz=nnz,
-            has_b_file=has_b_file,
         )
         self.noise_amt = noise_amt
         self.A = A

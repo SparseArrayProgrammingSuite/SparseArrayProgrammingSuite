@@ -22,7 +22,6 @@ class GMRESDataset(SuiteSparseDataset):
     def __init__(
         self,
         source_name: str,
-        has_b_file: bool = False,
         nnz: int | None = None,
         suites: list[str] | None = None,
         A: Any | None = None,
@@ -36,7 +35,6 @@ class GMRESDataset(SuiteSparseDataset):
             pretty_name=f"GMRES {source_name}",
             suites=suites,
             nnz=nnz,
-            has_b_file=has_b_file,
         )
         self.A = A
         self.b = b
