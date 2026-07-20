@@ -35,6 +35,7 @@ _STATUS_INFEASIBLE = 1
 _STATUS_UNBOUNDED = 2
 _STATUS_ITERATION_LIMIT = 3
 
+
 def _unit_vector(xp, size, index):
     positions = xp.arange(size)
     return xp.where(positions == index, 1.0, 0.0)
@@ -62,6 +63,7 @@ def _eta_matrix(xp, m, d, leaving_row):
     eta = xp.where(xp.arange(m) == leaving_row, 1.0 / pivot_val, -d / pivot_val)
     diff = eta - e_col
     return xp.eye(m) + xp.reshape(diff, (m, 1)) @ xp.reshape(e_col, (1, m))
+
 
 def _pivot(xp, A, b, c, basis, Binv, rule, tol=1e-9):
     m = A.shape[0]
@@ -141,7 +143,7 @@ def _phase1(xp, A, b, rule, max_iter, tol=1e-9):
             tableau_row = Binv[row] @ A_aug[:, :n]
             mask = xp.abs(tableau_row) > tol
             if not bool(xp.any(mask)):
-                continue  
+                continue
             entering = _first_true_index(xp, mask)
 
             d_col = Binv @ A_aug[:, entering]
@@ -163,7 +165,9 @@ def _solve_standard_form(xp, A, b, c, rule="bland", max_iter=10_000):
     if p1status == "infeasible":
         return xp.zeros((n,)), _STATUS_INFEASIBLE
 
-    basis, Binv, xB, status, iters = _run_pivots(xp, A, b, c, basis, Binv, rule, max_iter)
+    basis, Binv, xB, status, iters = _run_pivots(
+        xp, A, b, c, basis, Binv, rule, max_iter
+    )
 
     if status == "continue":
         return xp.zeros((n,)), _STATUS_ITERATION_LIMIT
@@ -174,7 +178,8 @@ def _solve_standard_form(xp, A, b, c, rule="bland", max_iter=10_000):
     x = xp.reshape(xp.reshape(xB, (1, m)) @ onehot, (n,))
     return x, _STATUS_OPTIMAL
 
-# Data preparation helpers 
+
+# Data preparation helpers
 def _standard_form_from_inequalities(c, A_ub=None, b_ub=None, A_eq=None, b_eq=None):
     """Convert a (possibly mixed) inequality/equality LP into standard form
     A x = b, x >= 0 by adding slack variables. This is a data-preparation
@@ -228,14 +233,16 @@ def _random_transportation_problem(rng, n_sources, n_sinks):
     n_vars = n_sources * n_sinks
     A = np.zeros((n_sources + n_sinks, n_vars))
     for i in range(n_sources):
-        A[i, i * n_sinks:(i + 1) * n_sinks] = 1.0
+        A[i, i * n_sinks : (i + 1) * n_sinks] = 1.0
     for j in range(n_sinks):
         A[n_sources + j, j::n_sinks] = 1.0
     b = np.concatenate([supply, demand])
     c = cost.reshape(-1)
     return A, b, c
 
+
 # Generator classes.
+
 
 class LinearProgrammingDataset(Dataset):
     def __init__(
@@ -323,7 +330,10 @@ class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
 
     @property
     def motivation(self) -> str:
-        return "Provide small LP examples covering distinct outcome cases for benchmark correctness checks."
+        return (
+            "Provide small LP examples covering distinct outcome cases "
+            "for benchmark correctness checks."
+        )
 
     @property
     def cacheable(self) -> bool:
@@ -378,35 +388,45 @@ class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
             LinearProgrammingDataset(
                 "test_lp_bounded_unique_optimum",
                 suites=["test", "trace"],
-                A=A1, b=b1, c=c1,
+                A=A1,
+                b=b1,
+                c=c1,
                 expected_x=np.array([2.0, 6.0, 2.0, 0.0, 0.0]),
                 expected_status=_STATUS_OPTIMAL,
             ),
             LinearProgrammingDataset(
                 "test_lp_infeasible",
                 suites=["test", "trace"],
-                A=A2, b=b2, c=c2,
+                A=A2,
+                b=b2,
+                c=c2,
                 expected_x=np.zeros(A2.shape[1]),
                 expected_status=_STATUS_INFEASIBLE,
             ),
             LinearProgrammingDataset(
                 "test_lp_unbounded",
                 suites=["test", "trace"],
-                A=A3, b=b3, c=c3,
+                A=A3,
+                b=b3,
+                c=c3,
                 expected_x=np.zeros(A3.shape[1]),
                 expected_status=_STATUS_UNBOUNDED,
             ),
             LinearProgrammingDataset(
                 "test_lp_degenerate_tie",
                 suites=["test", "trace"],
-                A=A4, b=b4, c=c4,
+                A=A4,
+                b=b4,
+                c=c4,
                 expected_x=np.array([4.0, 4.0, 0.0, 0.0, 0.0]),
                 expected_status=_STATUS_OPTIMAL,
             ),
             LinearProgrammingDataset(
                 "test_lp_singleton",
                 suites=["test", "trace"],
-                A=A5, b=b5, c=c5,
+                A=A5,
+                b=b5,
+                c=c5,
                 expected_x=np.array([0.0]),
                 expected_status=_STATUS_OPTIMAL,
             ),
@@ -545,7 +565,7 @@ class LinearProgrammingBenchmark(Benchmark):
     @property
     def authors(self) -> list[Contributor]:
         return [
-            Contributor("Kabir Sahni", "ksahni30@gatech.edu"),  
+            Contributor("Kabir Sahni", "ksahni30@gatech.edu"),
         ]
 
     @property
@@ -570,8 +590,9 @@ class LinearProgrammingBenchmark(Benchmark):
     @property
     def ai_disclosure(self):
         return (
-            "Generative AI might have been used to construct tests and to ensure the file is according CVontibuting.md. "
-            "This statement was written by hand."
+            "Generative AI might have been used to construct tests and to "
+            "ensure the file follows CONTRIBUTING.md. This statement was "
+            "written by hand."
         )
 
     @property
@@ -609,11 +630,15 @@ class LinearProgrammingBenchmark(Benchmark):
         if self._ref_outputs is None:
             return
 
-        x_actual = self._output[0].to_numpy()
-        status_actual = int(self._output[1].to_numpy()[0])
+        x_actual = self._output[0].data["values"].reshape(
+            self._output[0].data["shape"]
+        )
+        status_actual = int(self._output[1].data["values"][0])
 
-        x_expected = self._ref_outputs[0].to_numpy()
-        status_expected = int(self._ref_outputs[1].to_numpy()[0])
+        x_expected = self._ref_outputs[0].data["values"].reshape(
+            self._ref_outputs[0].data["shape"]
+        )
+        status_expected = int(self._ref_outputs[1].data["values"][0])
 
         assert status_actual == status_expected, (
             f"LP status mismatch for {param.dataset.name}:"
