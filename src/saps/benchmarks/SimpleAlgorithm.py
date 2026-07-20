@@ -630,9 +630,7 @@ class LinearProgrammingBenchmark(Benchmark):
         if self._ref_outputs is None:
             return
 
-        x_actual = self._output[0].data["values"].reshape(
-            self._output[0].data["shape"]
-        )
+        x_actual = self._output[0].data["values"].reshape(self._output[0].data["shape"])
         status_actual = int(self._output[1].data["values"][0])
 
         x_expected = self._ref_outputs[0].data["values"].reshape(
