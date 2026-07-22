@@ -633,9 +633,11 @@ class LinearProgrammingBenchmark(Benchmark):
         x_actual = self._output[0].data["values"].reshape(self._output[0].data["shape"])
         status_actual = int(self._output[1].data["values"][0])
 
-        x_expected = self._ref_outputs[0].data["values"].reshape(
-            self._ref_outputs[0].data["shape"]
-        )
+        x_expected = (
+            self._ref_outputs[0]
+            .data["values"]
+            .reshape(self._ref_outputs[0].data["shape"])
+         )
         status_expected = int(self._ref_outputs[1].data["values"][0])
 
         assert status_actual == status_expected, (
