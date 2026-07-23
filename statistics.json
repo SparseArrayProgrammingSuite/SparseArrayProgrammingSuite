@@ -10,7 +10,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -32,10 +33,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/model_counting.py",
-              "freshness": "c92f8a0d10c50302c02d5d6acc5bf19e6c83c4ed8d65cc81da3b6a82e2859286",
+              "freshness": "ecc2809f53f1418cecc9d310ae228d195fa8e16734cfe98bc420bf9e73a2a2b3",
               "name": "test_1",
               "statistics": [
                 "dense"
@@ -47,7 +52,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -69,10 +75,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/model_counting.py",
-              "freshness": "c92f8a0d10c50302c02d5d6acc5bf19e6c83c4ed8d65cc81da3b6a82e2859286",
+              "freshness": "ecc2809f53f1418cecc9d310ae228d195fa8e16734cfe98bc420bf9e73a2a2b3",
               "name": "test_2",
               "statistics": [
                 "dense"
@@ -84,7 +94,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -106,10 +117,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/model_counting.py",
-              "freshness": "c92f8a0d10c50302c02d5d6acc5bf19e6c83c4ed8d65cc81da3b6a82e2859286",
+              "freshness": "ecc2809f53f1418cecc9d310ae228d195fa8e16734cfe98bc420bf9e73a2a2b3",
               "name": "test_3",
               "statistics": [
                 "dense"
@@ -121,7 +136,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -143,10 +159,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/model_counting.py",
-              "freshness": "c92f8a0d10c50302c02d5d6acc5bf19e6c83c4ed8d65cc81da3b6a82e2859286",
+              "freshness": "ecc2809f53f1418cecc9d310ae228d195fa8e16734cfe98bc420bf9e73a2a2b3",
               "name": "test_4",
               "statistics": [
                 "dense"
@@ -171,7 +191,8 @@
                 "gdown",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -197,10 +218,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/subgraph_matching.py",
-              "freshness": "bda744d965dfc570fbfdcdeedb46d4038df1e1d221ce2f20101e12890dc38803",
+              "freshness": "eec40bc51a253e8fcb5a2a34c4c78b90f60e4e4e0948a85adaecabe97039dc75",
               "name": "a_to_b",
               "statistics": [
                 "dynamic-sparsity"
@@ -213,7 +238,8 @@
                 "gdown",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -239,10 +265,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/subgraph_matching.py",
-              "freshness": "bda744d965dfc570fbfdcdeedb46d4038df1e1d221ce2f20101e12890dc38803",
+              "freshness": "eec40bc51a253e8fcb5a2a34c4c78b90f60e4e4e0948a85adaecabe97039dc75",
               "name": "all_edges",
               "statistics": []
             },
@@ -253,7 +283,8 @@
                 "gdown",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -279,10 +310,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/subgraph_matching.py",
-              "freshness": "bda744d965dfc570fbfdcdeedb46d4038df1e1d221ce2f20101e12890dc38803",
+              "freshness": "eec40bc51a253e8fcb5a2a34c4c78b90f60e4e4e0948a85adaecabe97039dc75",
               "name": "b_to_a",
               "statistics": [
                 "dynamic-sparsity"
@@ -295,7 +330,8 @@
                 "gdown",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -321,10 +357,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/subgraph_matching.py",
-              "freshness": "bda744d965dfc570fbfdcdeedb46d4038df1e1d221ce2f20101e12890dc38803",
+              "freshness": "eec40bc51a253e8fcb5a2a34c4c78b90f60e4e4e0948a85adaecabe97039dc75",
               "name": "label_a_count",
               "statistics": []
             }
@@ -346,7 +386,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -368,10 +409,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/weighted_model_counting.py",
-              "freshness": "6ad351832d8eed8e0b23af93684a9cfb5315e9403340657434b75a1c0ff19cb3",
+              "freshness": "39a827f4373980200fbfdf062ca1c9e2f4b85d58109114f6f9a0b357dd9a9917",
               "name": "test_1",
               "statistics": [
                 "dense"
@@ -383,7 +428,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -405,10 +451,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/weighted_model_counting.py",
-              "freshness": "6ad351832d8eed8e0b23af93684a9cfb5315e9403340657434b75a1c0ff19cb3",
+              "freshness": "39a827f4373980200fbfdf062ca1c9e2f4b85d58109114f6f9a0b357dd9a9917",
               "name": "test_2",
               "statistics": [
                 "dense"
@@ -420,7 +470,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -442,10 +493,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/weighted_model_counting.py",
-              "freshness": "6ad351832d8eed8e0b23af93684a9cfb5315e9403340657434b75a1c0ff19cb3",
+              "freshness": "39a827f4373980200fbfdf062ca1c9e2f4b85d58109114f6f9a0b357dd9a9917",
               "name": "test_3",
               "statistics": [
                 "dense"
@@ -457,7 +512,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -479,10 +535,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/weighted_model_counting.py",
-              "freshness": "6ad351832d8eed8e0b23af93684a9cfb5315e9403340657434b75a1c0ff19cb3",
+              "freshness": "39a827f4373980200fbfdf062ca1c9e2f4b85d58109114f6f9a0b357dd9a9917",
               "name": "test_4",
               "statistics": [
                 "dense"
@@ -494,7 +554,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -516,10 +577,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/weighted_model_counting.py",
-              "freshness": "6ad351832d8eed8e0b23af93684a9cfb5315e9403340657434b75a1c0ff19cb3",
+              "freshness": "39a827f4373980200fbfdf062ca1c9e2f4b85d58109114f6f9a0b357dd9a9917",
               "name": "test_5",
               "statistics": [
                 "dense",
@@ -532,7 +597,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -554,10 +620,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/weighted_model_counting.py",
-              "freshness": "6ad351832d8eed8e0b23af93684a9cfb5315e9403340657434b75a1c0ff19cb3",
+              "freshness": "39a827f4373980200fbfdf062ca1c9e2f4b85d58109114f6f9a0b357dd9a9917",
               "name": "test_6",
               "statistics": [
                 "dense",
@@ -582,7 +652,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -604,10 +675,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/bellmanford.py",
-              "freshness": "92dbb57a4c752bd7f37abede367c3de88ddc9f589d4efab74c09cb8488060052",
+              "freshness": "a0f15c7273e50068e13b2c4ccab0e8106bffd910e5de72f1e591e76d2499f29e",
               "name": "test_bellman_ford_chesapeake_src_0",
               "statistics": [
                 "dense",
@@ -622,7 +697,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -644,10 +720,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/bellmanford.py",
-              "freshness": "92dbb57a4c752bd7f37abede367c3de88ddc9f589d4efab74c09cb8488060052",
+              "freshness": "a0f15c7273e50068e13b2c4ccab0e8106bffd910e5de72f1e591e76d2499f29e",
               "name": "test_bellman_ford_chesapeake_src_10",
               "statistics": [
                 "dense",
@@ -662,7 +742,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -684,10 +765,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/bellmanford.py",
-              "freshness": "92dbb57a4c752bd7f37abede367c3de88ddc9f589d4efab74c09cb8488060052",
+              "freshness": "a0f15c7273e50068e13b2c4ccab0e8106bffd910e5de72f1e591e76d2499f29e",
               "name": "test_bellman_ford_chesapeake_src_38",
               "statistics": [
                 "dense",
@@ -702,7 +787,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -724,10 +810,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/bellmanford.py",
-              "freshness": "92dbb57a4c752bd7f37abede367c3de88ddc9f589d4efab74c09cb8488060052",
+              "freshness": "a0f15c7273e50068e13b2c4ccab0e8106bffd910e5de72f1e591e76d2499f29e",
               "name": "test_bellman_ford_snap_toy",
               "statistics": [
                 "dense",
@@ -742,7 +832,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -764,10 +855,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/bellmanford.py",
-              "freshness": "92dbb57a4c752bd7f37abede367c3de88ddc9f589d4efab74c09cb8488060052",
+              "freshness": "a0f15c7273e50068e13b2c4ccab0e8106bffd910e5de72f1e591e76d2499f29e",
               "name": "test_bellman_ford_tribes_src_0",
               "statistics": [
                 "dense",
@@ -794,7 +889,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -816,10 +912,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/centrality.py",
-              "freshness": "0c6815bdac5d0b537770d8c5a03206e59a10b569304e833bb77a6f9a00b3498f",
+              "freshness": "b13a509d52d27009ccb477a4f283092e4c92e7b4c52f98c84a768e9ff6aa2307",
               "name": "test_basic_chain",
               "statistics": [
                 "dense",
@@ -834,7 +934,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -856,10 +957,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/centrality.py",
-              "freshness": "0c6815bdac5d0b537770d8c5a03206e59a10b569304e833bb77a6f9a00b3498f",
+              "freshness": "b13a509d52d27009ccb477a4f283092e4c92e7b4c52f98c84a768e9ff6aa2307",
               "name": "test_basic_empty",
               "statistics": [
                 "dense",
@@ -873,7 +978,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -895,10 +1001,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/centrality.py",
-              "freshness": "0c6815bdac5d0b537770d8c5a03206e59a10b569304e833bb77a6f9a00b3498f",
+              "freshness": "b13a509d52d27009ccb477a4f283092e4c92e7b4c52f98c84a768e9ff6aa2307",
               "name": "test_basic_two_components",
               "statistics": [
                 "dense",
@@ -913,7 +1023,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -935,10 +1046,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/centrality.py",
-              "freshness": "0c6815bdac5d0b537770d8c5a03206e59a10b569304e833bb77a6f9a00b3498f",
+              "freshness": "b13a509d52d27009ccb477a4f283092e4c92e7b4c52f98c84a768e9ff6aa2307",
               "name": "test_centrality_snap_toy",
               "statistics": [
                 "dense",
@@ -953,7 +1068,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -975,10 +1091,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/centrality.py",
-              "freshness": "0c6815bdac5d0b537770d8c5a03206e59a10b569304e833bb77a6f9a00b3498f",
+              "freshness": "b13a509d52d27009ccb477a4f283092e4c92e7b4c52f98c84a768e9ff6aa2307",
               "name": "test_joels_case",
               "statistics": [
                 "dense",
@@ -993,7 +1113,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -1015,10 +1136,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/centrality.py",
-              "freshness": "0c6815bdac5d0b537770d8c5a03206e59a10b569304e833bb77a6f9a00b3498f",
+              "freshness": "b13a509d52d27009ccb477a4f283092e4c92e7b4c52f98c84a768e9ff6aa2307",
               "name": "test_matrix_vertex_algorithm_comparison",
               "statistics": [
                 "dense",
@@ -1033,7 +1158,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -1055,10 +1181,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/centrality.py",
-              "freshness": "0c6815bdac5d0b537770d8c5a03206e59a10b569304e833bb77a6f9a00b3498f",
+              "freshness": "b13a509d52d27009ccb477a4f283092e4c92e7b4c52f98c84a768e9ff6aa2307",
               "name": "test_networkx",
               "statistics": [
                 "dense",
@@ -1073,7 +1203,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -1095,10 +1226,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/centrality.py",
-              "freshness": "0c6815bdac5d0b537770d8c5a03206e59a10b569304e833bb77a6f9a00b3498f",
+              "freshness": "b13a509d52d27009ccb477a4f283092e4c92e7b4c52f98c84a768e9ff6aa2307",
               "name": "test_undirected_graph",
               "statistics": [
                 "dense",
@@ -1125,7 +1260,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -1147,10 +1283,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/BFS.py",
-              "freshness": "4c35b6041458a7c230b1e5a828907bb8d83d75cc5685705602369f5351c4f87d",
+              "freshness": "8aef82a5d3ce4980c85a5c639a9a66864f0d03b60cd830fe5a69dd44271e3ed1",
               "name": "test_bfs_basic",
               "statistics": [
                 "dense",
@@ -1164,7 +1304,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -1186,10 +1327,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/BFS.py",
-              "freshness": "4c35b6041458a7c230b1e5a828907bb8d83d75cc5685705602369f5351c4f87d",
+              "freshness": "8aef82a5d3ce4980c85a5c639a9a66864f0d03b60cd830fe5a69dd44271e3ed1",
               "name": "test_bfs_cycle",
               "statistics": [
                 "dense",
@@ -1203,7 +1348,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -1225,10 +1371,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/BFS.py",
-              "freshness": "4c35b6041458a7c230b1e5a828907bb8d83d75cc5685705602369f5351c4f87d",
+              "freshness": "8aef82a5d3ce4980c85a5c639a9a66864f0d03b60cd830fe5a69dd44271e3ed1",
               "name": "test_bfs_disconnected",
               "statistics": [
                 "dense",
@@ -1242,7 +1392,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -1264,10 +1415,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/BFS.py",
-              "freshness": "4c35b6041458a7c230b1e5a828907bb8d83d75cc5685705602369f5351c4f87d",
+              "freshness": "8aef82a5d3ce4980c85a5c639a9a66864f0d03b60cd830fe5a69dd44271e3ed1",
               "name": "test_bfs_single_node",
               "statistics": [
                 "dense",
@@ -1281,7 +1436,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -1303,10 +1459,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/BFS.py",
-              "freshness": "4c35b6041458a7c230b1e5a828907bb8d83d75cc5685705602369f5351c4f87d",
+              "freshness": "8aef82a5d3ce4980c85a5c639a9a66864f0d03b60cd830fe5a69dd44271e3ed1",
               "name": "test_bfs_snap_toy",
               "statistics": [
                 "dense",
@@ -1320,7 +1480,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -1342,10 +1503,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/BFS.py",
-              "freshness": "4c35b6041458a7c230b1e5a828907bb8d83d75cc5685705602369f5351c4f87d",
+              "freshness": "8aef82a5d3ce4980c85a5c639a9a66864f0d03b60cd830fe5a69dd44271e3ed1",
               "name": "test_bfs_undirected",
               "statistics": [
                 "dense",
@@ -1372,7 +1537,8 @@
                 "lark",
                 "numpy",
                 "pyparsing",
-                "scipy.integrate"
+                "scipy.integrate",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -1401,7 +1567,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "a0b80b6f663ce8ce4d3c0761fc42638d5f6e1e4b2f9aeeebb0ee5a9cae46b7d5",
+              "freshness": "86a2a348170fab03e2834cde26a318a24d24920786ccebb25d8325e6e9c174f6",
               "name": "brusselator_tiny",
               "statistics": [
                 "dense",
@@ -1428,7 +1594,8 @@
                 "lark",
                 "numpy",
                 "pyparsing",
-                "scipy.integrate"
+                "scipy.integrate",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -1457,7 +1624,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "a0b80b6f663ce8ce4d3c0761fc42638d5f6e1e4b2f9aeeebb0ee5a9cae46b7d5",
+              "freshness": "86a2a348170fab03e2834cde26a318a24d24920786ccebb25d8325e6e9c174f6",
               "name": "brusselator_tiny",
               "statistics": [
                 "dense",
@@ -1484,7 +1651,8 @@
                 "lark",
                 "numpy",
                 "pyparsing",
-                "scipy.integrate"
+                "scipy.integrate",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -1513,7 +1681,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "a0b80b6f663ce8ce4d3c0761fc42638d5f6e1e4b2f9aeeebb0ee5a9cae46b7d5",
+              "freshness": "86a2a348170fab03e2834cde26a318a24d24920786ccebb25d8325e6e9c174f6",
               "name": "brusselator_tiny",
               "statistics": [
                 "dense",
@@ -1540,6 +1708,7 @@
                 "lark",
                 "numpy",
                 "pyparsing",
+                "scipy.sparse",
                 "sparse"
               ],
               "dependency_versions": [
@@ -1564,12 +1733,16 @@
                   "version": "3.3.2"
                 },
                 {
+                  "name": "scipy",
+                  "version": "1.17.1"
+                },
+                {
                   "name": "sparse",
                   "version": "0.17.0"
                 }
               ],
               "file": "src/saps/benchmarks/Finite_Difference.py",
-              "freshness": "88374c9fcc1cb4366f1b78ae1ea5c901968db2a6b22ebc86c298734d4f2fd1e0",
+              "freshness": "6e2951db3dd9af46793a777a071d66a2090bd075afee63f484f0001545bd675e",
               "name": "default",
               "statistics": [
                 "index-ops",
@@ -1595,6 +1768,7 @@
                 "lark",
                 "numpy",
                 "pyparsing",
+                "scipy.sparse",
                 "sparse"
               ],
               "dependency_versions": [
@@ -1619,12 +1793,16 @@
                   "version": "3.3.2"
                 },
                 {
+                  "name": "scipy",
+                  "version": "1.17.1"
+                },
+                {
                   "name": "sparse",
                   "version": "0.17.0"
                 }
               ],
               "file": "src/saps/benchmarks/Finite_Difference.py",
-              "freshness": "88374c9fcc1cb4366f1b78ae1ea5c901968db2a6b22ebc86c298734d4f2fd1e0",
+              "freshness": "6e2951db3dd9af46793a777a071d66a2090bd075afee63f484f0001545bd675e",
               "name": "default",
               "statistics": [
                 "index-ops",
@@ -1649,7 +1827,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -1671,10 +1850,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/coupled_cluster.py",
-              "freshness": "c9ff906406bf89679fd5d9a930b95902f89f3c42d4a302e76ba83a13aa02c1f2",
+              "freshness": "cdfd093a10a30f6cd61c862e3b1c1d42a43fc6c572f0cb7734b3a9fb2f54cd90",
               "name": "ccsd_small",
               "statistics": [
                 "dense",
@@ -1741,7 +1924,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/cg.py",
-              "freshness": "c76dede62372d2874146e8c00b10ccd6394c95b3edb716f5799d1c1816e43cf0",
+              "freshness": "5682df95290f3fe2d4270c86c4953a3a8104c864bf052bc014712245c0b22488",
               "name": "test_3x3_dense",
               "statistics": [
                 "dense",
@@ -1798,7 +1981,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/cg.py",
-              "freshness": "c76dede62372d2874146e8c00b10ccd6394c95b3edb716f5799d1c1816e43cf0",
+              "freshness": "5682df95290f3fe2d4270c86c4953a3a8104c864bf052bc014712245c0b22488",
               "name": "test_3x3_indefinite_sparse",
               "statistics": [
                 "dense",
@@ -1855,7 +2038,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/cg.py",
-              "freshness": "c76dede62372d2874146e8c00b10ccd6394c95b3edb716f5799d1c1816e43cf0",
+              "freshness": "5682df95290f3fe2d4270c86c4953a3a8104c864bf052bc014712245c0b22488",
               "name": "test_3x3_scaled_tridiagonal",
               "statistics": [
                 "dense",
@@ -1912,7 +2095,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/cg.py",
-              "freshness": "c76dede62372d2874146e8c00b10ccd6394c95b3edb716f5799d1c1816e43cf0",
+              "freshness": "5682df95290f3fe2d4270c86c4953a3a8104c864bf052bc014712245c0b22488",
               "name": "test_3x3_tridiagonal",
               "statistics": [
                 "dense",
@@ -1969,7 +2152,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/cg.py",
-              "freshness": "c76dede62372d2874146e8c00b10ccd6394c95b3edb716f5799d1c1816e43cf0",
+              "freshness": "5682df95290f3fe2d4270c86c4953a3a8104c864bf052bc014712245c0b22488",
               "name": "test_4x4_tridiagonal",
               "statistics": [
                 "dense",
@@ -2026,7 +2209,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/cg.py",
-              "freshness": "c76dede62372d2874146e8c00b10ccd6394c95b3edb716f5799d1c1816e43cf0",
+              "freshness": "5682df95290f3fe2d4270c86c4953a3a8104c864bf052bc014712245c0b22488",
               "name": "test_5x5_sparse",
               "statistics": [
                 "dense",
@@ -2054,7 +2237,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -2076,10 +2260,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/cp3_als.py",
-              "freshness": "668ce1ed09dc78910f899fc64f3490963254e6690ee6f2bcafb6cb6849cdc6b9",
+              "freshness": "4084273d2d1a8d0a962829eb4927117273d2919540cd9fd8e81c525f9c997ad2",
               "name": "cp_factorizeable_tiny",
               "statistics": [
                 "dense",
@@ -2108,7 +2296,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -2130,10 +2319,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/cp4_als.py",
-              "freshness": "68c8a45fb008b95367365d459572f11b0099d4e3ef39680eb15f2e77e11a9cbd",
+              "freshness": "4842c23f38582bbb7c59ae57258b148bc0b25bc1242458bc6d76468bad78deb2",
               "name": "cp_factorizeable_tiny",
               "statistics": [
                 "dense",
@@ -2163,7 +2356,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -2185,10 +2379,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/cp5_als.py",
-              "freshness": "962a4b300ba068be907d3d32926042b888db8136b4459ad70093ec6c9a45bb06",
+              "freshness": "c30f6db8d727674560750e8983eda6b378786312e4d596f551c87bb10241ca57",
               "name": "cp_factorizeable_tiny",
               "statistics": [
                 "dense",
@@ -2219,7 +2417,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -2241,10 +2440,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/fastsv.py",
-              "freshness": "11f6d722e47c5505a1de20d8c0a9ad2584417f0b3df2cc4e646ec1931120a493",
+              "freshness": "c7a32efbf0ecd692082cb9e6db2e83b51a18f6ac217ed3d6ad38153c01260002",
               "name": "chain",
               "statistics": [
                 "dense",
@@ -2259,7 +2462,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -2281,10 +2485,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/fastsv.py",
-              "freshness": "11f6d722e47c5505a1de20d8c0a9ad2584417f0b3df2cc4e646ec1931120a493",
+              "freshness": "c7a32efbf0ecd692082cb9e6db2e83b51a18f6ac217ed3d6ad38153c01260002",
               "name": "isolated-and-connected",
               "statistics": [
                 "dense",
@@ -2299,7 +2507,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -2321,10 +2530,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/fastsv.py",
-              "freshness": "11f6d722e47c5505a1de20d8c0a9ad2584417f0b3df2cc4e646ec1931120a493",
+              "freshness": "c7a32efbf0ecd692082cb9e6db2e83b51a18f6ac217ed3d6ad38153c01260002",
               "name": "no-edges",
               "statistics": [
                 "dense",
@@ -2339,7 +2552,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -2361,10 +2575,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/fastsv.py",
-              "freshness": "11f6d722e47c5505a1de20d8c0a9ad2584417f0b3df2cc4e646ec1931120a493",
+              "freshness": "c7a32efbf0ecd692082cb9e6db2e83b51a18f6ac217ed3d6ad38153c01260002",
               "name": "single-component",
               "statistics": [
                 "dense",
@@ -2379,7 +2597,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -2401,10 +2620,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/fastsv.py",
-              "freshness": "11f6d722e47c5505a1de20d8c0a9ad2584417f0b3df2cc4e646ec1931120a493",
+              "freshness": "c7a32efbf0ecd692082cb9e6db2e83b51a18f6ac217ed3d6ad38153c01260002",
               "name": "star",
               "statistics": [
                 "dense",
@@ -2419,7 +2642,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -2441,10 +2665,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/fastsv.py",
-              "freshness": "11f6d722e47c5505a1de20d8c0a9ad2584417f0b3df2cc4e646ec1931120a493",
+              "freshness": "c7a32efbf0ecd692082cb9e6db2e83b51a18f6ac217ed3d6ad38153c01260002",
               "name": "two-components",
               "statistics": [
                 "dense",
@@ -2512,7 +2740,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/floyd_warshall.py",
-              "freshness": "c816f793d3f40a57dee7fc9dea8b704dfd2b878b4ea65b31fb098e6aeb5122ca",
+              "freshness": "4fa6e3aa395abc3c1e3297b92dba6e85df0b4c57fbccd05157bead36bd66eb94",
               "name": "large-symmetric",
               "statistics": [
                 "dense",
@@ -2568,7 +2796,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/floyd_warshall.py",
-              "freshness": "c816f793d3f40a57dee7fc9dea8b704dfd2b878b4ea65b31fb098e6aeb5122ca",
+              "freshness": "4fa6e3aa395abc3c1e3297b92dba6e85df0b4c57fbccd05157bead36bd66eb94",
               "name": "single-node",
               "statistics": [
                 "dense",
@@ -2624,7 +2852,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/floyd_warshall.py",
-              "freshness": "c816f793d3f40a57dee7fc9dea8b704dfd2b878b4ea65b31fb098e6aeb5122ca",
+              "freshness": "4fa6e3aa395abc3c1e3297b92dba6e85df0b4c57fbccd05157bead36bd66eb94",
               "name": "three-node-chain",
               "statistics": [
                 "dense",
@@ -2680,7 +2908,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/floyd_warshall.py",
-              "freshness": "c816f793d3f40a57dee7fc9dea8b704dfd2b878b4ea65b31fb098e6aeb5122ca",
+              "freshness": "4fa6e3aa395abc3c1e3297b92dba6e85df0b4c57fbccd05157bead36bd66eb94",
               "name": "three-node-shortcut",
               "statistics": [
                 "dense",
@@ -2736,7 +2964,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/floyd_warshall.py",
-              "freshness": "c816f793d3f40a57dee7fc9dea8b704dfd2b878b4ea65b31fb098e6aeb5122ca",
+              "freshness": "4fa6e3aa395abc3c1e3297b92dba6e85df0b4c57fbccd05157bead36bd66eb94",
               "name": "two-components",
               "statistics": [
                 "dense",
@@ -2792,7 +3020,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/floyd_warshall.py",
-              "freshness": "c816f793d3f40a57dee7fc9dea8b704dfd2b878b4ea65b31fb098e6aeb5122ca",
+              "freshness": "4fa6e3aa395abc3c1e3297b92dba6e85df0b4c57fbccd05157bead36bd66eb94",
               "name": "two-node-directed",
               "statistics": [
                 "dense",
@@ -2819,7 +3047,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -2841,10 +3070,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/tri_4cliq.py",
-              "freshness": "fb1b1c100aec76fe5d7acc4a19134d1fe5b9b4f2b2264e787cf9b0ddd8ecc9dc",
+              "freshness": "c64f2b04573bad21b315b15e2bdd22bb6110eb0d377ec859aa48714a91666b00",
               "name": "test_4clique_count_complete_k3",
               "statistics": [
                 "dense",
@@ -2857,7 +3090,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -2879,10 +3113,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/tri_4cliq.py",
-              "freshness": "fb1b1c100aec76fe5d7acc4a19134d1fe5b9b4f2b2264e787cf9b0ddd8ecc9dc",
+              "freshness": "c64f2b04573bad21b315b15e2bdd22bb6110eb0d377ec859aa48714a91666b00",
               "name": "test_4clique_count_overlapping",
               "statistics": [
                 "dense",
@@ -2895,7 +3133,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -2917,10 +3156,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/tri_4cliq.py",
-              "freshness": "fb1b1c100aec76fe5d7acc4a19134d1fe5b9b4f2b2264e787cf9b0ddd8ecc9dc",
+              "freshness": "c64f2b04573bad21b315b15e2bdd22bb6110eb0d377ec859aa48714a91666b00",
               "name": "test_4clique_count_single_k4",
               "statistics": [
                 "dense",
@@ -2933,7 +3176,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -2955,10 +3199,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/tri_4cliq.py",
-              "freshness": "fb1b1c100aec76fe5d7acc4a19134d1fe5b9b4f2b2264e787cf9b0ddd8ecc9dc",
+              "freshness": "c64f2b04573bad21b315b15e2bdd22bb6110eb0d377ec859aa48714a91666b00",
               "name": "test_4clique_snap_toy",
               "statistics": [
                 "dense",
@@ -3019,7 +3267,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "4631602bb5bda1ee24ccfbc7c645bf4527e563a0175f10550d8d6a67004720ca",
+              "freshness": "aa5c8281b568e4638994cab672ebfa22d08c44dd509ba4325757fbc07a846ffb",
               "name": "test_gcn_3node",
               "statistics": [
                 "dense",
@@ -3069,7 +3317,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "4631602bb5bda1ee24ccfbc7c645bf4527e563a0175f10550d8d6a67004720ca",
+              "freshness": "aa5c8281b568e4638994cab672ebfa22d08c44dd509ba4325757fbc07a846ffb",
               "name": "test_gcn_simple_2node",
               "statistics": [
                 "dense",
@@ -3119,7 +3367,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "4631602bb5bda1ee24ccfbc7c645bf4527e563a0175f10550d8d6a67004720ca",
+              "freshness": "aa5c8281b568e4638994cab672ebfa22d08c44dd509ba4325757fbc07a846ffb",
               "name": "test_gcn_simple_3node_line",
               "statistics": [
                 "dense",
@@ -3169,7 +3417,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "4631602bb5bda1ee24ccfbc7c645bf4527e563a0175f10550d8d6a67004720ca",
+              "freshness": "aa5c8281b568e4638994cab672ebfa22d08c44dd509ba4325757fbc07a846ffb",
               "name": "test_gcn_with_relu_activation",
               "statistics": [
                 "dense",
@@ -3197,6 +3445,7 @@
                 "numpy",
                 "pyparsing",
                 "scipy.io",
+                "scipy.sparse",
                 "ssgetpy"
               ],
               "dependency_versions": [
@@ -3230,7 +3479,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "19aa19ad38ef2a7aa3907846a3cb9fbfe4ce78a7eed7008c6c23a2d91c23c772",
+              "freshness": "b93691a650524cceff7b240977823a2bfa5edb6617f17027665188dbbb754646",
               "name": "test_gcn_backward_2node",
               "statistics": [
                 "dense",
@@ -3246,6 +3495,7 @@
                 "numpy",
                 "pyparsing",
                 "scipy.io",
+                "scipy.sparse",
                 "ssgetpy"
               ],
               "dependency_versions": [
@@ -3279,7 +3529,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "19aa19ad38ef2a7aa3907846a3cb9fbfe4ce78a7eed7008c6c23a2d91c23c772",
+              "freshness": "b93691a650524cceff7b240977823a2bfa5edb6617f17027665188dbbb754646",
               "name": "test_gcn_backward_degree_loss",
               "statistics": [
                 "dense",
@@ -3295,6 +3545,7 @@
                 "numpy",
                 "pyparsing",
                 "scipy.io",
+                "scipy.sparse",
                 "ssgetpy"
               ],
               "dependency_versions": [
@@ -3328,7 +3579,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "19aa19ad38ef2a7aa3907846a3cb9fbfe4ce78a7eed7008c6c23a2d91c23c772",
+              "freshness": "b93691a650524cceff7b240977823a2bfa5edb6617f17027665188dbbb754646",
               "name": "test_gcn_backward_degree_test_graph_loss",
               "statistics": [
                 "dense",
@@ -3344,6 +3595,7 @@
                 "numpy",
                 "pyparsing",
                 "scipy.io",
+                "scipy.sparse",
                 "ssgetpy"
               ],
               "dependency_versions": [
@@ -3377,7 +3629,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "19aa19ad38ef2a7aa3907846a3cb9fbfe4ce78a7eed7008c6c23a2d91c23c772",
+              "freshness": "b93691a650524cceff7b240977823a2bfa5edb6617f17027665188dbbb754646",
               "name": "test_gcn_backward_multidim",
               "statistics": [
                 "dense",
@@ -3444,7 +3696,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "51435294a9365f0d6fd7061f4a481bc75b43b77ef02ee1542fe1729a52e3ec54",
+              "freshness": "3dcd3ec9345ecd8cb35ef388d1d7951d1e0c3d9436e944cd204a601080720045",
               "name": "test_gmres_3x3",
               "statistics": [
                 "dense",
@@ -3500,7 +3752,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "51435294a9365f0d6fd7061f4a481bc75b43b77ef02ee1542fe1729a52e3ec54",
+              "freshness": "3dcd3ec9345ecd8cb35ef388d1d7951d1e0c3d9436e944cd204a601080720045",
               "name": "test_gmres_4x4",
               "statistics": [
                 "dense",
@@ -3556,7 +3808,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "51435294a9365f0d6fd7061f4a481bc75b43b77ef02ee1542fe1729a52e3ec54",
+              "freshness": "3dcd3ec9345ecd8cb35ef388d1d7951d1e0c3d9436e944cd204a601080720045",
               "name": "test_gmres_diagonal",
               "statistics": [
                 "dense",
@@ -3612,7 +3864,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "51435294a9365f0d6fd7061f4a481bc75b43b77ef02ee1542fe1729a52e3ec54",
+              "freshness": "3dcd3ec9345ecd8cb35ef388d1d7951d1e0c3d9436e944cd204a601080720045",
               "name": "test_gmres_random_123",
               "statistics": [
                 "fancy-ops",
@@ -3667,7 +3919,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "51435294a9365f0d6fd7061f4a481bc75b43b77ef02ee1542fe1729a52e3ec54",
+              "freshness": "3dcd3ec9345ecd8cb35ef388d1d7951d1e0c3d9436e944cd204a601080720045",
               "name": "test_gmres_random_42",
               "statistics": [
                 "fancy-ops",
@@ -3693,7 +3945,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -3715,10 +3968,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "8a5619116fc6ca78c54936f615ccdd4b773842b6c9c550f021f09a8fd3e4873a",
+              "freshness": "434500731329a0f2d80c8dc762c1d5abd196ef5883ff32117a6cf26b9c0d0d57",
               "name": "small_dense_hosvd",
               "statistics": [
                 "dense",
@@ -3748,7 +4005,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -3770,10 +4028,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/HOSVD_4d.py",
-              "freshness": "e85e1a38f76ff6f66c4d78ea08fc80219bf98b789a71de314f4e2d2b1b21ad0a",
+              "freshness": "0592f540292917fcf9688daeee372b1c9c974401a315370e03b44a65f0d85870",
               "name": "small_dense_4d",
               "statistics": [
                 "dense",
@@ -3803,7 +4065,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -3825,10 +4088,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/HOSVD_5d.py",
-              "freshness": "1745aa024a88d77f2ea8051c33800c470251d1eac416bd21b0b76cf5b791fe66",
+              "freshness": "587a99da3e9660a579487bcfd890007f0c9f2bc87a051430138de0b9a43097f9",
               "name": "small_dense_5d",
               "statistics": [
                 "dense",
@@ -3900,7 +4167,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "6b832bebfc8d30de14deddf7758228c914af6c799dd05b2911aa2895bb624d46",
+              "freshness": "78ec10f145767ab86bf80008123f82fab830eac76dd4bdd271d51f7e98a55992",
               "name": "test_A0",
               "statistics": [
                 "fancy-ops",
@@ -3956,7 +4223,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "6b832bebfc8d30de14deddf7758228c914af6c799dd05b2911aa2895bb624d46",
+              "freshness": "78ec10f145767ab86bf80008123f82fab830eac76dd4bdd271d51f7e98a55992",
               "name": "test_A1",
               "statistics": [
                 "dense",
@@ -4013,7 +4280,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "6b832bebfc8d30de14deddf7758228c914af6c799dd05b2911aa2895bb624d46",
+              "freshness": "78ec10f145767ab86bf80008123f82fab830eac76dd4bdd271d51f7e98a55992",
               "name": "test_A2",
               "statistics": [
                 "fancy-ops",
@@ -4069,7 +4336,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "6b832bebfc8d30de14deddf7758228c914af6c799dd05b2911aa2895bb624d46",
+              "freshness": "78ec10f145767ab86bf80008123f82fab830eac76dd4bdd271d51f7e98a55992",
               "name": "test_A3",
               "statistics": [
                 "dense",
@@ -4126,7 +4393,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "6b832bebfc8d30de14deddf7758228c914af6c799dd05b2911aa2895bb624d46",
+              "freshness": "78ec10f145767ab86bf80008123f82fab830eac76dd4bdd271d51f7e98a55992",
               "name": "test_A4",
               "statistics": [
                 "fancy-ops",
@@ -4182,7 +4449,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "6b832bebfc8d30de14deddf7758228c914af6c799dd05b2911aa2895bb624d46",
+              "freshness": "78ec10f145767ab86bf80008123f82fab830eac76dd4bdd271d51f7e98a55992",
               "name": "test_A5",
               "statistics": [
                 "fancy-ops",
@@ -4250,7 +4517,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/jacobi.py",
-              "freshness": "02886d1b6fbdf754e9da430060c0c8fb4d083690bc3ad8d4da00fa7c3a3f53af",
+              "freshness": "e00f76c8636842fe5c3163bd9b930c0a104615c017a0a62dd9de9484150c1085",
               "name": "test_3x3",
               "statistics": [
                 "dense",
@@ -4307,7 +4574,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/jacobi.py",
-              "freshness": "02886d1b6fbdf754e9da430060c0c8fb4d083690bc3ad8d4da00fa7c3a3f53af",
+              "freshness": "e00f76c8636842fe5c3163bd9b930c0a104615c017a0a62dd9de9484150c1085",
               "name": "test_3x3_dominant",
               "statistics": [
                 "dense",
@@ -4364,7 +4631,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/jacobi.py",
-              "freshness": "02886d1b6fbdf754e9da430060c0c8fb4d083690bc3ad8d4da00fa7c3a3f53af",
+              "freshness": "e00f76c8636842fe5c3163bd9b930c0a104615c017a0a62dd9de9484150c1085",
               "name": "test_4x4",
               "statistics": [
                 "dense",
@@ -4393,7 +4660,8 @@
                 "lark",
                 "numpy",
                 "pyparsing",
-                "scipy"
+                "scipy",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -4422,7 +4690,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "65cb0a90e879cce5ea7e30d0ef92dc9a4214fd7bf740d50390e3d79162f94f3e",
+              "freshness": "16e93b310306099033a58f2ac252dc804a5efb5e9f7f7f9eb39abadf5f46ddfd",
               "name": "test_jl_preserves_distance",
               "statistics": [
                 "fancy-ops",
@@ -4451,6 +4719,7 @@
                 "lark",
                 "numpy",
                 "pyparsing",
+                "scipy.sparse",
                 "sparse"
               ],
               "dependency_versions": [
@@ -4475,12 +4744,16 @@
                   "version": "3.3.2"
                 },
                 {
+                  "name": "scipy",
+                  "version": "1.17.1"
+                },
+                {
                   "name": "sparse",
                   "version": "0.17.0"
                 }
               ],
               "file": "src/saps/benchmarks/Finite_Difference.py",
-              "freshness": "88374c9fcc1cb4366f1b78ae1ea5c901968db2a6b22ebc86c298734d4f2fd1e0",
+              "freshness": "6e2951db3dd9af46793a777a071d66a2090bd075afee63f484f0001545bd675e",
               "name": "default",
               "statistics": [
                 "index-ops",
@@ -4506,7 +4779,8 @@
                 "lark",
                 "numpy",
                 "pyparsing",
-                "scipy.integrate"
+                "scipy.integrate",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -4535,7 +4809,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "a0b80b6f663ce8ce4d3c0761fc42638d5f6e1e4b2f9aeeebb0ee5a9cae46b7d5",
+              "freshness": "86a2a348170fab03e2834cde26a318a24d24920786ccebb25d8325e6e9c174f6",
               "name": "lotka_volterra_small",
               "statistics": []
             }
@@ -4558,7 +4832,8 @@
                 "lark",
                 "numpy",
                 "pyparsing",
-                "scipy.integrate"
+                "scipy.integrate",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -4587,7 +4862,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "a0b80b6f663ce8ce4d3c0761fc42638d5f6e1e4b2f9aeeebb0ee5a9cae46b7d5",
+              "freshness": "86a2a348170fab03e2834cde26a318a24d24920786ccebb25d8325e6e9c174f6",
               "name": "lotka_volterra_small",
               "statistics": []
             }
@@ -4610,7 +4885,8 @@
                 "lark",
                 "numpy",
                 "pyparsing",
-                "scipy.integrate"
+                "scipy.integrate",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -4639,7 +4915,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "a0b80b6f663ce8ce4d3c0761fc42638d5f6e1e4b2f9aeeebb0ee5a9cae46b7d5",
+              "freshness": "86a2a348170fab03e2834cde26a318a24d24920786ccebb25d8325e6e9c174f6",
               "name": "lotka_volterra_small",
               "statistics": []
             }
@@ -4697,7 +4973,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "348d519aa5dde13b6dd1d0c2cfc3778d750d2f3a0fda0364e0f0b81e55d37385",
+              "freshness": "27fd098d2a6a849d35301d4ef3723cbea75088aa4f8001c39472fe69fb99efe0",
               "name": "test_lsqr_exact_3",
               "statistics": [
                 "dense",
@@ -4748,7 +5024,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "348d519aa5dde13b6dd1d0c2cfc3778d750d2f3a0fda0364e0f0b81e55d37385",
+              "freshness": "27fd098d2a6a849d35301d4ef3723cbea75088aa4f8001c39472fe69fb99efe0",
               "name": "test_lsqr_exact_4",
               "statistics": [
                 "dense",
@@ -4799,7 +5075,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "348d519aa5dde13b6dd1d0c2cfc3778d750d2f3a0fda0364e0f0b81e55d37385",
+              "freshness": "27fd098d2a6a849d35301d4ef3723cbea75088aa4f8001c39472fe69fb99efe0",
               "name": "test_lsqr_exact_5",
               "statistics": [
                 "dense",
@@ -4850,7 +5126,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "348d519aa5dde13b6dd1d0c2cfc3778d750d2f3a0fda0364e0f0b81e55d37385",
+              "freshness": "27fd098d2a6a849d35301d4ef3723cbea75088aa4f8001c39472fe69fb99efe0",
               "name": "test_lsqr_overdetermined_3",
               "statistics": [
                 "dense",
@@ -4901,7 +5177,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "348d519aa5dde13b6dd1d0c2cfc3778d750d2f3a0fda0364e0f0b81e55d37385",
+              "freshness": "27fd098d2a6a849d35301d4ef3723cbea75088aa4f8001c39472fe69fb99efe0",
               "name": "test_lsqr_overdetermined_dense",
               "statistics": [
                 "dense",
@@ -4952,7 +5228,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "348d519aa5dde13b6dd1d0c2cfc3778d750d2f3a0fda0364e0f0b81e55d37385",
+              "freshness": "27fd098d2a6a849d35301d4ef3723cbea75088aa4f8001c39472fe69fb99efe0",
               "name": "test_lsqr_overdetermined_sparse",
               "statistics": [
                 "dense",
@@ -5003,7 +5279,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "348d519aa5dde13b6dd1d0c2cfc3778d750d2f3a0fda0364e0f0b81e55d37385",
+              "freshness": "27fd098d2a6a849d35301d4ef3723cbea75088aa4f8001c39472fe69fb99efe0",
               "name": "test_lsqr_scaled_underdetermined",
               "statistics": [
                 "dense",
@@ -5054,7 +5330,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "348d519aa5dde13b6dd1d0c2cfc3778d750d2f3a0fda0364e0f0b81e55d37385",
+              "freshness": "27fd098d2a6a849d35301d4ef3723cbea75088aa4f8001c39472fe69fb99efe0",
               "name": "test_lsqr_underdetermined_3",
               "statistics": [
                 "dense",
@@ -5105,7 +5381,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/lsqr.py",
-              "freshness": "348d519aa5dde13b6dd1d0c2cfc3778d750d2f3a0fda0364e0f0b81e55d37385",
+              "freshness": "27fd098d2a6a849d35301d4ef3723cbea75088aa4f8001c39472fe69fb99efe0",
               "name": "test_lsqr_underdetermined_4",
               "statistics": [
                 "dense",
@@ -5134,7 +5410,8 @@
                 "kagglehub",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -5164,10 +5441,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/mri_edge.py",
-              "freshness": "0c0d428b4adf0f2be1774143510a3e48c8f5c1745ee99bcad952ea26d7c114c8",
+              "freshness": "9c7f3c042fc0f02a59b89c3c0548e9e224dd53d332c55e671cfb4fb38eaf2b6c",
               "name": "test_masked_mri_basic_roi",
               "statistics": [
                 "dense",
@@ -5182,7 +5463,8 @@
                 "kagglehub",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -5212,10 +5494,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/mri_edge.py",
-              "freshness": "0c0d428b4adf0f2be1774143510a3e48c8f5c1745ee99bcad952ea26d7c114c8",
+              "freshness": "9c7f3c042fc0f02a59b89c3c0548e9e224dd53d332c55e671cfb4fb38eaf2b6c",
               "name": "test_masked_mri_generator_builds_default_roi",
               "statistics": [
                 "dense",
@@ -5230,7 +5516,8 @@
                 "kagglehub",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -5260,10 +5547,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/mri_edge.py",
-              "freshness": "0c0d428b4adf0f2be1774143510a3e48c8f5c1745ee99bcad952ea26d7c114c8",
+              "freshness": "9c7f3c042fc0f02a59b89c3c0548e9e224dd53d332c55e671cfb4fb38eaf2b6c",
               "name": "test_masked_mri_zero_image",
               "statistics": [
                 "dense",
@@ -5324,7 +5615,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "f462ab048cb465f7de90e1330b5fe8eaf527c44f8d5c9b7f041b665900d5f12d",
+              "freshness": "627e1d2d32ebf6bcec07d4061251f22f57ba795848d931ded7cc2f43a7c845d5",
               "name": "planted_clique",
               "statistics": [
                 "fancy-ops",
@@ -5374,7 +5665,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "f462ab048cb465f7de90e1330b5fe8eaf527c44f8d5c9b7f041b665900d5f12d",
+              "freshness": "627e1d2d32ebf6bcec07d4061251f22f57ba795848d931ded7cc2f43a7c845d5",
               "name": "three_block_pairs",
               "statistics": [
                 "fancy-ops",
@@ -5424,7 +5715,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "f462ab048cb465f7de90e1330b5fe8eaf527c44f8d5c9b7f041b665900d5f12d",
+              "freshness": "627e1d2d32ebf6bcec07d4061251f22f57ba795848d931ded7cc2f43a7c845d5",
               "name": "two_star_components",
               "statistics": [
                 "fancy-ops",
@@ -5452,7 +5743,8 @@
                 "kagglehub",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -5482,10 +5774,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/sobel_edge.py",
-              "freshness": "ec36771903647e17973bdcbe69cf9a85ccca63527e79d0736871e78acd133582",
+              "freshness": "fb6dc502714de05149669f3ef8a5e7e7ccb3e00113111c2772595146646d03d8",
               "name": "test_sobel_generator_metadata",
               "statistics": [
                 "fancy-ops",
@@ -5500,7 +5796,8 @@
                 "kagglehub",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -5530,10 +5827,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/sobel_edge.py",
-              "freshness": "ec36771903647e17973bdcbe69cf9a85ccca63527e79d0736871e78acd133582",
+              "freshness": "fb6dc502714de05149669f3ef8a5e7e7ccb3e00113111c2772595146646d03d8",
               "name": "test_sobel_horizontal_edge",
               "statistics": [
                 "fancy-ops",
@@ -5548,7 +5849,8 @@
                 "kagglehub",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -5578,10 +5880,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/sobel_edge.py",
-              "freshness": "ec36771903647e17973bdcbe69cf9a85ccca63527e79d0736871e78acd133582",
+              "freshness": "fb6dc502714de05149669f3ef8a5e7e7ccb3e00113111c2772595146646d03d8",
               "name": "test_sobel_vertical_edge",
               "statistics": [
                 "fancy-ops",
@@ -5596,7 +5902,8 @@
                 "kagglehub",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -5626,10 +5933,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/sobel_edge.py",
-              "freshness": "ec36771903647e17973bdcbe69cf9a85ccca63527e79d0736871e78acd133582",
+              "freshness": "fb6dc502714de05149669f3ef8a5e7e7ccb3e00113111c2772595146646d03d8",
               "name": "test_sobel_zero_image",
               "statistics": [
                 "fancy-ops",
@@ -5655,7 +5966,8 @@
                 "lark",
                 "networkx",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -5681,10 +5993,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/pagerank.py",
-              "freshness": "2e8ddf452e9c333c1da46dfdd88b3a2e8d05d57435af485645c4264ff1f86780",
+              "freshness": "69b0adec3d7ae478b9e366eb98e3491fe8d3f84d11c904e6fb81fb74aaea5d48",
               "name": "test_pagerank_against_networkx",
               "statistics": [
                 "dense",
@@ -5700,7 +6016,8 @@
                 "lark",
                 "networkx",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -5726,10 +6043,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/pagerank.py",
-              "freshness": "2e8ddf452e9c333c1da46dfdd88b3a2e8d05d57435af485645c4264ff1f86780",
+              "freshness": "69b0adec3d7ae478b9e366eb98e3491fe8d3f84d11c904e6fb81fb74aaea5d48",
               "name": "test_pagerank_snap_toy",
               "statistics": [
                 "dense",
@@ -5745,7 +6066,8 @@
                 "lark",
                 "networkx",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -5771,10 +6093,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/pagerank.py",
-              "freshness": "2e8ddf452e9c333c1da46dfdd88b3a2e8d05d57435af485645c4264ff1f86780",
+              "freshness": "69b0adec3d7ae478b9e366eb98e3491fe8d3f84d11c904e6fb81fb74aaea5d48",
               "name": "test_pagerank_three_node_chain",
               "statistics": [
                 "dense",
@@ -5790,7 +6116,8 @@
                 "lark",
                 "networkx",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -5816,10 +6143,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/pagerank.py",
-              "freshness": "2e8ddf452e9c333c1da46dfdd88b3a2e8d05d57435af485645c4264ff1f86780",
+              "freshness": "69b0adec3d7ae478b9e366eb98e3491fe8d3f84d11c904e6fb81fb74aaea5d48",
               "name": "test_pagerank_two_node_cycle",
               "statistics": [
                 "dense",
@@ -5835,7 +6166,8 @@
                 "lark",
                 "networkx",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -5861,10 +6193,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/pagerank.py",
-              "freshness": "2e8ddf452e9c333c1da46dfdd88b3a2e8d05d57435af485645c4264ff1f86780",
+              "freshness": "69b0adec3d7ae478b9e366eb98e3491fe8d3f84d11c904e6fb81fb74aaea5d48",
               "name": "test_pagerank_two_node_sink",
               "statistics": [
                 "dense",
@@ -5891,7 +6227,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -5913,10 +6250,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/particle_sim.py",
-              "freshness": "0d15b860de8de6db13ea94ec5c9b3bdd67a8f857dd9ff0fcf2d46234020b92b3",
+              "freshness": "1bc7a40d805f48782880fd2abb2abd24c979940d59c917577ab61989def4cd02",
               "name": "test_particle_sim_random_10",
               "statistics": [
                 "dense",
@@ -5931,7 +6272,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -5953,10 +6295,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/particle_sim.py",
-              "freshness": "0d15b860de8de6db13ea94ec5c9b3bdd67a8f857dd9ff0fcf2d46234020b92b3",
+              "freshness": "1bc7a40d805f48782880fd2abb2abd24c979940d59c917577ab61989def4cd02",
               "name": "test_particle_sim_random_50",
               "statistics": [
                 "dense",
@@ -5971,7 +6317,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -5993,10 +6340,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/particle_sim.py",
-              "freshness": "0d15b860de8de6db13ea94ec5c9b3bdd67a8f857dd9ff0fcf2d46234020b92b3",
+              "freshness": "1bc7a40d805f48782880fd2abb2abd24c979940d59c917577ab61989def4cd02",
               "name": "test_particle_sim_two_particles_within_cutoff",
               "statistics": [
                 "dense",
@@ -6011,7 +6362,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -6033,10 +6385,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/particle_sim.py",
-              "freshness": "0d15b860de8de6db13ea94ec5c9b3bdd67a8f857dd9ff0fcf2d46234020b92b3",
+              "freshness": "1bc7a40d805f48782880fd2abb2abd24c979940d59c917577ab61989def4cd02",
               "name": "test_particle_sim_wall_bounce",
               "statistics": [
                 "dense",
@@ -6104,7 +6460,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "6b832bebfc8d30de14deddf7758228c914af6c799dd05b2911aa2895bb624d46",
+              "freshness": "78ec10f145767ab86bf80008123f82fab830eac76dd4bdd271d51f7e98a55992",
               "name": "test_A0",
               "statistics": [
                 "dynamic-sparsity",
@@ -6162,7 +6518,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "6b832bebfc8d30de14deddf7758228c914af6c799dd05b2911aa2895bb624d46",
+              "freshness": "78ec10f145767ab86bf80008123f82fab830eac76dd4bdd271d51f7e98a55992",
               "name": "test_A1",
               "statistics": [
                 "dynamic-sparsity",
@@ -6220,7 +6576,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "6b832bebfc8d30de14deddf7758228c914af6c799dd05b2911aa2895bb624d46",
+              "freshness": "78ec10f145767ab86bf80008123f82fab830eac76dd4bdd271d51f7e98a55992",
               "name": "test_A2",
               "statistics": [
                 "dynamic-sparsity",
@@ -6278,7 +6634,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "6b832bebfc8d30de14deddf7758228c914af6c799dd05b2911aa2895bb624d46",
+              "freshness": "78ec10f145767ab86bf80008123f82fab830eac76dd4bdd271d51f7e98a55992",
               "name": "test_A3",
               "statistics": [
                 "dynamic-sparsity",
@@ -6336,7 +6692,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "6b832bebfc8d30de14deddf7758228c914af6c799dd05b2911aa2895bb624d46",
+              "freshness": "78ec10f145767ab86bf80008123f82fab830eac76dd4bdd271d51f7e98a55992",
               "name": "test_A4",
               "statistics": [
                 "dynamic-sparsity",
@@ -6394,7 +6750,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/preconditioned_cg.py",
-              "freshness": "6b832bebfc8d30de14deddf7758228c914af6c799dd05b2911aa2895bb624d46",
+              "freshness": "78ec10f145767ab86bf80008123f82fab830eac76dd4bdd271d51f7e98a55992",
               "name": "test_A5",
               "statistics": [
                 "dynamic-sparsity",
@@ -6424,7 +6780,8 @@
                 "lark",
                 "numpy",
                 "pyparsing",
-                "scipy.integrate"
+                "scipy.integrate",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -6453,7 +6810,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "a0b80b6f663ce8ce4d3c0761fc42638d5f6e1e4b2f9aeeebb0ee5a9cae46b7d5",
+              "freshness": "86a2a348170fab03e2834cde26a318a24d24920786ccebb25d8325e6e9c174f6",
               "name": "rc_small",
               "statistics": []
             }
@@ -6476,7 +6833,8 @@
                 "lark",
                 "numpy",
                 "pyparsing",
-                "scipy.integrate"
+                "scipy.integrate",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -6505,7 +6863,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "a0b80b6f663ce8ce4d3c0761fc42638d5f6e1e4b2f9aeeebb0ee5a9cae46b7d5",
+              "freshness": "86a2a348170fab03e2834cde26a318a24d24920786ccebb25d8325e6e9c174f6",
               "name": "rc_small",
               "statistics": []
             }
@@ -6528,7 +6886,8 @@
                 "lark",
                 "numpy",
                 "pyparsing",
-                "scipy.integrate"
+                "scipy.integrate",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -6557,7 +6916,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "a0b80b6f663ce8ce4d3c0761fc42638d5f6e1e4b2f9aeeebb0ee5a9cae46b7d5",
+              "freshness": "86a2a348170fab03e2834cde26a318a24d24920786ccebb25d8325e6e9c174f6",
               "name": "rc_small",
               "statistics": []
             }
@@ -6580,7 +6939,8 @@
                 "lark",
                 "numpy",
                 "pyparsing",
-                "scipy.integrate"
+                "scipy.integrate",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -6609,7 +6969,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "a0b80b6f663ce8ce4d3c0761fc42638d5f6e1e4b2f9aeeebb0ee5a9cae46b7d5",
+              "freshness": "86a2a348170fab03e2834cde26a318a24d24920786ccebb25d8325e6e9c174f6",
               "name": "rlc_small",
               "statistics": []
             }
@@ -6632,7 +6992,8 @@
                 "lark",
                 "numpy",
                 "pyparsing",
-                "scipy.integrate"
+                "scipy.integrate",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -6661,7 +7022,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "a0b80b6f663ce8ce4d3c0761fc42638d5f6e1e4b2f9aeeebb0ee5a9cae46b7d5",
+              "freshness": "86a2a348170fab03e2834cde26a318a24d24920786ccebb25d8325e6e9c174f6",
               "name": "rlc_small",
               "statistics": []
             }
@@ -6684,7 +7045,8 @@
                 "lark",
                 "numpy",
                 "pyparsing",
-                "scipy.integrate"
+                "scipy.integrate",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -6713,7 +7075,7 @@
                 }
               ],
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "a0b80b6f663ce8ce4d3c0761fc42638d5f6e1e4b2f9aeeebb0ee5a9cae46b7d5",
+              "freshness": "86a2a348170fab03e2834cde26a318a24d24920786ccebb25d8325e6e9c174f6",
               "name": "rlc_small",
               "statistics": []
             }
@@ -6735,7 +7097,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -6757,10 +7120,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/rp_kmeans_clustering.py",
-              "freshness": "c03156ae91aee19bd8348da966827857eb9f1b308eaca3a40569fde5834961ff",
+              "freshness": "515820b2a9c0939048b474bf7b3e59ee615c50d5edbd4fa83d54423d7447ede0",
               "name": "three_clusters",
               "statistics": [
                 "dense",
@@ -6778,7 +7145,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -6800,10 +7168,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/rp_kmeans_clustering.py",
-              "freshness": "c03156ae91aee19bd8348da966827857eb9f1b308eaca3a40569fde5834961ff",
+              "freshness": "515820b2a9c0939048b474bf7b3e59ee615c50d5edbd4fa83d54423d7447ede0",
               "name": "two_clusters",
               "statistics": [
                 "dense",
@@ -6833,7 +7205,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -6855,10 +7228,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "single_layer_tiny",
               "statistics": [
                 "dense",
@@ -6878,7 +7255,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -6900,10 +7278,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "gate_H_q0",
               "statistics": [
                 "dense",
@@ -6917,7 +7299,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -6939,10 +7322,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "gate_H_q1",
               "statistics": [
                 "dense",
@@ -6956,7 +7343,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -6978,10 +7366,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "gate_H_q2",
               "statistics": [
                 "dense",
@@ -6995,7 +7387,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7017,10 +7410,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "gate_H_q3",
               "statistics": [
                 "dense",
@@ -7034,7 +7431,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7056,10 +7454,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "gate_S_q0",
               "statistics": [
                 "dense",
@@ -7073,7 +7475,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7095,10 +7498,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "gate_S_q1",
               "statistics": [
                 "dense",
@@ -7112,7 +7519,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7134,10 +7542,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "gate_S_q2",
               "statistics": [
                 "dense",
@@ -7151,7 +7563,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7173,10 +7586,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "gate_S_q3",
               "statistics": [
                 "dense",
@@ -7190,7 +7607,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7212,10 +7630,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "gate_T_q0",
               "statistics": [
                 "dense",
@@ -7229,7 +7651,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7251,10 +7674,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "gate_T_q1",
               "statistics": [
                 "dense",
@@ -7268,7 +7695,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7290,10 +7718,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "gate_T_q2",
               "statistics": [
                 "dense",
@@ -7307,7 +7739,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7329,10 +7762,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "gate_T_q3",
               "statistics": [
                 "dense",
@@ -7346,7 +7783,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7368,10 +7806,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "gate_X_q0",
               "statistics": [
                 "dense",
@@ -7385,7 +7827,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7407,10 +7850,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "gate_X_q1",
               "statistics": [
                 "dense",
@@ -7424,7 +7871,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7446,10 +7894,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "gate_X_q2",
               "statistics": [
                 "dense",
@@ -7463,7 +7915,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7485,10 +7938,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "gate_X_q3",
               "statistics": [
                 "dense",
@@ -7502,7 +7959,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7524,10 +7982,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "gate_Y_q0",
               "statistics": [
                 "dense",
@@ -7541,7 +8003,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7563,10 +8026,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "gate_Y_q1",
               "statistics": [
                 "dense",
@@ -7580,7 +8047,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7602,10 +8070,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "gate_Y_q2",
               "statistics": [
                 "dense",
@@ -7619,7 +8091,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7641,10 +8114,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "gate_Y_q3",
               "statistics": [
                 "dense",
@@ -7658,7 +8135,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7680,10 +8158,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "gate_Z_q0",
               "statistics": [
                 "dense",
@@ -7697,7 +8179,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7719,10 +8202,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "gate_Z_q1",
               "statistics": [
                 "dense",
@@ -7736,7 +8223,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7758,10 +8246,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "gate_Z_q2",
               "statistics": [
                 "dense",
@@ -7775,7 +8267,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7797,10 +8290,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "gate_Z_q3",
               "statistics": [
                 "dense",
@@ -7814,7 +8311,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7836,10 +8334,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "h_twice_returns_to_original",
               "statistics": [
                 "dense",
@@ -7853,7 +8355,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7875,10 +8378,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513",
+              "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f",
               "name": "statevector_basic",
               "statistics": [
                 "dense",
@@ -7904,7 +8411,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7926,10 +8434,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/connected_components.py",
-              "freshness": "c6a58c1c47353b16390e44b6749ad920446b24befc12f6188b2db1c364e8804e",
+              "freshness": "2eeb52fbc877ce3b02d0b71c42beb7a78462f7fd15d4fbe056a9f643c1aa4506",
               "name": "test_cc_directed_star_pointing_inward",
               "statistics": [
                 "dense",
@@ -7942,7 +8454,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -7964,10 +8477,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/connected_components.py",
-              "freshness": "c6a58c1c47353b16390e44b6749ad920446b24befc12f6188b2db1c364e8804e",
+              "freshness": "2eeb52fbc877ce3b02d0b71c42beb7a78462f7fd15d4fbe056a9f643c1aa4506",
               "name": "test_cc_fully_connected",
               "statistics": [
                 "dense",
@@ -7980,7 +8497,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -8002,10 +8520,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/connected_components.py",
-              "freshness": "c6a58c1c47353b16390e44b6749ad920446b24befc12f6188b2db1c364e8804e",
+              "freshness": "2eeb52fbc877ce3b02d0b71c42beb7a78462f7fd15d4fbe056a9f643c1aa4506",
               "name": "test_cc_isolated_nodes",
               "statistics": [
                 "dense",
@@ -8018,7 +8540,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -8040,10 +8563,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/connected_components.py",
-              "freshness": "c6a58c1c47353b16390e44b6749ad920446b24befc12f6188b2db1c364e8804e",
+              "freshness": "2eeb52fbc877ce3b02d0b71c42beb7a78462f7fd15d4fbe056a9f643c1aa4506",
               "name": "test_cc_single_node",
               "statistics": [
                 "dense",
@@ -8056,7 +8583,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -8078,10 +8606,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/connected_components.py",
-              "freshness": "c6a58c1c47353b16390e44b6749ad920446b24befc12f6188b2db1c364e8804e",
+              "freshness": "2eeb52fbc877ce3b02d0b71c42beb7a78462f7fd15d4fbe056a9f643c1aa4506",
               "name": "test_cc_snap_toy",
               "statistics": [
                 "dense",
@@ -8094,7 +8626,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -8116,10 +8649,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/connected_components.py",
-              "freshness": "c6a58c1c47353b16390e44b6749ad920446b24befc12f6188b2db1c364e8804e",
+              "freshness": "2eeb52fbc877ce3b02d0b71c42beb7a78462f7fd15d4fbe056a9f643c1aa4506",
               "name": "test_cc_two_disconnected_components",
               "statistics": [
                 "dense",
@@ -8144,7 +8681,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -8166,10 +8704,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/tic_tac.py",
-              "freshness": "f4a9874540b3506b4bef680516957c3ebd3d8d8568e1de91d3b03804ddc841f2",
+              "freshness": "a22a8a95c63b24908d1af38b3aa87740821ddf08e4a7e4d237f45b9a861eb62b",
               "name": "batch_near",
               "statistics": [
                 "dense",
@@ -8186,7 +8728,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -8208,10 +8751,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/tic_tac.py",
-              "freshness": "f4a9874540b3506b4bef680516957c3ebd3d8d8568e1de91d3b03804ddc841f2",
+              "freshness": "a22a8a95c63b24908d1af38b3aa87740821ddf08e4a7e4d237f45b9a861eb62b",
               "name": "draw_early",
               "statistics": [
                 "dense",
@@ -8228,7 +8775,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -8250,10 +8798,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/tic_tac.py",
-              "freshness": "f4a9874540b3506b4bef680516957c3ebd3d8d8568e1de91d3b03804ddc841f2",
+              "freshness": "a22a8a95c63b24908d1af38b3aa87740821ddf08e4a7e4d237f45b9a861eb62b",
               "name": "draw_near",
               "statistics": [
                 "dense",
@@ -8270,7 +8822,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -8292,10 +8845,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/tic_tac.py",
-              "freshness": "f4a9874540b3506b4bef680516957c3ebd3d8d8568e1de91d3b03804ddc841f2",
+              "freshness": "a22a8a95c63b24908d1af38b3aa87740821ddf08e4a7e4d237f45b9a861eb62b",
               "name": "o_wins_mid",
               "statistics": [
                 "dense",
@@ -8312,7 +8869,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -8334,10 +8892,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/tic_tac.py",
-              "freshness": "f4a9874540b3506b4bef680516957c3ebd3d8d8568e1de91d3b03804ddc841f2",
+              "freshness": "a22a8a95c63b24908d1af38b3aa87740821ddf08e4a7e4d237f45b9a861eb62b",
               "name": "o_wins_near",
               "statistics": [
                 "dense",
@@ -8354,7 +8916,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -8376,10 +8939,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/tic_tac.py",
-              "freshness": "f4a9874540b3506b4bef680516957c3ebd3d8d8568e1de91d3b03804ddc841f2",
+              "freshness": "a22a8a95c63b24908d1af38b3aa87740821ddf08e4a7e4d237f45b9a861eb62b",
               "name": "x_wins_early",
               "statistics": [
                 "dense",
@@ -8396,7 +8963,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -8418,10 +8986,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/tic_tac.py",
-              "freshness": "f4a9874540b3506b4bef680516957c3ebd3d8d8568e1de91d3b03804ddc841f2",
+              "freshness": "a22a8a95c63b24908d1af38b3aa87740821ddf08e4a7e4d237f45b9a861eb62b",
               "name": "x_wins_mid",
               "statistics": [
                 "dense",
@@ -8438,7 +9010,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -8460,10 +9033,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/tic_tac.py",
-              "freshness": "f4a9874540b3506b4bef680516957c3ebd3d8d8568e1de91d3b03804ddc841f2",
+              "freshness": "a22a8a95c63b24908d1af38b3aa87740821ddf08e4a7e4d237f45b9a861eb62b",
               "name": "x_wins_near",
               "statistics": [
                 "dense",
@@ -8492,7 +9069,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -8514,10 +9092,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/transitive_closure.py",
-              "freshness": "7e5d81087f5cd7e92f93343b93a5fedea0afa4d562f5e087b3852a97010fa4b9",
+              "freshness": "540e2171b1591120c9bb81742a89d679d83e82f061e1695f8f2dc454694ffa95",
               "name": "cycle",
               "statistics": [
                 "dense",
@@ -8530,7 +9112,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -8552,10 +9135,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/transitive_closure.py",
-              "freshness": "7e5d81087f5cd7e92f93343b93a5fedea0afa4d562f5e087b3852a97010fa4b9",
+              "freshness": "540e2171b1591120c9bb81742a89d679d83e82f061e1695f8f2dc454694ffa95",
               "name": "dag",
               "statistics": [
                 "dense",
@@ -8568,7 +9155,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -8590,10 +9178,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/transitive_closure.py",
-              "freshness": "7e5d81087f5cd7e92f93343b93a5fedea0afa4d562f5e087b3852a97010fa4b9",
+              "freshness": "540e2171b1591120c9bb81742a89d679d83e82f061e1695f8f2dc454694ffa95",
               "name": "one-node",
               "statistics": [
                 "dense",
@@ -8606,7 +9198,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -8628,10 +9221,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/transitive_closure.py",
-              "freshness": "7e5d81087f5cd7e92f93343b93a5fedea0afa4d562f5e087b3852a97010fa4b9",
+              "freshness": "540e2171b1591120c9bb81742a89d679d83e82f061e1695f8f2dc454694ffa95",
               "name": "snap-toy",
               "statistics": [
                 "dense",
@@ -8644,7 +9241,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -8666,10 +9264,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/transitive_closure.py",
-              "freshness": "7e5d81087f5cd7e92f93343b93a5fedea0afa4d562f5e087b3852a97010fa4b9",
+              "freshness": "540e2171b1591120c9bb81742a89d679d83e82f061e1695f8f2dc454694ffa95",
               "name": "strong-component-count",
               "statistics": [
                 "dense",
@@ -8694,7 +9296,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -8716,10 +9319,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/transitive_reduction.py",
-              "freshness": "7413dcf6b5a5e59388b1d2d6075eb4aa8a82984a94b6e27618799e15b7ec03e9",
+              "freshness": "38e90d5f6089eb0a11ce66d5098a46a8271e982731a534bb52c0113e02f9386c",
               "name": "keep_short_direct_edge",
               "statistics": [
                 "dense",
@@ -8734,7 +9341,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -8756,10 +9364,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/transitive_reduction.py",
-              "freshness": "7413dcf6b5a5e59388b1d2d6075eb4aa8a82984a94b6e27618799e15b7ec03e9",
+              "freshness": "38e90d5f6089eb0a11ce66d5098a46a8271e982731a534bb52c0113e02f9386c",
               "name": "keep_when_indirect_is_long",
               "statistics": [
                 "dense",
@@ -8774,7 +9386,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -8796,10 +9409,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/transitive_reduction.py",
-              "freshness": "7413dcf6b5a5e59388b1d2d6075eb4aa8a82984a94b6e27618799e15b7ec03e9",
+              "freshness": "38e90d5f6089eb0a11ce66d5098a46a8271e982731a534bb52c0113e02f9386c",
               "name": "remove_equal_direct_edge",
               "statistics": [
                 "dense",
@@ -8814,7 +9431,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -8836,10 +9454,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/transitive_reduction.py",
-              "freshness": "7413dcf6b5a5e59388b1d2d6075eb4aa8a82984a94b6e27618799e15b7ec03e9",
+              "freshness": "38e90d5f6089eb0a11ce66d5098a46a8271e982731a534bb52c0113e02f9386c",
               "name": "remove_long_direct_edge",
               "statistics": [
                 "dense",
@@ -8866,7 +9488,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -8888,10 +9511,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/tri_4cliq.py",
-              "freshness": "fb1b1c100aec76fe5d7acc4a19134d1fe5b9b4f2b2264e787cf9b0ddd8ecc9dc",
+              "freshness": "c64f2b04573bad21b315b15e2bdd22bb6110eb0d377ec859aa48714a91666b00",
               "name": "test_triangle_count_4_clique",
               "statistics": [
                 "dense",
@@ -8904,7 +9531,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -8926,10 +9554,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/tri_4cliq.py",
-              "freshness": "fb1b1c100aec76fe5d7acc4a19134d1fe5b9b4f2b2264e787cf9b0ddd8ecc9dc",
+              "freshness": "c64f2b04573bad21b315b15e2bdd22bb6110eb0d377ec859aa48714a91666b00",
               "name": "test_triangle_count_path",
               "statistics": [
                 "dense",
@@ -8942,7 +9574,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -8964,10 +9597,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/tri_4cliq.py",
-              "freshness": "fb1b1c100aec76fe5d7acc4a19134d1fe5b9b4f2b2264e787cf9b0ddd8ecc9dc",
+              "freshness": "c64f2b04573bad21b315b15e2bdd22bb6110eb0d377ec859aa48714a91666b00",
               "name": "test_triangle_count_single_triangle",
               "statistics": [
                 "dense",
@@ -8980,7 +9617,8 @@
                 "botocore",
                 "lark",
                 "numpy",
-                "pyparsing"
+                "pyparsing",
+                "scipy.sparse"
               ],
               "dependency_versions": [
                 {
@@ -9002,10 +9640,14 @@
                 {
                   "name": "pyparsing",
                   "version": "3.3.2"
+                },
+                {
+                  "name": "scipy",
+                  "version": "1.17.1"
                 }
               ],
               "file": "src/saps/benchmarks/tri_4cliq.py",
-              "freshness": "fb1b1c100aec76fe5d7acc4a19134d1fe5b9b4f2b2264e787cf9b0ddd8ecc9dc",
+              "freshness": "c64f2b04573bad21b315b15e2bdd22bb6110eb0d377ec859aa48714a91666b00",
               "name": "test_triangle_snap_toy",
               "statistics": [
                 "dense",
