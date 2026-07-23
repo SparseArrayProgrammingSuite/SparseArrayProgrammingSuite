@@ -1,4 +1,3 @@
-import os
 from abc import ABC, abstractmethod
 from typing import Any
 
@@ -11,96 +10,52 @@ from saps.benchmark import (
     Benchmark,
     Contributor,
     DataInstance,
-    Dataset,
     Generator,
     Ref,
 )
+from saps.benchmarks.suitesparse import (
+    SuiteSparseDataset,
+    fetch_suitesparse_linear_system,
+)
+from saps.downloaders.suitesparse import random_rhs_for_matrix
 from saps_framework import BinsparseFormat
 
 
-def _generate_cg_data(source, has_b_file, A=None):
-    import scipy.sparse as sp
-    from scipy.io import mmread
-
-    import ssgetpy
-
+def _generate_cg_data(source, A=None):
     if A is not None:
+        import scipy.sparse as sp
+
         A = sp.coo_matrix(A)
+        b = random_rhs_for_matrix(A)
+        A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
     else:
-        matrices = ssgetpy.search(name=source)
-        if not matrices:
-            raise ValueError(f"No matrix found with name '{source}'")
-        matrix = matrices[0]
-        (path, archive) = matrix.download(extract=True)
-        matrix_path = os.path.join(path, matrix.name + ".mtx")
-        if matrix_path and os.path.exists(matrix_path):
-            A = mmread(matrix_path)
-        else:
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-    A = A.tocoo()
-    rng = np.random.default_rng(0)
-
-    if has_b_file:
-        matrix_path = os.path.join(path, matrix.name + "_b.mtx")
-        if matrix_path and os.path.exists(matrix_path):
-            b = mmread(matrix_path)
-        else:
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-        if not isinstance(b, np.ndarray):
-            b = b.toarray() if hasattr(b, "toarray") else np.asarray(b)
-        b = b.flatten()
-    else:
-        x = sp.random(
-            A.shape[1], 1, density=0.1, format="coo", dtype=np.float64, random_state=rng
-        )
-        b = A @ x
-        b = b.toarray().flatten()
-    x0 = np.zeros(A.shape[1])
-    return (A, b, x0)
+        A_bin, b, _has_real_rhs = fetch_suitesparse_linear_system(source)
+    x0 = np.zeros(A_bin.data["shape"][1])
+    return (A_bin, b, x0)
 
 
-class PreconditionedCGDataset(Dataset):
+class PreconditionedCGDataset(SuiteSparseDataset):
     def __init__(
         self,
         source_name: str,
         condition_number: str,
-        has_b_file=False,
         A=None,
         suites: list[str] | None = None,
         ref_meta: dict[str, Any] | None = None,
     ):
-        self._suites = suites or []
-        self.source_name = source_name
+        super().__init__(
+            source_name,
+            pretty_name=f"Preconditioned CG {source_name}",
+            suites=suites,
+        )
         self.condition_number = condition_number
-        self.has_b_file = has_b_file
         self.A = A
         self.ref_meta = ref_meta
-
-    @property
-    def name(self) -> str:
-        return self.source_name
-
-    @property
-    def pretty_name(self) -> str:
-        return f"Preconditioned CG {self.source_name}"
-
-    @property
-    def description(self) -> str:
-        return f"SuiteSparse matrix {self.source_name}."
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
 
     @property
     def metadata(self) -> dict[str, Any]:
         data = super().metadata
         data["condition_number"] = self.condition_number
-        data["has_b_file"] = self.has_b_file
         return data
 
 
@@ -221,8 +176,8 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
     def generate(self, dataset: PreconditionedCGDataset) -> DataInstance:
         import scipy.sparse as sp
 
-        A, b, x0 = _generate_cg_data(dataset.source_name, dataset.has_b_file, dataset.A)
-        A_csr = A.tocsr()
+        A_bin, b, x0 = _generate_cg_data(dataset.source_name, dataset.A)
+        A_csr = A_bin.to_scipy_coo().tocsr()
         n = A_csr.shape[0]
         # Create one block for every processor modelled after
         # this example: https://petsc.org/main/src/ksp/ksp/tutorials/ex7.c.html
@@ -238,7 +193,6 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
             i = j
         M = sp.block_diag(blocks).tocoo()
         M_bin = BinsparseFormat.from_coo((M.row, M.col), M.data, M.shape)
-        A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
         b_bin = BinsparseFormat.from_numpy(b)
         x0_bin = BinsparseFormat.from_numpy(x0)
         return DataInstance(
@@ -363,10 +317,9 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
         ]
 
     def generate(self, dataset: PreconditionedCGDataset) -> DataInstance:
-        A, b, x0 = _generate_cg_data(dataset.source_name, dataset.has_b_file, dataset.A)
-        M = A.diagonal()
+        A_bin, b, x0 = _generate_cg_data(dataset.source_name, dataset.A)
+        M = A_bin.diagonal()
         M_bin = BinsparseFormat.from_numpy(M)
-        A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
         b_bin = BinsparseFormat.from_numpy(b)
         x0_bin = BinsparseFormat.from_numpy(x0)
         return DataInstance(
