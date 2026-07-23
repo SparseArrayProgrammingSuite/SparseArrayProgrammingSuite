@@ -15,8 +15,6 @@ from saps.benchmark import (
 )
 from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
-    binsparse_matrix_diagonal,
-    binsparse_matrix_to_scipy_coo,
     fetch_suitesparse_linear_system,
 )
 from saps.downloaders.suitesparse import random_rhs_for_matrix
@@ -179,7 +177,7 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
         import scipy.sparse as sp
 
         A_bin, b, x0 = _generate_cg_data(dataset.source_name, dataset.A)
-        A_csr = binsparse_matrix_to_scipy_coo(A_bin).tocsr()
+        A_csr = A_bin.to_scipy_coo().tocsr()
         n = A_csr.shape[0]
         # Create one block for every processor modelled after
         # this example: https://petsc.org/main/src/ksp/ksp/tutorials/ex7.c.html
@@ -320,7 +318,7 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
 
     def generate(self, dataset: PreconditionedCGDataset) -> DataInstance:
         A_bin, b, x0 = _generate_cg_data(dataset.source_name, dataset.A)
-        M = binsparse_matrix_diagonal(A_bin)
+        M = A_bin.diagonal()
         M_bin = BinsparseFormat.from_numpy(M)
         b_bin = BinsparseFormat.from_numpy(b)
         x0_bin = BinsparseFormat.from_numpy(x0)

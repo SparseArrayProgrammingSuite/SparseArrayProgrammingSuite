@@ -1,7 +1,6 @@
 from typing import Any
 
 import numpy as np
-import scipy.sparse as sp
 
 from saps.benchmark import (
     Contributor,
@@ -228,33 +227,5 @@ def fetch_suitesparse_linear_system(
         rhs_bin = raw.inputs[1]
         b = rhs_bin.data["values"].reshape(rhs_bin.data["shape"])
     else:
-        b = random_rhs_for_matrix(binsparse_matrix_to_scipy_coo(A_bin))
+        b = random_rhs_for_matrix(A_bin.to_scipy_coo())
     return A_bin, b, has_real_rhs
-
-
-def binsparse_matrix_to_scipy_coo(matrix: BinsparseFormat) -> Any:
-    """Convert a 2D `BinsparseFormat` matrix into a `scipy.sparse.coo_matrix`.
-
-    Only needed where real sparse linear algebra is required (matmul, slicing,
-    transpose); for plain field access use `BinsparseFormat.to_coo(matrix).data`.
-    """
-    coo = BinsparseFormat.to_coo(matrix)
-    return sp.coo_matrix(
-        (coo.data["values"], (coo.data["indices_0"], coo.data["indices_1"])),
-        shape=coo.data["shape"],
-    )
-
-
-def binsparse_matrix_diagonal(matrix: BinsparseFormat) -> np.ndarray:
-    """Extract a 2D `BinsparseFormat` matrix's diagonal directly from its COO view."""
-    coo = BinsparseFormat.to_coo(matrix)
-    row, col, values, shape = (
-        coo.data["indices_0"],
-        coo.data["indices_1"],
-        coo.data["values"],
-        coo.data["shape"],
-    )
-    diagonal = np.zeros(min(shape), dtype=values.dtype)
-    on_diagonal = row == col
-    np.add.at(diagonal, row[on_diagonal], values[on_diagonal])
-    return diagonal
