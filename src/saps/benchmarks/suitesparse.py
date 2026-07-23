@@ -10,11 +10,7 @@ from saps.benchmark import (
     Ref,
     ShellBenchmark,
 )
-from saps.downloaders.suitesparse import (
-    load_suitesparse_matrix,
-    load_suitesparse_matrix_and_rhs,
-    random_rhs_for_matrix,
-)
+from saps.downloaders.suitesparse import load_suitesparse_matrix, random_rhs_for_matrix
 from saps_framework import BinsparseFormat
 
 
@@ -30,7 +26,6 @@ class SuiteSparseDataset(Dataset):
         description: str | None = None,
         suites: list[str] | None = None,
         nnz: int | None = None,
-        has_b_file: bool = False,
     ):
         self._name = name
         self.source_name = source_name if source_name is not None else name
@@ -38,7 +33,6 @@ class SuiteSparseDataset(Dataset):
         self._description = description
         self._suites = suites or []
         self.nnz = nnz
-        self.has_b_file = has_b_file
 
     @property
     def name(self) -> str:
@@ -64,7 +58,6 @@ class SuiteSparseDataset(Dataset):
     def metadata(self) -> dict[str, Any]:
         data = super().metadata
         data["nnz"] = self.nnz
-        data["has_b_file"] = self.has_b_file
         return data
 
 
@@ -116,9 +109,6 @@ _MATRICES: list[SuiteSparseDataset] = [
         "bcsstk01",
     ]
 ]
-# Matrices whose SuiteSparse collection entry ships a real `_b.mtx` RHS go here,
-# e.g. SuiteSparseDataset("some_matrix", has_b_file=True) -- this is the single
-# place that decides it, since every benchmark shares this raw download.
 
 
 class SuiteSparseMatrixGenerator(Generator[SuiteSparseDataset]):
@@ -178,15 +168,10 @@ class SuiteSparseMatrixGenerator(Generator[SuiteSparseDataset]):
         return _MATRICES
 
     def generate(self, dataset: SuiteSparseDataset) -> DataInstance:
-        if dataset.has_b_file:
-            A, b, meta = load_suitesparse_matrix_and_rhs(dataset.source_name)
-            inputs = [
-                BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape),
-                BinsparseFormat.from_numpy(b),
-            ]
-        else:
-            A, meta = load_suitesparse_matrix(dataset.source_name)
-            inputs = [BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)]
+        A, b, meta = load_suitesparse_matrix(dataset.source_name)
+        inputs = [BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)]
+        if b is not None:
+            inputs.append(BinsparseFormat.from_numpy(b))
         return DataInstance(inputs=inputs, meta=meta)
 
 
@@ -200,8 +185,8 @@ def fetch_suitesparse_matrix(source_name: str) -> DataInstance:
     """Fetch (and cache) the raw matrix via the shared `SuiteSparseMatrixGenerator`.
 
     `.inputs[0]` is the matrix; `.inputs[1]` is its real RHS vector when the
-    underlying `SuiteSparseDataset` has `has_b_file=True`. `.meta["shape"]` and
-    `.meta["nnz"]` give the matrix shape/nnz.
+    SuiteSparse collection entry ships one (see `.meta["has_b_file"]`).
+    `.meta["shape"]` and `.meta["nnz"]` give the matrix shape/nnz.
     """
     raw_generator = SuiteSparseMatrixGenerator()
     raw_dataset = next(d for d in raw_generator.datasets if d.name == source_name)

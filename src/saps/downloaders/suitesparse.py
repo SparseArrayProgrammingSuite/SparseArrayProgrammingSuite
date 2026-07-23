@@ -50,31 +50,25 @@ def _download_and_read_matrix(
 
 def load_suitesparse_matrix(
     name: str, *, data_dir: str | Path | None = None
-) -> tuple[Any, dict[str, Any]]:
-    """Download (if needed) and parse a SuiteSparse matrix into a SciPy COO matrix."""
-    _matrix_dir, matrix, A = _download_and_read_matrix(name, data_dir)
-    meta = {
-        "dataset_name": name,
-        "matrix_group": matrix.group,
-        "n": A.shape[0],
-        "nnz": A.nnz,
-        "shape": A.shape,
-    }
-    return A, meta
+) -> tuple[Any, np.ndarray | None, dict[str, Any]]:
+    """Download (if needed) and parse a SuiteSparse matrix into a SciPy COO matrix.
 
-
-def load_suitesparse_matrix_and_rhs(
-    name: str, *, data_dir: str | Path | None = None
-) -> tuple[Any, np.ndarray, dict[str, Any]]:
-    """Download a SuiteSparse matrix paired with its real ``<name>_b.mtx`` RHS."""
+    Returns ``(A, b, meta)``. ``b`` is the matrix's real right-hand-side vector
+    (``<name>_b.mtx``) when the SuiteSparse collection entry ships one, else
+    ``None``. There's no way to know this ahead of a download -- the SuiteSparse
+    index doesn't expose it -- but checking costs nothing extra since the whole
+    archive is already downloaded and extracted to read the matrix itself.
+    """
     matrix_dir, matrix, A = _download_and_read_matrix(name, data_dir)
-    b = load_suitesparse_rhs(matrix_dir, matrix.name)
+    rhs_path = matrix_dir / f"{matrix.name}_b.mtx"
+    b = load_suitesparse_rhs(matrix_dir, matrix.name) if rhs_path.exists() else None
     meta = {
         "dataset_name": name,
         "matrix_group": matrix.group,
         "n": A.shape[0],
         "nnz": A.nnz,
         "shape": A.shape,
+        "has_b_file": b is not None,
     }
     return A, b, meta
 
