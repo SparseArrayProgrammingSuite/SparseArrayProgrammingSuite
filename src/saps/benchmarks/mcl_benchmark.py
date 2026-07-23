@@ -1,4 +1,3 @@
-import os
 from typing import Any
 
 import numpy as np
@@ -8,10 +7,10 @@ from saps.benchmark import (
     Benchmark,
     Contributor,
     DataInstance,
-    Dataset,
     Generator,
     Ref,
 )
+from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
 from saps_framework import BinsparseFormat
 
 
@@ -35,7 +34,7 @@ def _prune(array_api, matrix, threshold):
     return matrix * mask
 
 
-class MCLDataset(Dataset):
+class MCLDataset(SuiteSparseDataset):
     def __init__(
         self,
         source_name: str,
@@ -43,30 +42,14 @@ class MCLDataset(Dataset):
         A: Any | None = None,
         expected_count: int | None = None,
     ):
-        self._suites = suites or []
-        self.source_name = source_name
+        super().__init__(
+            source_name,
+            pretty_name=f"MCL {source_name}",
+            description=f"SuiteSparse adjacency matrix {source_name}.",
+            suites=suites,
+        )
         self.A = A
         self.expected_count = expected_count
-
-    @property
-    def name(self) -> str:
-        return self.source_name
-
-    @property
-    def pretty_name(self) -> str:
-        return f"MCL {self.source_name}"
-
-    @property
-    def description(self) -> str:
-        return f"SuiteSparse adjacency matrix {self.source_name}."
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
 
 
 class MCLTestGenerator(Generator[MCLDataset]):
@@ -210,6 +193,10 @@ class MCLGenerator(Generator[MCLDataset]):
         return MCLBenchmark().motivation
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[MCLDataset]:
         return [
             MCLDataset("Trefethen_200"),
@@ -223,23 +210,8 @@ class MCLGenerator(Generator[MCLDataset]):
         ]
 
     def generate(self, dataset: MCLDataset):
-        from scipy.io import mmread
-
-        import ssgetpy
-
-        matrices = ssgetpy.search(name=dataset.source_name)
-        if not matrices:
-            raise ValueError(f"No matrix found with name '{dataset.source_name}'")
-        matrix = matrices[0]
-        path, archive = matrix.download(extract=True)
-        matrix_path = os.path.join(path, matrix.name + ".mtx")
-        if matrix_path and os.path.exists(matrix_path):
-            A = mmread(matrix_path)
-        else:
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-        A = A.tocoo()
-        A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
-        return DataInstance(inputs=[A_bin], meta={})
+        raw = fetch_suitesparse_matrix(dataset.source_name)
+        return DataInstance(inputs=[raw.inputs[0]], meta={})
 
 
 class MCLBenchmark(Benchmark):

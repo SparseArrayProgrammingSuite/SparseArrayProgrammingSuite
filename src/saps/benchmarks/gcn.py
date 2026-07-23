@@ -1,4 +1,3 @@
-import os
 from typing import Any, cast
 
 import numpy as np
@@ -8,14 +7,14 @@ from saps.benchmark import (
     Benchmark,
     Contributor,
     DataInstance,
-    Dataset,
     Generator,
     Ref,
 )
+from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
 from saps_framework import BinsparseFormat
 
 
-class GCNDataset(Dataset):
+class GCNDataset(SuiteSparseDataset):
     def __init__(
         self,
         name: str,
@@ -33,10 +32,13 @@ class GCNDataset(Dataset):
         bias2: np.ndarray | None = None,
         expected: np.ndarray | None = None,
     ):
-        self._suites = suites or []
-        self.dataset_name = name
-        self.dataset_description = description
-        self.source_name = source_name if source_name is not None else name
+        super().__init__(
+            name,
+            source_name=source_name if source_name is not None else name,
+            pretty_name=f"GCN {name}",
+            description=description,
+            suites=suites,
+        )
         self.feature_dim = feature_dim
         self.hidden_dim = hidden_dim
         self.out_dim = out_dim
@@ -47,26 +49,6 @@ class GCNDataset(Dataset):
         self.weights2 = weights2
         self.bias2 = bias2
         self.expected = expected
-
-    @property
-    def name(self) -> str:
-        return self.dataset_name
-
-    @property
-    def pretty_name(self) -> str:
-        return f"GCN {self.dataset_name}"
-
-    @property
-    def description(self) -> str:
-        return self.dataset_description or f"SuiteSparse matrix {self.source_name}."
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -286,6 +268,10 @@ class GCNGenerator(Generator[GCNDataset]):
         )
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[GCNDataset]:
         return [
             GCNDataset(
@@ -372,30 +358,16 @@ class GCNGenerator(Generator[GCNDataset]):
         ]
 
     def generate(self, dataset: GCNDataset):
-        from scipy.io import mmread
-
-        import ssgetpy
-
         feature_dim = dataset.feature_dim
         hidden_dim = dataset.hidden_dim
         out_dim = dataset.out_dim
 
-        source = dataset.source_name
-        matrices = ssgetpy.search(name=source)
-        if not matrices:
-            raise ValueError(f"No matrix found with name '{source}'")
-        matrix = matrices[0]
-        (path, archive) = matrix.download(extract=True)
-        matrix_path = os.path.join(path, matrix.name + ".mtx")
-        if matrix_path and os.path.exists(matrix_path):
-            A = mmread(matrix_path)
-        else:
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
+        raw = fetch_suitesparse_matrix(dataset.source_name)
+        coo = BinsparseFormat.to_coo(raw.inputs[0])
         rng = np.random.default_rng(0)
-        A = A.tocoo()
 
         # Create feature/weight arrays using the RNG (deterministic)
-        n = A.shape[0]
+        n = raw.meta["shape"][0]
         features = rng.standard_normal((n, feature_dim), dtype=np.float32)
         weights1 = rng.standard_normal((feature_dim, hidden_dim), dtype=np.float32)
         bias1 = np.zeros((hidden_dim,), dtype=np.float32)
@@ -403,7 +375,9 @@ class GCNGenerator(Generator[GCNDataset]):
         bias2 = np.zeros((out_dim,), dtype=np.float32)
 
         A_bin = BinsparseFormat.from_coo(
-            (A.row, A.col), A.data.astype(np.float32, copy=False), A.shape
+            (coo.data["indices_0"], coo.data["indices_1"]),
+            coo.data["values"].astype(np.float32, copy=False),
+            coo.data["shape"],
         )
         features_b = BinsparseFormat.from_numpy(features)
         weights1_b = BinsparseFormat.from_numpy(weights1)

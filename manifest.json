@@ -5,7 +5,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -27,11 +28,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "e3615b8449739da09c6511204d7ebdff3f142a54e39e68bc5e81bc148d02b6d6",
+    "digest": "f77a0f31f43a4379c2c1673f852f9c570171c84d9e32722ba08dfc348bbbc990",
     "file": "src/saps/benchmarks/bellmanford.py",
-    "freshness": "92dbb57a4c752bd7f37abede367c3de88ddc9f589d4efab74c09cb8488060052"
+    "freshness": "a0f15c7273e50068e13b2c4ccab0e8106bffd910e5de72f1e591e76d2499f29e"
   },
   "bellman_ford_inputs.snap-email-Eu-core-temporal-Dept1": {
     "dependencies": [
@@ -39,7 +44,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -61,11 +67,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "90464a8359f5323ba8aa81c01b371761a80d11b9117f23ebe7eced18c1e67734",
+    "digest": "bb78f246a1f7765c65ff2ec694803c643f9aac47737633b15b9395117d8214b3",
     "file": "src/saps/benchmarks/bellmanford.py",
-    "freshness": "92dbb57a4c752bd7f37abede367c3de88ddc9f589d4efab74c09cb8488060052"
+    "freshness": "a0f15c7273e50068e13b2c4ccab0e8106bffd910e5de72f1e591e76d2499f29e"
   },
   "bellman_ford_inputs.snap-email-Eu-core-temporal-Dept2": {
     "dependencies": [
@@ -73,7 +83,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -95,11 +106,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "167c86afec646c89bc5b1d7c0986468c335835d366bc2cf4b0e9d71766e73d41",
+    "digest": "74f73efd49ee8ef7b0f9249d6ab1a238e2653d8d9a4b13345483ce6aa8da03b7",
     "file": "src/saps/benchmarks/bellmanford.py",
-    "freshness": "92dbb57a4c752bd7f37abede367c3de88ddc9f589d4efab74c09cb8488060052"
+    "freshness": "a0f15c7273e50068e13b2c4ccab0e8106bffd910e5de72f1e591e76d2499f29e"
   },
   "bellman_ford_inputs.snap-email-Eu-core-temporal-Dept3": {
     "dependencies": [
@@ -107,7 +122,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -129,11 +145,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "c29d320703cd6e1d16e7bba102eb1a3e0bee322252c0295e02e6955843acc3f4",
+    "digest": "b55e80dea1705254267da07f1625075013f7dc67f28499f292715548f2bf230a",
     "file": "src/saps/benchmarks/bellmanford.py",
-    "freshness": "92dbb57a4c752bd7f37abede367c3de88ddc9f589d4efab74c09cb8488060052"
+    "freshness": "a0f15c7273e50068e13b2c4ccab0e8106bffd910e5de72f1e591e76d2499f29e"
   },
   "bellman_ford_inputs.snap-email-Eu-core-temporal-Dept4": {
     "dependencies": [
@@ -141,7 +161,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -163,11 +184,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "7c7786a8b63760b1ac71499d839ef61742c33be486ee908fbf31a34fc0d4adf9",
+    "digest": "a36a28e2cf20a890dd141fec80e202eb44a263b94c55ad9fa8a8002116424512",
     "file": "src/saps/benchmarks/bellmanford.py",
-    "freshness": "92dbb57a4c752bd7f37abede367c3de88ddc9f589d4efab74c09cb8488060052"
+    "freshness": "a0f15c7273e50068e13b2c4ccab0e8106bffd910e5de72f1e591e76d2499f29e"
   },
   "betweenness_centrality_inputs.snap-email-Eu-core-temporal-Dept3": {
     "dependencies": [
@@ -175,7 +200,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -197,11 +223,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "dc47965d65a8fc5c22a49f7bc3ebaf43bcd694eddbc9a25ee90d3affdf5480ec",
+    "digest": "013aacf1494b71a566ef6f67bfc0e17cddb282d2353928b8b1ad7a0b05604240",
     "file": "src/saps/benchmarks/centrality.py",
-    "freshness": "0c6815bdac5d0b537770d8c5a03206e59a10b569304e833bb77a6f9a00b3498f"
+    "freshness": "b13a509d52d27009ccb477a4f283092e4c92e7b4c52f98c84a768e9ff6aa2307"
   },
   "betweenness_centrality_inputs.snap-email-Eu-core-temporal-Dept4": {
     "dependencies": [
@@ -209,7 +239,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -231,11 +262,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "1820fb57bc47abecd4e1cbe0590b53e527725c2c6ec674e71c0f2c11d9e605f7",
+    "digest": "6dcc04ca5a997e907ef6893bb9a5012824d322b0b7021a225639554fc888aa9c",
     "file": "src/saps/benchmarks/centrality.py",
-    "freshness": "0c6815bdac5d0b537770d8c5a03206e59a10b569304e833bb77a6f9a00b3498f"
+    "freshness": "b13a509d52d27009ccb477a4f283092e4c92e7b4c52f98c84a768e9ff6aa2307"
   },
   "bfs_inputs.snap-ca-GrQc": {
     "dependencies": [
@@ -243,7 +278,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -265,11 +301,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "864d90ecde722c8efb2d58d14adb591e66f5c453f61b5075687ed616043a1b86",
+    "digest": "08313a59e989412ea70e669455f2512971690ede9f8a39a368b8cf724d81bbea",
     "file": "src/saps/benchmarks/BFS.py",
-    "freshness": "4c35b6041458a7c230b1e5a828907bb8d83d75cc5685705602369f5351c4f87d"
+    "freshness": "8aef82a5d3ce4980c85a5c639a9a66864f0d03b60cd830fe5a69dd44271e3ed1"
   },
   "bfs_inputs.snap-email-Eu-core": {
     "dependencies": [
@@ -277,7 +317,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -299,11 +340,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "733035d547f3caad5df24636e76eac3eb323fdf543831b5ee96680f7b6601bf7",
+    "digest": "0564677eba2fa380f23c18bac419183ec4621318d8810a94b2082f6aad45f0ca",
     "file": "src/saps/benchmarks/BFS.py",
-    "freshness": "4c35b6041458a7c230b1e5a828907bb8d83d75cc5685705602369f5351c4f87d"
+    "freshness": "8aef82a5d3ce4980c85a5c639a9a66864f0d03b60cd830fe5a69dd44271e3ed1"
   },
   "bfs_inputs.snap-facebook_combined": {
     "dependencies": [
@@ -311,7 +356,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -333,11 +379,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "ea0ea4a6a62f6eefc5fc6800d18943e5e7dd6547c6b06e7de89665eae384a475",
+    "digest": "40e5026779b3657abc0550a22344544ecb51785103ab572794100f6c0f0ddd51",
     "file": "src/saps/benchmarks/BFS.py",
-    "freshness": "4c35b6041458a7c230b1e5a828907bb8d83d75cc5685705602369f5351c4f87d"
+    "freshness": "8aef82a5d3ce4980c85a5c639a9a66864f0d03b60cd830fe5a69dd44271e3ed1"
   },
   "bfs_inputs.snap-p2p-Gnutella04": {
     "dependencies": [
@@ -345,7 +395,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -367,11 +418,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "74f2f0012443cfee50294bea6db84f7287fde3ccc2d7cd8f808dafe62eedd5f6",
+    "digest": "4800a641537bec5cf76ba5b431d23c75f7a28a4276327e66ae6e1668a8b31e9c",
     "file": "src/saps/benchmarks/BFS.py",
-    "freshness": "4c35b6041458a7c230b1e5a828907bb8d83d75cc5685705602369f5351c4f87d"
+    "freshness": "8aef82a5d3ce4980c85a5c639a9a66864f0d03b60cd830fe5a69dd44271e3ed1"
   },
   "cg_inputs.Chem97ZtZ": {
     "dependencies": [
@@ -779,7 +834,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -801,11 +857,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "864d90ecde722c8efb2d58d14adb591e66f5c453f61b5075687ed616043a1b86",
+    "digest": "08313a59e989412ea70e669455f2512971690ede9f8a39a368b8cf724d81bbea",
     "file": "src/saps/benchmarks/connected_components.py",
-    "freshness": "c6a58c1c47353b16390e44b6749ad920446b24befc12f6188b2db1c364e8804e"
+    "freshness": "2eeb52fbc877ce3b02d0b71c42beb7a78462f7fd15d4fbe056a9f643c1aa4506"
   },
   "connected_components_inputs.snap-email-Eu-core": {
     "dependencies": [
@@ -813,7 +873,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -835,11 +896,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "733035d547f3caad5df24636e76eac3eb323fdf543831b5ee96680f7b6601bf7",
+    "digest": "0564677eba2fa380f23c18bac419183ec4621318d8810a94b2082f6aad45f0ca",
     "file": "src/saps/benchmarks/connected_components.py",
-    "freshness": "c6a58c1c47353b16390e44b6749ad920446b24befc12f6188b2db1c364e8804e"
+    "freshness": "2eeb52fbc877ce3b02d0b71c42beb7a78462f7fd15d4fbe056a9f643c1aa4506"
   },
   "connected_components_inputs.snap-facebook_combined": {
     "dependencies": [
@@ -847,7 +912,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -869,11 +935,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "ea0ea4a6a62f6eefc5fc6800d18943e5e7dd6547c6b06e7de89665eae384a475",
+    "digest": "40e5026779b3657abc0550a22344544ecb51785103ab572794100f6c0f0ddd51",
     "file": "src/saps/benchmarks/connected_components.py",
-    "freshness": "c6a58c1c47353b16390e44b6749ad920446b24befc12f6188b2db1c364e8804e"
+    "freshness": "2eeb52fbc877ce3b02d0b71c42beb7a78462f7fd15d4fbe056a9f643c1aa4506"
   },
   "fastsv_inputs.snap-ca-GrQc": {
     "dependencies": [
@@ -881,7 +951,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -903,11 +974,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "864d90ecde722c8efb2d58d14adb591e66f5c453f61b5075687ed616043a1b86",
+    "digest": "08313a59e989412ea70e669455f2512971690ede9f8a39a368b8cf724d81bbea",
     "file": "src/saps/benchmarks/fastsv.py",
-    "freshness": "11f6d722e47c5505a1de20d8c0a9ad2584417f0b3df2cc4e646ec1931120a493"
+    "freshness": "c7a32efbf0ecd692082cb9e6db2e83b51a18f6ac217ed3d6ad38153c01260002"
   },
   "fastsv_inputs.snap-email-Eu-core": {
     "dependencies": [
@@ -915,7 +990,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -937,11 +1013,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "733035d547f3caad5df24636e76eac3eb323fdf543831b5ee96680f7b6601bf7",
+    "digest": "0564677eba2fa380f23c18bac419183ec4621318d8810a94b2082f6aad45f0ca",
     "file": "src/saps/benchmarks/fastsv.py",
-    "freshness": "11f6d722e47c5505a1de20d8c0a9ad2584417f0b3df2cc4e646ec1931120a493"
+    "freshness": "c7a32efbf0ecd692082cb9e6db2e83b51a18f6ac217ed3d6ad38153c01260002"
   },
   "fastsv_inputs.snap-facebook_combined": {
     "dependencies": [
@@ -949,7 +1029,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -971,11 +1052,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "ea0ea4a6a62f6eefc5fc6800d18943e5e7dd6547c6b06e7de89665eae384a475",
+    "digest": "40e5026779b3657abc0550a22344544ecb51785103ab572794100f6c0f0ddd51",
     "file": "src/saps/benchmarks/fastsv.py",
-    "freshness": "11f6d722e47c5505a1de20d8c0a9ad2584417f0b3df2cc4e646ec1931120a493"
+    "freshness": "c7a32efbf0ecd692082cb9e6db2e83b51a18f6ac217ed3d6ad38153c01260002"
   },
   "finite_difference_inputs_2d.default": {
     "dependencies": [
@@ -984,6 +1069,7 @@
       "lark",
       "numpy",
       "pyparsing",
+      "scipy.sparse",
       "sparse"
     ],
     "dependency_versions": [
@@ -1008,13 +1094,17 @@
         "version": "3.3.2"
       },
       {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
         "name": "sparse",
         "version": "0.17.0"
       }
     ],
     "digest": "17bf54b6d9a6cac3972ec9b1bda7e512bf3923fb74a4b5c76e6d0087111d2c39",
     "file": "src/saps/benchmarks/Finite_Difference_2D.py",
-    "freshness": "c47b4b4052d8e1c54329b77a8c7bbda3241b31cc0d47b17083ca77bcb8f51d4e"
+    "freshness": "dc23526748c2c4c4c0030415b40c1c7069f19c16d1ae70fe9f040f5293dadcac"
   },
   "floyd_warshall_inputs.arc130": {
     "dependencies": [
@@ -1414,7 +1504,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -1436,11 +1527,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "dc47965d65a8fc5c22a49f7bc3ebaf43bcd694eddbc9a25ee90d3affdf5480ec",
+    "digest": "013aacf1494b71a566ef6f67bfc0e17cddb282d2353928b8b1ad7a0b05604240",
     "file": "src/saps/benchmarks/tri_4cliq.py",
-    "freshness": "fb1b1c100aec76fe5d7acc4a19134d1fe5b9b4f2b2264e787cf9b0ddd8ecc9dc"
+    "freshness": "c64f2b04573bad21b315b15e2bdd22bb6110eb0d377ec859aa48714a91666b00"
   },
   "four_clique_count_inputs.snap-email-Eu-core-temporal-Dept4": {
     "dependencies": [
@@ -1448,7 +1543,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -1470,11 +1566,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "1820fb57bc47abecd4e1cbe0590b53e527725c2c6ec674e71c0f2c11d9e605f7",
+    "digest": "6dcc04ca5a997e907ef6893bb9a5012824d322b0b7021a225639554fc888aa9c",
     "file": "src/saps/benchmarks/tri_4cliq.py",
-    "freshness": "fb1b1c100aec76fe5d7acc4a19134d1fe5b9b4f2b2264e787cf9b0ddd8ecc9dc"
+    "freshness": "c64f2b04573bad21b315b15e2bdd22bb6110eb0d377ec859aa48714a91666b00"
   },
   "gcn_weights.dg_gcn_bcsstk01": {
     "dependencies": [
@@ -2234,7 +2334,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -2256,11 +2357,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
     "digest": "21e5a6220e5e2928e8a75a1acd400dd6238e5d38d2aa8c2a6740ab73300941ea",
     "file": "src/saps/benchmarks/HOSVD_4d.py",
-    "freshness": "e85e1a38f76ff6f66c4d78ea08fc80219bf98b789a71de314f4e2d2b1b21ad0a"
+    "freshness": "0592f540292917fcf9688daeee372b1c9c974401a315370e03b44a65f0d85870"
   },
   "hosvd_5d_sparse_inputs.small_sparse_5d": {
     "dependencies": [
@@ -2268,7 +2373,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -2290,11 +2396,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
     "digest": "931bfe56661310b9e963835345d7f48e673c5149106403615acaeb16a3ebeade",
     "file": "src/saps/benchmarks/HOSVD_5d.py",
-    "freshness": "1745aa024a88d77f2ea8051c33800c470251d1eac416bd21b0b76cf5b791fe66"
+    "freshness": "587a99da3e9660a579487bcfd890007f0c9f2bc87a051430138de0b9a43097f9"
   },
   "hosvd_sparse_inputs.small_sparse": {
     "dependencies": [
@@ -2302,7 +2412,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -2324,11 +2435,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
     "digest": "e810379dda1e922ba033d22c20f07f0ad75597e32cac28702dedaca293873217",
     "file": "src/saps/benchmarks/HOSVD.py",
-    "freshness": "8a5619116fc6ca78c54936f615ccdd4b773842b6c9c550f021f09a8fd3e4873a"
+    "freshness": "434500731329a0f2d80c8dc762c1d5abd196ef5883ff32117a6cf26b9c0d0d57"
   },
   "jacobi_inputs.Chem97ZtZ": {
     "dependencies": [
@@ -2737,7 +2852,8 @@
       "lark",
       "numpy",
       "pyparsing",
-      "scipy"
+      "scipy",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -2765,9 +2881,9 @@
         "version": "1.17.1"
       }
     ],
-    "digest": "f3830218a10745cea57338ca1321cf669a0e89fcb1c76a9f386cfecf05d262f4",
+    "digest": "0106fb8957c722381e6f8f111a80f4f2c2003cee7ef7d5d0397ec76f61646dee",
     "file": "src/saps/benchmarks/approx_nn.py",
-    "freshness": "65cb0a90e879cce5ea7e30d0ef92dc9a4214fd7bf740d50390e3d79162f94f3e"
+    "freshness": "16e93b310306099033a58f2ac252dc804a5efb5e9f7f7f9eb39abadf5f46ddfd"
   },
   "jl_projection_inputs.medium": {
     "dependencies": [
@@ -2776,7 +2892,8 @@
       "lark",
       "numpy",
       "pyparsing",
-      "scipy"
+      "scipy",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -2804,9 +2921,9 @@
         "version": "1.17.1"
       }
     ],
-    "digest": "c9b67eb127c165e21a17c7d22ba5b8ca633dbb062da1cbbfbc2f80f567b62995",
+    "digest": "28b08ca2e8d65e8896ffe145436d6fc21674095a8439d78d668338bb490af389",
     "file": "src/saps/benchmarks/approx_nn.py",
-    "freshness": "65cb0a90e879cce5ea7e30d0ef92dc9a4214fd7bf740d50390e3d79162f94f3e"
+    "freshness": "16e93b310306099033a58f2ac252dc804a5efb5e9f7f7f9eb39abadf5f46ddfd"
   },
   "jl_projection_inputs.small": {
     "dependencies": [
@@ -2815,7 +2932,8 @@
       "lark",
       "numpy",
       "pyparsing",
-      "scipy"
+      "scipy",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -2845,7 +2963,7 @@
     ],
     "digest": "a5bd173b5c105dbcebf349f1cbdc5f00ff07662991d732410f8af991383a7e34",
     "file": "src/saps/benchmarks/approx_nn.py",
-    "freshness": "65cb0a90e879cce5ea7e30d0ef92dc9a4214fd7bf740d50390e3d79162f94f3e"
+    "freshness": "16e93b310306099033a58f2ac252dc804a5efb5e9f7f7f9eb39abadf5f46ddfd"
   },
   "lsqr_inputs.Maragal_5": {
     "dependencies": [
@@ -3125,7 +3243,8 @@
       "kagglehub",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -3155,11 +3274,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
     "digest": "cdbe28faa877060a63b6b59404e673204bbd631775ef1b35f8b4cffed54ec145",
     "file": "src/saps/benchmarks/mri_edge.py",
-    "freshness": "0c0d428b4adf0f2be1774143510a3e48c8f5c1745ee99bcad952ea26d7c114c8"
+    "freshness": "9c7f3c042fc0f02a59b89c3c0548e9e224dd53d332c55e671cfb4fb38eaf2b6c"
   },
   "masked_mri_inputs.masked_mri_2": {
     "dependencies": [
@@ -3169,7 +3292,8 @@
       "kagglehub",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -3199,11 +3323,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
     "digest": "145622ebec7fda9cd22fd33b3f84cd5f65936e7debb094c1328ebc9a690dde43",
     "file": "src/saps/benchmarks/mri_edge.py",
-    "freshness": "0c0d428b4adf0f2be1774143510a3e48c8f5c1745ee99bcad952ea26d7c114c8"
+    "freshness": "9c7f3c042fc0f02a59b89c3c0548e9e224dd53d332c55e671cfb4fb38eaf2b6c"
   },
   "masked_mri_inputs.masked_mri_3": {
     "dependencies": [
@@ -3213,7 +3341,8 @@
       "kagglehub",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -3243,11 +3372,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
     "digest": "c154e6a105b6d884c9ad5d775467fb360e0c1f3ff9249498d2d58372b3821b03",
     "file": "src/saps/benchmarks/mri_edge.py",
-    "freshness": "0c0d428b4adf0f2be1774143510a3e48c8f5c1745ee99bcad952ea26d7c114c8"
+    "freshness": "9c7f3c042fc0f02a59b89c3c0548e9e224dd53d332c55e671cfb4fb38eaf2b6c"
   },
   "masked_mri_inputs.masked_mri_4": {
     "dependencies": [
@@ -3257,7 +3390,8 @@
       "kagglehub",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -3287,11 +3421,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
     "digest": "9a9e74ecb0d0cd3ddb701a70346a880e3cc3da3679ac2074ef2df3f79673c2bd",
     "file": "src/saps/benchmarks/mri_edge.py",
-    "freshness": "0c0d428b4adf0f2be1774143510a3e48c8f5c1745ee99bcad952ea26d7c114c8"
+    "freshness": "9c7f3c042fc0f02a59b89c3c0548e9e224dd53d332c55e671cfb4fb38eaf2b6c"
   },
   "mcl_inputs.Trefethen_200": {
     "dependencies": [
@@ -3653,7 +3791,8 @@
       "kagglehub",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -3683,11 +3822,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
     "digest": "f5557694e81137d37079c74cf6021866645410fab9e185f83a1bd4e7dc9c1d66",
     "file": "src/saps/benchmarks/sobel_edge.py",
-    "freshness": "ec36771903647e17973bdcbe69cf9a85ccca63527e79d0736871e78acd133582"
+    "freshness": "fb6dc502714de05149669f3ef8a5e7e7ccb3e00113111c2772595146646d03d8"
   },
   "mri_sobel_inputs.mri_sobel_2": {
     "dependencies": [
@@ -3697,7 +3840,8 @@
       "kagglehub",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -3727,11 +3871,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
     "digest": "f3791a30e4e815f04ae81747509bf6485538373ea1d0392ea79fdd2dc733a78b",
     "file": "src/saps/benchmarks/sobel_edge.py",
-    "freshness": "ec36771903647e17973bdcbe69cf9a85ccca63527e79d0736871e78acd133582"
+    "freshness": "fb6dc502714de05149669f3ef8a5e7e7ccb3e00113111c2772595146646d03d8"
   },
   "mri_sobel_inputs.mri_sobel_3": {
     "dependencies": [
@@ -3741,7 +3889,8 @@
       "kagglehub",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -3771,11 +3920,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
     "digest": "7f837601ed09159ec37d6e428df7d69400a3193a95e8e8820db1efe96106f6a2",
     "file": "src/saps/benchmarks/sobel_edge.py",
-    "freshness": "ec36771903647e17973bdcbe69cf9a85ccca63527e79d0736871e78acd133582"
+    "freshness": "fb6dc502714de05149669f3ef8a5e7e7ccb3e00113111c2772595146646d03d8"
   },
   "mri_sobel_inputs.mri_sobel_4": {
     "dependencies": [
@@ -3785,7 +3938,8 @@
       "kagglehub",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -3815,11 +3969,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
     "digest": "7b3a301de7b2541c6ed47986e3d5bcbbf3cedda787bde8ff3b674eb26fc45f48",
     "file": "src/saps/benchmarks/sobel_edge.py",
-    "freshness": "ec36771903647e17973bdcbe69cf9a85ccca63527e79d0736871e78acd133582"
+    "freshness": "fb6dc502714de05149669f3ef8a5e7e7ccb3e00113111c2772595146646d03d8"
   },
   "pagerank_inputs.snap-ca-GrQc": {
     "dependencies": [
@@ -3828,7 +3986,8 @@
       "lark",
       "networkx",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -3854,11 +4013,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "864d90ecde722c8efb2d58d14adb591e66f5c453f61b5075687ed616043a1b86",
+    "digest": "08313a59e989412ea70e669455f2512971690ede9f8a39a368b8cf724d81bbea",
     "file": "src/saps/benchmarks/pagerank.py",
-    "freshness": "2e8ddf452e9c333c1da46dfdd88b3a2e8d05d57435af485645c4264ff1f86780"
+    "freshness": "69b0adec3d7ae478b9e366eb98e3491fe8d3f84d11c904e6fb81fb74aaea5d48"
   },
   "pagerank_inputs.snap-email-Eu-core": {
     "dependencies": [
@@ -3867,7 +4030,8 @@
       "lark",
       "networkx",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -3893,11 +4057,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "733035d547f3caad5df24636e76eac3eb323fdf543831b5ee96680f7b6601bf7",
+    "digest": "0564677eba2fa380f23c18bac419183ec4621318d8810a94b2082f6aad45f0ca",
     "file": "src/saps/benchmarks/pagerank.py",
-    "freshness": "2e8ddf452e9c333c1da46dfdd88b3a2e8d05d57435af485645c4264ff1f86780"
+    "freshness": "69b0adec3d7ae478b9e366eb98e3491fe8d3f84d11c904e6fb81fb74aaea5d48"
   },
   "pagerank_inputs.snap-p2p-Gnutella04": {
     "dependencies": [
@@ -3906,7 +4074,8 @@
       "lark",
       "networkx",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -3932,11 +4101,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "74f2f0012443cfee50294bea6db84f7287fde3ccc2d7cd8f808dafe62eedd5f6",
+    "digest": "4800a641537bec5cf76ba5b431d23c75f7a28a4276327e66ae6e1668a8b31e9c",
     "file": "src/saps/benchmarks/pagerank.py",
-    "freshness": "2e8ddf452e9c333c1da46dfdd88b3a2e8d05d57435af485645c4264ff1f86780"
+    "freshness": "69b0adec3d7ae478b9e366eb98e3491fe8d3f84d11c904e6fb81fb74aaea5d48"
   },
   "quantum_state_inputs.single_layer_small": {
     "dependencies": [
@@ -3944,7 +4117,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -3966,11 +4140,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
     "digest": "fb61d3fb01221887dcba8c367435fde3abf73f241fa4fe16bc14f56e7f851567",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513"
+    "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f"
   },
   "quantum_state_inputs.single_layer_tiny": {
     "dependencies": [
@@ -3978,7 +4156,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -4000,11 +4179,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
     "digest": "f3409ce979624f5f769f4ac7a57a3e6c3e41e985a0a437d4d3f233a7c3146795",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "8852412cc4929ba297509ef516d780faee580ca3d21867ff16b9aff81a24d513"
+    "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f"
   },
   "subgraph_gcare_graph.aids": {
     "dependencies": [
@@ -4013,7 +4196,8 @@
       "gdown",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -4039,11 +4223,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
     "digest": "805743b104614d6a95c2df7807691541f744e2eef3a02f7b3ed95d522ac9987e",
     "file": "src/saps/benchmarks/subgraph_matching.py",
-    "freshness": "bda744d965dfc570fbfdcdeedb46d4038df1e1d221ce2f20101e12890dc38803"
+    "freshness": "eec40bc51a253e8fcb5a2a34c4c78b90f60e4e4e0948a85adaecabe97039dc75"
   },
   "subgraph_gcare_graph.human": {
     "dependencies": [
@@ -4052,7 +4240,8 @@
       "gdown",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -4078,11 +4267,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
     "digest": "11c1fa07b2dd496d8fce78a4747b920c240484afdd2a1365cf309cbeac4367eb",
     "file": "src/saps/benchmarks/subgraph_matching.py",
-    "freshness": "bda744d965dfc570fbfdcdeedb46d4038df1e1d221ce2f20101e12890dc38803"
+    "freshness": "eec40bc51a253e8fcb5a2a34c4c78b90f60e4e4e0948a85adaecabe97039dc75"
   },
   "subgraph_gcare_graph.lubm80": {
     "dependencies": [
@@ -4091,7 +4284,8 @@
       "gdown",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -4117,11 +4311,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
     "digest": "9d4a33d640ed886c96f25dd2cf7476e04570dee144240048a6dbc74862ea3666",
     "file": "src/saps/benchmarks/subgraph_matching.py",
-    "freshness": "bda744d965dfc570fbfdcdeedb46d4038df1e1d221ce2f20101e12890dc38803"
+    "freshness": "eec40bc51a253e8fcb5a2a34c4c78b90f60e4e4e0948a85adaecabe97039dc75"
   },
   "subgraph_gcare_graph.yago": {
     "dependencies": [
@@ -4130,7 +4328,8 @@
       "gdown",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -4156,11 +4355,1950 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
     "digest": "4e928f66cfc97e37ee9fd71a3cd6ad341edfb2329104a943454843b4e1a1e8b7",
     "file": "src/saps/benchmarks/subgraph_matching.py",
-    "freshness": "bda744d965dfc570fbfdcdeedb46d4038df1e1d221ce2f20101e12890dc38803"
+    "freshness": "eec40bc51a253e8fcb5a2a34c4c78b90f60e4e4e0948a85adaecabe97039dc75"
+  },
+  "suitesparse_matrix.Chebyshev3": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "7bda7a4475cb5a5bdcb4970cdb8d88e3b108ee7ee1b12d9cdcd2c38924152a94",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.Chem97ZtZ": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "b3985969ab5371cdd9c8e54b5e6a5aad37373cdf88988e13716f64daaf281ba5",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.Dubcova1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "95f167edda8462c8cc3937914a907cfd0a2f03419283020746105dfd5151141a",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.Maragal_5": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "fd0888d2f2f57893b17a0e21ea3bcfc1d11073ca3d1be0e580275937b1e74c31",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.Muu": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "0b99c69e9f21e9fb7dd82ac01e5a764d2eccad2cb4f7f2e0bb6f01617d2d5199",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.Trefethen_200": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "e3dacd26ae9c42a09fb6918f7046a08db4b7812917bee51ba8f24010cd5b692b",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.Trefethen_20000": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "cb09a194b23b137a89b966d4e33ab2e835e4d142151b6111a0e98d29d7667942",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.Trefethen_500": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "0708ec73fd4cbe62cd3ab59024a27292fb635f8f1cdf8e159651758025b01bb2",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.Trefethen_700": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "9e828f24a110874f2b4fda77ee0e60c8eb315fc48f23c877e2e0638fa6997021",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.abb313": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "e208798732622354ef0d6f0525b17f0e4fee1634b9902f48887d7ea0503f7cf6",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.arc130": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "a477712dd1fd514a8d6b648b5bc5facba94711a39657e3c75c759488e699f5d4",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.ash292": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "a1f1fe2bd11b02fc15e54b9838cdda299c789e3b95d0290284d9155c043c5bd9",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.ash85": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "de4a95ff1f895ebf9af79a1a9ad14048e4ea0d7ff16e7809df05488986b2368d",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.ash958": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "91e6540fcc96d2c1a9a7dcd434e41f1eca71087b79b1514f4ace3d7d549a1a8d",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.bayer06": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "72fb7f263d0011fd5ba8bd3787d3fef68121a905a8d76f061d7aae290c7538e3",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.bcspwr01": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "59fab4df7c4840cd5f47d96758ae8ec856a7fe8ee308b6760dc596529e7eaf48",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.bcspwr02": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "7beafb8ecc159ab64278ecf6925866c47c871ff540442deeaca58866baab2226",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.bcspwr03": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "451a0c080e9a1380235c927d4e15af897503b054c2eae2ae2410f4de7043d3a3",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.bcspwr04": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "9882de16fc0a766e63c59d8a24b0d7c0d7b7367f13b6c4b68644b54f3da988cf",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.bcsstk01": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "8967e5f4fff5986cb04645630fee496bbd2a96752e79e55b59277a70ce8c1b7a",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.bcsstk05": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "20897e9f163d014751d97cadfd20d84ff007c580064204d1d5f133843f826fa6",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.bcsstk09": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "263e66b97b6262446ea6f94743c29fed6b59b404289c99c9e809aa42e5ee5262",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.bcsstm02": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "b298d4a9db6c0d0ccdfa07a0c5085998795264a1862ac041a696a4b72990a28d",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.bcsstm12": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "52ebb5388d91ad8899e456ce60267fb985a54e63df547f411fabf8b6fa0b894e",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.ca-GrQc": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "50656202a932c78bfc058714e9eedccadc158f3e6dee5a2afd44dbbfbc206768",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.ca-HepPh": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "ee39ca85443d7b8f4bfb6876637c7695bcd1bd59f8f73e0e11fcbe1a3ef86955",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.chesapeake": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "a9edf5f3c802ebe9105d3a290963141e6d000a3a8cc49b267e85a37b348e8052",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.dolphins": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "e051bbf5cfc5f1c3bd80f16bc59b1d48651e5d40885a68369ab7779e9e45c83f",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.dwt_59": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "df692d0557f68e9fa5310aa8f826a5d51a1d20e84c00fcad15249a9ded3b00f8",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.email": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "b79f4e718f62bbc02322544b2fc49692d1a17be7bf3756f6404c24377400ade9",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.fv1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "552f2837cf78ec3dcde83d41d0f6d8e1f126eb2112258bc41587e3fe3ac2476f",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.fv2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "d36b0de0fafd646fd77d68ecd0f050c2d9a5a5476ec883b2067895517efc51fa",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.illc1850": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "160c2cad9719aa6a4eae82844bdd57fb8aeed9cf59e54acc1ec4e627fb7db360",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.karate": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "daf5b0b7efe862b1cb7d7617efbc027fb9baab22ae83c715f030466991202c4a",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.lund_b": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "cb334556dcafb20f7760a59519262e02a5295dd16d601ed64570495c5a3d4cca",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.mesh1em1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "ff9a1c119a05881c8ab2e40027df91465889f237dc88ba9f1d8426bfedd76572",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.mesh3em5": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "82d18978d79949e410952249727deae08d7a05dd28dbf2f6ea967c930f540160",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.mhdb416": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "0bb348aaff7d63a437cb55abbbe669df58ef3c41417b338851a2591499fd8b80",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.nos1": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "1ab8c805e2011e175de2df72ad8737c471a0e16f6da46c0255647f2634544ed8",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.nos2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "ea2fd27772110ee84cad43c1bb04f99d81909a2d8a81d172999e3ab754bac9d8",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.nos3": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "612948bb16c9c62a0072061677599c1dd3a58eed8d8d977bcfb2f1ed77258266",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.t3dl_e": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "4afa307ccac9d4e275d81577d834cc6f550cf7957d80bf1202375378d2bc1b15",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.well1033": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "1398639d9ef2d4edcdc97d89cfc72b8908728eb0e52ffac25fc1efcac517a39c",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
   },
   "transitive_closure_inputs.snap-ca-GrQc": {
     "dependencies": [
@@ -4168,7 +6306,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -4190,11 +6329,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "864d90ecde722c8efb2d58d14adb591e66f5c453f61b5075687ed616043a1b86",
+    "digest": "08313a59e989412ea70e669455f2512971690ede9f8a39a368b8cf724d81bbea",
     "file": "src/saps/benchmarks/transitive_closure.py",
-    "freshness": "7e5d81087f5cd7e92f93343b93a5fedea0afa4d562f5e087b3852a97010fa4b9"
+    "freshness": "540e2171b1591120c9bb81742a89d679d83e82f061e1695f8f2dc454694ffa95"
   },
   "transitive_closure_inputs.snap-email-Eu-core": {
     "dependencies": [
@@ -4202,7 +6345,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -4224,11 +6368,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "733035d547f3caad5df24636e76eac3eb323fdf543831b5ee96680f7b6601bf7",
+    "digest": "0564677eba2fa380f23c18bac419183ec4621318d8810a94b2082f6aad45f0ca",
     "file": "src/saps/benchmarks/transitive_closure.py",
-    "freshness": "7e5d81087f5cd7e92f93343b93a5fedea0afa4d562f5e087b3852a97010fa4b9"
+    "freshness": "540e2171b1591120c9bb81742a89d679d83e82f061e1695f8f2dc454694ffa95"
   },
   "triangle_count_inputs.snap-ca-GrQc": {
     "dependencies": [
@@ -4236,7 +6384,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -4258,11 +6407,15 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "864d90ecde722c8efb2d58d14adb591e66f5c453f61b5075687ed616043a1b86",
+    "digest": "08313a59e989412ea70e669455f2512971690ede9f8a39a368b8cf724d81bbea",
     "file": "src/saps/benchmarks/tri_4cliq.py",
-    "freshness": "fb1b1c100aec76fe5d7acc4a19134d1fe5b9b4f2b2264e787cf9b0ddd8ecc9dc"
+    "freshness": "c64f2b04573bad21b315b15e2bdd22bb6110eb0d377ec859aa48714a91666b00"
   },
   "triangle_count_inputs.snap-email-Eu-core": {
     "dependencies": [
@@ -4270,7 +6423,8 @@
       "botocore",
       "lark",
       "numpy",
-      "pyparsing"
+      "pyparsing",
+      "scipy.sparse"
     ],
     "dependency_versions": [
       {
@@ -4292,10 +6446,14 @@
       {
         "name": "pyparsing",
         "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
       }
     ],
-    "digest": "733035d547f3caad5df24636e76eac3eb323fdf543831b5ee96680f7b6601bf7",
+    "digest": "0564677eba2fa380f23c18bac419183ec4621318d8810a94b2082f6aad45f0ca",
     "file": "src/saps/benchmarks/tri_4cliq.py",
-    "freshness": "fb1b1c100aec76fe5d7acc4a19134d1fe5b9b4f2b2264e787cf9b0ddd8ecc9dc"
+    "freshness": "c64f2b04573bad21b315b15e2bdd22bb6110eb0d377ec859aa48714a91666b00"
   }
 }
