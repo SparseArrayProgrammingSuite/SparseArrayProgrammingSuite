@@ -115,9 +115,7 @@ class DenseElementwiseGenerator(Generator):
         )
 
 
-def _add_sparse_noise(
-    coo, rng: np.random.Generator, noise_fraction: float = 0.05
-):
+def _add_sparse_noise(coo, rng: np.random.Generator, noise_fraction: float = 0.05):
     """Return a copy of *coo* with ~noise_fraction of its nonzeros replaced by
     new, randomly placed nonzeros, so nnz stays roughly unchanged while the
     sparsity pattern shifts. New values are resampled (with replacement) from
@@ -278,8 +276,12 @@ class SuiteSparseElementwiseGenerator(Generator):
 
         return DataInstance(
             [
-                BinsparseFormat.from_coo((A_coo.row, A_coo.col), A_coo.data, A_coo.shape),
-                BinsparseFormat.from_coo((B_coo.row, B_coo.col), B_coo.data, B_coo.shape),
+                BinsparseFormat.from_coo(
+                    (A_coo.row, A_coo.col), A_coo.data, A_coo.shape
+                ),
+                BinsparseFormat.from_coo(
+                    (B_coo.row, B_coo.col), B_coo.data, B_coo.shape
+                ),
             ],
             meta={"dataset": dataset.name},
             ref_outputs=ref_outputs,

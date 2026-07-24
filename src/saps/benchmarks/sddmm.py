@@ -55,7 +55,7 @@ class SDDMMSuiteSparseGenerator(Generator):
     @property
     def name(self) -> str:
         return "suitesparse_sddmm_generator"
-    
+
     @property
     def cacheable(self) -> bool:
         return False
