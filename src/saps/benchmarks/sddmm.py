@@ -1,5 +1,3 @@
-import os
-
 import numpy as np
 
 from saps.benchmark import (
@@ -11,6 +9,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 from saps_framework import BinsparseFormat
 
 
@@ -56,6 +55,10 @@ class SDDMMSuiteSparseGenerator(Generator):
     @property
     def name(self) -> str:
         return "suitesparse_sddmm_generator"
+    
+    @property
+    def cacheable(self) -> bool:
+        return False
 
     @property
     def pretty_name(self) -> str:
@@ -115,19 +118,9 @@ class SDDMMSuiteSparseGenerator(Generator):
         ]
 
     def generate(self, dataset: SDDMMSuiteSparseDataset) -> DataInstance:
-        from scipy.io import mmread
+        S_bin = fetch_suitesparse_matrix(dataset.matrix_name).inputs[0]
+        sample_matrix = S_bin.to_scipy_coo()
 
-        import ssgetpy
-
-        matrices = ssgetpy.search(name=dataset.matrix_name)
-        if not matrices:
-            raise ValueError(f"No matrix found with name '{dataset.matrix_name}'")
-        matrix = matrices[0]
-        (path, archive) = matrix.download(extract=True)
-        matrix_path = os.path.join(path, matrix.name + ".mtx")
-        if not (matrix_path and os.path.exists(matrix_path)):
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-        sample_matrix = mmread(matrix_path)
         gen = np.random.Generator(np.random.PCG64(42))
         A = gen.random((sample_matrix.shape[0], dataset.middle_dim))
         B = gen.random((dataset.middle_dim, sample_matrix.shape[1]))
@@ -138,15 +131,7 @@ class SDDMMSuiteSparseGenerator(Generator):
                 BinsparseFormat.from_coo((ref.row, ref.col), ref.data, ref.shape)
             ]
         return DataInstance(
-            [
-                BinsparseFormat.from_coo(
-                    (sample_matrix.row, sample_matrix.col),
-                    sample_matrix.data,
-                    sample_matrix.shape,
-                ),
-                BinsparseFormat.from_numpy(A),
-                BinsparseFormat.from_numpy(B),
-            ],
+            [S_bin, BinsparseFormat.from_numpy(A), BinsparseFormat.from_numpy(B)],
             meta={"dataset": dataset.name},
             ref_outputs=ref_outputs,
         )
@@ -326,7 +311,7 @@ class SDDMMBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return ["micro-benchmark"]
 
     @property
     def concepts(self) -> str:

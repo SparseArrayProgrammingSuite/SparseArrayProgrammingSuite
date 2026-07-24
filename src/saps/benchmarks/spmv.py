@@ -1,5 +1,3 @@
-import os
-
 import numpy as np
 
 from saps.benchmark import (
@@ -11,6 +9,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 from saps_framework import BinsparseFormat
 
 
@@ -158,6 +157,10 @@ class SuiteSparseMatVecGenerator(Generator):
         return "suitesparse_matmul_generator"
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def pretty_name(self) -> str:
         return "Suite Sparse MatVec Generator"
 
@@ -235,20 +238,10 @@ class SuiteSparseMatVecGenerator(Generator):
         ]
 
     def generate(self, dataset: SuiteSparseMatVecDataset) -> DataInstance:
-        from scipy.io import mmread
+        raw = fetch_suitesparse_matrix(dataset.matrix)
+        A_bin = raw.inputs[0]
+        A_coo = A_bin.to_scipy_coo()
 
-        import ssgetpy
-
-        matrices = ssgetpy.search(name=dataset.matrix)
-        if not matrices:
-            raise ValueError(f"No matrix found with name '{dataset.matrix}'")
-        matrix = matrices[0]
-        (path, archive) = matrix.download(extract=True)
-        matrix_path = os.path.join(path, matrix.name + ".mtx")
-        if not (matrix_path and os.path.exists(matrix_path)):
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-
-        A_coo = mmread(matrix_path).tocoo()
         gen = np.random.Generator(np.random.PCG64(42))
         b = gen.random((A_coo.shape[1],))
 
@@ -258,12 +251,7 @@ class SuiteSparseMatVecGenerator(Generator):
             ref_outputs = [BinsparseFormat.from_numpy(output)]
 
         return DataInstance(
-            [
-                BinsparseFormat.from_coo(
-                    (A_coo.row, A_coo.col), A_coo.data, A_coo.shape
-                ),
-                BinsparseFormat.from_numpy(b),
-            ],
+            [A_bin, BinsparseFormat.from_numpy(b)],
             meta={"dataset": dataset.name},
             ref_outputs=ref_outputs,
         )
@@ -438,7 +426,7 @@ class MatrixVectorBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return ["micro-benchmark"]
 
     @property
     def concepts(self) -> str:

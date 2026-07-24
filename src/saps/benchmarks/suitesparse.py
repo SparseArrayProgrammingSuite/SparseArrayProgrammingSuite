@@ -107,6 +107,11 @@ _MATRICES: list[SuiteSparseDataset] = [
         "Chebyshev3",
         "ca-HepPh",
         "bcsstk01",
+        "email-Eu-core",
+        "CollegeMsg",
+        "wiki-vote",
+        "fpga_dcop_17",
+        "email-enron",
     ]
 ]
 
