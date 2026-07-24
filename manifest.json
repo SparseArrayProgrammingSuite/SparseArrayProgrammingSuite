@@ -36,7 +36,7 @@
     ],
     "digest": "f77a0f31f43a4379c2c1673f852f9c570171c84d9e32722ba08dfc348bbbc990",
     "file": "src/saps/benchmarks/bellmanford.py",
-    "freshness": "a0f15c7273e50068e13b2c4ccab0e8106bffd910e5de72f1e591e76d2499f29e"
+    "freshness": "a576bee76c1369ce6c3459c9e2d144c818cdf470519cd4550902d35d23592530"
   },
   "bellman_ford_inputs.snap-email-Eu-core-temporal-Dept1": {
     "dependencies": [
@@ -75,7 +75,7 @@
     ],
     "digest": "bb78f246a1f7765c65ff2ec694803c643f9aac47737633b15b9395117d8214b3",
     "file": "src/saps/benchmarks/bellmanford.py",
-    "freshness": "a0f15c7273e50068e13b2c4ccab0e8106bffd910e5de72f1e591e76d2499f29e"
+    "freshness": "a576bee76c1369ce6c3459c9e2d144c818cdf470519cd4550902d35d23592530"
   },
   "bellman_ford_inputs.snap-email-Eu-core-temporal-Dept2": {
     "dependencies": [
@@ -114,7 +114,7 @@
     ],
     "digest": "74f73efd49ee8ef7b0f9249d6ab1a238e2653d8d9a4b13345483ce6aa8da03b7",
     "file": "src/saps/benchmarks/bellmanford.py",
-    "freshness": "a0f15c7273e50068e13b2c4ccab0e8106bffd910e5de72f1e591e76d2499f29e"
+    "freshness": "a576bee76c1369ce6c3459c9e2d144c818cdf470519cd4550902d35d23592530"
   },
   "bellman_ford_inputs.snap-email-Eu-core-temporal-Dept3": {
     "dependencies": [
@@ -153,7 +153,7 @@
     ],
     "digest": "b55e80dea1705254267da07f1625075013f7dc67f28499f292715548f2bf230a",
     "file": "src/saps/benchmarks/bellmanford.py",
-    "freshness": "a0f15c7273e50068e13b2c4ccab0e8106bffd910e5de72f1e591e76d2499f29e"
+    "freshness": "a576bee76c1369ce6c3459c9e2d144c818cdf470519cd4550902d35d23592530"
   },
   "bellman_ford_inputs.snap-email-Eu-core-temporal-Dept4": {
     "dependencies": [
@@ -192,7 +192,7 @@
     ],
     "digest": "a36a28e2cf20a890dd141fec80e202eb44a263b94c55ad9fa8a8002116424512",
     "file": "src/saps/benchmarks/bellmanford.py",
-    "freshness": "a0f15c7273e50068e13b2c4ccab0e8106bffd910e5de72f1e591e76d2499f29e"
+    "freshness": "a576bee76c1369ce6c3459c9e2d144c818cdf470519cd4550902d35d23592530"
   },
   "betweenness_centrality_inputs.snap-email-Eu-core-temporal-Dept3": {
     "dependencies": [
@@ -206,11 +206,11 @@
     "dependency_versions": [
       {
         "name": "boto3",
-        "version": "1.43.34"
+        "version": "1.43.54"
       },
       {
         "name": "botocore",
-        "version": "1.43.34"
+        "version": "1.43.54"
       },
       {
         "name": "lark",
@@ -226,12 +226,12 @@
       },
       {
         "name": "scipy",
-        "version": "1.17.1"
+        "version": "1.16.2"
       }
     ],
-    "digest": "013aacf1494b71a566ef6f67bfc0e17cddb282d2353928b8b1ad7a0b05604240",
+    "digest": "f458cf35b0f2a8f077a8766582e8efc8f090c594f6dc4f98db9f2aeee40b43a6",
     "file": "src/saps/benchmarks/centrality.py",
-    "freshness": "b13a509d52d27009ccb477a4f283092e4c92e7b4c52f98c84a768e9ff6aa2307"
+    "freshness": "ac5179d61a1aa6223e0146dab49d7ef98a74009b5d11b66ef3bc110211596385"
   },
   "betweenness_centrality_inputs.snap-email-Eu-core-temporal-Dept4": {
     "dependencies": [
@@ -245,11 +245,11 @@
     "dependency_versions": [
       {
         "name": "boto3",
-        "version": "1.43.34"
+        "version": "1.43.54"
       },
       {
         "name": "botocore",
-        "version": "1.43.34"
+        "version": "1.43.54"
       },
       {
         "name": "lark",
@@ -265,12 +265,12 @@
       },
       {
         "name": "scipy",
-        "version": "1.17.1"
+        "version": "1.16.2"
       }
     ],
-    "digest": "6dcc04ca5a997e907ef6893bb9a5012824d322b0b7021a225639554fc888aa9c",
+    "digest": "8b10ced303daafe7c3de55e0bb0adedab650e852d2946f8b71d5c709c9d999f6",
     "file": "src/saps/benchmarks/centrality.py",
-    "freshness": "b13a509d52d27009ccb477a4f283092e4c92e7b4c52f98c84a768e9ff6aa2307"
+    "freshness": "ac5179d61a1aa6223e0146dab49d7ef98a74009b5d11b66ef3bc110211596385"
   },
   "bfs_inputs.snap-ca-GrQc": {
     "dependencies": [
@@ -323,11 +323,11 @@
     "dependency_versions": [
       {
         "name": "boto3",
-        "version": "1.43.34"
+        "version": "1.43.54"
       },
       {
         "name": "botocore",
-        "version": "1.43.34"
+        "version": "1.43.54"
       },
       {
         "name": "lark",
@@ -343,12 +343,12 @@
       },
       {
         "name": "scipy",
-        "version": "1.17.1"
+        "version": "1.16.2"
       }
     ],
-    "digest": "0564677eba2fa380f23c18bac419183ec4621318d8810a94b2082f6aad45f0ca",
+    "digest": "076b58addce686eb3ccb28d766e590a461a95ebdd79f67a8217fce3905c10487",
     "file": "src/saps/benchmarks/BFS.py",
-    "freshness": "8aef82a5d3ce4980c85a5c639a9a66864f0d03b60cd830fe5a69dd44271e3ed1"
+    "freshness": "ed2b871936e3351e06dbab57a544e72b587da5bcc4b9e66381b1fee65e62f49b"
   },
   "bfs_inputs.snap-facebook_combined": {
     "dependencies": [
@@ -387,7 +387,7 @@
     ],
     "digest": "40e5026779b3657abc0550a22344544ecb51785103ab572794100f6c0f0ddd51",
     "file": "src/saps/benchmarks/BFS.py",
-    "freshness": "8aef82a5d3ce4980c85a5c639a9a66864f0d03b60cd830fe5a69dd44271e3ed1"
+    "freshness": "cca4462479d4abc85f9a096023d78f30550ccffdfd23468bab2332eb652a61f3"
   },
   "bfs_inputs.snap-p2p-Gnutella04": {
     "dependencies": [
@@ -426,7 +426,7 @@
     ],
     "digest": "4800a641537bec5cf76ba5b431d23c75f7a28a4276327e66ae6e1668a8b31e9c",
     "file": "src/saps/benchmarks/BFS.py",
-    "freshness": "8aef82a5d3ce4980c85a5c639a9a66864f0d03b60cd830fe5a69dd44271e3ed1"
+    "freshness": "cca4462479d4abc85f9a096023d78f30550ccffdfd23468bab2332eb652a61f3"
   },
   "cg_inputs.Chem97ZtZ": {
     "dependencies": [
@@ -879,11 +879,11 @@
     "dependency_versions": [
       {
         "name": "boto3",
-        "version": "1.43.34"
+        "version": "1.43.54"
       },
       {
         "name": "botocore",
-        "version": "1.43.34"
+        "version": "1.43.54"
       },
       {
         "name": "lark",
@@ -899,12 +899,12 @@
       },
       {
         "name": "scipy",
-        "version": "1.17.1"
+        "version": "1.16.2"
       }
     ],
-    "digest": "0564677eba2fa380f23c18bac419183ec4621318d8810a94b2082f6aad45f0ca",
+    "digest": "076b58addce686eb3ccb28d766e590a461a95ebdd79f67a8217fce3905c10487",
     "file": "src/saps/benchmarks/connected_components.py",
-    "freshness": "2eeb52fbc877ce3b02d0b71c42beb7a78462f7fd15d4fbe056a9f643c1aa4506"
+    "freshness": "b128c69a33d93de913b62479d6c8ccacd558b30718014e7c1d5445c587ad902a"
   },
   "connected_components_inputs.snap-facebook_combined": {
     "dependencies": [
@@ -943,7 +943,97 @@
     ],
     "digest": "40e5026779b3657abc0550a22344544ecb51785103ab572794100f6c0f0ddd51",
     "file": "src/saps/benchmarks/connected_components.py",
-    "freshness": "2eeb52fbc877ce3b02d0b71c42beb7a78462f7fd15d4fbe056a9f643c1aa4506"
+    "freshness": "7b949caac47419a99d112649ac1e0195d8d10a80c647777302c17fc0e577ee4f"
+  },
+  "dense_matmul_generator.large": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "020eefa17d79d33cc4043daf6388224a6ac93883a11087ba44dae0f258611789",
+    "file": "src/saps/benchmarks/matmul.py",
+    "freshness": "f1d97034cbfde2d8b7dc3c3a95ee8cd590c9d5451ad2294d1476c010e37bf121"
+  },
+  "dense_matmul_generator.small": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "c1729942b4b732bc71bd656fa35740840c823db604c4ac14090a082d56410695",
+    "file": "src/saps/benchmarks/matmul.py",
+    "freshness": "f1d97034cbfde2d8b7dc3c3a95ee8cd590c9d5451ad2294d1476c010e37bf121"
   },
   "fastsv_inputs.snap-ca-GrQc": {
     "dependencies": [
@@ -996,11 +1086,11 @@
     "dependency_versions": [
       {
         "name": "boto3",
-        "version": "1.43.34"
+        "version": "1.43.54"
       },
       {
         "name": "botocore",
-        "version": "1.43.34"
+        "version": "1.43.54"
       },
       {
         "name": "lark",
@@ -1016,12 +1106,12 @@
       },
       {
         "name": "scipy",
-        "version": "1.17.1"
+        "version": "1.16.2"
       }
     ],
-    "digest": "0564677eba2fa380f23c18bac419183ec4621318d8810a94b2082f6aad45f0ca",
+    "digest": "076b58addce686eb3ccb28d766e590a461a95ebdd79f67a8217fce3905c10487",
     "file": "src/saps/benchmarks/fastsv.py",
-    "freshness": "c7a32efbf0ecd692082cb9e6db2e83b51a18f6ac217ed3d6ad38153c01260002"
+    "freshness": "6ae349d2de006c36bbe7bc8bd776e413ea25483e6e64556f694662deeb660ea8"
   },
   "fastsv_inputs.snap-facebook_combined": {
     "dependencies": [
@@ -1060,7 +1150,7 @@
     ],
     "digest": "40e5026779b3657abc0550a22344544ecb51785103ab572794100f6c0f0ddd51",
     "file": "src/saps/benchmarks/fastsv.py",
-    "freshness": "c7a32efbf0ecd692082cb9e6db2e83b51a18f6ac217ed3d6ad38153c01260002"
+    "freshness": "c197067a7ec25aeba94f85534db5da04e57a5213448775e36dc7de964bf06f12"
   },
   "finite_difference_inputs_2d.default": {
     "dependencies": [
@@ -1104,7 +1194,7 @@
     ],
     "digest": "17bf54b6d9a6cac3972ec9b1bda7e512bf3923fb74a4b5c76e6d0087111d2c39",
     "file": "src/saps/benchmarks/Finite_Difference_2D.py",
-    "freshness": "dc23526748c2c4c4c0030415b40c1c7069f19c16d1ae70fe9f040f5293dadcac"
+    "freshness": "2098359ece254e80b1d5f3af956f398690a4ad974384c20af61461ce5eef57f9"
   },
   "floyd_warshall_inputs.arc130": {
     "dependencies": [
@@ -1510,11 +1600,11 @@
     "dependency_versions": [
       {
         "name": "boto3",
-        "version": "1.43.34"
+        "version": "1.43.54"
       },
       {
         "name": "botocore",
-        "version": "1.43.34"
+        "version": "1.43.54"
       },
       {
         "name": "lark",
@@ -1530,12 +1620,12 @@
       },
       {
         "name": "scipy",
-        "version": "1.17.1"
+        "version": "1.16.2"
       }
     ],
-    "digest": "013aacf1494b71a566ef6f67bfc0e17cddb282d2353928b8b1ad7a0b05604240",
+    "digest": "f458cf35b0f2a8f077a8766582e8efc8f090c594f6dc4f98db9f2aeee40b43a6",
     "file": "src/saps/benchmarks/tri_4cliq.py",
-    "freshness": "c64f2b04573bad21b315b15e2bdd22bb6110eb0d377ec859aa48714a91666b00"
+    "freshness": "0161898047d0a9803cc0355349619f53b0cfba687c2fcf07519f2b8fbe785602"
   },
   "four_clique_count_inputs.snap-email-Eu-core-temporal-Dept4": {
     "dependencies": [
@@ -1549,11 +1639,11 @@
     "dependency_versions": [
       {
         "name": "boto3",
-        "version": "1.43.34"
+        "version": "1.43.54"
       },
       {
         "name": "botocore",
-        "version": "1.43.34"
+        "version": "1.43.54"
       },
       {
         "name": "lark",
@@ -1569,12 +1659,12 @@
       },
       {
         "name": "scipy",
-        "version": "1.17.1"
+        "version": "1.16.2"
       }
     ],
-    "digest": "6dcc04ca5a997e907ef6893bb9a5012824d322b0b7021a225639554fc888aa9c",
+    "digest": "8b10ced303daafe7c3de55e0bb0adedab650e852d2946f8b71d5c709c9d999f6",
     "file": "src/saps/benchmarks/tri_4cliq.py",
-    "freshness": "c64f2b04573bad21b315b15e2bdd22bb6110eb0d377ec859aa48714a91666b00"
+    "freshness": "0161898047d0a9803cc0355349619f53b0cfba687c2fcf07519f2b8fbe785602"
   },
   "gcn_weights.dg_gcn_bcsstk01": {
     "dependencies": [
@@ -2365,7 +2455,7 @@
     ],
     "digest": "21e5a6220e5e2928e8a75a1acd400dd6238e5d38d2aa8c2a6740ab73300941ea",
     "file": "src/saps/benchmarks/HOSVD_4d.py",
-    "freshness": "0592f540292917fcf9688daeee372b1c9c974401a315370e03b44a65f0d85870"
+    "freshness": "08ef50586135b30f34eaee46c1e2f7cce80996e7c41bb50d6e5759b46dd704da"
   },
   "hosvd_5d_sparse_inputs.small_sparse_5d": {
     "dependencies": [
@@ -2404,7 +2494,7 @@
     ],
     "digest": "931bfe56661310b9e963835345d7f48e673c5149106403615acaeb16a3ebeade",
     "file": "src/saps/benchmarks/HOSVD_5d.py",
-    "freshness": "587a99da3e9660a579487bcfd890007f0c9f2bc87a051430138de0b9a43097f9"
+    "freshness": "07a18c29058e526c3c6ffdb304d7a407b661a5007a922625abdf0a7f3523d6b7"
   },
   "hosvd_sparse_inputs.small_sparse": {
     "dependencies": [
@@ -2443,7 +2533,7 @@
     ],
     "digest": "e810379dda1e922ba033d22c20f07f0ad75597e32cac28702dedaca293873217",
     "file": "src/saps/benchmarks/HOSVD.py",
-    "freshness": "434500731329a0f2d80c8dc762c1d5abd196ef5883ff32117a6cf26b9c0d0d57"
+    "freshness": "23859defdc42a19ded054787ce4d46014a62c57006c009900fd9f1665e0640b9"
   },
   "jacobi_inputs.Chem97ZtZ": {
     "dependencies": [
@@ -2883,7 +2973,7 @@
     ],
     "digest": "0106fb8957c722381e6f8f111a80f4f2c2003cee7ef7d5d0397ec76f61646dee",
     "file": "src/saps/benchmarks/approx_nn.py",
-    "freshness": "16e93b310306099033a58f2ac252dc804a5efb5e9f7f7f9eb39abadf5f46ddfd"
+    "freshness": "c01e7c04ffb017ea100448f99170037e3311b0f3abe73a9988e6fc16c1aaf421"
   },
   "jl_projection_inputs.medium": {
     "dependencies": [
@@ -2923,7 +3013,7 @@
     ],
     "digest": "28b08ca2e8d65e8896ffe145436d6fc21674095a8439d78d668338bb490af389",
     "file": "src/saps/benchmarks/approx_nn.py",
-    "freshness": "16e93b310306099033a58f2ac252dc804a5efb5e9f7f7f9eb39abadf5f46ddfd"
+    "freshness": "c01e7c04ffb017ea100448f99170037e3311b0f3abe73a9988e6fc16c1aaf421"
   },
   "jl_projection_inputs.small": {
     "dependencies": [
@@ -2963,7 +3053,7 @@
     ],
     "digest": "a5bd173b5c105dbcebf349f1cbdc5f00ff07662991d732410f8af991383a7e34",
     "file": "src/saps/benchmarks/approx_nn.py",
-    "freshness": "16e93b310306099033a58f2ac252dc804a5efb5e9f7f7f9eb39abadf5f46ddfd"
+    "freshness": "c01e7c04ffb017ea100448f99170037e3311b0f3abe73a9988e6fc16c1aaf421"
   },
   "lsqr_inputs.Maragal_5": {
     "dependencies": [
@@ -3282,7 +3372,7 @@
     ],
     "digest": "cdbe28faa877060a63b6b59404e673204bbd631775ef1b35f8b4cffed54ec145",
     "file": "src/saps/benchmarks/mri_edge.py",
-    "freshness": "9c7f3c042fc0f02a59b89c3c0548e9e224dd53d332c55e671cfb4fb38eaf2b6c"
+    "freshness": "3941b94f184d20810fba2484fad6a80541c7e427792e1f4f442fed18819b3128"
   },
   "masked_mri_inputs.masked_mri_2": {
     "dependencies": [
@@ -3331,7 +3421,7 @@
     ],
     "digest": "145622ebec7fda9cd22fd33b3f84cd5f65936e7debb094c1328ebc9a690dde43",
     "file": "src/saps/benchmarks/mri_edge.py",
-    "freshness": "9c7f3c042fc0f02a59b89c3c0548e9e224dd53d332c55e671cfb4fb38eaf2b6c"
+    "freshness": "3941b94f184d20810fba2484fad6a80541c7e427792e1f4f442fed18819b3128"
   },
   "masked_mri_inputs.masked_mri_3": {
     "dependencies": [
@@ -3380,7 +3470,7 @@
     ],
     "digest": "c154e6a105b6d884c9ad5d775467fb360e0c1f3ff9249498d2d58372b3821b03",
     "file": "src/saps/benchmarks/mri_edge.py",
-    "freshness": "9c7f3c042fc0f02a59b89c3c0548e9e224dd53d332c55e671cfb4fb38eaf2b6c"
+    "freshness": "3941b94f184d20810fba2484fad6a80541c7e427792e1f4f442fed18819b3128"
   },
   "masked_mri_inputs.masked_mri_4": {
     "dependencies": [
@@ -3429,7 +3519,7 @@
     ],
     "digest": "9a9e74ecb0d0cd3ddb701a70346a880e3cc3da3679ac2074ef2df3f79673c2bd",
     "file": "src/saps/benchmarks/mri_edge.py",
-    "freshness": "9c7f3c042fc0f02a59b89c3c0548e9e224dd53d332c55e671cfb4fb38eaf2b6c"
+    "freshness": "3941b94f184d20810fba2484fad6a80541c7e427792e1f4f442fed18819b3128"
   },
   "mcl_inputs.Trefethen_200": {
     "dependencies": [
@@ -4036,11 +4126,11 @@
     "dependency_versions": [
       {
         "name": "boto3",
-        "version": "1.43.34"
+        "version": "1.43.54"
       },
       {
         "name": "botocore",
-        "version": "1.43.34"
+        "version": "1.43.54"
       },
       {
         "name": "lark",
@@ -4060,12 +4150,12 @@
       },
       {
         "name": "scipy",
-        "version": "1.17.1"
+        "version": "1.16.2"
       }
     ],
-    "digest": "0564677eba2fa380f23c18bac419183ec4621318d8810a94b2082f6aad45f0ca",
+    "digest": "076b58addce686eb3ccb28d766e590a461a95ebdd79f67a8217fce3905c10487",
     "file": "src/saps/benchmarks/pagerank.py",
-    "freshness": "69b0adec3d7ae478b9e366eb98e3491fe8d3f84d11c904e6fb81fb74aaea5d48"
+    "freshness": "89bcdb87836ab89cc914531d45da142f502fedfaad9e16f34f2c06fb6922a8a7"
   },
   "pagerank_inputs.snap-p2p-Gnutella04": {
     "dependencies": [
@@ -4109,7 +4199,7 @@
     ],
     "digest": "4800a641537bec5cf76ba5b431d23c75f7a28a4276327e66ae6e1668a8b31e9c",
     "file": "src/saps/benchmarks/pagerank.py",
-    "freshness": "69b0adec3d7ae478b9e366eb98e3491fe8d3f84d11c904e6fb81fb74aaea5d48"
+    "freshness": "88fc209ad951d99581385d2170d112d710df9f8766f7d501c8e5293b8fd4e97d"
   },
   "quantum_state_inputs.single_layer_small": {
     "dependencies": [
@@ -4148,7 +4238,7 @@
     ],
     "digest": "fb61d3fb01221887dcba8c367435fde3abf73f241fa4fe16bc14f56e7f851567",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f"
+    "freshness": "176d9884f68e2494c2cc8005e12af027520ed9622d5acbb201d70eaa412d1807"
   },
   "quantum_state_inputs.single_layer_tiny": {
     "dependencies": [
@@ -4187,7 +4277,7 @@
     ],
     "digest": "f3409ce979624f5f769f4ac7a57a3e6c3e41e985a0a437d4d3f233a7c3146795",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "b4e398118ef76186b49e6184954d804b76ebd5b3270af5310e446f1fa124362f"
+    "freshness": "176d9884f68e2494c2cc8005e12af027520ed9622d5acbb201d70eaa412d1807"
   },
   "subgraph_gcare_graph.aids": {
     "dependencies": [
@@ -4229,9 +4319,9 @@
         "version": "1.17.1"
       }
     ],
-    "digest": "805743b104614d6a95c2df7807691541f744e2eef3a02f7b3ed95d522ac9987e",
+    "digest": "b6483a86191147504498079f1e9a57c33a713e5490932236bdab38286dd7f229",
     "file": "src/saps/benchmarks/subgraph_matching.py",
-    "freshness": "eec40bc51a253e8fcb5a2a34c4c78b90f60e4e4e0948a85adaecabe97039dc75"
+    "freshness": "b41f9e3f565e39b12d5fc4641f40766ccb8d57b86c8f43e7b8d58440ffded610"
   },
   "subgraph_gcare_graph.human": {
     "dependencies": [
@@ -4273,9 +4363,9 @@
         "version": "1.17.1"
       }
     ],
-    "digest": "11c1fa07b2dd496d8fce78a4747b920c240484afdd2a1365cf309cbeac4367eb",
+    "digest": "74e10e519035ca95ed2a122cbb63ab1ad39fedd91745141f4714a6833bbbb9c9",
     "file": "src/saps/benchmarks/subgraph_matching.py",
-    "freshness": "eec40bc51a253e8fcb5a2a34c4c78b90f60e4e4e0948a85adaecabe97039dc75"
+    "freshness": "b41f9e3f565e39b12d5fc4641f40766ccb8d57b86c8f43e7b8d58440ffded610"
   },
   "subgraph_gcare_graph.lubm80": {
     "dependencies": [
@@ -4317,9 +4407,9 @@
         "version": "1.17.1"
       }
     ],
-    "digest": "9d4a33d640ed886c96f25dd2cf7476e04570dee144240048a6dbc74862ea3666",
+    "digest": "678203c6861c61031bb0c3c303652fc86eefb268d448f733604ddbe8b0c1d606",
     "file": "src/saps/benchmarks/subgraph_matching.py",
-    "freshness": "eec40bc51a253e8fcb5a2a34c4c78b90f60e4e4e0948a85adaecabe97039dc75"
+    "freshness": "b41f9e3f565e39b12d5fc4641f40766ccb8d57b86c8f43e7b8d58440ffded610"
   },
   "subgraph_gcare_graph.yago": {
     "dependencies": [
@@ -4361,9 +4451,9 @@
         "version": "1.17.1"
       }
     ],
-    "digest": "4e928f66cfc97e37ee9fd71a3cd6ad341edfb2329104a943454843b4e1a1e8b7",
+    "digest": "572eeb593a3450435f84355365d1da94d0b0d0ba88aa4d5c6fcfc3e2b2bcb400",
     "file": "src/saps/benchmarks/subgraph_matching.py",
-    "freshness": "eec40bc51a253e8fcb5a2a34c4c78b90f60e4e4e0948a85adaecabe97039dc75"
+    "freshness": "b41f9e3f565e39b12d5fc4641f40766ccb8d57b86c8f43e7b8d58440ffded610"
   },
   "suitesparse_matrix.Chebyshev3": {
     "dependencies": [
@@ -4454,6 +4544,51 @@
     "digest": "b3985969ab5371cdd9c8e54b5e6a5aad37373cdf88988e13716f64daaf281ba5",
     "file": "src/saps/benchmarks/suitesparse.py",
     "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.CollegeMsg": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "ad21748bf28b8148b5861e5c5798aefd231ce63055172ae53da14a1e466132e6",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "f6d833aab7372e70c499d06ef2b605eb3ccba17c705e1518e8dfa6d1f07fa0da"
   },
   "suitesparse_matrix.Dubcova1": {
     "dependencies": [
@@ -5398,7 +5533,7 @@
     ],
     "digest": "b298d4a9db6c0d0ccdfa07a0c5085998795264a1862ac041a696a4b72990a28d",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+    "freshness": "f6d833aab7372e70c499d06ef2b605eb3ccba17c705e1518e8dfa6d1f07fa0da"
   },
   "suitesparse_matrix.bcsstm12": {
     "dependencies": [
@@ -5714,6 +5849,141 @@
     "digest": "b79f4e718f62bbc02322544b2fc49692d1a17be7bf3756f6404c24377400ade9",
     "file": "src/saps/benchmarks/suitesparse.py",
     "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.email-Eu-core": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "30305cf7681e2f40b9915d5076e50ef16b993ec380d8eac27bc91842543ab6c3",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "f6d833aab7372e70c499d06ef2b605eb3ccba17c705e1518e8dfa6d1f07fa0da"
+  },
+  "suitesparse_matrix.email-enron": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "2ac218ff3c28c41886a44f3db9e52546056986d7539981ca7a3e65f611d4e521",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "f6d833aab7372e70c499d06ef2b605eb3ccba17c705e1518e8dfa6d1f07fa0da"
+  },
+  "suitesparse_matrix.fpga_dcop_17": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.54"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.54"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.16.2"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "66e75a7c8f30173d136600789ff69242dacd1d043db52b3c669c20a583ade0b1",
+    "file": ".saps/results/3005fb8e3dcadcff23449ae3e04b77c3/lib/python3.12/site-packages/saps/benchmarks/suitesparse.py",
+    "freshness": "a442e943c64eec067e6d13b7f4de23e031812c4b25fa463a529d70095346dd69"
   },
   "suitesparse_matrix.fv1": {
     "dependencies": [
@@ -6253,7 +6523,7 @@
     ],
     "digest": "4afa307ccac9d4e275d81577d834cc6f550cf7957d80bf1202375378d2bc1b15",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+    "freshness": "f6d833aab7372e70c499d06ef2b605eb3ccba17c705e1518e8dfa6d1f07fa0da"
   },
   "suitesparse_matrix.well1033": {
     "dependencies": [
@@ -6299,6 +6569,51 @@
     "digest": "1398639d9ef2d4edcdc97d89cfc72b8908728eb0e52ffac25fc1efcac517a39c",
     "file": "src/saps/benchmarks/suitesparse.py",
     "freshness": "e47a6b97f0b179b7cb6d699413b333d1e2862c5d8763c36ff96efe6be41a3e4f"
+  },
+  "suitesparse_matrix.wiki-vote": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "78034c0838309e782dd7846e8cd2317d57385e167bd3b6796450a56652d5d8ea",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "f6d833aab7372e70c499d06ef2b605eb3ccba17c705e1518e8dfa6d1f07fa0da"
   },
   "transitive_closure_inputs.snap-ca-GrQc": {
     "dependencies": [
@@ -6351,11 +6666,11 @@
     "dependency_versions": [
       {
         "name": "boto3",
-        "version": "1.43.34"
+        "version": "1.43.54"
       },
       {
         "name": "botocore",
-        "version": "1.43.34"
+        "version": "1.43.54"
       },
       {
         "name": "lark",
@@ -6371,12 +6686,12 @@
       },
       {
         "name": "scipy",
-        "version": "1.17.1"
+        "version": "1.16.2"
       }
     ],
-    "digest": "0564677eba2fa380f23c18bac419183ec4621318d8810a94b2082f6aad45f0ca",
+    "digest": "076b58addce686eb3ccb28d766e590a461a95ebdd79f67a8217fce3905c10487",
     "file": "src/saps/benchmarks/transitive_closure.py",
-    "freshness": "540e2171b1591120c9bb81742a89d679d83e82f061e1695f8f2dc454694ffa95"
+    "freshness": "e62a06ddd1ed1acbcd6a85cddc8f115f29faa604d841031e70688f6fafa21d4c"
   },
   "triangle_count_inputs.snap-ca-GrQc": {
     "dependencies": [
@@ -6429,6 +6744,47 @@
     "dependency_versions": [
       {
         "name": "boto3",
+        "version": "1.43.54"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.54"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.16.2"
+      }
+    ],
+    "digest": "076b58addce686eb3ccb28d766e590a461a95ebdd79f67a8217fce3905c10487",
+    "file": "src/saps/benchmarks/tri_4cliq.py",
+    "freshness": "0161898047d0a9803cc0355349619f53b0cfba687c2fcf07519f2b8fbe785602"
+  },
+  "uniform_random_matmul_generator.uniform-1e-01": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
         "version": "1.43.34"
       },
       {
@@ -6450,10 +6806,194 @@
       {
         "name": "scipy",
         "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
       }
     ],
-    "digest": "0564677eba2fa380f23c18bac419183ec4621318d8810a94b2082f6aad45f0ca",
-    "file": "src/saps/benchmarks/tri_4cliq.py",
-    "freshness": "c64f2b04573bad21b315b15e2bdd22bb6110eb0d377ec859aa48714a91666b00"
+    "digest": "950f220100e02130585f6703bc1783a234321172415eaf954602cd0b412b1ef8",
+    "file": "src/saps/benchmarks/matmul.py",
+    "freshness": "f1d97034cbfde2d8b7dc3c3a95ee8cd590c9d5451ad2294d1476c010e37bf121"
+  },
+  "uniform_random_matmul_generator.uniform-1e-02": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "7ec2b1ec32c3d8f84b1b55f5059aa57cd628a0bb5bc2663fae244a507aa4475c",
+    "file": "src/saps/benchmarks/matmul.py",
+    "freshness": "f1d97034cbfde2d8b7dc3c3a95ee8cd590c9d5451ad2294d1476c010e37bf121"
+  },
+  "uniform_random_matmul_generator.uniform-1e-03": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "bc682a1ec1f5649d059471a385fb5a34eb657cd88af038f7d94bfb728f81c69f",
+    "file": "src/saps/benchmarks/matmul.py",
+    "freshness": "f1d97034cbfde2d8b7dc3c3a95ee8cd590c9d5451ad2294d1476c010e37bf121"
+  },
+  "uniform_random_matmul_generator.uniform-1e-04": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "1fe32ef29b4be0ba7ce47dd47192aa63addf7577265da8abadb370f482f6d4f2",
+    "file": "src/saps/benchmarks/matmul.py",
+    "freshness": "f1d97034cbfde2d8b7dc3c3a95ee8cd590c9d5451ad2294d1476c010e37bf121"
+  },
+  "uniform_random_matmul_generator.uniform-1e-05": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pyparsing",
+      "scipy.io",
+      "scipy.sparse",
+      "ssgetpy"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      },
+      {
+        "name": "ssgetpy",
+        "version": "1.0rc2"
+      }
+    ],
+    "digest": "b8742645d9fad3e00aa51783949b5aa6948c4bd55abe4006c137445740b28565",
+    "file": "src/saps/benchmarks/matmul.py",
+    "freshness": "f1d97034cbfde2d8b7dc3c3a95ee8cd590c9d5451ad2294d1476c010e37bf121"
   }
 }
