@@ -3,6 +3,7 @@ from typing import Any
 import numpy as np
 
 from saps.benchmark import (
+    Author,
     Contributor,
     DataInstance,
     Dataset,
