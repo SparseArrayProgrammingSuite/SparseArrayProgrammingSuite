@@ -152,13 +152,9 @@ class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
     @property
     def description(self) -> str:
         return (
-            "The purpose of this is to analyze the importance of numerical methods for"
-            " PDEs, and applications sparse array theory into these method, through the"
-            " form of benchmarks. This paticular benchmark analyzes the use of the"
-            " Lax–Friedrichs method for solving nonlinear hyberbolic PDEs, with"
-            " numerical stability and accuracy not seen in FTCS. This benchmark will"
-            " run a simulation using both Lax–Friedrichs and analyze core concepts such"
-            " as numerical stability, conservation law consistency, etc."
+            "The finite difference generator uses a finite difference grid of"
+            "500 by 500 cells, matching roughly the scale of a"
+            "real finite difference problem, Norris/torso3 from UF Matrix Collection"
         )
 
     @property
@@ -177,23 +173,12 @@ class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title=(
-                    "Synthesizing Sound and Precise Abstract Transformers"
-                    " for Nonlinear Hyperbolic PDE Solvers."
-                ),
+                title="The university of Florida sparse matrix collection",
                 authors=[
-                    Author("Jacob Laurel"),
-                    Author("Ignacio Laguna"),
-                    Author("Jan Hückelheim"),
+                    Author("Timothy A. Davis"),
+                    Author("Yifan Hu"),
                 ],
-                journal="Proceedings of the ACM on Programming Languages",
-                publisher="Association for Computing Machinery (ACM)",
-                volume="9",
-                number="OOPSLA2",
-                pages="1063-1091",
-                year=2025,
-                url="https://doi.org/10.1145/3763088",
-                doi="10.1145/3763088",
+                doi="https://doi.org/10.1145/2049662.2049663"
             )
         ]
 
@@ -216,14 +201,25 @@ class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
     def datasets(self) -> list[FiniteDifference2DDataset]:
         return [
             FiniteDifference2DDataset(
-                name="default",
-                pretty_name="Default",
+                name="fd2d_test_scale",
+                pretty_name="2D Finite Difference Test Problem",
                 suites=["test"],
                 Nx=100,
                 dx=0.1,
                 Ny=100,
                 dy=0.1,
                 Nt=100,
+                dt=0.01,
+            ),
+            FiniteDifference2DDataset(
+                name="fd2d_realistic_scale",
+                pretty_name="2D Finite Difference Realistic Problem",
+                suites=["standard"],
+                Nx=1000,
+                dx=0.1,
+                Ny=1000,
+                dy=0.1,
+                Nt=1000,
                 dt=0.01,
             ),
         ]
@@ -269,7 +265,25 @@ class _FiniteDifference2DBenchmarkBase(Benchmark):
 
     @property
     def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
+        return """
+            <ccs2012>
+            <concept>
+            <concept_id>10002950.10003705.10011686</concept_id>
+            <concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>
+            <concept_significance>500</concept_significance>
+            </concept>
+            <concept>
+            <concept_id>10010147.10010341.10010349.10010357</concept_id>
+            <concept_desc>Computing methodologies~Continuous simulation</concept_desc>
+            <concept_significance>500</concept_significance>
+            </concept>
+            <concept>
+            <concept_id>10002950.10003714.10003715.10003750</concept_id>
+            <concept_desc>Mathematics of computing~Discretization</concept_desc>
+            <concept_significance>500</concept_significance>
+            </concept>
+            </ccs2012>
+        """
 
     @property
     def authors(self) -> list[Contributor]:
