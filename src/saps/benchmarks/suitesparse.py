@@ -145,7 +145,16 @@ class SuiteSparseMatrixGenerator(Generator[SuiteSparseDataset]):
 
     @property
     def references(self) -> list[Ref]:
-        return []
+        return [
+            Ref(
+                title="The university of Florida sparse matrix collection",
+                authors=[
+                    Author("Timothy A. Davis"),
+                    Author("Yifan Hu"),
+                ],
+                doi="https://doi.org/10.1145/2049662.2049663"
+            )
+        ]
 
     @property
     def ai_disclosure(self) -> str:
