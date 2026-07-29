@@ -178,7 +178,14 @@ class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
                     Author("Timothy A. Davis"),
                     Author("Yifan Hu"),
                 ],
-                doi="https://doi.org/10.1145/2049662.2049663"
+                journal="ACM Transactions on Mathematical Software",
+                publisher="Association for Computing Machinery (ACM)",
+                volume="38",
+                number="1",
+                pages="1-25",
+                year=2011,
+                url="https://doi.org/10.1145/2049662.2049663",
+                doi="10.1145/2049662.2049663",
             )
         ]
 
