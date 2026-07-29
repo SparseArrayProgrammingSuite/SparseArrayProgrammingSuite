@@ -1,6 +1,3 @@
-import os
-from typing import Any
-
 import numpy as np
 
 import sparse as pydata_sparse
@@ -10,58 +7,35 @@ from saps.benchmark import (
     Benchmark,
     Contributor,
     DataInstance,
-    Dataset,
     Generator,
     Ref,
+)
+from saps.benchmarks.suitesparse import (
+    SuiteSparseDataset,
+    fetch_suitesparse_linear_system,
 )
 from saps_framework import BinsparseFormat
 
 
-class JacobiDataset(Dataset):
+class JacobiDataset(SuiteSparseDataset):
     def __init__(
         self,
         source_name: str,
-        has_b_file: bool = False,
         nnz: int | None = None,
         suites: list[str] | None = None,
         A: np.ndarray | None = None,
         b: np.ndarray | None = None,
         x: np.ndarray | None = None,
     ):
-        self._suites = suites or []
-        self.source_name = source_name
-        self.has_b_file = has_b_file
-        self.nnz = nnz
+        super().__init__(
+            source_name,
+            pretty_name=f"Jacobi {source_name}",
+            suites=suites,
+            nnz=nnz,
+        )
         self.A = A
         self.b = b
         self.x = x
-
-    @property
-    def name(self) -> str:
-        return self.source_name
-
-    @property
-    def pretty_name(self) -> str:
-        return f"Jacobi {self.source_name}"
-
-    @property
-    def description(self) -> str:
-        return f"SuiteSparse matrix {self.source_name}."
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
-    @property
-    def metadata(self) -> dict[str, Any]:
-        data = super().metadata
-        data["nnz"] = self.nnz
-        data["has_b_file"] = self.has_b_file
-        return data
 
 
 class JacobiTestGenerator(Generator[JacobiDataset]):
@@ -204,6 +178,10 @@ class JacobiGenerator(Generator[JacobiDataset]):
         )
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[JacobiDataset]:
         return [
             JacobiDataset("mesh3em5", nnz=1889),
@@ -217,52 +195,9 @@ class JacobiGenerator(Generator[JacobiDataset]):
         ]
 
     def generate(self, dataset: JacobiDataset):
-        from scipy.io import mmread
-        from scipy.sparse import random
-
-        import ssgetpy
-
-        matrices = ssgetpy.search(name=dataset.source_name)
-        if not matrices:
-            raise ValueError(f"No matrix found with name '{dataset.source_name}'")
-        matrix = matrices[0]
-        (path, archive) = matrix.download(extract=True)
-        matrix_path = os.path.join(path, matrix.name + ".mtx")
-
-        if matrix_path and os.path.exists(matrix_path):
-            A = mmread(matrix_path)
-        else:
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-
-        rng = np.random.default_rng(0)
-        A = A.tocoo()
-
-        if dataset.has_b_file:
-            matrix_path_b = os.path.join(path, matrix.name + "_b.mtx")
-            if matrix_path_b and os.path.exists(matrix_path_b):
-                b = mmread(matrix_path_b)
-            else:
-                raise FileNotFoundError(f"Matrix file not found at {matrix_path_b}")
-            if not isinstance(b, np.ndarray):
-                b = b.toarray() if hasattr(b, "toarray") else np.asarray(b)
-            b = b.flatten()
-        else:
-            x_rand = random(
-                A.shape[1],
-                1,
-                density=0.1,
-                format="coo",
-                dtype=np.float64,
-                random_state=rng,
-            )
-            b = A @ x_rand
-            b = b.toarray().flatten()
-
-        x = np.zeros(A.shape[1])
-
-        A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
+        A_bin, b, _has_real_rhs = fetch_suitesparse_linear_system(dataset.source_name)
+        x_bin = BinsparseFormat.from_numpy(np.zeros(A_bin.data["shape"][1]))
         b_bin = BinsparseFormat.from_numpy(b)
-        x_bin = BinsparseFormat.from_numpy(x)
 
         return DataInstance(inputs=[A_bin, b_bin, x_bin], meta={})
 
