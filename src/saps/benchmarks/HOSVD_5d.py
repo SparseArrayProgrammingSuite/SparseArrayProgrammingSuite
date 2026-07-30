@@ -339,7 +339,7 @@ class HOSVD5DBenchmark(Benchmark):
 
     @property
     def concepts(self) -> str:
-         return """
+        return """
         <ccs2012>
 <concept>
 <concept_id>10002950.10003705.10011686</concept_id>
