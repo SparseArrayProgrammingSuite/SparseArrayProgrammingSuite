@@ -1,6 +1,3 @@
-import os
-from typing import Any
-
 import numpy as np
 
 import sparse as pydata_sparse
@@ -10,58 +7,35 @@ from saps.benchmark import (
     Benchmark,
     Contributor,
     DataInstance,
-    Dataset,
     Generator,
     Ref,
+)
+from saps.benchmarks.suitesparse import (
+    SuiteSparseDataset,
+    fetch_suitesparse_linear_system,
 )
 from saps_framework.binsparse_format import BinsparseFormat
 
 
-class CGDataset(Dataset):
+class CGDataset(SuiteSparseDataset):
     def __init__(
         self,
         source_name: str,
-        has_b_file: bool = False,
         nnz: int | None = None,
         suites: list[str] | None = None,
         A: np.ndarray | None = None,
         b: np.ndarray | None = None,
         x: np.ndarray | None = None,
     ):
-        self._suites = suites or []
-        self.source_name = source_name
-        self.has_b_file = has_b_file
-        self.nnz = nnz
+        super().__init__(
+            source_name,
+            pretty_name=f"CG {source_name}",
+            suites=suites,
+            nnz=nnz,
+        )
         self.A = A
         self.b = b
         self.x = x
-
-    @property
-    def name(self) -> str:
-        return self.source_name
-
-    @property
-    def pretty_name(self) -> str:
-        return f"CG {self.source_name}"
-
-    @property
-    def description(self) -> str:
-        return f"SuiteSparse matrix {self.source_name}."
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
-    @property
-    def metadata(self) -> dict[str, Any]:
-        data = super().metadata
-        data["nnz"] = self.nnz
-        data["has_b_file"] = self.has_b_file
-        return data
 
 
 class CGTestGenerator(Generator[CGDataset]):
@@ -235,6 +209,10 @@ class CGGenerator(Generator[CGDataset]):
         )
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[CGDataset]:
         return [
             CGDataset("mesh3em5", nnz=1889),
@@ -248,48 +226,9 @@ class CGGenerator(Generator[CGDataset]):
         ]
 
     def generate(self, dataset: CGDataset) -> DataInstance:
-        from scipy.io import mmread
-        from scipy.sparse import random
-
-        import ssgetpy
-
-        matrices = ssgetpy.search(name=dataset.source_name)
-        if not matrices:
-            raise ValueError(f"No matrix found with name '{dataset.source_name}'")
-        matrix = matrices[0]
-        path, _archive = matrix.download(extract=True)
-        matrix_path = os.path.join(path, f"{matrix.name}.mtx")
-        if not os.path.exists(matrix_path):
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-
-        A = mmread(matrix_path).tocoo()
-        rng = np.random.default_rng(0)
-
-        if dataset.has_b_file:
-            b_path = os.path.join(path, f"{matrix.name}_b.mtx")
-            if not os.path.exists(b_path):
-                raise FileNotFoundError(f"Matrix file not found at {b_path}")
-            b = mmread(b_path)
-            if not isinstance(b, np.ndarray):
-                b = b.toarray() if hasattr(b, "toarray") else np.asarray(b)
-            b = b.flatten()
-        else:
-            x_rand = random(
-                A.shape[1],
-                1,
-                density=0.1,
-                format="coo",
-                dtype=np.float64,
-                random_state=rng,
-            )
-            b = A @ x_rand
-            b = b.toarray().flatten()
-
-        x = np.zeros(A.shape[1])
-
-        A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
+        A_bin, b, _has_real_rhs = fetch_suitesparse_linear_system(dataset.source_name)
+        x_bin = BinsparseFormat.from_numpy(np.zeros(A_bin.data["shape"][1]))
         b_bin = BinsparseFormat.from_numpy(b)
-        x_bin = BinsparseFormat.from_numpy(x)
 
         return DataInstance(inputs=[A_bin, b_bin, x_bin], meta={})
 
@@ -317,7 +256,29 @@ class CGBenchmark(Benchmark):
 
     @property
     def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
+        return (
+            """
+        <ccs2012>
+        <concept>
+        <concept_id>10002950.10003705.10003707</concept_id>
+        <concept_desc>Mathematics of computing~Solvers</concept_desc>
+        <concept_significance>500</concept_significance>
+        </concept>
+        <concept>
+        <concept_id>10002950.10003705.10011686</concept_id>
+        <concept_desc>Mathematics of computing~"""
+            "Mathematical software performance"
+            """</concept_desc>
+        <concept_significance>500</concept_significance>
+        </concept>
+        <concept>
+        <concept_id>10002950.10003714.10003715</concept_id>
+        <concept_desc>Mathematics of computing~Numerical analysis</concept_desc>
+        <concept_significance>500</concept_significance>
+        </concept>
+        </ccs2012>
+        """
+        )
 
     @property
     def authors(self) -> list[Contributor]:

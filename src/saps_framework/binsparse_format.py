@@ -41,6 +41,34 @@ class BinsparseFormat:
             return BinsparseFormat.from_coo(indices, V, shape)
         raise ValueError("Unsupported format: " + binsparse.data["format"])
 
+    def to_scipy_coo(self) -> Any:
+        """Convert this 2D matrix into a `scipy.sparse.coo_matrix`.
+
+        Only needed where real sparse linear algebra is required (matmul, slicing,
+        transpose); for plain field access use `BinsparseFormat.to_coo(self).data`.
+        """
+        import scipy.sparse as sp
+
+        coo = BinsparseFormat.to_coo(self)
+        return sp.coo_matrix(
+            (coo.data["values"], (coo.data["indices_0"], coo.data["indices_1"])),
+            shape=coo.data["shape"],
+        )
+
+    def diagonal(self) -> np.ndarray:
+        """Extract this 2D matrix's diagonal directly from its COO view."""
+        coo = BinsparseFormat.to_coo(self)
+        row, col, values, shape = (
+            coo.data["indices_0"],
+            coo.data["indices_1"],
+            coo.data["values"],
+            coo.data["shape"],
+        )
+        diagonal = np.zeros(min(shape), dtype=values.dtype)
+        on_diagonal = row == col
+        np.add.at(diagonal, row[on_diagonal], values[on_diagonal])
+        return diagonal
+
     def serialize(self) -> str:
         bytes_data = {}
         for k, v in self.data.items():
