@@ -4537,27 +4537,27 @@
     "dependency_versions": [
       {
         "name": "boto3",
-        "version": "1.43.34"
+        "version": "1.43.36"
       },
       {
         "name": "botocore",
-        "version": "1.43.34"
+        "version": "1.43.36"
       },
       {
         "name": "lark",
-        "version": "1.3.1"
+        "version": "1.3.0"
       },
       {
         "name": "numpy",
-        "version": "2.3.5"
+        "version": "2.2.6"
       },
       {
         "name": "pyparsing",
-        "version": "3.3.2"
+        "version": "3.2.4"
       },
       {
         "name": "scipy",
-        "version": "1.17.1"
+        "version": "1.16.2"
       },
       {
         "name": "ssgetpy",
@@ -4566,7 +4566,7 @@
     ],
     "digest": "ad21748bf28b8148b5861e5c5798aefd231ce63055172ae53da14a1e466132e6",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "f6d833aab7372e70c499d06ef2b605eb3ccba17c705e1518e8dfa6d1f07fa0da"
+    "freshness": "ad43bb080b77411aa7057ccd9fb3d07eaf9209f36bfa21742217f9ab0a8cef2b"
   },
   "suitesparse_matrix.Dubcova1": {
     "dependencies": [
@@ -5842,27 +5842,27 @@
     "dependency_versions": [
       {
         "name": "boto3",
-        "version": "1.43.34"
+        "version": "1.43.36"
       },
       {
         "name": "botocore",
-        "version": "1.43.34"
+        "version": "1.43.36"
       },
       {
         "name": "lark",
-        "version": "1.3.1"
+        "version": "1.3.0"
       },
       {
         "name": "numpy",
-        "version": "2.3.5"
+        "version": "2.2.6"
       },
       {
         "name": "pyparsing",
-        "version": "3.3.2"
+        "version": "3.2.4"
       },
       {
         "name": "scipy",
-        "version": "1.17.1"
+        "version": "1.16.2"
       },
       {
         "name": "ssgetpy",
@@ -5871,7 +5871,7 @@
     ],
     "digest": "30305cf7681e2f40b9915d5076e50ef16b993ec380d8eac27bc91842543ab6c3",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "f6d833aab7372e70c499d06ef2b605eb3ccba17c705e1518e8dfa6d1f07fa0da"
+    "freshness": "ad43bb080b77411aa7057ccd9fb3d07eaf9209f36bfa21742217f9ab0a8cef2b"
   },
   "suitesparse_matrix.email-enron": {
     "dependencies": [

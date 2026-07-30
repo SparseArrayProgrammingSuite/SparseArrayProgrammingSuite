@@ -188,7 +188,7 @@ class SuiteSparseMatVecGenerator(Generator):
         return [
             Ref(
                 title=(
-                    "Finch: Sparse and Structured Array Programming with Control Flow"
+                    "Finch: Sparse and Structured Tensor Programming with Control Flow"
                 ),
                 authors=[
                     Author("W. Ahrens"),
@@ -441,7 +441,7 @@ class MatrixVectorBenchmark(Benchmark):
         return [
             Ref(
                 title=(
-                    "Finch: Sparse and Structured Array Programming with Control Flow"
+                    "Finch: Sparse and Structured Tensor Programming with Control Flow"
                 ),
                 authors=[
                     Author("W. Ahrens"),
