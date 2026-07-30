@@ -565,7 +565,20 @@ class QuantumStatevectorBenchmark(Benchmark):
 
     @property
     def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
+        return """
+        <ccs2012>
+        <concept>
+        <concept_id>10010583.10010786.10010813.10011726</concept_id>
+        <concept_desc>Hardware~Quantum computation</concept_desc>
+        <concept_significance>500</concept_significance>
+        </concept>
+        <concept>
+        <concept_id>10010520.10010521.10010542.10010550</concept_id>
+        <concept_desc>Computer systems organization~Quantum computing</concept_desc>
+        <concept_significance>500</concept_significance>
+        </concept>
+        </ccs2012>
+        """
 
     @property
     def authors(self) -> list[Contributor]:
