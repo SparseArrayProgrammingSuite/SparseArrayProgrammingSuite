@@ -392,7 +392,8 @@ class _PreconditionedCGBase(Benchmark, ABC):
 
     @property
     def concepts(self) -> str:
-        return """
+        return (
+            """
         <ccs2012>
         <concept>
         <concept_id>10002950.10003705.10003707</concept_id>
@@ -401,7 +402,9 @@ class _PreconditionedCGBase(Benchmark, ABC):
         </concept>
         <concept>
         <concept_id>10002950.10003705.10011686</concept_id>
-        <concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>
+        <concept_desc>Mathematics of computing~"""
+            "Mathematical software performance"
+            """</concept_desc>
         <concept_significance>500</concept_significance>
         </concept>
         <concept>
@@ -411,6 +414,7 @@ class _PreconditionedCGBase(Benchmark, ABC):
         </concept>
         </ccs2012>
         """
+        )
 
     @abstractmethod
     def _solve_cg(self, xp, M, r):

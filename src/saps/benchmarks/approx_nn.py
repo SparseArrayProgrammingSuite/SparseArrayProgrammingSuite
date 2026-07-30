@@ -342,7 +342,8 @@ class JLApproxNearestNeighbor(Benchmark):
 
     @property
     def concepts(self) -> str:
-        return """
+        return (
+            """
 <ccs2012>
 <concept>
 <concept_id>10002951.10003317.10003347.10003356</concept_id>
@@ -370,7 +371,9 @@ Machine learning algorithms</concept_desc>
 </concept>
 <concept>
 <concept_id>10010147.10010257.10010258.10010260.10010271</concept_id>
-<concept_desc>Computing methodologies~Dimensionality reduction and manifold learning</concept_desc>
+<concept_desc>Computing methodologies~"""
+            "Dimensionality reduction and manifold learning"
+            """</concept_desc>
 <concept_significance>500</concept_significance>
 </concept>
 <concept>
@@ -383,6 +386,7 @@ Nearest neighbor algorithms</concept_desc>
 </concept>
 </ccs2012>
 """
+        )
 
     @property
     def authors(self):
