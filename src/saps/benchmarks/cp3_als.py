@@ -9,6 +9,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.frostt import fetch_frostt_tensor
 from saps_framework import BinsparseFormat
 
 
@@ -152,6 +153,134 @@ class CP3FactorizeableGenerator(Generator):
         )
 
 
+class CP3FrosttDataset(Dataset):
+    def __init__(self, name, pretty_name, tensor_name, rank, max_iter=20, suites=None):
+        self._name = name
+        self._pretty_name = pretty_name
+        self.tensor_name = tensor_name
+        self.rank = rank
+        self.max_iter = max_iter
+        self._suites = suites or []
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return f"FROSTT tensor {self.tensor_name}, rank = {self.rank}."
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+
+class CP3FrosttGenerator(Generator[CP3FrosttDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def name(self):
+        return "cp3_frostt_inputs"
+
+    @property
+    def pretty_name(self):
+        return "FROSTT Sparse Tensor Generator for CP3-ALS"
+
+    @property
+    def description(self):
+        return (
+            "Real 3rd-order sparse tensors downloaded from FROSTT (frostt.io),"
+            " factorized directly. No dense reconstruction check is performed since"
+            " these tensors are stored in genuinely sparse (COO) form."
+        )
+
+    @property
+    def suites(self):
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self):
+        return []
+
+    @property
+    def references(self):
+        return []
+
+    @property
+    def ai_disclosure(self):
+        return (
+            "No generative AI was used to write the CP-ALS algorithm itself, which"
+            " predates this generator. This generator and its FROSTT data-fetching"
+            " were written by a generative AI assistant (Claude) at the user's"
+            " direction."
+        )
+
+    @property
+    def motivation(self):
+        return (
+            "Real sparse tensors from FROSTT exercise CP-ALS's MTTKRP kernel against"
+            " genuinely irregular sparsity patterns, unlike the synthetic"
+            " low-rank-by-construction tensors generated elsewhere in this file."
+        )
+
+    @property
+    def datasets(self):
+        return [
+            CP3FrosttDataset(
+                name=f"cp3_frostt_{tensor_name}",
+                pretty_name=f"CP3 FROSTT {tensor_name}",
+                tensor_name=tensor_name,
+                rank=rank,
+                max_iter=max_iter,
+                suites=suites,
+            )
+            for tensor_name, rank, max_iter, suites in [
+                ("matmul_2_2_2", 2, 20, []),
+                ("matmul_3_3_3", 2, 20, []),
+                ("matmul_4_3_2", 2, 20, []),
+                ("matmul_4_4_3", 2, 20, []),
+                ("matmul_4_4_4", 2, 20, []),
+                ("matmul_5_5_5", 3, 20, []),
+                ("matmul_6_3_3", 3, 20, []),
+                ("nell_2", 10, 5, ["large"]),
+                ("vast_2015_mc1_3d", 10, 5, ["large"]),
+                ("nell_1", 10, 5, ["large"]),
+                ("flickr_3d", 10, 5, ["large"]),
+            ]
+        ]
+
+    def generate(self, dataset: CP3FrosttDataset):
+        raw = fetch_frostt_tensor(dataset.tensor_name)
+        X = raw.inputs[0]
+        rank = dataset.rank
+        dim1, dim2, dim3 = raw.meta["shape"]
+        dtype = X.data["values"].dtype
+
+        rng = np.random.default_rng(0)
+        initial_A = BinsparseFormat.from_numpy(rng.random((dim1, rank)).astype(dtype))
+        initial_B = BinsparseFormat.from_numpy(rng.random((dim2, rank)).astype(dtype))
+        initial_C = BinsparseFormat.from_numpy(rng.random((dim3, rank)).astype(dtype))
+
+        return DataInstance(
+            inputs=[X, initial_A, initial_B, initial_C],
+            meta={"rank": rank, "max_iter": dataset.max_iter},
+        )
+
+
 class CP3_ALS(Benchmark):
     @property
     def name(self):
@@ -247,6 +376,7 @@ class CP3_ALS(Benchmark):
     def generators(self):
         return [
             CP3FactorizeableGenerator(),
+            CP3FrosttGenerator(),
         ]
 
     def check(self, param):

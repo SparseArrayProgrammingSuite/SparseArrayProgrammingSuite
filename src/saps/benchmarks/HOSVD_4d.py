@@ -11,6 +11,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.frostt import fetch_frostt_tensor, frostt_tensor_shape
 from saps_framework import BinsparseFormat
 
 
@@ -247,6 +248,131 @@ class HOSVD4DSparseGenerator(Generator[HOSVD4DDataset]):
         )
 
 
+class HOSVD4DFrosttDataset(Dataset):
+    def __init__(self, name, pretty_name, tensor_name, ranks, suites=None):
+        self._name = name
+        self._pretty_name = pretty_name
+        self.tensor_name = tensor_name
+        self.ranks = ranks
+        self._suites = suites or []
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return f"FROSTT tensor {self.tensor_name}, ranks = {self.ranks}."
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+
+def _hosvd_4d_frostt_dataset(tensor_name, ranks, suites):
+    shape = frostt_tensor_shape(tensor_name)
+    assert all(r <= s for r, s in zip(ranks, shape, strict=True)), (
+        f"HOSVD ranks {ranks} exceed shape {shape} for FROSTT tensor {tensor_name}"
+    )
+    return HOSVD4DFrosttDataset(
+        name=f"hosvd_4d_frostt_{tensor_name}",
+        pretty_name=f"HOSVD 4D FROSTT {tensor_name}",
+        tensor_name=tensor_name,
+        ranks=ranks,
+        suites=suites,
+    )
+
+
+class HOSVD4DFrosttGenerator(Generator[HOSVD4DFrosttDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def name(self) -> str:
+        return "hosvd_4d_frostt_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "FROSTT Sparse Tensor Generator for 4D HOSVD"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Real 4th-order sparse tensors downloaded from FROSTT (frostt.io),"
+            " decomposed directly. No dense reconstruction check is performed since"
+            " these tensors are stored in genuinely sparse (COO) form."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to write the HOSVD algorithm itself, which"
+            " predates this generator. This generator and its FROSTT data-fetching"
+            " were written by a generative AI assistant (Claude) at the user's"
+            " direction."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return (
+            "Real sparse tensors from FROSTT exercise HOSVD's per-mode unfolding"
+            " against genuinely irregular sparsity patterns. toy, nips, and"
+            " uber_pickups are cheap enough to run by default; chicago_crime_comm,"
+            " enron, and flickr_4d all have at least one mode unfolding that is"
+            " heavy (or, for flickr_4d, completely infeasible) to densify for SVD"
+            " with the current algorithm, so they're tagged 'large' so they aren't"
+            " run by default."
+        )
+
+    @property
+    def datasets(self) -> list[HOSVD4DFrosttDataset]:
+        return [
+            _hosvd_4d_frostt_dataset(tensor_name, ranks, suites)
+            for tensor_name, ranks, suites in [
+                ("toy", (2, 2, 2, 2), []),
+                ("nips", (5, 5, 5, 5), []),
+                ("uber_pickups", (5, 5, 5, 5), []),
+                ("chicago_crime_comm", (5, 5, 5, 5), ["large"]),
+                ("enron", (5, 5, 5, 5), ["large"]),
+                ("flickr_4d", (5, 5, 5, 5), ["large"]),
+            ]
+        ]
+
+    def generate(self, dataset: HOSVD4DFrosttDataset):
+        raw = fetch_frostt_tensor(dataset.tensor_name)
+        X_bin = raw.inputs[0]
+        ranks_bin = BinsparseFormat.from_numpy(np.array(dataset.ranks))
+        return DataInstance(
+            inputs=[X_bin, ranks_bin],
+            meta={"max_iter": 50, "tolerance": 1e-8},
+        )
+
+
 class HOSVD4DBenchmark(Benchmark):
     @property
     def name(self) -> str:
@@ -339,7 +465,11 @@ class HOSVD4DBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [HOSVD4DDenseGenerator(), HOSVD4DSparseGenerator()]
+        return [
+            HOSVD4DDenseGenerator(),
+            HOSVD4DSparseGenerator(),
+            HOSVD4DFrosttGenerator(),
+        ]
 
     def benchmark(self, xp, data: list, meta: dict):
         X, ranks = data

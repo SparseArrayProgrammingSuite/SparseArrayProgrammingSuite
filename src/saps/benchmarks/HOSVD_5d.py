@@ -11,6 +11,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.frostt import fetch_frostt_tensor, frostt_tensor_shape
 from saps_framework import BinsparseFormat
 
 
@@ -251,6 +252,129 @@ class HOSVD5DSparseGenerator(Generator[HOSVD5DDataset]):
         )
 
 
+class HOSVD5DFrosttDataset(Dataset):
+    def __init__(self, name, pretty_name, tensor_name, ranks, suites=None):
+        self._name = name
+        self._pretty_name = pretty_name
+        self.tensor_name = tensor_name
+        self.ranks = ranks
+        self._suites = suites or []
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return f"FROSTT tensor {self.tensor_name}, ranks = {self.ranks}."
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+
+def _hosvd_5d_frostt_dataset(tensor_name, ranks):
+    shape = frostt_tensor_shape(tensor_name)
+    assert all(r <= s for r, s in zip(ranks, shape, strict=True)), (
+        f"HOSVD ranks {ranks} exceed shape {shape} for FROSTT tensor {tensor_name}"
+    )
+    return HOSVD5DFrosttDataset(
+        name=f"hosvd_5d_frostt_{tensor_name}",
+        pretty_name=f"HOSVD 5D FROSTT {tensor_name}",
+        tensor_name=tensor_name,
+        ranks=ranks,
+        suites=["large"],
+    )
+
+
+class HOSVD5DFrosttGenerator(Generator[HOSVD5DFrosttDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def name(self) -> str:
+        return "hosvd_5d_frostt_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "FROSTT Sparse Tensor Generator for 5D HOSVD"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Real 5th-order sparse tensors downloaded from FROSTT (frostt.io),"
+            " decomposed directly. No dense reconstruction check is performed since"
+            " these tensors are stored in genuinely sparse (COO) form."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to write the HOSVD algorithm itself, which"
+            " predates this generator. This generator and its FROSTT data-fetching"
+            " were written by a generative AI assistant (Claude) at the user's"
+            " direction."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return (
+            "Real sparse tensors from FROSTT exercise HOSVD's per-mode unfolding"
+            " against genuinely irregular sparsity patterns. lbnl_network's mode"
+            " unfoldings are astronomically large (its 5th mode alone has 868,131"
+            " entries) and cannot be densified for SVD with the current algorithm;"
+            " chicago_crime_geo and vast_2015_mc1_5d are smaller but still heavy."
+            " All three are included for completeness under the 'large' suite so"
+            " they aren't run by default."
+        )
+
+    @property
+    def datasets(self) -> list[HOSVD5DFrosttDataset]:
+        return [
+            _hosvd_5d_frostt_dataset(tensor_name, ranks)
+            for tensor_name, ranks in [
+                ("lbnl_network", (5, 5, 5, 5, 5)),
+                ("chicago_crime_geo", (5, 5, 5, 5, 5)),
+                # vast_2015_mc1_5d's 3rd mode has only 2 entries, so its rank is capped.
+                ("vast_2015_mc1_5d", (5, 5, 2, 5, 5)),
+            ]
+        ]
+
+    def generate(self, dataset: HOSVD5DFrosttDataset):
+        raw = fetch_frostt_tensor(dataset.tensor_name)
+        X_bin = raw.inputs[0]
+        ranks_bin = BinsparseFormat.from_numpy(np.array(dataset.ranks))
+        return DataInstance(
+            inputs=[X_bin, ranks_bin],
+            meta={"max_iter": 50, "tolerance": 1e-8},
+        )
+
+
 class HOSVD5DBenchmark(Benchmark):
     @property
     def name(self) -> str:
@@ -343,7 +467,11 @@ class HOSVD5DBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [HOSVD5DDenseGenerator(), HOSVD5DSparseGenerator()]
+        return [
+            HOSVD5DDenseGenerator(),
+            HOSVD5DSparseGenerator(),
+            HOSVD5DFrosttGenerator(),
+        ]
 
     def benchmark(self, xp, data: list, meta: dict):
         X, ranks = data
