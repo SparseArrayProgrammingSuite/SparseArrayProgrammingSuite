@@ -159,6 +159,8 @@ Freshness tests check that generated artifacts still match the source code and m
 - Every concrete generator is reachable through a benchmark, including shell benchmarks for intentionally standalone generators.
 - Every manifest record points to a dataset object that exists in the configured remote storage backend.
 
+Freshness tests are marked with `freshness` and are skipped by default. Run them with `poetry run pytest -m freshness tests/test_freshness.py`.
+
 When freshness tests fail after a benchmark, generator, dependency, or storage change, regenerate the affected artifacts rather than editing hashes by hand.
 
 ## Datasets And Storage

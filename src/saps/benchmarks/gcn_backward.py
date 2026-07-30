@@ -1,4 +1,3 @@
-import os
 from typing import Any, cast
 
 import numpy as np
@@ -8,10 +7,10 @@ from saps.benchmark import (
     Benchmark,
     Contributor,
     DataInstance,
-    Dataset,
     Generator,
     Ref,
 )
+from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
 from saps_framework import BinsparseFormat
 
 
@@ -38,7 +37,7 @@ def _gcn_loss(adjacency, features, weights1, bias1, weights2, bias2, targets):
     return np.sum(diff * diff) / predictions.shape[0]
 
 
-class GCNTrainingDataset(Dataset):
+class GCNTrainingDataset(SuiteSparseDataset):
     def __init__(
         self,
         name: str,
@@ -60,10 +59,13 @@ class GCNTrainingDataset(Dataset):
         targets: np.ndarray | None = None,
         ref_meta: dict[str, Any] | None = None,
     ):
-        self._suites = suites or []
-        self._name = name
-        self._description = description
-        self.source_name = source_name or name
+        super().__init__(
+            name,
+            source_name=source_name or name,
+            pretty_name=f"GCN {name}",
+            description=description,
+            suites=suites,
+        )
         self.feature_dim = feature_dim
         self.hidden_dim = hidden_dim
         self.out_dim = out_dim
@@ -77,28 +79,6 @@ class GCNTrainingDataset(Dataset):
         self.bias2 = bias2
         self.targets = targets
         self.ref_meta = ref_meta or {}
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def pretty_name(self) -> str:
-        return f"GCN {self._name}"
-
-    @property
-    def description(self) -> str:
-        if self._description is not None:
-            return self._description
-        return f"SuiteSparse matrix {self.source_name}."
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -492,45 +472,34 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
             ),
         ]
 
+    @property
+    def cacheable(self) -> bool:
+        return False
+
     def generate(self, dataset: GCNTrainingDataset):
-        from scipy.io import mmread
-
-        import ssgetpy
-
         feature_dim = dataset.feature_dim
         hidden_dim = dataset.hidden_dim
         out_dim = dataset.out_dim
-        source = dataset.source_name
 
-        matrices = ssgetpy.search(name=source)
-        if not matrices:
-            raise ValueError(f"No matrix found with name '{source}'")
-        matrix = matrices[0]
-        (path, archive) = matrix.download(extract=True)
-        matrix_path = os.path.join(path, matrix.name + ".mtx")
-        if matrix_path and os.path.exists(matrix_path):
-            A = mmread(matrix_path)
-        else:
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
+        raw = fetch_suitesparse_matrix(dataset.source_name)
+        coo = BinsparseFormat.to_coo(raw.inputs[0])
         rng = np.random.default_rng(0)
-        A = A.tocoo()
 
         # Create feature/weight arrays using the RNG (deterministic)
-        n = A.shape[0]
+        n = raw.meta["shape"][0]
         features = rng.standard_normal((n, feature_dim), dtype=np.float32)
         weights1 = rng.standard_normal((feature_dim, hidden_dim), dtype=np.float32)
         bias1 = np.zeros((hidden_dim,), dtype=np.float32)
         weights2 = rng.standard_normal((hidden_dim, out_dim), dtype=np.float32)
         bias2 = np.zeros((out_dim,), dtype=np.float32)
         targets = rng.standard_normal((n, out_dim), dtype=np.float32)
-        A_T = A.T.tocoo()
 
-        A_bin = BinsparseFormat.from_coo(
-            (A.row, A.col), A.data.astype(np.float32, copy=False), A.shape
-        )
-        A_T_bin = BinsparseFormat.from_coo(
-            (A_T.row, A_T.col), A_T.data.astype(np.float32, copy=False), A_T.shape
-        )
+        row, col = coo.data["indices_0"], coo.data["indices_1"]
+        shape = coo.data["shape"]
+        values_f32 = coo.data["values"].astype(np.float32, copy=False)
+        A_bin = BinsparseFormat.from_coo((row, col), values_f32, shape)
+        # Transpose of a COO matrix is its indices swapped; same values, shape reversed.
+        A_T_bin = BinsparseFormat.from_coo((col, row), values_f32, (shape[1], shape[0]))
         features_b = BinsparseFormat.from_numpy(features)
         weights1_b = BinsparseFormat.from_numpy(weights1)
         bias1_b = BinsparseFormat.from_numpy(bias1)
@@ -600,7 +569,20 @@ Each iteration:
 
     @property
     def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
+        return """
+        <ccs2012>
+        <concept>
+        <concept_id>10010147.10010257.10010293.10010294</concept_id>
+        <concept_desc>Computing methodologies~Neural networks</concept_desc>
+        <concept_significance>500</concept_significance>
+        </concept>
+        <concept>
+        <concept_id>10002950.10003624.10003633.10010917</concept_id>
+        <concept_desc>Mathematics of computing~Graph algorithms</concept_desc>
+        <concept_significance>500</concept_significance>
+        </concept>
+        </ccs2012>
+        """
 
     @property
     def authors(self) -> list[Contributor]:

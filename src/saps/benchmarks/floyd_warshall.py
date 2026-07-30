@@ -1,5 +1,3 @@
-import os
-
 import numpy as np
 
 import sparse as sp
@@ -9,14 +7,14 @@ from saps.benchmark import (
     Benchmark,
     Contributor,
     DataInstance,
-    Dataset,
     Generator,
     Ref,
 )
+from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
 from saps_framework.binsparse_format import BinsparseFormat
 
 
-class FloydWarshallDataset(Dataset):
+class FloydWarshallDataset(SuiteSparseDataset):
     def __init__(
         self,
         name,
@@ -29,37 +27,19 @@ class FloydWarshallDataset(Dataset):
         expected=None,
         ref_meta=None,
     ):
-        self._name = name
-        self._pretty_name = pretty_name
-        self._description = description
-        self._suites = suites
-        self.source = source
+        super().__init__(
+            name,
+            source_name=source,
+            pretty_name=pretty_name,
+            description=description,
+            suites=suites,
+        )
         self.symmetrize = symmetrize
         self.A = A
         if expected is None and A is not None:
             expected = floyd_warshall_reference(A)
         self.expected = expected
         self.ref_meta = ref_meta
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def pretty_name(self) -> str:
-        return self._pretty_name
-
-    @property
-    def description(self) -> str:
-        return self._description
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
 
 
 def floyd_warshall_reference(A):
@@ -487,30 +467,20 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
             ),
         ]
 
+    @property
+    def cacheable(self) -> bool:
+        return False
+
     def generate(self, dataset: FloydWarshallDataset):
-        from scipy.io import mmread
-
-        import ssgetpy
-
-        matrices = ssgetpy.search(name=dataset.source)
-        if not matrices:
-            raise ValueError(f"No matrix found with name '{dataset.source}'")
-        matrix = matrices[0]
-        (path, archive) = matrix.download(extract=True)
-        matrix_path = os.path.join(path, matrix.name + ".mtx")
-        if matrix_path and os.path.exists(matrix_path):
-            A = mmread(matrix_path)
-        else:
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-
-        A = A.tocoo()
-        n, m = A.shape
+        raw = fetch_suitesparse_matrix(dataset.source_name)
+        n, m = raw.meta["shape"]
         if n != m:
-            raise ValueError(f"Floyd-Warshall requires a square matrix, got {A.shape}")
+            raise ValueError(f"Floyd-Warshall requires a square matrix, got {(n, m)}")
 
+        coo = BinsparseFormat.to_coo(raw.inputs[0])
         G = np.full((n, n), np.inf, dtype=np.float64)
-        if A.nnz > 0:
-            G[A.row, A.col] = 1.0
+        if raw.meta["nnz"] > 0:
+            G[coo.data["indices_0"], coo.data["indices_1"]] = 1.0
         np.fill_diagonal(G, 0.0)
 
         if dataset.symmetrize:
@@ -542,7 +512,30 @@ class FloydWarshallBenchmark(Benchmark):
 
     @property
     def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
+        return """
+<ccs2012>
+<concept>
+<concept_id>10002950.10003705</concept_id>
+<concept_desc>Mathematics of computing~Mathematical software</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10002950.10003705.10011686</concept_id>
+<concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10002950.10003624.10003633.10010917</concept_id>
+<concept_desc>Mathematics of computing~Graph algorithms</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10002950.10003624.10003633.10003640</concept_id>
+<concept_desc>Mathematics of computing~Paths and connectivity problems</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+</ccs2012>
+"""
 
     @property
     def authors(self) -> list[Contributor]:
