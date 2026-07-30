@@ -123,7 +123,7 @@ These tags describe the general character of a problem, and are generated progra
 - `large-query`: 5 or more operands on one line.
 - `elementary-ops`: PEMDAS-only.
 - `transcendental-ops`: contains sin, cos, pow, exp, or related operations.
-- `shape-ops`: reshape, concat, transpose, squeeze, or similar operations.
+- `shape-ops`: reshape, concat, permute_dims, squeeze, or similar operations.
 - `linalg-ops`: contains `xp.linalg` or solver-like operations. `dot` is okay.
 - `fancy-ops`: min, max, and, or, shift, or similar operations.
 - `index-ops`: contains indexing.

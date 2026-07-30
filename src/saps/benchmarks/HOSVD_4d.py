@@ -376,7 +376,7 @@ class HOSVD4DBenchmark(Benchmark):
         initial_factors: list[Any] = [None] * num_modes
         for mode in range(num_modes):
             perm = [mode] + list(range(mode)) + list(range(mode + 1, num_modes))
-            unfold = xp.reshape(xp.transpose(X, perm), (dimensions[mode], -1))
+            unfold = xp.reshape(xp.permute_dims(X, perm), (dimensions[mode], -1))
 
             U, S, Vt = xp.linalg.svd(unfold, full_matrices=False)
             initial_factors[mode] = U[:, : ranks[mode]]
@@ -427,7 +427,7 @@ class HOSVD4DBenchmark(Benchmark):
 
                 perm = [mode] + list(range(mode)) + list(range(mode + 1, num_modes))
                 unfold_update = xp.reshape(
-                    xp.transpose(update, perm), (dimensions[mode], -1)
+                    xp.permute_dims(update, perm), (dimensions[mode], -1)
                 )
 
                 U, S, Vt = xp.linalg.svd(unfold_update, full_matrices=False)
