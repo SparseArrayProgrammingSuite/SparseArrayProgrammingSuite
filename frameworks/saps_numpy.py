@@ -1,6 +1,5 @@
-import numpy as np
-
 from saps_framework import BinsparseFormat, Framework, einsum
+import array_api_compat.numpy as np
 
 
 class NumpyFramework(Framework):

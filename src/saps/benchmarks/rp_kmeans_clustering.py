@@ -316,7 +316,7 @@ Dimensionality reduction</concept_desc>
             labels = xp.argmin(dists, axis=1)
             H = xp.equal(labels[:, None], ks[None, :]).astype(A_prime.dtype)
             counts = xp.sum(H, axis=0)
-            sums = xp.matmul(xp.permute_dims(H), A_prime)
+            sums = xp.matmul(xp.linalg.matrix_transpose(H), A_prime)
             counts_nonz = xp.where(counts > 0, counts, one)
             new_centroids = sums / counts_nonz[:, None]
             new_centroids = xp.where((counts == 0)[:, None], centroids, new_centroids)
