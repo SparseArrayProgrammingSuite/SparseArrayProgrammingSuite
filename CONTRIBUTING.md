@@ -161,7 +161,12 @@ Do not edit freshness hashes by hand.
 
 ## Refresh Workflow And Dataset Uploads
 
-The repository has a manually dispatched GitHub Actions workflow named `refresh` that can regenerate the large derived artifacts in CI. Use it when a PR changes benchmark metadata, trace behavior, generator output, dataset freshness, dependency versions, or storage behavior enough that local regeneration is inconvenient or likely to differ from CI.
+The repository has a manually dispatched GitHub Actions workflow named `refresh`
+that can regenerate the large derived artifacts in CI. We typically use it
+before publishing a version, to stay in sync with changes to benchmark metadata,
+trace behavior, generator output, dataset freshness, dependency versions, or
+storage behavior enough that local regeneration is inconvenient or likely to
+differ from CI.
 
 The refresh workflow does three things:
 
@@ -179,7 +184,7 @@ After the workflow finishes, download the final artifacts, replace the correspon
 
 ```bash
 poetry install --with test
-poetry run pytest tests/test_freshness.py
+poetry run pytest -m freshness tests/test_freshness.py
 ```
 
 Do not commit `.saps/outputs/cache`, `.saps/outputs/results`, or trace scratch output. Only commit the source changes and the refreshed JSON files.

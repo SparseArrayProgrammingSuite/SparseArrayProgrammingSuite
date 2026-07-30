@@ -262,7 +262,25 @@ class ParticleSimBenchmark(Benchmark):
 
     @property
     def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
+        return """
+        <ccs2012>
+<concept>
+<concept_id>10010147.10010371.10010382.10010383</concept_id>
+<concept_desc>Computing methodologies~Image processing</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10010147.10010371.10010382.10010236</concept_id>
+<concept_desc>Computing methodologies~Computational photography</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10010405.10010444.10010087.10010096</concept_id>
+<concept_desc>Applied computing~Imaging</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+</ccs2012>
+"""
 
     @property
     def authors(self):

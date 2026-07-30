@@ -569,7 +569,20 @@ Each iteration:
 
     @property
     def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
+        return """
+        <ccs2012>
+        <concept>
+        <concept_id>10010147.10010257.10010293.10010294</concept_id>
+        <concept_desc>Computing methodologies~Neural networks</concept_desc>
+        <concept_significance>500</concept_significance>
+        </concept>
+        <concept>
+        <concept_id>10002950.10003624.10003633.10010917</concept_id>
+        <concept_desc>Mathematics of computing~Graph algorithms</concept_desc>
+        <concept_significance>500</concept_significance>
+        </concept>
+        </ccs2012>
+        """
 
     @property
     def authors(self) -> list[Contributor]:

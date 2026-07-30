@@ -343,20 +343,49 @@ class JLApproxNearestNeighbor(Benchmark):
     @property
     def concepts(self) -> str:
         return (
-            "<ccs2012>"
-            "<concept>"
-            "<concept_desc>Computing methodologies~"
-            "Machine learning algorithms</concept_desc>"
-            "</concept>"
-            "<concept>"
-            "<concept_desc>Mathematics of computing~"
-            "Dimensionality reduction</concept_desc>"
-            "</concept>"
-            "<concept>"
-            "<concept_desc>Theory of computation~"
-            "Nearest neighbor algorithms</concept_desc>"
-            "</concept>"
-            "</ccs2012>"
+            """
+<ccs2012>
+<concept>
+<concept_id>10002951.10003317.10003347.10003356</concept_id>
+<concept_desc>Information systems~Clustering and classification</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10002951.10003317.10003347.10003350</concept_id>
+<concept_desc>Information systems~Recommender systems</concept_desc>
+<concept_significance>300</concept_significance>
+</concept>
+<concept>
+<concept_id>10002951.10003317</concept_id>
+<concept_desc>Information systems~Information retrieval</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_desc>Computing methodologies~
+Machine learning algorithms</concept_desc>
+</concept>
+<concept>
+<concept_id>10010147.10010257.10010258.10010260.10003697</concept_id>
+<concept_desc>Computing methodologies~Cluster analysis</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10010147.10010257.10010258.10010260.10010271</concept_id>
+<concept_desc>Computing methodologies~"""
+            "Dimensionality reduction and manifold learning"
+            """</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_desc>Mathematics of computing~
+Dimensionality reduction</concept_desc>
+</concept>
+<concept>
+<concept_desc>Theory of computation~
+Nearest neighbor algorithms</concept_desc>
+</concept>
+</ccs2012>
+"""
         )
 
     @property
