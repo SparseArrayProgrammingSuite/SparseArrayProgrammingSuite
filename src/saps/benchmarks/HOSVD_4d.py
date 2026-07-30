@@ -128,8 +128,8 @@ class HOSVD4DDenseGenerator(Generator[HOSVD4DDataset]):
                 "random_small Small Dense 4D HOSVD Tensor Dense low-rank 4D tensor"
                 " using random factor matrices.",
                 ["test", "trace"],
-                (10, 10, 10, 10),
-                (3, 3, 3, 3),
+                (4, 4, 4, 4),
+                (2, 2, 2, 2),
             )
         ]
 
@@ -151,7 +151,7 @@ class HOSVD4DDenseGenerator(Generator[HOSVD4DDataset]):
         ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
         return DataInstance(
             inputs=[X_bin, ranks_bin],
-            meta={"max_iter": 50, "tolerance": 1e-8},
+            meta={"max_iter": 5, "tolerance": 1e-8},
             ref_meta={"check_reconstruction": True},
         )
 

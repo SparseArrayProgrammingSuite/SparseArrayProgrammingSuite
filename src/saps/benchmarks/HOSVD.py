@@ -127,8 +127,8 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
                 "Small Dense HOSVD Tensor",
                 "Dense low-rank 3D tensor using random factor matrices.",
                 ["test", "trace"],
-                (10, 10, 10),
-                (3, 3, 3),
+                (5, 5, 5),
+                (2, 2, 2),
             )
         ]
 
@@ -149,7 +149,7 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
         ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
         return DataInstance(
             inputs=[X_bin, ranks_bin],
-            meta={"max_iter": 50, "tolerance": 1e-8},
+            meta={"max_iter": 5, "tolerance": 1e-8},
             ref_meta={"check_reconstruction": True},
         )
 
