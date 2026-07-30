@@ -365,7 +365,7 @@ class PageRankBenchmark(Benchmark):
 
     @property
     def motivation(self):
-        return "TODO"
+        return "Pagerank is included as a common graph algorithm benchmark problem, appearing in the GAP benchmark, for example."
 
     @property
     def generators(self) -> list[Generator[PageRankDataset]]:
