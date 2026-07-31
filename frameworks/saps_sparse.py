@@ -65,6 +65,14 @@ class PyDataSparseLinalg:
         )
 
     @staticmethod
+    def vector_norm(x, **kwargs):
+        return compat_np.linalg.vector_norm(PyDataSparseLinalg._dense(x), **kwargs)
+
+    @staticmethod
+    def matrix_norm(x, **kwargs):
+        return compat_np.linalg.matrix_norm(PyDataSparseLinalg._dense(x), **kwargs)
+
+    @staticmethod
     def svd(A, full_matrices=False, k=None, **kwargs):
         if not isinstance(A, sp.SparseArray):
             U, S, Vt = np.linalg.svd(

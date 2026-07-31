@@ -453,11 +453,11 @@ class HOSVD5DBenchmark(Benchmark):
 
             # stop iterations when solutions stop changing significantly
             change = (
-                xp.linalg.norm(initial_factors[0] - prev_factors[0])
-                + xp.linalg.norm(initial_factors[1] - prev_factors[1])
-                + xp.linalg.norm(initial_factors[2] - prev_factors[2])
-                + xp.linalg.norm(initial_factors[3] - prev_factors[3])
-                + xp.linalg.norm(initial_factors[4] - prev_factors[4])
+                xp.linalg.matrix_norm(initial_factors[0] - prev_factors[0])
+                + xp.linalg.matrix_norm(initial_factors[1] - prev_factors[1])
+                + xp.linalg.matrix_norm(initial_factors[2] - prev_factors[2])
+                + xp.linalg.matrix_norm(initial_factors[3] - prev_factors[3])
+                + xp.linalg.matrix_norm(initial_factors[4] - prev_factors[4])
             )
             if change[()] < tolerance:
                 break
