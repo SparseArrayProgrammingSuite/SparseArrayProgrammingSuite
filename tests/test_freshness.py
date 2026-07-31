@@ -9,6 +9,8 @@ from collections.abc import Iterator
 from functools import cache
 from pathlib import Path
 
+import pytest
+
 from packaging.requirements import Requirement
 from packaging.utils import canonicalize_name
 from packaging.version import Version
@@ -19,6 +21,7 @@ from saps.storage import build_storage_backend
 
 ROOT = Path(__file__).parents[1]
 FRESHNESS_KEYS = ("file", "freshness", "dependencies")
+pytestmark = pytest.mark.freshness
 
 
 def _record_key(record: dict) -> str:
