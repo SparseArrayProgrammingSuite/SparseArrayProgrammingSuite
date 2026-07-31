@@ -9,6 +9,8 @@ from typing import Any
 
 import numpy as np
 
+import polars as pl
+
 _BASE_URL = "https://s3.us-east-2.amazonaws.com/frostt/frostt_data"
 
 
@@ -53,12 +55,14 @@ def _parse_tns(
     arrays (one per mode), the values array, and the dense shape inferred as
     the maximum index seen per mode.
     """
-    data = np.loadtxt(path, ndmin=2)
-    order = data.shape[1] - 1
+    df = pl.read_csv(path, separator=" ", has_header=False, comment_prefix="#")
+    order = df.width - 1
     if order < 1:
         raise ValueError(f"Malformed FROSTT tensor file {path}: no value column found")
-    indices = tuple(data[:, mode].astype(np.int64) - 1 for mode in range(order))
-    values = data[:, order].astype(np.float64)
+    indices = tuple(
+        df[:, mode].to_numpy().astype(np.int64) - 1 for mode in range(order)
+    )
+    values = df[:, order].cast(pl.Float64).to_numpy()
     shape = tuple(int(idx.max()) + 1 for idx in indices)
     return indices, values, shape
 
