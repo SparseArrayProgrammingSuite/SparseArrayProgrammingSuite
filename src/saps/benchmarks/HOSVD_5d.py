@@ -359,6 +359,7 @@ class HOSVD5DFrosttGenerator(Generator[HOSVD5DFrosttDataset]):
                 ("chicago_crime_geo", (5, 5, 5, 5, 5)),
                 # vast_2015_mc1_5d's 3rd mode has only 2 entries, so its rank is capped.
                 ("vast_2015_mc1_5d", (5, 5, 2, 5, 5)),
+                ("lanl2", (5, 5, 5, 5, 5)),
             ]
         ]
 

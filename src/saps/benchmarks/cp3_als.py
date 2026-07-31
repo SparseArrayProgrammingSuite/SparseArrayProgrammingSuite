@@ -264,6 +264,8 @@ class CP3FrosttGenerator(Generator[CP3FrosttDataset]):
                 ("amazon_reviews", 10, 5, []),
                 ("patents", 10, 5, []),
                 ("reddit_2015", 10, 5, []),
+                ("fb_m", 10, 5, []),
+                ("darpa", 10, 5, []),
             ]
         ]
 

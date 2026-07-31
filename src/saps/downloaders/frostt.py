@@ -3,6 +3,9 @@ Tensors and Tools, frostt.io)."""
 
 from __future__ import annotations
 
+import gzip
+import io
+import tarfile
 import urllib.request
 from pathlib import Path
 from typing import Any
@@ -19,15 +22,21 @@ def _default_data_dir() -> Path:
     return Path(__file__).resolve().parents[3] / "data" / "frostt"
 
 
-def download_frostt_tensor(path: str, *, data_dir: str | Path | None = None) -> Path:
+def download_frostt_tensor(
+    path: str, *, url: str | None = None, data_dir: str | Path | None = None
+) -> Path:
     """Download (if needed) a FROSTT `.tns.gz` tensor file, returning its local path.
 
-    *path* is the tensor's location under FROSTT's S3 bucket, e.g.
+    *path* is the tensor's location under FROSTT's main S3 bucket, e.g.
     ``"matrix-multiplication/matmul_3-3-3.tns.gz"`` or
-    ``"chicago-crime/comm/chicago-crime-comm.tns.gz"``. Files are cached under
-    ``data/frostt/`` (like the SuiteSparse/SNAP/G-CARE downloaders cache under
-    ``data/suitesparse``, ``data/snap``, ``data/gcare``) unless *data_dir*
-    overrides the location.
+    ``"chicago-crime/comm/chicago-crime-comm.tns.gz"``, and also determines
+    where the file is cached under ``data/frostt/`` (like the
+    SuiteSparse/SNAP/G-CARE downloaders cache under ``data/suitesparse``,
+    ``data/snap``, ``data/gcare``) unless *data_dir* overrides the location.
+
+    A few tensors (fb-m, darpa, lanl2) live in a different bucket entirely;
+    for those, pass the full download *url* and *path* is only used for local
+    caching.
     """
     root = Path(data_dir) if data_dir is not None else _default_data_dir()
     dest_path = root / path
@@ -35,10 +44,10 @@ def download_frostt_tensor(path: str, *, data_dir: str | Path | None = None) -> 
         return dest_path
 
     dest_path.parent.mkdir(parents=True, exist_ok=True)
-    url = f"{_BASE_URL}/{path}"
+    download_url = url if url is not None else f"{_BASE_URL}/{path}"
     tmp_path = dest_path.with_name(dest_path.name + ".tmp")
     try:
-        urllib.request.urlretrieve(url, tmp_path)  # noqa: S310
+        urllib.request.urlretrieve(download_url, tmp_path)  # noqa: S310
         tmp_path.replace(dest_path)
     except Exception:
         tmp_path.unlink(missing_ok=True)
@@ -46,16 +55,63 @@ def download_frostt_tensor(path: str, *, data_dir: str | Path | None = None) -> 
     return dest_path
 
 
+def _extract_tns_source(path: Path) -> Path | io.BytesIO:
+    """Return a readable source for the `.tns` text, un-wrapping a tar archive
+    if present. A few tensors (fb-m, darpa, lanl2) are uploaded as a `.tar.gz`
+    (despite the `.tns.gz` name) containing the real data file alongside a
+    macOS AppleDouble sidecar file (`._<name>.tns`); most tensors are just a
+    plain gzip-compressed `.tns` file, which is not a valid tar and falls back
+    to being read directly.
+    """
+    try:
+        with tarfile.open(path, "r:gz") as tf:
+            members = [
+                member
+                for member in tf.getmembers()
+                if member.isfile() and not Path(member.name).name.startswith("._")
+            ]
+            if len(members) != 1:
+                names = [member.name for member in members]
+                raise ValueError(
+                    f"Expected exactly one data file in tar archive {path}, found"
+                    f" {names}"
+                )
+            extracted = tf.extractfile(members[0])
+            assert extracted is not None
+            return io.BytesIO(extracted.read())
+    except tarfile.ReadError:
+        return path
+
+
+def _detect_separator(source: Path | io.BytesIO) -> str:
+    """Peek at the first non-comment line to detect whether this file uses the
+    standard FROSTT space-delimited format or a tab-delimited variant (seen in
+    at least one alternate-bucket tensor)."""
+    if isinstance(source, io.BytesIO):
+        text = source.getvalue()[:4096].decode("utf-8", errors="ignore")
+        source.seek(0)
+    else:
+        with gzip.open(source, "rt", encoding="utf-8", errors="ignore") as f:
+            text = f.read(4096)
+    for line in text.splitlines():
+        if line and not line.startswith("#"):
+            return "\t" if "\t" in line else " "
+    return " "
+
+
 def _parse_tns(
     path: Path,
 ) -> tuple[tuple[np.ndarray, ...], np.ndarray, tuple[int, ...]]:
-    """Parse a (optionally gzipped) `.tns` coordinate-list tensor file.
+    """Parse a (optionally gzipped, optionally tar-wrapped) `.tns` coordinate-list
+    tensor file.
 
     Each line is ``i_1 i_2 ... i_n value``, 1-indexed. Returns 0-indexed index
     arrays (one per mode), the values array, and the dense shape inferred as
     the maximum index seen per mode.
     """
-    df = pl.read_csv(path, separator=" ", has_header=False, comment_prefix="#")
+    source = _extract_tns_source(path)
+    separator = _detect_separator(source)
+    df = pl.read_csv(source, separator=separator, has_header=False, comment_prefix="#")
     order = df.width - 1
     if order < 1:
         raise ValueError(f"Malformed FROSTT tensor file {path}: no value column found")
@@ -68,10 +124,10 @@ def _parse_tns(
 
 
 def load_frostt_tensor(
-    path: str, *, data_dir: str | Path | None = None
+    path: str, *, url: str | None = None, data_dir: str | Path | None = None
 ) -> tuple[tuple[np.ndarray, ...], np.ndarray, dict[str, Any]]:
     """Download (if needed) and parse a FROSTT tensor into COO index/value arrays."""
-    local_path = download_frostt_tensor(path, data_dir=data_dir)
+    local_path = download_frostt_tensor(path, url=url, data_dir=data_dir)
     indices, values, shape = _parse_tns(local_path)
     meta = {
         "dataset_name": path,

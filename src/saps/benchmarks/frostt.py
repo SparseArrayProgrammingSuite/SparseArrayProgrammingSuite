@@ -20,6 +20,7 @@ class FrosttDataset(Dataset):
         path: str,
         order: int,
         shape: tuple[int, ...],
+        url: str | None = None,
         pretty_name: str | None = None,
         description: str | None = None,
         suites: list[str] | None = None,
@@ -28,6 +29,7 @@ class FrosttDataset(Dataset):
         self.path = path
         self.order = order
         self.shape = shape
+        self.url = url
         self._pretty_name = pretty_name
         self._description = description
         self._suites = suites or []
@@ -68,12 +70,13 @@ _MATMUL_SIZES = [
 # Real-world tensors from the FROSTT catalog (frostt.io). Some of these (e.g.
 # amazon_reviews, patents, reddit_2015) are tens of GB and will take a long time
 # to download and generate; select datasets explicitly by name rather than
-# running this whole catalog unfiltered. 
-# 
-# fb-m, darpa, and lanl2 are excluded:
-# fb-m/darpa live in a separate bucket that currently denies listing (their
-# exact object keys couldn't be confirmed), and lanl2's listed bucket prefix is
-# empty (no files were ever uploaded there).
+# running this whole catalog unfiltered.
+#
+# fb_m, darpa, and lanl2 live in a different S3 bucket than the rest of this
+# catalog (frostt-tensors, not frostt), and are each a tar archive (despite the
+# `.tns.gz` name) containing a macOS AppleDouble sidecar file alongside the
+# real tab-delimited `.tns` data; `_extract_tns_source`/`_detect_separator` in
+# the downloader handle both quirks.
 _TENSORS: list[FrosttDataset] = [
     FrosttDataset(
         f"matmul_{m}_{k}_{n}",
@@ -274,6 +277,44 @@ _TENSORS: list[FrosttDataset] = [
             " excluded."
         ),
     ),
+    FrosttDataset(
+        "fb_m",
+        path="fb-m/fb-m.tns.gz",
+        url="https://frostt-tensors.s3.us-east-2.amazonaws.com/FB-M/fb-m.tns.gz",
+        order=3,
+        shape=(23343790, 23344784, 166),
+        description=(
+            "Freebase Music knowledge base: entity x entity x relation,"
+            " non-zeros are binary."
+        ),
+    ),
+    FrosttDataset(
+        "darpa",
+        path="darpa/1998darpa.tns.gz",
+        url=(
+            "https://frostt-tensors.s3.us-east-2.amazonaws.com/1998DARPA"
+            "/1998darpa.tns.gz"
+        ),
+        order=3,
+        shape=(22476, 22476, 23776223),
+        description=(
+            "1998 DARPA intrusion detection logs: source-IP x dest-IP x"
+            " time, values are packet counts."
+        ),
+    ),
+    FrosttDataset(
+        "lanl2",
+        path="lanl2/lanl2.tns.gz",
+        url="https://frostt-tensors.s3.us-east-2.amazonaws.com/LANL2/lanl2.tns.gz",
+        order=5,
+        shape=(3760, 11153, 8710, 75146, 8),
+        description=(
+            "Anonymized LANL NetFlow data (58 days): 10-minute time bin x"
+            " source device x destination device x destination port x"
+            " log-scale bytes-transferred bin, non-zeros are incident"
+            " counts."
+        ),
+    ),
 ]
 
 
@@ -342,7 +383,7 @@ class FrosttTensorGenerator(Generator[FrosttDataset]):
         return _TENSORS
 
     def generate(self, dataset: FrosttDataset) -> DataInstance:
-        indices, values, meta = load_frostt_tensor(dataset.path)
+        indices, values, meta = load_frostt_tensor(dataset.path, url=dataset.url)
         tensor_bin = BinsparseFormat.from_coo(indices, values, meta["shape"])
         return DataInstance(inputs=[tensor_bin], meta=meta)
 

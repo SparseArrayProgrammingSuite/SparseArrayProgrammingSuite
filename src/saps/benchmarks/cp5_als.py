@@ -264,6 +264,7 @@ class CP5FrosttGenerator(Generator[CP5FrosttDataset]):
                 ("lbnl_network", 10, 5, []),
                 ("chicago_crime_geo", 10, 5, []),
                 ("vast_2015_mc1_5d", 10, 5, []),
+                ("lanl2", 10, 5, []),
             ]
         ]
 

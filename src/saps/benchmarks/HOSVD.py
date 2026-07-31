@@ -358,6 +358,8 @@ class HOSVDFrosttGenerator(Generator[HOSVDFrosttDataset]):
                 ("amazon_reviews", (5, 5, 5)),
                 ("patents", (5, 5, 5)),
                 ("reddit_2015", (5, 5, 5)),
+                ("fb_m", (5, 5, 5)),
+                ("darpa", (5, 5, 5)),
             ]
         ]
 
