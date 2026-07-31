@@ -2,7 +2,7 @@
   "environment_type": "existing:same",
   "matrix": {
     "env_nobuild": {
-      "SAPS_FRAMEWORK": ["frameworks/saps_finchtensorlite.py"],
+      "SAPS_FRAMEWORK": ["frameworks/saps_finchtensor.py"],
       "SAPS_REPO_ROOT": ["."]
     }
   }

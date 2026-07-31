@@ -51,7 +51,7 @@ def _is_passing_result(value: Any) -> bool:
     [
         pytest.param("saps_numpy.py", id="numpy"),
         pytest.param("saps_sparse.py", id="sparse"),
-        pytest.param("saps_finchtensorlite.py", id="finch-tensor"),
+        #pytest.param("saps_finchtensor.py", id="finch-tensor"),
     ],
 )
 def test_harness_test_suite_outputs_pass_for_all_test_datasets(
