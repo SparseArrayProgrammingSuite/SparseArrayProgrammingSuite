@@ -258,9 +258,10 @@ class CP4FrosttGenerator(Generator[CP4FrosttDataset]):
                 ("toy", 2, 5, []),
                 ("nips", 10, 5, []),
                 ("uber_pickups", 10, 5, []),
-                ("chicago_crime_comm", 10, 5, ["large"]),
-                ("enron", 10, 5, ["large"]),
-                ("flickr_4d", 10, 5, ["large"]),
+                ("chicago_crime_comm", 10, 5, []),
+                ("enron", 10, 5, []),
+                ("flickr_4d", 10, 5, []),
+                ("delicious_4d", 10, 5, []),
             ]
         ]
 

@@ -272,7 +272,7 @@ class HOSVDFrosttDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-def _hosvd_frostt_dataset(tensor_name, ranks, suites):
+def _hosvd_frostt_dataset(tensor_name, ranks):
     shape = frostt_tensor_shape(tensor_name)
     assert all(r <= s for r, s in zip(ranks, shape, strict=True)), (
         f"HOSVD ranks {ranks} exceed shape {shape} for FROSTT tensor {tensor_name}"
@@ -282,7 +282,6 @@ def _hosvd_frostt_dataset(tensor_name, ranks, suites):
         pretty_name=f"HOSVD FROSTT {tensor_name}",
         tensor_name=tensor_name,
         ranks=ranks,
-        suites=suites,
     )
 
 
@@ -336,30 +335,29 @@ class HOSVDFrosttGenerator(Generator[HOSVDFrosttDataset]):
     def motivation(self) -> str:
         return (
             "Real sparse tensors from FROSTT exercise HOSVD's per-mode unfolding"
-            " against genuinely irregular sparsity patterns, unlike the synthetic"
-            " low-rank tensors generated elsewhere in this file. Note that nell_2,"
-            " vast_2015_mc1_3d, nell_1, and flickr_3d all have at least one mode"
-            " unfolding far too large to densify for SVD with the current algorithm;"
-            " they're included for completeness under the 'large' suite so they"
-            " aren't run by default."
+            " against genuinely irregular sparsity patterns."
         )
 
     @property
     def datasets(self) -> list[HOSVDFrosttDataset]:
         return [
-            _hosvd_frostt_dataset(tensor_name, ranks, suites)
-            for tensor_name, ranks, suites in [
-                ("matmul_2_2_2", (2, 2, 2), []),
-                ("matmul_3_3_3", (2, 2, 2), []),
-                ("matmul_4_3_2", (2, 2, 2), []),
-                ("matmul_4_4_3", (2, 2, 2), []),
-                ("matmul_4_4_4", (2, 2, 2), []),
-                ("matmul_5_5_5", (2, 2, 2), []),
-                ("matmul_6_3_3", (2, 2, 2), []),
-                ("nell_2", (5, 5, 5), ["large"]),
-                ("vast_2015_mc1_3d", (5, 5, 2), ["large"]),
-                ("nell_1", (5, 5, 5), ["large"]),
-                ("flickr_3d", (5, 5, 5), ["large"]),
+            _hosvd_frostt_dataset(tensor_name, ranks)
+            for tensor_name, ranks in [
+                ("matmul_2_2_2", (2, 2, 2)),
+                ("matmul_3_3_3", (2, 2, 2)),
+                ("matmul_4_3_2", (2, 2, 2)),
+                ("matmul_4_4_3", (2, 2, 2)),
+                ("matmul_4_4_4", (2, 2, 2)),
+                ("matmul_5_5_5", (2, 2, 2)),
+                ("matmul_6_3_3", (2, 2, 2)),
+                ("nell_2", (5, 5, 5)),
+                ("vast_2015_mc1_3d", (5, 5, 2)),
+                ("nell_1", (5, 5, 5)),
+                ("flickr_3d", (5, 5, 5)),
+                ("delicious_3d", (5, 5, 5)),
+                ("amazon_reviews", (5, 5, 5)),
+                ("patents", (5, 5, 5)),
+                ("reddit_2015", (5, 5, 5)),
             ]
         ]
 

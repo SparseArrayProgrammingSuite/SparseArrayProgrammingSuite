@@ -65,17 +65,21 @@ _MATMUL_SIZES = [
     (6, 3, 3),
 ]
 
-# Real-world tensors from the FROSTT catalog (frostt.io). Tiny ones (toy, nips,
-# uber_pickups) are left untagged and safe to run by default; everything else is
-# tagged "large" so benchmark runs can opt out of them via --no-tag large. fb-m and
-# darpa are excluded: they live in a separate bucket that currently denies listing
-# and their exact object keys couldn't be confirmed.
+# Real-world tensors from the FROSTT catalog (frostt.io). Some of these (e.g.
+# amazon_reviews, patents, reddit_2015) are tens of GB and will take a long time
+# to download and generate; select datasets explicitly by name rather than
+# running this whole catalog unfiltered. 
+# 
+# fb-m, darpa, and lanl2 are excluded:
+# fb-m/darpa live in a separate bucket that currently denies listing (their
+# exact object keys couldn't be confirmed), and lanl2's listed bucket prefix is
+# empty (no files were ever uploaded there).
 _TENSORS: list[FrosttDataset] = [
     FrosttDataset(
         f"matmul_{m}_{k}_{n}",
         path=f"matrix-multiplication/matmul_{m}-{k}-{n}.tns.gz",
         order=3,
-        # Verified mode order via real downloads: (k*n, m*n, m*k), not (m*k, k*n, m*n).
+        # Tensor order via real downloads: (k*n, m*n, m*k).
         shape=(k * n, m * n, m * k),
         description=(
             f"FROSTT matrix-multiplication tensor for a ({m}x{k}) * ({k}x{n}) product."
@@ -92,7 +96,6 @@ _TENSORS: list[FrosttDataset] = [
             "NELL-2 knowledge base snapshot: entity x relation x entity, from the"
             " Never-Ending Language Learning project."
         ),
-        suites=["large"],
     ),
     FrosttDataset(
         "chicago_crime_comm",
@@ -103,7 +106,6 @@ _TENSORS: list[FrosttDataset] = [
             "Chicago crime reports (2001-2017): day x hour x community-area x"
             " crime-type, non-zeros are counts."
         ),
-        suites=["large"],
     ),
     FrosttDataset(
         "lbnl_network",
@@ -115,7 +117,6 @@ _TENSORS: list[FrosttDataset] = [
             " sender-port x dest-IP x dest-port x time, values are packet"
             " lengths."
         ),
-        suites=["large"],
     ),
     FrosttDataset(
         "toy",
@@ -155,7 +156,6 @@ _TENSORS: list[FrosttDataset] = [
             " chicago_crime_comm with geographic coordinates instead of"
             " community areas."
         ),
-        suites=["large"],
     ),
     FrosttDataset(
         "vast_2015_mc1_3d",
@@ -166,7 +166,6 @@ _TENSORS: list[FrosttDataset] = [
             "VAST Challenge 2015 mini-challenge 1 (3-way): time x person x"
             " action, from a simulated theme-park sensor/movement log."
         ),
-        suites=["large"],
     ),
     FrosttDataset(
         "nell_1",
@@ -178,7 +177,6 @@ _TENSORS: list[FrosttDataset] = [
             " from the Never-Ending Language Learning project (larger than"
             " nell_2)."
         ),
-        suites=["large"],
     ),
     FrosttDataset(
         "vast_2015_mc1_5d",
@@ -189,7 +187,6 @@ _TENSORS: list[FrosttDataset] = [
             "VAST Challenge 2015 mini-challenge 1 (5-way): time x person x"
             " action x x-location x y-location."
         ),
-        suites=["large"],
     ),
     FrosttDataset(
         "enron",
@@ -200,7 +197,6 @@ _TENSORS: list[FrosttDataset] = [
             "Enron email corpus: sender x receiver x word x date, non-zeros"
             " are word counts."
         ),
-        suites=["large"],
     ),
     FrosttDataset(
         "flickr_3d",
@@ -211,7 +207,6 @@ _TENSORS: list[FrosttDataset] = [
             "Flickr user-image-tag associations (3-way, dates removed):"
             " user x image x tag."
         ),
-        suites=["large"],
     ),
     FrosttDataset(
         "flickr_4d",
@@ -222,7 +217,62 @@ _TENSORS: list[FrosttDataset] = [
             "Flickr user-image-tag-date associations (4-way): user x image"
             " x tag x date."
         ),
-        suites=["large"],
+    ),
+    FrosttDataset(
+        "delicious_3d",
+        path="delicious/delicious-3d.tns.gz",
+        order=3,
+        shape=(532924, 17262471, 2480308),
+        description=(
+            "Delicious bookmarking service (3-way, dates removed): user x"
+            " webpage x tag."
+        ),
+    ),
+    FrosttDataset(
+        "delicious_4d",
+        path="delicious/delicious-4d.tns.gz",
+        order=4,
+        shape=(532924, 17262471, 2480308, 1443),
+        description=(
+            "Delicious bookmarking service (4-way): user x webpage x tag x"
+            " date, binary values indicating whether a user tagged a"
+            " webpage on a given day."
+        ),
+    ),
+    # The remaining 3 are the largest tensors in the FROSTT catalog.
+    # Their shape/nnz below are from FROSTT's own documentation.
+    FrosttDataset(
+        "amazon_reviews",
+        path="amazon/amazon-reviews.tns.gz",
+        order=3,
+        shape=(4821207, 1774269, 1805187),
+        description=(
+            "Amazon product reviews (from SNAP): user x product x word,"
+            " after stopword removal and stemming."
+        ),
+    ),
+    FrosttDataset(
+        "patents",
+        path="patents/patents.tns.gz",
+        order=3,
+        shape=(46, 239172, 239172),
+        description=(
+            "US utility patents: year x term x term, pairwise co-occurrence"
+            " of terms within a 7-word window; each yearly slice is"
+            " symmetric."
+        ),
+    ),
+    FrosttDataset(
+        "reddit_2015",
+        path="reddit-2015/reddit-2015.tns.gz",
+        order=3,
+        shape=(8211298, 176962, 8116559),
+        description=(
+            "Reddit comments from 2015: user x subreddit x word, counting"
+            " how often a user posted a word in a subreddit; users,"
+            " subreddits, and words appearing fewer than 5 times are"
+            " excluded."
+        ),
     ),
 ]
 
@@ -311,10 +361,5 @@ def fetch_frostt_tensor(name: str) -> DataInstance:
 
 
 def frostt_tensor_shape(name: str) -> tuple[int, ...]:
-    """Statically declared shape of a raw FROSTT tensor, verified via real download.
-
-    Lets callers validate parameters (e.g. HOSVD ranks) against a tensor's shape
-    without downloading it, which matters for "large" tensors that shouldn't be
-    fetched just to check whether a benchmark's parameters are well-formed.
-    """
+    """Statically declared shape of a raw FROSTT tensor."""
     return next(d for d in _TENSORS if d.name == name).shape

@@ -277,7 +277,7 @@ class HOSVD4DFrosttDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-def _hosvd_4d_frostt_dataset(tensor_name, ranks, suites):
+def _hosvd_4d_frostt_dataset(tensor_name, ranks):
     shape = frostt_tensor_shape(tensor_name)
     assert all(r <= s for r, s in zip(ranks, shape, strict=True)), (
         f"HOSVD ranks {ranks} exceed shape {shape} for FROSTT tensor {tensor_name}"
@@ -287,7 +287,6 @@ def _hosvd_4d_frostt_dataset(tensor_name, ranks, suites):
         pretty_name=f"HOSVD 4D FROSTT {tensor_name}",
         tensor_name=tensor_name,
         ranks=ranks,
-        suites=suites,
     )
 
 
@@ -342,24 +341,25 @@ class HOSVD4DFrosttGenerator(Generator[HOSVD4DFrosttDataset]):
         return (
             "Real sparse tensors from FROSTT exercise HOSVD's per-mode unfolding"
             " against genuinely irregular sparsity patterns. toy, nips, and"
-            " uber_pickups are cheap enough to run by default; chicago_crime_comm,"
-            " enron, and flickr_4d all have at least one mode unfolding that is"
-            " heavy (or, for flickr_4d, completely infeasible) to densify for SVD"
-            " with the current algorithm, so they're tagged 'large' so they aren't"
-            " run by default."
+            " uber_pickups are cheap; chicago_crime_comm, enron, flickr_4d, and"
+            " delicious_4d all have at least one mode unfolding that is heavy (or,"
+            " for flickr_4d/delicious_4d, completely infeasible) to densify for"
+            " SVD with the current algorithm, so select datasets by name rather"
+            " than running this whole generator unfiltered."
         )
 
     @property
     def datasets(self) -> list[HOSVD4DFrosttDataset]:
         return [
-            _hosvd_4d_frostt_dataset(tensor_name, ranks, suites)
-            for tensor_name, ranks, suites in [
-                ("toy", (2, 2, 2, 2), []),
-                ("nips", (5, 5, 5, 5), []),
-                ("uber_pickups", (5, 5, 5, 5), []),
-                ("chicago_crime_comm", (5, 5, 5, 5), ["large"]),
-                ("enron", (5, 5, 5, 5), ["large"]),
-                ("flickr_4d", (5, 5, 5, 5), ["large"]),
+            _hosvd_4d_frostt_dataset(tensor_name, ranks)
+            for tensor_name, ranks in [
+                ("toy", (2, 2, 2, 2)),
+                ("nips", (5, 5, 5, 5)),
+                ("uber_pickups", (5, 5, 5, 5)),
+                ("chicago_crime_comm", (5, 5, 5, 5)),
+                ("enron", (5, 5, 5, 5)),
+                ("flickr_4d", (5, 5, 5, 5)),
+                ("delicious_4d", (5, 5, 5, 5)),
             ]
         ]
 

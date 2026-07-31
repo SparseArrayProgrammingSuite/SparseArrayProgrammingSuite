@@ -44575,7 +44575,7 @@
       ],
       "description": "Computes the CP decomposition using Alternating Least Squares (ALS). Factorizes a 3rd-order tensor X into factor matrices A, B, C such that: $X \u0007pprox \\sum_{r=1}^{R} \\lambda_r \\cdot a_r \\circ b_r \\circ c_r$ where $\\circ$ denotes the outeer product, R is the rank, and $\\lambda$ are the weights.Handwritten code based on the standard CP-ALS algorithm from Kolda and Bader (2009). ",
       "file": "src/saps/benchmarks/cp3_als.py",
-      "freshness": "1979dc4e736539a0256ea0eca88c28e1156d4425c793253aa65e9b18ce7b4eb5",
+      "freshness": "2bc8c077674539a945235d6695b321568d060cc46f2bd42a0f030dec010df5c6",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI was used to debug some parts of the code. This statement was written by hand.",
@@ -44597,7 +44597,7 @@
               ],
               "description": "rank = 2, shape = (6, 6, 6)",
               "file": "src/saps/benchmarks/cp3_als.py",
-              "freshness": "1979dc4e736539a0256ea0eca88c28e1156d4425c793253aa65e9b18ce7b4eb5",
+              "freshness": "2bc8c077674539a945235d6695b321568d060cc46f2bd42a0f030dec010df5c6",
               "name": "cp_factorizeable_tiny",
               "pretty_name": "Tiny Factorizeable CP Tensor",
               "suites": [
@@ -44619,7 +44619,7 @@
               ],
               "description": "rank = 3, shape = (20, 20, 20)",
               "file": "src/saps/benchmarks/cp3_als.py",
-              "freshness": "1979dc4e736539a0256ea0eca88c28e1156d4425c793253aa65e9b18ce7b4eb5",
+              "freshness": "2bc8c077674539a945235d6695b321568d060cc46f2bd42a0f030dec010df5c6",
               "name": "cp_factorizeable_small",
               "pretty_name": "Small Factorizeable CP Tensor",
               "suites": [],
@@ -44637,7 +44637,7 @@
           ],
           "description": "\n            Generating a small factorizable tensor by creating random factor matrices\n            and reconstructing the tensor from them (tensor should decompose easily\n            with low reconstruction error).\n            ",
           "file": "src/saps/benchmarks/cp3_als.py",
-          "freshness": "1979dc4e736539a0256ea0eca88c28e1156d4425c793253aa65e9b18ce7b4eb5",
+          "freshness": "2bc8c077674539a945235d6695b321568d060cc46f2bd42a0f030dec010df5c6",
           "motivation": "",
           "name": "cp_factorizable",
           "pretty_name": "Factorizable Tensor for CP Decomposition",
@@ -44663,7 +44663,7 @@
               ],
               "description": "FROSTT tensor matmul_2_2_2, rank = 2.",
               "file": "src/saps/benchmarks/cp3_als.py",
-              "freshness": "1979dc4e736539a0256ea0eca88c28e1156d4425c793253aa65e9b18ce7b4eb5",
+              "freshness": "2bc8c077674539a945235d6695b321568d060cc46f2bd42a0f030dec010df5c6",
               "name": "cp3_frostt_matmul_2_2_2",
               "pretty_name": "CP3 FROSTT matmul_2_2_2",
               "suites": [],
@@ -44682,7 +44682,7 @@
               ],
               "description": "FROSTT tensor matmul_3_3_3, rank = 2.",
               "file": "src/saps/benchmarks/cp3_als.py",
-              "freshness": "1979dc4e736539a0256ea0eca88c28e1156d4425c793253aa65e9b18ce7b4eb5",
+              "freshness": "2bc8c077674539a945235d6695b321568d060cc46f2bd42a0f030dec010df5c6",
               "name": "cp3_frostt_matmul_3_3_3",
               "pretty_name": "CP3 FROSTT matmul_3_3_3",
               "suites": [],
@@ -44701,7 +44701,7 @@
               ],
               "description": "FROSTT tensor matmul_4_3_2, rank = 2.",
               "file": "src/saps/benchmarks/cp3_als.py",
-              "freshness": "1979dc4e736539a0256ea0eca88c28e1156d4425c793253aa65e9b18ce7b4eb5",
+              "freshness": "2bc8c077674539a945235d6695b321568d060cc46f2bd42a0f030dec010df5c6",
               "name": "cp3_frostt_matmul_4_3_2",
               "pretty_name": "CP3 FROSTT matmul_4_3_2",
               "suites": [],
@@ -44720,7 +44720,7 @@
               ],
               "description": "FROSTT tensor matmul_4_4_3, rank = 2.",
               "file": "src/saps/benchmarks/cp3_als.py",
-              "freshness": "1979dc4e736539a0256ea0eca88c28e1156d4425c793253aa65e9b18ce7b4eb5",
+              "freshness": "2bc8c077674539a945235d6695b321568d060cc46f2bd42a0f030dec010df5c6",
               "name": "cp3_frostt_matmul_4_4_3",
               "pretty_name": "CP3 FROSTT matmul_4_4_3",
               "suites": [],
@@ -44739,7 +44739,7 @@
               ],
               "description": "FROSTT tensor matmul_4_4_4, rank = 2.",
               "file": "src/saps/benchmarks/cp3_als.py",
-              "freshness": "1979dc4e736539a0256ea0eca88c28e1156d4425c793253aa65e9b18ce7b4eb5",
+              "freshness": "2bc8c077674539a945235d6695b321568d060cc46f2bd42a0f030dec010df5c6",
               "name": "cp3_frostt_matmul_4_4_4",
               "pretty_name": "CP3 FROSTT matmul_4_4_4",
               "suites": [],
@@ -44758,7 +44758,7 @@
               ],
               "description": "FROSTT tensor matmul_5_5_5, rank = 3.",
               "file": "src/saps/benchmarks/cp3_als.py",
-              "freshness": "1979dc4e736539a0256ea0eca88c28e1156d4425c793253aa65e9b18ce7b4eb5",
+              "freshness": "2bc8c077674539a945235d6695b321568d060cc46f2bd42a0f030dec010df5c6",
               "name": "cp3_frostt_matmul_5_5_5",
               "pretty_name": "CP3 FROSTT matmul_5_5_5",
               "suites": [],
@@ -44777,7 +44777,7 @@
               ],
               "description": "FROSTT tensor matmul_6_3_3, rank = 3.",
               "file": "src/saps/benchmarks/cp3_als.py",
-              "freshness": "1979dc4e736539a0256ea0eca88c28e1156d4425c793253aa65e9b18ce7b4eb5",
+              "freshness": "2bc8c077674539a945235d6695b321568d060cc46f2bd42a0f030dec010df5c6",
               "name": "cp3_frostt_matmul_6_3_3",
               "pretty_name": "CP3 FROSTT matmul_6_3_3",
               "suites": [],
@@ -44796,12 +44796,10 @@
               ],
               "description": "FROSTT tensor nell_2, rank = 10.",
               "file": "src/saps/benchmarks/cp3_als.py",
-              "freshness": "1979dc4e736539a0256ea0eca88c28e1156d4425c793253aa65e9b18ce7b4eb5",
+              "freshness": "2bc8c077674539a945235d6695b321568d060cc46f2bd42a0f030dec010df5c6",
               "name": "cp3_frostt_nell_2",
               "pretty_name": "CP3 FROSTT nell_2",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             },
             {
@@ -44817,12 +44815,10 @@
               ],
               "description": "FROSTT tensor vast_2015_mc1_3d, rank = 10.",
               "file": "src/saps/benchmarks/cp3_als.py",
-              "freshness": "1979dc4e736539a0256ea0eca88c28e1156d4425c793253aa65e9b18ce7b4eb5",
+              "freshness": "2bc8c077674539a945235d6695b321568d060cc46f2bd42a0f030dec010df5c6",
               "name": "cp3_frostt_vast_2015_mc1_3d",
               "pretty_name": "CP3 FROSTT vast_2015_mc1_3d",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             },
             {
@@ -44838,12 +44834,10 @@
               ],
               "description": "FROSTT tensor nell_1, rank = 10.",
               "file": "src/saps/benchmarks/cp3_als.py",
-              "freshness": "1979dc4e736539a0256ea0eca88c28e1156d4425c793253aa65e9b18ce7b4eb5",
+              "freshness": "2bc8c077674539a945235d6695b321568d060cc46f2bd42a0f030dec010df5c6",
               "name": "cp3_frostt_nell_1",
               "pretty_name": "CP3 FROSTT nell_1",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             },
             {
@@ -44859,12 +44853,86 @@
               ],
               "description": "FROSTT tensor flickr_3d, rank = 10.",
               "file": "src/saps/benchmarks/cp3_als.py",
-              "freshness": "1979dc4e736539a0256ea0eca88c28e1156d4425c793253aa65e9b18ce7b4eb5",
+              "freshness": "2bc8c077674539a945235d6695b321568d060cc46f2bd42a0f030dec010df5c6",
               "name": "cp3_frostt_flickr_3d",
               "pretty_name": "CP3 FROSTT flickr_3d",
-              "suites": [
-                "large"
+              "suites": [],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "polars",
+                "pyparsing",
+                "scipy.sparse"
               ],
+              "description": "FROSTT tensor delicious_3d, rank = 10.",
+              "file": "src/saps/benchmarks/cp3_als.py",
+              "freshness": "2bc8c077674539a945235d6695b321568d060cc46f2bd42a0f030dec010df5c6",
+              "name": "cp3_frostt_delicious_3d",
+              "pretty_name": "CP3 FROSTT delicious_3d",
+              "suites": [],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "polars",
+                "pyparsing",
+                "scipy.sparse"
+              ],
+              "description": "FROSTT tensor amazon_reviews, rank = 10.",
+              "file": "src/saps/benchmarks/cp3_als.py",
+              "freshness": "2bc8c077674539a945235d6695b321568d060cc46f2bd42a0f030dec010df5c6",
+              "name": "cp3_frostt_amazon_reviews",
+              "pretty_name": "CP3 FROSTT amazon_reviews",
+              "suites": [],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "polars",
+                "pyparsing",
+                "scipy.sparse"
+              ],
+              "description": "FROSTT tensor patents, rank = 10.",
+              "file": "src/saps/benchmarks/cp3_als.py",
+              "freshness": "2bc8c077674539a945235d6695b321568d060cc46f2bd42a0f030dec010df5c6",
+              "name": "cp3_frostt_patents",
+              "pretty_name": "CP3 FROSTT patents",
+              "suites": [],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "polars",
+                "pyparsing",
+                "scipy.sparse"
+              ],
+              "description": "FROSTT tensor reddit_2015, rank = 10.",
+              "file": "src/saps/benchmarks/cp3_als.py",
+              "freshness": "2bc8c077674539a945235d6695b321568d060cc46f2bd42a0f030dec010df5c6",
+              "name": "cp3_frostt_reddit_2015",
+              "pretty_name": "CP3 FROSTT reddit_2015",
+              "suites": [],
               "topics": []
             }
           ],
@@ -44879,7 +44947,7 @@
           ],
           "description": "Real 3rd-order sparse tensors downloaded from FROSTT (frostt.io), factorized directly. No dense reconstruction check is performed since these tensors are stored in genuinely sparse (COO) form.",
           "file": "src/saps/benchmarks/cp3_als.py",
-          "freshness": "1979dc4e736539a0256ea0eca88c28e1156d4425c793253aa65e9b18ce7b4eb5",
+          "freshness": "2bc8c077674539a945235d6695b321568d060cc46f2bd42a0f030dec010df5c6",
           "motivation": "Real sparse tensors from FROSTT exercise CP-ALS's MTTKRP kernel against genuinely irregular sparsity patterns, unlike the synthetic low-rank-by-construction tensors generated elsewhere in this file.",
           "name": "cp3_frostt_inputs",
           "pretty_name": "FROSTT Sparse Tensor Generator for CP3-ALS",
@@ -44923,7 +44991,7 @@
       ],
       "description": "Computes the CP decomposition using Alternating Least Squares (ALS). Factorizes a 4-order tensor X into factor matrices A, B, C such that: $X \u0007pprox \\sum_{r=1}^{R} \\lambda_r \\cdot a_r \\circ b_r \\circ c_r \\circ d_r$ where $\\circ$ denotes the outeer product, R is the rank, and $\\lambda$ are the weights.Handwritten code based on the standard CP-ALS algorithm from Kolda and Bader (2009). ",
       "file": "src/saps/benchmarks/cp4_als.py",
-      "freshness": "f127ebe158ede917c7eeb281a8dedda0516d33d01c28404b7926d925c13c471f",
+      "freshness": "7537b53e8d8c1b4f4af7fead74bd3f13ebd74019cac9dfaffad74fd3029ffd44",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI was used to debug some parts of the code. This statement was written by hand.",
@@ -44946,7 +45014,7 @@
               ],
               "description": "rank = 1, shape = (5, 5, 5, 5)",
               "file": "src/saps/benchmarks/cp4_als.py",
-              "freshness": "f127ebe158ede917c7eeb281a8dedda0516d33d01c28404b7926d925c13c471f",
+              "freshness": "7537b53e8d8c1b4f4af7fead74bd3f13ebd74019cac9dfaffad74fd3029ffd44",
               "name": "cp_factorizeable_tiny",
               "pretty_name": "Tiny Factorizeable CP Tensor",
               "suites": [
@@ -44968,7 +45036,7 @@
               ],
               "description": "rank = 4, shape = (20, 20, 20, 20)",
               "file": "src/saps/benchmarks/cp4_als.py",
-              "freshness": "f127ebe158ede917c7eeb281a8dedda0516d33d01c28404b7926d925c13c471f",
+              "freshness": "7537b53e8d8c1b4f4af7fead74bd3f13ebd74019cac9dfaffad74fd3029ffd44",
               "name": "cp_factorizeable_small",
               "pretty_name": "Small Factorizeable CP Tensor",
               "suites": [],
@@ -44986,7 +45054,7 @@
           ],
           "description": "\n            Generating a small factorizable tensor by creating random factor matrices\n            and reconstructing the tensor from them (tensor should decompose easily\n            with low reconstruction error).\n            ",
           "file": "src/saps/benchmarks/cp4_als.py",
-          "freshness": "f127ebe158ede917c7eeb281a8dedda0516d33d01c28404b7926d925c13c471f",
+          "freshness": "7537b53e8d8c1b4f4af7fead74bd3f13ebd74019cac9dfaffad74fd3029ffd44",
           "motivation": "",
           "name": "cp_factorizable",
           "pretty_name": "Factorizable Tensor for CP Decomposition",
@@ -45012,7 +45080,7 @@
               ],
               "description": "FROSTT tensor toy, rank = 2.",
               "file": "src/saps/benchmarks/cp4_als.py",
-              "freshness": "f127ebe158ede917c7eeb281a8dedda0516d33d01c28404b7926d925c13c471f",
+              "freshness": "7537b53e8d8c1b4f4af7fead74bd3f13ebd74019cac9dfaffad74fd3029ffd44",
               "name": "cp4_frostt_toy",
               "pretty_name": "CP4 FROSTT toy",
               "suites": [],
@@ -45031,7 +45099,7 @@
               ],
               "description": "FROSTT tensor nips, rank = 10.",
               "file": "src/saps/benchmarks/cp4_als.py",
-              "freshness": "f127ebe158ede917c7eeb281a8dedda0516d33d01c28404b7926d925c13c471f",
+              "freshness": "7537b53e8d8c1b4f4af7fead74bd3f13ebd74019cac9dfaffad74fd3029ffd44",
               "name": "cp4_frostt_nips",
               "pretty_name": "CP4 FROSTT nips",
               "suites": [],
@@ -45050,7 +45118,7 @@
               ],
               "description": "FROSTT tensor uber_pickups, rank = 10.",
               "file": "src/saps/benchmarks/cp4_als.py",
-              "freshness": "f127ebe158ede917c7eeb281a8dedda0516d33d01c28404b7926d925c13c471f",
+              "freshness": "7537b53e8d8c1b4f4af7fead74bd3f13ebd74019cac9dfaffad74fd3029ffd44",
               "name": "cp4_frostt_uber_pickups",
               "pretty_name": "CP4 FROSTT uber_pickups",
               "suites": [],
@@ -45069,12 +45137,10 @@
               ],
               "description": "FROSTT tensor chicago_crime_comm, rank = 10.",
               "file": "src/saps/benchmarks/cp4_als.py",
-              "freshness": "f127ebe158ede917c7eeb281a8dedda0516d33d01c28404b7926d925c13c471f",
+              "freshness": "7537b53e8d8c1b4f4af7fead74bd3f13ebd74019cac9dfaffad74fd3029ffd44",
               "name": "cp4_frostt_chicago_crime_comm",
               "pretty_name": "CP4 FROSTT chicago_crime_comm",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             },
             {
@@ -45090,12 +45156,10 @@
               ],
               "description": "FROSTT tensor enron, rank = 10.",
               "file": "src/saps/benchmarks/cp4_als.py",
-              "freshness": "f127ebe158ede917c7eeb281a8dedda0516d33d01c28404b7926d925c13c471f",
+              "freshness": "7537b53e8d8c1b4f4af7fead74bd3f13ebd74019cac9dfaffad74fd3029ffd44",
               "name": "cp4_frostt_enron",
               "pretty_name": "CP4 FROSTT enron",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             },
             {
@@ -45111,12 +45175,29 @@
               ],
               "description": "FROSTT tensor flickr_4d, rank = 10.",
               "file": "src/saps/benchmarks/cp4_als.py",
-              "freshness": "f127ebe158ede917c7eeb281a8dedda0516d33d01c28404b7926d925c13c471f",
+              "freshness": "7537b53e8d8c1b4f4af7fead74bd3f13ebd74019cac9dfaffad74fd3029ffd44",
               "name": "cp4_frostt_flickr_4d",
               "pretty_name": "CP4 FROSTT flickr_4d",
-              "suites": [
-                "large"
+              "suites": [],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "polars",
+                "pyparsing",
+                "scipy.sparse"
               ],
+              "description": "FROSTT tensor delicious_4d, rank = 10.",
+              "file": "src/saps/benchmarks/cp4_als.py",
+              "freshness": "7537b53e8d8c1b4f4af7fead74bd3f13ebd74019cac9dfaffad74fd3029ffd44",
+              "name": "cp4_frostt_delicious_4d",
+              "pretty_name": "CP4 FROSTT delicious_4d",
+              "suites": [],
               "topics": []
             }
           ],
@@ -45131,7 +45212,7 @@
           ],
           "description": "Real 4th-order sparse tensors downloaded from FROSTT (frostt.io), factorized directly. No dense reconstruction check is performed since these tensors are stored in genuinely sparse (COO) form.",
           "file": "src/saps/benchmarks/cp4_als.py",
-          "freshness": "f127ebe158ede917c7eeb281a8dedda0516d33d01c28404b7926d925c13c471f",
+          "freshness": "7537b53e8d8c1b4f4af7fead74bd3f13ebd74019cac9dfaffad74fd3029ffd44",
           "motivation": "Real sparse tensors from FROSTT exercise CP-ALS's MTTKRP kernel against genuinely irregular sparsity patterns, unlike the synthetic low-rank-by-construction tensors generated elsewhere in this file.",
           "name": "cp4_frostt_inputs",
           "pretty_name": "FROSTT Sparse Tensor Generator for CP4-ALS",
@@ -45176,7 +45257,7 @@
       ],
       "description": "Computes the CP decomposition using Alternating Least Squares (ALS). Factorizes a 5-order tensor X into factor matrices A, B, C such that: $X \u0007pprox \\sum_{r=1}^{R} \\lambda_r \\cdot a_r \\circ b_r \\circ c_r \\circ d_r \\circ e_r$ where $\\circ$ denotes the outeer product, R is the rank, and $\\lambda$ are the weights.Handwritten code based on the standard CP-ALS algorithm from Kolda and Bader (2009). ",
       "file": "src/saps/benchmarks/cp5_als.py",
-      "freshness": "e9abd71523228a29a8ac2863558ba780790da5889ec458266b7d414716aceab3",
+      "freshness": "66a388ba9c543ae90f534723421cb9402d4d685e984c988f58e9f40d89f62c68",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI was used to debug some parts of the code. This statement was written by hand.",
@@ -45200,7 +45281,7 @@
               ],
               "description": "rank = 2, shape = (4, 4, 4, 4, 4)",
               "file": "src/saps/benchmarks/cp5_als.py",
-              "freshness": "e9abd71523228a29a8ac2863558ba780790da5889ec458266b7d414716aceab3",
+              "freshness": "66a388ba9c543ae90f534723421cb9402d4d685e984c988f58e9f40d89f62c68",
               "name": "cp_factorizeable_tiny",
               "pretty_name": "Tiny Factorizeable CP Tensor",
               "suites": [
@@ -45222,7 +45303,7 @@
               ],
               "description": "rank = 5, shape = (10, 10, 10, 10, 10)",
               "file": "src/saps/benchmarks/cp5_als.py",
-              "freshness": "e9abd71523228a29a8ac2863558ba780790da5889ec458266b7d414716aceab3",
+              "freshness": "66a388ba9c543ae90f534723421cb9402d4d685e984c988f58e9f40d89f62c68",
               "name": "cp_factorizeable_small",
               "pretty_name": "Small Factorizeable CP Tensor",
               "suites": [],
@@ -45240,7 +45321,7 @@
           ],
           "description": "\n            Generating a small factorizable tensor by creating random factor matrices\n            and reconstructing the tensor from them (tensor should decompose easily\n            with low reconstruction error).\n            ",
           "file": "src/saps/benchmarks/cp5_als.py",
-          "freshness": "e9abd71523228a29a8ac2863558ba780790da5889ec458266b7d414716aceab3",
+          "freshness": "66a388ba9c543ae90f534723421cb9402d4d685e984c988f58e9f40d89f62c68",
           "motivation": "",
           "name": "cp_factorizable",
           "pretty_name": "Factorizable Tensor for CP Decomposition",
@@ -45266,12 +45347,10 @@
               ],
               "description": "FROSTT tensor lbnl_network, rank = 10.",
               "file": "src/saps/benchmarks/cp5_als.py",
-              "freshness": "e9abd71523228a29a8ac2863558ba780790da5889ec458266b7d414716aceab3",
+              "freshness": "66a388ba9c543ae90f534723421cb9402d4d685e984c988f58e9f40d89f62c68",
               "name": "cp5_frostt_lbnl_network",
               "pretty_name": "CP5 FROSTT lbnl_network",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             },
             {
@@ -45287,12 +45366,10 @@
               ],
               "description": "FROSTT tensor chicago_crime_geo, rank = 10.",
               "file": "src/saps/benchmarks/cp5_als.py",
-              "freshness": "e9abd71523228a29a8ac2863558ba780790da5889ec458266b7d414716aceab3",
+              "freshness": "66a388ba9c543ae90f534723421cb9402d4d685e984c988f58e9f40d89f62c68",
               "name": "cp5_frostt_chicago_crime_geo",
               "pretty_name": "CP5 FROSTT chicago_crime_geo",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             },
             {
@@ -45308,12 +45385,10 @@
               ],
               "description": "FROSTT tensor vast_2015_mc1_5d, rank = 10.",
               "file": "src/saps/benchmarks/cp5_als.py",
-              "freshness": "e9abd71523228a29a8ac2863558ba780790da5889ec458266b7d414716aceab3",
+              "freshness": "66a388ba9c543ae90f534723421cb9402d4d685e984c988f58e9f40d89f62c68",
               "name": "cp5_frostt_vast_2015_mc1_5d",
               "pretty_name": "CP5 FROSTT vast_2015_mc1_5d",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             }
           ],
@@ -45328,7 +45403,7 @@
           ],
           "description": "Real 5th-order sparse tensors downloaded from FROSTT (frostt.io), factorized directly. No dense reconstruction check is performed since these tensors are stored in genuinely sparse (COO) form.",
           "file": "src/saps/benchmarks/cp5_als.py",
-          "freshness": "e9abd71523228a29a8ac2863558ba780790da5889ec458266b7d414716aceab3",
+          "freshness": "66a388ba9c543ae90f534723421cb9402d4d685e984c988f58e9f40d89f62c68",
           "motivation": "Real sparse tensors from FROSTT exercise CP-ALS's MTTKRP kernel against genuinely irregular sparsity patterns, unlike the synthetic low-rank-by-construction tensors generated elsewhere in this file.",
           "name": "cp5_frostt_inputs",
           "pretty_name": "FROSTT Sparse Tensor Generator for CP5-ALS",
@@ -46269,7 +46344,7 @@
       ],
       "description": "",
       "file": "src/saps/benchmarks/frostt.py",
-      "freshness": "4ed1f1782fb89da25202c78609c3ae0f053925382aafad8d7974e09c9d99b372",
+      "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
       "generators": [
         {
           "ai_disclosure": "This generator and its downloader were written by a generative AI assistant (Claude) at the user's direction.",
@@ -46289,7 +46364,7 @@
               ],
               "description": "FROSTT matrix-multiplication tensor for a (2x2) * (2x2) product.",
               "file": "src/saps/benchmarks/frostt.py",
-              "freshness": "4ed1f1782fb89da25202c78609c3ae0f053925382aafad8d7974e09c9d99b372",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
               "name": "matmul_2_2_2",
               "pretty_name": "matmul_2_2_2",
               "suites": [],
@@ -46308,7 +46383,7 @@
               ],
               "description": "FROSTT matrix-multiplication tensor for a (3x3) * (3x3) product.",
               "file": "src/saps/benchmarks/frostt.py",
-              "freshness": "4ed1f1782fb89da25202c78609c3ae0f053925382aafad8d7974e09c9d99b372",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
               "name": "matmul_3_3_3",
               "pretty_name": "matmul_3_3_3",
               "suites": [],
@@ -46327,7 +46402,7 @@
               ],
               "description": "FROSTT matrix-multiplication tensor for a (4x3) * (3x2) product.",
               "file": "src/saps/benchmarks/frostt.py",
-              "freshness": "4ed1f1782fb89da25202c78609c3ae0f053925382aafad8d7974e09c9d99b372",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
               "name": "matmul_4_3_2",
               "pretty_name": "matmul_4_3_2",
               "suites": [],
@@ -46346,7 +46421,7 @@
               ],
               "description": "FROSTT matrix-multiplication tensor for a (4x4) * (4x3) product.",
               "file": "src/saps/benchmarks/frostt.py",
-              "freshness": "4ed1f1782fb89da25202c78609c3ae0f053925382aafad8d7974e09c9d99b372",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
               "name": "matmul_4_4_3",
               "pretty_name": "matmul_4_4_3",
               "suites": [],
@@ -46365,7 +46440,7 @@
               ],
               "description": "FROSTT matrix-multiplication tensor for a (4x4) * (4x4) product.",
               "file": "src/saps/benchmarks/frostt.py",
-              "freshness": "4ed1f1782fb89da25202c78609c3ae0f053925382aafad8d7974e09c9d99b372",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
               "name": "matmul_4_4_4",
               "pretty_name": "matmul_4_4_4",
               "suites": [],
@@ -46384,7 +46459,7 @@
               ],
               "description": "FROSTT matrix-multiplication tensor for a (5x5) * (5x5) product.",
               "file": "src/saps/benchmarks/frostt.py",
-              "freshness": "4ed1f1782fb89da25202c78609c3ae0f053925382aafad8d7974e09c9d99b372",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
               "name": "matmul_5_5_5",
               "pretty_name": "matmul_5_5_5",
               "suites": [],
@@ -46403,7 +46478,7 @@
               ],
               "description": "FROSTT matrix-multiplication tensor for a (6x3) * (3x3) product.",
               "file": "src/saps/benchmarks/frostt.py",
-              "freshness": "4ed1f1782fb89da25202c78609c3ae0f053925382aafad8d7974e09c9d99b372",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
               "name": "matmul_6_3_3",
               "pretty_name": "matmul_6_3_3",
               "suites": [],
@@ -46422,12 +46497,10 @@
               ],
               "description": "NELL-2 knowledge base snapshot: entity x relation x entity, from the Never-Ending Language Learning project.",
               "file": "src/saps/benchmarks/frostt.py",
-              "freshness": "4ed1f1782fb89da25202c78609c3ae0f053925382aafad8d7974e09c9d99b372",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
               "name": "nell_2",
               "pretty_name": "nell_2",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             },
             {
@@ -46443,12 +46516,10 @@
               ],
               "description": "Chicago crime reports (2001-2017): day x hour x community-area x crime-type, non-zeros are counts.",
               "file": "src/saps/benchmarks/frostt.py",
-              "freshness": "4ed1f1782fb89da25202c78609c3ae0f053925382aafad8d7974e09c9d99b372",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
               "name": "chicago_crime_comm",
               "pretty_name": "chicago_crime_comm",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             },
             {
@@ -46464,12 +46535,10 @@
               ],
               "description": "Ten days of LBNL/ICSI internal network traffic: sender-IP x sender-port x dest-IP x dest-port x time, values are packet lengths.",
               "file": "src/saps/benchmarks/frostt.py",
-              "freshness": "4ed1f1782fb89da25202c78609c3ae0f053925382aafad8d7974e09c9d99b372",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
               "name": "lbnl_network",
               "pretty_name": "lbnl_network",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             },
             {
@@ -46485,7 +46554,7 @@
               ],
               "description": "Tiny toy tensor for smoke-testing the FROSTT pipeline.",
               "file": "src/saps/benchmarks/frostt.py",
-              "freshness": "4ed1f1782fb89da25202c78609c3ae0f053925382aafad8d7974e09c9d99b372",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
               "name": "toy",
               "pretty_name": "toy",
               "suites": [],
@@ -46504,7 +46573,7 @@
               ],
               "description": "NIPS conference proceedings: paper x author x word x year, from 17 years of NIPS papers.",
               "file": "src/saps/benchmarks/frostt.py",
-              "freshness": "4ed1f1782fb89da25202c78609c3ae0f053925382aafad8d7974e09c9d99b372",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
               "name": "nips",
               "pretty_name": "nips",
               "suites": [],
@@ -46523,7 +46592,7 @@
               ],
               "description": "Uber pickups in New York City: date x hour x latitude x longitude, non-zeros are pickup counts.",
               "file": "src/saps/benchmarks/frostt.py",
-              "freshness": "4ed1f1782fb89da25202c78609c3ae0f053925382aafad8d7974e09c9d99b372",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
               "name": "uber_pickups",
               "pretty_name": "uber_pickups",
               "suites": [],
@@ -46542,12 +46611,10 @@
               ],
               "description": "Chicago crime reports (2001-2017): day x hour x latitude x longitude x crime-type, non-zeros are counts. Companion to chicago_crime_comm with geographic coordinates instead of community areas.",
               "file": "src/saps/benchmarks/frostt.py",
-              "freshness": "4ed1f1782fb89da25202c78609c3ae0f053925382aafad8d7974e09c9d99b372",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
               "name": "chicago_crime_geo",
               "pretty_name": "chicago_crime_geo",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             },
             {
@@ -46563,12 +46630,10 @@
               ],
               "description": "VAST Challenge 2015 mini-challenge 1 (3-way): time x person x action, from a simulated theme-park sensor/movement log.",
               "file": "src/saps/benchmarks/frostt.py",
-              "freshness": "4ed1f1782fb89da25202c78609c3ae0f053925382aafad8d7974e09c9d99b372",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
               "name": "vast_2015_mc1_3d",
               "pretty_name": "vast_2015_mc1_3d",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             },
             {
@@ -46584,12 +46649,10 @@
               ],
               "description": "NELL-1 knowledge base snapshot: entity x relation x entity, from the Never-Ending Language Learning project (larger than nell_2).",
               "file": "src/saps/benchmarks/frostt.py",
-              "freshness": "4ed1f1782fb89da25202c78609c3ae0f053925382aafad8d7974e09c9d99b372",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
               "name": "nell_1",
               "pretty_name": "nell_1",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             },
             {
@@ -46605,12 +46668,10 @@
               ],
               "description": "VAST Challenge 2015 mini-challenge 1 (5-way): time x person x action x x-location x y-location.",
               "file": "src/saps/benchmarks/frostt.py",
-              "freshness": "4ed1f1782fb89da25202c78609c3ae0f053925382aafad8d7974e09c9d99b372",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
               "name": "vast_2015_mc1_5d",
               "pretty_name": "vast_2015_mc1_5d",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             },
             {
@@ -46626,12 +46687,10 @@
               ],
               "description": "Enron email corpus: sender x receiver x word x date, non-zeros are word counts.",
               "file": "src/saps/benchmarks/frostt.py",
-              "freshness": "4ed1f1782fb89da25202c78609c3ae0f053925382aafad8d7974e09c9d99b372",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
               "name": "enron",
               "pretty_name": "enron",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             },
             {
@@ -46647,12 +46706,10 @@
               ],
               "description": "Flickr user-image-tag associations (3-way, dates removed): user x image x tag.",
               "file": "src/saps/benchmarks/frostt.py",
-              "freshness": "4ed1f1782fb89da25202c78609c3ae0f053925382aafad8d7974e09c9d99b372",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
               "name": "flickr_3d",
               "pretty_name": "flickr_3d",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             },
             {
@@ -46668,12 +46725,105 @@
               ],
               "description": "Flickr user-image-tag-date associations (4-way): user x image x tag x date.",
               "file": "src/saps/benchmarks/frostt.py",
-              "freshness": "4ed1f1782fb89da25202c78609c3ae0f053925382aafad8d7974e09c9d99b372",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
               "name": "flickr_4d",
               "pretty_name": "flickr_4d",
-              "suites": [
-                "large"
+              "suites": [],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "polars",
+                "pyparsing",
+                "scipy.sparse"
               ],
+              "description": "Delicious bookmarking service (3-way, dates removed): user x webpage x tag.",
+              "file": "src/saps/benchmarks/frostt.py",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
+              "name": "delicious_3d",
+              "pretty_name": "delicious_3d",
+              "suites": [],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "polars",
+                "pyparsing",
+                "scipy.sparse"
+              ],
+              "description": "Delicious bookmarking service (4-way): user x webpage x tag x date, binary values indicating whether a user tagged a webpage on a given day.",
+              "file": "src/saps/benchmarks/frostt.py",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
+              "name": "delicious_4d",
+              "pretty_name": "delicious_4d",
+              "suites": [],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "polars",
+                "pyparsing",
+                "scipy.sparse"
+              ],
+              "description": "Amazon product reviews (from SNAP): user x product x word, after stopword removal and stemming.",
+              "file": "src/saps/benchmarks/frostt.py",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
+              "name": "amazon_reviews",
+              "pretty_name": "amazon_reviews",
+              "suites": [],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "polars",
+                "pyparsing",
+                "scipy.sparse"
+              ],
+              "description": "US utility patents: year x term x term, pairwise co-occurrence of terms within a 7-word window; each yearly slice is symmetric.",
+              "file": "src/saps/benchmarks/frostt.py",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
+              "name": "patents",
+              "pretty_name": "patents",
+              "suites": [],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "polars",
+                "pyparsing",
+                "scipy.sparse"
+              ],
+              "description": "Reddit comments from 2015: user x subreddit x word, counting how often a user posted a word in a subreddit; users, subreddits, and words appearing fewer than 5 times are excluded.",
+              "file": "src/saps/benchmarks/frostt.py",
+              "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
+              "name": "reddit_2015",
+              "pretty_name": "reddit_2015",
+              "suites": [],
               "topics": []
             }
           ],
@@ -46688,7 +46838,7 @@
           ],
           "description": "Downloads and caches raw tensors from FROSTT (the Formidable Repository of Open Sparse Tensors and Tools, frostt.io). Benchmark-specific generators compose this generator instead of downloading tensors themselves, so a tensor used by multiple benchmarks is only downloaded, cached, and uploaded once.",
           "file": "src/saps/benchmarks/frostt.py",
-          "freshness": "4ed1f1782fb89da25202c78609c3ae0f053925382aafad8d7974e09c9d99b372",
+          "freshness": "6c7439b943913a753c09f36957d0c3489ce86a5bc134f312d84d2ec331057920",
           "motivation": "Many tensor-decomposition benchmarks reuse the same FROSTT tensors. Sharing a single cacheable generator for the raw download avoids redundant downloads and redundant cached copies of the same tensor.",
           "name": "frostt_tensor",
           "pretty_name": "FROSTT Sparse Tensor Collection",
@@ -47977,7 +48127,7 @@
       ],
       "description": "This code implements the Tucker Decomposition or HOSVD algorithm for decomposing high-order tensors into a core-tensor that can be projected onto factor matrices along each mode. A typical 3D tensor will have 3 modes (row, column, and frontal) and thus 3 factor matrices. The algorithm starts by finding the initial factor matrices by performing SVD on matrix unfoldings along each mode. Certain columns in these factor matrices are selected based on the ranks parameter. Then, the algorithm iteratively updates each factor matrix by projecting the original tensor onto other factor matrices. The iteration continues until max iterations is reached or the change in factor matrices becomes insignificant. The resulting factor matrices and the core tensor are returned by the benchmark function.",
       "file": "src/saps/benchmarks/HOSVD.py",
-      "freshness": "2f8d71715f96c7d6d0e1d64b5675fa260e7a9472e8d908cad74d111187e43218",
+      "freshness": "6eb33d7b0afd993158d798852d910a6452fef79e53fb71696a259c6557d000ba",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to construct the benchmark function. Generative AI might have been used to construct tests. This statement is written by hand.",
@@ -47999,7 +48149,7 @@
               ],
               "description": "Dense low-rank 3D tensor using random factor matrices.",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "2f8d71715f96c7d6d0e1d64b5675fa260e7a9472e8d908cad74d111187e43218",
+              "freshness": "6eb33d7b0afd993158d798852d910a6452fef79e53fb71696a259c6557d000ba",
               "name": "small_dense_hosvd",
               "pretty_name": "Small Dense HOSVD Tensor",
               "ranks": [
@@ -48031,7 +48181,7 @@
           ],
           "description": "Generates a dense low-rank 3D tensor using random factor matrices.",
           "file": "src/saps/benchmarks/HOSVD.py",
-          "freshness": "2f8d71715f96c7d6d0e1d64b5675fa260e7a9472e8d908cad74d111187e43218",
+          "freshness": "6eb33d7b0afd993158d798852d910a6452fef79e53fb71696a259c6557d000ba",
           "motivation": "The data for this benchmark was created by randomly generating factor matrices that were both sparse and dense. These factor matrices were used to construct a factorizable matrix.",
           "name": "hosvd_dense_inputs",
           "pretty_name": "Dense Low-Rank HOSVD Input Generator",
@@ -48062,7 +48212,7 @@
               ],
               "description": "sparse_small Small Sparse HOSVD Tensor Sparse low-rank 3D tensor using random factor matrices.",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "2f8d71715f96c7d6d0e1d64b5675fa260e7a9472e8d908cad74d111187e43218",
+              "freshness": "6eb33d7b0afd993158d798852d910a6452fef79e53fb71696a259c6557d000ba",
               "name": "small_sparse",
               "pretty_name": "Small sparse HOSVD Tensor",
               "ranks": [
@@ -48091,7 +48241,7 @@
           ],
           "description": "Generates a sparse low-rank 3D tensor using random factor matrices.",
           "file": "src/saps/benchmarks/HOSVD.py",
-          "freshness": "2f8d71715f96c7d6d0e1d64b5675fa260e7a9472e8d908cad74d111187e43218",
+          "freshness": "6eb33d7b0afd993158d798852d910a6452fef79e53fb71696a259c6557d000ba",
           "motivation": "The data for this benchmark was created by randomly generating factor matrices that were both sparse and dense. These factor matrices were used to construct a factorizable matrix.",
           "name": "hosvd_sparse_inputs",
           "pretty_name": "Sparse Low-Rank HOSVD Input Generator",
@@ -48120,7 +48270,7 @@
               ],
               "description": "FROSTT tensor matmul_2_2_2, ranks = (2, 2, 2).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "2f8d71715f96c7d6d0e1d64b5675fa260e7a9472e8d908cad74d111187e43218",
+              "freshness": "6eb33d7b0afd993158d798852d910a6452fef79e53fb71696a259c6557d000ba",
               "name": "hosvd_frostt_matmul_2_2_2",
               "pretty_name": "HOSVD FROSTT matmul_2_2_2",
               "suites": [],
@@ -48139,7 +48289,7 @@
               ],
               "description": "FROSTT tensor matmul_3_3_3, ranks = (2, 2, 2).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "2f8d71715f96c7d6d0e1d64b5675fa260e7a9472e8d908cad74d111187e43218",
+              "freshness": "6eb33d7b0afd993158d798852d910a6452fef79e53fb71696a259c6557d000ba",
               "name": "hosvd_frostt_matmul_3_3_3",
               "pretty_name": "HOSVD FROSTT matmul_3_3_3",
               "suites": [],
@@ -48158,7 +48308,7 @@
               ],
               "description": "FROSTT tensor matmul_4_3_2, ranks = (2, 2, 2).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "2f8d71715f96c7d6d0e1d64b5675fa260e7a9472e8d908cad74d111187e43218",
+              "freshness": "6eb33d7b0afd993158d798852d910a6452fef79e53fb71696a259c6557d000ba",
               "name": "hosvd_frostt_matmul_4_3_2",
               "pretty_name": "HOSVD FROSTT matmul_4_3_2",
               "suites": [],
@@ -48177,7 +48327,7 @@
               ],
               "description": "FROSTT tensor matmul_4_4_3, ranks = (2, 2, 2).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "2f8d71715f96c7d6d0e1d64b5675fa260e7a9472e8d908cad74d111187e43218",
+              "freshness": "6eb33d7b0afd993158d798852d910a6452fef79e53fb71696a259c6557d000ba",
               "name": "hosvd_frostt_matmul_4_4_3",
               "pretty_name": "HOSVD FROSTT matmul_4_4_3",
               "suites": [],
@@ -48196,7 +48346,7 @@
               ],
               "description": "FROSTT tensor matmul_4_4_4, ranks = (2, 2, 2).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "2f8d71715f96c7d6d0e1d64b5675fa260e7a9472e8d908cad74d111187e43218",
+              "freshness": "6eb33d7b0afd993158d798852d910a6452fef79e53fb71696a259c6557d000ba",
               "name": "hosvd_frostt_matmul_4_4_4",
               "pretty_name": "HOSVD FROSTT matmul_4_4_4",
               "suites": [],
@@ -48215,7 +48365,7 @@
               ],
               "description": "FROSTT tensor matmul_5_5_5, ranks = (2, 2, 2).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "2f8d71715f96c7d6d0e1d64b5675fa260e7a9472e8d908cad74d111187e43218",
+              "freshness": "6eb33d7b0afd993158d798852d910a6452fef79e53fb71696a259c6557d000ba",
               "name": "hosvd_frostt_matmul_5_5_5",
               "pretty_name": "HOSVD FROSTT matmul_5_5_5",
               "suites": [],
@@ -48234,7 +48384,7 @@
               ],
               "description": "FROSTT tensor matmul_6_3_3, ranks = (2, 2, 2).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "2f8d71715f96c7d6d0e1d64b5675fa260e7a9472e8d908cad74d111187e43218",
+              "freshness": "6eb33d7b0afd993158d798852d910a6452fef79e53fb71696a259c6557d000ba",
               "name": "hosvd_frostt_matmul_6_3_3",
               "pretty_name": "HOSVD FROSTT matmul_6_3_3",
               "suites": [],
@@ -48253,12 +48403,10 @@
               ],
               "description": "FROSTT tensor nell_2, ranks = (5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "2f8d71715f96c7d6d0e1d64b5675fa260e7a9472e8d908cad74d111187e43218",
+              "freshness": "6eb33d7b0afd993158d798852d910a6452fef79e53fb71696a259c6557d000ba",
               "name": "hosvd_frostt_nell_2",
               "pretty_name": "HOSVD FROSTT nell_2",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             },
             {
@@ -48274,12 +48422,10 @@
               ],
               "description": "FROSTT tensor vast_2015_mc1_3d, ranks = (5, 5, 2).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "2f8d71715f96c7d6d0e1d64b5675fa260e7a9472e8d908cad74d111187e43218",
+              "freshness": "6eb33d7b0afd993158d798852d910a6452fef79e53fb71696a259c6557d000ba",
               "name": "hosvd_frostt_vast_2015_mc1_3d",
               "pretty_name": "HOSVD FROSTT vast_2015_mc1_3d",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             },
             {
@@ -48295,12 +48441,10 @@
               ],
               "description": "FROSTT tensor nell_1, ranks = (5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "2f8d71715f96c7d6d0e1d64b5675fa260e7a9472e8d908cad74d111187e43218",
+              "freshness": "6eb33d7b0afd993158d798852d910a6452fef79e53fb71696a259c6557d000ba",
               "name": "hosvd_frostt_nell_1",
               "pretty_name": "HOSVD FROSTT nell_1",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             },
             {
@@ -48316,12 +48460,86 @@
               ],
               "description": "FROSTT tensor flickr_3d, ranks = (5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "2f8d71715f96c7d6d0e1d64b5675fa260e7a9472e8d908cad74d111187e43218",
+              "freshness": "6eb33d7b0afd993158d798852d910a6452fef79e53fb71696a259c6557d000ba",
               "name": "hosvd_frostt_flickr_3d",
               "pretty_name": "HOSVD FROSTT flickr_3d",
-              "suites": [
-                "large"
+              "suites": [],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "polars",
+                "pyparsing",
+                "scipy.sparse"
               ],
+              "description": "FROSTT tensor delicious_3d, ranks = (5, 5, 5).",
+              "file": "src/saps/benchmarks/HOSVD.py",
+              "freshness": "6eb33d7b0afd993158d798852d910a6452fef79e53fb71696a259c6557d000ba",
+              "name": "hosvd_frostt_delicious_3d",
+              "pretty_name": "HOSVD FROSTT delicious_3d",
+              "suites": [],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "polars",
+                "pyparsing",
+                "scipy.sparse"
+              ],
+              "description": "FROSTT tensor amazon_reviews, ranks = (5, 5, 5).",
+              "file": "src/saps/benchmarks/HOSVD.py",
+              "freshness": "6eb33d7b0afd993158d798852d910a6452fef79e53fb71696a259c6557d000ba",
+              "name": "hosvd_frostt_amazon_reviews",
+              "pretty_name": "HOSVD FROSTT amazon_reviews",
+              "suites": [],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "polars",
+                "pyparsing",
+                "scipy.sparse"
+              ],
+              "description": "FROSTT tensor patents, ranks = (5, 5, 5).",
+              "file": "src/saps/benchmarks/HOSVD.py",
+              "freshness": "6eb33d7b0afd993158d798852d910a6452fef79e53fb71696a259c6557d000ba",
+              "name": "hosvd_frostt_patents",
+              "pretty_name": "HOSVD FROSTT patents",
+              "suites": [],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "polars",
+                "pyparsing",
+                "scipy.sparse"
+              ],
+              "description": "FROSTT tensor reddit_2015, ranks = (5, 5, 5).",
+              "file": "src/saps/benchmarks/HOSVD.py",
+              "freshness": "6eb33d7b0afd993158d798852d910a6452fef79e53fb71696a259c6557d000ba",
+              "name": "hosvd_frostt_reddit_2015",
+              "pretty_name": "HOSVD FROSTT reddit_2015",
+              "suites": [],
               "topics": []
             }
           ],
@@ -48336,8 +48554,8 @@
           ],
           "description": "Real 3rd-order sparse tensors downloaded from FROSTT (frostt.io), decomposed directly. No dense reconstruction check is performed since these tensors are stored in genuinely sparse (COO) form.",
           "file": "src/saps/benchmarks/HOSVD.py",
-          "freshness": "2f8d71715f96c7d6d0e1d64b5675fa260e7a9472e8d908cad74d111187e43218",
-          "motivation": "Real sparse tensors from FROSTT exercise HOSVD's per-mode unfolding against genuinely irregular sparsity patterns, unlike the synthetic low-rank tensors generated elsewhere in this file. Note that nell_2, vast_2015_mc1_3d, nell_1, and flickr_3d all have at least one mode unfolding far too large to densify for SVD with the current algorithm; they're included for completeness under the 'large' suite so they aren't run by default.",
+          "freshness": "6eb33d7b0afd993158d798852d910a6452fef79e53fb71696a259c6557d000ba",
+          "motivation": "Real sparse tensors from FROSTT exercise HOSVD's per-mode unfolding against genuinely irregular sparsity patterns.",
           "name": "hosvd_frostt_inputs",
           "pretty_name": "FROSTT Sparse Tensor Generator for HOSVD",
           "references": [],
@@ -48378,7 +48596,7 @@
       ],
       "description": "This code implements the Tucker Decomposition or HOSVD algorithm for decomposing high-order tensors into a core-tensor that can be projected onto factor matrices along each mode. A typical 3D tensor will have 3 modes (row, column, and frontal) and thus 3 factor matrices. The algorithm starts by finding the initial factor matrices by performing SVD on matrix unfoldings along each mode. Certain columns in these factor matrices are selected based on the ranks parameter. Then, the algorithm iteratively updates each factor matrix by projecting the original tensor onto other factor matrices. The iteration continues until max iterations is reached or the change in factor matrices becomes insignificant. The resulting factor matrices and the core tensor are returned by the benchmark function.",
       "file": "src/saps/benchmarks/HOSVD_4d.py",
-      "freshness": "ec5b0e381cc6ee8816d39734d2f8217ef6580a80df24852503b304beaddae4bb",
+      "freshness": "36c9e2229390bac8eb87e923994ddae1dda62de8541228ffe378796aef033ce7",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to construct the benchmark function. Generative AI might have been used to construct tests. This statement is written by hand.",
@@ -48400,7 +48618,7 @@
               ],
               "description": "random_small Small Dense 4D HOSVD Tensor Dense low-rank 4D tensor using random factor matrices.",
               "file": "src/saps/benchmarks/HOSVD_4d.py",
-              "freshness": "ec5b0e381cc6ee8816d39734d2f8217ef6580a80df24852503b304beaddae4bb",
+              "freshness": "36c9e2229390bac8eb87e923994ddae1dda62de8541228ffe378796aef033ce7",
               "name": "small_dense_4d",
               "pretty_name": "Small dense 4d HOSVD Tensor",
               "ranks": [
@@ -48434,7 +48652,7 @@
           ],
           "description": "Generates a dense low-rank 4D tensor using random factor matrices.",
           "file": "src/saps/benchmarks/HOSVD_4d.py",
-          "freshness": "ec5b0e381cc6ee8816d39734d2f8217ef6580a80df24852503b304beaddae4bb",
+          "freshness": "36c9e2229390bac8eb87e923994ddae1dda62de8541228ffe378796aef033ce7",
           "motivation": "The data for this benchmark was created by randomly generating factor matrices that were both sparse and dense. These factor matrices were used to construct a factorizable matrix.",
           "name": "hosvd_4d_dense_inputs",
           "pretty_name": "Dense Low-Rank 4D HOSVD Input Generator",
@@ -48465,7 +48683,7 @@
               ],
               "description": "sparse_small Small Sparse 4D HOSVD Tensor Sparse low-rank 4D tensor using random factor matrices.",
               "file": "src/saps/benchmarks/HOSVD_4d.py",
-              "freshness": "ec5b0e381cc6ee8816d39734d2f8217ef6580a80df24852503b304beaddae4bb",
+              "freshness": "36c9e2229390bac8eb87e923994ddae1dda62de8541228ffe378796aef033ce7",
               "name": "small_sparse_4d",
               "pretty_name": "Small sparse 4d HOSVD Tensor",
               "ranks": [
@@ -48496,7 +48714,7 @@
           ],
           "description": "Generates a sparse low-rank 4D tensor using random factor matrices.",
           "file": "src/saps/benchmarks/HOSVD_4d.py",
-          "freshness": "ec5b0e381cc6ee8816d39734d2f8217ef6580a80df24852503b304beaddae4bb",
+          "freshness": "36c9e2229390bac8eb87e923994ddae1dda62de8541228ffe378796aef033ce7",
           "motivation": "The data for this benchmark was created by randomly generating factor matrices that were both sparse and dense. These factor matrices were used to construct a factorizable matrix.",
           "name": "hosvd_4d_sparse_inputs",
           "pretty_name": "Sparse Low-Rank 4D HOSVD Input Generator",
@@ -48525,7 +48743,7 @@
               ],
               "description": "FROSTT tensor toy, ranks = (2, 2, 2, 2).",
               "file": "src/saps/benchmarks/HOSVD_4d.py",
-              "freshness": "ec5b0e381cc6ee8816d39734d2f8217ef6580a80df24852503b304beaddae4bb",
+              "freshness": "36c9e2229390bac8eb87e923994ddae1dda62de8541228ffe378796aef033ce7",
               "name": "hosvd_4d_frostt_toy",
               "pretty_name": "HOSVD 4D FROSTT toy",
               "suites": [],
@@ -48544,7 +48762,7 @@
               ],
               "description": "FROSTT tensor nips, ranks = (5, 5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD_4d.py",
-              "freshness": "ec5b0e381cc6ee8816d39734d2f8217ef6580a80df24852503b304beaddae4bb",
+              "freshness": "36c9e2229390bac8eb87e923994ddae1dda62de8541228ffe378796aef033ce7",
               "name": "hosvd_4d_frostt_nips",
               "pretty_name": "HOSVD 4D FROSTT nips",
               "suites": [],
@@ -48563,7 +48781,7 @@
               ],
               "description": "FROSTT tensor uber_pickups, ranks = (5, 5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD_4d.py",
-              "freshness": "ec5b0e381cc6ee8816d39734d2f8217ef6580a80df24852503b304beaddae4bb",
+              "freshness": "36c9e2229390bac8eb87e923994ddae1dda62de8541228ffe378796aef033ce7",
               "name": "hosvd_4d_frostt_uber_pickups",
               "pretty_name": "HOSVD 4D FROSTT uber_pickups",
               "suites": [],
@@ -48582,12 +48800,10 @@
               ],
               "description": "FROSTT tensor chicago_crime_comm, ranks = (5, 5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD_4d.py",
-              "freshness": "ec5b0e381cc6ee8816d39734d2f8217ef6580a80df24852503b304beaddae4bb",
+              "freshness": "36c9e2229390bac8eb87e923994ddae1dda62de8541228ffe378796aef033ce7",
               "name": "hosvd_4d_frostt_chicago_crime_comm",
               "pretty_name": "HOSVD 4D FROSTT chicago_crime_comm",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             },
             {
@@ -48603,12 +48819,10 @@
               ],
               "description": "FROSTT tensor enron, ranks = (5, 5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD_4d.py",
-              "freshness": "ec5b0e381cc6ee8816d39734d2f8217ef6580a80df24852503b304beaddae4bb",
+              "freshness": "36c9e2229390bac8eb87e923994ddae1dda62de8541228ffe378796aef033ce7",
               "name": "hosvd_4d_frostt_enron",
               "pretty_name": "HOSVD 4D FROSTT enron",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             },
             {
@@ -48624,12 +48838,29 @@
               ],
               "description": "FROSTT tensor flickr_4d, ranks = (5, 5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD_4d.py",
-              "freshness": "ec5b0e381cc6ee8816d39734d2f8217ef6580a80df24852503b304beaddae4bb",
+              "freshness": "36c9e2229390bac8eb87e923994ddae1dda62de8541228ffe378796aef033ce7",
               "name": "hosvd_4d_frostt_flickr_4d",
               "pretty_name": "HOSVD 4D FROSTT flickr_4d",
-              "suites": [
-                "large"
+              "suites": [],
+              "topics": []
+            },
+            {
+              "concepts": "<ccs2012></ccs2012>",
+              "dependencies": [
+                "boto3",
+                "botocore",
+                "lark",
+                "numpy",
+                "polars",
+                "pyparsing",
+                "scipy.sparse"
               ],
+              "description": "FROSTT tensor delicious_4d, ranks = (5, 5, 5, 5).",
+              "file": "src/saps/benchmarks/HOSVD_4d.py",
+              "freshness": "36c9e2229390bac8eb87e923994ddae1dda62de8541228ffe378796aef033ce7",
+              "name": "hosvd_4d_frostt_delicious_4d",
+              "pretty_name": "HOSVD 4D FROSTT delicious_4d",
+              "suites": [],
               "topics": []
             }
           ],
@@ -48644,8 +48875,8 @@
           ],
           "description": "Real 4th-order sparse tensors downloaded from FROSTT (frostt.io), decomposed directly. No dense reconstruction check is performed since these tensors are stored in genuinely sparse (COO) form.",
           "file": "src/saps/benchmarks/HOSVD_4d.py",
-          "freshness": "ec5b0e381cc6ee8816d39734d2f8217ef6580a80df24852503b304beaddae4bb",
-          "motivation": "Real sparse tensors from FROSTT exercise HOSVD's per-mode unfolding against genuinely irregular sparsity patterns. toy, nips, and uber_pickups are cheap enough to run by default; chicago_crime_comm, enron, and flickr_4d all have at least one mode unfolding that is heavy (or, for flickr_4d, completely infeasible) to densify for SVD with the current algorithm, so they're tagged 'large' so they aren't run by default.",
+          "freshness": "36c9e2229390bac8eb87e923994ddae1dda62de8541228ffe378796aef033ce7",
+          "motivation": "Real sparse tensors from FROSTT exercise HOSVD's per-mode unfolding against genuinely irregular sparsity patterns. toy, nips, and uber_pickups are cheap; chicago_crime_comm, enron, flickr_4d, and delicious_4d all have at least one mode unfolding that is heavy (or, for flickr_4d/delicious_4d, completely infeasible) to densify for SVD with the current algorithm, so select datasets by name rather than running this whole generator unfiltered.",
           "name": "hosvd_4d_frostt_inputs",
           "pretty_name": "FROSTT Sparse Tensor Generator for 4D HOSVD",
           "references": [],
@@ -48686,7 +48917,7 @@
       ],
       "description": "This code implements the Tucker Decomposition or HOSVD algorithm for decomposing high-order tensors into a core-tensor that can be projected onto factor matrices along each mode. A typical 3D tensor will have 3 modes (row, column, and frontal) and thus 3 factor matrices. The algorithm starts by finding the initial factor matrices by performing SVD on matrix unfoldings along each mode. Certain columns in these factor matrices are selected based on the ranks parameter. Then, the algorithm iteratively updates each factor matrix by projecting the original tensor onto other factor matrices. The iteration continues until max iterations is reached or the change in factor matrices becomes insignificant. The resulting factor matrices and the core tensor are returned by the benchmark function.",
       "file": "src/saps/benchmarks/HOSVD_5d.py",
-      "freshness": "7c75c5eb227326d194128fcef0018f452eb150509551765a4eaeba38aa8ce23d",
+      "freshness": "0ffcd8f40e1f0d5419eac8dd79706cc2bf3681f472080f8f5ce29963641e1883",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to construct the benchmark function. Generative AI might have been used to construct tests. This statement is written by hand.",
@@ -48708,7 +48939,7 @@
               ],
               "description": "random_small Small Dense 5D HOSVD Tensor Dense low-rank 5D tensor using random factor matrices.",
               "file": "src/saps/benchmarks/HOSVD_5d.py",
-              "freshness": "7c75c5eb227326d194128fcef0018f452eb150509551765a4eaeba38aa8ce23d",
+              "freshness": "0ffcd8f40e1f0d5419eac8dd79706cc2bf3681f472080f8f5ce29963641e1883",
               "name": "small_dense_5d",
               "pretty_name": "Small dense 5d HOSVD Tensor",
               "ranks": [
@@ -48744,7 +48975,7 @@
           ],
           "description": "Generates a dense low-rank 5D tensor using random factor matrices.",
           "file": "src/saps/benchmarks/HOSVD_5d.py",
-          "freshness": "7c75c5eb227326d194128fcef0018f452eb150509551765a4eaeba38aa8ce23d",
+          "freshness": "0ffcd8f40e1f0d5419eac8dd79706cc2bf3681f472080f8f5ce29963641e1883",
           "motivation": "The data for this benchmark was created by randomly generating factor matrices that were both sparse and dense. These factor matrices were used to construct a factorizable matrix.",
           "name": "hosvd_5d_dense_inputs",
           "pretty_name": "Dense Low-Rank 5D HOSVD Input Generator",
@@ -48775,7 +49006,7 @@
               ],
               "description": "sparse_small Small Sparse 5D HOSVD Tensor Sparse low-rank 5D tensor using random factor matrices.",
               "file": "src/saps/benchmarks/HOSVD_5d.py",
-              "freshness": "7c75c5eb227326d194128fcef0018f452eb150509551765a4eaeba38aa8ce23d",
+              "freshness": "0ffcd8f40e1f0d5419eac8dd79706cc2bf3681f472080f8f5ce29963641e1883",
               "name": "small_sparse_5d",
               "pretty_name": "Small sparse 5d HOSVD Tensor",
               "ranks": [
@@ -48808,7 +49039,7 @@
           ],
           "description": "Generates a sparse low-rank 5D tensor using random factor matrices.",
           "file": "src/saps/benchmarks/HOSVD_5d.py",
-          "freshness": "7c75c5eb227326d194128fcef0018f452eb150509551765a4eaeba38aa8ce23d",
+          "freshness": "0ffcd8f40e1f0d5419eac8dd79706cc2bf3681f472080f8f5ce29963641e1883",
           "motivation": "The data for this benchmark was created by randomly generating factor matrices that were both sparse and dense. These factor matrices were used to construct a factorizable matrix.",
           "name": "hosvd_5d_sparse_inputs",
           "pretty_name": "Sparse Low-Rank 5D HOSVD Input Generator",
@@ -48837,12 +49068,10 @@
               ],
               "description": "FROSTT tensor lbnl_network, ranks = (5, 5, 5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD_5d.py",
-              "freshness": "7c75c5eb227326d194128fcef0018f452eb150509551765a4eaeba38aa8ce23d",
+              "freshness": "0ffcd8f40e1f0d5419eac8dd79706cc2bf3681f472080f8f5ce29963641e1883",
               "name": "hosvd_5d_frostt_lbnl_network",
               "pretty_name": "HOSVD 5D FROSTT lbnl_network",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             },
             {
@@ -48858,12 +49087,10 @@
               ],
               "description": "FROSTT tensor chicago_crime_geo, ranks = (5, 5, 5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD_5d.py",
-              "freshness": "7c75c5eb227326d194128fcef0018f452eb150509551765a4eaeba38aa8ce23d",
+              "freshness": "0ffcd8f40e1f0d5419eac8dd79706cc2bf3681f472080f8f5ce29963641e1883",
               "name": "hosvd_5d_frostt_chicago_crime_geo",
               "pretty_name": "HOSVD 5D FROSTT chicago_crime_geo",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             },
             {
@@ -48879,12 +49106,10 @@
               ],
               "description": "FROSTT tensor vast_2015_mc1_5d, ranks = (5, 5, 2, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD_5d.py",
-              "freshness": "7c75c5eb227326d194128fcef0018f452eb150509551765a4eaeba38aa8ce23d",
+              "freshness": "0ffcd8f40e1f0d5419eac8dd79706cc2bf3681f472080f8f5ce29963641e1883",
               "name": "hosvd_5d_frostt_vast_2015_mc1_5d",
               "pretty_name": "HOSVD 5D FROSTT vast_2015_mc1_5d",
-              "suites": [
-                "large"
-              ],
+              "suites": [],
               "topics": []
             }
           ],
@@ -48899,8 +49124,8 @@
           ],
           "description": "Real 5th-order sparse tensors downloaded from FROSTT (frostt.io), decomposed directly. No dense reconstruction check is performed since these tensors are stored in genuinely sparse (COO) form.",
           "file": "src/saps/benchmarks/HOSVD_5d.py",
-          "freshness": "7c75c5eb227326d194128fcef0018f452eb150509551765a4eaeba38aa8ce23d",
-          "motivation": "Real sparse tensors from FROSTT exercise HOSVD's per-mode unfolding against genuinely irregular sparsity patterns. lbnl_network's mode unfoldings are astronomically large (its 5th mode alone has 868,131 entries) and cannot be densified for SVD with the current algorithm; chicago_crime_geo and vast_2015_mc1_5d are smaller but still heavy. All three are included for completeness under the 'large' suite so they aren't run by default.",
+          "freshness": "0ffcd8f40e1f0d5419eac8dd79706cc2bf3681f472080f8f5ce29963641e1883",
+          "motivation": "Real sparse tensors from FROSTT exercise HOSVD's per-mode unfolding against genuinely irregular sparsity patterns. lbnl_network's mode unfoldings are astronomically large (its 5th mode alone has 868,131 entries) and cannot be densified for SVD with the current algorithm; chicago_crime_geo and vast_2015_mc1_5d are smaller but still heavy.",
           "name": "hosvd_5d_frostt_inputs",
           "pretty_name": "FROSTT Sparse Tensor Generator for 5D HOSVD",
           "references": [],

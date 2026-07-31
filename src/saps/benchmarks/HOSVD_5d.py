@@ -291,7 +291,6 @@ def _hosvd_5d_frostt_dataset(tensor_name, ranks):
         pretty_name=f"HOSVD 5D FROSTT {tensor_name}",
         tensor_name=tensor_name,
         ranks=ranks,
-        suites=["large"],
     )
 
 
@@ -349,8 +348,6 @@ class HOSVD5DFrosttGenerator(Generator[HOSVD5DFrosttDataset]):
             " unfoldings are astronomically large (its 5th mode alone has 868,131"
             " entries) and cannot be densified for SVD with the current algorithm;"
             " chicago_crime_geo and vast_2015_mc1_5d are smaller but still heavy."
-            " All three are included for completeness under the 'large' suite so"
-            " they aren't run by default."
         )
 
     @property

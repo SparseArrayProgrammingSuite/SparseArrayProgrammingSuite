@@ -261,9 +261,9 @@ class CP5FrosttGenerator(Generator[CP5FrosttDataset]):
                 suites=suites,
             )
             for tensor_name, rank, max_iter, suites in [
-                ("lbnl_network", 10, 5, ["large"]),
-                ("chicago_crime_geo", 10, 5, ["large"]),
-                ("vast_2015_mc1_5d", 10, 5, ["large"]),
+                ("lbnl_network", 10, 5, []),
+                ("chicago_crime_geo", 10, 5, []),
+                ("vast_2015_mc1_5d", 10, 5, []),
             ]
         ]
 

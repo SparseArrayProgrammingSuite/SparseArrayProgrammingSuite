@@ -256,10 +256,14 @@ class CP3FrosttGenerator(Generator[CP3FrosttDataset]):
                 ("matmul_4_4_4", 2, 20, []),
                 ("matmul_5_5_5", 3, 20, []),
                 ("matmul_6_3_3", 3, 20, []),
-                ("nell_2", 10, 5, ["large"]),
-                ("vast_2015_mc1_3d", 10, 5, ["large"]),
-                ("nell_1", 10, 5, ["large"]),
-                ("flickr_3d", 10, 5, ["large"]),
+                ("nell_2", 10, 5, []),
+                ("vast_2015_mc1_3d", 10, 5, []),
+                ("nell_1", 10, 5, []),
+                ("flickr_3d", 10, 5, []),
+                ("delicious_3d", 10, 5, []),
+                ("amazon_reviews", 10, 5, []),
+                ("patents", 10, 5, []),
+                ("reddit_2015", 10, 5, []),
             ]
         ]
 
