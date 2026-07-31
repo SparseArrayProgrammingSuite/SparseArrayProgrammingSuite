@@ -25,6 +25,18 @@ class ScipyLinalg:
             return spla.norm(x, **kwargs)
         return np.linalg.norm(x, **kwargs)
 
+    @staticmethod
+    def vector_norm(x, **kwargs):
+        if sps.issparse(x):
+            x = x.toarray()
+        return compat_np.linalg.vector_norm(np.asarray(x), **kwargs)
+
+    @staticmethod
+    def matrix_norm(x, **kwargs):
+        if sps.issparse(x):
+            x = x.toarray()
+        return compat_np.linalg.matrix_norm(np.asarray(x), **kwargs)
+
 
 class SciPyFramework(Framework):
     def __init__(self):

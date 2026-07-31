@@ -377,7 +377,7 @@ class GMRESBenchmark(Benchmark):
 
         itcount = 0
         r0 = b - A @ x0
-        initial_beta = xp.linalg.norm(r0)[()]
+        initial_beta = xp.linalg.vector_norm(r0)[()]
         if initial_beta < tol:
             return [x0]
 
@@ -396,7 +396,7 @@ class GMRESBenchmark(Benchmark):
 
                 H[: i + 1, i] = xp.vecdot(Q[:, : i + 1].T, rcurr)
                 rcurr = rcurr - Q[:, : i + 1] @ H[: i + 1, i]
-                H[i + 1, i] = xp.linalg.norm(rcurr)[()]
+                H[i + 1, i] = xp.linalg.vector_norm(rcurr)[()]
                 Q[:, i + 1] = rcurr / H[i + 1, i]
 
                 e1 = xp.zeros((i + 2,), dtype=float)
@@ -407,7 +407,7 @@ class GMRESBenchmark(Benchmark):
                 x0 = x_cycle_start + Q[:, : i + 1] @ coeffs
 
                 r0 = b - A @ x0
-                r0_norm = xp.linalg.norm(r0)[()]
+                r0_norm = xp.linalg.vector_norm(r0)[()]
                 rcurr = r0 / r0_norm
                 if r0_norm / initial_beta < tol:
                     return [x0]

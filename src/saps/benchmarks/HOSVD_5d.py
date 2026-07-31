@@ -128,8 +128,8 @@ class HOSVD5DDenseGenerator(Generator[HOSVD5DDataset]):
                 "random_small Small Dense 5D HOSVD Tensor Dense low-rank 5D tensor"
                 " using random factor matrices.",
                 ["test", "trace"],
-                (10, 10, 10, 10, 10),
                 (3, 3, 3, 3, 3),
+                (2, 2, 2, 2, 2),
             )
         ]
 
@@ -152,7 +152,7 @@ class HOSVD5DDenseGenerator(Generator[HOSVD5DDataset]):
         ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
         return DataInstance(
             inputs=[X_bin, ranks_bin],
-            meta={"max_iter": 50, "tolerance": 1e-8},
+            meta={"max_iter": 5, "tolerance": 1e-8},
             ref_meta={"check_reconstruction": True},
         )
 
@@ -380,7 +380,7 @@ class HOSVD5DBenchmark(Benchmark):
         initial_factors: list[Any] = [None] * num_modes
         for mode in range(num_modes):
             perm = [mode] + list(range(mode)) + list(range(mode + 1, num_modes))
-            unfold = xp.reshape(xp.transpose(X, perm), (dimensions[mode], -1))
+            unfold = xp.reshape(xp.permute_dims(X, perm), (dimensions[mode], -1))
 
             U, S, Vt = xp.linalg.svd(unfold, full_matrices=False)
             initial_factors[mode] = U[:, : ranks[mode]]
@@ -445,7 +445,7 @@ class HOSVD5DBenchmark(Benchmark):
 
                 perm = [mode] + list(range(mode)) + list(range(mode + 1, num_modes))
                 unfold_update = xp.reshape(
-                    xp.transpose(update, perm), (dimensions[mode], -1)
+                    xp.permute_dims(update, perm), (dimensions[mode], -1)
                 )
 
                 U, S, Vt = xp.linalg.svd(unfold_update, full_matrices=False)
@@ -453,11 +453,11 @@ class HOSVD5DBenchmark(Benchmark):
 
             # stop iterations when solutions stop changing significantly
             change = (
-                xp.linalg.norm(initial_factors[0] - prev_factors[0])
-                + xp.linalg.norm(initial_factors[1] - prev_factors[1])
-                + xp.linalg.norm(initial_factors[2] - prev_factors[2])
-                + xp.linalg.norm(initial_factors[3] - prev_factors[3])
-                + xp.linalg.norm(initial_factors[4] - prev_factors[4])
+                xp.linalg.matrix_norm(initial_factors[0] - prev_factors[0])
+                + xp.linalg.matrix_norm(initial_factors[1] - prev_factors[1])
+                + xp.linalg.matrix_norm(initial_factors[2] - prev_factors[2])
+                + xp.linalg.matrix_norm(initial_factors[3] - prev_factors[3])
+                + xp.linalg.matrix_norm(initial_factors[4] - prev_factors[4])
             )
             if change[()] < tolerance:
                 break

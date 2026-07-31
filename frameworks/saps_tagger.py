@@ -81,7 +81,7 @@ _ARRAY_METHOD_FALLBACKS = {
     "reshape",
     "squeeze",
     "sum",
-    "transpose",
+    "permute_dims",
 }
 
 
@@ -182,11 +182,11 @@ def tags_from_stats(stats: dict) -> list[str]:
         "flatten",
         "moveaxis",
         "permute_dims",
+        "matrix_transpose",
         "ravel",
         "reshape",
         "squeeze",
         "stack",
-        "transpose",
     }
     fancy_ops = {
         "all",

@@ -8,6 +8,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -44,7 +46,18 @@ def _is_passing_result(value: Any) -> bool:
     return value is not None and not (isinstance(value, float) and math.isnan(value))
 
 
-def test_harness_test_suite_outputs_pass_for_all_test_datasets(tmp_path):
+@pytest.mark.parametrize(
+    "framework_filename",
+    [
+        pytest.param("saps_numpy.py", id="numpy"),
+        pytest.param("saps_sparse.py", id="sparse"),
+        #pytest.param("saps_finchtensor.py", id="finch-tensor"),
+    ],
+)
+def test_harness_test_suite_outputs_pass_for_all_test_datasets(
+    tmp_path, framework_filename
+):
+    framework_path = REPO_ROOT / "frameworks" / framework_filename
     config_path = tmp_path / "saps.conf.json"
     config_path.write_text(
         json.dumps(
@@ -52,7 +65,7 @@ def test_harness_test_suite_outputs_pass_for_all_test_datasets(tmp_path):
                 "environment_type": "existing:same",
                 "matrix": {
                     "env_nobuild": {
-                        "SAPS_FRAMEWORK": ["frameworks/saps_numpy.py"],
+                        "SAPS_FRAMEWORK": [str(framework_path)],
                         "SAPS_REPO_ROOT": [str(REPO_ROOT)],
                     }
                 },
@@ -67,7 +80,7 @@ def test_harness_test_suite_outputs_pass_for_all_test_datasets(tmp_path):
             "PYTHONPATH": os.pathsep.join(
                 path for path in (str(REPO_ROOT), env.get("PYTHONPATH", "")) if path
             ),
-            "SAPS_FRAMEWORK": str(REPO_ROOT / "frameworks/saps_numpy.py"),
+            "SAPS_FRAMEWORK": str(framework_path),
         }
     )
 
