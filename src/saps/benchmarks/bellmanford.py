@@ -9,6 +9,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.gap import GAP_REFERENCE, fetch_gap_graph
 from saps.downloaders.snap import download_snap_dataset
 from saps_framework.binsparse_format import BinsparseFormat
 
@@ -359,7 +360,7 @@ class BellmanFordGenerator(Generator[BellmanFordDataset]):
 
     @property
     def references(self) -> list[Ref]:
-        return []
+        return [GAP_REFERENCE]
 
     @property
     def ai_disclosure(self) -> str:
@@ -425,6 +426,15 @@ class BellmanFordGenerator(Generator[BellmanFordDataset]):
                 ),
                 suites=[],
             ),
+            BellmanFordDataset(
+                name="gap-road",
+                pretty_name="GAP Road",
+                description=(
+                    "Directed roads with distances in the US, with 23.9M nodes and"
+                    " 58.3M edges."
+                ),
+                suites=[],
+            ),
         ]
 
     def generate(self, dataset: BellmanFordDataset) -> DataInstance:
@@ -433,6 +443,8 @@ class BellmanFordGenerator(Generator[BellmanFordDataset]):
             return DataInstance(
                 inputs=[_adjacency_to_unit_distance(data[0])], meta=meta
             )
+        if dataset.name.startswith("gap"):
+            return fetch_gap_graph(dataset.name)
         raise ValueError(f"Unsupported Bellman-Ford dataset: {dataset.name}")
 
 

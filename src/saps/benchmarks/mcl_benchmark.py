@@ -10,6 +10,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.gap import GAP_REFERENCE
 from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
 from saps_framework import BinsparseFormat
 
@@ -38,6 +39,7 @@ class MCLDataset(SuiteSparseDataset):
     def __init__(
         self,
         source_name: str,
+        description: str = "",
         suites: list[str] | None = None,
         A: Any | None = None,
         expected_count: int | None = None,
@@ -45,7 +47,7 @@ class MCLDataset(SuiteSparseDataset):
         super().__init__(
             source_name,
             pretty_name=f"MCL {source_name}",
-            description=f"SuiteSparse adjacency matrix {source_name}.",
+            description=description or f"SuiteSparse adjacency matrix {source_name}.",
             suites=suites,
         )
         self.A = A
@@ -205,7 +207,7 @@ class MCLGenerator(Generator[MCLDataset]):
 
     @property
     def references(self) -> list[Ref]:
-        return MCLBenchmark().references
+        return MCLBenchmark().references + [GAP_REFERENCE]
 
     @property
     def ai_disclosure(self) -> str:
@@ -230,10 +232,13 @@ class MCLGenerator(Generator[MCLDataset]):
             MCLDataset("nos2"),
             MCLDataset("nos3"),
             MCLDataset("dwt_59"),
-            MCLDataset("GAP-twitter"),
-            MCLDataset("GAP-web"),
-            MCLDataset("GAP-road"),
-            MCLDataset("GAP-kron")
+            MCLDataset(
+                "gap-road",
+                description=(
+                    "Directed roads with distances in the US, with 23.9M nodes and"
+                    " 58.3M edges."
+                ),
+            ),
         ]
 
     def generate(self, dataset: MCLDataset):
