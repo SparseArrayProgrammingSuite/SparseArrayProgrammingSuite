@@ -10,7 +10,6 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.gap import GAP_REFERENCE
 from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
 from saps_framework.binsparse_format import BinsparseFormat
 
@@ -385,7 +384,6 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 url="https://networkrepository.com",
                 year=2015,
             ),
-            GAP_REFERENCE,
         ]
 
     @property
@@ -466,17 +464,6 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 suites=[],
                 source="ash292",
                 symmetrize=False,
-            ),
-            FloydWarshallDataset(
-                name="gap-road",
-                pretty_name="GAP Road",
-                description=(
-                    "Directed roads with distances in the US, with 23.9M nodes and"
-                    " 58.3M edges."
-                ),
-                suites=[],
-                source="gap-road",
-                symmetrize=True,
             ),
         ]
 
