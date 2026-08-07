@@ -465,6 +465,39 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 source="ash292",
                 symmetrize=False,
             ),
+            FloydWarshallDataset(
+                name="gap-road",
+                pretty_name="GAP Road",
+                description=(
+                    "Directed roads with weights in the US, with 23.9M nodes and"
+                    " 58.3M edges."
+                ),
+                suites=[],
+                source="gap-road",
+                symmetrize=False,
+            ),
+            FloydWarshallDataset(
+                name="gap-twitter",
+                pretty_name="GAP Twitter",
+                description=(
+                    "Directed weighted social network topology of Twitter, with 61.6M"
+                    " nodes and 1,468.4M edges."
+                ),
+                suites=[],
+                source="gap-twitter",
+                symmetrize=True,
+            ),
+            FloydWarshallDataset(
+                name="gap-web",
+                pretty_name="GAP Web",
+                description=(
+                    "A web-crawl of the .sk domain, directed and weighted, with 50.6M"
+                    " nodes and 1,949.4M edges."
+                ),
+                suites=[],
+                source="gap-web",
+                symmetrize=True,
+            ),
         ]
 
     @property

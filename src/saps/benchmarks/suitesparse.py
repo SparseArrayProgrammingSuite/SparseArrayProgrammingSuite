@@ -108,10 +108,9 @@ _MATRICES: list[SuiteSparseDataset] = [
         "Chebyshev3",
         "ca-HepPh",
         "bcsstk01",
-        "GAP-twitter",
-        "GAP-web",
-        "GAP-road",
-        "GAP-kron",
+        "gap-road",
+        "gap-twitter",
+        "gap-web",
     ]
 ]
 

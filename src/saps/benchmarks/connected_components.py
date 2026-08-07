@@ -9,6 +9,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 from saps.downloaders.snap import download_snap_dataset
 from saps_framework import BinsparseFormat
 
@@ -257,6 +258,100 @@ class ConnectedComponentsGenerator(Generator[ConnectedComponentsDataset]):
         raise ValueError(f"Unsupported connected components dataset: {dataset.name}")
 
 
+class ConnectedComponentsGAPGenerator(Generator[ConnectedComponentsDataset]):
+    @property
+    def name(self) -> str:
+        return "connected_components_gap_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Connected Components GAP Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Input GAP generator for connected components benchmarks."
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="The GAP Benchmark Suite",
+                authors=[
+                    Author("Scott Beamer"),
+                    Author("Krste Asanović"),
+                    Author("David Patterson"),
+                ],
+                url="https://arxiv.org/abs/1508.03619",
+                year=2015,
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Generate GAP graph inputs for connected components."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[ConnectedComponentsDataset]:
+        return [
+            ConnectedComponentsDataset(
+                name="gap-road",
+                pretty_name="GAP Road",
+                description=(
+                    "Directed roads with weights in the US, with 23.9M nodes and"
+                    " 58.3M edges."
+                ),
+                suites=[],
+            ),
+            ConnectedComponentsDataset(
+                name="gap-twitter",
+                pretty_name="GAP Twitter",
+                description=(
+                    "Directed weighted social network topology of Twitter, with 61.6M"
+                    " nodes and 1,468.4M edges."
+                ),
+                suites=[],
+            ),
+            ConnectedComponentsDataset(
+                name="gap-web",
+                pretty_name="GAP Web",
+                description=(
+                    "A web-crawl of the .sk domain, directed and weighted, with 50.6M"
+                    " nodes and 1,949.4M edges."
+                ),
+                suites=[],
+            ),
+        ]
+
+    def generate(self, dataset: ConnectedComponentsDataset) -> DataInstance:
+        if dataset.name.startswith("gap"):
+            raw = fetch_suitesparse_matrix(dataset.name)
+            return DataInstance(inputs=raw.inputs, meta=raw.meta)
+        raise ValueError(f"Unsupported connected components dataset: {dataset.name}")
+
+
 class SimplyConnectedComponentsBenchmark(Benchmark):
     @property
     def name(self):
@@ -340,7 +435,11 @@ class SimplyConnectedComponentsBenchmark(Benchmark):
 
     @property
     def generators(self) -> list[Generator[ConnectedComponentsDataset]]:
-        return [ConnectedComponentsTestGenerator(), ConnectedComponentsGenerator()]
+        return [
+            ConnectedComponentsTestGenerator(),
+            ConnectedComponentsGenerator(),
+            ConnectedComponentsGAPGenerator(),
+        ]
 
     def benchmark(self, xp, data, meta):
         edges = data[0]

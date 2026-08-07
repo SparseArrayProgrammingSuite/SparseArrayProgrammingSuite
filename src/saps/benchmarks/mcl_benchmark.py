@@ -230,10 +230,9 @@ class MCLGenerator(Generator[MCLDataset]):
             MCLDataset("nos2"),
             MCLDataset("nos3"),
             MCLDataset("dwt_59"),
-            MCLDataset("GAP-twitter"),
-            MCLDataset("GAP-web"),
-            MCLDataset("GAP-road"),
-            MCLDataset("GAP-kron")
+            MCLDataset("gap-road"),
+            MCLDataset("gap-twitter"),
+            MCLDataset("gap-web"),
         ]
 
     def generate(self, dataset: MCLDataset):

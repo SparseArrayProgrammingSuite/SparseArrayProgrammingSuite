@@ -9,6 +9,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 from saps.downloaders.snap import download_snap_dataset
 from saps_framework.binsparse_format import BinsparseFormat
 
@@ -430,13 +431,118 @@ class BellmanFordGenerator(Generator[BellmanFordDataset]):
     def generate(self, dataset: BellmanFordDataset) -> DataInstance:
         if dataset.name.startswith("snap"):
             data, meta = download_snap_dataset(dataset.name)
+            return DataInstance(inputs=[_adjacency_to_distance(data[0])], meta=meta)
+        raise ValueError(f"Unsupported Bellman-Ford dataset: {dataset.name}")
+
+
+class BellmanFordGAPGenerator(Generator[BellmanFordDataset]):
+    @property
+    def name(self) -> str:
+        return "bellman_ford_gap_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Bellman-Ford GAP Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Input GAP generator for Bellman-Ford shortest-path benchmarks."
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="The GAP Benchmark Suite",
+                authors=[
+                    Author("Scott Beamer"),
+                    Author("Krste Asanović"),
+                    Author("David Patterson"),
+                ],
+                url="https://arxiv.org/abs/1508.03619",
+                year=2015,
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Generate weighted GAP graph inputs for Bellman-Ford."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[BellmanFordDataset]:
+        return [
+            BellmanFordDataset(
+                name="gap-road",
+                pretty_name="GAP Road",
+                description=(
+                    "Directed roads with weights in the US, with 23.9M nodes and"
+                    " 58.3M edges."
+                ),
+                suites=[],
+                # First official GAP source node (1-based 4795721).
+                src=4795720,
+            ),
+            BellmanFordDataset(
+                name="gap-twitter",
+                pretty_name="GAP Twitter",
+                description=(
+                    "Directed weighted social network topology of Twitter, with 61.6M"
+                    " nodes and 1,468.4M edges."
+                ),
+                suites=[],
+                # First official GAP source node (1-based 12441073).
+                src=12441072,
+            ),
+            BellmanFordDataset(
+                name="gap-web",
+                pretty_name="GAP Web",
+                description=(
+                    "A web-crawl of the .sk domain, directed and weighted, with 50.6M"
+                    " nodes and 1,949.4M edges."
+                ),
+                suites=[],
+                # First official GAP source node (1-based 10219453).
+                src=10219452,
+            ),
+        ]
+
+    def generate(self, dataset: BellmanFordDataset) -> DataInstance:
+        if dataset.name.startswith("gap"):
+            raw = fetch_suitesparse_matrix(dataset.name)
+            meta = raw.meta
+            meta["src"] = dataset.src
             return DataInstance(
-                inputs=[_adjacency_to_unit_distance(data[0])], meta=meta
+                inputs=[_adjacency_to_distance(raw.inputs[0], keep_weights=True)],
+                meta=meta,
             )
         raise ValueError(f"Unsupported Bellman-Ford dataset: {dataset.name}")
 
 
-def _adjacency_to_unit_distance(adjacency: BinsparseFormat) -> BinsparseFormat:
+def _adjacency_to_distance(
+    adjacency: BinsparseFormat, keep_weights=False
+) -> BinsparseFormat:
     shape = adjacency.data["shape"]
     distances = np.full(shape, np.inf, dtype=float)
     np.fill_diagonal(distances, 0.0)
@@ -444,12 +550,14 @@ def _adjacency_to_unit_distance(adjacency: BinsparseFormat) -> BinsparseFormat:
     if adjacency.data["format"] == "COO":
         rows = adjacency.data["indices_0"]
         cols = adjacency.data["indices_1"]
-        distances[rows, cols] = 1.0
+        distances[rows, cols] = adjacency.data["values"] if keep_weights else 1.0
         return BinsparseFormat.from_numpy(distances)
 
     if adjacency.data["format"] == "dense":
         values = adjacency.data["values"].reshape(shape)
-        distances[values.astype(bool)] = 1.0
+        distances[values.astype(bool)] = (
+            adjacency.data["values"] if keep_weights else 1.0
+        )
         np.fill_diagonal(distances, 0.0)
         return BinsparseFormat.from_numpy(distances)
 
@@ -547,7 +655,11 @@ class BellmanFordBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [BellmanFordTestGenerator(), BellmanFordGenerator()]
+        return [
+            BellmanFordTestGenerator(),
+            BellmanFordGenerator(),
+            BellmanFordGAPGenerator(),
+        ]
 
     def benchmark(self, xp, data, meta):
         edges = data[0]

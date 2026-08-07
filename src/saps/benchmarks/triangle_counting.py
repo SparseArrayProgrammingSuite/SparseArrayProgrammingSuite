@@ -9,6 +9,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 from saps.downloaders.snap import download_snap_dataset
 from saps_framework import BinsparseFormat
 
@@ -249,6 +250,101 @@ class TriangleCountGenerator(Generator[GraphCountingDataset]):
         raise ValueError(f"Unsupported triangle count dataset: {dataset.name}")
 
 
+class TriangleCountGAPGenerator(Generator[GraphCountingDataset]):
+    @property
+    def name(self) -> str:
+        return "triangle_count_gap_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Triangle Count GAP Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Input GAP generator for triangle counting benchmarks."
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="The GAP Benchmark Suite",
+                authors=[
+                    Author("Scott Beamer"),
+                    Author("Krste Asanović"),
+                    Author("David Patterson"),
+                ],
+                url="https://arxiv.org/abs/1508.03619",
+                year=2015,
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
+        )
+
+
+    @property
+    def motivation(self) -> str:
+        return "Generate GAP graph inputs for triangle counting."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[GraphCountingDataset]:
+        return [
+            GraphCountingDataset(
+                name="gap-road",
+                pretty_name="GAP Road",
+                description=(
+                    "Directed roads with weights in the US, with 23.9M nodes and"
+                    " 58.3M edges."
+                ),
+                suites=[],
+            ),
+            GraphCountingDataset(
+                name="gap-twitter",
+                pretty_name="GAP Twitter",
+                description=(
+                    "Directed weighted social network topology of Twitter, with 61.6M"
+                    " nodes and 1,468.4M edges."
+                ),
+                suites=[],
+            ),
+            GraphCountingDataset(
+                name="gap-web",
+                pretty_name="GAP Web",
+                description=(
+                    "A web-crawl of the .sk domain, directed and weighted, with 50.6M"
+                    " nodes and 1,949.4M edges."
+                ),
+                suites=[],
+            ),
+        ]
+
+    def generate(self, dataset: GraphCountingDataset) -> DataInstance:
+        if dataset.name.startswith("gap"):
+            raw = fetch_suitesparse_matrix(dataset.name)
+            return DataInstance(inputs=[raw.inputs[0]], meta=raw.meta)
+        raise ValueError(f"Unsupported triangle count dataset: {dataset.name}")
+
+
 class TriangleCountBenchmark(Benchmark):
     @property
     def name(self) -> str:
@@ -365,7 +461,11 @@ class TriangleCountBenchmark(Benchmark):
 
     @property
     def generators(self) -> list[Generator[GraphCountingDataset]]:
-        return [TriangleCountTestGenerator(), TriangleCountGenerator()]
+        return [
+            TriangleCountTestGenerator(),
+            TriangleCountGenerator(),
+            TriangleCountGAPGenerator(),
+        ]
 
     def benchmark(self, xp, data: list, meta: dict):
         A = data[0]

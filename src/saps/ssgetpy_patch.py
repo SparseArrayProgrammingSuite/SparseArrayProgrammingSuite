@@ -1,13 +1,12 @@
 import os
- 
+
 import requests
-from tqdm.auto import tqdm
- 
-import ssgetpy.matrix as _ssm
 from ssgetpy import bundle
- 
+from tqdm.auto import tqdm
+
 _CHUNK_SIZE = 16 * 1024
- 
+
+
 def _patched_ssget_download(self, format="MM", destpath=None, extract=False):
     """
     Downloads this `Matrix` instance to the local machine,
@@ -29,9 +28,10 @@ def _patched_ssget_download(self, format="MM", destpath=None, extract=False):
         response = requests.get(self.url(format), stream=True)
         content_length = int(response.headers["content-length"])
 
-        with open(localdest, "wb") as outfile, tqdm(
-            total=content_length, desc=self.name, unit="B"
-        ) as pbar:
+        with (
+            open(localdest, "wb") as outfile,
+            tqdm(total=content_length, desc=self.name, unit="B") as pbar,
+        ):
             for chunk in response.iter_content(chunk_size=_CHUNK_SIZE):
                 outfile.write(chunk)
                 pbar.update(_CHUNK_SIZE)
