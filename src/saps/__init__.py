@@ -10,6 +10,10 @@ from saps.benchmark import (
 from saps.framework import load_framework
 from saps.storage import build_storage_backend
 
+import ssgetpy.matrix as ssm
+from saps.ssgetpy_patch import _patched_ssget_download
+ssm.Matrix.download = _patched_ssget_download
+
 __all__ = [
     "Author",
     "Benchmark",
