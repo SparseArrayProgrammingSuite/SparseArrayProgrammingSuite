@@ -297,7 +297,6 @@ class TriangleCountGAPGenerator(Generator[GraphCountingDataset]):
             " This statement was written by hand."
         )
 
-
     @property
     def motivation(self) -> str:
         return "Generate GAP graph inputs for triangle counting."

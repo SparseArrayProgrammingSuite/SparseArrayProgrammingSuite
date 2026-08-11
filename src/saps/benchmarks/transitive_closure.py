@@ -290,7 +290,6 @@ class TransitiveClosureGAPGenerator(Generator[TransitiveClosureDataset]):
             " This statement was written by hand."
         )
 
-
     @property
     def motivation(self) -> str:
         return "Generate GAP directed graph inputs for transitive closure."
@@ -310,7 +309,7 @@ class TransitiveClosureGAPGenerator(Generator[TransitiveClosureDataset]):
                     " 58.3M edges."
                 ),
                 suites=[],
-           ),
+            ),
             TransitiveClosureDataset(
                 name="gap-twitter",
                 pretty_name="GAP Twitter",
