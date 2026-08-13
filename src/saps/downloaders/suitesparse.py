@@ -86,6 +86,16 @@ def load_suitesparse_rhs(matrix_dir: str | Path, matrix_name: str) -> np.ndarray
     return b.flatten()
 
 
+def read_vector(path: Path) -> np.ndarray:
+    """Read a Matrix Market file holding a single column into a flat array."""
+    from scipy.io import mmread
+
+    values = mmread(path)
+    if not isinstance(values, np.ndarray):
+        values = values.toarray() if hasattr(values, "toarray") else np.asarray(values)
+    return values.flatten()
+
+
 def load_lpnetlib_problem(
     name: str, *, data_dir: str | Path | None = None
 ) -> tuple[Any, np.ndarray, np.ndarray, np.ndarray, np.ndarray, dict[str, Any]]:
@@ -109,18 +119,19 @@ def load_lpnetlib_problem(
         )
 
     rows, cols = A.shape
-    c = _read_vector(matrix_dir / f"{matrix.name}_c.mtx")
+    c = read_vector(matrix_dir / f"{matrix.name}_c.mtx")
     b = load_suitesparse_rhs(matrix_dir, matrix.name)
 
+    infinite_bound = 1e30
     lo_path = matrix_dir / f"{matrix.name}_lo.mtx"
     hi_path = matrix_dir / f"{matrix.name}_hi.mtx"
-    lo = _read_vector(lo_path) if lo_path.exists() else np.zeros(cols)
-    hi = _read_vector(hi_path) if hi_path.exists() else np.full(cols, np.inf)
-    lo = np.where(lo <= -_INFINITE_BOUND, -np.inf, lo)
-    hi = np.where(hi >= _INFINITE_BOUND, np.inf, hi)
+    lo = read_vector(lo_path) if lo_path.exists() else np.zeros(cols)
+    hi = read_vector(hi_path) if hi_path.exists() else np.full(cols, np.inf)
+    lo = np.where(lo <= -infinite_bound, -np.inf, lo)
+    hi = np.where(hi >= infinite_bound, np.inf, hi)
 
     z0_path = matrix_dir / f"{matrix.name}_z0.mtx"
-    z0 = float(_read_vector(z0_path)[0]) if z0_path.exists() else 0.0
+    z0 = float(read_vector(z0_path)[0]) if z0_path.exists() else 0.0
 
     for label, vector, expected in (
         ("b", b, rows),
