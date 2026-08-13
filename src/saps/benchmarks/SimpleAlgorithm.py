@@ -338,9 +338,9 @@ def _reference_solution(A, b, c, lo, hi):
 
     bounds = list(zip(lo, hi, strict=True))
     try:
-        result = linprog(c, A_eq=A, b_eq=b, bounds=bounds, method="highs") 
-        # chose "highs" to let it choose the most efficient 
-        # methods as some problems stress the system. 
+        result = linprog(c, A_eq=A, b_eq=b, bounds=bounds, method="highs")
+        # chose "highs" to let it choose the most efficient
+        # methods as some problems stress the system.
     except (ValueError, TypeError):
         return None, None
 
@@ -352,7 +352,9 @@ def _reference_solution(A, b, c, lo, hi):
         return _STATUS_UNBOUNDED, None
     return None, None
 
+
 # Generator classes.
+
 
 class LinearProgrammingDataset(Dataset):
     def __init__(
@@ -697,7 +699,7 @@ LPNETLIB_PROBLEMS = [
     "lpi_refinery",
     "lpi_vol1",
     "lpi_woodinfe",
-]  
+]
 
 _LPNETLIB_TRACTABLE = {
     "lp_adlittle": "dantzig",
