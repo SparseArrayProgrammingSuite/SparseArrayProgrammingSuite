@@ -546,8 +546,13 @@ class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
         ]
 
     def generate(self, dataset: LinearProgrammingDataset) -> DataInstance:
-        if dataset.A is None or dataset.b is None or dataset.c is None:
-            raise ValueError("LP test datasets must define A, b, and c.")
+        if (
+            dataset.A is None
+            or dataset.b is None
+            or dataset.c is None
+            or dataset.expected_x is None
+        ):
+            raise ValueError("LP test datasets must define A, b, c, and expected_x.")
         return DataInstance(
             inputs=[
                 BinsparseFormat.from_numpy(dataset.A),
