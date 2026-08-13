@@ -36,7 +36,7 @@ _STATUS_OPTIMAL = 0
 _STATUS_INFEASIBLE = 1
 _STATUS_UNBOUNDED = 2
 _STATUS_ITERATION_LIMIT = 3
-#Added this to show what each of them mean. 
+#Added this to show what each of them mean.
 _STATUS_NAMES = {
     _STATUS_OPTIMAL: "optimal",
     _STATUS_INFEASIBLE: "infeasible",
@@ -65,8 +65,9 @@ def _onehot_rows(xp, basis, width):
     idx = xp.arange(width)
     return xp.astype(idx[None, :] == basis[:, None], xp.float64)
 
+
 # INSPIRATION: same rank-one Binv update as Simplex.py lines 128-132, except theirs
-#reads Binv[:, l] where a unit vector belongs, so it only holds on the first pivot.
+# reads Binv[:, l] where a unit vector belongs, so it only holds on the first pivot.
 def _eta_matrix(xp, m, d, leaving_row):
     e_col = _unit_vector(xp, m, leaving_row)
     pivot_val = d[leaving_row]
@@ -75,12 +76,11 @@ def _eta_matrix(xp, m, d, leaving_row):
     return xp.eye(m) + xp.reshape(diff, (m, 1)) @ xp.reshape(e_col, (1, m))
 
 
-
 def _pivot(xp, A, b, c, basis, Binv, rule, tol=1e-9):
     m = A.shape[0]
     width = A.shape[1]
 
-    xB = Binv @ b # Inspiration: one matrix–vector
+    xB = Binv @ b  # Inspiration: one matrix–vector
     # product, Binv · b, giving the values of the basic variables. Line 47
 
     onehot = _onehot_rows(xp, basis, width)
@@ -145,8 +145,8 @@ def _run_pivots(xp, A, b, c, basis, Binv, rule, max_iter):
 def _phase1(xp, A, b, rule, max_iter, tol=1e-9):
     m, n = A.shape
 
-# INSPIRATION: identity block, zeros-then-ones cost vector and starting basis as in
-# Simplex.py 222-223, 182-184 and 214, where those columns are real error terms.
+    # INSPIRATION: identity block, zeros-then-ones cost vector and starting basis as in
+    # Simplex.py 222-223, 182-184 and 214, where those columns are real error terms.
     A_aug = xp.concat([A, xp.eye(m)], axis=1)
     c_aug = xp.concat([xp.zeros((n,)), xp.ones((m,))])
     basis = xp.arange(n, n + m)
@@ -248,6 +248,7 @@ def _standard_form_from_inequalities(c, A_ub=None, b_ub=None, A_eq=None, b_eq=No
     b_std = np.concatenate(blocks_b)
     c_std = np.concatenate([c, np.zeros(width - n)])
     return A_std, b_std, c_std
+
 
 def _standard_form_from_bounds(A, b, c, lo, hi):
     """Convert a bounded LP into standard form A x = b, x >= 0.
@@ -559,6 +560,7 @@ class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
                 BinsparseFormat.from_numpy(np.array([dataset.expected_status])),
             ],
         )
+
 
 LPNETLIB_PROBLEMS = [
     "lp_25fv47",
