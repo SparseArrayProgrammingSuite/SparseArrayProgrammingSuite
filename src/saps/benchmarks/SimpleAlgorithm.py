@@ -65,7 +65,7 @@ def _onehot_rows(xp, basis, width):
     idx = xp.arange(width)
     return xp.astype(idx[None, :] == basis[:, None], xp.float64)
 
-#INSPIRATION: same rank-one Binv update as Simplex.py lines 128-132, except theirs
+# INSPIRATION: same rank-one Binv update as Simplex.py lines 128-132, except theirs
 #reads Binv[:, l] where a unit vector belongs, so it only holds on the first pivot.
 def _eta_matrix(xp, m, d, leaving_row):
     e_col = _unit_vector(xp, m, leaving_row)
@@ -80,19 +80,19 @@ def _pivot(xp, A, b, c, basis, Binv, rule, tol=1e-9):
     m = A.shape[0]
     width = A.shape[1]
 
-    xB = Binv @ b #Inspiration: one matrix–vector
+    xB = Binv @ b # Inspiration: one matrix–vector
     # product, Binv · b, giving the values of the basic variables. Line 47
 
     onehot = _onehot_rows(xp, basis, width)
     basic_mask = xp.any(onehot > 0, axis=0)
-    #INSPIRATION: dual vector and reduced costs as in Simplex.py 59-69. Theirs walks
-    #the columns one scalar at a time; this prices all of them in one expression.
+    # INSPIRATION: dual vector and reduced costs as in Simplex.py 59-69. Theirs walks
+    # the columns one scalar at a time; this prices all of them in one expression.
     c_basis = onehot @ c
     y = Binv.T @ c_basis
     s = xp.where(basic_mask, xp.inf, c - A.T @ y)
 
-    #INSPIRATION: stop when no reduced cost is negative and otherwise take the first
-    #negative one, as in Simplex.py 70-74. Theirs compares against an exact 0.
+    # INSPIRATION: stop when no reduced cost is negative and otherwise take the first
+    # negative one, as in Simplex.py 70-74. Theirs compares against an exact 0.
     improving = s < -tol
     if not bool(xp.any(improving)):
         return basis, Binv, xB, "optimal"
@@ -102,15 +102,15 @@ def _pivot(xp, A, b, c, basis, Binv, rule, tol=1e-9):
     else:
         entering = int(xp.argmin(xp.where(improving, s, xp.inf)))
 
-    #INSPIRATION: direction Binv @ A[:, j] and the unbounded test from Simplex.py
-    #84-93. Theirs tests u[i] >= 0, which misses a column that is all zeros.
+    # INSPIRATION: direction Binv @ A[:, j] and the unbounded test from Simplex.py
+    # 84-93. Theirs tests u[i] >= 0, which misses a column that is all zeros.
     d = Binv @ A[:, entering]
     positive = d > tol
     if not bool(xp.any(positive)):
         return basis, Binv, xB, "unbounded"
 
-    #INSPIRATION: minimum-ratio test from Simplex.py 97-105, with xp.inf standing in
-    #for their 1e9+7 sentinel. Note, I added the Bland tie-break.
+    # INSPIRATION: minimum-ratio test from Simplex.py 97-105, with xp.inf standing in
+    # for their 1e9+7 sentinel. Note, I added the Bland tie-break.
     ratios = xp.where(positive, xB / xp.where(positive, d, 1.0), xp.inf)
     min_ratio = xp.min(ratios)
 
@@ -123,8 +123,8 @@ def _pivot(xp, A, b, c, basis, Binv, rule, tol=1e-9):
         leaving_row = int(xp.argmin(ratios))
 
     new_Binv = _eta_matrix(xp, m, d, leaving_row) @ Binv
-    #INSPIRATION: swapping one basis index, which Simplex.py 135 does as C[l] = j.
-    #_set_at returns a new array instead, so the caller's basis is never mutated.
+    # INSPIRATION: swapping one basis index, which Simplex.py 135 does as C[l] = j.
+    # _set_at returns a new array instead, so the caller's basis is never mutated.
     new_basis = _set_at(xp, basis, leaving_row, entering)
 
     return new_basis, new_Binv, xB, "continue"
@@ -134,8 +134,8 @@ def _run_pivots(xp, A, b, c, basis, Binv, rule, max_iter):
     status = "continue"
     it = 0
     xB = Binv @ b
-    #INSPIRATION: the pivot loop of Simplex.py 52. Bounded by max_iter here, and the
-    #body returns a status rather than breaking, so both phases can reuse it.
+    # INSPIRATION: the pivot loop of Simplex.py 52. Bounded by max_iter here, and the
+    # body returns a status rather than breaking, so both phases can reuse it.
     while status == "continue" and it < max_iter:
         basis, Binv, xB, status = _pivot(xp, A, b, c, basis, Binv, rule)
         it += 1
@@ -145,8 +145,8 @@ def _run_pivots(xp, A, b, c, basis, Binv, rule, max_iter):
 def _phase1(xp, A, b, rule, max_iter, tol=1e-9):
     m, n = A.shape
 
-#INSPIRATION: identity block, zeros-then-ones cost vector and starting basis as in
-#Simplex.py 222-223, 182-184 and 214, where those columns are real error terms.
+# INSPIRATION: identity block, zeros-then-ones cost vector and starting basis as in
+# Simplex.py 222-223, 182-184 and 214, where those columns are real error terms.
     A_aug = xp.concat([A, xp.eye(m)], axis=1)
     c_aug = xp.concat([xp.zeros((n,)), xp.ones((m,))])
     basis = xp.arange(n, n + m)
@@ -182,8 +182,8 @@ def _phase1(xp, A, b, rule, max_iter, tol=1e-9):
 def _solve_standard_form(xp, A, b, c, rule="bland", max_iter=10_000):
     m, n = A.shape
 
-    #INSPIRATION: forcing b >= 0 by flipping rows, like Simplex.py 171-173. Theirs
-    #flips by class label; this flips wherever b is negative, for any problem.
+    # INSPIRATION: forcing b >= 0 by flipping rows, like Simplex.py 171-173. Theirs
+    # flips by class label; this flips wherever b is negative, for any problem.
     flip = b < 0
     sign = xp.where(flip, -1.0, 1.0)
     A = A * xp.reshape(sign, (m, 1))
@@ -1007,7 +1007,7 @@ class LinearProgrammingBenchmark(Benchmark):
         return [x, status]
 
     def _check_solution(self, param):
-        """To check that the sol is optimal, we compare the solution vector 
+        """To check that the sol is optimal, we compare the solution vector
         itself is never compared against SciPy's. We don't compare the column vector
         that gives us this solution because an LP's optimal aren't unique and
         two correct solvers often return
