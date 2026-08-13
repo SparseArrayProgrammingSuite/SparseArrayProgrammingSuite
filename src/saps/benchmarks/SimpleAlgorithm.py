@@ -326,7 +326,8 @@ def _reference_solution(A, b, c, lo, hi):
     instead would hide a mistake in the conversion.
 
     Only the objective value is kept. A linear program can have many optimal
-    solutions, so two correct solvers might give us diff answers. So, we compare the optimal value.
+    solutions, so two correct solvers might give us diff answers.
+    So, we compare the optimal value.
 
     Returns (status, objective) using this module's status codes. The objective
     is None whenever there is no finite value to compare, and both are None if
