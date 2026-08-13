@@ -85,6 +85,7 @@ def load_suitesparse_rhs(matrix_dir: str | Path, matrix_name: str) -> np.ndarray
         b = b.toarray() if hasattr(b, "toarray") else np.asarray(b)
     return b.flatten()
 
+
 def load_lpnetlib_problem(
     name: str, *, data_dir: str | Path | None = None
 ) -> tuple[Any, np.ndarray, np.ndarray, np.ndarray, np.ndarray, dict[str, Any]]:
@@ -93,7 +94,7 @@ def load_lpnetlib_problem(
     The LPnetlib group stores each Netlib LP as ``minimize c'x`` subject to
     ``A x = b`` and ``lo <= x <= hi``, shipping the objective vector, the two
     bound vectors, and the objective offset ``z0`` as separate Matrix Market
-    files beside the matrix. 
+    files beside the matrix.
 
     Returns ``(A, b, c, lo, hi, meta)``, with bounds normalized so that an
     unbounded variable reads as an IEEE infinity. Bounds default to ``lo = 0``
@@ -143,6 +144,7 @@ def load_lpnetlib_problem(
         "has_hi_file": hi_path.exists(),
     }
     return A, b, c, lo, hi, meta
+
 
 def random_rhs_for_matrix(A: Any, *, seed: int = 0, density: float = 0.1) -> np.ndarray:
     """Synthesize a deterministic RHS ``b = A @ x`` for a random sparse ``x``."""
