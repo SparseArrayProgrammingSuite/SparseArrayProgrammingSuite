@@ -36,7 +36,7 @@ _STATUS_OPTIMAL = 0
 _STATUS_INFEASIBLE = 1
 _STATUS_UNBOUNDED = 2
 _STATUS_ITERATION_LIMIT = 3
-#Added this to show what each of them mean.
+# Added this to show what each of them mean.
 _STATUS_NAMES = {
     _STATUS_OPTIMAL: "optimal",
     _STATUS_INFEASIBLE: "infeasible",
