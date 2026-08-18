@@ -9,7 +9,12 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
+from saps.benchmarks.suitesparse import (
+    _GAP_ROAD_SOURCES,
+    _GAP_TWITTER_SOURCES,
+    _GAP_WEB_SOURCES,
+    fetch_suitesparse_matrix,
+)
 from saps.downloaders.snap import download_snap_dataset
 from saps_framework.binsparse_format import BinsparseFormat
 
@@ -341,41 +346,47 @@ class BreadthFirstSearchGAPGenerator(Generator[BreadthFirstSearchDataset]):
 
     @property
     def datasets(self) -> list[BreadthFirstSearchDataset]:
-        return [
-            BreadthFirstSearchDataset(
-                name="gap-road",
-                pretty_name="GAP Road",
-                description=(
-                    "Directed roads with weights in the US, with 23.9M nodes and"
-                    " 58.3M edges."
-                ),
-                suites=[],
-                # First official GAP source node (1-based 4795721).
-                src=4795720,
-            ),
-            BreadthFirstSearchDataset(
-                name="gap-twitter",
-                pretty_name="GAP Twitter",
-                description=(
-                    "Directed weighted social network topology of Twitter, with 61.6M"
-                    " nodes and 1,468.4M edges."
-                ),
-                suites=[],
-                # First official GAP source node (1-based 12441073).
-                src=12441072,
-            ),
-            BreadthFirstSearchDataset(
-                name="gap-web",
-                pretty_name="GAP Web",
-                description=(
-                    "A web-crawl of the .sk domain, directed and weighted, with 50.6M"
-                    " nodes and 1,949.4M edges."
-                ),
-                suites=[],
-                # First official GAP source node (1-based 10219453).
-                src=10219452,
-            ),
-        ]
+        return (
+            [
+                BreadthFirstSearchDataset(
+                    name="gap-road",
+                    pretty_name="GAP Road",
+                    description=(
+                        "Directed roads with weights in the US, with 23.9M nodes and"
+                        " 58.3M edges."
+                    ),
+                    suites=[],
+                    src=src,
+                )
+                for src in _GAP_ROAD_SOURCES
+            ]
+            + [
+                BreadthFirstSearchDataset(
+                    name="gap-twitter",
+                    pretty_name="GAP Twitter",
+                    description=(
+                        "Directed weighted social network topology of Twitter, with"
+                        " 61.6M nodes and 1,468.4M edges."
+                    ),
+                    suites=[],
+                    src=src,
+                )
+                for src in _GAP_TWITTER_SOURCES
+            ]
+            + [
+                BreadthFirstSearchDataset(
+                    name="gap-web",
+                    pretty_name="GAP Web",
+                    description=(
+                        "A web-crawl of the .sk domain, directed and weighted, with"
+                        " 50.6M nodes and 1,949.4M edges."
+                    ),
+                    suites=[],
+                    src=src,
+                )
+                for src in _GAP_WEB_SOURCES
+            ]
+        )
 
     def generate(self, dataset: BreadthFirstSearchDataset) -> DataInstance:
         if dataset.name.startswith("gap"):
