@@ -652,7 +652,7 @@ def main() -> int:
     elif hasattr(conf, "timeout") and conf.timeout is not None:
         timeout = conf.timeout
     elif args.cache_datasets:
-        timeout = 6000
+        timeout = 5000
     else:
         timeout = 5
 
