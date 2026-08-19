@@ -3,7 +3,6 @@ Tensors and Tools, frostt.io)."""
 
 from __future__ import annotations
 
-import gzip
 import io
 import tarfile
 import urllib.request
