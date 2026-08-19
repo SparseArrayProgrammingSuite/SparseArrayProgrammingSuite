@@ -320,7 +320,24 @@ class HOSVDFrosttGenerator(Generator[HOSVDFrosttDataset]):
 
     @property
     def references(self) -> list[Ref]:
-        return []
+        return [
+            Ref(
+                title=(
+                    "FROSTT: The Formidable Repository of Open Sparse Tensors and Tools"
+                ),
+                authors=[
+                    Author("Shaden Smith"),
+                    Author("Jee W. Choi"),
+                    Author("Jiajia Li"),
+                    Author("Richard Vuduc"),
+                    Author("Jongsoo Park"),
+                    Author("Xing Liu"),
+                    Author("George Karypis"),
+                ],
+                url="http://frostt.io/",
+                year=2017,
+            )
+        ]
 
     @property
     def ai_disclosure(self) -> str:
