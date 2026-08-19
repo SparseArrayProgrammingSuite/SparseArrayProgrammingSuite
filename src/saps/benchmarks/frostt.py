@@ -358,8 +358,19 @@ class FrosttTensorGenerator(Generator[FrosttDataset]):
                 title=(
                     "FROSTT: The Formidable Repository of Open Sparse Tensors and Tools"
                 ),
-                authors=[],
+                authors=[
+                    Author(
+                        Smith, Shaden
+                          Choi, Jee W. 
+                          Li, Jiajia 
+                          Vuduc, Richard 
+                          Park, Jongsoo 
+                          Liu, Xing 
+                          Karypis, George
+                    )
+                ],
                 url="http://frostt.io/",
+                year=2017
             )
         ]
 
