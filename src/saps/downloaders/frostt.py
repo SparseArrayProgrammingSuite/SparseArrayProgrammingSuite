@@ -12,7 +12,7 @@ from typing import Any
 
 import numpy as np
 
-import polars as pl
+import pandas as pd
 
 _BASE_URL = "https://s3.us-east-2.amazonaws.com/frostt/frostt_data"
 
@@ -111,14 +111,14 @@ def _parse_tns(
     """
     source = _extract_tns_source(path)
     separator = _detect_separator(source)
-    df = pl.read_csv(source, separator=separator, has_header=False, comment_prefix="#")
-    order = df.width - 1
+    df = pd.read_csv(source, sep=separator, header=None, comment="#")
+    order = df.shape[1] - 1
     if order < 1:
         raise ValueError(f"Malformed FROSTT tensor file {path}: no value column found")
     indices = tuple(
-        df[:, mode].to_numpy().astype(np.int64) - 1 for mode in range(order)
+        df.iloc[:, mode].to_numpy(dtype=np.int64) - 1 for mode in range(order)
     )
-    values = df[:, order].cast(pl.Float64).to_numpy()
+    values = df.iloc[:, order].to_numpy(dtype=np.float64)
     shape = tuple(int(idx.max()) + 1 for idx in indices)
     return indices, values, shape
 
