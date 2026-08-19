@@ -130,12 +130,12 @@ def _parse_tns(
     if order < 1:
         raise ValueError(f"Malformed FROSTT tensor file {path}: no value column found")
     dtypes: dict[int, np.dtype | type] = dict.fromkeys(range(order), np.int64)
-    dtypes[order] = rhs_dtype
+    dtypes[order] = np.float64
     if isinstance(source, io.BytesIO):
         source.seek(0)
     df = pd.read_csv(source, sep=r"\s+", header=None, comment="#", dtype=dtypes)
     indices = tuple(df.iloc[:, mode].to_numpy() - 1 for mode in range(order))
-    values = df.iloc[:, order].to_numpy()
+    values = df.iloc[:, order].to_numpy(dtype=rhs_dtype)
     shape = tuple(int(idx.max()) + 1 for idx in indices)
     if all(dim <= np.iinfo(np.int32).max for dim in shape):
         indices = tuple(idx.astype(np.int32) for idx in indices)

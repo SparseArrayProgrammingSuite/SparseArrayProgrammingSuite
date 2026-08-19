@@ -34,10 +34,20 @@ def test_parse_tns_uses_requested_rhs_dtype_and_narrows_indices(tmp_path):
 
 def test_parse_tns_keeps_int64_indices_for_large_dimensions(tmp_path):
     path = tmp_path / "large.tns.gz"
-    _write_tns(path, "2147483648 1 7\n")
+    _write_tns(path, "2147483648 1 7.000000\n")
 
     indices, values, shape = _parse_tns(path, np.int16)
 
     assert shape == (2147483648, 1)
     assert all(index.dtype == np.int64 for index in indices)
     assert values.dtype == np.int16
+
+
+def test_parse_tns_converts_decimal_encoded_binary_values(tmp_path):
+    path = tmp_path / "binary.tns.gz"
+    _write_tns(path, "1 1 1.000000\n")
+
+    _, values, _ = _parse_tns(path, np.bool_)
+
+    assert values.dtype == np.bool_
+    assert values.tolist() == [True]
