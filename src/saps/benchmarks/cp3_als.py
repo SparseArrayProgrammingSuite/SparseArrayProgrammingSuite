@@ -206,7 +206,7 @@ class CP3FrosttGenerator(Generator[CP3FrosttDataset]):
 
     @property
     def suites(self):
-        return []
+        return ["standard"]
 
     @property
     def concepts(self) -> str:

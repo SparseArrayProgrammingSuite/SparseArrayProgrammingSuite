@@ -212,7 +212,7 @@ class CP4FrosttGenerator(Generator[CP4FrosttDataset]):
 
     @property
     def suites(self):
-        return []
+        return ["standard"]
 
     @property
     def concepts(self) -> str:

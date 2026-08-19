@@ -218,7 +218,7 @@ class CP5FrosttGenerator(Generator[CP5FrosttDataset]):
 
     @property
     def suites(self):
-        return []
+        return ["standard"]
 
     @property
     def concepts(self) -> str:
