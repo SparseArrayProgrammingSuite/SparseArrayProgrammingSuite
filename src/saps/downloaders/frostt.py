@@ -129,7 +129,7 @@ def _parse_tns(
     order = preview.shape[1] - 1
     if order < 1:
         raise ValueError(f"Malformed FROSTT tensor file {path}: no value column found")
-    dtypes = {mode: np.int64 for mode in range(order)}
+    dtypes = dict.fromkeys(range(order), np.int64)
     dtypes[order] = rhs_dtype
     if isinstance(source, io.BytesIO):
         source.seek(0)
