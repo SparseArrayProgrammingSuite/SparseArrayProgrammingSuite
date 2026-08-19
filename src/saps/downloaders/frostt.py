@@ -16,6 +16,37 @@ import pandas as pd
 
 _BASE_URL = "https://s3.us-east-2.amazonaws.com/frostt/frostt_data"
 
+_RHS_DTYPES = {
+    "matrix-multiplication/matmul_2-2-2.tns.gz": np.bool_,
+    "matrix-multiplication/matmul_3-3-3.tns.gz": np.bool_,
+    "matrix-multiplication/matmul_4-3-2.tns.gz": np.bool_,
+    "matrix-multiplication/matmul_4-4-3.tns.gz": np.bool_,
+    "matrix-multiplication/matmul_4-4-4.tns.gz": np.bool_,
+    "matrix-multiplication/matmul_5-5-5.tns.gz": np.bool_,
+    "matrix-multiplication/matmul_6-3-3.tns.gz": np.bool_,
+    "nell/nell-2.tns.gz": np.bool_,
+    "chicago-crime/comm/chicago-crime-comm.tns.gz": np.int64,
+    "lbnl-network/lbnl-network.tns.gz": np.int64,
+    "toy/toy.tns.gz": np.float64,
+    "nips/nips.tns.gz": np.int64,
+    "uber-pickups/uber.tns.gz": np.int64,
+    "chicago-crime/geo/chicago-crime-geo.tns.gz": np.int64,
+    "vast-2015-mc1/vast-2015-mc1-3d.tns.gz": np.bool_,
+    "nell/nell-1.tns.gz": np.bool_,
+    "vast-2015-mc1/vast-2015-mc1-5d.tns.gz": np.bool_,
+    "enron/enron.tns.gz": np.int64,
+    "flickr/flickr-3d.tns.gz": np.bool_,
+    "flickr/flickr-4d.tns.gz": np.bool_,
+    "delicious/delicious-3d.tns.gz": np.bool_,
+    "delicious/delicious-4d.tns.gz": np.bool_,
+    "amazon/amazon-reviews.tns.gz": np.int64,
+    "patents/patents.tns.gz": np.float64,
+    "reddit-2015/reddit-2015.tns.gz": np.int64,
+    "fb-m/fb-m.tns.gz": np.bool_,
+    "darpa/1998darpa.tns.gz": np.int64,
+    "lanl2/lanl2.tns.gz": np.int64,
+}
+
 
 def _default_data_dir() -> Path:
     # src/saps/downloaders/frostt.py -> parents[3] = repo root
@@ -83,24 +114,9 @@ def _extract_tns_source(path: Path) -> Path | io.BytesIO:
         return path
 
 
-def _detect_separator(source: Path | io.BytesIO) -> str:
-    """Peek at the first non-comment line to detect whether this file uses the
-    standard FROSTT space-delimited format or a tab-delimited variant (seen in
-    at least one alternate-bucket tensor)."""
-    if isinstance(source, io.BytesIO):
-        text = source.getvalue()[:4096].decode("utf-8", errors="ignore")
-        source.seek(0)
-    else:
-        with gzip.open(source, "rt", encoding="utf-8", errors="ignore") as f:
-            text = f.read(4096)
-    for line in text.splitlines():
-        if line and not line.startswith("#"):
-            return "\t" if "\t" in line else " "
-    return " "
-
-
 def _parse_tns(
     path: Path,
+    rhs_dtype: np.dtype | type,
 ) -> tuple[tuple[np.ndarray, ...], np.ndarray, tuple[int, ...]]:
     """Parse a (optionally gzipped, optionally tar-wrapped) `.tns` coordinate-list
     tensor file.
@@ -110,25 +126,32 @@ def _parse_tns(
     the maximum index seen per mode.
     """
     source = _extract_tns_source(path)
-    separator = _detect_separator(source)
-    df = pd.read_csv(source, sep=separator, header=None, comment="#")
-    order = df.shape[1] - 1
+    preview = pd.read_csv(source, sep=r"\s+", header=None, comment="#", nrows=1)
+    order = preview.shape[1] - 1
     if order < 1:
         raise ValueError(f"Malformed FROSTT tensor file {path}: no value column found")
-    indices = tuple(
-        df.iloc[:, mode].to_numpy(dtype=np.int64) - 1 for mode in range(order)
-    )
-    values = df.iloc[:, order].to_numpy(dtype=np.float64)
+    dtypes = {mode: np.int64 for mode in range(order)}
+    dtypes[order] = rhs_dtype
+    if isinstance(source, io.BytesIO):
+        source.seek(0)
+    df = pd.read_csv(source, sep=r"\s+", header=None, comment="#", dtype=dtypes)
+    indices = tuple(df.iloc[:, mode].to_numpy() - 1 for mode in range(order))
+    values = df.iloc[:, order].to_numpy()
     shape = tuple(int(idx.max()) + 1 for idx in indices)
+    if all(dim <= np.iinfo(np.int32).max for dim in shape):
+        indices = tuple(idx.astype(np.int32) for idx in indices)
     return indices, values, shape
 
 
 def load_frostt_tensor(
-    path: str, *, url: str | None = None, data_dir: str | Path | None = None
+    path: str,
+    *,
+    url: str | None = None,
+    data_dir: str | Path | None = None,
 ) -> tuple[tuple[np.ndarray, ...], np.ndarray, dict[str, Any]]:
     """Download (if needed) and parse a FROSTT tensor into COO index/value arrays."""
     local_path = download_frostt_tensor(path, url=url, data_dir=data_dir)
-    indices, values, shape = _parse_tns(local_path)
+    indices, values, shape = _parse_tns(local_path, _RHS_DTYPES[path])
     meta = {
         "dataset_name": path,
         "order": len(shape),
