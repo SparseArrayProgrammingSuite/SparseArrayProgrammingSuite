@@ -1714,7 +1714,7 @@
     ],
     "digest": "7eb1e7a77abed440ed448470f1e3de904d597c61eb9b58e109afaaaab87c38fe",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "a4f92fee24f5ded507167403baea04c6f01d22b97d1b082d9ea20258d80ca0c4"
+    "freshness": "95623a89477eddaf876f63b259d888ed0e2752d17c5a19279630f41d59330fe1"
   },
   "frostt_tensor.chicago_crime_geo": {
     "dependencies": [
@@ -1757,6 +1757,94 @@
       }
     ],
     "digest": "c6f43cb8d89615c3b1b78229c03fb68d9a5a8c335881df04918145d8b8bf3a27",
+    "file": "src/saps/benchmarks/frostt.py",
+    "freshness": "95623a89477eddaf876f63b259d888ed0e2752d17c5a19279630f41d59330fe1"
+  },
+  "frostt_tensor.delicious_3d": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pandas",
+      "pyparsing",
+      "scipy.sparse"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pandas",
+        "version": "2.3.3"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      }
+    ],
+    "digest": "0395c6952a602e80c823702bc89268a0b7a05615e8c0afaaa0745234662a7b16",
+    "file": "src/saps/benchmarks/frostt.py",
+    "freshness": "95623a89477eddaf876f63b259d888ed0e2752d17c5a19279630f41d59330fe1"
+  },
+  "frostt_tensor.delicious_4d": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pandas",
+      "pyparsing",
+      "scipy.sparse"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pandas",
+        "version": "2.3.3"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      }
+    ],
+    "digest": "ad7694d6d095f98383d79695ef68bbdd70270f649dbe6265056553c94c2a9553",
     "file": "src/saps/benchmarks/frostt.py",
     "freshness": "95623a89477eddaf876f63b259d888ed0e2752d17c5a19279630f41d59330fe1"
   },
@@ -1804,6 +1892,138 @@
     "file": "src/saps/benchmarks/frostt.py",
     "freshness": "95623a89477eddaf876f63b259d888ed0e2752d17c5a19279630f41d59330fe1"
   },
+  "frostt_tensor.flickr_3d": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pandas",
+      "pyparsing",
+      "scipy.sparse"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pandas",
+        "version": "2.3.3"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      }
+    ],
+    "digest": "1b07a50c9e631531bad044611e5382a82e630585aedf9503cec4d18195a6110b",
+    "file": "src/saps/benchmarks/frostt.py",
+    "freshness": "95623a89477eddaf876f63b259d888ed0e2752d17c5a19279630f41d59330fe1"
+  },
+  "frostt_tensor.flickr_4d": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pandas",
+      "pyparsing",
+      "scipy.sparse"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pandas",
+        "version": "2.3.3"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      }
+    ],
+    "digest": "b819ff6f7dfa79e990f6de5d78b54f1a3b164f3f167863d92746445d364d51f1",
+    "file": "src/saps/benchmarks/frostt.py",
+    "freshness": "95623a89477eddaf876f63b259d888ed0e2752d17c5a19279630f41d59330fe1"
+  },
+  "frostt_tensor.lbnl_network": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pandas",
+      "pyparsing",
+      "scipy.sparse"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pandas",
+        "version": "2.3.3"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      }
+    ],
+    "digest": "791a743c34a80b97ab02aea0f29a3fb00edb1ee37efd0929d520d1f5a947eeb2",
+    "file": "src/saps/benchmarks/frostt.py",
+    "freshness": "95623a89477eddaf876f63b259d888ed0e2752d17c5a19279630f41d59330fe1"
+  },
   "frostt_tensor.matmul_2_2_2": {
     "dependencies": [
       "boto3",
@@ -1846,7 +2066,7 @@
     ],
     "digest": "3d81dac779e4551b13984e8e4906170f153b785a120fb10e517e78e031ca3491",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "a4f92fee24f5ded507167403baea04c6f01d22b97d1b082d9ea20258d80ca0c4"
+    "freshness": "95623a89477eddaf876f63b259d888ed0e2752d17c5a19279630f41d59330fe1"
   },
   "frostt_tensor.matmul_3_3_3": {
     "dependencies": [
@@ -1890,7 +2110,7 @@
     ],
     "digest": "3722cf4a539869c921f296f8a2267d800c64858c115f4d92d1d3ace6c941f496",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "a4f92fee24f5ded507167403baea04c6f01d22b97d1b082d9ea20258d80ca0c4"
+    "freshness": "95623a89477eddaf876f63b259d888ed0e2752d17c5a19279630f41d59330fe1"
   },
   "frostt_tensor.matmul_4_3_2": {
     "dependencies": [
@@ -1934,7 +2154,7 @@
     ],
     "digest": "12221df696003cd68928377bbff6c0525fa3fb020da2387701cb8cc01717a366",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "a4f92fee24f5ded507167403baea04c6f01d22b97d1b082d9ea20258d80ca0c4"
+    "freshness": "95623a89477eddaf876f63b259d888ed0e2752d17c5a19279630f41d59330fe1"
   },
   "frostt_tensor.matmul_4_4_3": {
     "dependencies": [
@@ -1978,7 +2198,7 @@
     ],
     "digest": "dba41c7801cdac21293fdd9f9ced989585879eaf1dce01b13156fe26b803d235",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "a4f92fee24f5ded507167403baea04c6f01d22b97d1b082d9ea20258d80ca0c4"
+    "freshness": "95623a89477eddaf876f63b259d888ed0e2752d17c5a19279630f41d59330fe1"
   },
   "frostt_tensor.matmul_4_4_4": {
     "dependencies": [
@@ -2022,7 +2242,7 @@
     ],
     "digest": "e984ac49adb91b9c8c820593626edb973d6fcb79276ea0e0421054972ac55bfe",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "a4f92fee24f5ded507167403baea04c6f01d22b97d1b082d9ea20258d80ca0c4"
+    "freshness": "95623a89477eddaf876f63b259d888ed0e2752d17c5a19279630f41d59330fe1"
   },
   "frostt_tensor.matmul_5_5_5": {
     "dependencies": [
@@ -2066,7 +2286,7 @@
     ],
     "digest": "35daa4ca94507478724601450de661b4b83ed99b257a009eb398e6975cf73a53",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "a4f92fee24f5ded507167403baea04c6f01d22b97d1b082d9ea20258d80ca0c4"
+    "freshness": "95623a89477eddaf876f63b259d888ed0e2752d17c5a19279630f41d59330fe1"
   },
   "frostt_tensor.matmul_6_3_3": {
     "dependencies": [
@@ -2110,7 +2330,7 @@
     ],
     "digest": "fd98243ae50d0c091fbe3d9a2208e622d045d69bbcb79a53957b3c9818930566",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "a4f92fee24f5ded507167403baea04c6f01d22b97d1b082d9ea20258d80ca0c4"
+    "freshness": "95623a89477eddaf876f63b259d888ed0e2752d17c5a19279630f41d59330fe1"
   },
   "frostt_tensor.nell_1": {
     "dependencies": [
@@ -2156,6 +2376,50 @@
     "file": "src/saps/benchmarks/frostt.py",
     "freshness": "95623a89477eddaf876f63b259d888ed0e2752d17c5a19279630f41d59330fe1"
   },
+  "frostt_tensor.nell_2": {
+    "dependencies": [
+      "boto3",
+      "botocore",
+      "lark",
+      "numpy",
+      "pandas",
+      "pyparsing",
+      "scipy.sparse"
+    ],
+    "dependency_versions": [
+      {
+        "name": "boto3",
+        "version": "1.43.34"
+      },
+      {
+        "name": "botocore",
+        "version": "1.43.34"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "pandas",
+        "version": "2.3.3"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.2"
+      },
+      {
+        "name": "scipy",
+        "version": "1.17.1"
+      }
+    ],
+    "digest": "2d9042285e7d9d12d819e6ca555071dd03c60f148cc2b4acd64d91f41f0f47dc",
+    "file": "src/saps/benchmarks/frostt.py",
+    "freshness": "95623a89477eddaf876f63b259d888ed0e2752d17c5a19279630f41d59330fe1"
+  },
   "frostt_tensor.nips": {
     "dependencies": [
       "boto3",
@@ -2198,7 +2462,7 @@
     ],
     "digest": "96e4b98eaf6154d34f258edb3f28975c2e139af751b07f11afa1d8abbeda163a",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "a4f92fee24f5ded507167403baea04c6f01d22b97d1b082d9ea20258d80ca0c4"
+    "freshness": "95623a89477eddaf876f63b259d888ed0e2752d17c5a19279630f41d59330fe1"
   },
   "frostt_tensor.toy": {
     "dependencies": [
@@ -2242,7 +2506,7 @@
     ],
     "digest": "46cd4e334da619a7aabcc40f59d7f2eaf7e6f353652d0c649ee435b4ead22ca5",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "a4f92fee24f5ded507167403baea04c6f01d22b97d1b082d9ea20258d80ca0c4"
+    "freshness": "95623a89477eddaf876f63b259d888ed0e2752d17c5a19279630f41d59330fe1"
   },
   "frostt_tensor.uber_pickups": {
     "dependencies": [
@@ -2286,7 +2550,7 @@
     ],
     "digest": "8688fac2bf93b5b4b06b6b9e663037fbc5425b9adee9a456983ad1f3e8edaa20",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "a4f92fee24f5ded507167403baea04c6f01d22b97d1b082d9ea20258d80ca0c4"
+    "freshness": "95623a89477eddaf876f63b259d888ed0e2752d17c5a19279630f41d59330fe1"
   },
   "frostt_tensor.vast_2015_mc1_3d": {
     "dependencies": [
@@ -3178,7 +3442,7 @@
     ],
     "digest": "21e5a6220e5e2928e8a75a1acd400dd6238e5d38d2aa8c2a6740ab73300941ea",
     "file": "src/saps/benchmarks/HOSVD_4d.py",
-    "freshness": "7406e3a6cd82dcf69581d523f20c7ec89b78d0b67d6d6a7938c493904b2d718e"
+    "freshness": "58805c8b6c0998e61aabbad35464ba45f57dec2cba806f2eb2dce54cc9fed9b5"
   },
   "hosvd_5d_sparse_inputs.small_sparse_5d": {
     "dependencies": [
@@ -3222,7 +3486,7 @@
     ],
     "digest": "931bfe56661310b9e963835345d7f48e673c5149106403615acaeb16a3ebeade",
     "file": "src/saps/benchmarks/HOSVD_5d.py",
-    "freshness": "1e3c8281ace7e58e30589b5e31a3ac864ebd33605bc180d15f5d35da9eff9cdf"
+    "freshness": "3a3a9c55890dda1643df1d50c18efb73869d84c36bff24b92fbfd25184b93f79"
   },
   "hosvd_sparse_inputs.small_sparse": {
     "dependencies": [
@@ -3266,7 +3530,7 @@
     ],
     "digest": "e810379dda1e922ba033d22c20f07f0ad75597e32cac28702dedaca293873217",
     "file": "src/saps/benchmarks/HOSVD.py",
-    "freshness": "6789f1c064e356d28791c17ac82743eb9631e614f40597ed2b2bf7282ece6ae7"
+    "freshness": "acc671d5aeabe844920ded095a8dbb2eba9ac9bcd84df8ac567ace1e97cad1a6"
   },
   "jacobi_inputs.Chem97ZtZ": {
     "dependencies": [

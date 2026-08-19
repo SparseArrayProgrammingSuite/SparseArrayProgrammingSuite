@@ -167,7 +167,9 @@ raise SystemExit(0 if backend.upload_dataset(generator, dataset) else 1)
 """
 
 
-def _cache_datasets(benchmarks, metadata, environments, source_benchmarks) -> int:
+def _cache_datasets(
+    benchmarks, metadata, environments, source_benchmarks, timeout: float | None
+) -> int:
     """Upload the selected (benchmark, generator, dataset) triples."""
     uploaded = failed = skipped = 0
     seen: set[tuple[str, str]] = set()
@@ -217,7 +219,8 @@ def _cache_datasets(benchmarks, metadata, environments, source_benchmarks) -> in
                                 class_name,
                                 generator_name,
                                 dataset_name,
-                            ]
+                            ],
+                            timeout=timeout,
                         )
                         if output.splitlines()[-1:] == ["fresh"]:
                             skipped += 1
@@ -648,6 +651,8 @@ def main() -> int:
         timeout = args.timeout
     elif hasattr(conf, "timeout") and conf.timeout is not None:
         timeout = conf.timeout
+    elif args.cache_datasets:
+        timeout = 6000
     else:
         timeout = 5
 
@@ -860,6 +865,7 @@ def main() -> int:
             metadata=metadata,
             environments=environments,
             source_benchmarks=source_benchmarks,
+            timeout=timeout,
         )
 
     if args.trace_statistics:
