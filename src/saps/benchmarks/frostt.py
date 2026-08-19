@@ -1,4 +1,5 @@
 from saps.benchmark import (
+    Author,
     Contributor,
     DataInstance,
     Dataset,
@@ -359,18 +360,16 @@ class FrosttTensorGenerator(Generator[FrosttDataset]):
                     "FROSTT: The Formidable Repository of Open Sparse Tensors and Tools"
                 ),
                 authors=[
-                    Author(
-                        Smith, Shaden
-                          Choi, Jee W. 
-                          Li, Jiajia 
-                          Vuduc, Richard 
-                          Park, Jongsoo 
-                          Liu, Xing 
-                          Karypis, George
-                    )
+                    Author("Shaden Smith"),
+                    Author("Jee W. Choi"),
+                    Author("Jiajia Li"),
+                    Author("Richard Vuduc"),
+                    Author("Jongsoo Park"),
+                    Author("Xing Liu"),
+                    Author("George Karypis"),
                 ],
                 url="http://frostt.io/",
-                year=2017
+                year=2017,
             )
         ]
 
