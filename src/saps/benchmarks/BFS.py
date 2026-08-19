@@ -421,7 +421,7 @@ class BreadthFirstSearchGAPGenerator(Generator[BreadthFirstSearchDataset]):
 
     def generate(self, dataset: BreadthFirstSearchDataset) -> DataInstance:
         if dataset.name.startswith("gap"):
-            raw = fetch_suitesparse_matrix(dataset.name.rsplit("_",1)[0])
+            raw = fetch_suitesparse_matrix(dataset.name.rsplit("_", 1)[0])
             meta = raw.meta
             meta["src"] = dataset.src
             return DataInstance(inputs=[raw.inputs[0]], meta=meta)
