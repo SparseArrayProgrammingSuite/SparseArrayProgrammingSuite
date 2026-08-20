@@ -24,6 +24,11 @@ No generative AI was used to implement benchmark functions.
 
 import math
 
+import numpy as np
+from sklearn.datasets import fetch_openml
+
+from ..binsparse_format import BinsparseFormat
+
 """
 Labels points into k clusters.
 
@@ -85,3 +90,14 @@ def kmeans(xp, A, k, max_iter=100):
             break
 
     return labels
+
+
+def _load_mnist():
+    mnist = fetch_openml("mnist_784", version=1, as_frame=False, parser="auto")
+    data = mnist.data.astype(np.float32) / 255.0
+    return data[:60000], data[60000:]
+
+
+def dg_kmeans_mnist():
+    training, _ = _load_mnist()
+    return (BinsparseFormat.from_numpy(training), 10, 0.3)

@@ -1,6 +1,7 @@
 import numpy as np
 
 from sparseappbench.benchmarks.rp_kmeans_clustering import (
+    dg_kmeans_mnist,
     rp_kmeans_clustering,
 )
 from sparseappbench.binsparse_format import BinsparseFormat
@@ -49,3 +50,18 @@ def test_rp_kmeans_two_clusters():
     labels = rp_kmeans_clustering(xp, A_bin, k=2, eps=0.2, c=1, max_iter=5).tolist()
 
     assert labels[0] == labels[1] == labels[2] == labels[3] and labels[0] != labels[4]
+
+
+def test_dg_kmeans_mnist():
+    xp = NumpyFramework()
+
+    data_set, k, eps = dg_kmeans_mnist()
+
+    data_np = xp.from_benchmark(data_set)
+    labels = rp_kmeans_clustering(xp, data_set, k=k, eps=eps)
+
+    assert labels.shape == (len(data_np),)
+    assert np.all(labels >= 0) and np.all(labels < k)
+
+    #correct number of clusters (10)
+    assert len(np.unique(labels)) == k

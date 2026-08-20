@@ -1,5 +1,9 @@
 import numpy as np
 import scipy as sp
+from sklearn.datasets import fetch_openml
+
+from ..binsparse_format import BinsparseFormat
+from ..frameworks.numpy_framework import NumpyFramework
 
 """
 Name: Random Numerical Linear Algenra
@@ -34,9 +38,9 @@ was written by hand.
 def benchmark_johnson_lindenstrauss_nn(
     xp, data_bench, query_bench, projection_matrix, k=5, eps=0.1
 ):
-    data = xp.lazy(data_bench)
-    query = xp.lazy(query_bench)
-    P = xp.lazy(projection_matrix)
+    data = xp.lazy(xp.from_benchmark(data_bench))
+    query = xp.lazy(xp.from_benchmark(query_bench))
+    projection = xp.lazy(xp.from_benchmark(projection_matrix))
 
     n_samples, n_features = data.shape
     #  Johnson Lindenstrauss Theorem Lemmna.
@@ -47,8 +51,8 @@ def benchmark_johnson_lindenstrauss_nn(
         target_dim = n_features
 
     # Project to lower subspace
-    projected_data = xp.matmul(data, P)
-    projected_query = xp.matmul(query, P)
+    projected_data = xp.matmul(data, projection)
+    projected_query = xp.matmul(query, projection)
 
     # -----K Nearest Neighbour from here on out--------
 
@@ -107,3 +111,26 @@ def data_knn_rla_generator(xp, data_bench, seed=40, eps=0.1):
     )
     U_dense = (U_Neg + U_Pos).toarray()
     return xp.lazy(U_dense)
+
+
+def _load_mnist():
+    mnist = fetch_openml("mnist_784", version=1, as_frame=False, parser="auto")
+    X = mnist.data.astype(np.float32) / 255.0
+    return X[:60000], X[60000:]
+
+def dg_approx_nn_mnist():
+
+    xp = NumpyFramework()
+    training, testing = _load_mnist()
+
+    #sampling 2000/60000 for train, 200/60000 for test
+    random = np.random.default_rng(50)
+    training = training[random.choice(len(training), size=2000, replace=False)]
+    testing = testing[random.choice(len(testing), size=200, replace=False)]
+
+    projection = data_knn_rla_generator(xp, training, seed=40, eps=0.3)
+    return (
+        BinsparseFormat.from_numpy(training),
+        BinsparseFormat.from_numpy(testing),
+        BinsparseFormat.from_numpy(projection),
+    )
