@@ -116,14 +116,20 @@ def _extract_tns_source(path: Path) -> Path | io.BytesIO:
 def _parse_tns(
     path: Path,
     rhs_dtype: np.dtype | type,
+    *,
+    index_base: int = 1,
 ) -> tuple[tuple[np.ndarray, ...], np.ndarray, tuple[int, ...]]:
     """Parse a (optionally gzipped, optionally tar-wrapped) `.tns` coordinate-list
     tensor file.
 
-    Each line is ``i_1 i_2 ... i_n value``, 1-indexed. Returns 0-indexed index
-    arrays (one per mode), the values array, and the dense shape inferred as
-    the maximum index seen per mode.
+    Each line is ``i_1 i_2 ... i_n value``. FROSTT files are normally
+    1-indexed, but ``index_base=0`` supports explicitly identified exceptions.
+    Returns 0-indexed index arrays (one per mode), the values array, and the
+    dense shape inferred from the normalized coordinates.
     """
+    if index_base not in (0, 1):
+        raise ValueError(f"index_base must be 0 or 1, got {index_base}")
+
     source = _extract_tns_source(path)
     preview = pd.read_csv(source, sep=r"\s+", header=None, comment="#", nrows=1)
     order = preview.shape[1] - 1
@@ -134,7 +140,14 @@ def _parse_tns(
     if isinstance(source, io.BytesIO):
         source.seek(0)
     df = pd.read_csv(source, sep=r"\s+", header=None, comment="#", dtype=dtypes)
-    indices = tuple(df.iloc[:, mode].to_numpy() - 1 for mode in range(order))
+    source_indices = tuple(df.iloc[:, mode].to_numpy() for mode in range(order))
+    minima = tuple(int(idx.min()) for idx in source_indices)
+    if any(minimum < index_base for minimum in minima):
+        raise ValueError(
+            f"Malformed FROSTT tensor file {path}: coordinate minima {minima} are"
+            f" below the declared index base {index_base}"
+        )
+    indices = tuple(idx - index_base for idx in source_indices)
     values = df.iloc[:, order].to_numpy(dtype=rhs_dtype)
     shape = tuple(int(idx.max()) + 1 for idx in indices)
     if all(dim <= np.iinfo(np.int32).max for dim in shape):
@@ -147,10 +160,13 @@ def load_frostt_tensor(
     *,
     url: str | None = None,
     data_dir: str | Path | None = None,
+    index_base: int = 1,
 ) -> tuple[tuple[np.ndarray, ...], np.ndarray, dict[str, Any]]:
     """Download (if needed) and parse a FROSTT tensor into COO index/value arrays."""
     local_path = download_frostt_tensor(path, url=url, data_dir=data_dir)
-    indices, values, shape = _parse_tns(local_path, _RHS_DTYPES[path])
+    indices, values, shape = _parse_tns(
+        local_path, _RHS_DTYPES[path], index_base=index_base
+    )
     meta = {
         "dataset_name": path,
         "order": len(shape),

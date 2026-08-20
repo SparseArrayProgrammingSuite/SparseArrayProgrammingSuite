@@ -22,15 +22,19 @@ class FrosttDataset(Dataset):
         order: int,
         shape: tuple[int, ...],
         url: str | None = None,
+        index_base: int = 1,
         pretty_name: str | None = None,
         description: str | None = None,
         suites: list[str] | None = None,
     ):
+        if index_base not in (0, 1):
+            raise ValueError(f"index_base must be 0 or 1, got {index_base}")
         self._name = name
         self.path = path
         self.order = order
         self.shape = shape
         self.url = url
+        self.index_base = index_base
         self._pretty_name = pretty_name
         self._description = description
         self._suites = suites or []
@@ -308,11 +312,12 @@ _TENSORS: list[FrosttDataset] = [
         path="lanl2/lanl2.tns.gz",
         url="https://frostt-tensors.s3.us-east-2.amazonaws.com/LANL2/lanl2.tns.gz",
         order=5,
-        shape=(3760, 11153, 8710, 75146, 8),
+        shape=(3761, 11154, 8711, 75147, 9),
+        index_base=0,
         description=(
             "Anonymized LANL NetFlow data (58 days): 10-minute time bin x"
             " source device x destination device x destination port x"
-            " log-scale bytes-transferred bin, non-zeros are incident"
+            " log-scale bytes-transferred bin (9 bins), non-zeros are incident"
             " counts."
         ),
     ),
@@ -393,7 +398,17 @@ class FrosttTensorGenerator(Generator[FrosttDataset]):
         return _TENSORS
 
     def generate(self, dataset: FrosttDataset) -> DataInstance:
-        indices, values, meta = load_frostt_tensor(dataset.path, url=dataset.url)
+        indices, values, meta = load_frostt_tensor(
+            dataset.path, url=dataset.url, index_base=dataset.index_base
+        )
+        parsed_order = meta["order"]
+        parsed_shape = meta["shape"]
+        if parsed_order != dataset.order or parsed_shape != dataset.shape:
+            raise ValueError(
+                f"FROSTT tensor {dataset.name} has parsed order/shape"
+                f" {parsed_order}/{parsed_shape}, expected"
+                f" {dataset.order}/{dataset.shape}"
+            )
         tensor_bin = BinsparseFormat.from_coo(indices, values, meta["shape"])
         return DataInstance(inputs=[tensor_bin], meta=meta)
 
