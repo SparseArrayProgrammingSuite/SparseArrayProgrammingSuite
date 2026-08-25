@@ -3,7 +3,6 @@ import scipy as sp
 from sklearn.datasets import fetch_openml
 
 from ..binsparse_format import BinsparseFormat
-from ..frameworks.numpy_framework import NumpyFramework
 
 """
 Name: Random Numerical Linear Algenra
@@ -36,19 +35,11 @@ was written by hand.
 
 
 def benchmark_johnson_lindenstrauss_nn(
-    xp, data_bench, query_bench, projection_matrix, k=5, eps=0.1
+    xp, data_bench, query_bench, k=5, eps=0.1, seed=40
 ):
     data = xp.lazy(xp.from_benchmark(data_bench))
     query = xp.lazy(xp.from_benchmark(query_bench))
-    projection = xp.lazy(xp.from_benchmark(projection_matrix))
-
-    n_samples, n_features = data.shape
-    #  Johnson Lindenstrauss Theorem Lemmna.
-    # The eps represents the disortion of distance by epsilon,
-    # between the the original space and the reduced subspace
-    target_dim = np.log(n_samples) / (eps * eps)
-    if target_dim > n_features:
-        target_dim = n_features
+    projection = xp.lazy(_generate_rla_projection(xp.from_benchmark(data_bench), seed=seed, eps=eps))
 
     # Project to lower subspace
     projected_data = xp.matmul(data, projection)
@@ -75,8 +66,7 @@ def benchmark_johnson_lindenstrauss_nn(
     return xp.to_benchmark(nearest_indices), xp.to_benchmark(nearest_distances)
 
 
-def data_knn_rla_generator(xp, data_bench, seed=40, eps=0.1):
-    data = xp.lazy(data_bench)
+def _generate_rla_projection(data, seed=40, eps=0.1):
     n_samples, n_features = data.shape
     #  Johnson Lindenstrauss Theorem Lemmna.
     # The eps represents the disortion of distance by epsilon,
@@ -84,7 +74,6 @@ def data_knn_rla_generator(xp, data_bench, seed=40, eps=0.1):
     target_dim = np.ceil(np.log(n_samples) / (eps * eps)).astype(int)
 
     rng = np.random.default_rng(seed)
-    # return rng.standard_normal((n_features, np.round(target_dim).astype(int)))
 
     s = np.sqrt(n_features)  # s = 1/density
     density = 1.0 / s  # probability of a nonzero entry = density.
@@ -109,8 +98,7 @@ def data_knn_rla_generator(xp, data_bench, seed=40, eps=0.1):
         ),  # specified dtype to see of that made a difference
         random_state=rng,
     )
-    U_dense = (U_Neg + U_Pos).toarray()
-    return xp.lazy(U_dense)
+    return (U_Neg + U_Pos).toarray()
 
 
 def _load_mnist():
@@ -119,8 +107,6 @@ def _load_mnist():
     return X[:60000], X[60000:]
 
 def dg_approx_nn_mnist():
-
-    xp = NumpyFramework()
     training, testing = _load_mnist()
 
     #sampling 2000/60000 for train, 200/60000 for test
@@ -128,9 +114,7 @@ def dg_approx_nn_mnist():
     training = training[random.choice(len(training), size=2000, replace=False)]
     testing = testing[random.choice(len(testing), size=200, replace=False)]
 
-    projection = data_knn_rla_generator(xp, training, seed=40, eps=0.3)
     return (
         BinsparseFormat.from_numpy(training),
         BinsparseFormat.from_numpy(testing),
-        BinsparseFormat.from_numpy(projection),
     )

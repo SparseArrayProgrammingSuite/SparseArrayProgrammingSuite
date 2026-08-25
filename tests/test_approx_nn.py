@@ -2,7 +2,6 @@ import numpy as np
 
 from sparseappbench.benchmarks.approx_nn import (
     benchmark_johnson_lindenstrauss_nn,
-    data_knn_rla_generator,
     dg_approx_nn_mnist,
 )
 from sparseappbench.binsparse_format import BinsparseFormat
@@ -19,15 +18,14 @@ def test_jl_preserves_distance(rng):
 
     data_np = rng.standard_normal((n_samples, n_features))
     query_np = rng.standard_normal((n_queries, n_features))
-    proj_np = data_knn_rla_generator(xp, data_np, seed=13, eps=eps)
 
     nearest_ind, _ = benchmark_johnson_lindenstrauss_nn(
         xp,
         BinsparseFormat.from_numpy(data_np),
         BinsparseFormat.from_numpy(query_np),
-        BinsparseFormat.from_numpy(proj_np),
         k=k,
         eps=eps,
+        seed=13,
     )
 
     nearest_ind = xp.from_benchmark(nearest_ind)
@@ -45,13 +43,13 @@ def test_dg_approx_nn_mnist():
     k = 5
     eps = 0.3
 
-    data_set, query_set, proj_set = dg_approx_nn_mnist()
+    data_set, query_set = dg_approx_nn_mnist()
 
     data_np = xp.from_benchmark(data_set)
     query_np = xp.from_benchmark(query_set)
 
     nearest_ind, nearest_dist = benchmark_johnson_lindenstrauss_nn(
-        xp, data_set, query_set, proj_set, k=k, eps= eps
+        xp, data_set, query_set, k=k, eps=eps
     )
 
     nearest_ind = xp.from_benchmark(nearest_ind)
