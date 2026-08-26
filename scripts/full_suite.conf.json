@@ -1,0 +1,32 @@
+{
+  "environment_type": "virtualenv",
+  "env_dir": ".saps/env",
+  "results_dir": ".saps/outputs/results",
+  "matrix": {
+    "req": {
+      "numpy": [
+        "2.3"
+      ],
+      "scipy": [
+        "1.16.2"
+      ],
+      "sparse": [
+        "0.17.0"
+      ],
+      "lark": [
+        "1.3.0"
+      ],
+      "ssgetpy": [
+        "1.0rc2"
+      ]
+    },
+    "env_nobuild": {
+      "SAPS_FRAMEWORK": [
+        "frameworks/saps_numpy.py",
+        "frameworks/saps_scipy.py",
+        "frameworks/saps_sparse.py",
+        "frameworks/saps_pytorch.py"
+      ]
+    }
+  }
+}
