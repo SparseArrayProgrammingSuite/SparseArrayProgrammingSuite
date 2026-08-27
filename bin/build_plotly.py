@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Build a Dolan–More performance profile from asv_summary.csv."""
 
+import argparse
 import math
+import re
 from pathlib import Path
 
 import pandas as pd
@@ -12,11 +14,38 @@ OUTPUT = Path("docs/assets/plots/runtime-summary.html")
 TIME_LIMIT_S = 30.0
 
 
+def _tagged(df: pd.DataFrame, tags: list[str]) -> pd.Series:
+    """Rows whose problem carries one of the tags."""
+    pattern = "|".join(re.escape(tag) for tag in tags)
+    return df["tags"].fillna("").str.contains(rf"(?:^|;)(?:{pattern})(?:;|$)")
+
+
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--tag", nargs="*", default=[], help="Tags to keep.")
+    parser.add_argument("--no-tag", nargs="*", default=[], help="Tags to drop.")
+    parser.add_argument("--list-tags", action="store_true", help="Show tags.")
+    parser.add_argument("--output", type=Path, default=OUTPUT, help="HTML path.")
+    args = parser.parse_args()
+
     df = pd.read_csv(INPUT)
     df = df[df["metric"] == "time"]
     # Only finished runs within the time limit get a ratio.
     df = df[df["value"] <= TIME_LIMIT_S]
+
+    if args.list_tags:
+        problems = df.drop_duplicates(["benchmark", "dataset"])["tags"].fillna("")
+        counts = problems.str.split(";").explode().replace("", "(untagged)")
+        print(counts.value_counts().to_string())
+        return
+
+    # Filter first so the weights and ratios below describe the chosen subset.
+    if args.tag:
+        df = df[_tagged(df, args.tag)]
+    if args.no_tag:
+        df = df[~_tagged(df, args.no_tag)]
+    if df.empty:
+        raise SystemExit("No problems left after tag filtering")
 
     # Each dataset of an N-dataset benchmark is worth 1/N.
     n_datasets = df.groupby("benchmark")["dataset"].transform("nunique")
@@ -48,6 +77,9 @@ def main() -> None:
         curves.append(pd.DataFrame({"ratio": xs, "pct": ys, "framework": framework}))
     plot_df = pd.concat(curves, ignore_index=True)
 
+    n_problems = df.groupby(["benchmark", "dataset"]).ngroups
+    picked = " ".join(args.tag + [f"-{tag}" for tag in args.no_tag]) or "all tags"
+
     fig = px.line(
         plot_df,
         x="ratio",
@@ -60,7 +92,7 @@ def main() -> None:
             "pct": "% of suite completed",
             "framework": "Framework",
         },
-        title="SAPS framework performances",
+        title=f"SAPS framework performances ({n_problems} problems, {picked})",
     )
     fig.update_layout(
         template="plotly_white",
@@ -79,11 +111,12 @@ def main() -> None:
     )
     fig.update_traces(line={"width": 5})
 
-    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT.write_text(
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(
         fig.to_html(full_html=True, include_plotlyjs="cdn"),
         encoding="utf-8",
     )
+    print(f"Wrote {args.output} ({n_problems} problems)")
 
 
 if __name__ == "__main__":

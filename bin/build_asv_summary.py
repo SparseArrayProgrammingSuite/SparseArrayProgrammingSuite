@@ -35,6 +35,34 @@ def _is_number(value: object) -> bool:
     return isinstance(value, (int, float)) and math.isfinite(float(value))
 
 
+def _record_tags(record: dict) -> set[str]:
+    # Same three fields run_benchmark.py's --tag/--no-tag filters look at.
+    fields = ("suites", "statistics", "topics")
+    return {tag for field in fields for tag in record.get(field) or []}
+
+
+def _load_tags(paths: list[Path]) -> dict[tuple[str, str], set[str]]:
+    """Map (benchmark module, "<generator>.<dataset>") to its inherited tags.
+
+    A dataset inherits the tags of its generator and benchmark. Only
+    metadata.json carries the benchmark file, so it must be read first for
+    statistics.json's benchmark names to resolve to the same module.
+    """
+    modules: dict[str, str] = {}
+    tags: dict[tuple[str, str], set[str]] = {}
+    for path in (path for path in paths if path.exists()):
+        for bench in json.loads(path.read_text(encoding="utf-8"))["benchmarks"]:
+            name = bench.get("name", "")
+            if bench.get("file"):
+                modules[name] = Path(bench["file"]).stem
+            for gen in bench.get("generators", []):
+                for data in gen.get("datasets", []):
+                    key = (modules.get(name, name), f"{gen['name']}.{data['name']}")
+                    inherited = _record_tags(bench) | _record_tags(gen)
+                    tags.setdefault(key, set()).update(inherited | _record_tags(data))
+    return tags
+
+
 def _read_json(path: Path) -> list[dict]:
     data = json.loads(path.read_text(encoding="utf-8"))
     framework = _framework_name(data)
@@ -108,7 +136,12 @@ def main() -> int:
     if not rows:
         raise SystemExit("No successful result rows found")
 
-    fieldnames = ["benchmark", "dataset", "framework", "metric", "value"]
+    tags = _load_tags([Path("metadata.json"), Path("statistics.json")])
+    for row in rows:
+        key = (row["benchmark"].split(".")[0], row["dataset"])
+        row["tags"] = ";".join(sorted(tags.get(key, ())))
+
+    fieldnames = ["benchmark", "dataset", "framework", "metric", "value", "tags"]
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
