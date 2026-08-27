@@ -23,7 +23,8 @@ def test_rp_kmeans_sanity_check():
     )
     A_bin = BinsparseFormat.from_numpy(points)
 
-    labels = rp_kmeans_clustering(xp, A_bin, k=3, eps=0.3, c=0.5, max_iter=5).tolist()
+    result = rp_kmeans_clustering(xp, A_bin, k=3, eps=0.3, c=0.5, max_iter=5)
+    labels = xp.from_benchmark(result).tolist()
 
     assert (
         labels[0] == labels[1]
@@ -47,7 +48,8 @@ def test_rp_kmeans_two_clusters():
     )
     A_bin = BinsparseFormat.from_numpy(points)
 
-    labels = rp_kmeans_clustering(xp, A_bin, k=2, eps=0.2, c=1, max_iter=5).tolist()
+    result = rp_kmeans_clustering(xp, A_bin, k=2, eps=0.2, c=1, max_iter=5)
+    labels = xp.from_benchmark(result).tolist()
 
     assert labels[0] == labels[1] == labels[2] == labels[3] and labels[0] != labels[4]
 
@@ -58,7 +60,8 @@ def test_dg_kmeans_mnist():
     data_set, k, eps = dg_kmeans_mnist()
 
     data_np = xp.from_benchmark(data_set)
-    labels = rp_kmeans_clustering(xp, data_set, k=k, eps=eps)
+    result = rp_kmeans_clustering(xp, data_set, k=k, eps=eps)
+    labels = xp.from_benchmark(result)
 
     assert labels.shape == (len(data_np),)
     assert np.all(labels >= 0) and np.all(labels < k)

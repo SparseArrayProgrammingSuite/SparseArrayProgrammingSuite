@@ -39,7 +39,7 @@ def benchmark_johnson_lindenstrauss_nn(
 ):
     data = xp.lazy(xp.from_benchmark(data_bench))
     query = xp.lazy(xp.from_benchmark(query_bench))
-    projection = xp.lazy(_generate_rla_projection(xp.from_benchmark(data_bench), seed=seed, eps=eps))
+    projection = xp.lazy(rla_projection(xp.from_benchmark(data_bench), seed=seed, eps=eps))
 
     # Project to lower subspace
     projected_data = xp.matmul(data, projection)
@@ -66,7 +66,7 @@ def benchmark_johnson_lindenstrauss_nn(
     return xp.to_benchmark(nearest_indices), xp.to_benchmark(nearest_distances)
 
 
-def _generate_rla_projection(data, seed=40, eps=0.1):
+def rla_projection(data, seed=40, eps=0.1):
     n_samples, n_features = data.shape
     #  Johnson Lindenstrauss Theorem Lemmna.
     # The eps represents the disortion of distance by epsilon,
@@ -101,20 +101,21 @@ def _generate_rla_projection(data, seed=40, eps=0.1):
     return (U_Neg + U_Pos).toarray()
 
 
-def _load_mnist():
+def generate_mnist_data(n_train=None, n_test=None, seed=0):
     mnist = fetch_openml("mnist_784", version=1, as_frame=False, parser="auto")
     X = mnist.data.astype(np.float32) / 255.0
-    return X[:60000], X[60000:]
+    training, testing = X[:60000], X[60000:]
+
+    rng = np.random.default_rng(seed)
+    if n_train is not None:
+        training = training[rng.choice(len(training), size=n_train, replace=False)]
+    if n_test is not None:
+        testing = testing[rng.choice(len(testing), size=n_test, replace=False)]
+
+    train_bin = BinsparseFormat.from_numpy(training)
+    test_bin = BinsparseFormat.from_numpy(testing)
+    return (train_bin, test_bin)
+
 
 def dg_approx_nn_mnist():
-    training, testing = _load_mnist()
-
-    #sampling 2000/60000 for train, 200/60000 for test
-    random = np.random.default_rng(50)
-    training = training[random.choice(len(training), size=2000, replace=False)]
-    testing = testing[random.choice(len(testing), size=200, replace=False)]
-
-    return (
-        BinsparseFormat.from_numpy(training),
-        BinsparseFormat.from_numpy(testing),
-    )
+    return generate_mnist_data(n_train=2000, n_test=200, seed=50)

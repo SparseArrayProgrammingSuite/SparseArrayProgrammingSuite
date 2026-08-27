@@ -62,11 +62,13 @@ def rp_kmeans_clustering(xp, A_benchmark, k, eps, c=1, max_iter=100):
     n, d = A.shape
     t = int(c * math.ceil(k / eps**2))
     value = 1 / (t**0.5)
-    R = xp.random.rand(d, t)
-    R = R < 0.5
-    R = xp.where(R, value, -value)
-    A_prime = xp.matmul(A, R)
-    return kmeans(xp, A_prime, k, max_iter)
+    rng = np.random.default_rng(0)
+    R = np.where(rng.random((d, t)) < 0.5, value, -value)
+    A = xp.lazy(A)
+    R = xp.lazy(R)
+    A_prime = xp.compute(xp.matmul(A, R))
+    labels = kmeans(xp, A_prime, k, max_iter)
+    return xp.to_benchmark(xp.compute(labels))
 
 
 def kmeans(xp, A, k, max_iter=100):
@@ -92,12 +94,16 @@ def kmeans(xp, A, k, max_iter=100):
     return labels
 
 
-def _load_mnist():
+def generate_mnist_data():
     mnist = fetch_openml("mnist_784", version=1, as_frame=False, parser="auto")
-    data = mnist.data.astype(np.float32) / 255.0
-    return data[:60000], data[60000:]
+    X = mnist.data.astype(np.float32) / 255.0
+    training, testing = X[:60000], X[60000:]
 
+    train_bin = BinsparseFormat.from_numpy(training)
+    test_bin = BinsparseFormat.from_numpy(testing)
+    return (train_bin, test_bin)
+ 
 
 def dg_kmeans_mnist():
-    training, _ = _load_mnist()
-    return (BinsparseFormat.from_numpy(training), 10, 0.3)
+    train_bin, _ = generate_mnist_data()
+    return(train_bin, 10, 0.3)
