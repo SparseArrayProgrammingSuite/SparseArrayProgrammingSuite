@@ -145,7 +145,7 @@ def generate_cifar10_data(n_train=None, n_test=None, seed=0):
     train_arrays = []
 
     #CIFAR splits 50,000 training images across 5 pickle files
-    for i in range(5):
+    for i in range(1, 6):
         with open(os.path.join(extracted_dir, f"data_batch_{i}"), "rb") as f:
             batch = pickle.load(f, encoding="bytes")
         train_arrays.append(batch[b"data"])
