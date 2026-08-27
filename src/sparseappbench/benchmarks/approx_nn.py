@@ -1,8 +1,14 @@
+import os
+import pickle
+import tarfile
+import urllib.request
+
 import numpy as np
 import scipy as sp
 from sklearn.datasets import fetch_openml
 
 from ..binsparse_format import BinsparseFormat
+import kagglehub
 
 """
 Name: Random Numerical Linear Algenra
@@ -119,3 +125,94 @@ def generate_mnist_data(n_train=None, n_test=None, seed=0):
 
 def dg_approx_nn_mnist():
     return generate_mnist_data(n_train=2000, n_test=200, seed=50)
+
+
+def generate_cifar10_data(n_train=None, n_test=None, seed=0):
+    
+    #Seeing if dataset is already cached
+    cache_dir = os.path.join(os.path.expanduser("~"), ".cache", "sparseappbench", "cifar10")
+    extracted_dir = os.path.join(cache_dir, "cifar-10-batches-py")
+
+    if not os.path.exists(extracted_dir):
+        os.makedirs(cache_dir, exist_ok=True)
+        tar_path = os.path.join(cache_dir, "cifar-10-python.tar.gz")
+        urllib.request.urlretrieve(
+            "https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz", tar_path
+        )
+        with tarfile.open(tar_path, "r:gz") as tar:
+            tar.extractall(cache_dir)
+
+    train_arrays = []
+
+    #CIFAR splits 50,000 training images across 5 pickle files
+    for i in range(5):
+        with open(os.path.join(extracted_dir, f"data_batch_{i}"), "rb") as f:
+            batch = pickle.load(f, encoding="bytes")
+        train_arrays.append(batch[b"data"])
+    training = np.concatenate(train_arrays, axis=0).astype(np.float32) / 255.0
+
+    with open(os.path.join(extracted_dir, "test_batch"), "rb") as f:
+        testing = pickle.load(f, encoding="bytes")[b"data"].astype(np.float32) / 255.0
+
+    rng = np.random.default_rng(seed)
+    if n_train is not None:
+        training = training[rng.choice(len(training), size=n_train, replace=False)]
+    if n_test is not None:
+        testing = testing[rng.choice(len(testing), size=n_test, replace=False)]
+
+    return BinsparseFormat.from_numpy(training), BinsparseFormat.from_numpy(testing)
+
+
+def dg_approx_nn_cifar10():
+    return generate_cifar10_data(n_train=2000, n_test=200, seed=0)
+
+
+def generate_netflix_data(n_train=None, n_test=None, seed=0):
+
+    cache_path = kagglehub.dataset_download("netflix-inc/netflix-prize-data")
+
+    row_list = []
+    col_list = []
+    val_list = []
+    user_map = {}
+    current_movie = 0
+    data_files = sorted(f for f in os.listdir(cache_path) if f.startswith("combined_data") and f.endswith(".txt"))
+    for fname in data_files:
+        with open(os.path.join(cache_path, fname), "r") as f:
+            for line in f:
+                line = line.strip()
+                if line.endswith(":"):
+                    current_movie = int(line[:-1]) - 1
+                else:
+                    uid_str, rating_str, _ = line.split(",", 2)
+                    uid = int(uid_str)
+                    if uid not in user_map:
+                        user_map[uid] = len(user_map)
+                    row_list.append(user_map[uid])
+                    col_list.append(current_movie)
+                    val_list.append(float(rating_str))
+
+    n_users = len(user_map)
+    n_movies = 17770
+    X = sp.sparse.csr_matrix(
+        (np.array(val_list, dtype=np.float32),
+         (np.array(row_list, dtype=np.int32), np.array(col_list, dtype=np.int32))),
+        shape=(n_users, n_movies),
+    )
+
+    rng = np.random.default_rng(seed)
+    perm = rng.permutation(n_users)
+    n_train_actual = n_train if n_train is not None else int(0.8 * n_users)
+    n_test_actual = n_test if n_test is not None else n_users - n_train_actual
+
+    train_coo = X[perm[:n_train_actual]].tocoo()
+    test_coo = X[perm[n_train_actual:n_train_actual + n_test_actual]].tocoo()
+
+    return (
+        BinsparseFormat.from_coo((train_coo.row, train_coo.col), train_coo.data, train_coo.shape),
+        BinsparseFormat.from_coo((test_coo.row, test_coo.col), test_coo.data, test_coo.shape),
+    )
+
+
+def dg_approx_nn_netflix():
+    return generate_netflix_data(n_train=2000, n_test=200, seed=0)

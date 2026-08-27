@@ -1,8 +1,11 @@
 import numpy as np
+import pytest
 
 from sparseappbench.benchmarks.approx_nn import (
     benchmark_johnson_lindenstrauss_nn,
+    dg_approx_nn_cifar10,
     dg_approx_nn_mnist,
+    dg_approx_nn_netflix,
 )
 from sparseappbench.binsparse_format import BinsparseFormat
 from sparseappbench.frameworks.numpy_framework import NumpyFramework
@@ -64,4 +67,58 @@ def test_dg_approx_nn_mnist():
     assert np.all(nearest_dist >= 0)
 
     #sorted correctly
+    assert np.all(nearest_dist[:, :-1] <= nearest_dist[:, 1:])
+
+
+def test_dg_approx_nn_cifar10():
+    xp = NumpyFramework()
+    k = 5
+    eps = 0.3
+
+    try:
+        data_set, query_set = dg_approx_nn_cifar10()
+    except Exception as e:
+        pytest.skip(f"Failed to download/load CIFAR-10 data: {e}")
+
+    data_np = xp.from_benchmark(data_set)
+    query_np = xp.from_benchmark(query_set)
+
+    nearest_ind, nearest_dist = benchmark_johnson_lindenstrauss_nn(
+        xp, data_set, query_set, k=k, eps=eps
+    )
+
+    nearest_ind = xp.from_benchmark(nearest_ind)
+    nearest_dist = xp.from_benchmark(nearest_dist)
+
+    assert nearest_ind.shape == (len(query_np), k)
+    assert nearest_dist.shape == (len(query_np), k)
+    assert np.all(nearest_ind >= 0) and np.all(nearest_ind < len(data_np))
+    assert np.all(nearest_dist >= 0)
+    assert np.all(nearest_dist[:, :-1] <= nearest_dist[:, 1:])
+
+
+def test_dg_approx_nn_netflix():
+    xp = NumpyFramework()
+    k = 5
+    eps = 0.3
+
+    try:
+        data_set, query_set = dg_approx_nn_netflix()
+    except Exception as e:
+        pytest.skip(f"Failed to download/load Netflix data: {e}")
+
+    data_np = xp.from_benchmark(data_set)
+    query_np = xp.from_benchmark(query_set)
+
+    nearest_ind, nearest_dist = benchmark_johnson_lindenstrauss_nn(
+        xp, data_set, query_set, k=k, eps=eps
+    )
+
+    nearest_ind = xp.from_benchmark(nearest_ind)
+    nearest_dist = xp.from_benchmark(nearest_dist)
+
+    assert nearest_ind.shape == (len(query_np), k)
+    assert nearest_dist.shape == (len(query_np), k)
+    assert np.all(nearest_ind >= 0) and np.all(nearest_ind < len(data_np))
+    assert np.all(nearest_dist >= 0)
     assert np.all(nearest_dist[:, :-1] <= nearest_dist[:, 1:])

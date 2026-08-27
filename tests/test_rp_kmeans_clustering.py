@@ -1,7 +1,10 @@
 import numpy as np
+import pytest
 
 from sparseappbench.benchmarks.rp_kmeans_clustering import (
+    dg_kmeans_cifar10,
     dg_kmeans_mnist,
+    dg_kmeans_netflix,
     rp_kmeans_clustering,
 )
 from sparseappbench.binsparse_format import BinsparseFormat
@@ -68,3 +71,36 @@ def test_dg_kmeans_mnist():
 
     #correct number of clusters (10)
     assert len(np.unique(labels)) == k
+
+
+def test_dg_kmeans_cifar10():
+    xp = NumpyFramework()
+
+    try:
+        data_set, k, eps = dg_kmeans_cifar10()
+    except Exception as e:
+        pytest.skip(f"Failed to download/load CIFAR-10 data: {e}")
+
+    data_np = xp.from_benchmark(data_set)
+    result = rp_kmeans_clustering(xp, data_set, k=k, eps=eps)
+    labels = xp.from_benchmark(result)
+
+    assert labels.shape == (len(data_np),)
+    assert np.all(labels >= 0) and np.all(labels < k)
+    assert len(np.unique(labels)) == k
+
+
+def test_dg_kmeans_netflix():
+    xp = NumpyFramework()
+
+    try:
+        data_set, k, eps = dg_kmeans_netflix()
+    except Exception as e:
+        pytest.skip(f"Failed to download/load Netflix data: {e}")
+
+    data_np = xp.from_benchmark(data_set)
+    result = rp_kmeans_clustering(xp, data_set, k=k, eps=eps)
+    labels = xp.from_benchmark(result)
+
+    assert labels.shape == (len(data_np),)
+    assert np.all(labels >= 0) and np.all(labels < k)
