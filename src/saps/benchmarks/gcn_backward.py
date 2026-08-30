@@ -2,8 +2,8 @@ from typing import Any, cast
 
 import numpy as np
 
-from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse import BinsparseTensor, COORMatrix
+from binsparse.conversions import from_numpy, to_numpy, to_scipy
 
 from saps.benchmark import (
     Author,
@@ -14,20 +14,13 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
-from saps_framework.binsparse_utils import from_coo, to_coo
 
 
 def _from_binsparse(array):
     try:
         return to_numpy(array)
     except TypeError:
-        array = to_coo(array)
-        shape = array.shape
-        indices = tuple(getattr(array, f"indices_{dim}") for dim in range(len(shape)))
-        values = array.values
-        dense = np.zeros(shape, dtype=values.dtype)
-        dense[indices] = values
-        return dense
+        return to_scipy(array).toarray()
 
 
 def _gcn_loss(adjacency, features, weights1, bias1, weights2, bias2, targets):
@@ -485,7 +478,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
         out_dim = dataset.out_dim
 
         raw = fetch_suitesparse_matrix(dataset.source_name)
-        coo = to_coo(raw.inputs[0])
+        coo = to_scipy(raw.inputs[0]).tocoo()
         rng = np.random.default_rng(0)
 
         # Create feature/weight arrays using the RNG (deterministic)
@@ -497,12 +490,24 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
         bias2 = np.zeros((out_dim,), dtype=np.float32)
         targets = rng.standard_normal((n, out_dim), dtype=np.float32)
 
-        row, col = coo.indices_0, coo.indices_1
+        row, col = coo.row, coo.col
         shape = coo.shape
-        values_f32 = coo.values.astype(np.float32, copy=False)
-        A_bin = from_coo((row, col), values_f32, shape)
+        values_f32 = coo.data.astype(np.float32, copy=False)
+        A_bin = COORMatrix(
+            shape,
+            len(values_f32),
+            indices_0=row,
+            indices_1=col,
+            values=values_f32,
+        )
         # Transpose of a COO matrix is its indices swapped; same values, shape reversed.
-        A_T_bin = from_coo((col, row), values_f32, (shape[1], shape[0]))
+        A_T_bin = COORMatrix(
+            (shape[1], shape[0]),
+            len(values_f32),
+            indices_0=col,
+            indices_1=row,
+            values=values_f32,
+        )
         features_b = from_numpy(features)
         weights1_b = from_numpy(weights1)
         bias1_b = from_numpy(bias1)

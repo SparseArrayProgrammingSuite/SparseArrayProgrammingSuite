@@ -2,6 +2,7 @@ from typing import Any
 
 import numpy as np
 
+from binsparse import CustomTensor, ElementLevel, SparseLevel
 from binsparse.conversions import from_numpy, to_numpy
 
 from saps.benchmark import (
@@ -14,7 +15,6 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.frostt import fetch_frostt_tensor, frostt_tensor_shape
-from saps_framework.binsparse_utils import from_coo
 
 
 class HOSVD5DDataset(Dataset):
@@ -243,8 +243,10 @@ class HOSVD5DSparseGenerator(Generator[HOSVD5DDataset]):
         indices = np.nonzero(X_dense)
         values = X_dense[indices]
 
-        X_bin = from_coo(
-            indices, values, (dim1, dim2, dim3, dim4, dim5)
+        X_bin = CustomTensor(
+            (dim1, dim2, dim3, dim4, dim5),
+            len(values),
+            level=SparseLevel(5, ElementLevel(values), indices),
         )
 
         ranks_bin = from_numpy(np.array(ranks))

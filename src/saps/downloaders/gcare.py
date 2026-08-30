@@ -12,9 +12,13 @@ from typing import Any
 
 import numpy as np
 
-from binsparse import BinsparseTensor
-
-from saps_framework.binsparse_utils import from_coo
+from binsparse import (
+    BinsparseTensor,
+    COORMatrix,
+    CustomTensor,
+    ElementLevel,
+    SparseLevel,
+)
 
 
 def list_gcare_queries(
@@ -54,9 +58,24 @@ def load_gcare_graph(
     bin_mats: list[BinsparseTensor] = []
     for name, raw in raw_sp_mats.items():
         matrix_names.append(name)
-        bin_mats.append(
-            from_coo(raw["I_tuple"], raw["V"], raw["shape"])
-        )
+        indices = tuple(raw["I_tuple"])
+        values = raw["V"]
+        shape = tuple(raw["shape"])
+        if len(shape) == 2:
+            tensor = COORMatrix(
+                shape,
+                len(values),
+                indices_0=indices[0],
+                indices_1=indices[1],
+                values=values,
+            )
+        else:
+            tensor = CustomTensor(
+                shape,
+                len(values),
+                level=SparseLevel(len(shape), ElementLevel(values), indices),
+            )
+        bin_mats.append(tensor)
     meta = {
         "matrix_names": matrix_names,
         "max_vid": max_vid,
@@ -313,22 +332,33 @@ def _build_query_matrices(
     for sp_name in sp_mats_name:
         if sp_name not in all_sp_mats:
             if sp_name.startswith("P"):  # one-hot node-id vector
-                sp_mats_needed[sp_name] = from_coo(
-                    (np.array([0]), np.array([int(sp_name[1:])])),
-                    np.array([1]),
+                values = np.array([1])
+                sp_mats_needed[sp_name] = CustomTensor(
                     (max_vid + 1,),
+                    len(values),
+                    level=SparseLevel(
+                        1,
+                        ElementLevel(values),
+                        (np.array([int(sp_name[1:])]),),
+                    ),
                 )
             elif sp_name.startswith("V"):  # missing vertex label → all-zero vector
-                sp_mats_needed[sp_name] = from_coo(
-                    (np.array([0]),),
-                    np.array([0]),
+                values = np.array([0])
+                sp_mats_needed[sp_name] = CustomTensor(
                     (max_vid + 1,),
+                    len(values),
+                    level=SparseLevel(
+                        1, ElementLevel(values), (np.array([0]),)
+                    ),
                 )
             elif sp_name.startswith("E"):  # missing edge label → all-zero matrix
-                sp_mats_needed[sp_name] = from_coo(
-                    (np.array([0]), np.array([0])),
-                    np.array([0]),
+                values = np.array([0])
+                sp_mats_needed[sp_name] = COORMatrix(
                     (max_vid + 1, max_vid + 1),
+                    len(values),
+                    indices_0=np.array([0]),
+                    indices_1=np.array([0]),
+                    values=values,
                 )
         else:
             sp_mats_needed[sp_name] = all_sp_mats[sp_name]

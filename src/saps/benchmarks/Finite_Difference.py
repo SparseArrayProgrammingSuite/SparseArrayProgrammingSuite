@@ -2,7 +2,7 @@ import numpy as np
 
 import sparse as pydata_sparse
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse.conversions import from_numpy, from_sparse, to_numpy, to_sparse
 
 from saps.benchmark import (
     Author,
@@ -13,27 +13,20 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps_framework.binsparse_utils import from_coo, to_coo
 
 
 def _from_binsparse(array):
     try:
         return to_numpy(array)
     except TypeError:
-        array = to_coo(array)
-        shape = array.shape
-        coords = np.array(
-            [getattr(array, f"indices_{dim}") for dim in range(len(shape))]
-        )
-        return pydata_sparse.COO(coords, array.values, shape=shape).todense()
+        return to_sparse(array).todense()
 
 
 def _to_binsparse(array):
     if isinstance(array, BinsparseTensor):
         return array
     if isinstance(array, pydata_sparse.SparseArray):
-        coo = array.to_coo()
-        return from_coo(tuple(coo.coords), coo.data, coo.shape)
+        return from_sparse(array.asformat("coo"))
     return from_numpy(np.asarray(array))
 
 

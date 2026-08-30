@@ -3,7 +3,7 @@ from typing import Any, cast
 import numpy as np
 
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
 from saps.benchmark import (
     Author,
@@ -14,7 +14,6 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
-from saps_framework.binsparse_utils import from_coo, to_coo
 
 
 class GCNDataset(SuiteSparseDataset):
@@ -366,7 +365,7 @@ class GCNGenerator(Generator[GCNDataset]):
         out_dim = dataset.out_dim
 
         raw = fetch_suitesparse_matrix(dataset.source_name)
-        coo = to_coo(raw.inputs[0])
+        coo = to_scipy(raw.inputs[0]).tocoo()
         rng = np.random.default_rng(0)
 
         # Create feature/weight arrays using the RNG (deterministic)
@@ -377,11 +376,8 @@ class GCNGenerator(Generator[GCNDataset]):
         weights2 = rng.standard_normal((hidden_dim, out_dim), dtype=np.float32)
         bias2 = np.zeros((out_dim,), dtype=np.float32)
 
-        A_bin = from_coo(
-            (coo.indices_0, coo.indices_1),
-            coo.values.astype(np.float32, copy=False),
-            coo.shape,
-        )
+        coo.data = coo.data.astype(np.float32, copy=False)
+        A_bin = from_scipy(coo)
         features_b = from_numpy(features)
         weights1_b = from_numpy(weights1)
         bias1_b = from_numpy(bias1)

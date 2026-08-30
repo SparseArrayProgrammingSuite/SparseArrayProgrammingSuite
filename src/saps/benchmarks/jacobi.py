@@ -1,8 +1,9 @@
 import numpy as np
+import scipy.sparse as scipy_sparse
 
 import sparse as pydata_sparse
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse.conversions import from_numpy, to_numpy, to_scipy
 
 from saps.benchmark import (
     Author,
@@ -16,7 +17,7 @@ from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     fetch_suitesparse_linear_system,
 )
-from saps_framework.binsparse_utils import binsparse_equal, to_coo
+from saps_framework.binsparse_utils import binsparse_equal
 
 
 class JacobiDataset(SuiteSparseDataset):
@@ -302,10 +303,13 @@ class JacobiBenchmark(Benchmark):
             return
 
         A_bin, b_bin, _x_bin = self._input
-        A_coo = to_coo(A_bin)
+        try:
+            A_coo = to_scipy(A_bin).tocoo()
+        except TypeError:
+            A_coo = scipy_sparse.coo_array(to_numpy(A_bin))
         A = pydata_sparse.COO(
-            coords=np.stack((A_coo.indices_0, A_coo.indices_1)),
-            data=A_coo.values,
+            coords=np.stack((A_coo.row, A_coo.col)),
+            data=A_coo.data,
             shape=A_coo.shape,
         )
         decimals = self._ref_meta["round_decimals"]
@@ -314,10 +318,8 @@ class JacobiBenchmark(Benchmark):
             decimals=decimals,
         )
 
-        actual_b = to_coo(
-            from_numpy(np.asarray(A @ x_sol))
-        )
-        expected_b = to_coo(b_bin)
+        actual_b = from_numpy(np.asarray(A @ x_sol))
+        expected_b = b_bin
         assert binsparse_equal(expected_b, actual_b), (
             f"Jacobi residual mismatch for {param.dataset.name}"
         )

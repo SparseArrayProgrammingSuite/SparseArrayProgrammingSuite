@@ -3,7 +3,7 @@ from typing import Any
 import numpy as np
 
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy, to_scipy
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
 from saps.benchmark import (
     Author,
@@ -15,7 +15,6 @@ from saps.benchmark import (
     ShellBenchmark,
 )
 from saps.downloaders.suitesparse import load_suitesparse_matrix, random_rhs_for_matrix
-from saps_framework.binsparse_utils import from_coo
 
 
 class SuiteSparseDataset(Dataset):
@@ -529,7 +528,7 @@ class SuiteSparseMatrixGenerator(Generator[SuiteSparseDataset]):
 
     def generate(self, dataset: SuiteSparseDataset) -> DataInstance:
         A, b, meta = load_suitesparse_matrix(dataset.source_name)
-        inputs = [from_coo((A.row, A.col), A.data, A.shape)]
+        inputs = [from_scipy(A)]
         if b is not None:
             inputs.append(from_numpy(b))
         return DataInstance(inputs=inputs, meta=meta)

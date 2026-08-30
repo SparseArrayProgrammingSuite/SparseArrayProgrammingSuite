@@ -3,7 +3,7 @@ import logging
 import numpy as np
 
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse.conversions import from_numpy, from_scipy, to_numpy
 
 from saps.benchmark import (
     Author,
@@ -14,7 +14,6 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps_framework.binsparse_utils import from_coo
 
 
 class JLApproxNNDataset(Dataset):
@@ -304,14 +303,7 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
         projection_matrix = (U_Neg + U_Pos).tocoo()
 
         meta = {"k": dataset.k, "eps": dataset.eps}
-        P = from_coo(
-            (
-                projection_matrix.row,
-                projection_matrix.col,
-            ),
-            projection_matrix.data,
-            projection_matrix.shape,
-        )
+        P = from_scipy(projection_matrix)
 
         return DataInstance(
             inputs=[

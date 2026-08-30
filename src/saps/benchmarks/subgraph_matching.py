@@ -1,5 +1,6 @@
 import numpy as np
 
+from binsparse import COORMatrix, CustomTensor, ElementLevel, SparseLevel
 from binsparse.conversions import to_numpy
 
 from saps.benchmark import (
@@ -16,7 +17,6 @@ from saps.downloaders.gcare import (
     load_gcare_graph,
     load_gcare_query,
 )
-from saps_framework.binsparse_utils import from_coo
 
 
 class GCareGraphDataset(Dataset):
@@ -198,16 +198,30 @@ class SubgraphMatchingTestGenerator(Generator[SubgraphMatchingTestDataset]):
 
     def generate(self, dataset: SubgraphMatchingTestDataset):
         matrices = {
-            "VA": from_coo(
-                (np.array([0, 2]),), np.ones(2, dtype=np.int64), (3,)
+            "VA": CustomTensor(
+                (3,),
+                2,
+                level=SparseLevel(
+                    1,
+                    ElementLevel(np.ones(2, dtype=np.int64)),
+                    (np.array([0, 2]),),
+                ),
             ),
-            "VB": from_coo(
-                (np.array([1]),), np.ones(1, dtype=np.int64), (3,)
+            "VB": CustomTensor(
+                (3,),
+                1,
+                level=SparseLevel(
+                    1,
+                    ElementLevel(np.ones(1, dtype=np.int64)),
+                    (np.array([1]),),
+                ),
             ),
-            "E0": from_coo(
-                (np.array([0, 0, 2]), np.array([1, 2, 1])),
-                np.ones(3, dtype=np.int64),
+            "E0": COORMatrix(
                 (3, 3),
+                3,
+                indices_0=np.array([0, 0, 2]),
+                indices_1=np.array([1, 2, 1]),
+                values=np.ones(3, dtype=np.int64),
             ),
         }
         return DataInstance(

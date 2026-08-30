@@ -2,10 +2,11 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 import numpy as np
+import scipy.sparse as scipy_sparse
 
 import sparse as pydata_sparse
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy, to_scipy
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
 from saps.benchmark import (
     Author,
@@ -20,7 +21,6 @@ from saps.benchmarks.suitesparse import (
     fetch_suitesparse_linear_system,
 )
 from saps.downloaders.suitesparse import random_rhs_for_matrix
-from saps_framework.binsparse_utils import from_coo, to_coo
 
 
 def _generate_cg_data(source, A=None):
@@ -29,7 +29,7 @@ def _generate_cg_data(source, A=None):
 
         A = sp.coo_matrix(A)
         b = random_rhs_for_matrix(A)
-        A_bin = from_coo((A.row, A.col), A.data, A.shape)
+        A_bin = from_scipy(A)
     else:
         A_bin, b, _has_real_rhs = fetch_suitesparse_linear_system(source)
     x0 = np.zeros(A_bin.shape[1])
@@ -194,7 +194,7 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
             blocks.append(L_i)
             i = j
         M = sp.block_diag(blocks).tocoo()
-        M_bin = from_coo((M.row, M.col), M.data, M.shape)
+        M_bin = from_scipy(M)
         b_bin = from_numpy(b)
         x0_bin = from_numpy(x0)
         return DataInstance(
@@ -432,10 +432,13 @@ class _PreconditionedCGBase(Benchmark, ABC):
             return
 
         A_bin, b_bin, _x0_bin, _M_bin = self._input
-        A_coo = to_coo(A_bin)
+        try:
+            A_coo = to_scipy(A_bin).tocoo()
+        except TypeError:
+            A_coo = scipy_sparse.coo_array(to_numpy(A_bin))
         A = pydata_sparse.COO(
-            coords=np.stack((A_coo.indices_0, A_coo.indices_1)),
-            data=A_coo.values,
+            coords=np.stack((A_coo.row, A_coo.col)),
+            data=A_coo.data,
             shape=A_coo.shape,
         )
         b = to_numpy(b_bin)

@@ -2,7 +2,7 @@ import numpy as np
 
 import sparse as sp
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse.conversions import from_numpy, to_numpy, to_scipy
 
 from saps.benchmark import (
     Author,
@@ -13,7 +13,6 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
-from saps_framework.binsparse_utils import to_coo
 
 
 class FloydWarshallDataset(SuiteSparseDataset):
@@ -537,10 +536,10 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
         if n != m:
             raise ValueError(f"Floyd-Warshall requires a square matrix, got {(n, m)}")
 
-        coo = to_coo(raw.inputs[0])
+        coo = to_scipy(raw.inputs[0]).tocoo()
         G = np.full((n, n), np.inf, dtype=np.float64)
         if raw.meta["nnz"] > 0:
-            G[coo.indices_0, coo.indices_1] = 1.0
+            G[coo.row, coo.col] = 1.0
         np.fill_diagonal(G, 0.0)
 
         if dataset.symmetrize:

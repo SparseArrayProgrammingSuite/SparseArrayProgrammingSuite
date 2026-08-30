@@ -1,7 +1,7 @@
 import numpy as np
 
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse.conversions import from_numpy, to_numpy, to_scipy
 
 from saps.benchmark import (
     Author,
@@ -21,7 +21,6 @@ from saps.benchmarks.suitesparse import (
     fetch_suitesparse_matrix,
 )
 from saps.downloaders.snap import download_snap_dataset
-from saps_framework.binsparse_utils import to_coo
 
 
 class BellmanFordDataset(Dataset):
@@ -598,10 +597,10 @@ def _adjacency_to_distance(
             values[values.astype(bool)] if keep_weights else 1.0
         )
     except TypeError:
-        adjacency = to_coo(adjacency)
-        rows = adjacency.indices_0
-        cols = adjacency.indices_1
-        distances[rows, cols] = adjacency.values if keep_weights else 1.0
+        adjacency_coo = to_scipy(adjacency).tocoo()
+        distances[adjacency_coo.row, adjacency_coo.col] = (
+            adjacency_coo.data if keep_weights else 1.0
+        )
 
     np.fill_diagonal(distances, 0.0)
     return from_numpy(distances)
