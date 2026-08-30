@@ -17,6 +17,7 @@ from binsparse import BinsparseTensor as BinsparseTensor
 
 from saps.dependencies import dependency_versions
 from saps.framework import load_framework
+from saps.metadata import committed_dataset_metadata
 from saps.storage import build_storage_backend
 from saps_framework.framework import Framework
 
@@ -605,14 +606,19 @@ class Benchmark(Tagged, Attributed, Motivated):
                 encoding="utf-8",
             )
         if statistics_path:
+            dataset_metadata = committed_dataset_metadata(
+                param.generator.name,
+                param.dataset.name,
+                benchmark_name=self.name,
+            )
             _write_statistics_tags(
                 Path(statistics_path),
                 self.name,
                 param.generator.name,
                 param.dataset.name,
-                param.dataset.file,
-                param.dataset.freshness,
-                param.dataset.dependencies,
+                dataset_metadata["file"],
+                dataset_metadata["freshness"],
+                dataset_metadata["dependencies"],
                 tags,
             )
 

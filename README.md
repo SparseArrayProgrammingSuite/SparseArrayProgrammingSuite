@@ -95,6 +95,9 @@ The runner owns these values and normally you should not set them in `saps.conf.
 
 - `SAPS_CACHE_DIR`: set to `.saps/outputs/cache`.
 - `SAPS_MANIFEST_PATH`: set to the repository `manifest.json`.
+- `SAPS_METADATA_PATH`: set to the repository `metadata.json`; runtime dataset
+  caching and statistics consume the provenance recorded there instead of
+  recalculating source freshness inside ASV environments.
 - `SAPS_TAGGER_STATS_DIR` and `SAPS_STATISTICS_PATH`: set during `--trace-statistics`.
 - ASV `project`, `repo`, `branches`, `benchmark_dir`, and `html_dir`: derived from the repository and `.saps/outputs`.
 
