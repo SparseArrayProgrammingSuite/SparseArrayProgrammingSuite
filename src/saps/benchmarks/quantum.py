@@ -2,7 +2,7 @@ from typing import Any
 
 import numpy as np
 
-from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
 
 from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
 
@@ -179,16 +179,16 @@ class QuantumStateGenerator(Generator[QuantumDataset]):
         dim = 1 << nqubits
         state = np.zeros(dim, dtype=np.complex128)
         state[0] = 1.0 + 0j  # |000...0
-        state_bin = BinsparseTensor.from_numpy(state)
+        state_bin = from_numpy(state)
         return DataInstance(
             inputs=[
                 state_bin,
-                BinsparseTensor.from_numpy(QGates.H),
-                BinsparseTensor.from_numpy(QGates.X),
-                BinsparseTensor.from_numpy(QGates.Y),
-                BinsparseTensor.from_numpy(QGates.Z),
-                BinsparseTensor.from_numpy(QGates.S),
-                BinsparseTensor.from_numpy(QGates.T),
+                from_numpy(QGates.H),
+                from_numpy(QGates.X),
+                from_numpy(QGates.Y),
+                from_numpy(QGates.Z),
+                from_numpy(QGates.S),
+                from_numpy(QGates.T),
             ],
             meta={"nqubits": nqubits, "gate_sequence": dataset.gate_sequence},
             ref_meta=dataset.ref_meta,
@@ -524,16 +524,16 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
     def generate(self, dataset: QuantumDataset) -> DataInstance:
         ref_outputs = None
         if dataset.expected is not None:
-            ref_outputs = [BinsparseTensor.from_numpy(dataset.expected)]
+            ref_outputs = [from_numpy(dataset.expected)]
         return DataInstance(
             inputs=[
-                BinsparseTensor.from_numpy(_zero_state(dataset.nqubits)),
-                BinsparseTensor.from_numpy(QGates.H),
-                BinsparseTensor.from_numpy(QGates.X),
-                BinsparseTensor.from_numpy(QGates.Y),
-                BinsparseTensor.from_numpy(QGates.Z),
-                BinsparseTensor.from_numpy(QGates.S),
-                BinsparseTensor.from_numpy(QGates.T),
+                from_numpy(_zero_state(dataset.nqubits)),
+                from_numpy(QGates.H),
+                from_numpy(QGates.X),
+                from_numpy(QGates.Y),
+                from_numpy(QGates.Z),
+                from_numpy(QGates.S),
+                from_numpy(QGates.T),
             ],
             meta={
                 "nqubits": dataset.nqubits,
@@ -627,11 +627,9 @@ class QuantumStatevectorBenchmark(Benchmark):
     def check(self, param):
         super().check(param)
         output_bin = self._output[0]
-        assert output_bin.data["shape"] == (1 << self._meta["nqubits"],)
-        assert output_bin.data["values"].dtype == np.complex128
-        result = np.array(output_bin.data["values"], dtype=np.complex128).reshape(
-            output_bin.data["shape"]
-        )
+        assert output_bin.shape == (1 << self._meta["nqubits"],)
+        result = to_numpy(output_bin)
+        assert result.dtype == np.complex128
 
         if self._ref_meta.get("check_norm"):
             norm = np.sqrt(np.sum(np.abs(result) ** 2))
@@ -639,9 +637,7 @@ class QuantumStatevectorBenchmark(Benchmark):
 
         if self._ref_outputs is not None:
             expected = (
-                self._ref_outputs[0]
-                .data["values"]
-                .reshape(self._ref_outputs[0].data["shape"])
+                to_numpy(self._ref_outputs[0])
             )
             np.testing.assert_allclose(
                 result,

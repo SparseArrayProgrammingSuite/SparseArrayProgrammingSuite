@@ -14,6 +14,8 @@ import numpy as np
 
 from binsparse import BinsparseTensor
 
+from saps_framework.binsparse_utils import from_coo
+
 
 def list_gcare_queries(
     dataset_name: str, data_dir: str | Path | None = None
@@ -53,7 +55,7 @@ def load_gcare_graph(
     for name, raw in raw_sp_mats.items():
         matrix_names.append(name)
         bin_mats.append(
-            BinsparseTensor.from_coo(raw["I_tuple"], raw["V"], raw["shape"])
+            from_coo(raw["I_tuple"], raw["V"], raw["shape"])
         )
     meta = {
         "matrix_names": matrix_names,
@@ -311,19 +313,19 @@ def _build_query_matrices(
     for sp_name in sp_mats_name:
         if sp_name not in all_sp_mats:
             if sp_name.startswith("P"):  # one-hot node-id vector
-                sp_mats_needed[sp_name] = BinsparseTensor.from_coo(
+                sp_mats_needed[sp_name] = from_coo(
                     (np.array([0]), np.array([int(sp_name[1:])])),
                     np.array([1]),
                     (max_vid + 1,),
                 )
             elif sp_name.startswith("V"):  # missing vertex label → all-zero vector
-                sp_mats_needed[sp_name] = BinsparseTensor.from_coo(
+                sp_mats_needed[sp_name] = from_coo(
                     (np.array([0]),),
                     np.array([0]),
                     (max_vid + 1,),
                 )
             elif sp_name.startswith("E"):  # missing edge label → all-zero matrix
-                sp_mats_needed[sp_name] = BinsparseTensor.from_coo(
+                sp_mats_needed[sp_name] = from_coo(
                     (np.array([0]), np.array([0])),
                     np.array([0]),
                     (max_vid + 1, max_vid + 1),

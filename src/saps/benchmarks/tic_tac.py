@@ -1,8 +1,9 @@
 import numpy as np
 
+from binsparse.conversions import from_numpy, to_numpy
+
 from saps.benchmark import (
     Benchmark,
-    BinsparseTensor,
     Contributor,
     DataInstance,
     Dataset,
@@ -350,10 +351,10 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
         ]
 
     def generate(self, dataset: TicTacToeDataset):
-        S_bin = BinsparseTensor.from_numpy(dataset.board)
+        S_bin = from_numpy(dataset.board)
         ref_outputs = None
         if dataset.expected is not None:
-            ref_outputs = [BinsparseTensor.from_numpy(np.asarray(dataset.expected))]
+            ref_outputs = [from_numpy(np.asarray(dataset.expected))]
         return DataInstance(
             inputs=[S_bin], meta={"depth": dataset.depth}, ref_outputs=ref_outputs
         )
@@ -450,10 +451,8 @@ class TicTacToeBenchmark(Benchmark):
         super().check(param)
         if self._ref_outputs is None:
             return
-        actual = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        actual = to_numpy(self._output[0])
         expected = (
-            self._ref_outputs[0]
-            .data["values"]
-            .reshape(self._ref_outputs[0].data["shape"])
+            to_numpy(self._ref_outputs[0])
         )
         assert np.allclose(actual, expected, atol=1e-6)

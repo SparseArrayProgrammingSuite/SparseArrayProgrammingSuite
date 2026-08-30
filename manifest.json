@@ -1198,7 +1198,7 @@
     ],
     "digest": "66449acce1bdf753cba804bb6edfd5af6227eec735f074c60bf34682316a3e53",
     "file": "src/saps/benchmarks/Finite_Difference_2D.py",
-    "freshness": "281230d76d193fa43b3f3bf8c71b3e1a58bfa90f4f6c05e283964911af2ed860"
+    "freshness": "3f427bb0039ec08ee66330c2dec9f636ad05b31bc59b87478339de9bc138a562"
   },
   "floyd_warshall_inputs.arc130": {
     "dependencies": [
@@ -5259,8 +5259,7 @@
       "botocore",
       "h5py",
       "lark",
-      "numpy",
-      "scipy.sparse"
+      "numpy"
     ],
     "dependency_versions": [
       {
@@ -5286,15 +5285,11 @@
       {
         "name": "numpy",
         "version": "2.3.5"
-      },
-      {
-        "name": "scipy",
-        "version": "1.17.1"
       }
     ],
     "digest": "7eb9373e2e5cb56ad0b6876d0970d811cd530657f03fb177681b49fe4d960fe7",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "654d1b8f0383ddab7df601e66b52049a62333b04761ea2c6c45b0941247de138"
+    "freshness": "33eb55900f769368947056b8cd5a254091e48794a5b8d1f6749880de2ea06105"
   },
   "subgraph_gcare_graph.aids": {
     "dependencies": [

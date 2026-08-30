@@ -3,6 +3,7 @@ import math
 import numpy as np
 
 from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
 
 from saps.benchmark import (
     Author,
@@ -230,13 +231,13 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
         expected = reference_particle_sim(x, y, vx, vy, size, steps)
         return DataInstance(
             inputs=[
-                BinsparseTensor.from_numpy(x),
-                BinsparseTensor.from_numpy(y),
-                BinsparseTensor.from_numpy(vx),
-                BinsparseTensor.from_numpy(vy),
+                from_numpy(x),
+                from_numpy(y),
+                from_numpy(vx),
+                from_numpy(vy),
             ],
             meta={"size": size, "steps": steps},
-            ref_outputs=[BinsparseTensor.from_numpy(value) for value in expected],
+            ref_outputs=[from_numpy(value) for value in expected],
         )
 
 
@@ -381,8 +382,8 @@ class ParticleSimBenchmark(Benchmark):
         for i, (actual, expected) in enumerate(
             zip(self._output, self._ref_outputs, strict=True)
         ):
-            actual_values = actual.data["values"].reshape(actual.data["shape"])
-            expected_values = expected.data["values"].reshape(expected.data["shape"])
+            actual_values = to_numpy(actual)
+            expected_values = to_numpy(expected)
             assert np.all(actual_values == expected_values), (
                 f"Particle simulation output {i} mismatch for {param.dataset.name}"
             )

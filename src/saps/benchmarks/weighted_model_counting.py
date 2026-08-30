@@ -2,11 +2,12 @@ import textwrap
 
 import numpy as np
 
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
 from pyparsing import Any
 
 from saps.benchmark import (
     Benchmark,
-    BinsparseTensor,
     Contributor,
     DataInstance,
     Dataset,
@@ -349,11 +350,11 @@ class WMCGenerator(Generator[WMCDataset]):
         expr = clauses_to_einsum(clauses, num_vars)
 
         data_list: list[BinsparseTensor] = [
-            BinsparseTensor.from_numpy(np.array([0, 1]))
+            from_numpy(np.array([0, 1]))
         ]
 
         data_list.extend(
-            BinsparseTensor.from_numpy(np.array([weights[-i], weights[i]]))
+            from_numpy(np.array([weights[-i], weights[i]]))
             for i in range(1, num_vars + 1)
         )
 
@@ -372,7 +373,7 @@ class WMCGenerator(Generator[WMCDataset]):
         return DataInstance(
             inputs=data_list,
             meta=meta,
-            ref_outputs=[BinsparseTensor.from_numpy(np.array(dataset.expected))],
+            ref_outputs=[from_numpy(np.array(dataset.expected))],
         )
 
 
@@ -449,12 +450,10 @@ class WeightedModelCounting(Benchmark):
         if self._ref_outputs is None:
             return
         result = float(
-            self._output[0].data["values"].reshape(self._output[0].data["shape"])
+            to_numpy(self._output[0])
         )
         expected = float(
-            self._ref_outputs[0]
-            .data["values"]
-            .reshape(self._ref_outputs[0].data["shape"])
+            to_numpy(self._ref_outputs[0])
         )
         assert np.isclose(result, expected, rtol=10e-8), (
             f"Test '{param.dataset.name}' failed: expected {expected}, got {result}"

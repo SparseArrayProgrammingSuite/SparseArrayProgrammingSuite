@@ -2,7 +2,7 @@ from typing import Any
 
 import numpy as np
 
-from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
 
 from saps.benchmark import (
     Author,
@@ -14,6 +14,7 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.frostt import fetch_frostt_tensor, frostt_tensor_shape
+from saps_framework.binsparse_utils import from_coo
 
 
 class HOSVDDataset(Dataset):
@@ -146,9 +147,9 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
 
         X_dense = np.einsum("pqr,ip,jq,kr->ijk", G, A, B, C)
 
-        X_bin = BinsparseTensor.from_numpy(X_dense)
+        X_bin = from_numpy(X_dense)
 
-        ranks_bin = BinsparseTensor.from_numpy(np.array(ranks))
+        ranks_bin = from_numpy(np.array(ranks))
         return DataInstance(
             inputs=[X_bin, ranks_bin],
             meta={"max_iter": 50, "tolerance": 1e-8},
@@ -235,9 +236,9 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
         indices = np.nonzero(X_dense)
         values = X_dense[indices]
 
-        X_bin = BinsparseTensor.from_coo(indices, values, (dim1, dim2, dim3))
+        X_bin = from_coo(indices, values, (dim1, dim2, dim3))
 
-        ranks_bin = BinsparseTensor.from_numpy(np.array(ranks))
+        ranks_bin = from_numpy(np.array(ranks))
         return DataInstance(
             inputs=[X_bin, ranks_bin],
             meta={"max_iter": 50, "tolerance": 1e-8},
@@ -384,7 +385,7 @@ class HOSVDFrosttGenerator(Generator[HOSVDFrosttDataset]):
     def generate(self, dataset: HOSVDFrosttDataset):
         raw = fetch_frostt_tensor(dataset.tensor_name)
         X_bin = raw.inputs[0]
-        ranks_bin = BinsparseTensor.from_numpy(np.array(dataset.ranks))
+        ranks_bin = from_numpy(np.array(dataset.ranks))
         return DataInstance(
             inputs=[X_bin, ranks_bin],
             meta={"max_iter": 50, "tolerance": 1e-8},
@@ -589,10 +590,10 @@ class HOSVDBenchmark(Benchmark):
         super().check(param)
         if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
             return
-        X = self._input[0].data["values"].reshape(self._input[0].data["shape"])
-        core = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        X = to_numpy(self._input[0])
+        core = to_numpy(self._output[0])
         factors = [
-            output.data["values"].reshape(output.data["shape"])
+            to_numpy(output)
             for output in self._output[1:]
         ]
         X_rec = _reconstruct_tensor(core, factors)

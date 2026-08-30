@@ -1,6 +1,6 @@
 import numpy as np
 
-from binsparse import BinsparseTensor
+from binsparse.conversions import to_numpy
 
 from saps.benchmark import (
     Author,
@@ -16,6 +16,7 @@ from saps.downloaders.gcare import (
     load_gcare_graph,
     load_gcare_query,
 )
+from saps_framework.binsparse_utils import from_coo
 
 
 class GCareGraphDataset(Dataset):
@@ -197,13 +198,13 @@ class SubgraphMatchingTestGenerator(Generator[SubgraphMatchingTestDataset]):
 
     def generate(self, dataset: SubgraphMatchingTestDataset):
         matrices = {
-            "VA": BinsparseTensor.from_coo(
+            "VA": from_coo(
                 (np.array([0, 2]),), np.ones(2, dtype=np.int64), (3,)
             ),
-            "VB": BinsparseTensor.from_coo(
+            "VB": from_coo(
                 (np.array([1]),), np.ones(1, dtype=np.int64), (3,)
             ),
-            "E0": BinsparseTensor.from_coo(
+            "E0": from_coo(
                 (np.array([0, 0, 2]), np.array([1, 2, 1])),
                 np.ones(3, dtype=np.int64),
                 (3, 3),
@@ -2734,5 +2735,5 @@ class SubgraphMatching(Benchmark):
         super().check(param)
         if not self._ref_meta or "gt" not in self._ref_meta:
             return
-        result = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        result = to_numpy(self._output[0])
         assert int(np.asarray(result).ravel()[0]) == self._ref_meta["gt"]

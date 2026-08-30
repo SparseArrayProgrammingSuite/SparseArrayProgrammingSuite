@@ -10,6 +10,9 @@ from typing import IO
 import numpy as np
 
 from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy
+
+from saps_framework.binsparse_utils import from_coo
 
 SNAP_DATA_BASE_URL = "https://snap.stanford.edu/data"
 
@@ -113,8 +116,8 @@ def parse_snap_edge_list(
         node_count = int(max(rows.max(), cols.max())) + 1
 
     values = np.ones(rows.shape, dtype=bool)
-    adjacency = BinsparseTensor.from_coo((rows, cols), values, (node_count, node_count))
-    raw_node_ids = BinsparseTensor.from_numpy(raw_node_ids_array)
+    adjacency = from_coo((rows, cols), values, (node_count, node_count))
+    raw_node_ids = from_numpy(raw_node_ids_array)
     meta = {
         "directed": directed,
         "num_nodes": node_count,

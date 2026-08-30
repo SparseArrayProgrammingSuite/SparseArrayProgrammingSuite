@@ -2,6 +2,7 @@ import numpy as np
 
 import sparse as pydata_sparse
 from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
 
 from saps.benchmark import (
     Author,
@@ -12,16 +13,19 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps_framework.binsparse_utils import from_coo, to_coo
 
 
 def _from_binsparse(array):
-    if array.data["format"] == "dense":
-        return array.data["values"].reshape(array.data["shape"])
-    if array.data["format"] == "COO":
-        shape = array.data["shape"]
-        coords = np.array([array.data[f"indices_{dim}"] for dim in range(len(shape))])
-        return pydata_sparse.COO(coords, array.data["values"], shape=shape).todense()
-    raise ValueError(f"Unsupported format: {array.data['format']}")
+    try:
+        return to_numpy(array)
+    except TypeError:
+        array = to_coo(array)
+        shape = array.shape
+        coords = np.array(
+            [getattr(array, f"indices_{dim}") for dim in range(len(shape))]
+        )
+        return pydata_sparse.COO(coords, array.values, shape=shape).todense()
 
 
 def _to_binsparse(array):
@@ -29,8 +33,8 @@ def _to_binsparse(array):
         return array
     if isinstance(array, pydata_sparse.SparseArray):
         coo = array.to_coo()
-        return BinsparseTensor.from_coo(tuple(coo.coords), coo.data, coo.shape)
-    return BinsparseTensor.from_numpy(np.asarray(array))
+        return from_coo(tuple(coo.coords), coo.data, coo.shape)
+    return from_numpy(np.asarray(array))
 
 
 # This matrix formula assume Dirichlet BC instead of Periodic BC.

@@ -3,6 +3,7 @@ from typing import Any
 import numpy as np
 
 from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy
 
 from saps.benchmark import (
     Author,
@@ -15,6 +16,7 @@ from saps.benchmark import (
 )
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 from saps.downloaders.snap import download_snap_dataset
+from saps_framework.binsparse_utils import binsparse_equal
 
 
 class FastSVDataset(Dataset):
@@ -174,9 +176,9 @@ class FastSVTestGenerator(Generator[FastSVDataset]):
             raise ValueError(f"Unsupported test dataset: {dataset.name}")
 
         return DataInstance(
-            inputs=[BinsparseTensor.from_numpy(A)],
+            inputs=[from_numpy(A)],
             meta={},
-            ref_outputs=[BinsparseTensor.from_numpy(expected)],
+            ref_outputs=[from_numpy(expected)],
         )
 
 
@@ -513,6 +515,6 @@ class FastSVBenchmark(Benchmark):
             )
         if self._ref_outputs is None:
             return
-        assert self._output[0] == self._ref_outputs[0], (
+        assert binsparse_equal(self._output[0], self._ref_outputs[0]), (
             f"FastSV output mismatch for {param.dataset.name}"
         )

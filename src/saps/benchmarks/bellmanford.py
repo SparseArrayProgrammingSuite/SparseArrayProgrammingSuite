@@ -1,6 +1,7 @@
 import numpy as np
 
 from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
 
 from saps.benchmark import (
     Author,
@@ -20,6 +21,7 @@ from saps.benchmarks.suitesparse import (
     fetch_suitesparse_matrix,
 )
 from saps.downloaders.snap import download_snap_dataset
+from saps_framework.binsparse_utils import to_coo
 
 
 class BellmanFordDataset(Dataset):
@@ -335,9 +337,9 @@ class BellmanFordTestGenerator(Generator[BellmanFordDataset]):
         if dataset.A is None or dataset.expected is None:
             raise ValueError("Bellman-Ford test datasets must define A and expected.")
         return DataInstance(
-            inputs=[BinsparseTensor.from_numpy(dataset.A)],
+            inputs=[from_numpy(dataset.A)],
             meta={"src": dataset.src},
-            ref_outputs=[BinsparseTensor.from_numpy(dataset.expected)],
+            ref_outputs=[from_numpy(dataset.expected)],
         )
 
 
@@ -586,25 +588,23 @@ class BellmanFordGAPGenerator(Generator[BellmanFordDataset]):
 def _adjacency_to_distance(
     adjacency: BinsparseTensor, keep_weights=False
 ) -> BinsparseTensor:
-    shape = adjacency.data["shape"]
+    shape = adjacency.shape
     distances = np.full(shape, np.inf, dtype=float)
     np.fill_diagonal(distances, 0.0)
 
-    if adjacency.data["format"] == "COO":
-        rows = adjacency.data["indices_0"]
-        cols = adjacency.data["indices_1"]
-        distances[rows, cols] = adjacency.data["values"] if keep_weights else 1.0
-        return BinsparseTensor.from_numpy(distances)
-
-    if adjacency.data["format"] == "dense":
-        values = adjacency.data["values"].reshape(shape)
+    try:
+        values = to_numpy(adjacency)
         distances[values.astype(bool)] = (
-            adjacency.data["values"] if keep_weights else 1.0
+            values[values.astype(bool)] if keep_weights else 1.0
         )
-        np.fill_diagonal(distances, 0.0)
-        return BinsparseTensor.from_numpy(distances)
+    except TypeError:
+        adjacency = to_coo(adjacency)
+        rows = adjacency.indices_0
+        cols = adjacency.indices_1
+        distances[rows, cols] = adjacency.values if keep_weights else 1.0
 
-    raise ValueError(f"Unsupported format: {adjacency.data['format']}")
+    np.fill_diagonal(distances, 0.0)
+    return from_numpy(distances)
 
 
 class BellmanFordBenchmark(Benchmark):
@@ -732,11 +732,9 @@ class BellmanFordBenchmark(Benchmark):
         if self._ref_outputs is None:
             return
 
-        result = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        result = to_numpy(self._output[0])
         expected = (
-            self._ref_outputs[0]
-            .data["values"]
-            .reshape(self._ref_outputs[0].data["shape"])
+            to_numpy(self._ref_outputs[0])
         )
         assert np.allclose(result, expected, equal_nan=True), (
             f"Bellman-Ford output mismatch for {param.dataset.name}"

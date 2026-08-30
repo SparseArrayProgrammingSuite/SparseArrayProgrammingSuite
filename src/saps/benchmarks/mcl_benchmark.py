@@ -2,8 +2,6 @@ from typing import Any
 
 import numpy as np
 
-from binsparse import BinsparseTensor
-
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -13,6 +11,7 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
+from saps_framework.binsparse_utils import from_coo, to_coo
 
 
 def _normalize(array_api, matrix):
@@ -168,7 +167,7 @@ class MCLTestGenerator(Generator[MCLDataset]):
     def generate(self, dataset: MCLDataset):
         A = np.asarray(dataset.A)
         rows, cols = np.nonzero(A)
-        A_bin = BinsparseTensor.from_coo((rows, cols), A[rows, cols], A.shape)
+        A_bin = from_coo((rows, cols), A[rows, cols], A.shape)
         return DataInstance(
             inputs=[A_bin],
             meta={"expansion": 2, "inflation": 2, "loop_value": 1},
@@ -383,10 +382,10 @@ class MCLBenchmark(Benchmark):
             return
         expected_count = self._ref_meta["expected_count"]
 
-        output = BinsparseTensor.to_coo(self._output[0])
-        rows = output.data["indices_0"]
-        cols = output.data["indices_1"]
-        values = output.data["values"]
+        output = to_coo(self._output[0])
+        rows = output.indices_0
+        cols = output.indices_1
+        values = output.values
         present = values != 0
         rows = rows[present]
         cols = cols[present]

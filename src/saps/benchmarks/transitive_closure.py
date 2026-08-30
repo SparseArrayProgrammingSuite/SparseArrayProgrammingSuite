@@ -1,6 +1,7 @@
 import numpy as np
 
 from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
 
 from saps.benchmark import (
     Author,
@@ -13,6 +14,7 @@ from saps.benchmark import (
 )
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 from saps.downloaders.snap import download_snap_dataset
+from saps_framework.binsparse_utils import binsparse_equal
 
 
 class TransitiveClosureDataset(Dataset):
@@ -130,9 +132,9 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
                 dtype=bool,
             )
             return DataInstance(
-                inputs=[BinsparseTensor.from_numpy(A)],
+                inputs=[from_numpy(A)],
                 meta={},
-                ref_outputs=[BinsparseTensor.from_numpy(expected)],
+                ref_outputs=[from_numpy(expected)],
             )
 
         if dataset.name == "strong-component-count":
@@ -150,7 +152,7 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
                 dtype=bool,
             )
             return DataInstance(
-                inputs=[BinsparseTensor.from_numpy(A)],
+                inputs=[from_numpy(A)],
                 meta={},
                 ref_meta={"strong_component_count": 4},
             )
@@ -168,9 +170,9 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
             raise ValueError(f"Unsupported test dataset: {dataset.name}")
 
         return DataInstance(
-            inputs=[BinsparseTensor.from_numpy(A)],
+            inputs=[from_numpy(A)],
             meta={},
-            ref_outputs=[BinsparseTensor.from_numpy(expected)],
+            ref_outputs=[from_numpy(expected)],
         )
 
 
@@ -477,12 +479,12 @@ class TransitiveClosureBenchmark(Benchmark):
                 "Output must be in binsparse format"
             )
         if self._ref_outputs is not None:
-            assert self._output[0] == self._ref_outputs[0], (
+            assert binsparse_equal(self._output[0], self._ref_outputs[0]), (
                 f"Transitive closure mismatch for {param.dataset.name}"
             )
         if self._ref_meta and "strong_component_count" in self._ref_meta:
             output = self._output[0]
-            matrix = output.data["values"].reshape(output.data["shape"])
+            matrix = to_numpy(output)
             visited_set = set()
             count = 0
             for i in range(matrix.shape[0]):

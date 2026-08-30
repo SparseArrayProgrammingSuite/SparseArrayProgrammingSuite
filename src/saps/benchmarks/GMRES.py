@@ -4,6 +4,7 @@ import numpy as np
 
 import sparse as pydata_sparse
 from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
 
 from saps.benchmark import (
     Benchmark,
@@ -16,6 +17,7 @@ from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     fetch_suitesparse_linear_system,
 )
+from saps_framework.binsparse_utils import from_coo, to_coo
 
 
 class GMRESDataset(SuiteSparseDataset):
@@ -160,15 +162,15 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
             raise ValueError("GMRES test datasets must define A, b, and x0.")
         A = dataset.A.tocoo() if hasattr(dataset.A, "tocoo") else None
         A_bin = (
-            BinsparseTensor.from_coo((A.row, A.col), A.data, A.shape)
+            from_coo((A.row, A.col), A.data, A.shape)
             if A is not None
-            else BinsparseTensor.from_numpy(dataset.A)
+            else from_numpy(dataset.A)
         )
         return DataInstance(
             inputs=[
                 A_bin,
-                BinsparseTensor.from_numpy(dataset.b),
-                BinsparseTensor.from_numpy(dataset.x0),
+                from_numpy(dataset.b),
+                from_numpy(dataset.x0),
             ],
             meta=dataset.benchmark_meta,
             ref_meta=dataset.ref_meta,
@@ -244,8 +246,8 @@ class GMRESGenerator(Generator[GMRESDataset]):
 
     def generate(self, dataset: GMRESDataset):
         A_bin, b, _has_real_rhs = fetch_suitesparse_linear_system(dataset.source_name)
-        x_bin = BinsparseTensor.from_numpy(np.zeros(A_bin.data["shape"][1]))
-        b_bin = BinsparseTensor.from_numpy(b)
+        x_bin = from_numpy(np.zeros(A_bin.shape[1]))
+        b_bin = from_numpy(b)
         return DataInstance(inputs=[A_bin, b_bin, x_bin], meta={})
 
 
@@ -356,14 +358,14 @@ class GMRESBenchmark(Benchmark):
             return
 
         A_bin, b_bin, _x0_bin = self._input
-        A_coo = BinsparseTensor.to_coo(A_bin)
+        A_coo = to_coo(A_bin)
         A = pydata_sparse.COO(
-            coords=np.stack((A_coo.data["indices_0"], A_coo.data["indices_1"])),
-            data=A_coo.data["values"],
-            shape=A_coo.data["shape"],
+            coords=np.stack((A_coo.indices_0, A_coo.indices_1)),
+            data=A_coo.values,
+            shape=A_coo.shape,
         )
-        b = b_bin.data["values"].reshape(b_bin.data["shape"])
-        x_sol = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        b = to_numpy(b_bin)
+        x_sol = to_numpy(self._output[0])
         residual = np.linalg.norm(b - A @ x_sol)
         assert residual < self._ref_meta["residual_tol"], (
             f"GMRES residual too high for {param.dataset.name}: {residual}"

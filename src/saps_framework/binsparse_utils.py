@@ -141,7 +141,7 @@ def diagonal(tensor: BinsparseTensor) -> np.ndarray:
     return result
 
 
-def equal(left: BinsparseTensor, right: BinsparseTensor) -> bool:
+def binsparse_equal(left: BinsparseTensor, right: BinsparseTensor) -> bool:
     left_data, right_data = tensor_data(left), tensor_data(right)
     return left_data.keys() == right_data.keys() and all(
         np.array_equal(left_data[key], right_data[key])
@@ -150,22 +150,3 @@ def equal(left: BinsparseTensor, right: BinsparseTensor) -> bool:
         for key in left_data
     )
 
-
-# Remove once benchmark bodies use tensor attributes/converters throughout. These
-# properties do not wrap or replace reference objects; inputs remain BinsparseTensor.
-BinsparseTensor.data = property(tensor_data)
-BinsparseTensor.from_numpy = staticmethod(from_numpy)
-BinsparseTensor.from_coo = staticmethod(from_coo)
-BinsparseTensor.to_coo = staticmethod(to_coo)
-BinsparseTensor.to_scipy_coo = to_scipy_coo
-BinsparseTensor.diagonal = diagonal
-
-
-def _tensor_classes(root: type[BinsparseTensor]):
-    for child in root.__subclasses__():
-        yield child
-        yield from _tensor_classes(child)
-
-
-for _tensor_class in _tensor_classes(BinsparseTensor):
-    _tensor_class.__eq__ = equal

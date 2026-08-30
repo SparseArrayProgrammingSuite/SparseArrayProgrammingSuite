@@ -1,6 +1,7 @@
 import numpy as np
 
 from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
 
 from saps.benchmark import (
     Author,
@@ -232,9 +233,9 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
         if dataset.A is None or dataset.expected is None:
             raise ValueError("Centrality test datasets must define A and expected.")
         return DataInstance(
-            inputs=[BinsparseTensor.from_numpy(dataset.A)],
+            inputs=[from_numpy(dataset.A)],
             meta={},
-            ref_outputs=[BinsparseTensor.from_numpy(dataset.expected)],
+            ref_outputs=[from_numpy(dataset.expected)],
         )
 
 
@@ -596,11 +597,9 @@ class BetweennessCentralityBenchmark(Benchmark):
         if self._ref_outputs is None:
             return
 
-        result = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        result = to_numpy(self._output[0])
         expected = (
-            self._ref_outputs[0]
-            .data["values"]
-            .reshape(self._ref_outputs[0].data["shape"])
+            to_numpy(self._ref_outputs[0])
         )
         assert np.allclose(result, expected, atol=1e-6), (
             f"Betweenness centrality output mismatch for {param.dataset.name}"

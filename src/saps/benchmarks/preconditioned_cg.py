@@ -5,6 +5,7 @@ import numpy as np
 
 import sparse as pydata_sparse
 from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy, to_scipy
 
 from saps.benchmark import (
     Author,
@@ -19,6 +20,7 @@ from saps.benchmarks.suitesparse import (
     fetch_suitesparse_linear_system,
 )
 from saps.downloaders.suitesparse import random_rhs_for_matrix
+from saps_framework.binsparse_utils import from_coo, to_coo
 
 
 def _generate_cg_data(source, A=None):
@@ -27,10 +29,10 @@ def _generate_cg_data(source, A=None):
 
         A = sp.coo_matrix(A)
         b = random_rhs_for_matrix(A)
-        A_bin = BinsparseTensor.from_coo((A.row, A.col), A.data, A.shape)
+        A_bin = from_coo((A.row, A.col), A.data, A.shape)
     else:
         A_bin, b, _has_real_rhs = fetch_suitesparse_linear_system(source)
-    x0 = np.zeros(A_bin.data["shape"][1])
+    x0 = np.zeros(A_bin.shape[1])
     return (A_bin, b, x0)
 
 
@@ -177,7 +179,7 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
         import scipy.sparse as sp
 
         A_bin, b, x0 = _generate_cg_data(dataset.source_name, dataset.A)
-        A_csr = A_bin.to_scipy_coo().tocsr()
+        A_csr = to_scipy(A_bin).tocsr()
         n = A_csr.shape[0]
         # Create one block for every processor modelled after
         # this example: https://petsc.org/main/src/ksp/ksp/tutorials/ex7.c.html
@@ -192,9 +194,9 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
             blocks.append(L_i)
             i = j
         M = sp.block_diag(blocks).tocoo()
-        M_bin = BinsparseTensor.from_coo((M.row, M.col), M.data, M.shape)
-        b_bin = BinsparseTensor.from_numpy(b)
-        x0_bin = BinsparseTensor.from_numpy(x0)
+        M_bin = from_coo((M.row, M.col), M.data, M.shape)
+        b_bin = from_numpy(b)
+        x0_bin = from_numpy(x0)
         return DataInstance(
             inputs=[A_bin, b_bin, x0_bin, M_bin],
             meta={},
@@ -318,10 +320,10 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
 
     def generate(self, dataset: PreconditionedCGDataset) -> DataInstance:
         A_bin, b, x0 = _generate_cg_data(dataset.source_name, dataset.A)
-        M = A_bin.diagonal()
-        M_bin = BinsparseTensor.from_numpy(M)
-        b_bin = BinsparseTensor.from_numpy(b)
-        x0_bin = BinsparseTensor.from_numpy(x0)
+        M = to_scipy(A_bin).diagonal()
+        M_bin = from_numpy(M)
+        b_bin = from_numpy(b)
+        x0_bin = from_numpy(x0)
         return DataInstance(
             inputs=[A_bin, b_bin, x0_bin, M_bin],
             meta={},
@@ -430,14 +432,14 @@ class _PreconditionedCGBase(Benchmark, ABC):
             return
 
         A_bin, b_bin, _x0_bin, _M_bin = self._input
-        A_coo = BinsparseTensor.to_coo(A_bin)
+        A_coo = to_coo(A_bin)
         A = pydata_sparse.COO(
-            coords=np.stack((A_coo.data["indices_0"], A_coo.data["indices_1"])),
-            data=A_coo.data["values"],
-            shape=A_coo.data["shape"],
+            coords=np.stack((A_coo.indices_0, A_coo.indices_1)),
+            data=A_coo.values,
+            shape=A_coo.shape,
         )
-        b = b_bin.data["values"].reshape(b_bin.data["shape"])
-        x_sol = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        b = to_numpy(b_bin)
+        x_sol = to_numpy(self._output[0])
         residual = b - A @ x_sol
         assert np.linalg.norm(residual) < 1e-6 * np.linalg.norm(b) + 1e-6, (
             f"Preconditioned CG residual too high for {param.dataset.name}"

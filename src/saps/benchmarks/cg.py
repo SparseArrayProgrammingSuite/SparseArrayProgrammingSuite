@@ -2,6 +2,7 @@ import numpy as np
 
 import sparse as pydata_sparse
 from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
 
 from saps.benchmark import (
     Author,
@@ -15,6 +16,7 @@ from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     fetch_suitesparse_linear_system,
 )
+from saps_framework.binsparse_utils import binsparse_equal, to_coo
 
 
 class CGDataset(SuiteSparseDataset):
@@ -152,9 +154,9 @@ class CGTestGenerator(Generator[CGDataset]):
 
         return DataInstance(
             inputs=[
-                BinsparseTensor.from_numpy(dataset.A),
-                BinsparseTensor.from_numpy(dataset.b),
-                BinsparseTensor.from_numpy(dataset.x),
+                from_numpy(dataset.A),
+                from_numpy(dataset.b),
+                from_numpy(dataset.x),
             ],
             meta={},
             ref_meta={"check_rounded_residual": True, "round_decimals": 4},
@@ -227,8 +229,8 @@ class CGGenerator(Generator[CGDataset]):
 
     def generate(self, dataset: CGDataset) -> DataInstance:
         A_bin, b, _has_real_rhs = fetch_suitesparse_linear_system(dataset.source_name)
-        x_bin = BinsparseTensor.from_numpy(np.zeros(A_bin.data["shape"][1]))
-        b_bin = BinsparseTensor.from_numpy(b)
+        x_bin = from_numpy(np.zeros(A_bin.shape[1]))
+        b_bin = from_numpy(b)
 
         return DataInstance(inputs=[A_bin, b_bin, x_bin], meta={})
 
@@ -324,23 +326,25 @@ class CGBenchmark(Benchmark):
             return
 
         A_bin, b_bin, _x_bin = self._input
-        A_coo = BinsparseTensor.to_coo(A_bin)
+        A_coo = to_coo(A_bin)
         A = pydata_sparse.COO(
-            coords=np.stack((A_coo.data["indices_0"], A_coo.data["indices_1"])),
-            data=A_coo.data["values"],
-            shape=A_coo.data["shape"],
+            coords=np.stack((A_coo.indices_0, A_coo.indices_1)),
+            data=A_coo.values,
+            shape=A_coo.shape,
         )
         decimals = self._ref_meta["round_decimals"]
         x_sol = np.round(
-            self._output[0].data["values"].reshape(self._output[0].data["shape"]),
+            to_numpy(self._output[0]),
             decimals=decimals,
         )
 
-        actual_b = BinsparseTensor.to_coo(
-            BinsparseTensor.from_numpy(np.asarray(A @ x_sol))
+        actual_b = to_coo(
+            from_numpy(np.asarray(A @ x_sol))
         )
-        expected_b = BinsparseTensor.to_coo(b_bin)
-        assert expected_b == actual_b, f"CG residual mismatch for {param.dataset.name}"
+        expected_b = to_coo(b_bin)
+        assert binsparse_equal(expected_b, actual_b), (
+            f"CG residual mismatch for {param.dataset.name}"
+        )
 
     def benchmark(self, xp, data: list, meta: dict):
         A, b, x = data

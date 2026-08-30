@@ -1,5 +1,3 @@
-from binsparse import BinsparseTensor
-
 from saps.benchmark import (
     Author,
     Contributor,
@@ -10,6 +8,7 @@ from saps.benchmark import (
     ShellBenchmark,
 )
 from saps.downloaders.frostt import load_frostt_tensor
+from saps_framework.binsparse_utils import from_coo
 
 
 class FrosttDataset(Dataset):
@@ -395,7 +394,7 @@ class FrosttTensorGenerator(Generator[FrosttDataset]):
 
     def generate(self, dataset: FrosttDataset) -> DataInstance:
         indices, values, meta = load_frostt_tensor(dataset.path, url=dataset.url)
-        tensor_bin = BinsparseTensor.from_coo(indices, values, meta["shape"])
+        tensor_bin = from_coo(indices, values, meta["shape"])
         return DataInstance(inputs=[tensor_bin], meta=meta)
 
 

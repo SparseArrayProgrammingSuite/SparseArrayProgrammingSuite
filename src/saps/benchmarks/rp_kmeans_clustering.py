@@ -4,6 +4,7 @@ from typing import Any
 import numpy as np
 
 from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
 
 from saps.benchmark import (
     Author,
@@ -159,7 +160,7 @@ class RPKMeansGenerator(Generator[RPKMeansDataset]):
         ]
 
     def generate(self, dataset: RPKMeansDataset) -> DataInstance:
-        A_bin = BinsparseTensor.from_numpy(dataset.points)
+        A_bin = from_numpy(dataset.points)
         _, d = dataset.points.shape
         t = int(dataset.c * math.ceil(dataset.k / dataset.eps**2))
         value = 1 / (t**0.5)
@@ -167,7 +168,7 @@ class RPKMeansGenerator(Generator[RPKMeansDataset]):
         R = np.where(rng.random((d, t)) < 0.5, value, -value).astype(
             dataset.points.dtype
         )
-        R_bin = BinsparseTensor.from_numpy(R)
+        R_bin = from_numpy(R)
         return DataInstance(
             inputs=[A_bin, R_bin],
             meta={
@@ -335,7 +336,7 @@ Dimensionality reduction</concept_desc>
         if self._ref_meta is None:
             return
 
-        labels = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        labels = to_numpy(self._output[0])
 
         for left, right in self._ref_meta.get("same", []):
             assert labels[left] == labels[right]

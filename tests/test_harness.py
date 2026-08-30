@@ -1,14 +1,14 @@
 import numpy as np
 
 import sparse as sp
-from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy
 
 from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_scipy import SciPyFramework
 from frameworks.saps_sparse import (
     PyDataSparseFramework,
 )
-from saps_framework.binsparse_utils import equal
+from saps_framework.binsparse_utils import binsparse_equal, from_coo, to_coo
 
 
 def test_numpy_framework():
@@ -16,12 +16,12 @@ def test_numpy_framework():
 
     # Dense array test
     arr = np.array([[1, 2, 3], [4, 5, 6]], dtype=np.float32)
-    bsf = BinsparseTensor.from_numpy(arr)
+    bsf = from_numpy(arr)
     arr_converted = framework.from_binsparse(bsf)
     assert np.array_equal(arr, arr_converted), "Dense array conversion failed"
 
     bsf_converted = framework.to_binsparse(arr)
-    assert equal(BinsparseTensor.to_coo(bsf), BinsparseTensor.to_coo(bsf_converted)), (
+    assert binsparse_equal(to_coo(bsf), to_coo(bsf_converted)), (
         "Dense array to_binsparse failed"
     )
 
@@ -30,7 +30,7 @@ def test_numpy_framework():
     col = np.array([0, 2, 1])
     data = np.array([1.0, 2.0, 3.0], dtype=np.float32)
     shape = (3, 3)
-    bsf_sparse = BinsparseTensor.from_coo((row, col), data, shape)
+    bsf_sparse = from_coo((row, col), data, shape)
     arr_sparse_converted = framework.from_binsparse(bsf_sparse)
 
     expected_sparse = np.zeros(shape, dtype=np.float32)
@@ -39,10 +39,12 @@ def test_numpy_framework():
         "Sparse array conversion failed"
     )
 
-    bsf_sparse_converted = BinsparseTensor.to_coo(
+    bsf_sparse_converted = to_coo(
         framework.to_binsparse(arr_sparse_converted)
     )
-    assert equal(bsf_sparse, bsf_sparse_converted), "Sparse array to_binsparse failed"
+    assert binsparse_equal(bsf_sparse, bsf_sparse_converted), (
+        "Sparse array to_binsparse failed"
+    )
 
 
 def test_pydata_sparse_framework():
@@ -50,14 +52,14 @@ def test_pydata_sparse_framework():
 
     # Dense array test
     arr = np.array([[1, 2, 3], [4, 5, 6]], dtype=np.float32)
-    bsf = BinsparseTensor.from_numpy(arr)
+    bsf = from_numpy(arr)
     arr_converted = framework.from_binsparse(bsf)
     assert np.array_equal(arr, sp.asnumpy(arr_converted)), (
         "Dense array conversion failed"
     )
 
     bsf_converted = framework.to_binsparse(arr_converted)
-    assert equal(BinsparseTensor.to_coo(bsf), BinsparseTensor.to_coo(bsf_converted)), (
+    assert binsparse_equal(to_coo(bsf), to_coo(bsf_converted)), (
         "Dense array to_binsparse failed"
     )
 
@@ -66,7 +68,7 @@ def test_pydata_sparse_framework():
     col = np.array([0, 2, 1])
     data = np.array([1.0, 2.0, 3.0], dtype=np.float32)
     shape = (3, 3)
-    bsf_sparse = BinsparseTensor.from_coo((row, col), data, shape)
+    bsf_sparse = from_coo((row, col), data, shape)
     arr_sparse_converted = framework.from_binsparse(bsf_sparse)
 
     expected_sparse = np.zeros(shape, dtype=np.float32)
@@ -75,10 +77,12 @@ def test_pydata_sparse_framework():
         "Sparse array conversion failed"
     )
 
-    bsf_sparse_converted = BinsparseTensor.to_coo(
+    bsf_sparse_converted = to_coo(
         framework.to_binsparse(arr_sparse_converted)
     )
-    assert equal(bsf_sparse, bsf_sparse_converted), "Sparse array to_binsparse failed"
+    assert binsparse_equal(bsf_sparse, bsf_sparse_converted), (
+        "Sparse array to_binsparse failed"
+    )
 
 
 def test_scipy_framework():
@@ -86,12 +90,12 @@ def test_scipy_framework():
 
     # Dense array test
     arr = np.array([[1, 2, 3], [4, 5, 6]], dtype=np.float32)
-    bsf = BinsparseTensor.from_numpy(arr)
+    bsf = from_numpy(arr)
     arr_converted = framework.from_binsparse(bsf)
     assert np.array_equal(arr, arr_converted), "Dense array conversion failed"
 
     bsf_converted = framework.to_binsparse(arr_converted)
-    assert equal(BinsparseTensor.to_coo(bsf), BinsparseTensor.to_coo(bsf_converted)), (
+    assert binsparse_equal(to_coo(bsf), to_coo(bsf_converted)), (
         "Dense array to_binsparse failed"
     )
 
@@ -100,7 +104,7 @@ def test_scipy_framework():
     col = np.array([0, 2, 1])
     data = np.array([1.0, 2.0, 3.0], dtype=np.float32)
     shape = (3, 3)
-    bsf_sparse = BinsparseTensor.from_coo((row, col), data, shape)
+    bsf_sparse = from_coo((row, col), data, shape)
     arr_sparse_converted = framework.from_binsparse(bsf_sparse)
 
     expected_sparse = np.zeros(shape, dtype=np.float32)
@@ -109,7 +113,9 @@ def test_scipy_framework():
         "Sparse array conversion failed"
     )
 
-    bsf_sparse_converted = BinsparseTensor.to_coo(
+    bsf_sparse_converted = to_coo(
         framework.to_binsparse(arr_sparse_converted)
     )
-    assert equal(bsf_sparse, bsf_sparse_converted), "Sparse array to_binsparse failed"
+    assert binsparse_equal(bsf_sparse, bsf_sparse_converted), (
+        "Sparse array to_binsparse failed"
+    )

@@ -2,6 +2,7 @@ import numpy as np
 
 import sparse as sp
 from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
 
 from saps.benchmark import (
     Author,
@@ -12,6 +13,7 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
+from saps_framework.binsparse_utils import to_coo
 
 
 class FloydWarshallDataset(SuiteSparseDataset):
@@ -318,9 +320,9 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
             dataset.A.todense() if isinstance(dataset.A, sp.SparseArray) else dataset.A
         )
         return DataInstance(
-            inputs=[BinsparseTensor.from_numpy(inputs)],
+            inputs=[from_numpy(inputs)],
             meta={},
-            ref_outputs=[BinsparseTensor.from_numpy(dataset.expected)],
+            ref_outputs=[from_numpy(dataset.expected)],
             ref_meta=dataset.ref_meta,
         )
 
@@ -535,16 +537,16 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
         if n != m:
             raise ValueError(f"Floyd-Warshall requires a square matrix, got {(n, m)}")
 
-        coo = BinsparseTensor.to_coo(raw.inputs[0])
+        coo = to_coo(raw.inputs[0])
         G = np.full((n, n), np.inf, dtype=np.float64)
         if raw.meta["nnz"] > 0:
-            G[coo.data["indices_0"], coo.data["indices_1"]] = 1.0
+            G[coo.indices_0, coo.indices_1] = 1.0
         np.fill_diagonal(G, 0.0)
 
         if dataset.symmetrize:
             G = np.minimum(G, G.T)
 
-        G_bin = BinsparseTensor.from_numpy(G)
+        G_bin = from_numpy(G)
         return DataInstance(inputs=[G_bin], meta={})
 
 
@@ -656,12 +658,10 @@ class FloydWarshallBenchmark(Benchmark):
             assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
-        output = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        output = to_numpy(self._output[0])
         if self._ref_outputs is not None:
             expected = (
-                self._ref_outputs[0]
-                .data["values"]
-                .reshape(self._ref_outputs[0].data["shape"])
+                to_numpy(self._ref_outputs[0])
             )
             both_inf = np.isinf(output) & np.isinf(expected)
             both_finite = np.isfinite(output) & np.isfinite(expected)

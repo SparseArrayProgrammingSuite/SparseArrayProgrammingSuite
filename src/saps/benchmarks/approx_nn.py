@@ -3,6 +3,7 @@ import logging
 import numpy as np
 
 from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
 
 from saps.benchmark import (
     Author,
@@ -13,6 +14,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps_framework.binsparse_utils import from_coo
 
 
 class JLApproxNNDataset(Dataset):
@@ -302,7 +304,7 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
         projection_matrix = (U_Neg + U_Pos).tocoo()
 
         meta = {"k": dataset.k, "eps": dataset.eps}
-        P = BinsparseTensor.from_coo(
+        P = from_coo(
             (
                 projection_matrix.row,
                 projection_matrix.col,
@@ -313,8 +315,8 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
 
         return DataInstance(
             inputs=[
-                BinsparseTensor.from_numpy(data),
-                BinsparseTensor.from_numpy(query),
+                from_numpy(data),
+                from_numpy(query),
                 P,
             ],
             meta=meta,
@@ -494,10 +496,10 @@ Nearest neighbor algorithms</concept_desc>
         if not self._ref_meta:
             return
 
-        data = self._input[0].data["values"].reshape(self._input[0].data["shape"])
-        query = self._input[1].data["values"].reshape(self._input[1].data["shape"])
+        data = to_numpy(self._input[0])
+        query = to_numpy(self._input[1])
         nearest_ind = (
-            self._output[0].data["values"].reshape(self._output[0].data["shape"])
+            to_numpy(self._output[0])
         )
 
         diff = np.expand_dims(query, axis=1) - np.expand_dims(data, axis=0)

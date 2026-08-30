@@ -1,7 +1,6 @@
 import numpy as np
 
-from binsparse import BinsparseTensor
-from binsparse.conversions import to_numpy, to_sparse
+from binsparse.conversions import from_numpy, to_numpy, to_sparse
 
 from saps_framework import Framework, einsum
 
@@ -17,7 +16,7 @@ class NumpyFramework(Framework):
             return np.asarray(to_sparse(array).todense())
 
     def to_binsparse(self, array):
-        return BinsparseTensor.from_numpy(np.asarray(array))
+        return from_numpy(np.asarray(array))
 
     def lazy(self, array):
         return array

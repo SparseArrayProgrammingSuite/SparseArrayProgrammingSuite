@@ -2,9 +2,11 @@ from typing import Any
 
 import numpy as np
 
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
+
 from saps.benchmark import (
     Benchmark,
-    BinsparseTensor,
     Contributor,
     DataInstance,
     Dataset,
@@ -216,7 +218,7 @@ class MCGenerator(Generator[MCDataset]):
         expr = clauses_to_einsum(clauses)
 
         data_list: list[BinsparseTensor] = [
-            BinsparseTensor.from_numpy(np.array([0, 1]))
+            from_numpy(np.array([0, 1]))
         ]
 
         default_total = 2**num_vars
@@ -231,7 +233,7 @@ class MCGenerator(Generator[MCDataset]):
         return DataInstance(
             inputs=data_list,
             meta=meta,
-            ref_outputs=[BinsparseTensor.from_numpy(np.array(dataset.expected))],
+            ref_outputs=[from_numpy(np.array(dataset.expected))],
         )
 
 
@@ -320,12 +322,10 @@ class ModelCounting(Benchmark):
         if self._ref_outputs is None:
             return
         result = int(
-            self._output[0].data["values"].reshape(self._output[0].data["shape"])
+            to_numpy(self._output[0])
         )
         expected = int(
-            self._ref_outputs[0]
-            .data["values"]
-            .reshape(self._ref_outputs[0].data["shape"])
+            to_numpy(self._ref_outputs[0])
         )
         assert result == expected, (
             f"Test '{param.dataset.name}' failed: expected {expected}, got {result}"

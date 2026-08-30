@@ -1,6 +1,7 @@
 import numpy as np
 
 from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
 
 from saps.benchmark import (
     Author,
@@ -183,9 +184,9 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
             raise ValueError("PageRank test datasets must define A.")
         ref_outputs = None
         if dataset.expected is not None:
-            ref_outputs = [BinsparseTensor.from_numpy(dataset.expected)]
+            ref_outputs = [from_numpy(dataset.expected)]
         return DataInstance(
-            inputs=[BinsparseTensor.from_numpy(dataset.A)],
+            inputs=[from_numpy(dataset.A)],
             meta={},
             ref_outputs=ref_outputs,
             ref_meta=dataset.ref_meta,
@@ -522,13 +523,11 @@ class PageRankBenchmark(Benchmark):
                 "Output must be in binsparse format"
             )
 
-        result = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        result = to_numpy(self._output[0])
 
         if self._ref_outputs is not None:
             expected = (
-                self._ref_outputs[0]
-                .data["values"]
-                .reshape(self._ref_outputs[0].data["shape"])
+                to_numpy(self._ref_outputs[0])
             )
             assert np.allclose(result, expected, atol=1e-2), (
                 f"PageRank output mismatch for {param.dataset.name}"
