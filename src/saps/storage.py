@@ -202,9 +202,9 @@ class StorageBackend(ABC):
                 f"{cache_path}"
             )
             if self.download_file(prefix, cache_path):
-                assert digest == sha256_file(
-                    cache_path
-                ), "Data integrity check failed: hash mismatch"
+                assert digest == sha256_file(cache_path), (
+                    "Data integrity check failed: hash mismatch"
+                )
                 return self.deserialize_data_from_file(cache_path)
             logging.error(
                 "Failed to download dataset "

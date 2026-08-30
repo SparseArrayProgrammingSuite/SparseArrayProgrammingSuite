@@ -161,11 +161,7 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
         if dataset.A is None or dataset.b is None or dataset.x0 is None:
             raise ValueError("GMRES test datasets must define A, b, and x0.")
         A = dataset.A.tocoo() if hasattr(dataset.A, "tocoo") else None
-        A_bin = (
-            from_scipy(A)
-            if A is not None
-            else from_numpy(dataset.A)
-        )
+        A_bin = from_scipy(A) if A is not None else from_numpy(dataset.A)
         return DataInstance(
             inputs=[
                 A_bin,

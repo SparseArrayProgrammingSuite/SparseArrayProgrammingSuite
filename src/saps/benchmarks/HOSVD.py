@@ -596,10 +596,7 @@ class HOSVDBenchmark(Benchmark):
             return
         X = to_numpy(self._input[0])
         core = to_numpy(self._output[0])
-        factors = [
-            to_numpy(output)
-            for output in self._output[1:]
-        ]
+        factors = [to_numpy(output) for output in self._output[1:]]
         X_rec = _reconstruct_tensor(core, factors)
         error = np.linalg.norm(X - X_rec) / np.linalg.norm(X)
         assert error < 1e-5

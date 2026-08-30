@@ -22,18 +22,14 @@ def test_numpy_framework():
     assert np.array_equal(arr, arr_converted), "Dense array conversion failed"
 
     bsf_converted = framework.to_binsparse(arr)
-    assert binsparse_equal(bsf, bsf_converted), (
-        "Dense array to_binsparse failed"
-    )
+    assert binsparse_equal(bsf, bsf_converted), "Dense array to_binsparse failed"
 
     # Sparse array test (COO format)
     row = np.array([0, 1, 2])
     col = np.array([0, 2, 1])
     data = np.array([1.0, 2.0, 3.0], dtype=np.float32)
     shape = (3, 3)
-    bsf_sparse = COORMatrix(
-        shape, len(data), indices_0=row, indices_1=col, values=data
-    )
+    bsf_sparse = COORMatrix(shape, len(data), indices_0=row, indices_1=col, values=data)
     arr_sparse_converted = framework.from_binsparse(bsf_sparse)
 
     expected_sparse = np.zeros(shape, dtype=np.float32)
@@ -60,18 +56,14 @@ def test_pydata_sparse_framework():
     )
 
     bsf_converted = framework.to_binsparse(arr_converted)
-    assert binsparse_equal(bsf, bsf_converted), (
-        "Dense array to_binsparse failed"
-    )
+    assert binsparse_equal(bsf, bsf_converted), "Dense array to_binsparse failed"
 
     # Sparse array test (COO format)
     row = np.array([0, 1, 2])
     col = np.array([0, 2, 1])
     data = np.array([1.0, 2.0, 3.0], dtype=np.float32)
     shape = (3, 3)
-    bsf_sparse = COORMatrix(
-        shape, len(data), indices_0=row, indices_1=col, values=data
-    )
+    bsf_sparse = COORMatrix(shape, len(data), indices_0=row, indices_1=col, values=data)
     arr_sparse_converted = framework.from_binsparse(bsf_sparse)
 
     expected_sparse = np.zeros(shape, dtype=np.float32)
@@ -96,18 +88,14 @@ def test_scipy_framework():
     assert np.array_equal(arr, arr_converted), "Dense array conversion failed"
 
     bsf_converted = framework.to_binsparse(arr_converted)
-    assert binsparse_equal(bsf, bsf_converted), (
-        "Dense array to_binsparse failed"
-    )
+    assert binsparse_equal(bsf, bsf_converted), "Dense array to_binsparse failed"
 
     # Sparse array test (COO format)
     row = np.array([0, 1, 2])
     col = np.array([0, 2, 1])
     data = np.array([1.0, 2.0, 3.0], dtype=np.float32)
     shape = (3, 3)
-    bsf_sparse = COORMatrix(
-        shape, len(data), indices_0=row, indices_1=col, values=data
-    )
+    bsf_sparse = COORMatrix(shape, len(data), indices_0=row, indices_1=col, values=data)
     arr_sparse_converted = framework.from_binsparse(bsf_sparse)
 
     expected_sparse = np.zeros(shape, dtype=np.float32)

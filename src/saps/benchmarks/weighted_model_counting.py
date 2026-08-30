@@ -349,9 +349,7 @@ class WMCGenerator(Generator[WMCDataset]):
         num_vars, clauses, weights = parse_format(dataset.cnf_text)
         expr = clauses_to_einsum(clauses, num_vars)
 
-        data_list: list[BinsparseTensor] = [
-            from_numpy(np.array([0, 1]))
-        ]
+        data_list: list[BinsparseTensor] = [from_numpy(np.array([0, 1]))]
 
         data_list.extend(
             from_numpy(np.array([weights[-i], weights[i]]))
@@ -449,12 +447,8 @@ class WeightedModelCounting(Benchmark):
             )
         if self._ref_outputs is None:
             return
-        result = float(
-            to_numpy(self._output[0])
-        )
-        expected = float(
-            to_numpy(self._ref_outputs[0])
-        )
+        result = float(to_numpy(self._output[0]))
+        expected = float(to_numpy(self._ref_outputs[0]))
         assert np.isclose(result, expected, rtol=10e-8), (
             f"Test '{param.dataset.name}' failed: expected {expected}, got {result}"
         )

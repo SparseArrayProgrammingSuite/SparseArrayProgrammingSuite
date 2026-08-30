@@ -333,9 +333,7 @@ class MRISobelGenerator(Generator[MRISobelDataset]):
             img_array = np.array(dataset.image, dtype=np.float32)
 
         image_bin = from_numpy(img_array)
-        threshold_bin = from_numpy(
-            np.array(dataset.threshold_val, dtype=np.float32)
-        )
+        threshold_bin = from_numpy(np.array(dataset.threshold_val, dtype=np.float32))
 
         Nx, Ny = img_array.shape
         dx_bin, sy_bin, sx_bin, dy_bin = generate_1d_sobel_matrices(Nx, Ny)
@@ -442,9 +440,7 @@ class MRISobelEdgeBenchmark(Benchmark):
             return
 
         actual = to_numpy(self._output[0])
-        expected = (
-            to_numpy(self._ref_outputs[0])
-        )
+        expected = to_numpy(self._ref_outputs[0])
 
         assert self._meta == {}
         assert actual.shape == expected.shape

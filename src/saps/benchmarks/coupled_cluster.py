@@ -610,9 +610,7 @@ class CCSD(Benchmark):
         if self._ref_outputs is None:
             return
 
-        reference_norm = (
-            to_numpy(self._ref_outputs[0])[()]
-        )
+        reference_norm = to_numpy(self._ref_outputs[0])[()]
         T1_out = to_numpy(self._output[0])
         T2_out = to_numpy(self._output[1])
         assert T1_out.shape == (6, 4)

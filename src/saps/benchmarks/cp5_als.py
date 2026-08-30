@@ -448,9 +448,7 @@ class CP5_ALS(Benchmark):
         C = to_numpy(self._output[2])
         D = to_numpy(self._output[3])
         E = to_numpy(self._output[4])
-        lambda_vals = (
-            to_numpy(self._output[5])
-        )
+        lambda_vals = to_numpy(self._output[5])
         dim1, dim2, dim3, dim4, dim5 = X.shape
         rank = self._meta["rank"]
 

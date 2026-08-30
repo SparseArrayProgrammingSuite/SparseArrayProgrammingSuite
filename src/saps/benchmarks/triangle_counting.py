@@ -502,7 +502,5 @@ class TriangleCountBenchmark(Benchmark):
         if self._ref_outputs is None:
             return
         result = to_numpy(self._output[0])
-        expected = (
-            to_numpy(self._ref_outputs[0])
-        )
+        expected = to_numpy(self._ref_outputs[0])
         assert np.allclose(result, expected)

@@ -732,9 +732,7 @@ class BellmanFordBenchmark(Benchmark):
             return
 
         result = to_numpy(self._output[0])
-        expected = (
-            to_numpy(self._ref_outputs[0])
-        )
+        expected = to_numpy(self._ref_outputs[0])
         assert np.allclose(result, expected, equal_nan=True), (
             f"Bellman-Ford output mismatch for {param.dataset.name}"
         )

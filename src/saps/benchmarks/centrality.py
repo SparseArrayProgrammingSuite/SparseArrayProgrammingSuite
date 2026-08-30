@@ -598,9 +598,7 @@ class BetweennessCentralityBenchmark(Benchmark):
             return
 
         result = to_numpy(self._output[0])
-        expected = (
-            to_numpy(self._ref_outputs[0])
-        )
+        expected = to_numpy(self._ref_outputs[0])
         assert np.allclose(result, expected, atol=1e-6), (
             f"Betweenness centrality output mismatch for {param.dataset.name}"
         )

@@ -258,8 +258,6 @@ class TransitiveReductionBenchmark(Benchmark):
 
     def check(self, param):
         super().check(param)
-        expected = (
-            to_numpy(self._ref_outputs[0])
-        )
+        expected = to_numpy(self._ref_outputs[0])
         actual = to_numpy(self._output[0])
         assert np.array_equal(actual, expected)

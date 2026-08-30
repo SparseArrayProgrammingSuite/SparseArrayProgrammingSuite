@@ -384,9 +384,7 @@ class MaskedMRIEdgeBenchmark(Benchmark):
             return
 
         result = to_numpy(self._output[0])
-        expected = (
-            to_numpy(self._ref_outputs[0])
-        )
+        expected = to_numpy(self._ref_outputs[0])
 
         assert self._meta == {}
         assert result.shape == expected.shape
@@ -395,12 +393,8 @@ class MaskedMRIEdgeBenchmark(Benchmark):
         if self._ref_meta is None:
             return
         if self._ref_meta.get("default_roi"):
-            image_arr = (
-                to_numpy(self._input[0])
-            )
-            roi_arr = (
-                to_numpy(self._input[1])
-            )
+            image_arr = to_numpy(self._input[0])
+            roi_arr = to_numpy(self._input[1])
             expected_roi = default_masked_mri_roi(image_arr)
             assert np.all(roi_arr == expected_roi)
             assert to_numpy(self._input[2]).item() == 10.0

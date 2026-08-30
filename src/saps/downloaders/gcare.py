@@ -347,9 +347,7 @@ def _build_query_matrices(
                 sp_mats_needed[sp_name] = CustomTensor(
                     (max_vid + 1,),
                     len(values),
-                    level=SparseLevel(
-                        1, ElementLevel(values), (np.array([0]),)
-                    ),
+                    level=SparseLevel(1, ElementLevel(values), (np.array([0]),)),
                 )
             elif sp_name.startswith("E"):  # missing edge label → all-zero matrix
                 values = np.array([0])

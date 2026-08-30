@@ -440,9 +440,7 @@ class CP3_ALS(Benchmark):
         A = to_numpy(self._output[0])
         B = to_numpy(self._output[1])
         C = to_numpy(self._output[2])
-        lambda_vals = (
-            to_numpy(self._output[3])
-        )
+        lambda_vals = to_numpy(self._output[3])
         dim1, dim2, dim3 = X.shape
         rank = self._meta["rank"]
 

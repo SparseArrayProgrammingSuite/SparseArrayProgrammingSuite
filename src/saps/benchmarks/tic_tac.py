@@ -452,7 +452,5 @@ class TicTacToeBenchmark(Benchmark):
         if self._ref_outputs is None:
             return
         actual = to_numpy(self._output[0])
-        expected = (
-            to_numpy(self._ref_outputs[0])
-        )
+        expected = to_numpy(self._ref_outputs[0])
         assert np.allclose(actual, expected, atol=1e-6)

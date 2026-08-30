@@ -1,7 +1,5 @@
 """Small SAPS integration helpers for the reference ``binsparse`` package."""
 
-import scipy.sparse as scipy_sparse
-
 from binsparse import BinsparseTensor
 from binsparse.conversions import to_numpy, to_scipy, to_sparse
 

@@ -636,9 +636,7 @@ class QuantumStatevectorBenchmark(Benchmark):
             assert abs(norm - 1.0) < self._ref_meta["norm_atol"]
 
         if self._ref_outputs is not None:
-            expected = (
-                to_numpy(self._ref_outputs[0])
-            )
+            expected = to_numpy(self._ref_outputs[0])
             np.testing.assert_allclose(
                 result,
                 expected,

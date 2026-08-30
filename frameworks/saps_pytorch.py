@@ -1,4 +1,3 @@
-
 import array_api_compat
 import array_api_compat.torch as torch_xp
 import torch

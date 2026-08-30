@@ -526,9 +526,7 @@ class PageRankBenchmark(Benchmark):
         result = to_numpy(self._output[0])
 
         if self._ref_outputs is not None:
-            expected = (
-                to_numpy(self._ref_outputs[0])
-            )
+            expected = to_numpy(self._ref_outputs[0])
             assert np.allclose(result, expected, atol=1e-2), (
                 f"PageRank output mismatch for {param.dataset.name}"
             )

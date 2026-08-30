@@ -217,9 +217,7 @@ class MCGenerator(Generator[MCDataset]):
         num_vars, clauses = parse_dimacs(dataset.cnf_text)
         expr = clauses_to_einsum(clauses)
 
-        data_list: list[BinsparseTensor] = [
-            from_numpy(np.array([0, 1]))
-        ]
+        data_list: list[BinsparseTensor] = [from_numpy(np.array([0, 1]))]
 
         default_total = 2**num_vars
 
@@ -321,12 +319,8 @@ class ModelCounting(Benchmark):
             )
         if self._ref_outputs is None:
             return
-        result = int(
-            to_numpy(self._output[0])
-        )
-        expected = int(
-            to_numpy(self._ref_outputs[0])
-        )
+        result = int(to_numpy(self._output[0]))
+        expected = int(to_numpy(self._ref_outputs[0]))
         assert result == expected, (
             f"Test '{param.dataset.name}' failed: expected {expected}, got {result}"
         )

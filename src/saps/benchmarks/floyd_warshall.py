@@ -659,9 +659,7 @@ class FloydWarshallBenchmark(Benchmark):
             )
         output = to_numpy(self._output[0])
         if self._ref_outputs is not None:
-            expected = (
-                to_numpy(self._ref_outputs[0])
-            )
+            expected = to_numpy(self._ref_outputs[0])
             both_inf = np.isinf(output) & np.isinf(expected)
             both_finite = np.isfinite(output) & np.isfinite(expected)
             assert np.all(both_inf | (both_finite & (output == expected))), (

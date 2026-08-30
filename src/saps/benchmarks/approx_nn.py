@@ -490,9 +490,7 @@ Nearest neighbor algorithms</concept_desc>
 
         data = to_numpy(self._input[0])
         query = to_numpy(self._input[1])
-        nearest_ind = (
-            to_numpy(self._output[0])
-        )
+        nearest_ind = to_numpy(self._output[0])
 
         diff = np.expand_dims(query, axis=1) - np.expand_dims(data, axis=0)
         orig_distances = np.sqrt(np.sum(diff**2, axis=-1))

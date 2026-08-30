@@ -504,9 +504,7 @@ class GCNBenchmark(Benchmark):
             return
 
         result = to_numpy(self._output[0])
-        expected = (
-            to_numpy(self._ref_outputs[0])
-        )
+        expected = to_numpy(self._ref_outputs[0])
         np.testing.assert_allclose(
             result,
             expected,
