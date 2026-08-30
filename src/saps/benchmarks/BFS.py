@@ -1,5 +1,7 @@
 import numpy as np
 
+from binsparse import BinsparseTensor
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -18,7 +20,6 @@ from saps.benchmarks.suitesparse import (
     fetch_suitesparse_matrix,
 )
 from saps.downloaders.snap import download_snap_dataset
-from saps_framework.binsparse_format import BinsparseFormat
 
 
 class BreadthFirstSearchDataset(Dataset):
@@ -197,9 +198,9 @@ class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
         if dataset.A is None or dataset.src is None or dataset.expected is None:
             raise ValueError("BFS test datasets must define A, src, and expected.")
         return DataInstance(
-            inputs=[BinsparseFormat.from_numpy(dataset.A)],
+            inputs=[BinsparseTensor.from_numpy(dataset.A)],
             meta={"src": dataset.src},
-            ref_outputs=[BinsparseFormat.from_numpy(dataset.expected)],
+            ref_outputs=[BinsparseTensor.from_numpy(dataset.expected)],
         )
 
 
@@ -555,7 +556,7 @@ class BreadthFirstSearchBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
         if self._ref_outputs is None:

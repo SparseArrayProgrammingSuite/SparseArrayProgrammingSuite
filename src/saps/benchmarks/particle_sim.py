@@ -2,6 +2,8 @@ import math
 
 import numpy as np
 
+from binsparse import BinsparseTensor
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -11,7 +13,6 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps_framework import BinsparseFormat
 
 mass = 0.01
 cutoff = 0.01
@@ -229,13 +230,13 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
         expected = reference_particle_sim(x, y, vx, vy, size, steps)
         return DataInstance(
             inputs=[
-                BinsparseFormat.from_numpy(x),
-                BinsparseFormat.from_numpy(y),
-                BinsparseFormat.from_numpy(vx),
-                BinsparseFormat.from_numpy(vy),
+                BinsparseTensor.from_numpy(x),
+                BinsparseTensor.from_numpy(y),
+                BinsparseTensor.from_numpy(vx),
+                BinsparseTensor.from_numpy(vy),
             ],
             meta={"size": size, "steps": steps},
-            ref_outputs=[BinsparseFormat.from_numpy(value) for value in expected],
+            ref_outputs=[BinsparseTensor.from_numpy(value) for value in expected],
         )
 
 
@@ -371,7 +372,7 @@ class ParticleSimBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
         if self._ref_outputs is None:

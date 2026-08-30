@@ -1,6 +1,9 @@
 import numpy as np
 
-from saps_framework import BinsparseFormat, Framework, einsum
+from binsparse import BinsparseTensor
+from binsparse.conversions import to_numpy, to_sparse
+
+from saps_framework import Framework, einsum
 
 
 class NumpyFramework(Framework):
@@ -8,23 +11,13 @@ class NumpyFramework(Framework):
         pass
 
     def from_binsparse(self, array):
-        if array.data["format"] == "dense":
-            return np.array(array.data["values"]).reshape(array.data["shape"])
-        if array.data["format"] == "COO":
-            indices = []
-            idx_dim = 0
-            while "indices_" + str(idx_dim) in array.data:
-                indices.append(array.data["indices_" + str(idx_dim)])
-                idx_dim += 1
-            V = array.data["values"]
-            shape = array.data["shape"]
-            data = np.zeros(shape, dtype=V.dtype)
-            data[tuple(indices)] = V
-            return data
-        raise ValueError("Unsupported format: " + array.data["format"])
+        try:
+            return to_numpy(array)
+        except TypeError:
+            return np.asarray(to_sparse(array).todense())
 
     def to_binsparse(self, array):
-        return BinsparseFormat.from_numpy(np.asarray(array))
+        return BinsparseTensor.from_numpy(np.asarray(array))
 
     def lazy(self, array):
         return array

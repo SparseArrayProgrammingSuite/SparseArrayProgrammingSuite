@@ -2,7 +2,7 @@ import numpy as np
 
 from saps.benchmark import (
     Benchmark,
-    BinsparseFormat,
+    BinsparseTensor,
     Contributor,
     DataInstance,
     Dataset,
@@ -350,10 +350,10 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
         ]
 
     def generate(self, dataset: TicTacToeDataset):
-        S_bin = BinsparseFormat.from_numpy(dataset.board)
+        S_bin = BinsparseTensor.from_numpy(dataset.board)
         ref_outputs = None
         if dataset.expected is not None:
-            ref_outputs = [BinsparseFormat.from_numpy(np.asarray(dataset.expected))]
+            ref_outputs = [BinsparseTensor.from_numpy(np.asarray(dataset.expected))]
         return DataInstance(
             inputs=[S_bin], meta={"depth": dataset.depth}, ref_outputs=ref_outputs
         )

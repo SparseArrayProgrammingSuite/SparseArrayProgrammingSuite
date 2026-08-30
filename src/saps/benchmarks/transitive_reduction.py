@@ -1,5 +1,7 @@
 import numpy as np
 
+from binsparse import BinsparseTensor
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -9,7 +11,6 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps_framework import BinsparseFormat
 
 
 class TransitiveReductionDataset(Dataset):
@@ -118,9 +119,9 @@ class TransitiveReductionTestGenerator(Generator[TransitiveReductionDataset]):
         for i, j, value in dataset.expected_edges:
             expected[i, j] = value
         return DataInstance(
-            inputs=[BinsparseFormat.from_numpy(R)],
+            inputs=[BinsparseTensor.from_numpy(R)],
             meta={"x": 1, "max_iters": 5},
-            ref_outputs=[BinsparseFormat.from_numpy(expected)],
+            ref_outputs=[BinsparseTensor.from_numpy(expected)],
         )
 
 

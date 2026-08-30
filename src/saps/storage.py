@@ -8,8 +8,10 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from binsparse import BinsparseTensor
+
 from saps.dependencies import dependency_versions
-from saps_framework.binsparse_format import BinsparseFormat
+from saps_framework.binsparse_utils import deserialize, serialize
 
 if TYPE_CHECKING:
     from saps.benchmark import DataInstance, Dataset, Generator
@@ -62,10 +64,10 @@ class StorageBackend(ABC):
     def uri_for_prefix(self, remote_prefix: str) -> str:
         return remote_prefix
 
-    def _serialize_binsparse_list(self, values: list[BinsparseFormat] | None):
+    def _serialize_binsparse_list(self, values: list[BinsparseTensor] | None):
         if values is None:
             return None
-        return [binsparse.serialize() for binsparse in values]
+        return [serialize(tensor) for tensor in values]
 
     def serialize_data(self, data: DataInstance) -> str:
         return json.dumps(
@@ -87,7 +89,7 @@ class StorageBackend(ABC):
     def _deserialize_binsparse_list(self, values: list[str] | None):
         if values is None:
             return None
-        return [BinsparseFormat.deserialize(string) for string in values]
+        return [deserialize(string) for string in values]
 
     def deserialize_data(self, json_str: str) -> DataInstance:
         from saps.benchmark import DataInstance

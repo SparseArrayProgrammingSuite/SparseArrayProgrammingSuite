@@ -2,6 +2,8 @@ from typing import Any
 
 import numpy as np
 
+from binsparse import BinsparseTensor
+
 from saps.benchmark import (
     Author,
     Contributor,
@@ -12,7 +14,6 @@ from saps.benchmark import (
     ShellBenchmark,
 )
 from saps.downloaders.suitesparse import load_suitesparse_matrix, random_rhs_for_matrix
-from saps_framework import BinsparseFormat
 
 
 class SuiteSparseDataset(Dataset):
@@ -526,9 +527,9 @@ class SuiteSparseMatrixGenerator(Generator[SuiteSparseDataset]):
 
     def generate(self, dataset: SuiteSparseDataset) -> DataInstance:
         A, b, meta = load_suitesparse_matrix(dataset.source_name)
-        inputs = [BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)]
+        inputs = [BinsparseTensor.from_coo((A.row, A.col), A.data, A.shape)]
         if b is not None:
-            inputs.append(BinsparseFormat.from_numpy(b))
+            inputs.append(BinsparseTensor.from_numpy(b))
         return DataInstance(inputs=inputs, meta=meta)
 
 
@@ -552,7 +553,7 @@ def fetch_suitesparse_matrix(source_name: str) -> DataInstance:
 
 def fetch_suitesparse_linear_system(
     source_name: str,
-) -> tuple[BinsparseFormat, np.ndarray, bool]:
+) -> tuple[BinsparseTensor, np.ndarray, bool]:
     """Fetch a matrix paired with a right-hand-side vector `b` to solve against.
 
     Returns `(A, b, has_real_rhs)`. Every CG/Jacobi/GMRES/LSQR/PreconditionedCG

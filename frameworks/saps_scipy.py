@@ -6,8 +6,9 @@ import scipy.sparse.linalg as spla
 
 import array_api_compat
 import array_api_compat.numpy as compat_np
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
-from saps_framework import BinsparseFormat, Framework, einsum
+from saps_framework import Framework, einsum
 
 
 class ScipyLinalg:
@@ -39,27 +40,18 @@ class SciPyFramework(Framework):
         return ScipyLinalg
 
     def from_binsparse(self, array):
-        if array.data["format"] == "dense":
-            return array.data["values"].reshape(array.data["shape"])
-        if array.data["format"] == "COO":
-            indices = []
-            idx_dim = 0
-            while "indices_" + str(idx_dim) in array.data:
-                indices.append(array.data["indices_" + str(idx_dim)])
-                idx_dim += 1
-            return sp.sparse.coo_array(
-                (array.data["values"], tuple(indices)), shape=array.data["shape"]
-            ).tocsr()
-        raise ValueError(f"Unsupported format: {array.data['format']}")
+        try:
+            return to_numpy(array)
+        except TypeError:
+            return to_scipy(array).tocsr()
 
     def to_binsparse(self, array):
         if sp.sparse.issparse(array):
-            coo = array.tocoo()
-            return BinsparseFormat.from_coo((coo.row, coo.col), coo.data, coo.shape)
+            return from_scipy(array)
         if isinstance(array, np.ndarray):
-            return BinsparseFormat.from_numpy(array)
+            return from_numpy(array)
         if isinstance(array, np.matrix):
-            return BinsparseFormat.from_numpy(np.array(array))
+            return from_numpy(np.array(array))
         raise TypeError(f"Type {type(array)} is not a recognized SciPy/NumPy format.")
 
     def lazy(self, array):

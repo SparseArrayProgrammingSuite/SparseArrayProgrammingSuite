@@ -1,5 +1,7 @@
 import numpy as np
 
+from binsparse import BinsparseTensor
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -10,7 +12,6 @@ from saps.benchmark import (
     Ref,
 )
 from saps.downloaders.snap import download_snap_dataset
-from saps_framework import BinsparseFormat
 
 
 class GraphCountingDataset(Dataset):
@@ -159,9 +160,9 @@ class FourCliqueCountTestGenerator(Generator[GraphCountingDataset]):
         if dataset.A is None or dataset.expected is None:
             raise ValueError("4-clique test datasets must define A and expected.")
         return DataInstance(
-            inputs=[BinsparseFormat.from_numpy(dataset.A)],
+            inputs=[BinsparseTensor.from_numpy(dataset.A)],
             meta={},
-            ref_outputs=[BinsparseFormat.from_numpy(dataset.expected)],
+            ref_outputs=[BinsparseTensor.from_numpy(dataset.expected)],
         )
 
 
@@ -368,7 +369,7 @@ class FourCliqueCountBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
         if self._ref_outputs is None:

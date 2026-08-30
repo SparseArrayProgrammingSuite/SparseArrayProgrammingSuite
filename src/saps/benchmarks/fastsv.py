@@ -2,6 +2,8 @@ from typing import Any
 
 import numpy as np
 
+from binsparse import BinsparseTensor
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -13,7 +15,6 @@ from saps.benchmark import (
 )
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 from saps.downloaders.snap import download_snap_dataset
-from saps_framework import BinsparseFormat
 
 
 class FastSVDataset(Dataset):
@@ -173,9 +174,9 @@ class FastSVTestGenerator(Generator[FastSVDataset]):
             raise ValueError(f"Unsupported test dataset: {dataset.name}")
 
         return DataInstance(
-            inputs=[BinsparseFormat.from_numpy(A)],
+            inputs=[BinsparseTensor.from_numpy(A)],
             meta={},
-            ref_outputs=[BinsparseFormat.from_numpy(expected)],
+            ref_outputs=[BinsparseTensor.from_numpy(expected)],
         )
 
 
@@ -507,7 +508,7 @@ class FastSVBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
         if self._ref_outputs is None:

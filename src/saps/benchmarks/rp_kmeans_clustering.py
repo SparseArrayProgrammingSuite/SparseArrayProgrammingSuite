@@ -3,6 +3,8 @@ from typing import Any
 
 import numpy as np
 
+from binsparse import BinsparseTensor
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -12,7 +14,6 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps_framework import BinsparseFormat
 
 
 class RPKMeansDataset(Dataset):
@@ -158,7 +159,7 @@ class RPKMeansGenerator(Generator[RPKMeansDataset]):
         ]
 
     def generate(self, dataset: RPKMeansDataset) -> DataInstance:
-        A_bin = BinsparseFormat.from_numpy(dataset.points)
+        A_bin = BinsparseTensor.from_numpy(dataset.points)
         _, d = dataset.points.shape
         t = int(dataset.c * math.ceil(dataset.k / dataset.eps**2))
         value = 1 / (t**0.5)
@@ -166,7 +167,7 @@ class RPKMeansGenerator(Generator[RPKMeansDataset]):
         R = np.where(rng.random((d, t)) < 0.5, value, -value).astype(
             dataset.points.dtype
         )
-        R_bin = BinsparseFormat.from_numpy(R)
+        R_bin = BinsparseTensor.from_numpy(R)
         return DataInstance(
             inputs=[A_bin, R_bin],
             meta={
@@ -280,7 +281,7 @@ Dimensionality reduction</concept_desc>
         ----
         xp : array_api
             The array API module to utilize
-        A_benchmark : BinsparseFormat
+        A_benchmark : BinsparseTensor
             Sparse input matrix
         k : int
             Number of clusters
@@ -328,7 +329,7 @@ Dimensionality reduction</concept_desc>
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
         if self._ref_meta is None:

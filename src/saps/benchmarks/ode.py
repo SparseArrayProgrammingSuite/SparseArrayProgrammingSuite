@@ -4,6 +4,8 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
+from binsparse import BinsparseTensor
+
 from saps.benchmark import (
     Benchmark,
     Contributor,
@@ -12,10 +14,9 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps_framework import BinsparseFormat
 
 
-def _dense_binsparse_array(array: BinsparseFormat):
+def _dense_binsparse_array(array: BinsparseTensor):
     if array.data["format"] != "dense":
         raise ValueError(f"Expected dense binsparse data, got {array.data['format']}")
     return np.asarray(array.data["values"]).reshape(array.data["shape"])
@@ -579,8 +580,8 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
         }
         return DataInstance(
             inputs=[
-                BinsparseFormat.from_numpy(dataset.C),
-                BinsparseFormat.from_numpy(np.asarray(dataset.brusselator_cb)),
+                BinsparseTensor.from_numpy(dataset.C),
+                BinsparseTensor.from_numpy(np.asarray(dataset.brusselator_cb)),
             ],
             meta=meta,
         )

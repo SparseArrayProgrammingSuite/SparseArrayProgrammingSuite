@@ -2,6 +2,8 @@ from typing import Any
 
 import numpy as np
 
+from binsparse import BinsparseTensor
+
 from saps.benchmark import (
     Benchmark,
     Contributor,
@@ -13,7 +15,6 @@ from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     fetch_suitesparse_linear_system,
 )
-from saps_framework import BinsparseFormat
 
 
 def normof2(xp, x, y):
@@ -200,8 +201,8 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
             raise ValueError("LSQR test datasets must define A, b, and convergence.")
         return DataInstance(
             inputs=[
-                BinsparseFormat.from_numpy(dataset.A),
-                BinsparseFormat.from_numpy(dataset.b),
+                BinsparseTensor.from_numpy(dataset.A),
+                BinsparseTensor.from_numpy(dataset.b),
             ],
             meta={},
             ref_meta={"convergence": dataset.convergence},
@@ -274,7 +275,7 @@ class LSQRGenerator(Generator[LSQRDataset]):
             noise = rng.standard_normal(b.shape) * noise_level
             b = b + noise
 
-        b_bin = BinsparseFormat.from_numpy(b)
+        b_bin = BinsparseTensor.from_numpy(b)
         return DataInstance(inputs=[A_bin, b_bin], meta={})
 
 
@@ -375,7 +376,7 @@ class LSQRBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
 

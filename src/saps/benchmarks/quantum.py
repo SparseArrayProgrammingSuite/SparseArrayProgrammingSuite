@@ -2,8 +2,9 @@ from typing import Any
 
 import numpy as np
 
+from binsparse import BinsparseTensor
+
 from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
-from saps_framework import BinsparseFormat
 
 
 class QuantumDataset(Dataset):
@@ -178,16 +179,16 @@ class QuantumStateGenerator(Generator[QuantumDataset]):
         dim = 1 << nqubits
         state = np.zeros(dim, dtype=np.complex128)
         state[0] = 1.0 + 0j  # |000...0
-        state_bin = BinsparseFormat.from_numpy(state)
+        state_bin = BinsparseTensor.from_numpy(state)
         return DataInstance(
             inputs=[
                 state_bin,
-                BinsparseFormat.from_numpy(QGates.H),
-                BinsparseFormat.from_numpy(QGates.X),
-                BinsparseFormat.from_numpy(QGates.Y),
-                BinsparseFormat.from_numpy(QGates.Z),
-                BinsparseFormat.from_numpy(QGates.S),
-                BinsparseFormat.from_numpy(QGates.T),
+                BinsparseTensor.from_numpy(QGates.H),
+                BinsparseTensor.from_numpy(QGates.X),
+                BinsparseTensor.from_numpy(QGates.Y),
+                BinsparseTensor.from_numpy(QGates.Z),
+                BinsparseTensor.from_numpy(QGates.S),
+                BinsparseTensor.from_numpy(QGates.T),
             ],
             meta={"nqubits": nqubits, "gate_sequence": dataset.gate_sequence},
             ref_meta=dataset.ref_meta,
@@ -523,16 +524,16 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
     def generate(self, dataset: QuantumDataset) -> DataInstance:
         ref_outputs = None
         if dataset.expected is not None:
-            ref_outputs = [BinsparseFormat.from_numpy(dataset.expected)]
+            ref_outputs = [BinsparseTensor.from_numpy(dataset.expected)]
         return DataInstance(
             inputs=[
-                BinsparseFormat.from_numpy(_zero_state(dataset.nqubits)),
-                BinsparseFormat.from_numpy(QGates.H),
-                BinsparseFormat.from_numpy(QGates.X),
-                BinsparseFormat.from_numpy(QGates.Y),
-                BinsparseFormat.from_numpy(QGates.Z),
-                BinsparseFormat.from_numpy(QGates.S),
-                BinsparseFormat.from_numpy(QGates.T),
+                BinsparseTensor.from_numpy(_zero_state(dataset.nqubits)),
+                BinsparseTensor.from_numpy(QGates.H),
+                BinsparseTensor.from_numpy(QGates.X),
+                BinsparseTensor.from_numpy(QGates.Y),
+                BinsparseTensor.from_numpy(QGates.Z),
+                BinsparseTensor.from_numpy(QGates.S),
+                BinsparseTensor.from_numpy(QGates.T),
             ],
             meta={
                 "nqubits": dataset.nqubits,

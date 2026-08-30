@@ -5,8 +5,9 @@ import scipy.sparse.linalg as spla
 import array_api_compat
 import array_api_compat.numpy as compat_np
 import sparse as sp
+from binsparse.conversions import from_numpy, from_sparse, to_numpy, to_sparse
 
-from saps_framework import BinsparseFormat, Framework, einsum
+from saps_framework import Framework, einsum
 
 
 class PyDataSparseLinalg:
@@ -159,32 +160,24 @@ class PyDataSparseFramework(Framework):
         return arg
 
     def from_binsparse(self, array):
-        if array.data["format"] == "dense":
-            return np.asarray(array.data["values"]).reshape(array.data["shape"])
-        if array.data["format"] == "COO":
-            indices = []
-            idx_dim = 0
-            while "indices_" + str(idx_dim) in array.data:
-                indices.append(array.data["indices_" + str(idx_dim)])
-                idx_dim += 1
-            V = array.data["values"]
-            shape = array.data["shape"]
-            return sp.COO(tuple(indices), V, shape=shape, fill_value=0)
-        raise ValueError("Unsupported format: " + array.data["format"])
+        try:
+            return to_numpy(array)
+        except TypeError:
+            return to_sparse(array)
 
     def to_binsparse(self, array):
         if isinstance(array, sp.COO):
             if array.ndim == 0 or not self._fill_value_is_zero(array):
-                return BinsparseFormat.from_numpy(self._dense(array))
-            return BinsparseFormat.from_coo(array.coords, array.data, array.shape)
+                return from_numpy(self._dense(array))
+            return from_sparse(array)
         if isinstance(array, sp.SparseArray):
             if array.ndim == 0 or not self._fill_value_is_zero(array):
-                return BinsparseFormat.from_numpy(self._dense(array))
+                return from_numpy(self._dense(array))
             return self.to_binsparse(array.tocoo())
         if isinstance(array, np.ndarray):
-            return BinsparseFormat.from_numpy(array)
+            return from_numpy(array)
         if np.isscalar(array):
-            return BinsparseFormat.from_numpy(np.asarray(array))
+            return from_numpy(np.asarray(array))
         raise ValueError("Unsupported array type: " + str(type(array)))
 
     def lazy(self, array):

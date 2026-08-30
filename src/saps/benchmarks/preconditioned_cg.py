@@ -4,6 +4,7 @@ from typing import Any
 import numpy as np
 
 import sparse as pydata_sparse
+from binsparse import BinsparseTensor
 
 from saps.benchmark import (
     Author,
@@ -18,7 +19,6 @@ from saps.benchmarks.suitesparse import (
     fetch_suitesparse_linear_system,
 )
 from saps.downloaders.suitesparse import random_rhs_for_matrix
-from saps_framework import BinsparseFormat
 
 
 def _generate_cg_data(source, A=None):
@@ -27,7 +27,7 @@ def _generate_cg_data(source, A=None):
 
         A = sp.coo_matrix(A)
         b = random_rhs_for_matrix(A)
-        A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
+        A_bin = BinsparseTensor.from_coo((A.row, A.col), A.data, A.shape)
     else:
         A_bin, b, _has_real_rhs = fetch_suitesparse_linear_system(source)
     x0 = np.zeros(A_bin.data["shape"][1])
@@ -192,9 +192,9 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
             blocks.append(L_i)
             i = j
         M = sp.block_diag(blocks).tocoo()
-        M_bin = BinsparseFormat.from_coo((M.row, M.col), M.data, M.shape)
-        b_bin = BinsparseFormat.from_numpy(b)
-        x0_bin = BinsparseFormat.from_numpy(x0)
+        M_bin = BinsparseTensor.from_coo((M.row, M.col), M.data, M.shape)
+        b_bin = BinsparseTensor.from_numpy(b)
+        x0_bin = BinsparseTensor.from_numpy(x0)
         return DataInstance(
             inputs=[A_bin, b_bin, x0_bin, M_bin],
             meta={},
@@ -319,9 +319,9 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
     def generate(self, dataset: PreconditionedCGDataset) -> DataInstance:
         A_bin, b, x0 = _generate_cg_data(dataset.source_name, dataset.A)
         M = A_bin.diagonal()
-        M_bin = BinsparseFormat.from_numpy(M)
-        b_bin = BinsparseFormat.from_numpy(b)
-        x0_bin = BinsparseFormat.from_numpy(x0)
+        M_bin = BinsparseTensor.from_numpy(M)
+        b_bin = BinsparseTensor.from_numpy(b)
+        x0_bin = BinsparseTensor.from_numpy(x0)
         return DataInstance(
             inputs=[A_bin, b_bin, x0_bin, M_bin],
             meta={},
@@ -422,7 +422,7 @@ class _PreconditionedCGBase(Benchmark, ABC):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
 
@@ -430,7 +430,7 @@ class _PreconditionedCGBase(Benchmark, ABC):
             return
 
         A_bin, b_bin, _x0_bin, _M_bin = self._input
-        A_coo = BinsparseFormat.to_coo(A_bin)
+        A_coo = BinsparseTensor.to_coo(A_bin)
         A = pydata_sparse.COO(
             coords=np.stack((A_coo.data["indices_0"], A_coo.data["indices_1"])),
             data=A_coo.data["values"],

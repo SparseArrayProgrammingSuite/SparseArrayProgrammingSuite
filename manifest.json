@@ -1152,15 +1152,20 @@
   },
   "finite_difference_inputs_2d.fd2d_test_scale": {
     "dependencies": [
+      "binsparse",
+      "binsparse.conversions",
       "boto3",
       "botocore",
       "lark",
       "numpy",
-      "pyparsing",
       "scipy.sparse",
       "sparse"
     ],
     "dependency_versions": [
+      {
+        "name": "binsparse",
+        "version": "0.1.3"
+      },
       {
         "name": "boto3",
         "version": "1.43.34"
@@ -1178,10 +1183,6 @@
         "version": "2.3.5"
       },
       {
-        "name": "pyparsing",
-        "version": "3.3.2"
-      },
-      {
         "name": "scipy",
         "version": "1.17.1"
       },
@@ -1190,9 +1191,9 @@
         "version": "0.17.0"
       }
     ],
-    "digest": "17bf54b6d9a6cac3972ec9b1bda7e512bf3923fb74a4b5c76e6d0087111d2c39",
+    "digest": "a6904f80695aa2a88c54578cdb10c1add07ff1df7930656a94f39bfad2c6072d",
     "file": "src/saps/benchmarks/Finite_Difference_2D.py",
-    "freshness": "bd5fa74cff3181d1ea4f4d4cd9e4a9cf55859a84fc1e6a97a42389bd0bc9a5ab"
+    "freshness": "4fcd174ad918f812f054ef309277d7969c2bf93a131622a042a642d86d82f059"
   },
   "floyd_warshall_inputs.arc130": {
     "dependencies": [

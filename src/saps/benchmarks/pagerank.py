@@ -1,5 +1,7 @@
 import numpy as np
 
+from binsparse import BinsparseTensor
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -11,7 +13,6 @@ from saps.benchmark import (
 )
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 from saps.downloaders.snap import download_snap_dataset
-from saps_framework.binsparse_format import BinsparseFormat
 
 
 class PageRankDataset(Dataset):
@@ -182,9 +183,9 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
             raise ValueError("PageRank test datasets must define A.")
         ref_outputs = None
         if dataset.expected is not None:
-            ref_outputs = [BinsparseFormat.from_numpy(dataset.expected)]
+            ref_outputs = [BinsparseTensor.from_numpy(dataset.expected)]
         return DataInstance(
-            inputs=[BinsparseFormat.from_numpy(dataset.A)],
+            inputs=[BinsparseTensor.from_numpy(dataset.A)],
             meta={},
             ref_outputs=ref_outputs,
             ref_meta=dataset.ref_meta,
@@ -517,7 +518,7 @@ class PageRankBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
 

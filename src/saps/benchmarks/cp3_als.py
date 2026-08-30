@@ -1,5 +1,7 @@
 import numpy as np
 
+from binsparse import BinsparseTensor
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -10,7 +12,6 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.frostt import fetch_frostt_tensor
-from saps_framework import BinsparseFormat
 
 
 class CP3FactorizeableDataset(Dataset):
@@ -133,17 +134,17 @@ class CP3FactorizeableGenerator(Generator):
 
         X = np.einsum("ir,jr,kr->ijk", A, B, C)
         dtype = X.dtype
-        initial_A = BinsparseFormat.from_numpy(
+        initial_A = BinsparseTensor.from_numpy(
             np.random.default_rng(0).random((dim1, rank)).astype(dtype)
         )
-        initial_B = BinsparseFormat.from_numpy(
+        initial_B = BinsparseTensor.from_numpy(
             np.random.default_rng(0).random((dim2, rank)).astype(dtype)
         )
-        initial_C = BinsparseFormat.from_numpy(
+        initial_C = BinsparseTensor.from_numpy(
             np.random.default_rng(0).random((dim3, rank)).astype(dtype)
         )
 
-        X = BinsparseFormat.from_numpy(X)
+        X = BinsparseTensor.from_numpy(X)
         max_iter = dataset.max_iter
 
         return DataInstance(
@@ -294,9 +295,9 @@ class CP3FrosttGenerator(Generator[CP3FrosttDataset]):
         dtype = X.data["values"].dtype
 
         rng = np.random.default_rng(0)
-        initial_A = BinsparseFormat.from_numpy(rng.random((dim1, rank)).astype(dtype))
-        initial_B = BinsparseFormat.from_numpy(rng.random((dim2, rank)).astype(dtype))
-        initial_C = BinsparseFormat.from_numpy(rng.random((dim3, rank)).astype(dtype))
+        initial_A = BinsparseTensor.from_numpy(rng.random((dim1, rank)).astype(dtype))
+        initial_B = BinsparseTensor.from_numpy(rng.random((dim2, rank)).astype(dtype))
+        initial_C = BinsparseTensor.from_numpy(rng.random((dim3, rank)).astype(dtype))
 
         return DataInstance(
             inputs=[X, initial_A, initial_B, initial_C],
@@ -427,7 +428,7 @@ class CP3_ALS(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
 

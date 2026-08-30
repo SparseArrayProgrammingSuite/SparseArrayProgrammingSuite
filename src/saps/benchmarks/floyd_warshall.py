@@ -1,6 +1,7 @@
 import numpy as np
 
 import sparse as sp
+from binsparse import BinsparseTensor
 
 from saps.benchmark import (
     Author,
@@ -11,7 +12,6 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
-from saps_framework.binsparse_format import BinsparseFormat
 
 
 class FloydWarshallDataset(SuiteSparseDataset):
@@ -318,9 +318,9 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
             dataset.A.todense() if isinstance(dataset.A, sp.SparseArray) else dataset.A
         )
         return DataInstance(
-            inputs=[BinsparseFormat.from_numpy(inputs)],
+            inputs=[BinsparseTensor.from_numpy(inputs)],
             meta={},
-            ref_outputs=[BinsparseFormat.from_numpy(dataset.expected)],
+            ref_outputs=[BinsparseTensor.from_numpy(dataset.expected)],
             ref_meta=dataset.ref_meta,
         )
 
@@ -535,7 +535,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
         if n != m:
             raise ValueError(f"Floyd-Warshall requires a square matrix, got {(n, m)}")
 
-        coo = BinsparseFormat.to_coo(raw.inputs[0])
+        coo = BinsparseTensor.to_coo(raw.inputs[0])
         G = np.full((n, n), np.inf, dtype=np.float64)
         if raw.meta["nnz"] > 0:
             G[coo.data["indices_0"], coo.data["indices_1"]] = 1.0
@@ -544,7 +544,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
         if dataset.symmetrize:
             G = np.minimum(G, G.T)
 
-        G_bin = BinsparseFormat.from_numpy(G)
+        G_bin = BinsparseTensor.from_numpy(G)
         return DataInstance(inputs=[G_bin], meta={})
 
 
@@ -653,7 +653,7 @@ class FloydWarshallBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
         output = self._output[0].data["values"].reshape(self._output[0].data["shape"])

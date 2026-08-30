@@ -3,8 +3,9 @@ from typing import Any
 
 import numpy as np
 
+from binsparse import BinsparseTensor
+
 from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
-from saps_framework import BinsparseFormat
 
 
 class MaskedMRIDataset(Dataset):
@@ -182,7 +183,7 @@ class MaskedMRITestGenerator(Generator[MaskedMRIDataset]):
         return DataInstance(
             inputs=problem.inputs,
             meta=problem.meta,
-            ref_outputs=[BinsparseFormat.from_numpy(expected)],
+            ref_outputs=[BinsparseTensor.from_numpy(expected)],
             ref_meta=dataset.ref_meta,
         )
 
@@ -263,10 +264,10 @@ class MaskedMRIGenerator(Generator[MaskedMRIDataset]):
         else:
             roi_array = np.array(dataset.roi, dtype=bool)
 
-        image_bin = BinsparseFormat.from_numpy(img_array)
-        roi_bin = BinsparseFormat.from_numpy(roi_array)
-        t1_bin = BinsparseFormat.from_numpy(np.array(dataset.t1_val, dtype=np.float32))
-        t2_bin = BinsparseFormat.from_numpy(np.array(dataset.t2_val, dtype=np.float32))
+        image_bin = BinsparseTensor.from_numpy(img_array)
+        roi_bin = BinsparseTensor.from_numpy(roi_array)
+        t1_bin = BinsparseTensor.from_numpy(np.array(dataset.t1_val, dtype=np.float32))
+        t2_bin = BinsparseTensor.from_numpy(np.array(dataset.t2_val, dtype=np.float32))
 
         return DataInstance(inputs=[image_bin, roi_bin, t1_bin, t2_bin], meta={})
 
@@ -375,7 +376,7 @@ class MaskedMRIEdgeBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
         if self._ref_outputs is None:

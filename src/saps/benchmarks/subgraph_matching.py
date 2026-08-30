@@ -1,5 +1,7 @@
 import numpy as np
 
+from binsparse import BinsparseTensor
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -14,7 +16,6 @@ from saps.downloaders.gcare import (
     load_gcare_graph,
     load_gcare_query,
 )
-from saps_framework import BinsparseFormat
 
 
 class GCareGraphDataset(Dataset):
@@ -196,13 +197,13 @@ class SubgraphMatchingTestGenerator(Generator[SubgraphMatchingTestDataset]):
 
     def generate(self, dataset: SubgraphMatchingTestDataset):
         matrices = {
-            "VA": BinsparseFormat.from_coo(
+            "VA": BinsparseTensor.from_coo(
                 (np.array([0, 2]),), np.ones(2, dtype=np.int64), (3,)
             ),
-            "VB": BinsparseFormat.from_coo(
+            "VB": BinsparseTensor.from_coo(
                 (np.array([1]),), np.ones(1, dtype=np.int64), (3,)
             ),
-            "E0": BinsparseFormat.from_coo(
+            "E0": BinsparseTensor.from_coo(
                 (np.array([0, 0, 2]), np.array([1, 2, 1])),
                 np.ones(3, dtype=np.int64),
                 (3, 3),
@@ -231,7 +232,7 @@ class GCareGraphGenerator(Generator[GCareGraphDataset]):
 
     @property
     def description(self) -> str:
-        return "Converts a G-CARE graph subset into BinsparseFormat matrices."
+        return "Converts a G-CARE graph subset into BinsparseTensor matrices."
 
     @property
     def suites(self) -> list[str]:

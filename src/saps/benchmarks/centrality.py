@@ -1,5 +1,7 @@
 import numpy as np
 
+from binsparse import BinsparseTensor
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -11,7 +13,6 @@ from saps.benchmark import (
 )
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 from saps.downloaders.snap import download_snap_dataset
-from saps_framework import BinsparseFormat
 
 
 class BetweennessCentralityDataset(Dataset):
@@ -231,9 +232,9 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
         if dataset.A is None or dataset.expected is None:
             raise ValueError("Centrality test datasets must define A and expected.")
         return DataInstance(
-            inputs=[BinsparseFormat.from_numpy(dataset.A)],
+            inputs=[BinsparseTensor.from_numpy(dataset.A)],
             meta={},
-            ref_outputs=[BinsparseFormat.from_numpy(dataset.expected)],
+            ref_outputs=[BinsparseTensor.from_numpy(dataset.expected)],
         )
 
 
@@ -589,7 +590,7 @@ class BetweennessCentralityBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
         if self._ref_outputs is None:

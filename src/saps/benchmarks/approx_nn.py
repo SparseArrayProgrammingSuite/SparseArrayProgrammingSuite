@@ -2,6 +2,8 @@ import logging
 
 import numpy as np
 
+from binsparse import BinsparseTensor
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -11,7 +13,6 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps_framework import BinsparseFormat
 
 
 class JLApproxNNDataset(Dataset):
@@ -301,7 +302,7 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
         projection_matrix = (U_Neg + U_Pos).tocoo()
 
         meta = {"k": dataset.k, "eps": dataset.eps}
-        P = BinsparseFormat.from_coo(
+        P = BinsparseTensor.from_coo(
             (
                 projection_matrix.row,
                 projection_matrix.col,
@@ -312,8 +313,8 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
 
         return DataInstance(
             inputs=[
-                BinsparseFormat.from_numpy(data),
-                BinsparseFormat.from_numpy(query),
+                BinsparseTensor.from_numpy(data),
+                BinsparseTensor.from_numpy(query),
                 P,
             ],
             meta=meta,
@@ -487,7 +488,7 @@ Nearest neighbor algorithms</concept_desc>
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
         if not self._ref_meta:

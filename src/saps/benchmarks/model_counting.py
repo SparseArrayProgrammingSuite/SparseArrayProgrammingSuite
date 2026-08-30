@@ -4,7 +4,7 @@ import numpy as np
 
 from saps.benchmark import (
     Benchmark,
-    BinsparseFormat,
+    BinsparseTensor,
     Contributor,
     DataInstance,
     Dataset,
@@ -215,8 +215,8 @@ class MCGenerator(Generator[MCDataset]):
         num_vars, clauses = parse_dimacs(dataset.cnf_text)
         expr = clauses_to_einsum(clauses)
 
-        data_list: list[BinsparseFormat] = [
-            BinsparseFormat.from_numpy(np.array([0, 1]))
+        data_list: list[BinsparseTensor] = [
+            BinsparseTensor.from_numpy(np.array([0, 1]))
         ]
 
         default_total = 2**num_vars
@@ -231,7 +231,7 @@ class MCGenerator(Generator[MCDataset]):
         return DataInstance(
             inputs=data_list,
             meta=meta,
-            ref_outputs=[BinsparseFormat.from_numpy(np.array(dataset.expected))],
+            ref_outputs=[BinsparseTensor.from_numpy(np.array(dataset.expected))],
         )
 
 
@@ -314,7 +314,7 @@ class ModelCounting(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
         if self._ref_outputs is None:

@@ -2,6 +2,8 @@ from typing import Any
 
 import numpy as np
 
+from binsparse import BinsparseTensor
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -12,7 +14,6 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.frostt import fetch_frostt_tensor, frostt_tensor_shape
-from saps_framework import BinsparseFormat
 
 
 class HOSVDDataset(Dataset):
@@ -145,9 +146,9 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
 
         X_dense = np.einsum("pqr,ip,jq,kr->ijk", G, A, B, C)
 
-        X_bin = BinsparseFormat.from_numpy(X_dense)
+        X_bin = BinsparseTensor.from_numpy(X_dense)
 
-        ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
+        ranks_bin = BinsparseTensor.from_numpy(np.array(ranks))
         return DataInstance(
             inputs=[X_bin, ranks_bin],
             meta={"max_iter": 50, "tolerance": 1e-8},
@@ -234,9 +235,9 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
         indices = np.nonzero(X_dense)
         values = X_dense[indices]
 
-        X_bin = BinsparseFormat.from_coo(indices, values, (dim1, dim2, dim3))
+        X_bin = BinsparseTensor.from_coo(indices, values, (dim1, dim2, dim3))
 
-        ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
+        ranks_bin = BinsparseTensor.from_numpy(np.array(ranks))
         return DataInstance(
             inputs=[X_bin, ranks_bin],
             meta={"max_iter": 50, "tolerance": 1e-8},
@@ -383,7 +384,7 @@ class HOSVDFrosttGenerator(Generator[HOSVDFrosttDataset]):
     def generate(self, dataset: HOSVDFrosttDataset):
         raw = fetch_frostt_tensor(dataset.tensor_name)
         X_bin = raw.inputs[0]
-        ranks_bin = BinsparseFormat.from_numpy(np.array(dataset.ranks))
+        ranks_bin = BinsparseTensor.from_numpy(np.array(dataset.ranks))
         return DataInstance(
             inputs=[X_bin, ranks_bin],
             meta={"max_iter": 50, "tolerance": 1e-8},

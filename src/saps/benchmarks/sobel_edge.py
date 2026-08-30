@@ -3,8 +3,9 @@ from typing import Any
 
 import numpy as np
 
+from binsparse import BinsparseTensor
+
 from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
-from saps_framework import BinsparseFormat
 
 
 def generate_1d_sobel_matrices(Nx, Ny):
@@ -14,7 +15,7 @@ def generate_1d_sobel_matrices(Nx, Ny):
     D_x_R = np.concatenate([rows, rows])
     D_x_C = np.concatenate([cols1, cols2])
     D_x_V = np.concatenate([np.ones(Nx), -np.ones(Nx)])
-    dx_bin = BinsparseFormat.from_coo(
+    dx_bin = BinsparseTensor.from_coo(
         (D_x_R, D_x_C), D_x_V.astype(np.float32), (Nx, Nx)
     )
 
@@ -25,7 +26,7 @@ def generate_1d_sobel_matrices(Nx, Ny):
     S_y_R = np.concatenate([rows, rows, rows])
     S_y_C = np.concatenate([cols1, cols2, cols3])
     S_y_V = np.concatenate([np.ones(Ny), 2.0 * np.ones(Ny), np.ones(Ny)])
-    sy_bin = BinsparseFormat.from_coo(
+    sy_bin = BinsparseTensor.from_coo(
         (S_y_R, S_y_C), S_y_V.astype(np.float32), (Ny, Ny)
     )
 
@@ -36,7 +37,7 @@ def generate_1d_sobel_matrices(Nx, Ny):
     S_x_R = np.concatenate([rows, rows, rows])
     S_x_C = np.concatenate([cols1, cols2, cols3])
     S_x_V = np.concatenate([np.ones(Nx), 2.0 * np.ones(Nx), np.ones(Nx)])
-    sx_bin = BinsparseFormat.from_coo(
+    sx_bin = BinsparseTensor.from_coo(
         (S_x_R, S_x_C), S_x_V.astype(np.float32), (Nx, Nx)
     )
 
@@ -46,7 +47,7 @@ def generate_1d_sobel_matrices(Nx, Ny):
     D_y_R = np.concatenate([rows, rows])
     D_y_C = np.concatenate([cols1, cols2])
     D_y_V = np.concatenate([np.ones(Ny), -np.ones(Ny)])
-    dy_bin = BinsparseFormat.from_coo(
+    dy_bin = BinsparseTensor.from_coo(
         (D_y_R, D_y_C), D_y_V.astype(np.float32), (Ny, Ny)
     )
 
@@ -223,7 +224,7 @@ class MRISobelTestGenerator(Generator[MRISobelDataset]):
         return DataInstance(
             inputs=problem.inputs,
             meta=problem.meta,
-            ref_outputs=[BinsparseFormat.from_numpy(expected)],
+            ref_outputs=[BinsparseTensor.from_numpy(expected)],
             ref_meta=dataset.ref_meta,
         )
 
@@ -314,8 +315,8 @@ class MRISobelGenerator(Generator[MRISobelDataset]):
         else:
             img_array = np.array(dataset.image, dtype=np.float32)
 
-        image_bin = BinsparseFormat.from_numpy(img_array)
-        threshold_bin = BinsparseFormat.from_numpy(
+        image_bin = BinsparseTensor.from_numpy(img_array)
+        threshold_bin = BinsparseTensor.from_numpy(
             np.array(dataset.threshold_val, dtype=np.float32)
         )
 
@@ -417,7 +418,7 @@ class MRISobelEdgeBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
         if self._ref_outputs is None:

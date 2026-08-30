@@ -1,6 +1,7 @@
 import numpy as np
 
 import sparse as pydata_sparse
+from binsparse import BinsparseTensor
 
 from saps.benchmark import (
     Author,
@@ -11,7 +12,6 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps_framework import BinsparseFormat
 
 
 def _from_binsparse(array):
@@ -25,12 +25,12 @@ def _from_binsparse(array):
 
 
 def _to_binsparse(array):
-    if isinstance(array, BinsparseFormat):
+    if isinstance(array, BinsparseTensor):
         return array
     if isinstance(array, pydata_sparse.SparseArray):
         coo = array.to_coo()
-        return BinsparseFormat.from_coo(tuple(coo.coords), coo.data, coo.shape)
-    return BinsparseFormat.from_numpy(np.asarray(array))
+        return BinsparseTensor.from_coo(tuple(coo.coords), coo.data, coo.shape)
+    return BinsparseTensor.from_numpy(np.asarray(array))
 
 
 def _lax_freidrichs_matrix_no_flux(Nx):
