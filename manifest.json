@@ -1156,6 +1156,7 @@
       "binsparse.conversions",
       "boto3",
       "botocore",
+      "h5py",
       "lark",
       "numpy",
       "scipy.sparse",
@@ -1175,6 +1176,10 @@
         "version": "1.43.34"
       },
       {
+        "name": "h5py",
+        "version": "3.16.0"
+      },
+      {
         "name": "lark",
         "version": "1.3.1"
       },
@@ -1191,9 +1196,9 @@
         "version": "0.17.0"
       }
     ],
-    "digest": "a6904f80695aa2a88c54578cdb10c1add07ff1df7930656a94f39bfad2c6072d",
+    "digest": "66449acce1bdf753cba804bb6edfd5af6227eec735f074c60bf34682316a3e53",
     "file": "src/saps/benchmarks/Finite_Difference_2D.py",
-    "freshness": "4fcd174ad918f812f054ef309277d7969c2bf93a131622a042a642d86d82f059"
+    "freshness": "281230d76d193fa43b3f3bf8c71b3e1a58bfa90f4f6c05e283964911af2ed860"
   },
   "floyd_warshall_inputs.arc130": {
     "dependencies": [
@@ -5248,42 +5253,48 @@
   },
   "quantum_state_inputs.single_layer_tiny": {
     "dependencies": [
+      "binsparse",
+      "binsparse.conversions",
       "boto3",
       "botocore",
+      "h5py",
       "lark",
       "numpy",
-      "pyparsing",
       "scipy.sparse"
     ],
     "dependency_versions": [
       {
+        "name": "binsparse",
+        "version": "0.1.3"
+      },
+      {
         "name": "boto3",
-        "version": "1.43.36"
+        "version": "1.43.34"
       },
       {
         "name": "botocore",
-        "version": "1.43.36"
+        "version": "1.43.34"
+      },
+      {
+        "name": "h5py",
+        "version": "3.16.0"
       },
       {
         "name": "lark",
-        "version": "1.3.0"
+        "version": "1.3.1"
       },
       {
         "name": "numpy",
-        "version": "2.2.6"
-      },
-      {
-        "name": "pyparsing",
-        "version": "3.2.4"
+        "version": "2.3.5"
       },
       {
         "name": "scipy",
-        "version": "1.16.2"
+        "version": "1.17.1"
       }
     ],
-    "digest": "f3409ce979624f5f769f4ac7a57a3e6c3e41e985a0a437d4d3f233a7c3146795",
+    "digest": "7eb9373e2e5cb56ad0b6876d0970d811cd530657f03fb177681b49fe4d960fe7",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "fd8438c695f38e9c0aad5d7d10903bdda41b2c70829c54ee80dd8e558cb659c3"
+    "freshness": "654d1b8f0383ddab7df601e66b52049a62333b04761ea2c6c45b0941247de138"
   },
   "subgraph_gcare_graph.aids": {
     "dependencies": [
