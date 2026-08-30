@@ -4,6 +4,7 @@ import hashlib
 import json
 import logging
 import os
+import shutil
 import tempfile
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -37,11 +38,6 @@ def normalize_storage_bucket(bucket: str) -> str:
     return bucket.split("/", 1)[0]
 
 
-def manifest_record_prefix(manifest_key: str, digest: str) -> str:
-    generator_name, dataset_name = manifest_key.split(".", 1)
-    return f"{generator_name}/{dataset_name}/{digest}.bsp.h5"
-
-
 class StorageBackend(ABC):
     def __init__(self, manifest_path: Path, cache_dir: Path) -> None:
         self.manifest_path = Path(manifest_path)
@@ -65,7 +61,8 @@ class StorageBackend(ABC):
         return f"{generator.name}/{dataset.name}/{digest}.bsp.h5"
 
     def manifest_record_prefix(self, manifest_key: str, record: dict) -> str:
-        return manifest_record_prefix(manifest_key, record["digest"])
+        generator_name, dataset_name = manifest_key.split(".", 1)
+        return f"{generator_name}/{dataset_name}/{record['digest']}.bsp.h5"
 
     def manifest_record_exists(self, manifest_key: str, record: dict) -> bool:
         return self.file_exists(self.manifest_record_prefix(manifest_key, record))
@@ -73,61 +70,56 @@ class StorageBackend(ABC):
     def uri_for_prefix(self, remote_prefix: str) -> str:
         return remote_prefix
 
-    def serialize_data(self, data: DataInstance, file: h5py.File) -> None:
-        file.attrs["saps_version"] = 1
-        file.attrs["meta"] = json.dumps(data.meta, sort_keys=True)
-        if data.ref_meta is not None:
-            file.attrs["ref_meta"] = json.dumps(data.ref_meta, sort_keys=True)
-        for name, tensors in (
-            ("inputs", data.inputs),
-            ("ref_outputs", data.ref_outputs),
-        ):
-            if tensors is None:
-                continue
-            parent = file.create_group(name, track_order=True)
-            for index, tensor in enumerate(tensors):
-                tensor.serialize(
-                    HDF5BinsparseContainer(parent.create_group(str(index)))
-                )
-
     def serialize_data_to_file(self, data: DataInstance, local_path: Path) -> str:
-        os.makedirs(local_path.parent, exist_ok=True)
+        local_path.parent.mkdir(parents=True, exist_ok=True)
         with h5py.File(local_path, "w", track_order=True) as file:
-            self.serialize_data(data, file)
+            file.attrs["saps_version"] = 1
+            file.attrs["meta"] = json.dumps(data.meta, sort_keys=True)
+            if data.ref_meta is not None:
+                file.attrs["ref_meta"] = json.dumps(data.ref_meta, sort_keys=True)
+            for name, tensors in (
+                ("inputs", data.inputs),
+                ("ref_outputs", data.ref_outputs),
+            ):
+                if tensors is None:
+                    continue
+                parent = file.create_group(name, track_order=True)
+                for index, tensor in enumerate(tensors):
+                    tensor.serialize(
+                        HDF5BinsparseContainer(parent.create_group(str(index)))
+                    )
         return sha256_file(local_path)
 
-    def deserialize_data(self, file: h5py.File) -> DataInstance:
+    def deserialize_data_from_file(self, local_path: Path) -> DataInstance:
         from saps.benchmark import DataInstance
 
-        tensors = {
-            name: (
-                [
-                    BinsparseTensor.parse(HDF5BinsparseContainer(file[name][key]))
-                    for key in sorted(file[name], key=int)
-                ]
-                if name in file
-                else None
-            )
-            for name in ("inputs", "ref_outputs")
-        }
-        return DataInstance(
-            inputs=tensors["inputs"] or [],
-            meta=json.loads(file.attrs["meta"]),
-            ref_outputs=tensors["ref_outputs"],
-            ref_meta=(
-                json.loads(file.attrs["ref_meta"])
-                if "ref_meta" in file.attrs
-                else None
-            ),
-        )
-
-    def deserialize_data_from_file(self, local_path: Path) -> DataInstance:
         with h5py.File(local_path, "r") as file:
-            return self.deserialize_data(file)
+            tensors = {
+                name: (
+                    [
+                        BinsparseTensor.parse(HDF5BinsparseContainer(file[name][key]))
+                        for key in sorted(file[name], key=int)
+                    ]
+                    if name in file
+                    else None
+                )
+                for name in ("inputs", "ref_outputs")
+            }
+            return DataInstance(
+                inputs=tensors["inputs"] or [],
+                meta=json.loads(file.attrs["meta"]),
+                ref_outputs=tensors["ref_outputs"],
+                ref_meta=(
+                    json.loads(file.attrs["ref_meta"])
+                    if "ref_meta" in file.attrs
+                    else None
+                ),
+            )
 
-    def _write_data_to_cache(
-        self, data: DataInstance, generator: Generator, dataset: Dataset
-    ) -> tuple[str, Path]:
+    def _generate_and_cache(
+        self, generator: Generator, dataset: Dataset
+    ) -> tuple[DataInstance, str, Path]:
+        data = generator.generate(dataset)
         parent = self.cache_dir / generator.name / dataset.name
         parent.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(prefix=".saps-", dir=parent) as staging:
@@ -135,15 +127,12 @@ class StorageBackend(ABC):
             digest = self.serialize_data_to_file(data, staging_path)
             cache_path = self.cache_dir / self.prefix(generator, dataset, digest)
             staging_path.replace(cache_path)
-        return digest, cache_path
+        return data, digest, cache_path
 
     def _read_manifest(self) -> dict:
         if not self.manifest_path.exists():
             return {}
         return json.loads(self.manifest_path.read_text())
-
-    def _dataset_key(self, generator: Generator, dataset: Dataset) -> str:
-        return f"{generator.name}.{dataset.name}"
 
     def _dataset_manifest_metadata(self, dataset: Dataset) -> dict:
         return {
@@ -157,7 +146,7 @@ class StorageBackend(ABC):
         self, generator: Generator, dataset: Dataset, digest: str
     ) -> None:
         manifest = self._read_manifest()
-        manifest[self._dataset_key(generator, dataset)] = {
+        manifest[f"{generator.name}.{dataset.name}"] = {
             "digest": digest,
             **self._dataset_manifest_metadata(dataset),
         }
@@ -168,7 +157,7 @@ class StorageBackend(ABC):
 
     def check_manifest(self, generator: Generator, dataset: Dataset) -> str | None:
         manifest = self._read_manifest()
-        dataset_key = self._dataset_key(generator, dataset)
+        dataset_key = f"{generator.name}.{dataset.name}"
         if dataset_key not in manifest:
             return None
         record = manifest[dataset_key]
@@ -183,8 +172,7 @@ class StorageBackend(ABC):
         return record["digest"]
 
     def upload_dataset(self, generator: Generator, dataset: Dataset) -> bool:
-        data = generator.generate(dataset)
-        digest, local_path = self._write_data_to_cache(data, generator, dataset)
+        _, digest, local_path = self._generate_and_cache(generator, dataset)
         prefix = self.prefix(generator, dataset, digest)
         if self.file_exists(prefix):
             self.update_manifest(generator, dataset, digest)
@@ -194,50 +182,39 @@ class StorageBackend(ABC):
             self.update_manifest(generator, dataset, digest)
         return successful
 
-    def retrieve_dataset(
-        self, generator: Generator, dataset: Dataset
-    ) -> DataInstance | None:
+    def retrieve_dataset(self, generator: Generator, dataset: Dataset) -> DataInstance:
         """Retrieve the dataset by, in order:
         1. The cache
         2. Remote Storage
         3. Generating it
         """
         digest = self.check_manifest(generator, dataset)
-        if not digest:
-            data = generator.generate(dataset)
-            digest, _ = self._write_data_to_cache(data, generator, dataset)
-            self.update_manifest(generator, dataset, digest)
-            logging.info(f"Dataset {generator.name}.{dataset.name} regenerated.")
-            return data
-
-        prefix = self.prefix(generator, dataset, digest)
-        cache_path = self.cache_dir / prefix
-        if cache_path.exists():
-            logging.info(f"Dataset {generator.name}.{dataset.name} found in cache.")
-            logging.info(f"Manifest path: {self.manifest_path}")
-        if not cache_path.exists():
+        if digest:
+            prefix = self.prefix(generator, dataset, digest)
+            cache_path = self.cache_dir / prefix
+            cached = cache_path.exists()
+            if cached:
+                logging.info(f"Dataset {generator.name}.{dataset.name} found in cache.")
+                return self.deserialize_data_from_file(cache_path)
+            cache_path.parent.mkdir(parents=True, exist_ok=True)
             logging.info(
                 f"Dataset {generator.name}.{dataset.name} not found in cache at "
                 f"{cache_path}"
             )
-            logging.info(f"Manifest path: {self.manifest_path}")
-            cache_path.parent.mkdir(parents=True, exist_ok=True)
-            if not self.download_file(prefix, cache_path):
-                logging.error(
-                    "Failed to download dataset "
-                    f"{generator.name}.{dataset.name} from remote storage."
-                )
-                data = generator.generate(dataset)
-                digest, cache_path = self._write_data_to_cache(
-                    data, generator, dataset
-                )
-                self.update_manifest(generator, dataset, digest)
-                logging.info(f"Dataset {generator.name}.{dataset.name} regenerated.")
-                return data
-        assert digest == sha256_file(cache_path), (
-            "Data integrity check failed: hash mismatch"
-        )
-        return self.deserialize_data_from_file(cache_path)
+            if self.download_file(prefix, cache_path):
+                assert digest == sha256_file(
+                    cache_path
+                ), "Data integrity check failed: hash mismatch"
+                return self.deserialize_data_from_file(cache_path)
+            logging.error(
+                "Failed to download dataset "
+                f"{generator.name}.{dataset.name} from remote storage."
+            )
+
+        data, digest, _ = self._generate_and_cache(generator, dataset)
+        self.update_manifest(generator, dataset, digest)
+        logging.info(f"Dataset {generator.name}.{dataset.name} regenerated.")
+        return data
 
 
 class LocalStorageBackend(StorageBackend):
@@ -250,14 +227,14 @@ class LocalStorageBackend(StorageBackend):
         dest_path = self.base_path / remote_prefix
         dest_path.parent.mkdir(parents=True, exist_ok=True)
         try:
-            dest_path.write_bytes(local_path.read_bytes())
+            shutil.copyfile(local_path, dest_path)
             return True
         except OSError as e:
             logging.error(f"Error uploading file to local storage: {e}")
             return False
 
     def file_exists(self, remote_prefix: str) -> bool:
-        return os.path.exists(self.base_path / remote_prefix)
+        return (self.base_path / remote_prefix).exists()
 
     def uri_for_prefix(self, remote_prefix: str) -> str:
         return str(self.base_path / remote_prefix)
@@ -268,7 +245,8 @@ class LocalStorageBackend(StorageBackend):
             logging.error(f"File not found in local storage: {source_path}")
             return False
         try:
-            local_path.write_bytes(source_path.read_bytes())
+            local_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(source_path, local_path)
             return True
         except OSError as e:
             logging.error(f"Error downloading file from local storage: {e}")
@@ -341,27 +319,16 @@ def build_storage_backend(
     manifest_path: Path | str | None = None,
     cache_dir: Path | str | None = None,
 ) -> StorageBackend:
-    backend_type = (
-        type
-        or os.environ.get("REMOTE_STORAGE_BACKEND")
-        or DEFAULT_REMOTE_STORAGE_BACKEND
+    backend_type = type or os.getenv("REMOTE_STORAGE_BACKEND")
+    backend_type = backend_type or DEFAULT_REMOTE_STORAGE_BACKEND
+    backend_bucket = bucket or os.getenv("REMOTE_STORAGE_BUCKET")
+    backend_bucket = backend_bucket or DEFAULT_REMOTE_STORAGE_BUCKET
+    manifest_path_resolved = Path(
+        manifest_path or os.getenv("SAPS_MANIFEST_PATH") or DEFAULT_MANIFEST_PATH
     )
-    backend_bucket = (
-        bucket
-        or os.environ.get("REMOTE_STORAGE_BUCKET")
-        or DEFAULT_REMOTE_STORAGE_BUCKET
+    cache_dir_resolved = Path(
+        cache_dir or os.getenv("SAPS_CACHE_DIR") or DEFAULT_CACHE_DIR
     )
-    manifest_path_value = manifest_path or os.environ.get("SAPS_MANIFEST_PATH")
-    if manifest_path_value is None:
-        manifest_path_value = DEFAULT_MANIFEST_PATH
-    cache_dir_value = cache_dir or os.environ.get("SAPS_CACHE_DIR")
-    if cache_dir_value is None:
-        cache_dir_value = DEFAULT_CACHE_DIR
-
-    manifest_path_resolved = Path(manifest_path_value)
-    cache_dir_resolved = Path(cache_dir_value)
-    print(f"manifest_path: {manifest_path_resolved}")
-    print(f"cache_dir: {cache_dir_resolved}")
     if backend_type == "local":
         return LocalStorageBackend(
             backend_bucket, manifest_path_resolved, cache_dir_resolved

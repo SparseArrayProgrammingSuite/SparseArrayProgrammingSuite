@@ -17,4 +17,4 @@ def tensor_data(tensor: BinsparseTensor):
 
 def binsparse_equal(left: BinsparseTensor, right: BinsparseTensor) -> bool:
     left_data, right_data = tensor_data(left), tensor_data(right)
-    return bool((left_data == right_data).all())
+    return left_data.shape == right_data.shape and bool(all(left_data == right_data))
