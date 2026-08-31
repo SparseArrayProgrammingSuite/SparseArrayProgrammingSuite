@@ -3,5 +3,9 @@ set -e
 
 script_directory=$(cd -- "$(dirname -- "$0")" && pwd)
 
+if ! aws configure list-profiles | grep -Fxq dataset-upload; then
+  aws configure sso --profile dataset-upload
+fi
+
 aws sso login --profile dataset-upload --use-device-code
 sbatch "$script_directory/upload-dataset.slurm" "$1"
