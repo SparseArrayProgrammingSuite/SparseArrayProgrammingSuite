@@ -5,6 +5,14 @@ import scipy.sparse.linalg as spla
 import array_api_compat
 import array_api_compat.numpy as compat_np
 import sparse as sp
+from binsparse import (
+    CustomTensor,
+    DenseLevel,
+    DMATCMatrix,
+    DMATRMatrix,
+    DVECVector,
+    ElementLevel,
+)
 from binsparse.conversions import from_numpy, from_sparse, to_numpy, to_sparse
 
 from saps_framework import Framework, einsum
@@ -160,10 +168,19 @@ class PyDataSparseFramework(Framework):
         return arg
 
     def from_binsparse(self, array):
-        try:
-            return to_numpy(array)
-        except TypeError:
-            return to_sparse(array)
+        match array:
+            case DVECVector() | DMATRMatrix() | DMATCMatrix():
+                return to_numpy(array)
+            case CustomTensor(shape=(), transpose=None, level=ElementLevel()):
+                return to_numpy(array)
+            case CustomTensor(
+                shape=shape,
+                transpose=None,
+                level=DenseLevel(rank=rank, level=ElementLevel()),
+            ) if rank == len(shape):
+                return to_numpy(array)
+            case _:
+                return to_sparse(array)
 
     def to_binsparse(self, array):
         if isinstance(array, sp.COO):
