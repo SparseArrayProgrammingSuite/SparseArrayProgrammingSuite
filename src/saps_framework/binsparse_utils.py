@@ -1,5 +1,7 @@
-"""Small SAPS integration helpers for the reference ``binsparse`` package."""
+import numpy as np
+import scipy.sparse as scipy_sparse
 
+import sparse
 from binsparse import BinsparseTensor
 from binsparse.conversions import to_numpy, to_scipy, to_sparse
 
@@ -15,4 +17,15 @@ def tensor_data(tensor: BinsparseTensor):
 
 def binsparse_equal(left: BinsparseTensor, right: BinsparseTensor) -> bool:
     left_data, right_data = tensor_data(left), tensor_data(right)
-    return left_data.shape == right_data.shape and bool(all(left_data == right_data))
+    if left_data.shape != right_data.shape:
+        return False
+
+    if scipy_sparse.issparse(left_data) and scipy_sparse.issparse(right_data):
+        return bool((left_data != right_data).nnz == 0)
+
+    if isinstance(left_data, sparse.SparseArray) and isinstance(
+        right_data, sparse.SparseArray
+    ):
+        return bool((left_data != right_data).nnz == 0)
+
+    return bool(np.array_equal(left_data, right_data))
