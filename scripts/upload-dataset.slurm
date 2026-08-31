@@ -7,10 +7,9 @@
 
 set -e
 
-source_directory=$1
-dataset_name=$(basename "$source_directory")
-destination="s3://my-dataset-bucket/datasets/$dataset_name/"
-
+export PATH="$HOME/.local/bin:$PATH"
 export AWS_PROFILE=dataset-upload
+export REMOTE_STORAGE_BACKEND=s3
+export REMOTE_STORAGE_BUCKET=sparse-array-programming-suite
 
-aws s3 sync "$source_directory/" "$destination"
+poetry run ./bin/run_benchmark.py --cache-datasets
