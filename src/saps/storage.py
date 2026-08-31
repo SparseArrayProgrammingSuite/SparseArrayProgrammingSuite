@@ -14,7 +14,6 @@ import h5py
 from binsparse import BinsparseTensor, HDF5BinsparseContainer
 
 from saps.dependencies import dependency_versions
-from saps.metadata import committed_dataset_metadata
 
 if TYPE_CHECKING:
     from saps.benchmark import DataInstance, Dataset, Generator
@@ -135,16 +134,12 @@ class StorageBackend(ABC):
             return {}
         return json.loads(self.manifest_path.read_text())
 
-    def _dataset_provenance(self, generator: Generator, dataset: Dataset) -> dict:
-        return committed_dataset_metadata(generator.name, dataset.name)
-
-    def _dataset_manifest_metadata(
-        self, generator: Generator, dataset: Dataset
-    ) -> dict:
-        metadata = self._dataset_provenance(generator, dataset)
+    def _dataset_manifest_metadata(self, dataset: Dataset) -> dict:
         return {
-            **metadata,
-            "dependency_versions": dependency_versions(metadata["dependencies"]),
+            "file": dataset.file,
+            "freshness": dataset.freshness,
+            "dependencies": dataset.dependencies,
+            "dependency_versions": dependency_versions(dataset.dependencies),
         }
 
     def update_manifest(
@@ -153,7 +148,7 @@ class StorageBackend(ABC):
         manifest = self._read_manifest()
         manifest[f"{generator.name}.{dataset.name}"] = {
             "digest": digest,
-            **self._dataset_manifest_metadata(generator, dataset),
+            **self._dataset_manifest_metadata(dataset),
         }
         self.manifest_path.write_text(
             json.dumps(manifest, indent=2, sort_keys=True) + "\n",
@@ -166,10 +161,10 @@ class StorageBackend(ABC):
         if dataset_key not in manifest:
             return None
         record = manifest[dataset_key]
-        expected = self._dataset_provenance(generator, dataset)
         if {
-            key: record.get(key) for key in ("file", "freshness", "dependencies")
-        } != expected:
+            key: record.get(key)
+            for key in ("file", "freshness", "dependencies", "dependency_versions")
+        } != self._dataset_manifest_metadata(dataset):
             logging.info(
                 f"Dataset {generator.name}.{dataset.name} manifest metadata is stale."
             )
@@ -207,9 +202,9 @@ class StorageBackend(ABC):
                 f"{cache_path}"
             )
             if self.download_file(prefix, cache_path):
-                assert digest == sha256_file(
-                    cache_path
-                ), "Data integrity check failed: hash mismatch"
+                assert digest == sha256_file(cache_path), (
+                    "Data integrity check failed: hash mismatch"
+                )
                 return self.deserialize_data_from_file(cache_path)
             logging.error(
                 "Failed to download dataset "

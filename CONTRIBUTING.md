@@ -159,11 +159,6 @@ poetry run ./bin/run_benchmark.py --cache-datasets
 
 Do not edit freshness hashes by hand.
 
-Freshness is recalculated only by metadata generation and the freshness test suite.
-Normal benchmark runs, dataset caching, and statistics tracing consume the committed
-values in `metadata.json`, so their results do not depend on ASV's checkout or import
-layout.
-
 ## Refresh Workflow And Dataset Uploads
 
 The repository has a manually dispatched GitHub Actions workflow named `refresh`

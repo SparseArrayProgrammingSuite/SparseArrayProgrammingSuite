@@ -592,7 +592,6 @@ def main() -> int:
     matrix["env_nobuild"]["SAPS_CACHE_DIR"] = [cache_dir]
     persistent_metadata_path = repo_root / "metadata.json"
     persistent_statistics_path = repo_root / "statistics.json"
-    metadata_document_path = str(persistent_metadata_path.resolve())
     manifest_path = str(repo_root / "manifest.json")
     pythonpath = str(repo_root)
     os.environ["SAPS_MANIFEST_PATH"] = manifest_path
@@ -600,12 +599,6 @@ def main() -> int:
     os.environ["REMOTE_STORAGE_BACKEND"] = storage_backend
     os.environ["REMOTE_STORAGE_BUCKET"] = storage_bucket
     matrix["env_nobuild"]["SAPS_MANIFEST_PATH"] = [manifest_path]
-    if args.generate_metadata:
-        os.environ.pop("SAPS_METADATA_PATH", None)
-        matrix["env_nobuild"].pop("SAPS_METADATA_PATH", None)
-    else:
-        os.environ["SAPS_METADATA_PATH"] = metadata_document_path
-        matrix["env_nobuild"]["SAPS_METADATA_PATH"] = [metadata_document_path]
     if args.trace_statistics or args.cache_datasets:
         framework_file = (
             "frameworks/saps_tagger.py"
@@ -719,38 +712,27 @@ def main() -> int:
     )
 
     source_benchmarks: dict[str, saps.Benchmark] = {}
+    source_metadata: dict[str, dict] = {}
     for name in benchmarks:
         module_name, class_name, _method_name = name.rsplit(".", 2)
         benchmark_module = importlib.import_module(f"saps.benchmarks.{module_name}")
         benchmark = getattr(benchmark_module, class_name)()
         assert isinstance(benchmark, saps.Benchmark)
         source_benchmarks[name] = benchmark
-
-    if args.generate_metadata:
-        source_metadata = {
-            name: benchmark.metadata for name, benchmark in source_benchmarks.items()
-        }
-        return _refresh_metadata(source_metadata, persistent_metadata_path)
-
-    persistent_document = _load_metadata_document(persistent_metadata_path)
-    persistent_by_key = {
-        _record_key(record): record
-        for record in persistent_document.get("benchmarks", [])
-    }
-    metadata = {
-        name: persistent_by_key[source_benchmarks[name].name]
-        for name in benchmarks
-        if source_benchmarks[name].name in persistent_by_key
-    }
+        source_metadata[name] = benchmark.metadata
+    metadata = dict(source_metadata)
 
     # Store benchmark metadata in SAPS outputs directory
     results_dir = outputs_dir / "results"
     results_dir.mkdir(parents=True, exist_ok=True)
     metadata_path = results_dir / "benchmarks_meta.json"
     metadata_path.write_text(
-        json.dumps(metadata, indent=2, sort_keys=True) + "\n",
+        json.dumps(source_metadata, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+
+    if args.generate_metadata:
+        return _refresh_metadata(source_metadata, persistent_metadata_path)
 
     include_set = {tag.strip() for tag in args.tag if tag and tag.strip()}
     exclude_set = {tag.strip() for tag in args.no_tag if tag and tag.strip()}
@@ -775,6 +757,18 @@ def main() -> int:
         if exclude_res and regex_any_match(exclude_res, match_target(obj)):
             return True
         return bool(exclude_set and exclude_set.intersection(_metadata_tags(obj)))
+
+    persistent_document = None
+    if persistent_metadata_path.exists():
+        persistent_document = _load_metadata_document(persistent_metadata_path)
+        persistent_by_key = {
+            _record_key(record): record
+            for record in persistent_document.get("benchmarks", [])
+        }
+        for name, record in list(metadata.items()):
+            existing = persistent_by_key.get(_record_key(record))
+            if existing is not None:
+                metadata[name] = existing
 
     skips = []
     benchmarks._benchmark_selection = {}
@@ -815,12 +809,13 @@ def main() -> int:
             ):
                 continue
             if args.trace_statistics:
+                benchmark_param = source_benchmarks[name].params[idx]
                 stats_key = (
                     source_benchmarks[name].name,
-                    generator["name"],
-                    dataset["name"],
+                    benchmark_param.generator.name,
+                    benchmark_param.dataset.name,
                 )
-                if dataset["freshness"] == stats_freshness.get(stats_key):
+                if benchmark_param.dataset.freshness == stats_freshness.get(stats_key):
                     skipped_fresh_statistics += 1
                     continue
             benchmarks._benchmark_selection[name].append(idx)
@@ -845,16 +840,18 @@ def main() -> int:
             f"{args.chunk_index}/{args.chunk_count}: "
             f"{chunk_kept} of {chunk_total} parameter cases"
         )
-    selected_metadata = {
-        name: metadata[name] for name in benchmarks if name in metadata
+    selected_source_metadata = {
+        name: source_metadata[name] for name in benchmarks if name in source_metadata
     }
 
     if args.cache_datasets or args.trace_statistics:
+        if persistent_document is None:
+            persistent_document = _load_metadata_document(persistent_metadata_path)
         existing_benchmarks = {
             _record_key(record): record
             for record in persistent_document.get("benchmarks", [])
         }
-        for record in selected_metadata.values():
+        for record in selected_source_metadata.values():
             key = _record_key(record)
             if key not in existing_benchmarks:
                 raise RuntimeError(

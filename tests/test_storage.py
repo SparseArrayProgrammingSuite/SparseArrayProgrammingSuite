@@ -16,26 +16,6 @@ from saps.benchmark import DataInstance
 from saps.storage import LocalStorageBackend, S3StorageBackend
 
 
-class _RuntimeDataset:
-    name = "example"
-
-    @property
-    def file(self):
-        raise AssertionError("runtime source metadata must not be evaluated")
-
-    @property
-    def freshness(self):
-        raise AssertionError("runtime freshness must not be evaluated")
-
-    @property
-    def dependencies(self):
-        raise AssertionError("runtime dependencies must not be evaluated")
-
-
-class _RuntimeGenerator:
-    name = "generator"
-
-
 def _expired_token_error(operation: str) -> ClientError:
     return ClientError(
         {
@@ -139,58 +119,3 @@ def test_data_round_trips_through_binsparse_hdf5(tmp_path):
     assert restored.meta == data.meta
     assert restored.ref_meta == data.ref_meta
     assert digest == hashlib.sha256(path.read_bytes()).hexdigest()
-
-
-def test_manifest_check_uses_committed_metadata_not_runtime_freshness(
-    monkeypatch, tmp_path
-):
-    metadata_path = tmp_path / "metadata.json"
-    metadata_path.write_text(
-        json.dumps(
-            {
-                "benchmarks": [
-                    {
-                        "name": "benchmark",
-                        "generators": [
-                            {
-                                "name": "generator",
-                                "datasets": [
-                                    {
-                                        "name": "example",
-                                        "file": "src/example.py",
-                                        "freshness": "committed-freshness",
-                                        "dependencies": [],
-                                    }
-                                ],
-                            }
-                        ],
-                    }
-                ]
-            }
-        ),
-        encoding="utf-8",
-    )
-    manifest_path = tmp_path / "manifest.json"
-    manifest_path.write_text(
-        json.dumps(
-            {
-                "generator.example": {
-                    "digest": "dataset-digest",
-                    "file": "src/example.py",
-                    "freshness": "committed-freshness",
-                    "dependencies": [],
-                    "dependency_versions": [],
-                }
-            }
-        ),
-        encoding="utf-8",
-    )
-    monkeypatch.setenv("SAPS_METADATA_PATH", str(metadata_path))
-    backend = LocalStorageBackend(
-        tmp_path / "remote", manifest_path, tmp_path / "cache"
-    )
-
-    assert (
-        backend.check_manifest(_RuntimeGenerator(), _RuntimeDataset())
-        == "dataset-digest"
-    )
