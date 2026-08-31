@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 
-from binsparse import COORMatrix
+from binsparse import COORMatrix, DMATRMatrix
 from binsparse.conversions import from_numpy, to_numpy
 
 from saps_framework.binsparse_utils import binsparse_equal
@@ -41,3 +41,24 @@ def test_binsparse_coo(indices, values, shape):
         ),
         x,
     )
+
+
+def test_binsparse_equal_compares_sparse_and_dense_formats_by_value():
+    sparse_tensor = COORMatrix(
+        (3, 3),
+        3,
+        indices_0=np.array([0, 1, 2]),
+        indices_1=np.array([0, 2, 1]),
+        values=np.array([1.0, 2.0, 3.0], dtype=np.float32),
+    )
+    dense_tensor = DMATRMatrix(
+        (3, 3),
+        9,
+        values=np.array(
+            [1.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 3.0, 0.0],
+            dtype=np.float32,
+        ),
+    )
+
+    assert binsparse_equal(sparse_tensor, dense_tensor)
+    assert binsparse_equal(dense_tensor, sparse_tensor)

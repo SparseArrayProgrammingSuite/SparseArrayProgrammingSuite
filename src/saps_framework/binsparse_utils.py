@@ -16,16 +16,32 @@ def tensor_data(tensor: BinsparseTensor):
 
 
 def binsparse_equal(left: BinsparseTensor, right: BinsparseTensor) -> bool:
-    left_data, right_data = tensor_data(left), tensor_data(right)
-    if left_data.shape != right_data.shape:
+    if left.shape != right.shape:
         return False
 
-    if scipy_sparse.issparse(left_data) and scipy_sparse.issparse(right_data):
+    left_data, right_data = tensor_data(left), tensor_data(right)
+    left_scipy = scipy_sparse.issparse(left_data)
+    right_scipy = scipy_sparse.issparse(right_data)
+    left_sparse = isinstance(left_data, sparse.SparseArray)
+    right_sparse = isinstance(right_data, sparse.SparseArray)
+
+    if left_scipy and right_scipy:
+        return bool((left_data != right_data).nnz == 0)
+    if left_sparse and right_sparse:
+        return bool((left_data != right_data).nnz == 0)
+    if left_scipy and right_sparse:
+        left_data = sparse.COO.from_scipy_sparse(left_data)
+        return bool((left_data != right_data).nnz == 0)
+    if left_sparse and right_scipy:
+        right_data = sparse.COO.from_scipy_sparse(right_data)
         return bool((left_data != right_data).nnz == 0)
 
-    if isinstance(left_data, sparse.SparseArray) and isinstance(
-        right_data, sparse.SparseArray
-    ):
-        return bool((left_data != right_data).nnz == 0)
-
+    if left_scipy:
+        left_data = left_data.toarray()
+    elif left_sparse:
+        left_data = left_data.todense()
+    if right_scipy:
+        right_data = right_data.toarray()
+    elif right_sparse:
+        right_data = right_data.todense()
     return bool(np.array_equal(left_data, right_data))
