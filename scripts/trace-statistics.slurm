@@ -7,8 +7,11 @@
 
 set -euo pipefail
 
-script_directory=$(cd -- "$(dirname -- "$0")" && pwd)
-repo_directory=$(cd -- "$script_directory/.." && pwd)
+repo_directory="${SAPS_REPO_DIRECTORY:-${SLURM_SUBMIT_DIR:-}}"
+if [[ -z "$repo_directory" ]]; then
+  script_directory=$(cd -- "$(dirname -- "$0")" && pwd)
+  repo_directory=$(cd -- "$script_directory/.." && pwd)
+fi
 
 : "${SAPS_TRACE_CHUNK_COUNT:?SAPS_TRACE_CHUNK_COUNT must be set}"
 : "${SLURM_ARRAY_TASK_ID:?SLURM_ARRAY_TASK_ID must be set}"
@@ -23,7 +26,6 @@ statistics_path="$trace_output_dir/statistics-$SLURM_ARRAY_TASK_ID.json"
 tagger_stats_dir="$trace_output_dir/tagger_stats-$SLURM_ARRAY_TASK_ID"
 
 cd "$repo_directory"
-"$script_directory/ensure-poetry-env.sh"
 
 mkdir -p "$trace_output_dir"
 rm -f "$statistics_path"

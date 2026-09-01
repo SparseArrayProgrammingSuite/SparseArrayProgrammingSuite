@@ -7,8 +7,11 @@
 
 set -euo pipefail
 
-script_directory=$(cd -- "$(dirname -- "$0")" && pwd)
-repo_directory=$(cd -- "$script_directory/.." && pwd)
+repo_directory="${SAPS_REPO_DIRECTORY:-${SLURM_SUBMIT_DIR:-}}"
+if [[ -z "$repo_directory" ]]; then
+  script_directory=$(cd -- "$(dirname -- "$0")" && pwd)
+  repo_directory=$(cd -- "$script_directory/.." && pwd)
+fi
 
 : "${SAPS_TRACE_CHUNK_COUNT:?SAPS_TRACE_CHUNK_COUNT must be set}"
 
@@ -33,7 +36,6 @@ fi
 export PATH="$HOME/.local/bin:$PATH"
 cd "$repo_directory"
 
-"$script_directory/ensure-poetry-env.sh"
 poetry run ./bin/merge_statistics.py \
   --output "$statistics_output" \
   "${statistics_paths[@]}"

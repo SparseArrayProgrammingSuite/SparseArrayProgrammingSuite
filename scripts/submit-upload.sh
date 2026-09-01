@@ -36,6 +36,8 @@ upload_job_id=$(
     -A "$account" \
     -q embers \
     -C amd \
+    --chdir "$repo_directory" \
+    --export=ALL,SAPS_REPO_DIRECTORY="$repo_directory" \
     "$script_directory/upload-dataset.slurm"
 )
 
@@ -45,7 +47,8 @@ trace_job_id=$(
     -p cpu-small \
     --dependency="afterok:$upload_job_id" \
     --array="0-$trace_array_end" \
-    --export=ALL,SAPS_TRACE_CHUNK_COUNT="$trace_chunk_count" \
+    --chdir "$repo_directory" \
+    --export=ALL,SAPS_TRACE_CHUNK_COUNT="$trace_chunk_count",SAPS_REPO_DIRECTORY="$repo_directory" \
     "$script_directory/trace-statistics.slurm"
 )
 
@@ -54,7 +57,8 @@ merge_job_id=$(
     -A "$account" \
     -p cpu-small \
     --dependency="afterok:$trace_job_id" \
-    --export=ALL,SAPS_TRACE_CHUNK_COUNT="$trace_chunk_count" \
+    --chdir "$repo_directory" \
+    --export=ALL,SAPS_TRACE_CHUNK_COUNT="$trace_chunk_count",SAPS_REPO_DIRECTORY="$repo_directory" \
     "$script_directory/merge-statistics.slurm"
 )
 

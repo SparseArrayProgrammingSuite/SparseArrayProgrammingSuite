@@ -691,7 +691,7 @@ def main() -> int:
             quick=True,
             install_project=(conf, repo),
             print_results=True,
-            launch_method="forkserver",
+            launch_method=None if os.name == "nt" else "forkserver",
         )
         return 0 if failed == 0 else 1
 
