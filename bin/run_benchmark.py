@@ -397,8 +397,12 @@ def main() -> int:
     cache_dir = str(outputs_dir / "cache")
     os.environ["SAPS_CACHE_DIR"] = cache_dir
     matrix["env_nobuild"]["SAPS_CACHE_DIR"] = [cache_dir]
-    persistent_metadata_path = repo_root / "metadata.json"
-    persistent_statistics_path = repo_root / "statistics.json"
+    persistent_metadata_path = Path(
+        os.environ.get("SAPS_METADATA_PATH", str(repo_root / "metadata.json"))
+    )
+    persistent_statistics_path = Path(
+        os.environ.get("SAPS_STATISTICS_PATH", str(repo_root / "statistics.json"))
+    )
     manifest_path = str(repo_root / "manifest.json")
     pythonpath = str(repo_root)
     os.environ["SAPS_MANIFEST_PATH"] = manifest_path
@@ -419,7 +423,9 @@ def main() -> int:
         )
         os.environ["SAPS_FRAMEWORK"] = str(repo_root / framework_file)
         if args.trace_statistics:
-            tagger_stats_dir = str(outputs_dir / "tagger_stats")
+            tagger_stats_dir = os.environ.get(
+                "SAPS_TAGGER_STATS_DIR", str(outputs_dir / "tagger_stats")
+            )
             os.environ["SAPS_TAGGER_STATS_DIR"] = tagger_stats_dir
             os.environ["SAPS_STATISTICS_PATH"] = str(persistent_statistics_path)
 
