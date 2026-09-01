@@ -42,19 +42,15 @@ def _module_path(module_name: str) -> Path | None:
         path.relative_to(_repo_root())
     except ValueError:
         return None
-    if "site-packages" in path.parts or _is_under_venv(path):
+    if "site-packages" in path.parts:
         return None
-    return path
-
-
-def _is_under_venv(path: Path) -> bool:
     for prefix in (sys.prefix, sys.base_prefix):
         try:
             path.relative_to(Path(prefix).resolve())
-            return True
+            return None
         except ValueError:
             continue
-    return False
+    return path
 
 
 def _imported_modules(path: Path) -> set[str]:
@@ -113,23 +109,18 @@ def _freshness_inputs(
 
 
 @cache
-def _class_source_path(cls: type) -> Path:
-    return Path(inspect.getfile(cls)).resolve()
+def _source_digest(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 @cache
-def _source_file(cls: type) -> str:
-    return _class_source_path(cls).relative_to(_repo_root()).as_posix()
-
-
-@cache
-def _source_freshness_for_files(
-    file_signatures: tuple[str, ...],
-    dependencies: tuple[str, ...],
-) -> str:
+def _source_freshness(module_name: str, source_path: Path) -> str:
+    files, dependencies = _freshness_inputs(module_name)
+    if not files:
+        files = (source_path,)
     digest = hashlib.sha256()
     for value in (
-        *sorted(file_signatures),
+        *sorted(_source_digest(path) for path in files),
         *sorted(dependencies),
         *(
             f"{record['name']}=={record['version']}"
@@ -138,18 +129,7 @@ def _source_freshness_for_files(
     ):
         digest.update(value.encode("utf-8"))
         digest.update(b"\0")
-
     return digest.hexdigest()
-
-
-def _source_freshness(module_name: str, source_path: Path) -> str:
-    files, dependencies = _freshness_inputs(module_name)
-    if not files:
-        files = (source_path,)
-    return _source_freshness_for_files(
-        tuple(hashlib.sha256(path.read_bytes()).hexdigest() for path in files),
-        dependencies,
-    )
 
 
 @dataclass
@@ -344,13 +324,14 @@ class Tagged(Metadata):
 
     @property
     def file(self) -> str:
-        return _source_file(self.__class__)
+        source_path = Path(inspect.getfile(self.__class__)).resolve()
+        return source_path.relative_to(_repo_root()).as_posix()
 
     @property
     def freshness(self) -> str:
-        return _source_freshness(
-            self.__class__.__module__, _class_source_path(self.__class__)
-        )
+        source_path = Path(inspect.getfile(self.__class__)).resolve()
+        return _source_freshness(self.__class__.__module__, source_path)
+
 
 class Attributed(ABC):
     @property
