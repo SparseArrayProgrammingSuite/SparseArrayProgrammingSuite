@@ -112,11 +112,6 @@ def _freshness_inputs(
     return tuple(sorted(seen_files)), tuple(sorted(external_modules))
 
 
-def _file_content_hash(path: Path) -> str:
-    source = path.read_text(encoding="utf-8")
-    return hashlib.sha256(source.encode("utf-8")).hexdigest()
-
-
 @cache
 def _class_source_path(cls: type) -> Path:
     return Path(inspect.getfile(cls)).resolve()
@@ -128,32 +123,33 @@ def _source_file(cls: type) -> str:
 
 
 @cache
-def _source_dependencies(module_name: str) -> list[str]:
-    _, external_modules = _freshness_inputs(module_name)
-    return list(external_modules)
-
-
-def _file_signature(path: Path) -> str:
-    return _file_content_hash(path)
-
-
-@cache
 def _source_freshness_for_files(
     file_signatures: tuple[str, ...],
+    dependencies: tuple[str, ...],
 ) -> str:
     digest = hashlib.sha256()
-    for content_hash in sorted(file_signatures):
-        digest.update(content_hash.encode("utf-8"))
+    for value in (
+        *sorted(file_signatures),
+        *sorted(dependencies),
+        *(
+            f"{record['name']}=={record['version']}"
+            for record in dependency_versions(list(dependencies))
+        ),
+    ):
+        digest.update(value.encode("utf-8"))
         digest.update(b"\0")
 
     return digest.hexdigest()
 
 
 def _source_freshness(module_name: str, source_path: Path) -> str:
-    files, _ = _freshness_inputs(module_name)
+    files, dependencies = _freshness_inputs(module_name)
     if not files:
         files = (source_path,)
-    return _source_freshness_for_files(tuple(_file_signature(path) for path in files))
+    return _source_freshness_for_files(
+        tuple(hashlib.sha256(path.read_bytes()).hexdigest() for path in files),
+        dependencies,
+    )
 
 
 @dataclass
@@ -256,10 +252,8 @@ def _write_statistics_tags(
     dataset_name: str,
     dataset_file: str,
     dataset_freshness: str,
-    dataset_dependencies: list[str],
     tags: list[str],
 ):
-    version_records = dependency_versions(dataset_dependencies)
     statistics_path.parent.mkdir(parents=True, exist_ok=True)
     if statistics_path.exists():
         document = json.loads(statistics_path.read_text(encoding="utf-8"))
@@ -287,15 +281,11 @@ def _write_statistics_tags(
         "name",
         dataset_name,
         {
-            "dependencies": dataset_dependencies,
-            "dependency_versions": version_records,
             "file": dataset_file,
             "freshness": dataset_freshness,
             "statistics": [],
         },
     )
-    dataset["dependencies"] = dataset_dependencies
-    dataset["dependency_versions"] = version_records
     dataset["file"] = dataset_file
     dataset["freshness"] = dataset_freshness
     dataset["statistics"] = sorted({*dataset.get("statistics", []), *tags})
@@ -362,11 +352,6 @@ class Tagged(Metadata):
             self.__class__.__module__, _class_source_path(self.__class__)
         )
 
-    @property
-    def dependencies(self) -> list[str]:
-        return _source_dependencies(self.__class__.__module__)
-
-
 class Attributed(ABC):
     @property
     @abstractmethod
@@ -391,7 +376,6 @@ class Dataset(Tagged):
     @property
     def metadata(self) -> dict[str, Any]:
         return {
-            "dependencies": self.dependencies,
             "file": self.file,
             "freshness": self.freshness,
             "name": self.name,
@@ -448,7 +432,6 @@ class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
     @property
     def metadata(self) -> dict[str, Any]:
         return {
-            "dependencies": self.dependencies,
             "file": self.file,
             "freshness": self.freshness,
             "name": self.name,
@@ -598,7 +581,6 @@ class Benchmark(Tagged, Attributed, Motivated):
                 param.dataset.name,
                 param.dataset.file,
                 param.dataset.freshness,
-                param.dataset.dependencies,
                 tags,
             )
 
@@ -625,7 +607,6 @@ class Benchmark(Tagged, Attributed, Motivated):
     @property
     def metadata(self) -> dict[str, Any]:
         return {
-            "dependencies": self.dependencies,
             "file": self.file,
             "freshness": self.freshness,
             "name": self.name,

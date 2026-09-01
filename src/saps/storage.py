@@ -13,8 +13,6 @@ from typing import TYPE_CHECKING
 import h5py
 from binsparse import BinsparseTensor, HDF5BinsparseContainer
 
-from saps.dependencies import dependency_versions
-
 if TYPE_CHECKING:
     from saps.benchmark import DataInstance, Dataset, Generator
 
@@ -138,8 +136,6 @@ class StorageBackend(ABC):
         return {
             "file": dataset.file,
             "freshness": dataset.freshness,
-            "dependencies": dataset.dependencies,
-            "dependency_versions": dependency_versions(dataset.dependencies),
         }
 
     def update_manifest(
@@ -162,8 +158,7 @@ class StorageBackend(ABC):
             return None
         record = manifest[dataset_key]
         if {
-            key: record.get(key)
-            for key in ("file", "freshness", "dependencies", "dependency_versions")
+            key: record.get(key) for key in ("file", "freshness")
         } != self._dataset_manifest_metadata(dataset):
             logging.info(
                 f"Dataset {generator.name}.{dataset.name} manifest metadata is stale."

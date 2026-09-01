@@ -140,7 +140,7 @@ SAPS records freshness so generated artifacts can be checked against the code th
 - The source file containing the benchmark, generator, or dataset class.
 - The hash of local source files imported by that class.
 - External dependency module names.
-- Installed dependency versions recorded in `dependency_versions`.
+- External dependency names and installed dependency versions in the freshness hash.
 
 Freshness is checked for:
 
@@ -164,7 +164,7 @@ Do not edit freshness hashes by hand.
 The repository has a manually dispatched GitHub Actions workflow named `refresh`
 that can regenerate the large derived artifacts in CI. We typically use it
 before publishing a version, to stay in sync with changes to benchmark metadata,
-trace behavior, generator output, dataset freshness, dependency versions, or
+trace behavior, generator output, dependency-sensitive freshness, or
 storage behavior enough that local regeneration is inconvenient or likely to
 differ from CI.
 
@@ -198,7 +198,7 @@ REMOTE_STORAGE_BUCKET=sparse-array-programming-suite \
 poetry run ./bin/run_benchmark.py --cache-datasets
 ```
 
-Dataset digests should be content hashes of serialized data. Freshness records and dependency versions belong in manifest metadata; they should not force a new remote object when the data bytes have not changed.
+Dataset digests should be content hashes of serialized data. Freshness records belong in manifest metadata; they should not force a new remote object when the data bytes have not changed.
 
 ## Tracing
 

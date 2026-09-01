@@ -155,7 +155,7 @@ Freshness tests check that generated artifacts still match the source code and m
 
 - `metadata.json` matches benchmark, generator, and dataset metadata.
 - `statistics.json` contains current trace-derived tags for datasets selected by the `trace` suite.
-- `manifest.json` records current dataset freshness, dependency names, and dependency versions.
+- `manifest.json` records current dataset freshness.
 - Every concrete generator is reachable through a benchmark, including shell benchmarks for intentionally standalone generators.
 - Every manifest record points to a dataset object that exists in the configured remote storage backend.
 
