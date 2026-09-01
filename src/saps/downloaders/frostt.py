@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+
 import pandas as pd
 
 _BASE_URL = "https://s3.us-east-2.amazonaws.com/frostt/frostt_data"

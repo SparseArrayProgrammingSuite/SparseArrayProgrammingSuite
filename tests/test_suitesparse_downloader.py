@@ -11,16 +11,11 @@ def test_download_and_read_matrix_returns_canonical_coo(monkeypatch, tmp_path):
     matrix_dir = tmp_path / "duplicate"
     matrix_dir.mkdir()
     (matrix_dir / "duplicate.mtx").write_text(
-        "\n".join(
-            [
-                "%%MatrixMarket matrix coordinate real general",
-                "3 3 3",
-                "1 1 2.0",
-                "1 1 3.0",
-                "2 3 4.0",
-            ]
-        )
-        + "\n",
+        "%%MatrixMarket matrix coordinate real general\n"
+        "3 3 3\n"
+        "1 1 2.0\n"
+        "1 1 3.0\n"
+        "2 3 4.0\n",
         encoding="utf-8",
     )
 

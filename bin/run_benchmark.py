@@ -160,9 +160,7 @@ def _metadata_to_asv_benchmarks(
             for generator in bench_meta["generators"]
             for dataset in generator["datasets"]
         }
-        asv_params = (
-            benchmarks[name]["params"][0] if benchmarks[name]["params"] else []
-        )
+        asv_params = benchmarks[name]["params"][0] if benchmarks[name]["params"] else []
         selection = [
             idx
             for idx, asv_param in enumerate(asv_params)
@@ -622,6 +620,7 @@ def main() -> int:
     )
     chunk_kept = chunk_total
     if args.chunk_count > 1:
+
         def in_chunk(
             _benchmark: dict,
             _generator: dict,
@@ -646,11 +645,7 @@ def main() -> int:
             show_stderr=args.show_stderr,
             quick=True,
         )
-        print(
-            "cache summary: "
-            f"selected={chunk_kept} "
-            f"failed_benchmark_entries={failed}"
-        )
+        print(f"cache summary: selected={chunk_kept} failed_benchmark_entries={failed}")
         return 0 if failed == 0 else 1
 
     if args.trace_statistics:
@@ -673,11 +668,7 @@ def main() -> int:
             results_dir=results_dir,
         )
         tagged = sum(1 for _ in stats_dir.glob("*.json"))
-        print(
-            "tag summary: "
-            f"tagged_records={tagged} "
-            f"failed_benchmark_entries={failed}"
-        )
+        print(f"tag summary: tagged_records={tagged} failed_benchmark_entries={failed}")
         return 0 if failed == 0 and (tagged > 0 or trace_had_selected_datasets) else 1
 
     if args.check_suite:

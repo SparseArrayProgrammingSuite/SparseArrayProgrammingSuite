@@ -10,8 +10,8 @@ from typing import Any, Generic, TypeVar
 
 from binsparse import BinsparseTensor as BinsparseTensor
 
-from saps.freshness import repo_root, source_freshness
 from saps.framework import load_framework
+from saps.freshness import repo_root, source_freshness
 from saps.storage import build_storage_backend
 from saps_framework.framework import Framework
 
