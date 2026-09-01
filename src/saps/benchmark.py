@@ -376,6 +376,15 @@ class Benchmark(Tagged, Attributed, Motivated):
                 level=logging.INFO,
                 format="%(levelname)s %(name)s: %(message)s",
             )
+        if os.environ.get("SAPS_CACHE_DATASETS"):
+            if param.generator.cacheable and not param.generator.backend.upload_dataset(
+                param.generator, param.dataset
+            ):
+                raise RuntimeError(
+                    "Failed to cache dataset "
+                    f"{param.generator.name}.{param.dataset.name}"
+                )
+            raise NotImplementedError("dataset cached")
         problem = (
             param.generator.cached_generate(param.dataset)
             if use_cache

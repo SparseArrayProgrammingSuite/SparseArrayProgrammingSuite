@@ -11,14 +11,6 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
-def _benchmark_metadata_name(asv_name: str) -> str:
-    method_name = asv_name.rsplit(".", 1)[-1]
-    for prefix in ("peakmem_", "time_"):
-        if method_name.startswith(prefix):
-            return method_name.removeprefix(prefix)
-    return method_name
-
-
 def _extract_result_json(output: str) -> dict[str, Any]:
     decoder = json.JSONDecoder()
     for index, char in enumerate(output):
@@ -38,10 +30,12 @@ def _extract_result_json(output: str) -> dict[str, Any]:
 def _test_dataset_slots(benchmark_metadata: dict[str, Any]) -> list[tuple[int, str]]:
     slots = []
     index = 0
+    benchmark_name = benchmark_metadata["name"]
     for generator in benchmark_metadata["generators"]:
         for dataset in generator["datasets"]:
             if "test" in dataset.get("tags", []):
-                slots.append((index, f"{generator['name']}.{dataset['name']}"))
+                dataset_key = f"{benchmark_name}.{generator['name']}.{dataset['name']}"
+                slots.append((index, dataset_key))
             index += 1
     return slots
 
@@ -112,7 +106,9 @@ def test_harness_test_suite_outputs_pass_for_all_test_datasets(tmp_path):
         (REPO_ROOT / "metadata.json").read_text(encoding="utf-8")
     )
     benchmark_metadata = {
-        record["name"]: record for record in metadata_document["benchmarks"]
+        asv_id: record
+        for record in metadata_document["benchmarks"]
+        for asv_id in record["asv_ids"].values()
     }
 
     failures = []
@@ -123,9 +119,7 @@ def test_harness_test_suite_outputs_pass_for_all_test_datasets(tmp_path):
             failures.append(f"{benchmark_name}: errcode={errcode}\n{result['stderr']}")
 
         values = result["result"]
-        test_slots = _test_dataset_slots(
-            benchmark_metadata[_benchmark_metadata_name(benchmark_name)]
-        )
+        test_slots = _test_dataset_slots(benchmark_metadata[benchmark_name])
         assert test_slots, f"{benchmark_name} did not include any test datasets"
         for index, dataset_name in test_slots:
             checked += 1

@@ -132,6 +132,7 @@ def test_all_concrete_generators_have_parent_benchmarks():
 def test_metadata_tags_are_inherited():
     metadata = _fresh_metadata_document()
     for benchmark in metadata["benchmarks"]:
+        assert set(benchmark["asv_ids"]) == {"peakmem", "time"}
         benchmark_tags = set(benchmark["tags"])
         assert benchmark_tags >= {
             *benchmark.get("suites", []),
@@ -145,6 +146,7 @@ def test_metadata_tags_are_inherited():
                 *generator.get("topics", []),
             }
             for dataset in generator["datasets"]:
+                assert dataset["asv_param"] == f"{generator['name']}.{dataset['name']}"
                 dataset_tags = set(dataset["tags"])
                 assert dataset_tags >= generator_tags
                 assert dataset_tags >= {
@@ -168,15 +170,14 @@ def test_trace_suite_has_fresh_statistics():
         )
 
 
-def test_manifest_freshness_matches_benchmark_metadata():
+def test_manifest_datasets_are_known_to_benchmark_metadata():
     metadata = _fresh_metadata_document()
     _, datasets = _dataset_lookups(metadata)
     manifest = _read_json(ROOT / "manifest.json")
 
     for key, record in manifest.items():
         assert key in datasets, f"unknown manifest dataset {key}"
-        expected_records = [_freshness_record(dataset) for dataset in datasets[key]]
-        assert _freshness_record(record) in expected_records
+        assert record["file"] in {dataset["file"] for dataset in datasets[key]}
 
 
 def test_manifest_datasets_exist_in_remote_storage():

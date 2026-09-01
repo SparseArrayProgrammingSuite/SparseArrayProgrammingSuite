@@ -89,6 +89,12 @@ def metadata_document(statistics_paths: Iterable[Path] = ()) -> dict[str, Any]:
     for benchmark in _benchmark_instances():
         record = benchmark.metadata
         benchmark_name = record["name"]
+        benchmark_class = type(benchmark)
+        asv_module = benchmark_class.__module__.removeprefix("saps.benchmarks.")
+        record["asv_ids"] = {
+            metric: f"{asv_module}.{benchmark_class.__name__}.{metric}_{benchmark_name}"
+            for metric in ("peakmem", "time")
+        }
         source_generators = {
             generator.name: generator for generator in benchmark.generators
         }
@@ -104,6 +110,7 @@ def metadata_document(statistics_paths: Iterable[Path] = ()) -> dict[str, Any]:
                 record["tags"],
             )
             for dataset in generator["datasets"]:
+                dataset["asv_param"] = f"{generator_name}.{dataset['name']}"
                 dataset["tags"] = _record_tags(
                     dataset,
                     statistics,
