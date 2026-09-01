@@ -12,4 +12,4 @@ fi
 
 aws sso login --profile dataset-upload --use-device-code
 cd "$repo_directory"
-sbatch -A gts-wahrens6 -q embers -C amd "$script_directory/upload-dataset.slurm"
+sbatch -A gts-wahrens6 -p cpu-large -q inferno "$script_directory/upload-dataset.slurm"

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=dataset-upload
 #SBATCH --nodes=1
-#SBATCH --mem=450G
+#SBATCH --mem=700G
 #SBATCH --time=04:00:00
 #SBATCH --output=upload-%j.log
 
