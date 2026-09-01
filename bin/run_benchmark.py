@@ -241,11 +241,7 @@ def _cache_datasets(
 
 
 def _metadata_tags(record: dict) -> set[str]:
-    return {
-        *record.get("suites", []),
-        *record.get("statistics", []),
-        *record.get("topics", []),
-    }
+    return set(record["tags"])
 
 
 def regex_any_match(patterns: list[str], value: str) -> bool:
@@ -260,7 +256,7 @@ def _load_metadata_document(metadata_path: Path) -> dict:
     if not metadata_path.exists():
         raise RuntimeError(
             f"{metadata_path} does not exist; run generate metadata first with "
-            "`poetry run ./bin/run_benchmark.py --generate-metadata`."
+            "`poetry run ./bin/generate_metadata.py`."
         )
     document = json.loads(metadata_path.read_text(encoding="utf-8"))
     return {"benchmarks": document.get("benchmarks", [])}
@@ -277,23 +273,6 @@ def _statistics_freshness(statistics_path: Path) -> dict[tuple[str, str, str], s
         for dataset in generator.get("datasets", [])
         if "freshness" in dataset
     }
-
-
-def _refresh_metadata(
-    metadata: dict[str, dict],
-    metadata_path: Path,
-) -> int:
-    records: dict[str, dict] = {}
-    for record in metadata.values():
-        records.setdefault(_record_key(record), record)
-
-    document = {"benchmarks": sorted(records.values(), key=_record_key)}
-    metadata_path.write_text(
-        json.dumps(document, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
-    print(f"generated metadata for {len(document['benchmarks'])} benchmarks")
-    return 0
 
 
 def _trace_statistics(
@@ -423,15 +402,6 @@ def main() -> int:
             "(benchmark, generator, dataset) triple, generate the data, "
             "and cache it via the configured storage backend. Honors "
             "--re/--no-re/--tag/--no-tag filters."
-        ),
-    )
-    parser.add_argument(
-        "--generate-metadata",
-        dest="generate_metadata",
-        action="store_true",
-        help=(
-            "Skip benchmark execution. Rebuild metadata.json from the "
-            "benchmark definitions."
         ),
     )
     parser.add_argument(
@@ -611,9 +581,7 @@ def main() -> int:
             os.environ["SAPS_TAGGER_STATS_DIR"] = tagger_stats_dir
             os.environ["SAPS_STATISTICS_PATH"] = str(persistent_statistics_path)
 
-    uses_parent_environment = (
-        args.trace_statistics or args.cache_datasets or args.generate_metadata
-    )
+    uses_parent_environment = args.trace_statistics or args.cache_datasets
 
     # Construct ASV config dict with all fields visible
     asv_config_dict = {
@@ -711,28 +679,31 @@ def main() -> int:
         }
     )
 
+    persistent_document = _load_metadata_document(persistent_metadata_path)
+    persistent_by_key = {
+        _record_key(record): record
+        for record in persistent_document.get("benchmarks", [])
+    }
     source_benchmarks: dict[str, saps.Benchmark] = {}
-    source_metadata: dict[str, dict] = {}
+    metadata: dict[str, dict] = {}
     for name in benchmarks:
         module_name, class_name, _method_name = name.rsplit(".", 2)
         benchmark_module = importlib.import_module(f"saps.benchmarks.{module_name}")
         benchmark = getattr(benchmark_module, class_name)()
         assert isinstance(benchmark, saps.Benchmark)
         source_benchmarks[name] = benchmark
-        source_metadata[name] = benchmark.metadata
-    metadata = dict(source_metadata)
+        record = persistent_by_key.get(benchmark.name)
+        if record is not None:
+            metadata[name] = record
 
     # Store benchmark metadata in SAPS outputs directory
     results_dir = outputs_dir / "results"
     results_dir.mkdir(parents=True, exist_ok=True)
     metadata_path = results_dir / "benchmarks_meta.json"
     metadata_path.write_text(
-        json.dumps(source_metadata, indent=2, sort_keys=True) + "\n",
+        json.dumps(metadata, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-
-    if args.generate_metadata:
-        return _refresh_metadata(source_metadata, persistent_metadata_path)
 
     include_set = {tag.strip() for tag in args.tag if tag and tag.strip()}
     exclude_set = {tag.strip() for tag in args.no_tag if tag and tag.strip()}
@@ -758,18 +729,6 @@ def main() -> int:
             return True
         return bool(exclude_set and exclude_set.intersection(_metadata_tags(obj)))
 
-    persistent_document = None
-    if persistent_metadata_path.exists():
-        persistent_document = _load_metadata_document(persistent_metadata_path)
-        persistent_by_key = {
-            _record_key(record): record
-            for record in persistent_document.get("benchmarks", [])
-        }
-        for name, record in list(metadata.items()):
-            existing = persistent_by_key.get(_record_key(record))
-            if existing is not None:
-                metadata[name] = existing
-
     skips = []
     benchmarks._benchmark_selection = {}
     for name in benchmarks:
@@ -794,10 +753,14 @@ def main() -> int:
                     " benchmark"
                 )
                 continue
-            generator, dataset = param[0].split(".")[:2]
-            generator = generators.get(generator)
+            generator_name, dataset_name = param[0].split(".")[:2]
+            generator = generators.get(generator_name)
+            if generator is None:
+                continue
             datasets = {ds["name"]: ds for ds in generator["datasets"]}
-            dataset = datasets.get(dataset)
+            dataset = datasets.get(dataset_name)
+            if dataset is None:
+                continue
             if (
                 is_exclude(generator)
                 or is_exclude(dataset)
@@ -840,25 +803,6 @@ def main() -> int:
             f"{args.chunk_index}/{args.chunk_count}: "
             f"{chunk_kept} of {chunk_total} parameter cases"
         )
-    selected_source_metadata = {
-        name: source_metadata[name] for name in benchmarks if name in source_metadata
-    }
-
-    if args.cache_datasets or args.trace_statistics:
-        if persistent_document is None:
-            persistent_document = _load_metadata_document(persistent_metadata_path)
-        existing_benchmarks = {
-            _record_key(record): record
-            for record in persistent_document.get("benchmarks", [])
-        }
-        for record in selected_source_metadata.values():
-            key = _record_key(record)
-            if key not in existing_benchmarks:
-                raise RuntimeError(
-                    f"Missing metadata entry for {key}; run generate metadata first "
-                    "with `poetry run ./bin/run_benchmark.py --generate-metadata`."
-                )
-
     if args.cache_datasets:
         return _cache_datasets(
             benchmarks=benchmarks,

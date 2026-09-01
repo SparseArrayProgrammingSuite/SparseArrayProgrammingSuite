@@ -12,6 +12,7 @@ import pytest
 
 import saps.benchmarks
 from saps.benchmark import Benchmark, Generator
+from saps.metadata import metadata_document
 from saps.storage import build_storage_backend
 
 ROOT = Path(__file__).parents[1]
@@ -53,12 +54,7 @@ def _generator_classes() -> Iterator[type[Generator]]:
 
 @cache
 def _fresh_metadata_document() -> dict:
-    records: dict[str, dict] = {}
-    for benchmark in _benchmark_instances():
-        record = benchmark.metadata
-        records.setdefault(_record_key(record), record)
-    document = {"benchmarks": sorted(records.values(), key=_record_key)}
-    return json.loads(json.dumps(document, sort_keys=True))
+    return metadata_document([ROOT / "statistics.json"])
 
 
 def _read_json(path: Path) -> dict:
@@ -90,13 +86,9 @@ def _trace_dataset_lookup(metadata: dict) -> dict[tuple[str, str, str], dict]:
     datasets = {}
     for benchmark in metadata["benchmarks"]:
         benchmark_name = benchmark["name"]
-        benchmark_is_trace = "trace" in benchmark.get("suites", [])
         for generator in benchmark["generators"]:
-            generator_is_trace = benchmark_is_trace or "trace" in generator.get(
-                "suites", []
-            )
             for dataset in generator["datasets"]:
-                if generator_is_trace or "trace" in dataset.get("suites", []):
+                if "trace" in dataset.get("tags", []):
                     datasets[(benchmark_name, generator["name"], dataset["name"])] = (
                         dataset
                     )
@@ -135,6 +127,30 @@ def test_all_concrete_generators_have_parent_benchmarks():
     assert not floating, "concrete generators without parent benchmarks: " + ", ".join(
         floating
     )
+
+
+def test_metadata_tags_are_inherited():
+    metadata = _fresh_metadata_document()
+    for benchmark in metadata["benchmarks"]:
+        benchmark_tags = set(benchmark["tags"])
+        assert benchmark_tags >= {
+            *benchmark.get("suites", []),
+            *benchmark.get("topics", []),
+        }
+        for generator in benchmark["generators"]:
+            generator_tags = set(generator["tags"])
+            assert generator_tags >= benchmark_tags
+            assert generator_tags >= {
+                *generator.get("suites", []),
+                *generator.get("topics", []),
+            }
+            for dataset in generator["datasets"]:
+                dataset_tags = set(dataset["tags"])
+                assert dataset_tags >= generator_tags
+                assert dataset_tags >= {
+                    *dataset.get("suites", []),
+                    *dataset.get("topics", []),
+                }
 
 
 def test_trace_suite_has_fresh_statistics():

@@ -112,7 +112,7 @@ def concepts(self) -> str:
     """
 ```
 
-Manual suite tags are written to `metadata.json` under `suites`. Topic tags generated from ACM CCS XML are written under `topics`. Trace-derived tags are written to the parallel `statistics.json` hierarchy.
+Manual suite tags are written to `metadata.json` under `suites`. Topic tags generated from ACM CCS XML are written under `topics`. Generated `tags` combine suites, topics, inherited parent tags, and any fresh trace-derived statistics tags folded in during metadata generation.
 
 ## Problem Quality Tags
 
@@ -152,8 +152,9 @@ Freshness is checked for:
 After changing benchmark code, generator code, metadata, dependency imports, or storage behavior, regenerate the affected artifacts:
 
 ```bash
-poetry run ./bin/run_benchmark.py --generate-metadata
+poetry run ./bin/generate_metadata.py
 poetry run ./bin/run_benchmark.py --trace-statistics --tag trace --timeout 30 --show-stderr
+poetry run ./bin/generate_metadata.py --statistics statistics.json
 poetry run ./bin/run_benchmark.py --cache-datasets
 ```
 
@@ -170,13 +171,14 @@ differ from CI.
 
 The refresh workflow does three things:
 
-- Builds `metadata.json` once and shares it with later jobs.
+- Builds `metadata.json` once for filtering and again after tracing to fold in fresh statistics tags.
 - Runs trace statistics in four chunks, then merges the chunks into `statistics.json`.
 - Runs dataset caching/upload in four chunks, then merges the chunks into `manifest.json`.
 
 The data jobs use the configured S3 backend and bucket from `.github/workflows/refresh.yml`. Public dataset reads do not need credentials, but uploads do need the repository AWS secrets. The workflow uploads generated JSON as GitHub Actions artifacts:
 
 - `saps-metadata`: generated `metadata.json`.
+- `saps-metadata-final`: generated `metadata.json` with fresh statistics tags folded in.
 - `saps-statistics-final`: merged `statistics.json`.
 - `saps-manifest-final`: merged `manifest.json`.
 

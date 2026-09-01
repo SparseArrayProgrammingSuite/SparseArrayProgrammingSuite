@@ -30,11 +30,9 @@ def _extract_result_json(output: str) -> dict[str, Any]:
 def _test_dataset_slots(benchmark_metadata: dict[str, Any]) -> list[tuple[int, str]]:
     slots = []
     index = 0
-    benchmark_is_test = "test" in benchmark_metadata.get("suites", [])
     for generator in benchmark_metadata["generators"]:
-        generator_is_test = benchmark_is_test or "test" in generator.get("suites", [])
         for dataset in generator["datasets"]:
-            if generator_is_test or "test" in dataset.get("suites", []):
+            if "test" in dataset.get("tags", []):
                 slots.append((index, f"{generator['name']}.{dataset['name']}"))
             index += 1
     return slots

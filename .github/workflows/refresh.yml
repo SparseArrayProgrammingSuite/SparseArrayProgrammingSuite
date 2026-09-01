@@ -19,7 +19,7 @@ jobs:
       - name: Install package
         run: poetry install --with test
       - name: Generate metadata
-        run: poetry run ./bin/run_benchmark.py --generate-metadata
+        run: poetry run ./bin/generate_metadata.py
       - name: Upload metadata
         uses: actions/upload-artifact@v4
         with:
@@ -130,6 +130,8 @@ jobs:
     needs: trace
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
       - name: Download trace chunks
         uses: actions/download-artifact@v4
         with:
@@ -138,6 +140,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - name: Configure Poetry
+        run: poetry env use python3.12
+      - name: Install package
+        run: poetry install --with test
       - name: Merge statistics
         run: |
           python - <<'PY'
@@ -178,8 +186,6 @@ jobs:
               for key in (
                   "file",
                   "freshness",
-                  "dependencies",
-                  "dependency_versions",
               ):
                   if key not in source:
                       continue
@@ -259,11 +265,18 @@ jobs:
 
           write_json(out / "statistics.json", statistics)
           PY
+      - name: Generate final metadata
+        run: poetry run ./bin/generate_metadata.py --statistics merged/statistics.json
       - name: Upload merged statistics
         uses: actions/upload-artifact@v4
         with:
           name: saps-statistics-final
           path: merged/statistics.json
+      - name: Upload final metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: saps-metadata-final
+          path: metadata.json
 
   merge-manifest:
     needs: data
