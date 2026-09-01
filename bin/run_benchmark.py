@@ -342,8 +342,12 @@ def main() -> int:
     saps_dir = Path(".saps").resolve()
     saps_dir.mkdir(parents=True, exist_ok=True)
     machine_files_dir = saps_dir / "machine_files"
-    machine_files_dir.mkdir(parents=True, exist_ok=True)
     outputs_dir = saps_dir / "outputs"
+    chunk_name = f"chunk-{args.chunk_index}" if args.chunk_count > 1 else None
+    if chunk_name:
+        machine_files_dir /= chunk_name
+        outputs_dir /= chunk_name
+    machine_files_dir.mkdir(parents=True, exist_ok=True)
     outputs_dir.mkdir(parents=True, exist_ok=True)
 
     # Load optional saps.conf.json
@@ -358,6 +362,14 @@ def main() -> int:
         if saps_config_file.exists():
             with open(saps_config_file) as f:
                 saps_config_data = json.load(f)
+
+    env_dir = Path(saps_config_data.get("env_dir", str(saps_dir / "results")))
+    results_dir = Path(
+        saps_config_data.get("results_dir", str(saps_dir / "outputs" / "results"))
+    )
+    if chunk_name:
+        env_dir /= chunk_name
+        results_dir /= chunk_name
 
     matrix = saps_config_data.get(
         "matrix",
@@ -382,7 +394,7 @@ def main() -> int:
         },
     )
     matrix.setdefault("env_nobuild", {})
-    log_path = str(outputs_dir / "results" / "diagnostics.log")
+    log_path = str(results_dir / "diagnostics.log")
     os.environ["SAPS_LOG_PATH"] = log_path
     matrix["env_nobuild"]["SAPS_LOG_PATH"] = [log_path]
     storage_backend = args.remote_storage_backend or DEFAULT_REMOTE_STORAGE_BACKEND
@@ -451,10 +463,8 @@ def main() -> int:
             ["in-dir={env_dir} python -mpip install {build_dir} --force-reinstall"],
         ),
         "benchmark_dir": str(repo_root / "src/saps/benchmarks"),
-        "env_dir": saps_config_data.get("env_dir", str(saps_dir / "results")),
-        "results_dir": saps_config_data.get(
-            "results_dir", str(outputs_dir / "results")
-        ),
+        "env_dir": str(env_dir),
+        "results_dir": str(results_dir),
         "html_dir": str(outputs_dir / "html"),
         "matrix": matrix,
     }
@@ -488,14 +498,24 @@ def main() -> int:
                 abs_paths.append(str(Path(cwd) / path_obj))
         conf.matrix["env_nobuild"]["SAPS_FRAMEWORK"] = abs_paths
 
-    machine_params = Machine.load(
-        machine_name=args.machine,
-        interactive=True,
-        use_defaults=True,
-    )
+    # ASV normally reads and rewrites ~/.asv-machine.json.  Concurrent Slurm
+    # array tasks can observe that file while another task has truncated it.
+    # Give each runner process private transient machine state instead.
+    machine_state_path = machine_files_dir / "asv-machine.json"
+    try:
+        machine_params = Machine.load(
+            machine_name=args.machine,
+            interactive=True,
+            use_defaults=True,
+            _path=str(machine_state_path),
+        )
+    finally:
+        machine_state_path.unlink(missing_ok=True)
 
-    # Save machine file to SAPS machine files directory
-    machine_params.save(str(machine_files_dir))
+    # Normal benchmark runs retain the conventional machine metadata.  Cache
+    # and trace workers only need it in memory and may execute concurrently.
+    if not uses_parent_environment:
+        machine_params.save(str(machine_files_dir))
 
     if uses_parent_environment:
         environments = [ExistingEnvironment(conf, "same", {}, {})]
@@ -522,7 +542,6 @@ def main() -> int:
         commit_hash=[commit_hash],
     )
 
-    results_dir = outputs_dir / "results"
     results_dir.mkdir(parents=True, exist_ok=True)
 
     include_tags = {tag.strip() for tag in args.tag if tag and tag.strip()}
@@ -658,7 +677,7 @@ def main() -> int:
         return 0 if failed == 0 else 1
 
     if args.trace_statistics:
-        stats_dir = outputs_dir / "tagger_stats"
+        stats_dir = Path(os.environ["SAPS_TAGGER_STATS_DIR"])
         stats_dir.mkdir(parents=True, exist_ok=True)
         for stats_path in stats_dir.glob("*.json"):
             stats_path.unlink()

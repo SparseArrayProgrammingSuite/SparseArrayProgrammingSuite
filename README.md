@@ -33,7 +33,8 @@ Useful runner options:
 - `--metric time peakmem`: collect one or both metrics.
 - `--quick`: run each selected benchmark once.
 - `--timeout 30`: set a per-benchmark timeout in seconds.
-- `--chunk-count N --chunk-index I`: split the selected parameter cases across multiple processes.
+- `--chunk-count N --chunk-index I`: split the selected parameter cases across
+  multiple processes and isolate transient output under `chunk-I` directories.
 
 For example:
 
