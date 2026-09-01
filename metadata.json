@@ -15,6 +15,7 @@
           "authors": [
             "Richard Wan <rwan41@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -170,6 +171,7 @@
             "Taishan Chen <utallow@bu.edu>",
             "Kyle Deeds <kdeeds@bu.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -266,6 +268,7 @@
             "Taishan Chen <utallow@bu.edu>",
             "Kyle Deeds <kdeeds@bu.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -827,6 +830,7 @@
             "Taishan Chen <utallow@bu.edu>",
             "Kyle Deeds <kdeeds@bu.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -9429,6 +9433,7 @@
             "Taishan Chen <utallow@bu.edu>",
             "Kyle Deeds <kdeeds@bu.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -9517,6 +9522,7 @@
             "Taishan Chen <utallow@bu.edu>",
             "Kyle Deeds <kdeeds@bu.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -24583,6 +24589,7 @@
           "authors": [
             "Richard Wan <rwan41@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -24802,6 +24809,7 @@
         {
           "ai_disclosure": "Generative AI might have been used to construct tests. This statement was written by hand.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -24960,6 +24968,7 @@
         {
           "ai_disclosure": "Generative AI was used to construct the generator and dataset structures. This statement was written by hand.",
           "authors": [],
+          "cacheable": true,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -25068,6 +25077,7 @@
         {
           "ai_disclosure": "Generative AI was used to construct the generator and dataset structures. This statement was written by hand.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -30566,6 +30576,7 @@
         {
           "ai_disclosure": "Generative AI might have been used to construct tests. This statement was written by hand.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -30801,6 +30812,7 @@
         {
           "ai_disclosure": "Generative AI was used to construct the generator and dataset structures. This statement was written by hand.",
           "authors": [],
+          "cacheable": true,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -30858,6 +30870,7 @@
         {
           "ai_disclosure": "Generative AI was used to construct the generator and dataset structures. This statement was written by hand.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -31003,6 +31016,7 @@
         {
           "ai_disclosure": "Generative AI was used to construct the generator and dataset structures. This statement was written by hand.",
           "authors": [],
+          "cacheable": true,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -31094,6 +31108,7 @@
         {
           "ai_disclosure": "Generative AI might have been used to construct tests. This statement was written by hand.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -31272,6 +31287,7 @@
         {
           "ai_disclosure": "Generative AI was used to construct the generator and dataset structures. This statement was written by hand.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -36772,6 +36788,7 @@
           "authors": [
             "Akarsh Duddu <aduddu3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -36841,6 +36858,7 @@
           "authors": [
             "Akarsh Duddu <aduddu3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -36910,6 +36928,7 @@
           "authors": [
             "Akarsh Duddu <aduddu3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -36979,6 +36998,7 @@
           "authors": [
             "Vilohith Gokarakonda <vgokarakonda3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -37083,6 +37103,7 @@
           "authors": [
             "Vilohith Gokarakonda <vgokarakonda3@gatech.edu>"
           ],
+          "cacheable": true,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -37183,6 +37204,7 @@
           "authors": [
             "Vilohith Gokarakonda <vgokarakonda3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -37287,6 +37309,7 @@
           "authors": [
             "Vilohith Gokarakonda <vgokarakonda3@gatech.edu>"
           ],
+          "cacheable": true,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -37387,6 +37410,7 @@
           "authors": [
             "Tarun Devi <tdevi3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "\n<ccs2012>\n<concept>\n<concept_id>10010147.10010341.10010349.10010350</concept_id>\n<concept_desc>Computing methodologies~Quantum mechanic simulation</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10010405.10010432.10010441</concept_id>\n<concept_desc>Applied computing~Physics</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10010405.10010432.10010436</concept_id>\n<concept_desc>Applied computing~Chemistry</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n</ccs2012>\n",
           "datasets": [
             {
@@ -37502,6 +37526,7 @@
           "authors": [
             "Benjamin Berol <bberol3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -37693,6 +37718,7 @@
           "authors": [
             "Benjamin Berol <bberol3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -37884,6 +37910,7 @@
           "authors": [
             "Grace Wang <gwang426@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -37952,6 +37979,7 @@
         {
           "ai_disclosure": "No generative AI was used to write the CP-ALS algorithm itself, which predates this generator. This generator and its FROSTT data-fetching were written by a generative AI assistant (Claude) at the user's direction.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -38325,6 +38353,7 @@
             "Grace Wang <gwang426@gatech.edu>",
             "Kseniia Suleimanova <kseniiasuleimanova@gmail.com>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -38394,6 +38423,7 @@
         {
           "ai_disclosure": "No generative AI was used to write the CP-ALS algorithm itself, which predates this generator. This generator and its FROSTT data-fetching were written by a generative AI assistant (Claude) at the user's direction.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -38589,6 +38619,7 @@
             "Kseniia Suleimanova <kseniiasuleimanova@gmail.com>",
             "Willow Ahrens <ahrens@gmail.com>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -38659,6 +38690,7 @@
         {
           "ai_disclosure": "No generative AI was used to write the CP-ALS algorithm itself, which predates this generator. This generator and its FROSTT data-fetching were written by a generative AI assistant (Claude) at the user's direction.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -38794,6 +38826,7 @@
         {
           "ai_disclosure": "Generative AI might have been used to construct tests. This statement was written by hand.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -38978,6 +39011,7 @@
         {
           "ai_disclosure": "Generative AI was used to construct the generator and dataset structures. This statement was written by hand.",
           "authors": [],
+          "cacheable": true,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -39052,6 +39086,7 @@
         {
           "ai_disclosure": "Generative AI was used to construct the generator and dataset structures. This statement was written by hand.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -39196,6 +39231,7 @@
         {
           "ai_disclosure": "Generative AI might have been used to construct tests. This statement was written by hand.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -39389,6 +39425,7 @@
             "Aarav Joglekar <ajoglekar32@gatech.edu>",
             "Joel Mathew Cherian <jcherian32@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -39682,6 +39719,7 @@
         {
           "ai_disclosure": "Generative AI might have been used to construct tests. This statement was written by hand.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -39808,6 +39846,7 @@
           "authors": [
             "Jeffrey Xu <jxu743@gatech.edu>"
           ],
+          "cacheable": true,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -39897,6 +39936,7 @@
         {
           "ai_disclosure": "This generator and its downloader were written by a generative AI assistant (Claude) at the user's direction.",
           "authors": [],
+          "cacheable": true,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -40245,6 +40285,7 @@
           "authors": [
             "Tarun Devi <tdevi3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -40393,6 +40434,7 @@
           "authors": [
             "Tarun Devi <tdevi3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -40620,6 +40662,7 @@
           "authors": [
             "Tarun Devi <tdevi3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -40776,6 +40819,7 @@
           "authors": [
             "Tarun Devi <tdevi3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -41019,6 +41063,7 @@
           "authors": [
             "Aadharsh Rajkumar <arajkumar34@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -41179,6 +41224,7 @@
           "authors": [
             "Aadharsh Rajkumar <arajkumar34@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -41373,6 +41419,7 @@
           "authors": [
             "Aadharsh Rajkumar <arajkumar34@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -41441,6 +41488,7 @@
           "authors": [
             "Aadharsh Rajkumar <arajkumar34@gatech.edu>"
           ],
+          "cacheable": true,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -41495,6 +41543,7 @@
         {
           "ai_disclosure": "No generative AI was used to write the HOSVD algorithm itself, which predates this generator. This generator and its FROSTT data-fetching were written by a generative AI assistant (Claude) at the user's direction.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -41865,6 +41914,7 @@
           "authors": [
             "Aadharsh Rajkumar <arajkumar34@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -41935,6 +41985,7 @@
           "authors": [
             "Aadharsh Rajkumar <arajkumar34@gatech.edu>"
           ],
+          "cacheable": true,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -41991,6 +42042,7 @@
         {
           "ai_disclosure": "No generative AI was used to write the HOSVD algorithm itself, which predates this generator. This generator and its FROSTT data-fetching were written by a generative AI assistant (Claude) at the user's direction.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -42181,6 +42233,7 @@
           "authors": [
             "Aadharsh Rajkumar <arajkumar34@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -42254,6 +42307,7 @@
           "authors": [
             "Aadharsh Rajkumar <arajkumar34@gatech.edu>"
           ],
+          "cacheable": true,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -42312,6 +42366,7 @@
         {
           "ai_disclosure": "No generative AI was used to write the HOSVD algorithm itself, which predates this generator. This generator and its FROSTT data-fetching were written by a generative AI assistant (Claude) at the user's direction.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -42448,6 +42503,7 @@
           "authors": [
             "Benjamin Berol <bberol3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -42761,6 +42817,7 @@
           "authors": [
             "Benjamin Berol <bberol3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -42871,6 +42928,7 @@
           "authors": [
             "Benjamin Berol <bberol3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -43063,6 +43121,7 @@
             "Vilohith Gokarakonda <vgokarakonda3@gatech.edu>",
             "Willow Ahrens <ahrens@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -43138,6 +43197,7 @@
             "Vilohith Gokarakonda <vgokarakonda3@gatech.edu>",
             "Willow Ahrens <ahrens@gatech.edu>"
           ],
+          "cacheable": true,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -43293,6 +43353,7 @@
           "authors": [
             "Vilohith Gokarakonda <vgokarakonda3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -43397,6 +43458,7 @@
           "authors": [
             "Vilohith Gokarakonda <vgokarakonda3@gatech.edu>"
           ],
+          "cacheable": true,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -43497,6 +43559,7 @@
           "authors": [
             "Akarsh Duddu <aduddu3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -43552,6 +43615,7 @@
           "authors": [
             "Akarsh Duddu <aduddu3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -43607,6 +43671,7 @@
           "authors": [
             "Akarsh Duddu <aduddu3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -43662,6 +43727,7 @@
           "authors": [
             "Benjamin Berol <bberol3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -43937,6 +44003,7 @@
           "authors": [
             "Benjamin Berol <bberol3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -44104,6 +44171,7 @@
           "authors": [
             "Aadharsh Rajkumar <arajkumar34@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -44222,6 +44290,7 @@
           "authors": [
             "Aadharsh Rajkumar <arajkumar34@gatech.edu>"
           ],
+          "cacheable": true,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -44372,6 +44441,7 @@
             "Prateek Hanumappanahalli <phanumap3@gatech.edu>",
             "Joel Mathew Cherian <jcherian32@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "\n<ccs2012>\n<concept>\n<concept_id>10002950.10003705</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003705.10011686</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003624.10003633.10010917</concept_id>\n<concept_desc>Mathematics of computing~Graph algorithms</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003624.10003633.10003640</concept_id>\n<concept_desc>Mathematics of computing~Paths and connectivity problems</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n</ccs2012>\n",
           "datasets": [
             {
@@ -44490,6 +44560,7 @@
             "Prateek Hanumappanahalli <phanumap3@gatech.edu>",
             "Joel Mathew Cherian <jcherian32@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -44690,6 +44761,7 @@
           "authors": [
             "Aadharsh Rajkumar <arajkumar34@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -44795,6 +44867,7 @@
           "authors": [
             "Aadharsh Rajkumar <arajkumar34@gatech.edu>"
           ],
+          "cacheable": true,
           "concepts": "\n        <ccs2012>\n        <concept>\n        <concept_id>10010147.10010371.10010382.10010383</concept_id>\n        <concept_desc>Computing methodologies~Image processing</concept_desc>\n        <concept_significance>500</concept_significance>\n        </concept>\n        <concept>\n        <concept_id>10010147.10010371.10010382.10010236</concept_id>\n        <concept_desc>Computing methodologies~Computational photography</concept_desc>\n        <concept_significance>500</concept_significance>\n        </concept>\n        <concept>\n        <concept_id>10010405.10010444.10010087.10010096</concept_id>\n        <concept_desc>Applied computing~Imaging</concept_desc>\n        <concept_significance>500</concept_significance>\n        </concept>\n        </ccs2012>\n        ",
           "datasets": [
             {
@@ -44931,6 +45004,7 @@
         {
           "ai_disclosure": "Generative AI might have been used to construct tests. This statement was written by hand.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -45089,6 +45163,7 @@
         {
           "ai_disclosure": "Generative AI was used to construct the generator and dataset structures. This statement was written by hand.",
           "authors": [],
+          "cacheable": true,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -45163,6 +45238,7 @@
         {
           "ai_disclosure": "Generative AI was used to construct the generator and dataset structures. This statement was written by hand.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -45310,6 +45386,7 @@
           "authors": [
             "Richard Wan <rwan41@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -45479,6 +45556,7 @@
           "authors": [
             "Benjamin Berol <bberol3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -45802,6 +45880,7 @@
           "authors": [
             "Akarsh Duddu <aduddu3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -45857,6 +45936,7 @@
           "authors": [
             "Akarsh Duddu <aduddu3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -45912,6 +45992,7 @@
           "authors": [
             "Akarsh Duddu <aduddu3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -45967,6 +46048,7 @@
           "authors": [
             "Akarsh Duddu <aduddu3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -46022,6 +46104,7 @@
           "authors": [
             "Akarsh Duddu <aduddu3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -46077,6 +46160,7 @@
           "authors": [
             "Akarsh Duddu <aduddu3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -46132,6 +46216,7 @@
           "authors": [
             "Maksim Krylykov <mkrylykov3@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -46274,6 +46359,7 @@
         {
           "ai_disclosure": "",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -47147,6 +47233,7 @@
         {
           "ai_disclosure": "",
           "authors": [],
+          "cacheable": true,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -47306,6 +47393,7 @@
         {
           "ai_disclosure": "Generative AI might have been used to construct tests. This statement was written by hand.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -47478,6 +47566,7 @@
         {
           "ai_disclosure": "Generative AI was used to construct the generator and dataset structures. This statement was written by hand.",
           "authors": [],
+          "cacheable": true,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -47554,6 +47643,7 @@
         {
           "ai_disclosure": "Generative AI was used to construct the generator and dataset structures. This statement was written by hand.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -47698,6 +47788,7 @@
             "Taishan Chen <utallow@bu.edu>",
             "Kyle Deeds <kdeeds@bu.edu>"
           ],
+          "cacheable": true,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -47778,6 +47869,7 @@
         {
           "ai_disclosure": "No generative AI was used to write the algorithms for the benchmark function. Generative AI might have been used to construct the framework, comments and helper functions.",
           "authors": [],
+          "cacheable": true,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -48395,6 +48487,7 @@
           "authors": [
             "Aarav Jogekar <ajoglekar32@gatech.edu>"
           ],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -48655,6 +48748,7 @@
         {
           "ai_disclosure": "Generative AI was used to construct the generator and dataset structures. This statement was written by hand.",
           "authors": [],
+          "cacheable": true,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -48712,6 +48806,7 @@
         {
           "ai_disclosure": "Generative AI might have been used to construct tests. This statement was written by hand.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -48860,6 +48955,7 @@
         {
           "ai_disclosure": "Generative AI was used to construct the generator and dataset structures. This statement was written by hand.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -49003,6 +49099,7 @@
         {
           "ai_disclosure": "No generative AI was used to construct the benchmark function.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -49168,6 +49265,7 @@
         {
           "ai_disclosure": "Generative AI might have been used to construct tests. This statement was written by hand.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -49292,6 +49390,7 @@
         {
           "ai_disclosure": "Generative AI was used to construct the generator and dataset structures. This statement was written by hand.",
           "authors": [],
+          "cacheable": true,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
@@ -49351,6 +49450,7 @@
         {
           "ai_disclosure": "Generative AI was used to construct the generator and dataset structures. This statement was written by hand.",
           "authors": [],
+          "cacheable": false,
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {

@@ -89,10 +89,14 @@ def metadata_document(statistics_paths: Iterable[Path] = ()) -> dict[str, Any]:
     for benchmark in _benchmark_instances():
         record = benchmark.metadata
         benchmark_name = record["name"]
+        source_generators = {
+            generator.name: generator for generator in benchmark.generators
+        }
         record["tags"] = _record_tags(record, statistics, (benchmark_name,))
 
         for generator in record["generators"]:
             generator_name = generator["name"]
+            generator["cacheable"] = source_generators[generator_name].cacheable
             generator["tags"] = _record_tags(
                 generator,
                 statistics,

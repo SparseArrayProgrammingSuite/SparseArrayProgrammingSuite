@@ -23,7 +23,6 @@ from asv.repo import get_repo
 from asv.results import Results
 from asv.runner import run_benchmarks
 
-import saps
 from saps.storage import DEFAULT_REMOTE_STORAGE_BACKEND, DEFAULT_REMOTE_STORAGE_BUCKET
 
 logging.basicConfig(level=logging.INFO)
@@ -167,9 +166,7 @@ raise SystemExit(0 if backend.upload_dataset(generator, dataset) else 1)
 """
 
 
-def _cache_datasets(
-    benchmarks, metadata, environments, source_benchmarks, timeout: float | None
-) -> int:
+def _cache_datasets(benchmarks, metadata, environments, timeout: float | None) -> int:
     """Upload the selected (benchmark, generator, dataset) triples."""
     uploaded = failed = skipped = 0
     seen: set[tuple[str, str]] = set()
@@ -188,13 +185,8 @@ def _cache_datasets(
                 }
             module_name, class_name, _method = name.rsplit(".", 2)
             bench_meta = metadata[name]
-            source_generators = {
-                generator.name: generator
-                for generator in source_benchmarks[name].generators
-            }
             generators = {gen["name"]: gen for gen in bench_meta["generators"]}
             for generator_name, gen_meta in generators.items():
-                source_generator = source_generators[generator_name]
                 for ds_meta in gen_meta["datasets"]:
                     dataset_name = ds_meta["name"]
                     key = (generator_name, dataset_name)
@@ -205,7 +197,7 @@ def _cache_datasets(
                         continue
                     seen.add(key)
                     label = f"{bench_meta['name']} / {generator_name} / {dataset_name}"
-                    if not source_generator.cacheable:
+                    if not gen_meta["cacheable"]:
                         skipped += 1
                         print(f"[uncached] {label}")
                         continue
@@ -231,7 +223,6 @@ def _cache_datasets(
                     except (
                         OSError,
                         RuntimeError,
-                        StopIteration,
                         util.ProcessError,
                     ) as e:
                         failed += 1
@@ -240,26 +231,22 @@ def _cache_datasets(
     return 0 if failed == 0 else 1
 
 
-def _metadata_tags(record: dict) -> set[str]:
-    return set(record["tags"])
+def _benchmark_metadata_name(asv_name: str) -> str:
+    method_name = asv_name.rsplit(".", 1)[-1]
+    for prefix in ("peakmem_", "time_"):
+        if method_name.startswith(prefix):
+            return method_name.removeprefix(prefix)
+    return method_name
 
 
-def regex_any_match(patterns: list[str], value: str) -> bool:
-    return any(re.search(pattern, value) for pattern in patterns)
-
-
-def _record_key(record: dict) -> str:
-    return record["name"]
-
-
-def _load_metadata_document(metadata_path: Path) -> dict:
+def _load_metadata(metadata_path: Path) -> dict[str, dict]:
     if not metadata_path.exists():
         raise RuntimeError(
             f"{metadata_path} does not exist; run generate metadata first with "
             "`poetry run ./bin/generate_metadata.py`."
         )
     document = json.loads(metadata_path.read_text(encoding="utf-8"))
-    return {"benchmarks": document.get("benchmarks", [])}
+    return {record["name"]: record for record in document.get("benchmarks", [])}
 
 
 def _statistics_freshness(statistics_path: Path) -> dict[tuple[str, str, str], str]:
@@ -679,31 +666,15 @@ def main() -> int:
         }
     )
 
-    persistent_document = _load_metadata_document(persistent_metadata_path)
-    persistent_by_key = {
-        _record_key(record): record
-        for record in persistent_document.get("benchmarks", [])
-    }
-    source_benchmarks: dict[str, saps.Benchmark] = {}
+    persistent_metadata = _load_metadata(persistent_metadata_path)
     metadata: dict[str, dict] = {}
     for name in benchmarks:
-        module_name, class_name, _method_name = name.rsplit(".", 2)
-        benchmark_module = importlib.import_module(f"saps.benchmarks.{module_name}")
-        benchmark = getattr(benchmark_module, class_name)()
-        assert isinstance(benchmark, saps.Benchmark)
-        source_benchmarks[name] = benchmark
-        record = persistent_by_key.get(benchmark.name)
+        record = persistent_metadata.get(_benchmark_metadata_name(name))
         if record is not None:
             metadata[name] = record
 
-    # Store benchmark metadata in SAPS outputs directory
     results_dir = outputs_dir / "results"
     results_dir.mkdir(parents=True, exist_ok=True)
-    metadata_path = results_dir / "benchmarks_meta.json"
-    metadata_path.write_text(
-        json.dumps(metadata, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
 
     include_set = {tag.strip() for tag in args.tag if tag and tag.strip()}
     exclude_set = {tag.strip() for tag in args.no_tag if tag and tag.strip()}
@@ -716,23 +687,11 @@ def main() -> int:
     )
     skipped_fresh_statistics = 0
 
-    def match_target(obj: dict) -> str:
-        return obj["name"]
-
-    def is_include(obj) -> bool:
-        if include_res and not regex_any_match(include_res, match_target(obj)):
-            return False
-        return not (include_set and not include_set.intersection(_metadata_tags(obj)))
-
-    def is_exclude(obj) -> bool:
-        if exclude_res and regex_any_match(exclude_res, match_target(obj)):
-            return True
-        return bool(exclude_set and exclude_set.intersection(_metadata_tags(obj)))
-
     skips = []
     benchmarks._benchmark_selection = {}
     for name in benchmarks:
-        if name not in metadata:
+        bench_meta = metadata.get(name)
+        if bench_meta is None:
             log.warning(
                 "No SAPS metadata found for benchmark "
                 f"'{name}', skipping SAPS tag filtering "
@@ -740,11 +699,12 @@ def main() -> int:
             )
             skips.append(name)
             continue
-        if is_exclude(metadata[name]):
-            skips.append(name)
-            continue
-        benchmarks._benchmark_selection[name] = []
-        generators = {gen["name"]: gen for gen in metadata[name]["generators"]}
+        selection = []
+        datasets = {
+            (generator["name"], dataset["name"]): dataset
+            for generator in bench_meta["generators"]
+            for dataset in generator["datasets"]
+        }
         param_combos = list(product(*benchmarks[name]["params"]))
         for idx, param in enumerate(param_combos):
             if len(param) == 0:
@@ -754,36 +714,37 @@ def main() -> int:
                 )
                 continue
             generator_name, dataset_name = param[0].split(".")[:2]
-            generator = generators.get(generator_name)
-            if generator is None:
-                continue
-            datasets = {ds["name"]: ds for ds in generator["datasets"]}
-            dataset = datasets.get(dataset_name)
+            dataset = datasets.get((generator_name, dataset_name))
             if dataset is None:
                 continue
-            if (
-                is_exclude(generator)
-                or is_exclude(dataset)
-                or not (
-                    is_include(metadata[name])
-                    or is_include(generator)
-                    or is_include(dataset)
-                )
+            target_names = (bench_meta["name"], generator_name, dataset_name)
+            dataset_tags = set(dataset["tags"])
+            if include_res and not any(
+                re.search(pattern, target)
+                for pattern in include_res
+                for target in target_names
             ):
                 continue
+            if include_set and not include_set.intersection(dataset_tags):
+                continue
+            if exclude_res and any(
+                re.search(pattern, target)
+                for pattern in exclude_res
+                for target in target_names
+            ):
+                continue
+            if exclude_set and exclude_set.intersection(dataset_tags):
+                continue
             if args.trace_statistics:
-                benchmark_param = source_benchmarks[name].params[idx]
-                stats_key = (
-                    source_benchmarks[name].name,
-                    benchmark_param.generator.name,
-                    benchmark_param.dataset.name,
-                )
-                if benchmark_param.dataset.freshness == stats_freshness.get(stats_key):
+                stats_key = (bench_meta["name"], generator_name, dataset_name)
+                if dataset["freshness"] == stats_freshness.get(stats_key):
                     skipped_fresh_statistics += 1
                     continue
-            benchmarks._benchmark_selection[name].append(idx)
+            selection.append(idx)
 
-        if not benchmarks._benchmark_selection[name]:
+        if selection:
+            benchmarks._benchmark_selection[name] = selection
+        else:
             skips.append(name)
 
     benchmarks = benchmarks.filter_out(set(skips))
@@ -808,7 +769,6 @@ def main() -> int:
             benchmarks=benchmarks,
             metadata=metadata,
             environments=environments,
-            source_benchmarks=source_benchmarks,
             timeout=timeout,
         )
 

@@ -11,6 +11,14 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
+def _benchmark_metadata_name(asv_name: str) -> str:
+    method_name = asv_name.rsplit(".", 1)[-1]
+    for prefix in ("peakmem_", "time_"):
+        if method_name.startswith(prefix):
+            return method_name.removeprefix(prefix)
+    return method_name
+
+
 def _extract_result_json(output: str) -> dict[str, Any]:
     decoder = json.JSONDecoder()
     for index, char in enumerate(output):
@@ -100,8 +108,12 @@ def test_harness_test_suite_outputs_pass_for_all_test_datasets(tmp_path):
     result_json = _extract_result_json(completed.stdout)
     assert result_json["result_count"] > 0
 
-    metadata_path = tmp_path / ".saps/outputs/results/benchmarks_meta.json"
-    benchmark_metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    metadata_document = json.loads(
+        (REPO_ROOT / "metadata.json").read_text(encoding="utf-8")
+    )
+    benchmark_metadata = {
+        record["name"]: record for record in metadata_document["benchmarks"]
+    }
 
     failures = []
     checked = 0
@@ -111,7 +123,9 @@ def test_harness_test_suite_outputs_pass_for_all_test_datasets(tmp_path):
             failures.append(f"{benchmark_name}: errcode={errcode}\n{result['stderr']}")
 
         values = result["result"]
-        test_slots = _test_dataset_slots(benchmark_metadata[benchmark_name])
+        test_slots = _test_dataset_slots(
+            benchmark_metadata[_benchmark_metadata_name(benchmark_name)]
+        )
         assert test_slots, f"{benchmark_name} did not include any test datasets"
         for index, dataset_name in test_slots:
             checked += 1
