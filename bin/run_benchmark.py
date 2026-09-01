@@ -2,14 +2,10 @@
 from __future__ import annotations
 
 import argparse
-import importlib
 import json
 import logging
 import os
 import re
-import time
-import traceback
-from itertools import product
 from pathlib import Path
 
 from asv.benchmarks import Benchmarks
@@ -58,64 +54,6 @@ def format_results(results: Results, benchmarks: Benchmarks) -> dict:
     }
 
 
-def _run_check_suite(benchmarks: Benchmarks, machine_params, commit_hash, commit_date):
-    """Run selected benchmark cases once in-process and print result JSON."""
-    entries: dict[str, dict] = {}
-    for name in sorted(benchmarks):
-        module_name, class_name, _method_name = name.rsplit(".", 2)
-        benchmark_module = importlib.import_module(f"saps.benchmarks.{module_name}")
-        benchmark = getattr(benchmark_module, class_name)()
-
-        param_combos = list(product(*benchmarks[name]["params"]))
-        selected = set(
-            benchmarks.benchmark_selection.get(name, range(len(param_combos)))
-        )
-        values = [float("nan")] * len(param_combos)
-        stderr = []
-        started_at = int(time.time() * 1000)
-        start = time.monotonic()
-
-        for idx in sorted(selected):
-            param = benchmark.params[idx]
-            try:
-                benchmark.setup(param)
-                benchmark.run(param)
-                benchmark.teardown(param)
-                values[idx] = 1
-            except Exception:  # noqa: BLE001
-                stderr.append(f"For parameters: {param}\n{traceback.format_exc()}")
-                for attr in (
-                    "_output",
-                    "_meta",
-                    "_ref_outputs",
-                    "_ref_meta",
-                    "_input",
-                ):
-                    if hasattr(benchmark, attr):
-                        delattr(benchmark, attr)
-
-        entries[name] = {
-            "result": values,
-            "stats": [None] * len(param_combos),
-            "samples": [None] * len(param_combos),
-            "duration_seconds": time.monotonic() - start,
-            "started_at": started_at,
-            "errcode": 1 if stderr else 0,
-            "stderr": "\n".join(stderr),
-        }
-
-    params = dict(machine_params.__dict__)
-    return {
-        "commit_hash": commit_hash,
-        "date": commit_date,
-        "env_name": "check-suite",
-        "env_vars": {},
-        "params": params,
-        "result_count": len(entries),
-        "results": entries,
-    }
-
-
 def _run_asv_benchmarks(
     benchmarks,
     environments,
@@ -128,6 +66,7 @@ def _run_asv_benchmarks(
     install_project=None,
     results_dir=None,
     print_results=False,
+    launch_method=None,
 ):
     failed = 0
     for env in environments:
@@ -157,6 +96,7 @@ def _run_asv_benchmarks(
             show_stderr=show_stderr,
             quick=quick,
             extra_params={"timeout": timeout},
+            launch_method=launch_method,
         )
         failed += sum(
             1 for errcode in results.errcode.values() if errcode not in (None, 0)
@@ -316,7 +256,7 @@ def main() -> int:
         "--check-suite",
         action="store_true",
         help=(
-            "Run selected benchmark cases once in-process and print result JSON. "
+            "Run selected benchmark cases once through ASV and print result JSON. "
             "Honors --re/--no-re/--tag/--no-tag filters."
         ),
     )
@@ -742,14 +682,21 @@ def main() -> int:
 
     if args.check_suite:
         print(f"Discovered {len(benchmarks)} benchmark entries")
-        result_json = _run_check_suite(
+        print(f"Using timeout: {timeout} seconds")
+        failed = _run_asv_benchmarks(
             benchmarks=benchmarks,
+            environments=environments,
             machine_params=machine_params,
             commit_hash=commit_hash,
             commit_date=commit_date,
+            timeout=timeout,
+            show_stderr=args.show_stderr,
+            quick=True,
+            install_project=(conf, repo),
+            print_results=True,
+            launch_method="forkserver",
         )
-        print(json.dumps(result_json, indent=2, default=str))
-        return 0
+        return 0 if failed == 0 else 1
 
     print(f"Discovered {len(benchmarks)} benchmark entries")
     print(f"Using timeout: {timeout} seconds")

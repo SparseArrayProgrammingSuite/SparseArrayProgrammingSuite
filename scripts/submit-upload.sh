@@ -10,10 +10,6 @@ if ! aws configure list-profiles | grep -Fxq dataset-upload; then
   aws configure sso --profile dataset-upload --use-device-code
 fi
 
-if ! aws configure list-profiles | grep -Fxq dataset-upload; then
-  aws configure sso --profile dataset-upload --use-device-code
-fi
-
 aws sso login --profile dataset-upload --use-device-code
 cd "$repo_directory"
 sbatch -A gts-wahrens6 -p cpu-large -q inferno "$script_directory/upload-dataset.slurm"
