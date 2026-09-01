@@ -2,57 +2,57 @@
   "bellman_ford_inputs.snap-email-Eu-core": {
     "digest": "a3fe9e0670521631f7a2c554e2f57b634afcecc9b2e13dde9a7e67f43e0f0cba",
     "file": "src/saps/benchmarks/bellmanford.py",
-    "freshness": "6a3548a4f0da138edcc7992029f62c715d312125d82494edac97b031eae22bed"
+    "freshness": "ba860bfe5c07ee2fec50ddc38a199a219d3e2f7a10cef8c47ccee426e5796d0a"
   },
   "bellman_ford_inputs.snap-email-Eu-core-temporal-Dept1": {
     "digest": "1ee9afcc7b56855f70079e2456652eb3e1c4c9d01e4943d471b507841e6f830a",
     "file": "src/saps/benchmarks/bellmanford.py",
-    "freshness": "6a3548a4f0da138edcc7992029f62c715d312125d82494edac97b031eae22bed"
+    "freshness": "ba860bfe5c07ee2fec50ddc38a199a219d3e2f7a10cef8c47ccee426e5796d0a"
   },
   "bellman_ford_inputs.snap-email-Eu-core-temporal-Dept2": {
     "digest": "2314ee33b50ebb1d0b7c5e346ee14f8f3163ec73814fac5a74f107edd29d4a11",
     "file": "src/saps/benchmarks/bellmanford.py",
-    "freshness": "6a3548a4f0da138edcc7992029f62c715d312125d82494edac97b031eae22bed"
+    "freshness": "ba860bfe5c07ee2fec50ddc38a199a219d3e2f7a10cef8c47ccee426e5796d0a"
   },
   "bellman_ford_inputs.snap-email-Eu-core-temporal-Dept3": {
     "digest": "6ff37f043e349d4b1a29b28465d6a102ee0b4fd7e4842dc7c59100f8f14817d0",
     "file": "src/saps/benchmarks/bellmanford.py",
-    "freshness": "6a3548a4f0da138edcc7992029f62c715d312125d82494edac97b031eae22bed"
+    "freshness": "ba860bfe5c07ee2fec50ddc38a199a219d3e2f7a10cef8c47ccee426e5796d0a"
   },
   "bellman_ford_inputs.snap-email-Eu-core-temporal-Dept4": {
     "digest": "da4b25dbe54818f9804d49c2345ef4a92a3e0b8d1b4edb55dfc39b73373c54dc",
     "file": "src/saps/benchmarks/bellmanford.py",
-    "freshness": "6a3548a4f0da138edcc7992029f62c715d312125d82494edac97b031eae22bed"
+    "freshness": "ba860bfe5c07ee2fec50ddc38a199a219d3e2f7a10cef8c47ccee426e5796d0a"
   },
   "betweenness_centrality_inputs.snap-email-Eu-core-temporal-Dept3": {
     "digest": "09ceb5c6e614296ff002f4a8828e315e0ee33aae6737023bc3c700af32ea8767",
     "file": "src/saps/benchmarks/centrality.py",
-    "freshness": "3131cb1e8b2f0197ae455cec6e9565ff6e6a085276e74ef22f39505ecc9477fa"
+    "freshness": "0ff69fc75ed1a7fbddde70c5d2d3248e5d616007dc68842a00bc28a8530eb035"
   },
   "betweenness_centrality_inputs.snap-email-Eu-core-temporal-Dept4": {
     "digest": "e79ba16eb1ac279a5e13868ed815df02595f2bbe8ccf2d8575b6b4a231749860",
     "file": "src/saps/benchmarks/centrality.py",
-    "freshness": "3131cb1e8b2f0197ae455cec6e9565ff6e6a085276e74ef22f39505ecc9477fa"
+    "freshness": "0ff69fc75ed1a7fbddde70c5d2d3248e5d616007dc68842a00bc28a8530eb035"
   },
   "bfs_inputs.snap-ca-GrQc": {
     "digest": "62fa479f8b618cec74a33136fd25bca39f2d35eaae83e3c045cc2935617e2708",
     "file": "src/saps/benchmarks/BFS.py",
-    "freshness": "e3be657e1fe849f6df0a081646d722c79b6e7e0fdc7607830af36200ef2f9d3b"
+    "freshness": "7de66646497c16ab1a5ec1c325af48054529f9ea144d912a49ca0dc86c6f792b"
   },
   "bfs_inputs.snap-email-Eu-core": {
     "digest": "60e8017091422dbe6cecf164079ffd94bd0e35c6a1d39a37e55921c452219ae4",
     "file": "src/saps/benchmarks/BFS.py",
-    "freshness": "e3be657e1fe849f6df0a081646d722c79b6e7e0fdc7607830af36200ef2f9d3b"
+    "freshness": "7de66646497c16ab1a5ec1c325af48054529f9ea144d912a49ca0dc86c6f792b"
   },
   "bfs_inputs.snap-facebook_combined": {
     "digest": "14be6f071e39f55fd6317ddebbcad590d0b68c4126da7c1e6e768fa7bb473659",
     "file": "src/saps/benchmarks/BFS.py",
-    "freshness": "e3be657e1fe849f6df0a081646d722c79b6e7e0fdc7607830af36200ef2f9d3b"
+    "freshness": "7de66646497c16ab1a5ec1c325af48054529f9ea144d912a49ca0dc86c6f792b"
   },
   "bfs_inputs.snap-p2p-Gnutella04": {
     "digest": "3964696369f5d2453627de556f43840e79c11e1cf484abde875ff80369660a5a",
     "file": "src/saps/benchmarks/BFS.py",
-    "freshness": "e3be657e1fe849f6df0a081646d722c79b6e7e0fdc7607830af36200ef2f9d3b"
+    "freshness": "7de66646497c16ab1a5ec1c325af48054529f9ea144d912a49ca0dc86c6f792b"
   },
   "cg_inputs.Chem97ZtZ": {
     "digest": "41a860e39db9fd69b632d1f300c58e858d589702063c48bea1004ffc42b0eb0d",
@@ -97,42 +97,42 @@
   "connected_components_inputs.snap-ca-GrQc": {
     "digest": "62fa479f8b618cec74a33136fd25bca39f2d35eaae83e3c045cc2935617e2708",
     "file": "src/saps/benchmarks/connected_components.py",
-    "freshness": "e1c2d896af05fa6ec5fd24af01f669be05962e5fe6c0089c29a55cc8683d197f"
+    "freshness": "01bcc835a9e59cec3c8f5d8902ab9d1def44d52c065150af2905fb531145d8dd"
   },
   "connected_components_inputs.snap-email-Eu-core": {
     "digest": "60e8017091422dbe6cecf164079ffd94bd0e35c6a1d39a37e55921c452219ae4",
     "file": "src/saps/benchmarks/connected_components.py",
-    "freshness": "e1c2d896af05fa6ec5fd24af01f669be05962e5fe6c0089c29a55cc8683d197f"
+    "freshness": "01bcc835a9e59cec3c8f5d8902ab9d1def44d52c065150af2905fb531145d8dd"
   },
   "connected_components_inputs.snap-facebook_combined": {
     "digest": "14be6f071e39f55fd6317ddebbcad590d0b68c4126da7c1e6e768fa7bb473659",
     "file": "src/saps/benchmarks/connected_components.py",
-    "freshness": "e1c2d896af05fa6ec5fd24af01f669be05962e5fe6c0089c29a55cc8683d197f"
+    "freshness": "01bcc835a9e59cec3c8f5d8902ab9d1def44d52c065150af2905fb531145d8dd"
   },
   "fastsv_inputs.snap-ca-GrQc": {
     "digest": "62fa479f8b618cec74a33136fd25bca39f2d35eaae83e3c045cc2935617e2708",
     "file": "src/saps/benchmarks/fastsv.py",
-    "freshness": "3d0a5ff130007c4559e94b0d746fa3dbf8f8f20408a0c72812c239fb30f9849a"
+    "freshness": "0e51da1755dfac30984fec028a4ed38535fcb113b1ce27418444b30de06087be"
   },
   "fastsv_inputs.snap-email-Eu-core": {
     "digest": "60e8017091422dbe6cecf164079ffd94bd0e35c6a1d39a37e55921c452219ae4",
     "file": "src/saps/benchmarks/fastsv.py",
-    "freshness": "3d0a5ff130007c4559e94b0d746fa3dbf8f8f20408a0c72812c239fb30f9849a"
+    "freshness": "0e51da1755dfac30984fec028a4ed38535fcb113b1ce27418444b30de06087be"
   },
   "fastsv_inputs.snap-facebook_combined": {
     "digest": "14be6f071e39f55fd6317ddebbcad590d0b68c4126da7c1e6e768fa7bb473659",
     "file": "src/saps/benchmarks/fastsv.py",
-    "freshness": "3d0a5ff130007c4559e94b0d746fa3dbf8f8f20408a0c72812c239fb30f9849a"
+    "freshness": "0e51da1755dfac30984fec028a4ed38535fcb113b1ce27418444b30de06087be"
   },
   "finite_difference_inputs_2d.fd2d_realistic_scale": {
     "digest": "aa1b09bc9105565c8f340349261acc97544dc295394b265a6987faac362b87ef",
     "file": "src/saps/benchmarks/Finite_Difference_2D.py",
-    "freshness": "50eba75c0460cbbdb61eb0b6422f510cc386a47398a535026a3fc5d343fdf669"
+    "freshness": "965b48c241c9c2bbc6bb554acf97b0e8680293ce4442d3ff908da022a95e8bf3"
   },
   "finite_difference_inputs_2d.fd2d_test_scale": {
     "digest": "97a7fcd87b7d947f6a7b893e7b3fa720cd5fb6c9645f316f17905230babb0e8d",
     "file": "src/saps/benchmarks/Finite_Difference_2D.py",
-    "freshness": "3cd3b0240eb9b255a65613473d981b33801987f4cc50607e4c7195f4060aac55"
+    "freshness": "965b48c241c9c2bbc6bb554acf97b0e8680293ce4442d3ff908da022a95e8bf3"
   },
   "floyd_warshall_inputs.arc130": {
     "digest": "e9e68ff1e4093d21929adde4bd2712ba6629461f94dd9661a339b75d32bd0092",
@@ -177,147 +177,152 @@
   "four_clique_count_inputs.snap-email-Eu-core-temporal-Dept3": {
     "digest": "09ceb5c6e614296ff002f4a8828e315e0ee33aae6737023bc3c700af32ea8767",
     "file": "src/saps/benchmarks/four_clique_counting.py",
-    "freshness": "bc3a35368a7474d4162742a9891eef0d146ebf0eb7cbc7258d62ca443e0817c3"
+    "freshness": "fff56b30c3e2766d52a10ade9c7920945f4cd9f7c20463fada7ffe76d11b45ff"
   },
   "four_clique_count_inputs.snap-email-Eu-core-temporal-Dept4": {
     "digest": "e79ba16eb1ac279a5e13868ed815df02595f2bbe8ccf2d8575b6b4a231749860",
     "file": "src/saps/benchmarks/four_clique_counting.py",
-    "freshness": "bc3a35368a7474d4162742a9891eef0d146ebf0eb7cbc7258d62ca443e0817c3"
+    "freshness": "fff56b30c3e2766d52a10ade9c7920945f4cd9f7c20463fada7ffe76d11b45ff"
   },
   "frostt_tensor.amazon_reviews": {
     "digest": "7454c7ff19c3d15d415e9df3bc69cc1805e91763f53f5f558841dd4b70bde75b",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.chicago_crime_comm": {
     "digest": "8942296590254f5dc88464779871e457593556ac799f87860ec40e92efd3f413",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.chicago_crime_geo": {
     "digest": "25908f750c43609021db9616ee140e026602a3ad7bd2ddb237f2c82ea88c58c9",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.darpa": {
     "digest": "336e53f9a9e9f5ddfa1c5c619f6025cba7c64dc15e3a5a376dc5433776988855",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.delicious_3d": {
     "digest": "18138db16f67272c04cd70f8898af690110272db1754407dfcdace640bd2e9cc",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.delicious_4d": {
     "digest": "6f965261f1820c6f0d5eeed483bbef0f8ae1b7032f7e0934093bd64ae1be33b4",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.enron": {
     "digest": "6dce9fd0bb960ea396d4f58c01cba8df59e304889764292255241b5639670840",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.fb_m": {
     "digest": "048e4352889357f3a3601a2684f60cd4d48296d520d0554b7873a4db95a7552e",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.flickr_3d": {
     "digest": "fc0e96a348aba517bffc64afbe38d2011af1c8670d5746031b667b6fad786aea",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.flickr_4d": {
     "digest": "4a35ee167394e38e68bbcac81d8de1634ca64c93b4f2cb439fe014725c98dd5e",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.lanl2": {
     "digest": "22071bc6a23e19d4be99adad77dcfc6b40a82ebf59d3dbfcbc3d947f7ed4730d",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.lbnl_network": {
     "digest": "10ca16d6f2ae2e94b21447a43e83d193111d0afacf8d62718f954e04a8908e66",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.matmul_2_2_2": {
     "digest": "a0bf1905df6f567ff4c727597237bfd1892b314572c4f8c703b8fb233b931d34",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.matmul_3_3_3": {
     "digest": "283905c41052ec318035a2a430baec4483422d405581ffbfdc329c326e49d9ff",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.matmul_4_3_2": {
     "digest": "459ce4bf1fdd1fca4a91e326ae3b7f07daccae7f544c833088cc6f05f1ec0aad",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.matmul_4_4_3": {
     "digest": "785c308963726dc11b5423d308eb658f0a75db232428e8c3f06308a0864b9a4c",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.matmul_4_4_4": {
     "digest": "f7bc650300fc7c525cbc961711418fceb582f7174fc5986f9ecf69f0a48dd3ba",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.matmul_5_5_5": {
     "digest": "f1845e7e12c08886642802f9b1e0a3f3d83f7050f2853a33da59d157390fa5df",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.matmul_6_3_3": {
     "digest": "853cb0b00663b503b75100a496837aad97ac76226e537fce47aca35fc88644e7",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.nell_1": {
     "digest": "59ab7a07a4465e86d8bb5fdd7100057f0c80bcd7cc3b878c73663fa3fdce8573",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.nell_2": {
     "digest": "b33af0fd70c23f12b1f02add4e60f576107ea4610b55ed9f3612888bf98ab177",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.nips": {
     "digest": "fc4cbb8a8c3e3e28aa08f885c29f83fc61bf0e6a86d2ca2aa6d1fffbbaa19160",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.patents": {
     "digest": "e8c0aa8a789f2e86ff1c03b71d505e78b3c1e6d8873273d0b96324b605ce055b",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
+  },
+  "frostt_tensor.reddit_2015": {
+    "digest": "31b59b273c58134576ffef03d5e389f83369087723c4215cd2a35886547d7be7",
+    "file": "src/saps/benchmarks/frostt.py",
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.toy": {
     "digest": "749d6b5073f84e6b390e6ce0ba2771424f747cf57cae66699ffd275b313616d3",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.uber_pickups": {
     "digest": "132d42539eb09ab3e1e9de240f3f9c52a8c5fd4249ce2de0bd471ee9446d4e1f",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.vast_2015_mc1_3d": {
     "digest": "afd21b8e02cbd3485ba3698efcc35facd3d3540e85247615e9803125c566ba6d",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "frostt_tensor.vast_2015_mc1_5d": {
     "digest": "8feeaeacdf080d5422041056d27bb78da72a6f151c07b55016f09cd2b4ffea8b",
     "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "3d04aef01258d262d120d7ed49abc838e9ec3856991e885c24c76b5b1c60f2bb"
+    "freshness": "b0d077a7d2ccb162eb81e4542fdb1878910b05fff0bb2a554b2d65f881d59a19"
   },
   "gcn_weights.dg_gcn_bcsstk01": {
     "digest": "03dbf5aa90ed1de70493b3fbce09f073d73f01a8ebf79d7e263278677edbbc67",
@@ -402,17 +407,17 @@
   "hosvd_4d_sparse_inputs.small_sparse_4d": {
     "digest": "d2bf3957e898d7163399112396dc34658153c89d126d017e374654612cef9dec",
     "file": "src/saps/benchmarks/HOSVD_4d.py",
-    "freshness": "07f6155b98936e04963df7c66540eacb49f6dd2da91d4788635ab80ab0ae45ba"
+    "freshness": "2265670ff5b81bdefc51d4bdd1dd13659c00172191a9dc553f56d257df3bd4aa"
   },
   "hosvd_5d_sparse_inputs.small_sparse_5d": {
     "digest": "546c0a918b6d07da7b5281c28522deacc796cff6319536e77f2f2611c30aee68",
     "file": "src/saps/benchmarks/HOSVD_5d.py",
-    "freshness": "d4700ca98ca75dcd4f25d1ee0a166237902ad45cba096393b06470faf1185a3d"
+    "freshness": "9cbfcc7805d7f8709d6855807bb215bafb30379b84e6add3a52957bb2938ddd4"
   },
   "hosvd_sparse_inputs.small_sparse": {
     "digest": "2586f27357ee9b8f4939a45448b84710ca22df540c502383d8db056353e31774",
     "file": "src/saps/benchmarks/HOSVD.py",
-    "freshness": "e34b8680dd072cf92b9cc659e078c8b0d2fd92961968511dd93d6858977aa378"
+    "freshness": "d5a845d1675be2c22fb1ee395092733537665dd3498977863a8915489035eedb"
   },
   "jacobi_inputs.Chem97ZtZ": {
     "digest": "41a860e39db9fd69b632d1f300c58e858d589702063c48bea1004ffc42b0eb0d",
@@ -457,17 +462,17 @@
   "jl_projection_inputs.large": {
     "digest": "de53f1538f822caa3f25bf26176a62723f8e2f1e545bbeca12138919f5b10e8a",
     "file": "src/saps/benchmarks/approx_nn.py",
-    "freshness": "0304e43295681ad0d3b15025aaf0d9097c87cf2ba2f872c22e6a2813b2a9d8ba"
+    "freshness": "a52983ef01175163cb3993925ba1dbdae9fd862fa73aa2287a37a38e6ff1e01b"
   },
   "jl_projection_inputs.medium": {
     "digest": "219d4ee08de32ad3e2b21d3b1cd2ce8a871f4cf88cf47b03edc97f4b4fae06a5",
     "file": "src/saps/benchmarks/approx_nn.py",
-    "freshness": "0304e43295681ad0d3b15025aaf0d9097c87cf2ba2f872c22e6a2813b2a9d8ba"
+    "freshness": "a52983ef01175163cb3993925ba1dbdae9fd862fa73aa2287a37a38e6ff1e01b"
   },
   "jl_projection_inputs.small": {
     "digest": "0b5c2b5c62c1a976f6c6d6c01fb21f4337499496614d9e27404a72473565d106",
     "file": "src/saps/benchmarks/approx_nn.py",
-    "freshness": "0304e43295681ad0d3b15025aaf0d9097c87cf2ba2f872c22e6a2813b2a9d8ba"
+    "freshness": "a52983ef01175163cb3993925ba1dbdae9fd862fa73aa2287a37a38e6ff1e01b"
   },
   "lsqr_inputs.Maragal_5": {
     "digest": "667db072410cc6b3a2e682f5f6d2c7282020cccabb4316ee32c18fef83702942",
@@ -502,22 +507,22 @@
   "masked_mri_inputs.masked_mri_1": {
     "digest": "61079b5db20a7c02293485335d7f89fec5da762c8a758993e46066edc856ce2e",
     "file": "src/saps/benchmarks/mri_edge.py",
-    "freshness": "385d54d5a709538caeb4c414f6aa40dd838b5a5948d5baa1eb55c8c31b1a21e8"
+    "freshness": "d2abee4e079a006b0ea36292c36ce55d26b20fe35ee315a4d8d68c68ad12440d"
   },
   "masked_mri_inputs.masked_mri_2": {
     "digest": "153d2752b17fc8a5f634d2eda9d02ab76d2c14f69279d49acaf077d2c1ffdd11",
     "file": "src/saps/benchmarks/mri_edge.py",
-    "freshness": "385d54d5a709538caeb4c414f6aa40dd838b5a5948d5baa1eb55c8c31b1a21e8"
+    "freshness": "d2abee4e079a006b0ea36292c36ce55d26b20fe35ee315a4d8d68c68ad12440d"
   },
   "masked_mri_inputs.masked_mri_3": {
     "digest": "498a446edfd3be8e62c74dd06a10e2e0129fb9917798ccf98ba332ba2240c048",
     "file": "src/saps/benchmarks/mri_edge.py",
-    "freshness": "385d54d5a709538caeb4c414f6aa40dd838b5a5948d5baa1eb55c8c31b1a21e8"
+    "freshness": "d2abee4e079a006b0ea36292c36ce55d26b20fe35ee315a4d8d68c68ad12440d"
   },
   "masked_mri_inputs.masked_mri_4": {
     "digest": "fdde51414311f9423c0cbe947901579a17021d3725a72bd97e34388e4f033973",
     "file": "src/saps/benchmarks/mri_edge.py",
-    "freshness": "385d54d5a709538caeb4c414f6aa40dd838b5a5948d5baa1eb55c8c31b1a21e8"
+    "freshness": "d2abee4e079a006b0ea36292c36ce55d26b20fe35ee315a4d8d68c68ad12440d"
   },
   "mcl_inputs.Trefethen_200": {
     "digest": "7322f87c45f183d5e602b4ecc231b7763e957a4687a0cc521e4d3920ddf69d0e",
@@ -562,321 +567,326 @@
   "mri_sobel_inputs.mri_sobel_1": {
     "digest": "8154ca3f948e1a3477bdd6b82ace73903391aaef7d772c6badcd3e00e371c36a",
     "file": "src/saps/benchmarks/sobel_edge.py",
-    "freshness": "1821df20fa4f15b9fa188df35c676d18c103cff5b030871e9ddcaf31d454cc4a"
+    "freshness": "9de2403671770d9b1e529a9f19f190f3202b7c76ed821156716f2e2bfb2f70ab"
   },
   "mri_sobel_inputs.mri_sobel_2": {
     "digest": "221299129af5c3333d73352b640965795eb254ec42c20ccae55318cc94782062",
     "file": "src/saps/benchmarks/sobel_edge.py",
-    "freshness": "1821df20fa4f15b9fa188df35c676d18c103cff5b030871e9ddcaf31d454cc4a"
+    "freshness": "9de2403671770d9b1e529a9f19f190f3202b7c76ed821156716f2e2bfb2f70ab"
   },
   "mri_sobel_inputs.mri_sobel_3": {
     "digest": "af976e3c9008ca9ab784cd4e71cab6e1ed82bcadd811128e0cf3f7a73892aa6a",
     "file": "src/saps/benchmarks/sobel_edge.py",
-    "freshness": "1821df20fa4f15b9fa188df35c676d18c103cff5b030871e9ddcaf31d454cc4a"
+    "freshness": "9de2403671770d9b1e529a9f19f190f3202b7c76ed821156716f2e2bfb2f70ab"
   },
   "mri_sobel_inputs.mri_sobel_4": {
     "digest": "2e0e1331c421d7468766132ec9b8697aa1f4620cc1320682d2d32f0e1eb86ced",
     "file": "src/saps/benchmarks/sobel_edge.py",
-    "freshness": "1821df20fa4f15b9fa188df35c676d18c103cff5b030871e9ddcaf31d454cc4a"
+    "freshness": "9de2403671770d9b1e529a9f19f190f3202b7c76ed821156716f2e2bfb2f70ab"
   },
   "pagerank_inputs.snap-ca-GrQc": {
     "digest": "62fa479f8b618cec74a33136fd25bca39f2d35eaae83e3c045cc2935617e2708",
     "file": "src/saps/benchmarks/pagerank.py",
-    "freshness": "5ff88e7edb0c4935f2c4dd9500ba1778b2c360a9cde6a3168833aaa6867c9257"
+    "freshness": "1f4ef9df397066206d2da680ea74fad73ea63c80dc10c530165a8d59a7543cac"
   },
   "pagerank_inputs.snap-email-Eu-core": {
     "digest": "60e8017091422dbe6cecf164079ffd94bd0e35c6a1d39a37e55921c452219ae4",
     "file": "src/saps/benchmarks/pagerank.py",
-    "freshness": "5ff88e7edb0c4935f2c4dd9500ba1778b2c360a9cde6a3168833aaa6867c9257"
+    "freshness": "1f4ef9df397066206d2da680ea74fad73ea63c80dc10c530165a8d59a7543cac"
   },
   "pagerank_inputs.snap-p2p-Gnutella04": {
     "digest": "3964696369f5d2453627de556f43840e79c11e1cf484abde875ff80369660a5a",
     "file": "src/saps/benchmarks/pagerank.py",
-    "freshness": "5ff88e7edb0c4935f2c4dd9500ba1778b2c360a9cde6a3168833aaa6867c9257"
+    "freshness": "1f4ef9df397066206d2da680ea74fad73ea63c80dc10c530165a8d59a7543cac"
   },
   "quantum_state_inputs.single_layer_small": {
     "digest": "3ab2058013a54c269fd10477c9907970a358c7279fb656fe4bfac2941ce1154c",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "90e4b82180fa23cfdd4f51e7b62c52c9e23108d099287c67dd20df2fa01c1fe3"
+    "freshness": "f570733965daceb4a8f4679c871a195379f1700f308bd7b7ddffceb99d6e3acb"
   },
   "quantum_state_inputs.single_layer_tiny": {
     "digest": "7eb9373e2e5cb56ad0b6876d0970d811cd530657f03fb177681b49fe4d960fe7",
     "file": "src/saps/benchmarks/quantum.py",
-    "freshness": "90e4b82180fa23cfdd4f51e7b62c52c9e23108d099287c67dd20df2fa01c1fe3"
+    "freshness": "f570733965daceb4a8f4679c871a195379f1700f308bd7b7ddffceb99d6e3acb"
   },
   "subgraph_gcare_graph.aids": {
     "digest": "429e67ac75ade31fd9128b4dd16b40154bee2c3a605ba44328044b8c432fecb6",
     "file": "src/saps/benchmarks/subgraph_matching.py",
-    "freshness": "adc3942bda02f3304f27c91d3b486c8d62990f9c6a264f30e78e121f3620a59e"
+    "freshness": "d0bd5320df472cff043938c460e628f3e0474305bc5fd04e4f7ce30e24f62ff5"
   },
   "subgraph_gcare_graph.human": {
     "digest": "84fc286b32188899beb91f28794a15a305ed73bb19f05e099d005b820b3c41e4",
     "file": "src/saps/benchmarks/subgraph_matching.py",
-    "freshness": "adc3942bda02f3304f27c91d3b486c8d62990f9c6a264f30e78e121f3620a59e"
+    "freshness": "d0bd5320df472cff043938c460e628f3e0474305bc5fd04e4f7ce30e24f62ff5"
   },
   "subgraph_gcare_graph.lubm80": {
     "digest": "c51bf1ef4a0cebe04e95541fb2835498b1ea29e1068fb248ce37acfe02f4f663",
     "file": "src/saps/benchmarks/subgraph_matching.py",
-    "freshness": "adc3942bda02f3304f27c91d3b486c8d62990f9c6a264f30e78e121f3620a59e"
+    "freshness": "d0bd5320df472cff043938c460e628f3e0474305bc5fd04e4f7ce30e24f62ff5"
   },
   "subgraph_gcare_graph.yago": {
     "digest": "e0d429f2806fdf01ea3bb515c25ffe760dc1d0a5544559fff9a63eb047a85be9",
     "file": "src/saps/benchmarks/subgraph_matching.py",
-    "freshness": "adc3942bda02f3304f27c91d3b486c8d62990f9c6a264f30e78e121f3620a59e"
+    "freshness": "d0bd5320df472cff043938c460e628f3e0474305bc5fd04e4f7ce30e24f62ff5"
   },
   "suitesparse_matrix.Chebyshev3": {
     "digest": "361d5a9ee337644b5c6ea41ec65a9182dd95c90df4a7ced4f8a08a106a9931a8",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.Chem97ZtZ": {
     "digest": "f7871ee975263e8471be67911e8b927e66ea4bc679e990333df4a93bb23d1eae",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.Dubcova1": {
     "digest": "cf43c0d31d1f503ac87675e7cd2ef2b0aec5743431d6ee9eb7aa3d9d1ac43ed5",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.Maragal_5": {
     "digest": "96605a0daca4c946de933640f78eb7125d938c83fb446c41d15e819f1d47e796",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.Muu": {
     "digest": "18ff8988f18f7fd10afc03424298c94804088f6085d836d2bcd449eae892ca0c",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.Trefethen_200": {
     "digest": "3d3b0a8b052d6e43cf2d68950408bca7b954cf6305118d5f2fce281e85a8f74e",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.Trefethen_20000": {
     "digest": "0dbe9dd2e65307dc8c525df356b8c41da604247e2a963dbed05d910887657047",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.Trefethen_500": {
     "digest": "f14df3d40548deaf905aa8e5a37d5554c6445ee9c2ba271da74de4af2abd5703",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.Trefethen_700": {
     "digest": "d9aba44f56ba0b378fdc1b95e8a99bb86877f761dee0330d010fd8721e3ba31d",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.abb313": {
     "digest": "c52eca727ce2cf300f7f5acf718fd77041df4addacd0f1b8c09249d628f712e8",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.arc130": {
     "digest": "8c5b94ce82506b60626ef2da755b650f9ee9ead2df15d34880aff7189fdf3af9",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.ash292": {
     "digest": "21157e11a96ccf7b5858bee801ba8e1ab990b4470fb735cf5353c48a12aa6e88",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.ash85": {
     "digest": "681b50afb273b1d152fc88aa1f934432bbc1c030c3dd0b9634bb9aa8e71099bd",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.ash958": {
     "digest": "8fccc96d6b919f03487938f17a37e16797c43d102b2489b821df057f65ae04f0",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.bayer06": {
     "digest": "53c70710e5ea72caa7ad54a8b085df411ab7595ddf2b935f22e9e4a9295a054d",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.bcspwr01": {
     "digest": "0065089d7a46deaa3c0986295c9b6ff3a2370f57d7bfa87666a2a3bd410b33ba",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.bcspwr02": {
     "digest": "dc316ff9b097ae04a819ee4662be8e68c1dc006b8af0b25f8a70764d6d758906",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.bcspwr03": {
     "digest": "339b3edebf6410660778e68fc0ed2486b25c398e54a87c75efe63c140c4da686",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.bcspwr04": {
     "digest": "008bc0a862105322ed8addcd4da421c616701d57b1b9d83243dfea84ccb3462e",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.bcsstk01": {
     "digest": "d48af6f2f9ca48fb5839bad2c65d8457d3f2dd471d2d01c38aa2b6d9ce422a7a",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.bcsstk05": {
     "digest": "95f5093d042fd0cc530d779a2e0aa02371797400792709322414edec3705791f",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.bcsstk09": {
     "digest": "3ca570170f434c836364f2ee3f760d74769037ed37f8702973a75068b06ee5e5",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.bcsstm02": {
     "digest": "cbb5bbfac287cd2ed5d962e409e918a44d2a5fc897b6f73d9c9bd652e549ed63",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.bcsstm12": {
     "digest": "a83be1e7cac4863f169967f633621c172b069988959a74758072d9a58e3d3918",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.ca-GrQc": {
     "digest": "4299f62f276ba6429e3351a74e168e5acf5c72a62ba2d83052efc922ba18aa77",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.ca-HepPh": {
     "digest": "215fd4814a41939834e25946b653c64cee9f6f01627520f6c24b95bd1f47c59b",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.chesapeake": {
     "digest": "969c6b66b87e3bf18a174084e41eb2330113a2392e9c4138632530842f9b8984",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.dolphins": {
     "digest": "81b3f52d497f1b0ca706158fd0a96058d178a8e53fcb2150648382dcca0b2184",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.dwt_59": {
     "digest": "8014a47729ef608a6345551878abc71039b99755989b40d0f9b9208f2f796d7f",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.email": {
     "digest": "429d00f23464a942ac3e14c5d86b829520f5fb7ed008a0654aca1f7234dc03f4",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.fv1": {
     "digest": "78d123fcddc944197d57b2a05e9d4b01d46307f73ddea172d691fe9eb301cac6",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.fv2": {
     "digest": "e1abc66d3b50d1f93f3fffbbb6756673b2332189397586b6f58d8bfebbb175e7",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.gap-kron": {
     "digest": "e20df3678a5e9dcd03f460f987f23cb2ff062efee430c2e9046abb4a713affe8",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.gap-road": {
     "digest": "fef2b657b8f2c2a97ba9125a7d91e5f70104628a29be4f7b166f747fb5c0e893",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.gap-twitter": {
     "digest": "88b80c1cec7dfceb71e2d445b14b2d54b5dd00784d107eadea7518e4732dd4f8",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
+  },
+  "suitesparse_matrix.gap-urand": {
+    "digest": "9cb5d8eb53e5a2e9184a9caa74d397c70282ffa9c689ec68d50699499d25c913",
+    "file": "src/saps/benchmarks/suitesparse.py",
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.gap-web": {
     "digest": "4fa1c7655df5a68dc752b7d379c62c2bd1fba62ee0f68ab6ee1f971770e3cd87",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.illc1850": {
     "digest": "de9b39ca3f0e181dbebcf399155d40938575642f5efab6889f2b156fe20c915d",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.karate": {
     "digest": "b561c6974586bbf22fbfb69e5e976dc408979ca64ae2735999856ff79a5f186a",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.lund_b": {
     "digest": "57f85712059fe6d8af24db5cc2d3eb07c16a0aa8fefbddd624182ac5608d83ae",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.mesh1em1": {
     "digest": "f1cbbc548c199897e7e7f79e9c0025c3eb61942470ff39ab8a0137dd2ab9d594",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.mesh3em5": {
     "digest": "db3d35e823043d055c4a2b5c7b584ce670c3a3a82533f66842ada70f5e02eefa",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.mhdb416": {
     "digest": "30c5668a9e5145bf7a1745e621edb873f4e6a27c4c368590516cf6e8f340fe92",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.nos1": {
     "digest": "0ab82b2f4d1a27c1a38c655c43401f4774945b0d9814fe0db9c08c457326297b",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.nos2": {
     "digest": "e86e4a636b18346d81ef7c4f7fdf04a46be7bc925689d06e921169410d4d3943",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.nos3": {
     "digest": "1090dc2cc9c27c0d7f3ef2704cc63d3d9a4939cf18d863a00960d59a520a4577",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.t3dl_e": {
     "digest": "3d487172b9961383fc579ceb84059ee933a8f8858e663db456ecd665d8e01d86",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "suitesparse_matrix.well1033": {
     "digest": "9c05aacfa3045e5238ec8f4336d974ad0e6ea8b24ecebcc0f64f8128e4d3c4e1",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "98b79873bf8bf001e9edebba1066de0826f4a0a516ecdcca7b516366b0b13c7a"
+    "freshness": "6cab9fc3cfa9a3e90f4d506ac7be5a3f99f24e2d95ee1f2931b141debbee1b1f"
   },
   "transitive_closure_inputs.snap-ca-GrQc": {
-    "digest": "08313a59e989412ea70e669455f2512971690ede9f8a39a368b8cf724d81bbea",
+    "digest": "62fa479f8b618cec74a33136fd25bca39f2d35eaae83e3c045cc2935617e2708",
     "file": "src/saps/benchmarks/transitive_closure.py",
-    "freshness": "e8390c6f8ad11405959f2b5b41206e9a13544c0be3be38e0f8c1d9856da2c6b7"
+    "freshness": "aef9a6e01fb3b27fdb869b751906827dfc9075b2b44a6fb0cd400e529e3f5cbf"
   },
   "transitive_closure_inputs.snap-email-Eu-core": {
-    "digest": "0564677eba2fa380f23c18bac419183ec4621318d8810a94b2082f6aad45f0ca",
+    "digest": "60e8017091422dbe6cecf164079ffd94bd0e35c6a1d39a37e55921c452219ae4",
     "file": "src/saps/benchmarks/transitive_closure.py",
-    "freshness": "e8390c6f8ad11405959f2b5b41206e9a13544c0be3be38e0f8c1d9856da2c6b7"
+    "freshness": "aef9a6e01fb3b27fdb869b751906827dfc9075b2b44a6fb0cd400e529e3f5cbf"
   },
   "triangle_count_inputs.snap-ca-GrQc": {
-    "digest": "08313a59e989412ea70e669455f2512971690ede9f8a39a368b8cf724d81bbea",
+    "digest": "62fa479f8b618cec74a33136fd25bca39f2d35eaae83e3c045cc2935617e2708",
     "file": "src/saps/benchmarks/triangle_counting.py",
-    "freshness": "2078647f32d7a0151aa06312932aaf6e7cb980c0808d01cac71d14520c2b732e"
+    "freshness": "bac3c05911b1f08b79c1353ea9ef864aac0317770cc9c4d21224eb88ef9816d6"
   },
   "triangle_count_inputs.snap-email-Eu-core": {
-    "digest": "0564677eba2fa380f23c18bac419183ec4621318d8810a94b2082f6aad45f0ca",
+    "digest": "60e8017091422dbe6cecf164079ffd94bd0e35c6a1d39a37e55921c452219ae4",
     "file": "src/saps/benchmarks/triangle_counting.py",
-    "freshness": "2078647f32d7a0151aa06312932aaf6e7cb980c0808d01cac71d14520c2b732e"
+    "freshness": "bac3c05911b1f08b79c1353ea9ef864aac0317770cc9c4d21224eb88ef9816d6"
   }
 }
