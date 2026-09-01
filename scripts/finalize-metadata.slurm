@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-#SBATCH --job-name=statistics-finalize
+#SBATCH --job-name=metadata-finalize
 #SBATCH --nodes=1
 #SBATCH --mem=4G
 #SBATCH --time=00:30:00
-#SBATCH --output=merge-statistics-%j.log
+#SBATCH --output=finalize-metadata-%j.log
 
 set -euo pipefail
 

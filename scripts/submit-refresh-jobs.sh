@@ -59,7 +59,7 @@ merge_job_id=$(
     --dependency="afterok:$trace_job_id" \
     --chdir "$repo_directory" \
     --export=ALL,SAPS_TRACE_CHUNK_COUNT="$trace_chunk_count",SAPS_REPO_DIRECTORY="$repo_directory" \
-    "$script_directory/merge-statistics.slurm"
+    "$script_directory/finalize-metadata.slurm"
 )
 
 cat <<EOF
