@@ -216,6 +216,9 @@ Datasets get traced when their generated metadata has the `trace` tag. Tracing e
 poetry run ./bin/generate_metadata.py --statistics statistics.json
 ```
 
+Dataset caching and statistics tracing append diagnostics to
+`.saps/outputs/results/diagnostics.log`.
+
 ## Contributing Benchmarks
 
 If you want to add a benchmark or generator, start with [CONTRIBUTING.md](CONTRIBUTING.md). It describes how to claim a benchmark, what counts as a benchmark function, what metadata and correctness evidence are required, how freshness works, how to choose dataset tags, and how the generative AI disclosure policy applies.

@@ -382,6 +382,9 @@ def main() -> int:
         },
     )
     matrix.setdefault("env_nobuild", {})
+    log_path = str(outputs_dir / "results" / "diagnostics.log")
+    os.environ["SAPS_LOG_PATH"] = log_path
+    matrix["env_nobuild"]["SAPS_LOG_PATH"] = [log_path]
     storage_backend = args.remote_storage_backend or DEFAULT_REMOTE_STORAGE_BACKEND
     storage_bucket = args.remote_storage_bucket or DEFAULT_REMOTE_STORAGE_BUCKET
     if (

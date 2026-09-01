@@ -1,5 +1,6 @@
 import inspect
 import json
+import logging
 import os
 import re
 import xml.etree.ElementTree as ET
@@ -172,6 +173,13 @@ def _write_statistics_tags(
     statistics_path.write_text(
         json.dumps(document, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
+    )
+    logging.getLogger("saps.work").info(
+        "traced %s.%s.%s: %s",
+        benchmark_name,
+        generator_name,
+        dataset_name,
+        ", ".join(tags),
     )
 
 
@@ -369,13 +377,18 @@ class Benchmark(Tagged, Attributed, Motivated):
     param_names = ["dataset"]
 
     def setup(self, param, *, use_cache: bool = True, xp: Framework | None = None):
-        import logging
-
         if not logging.getLogger().handlers:
             logging.basicConfig(
                 level=logging.INFO,
                 format="%(levelname)s %(name)s: %(message)s",
             )
+        log_path = os.environ.get("SAPS_LOG_PATH")
+        work_log = logging.getLogger("saps.work")
+        if log_path and not work_log.handlers:
+            Path(log_path).parent.mkdir(parents=True, exist_ok=True)
+            work_log.setLevel(logging.INFO)
+            work_log.propagate = False
+            work_log.addHandler(logging.FileHandler(log_path))
         if os.environ.get("SAPS_CACHE_DATASETS"):
             if param.generator.cacheable and not param.generator.backend.upload_dataset(
                 param.generator, param.dataset
