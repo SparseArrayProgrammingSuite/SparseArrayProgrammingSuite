@@ -517,6 +517,8 @@ class Benchmark(Tagged, Attributed, Motivated):
         def _time_run(self, param):
             self.run(param)
 
+        _time_run.warmup_time = float(os.environ.get("SAPS_WARMUP_TIME", "4.0"))
+
         setattr(cls, f"time_{instance.name}", _time_run)
         getattr(cls, f"time_{instance.name}").pretty_source = benchmark_source
 
