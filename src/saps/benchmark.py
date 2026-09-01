@@ -112,15 +112,9 @@ def _freshness_inputs(
     return tuple(sorted(seen_files)), tuple(sorted(external_modules))
 
 
-@cache
-def _file_content_hash(path: str, _mtime_ns: int, _size: int) -> str:
-    source = Path(path).read_text(encoding="utf-8")
+def _file_content_hash(path: Path) -> str:
+    source = path.read_text(encoding="utf-8")
     return hashlib.sha256(source.encode("utf-8")).hexdigest()
-
-
-def _cached_file_content_hash(path: Path) -> str:
-    stat = path.stat()
-    return _file_content_hash(str(path), stat.st_mtime_ns, stat.st_size)
 
 
 @cache
@@ -139,23 +133,17 @@ def _source_dependencies(module_name: str) -> list[str]:
     return list(external_modules)
 
 
-def _file_signature(path: Path) -> tuple[str, int, int]:
-    stat = path.stat()
-    return str(path), stat.st_mtime_ns, stat.st_size
+def _file_signature(path: Path) -> str:
+    return _file_content_hash(path)
 
 
 @cache
 def _source_freshness_for_files(
-    root: str, file_signatures: tuple[tuple[str, int, int], ...]
+    file_signatures: tuple[str, ...],
 ) -> str:
-    root_path = Path(root)
     digest = hashlib.sha256()
-    for path, _, _ in file_signatures:
-        file_path = Path(path)
-        relative = file_path.relative_to(root_path).as_posix()
-        digest.update(relative.encode("utf-8"))
-        digest.update(b"\0")
-        digest.update(_cached_file_content_hash(file_path).encode("utf-8"))
+    for content_hash in sorted(file_signatures):
+        digest.update(content_hash.encode("utf-8"))
         digest.update(b"\0")
 
     return digest.hexdigest()
@@ -165,9 +153,7 @@ def _source_freshness(module_name: str, source_path: Path) -> str:
     files, _ = _freshness_inputs(module_name)
     if not files:
         files = (source_path,)
-    return _source_freshness_for_files(
-        str(_repo_root()), tuple(_file_signature(path) for path in files)
-    )
+    return _source_freshness_for_files(tuple(_file_signature(path) for path in files))
 
 
 @dataclass
