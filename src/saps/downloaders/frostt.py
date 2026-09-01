@@ -143,7 +143,11 @@ def _parse_tns(
     )
     value_dtype = np.dtype(rhs_dtype)
     dtypes: dict[int, np.dtype | type] = dict.fromkeys(range(order), index_dtype)
-    dtypes[order] = value_dtype
+    # Let pandas infer the on-disk numeric representation of the value column,
+    # then cast it to the dataset's declared dtype below.  Some FROSTT tensors
+    # encode logical integers and booleans as decimal text (for example,
+    # ``1.000000``), while others contain integer literals whose precision
+    # should not be lost by parsing through float64.
     if isinstance(source, io.BytesIO):
         source.seek(0)
     df = pd.read_csv(source, sep=r"\s+", header=None, comment="#", dtype=dtypes)
