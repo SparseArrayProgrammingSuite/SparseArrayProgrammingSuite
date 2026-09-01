@@ -43,6 +43,15 @@ def test_parse_tns_keeps_int64_indices_for_large_dimensions(tmp_path):
     assert values.dtype == np.int16
 
 
+def test_parse_tns_honors_expected_shape(tmp_path):
+    path = tmp_path / "declared-shape.tns.gz"
+    _write_tns(path, "1 1 7\n")
+
+    _, _, shape = _parse_tns(path, np.int64, expected_shape=(3, 4))
+
+    assert shape == (3, 4)
+
+
 def test_parse_tns_converts_decimal_encoded_binary_values(tmp_path):
     path = tmp_path / "binary.tns.gz"
     _write_tns(path, "1 1 1.000000\n")

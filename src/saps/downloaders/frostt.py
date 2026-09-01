@@ -10,7 +10,6 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-
 import pandas as pd
 
 _BASE_URL = "https://s3.us-east-2.amazonaws.com/frostt/frostt_data"
@@ -116,6 +115,7 @@ def _extract_tns_source(path: Path) -> Path | io.BytesIO:
 def _parse_tns(
     path: Path,
     rhs_dtype: np.dtype | type,
+    expected_shape: tuple[int, ...] | None = None,
 ) -> tuple[tuple[np.ndarray, ...], np.ndarray, tuple[int, ...]]:
     """Parse a (optionally gzipped, optionally tar-wrapped) `.tns` coordinate-list
     tensor file.
@@ -129,16 +129,31 @@ def _parse_tns(
     order = preview.shape[1] - 1
     if order < 1:
         raise ValueError(f"Malformed FROSTT tensor file {path}: no value column found")
-    dtypes: dict[int, np.dtype | type] = dict.fromkeys(range(order), np.int64)
-    dtypes[order] = np.float64
+    shape = tuple(int(dim) for dim in expected_shape) if expected_shape else None
+    if shape is not None and len(shape) != order:
+        raise ValueError(
+            f"Malformed FROSTT tensor file {path}: expected order {len(shape)}, "
+            f"found {order}"
+        )
+    index_dtype = (
+        np.int32
+        if shape is not None and all(dim <= np.iinfo(np.int32).max for dim in shape)
+        else np.int64
+    )
+    value_dtype = np.dtype(rhs_dtype)
+    dtypes: dict[int, np.dtype | type] = dict.fromkeys(range(order), index_dtype)
+    dtypes[order] = value_dtype
     if isinstance(source, io.BytesIO):
         source.seek(0)
     df = pd.read_csv(source, sep=r"\s+", header=None, comment="#", dtype=dtypes)
-    indices = tuple(df.iloc[:, mode].to_numpy() - 1 for mode in range(order))
-    values = df.iloc[:, order].to_numpy(dtype=rhs_dtype)
-    shape = tuple(int(idx.max()) + 1 for idx in indices)
-    if all(dim <= np.iinfo(np.int32).max for dim in shape):
-        indices = tuple(idx.astype(np.int32) for idx in indices)
+    for mode in range(order):
+        df[mode] -= 1
+    indices = tuple(df.iloc[:, mode].to_numpy(copy=False) for mode in range(order))
+    values = df.iloc[:, order].to_numpy(dtype=value_dtype, copy=False)
+    if shape is None:
+        shape = tuple(int(idx.max()) + 1 for idx in indices)
+        if all(dim <= np.iinfo(np.int32).max for dim in shape):
+            indices = tuple(idx.astype(np.int32) for idx in indices)
     return indices, values, shape
 
 
@@ -147,10 +162,13 @@ def load_frostt_tensor(
     *,
     url: str | None = None,
     data_dir: str | Path | None = None,
+    expected_shape: tuple[int, ...] | None = None,
 ) -> tuple[tuple[np.ndarray, ...], np.ndarray, dict[str, Any]]:
     """Download (if needed) and parse a FROSTT tensor into COO index/value arrays."""
     local_path = download_frostt_tensor(path, url=url, data_dir=data_dir)
-    indices, values, shape = _parse_tns(local_path, _RHS_DTYPES[path])
+    indices, values, shape = _parse_tns(
+        local_path, _RHS_DTYPES[path], expected_shape=expected_shape
+    )
     meta = {
         "dataset_name": path,
         "order": len(shape),
