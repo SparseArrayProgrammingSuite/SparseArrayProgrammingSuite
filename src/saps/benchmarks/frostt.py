@@ -1,3 +1,5 @@
+from binsparse import CustomTensor, ElementLevel, SparseLevel
+
 from saps.benchmark import (
     Author,
     Contributor,
@@ -8,7 +10,6 @@ from saps.benchmark import (
     ShellBenchmark,
 )
 from saps.downloaders.frostt import load_frostt_tensor
-from saps_framework import BinsparseFormat
 
 
 class FrosttDataset(Dataset):
@@ -394,7 +395,11 @@ class FrosttTensorGenerator(Generator[FrosttDataset]):
 
     def generate(self, dataset: FrosttDataset) -> DataInstance:
         indices, values, meta = load_frostt_tensor(dataset.path, url=dataset.url)
-        tensor_bin = BinsparseFormat.from_coo(indices, values, meta["shape"])
+        tensor_bin = CustomTensor(
+            tuple(meta["shape"]),
+            len(values),
+            level=SparseLevel(len(meta["shape"]), ElementLevel(values), indices),
+        )
         return DataInstance(inputs=[tensor_bin], meta=meta)
 
 

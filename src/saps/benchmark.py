@@ -13,10 +13,11 @@ from functools import cache
 from pathlib import Path
 from typing import Any, Generic, TypeVar
 
+from binsparse import BinsparseTensor as BinsparseTensor
+
 from saps.dependencies import dependency_versions
 from saps.framework import load_framework
 from saps.storage import build_storage_backend
-from saps_framework.binsparse_format import BinsparseFormat as BinsparseFormat
 from saps_framework.framework import Framework
 
 

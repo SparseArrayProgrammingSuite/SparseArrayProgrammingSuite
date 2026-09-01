@@ -1,11 +1,19 @@
 from __future__ import annotations
 
+import hashlib
+import json
 from pathlib import Path
 
+import numpy as np
+import scipy.sparse as sp
+
 import boto3
+import h5py
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 from botocore.exceptions import ClientError
 
-from saps.storage import S3StorageBackend
+from saps.benchmark import DataInstance
+from saps.storage import LocalStorageBackend, S3StorageBackend
 
 
 def _expired_token_error(operation: str) -> ClientError:
@@ -79,3 +87,35 @@ def test_s3_download_reads_public_object_without_signed_credentials(
     assert backend.download_file("datasets/example.json", local_path)
     assert local_path.read_text(encoding="utf-8") == "{}"
     assert calls == [("unsigned", "download:example-bucket/datasets/example.json")]
+
+
+def test_data_round_trips_through_binsparse_hdf5(tmp_path):
+    backend = LocalStorageBackend(
+        tmp_path / "remote", tmp_path / "manifest.json", tmp_path / "cache"
+    )
+    dense = np.arange(6, dtype=np.float32).reshape(2, 3)
+    sparse = sp.coo_array(
+        (np.array([1.5, 2.5]), (np.array([0, 2]), np.array([1, 0]))),
+        shape=(3, 2),
+    )
+    data = DataInstance(
+        inputs=[from_numpy(dense), from_scipy(sparse)],
+        meta={"source": "test"},
+        ref_outputs=[from_numpy(dense + 1)],
+        ref_meta={"tolerance": 1e-6},
+    )
+    path = tmp_path / "dataset.bsp.h5"
+
+    digest = backend.serialize_data_to_file(data, path)
+    restored = backend.deserialize_data_from_file(path)
+
+    with h5py.File(path, "r") as file:
+        assert set(file) == {"inputs", "ref_outputs"}
+        assert set(file["inputs"]) == {"0", "1"}
+        descriptor = json.loads(file["inputs/0"].attrs["binsparse"])
+        assert descriptor["binsparse"]["format"] == "DMATR"
+    assert np.array_equal(to_numpy(restored.inputs[0]), dense)
+    assert np.array_equal(to_scipy(restored.inputs[1]).toarray(), sparse.toarray())
+    assert restored.meta == data.meta
+    assert restored.ref_meta == data.ref_meta
+    assert digest == hashlib.sha256(path.read_bytes()).hexdigest()

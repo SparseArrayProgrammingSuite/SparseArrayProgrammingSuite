@@ -2,11 +2,12 @@ import textwrap
 
 import numpy as np
 
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
 from pyparsing import Any
 
 from saps.benchmark import (
     Benchmark,
-    BinsparseFormat,
     Contributor,
     DataInstance,
     Dataset,
@@ -348,12 +349,10 @@ class WMCGenerator(Generator[WMCDataset]):
         num_vars, clauses, weights = parse_format(dataset.cnf_text)
         expr = clauses_to_einsum(clauses, num_vars)
 
-        data_list: list[BinsparseFormat] = [
-            BinsparseFormat.from_numpy(np.array([0, 1]))
-        ]
+        data_list: list[BinsparseTensor] = [from_numpy(np.array([0, 1]))]
 
         data_list.extend(
-            BinsparseFormat.from_numpy(np.array([weights[-i], weights[i]]))
+            from_numpy(np.array([weights[-i], weights[i]]))
             for i in range(1, num_vars + 1)
         )
 
@@ -372,7 +371,7 @@ class WMCGenerator(Generator[WMCDataset]):
         return DataInstance(
             inputs=data_list,
             meta=meta,
-            ref_outputs=[BinsparseFormat.from_numpy(np.array(dataset.expected))],
+            ref_outputs=[from_numpy(np.array(dataset.expected))],
         )
 
 
@@ -443,19 +442,13 @@ class WeightedModelCounting(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
         if self._ref_outputs is None:
             return
-        result = float(
-            self._output[0].data["values"].reshape(self._output[0].data["shape"])
-        )
-        expected = float(
-            self._ref_outputs[0]
-            .data["values"]
-            .reshape(self._ref_outputs[0].data["shape"])
-        )
+        result = float(to_numpy(self._output[0]))
+        expected = float(to_numpy(self._ref_outputs[0]))
         assert np.isclose(result, expected, rtol=10e-8), (
             f"Test '{param.dataset.name}' failed: expected {expected}, got {result}"
         )

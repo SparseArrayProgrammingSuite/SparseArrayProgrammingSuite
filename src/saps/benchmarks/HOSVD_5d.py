@@ -2,6 +2,9 @@ from typing import Any
 
 import numpy as np
 
+from binsparse import CustomTensor, ElementLevel, SparseLevel
+from binsparse.conversions import from_numpy, to_numpy
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -12,7 +15,6 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.frostt import fetch_frostt_tensor, frostt_tensor_shape
-from saps_framework import BinsparseFormat
 
 
 class HOSVD5DDataset(Dataset):
@@ -148,9 +150,9 @@ class HOSVD5DDenseGenerator(Generator[HOSVD5DDataset]):
 
         X_dense = np.einsum("pqrst,ip,jq,kr,ls,mt->ijklm", G, A, B, C, D, E)
 
-        X_bin = BinsparseFormat.from_numpy(X_dense)
+        X_bin = from_numpy(X_dense)
 
-        ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
+        ranks_bin = from_numpy(np.array(ranks))
         return DataInstance(
             inputs=[X_bin, ranks_bin],
             meta={"max_iter": 50, "tolerance": 1e-8},
@@ -241,11 +243,13 @@ class HOSVD5DSparseGenerator(Generator[HOSVD5DDataset]):
         indices = np.nonzero(X_dense)
         values = X_dense[indices]
 
-        X_bin = BinsparseFormat.from_coo(
-            indices, values, (dim1, dim2, dim3, dim4, dim5)
+        X_bin = CustomTensor(
+            (dim1, dim2, dim3, dim4, dim5),
+            len(values),
+            level=SparseLevel(5, ElementLevel(values), indices),
         )
 
-        ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
+        ranks_bin = from_numpy(np.array(ranks))
         return DataInstance(
             inputs=[X_bin, ranks_bin],
             meta={"max_iter": 50, "tolerance": 1e-8},
@@ -383,7 +387,7 @@ class HOSVD5DFrosttGenerator(Generator[HOSVD5DFrosttDataset]):
     def generate(self, dataset: HOSVD5DFrosttDataset):
         raw = fetch_frostt_tensor(dataset.tensor_name)
         X_bin = raw.inputs[0]
-        ranks_bin = BinsparseFormat.from_numpy(np.array(dataset.ranks))
+        ranks_bin = from_numpy(np.array(dataset.ranks))
         return DataInstance(
             inputs=[X_bin, ranks_bin],
             meta={"max_iter": 50, "tolerance": 1e-8},
@@ -628,12 +632,9 @@ class HOSVD5DBenchmark(Benchmark):
         super().check(param)
         if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
             return
-        X = self._input[0].data["values"].reshape(self._input[0].data["shape"])
-        core = self._output[0].data["values"].reshape(self._output[0].data["shape"])
-        factors = [
-            output.data["values"].reshape(output.data["shape"])
-            for output in self._output[1:]
-        ]
+        X = to_numpy(self._input[0])
+        core = to_numpy(self._output[0])
+        factors = [to_numpy(output) for output in self._output[1:]]
         X_rec = _reconstruct_tensor(core, factors)
         error = np.linalg.norm(X - X_rec) / np.linalg.norm(X)
         assert error < 1e-5
