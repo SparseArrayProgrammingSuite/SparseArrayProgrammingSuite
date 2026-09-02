@@ -46,6 +46,37 @@ poetry run ./bin/run_benchmark.py --re bfs --no-re toy
 
 Runner outputs are written under `.saps/outputs/`, including ASV result files and cached datasets.
 
+## Competition Runs
+
+Use `competition.config.json` to define the frameworks included in a competition
+run. It uses ASV-native `include` entries so every framework can pin a different
+set of dependencies:
+
+```bash
+poetry run ./bin/run_benchmark.py \
+  --config competition.config.json \
+  --tag standard \
+  --metric time peakmem
+```
+
+On Slurm, use the wrapper script:
+
+```bash
+sbatch scripts/run-competition.slurm
+SAPS_COMPETITION_ARGS="--tag standard --metric time peakmem --timeout 60" \
+  sbatch scripts/run-competition.slurm
+```
+
+Slurm competition runs write ASV outputs under
+`competition/run_<slurm-job-id>/` and then combine the ASV result files into
+`competition/results_<slurm-job-id>.json`. To combine an existing run manually:
+
+```bash
+poetry run ./bin/combine_competition_results.py \
+  --run-directory competition/run_12345 \
+  --output competition/results_12345.json
+```
+
 ## Configuration
 
 The runner auto-detects `saps.conf.json` in the current directory, or you can pass one explicitly:
@@ -70,36 +101,75 @@ The config file can override the ASV environment type, dependency matrix, framew
 
 If no config is supplied, the runner uses a default matrix with the built-in NumPy, SciPy, and pydata/sparse wrappers.
 
-### `saps.conf.json` Fields
+### SAPS Config Overview
 
-The runner consumes a small, explicit subset of ASV configuration. These top-level fields are supported:
+`saps.conf.json` is not a complete ASV config file. It is a small SAPS runner
+config that is translated into an in-memory ASV config by `bin/run_benchmark.py`.
+SAPS fills in benchmark-suite details such as the project name, repository path,
+benchmark directory, HTML output directory, dataset cache, manifest path, and
+remote storage defaults. The user-facing config mostly controls how benchmark
+environments are built. Most CLI options can also be supplied in config by using
+their argument name with underscores, such as `remote_storage_backend` for
+`--remote-storage-backend`; CLI values take precedence over config values. For
+options with an explicit parser destination, use that name: `--metric` and
+`--metrics` are configured as `metrics`.
+
+The ASV fields SAPS supports directly are:
 
 - `environment_type`: ASV environment type for normal benchmark runs. The default is `"virtualenv"`. Use `"existing:same"` to run in the current Poetry environment, which is often easiest while developing a framework wrapper. Tracing and dataset caching always use the current environment; metadata generation runs directly in the environment used to invoke `bin/generate_metadata.py`.
 - `install_command`: ASV install command list. The default reinstalls the project into each ASV environment with `python -mpip install {build_dir} --force-reinstall`.
+- `pythons`: Python versions ASV should use when constructing environments.
+- `saps_dir`: Directory where SAPS writes runner-owned outputs such as machine files, cache, and HTML. The SAPS default is `.saps`.
 - `env_dir`: Directory where ASV creates benchmark environments. The SAPS default is `.saps/results`.
 - `results_dir`: Directory where ASV writes benchmark results. The SAPS default is `.saps/outputs/results`.
 - `matrix`: ASV environment matrix. This is the main field most users customize.
+- `include`: ASV explicit environment list. Use this when each environment needs its own dependency set, such as competition runs.
+- `exclude`: ASV matrix exclusion rules.
 
 The `matrix` field has two common sections:
 
 - `req`: Python package version requirements. ASV builds environments for the Cartesian product of these versions. For example, `"numpy": ["2.3"]` pins NumPy to that version in generated environments.
 - `env_nobuild`: Environment variables that do not require rebuilding the package. Values are lists because ASV treats them as matrix entries.
 
+The `include` field is useful when `matrix` would create unwanted combinations.
+Each `include` entry describes one explicit environment. Unlike `matrix`, values
+inside `include.req`, `include.env`, and `include.env_nobuild` are scalars, not
+lists:
+
+```json
+{
+  "matrix": {},
+  "exclude": [{"env_nobuild": {"SAPS_FRAMEWORK": null}}],
+  "include": [
+    {
+      "python": "3.12",
+      "req": {"numpy": "2.3", "scipy": "1.17.1"},
+      "env_nobuild": {"SAPS_FRAMEWORK": "frameworks/saps_scipy.py"}
+    }
+  ]
+}
+```
+
+The empty `matrix` plus `exclude` rule prevents ASV from also running its base
+environment. See the [ASV config reference](https://asv.readthedocs.io/en/stable/asv.conf.json.html)
+for the full upstream meaning of `matrix`, `include`, and `exclude`.
+
 Important `env_nobuild` entries:
 
 - `SAPS_FRAMEWORK`: One or more framework wrapper files to benchmark. Relative paths are converted to absolute paths from the current working directory before child processes run.
 - `SAPS_REPO_ROOT`: Repository root used by freshness discovery in child processes. Use the repository root path, or `"."` when running from the repository root.
-- `REMOTE_STORAGE_BACKEND`: Dataset storage backend. Usually `s3` or `local`. The runner inserts the default unless this is already present or `--remote-storage-backend` is passed.
-- `REMOTE_STORAGE_BUCKET`: S3 bucket name, or local directory path when using the `local` backend. The runner inserts the default unless this is already present or `--remote-storage-bucket` is passed.
 
 The runner owns these values and normally you should not set them in `saps.conf.json`:
 
+- `REMOTE_STORAGE_BACKEND` and `REMOTE_STORAGE_BUCKET`: set from `remote_storage_backend` / `remote_storage_bucket`, CLI flags, or built-in defaults.
 - `SAPS_CACHE_DIR`: set to `.saps/outputs/cache`.
 - `SAPS_MANIFEST_PATH`: set to the repository `manifest.json`.
 - `SAPS_TAGGER_STATS_DIR` and `SAPS_STATISTICS_PATH`: set during `--trace-statistics`.
 - ASV `project`, `repo`, `branches`, `benchmark_dir`, and `html_dir`: derived from the repository and `.saps/outputs`.
 
-CLI flags take precedence for storage backend and bucket. `--timeout` is also a CLI-level setting; prefer passing it directly rather than putting timeout-like fields in `saps.conf.json`.
+CLI flags take precedence for storage backend, bucket, `saps_dir`, `env_dir`,
+and `results_dir`. `--timeout` is also a CLI-level setting; prefer passing it
+directly rather than putting timeout-like fields in `saps.conf.json`.
 
 ## Custom Frameworks
 
