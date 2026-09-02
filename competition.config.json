@@ -2,6 +2,7 @@
   "//": "Competition config using ASV-native include entries. Each include is one competitor environment with its own dependencies.",
   "environment_type": "virtualenv",
   "install_command": ["in-dir={env_dir} python -mpip install {build_dir} --force-reinstall"],
+  "timeout": 60,
   "saps_dir": "competition",
   "env_dir": "competition/env",
   "results_dir": "competition/results",

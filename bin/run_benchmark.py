@@ -310,9 +310,7 @@ def main() -> int:
         ),
     )
     parser.add_argument(
-        "--metric",
         "--metrics",
-        dest="metrics",
         nargs="+",
         choices=("peakmem", "time"),
         default=("time",),

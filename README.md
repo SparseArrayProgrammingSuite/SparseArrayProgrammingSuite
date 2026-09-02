@@ -30,7 +30,7 @@ Useful runner options:
 - `--tag standard`: run canonical suite datasets.
 - `--re REGEX`: include benchmark, generator, or dataset names matching a regex.
 - `--no-re REGEX`: exclude matching benchmark, generator, or dataset names.
-- `--metric time peakmem`: collect one or both metrics.
+- `--metrics time peakmem`: collect one or both metrics.
 - `--quick`: run each selected benchmark once.
 - `--timeout 30`: set a per-benchmark timeout in seconds.
 - `--chunk-count N --chunk-index I`: split the selected parameter cases across
@@ -40,7 +40,7 @@ For example:
 
 ```bash
 poetry run ./bin/run_benchmark.py --tag test --quick --timeout 30
-poetry run ./bin/run_benchmark.py --tag standard --metric time peakmem
+poetry run ./bin/run_benchmark.py --tag standard --metrics time peakmem
 poetry run ./bin/run_benchmark.py --re bfs --no-re toy
 ```
 
@@ -56,14 +56,14 @@ set of dependencies:
 poetry run ./bin/run_benchmark.py \
   --config competition.config.json \
   --tag standard \
-  --metric time peakmem
+  --metrics time peakmem
 ```
 
 On Slurm, use the wrapper script:
 
 ```bash
 sbatch scripts/run-competition.slurm
-SAPS_COMPETITION_ARGS="--tag standard --metric time peakmem --timeout 60" \
+SAPS_COMPETITION_ARGS="--tag standard --metrics time peakmem" \
   sbatch scripts/run-competition.slurm
 ```
 
@@ -85,7 +85,7 @@ The runner auto-detects `saps.conf.json` in the current directory, or you can pa
 poetry run ./bin/run_benchmark.py --config path/to/saps.conf.json
 ```
 
-The config file can override the ASV environment type, dependency matrix, framework list, and install command. A small config for running only one framework in the current environment looks like:
+The config file can set runner options and supported ASV environment fields. A small config for running only one framework in the current environment looks like:
 
 ```json
 {
@@ -107,12 +107,13 @@ If no config is supplied, the runner uses a default matrix with the built-in Num
 config that is translated into an in-memory ASV config by `bin/run_benchmark.py`.
 SAPS fills in benchmark-suite details such as the project name, repository path,
 benchmark directory, HTML output directory, dataset cache, manifest path, and
-remote storage defaults. The user-facing config mostly controls how benchmark
-environments are built. Most CLI options can also be supplied in config by using
-their argument name with underscores, such as `remote_storage_backend` for
-`--remote-storage-backend`; CLI values take precedence over config values. For
-options with an explicit parser destination, use that name: `--metric` and
-`--metrics` are configured as `metrics`.
+remote storage defaults.
+
+Every `bin/run_benchmark.py` CLI option except `--config` can also be supplied
+in config by using its argparse destination name. In practice, replace hyphens
+with underscores: `remote_storage_backend` for `--remote-storage-backend`,
+`cache_datasets` for `--cache-datasets`, `chunk_count` for `--chunk-count`, and
+`metrics` for `--metrics`. CLI values always take precedence over config values.
 
 The ASV fields SAPS supports directly are:
 
@@ -167,10 +168,6 @@ The runner owns these values and normally you should not set them in `saps.conf.
 - `SAPS_TAGGER_STATS_DIR` and `SAPS_STATISTICS_PATH`: set during `--trace-statistics`.
 - ASV `project`, `repo`, `branches`, `benchmark_dir`, and `html_dir`: derived from the repository and `.saps/outputs`.
 
-CLI flags take precedence for storage backend, bucket, `saps_dir`, `env_dir`,
-and `results_dir`. `--timeout` is also a CLI-level setting; prefer passing it
-directly rather than putting timeout-like fields in `saps.conf.json`.
-
 ## Custom Frameworks
 
 To benchmark your own sparse framework, create a Python file that defines an `xp` variable. `xp` must be an instance of a `saps_framework.Framework` subclass. The runner loads framework wrappers from the `SAPS_FRAMEWORK` entries in the ASV matrix, so custom frameworks should usually be supplied through `saps.conf.json`:
@@ -217,7 +214,7 @@ For a quick runner smoke test over CI-sized datasets:
 poetry run ./bin/run_benchmark.py \
   --tag test \
   --check-suite \
-  --metric time \
+  --metrics time \
   --quick \
   --timeout 30
 ```
