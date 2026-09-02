@@ -13,8 +13,6 @@ from typing import TYPE_CHECKING
 import h5py
 from binsparse import BinsparseTensor, HDF5BinsparseContainer
 
-from saps.dependencies import dependency_versions
-
 if TYPE_CHECKING:
     from saps.benchmark import DataInstance, Dataset, Generator
 
@@ -138,8 +136,6 @@ class StorageBackend(ABC):
         return {
             "file": dataset.file,
             "freshness": dataset.freshness,
-            "dependencies": dataset.dependencies,
-            "dependency_versions": dependency_versions(dataset.dependencies),
         }
 
     def update_manifest(
@@ -162,8 +158,7 @@ class StorageBackend(ABC):
             return None
         record = manifest[dataset_key]
         if {
-            key: record.get(key)
-            for key in ("file", "freshness", "dependencies", "dependency_versions")
+            key: record.get(key) for key in ("file", "freshness")
         } != self._dataset_manifest_metadata(dataset):
             logging.info(
                 f"Dataset {generator.name}.{dataset.name} manifest metadata is stale."
@@ -172,15 +167,24 @@ class StorageBackend(ABC):
         return record["digest"]
 
     def upload_dataset(self, generator: Generator, dataset: Dataset) -> bool:
-        _, digest, local_path = self._generate_and_cache(generator, dataset)
-        prefix = self.prefix(generator, dataset, digest)
-        if self.file_exists(prefix):
-            self.update_manifest(generator, dataset, digest)
-            return True
-        successful = self.upload_file(local_path, prefix)
-        if successful:
-            self.update_manifest(generator, dataset, digest)
-        return successful
+        work_log = logging.getLogger("saps.work")
+        dataset_key = f"{generator.name}.{dataset.name}"
+        work_log.info("caching %s", dataset_key)
+        try:
+            _, digest, local_path = self._generate_and_cache(generator, dataset)
+            prefix = self.prefix(generator, dataset, digest)
+            if self.file_exists(prefix):
+                self.update_manifest(generator, dataset, digest)
+                work_log.info("cached %s (already uploaded)", dataset_key)
+                return True
+            successful = self.upload_file(local_path, prefix)
+            if successful:
+                self.update_manifest(generator, dataset, digest)
+            work_log.info("cached %s: %s", dataset_key, successful)
+            return successful
+        except Exception:
+            work_log.exception("failed to cache %s", dataset_key)
+            raise
 
     def retrieve_dataset(self, generator: Generator, dataset: Dataset) -> DataInstance:
         """Retrieve the dataset by, in order:

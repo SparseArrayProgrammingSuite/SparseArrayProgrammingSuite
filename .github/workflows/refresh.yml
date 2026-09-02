@@ -19,7 +19,7 @@ jobs:
       - name: Install package
         run: poetry install --with test
       - name: Generate metadata
-        run: poetry run ./bin/run_benchmark.py --generate-metadata
+        run: poetry run ./bin/generate_metadata.py
       - name: Upload metadata
         uses: actions/upload-artifact@v4
         with:
@@ -130,6 +130,8 @@ jobs:
     needs: trace
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
       - name: Download trace chunks
         uses: actions/download-artifact@v4
         with:
@@ -138,132 +140,29 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - name: Configure Poetry
+        run: poetry env use python3.12
+      - name: Install package
+        run: poetry install --with test
       - name: Merge statistics
         run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-
-          root = Path("artifacts")
-          out = Path("merged")
-          out.mkdir(exist_ok=True)
-
-          def load_json(path):
-              return json.loads(path.read_text(encoding="utf-8"))
-
-          def write_json(path, data):
-              path.parent.mkdir(parents=True, exist_ok=True)
-              path.write_text(
-                  json.dumps(data, indent=2, sort_keys=True) + "\n",
-                  encoding="utf-8",
-              )
-
-          def record_key(record):
-              return record.get("id", record["name"])
-
-          def get_or_add(records, key, value, defaults):
-              for record in records:
-                  if record.get(key) == value:
-                      return record
-              record = {key: value, **defaults}
-              records.append(record)
-              return record
-
-          def merge_statistics(target, source):
-              target["statistics"] = sorted(
-                  {*target.get("statistics", []), *source.get("statistics", [])}
-              )
-
-          def merge_dataset_metadata(target, source):
-              for key in (
-                  "file",
-                  "freshness",
-                  "dependencies",
-                  "dependency_versions",
-              ):
-                  if key not in source:
-                      continue
-                  if key in target and target[key] != source[key]:
-                      raise RuntimeError(
-                          f"Conflicting dataset {key} for {target['name']}: "
-                          f"{target[key]} != {source[key]}"
-                      )
-                  target[key] = source[key]
-
-          statistics = {"benchmarks": []}
-          benchmarks = {}
-
-          for trace_path in sorted((root / "trace").glob("*/statistics.json")):
-              trace_doc = load_json(trace_path)
-              for source_benchmark in trace_doc.get("benchmarks", []):
-                  key = record_key(source_benchmark)
-                  benchmark = benchmarks.get(key)
-                  if benchmark is None:
-                      benchmark = get_or_add(
-                          statistics["benchmarks"],
-                          "id",
-                          source_benchmark.get("id", source_benchmark["name"]),
-                          {
-                              "name": source_benchmark["name"],
-                              "statistics": [],
-                              "generators": [],
-                          },
-                      )
-                      benchmarks[key] = benchmark
-                  merge_statistics(benchmark, source_benchmark)
-
-                  generators = {
-                      generator["name"]: generator
-                      for generator in benchmark.get("generators", [])
-                  }
-                  for source_generator in source_benchmark.get("generators", []):
-                      generator = generators.get(source_generator["name"])
-                      if generator is None:
-                          generator = get_or_add(
-                              benchmark.setdefault("generators", []),
-                              "name",
-                              source_generator["name"],
-                              {"statistics": [], "datasets": []},
-                          )
-                          generators[source_generator["name"]] = generator
-                      merge_statistics(generator, source_generator)
-
-                      datasets = {
-                          dataset["name"]: dataset
-                          for dataset in generator.get("datasets", [])
-                      }
-                      for source_dataset in source_generator.get("datasets", []):
-                          dataset = datasets.get(source_dataset["name"])
-                          if dataset is None:
-                              dataset = get_or_add(
-                                  generator.setdefault("datasets", []),
-                                  "name",
-                                  source_dataset["name"],
-                                  {"statistics": []},
-                              )
-                              datasets[source_dataset["name"]] = dataset
-                          merge_dataset_metadata(dataset, source_dataset)
-                          merge_statistics(dataset, source_dataset)
-
-          statistics["benchmarks"] = sorted(statistics["benchmarks"], key=record_key)
-          for benchmark in statistics["benchmarks"]:
-              benchmark["generators"] = sorted(
-                  benchmark.get("generators", []),
-                  key=lambda generator: generator["name"],
-              )
-              for generator in benchmark["generators"]:
-                  generator["datasets"] = sorted(
-                      generator.get("datasets", []),
-                      key=lambda dataset: dataset["name"],
-                  )
-
-          write_json(out / "statistics.json", statistics)
-          PY
+          poetry run ./bin/merge_statistics.py \
+            --output merged/statistics.json \
+            artifacts/trace/*/statistics.json
+      - name: Generate final metadata
+        run: poetry run ./bin/generate_metadata.py --statistics merged/statistics.json
       - name: Upload merged statistics
         uses: actions/upload-artifact@v4
         with:
           name: saps-statistics-final
           path: merged/statistics.json
+      - name: Upload final metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: saps-metadata-final
+          path: metadata.json
 
   merge-manifest:
     needs: data

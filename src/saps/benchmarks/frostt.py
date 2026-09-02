@@ -394,7 +394,9 @@ class FrosttTensorGenerator(Generator[FrosttDataset]):
         return _TENSORS
 
     def generate(self, dataset: FrosttDataset) -> DataInstance:
-        indices, values, meta = load_frostt_tensor(dataset.path, url=dataset.url)
+        indices, values, meta = load_frostt_tensor(
+            dataset.path, url=dataset.url, expected_shape=dataset.shape
+        )
         tensor_bin = CustomTensor(
             tuple(meta["shape"]),
             len(values),
