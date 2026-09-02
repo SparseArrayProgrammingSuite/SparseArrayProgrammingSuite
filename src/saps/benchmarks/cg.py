@@ -350,9 +350,9 @@ class CGBenchmark(Benchmark):
 
     def benchmark(self, xp, data: list, meta: dict):
         A, b, x = data
-        rel_tol = 1e-8
-        abs_tol = 1e-20
-        max_iters = 10_000
+        rel_tol = meta.get("rel_tol", 1e-8)
+        abs_tol = meta.get("abs_tol", 1e-20)
+        max_iters = meta.get("max_iters", 10_000)
 
         tolerance = max(rel_tol * xp.sqrt(xp.vecdot(b, b))[()], abs_tol)
         tol_sq = tolerance * tolerance

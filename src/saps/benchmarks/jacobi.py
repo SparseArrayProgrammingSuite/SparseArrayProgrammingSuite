@@ -330,9 +330,9 @@ class JacobiBenchmark(Benchmark):
     def benchmark(self, xp, data: list, meta: dict):
         A, b, x = data
 
-        rel_tol = 1e-6
-        abs_tol = 1e-20
-        max_iters = 1000
+        rel_tol = meta.get("rel_tol", 1e-6)
+        abs_tol = meta.get("abs_tol", 1e-20)
+        max_iters = meta.get("max_iters", 1000)
 
         tolerance = max(rel_tol * self._norm(xp, b)[()], abs_tol)
         d = xp.with_fill_value(xp.diagonal(A), 1)
