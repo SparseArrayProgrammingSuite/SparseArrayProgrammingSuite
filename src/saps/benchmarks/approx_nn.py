@@ -359,9 +359,9 @@ class JLApproxNNDataset(Dataset):
 def _rla_projection(n_features: int, n_samples: int, eps: float, seed: int):
     import scipy as sp
 
-    #  Johnson Lindenstrauss Theorem Lemmna.
-    # The eps represents the disortion of distance by epsilon,
-    # between the the original space and the reduced subspace
+    # Johnson–Lindenstrauss lemma.
+    # eps is the allowable relative distortion of distances
+    # between the original space and the reduced subspace.
     target_dim = np.ceil(np.log(n_samples) / (eps * eps)).astype(int)
     rng = np.random.default_rng(seed)
     # return rng.standard_normal((n_features, np.round(target_dim).astype(int)))
