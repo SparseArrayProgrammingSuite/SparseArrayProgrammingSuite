@@ -283,7 +283,7 @@ class RPKMeansMNISTGenerator(Generator[RPKMeansDataset]):
     def motivation(self) -> str:
         return (
             "MNIST provides 70,000 28×28 grayscale images of handwritten digits "
-            "flattened to 784-dimensional vectors, with a 60K/10K train/test split."
+            "flattened to 784-dimensional vectors, with a 60K/10K train/test split. "
             "k = 10 aligns with the ten digit classes."
         )
 
