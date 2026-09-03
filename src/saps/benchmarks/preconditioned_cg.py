@@ -46,11 +46,13 @@ class PreconditionedCGDataset(SuiteSparseDataset):
     def __init__(
         self,
         source_name: str,
-        condition_number: str,
+        *,
         A=None,
         suites: list[str] | None = None,
         ref_meta: dict[str, Any] | None = None,
         rhs_index: int | None = None,
+        max_iter: int = 100,
+        rel_tol: float = 1e-6,
     ):
         dataset_name = suite_sparse_rhs_dataset_name(source_name, rhs_index)
         super().__init__(
@@ -60,15 +62,13 @@ class PreconditionedCGDataset(SuiteSparseDataset):
             suites=suites,
             rhs_index=rhs_index,
         )
-        self.condition_number = condition_number
         self.A = A
         self.ref_meta = ref_meta
+        self.max_iter = max_iter
+        self.rel_tol = rel_tol
 
-    @property
-    def metadata(self) -> dict[str, Any]:
-        data = super().metadata
-        data["condition_number"] = self.condition_number
-        return data
+    def benchmark_meta(self) -> dict[str, Any]:
+        return {"max_iter": self.max_iter, "rel_tol": self.rel_tol}
 
 
 class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
@@ -121,21 +121,18 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
         return [
             PreconditionedCGDataset(
                 "test_A0",
-                "",
                 suites=["test", "trace"],
                 A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]),
                 ref_meta={"check_residual": True},
             ),
             PreconditionedCGDataset(
                 "test_A1",
-                "",
                 suites=["test", "trace"],
                 A=np.array([[7.0, 2.0, 1.0], [2.0, 6.0, -1.0], [1.0, -1.0, 5.0]]),
                 ref_meta={"check_residual": True},
             ),
             PreconditionedCGDataset(
                 "test_A2",
-                "",
                 suites=["test", "trace"],
                 A=np.array(
                     [
@@ -149,14 +146,12 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
             ),
             PreconditionedCGDataset(
                 "test_A3",
-                "",
                 suites=["test", "trace"],
                 A=np.array([[12.0, 2.0, -1.0], [2.0, 10.0, 3.0], [-1.0, 3.0, 9.0]]),
                 ref_meta={"check_residual": True},
             ),
             PreconditionedCGDataset(
                 "test_A4",
-                "",
                 suites=["test", "trace"],
                 A=np.array(
                     [[120.0, -2.0, 0.0], [-2.0, 120.0, -2.0], [0.0, -2.0, 120.0]]
@@ -165,7 +160,6 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
             ),
             PreconditionedCGDataset(
                 "test_A5",
-                "",
                 suites=["test", "trace"],
                 A=np.array(
                     [
@@ -178,11 +172,11 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
                 ),
                 ref_meta={"check_residual": True},
             ),
-            PreconditionedCGDataset("Bai/mhdb416", "3994223509->6.24"),
-            PreconditionedCGDataset("HB/lund_b", "30036->36.3"),
-            PreconditionedCGDataset("Bates/Chem97ZtZ", "247->8.48"),
-            PreconditionedCGDataset("HB/bcsstm12", "633194->7.14"),
-            PreconditionedCGDataset("Pothen/mesh1em1", "19->11.4"),
+            PreconditionedCGDataset("Bai/mhdb416"),
+            PreconditionedCGDataset("HB/lund_b"),
+            PreconditionedCGDataset("Bates/Chem97ZtZ"),
+            PreconditionedCGDataset("HB/bcsstm12"),
+            PreconditionedCGDataset("Pothen/mesh1em1"),
         ]
 
     def generate(self, dataset: PreconditionedCGDataset) -> DataInstance:
@@ -212,7 +206,7 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
         x0_bin = from_numpy(x0)
         return DataInstance(
             inputs=[A_bin, b_bin, x0_bin, M_bin],
-            meta={},
+            meta=dataset.benchmark_meta(),
             ref_meta=dataset.ref_meta,
         )
 
@@ -267,21 +261,18 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
         return [
             PreconditionedCGDataset(
                 "test_A0",
-                "",
                 suites=["test", "trace"],
                 A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]),
                 ref_meta={"check_residual": True},
             ),
             PreconditionedCGDataset(
                 "test_A1",
-                "",
                 suites=["test", "trace"],
                 A=np.array([[7.0, 2.0, 1.0], [2.0, 6.0, -1.0], [1.0, -1.0, 5.0]]),
                 ref_meta={"check_residual": True},
             ),
             PreconditionedCGDataset(
                 "test_A2",
-                "",
                 suites=["test", "trace"],
                 A=np.array(
                     [
@@ -295,14 +286,12 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
             ),
             PreconditionedCGDataset(
                 "test_A3",
-                "",
                 suites=["test", "trace"],
                 A=np.array([[12.0, 2.0, -1.0], [2.0, 10.0, 3.0], [-1.0, 3.0, 9.0]]),
                 ref_meta={"check_residual": True},
             ),
             PreconditionedCGDataset(
                 "test_A4",
-                "",
                 suites=["test", "trace"],
                 A=np.array(
                     [[120.0, -2.0, 0.0], [-2.0, 120.0, -2.0], [0.0, -2.0, 120.0]]
@@ -311,7 +300,6 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
             ),
             PreconditionedCGDataset(
                 "test_A5",
-                "",
                 suites=["test", "trace"],
                 A=np.array(
                     [
@@ -324,11 +312,11 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
                 ),
                 ref_meta={"check_residual": True},
             ),
-            PreconditionedCGDataset("Bai/mhdb416", "3994223509->69.7"),
-            PreconditionedCGDataset("HB/lund_b", "30036->144"),
-            PreconditionedCGDataset("Bates/Chem97ZtZ", "247->8.48"),
-            PreconditionedCGDataset("HB/bcsstm12", "633194->3160"),
-            PreconditionedCGDataset("Pothen/mesh1em1", "19->11.6"),
+            PreconditionedCGDataset("Bai/mhdb416"),
+            PreconditionedCGDataset("HB/lund_b"),
+            PreconditionedCGDataset("Bates/Chem97ZtZ"),
+            PreconditionedCGDataset("HB/bcsstm12"),
+            PreconditionedCGDataset("Pothen/mesh1em1"),
         ]
 
     def generate(self, dataset: PreconditionedCGDataset) -> DataInstance:
@@ -343,7 +331,7 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
         x0_bin = from_numpy(x0)
         return DataInstance(
             inputs=[A_bin, b_bin, x0_bin, M_bin],
-            meta={},
+            meta=dataset.benchmark_meta(),
             ref_meta=dataset.ref_meta,
         )
 
@@ -467,9 +455,9 @@ class _PreconditionedCGBase(Benchmark, ABC):
 
     def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
         A, b, x0, M = data
-        rel_tol = meta.get("tolerance", 1e-6)
+        rel_tol = meta.get("rel_tol", 1e-6)
         abs_tol = meta.get("abs_tol", 1e-20)
-        max_iters = meta.get("max_iters", 100)
+        max_iter = meta.get("max_iter", 100)
 
         tolerance = max(rel_tol * xp.sqrt(xp.vecdot(b, b))[()], abs_tol)
         # tol_sq used to avoid having to sqrt dot products when checking tolerance
@@ -484,7 +472,7 @@ class _PreconditionedCGBase(Benchmark, ABC):
         rr = xp.vecdot(r, r)[()]
 
         if rr >= tol_sq:
-            while it < max_iters:
+            while it < max_iter:
                 Ap = A @ p
                 alpha = rho / xp.vecdot(p, Ap)
                 x = x + alpha * p

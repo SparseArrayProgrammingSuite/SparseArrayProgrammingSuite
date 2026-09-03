@@ -1,3 +1,5 @@
+from typing import Any
+
 import numpy as np
 import scipy.sparse as scipy_sparse
 
@@ -25,12 +27,14 @@ class JacobiDataset(SuiteSparseDataset):
     def __init__(
         self,
         source_name: str,
-        nnz: int | None = None,
+        *,
         suites: list[str] | None = None,
         A: np.ndarray | None = None,
         b: np.ndarray | None = None,
         x: np.ndarray | None = None,
         rhs_index: int | None = None,
+        max_iter: int = 1000,
+        rel_tol: float = 1e-6,
     ):
         dataset_name = suite_sparse_rhs_dataset_name(source_name, rhs_index)
         super().__init__(
@@ -38,12 +42,16 @@ class JacobiDataset(SuiteSparseDataset):
             source_name=source_name,
             pretty_name=f"Jacobi {source_name}",
             suites=suites,
-            nnz=nnz,
             rhs_index=rhs_index,
         )
         self.A = A
         self.b = b
         self.x = x
+        self.max_iter = max_iter
+        self.rel_tol = rel_tol
+
+    def benchmark_meta(self) -> dict[str, Any]:
+        return {"max_iter": self.max_iter, "rel_tol": self.rel_tol}
 
 
 class JacobiTestGenerator(Generator[JacobiDataset]):
@@ -133,7 +141,7 @@ class JacobiTestGenerator(Generator[JacobiDataset]):
                 from_numpy(dataset.b),
                 from_numpy(dataset.x),
             ],
-            meta={},
+            meta=dataset.benchmark_meta(),
             ref_meta={"check_rounded_residual": True, "round_decimals": 4},
         )
 
@@ -192,14 +200,14 @@ class JacobiGenerator(Generator[JacobiDataset]):
     @property
     def datasets(self) -> list[JacobiDataset]:
         return [
-            JacobiDataset("Pothen/mesh3em5", nnz=1889),
-            JacobiDataset("JGD_Trefethen/Trefethen_200", nnz=2873),
-            JacobiDataset("Bates/Chem97ZtZ", nnz=7361),
-            JacobiDataset("JGD_Trefethen/Trefethen_500", nnz=8478),
-            JacobiDataset("JGD_Trefethen/Trefethen_700", nnz=12654),
-            JacobiDataset("Norris/fv1", nnz=85264),
-            JacobiDataset("Norris/fv2", nnz=87025),
-            JacobiDataset("JGD_Trefethen/Trefethen_20000", nnz=554466),
+            JacobiDataset("Pothen/mesh3em5"),
+            JacobiDataset("JGD_Trefethen/Trefethen_200"),
+            JacobiDataset("Bates/Chem97ZtZ"),
+            JacobiDataset("JGD_Trefethen/Trefethen_500"),
+            JacobiDataset("JGD_Trefethen/Trefethen_700"),
+            JacobiDataset("Norris/fv1"),
+            JacobiDataset("Norris/fv2"),
+            JacobiDataset("JGD_Trefethen/Trefethen_20000"),
         ]
 
     def generate(self, dataset: JacobiDataset):
@@ -210,7 +218,7 @@ class JacobiGenerator(Generator[JacobiDataset]):
         x_bin = from_numpy(np.zeros(A_bin.shape[1]))
         b_bin = from_numpy(b)
 
-        return DataInstance(inputs=[A_bin, b_bin, x_bin], meta={})
+        return DataInstance(inputs=[A_bin, b_bin, x_bin], meta=dataset.benchmark_meta())
 
 
 class JacobiBenchmark(Benchmark):
@@ -338,9 +346,9 @@ class JacobiBenchmark(Benchmark):
     def benchmark(self, xp, data: list, meta: dict):
         A, b, x = data
 
-        rel_tol = meta.get("tolerance", 1e-6)
+        rel_tol = meta.get("rel_tol", 1e-6)
         abs_tol = meta.get("abs_tol", 1e-20)
-        max_iters = meta.get("max_iters", 1000)
+        max_iter = meta.get("max_iter", 1000)
 
         tolerance = max(rel_tol * self._norm(xp, b)[()], abs_tol)
         d = xp.with_fill_value(xp.diagonal(A), 1)
@@ -350,12 +358,12 @@ class JacobiBenchmark(Benchmark):
         r = b - A @ x
         it = 0
 
-        while self._norm(xp, r)[()] >= tolerance and it < max_iters:
+        while self._norm(xp, r)[()] >= tolerance and it < max_iter:
             x = x + r / d
 
             r = b - A @ x
             it += 1
-        if it >= max_iters:
+        if it >= max_iter:
             raise RuntimeError(
                 "Jacobi did not converge within the maximum number of iterations"
             )

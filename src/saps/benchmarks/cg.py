@@ -1,3 +1,5 @@
+from typing import Any
+
 import numpy as np
 import scipy.sparse as scipy_sparse
 
@@ -25,12 +27,14 @@ class CGDataset(SuiteSparseDataset):
     def __init__(
         self,
         source_name: str,
-        nnz: int | None = None,
+        *,
         suites: list[str] | None = None,
         A: np.ndarray | None = None,
         b: np.ndarray | None = None,
         x: np.ndarray | None = None,
         rhs_index: int | None = None,
+        max_iter: int = 100,
+        rel_tol: float = 1e-6,
     ):
         dataset_name = suite_sparse_rhs_dataset_name(source_name, rhs_index)
         super().__init__(
@@ -38,12 +42,16 @@ class CGDataset(SuiteSparseDataset):
             source_name=source_name,
             pretty_name=f"CG {source_name}",
             suites=suites,
-            nnz=nnz,
             rhs_index=rhs_index,
         )
         self.A = A
         self.b = b
         self.x = x
+        self.max_iter = max_iter
+        self.rel_tol = rel_tol
+
+    def benchmark_meta(self) -> dict[str, Any]:
+        return {"max_iter": self.max_iter, "rel_tol": self.rel_tol}
 
 
 class CGTestGenerator(Generator[CGDataset]):
@@ -164,7 +172,7 @@ class CGTestGenerator(Generator[CGDataset]):
                 from_numpy(dataset.b),
                 from_numpy(dataset.x),
             ],
-            meta={},
+            meta=dataset.benchmark_meta(),
             ref_meta={"check_rounded_residual": True, "round_decimals": 4},
         )
 
@@ -223,14 +231,14 @@ class CGGenerator(Generator[CGDataset]):
     @property
     def datasets(self) -> list[CGDataset]:
         return [
-            CGDataset("Pothen/mesh3em5", nnz=1889),
-            CGDataset("HB/bcsstm02", nnz=66),
-            CGDataset("Norris/fv1", nnz=85264),
-            CGDataset("MathWorks/Muu", nnz=170134),
-            CGDataset("Bates/Chem97ZtZ", nnz=7361),
-            CGDataset("UTEP/Dubcova1", nnz=253009),
-            CGDataset("Oberwolfach/t3dl_e", nnz=20360),
-            CGDataset("HB/bcsstk09", nnz=18437),
+            CGDataset("Pothen/mesh3em5"),
+            CGDataset("HB/bcsstm02"),
+            CGDataset("Norris/fv1"),
+            CGDataset("MathWorks/Muu"),
+            CGDataset("Bates/Chem97ZtZ"),
+            CGDataset("UTEP/Dubcova1"),
+            CGDataset("Oberwolfach/t3dl_e"),
+            CGDataset("HB/bcsstk09"),
         ]
 
     def generate(self, dataset: CGDataset) -> DataInstance:
@@ -241,7 +249,7 @@ class CGGenerator(Generator[CGDataset]):
         x_bin = from_numpy(np.zeros(A_bin.shape[1]))
         b_bin = from_numpy(b)
 
-        return DataInstance(inputs=[A_bin, b_bin, x_bin], meta={})
+        return DataInstance(inputs=[A_bin, b_bin, x_bin], meta=dataset.benchmark_meta())
 
 
 class CGBenchmark(Benchmark):
@@ -358,9 +366,9 @@ class CGBenchmark(Benchmark):
 
     def benchmark(self, xp, data: list, meta: dict):
         A, b, x = data
-        rel_tol = meta.get("tolerance", 1e-6)
+        rel_tol = meta.get("rel_tol", 1e-6)
         abs_tol = meta.get("abs_tol", 1e-20)
-        max_iters = meta.get("max_iters", 100)
+        max_iter = meta.get("max_iter", 100)
 
         tolerance = max(rel_tol * xp.sqrt(xp.vecdot(b, b))[()], abs_tol)
         tol_sq = tolerance * tolerance
@@ -371,7 +379,7 @@ class CGBenchmark(Benchmark):
         it = 0
 
         if rr >= tol_sq:
-            while it < max_iters:
+            while it < max_iter:
                 Ap = A @ p
                 alpha = rr / xp.vecdot(p, Ap)[()]
                 x = x + alpha * p

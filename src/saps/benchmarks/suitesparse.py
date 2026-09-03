@@ -68,7 +68,8 @@ class SuiteSparseDataset(Dataset):
     @property
     def metadata(self) -> dict[str, Any]:
         data = super().metadata
-        data["nnz"] = self.nnz
+        if self.nnz is not None:
+            data["nnz"] = self.nnz
         if self.rhs_index is not None:
             data["rhs_index"] = self.rhs_index
         return data

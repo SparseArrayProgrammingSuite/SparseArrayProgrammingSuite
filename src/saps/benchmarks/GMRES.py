@@ -25,14 +25,16 @@ class GMRESDataset(SuiteSparseDataset):
     def __init__(
         self,
         source_name: str,
-        nnz: int | None = None,
+        *,
         suites: list[str] | None = None,
         A: Any | None = None,
         b: np.ndarray | None = None,
         x0: np.ndarray | None = None,
-        meta: dict[str, Any] | None = None,
         ref_meta: dict[str, Any] | None = None,
         rhs_index: int | None = None,
+        max_iter: int = 100,
+        rel_tol: float = 1e-6,
+        restart: int = 50,
     ):
         dataset_name = suite_sparse_rhs_dataset_name(source_name, rhs_index)
         super().__init__(
@@ -40,14 +42,22 @@ class GMRESDataset(SuiteSparseDataset):
             source_name=source_name,
             pretty_name=f"GMRES {source_name}",
             suites=suites,
-            nnz=nnz,
             rhs_index=rhs_index,
         )
         self.A = A
         self.b = b
         self.x0 = x0
-        self.benchmark_meta = meta or {}
+        self.max_iter = max_iter
+        self.rel_tol = rel_tol
+        self.restart = restart
         self.ref_meta = ref_meta or {}
+
+    def benchmark_meta(self) -> dict[str, Any]:
+        return {
+            "max_iter": self.max_iter,
+            "rel_tol": self.rel_tol,
+            "restart": self.restart,
+        }
 
 
 def gmres_random_system(seed):
@@ -114,7 +124,9 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
                 A=random_42[0],
                 b=random_42[1],
                 x0=random_42[2],
-                meta={"restart": 20, "tolerance": 1e-8, "max_iters": 1000},
+                restart=20,
+                rel_tol=1e-8,
+                max_iter=1000,
                 ref_meta={"residual_tol": 1e-5},
             ),
             GMRESDataset(
@@ -123,7 +135,9 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
                 A=random_123[0],
                 b=random_123[1],
                 x0=random_123[2],
-                meta={"restart": 20, "tolerance": 1e-8, "max_iters": 1000},
+                restart=20,
+                rel_tol=1e-8,
+                max_iter=1000,
                 ref_meta={"residual_tol": 1e-5},
             ),
             GMRESDataset(
@@ -132,7 +146,9 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
                 A=np.array([[2.0, 0.0], [0.0, 3.0]]),
                 b=np.array([4.0, 9.0]),
                 x0=np.zeros(2),
-                meta={"restart": 2, "tolerance": 1e-8, "max_iters": 100},
+                restart=2,
+                rel_tol=1e-8,
+                max_iter=100,
                 ref_meta={"residual_tol": 1e-6},
             ),
             GMRESDataset(
@@ -141,7 +157,9 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
                 A=np.array([[10.0, 2.0, 1.0], [1.0, 20.0, 1.0], [1.0, 2.0, 10.0]]),
                 b=np.array([13.0, 22.0, 13.0]),
                 x0=np.zeros(3),
-                meta={"restart": 3, "tolerance": 1e-8, "max_iters": 100},
+                restart=3,
+                rel_tol=1e-8,
+                max_iter=100,
                 ref_meta={"residual_tol": 1e-6},
             ),
             GMRESDataset(
@@ -157,7 +175,9 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
                 ),
                 b=np.array([3.0, 2.0, 2.0, 2.0]),
                 x0=np.zeros(4),
-                meta={"restart": 4, "tolerance": 1e-8, "max_iters": 100},
+                restart=4,
+                rel_tol=1e-8,
+                max_iter=100,
                 ref_meta={"residual_tol": 1e-6},
             ),
         ]
@@ -173,7 +193,7 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
                 from_numpy(dataset.b),
                 from_numpy(dataset.x0),
             ],
-            meta=dataset.benchmark_meta,
+            meta=dataset.benchmark_meta(),
             ref_meta=dataset.ref_meta,
         )
 
@@ -235,14 +255,14 @@ class GMRESGenerator(Generator[GMRESDataset]):
     @property
     def datasets(self) -> list[GMRESDataset]:
         return [
-            GMRESDataset("Pothen/mesh3em5", nnz=1889),
-            GMRESDataset("HB/bcsstm02", nnz=66),
-            GMRESDataset("Norris/fv1", nnz=85264),
-            GMRESDataset("MathWorks/Muu", nnz=170134),
-            GMRESDataset("Bates/Chem97ZtZ", nnz=7361),
-            GMRESDataset("UTEP/Dubcova1", nnz=253009),
-            GMRESDataset("Oberwolfach/t3dl_e", nnz=20360),
-            GMRESDataset("HB/bcsstk09", nnz=18437),
+            GMRESDataset("Pothen/mesh3em5"),
+            GMRESDataset("HB/bcsstm02"),
+            GMRESDataset("Norris/fv1"),
+            GMRESDataset("MathWorks/Muu"),
+            GMRESDataset("Bates/Chem97ZtZ"),
+            GMRESDataset("UTEP/Dubcova1"),
+            GMRESDataset("Oberwolfach/t3dl_e"),
+            GMRESDataset("HB/bcsstk09"),
         ]
 
     def generate(self, dataset: GMRESDataset):
@@ -252,7 +272,7 @@ class GMRESGenerator(Generator[GMRESDataset]):
         )
         x_bin = from_numpy(np.zeros(A_bin.shape[1]))
         b_bin = from_numpy(b)
-        return DataInstance(inputs=[A_bin, b_bin, x_bin], meta={})
+        return DataInstance(inputs=[A_bin, b_bin, x_bin], meta=dataset.benchmark_meta())
 
 
 class GMRESBenchmark(Benchmark):
@@ -381,19 +401,19 @@ class GMRESBenchmark(Benchmark):
     def benchmark(self, xp, data: list, meta: dict):
         A, b, x0 = data
         restart = meta.get("restart", 50)
-        tolerance = meta.get("tolerance", 1e-6)
-        max_iters = meta.get("max_iters", 100)
+        rel_tol = meta.get("rel_tol", 1e-6)
+        max_iter = meta.get("max_iter", 100)
 
         itcount = 0
         r0 = b - A @ x0
         initial_beta = xp.linalg.norm(r0)[()]
-        if initial_beta < tolerance:
+        if initial_beta < rel_tol:
             return [x0]
 
         rcurr = r0 / initial_beta
         beta = initial_beta
 
-        while itcount < max_iters:
+        while itcount < max_iter:
             Q = xp.zeros((A.shape[0], restart + 1), dtype=float)
             H = xp.zeros((restart + 1, restart), dtype=float)
             Q[:, 0] = rcurr
@@ -418,11 +438,11 @@ class GMRESBenchmark(Benchmark):
                 r0 = b - A @ x0
                 r0_norm = xp.linalg.norm(r0)[()]
                 rcurr = r0 / r0_norm
-                if r0_norm / initial_beta < tolerance:
+                if r0_norm / initial_beta < rel_tol:
                     return [x0]
 
                 itcount += 1
-                if itcount >= max_iters:
+                if itcount >= max_iter:
                     break
 
             beta = r0_norm

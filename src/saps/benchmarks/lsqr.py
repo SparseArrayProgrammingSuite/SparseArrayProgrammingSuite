@@ -27,13 +27,15 @@ class LSQRDataset(SuiteSparseDataset):
     def __init__(
         self,
         source_name: str,
-        nnz: int | None = None,
+        *,
         noise_amt: float = 0.1,
         suites: list[str] | None = None,
         A: np.ndarray | None = None,
         b: np.ndarray | None = None,
         convergence: str | None = None,
         rhs_index: int | None = None,
+        max_iter: int = 100,
+        rel_tol: float = 1e-6,
     ):
         dataset_name = suite_sparse_rhs_dataset_name(source_name, rhs_index)
         super().__init__(
@@ -41,13 +43,17 @@ class LSQRDataset(SuiteSparseDataset):
             source_name=source_name,
             pretty_name=f"LSQR {source_name}",
             suites=suites,
-            nnz=nnz,
             rhs_index=rhs_index,
         )
         self.noise_amt = noise_amt
         self.A = A
         self.b = b
         self.convergence = convergence
+        self.max_iter = max_iter
+        self.rel_tol = rel_tol
+
+    def benchmark_meta(self) -> dict[str, Any]:
+        return {"max_iter": self.max_iter, "rel_tol": self.rel_tol}
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -210,7 +216,7 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
                 from_numpy(dataset.A),
                 from_numpy(dataset.b),
             ],
-            meta={},
+            meta=dataset.benchmark_meta(),
             ref_meta={"convergence": dataset.convergence},
         )
 
@@ -285,7 +291,7 @@ class LSQRGenerator(Generator[LSQRDataset]):
             b = b + noise
 
         b_bin = from_numpy(b)
-        return DataInstance(inputs=[A_bin, b_bin], meta={})
+        return DataInstance(inputs=[A_bin, b_bin], meta=dataset.benchmark_meta())
 
 
 class LSQRBenchmark(Benchmark):
@@ -407,9 +413,9 @@ class LSQRBenchmark(Benchmark):
 
     def benchmark(self, xp, data: list, meta: dict):
         A, b = data
-        tolerance = meta.get("tolerance", 1e-6)
+        tolerance = meta.get("rel_tol", 1e-6)
         conlim = meta.get("conlim", 1.0e8)
-        max_iters = meta.get("max_iters", 100)
+        max_iter = meta.get("max_iter", 100)
         exit = 0
 
         u = b
@@ -450,7 +456,7 @@ class LSQRBenchmark(Benchmark):
         # Anorm by sqrt(ddnorm)
         Acond = 0
 
-        while it < max_iters and not solution_is_zero:
+        while it < max_iter and not solution_is_zero:
             it += 1
 
             u = A @ v - alpha * u
