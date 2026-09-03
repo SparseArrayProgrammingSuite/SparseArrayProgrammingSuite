@@ -399,10 +399,9 @@ class LSQRBenchmark(Benchmark):
 
     def benchmark(self, xp, data: list, meta: dict):
         A, b = data
-        atol = meta.get("atol", 1e-9)
-        btol = meta.get("btol", 1e-9)
+        tolerance = meta.get("tolerance", 1e-6)
         conlim = meta.get("conlim", 1.0e8)
-        max_iters = meta.get("max_iters", 10000)
+        max_iters = meta.get("max_iters", 100)
         exit = 0
 
         u = b
@@ -489,13 +488,13 @@ class LSQRBenchmark(Benchmark):
             test2 = Arnorm / (Anorm * rnorm)
             test3 = 1 / Acond
 
-            reltol = atol * Anorm * xnorm / bnorm + btol
+            reltol = tolerance * Anorm * xnorm / bnorm + tolerance
 
             # Exits if the condition number grows too high
             if test3 <= ctol:
                 exit = 3
             # Exits if the gradient is small so the min has been found
-            if test2 <= atol:
+            if test2 <= tolerance:
                 exit = 2
             # Exits if the residual is small so we have found the solution
             if test1 <= reltol:
