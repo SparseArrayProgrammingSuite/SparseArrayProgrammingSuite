@@ -34,7 +34,7 @@ class LSQRDataset(SuiteSparseDataset):
         b: np.ndarray | None = None,
         convergence: str | None = None,
         rhs_index: int | None = None,
-        max_iter: int = 100,
+        max_iter: int = 1000,
         rel_tol: float = 1e-6,
     ):
         dataset_name = suite_sparse_rhs_dataset_name(source_name, rhs_index)
