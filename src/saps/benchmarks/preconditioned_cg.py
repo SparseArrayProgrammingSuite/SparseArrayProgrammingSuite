@@ -172,100 +172,332 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
                 ),
                 ref_meta={"check_residual": True},
             ),
-            PreconditionedCGDataset("Andrews/Andrews", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Andrianov/net100", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Andrianov/net125", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Andrianov/net150", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Andrianov/net25", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Andrianov/net50", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Andrianov/net75", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Bai/dw256B", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Bai/dwb512", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Bai/mhd3200b", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Bai/mhd4800b", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Bai/mhdb416", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Bindel/ted_B", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Bindel/ted_B_unscaled", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Boeing/bcsstk34", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Boeing/bcsstm39", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Boeing/crystm01", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Boeing/crystm02", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Boeing/crystm03", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Botonakis/FEM_3D_thermal1", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Botonakis/FEM_3D_thermal2", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Botonakis/thermomech_TC", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Botonakis/thermomech_dM", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Brunetiere/thermal", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Cunningham/qa8fm", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("FEMLAB/poisson2D", max_iter=100, rel_tol=1e-06, rhs_index=0),
-    PreconditionedCGDataset("FEMLAB/problem1", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("FIDAP/ex29", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("FIDAP/ex37", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("FIDAP/ex5", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("FIDAP/ex7", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Freescale/circuit5M_dc", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("GHS_psdef/jnlbrng1", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("GHS_psdef/minsurfo", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("GHS_psdef/obstclae", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("GHS_psdef/wathen100", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("GHS_psdef/wathen120", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Grund/poli", max_iter=100, rel_tol=1e-06, rhs_index=0),
-    PreconditionedCGDataset("Guettel/TEM27623", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstk01", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstk02", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstk03", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstk04", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstk05", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstk08", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstk22", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm02", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm05", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm06", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm07", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm08", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm09", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm11", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm12", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm19", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm20", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm21", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm22", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm23", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm24", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm25", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm26", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/fs_541_1", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/gr_30_30", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/lund_a", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/lund_b", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/nos1", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/nos4", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/nos6", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/nos7", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Hamm/add32", max_iter=100, rel_tol=1e-06, rhs_index=0),
-    PreconditionedCGDataset("Lourakis/bundle1", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("MathWorks/Muu", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("MathWorks/tomography", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("MaxPlanck/shallow_water1", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("MaxPlanck/shallow_water2", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Mulvey/finan512", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Nasa/nasa2146", max_iter=100, rel_tol=1e-06, rhs_index=0),
-    PreconditionedCGDataset("Norris/fv1", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Norris/fv2", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Oberwolfach/LF10", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Oberwolfach/LFAT5", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("PARSEC/Si2", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Pothen/bodyy4", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Pothen/mesh1e1", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Pothen/mesh1em1", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Pothen/mesh1em6", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Pothen/mesh2e1", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Pothen/mesh2em5", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Pothen/mesh3e1", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Pothen/mesh3em5", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Sandia/ASIC_100ks", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Sandia/ASIC_320ks", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Um/2cubes_sphere", max_iter=100, rel_tol=1e-06, rhs_index=0),
+            PreconditionedCGDataset(
+                "Andrews/Andrews", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Andrianov/net100", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Andrianov/net125", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Andrianov/net150", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Andrianov/net25", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Andrianov/net50", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Andrianov/net75", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Bai/dw256B", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Bai/dwb512", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Bai/mhd3200b", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Bai/mhd4800b", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Bai/mhdb416", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Bindel/ted_B", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Bindel/ted_B_unscaled",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            PreconditionedCGDataset(
+                "Boeing/bcsstk34", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Boeing/bcsstm39", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Boeing/crystm01", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Boeing/crystm02", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Boeing/crystm03", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Botonakis/FEM_3D_thermal1",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            PreconditionedCGDataset(
+                "Botonakis/FEM_3D_thermal2",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            PreconditionedCGDataset(
+                "Botonakis/thermomech_TC",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            PreconditionedCGDataset(
+                "Botonakis/thermomech_dM",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            PreconditionedCGDataset(
+                "Brunetiere/thermal", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Cunningham/qa8fm", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "FEMLAB/poisson2D",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            PreconditionedCGDataset(
+                "FEMLAB/problem1", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "FIDAP/ex29", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "FIDAP/ex37", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "FIDAP/ex5", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "FIDAP/ex7", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Freescale/circuit5M_dc",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            PreconditionedCGDataset(
+                "GHS_psdef/jnlbrng1", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "GHS_psdef/minsurfo", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "GHS_psdef/obstclae", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "GHS_psdef/wathen100", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "GHS_psdef/wathen120", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Grund/poli",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            PreconditionedCGDataset(
+                "Guettel/TEM27623", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstk01", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstk02", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstk03", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstk04", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstk05", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstk08", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstk22", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm02", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm05", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm06", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm07", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm08", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm09", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm11", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm12", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm19", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm20", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm21", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm22", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm23", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm24", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm25", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm26", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/fs_541_1", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/gr_30_30", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/lund_a", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/lund_b", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/nos1", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/nos4", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/nos6", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/nos7", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Hamm/add32",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            PreconditionedCGDataset(
+                "Lourakis/bundle1", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "MathWorks/Muu", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "MathWorks/tomography", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "MaxPlanck/shallow_water1",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            PreconditionedCGDataset(
+                "MaxPlanck/shallow_water2",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            PreconditionedCGDataset(
+                "Mulvey/finan512", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Nasa/nasa2146",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            PreconditionedCGDataset(
+                "Norris/fv1", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Norris/fv2", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Oberwolfach/LF10", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Oberwolfach/LFAT5", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "PARSEC/Si2", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Pothen/bodyy4", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Pothen/mesh1e1", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Pothen/mesh1em1", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Pothen/mesh1em6", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Pothen/mesh2e1", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Pothen/mesh2em5", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Pothen/mesh3e1", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Pothen/mesh3em5", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Sandia/ASIC_100ks", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Sandia/ASIC_320ks", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Um/2cubes_sphere",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
         ]
 
     def generate(self, dataset: PreconditionedCGDataset) -> DataInstance:
@@ -401,162 +633,631 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
                 ),
                 ref_meta={"check_residual": True},
             ),
-             PreconditionedCGDataset("Andrews/Andrews", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Andrianov/ins2", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Andrianov/net100", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Andrianov/net125", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Andrianov/net150", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Andrianov/net25", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Andrianov/net50", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Andrianov/net75", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Bai/bfwb398", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Bai/bfwb62", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Bai/bfwb782", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Bai/dw256B", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Bai/dwb512", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Bai/mhd3200b", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Bai/mhd4800b", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Bai/mhdb416", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Bindel/ted_B", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Bindel/ted_B_unscaled", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Boeing/bcsstk34", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Boeing/bcsstm39", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Boeing/crystm01", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Boeing/crystm02", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Boeing/crystm03", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Boeing/msc00726", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Botonakis/FEM_3D_thermal1", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Botonakis/FEM_3D_thermal2", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Botonakis/thermomech_TC", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Botonakis/thermomech_dM", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Bourchtein/atmosmodd", max_iter=100, rel_tol=1e-06, rhs_index=1),
-    PreconditionedCGDataset("Bourchtein/atmosmodj", max_iter=100, rel_tol=1e-06, rhs_index=1),
-    PreconditionedCGDataset("Bourchtein/atmosmodl", max_iter=100, rel_tol=1e-06, rhs_index=1),
-    PreconditionedCGDataset("Bourchtein/atmosmodm", max_iter=100, rel_tol=1e-06, rhs_index=1),
-    PreconditionedCGDataset("Brunetiere/thermal", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Cunningham/qa8fm", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("FEMLAB/poisson2D", max_iter=100, rel_tol=1e-06, rhs_index=0),
-    PreconditionedCGDataset("FEMLAB/problem1", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("FIDAP/ex29", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("FIDAP/ex37", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("FIDAP/ex5", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("FIDAP/ex7", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Freescale/circuit5M_dc", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("GHS_psdef/jnlbrng1", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("GHS_psdef/minsurfo", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("GHS_psdef/obstclae", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("GHS_psdef/wathen100", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("GHS_psdef/wathen120", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Grund/poli", max_iter=100, rel_tol=1e-06, rhs_index=0),
-    PreconditionedCGDataset("Guettel/TEM27623", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcspwr01", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcspwr02", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstk01", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstk02", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstk04", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstk08", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstk22", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm02", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm05", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm06", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm07", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm08", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm09", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm11", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm19", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm20", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm21", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm22", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm23", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm24", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm25", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/bcsstm26", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/can_144", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/can_24", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/can_61", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/can_62", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/can_73", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/can_96", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/dwt_59", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/dwt_66", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/dwt_72", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/fs_541_1", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/gr_30_30", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/jpwh_991", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/lap_25", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/lund_a", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/lund_b", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/nos4", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/nos6", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/nos7", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("HB/orani678", max_iter=100, rel_tol=1e-06, rhs_index=1),
-    PreconditionedCGDataset("HB/orani678", max_iter=100, rel_tol=1e-06, rhs_index=10),
-    PreconditionedCGDataset("HB/orani678", max_iter=100, rel_tol=1e-06, rhs_index=11),
-    PreconditionedCGDataset("HB/orani678", max_iter=100, rel_tol=1e-06, rhs_index=12),
-    PreconditionedCGDataset("HB/orani678", max_iter=100, rel_tol=1e-06, rhs_index=14),
-    PreconditionedCGDataset("HB/orani678", max_iter=100, rel_tol=1e-06, rhs_index=15),
-    PreconditionedCGDataset("HB/orani678", max_iter=100, rel_tol=1e-06, rhs_index=16),
-    PreconditionedCGDataset("HB/orani678", max_iter=100, rel_tol=1e-06, rhs_index=17),
-    PreconditionedCGDataset("HB/orani678", max_iter=100, rel_tol=1e-06, rhs_index=18),
-    PreconditionedCGDataset("HB/orani678", max_iter=100, rel_tol=1e-06, rhs_index=19),
-    PreconditionedCGDataset("HB/orani678", max_iter=100, rel_tol=1e-06, rhs_index=2),
-    PreconditionedCGDataset("HB/orani678", max_iter=100, rel_tol=1e-06, rhs_index=3),
-    PreconditionedCGDataset("HB/orani678", max_iter=100, rel_tol=1e-06, rhs_index=4),
-    PreconditionedCGDataset("HB/orani678", max_iter=100, rel_tol=1e-06, rhs_index=5),
-    PreconditionedCGDataset("HB/orani678", max_iter=100, rel_tol=1e-06, rhs_index=6),
-    PreconditionedCGDataset("HB/orani678", max_iter=100, rel_tol=1e-06, rhs_index=62),
-    PreconditionedCGDataset("HB/orani678", max_iter=100, rel_tol=1e-06, rhs_index=7),
-    PreconditionedCGDataset("HB/orani678", max_iter=100, rel_tol=1e-06, rhs_index=8),
-    PreconditionedCGDataset("HB/watt_1", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Hamm/add32", max_iter=100, rel_tol=1e-06, rhs_index=0),
-    PreconditionedCGDataset("Lourakis/bundle1", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("MathWorks/Muu", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("MathWorks/tomography", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("MaxPlanck/shallow_water1", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("MaxPlanck/shallow_water2", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Mulvey/finan512", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Nasa/nasa2146", max_iter=100, rel_tol=1e-06, rhs_index=0),
-    PreconditionedCGDataset("Nemeth/nemeth02", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Nemeth/nemeth03", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Nemeth/nemeth04", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Nemeth/nemeth05", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Nemeth/nemeth06", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Nemeth/nemeth07", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Nemeth/nemeth08", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Nemeth/nemeth09", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Nemeth/nemeth10", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Nemeth/nemeth11", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Nemeth/nemeth12", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Nemeth/nemeth13", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Nemeth/nemeth16", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Nemeth/nemeth17", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Norris/fv1", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Norris/fv2", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Oberwolfach/LF10", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Oberwolfach/LFAT5", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("PARSEC/Si2", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Pothen/bodyy4", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Pothen/mesh1e1", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Pothen/mesh1em1", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Pothen/mesh1em6", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Pothen/mesh2e1", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Pothen/mesh2em5", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Pothen/mesh3e1", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Pothen/mesh3em5", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Pothen/sphere2", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Sandia/ASIC_100ks", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Sandia/ASIC_320ks", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Sandia/ASIC_680ks", max_iter=100, rel_tol=1e-06),
-    PreconditionedCGDataset("Schenk_AFE/af_shell3", max_iter=100, rel_tol=1e-06, rhs_index=0),
-    PreconditionedCGDataset("Schenk_AFE/af_shell4", max_iter=100, rel_tol=1e-06, rhs_index=0),
-    PreconditionedCGDataset("Schenk_AFE/af_shell7", max_iter=100, rel_tol=1e-06, rhs_index=0),
-    PreconditionedCGDataset("Schenk_AFE/af_shell8", max_iter=100, rel_tol=1e-06, rhs_index=0),
-    PreconditionedCGDataset("Um/2cubes_sphere", max_iter=100, rel_tol=1e-06, rhs_index=0),
-    PreconditionedCGDataset("VDOL/hangGlider_1", max_iter=100, rel_tol=1e-06, rhs_index=0),
-    PreconditionedCGDataset("VDOL/tumorAntiAngiogenesis_1", max_iter=100, rel_tol=1e-06, rhs_index=0),
-    PreconditionedCGDataset("VDOL/tumorAntiAngiogenesis_2", max_iter=100, rel_tol=1e-06, rhs_index=0),
-    PreconditionedCGDataset("VLSI/ss1", max_iter=100, rel_tol=1e-06),
-
+            PreconditionedCGDataset(
+                "Andrews/Andrews", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Andrianov/ins2", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Andrianov/net100", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Andrianov/net125", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Andrianov/net150", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Andrianov/net25", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Andrianov/net50", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Andrianov/net75", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Bai/bfwb398", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Bai/bfwb62", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Bai/bfwb782", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Bai/dw256B", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Bai/dwb512", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Bai/mhd3200b", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Bai/mhd4800b", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Bai/mhdb416", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Bindel/ted_B", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Bindel/ted_B_unscaled",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            PreconditionedCGDataset(
+                "Boeing/bcsstk34", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Boeing/bcsstm39", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Boeing/crystm01", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Boeing/crystm02", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Boeing/crystm03", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Boeing/msc00726", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Botonakis/FEM_3D_thermal1",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            PreconditionedCGDataset(
+                "Botonakis/FEM_3D_thermal2",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            PreconditionedCGDataset(
+                "Botonakis/thermomech_TC",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            PreconditionedCGDataset(
+                "Botonakis/thermomech_dM",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            PreconditionedCGDataset(
+                "Bourchtein/atmosmodd",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=1,
+            ),
+            PreconditionedCGDataset(
+                "Bourchtein/atmosmodj",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=1,
+            ),
+            PreconditionedCGDataset(
+                "Bourchtein/atmosmodl",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=1,
+            ),
+            PreconditionedCGDataset(
+                "Bourchtein/atmosmodm",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=1,
+            ),
+            PreconditionedCGDataset(
+                "Brunetiere/thermal", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Cunningham/qa8fm", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "FEMLAB/poisson2D",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            PreconditionedCGDataset(
+                "FEMLAB/problem1", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "FIDAP/ex29", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "FIDAP/ex37", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "FIDAP/ex5", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "FIDAP/ex7", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Freescale/circuit5M_dc",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            PreconditionedCGDataset(
+                "GHS_psdef/jnlbrng1", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "GHS_psdef/minsurfo", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "GHS_psdef/obstclae", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "GHS_psdef/wathen100", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "GHS_psdef/wathen120", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Grund/poli",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            PreconditionedCGDataset(
+                "Guettel/TEM27623", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcspwr01", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcspwr02", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstk01", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstk02", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstk04", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstk08", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstk22", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm02", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm05", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm06", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm07", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm08", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm09", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm11", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm19", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm20", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm21", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm22", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm23", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm24", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm25", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/bcsstm26", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/can_144", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/can_24", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/can_61", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/can_62", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/can_73", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/can_96", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/dwt_59", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/dwt_66", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/dwt_72", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/fs_541_1", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/gr_30_30", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/jpwh_991", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/lap_25", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/lund_a", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/lund_b", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/nos4", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/nos6", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/nos7", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "HB/orani678",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=1,
+            ),
+            PreconditionedCGDataset(
+                "HB/orani678",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=10,
+            ),
+            PreconditionedCGDataset(
+                "HB/orani678",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=11,
+            ),
+            PreconditionedCGDataset(
+                "HB/orani678",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=12,
+            ),
+            PreconditionedCGDataset(
+                "HB/orani678",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=14,
+            ),
+            PreconditionedCGDataset(
+                "HB/orani678",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=15,
+            ),
+            PreconditionedCGDataset(
+                "HB/orani678",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=16,
+            ),
+            PreconditionedCGDataset(
+                "HB/orani678",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=17,
+            ),
+            PreconditionedCGDataset(
+                "HB/orani678",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=18,
+            ),
+            PreconditionedCGDataset(
+                "HB/orani678",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=19,
+            ),
+            PreconditionedCGDataset(
+                "HB/orani678",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=2,
+            ),
+            PreconditionedCGDataset(
+                "HB/orani678",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=3,
+            ),
+            PreconditionedCGDataset(
+                "HB/orani678",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=4,
+            ),
+            PreconditionedCGDataset(
+                "HB/orani678",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=5,
+            ),
+            PreconditionedCGDataset(
+                "HB/orani678",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=6,
+            ),
+            PreconditionedCGDataset(
+                "HB/orani678",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=62,
+            ),
+            PreconditionedCGDataset(
+                "HB/orani678",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=7,
+            ),
+            PreconditionedCGDataset(
+                "HB/orani678",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=8,
+            ),
+            PreconditionedCGDataset(
+                "HB/watt_1", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Hamm/add32",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            PreconditionedCGDataset(
+                "Lourakis/bundle1", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "MathWorks/Muu", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "MathWorks/tomography", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "MaxPlanck/shallow_water1",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            PreconditionedCGDataset(
+                "MaxPlanck/shallow_water2",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            PreconditionedCGDataset(
+                "Mulvey/finan512", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Nasa/nasa2146",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            PreconditionedCGDataset(
+                "Nemeth/nemeth02", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Nemeth/nemeth03", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Nemeth/nemeth04", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Nemeth/nemeth05", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Nemeth/nemeth06", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Nemeth/nemeth07", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Nemeth/nemeth08", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Nemeth/nemeth09", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Nemeth/nemeth10", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Nemeth/nemeth11", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Nemeth/nemeth12", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Nemeth/nemeth13", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Nemeth/nemeth16", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Nemeth/nemeth17", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Norris/fv1", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Norris/fv2", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Oberwolfach/LF10", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Oberwolfach/LFAT5", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "PARSEC/Si2", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Pothen/bodyy4", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Pothen/mesh1e1", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Pothen/mesh1em1", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Pothen/mesh1em6", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Pothen/mesh2e1", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Pothen/mesh2em5", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Pothen/mesh3e1", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Pothen/mesh3em5", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Pothen/sphere2", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Sandia/ASIC_100ks", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Sandia/ASIC_320ks", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Sandia/ASIC_680ks", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
+            PreconditionedCGDataset(
+                "Schenk_AFE/af_shell3",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            PreconditionedCGDataset(
+                "Schenk_AFE/af_shell4",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            PreconditionedCGDataset(
+                "Schenk_AFE/af_shell7",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            PreconditionedCGDataset(
+                "Schenk_AFE/af_shell8",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            PreconditionedCGDataset(
+                "Um/2cubes_sphere",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            PreconditionedCGDataset(
+                "VDOL/hangGlider_1",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            PreconditionedCGDataset(
+                "VDOL/tumorAntiAngiogenesis_1",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            PreconditionedCGDataset(
+                "VDOL/tumorAntiAngiogenesis_2",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            PreconditionedCGDataset(
+                "VLSI/ss1", suites=["standard"], max_iter=100, rel_tol=1e-06
+            ),
         ]
 
     def generate(self, dataset: PreconditionedCGDataset) -> DataInstance:

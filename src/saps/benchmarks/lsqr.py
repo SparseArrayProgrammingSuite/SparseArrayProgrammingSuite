@@ -270,18 +270,56 @@ class LSQRGenerator(Generator[LSQRDataset]):
     @property
     def datasets(self) -> list[LSQRDataset]:
         return [
-            LSQRDataset("ANSYS/Delor338K", max_iter=1000, rel_tol=1e-06),
-    LSQRDataset("HB/ash219", max_iter=1000, rel_tol=1e-06),
-    LSQRDataset("HB/ash331", max_iter=1000, rel_tol=1e-06),
-    LSQRDataset("HB/ash608", max_iter=1000, rel_tol=1e-06),
-    LSQRDataset("HB/ash85", max_iter=1000, rel_tol=1e-06),
-    LSQRDataset("HB/ash958", max_iter=1000, rel_tol=1e-06),
-    LSQRDataset("NYPA/Maragal_1", max_iter=1000, rel_tol=1e-06, rhs_index=0),
-    LSQRDataset("NYPA/Maragal_2", max_iter=1000, rel_tol=1e-06, rhs_index=0),
-    LSQRDataset("NYPA/Maragal_3", max_iter=1000, rel_tol=1e-06, rhs_index=0),
-    LSQRDataset("NYPA/Maragal_4", max_iter=1000, rel_tol=1e-06, rhs_index=0),
-    LSQRDataset("NYPA/Maragal_5", max_iter=1000, rel_tol=1e-06, rhs_index=0),
-    LSQRDataset("NYPA/Maragal_6", max_iter=1000, rel_tol=1e-06, rhs_index=0),
+            LSQRDataset(
+                "ANSYS/Delor338K", suites=["standard"], max_iter=1000, rel_tol=1e-06
+            ),
+            LSQRDataset("HB/ash219", suites=["standard"], max_iter=1000, rel_tol=1e-06),
+            LSQRDataset("HB/ash331", suites=["standard"], max_iter=1000, rel_tol=1e-06),
+            LSQRDataset("HB/ash608", suites=["standard"], max_iter=1000, rel_tol=1e-06),
+            LSQRDataset("HB/ash85", suites=["standard"], max_iter=1000, rel_tol=1e-06),
+            LSQRDataset("HB/ash958", suites=["standard"], max_iter=1000, rel_tol=1e-06),
+            LSQRDataset(
+                "NYPA/Maragal_1",
+                suites=["standard"],
+                max_iter=1000,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            LSQRDataset(
+                "NYPA/Maragal_2",
+                suites=["standard"],
+                max_iter=1000,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            LSQRDataset(
+                "NYPA/Maragal_3",
+                suites=["standard"],
+                max_iter=1000,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            LSQRDataset(
+                "NYPA/Maragal_4",
+                suites=["standard"],
+                max_iter=1000,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            LSQRDataset(
+                "NYPA/Maragal_5",
+                suites=["standard"],
+                max_iter=1000,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            LSQRDataset(
+                "NYPA/Maragal_6",
+                suites=["standard"],
+                max_iter=1000,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
         ]
 
     def generate(self, dataset: LSQRDataset):
