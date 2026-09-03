@@ -2,17 +2,12 @@
 from __future__ import annotations
 
 import argparse
-import importlib
 import json
 import logging
 import os
 import re
-import time
-import traceback
-from itertools import product
 from pathlib import Path
 
-from asv import util
 from asv.benchmarks import Benchmarks
 from asv.commands.setup import Setup
 from asv.config import Config
@@ -23,8 +18,11 @@ from asv.repo import get_repo
 from asv.results import Results
 from asv.runner import run_benchmarks
 
-import saps
-from saps.storage import DEFAULT_REMOTE_STORAGE_BACKEND, DEFAULT_REMOTE_STORAGE_BUCKET
+from saps.storage import (
+    DEFAULT_REMOTE_STORAGE_BACKEND,
+    DEFAULT_REMOTE_STORAGE_BUCKET,
+    build_storage_backend,
+)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -56,269 +54,26 @@ def format_results(results: Results, benchmarks: Benchmarks) -> dict:
     }
 
 
-def _apply_chunk_selection(
-    benchmarks: Benchmarks, chunk_count: int, chunk_index: int
-) -> tuple[int, int]:
-    """Restrict selected benchmark parameter cases to one deterministic chunk."""
-    if chunk_count == 1:
-        total = sum(
-            len(benchmarks.benchmark_selection.get(name, [])) for name in benchmarks
-        )
-        return total, total
-
-    selected_cases: list[tuple[str, int]] = []
-    for name in sorted(benchmarks):
-        selected_cases.extend(
-            (name, idx) for idx in sorted(benchmarks.benchmark_selection.get(name, []))
-        )
-
-    kept_by_name: dict[str, list[int]] = {name: [] for name in benchmarks}
-    for ordinal, (name, param_index) in enumerate(selected_cases):
-        if ordinal % chunk_count == chunk_index:
-            kept_by_name[name].append(param_index)
-
-    for name, selected in kept_by_name.items():
-        benchmarks._benchmark_selection[name] = selected
-
-    kept = sum(len(selected) for selected in kept_by_name.values())
-    return len(selected_cases), kept
-
-
-def _run_check_suite(benchmarks: Benchmarks, machine_params, commit_hash, commit_date):
-    """Run selected benchmark cases once in-process and print result JSON."""
-    entries: dict[str, dict] = {}
-    for name in sorted(benchmarks):
-        module_name, class_name, _method_name = name.rsplit(".", 2)
-        benchmark_module = importlib.import_module(f"saps.benchmarks.{module_name}")
-        benchmark = getattr(benchmark_module, class_name)()
-
-        param_combos = list(product(*benchmarks[name]["params"]))
-        selected = set(
-            benchmarks.benchmark_selection.get(name, range(len(param_combos)))
-        )
-        values = [float("nan")] * len(param_combos)
-        stderr = []
-        started_at = int(time.time() * 1000)
-        start = time.monotonic()
-
-        for idx in sorted(selected):
-            param = benchmark.params[idx]
-            try:
-                benchmark.setup(param)
-                benchmark.run(param)
-                benchmark.teardown(param)
-                values[idx] = 1
-            except Exception:  # noqa: BLE001
-                stderr.append(f"For parameters: {param}\n{traceback.format_exc()}")
-                for attr in (
-                    "_output",
-                    "_meta",
-                    "_ref_outputs",
-                    "_ref_meta",
-                    "_input",
-                ):
-                    if hasattr(benchmark, attr):
-                        delattr(benchmark, attr)
-
-        entries[name] = {
-            "result": values,
-            "stats": [None] * len(param_combos),
-            "samples": [None] * len(param_combos),
-            "duration_seconds": time.monotonic() - start,
-            "started_at": started_at,
-            "errcode": 1 if stderr else 0,
-            "stderr": "\n".join(stderr),
-        }
-
-    params = dict(machine_params.__dict__)
-    return {
-        "commit_hash": commit_hash,
-        "date": commit_date,
-        "env_name": "check-suite",
-        "env_vars": {},
-        "params": params,
-        "result_count": len(entries),
-        "results": entries,
-    }
-
-
-_UPLOAD_DATASET_CODE = r"""
-import importlib
-import os
-import sys
-
-import saps
-
-module_name, class_name, generator_name, dataset_name = sys.argv[1:5]
-bench_module = importlib.import_module(f"saps.benchmarks.{module_name}")
-bench = getattr(bench_module, class_name)()
-generator = next(gen for gen in bench.generators if gen.name == generator_name)
-dataset = next(ds for ds in generator.datasets if ds.name == dataset_name)
-backend = saps.build_storage_backend(
-    type=os.environ.get("REMOTE_STORAGE_BACKEND"),
-    bucket=os.environ.get("REMOTE_STORAGE_BUCKET"),
-)
-digest = backend.check_manifest(generator, dataset)
-prefix = None if digest is None else backend.prefix(generator, dataset, digest)
-if prefix is not None and backend.file_exists(prefix):
-    print("fresh")
-    raise SystemExit(0)
-raise SystemExit(0 if backend.upload_dataset(generator, dataset) else 1)
-"""
-
-
-def _cache_datasets(
-    benchmarks, metadata, environments, source_benchmarks, timeout: float | None
-) -> int:
-    """Upload the selected (benchmark, generator, dataset) triples."""
-    uploaded = failed = skipped = 0
-    seen: set[tuple[str, str]] = set()
-    for env in environments:
-        Setup.perform_setup([env], parallel=1)
-        for name in benchmarks:
-            if name not in metadata:
-                continue
-            selected_pairs = None
-            selected_idx = benchmarks.benchmark_selection.get(name)
-            if selected_idx is not None:
-                selected_pairs = {
-                    tuple(param[0].split(".")[:2])
-                    for idx, param in enumerate(product(*benchmarks[name]["params"]))
-                    if idx in selected_idx and len(param) > 0
-                }
-            module_name, class_name, _method = name.rsplit(".", 2)
-            bench_meta = metadata[name]
-            source_generators = {
-                generator.name: generator
-                for generator in source_benchmarks[name].generators
-            }
-            generators = {gen["name"]: gen for gen in bench_meta["generators"]}
-            for generator_name, gen_meta in generators.items():
-                source_generator = source_generators[generator_name]
-                for ds_meta in gen_meta["datasets"]:
-                    dataset_name = ds_meta["name"]
-                    key = (generator_name, dataset_name)
-                    if selected_pairs is not None and key not in selected_pairs:
-                        continue
-                    if key in seen:
-                        skipped += 1
-                        continue
-                    seen.add(key)
-                    label = f"{bench_meta['name']} / {generator_name} / {dataset_name}"
-                    if not source_generator.cacheable:
-                        skipped += 1
-                        print(f"[uncached] {label}")
-                        continue
-                    print(f"[caching]  {label}", flush=True)
-                    try:
-                        output = env.run(
-                            [
-                                "-c",
-                                _UPLOAD_DATASET_CODE,
-                                module_name,
-                                class_name,
-                                generator_name,
-                                dataset_name,
-                            ],
-                            timeout=timeout,
-                        )
-                        if output.splitlines()[-1:] == ["fresh"]:
-                            skipped += 1
-                            print(f"[fresh]    {label}")
-                        else:
-                            uploaded += 1
-                            print(f"[uploaded] {label}")
-                    except (
-                        OSError,
-                        RuntimeError,
-                        StopIteration,
-                        util.ProcessError,
-                    ) as e:
-                        failed += 1
-                        print(f"[error]    {label}: {e}")
-    print(f"upload summary: uploaded={uploaded} failed={failed} skipped={skipped}")
-    return 0 if failed == 0 else 1
-
-
-def _metadata_tags(record: dict) -> set[str]:
-    return {
-        *record.get("suites", []),
-        *record.get("statistics", []),
-        *record.get("topics", []),
-    }
-
-
-def regex_any_match(patterns: list[str], value: str) -> bool:
-    return any(re.search(pattern, value) for pattern in patterns)
-
-
-def _record_key(record: dict) -> str:
-    return record["name"]
-
-
-def _load_metadata_document(metadata_path: Path) -> dict:
-    if not metadata_path.exists():
-        raise RuntimeError(
-            f"{metadata_path} does not exist; run generate metadata first with "
-            "`poetry run ./bin/run_benchmark.py --generate-metadata`."
-        )
-    document = json.loads(metadata_path.read_text(encoding="utf-8"))
-    return {"benchmarks": document.get("benchmarks", [])}
-
-
-def _statistics_freshness(statistics_path: Path) -> dict[tuple[str, str, str], str]:
-    if not statistics_path.exists():
-        return {}
-    document = json.loads(statistics_path.read_text(encoding="utf-8"))
-    return {
-        (benchmark["name"], generator["name"], dataset["name"]): dataset["freshness"]
-        for benchmark in document.get("benchmarks", [])
-        for generator in benchmark.get("generators", [])
-        for dataset in generator.get("datasets", [])
-        if "freshness" in dataset
-    }
-
-
-def _refresh_metadata(
-    metadata: dict[str, dict],
-    metadata_path: Path,
-) -> int:
-    records: dict[str, dict] = {}
-    for record in metadata.values():
-        records.setdefault(_record_key(record), record)
-
-    document = {"benchmarks": sorted(records.values(), key=_record_key)}
-    metadata_path.write_text(
-        json.dumps(document, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
-    print(f"generated metadata for {len(document['benchmarks'])} benchmarks")
-    return 0
-
-
-def _trace_statistics(
+def _run_asv_benchmarks(
     benchmarks,
     environments,
     machine_params,
     commit_hash,
     commit_date,
-    outputs_dir,
     timeout,
     show_stderr,
-    skipped_fresh=0,
-) -> int:
-    """Run selected benchmarks under ASV with the tagger framework."""
-    stats_dir = outputs_dir / "tagger_stats"
-    stats_dir.mkdir(parents=True, exist_ok=True)
-    for stats_path in stats_dir.glob("*.json"):
-        stats_path.unlink()
-
-    print(f"Discovered {len(benchmarks)} benchmark entries for tagger")
-    print(f"Using timeout: {timeout} seconds")
-
+    quick,
+    install_project=None,
+    results_dir=None,
+    print_results=False,
+    launch_method=None,
+):
     failed = 0
     for env in environments:
         Setup.perform_setup([env], parallel=1)
+        if install_project is not None:
+            conf, repo = install_project
+            env.install_project(conf, repo, commit_hash)
 
         params = dict(machine_params.__dict__)
         params["python"] = env.python
@@ -339,22 +94,83 @@ def _trace_statistics(
             env=env,
             results=results,
             show_stderr=show_stderr,
-            quick=True,
+            quick=quick,
             extra_params={"timeout": timeout},
+            launch_method=launch_method,
         )
         failed += sum(
             1 for errcode in results.errcode.values() if errcode not in (None, 0)
         )
-        results.save(outputs_dir / "results")
+        if print_results:
+            print("Results object:", results)
+            print(
+                json.dumps(format_results(results, benchmarks), indent=2, default=str)
+            )
+        if results_dir is not None:
+            results.save(results_dir)
+    return failed
 
-    tagged = sum(1 for _ in stats_dir.glob("*.json"))
-    print(
-        "tag summary: "
-        f"tagged_records={tagged} "
-        f"failed_benchmark_entries={failed} "
-        f"skipped_fresh={skipped_fresh}"
-    )
-    return 0 if failed == 0 and (tagged > 0 or skipped_fresh > 0) else 1
+
+def _load_metadata(metadata_path: Path) -> list[dict]:
+    if not metadata_path.exists():
+        raise RuntimeError(
+            f"{metadata_path} does not exist; run generate metadata first with "
+            "`poetry run ./bin/generate_metadata.py`."
+        )
+    document = json.loads(metadata_path.read_text(encoding="utf-8"))
+    return document.get("benchmarks", [])
+
+
+def _filter_metadata(metadata: list[dict], dataset_predicate) -> list[dict]:
+    filtered = []
+    dataset_number = 0
+    for benchmark in metadata:
+        generators = []
+        for generator in benchmark["generators"]:
+            datasets = []
+            for dataset in generator["datasets"]:
+                if dataset_predicate(benchmark, generator, dataset, dataset_number):
+                    datasets.append(dataset)
+                dataset_number += 1
+            if datasets:
+                generators.append({**generator, "datasets": datasets})
+        if generators:
+            filtered.append({**benchmark, "generators": generators})
+    return filtered
+
+
+def _metadata_to_asv_benchmarks(
+    metadata: list[dict], benchmarks: Benchmarks, metrics: list[str]
+):
+    metadata_by_asv_id = {
+        record["asv_ids"][metric]: record
+        for record in metadata
+        for metric in metrics
+        if metric in record.get("asv_ids", {})
+    }
+    skips = []
+    benchmarks._benchmark_selection = {}
+    for name in benchmarks:
+        bench_meta = metadata_by_asv_id.get(name)
+        if bench_meta is None:
+            skips.append(name)
+            continue
+        selected_params = {
+            dataset["asv_param"]
+            for generator in bench_meta["generators"]
+            for dataset in generator["datasets"]
+        }
+        asv_params = benchmarks[name]["params"][0] if benchmarks[name]["params"] else []
+        selection = [
+            idx
+            for idx, asv_param in enumerate(asv_params)
+            if asv_param in selected_params
+        ]
+        if selection:
+            benchmarks._benchmark_selection[name] = selection
+        else:
+            skips.append(name)
+    return benchmarks.filter_out(set(skips))
 
 
 def main() -> int:
@@ -426,15 +242,6 @@ def main() -> int:
         ),
     )
     parser.add_argument(
-        "--generate-metadata",
-        dest="generate_metadata",
-        action="store_true",
-        help=(
-            "Skip benchmark execution. Rebuild metadata.json from the "
-            "benchmark definitions."
-        ),
-    )
-    parser.add_argument(
         "--trace-statistics",
         action="store_true",
         help=(
@@ -447,7 +254,7 @@ def main() -> int:
         "--check-suite",
         action="store_true",
         help=(
-            "Run selected benchmark cases once in-process and print result JSON. "
+            "Run selected benchmark cases once through ASV and print result JSON. "
             "Honors --re/--no-re/--tag/--no-tag filters."
         ),
     )
@@ -501,7 +308,7 @@ def main() -> int:
         type=int,
         default=1,
         help=(
-            "Split the selected benchmark parameter cases into this many chunks. "
+            "Split the selected benchmark datasets into this many chunks. "
             "Run one process per chunk with a distinct --chunk-index."
         ),
     )
@@ -526,7 +333,7 @@ def main() -> int:
         )
 
     log.enable(args.verbose)
-    benchmark_metrics = args.metrics or ["peakmem", "time"]
+    benchmark_metrics = ["time"] if args.cache_datasets else list(args.metrics)
 
     # Get repo root (parent of bin directory where this script is)
     repo_root = Path(__file__).parent.parent
@@ -535,8 +342,12 @@ def main() -> int:
     saps_dir = Path(".saps").resolve()
     saps_dir.mkdir(parents=True, exist_ok=True)
     machine_files_dir = saps_dir / "machine_files"
-    machine_files_dir.mkdir(parents=True, exist_ok=True)
     outputs_dir = saps_dir / "outputs"
+    chunk_name = f"chunk-{args.chunk_index}" if args.chunk_count > 1 else None
+    if chunk_name:
+        machine_files_dir /= chunk_name
+        outputs_dir /= chunk_name
+    machine_files_dir.mkdir(parents=True, exist_ok=True)
     outputs_dir.mkdir(parents=True, exist_ok=True)
 
     # Load optional saps.conf.json
@@ -551,6 +362,14 @@ def main() -> int:
         if saps_config_file.exists():
             with open(saps_config_file) as f:
                 saps_config_data = json.load(f)
+
+    env_dir = Path(saps_config_data.get("env_dir", str(saps_dir / "results")))
+    results_dir = Path(
+        saps_config_data.get("results_dir", str(saps_dir / "outputs" / "results"))
+    )
+    if chunk_name:
+        env_dir /= chunk_name
+        results_dir /= chunk_name
 
     matrix = saps_config_data.get(
         "matrix",
@@ -575,6 +394,9 @@ def main() -> int:
         },
     )
     matrix.setdefault("env_nobuild", {})
+    log_path = str(results_dir / "diagnostics.log")
+    os.environ["SAPS_LOG_PATH"] = log_path
+    matrix["env_nobuild"]["SAPS_LOG_PATH"] = [log_path]
     storage_backend = args.remote_storage_backend or DEFAULT_REMOTE_STORAGE_BACKEND
     storage_bucket = args.remote_storage_bucket or DEFAULT_REMOTE_STORAGE_BUCKET
     if (
@@ -590,8 +412,12 @@ def main() -> int:
     cache_dir = str(outputs_dir / "cache")
     os.environ["SAPS_CACHE_DIR"] = cache_dir
     matrix["env_nobuild"]["SAPS_CACHE_DIR"] = [cache_dir]
-    persistent_metadata_path = repo_root / "metadata.json"
-    persistent_statistics_path = repo_root / "statistics.json"
+    persistent_metadata_path = Path(
+        os.environ.get("SAPS_METADATA_PATH", str(repo_root / "metadata.json"))
+    )
+    persistent_statistics_path = Path(
+        os.environ.get("SAPS_STATISTICS_PATH", str(repo_root / "statistics.json"))
+    )
     manifest_path = str(repo_root / "manifest.json")
     pythonpath = str(repo_root)
     os.environ["SAPS_MANIFEST_PATH"] = manifest_path
@@ -599,6 +425,11 @@ def main() -> int:
     os.environ["REMOTE_STORAGE_BACKEND"] = storage_backend
     os.environ["REMOTE_STORAGE_BUCKET"] = storage_bucket
     matrix["env_nobuild"]["SAPS_MANIFEST_PATH"] = [manifest_path]
+    if args.cache_datasets:
+        os.environ["SAPS_CACHE_DATASETS"] = "1"
+        matrix["env_nobuild"]["SAPS_CACHE_DATASETS"] = ["1"]
+    else:
+        os.environ.pop("SAPS_CACHE_DATASETS", None)
     if args.trace_statistics or args.cache_datasets:
         framework_file = (
             "frameworks/saps_tagger.py"
@@ -607,13 +438,13 @@ def main() -> int:
         )
         os.environ["SAPS_FRAMEWORK"] = str(repo_root / framework_file)
         if args.trace_statistics:
-            tagger_stats_dir = str(outputs_dir / "tagger_stats")
+            tagger_stats_dir = os.environ.get(
+                "SAPS_TAGGER_STATS_DIR", str(outputs_dir / "tagger_stats")
+            )
             os.environ["SAPS_TAGGER_STATS_DIR"] = tagger_stats_dir
             os.environ["SAPS_STATISTICS_PATH"] = str(persistent_statistics_path)
 
-    uses_parent_environment = (
-        args.trace_statistics or args.cache_datasets or args.generate_metadata
-    )
+    uses_parent_environment = args.trace_statistics or args.cache_datasets
 
     # Construct ASV config dict with all fields visible
     asv_config_dict = {
@@ -632,10 +463,8 @@ def main() -> int:
             ["in-dir={env_dir} python -mpip install {build_dir} --force-reinstall"],
         ),
         "benchmark_dir": str(repo_root / "src/saps/benchmarks"),
-        "env_dir": saps_config_data.get("env_dir", str(saps_dir / "results")),
-        "results_dir": saps_config_data.get(
-            "results_dir", str(outputs_dir / "results")
-        ),
+        "env_dir": str(env_dir),
+        "results_dir": str(results_dir),
         "html_dir": str(outputs_dir / "html"),
         "matrix": matrix,
     }
@@ -669,14 +498,24 @@ def main() -> int:
                 abs_paths.append(str(Path(cwd) / path_obj))
         conf.matrix["env_nobuild"]["SAPS_FRAMEWORK"] = abs_paths
 
-    machine_params = Machine.load(
-        machine_name=args.machine,
-        interactive=True,
-        use_defaults=True,
-    )
+    # ASV normally reads and rewrites ~/.asv-machine.json.  Concurrent Slurm
+    # array tasks can observe that file while another task has truncated it.
+    # Give each runner process private transient machine state instead.
+    machine_state_path = machine_files_dir / "asv-machine.json"
+    try:
+        machine_params = Machine.load(
+            machine_name=args.machine,
+            interactive=True,
+            use_defaults=True,
+            _path=str(machine_state_path),
+        )
+    finally:
+        machine_state_path.unlink(missing_ok=True)
 
-    # Save machine file to SAPS machine files directory
-    machine_params.save(str(machine_files_dir))
+    # Normal benchmark runs retain the conventional machine metadata.  Cache
+    # and trace workers only need it in memory and may execute concurrently.
+    if not uses_parent_environment:
+        machine_params.save(str(machine_files_dir))
 
     if uses_parent_environment:
         environments = [ExistingEnvironment(conf, "same", {}, {})]
@@ -702,229 +541,198 @@ def main() -> int:
         environments=discovery_environments,
         commit_hash=[commit_hash],
     )
-    metric_prefixes = tuple(f"{metric}_" for metric in benchmark_metrics)
-    benchmarks = benchmarks.filter_out(
-        {
-            name
-            for name in benchmarks
-            if not name.rsplit(".", 1)[-1].startswith(metric_prefixes)
-        }
-    )
 
-    source_benchmarks: dict[str, saps.Benchmark] = {}
-    source_metadata: dict[str, dict] = {}
-    for name in benchmarks:
-        module_name, class_name, _method_name = name.rsplit(".", 2)
-        benchmark_module = importlib.import_module(f"saps.benchmarks.{module_name}")
-        benchmark = getattr(benchmark_module, class_name)()
-        assert isinstance(benchmark, saps.Benchmark)
-        source_benchmarks[name] = benchmark
-        source_metadata[name] = benchmark.metadata
-    metadata = dict(source_metadata)
-
-    # Store benchmark metadata in SAPS outputs directory
-    results_dir = outputs_dir / "results"
     results_dir.mkdir(parents=True, exist_ok=True)
-    metadata_path = results_dir / "benchmarks_meta.json"
-    metadata_path.write_text(
-        json.dumps(source_metadata, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
+
+    include_tags = {tag.strip() for tag in args.tag if tag and tag.strip()}
+    exclude_tags = {tag.strip() for tag in args.no_tag if tag and tag.strip()}
+    include_patterns = [re.compile(pattern) for pattern in args.re or []]
+    exclude_patterns = [re.compile(pattern) for pattern in args.no_re or []]
+
+    def name_matches(patterns, names) -> bool:
+        return any(pattern.search(name) for pattern in patterns for name in names)
+
+    def dataset_predicate(
+        benchmark: dict, generator: dict, dataset: dict, _dataset_number: int
+    ) -> bool:
+        dataset_tags = set(dataset["tags"])
+        target_names = (benchmark["name"], generator["name"], dataset["name"])
+        positive = (
+            not include_tags or not dataset_tags.isdisjoint(include_tags),
+            not include_patterns or name_matches(include_patterns, target_names),
+        )
+        negative = (
+            exclude_tags and not dataset_tags.isdisjoint(exclude_tags),
+            exclude_patterns and name_matches(exclude_patterns, target_names),
+        )
+        return all(positive) and not any(negative)
+
+    metadata = _filter_metadata(
+        _load_metadata(persistent_metadata_path), dataset_predicate
     )
-
-    if args.generate_metadata:
-        return _refresh_metadata(source_metadata, persistent_metadata_path)
-
-    include_set = {tag.strip() for tag in args.tag if tag and tag.strip()}
-    exclude_set = {tag.strip() for tag in args.no_tag if tag and tag.strip()}
-    include_res = args.re or []
-    exclude_res = args.no_re or []
-    stats_freshness = (
-        _statistics_freshness(persistent_statistics_path)
-        if args.trace_statistics
-        else {}
-    )
-    skipped_fresh_statistics = 0
-
-    def match_target(obj: dict) -> str:
-        return obj["name"]
-
-    def is_include(obj) -> bool:
-        if include_res and not regex_any_match(include_res, match_target(obj)):
-            return False
-        return not (include_set and not include_set.intersection(_metadata_tags(obj)))
-
-    def is_exclude(obj) -> bool:
-        if exclude_res and regex_any_match(exclude_res, match_target(obj)):
-            return True
-        return bool(exclude_set and exclude_set.intersection(_metadata_tags(obj)))
-
-    persistent_document = None
-    if persistent_metadata_path.exists():
-        persistent_document = _load_metadata_document(persistent_metadata_path)
-        persistent_by_key = {
-            _record_key(record): record
-            for record in persistent_document.get("benchmarks", [])
-        }
-        for name, record in list(metadata.items()):
-            existing = persistent_by_key.get(_record_key(record))
-            if existing is not None:
-                metadata[name] = existing
-
-    skips = []
-    benchmarks._benchmark_selection = {}
-    for name in benchmarks:
-        if name not in metadata:
-            log.warning(
-                "No SAPS metadata found for benchmark "
-                f"'{name}', skipping SAPS tag filtering "
-                "for this benchmark"
+    trace_had_selected_datasets = bool(metadata)
+    if args.trace_statistics:
+        statistics = (
+            json.loads(persistent_statistics_path.read_text(encoding="utf-8"))
+            if persistent_statistics_path.exists()
+            else {}
+        )
+        fresh_statistics = {
+            (
+                benchmark["name"],
+                generator["name"],
+                dataset["name"],
+                dataset["freshness"],
             )
-            skips.append(name)
-            continue
-        if is_exclude(metadata[name]):
-            skips.append(name)
-            continue
-        benchmarks._benchmark_selection[name] = []
-        generators = {gen["name"]: gen for gen in metadata[name]["generators"]}
-        param_combos = list(product(*benchmarks[name]["params"]))
-        for idx, param in enumerate(param_combos):
-            if len(param) == 0:
-                print(
-                    f"Warning: benchmark '{name}' has no data generators, skipping"
-                    " benchmark"
-                )
-                continue
-            generator, dataset = param[0].split(".")[:2]
-            generator = generators.get(generator)
-            datasets = {ds["name"]: ds for ds in generator["datasets"]}
-            dataset = datasets.get(dataset)
-            if (
-                is_exclude(generator)
-                or is_exclude(dataset)
-                or not (
-                    is_include(metadata[name])
-                    or is_include(generator)
-                    or is_include(dataset)
-                )
-            ):
-                continue
-            if args.trace_statistics:
-                benchmark_param = source_benchmarks[name].params[idx]
-                stats_key = (
-                    source_benchmarks[name].name,
-                    benchmark_param.generator.name,
-                    benchmark_param.dataset.name,
-                )
-                if benchmark_param.dataset.freshness == stats_freshness.get(stats_key):
-                    skipped_fresh_statistics += 1
-                    continue
-            benchmarks._benchmark_selection[name].append(idx)
-
-        if not benchmarks._benchmark_selection[name]:
-            skips.append(name)
-
-    benchmarks = benchmarks.filter_out(set(skips))
-    chunk_total, chunk_kept = _apply_chunk_selection(
-        benchmarks, args.chunk_count, args.chunk_index
-    )
-    if args.chunk_count > 1:
-        benchmarks = benchmarks.filter_out(
-            {
-                name
-                for name in benchmarks
-                if not benchmarks.benchmark_selection.get(name)
-            }
-        )
-        print(
-            "Selected benchmark chunk "
-            f"{args.chunk_index}/{args.chunk_count}: "
-            f"{chunk_kept} of {chunk_total} parameter cases"
-        )
-    selected_source_metadata = {
-        name: source_metadata[name] for name in benchmarks if name in source_metadata
-    }
-
-    if args.cache_datasets or args.trace_statistics:
-        if persistent_document is None:
-            persistent_document = _load_metadata_document(persistent_metadata_path)
-        existing_benchmarks = {
-            _record_key(record): record
-            for record in persistent_document.get("benchmarks", [])
+            for benchmark in statistics.get("benchmarks", [])
+            for generator in benchmark.get("generators", [])
+            for dataset in generator.get("datasets", [])
+            if "freshness" in dataset
         }
-        for record in selected_source_metadata.values():
-            key = _record_key(record)
-            if key not in existing_benchmarks:
-                raise RuntimeError(
-                    f"Missing metadata entry for {key}; run generate metadata first "
-                    "with `poetry run ./bin/run_benchmark.py --generate-metadata`."
-                )
+
+        def needs_statistics(
+            benchmark: dict, generator: dict, dataset: dict, _dataset_number: int
+        ) -> bool:
+            return (
+                benchmark["name"],
+                generator["name"],
+                dataset["name"],
+                dataset["freshness"],
+            ) not in fresh_statistics
+
+        metadata = _filter_metadata(metadata, needs_statistics)
 
     if args.cache_datasets:
-        return _cache_datasets(
-            benchmarks=benchmarks,
-            metadata=metadata,
-            environments=environments,
-            source_benchmarks=source_benchmarks,
-            timeout=timeout,
+        backend = build_storage_backend(
+            storage_backend,
+            storage_bucket,
+            manifest_path=manifest_path,
+            cache_dir=cache_dir,
         )
+        manifest_file = Path(manifest_path)
+        manifest = (
+            json.loads(manifest_file.read_text(encoding="utf-8"))
+            if manifest_file.exists()
+            else {}
+        )
+        selected_cache_params = set()
 
-    if args.trace_statistics:
-        return _trace_statistics(
+        def needs_caching(
+            _benchmark: dict, generator: dict, dataset: dict, _dataset_number: int
+        ) -> bool:
+            if not generator["cacheable"]:
+                return False
+            manifest_key = dataset["asv_param"]
+            record = manifest.get(manifest_key)
+            if manifest_key in selected_cache_params:
+                return False
+            fresh = (
+                record is not None
+                and all(
+                    record.get(key) == dataset[key] for key in ("file", "freshness")
+                )
+                and "digest" in record
+                and backend.manifest_record_exists(manifest_key, record)
+            )
+            if fresh:
+                return False
+            selected_cache_params.add(manifest_key)
+            return True
+
+        metadata = _filter_metadata(metadata, needs_caching)
+
+    chunk_total = sum(
+        len(generator["datasets"])
+        for benchmark in metadata
+        for generator in benchmark["generators"]
+    )
+    chunk_kept = chunk_total
+    if args.chunk_count > 1:
+
+        def in_chunk(
+            _benchmark: dict,
+            _generator: dict,
+            _dataset: dict,
+            dataset_number: int,
+        ) -> bool:
+            return dataset_number % args.chunk_count == args.chunk_index
+
+        metadata = _filter_metadata(metadata, in_chunk)
+
+    benchmarks = _metadata_to_asv_benchmarks(metadata, benchmarks, benchmark_metrics)
+    if args.cache_datasets:
+        print(f"Discovered {len(benchmarks)} benchmark entries for caching")
+        print(f"Using timeout: {timeout} seconds")
+        failed = _run_asv_benchmarks(
             benchmarks=benchmarks,
             environments=environments,
             machine_params=machine_params,
             commit_hash=commit_hash,
             commit_date=commit_date,
-            outputs_dir=outputs_dir,
             timeout=timeout,
             show_stderr=args.show_stderr,
-            skipped_fresh=skipped_fresh_statistics,
+            quick=True,
         )
+        print(f"cache summary: selected={chunk_kept} failed_benchmark_entries={failed}")
+        return 0 if failed == 0 else 1
+
+    if args.trace_statistics:
+        stats_dir = Path(os.environ["SAPS_TAGGER_STATS_DIR"])
+        stats_dir.mkdir(parents=True, exist_ok=True)
+        for stats_path in stats_dir.glob("*.json"):
+            stats_path.unlink()
+
+        print(f"Discovered {len(benchmarks)} benchmark entries for tagger")
+        print(f"Using timeout: {timeout} seconds")
+        failed = _run_asv_benchmarks(
+            benchmarks=benchmarks,
+            environments=environments,
+            machine_params=machine_params,
+            commit_hash=commit_hash,
+            commit_date=commit_date,
+            timeout=timeout,
+            show_stderr=args.show_stderr,
+            quick=True,
+            results_dir=results_dir,
+        )
+        tagged = sum(1 for _ in stats_dir.glob("*.json"))
+        print(f"tag summary: tagged_records={tagged} failed_benchmark_entries={failed}")
+        return 0 if failed == 0 and (tagged > 0 or trace_had_selected_datasets) else 1
 
     if args.check_suite:
         print(f"Discovered {len(benchmarks)} benchmark entries")
-        result_json = _run_check_suite(
+        print(f"Using timeout: {timeout} seconds")
+        failed = _run_asv_benchmarks(
             benchmarks=benchmarks,
+            environments=environments,
             machine_params=machine_params,
             commit_hash=commit_hash,
             commit_date=commit_date,
+            timeout=timeout,
+            show_stderr=args.show_stderr,
+            quick=True,
+            install_project=(conf, repo),
+            print_results=True,
+            launch_method=None if os.name == "nt" else "forkserver",
         )
-        print(json.dumps(result_json, indent=2, default=str))
-        return 0
+        return 0 if failed == 0 else 1
 
     print(f"Discovered {len(benchmarks)} benchmark entries")
     print(f"Using timeout: {timeout} seconds")
 
-    for env in environments:
-        Setup.perform_setup([env], parallel=1)
-        env.install_project(conf, repo, commit_hash)
-
-        params = dict(machine_params.__dict__)
-        params["python"] = env.python
-        params.update(env.requirements)
-
-        results = Results(
-            params=params,
-            requirements=env.requirements,
-            commit_hash=commit_hash,
-            date=commit_date,
-            python=env.python,
-            env_name=env.name,
-            env_vars=env.env_vars,
-        )
-
-        run_benchmarks(
-            benchmarks=benchmarks,
-            env=env,
-            results=results,
-            show_stderr=args.show_stderr,
-            quick=args.quick,
-            extra_params={"timeout": timeout},
-        )
-
-        print("Results object:", results)
-        print(json.dumps(format_results(results, benchmarks), indent=2, default=str))
-        results.save(outputs_dir / "results")
+    _run_asv_benchmarks(
+        benchmarks=benchmarks,
+        environments=environments,
+        machine_params=machine_params,
+        commit_hash=commit_hash,
+        commit_date=commit_date,
+        timeout=timeout,
+        show_stderr=args.show_stderr,
+        quick=args.quick,
+        install_project=(conf, repo),
+        results_dir=results_dir,
+        print_results=True,
+    )
     return 0
 
 

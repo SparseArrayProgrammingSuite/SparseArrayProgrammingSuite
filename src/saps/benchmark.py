@@ -1,172 +1,20 @@
-import ast
-import hashlib
-import importlib.util
 import inspect
 import json
+import logging
 import os
 import re
-import sys
 import xml.etree.ElementTree as ET
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from functools import cache
 from pathlib import Path
 from typing import Any, Generic, TypeVar
 
-from saps.dependencies import dependency_versions
+from binsparse import BinsparseTensor as BinsparseTensor
+
 from saps.framework import load_framework
+from saps.freshness import repo_root, source_freshness
 from saps.storage import build_storage_backend
-from saps_framework.binsparse_format import BinsparseFormat as BinsparseFormat
 from saps_framework.framework import Framework
-
-
-def _repo_root() -> Path:
-    root = os.environ.get("SAPS_REPO_ROOT")
-    if root:
-        return Path(root).resolve()
-    return Path(__file__).resolve().parents[2]
-
-
-def _module_path(module_name: str) -> Path | None:
-    try:
-        spec = importlib.util.find_spec(module_name)
-    except (ImportError, ModuleNotFoundError, ValueError):
-        return None
-    if spec is None or spec.origin is None:
-        return None
-    path = Path(spec.origin).resolve()
-    if path.suffix != ".py":
-        return None
-    try:
-        path.relative_to(_repo_root())
-    except ValueError:
-        return None
-    if "site-packages" in path.parts or _is_under_venv(path):
-        return None
-    return path
-
-
-def _is_under_venv(path: Path) -> bool:
-    for prefix in (sys.prefix, sys.base_prefix):
-        try:
-            path.relative_to(Path(prefix).resolve())
-            return True
-        except ValueError:
-            continue
-    return False
-
-
-def _imported_modules(path: Path) -> set[str]:
-    try:
-        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-    except SyntaxError:
-        return set()
-
-    modules: set[str] = set()
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            modules.update(alias.name for alias in node.names)
-        elif isinstance(node, ast.ImportFrom):
-            if node.level:
-                raise RuntimeError(
-                    f"Relative import in {path}:{node.lineno}. "
-                    "Use an absolute import so freshness hashes are stable."
-                )
-            if node.module:
-                modules.add(node.module)
-    return modules
-
-
-@cache
-def _freshness_inputs(
-    module_name: str,
-) -> tuple[tuple[Path, ...], tuple[str, ...]]:
-    pending = [module_name]
-    seen_modules: set[str] = set()
-    seen_files: set[Path] = set()
-    external_modules: set[str] = set()
-    while pending:
-        current = pending.pop()
-        if current in seen_modules:
-            continue
-        seen_modules.add(current)
-
-        path = _module_path(current)
-        if path is None:
-            if (
-                current.split(".", 1)[0] not in sys.stdlib_module_names
-                and _module_path(current.split(".", 1)[0]) is None
-            ):
-                external_modules.add(current)
-            continue
-        if path in seen_files:
-            continue
-        seen_files.add(path)
-        pending.extend(
-            dependency
-            for dependency in _imported_modules(path.resolve())
-            if dependency not in seen_modules
-        )
-
-    return tuple(sorted(seen_files)), tuple(sorted(external_modules))
-
-
-@cache
-def _file_content_hash(path: str, _mtime_ns: int, _size: int) -> str:
-    source = Path(path).read_text(encoding="utf-8")
-    return hashlib.sha256(source.encode("utf-8")).hexdigest()
-
-
-def _cached_file_content_hash(path: Path) -> str:
-    stat = path.stat()
-    return _file_content_hash(str(path), stat.st_mtime_ns, stat.st_size)
-
-
-@cache
-def _class_source_path(cls: type) -> Path:
-    return Path(inspect.getfile(cls)).resolve()
-
-
-@cache
-def _source_file(cls: type) -> str:
-    return _class_source_path(cls).relative_to(_repo_root()).as_posix()
-
-
-@cache
-def _source_dependencies(module_name: str) -> list[str]:
-    _, external_modules = _freshness_inputs(module_name)
-    return list(external_modules)
-
-
-def _file_signature(path: Path) -> tuple[str, int, int]:
-    stat = path.stat()
-    return str(path), stat.st_mtime_ns, stat.st_size
-
-
-@cache
-def _source_freshness_for_files(
-    root: str, file_signatures: tuple[tuple[str, int, int], ...]
-) -> str:
-    root_path = Path(root)
-    digest = hashlib.sha256()
-    for path, _, _ in file_signatures:
-        file_path = Path(path)
-        relative = file_path.relative_to(root_path).as_posix()
-        digest.update(relative.encode("utf-8"))
-        digest.update(b"\0")
-        digest.update(_cached_file_content_hash(file_path).encode("utf-8"))
-        digest.update(b"\0")
-
-    return digest.hexdigest()
-
-
-def _source_freshness(module_name: str, source_path: Path) -> str:
-    files, _ = _freshness_inputs(module_name)
-    if not files:
-        files = (source_path,)
-    return _source_freshness_for_files(
-        str(_repo_root()), tuple(_file_signature(path) for path in files)
-    )
 
 
 @dataclass
@@ -269,10 +117,8 @@ def _write_statistics_tags(
     dataset_name: str,
     dataset_file: str,
     dataset_freshness: str,
-    dataset_dependencies: list[str],
     tags: list[str],
 ):
-    version_records = dependency_versions(dataset_dependencies)
     statistics_path.parent.mkdir(parents=True, exist_ok=True)
     if statistics_path.exists():
         document = json.loads(statistics_path.read_text(encoding="utf-8"))
@@ -300,15 +146,11 @@ def _write_statistics_tags(
         "name",
         dataset_name,
         {
-            "dependencies": dataset_dependencies,
-            "dependency_versions": version_records,
             "file": dataset_file,
             "freshness": dataset_freshness,
             "statistics": [],
         },
     )
-    dataset["dependencies"] = dataset_dependencies
-    dataset["dependency_versions"] = version_records
     dataset["file"] = dataset_file
     dataset["freshness"] = dataset_freshness
     dataset["statistics"] = sorted({*dataset.get("statistics", []), *tags})
@@ -331,6 +173,13 @@ def _write_statistics_tags(
     statistics_path.write_text(
         json.dumps(document, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
+    )
+    logging.getLogger("saps.work").info(
+        "traced %s.%s.%s: %s",
+        benchmark_name,
+        generator_name,
+        dataset_name,
+        ", ".join(tags),
     )
 
 
@@ -367,17 +216,13 @@ class Tagged(Metadata):
 
     @property
     def file(self) -> str:
-        return _source_file(self.__class__)
+        source_path = Path(inspect.getfile(self.__class__)).resolve()
+        return source_path.relative_to(repo_root()).as_posix()
 
     @property
     def freshness(self) -> str:
-        return _source_freshness(
-            self.__class__.__module__, _class_source_path(self.__class__)
-        )
-
-    @property
-    def dependencies(self) -> list[str]:
-        return _source_dependencies(self.__class__.__module__)
+        source_path = Path(inspect.getfile(self.__class__)).resolve()
+        return source_freshness(self.__class__.__module__, source_path)
 
 
 class Attributed(ABC):
@@ -404,7 +249,6 @@ class Dataset(Tagged):
     @property
     def metadata(self) -> dict[str, Any]:
         return {
-            "dependencies": self.dependencies,
             "file": self.file,
             "freshness": self.freshness,
             "name": self.name,
@@ -461,7 +305,6 @@ class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
     @property
     def metadata(self) -> dict[str, Any]:
         return {
-            "dependencies": self.dependencies,
             "file": self.file,
             "freshness": self.freshness,
             "name": self.name,
@@ -534,13 +377,27 @@ class Benchmark(Tagged, Attributed, Motivated):
     param_names = ["dataset"]
 
     def setup(self, param, *, use_cache: bool = True, xp: Framework | None = None):
-        import logging
-
         if not logging.getLogger().handlers:
             logging.basicConfig(
                 level=logging.INFO,
                 format="%(levelname)s %(name)s: %(message)s",
             )
+        log_path = os.environ.get("SAPS_LOG_PATH")
+        work_log = logging.getLogger("saps.work")
+        if log_path and not work_log.handlers:
+            Path(log_path).parent.mkdir(parents=True, exist_ok=True)
+            work_log.setLevel(logging.INFO)
+            work_log.propagate = False
+            work_log.addHandler(logging.FileHandler(log_path))
+        if os.environ.get("SAPS_CACHE_DATASETS"):
+            if param.generator.cacheable and not param.generator.backend.upload_dataset(
+                param.generator, param.dataset
+            ):
+                raise RuntimeError(
+                    "Failed to cache dataset "
+                    f"{param.generator.name}.{param.dataset.name}"
+                )
+            raise NotImplementedError("dataset cached")
         problem = (
             param.generator.cached_generate(param.dataset)
             if use_cache
@@ -611,7 +468,6 @@ class Benchmark(Tagged, Attributed, Motivated):
                 param.dataset.name,
                 param.dataset.file,
                 param.dataset.freshness,
-                param.dataset.dependencies,
                 tags,
             )
 
@@ -638,7 +494,6 @@ class Benchmark(Tagged, Attributed, Motivated):
     @property
     def metadata(self) -> dict[str, Any]:
         return {
-            "dependencies": self.dependencies,
             "file": self.file,
             "freshness": self.freshness,
             "name": self.name,

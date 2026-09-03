@@ -9,7 +9,7 @@ from typing import Any
 
 import numpy as np
 
-from saps_framework import BinsparseFormat
+from binsparse import BinsparseTensor, COORMatrix
 
 
 @dataclass(frozen=True)
@@ -17,7 +17,7 @@ class OGBNodePropData:
     """The full graph data needed by a node-property-prediction workload."""
 
     name: str
-    adjacency: BinsparseFormat
+    adjacency: BinsparseTensor
     features: np.ndarray
     labels: np.ndarray
     split_indices: dict[str, np.ndarray]
@@ -116,7 +116,7 @@ def _prepare_ogb_nodeprop_dataset(name: str, dataset: Any) -> OGBNodePropData:
         split: np.asarray(indices, dtype=np.int64)
         for split, indices in dataset.get_idx_split().items()
     }
-    normalized_edges = int(adjacency.data["values"].size)
+    normalized_edges = int(adjacency.number_of_stored_values)
     task_type = str(getattr(dataset, "task_type", ""))
     num_tasks = int(dataset.num_tasks)
     num_classes = int(dataset.num_classes)
@@ -164,7 +164,7 @@ def normalized_undirected_adjacency(
     num_nodes: int,
     *,
     edges_are_bidirectional: bool = False,
-) -> BinsparseFormat:
+) -> BinsparseTensor:
     """Return ``D^-1/2 (A + I) D^-1/2`` as a COO binsparse matrix.
 
     OGB citation graphs are directed.  Scorch's GCN benchmark first makes them
@@ -204,7 +204,13 @@ def normalized_undirected_adjacency(
     coo = adjacency.tocoo(copy=False)
     rows, cols = coo.row, coo.col
     values = inv_sqrt_degree[rows] * inv_sqrt_degree[cols]
-    return BinsparseFormat.from_coo((rows, cols), values, (num_nodes, num_nodes))
+    return COORMatrix(
+        (num_nodes, num_nodes),
+        len(values),
+        indices_0=rows,
+        indices_1=cols,
+        values=values,
+    )
 
 
 # Proteins derives node features from edge features.

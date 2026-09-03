@@ -4,6 +4,9 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
+
 from saps.benchmark import (
     Benchmark,
     Contributor,
@@ -12,13 +15,10 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps_framework import BinsparseFormat
 
 
-def _dense_binsparse_array(array: BinsparseFormat):
-    if array.data["format"] != "dense":
-        raise ValueError(f"Expected dense binsparse data, got {array.data['format']}")
-    return np.asarray(array.data["values"]).reshape(array.data["shape"])
+def _dense_binsparse_array(array: BinsparseTensor):
+    return to_numpy(array)
 
 
 def _step_input(t):
@@ -579,8 +579,8 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
         }
         return DataInstance(
             inputs=[
-                BinsparseFormat.from_numpy(dataset.C),
-                BinsparseFormat.from_numpy(np.asarray(dataset.brusselator_cb)),
+                from_numpy(dataset.C),
+                from_numpy(np.asarray(dataset.brusselator_cb)),
             ],
             meta=meta,
         )
@@ -629,8 +629,8 @@ class _OdeBenchmarkBase(Benchmark, ABC):
         super().check(param)
         from scipy.integrate import solve_ivp
 
-        time = self._output[0].data["values"].reshape(self._output[0].data["shape"])
-        y_out = self._output[1].data["values"].reshape(self._output[1].data["shape"])
+        time = to_numpy(self._output[0])
+        y_out = to_numpy(self._output[1])
         data = self._check_data()
         rhs = lambda t, y: self._dydt(t, list(y), data, self._meta)  # noqa: E731
         ref = solve_ivp(

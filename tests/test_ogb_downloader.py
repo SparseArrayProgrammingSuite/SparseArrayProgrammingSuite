@@ -1,5 +1,7 @@
 import numpy as np
 
+from binsparse.conversions import to_scipy
+
 from saps.downloaders.ogb import (
     _allow_large_download,
     _prepare_ogb_nodeprop_dataset,
@@ -8,11 +10,7 @@ from saps.downloaders.ogb import (
 
 
 def _dense(binsparse):
-    result = np.zeros(binsparse.data["shape"], dtype=binsparse.data["values"].dtype)
-    result[binsparse.data["indices_0"], binsparse.data["indices_1"]] = binsparse.data[
-        "values"
-    ]
-    return result
+    return to_scipy(binsparse).toarray()
 
 
 class _Dataset:

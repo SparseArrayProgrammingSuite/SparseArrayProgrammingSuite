@@ -4,6 +4,8 @@ import pytest
 
 import numpy as np
 
+from binsparse.conversions import to_numpy, to_scipy
+
 from saps.benchmark import Param
 from saps.benchmarks.gcn import (
     GCNBenchmark,
@@ -46,12 +48,9 @@ def test_ogb_gcn_generator_uses_real_features_and_scorch_dimensions(monkeypatch)
 
     instance = generator.generate(dataset)
 
-    np.testing.assert_array_equal(
-        instance.inputs[1].data["values"].reshape(instance.inputs[1].data["shape"]),
-        features,
-    )
-    assert instance.inputs[2].data["shape"] == (4, 5)
-    assert instance.inputs[4].data["shape"] == (5, 2)
+    np.testing.assert_array_equal(to_numpy(instance.inputs[1]), features)
+    assert instance.inputs[2].shape == (4, 5)
+    assert instance.inputs[4].shape == (5, 2)
     json.dumps(instance.meta)
 
 
@@ -109,8 +108,8 @@ def test_ogb_gcn_proteins_uses_task_count_for_output_width(monkeypatch):
 
     instance = generator.generate(dataset)
 
-    assert instance.inputs[4].data["shape"] == (256, 112)
-    assert instance.inputs[5].data["shape"] == (112,)
+    assert instance.inputs[4].shape == (256, 112)
+    assert instance.inputs[5].shape == (112,)
 
 
 def test_ogb_generator_runs_through_gcn_with_sparse_framework(monkeypatch):
@@ -155,16 +154,8 @@ def test_ogb_generator_runs_through_gcn_with_sparse_framework(monkeypatch):
     benchmark.setup(param, use_cache=False, xp=PyDataSparseFramework())
     benchmark.run(param)
 
-    output = (
-        benchmark._output[0].data["values"].reshape(benchmark._output[0].data["shape"])
-    )
-    dense_adjacency = np.zeros((3, 3), dtype=np.float32)
-    dense_adjacency[adjacency.data["indices_0"], adjacency.data["indices_1"]] = (
-        adjacency.data["values"]
-    )
-    arrays = [
-        value.data["values"].reshape(value.data["shape"])
-        for value in instance.inputs[1:]
-    ]
+    output = to_numpy(benchmark._output[0])
+    dense_adjacency = to_scipy(adjacency).toarray()
+    arrays = [to_numpy(value) for value in instance.inputs[1:]]
     expected = gcn_reference_np(dense_adjacency, *arrays)
     np.testing.assert_allclose(output, expected, rtol=1e-5)

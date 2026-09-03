@@ -1,6 +1,16 @@
 import numpy as np
 
-from saps_framework import BinsparseFormat, Framework, einsum
+from binsparse import (
+    CustomTensor,
+    DenseLevel,
+    DMATCMatrix,
+    DMATRMatrix,
+    DVECVector,
+    ElementLevel,
+)
+from binsparse.conversions import from_numpy, to_numpy, to_sparse
+
+from saps_framework import Framework, einsum
 
 
 class NumpyFramework(Framework):
@@ -8,23 +18,22 @@ class NumpyFramework(Framework):
         pass
 
     def from_binsparse(self, array):
-        if array.data["format"] == "dense":
-            return np.array(array.data["values"]).reshape(array.data["shape"])
-        if array.data["format"] == "COO":
-            indices = []
-            idx_dim = 0
-            while "indices_" + str(idx_dim) in array.data:
-                indices.append(array.data["indices_" + str(idx_dim)])
-                idx_dim += 1
-            V = array.data["values"]
-            shape = array.data["shape"]
-            data = np.zeros(shape, dtype=V.dtype)
-            data[tuple(indices)] = V
-            return data
-        raise ValueError("Unsupported format: " + array.data["format"])
+        match array:
+            case DVECVector() | DMATRMatrix() | DMATCMatrix():
+                return to_numpy(array)
+            case CustomTensor(shape=(), transpose=None, level=ElementLevel()):
+                return to_numpy(array)
+            case CustomTensor(
+                shape=shape,
+                transpose=None,
+                level=DenseLevel(rank=rank, level=ElementLevel()),
+            ) if rank == len(shape):
+                return to_numpy(array)
+            case _:
+                return np.asarray(to_sparse(array).todense())
 
     def to_binsparse(self, array):
-        return BinsparseFormat.from_numpy(np.asarray(array))
+        return from_numpy(np.asarray(array))
 
     def lazy(self, array):
         return array

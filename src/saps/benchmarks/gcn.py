@@ -2,6 +2,9 @@ from typing import Any, cast
 
 import numpy as np
 
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -13,7 +16,6 @@ from saps.benchmark import (
 )
 from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
 from saps.downloaders.ogb import load_ogb_nodeprop_dataset
-from saps_framework import BinsparseFormat
 
 
 class GCNDataset(SuiteSparseDataset):
@@ -233,11 +235,11 @@ class GCNTestGenerator(Generator[GCNDataset]):
         expected = dataset.expected
         expected = gcn_reference_np(*arrays) if expected is None else expected
 
-        inputs = [BinsparseFormat.from_numpy(item) for item in arrays]
+        inputs = [from_numpy(item) for item in arrays]
         return DataInstance(
             inputs=inputs,
             meta={},
-            ref_outputs=[BinsparseFormat.from_numpy(expected)],
+            ref_outputs=[from_numpy(expected)],
             ref_meta={"rtol": 1e-10},
         )
 
@@ -421,7 +423,7 @@ class GCNGenerator(Generator[GCNDataset]):
         out_dim = dataset.out_dim
 
         raw = fetch_suitesparse_matrix(dataset.source_name)
-        coo = BinsparseFormat.to_coo(raw.inputs[0])
+        coo = to_scipy(raw.inputs[0]).tocoo()
         rng = np.random.default_rng(0)
 
         # Create feature/weight arrays using the RNG (deterministic)
@@ -432,16 +434,13 @@ class GCNGenerator(Generator[GCNDataset]):
         weights2 = rng.standard_normal((hidden_dim, out_dim), dtype=np.float32)
         bias2 = np.zeros((out_dim,), dtype=np.float32)
 
-        A_bin = BinsparseFormat.from_coo(
-            (coo.data["indices_0"], coo.data["indices_1"]),
-            coo.data["values"].astype(np.float32, copy=False),
-            coo.data["shape"],
-        )
-        features_b = BinsparseFormat.from_numpy(features)
-        weights1_b = BinsparseFormat.from_numpy(weights1)
-        bias1_b = BinsparseFormat.from_numpy(bias1)
-        weights2_b = BinsparseFormat.from_numpy(weights2)
-        bias2_b = BinsparseFormat.from_numpy(bias2)
+        coo.data = coo.data.astype(np.float32, copy=False)
+        A_bin = from_scipy(coo)
+        features_b = from_numpy(features)
+        weights1_b = from_numpy(weights1)
+        bias1_b = from_numpy(bias1)
+        weights2_b = from_numpy(weights2)
+        bias2_b = from_numpy(bias2)
         return DataInstance(
             inputs=[A_bin, features_b, weights1_b, bias1_b, weights2_b, bias2_b],
             meta={},
@@ -560,13 +559,11 @@ class OGBGCNGenerator(Generator[OGBGCNDataset]):
         return DataInstance(
             inputs=[
                 graph.adjacency,
-                BinsparseFormat.from_numpy(graph.features),
-                BinsparseFormat.from_numpy(weights1),
-                BinsparseFormat.from_numpy(
-                    np.zeros(dataset.hidden_dim, dtype=np.float32)
-                ),
-                BinsparseFormat.from_numpy(weights2),
-                BinsparseFormat.from_numpy(np.zeros(dataset.out_dim, dtype=np.float32)),
+                from_numpy(graph.features),
+                from_numpy(weights1),
+                from_numpy(np.zeros(dataset.hidden_dim, dtype=np.float32)),
+                from_numpy(weights2),
+                from_numpy(np.zeros(dataset.out_dim, dtype=np.float32)),
             ],
             meta=graph.metadata,
         )
@@ -692,19 +689,15 @@ class GCNBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
 
         if self._ref_outputs is None:
             return
 
-        result = self._output[0].data["values"].reshape(self._output[0].data["shape"])
-        expected = (
-            self._ref_outputs[0]
-            .data["values"]
-            .reshape(self._ref_outputs[0].data["shape"])
-        )
+        result = to_numpy(self._output[0])
+        expected = to_numpy(self._ref_outputs[0])
         np.testing.assert_allclose(
             result,
             expected,
@@ -717,22 +710,22 @@ class GCNBenchmark(Benchmark):
     ----
     xp : array_api
         Array API module (e.g. numpy, cupy, torch)
-    adjacency_bench : BinsparseFormat
+    adjacency_bench : BinsparseTensor
         Sparse adjacency matrix of the graph
-    features_bench : BinsparseFormat
+    features_bench : BinsparseTensor
         Node feature matrix
-    weights1_bench : BinsparseFormat
+    weights1_bench : BinsparseTensor
         Weights for first GCN layer
-    bias1_bench : BinsparseFormat
+    bias1_bench : BinsparseTensor
         Bias for first GCN layer
-    weights2_bench : BinsparseFormat
+    weights2_bench : BinsparseTensor
         Weights for second GCN layer
-    bias2_bench : BinsparseFormat
+    bias2_bench : BinsparseTensor
         Bias for second GCN layer
 
     Returns:
     -------
-    BinsparseFormat
+    BinsparseTensor
         Output node embeddings after 2-layer GCN
     """
 

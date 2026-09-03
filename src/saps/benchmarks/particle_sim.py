@@ -2,6 +2,9 @@ import math
 
 import numpy as np
 
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -11,7 +14,6 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps_framework import BinsparseFormat
 
 mass = 0.01
 cutoff = 0.01
@@ -229,13 +231,13 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
         expected = reference_particle_sim(x, y, vx, vy, size, steps)
         return DataInstance(
             inputs=[
-                BinsparseFormat.from_numpy(x),
-                BinsparseFormat.from_numpy(y),
-                BinsparseFormat.from_numpy(vx),
-                BinsparseFormat.from_numpy(vy),
+                from_numpy(x),
+                from_numpy(y),
+                from_numpy(vx),
+                from_numpy(vy),
             ],
             meta={"size": size, "steps": steps},
-            ref_outputs=[BinsparseFormat.from_numpy(value) for value in expected],
+            ref_outputs=[from_numpy(value) for value in expected],
         )
 
 
@@ -371,7 +373,7 @@ class ParticleSimBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
         if self._ref_outputs is None:
@@ -380,8 +382,8 @@ class ParticleSimBenchmark(Benchmark):
         for i, (actual, expected) in enumerate(
             zip(self._output, self._ref_outputs, strict=True)
         ):
-            actual_values = actual.data["values"].reshape(actual.data["shape"])
-            expected_values = expected.data["values"].reshape(expected.data["shape"])
+            actual_values = to_numpy(actual)
+            expected_values = to_numpy(expected)
             assert np.all(actual_values == expected_values), (
                 f"Particle simulation output {i} mismatch for {param.dataset.name}"
             )
