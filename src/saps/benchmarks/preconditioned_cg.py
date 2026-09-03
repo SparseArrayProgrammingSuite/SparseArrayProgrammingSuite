@@ -23,6 +23,9 @@ from saps.benchmarks.suitesparse import (
 from saps.downloaders.suitesparse import random_rhs_for_matrix
 
 
+BLOCK_JACOBI_BLOCK_SIZE = 16
+
+
 def _generate_cg_data(source, A=None):
     if A is not None:
         import scipy.sparse as sp
@@ -180,11 +183,10 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
 
         A_bin, b, x0 = _generate_cg_data(dataset.source_name, dataset.A)
         A_csr = to_scipy(A_bin).tocsr()
-        n = A_csr.shape[0]
         # Create one block for every processor modelled after
         # this example: https://petsc.org/main/src/ksp/ksp/tutorials/ex7.c.html
-        p = min(10, n)
-        block_size = n // p
+        n = A_csr.shape[0]
+        block_size = min(BLOCK_JACOBI_BLOCK_SIZE, n)
         blocks = []
         i = 0
         while i < n:
