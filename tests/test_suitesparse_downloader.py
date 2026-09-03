@@ -1,8 +1,9 @@
 import sys
 from types import SimpleNamespace
 
-import numpy as np
 import pytest
+
+import numpy as np
 
 from binsparse.conversions import from_scipy
 
@@ -69,9 +70,9 @@ def test_download_suitesparse_matrix_uses_exact_source_name(monkeypatch, tmp_pat
         path=tmp_path / "right",
     )
     fake_ssgetpy = SimpleNamespace(
-        search=lambda **kwargs: [wrong, right]
-        if kwargs == {"group": "DNVS", "limit": -1}
-        else []
+        search=lambda **kwargs: (
+            [wrong, right] if kwargs == {"group": "DNVS", "limit": -1} else []
+        )
     )
     monkeypatch.setitem(sys.modules, "ssgetpy", fake_ssgetpy)
 
@@ -87,14 +88,7 @@ def test_load_suitesparse_rhs_requires_index_for_multiple_rhs(tmp_path):
     matrix_dir = tmp_path / "multi"
     matrix_dir.mkdir()
     (matrix_dir / "multi_b.mtx").write_text(
-        "%%MatrixMarket matrix array real general\n"
-        "3 2\n"
-        "1.0\n"
-        "2.0\n"
-        "3.0\n"
-        "4.0\n"
-        "5.0\n"
-        "6.0\n",
+        "%%MatrixMarket matrix array real general\n3 2\n1.0\n2.0\n3.0\n4.0\n5.0\n6.0\n",
         encoding="utf-8",
     )
 
@@ -111,26 +105,15 @@ def test_load_suitesparse_rhs_requires_index_for_multiple_rhs(tmp_path):
     assert np.array_equal(b, np.array([4.0, 5.0, 6.0]))
 
 
-def test_load_suitesparse_matrix_ignores_unindexed_multiple_rhs(
-    monkeypatch, tmp_path
-):
+def test_load_suitesparse_matrix_ignores_unindexed_multiple_rhs(monkeypatch, tmp_path):
     matrix_dir = tmp_path / "multi"
     matrix_dir.mkdir()
     (matrix_dir / "multi.mtx").write_text(
-        "%%MatrixMarket matrix coordinate real general\n"
-        "3 3 1\n"
-        "1 1 2.0\n",
+        "%%MatrixMarket matrix coordinate real general\n3 3 1\n1 1 2.0\n",
         encoding="utf-8",
     )
     (matrix_dir / "multi_b.mtx").write_text(
-        "%%MatrixMarket matrix array real general\n"
-        "3 2\n"
-        "1.0\n"
-        "2.0\n"
-        "3.0\n"
-        "4.0\n"
-        "5.0\n"
-        "6.0\n",
+        "%%MatrixMarket matrix array real general\n3 2\n1.0\n2.0\n3.0\n4.0\n5.0\n6.0\n",
         encoding="utf-8",
     )
 
@@ -153,20 +136,11 @@ def test_load_suitesparse_matrix_selects_rhs_index(monkeypatch, tmp_path):
     matrix_dir = tmp_path / "multi"
     matrix_dir.mkdir()
     (matrix_dir / "multi.mtx").write_text(
-        "%%MatrixMarket matrix coordinate real general\n"
-        "3 3 1\n"
-        "1 1 2.0\n",
+        "%%MatrixMarket matrix coordinate real general\n3 3 1\n1 1 2.0\n",
         encoding="utf-8",
     )
     (matrix_dir / "multi_b.mtx").write_text(
-        "%%MatrixMarket matrix array real general\n"
-        "3 2\n"
-        "1.0\n"
-        "2.0\n"
-        "3.0\n"
-        "4.0\n"
-        "5.0\n"
-        "6.0\n",
+        "%%MatrixMarket matrix array real general\n3 2\n1.0\n2.0\n3.0\n4.0\n5.0\n6.0\n",
         encoding="utf-8",
     )
 
@@ -192,16 +166,11 @@ def test_load_suitesparse_matrix_ignores_mismatched_rhs(monkeypatch, tmp_path):
     matrix_dir = tmp_path / "bad_rhs"
     matrix_dir.mkdir()
     (matrix_dir / "bad_rhs.mtx").write_text(
-        "%%MatrixMarket matrix coordinate real general\n"
-        "3 3 1\n"
-        "1 1 2.0\n",
+        "%%MatrixMarket matrix coordinate real general\n3 3 1\n1 1 2.0\n",
         encoding="utf-8",
     )
     (matrix_dir / "bad_rhs_b.mtx").write_text(
-        "%%MatrixMarket matrix array real general\n"
-        "2 1\n"
-        "1.0\n"
-        "2.0\n",
+        "%%MatrixMarket matrix array real general\n2 1\n1.0\n2.0\n",
         encoding="utf-8",
     )
 

@@ -23,7 +23,6 @@ from saps.benchmarks.suitesparse import (
 )
 from saps.downloaders.suitesparse import random_rhs_for_matrix
 
-
 BLOCK_JACOBI_BLOCK_SIZE = 16
 
 

@@ -37,8 +37,7 @@ def _split_suitesparse_source_name(source_name: str) -> tuple[str, str]:
     group, separator, matrix_name = source_name.partition("/")
     if not separator or not group or not matrix_name:
         raise ValueError(
-            "SuiteSparse source names must use 'group/name', "
-            f"got '{source_name}'"
+            f"SuiteSparse source names must use 'group/name', got '{source_name}'"
         )
     return group, matrix_name
 
@@ -93,9 +92,7 @@ def load_suitesparse_matrix(
     rhs_error = None
     if not rhs_path.exists():
         if rhs_index is not None:
-            raise ValueError(
-                f"SuiteSparse matrix '{source_name}' has no RHS file"
-            )
+            raise ValueError(f"SuiteSparse matrix '{source_name}' has no RHS file")
     else:
         try:
             b = load_suitesparse_rhs(
