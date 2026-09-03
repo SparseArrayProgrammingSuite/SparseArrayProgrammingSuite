@@ -16,6 +16,7 @@ from saps.benchmark import (
 from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     fetch_suitesparse_linear_system,
+    suite_sparse_rhs_dataset_name,
 )
 from saps_framework.binsparse_utils import binsparse_equal
 
@@ -29,12 +30,16 @@ class CGDataset(SuiteSparseDataset):
         A: np.ndarray | None = None,
         b: np.ndarray | None = None,
         x: np.ndarray | None = None,
+        rhs_index: int | None = None,
     ):
+        dataset_name = suite_sparse_rhs_dataset_name(source_name, rhs_index)
         super().__init__(
-            source_name,
+            dataset_name,
+            source_name=source_name,
             pretty_name=f"CG {source_name}",
             suites=suites,
             nnz=nnz,
+            rhs_index=rhs_index,
         )
         self.A = A
         self.b = b
@@ -218,18 +223,21 @@ class CGGenerator(Generator[CGDataset]):
     @property
     def datasets(self) -> list[CGDataset]:
         return [
-            CGDataset("mesh3em5", nnz=1889),
-            CGDataset("bcsstm02", nnz=66),
-            CGDataset("fv1", nnz=85264),
-            CGDataset("Muu", nnz=170134),
-            CGDataset("Chem97ZtZ", nnz=7361),
-            CGDataset("Dubcova1", nnz=253009),
-            CGDataset("t3dl_e", nnz=20360),
-            CGDataset("bcsstk09", nnz=18437),
+            CGDataset("Pothen/mesh3em5", nnz=1889),
+            CGDataset("HB/bcsstm02", nnz=66),
+            CGDataset("Norris/fv1", nnz=85264),
+            CGDataset("MathWorks/Muu", nnz=170134),
+            CGDataset("Bates/Chem97ZtZ", nnz=7361),
+            CGDataset("UTEP/Dubcova1", nnz=253009),
+            CGDataset("Oberwolfach/t3dl_e", nnz=20360),
+            CGDataset("HB/bcsstk09", nnz=18437),
         ]
 
     def generate(self, dataset: CGDataset) -> DataInstance:
-        A_bin, b, _has_real_rhs = fetch_suitesparse_linear_system(dataset.source_name)
+        A_bin, b, _has_real_rhs = fetch_suitesparse_linear_system(
+            dataset.source_name,
+            rhs_index=dataset.rhs_index,
+        )
         x_bin = from_numpy(np.zeros(A_bin.shape[1]))
         b_bin = from_numpy(b)
 

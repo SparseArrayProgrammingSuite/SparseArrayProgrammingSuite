@@ -16,6 +16,7 @@ from saps.benchmark import (
 from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     fetch_suitesparse_linear_system,
+    suite_sparse_rhs_dataset_name,
 )
 from saps_framework.binsparse_utils import binsparse_equal
 
@@ -29,12 +30,16 @@ class JacobiDataset(SuiteSparseDataset):
         A: np.ndarray | None = None,
         b: np.ndarray | None = None,
         x: np.ndarray | None = None,
+        rhs_index: int | None = None,
     ):
+        dataset_name = suite_sparse_rhs_dataset_name(source_name, rhs_index)
         super().__init__(
-            source_name,
+            dataset_name,
+            source_name=source_name,
             pretty_name=f"Jacobi {source_name}",
             suites=suites,
             nnz=nnz,
+            rhs_index=rhs_index,
         )
         self.A = A
         self.b = b
@@ -187,18 +192,21 @@ class JacobiGenerator(Generator[JacobiDataset]):
     @property
     def datasets(self) -> list[JacobiDataset]:
         return [
-            JacobiDataset("mesh3em5", nnz=1889),
-            JacobiDataset("Trefethen_200", nnz=2873),
-            JacobiDataset("Chem97ZtZ", nnz=7361),
-            JacobiDataset("Trefethen_500", nnz=8478),
-            JacobiDataset("Trefethen_700", nnz=12654),
-            JacobiDataset("fv1", nnz=85264),
-            JacobiDataset("fv2", nnz=87025),
-            JacobiDataset("Trefethen_20000", nnz=554466),
+            JacobiDataset("Pothen/mesh3em5", nnz=1889),
+            JacobiDataset("JGD_Trefethen/Trefethen_200", nnz=2873),
+            JacobiDataset("Bates/Chem97ZtZ", nnz=7361),
+            JacobiDataset("JGD_Trefethen/Trefethen_500", nnz=8478),
+            JacobiDataset("JGD_Trefethen/Trefethen_700", nnz=12654),
+            JacobiDataset("Norris/fv1", nnz=85264),
+            JacobiDataset("Norris/fv2", nnz=87025),
+            JacobiDataset("JGD_Trefethen/Trefethen_20000", nnz=554466),
         ]
 
     def generate(self, dataset: JacobiDataset):
-        A_bin, b, _has_real_rhs = fetch_suitesparse_linear_system(dataset.source_name)
+        A_bin, b, _has_real_rhs = fetch_suitesparse_linear_system(
+            dataset.source_name,
+            rhs_index=dataset.rhs_index,
+        )
         x_bin = from_numpy(np.zeros(A_bin.shape[1]))
         b_bin = from_numpy(b)
 

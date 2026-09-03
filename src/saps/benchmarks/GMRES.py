@@ -17,6 +17,7 @@ from saps.benchmark import (
 from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     fetch_suitesparse_linear_system,
+    suite_sparse_rhs_dataset_name,
 )
 
 
@@ -31,12 +32,16 @@ class GMRESDataset(SuiteSparseDataset):
         x0: np.ndarray | None = None,
         meta: dict[str, Any] | None = None,
         ref_meta: dict[str, Any] | None = None,
+        rhs_index: int | None = None,
     ):
+        dataset_name = suite_sparse_rhs_dataset_name(source_name, rhs_index)
         super().__init__(
-            source_name,
+            dataset_name,
+            source_name=source_name,
             pretty_name=f"GMRES {source_name}",
             suites=suites,
             nnz=nnz,
+            rhs_index=rhs_index,
         )
         self.A = A
         self.b = b
@@ -230,18 +235,21 @@ class GMRESGenerator(Generator[GMRESDataset]):
     @property
     def datasets(self) -> list[GMRESDataset]:
         return [
-            GMRESDataset("mesh3em5", nnz=1889),
-            GMRESDataset("bcsstm02", nnz=66),
-            GMRESDataset("fv1", nnz=85264),
-            GMRESDataset("Muu", nnz=170134),
-            GMRESDataset("Chem97ZtZ", nnz=7361),
-            GMRESDataset("Dubcova1", nnz=253009),
-            GMRESDataset("t3dl_e", nnz=20360),
-            GMRESDataset("bcsstk09", nnz=18437),
+            GMRESDataset("Pothen/mesh3em5", nnz=1889),
+            GMRESDataset("HB/bcsstm02", nnz=66),
+            GMRESDataset("Norris/fv1", nnz=85264),
+            GMRESDataset("MathWorks/Muu", nnz=170134),
+            GMRESDataset("Bates/Chem97ZtZ", nnz=7361),
+            GMRESDataset("UTEP/Dubcova1", nnz=253009),
+            GMRESDataset("Oberwolfach/t3dl_e", nnz=20360),
+            GMRESDataset("HB/bcsstk09", nnz=18437),
         ]
 
     def generate(self, dataset: GMRESDataset):
-        A_bin, b, _has_real_rhs = fetch_suitesparse_linear_system(dataset.source_name)
+        A_bin, b, _has_real_rhs = fetch_suitesparse_linear_system(
+            dataset.source_name,
+            rhs_index=dataset.rhs_index,
+        )
         x_bin = from_numpy(np.zeros(A_bin.shape[1]))
         b_bin = from_numpy(b)
         return DataInstance(inputs=[A_bin, b_bin, x_bin], meta={})

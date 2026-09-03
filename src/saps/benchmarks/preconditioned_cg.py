@@ -19,6 +19,7 @@ from saps.benchmark import (
 from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     fetch_suitesparse_linear_system,
+    suite_sparse_rhs_dataset_name,
 )
 from saps.downloaders.suitesparse import random_rhs_for_matrix
 
@@ -26,7 +27,7 @@ from saps.downloaders.suitesparse import random_rhs_for_matrix
 BLOCK_JACOBI_BLOCK_SIZE = 16
 
 
-def _generate_cg_data(source, A=None):
+def _generate_cg_data(source, A=None, rhs_index=None):
     if A is not None:
         import scipy.sparse as sp
 
@@ -34,7 +35,10 @@ def _generate_cg_data(source, A=None):
         b = random_rhs_for_matrix(A)
         A_bin = from_scipy(A)
     else:
-        A_bin, b, _has_real_rhs = fetch_suitesparse_linear_system(source)
+        A_bin, b, _has_real_rhs = fetch_suitesparse_linear_system(
+            source,
+            rhs_index=rhs_index,
+        )
     x0 = np.zeros(A_bin.shape[1])
     return (A_bin, b, x0)
 
@@ -47,11 +51,15 @@ class PreconditionedCGDataset(SuiteSparseDataset):
         A=None,
         suites: list[str] | None = None,
         ref_meta: dict[str, Any] | None = None,
+        rhs_index: int | None = None,
     ):
+        dataset_name = suite_sparse_rhs_dataset_name(source_name, rhs_index)
         super().__init__(
-            source_name,
+            dataset_name,
+            source_name=source_name,
             pretty_name=f"Preconditioned CG {source_name}",
             suites=suites,
+            rhs_index=rhs_index,
         )
         self.condition_number = condition_number
         self.A = A
@@ -171,17 +179,21 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
                 ),
                 ref_meta={"check_residual": True},
             ),
-            PreconditionedCGDataset("mhdb416", "3994223509->6.24"),
-            PreconditionedCGDataset("lund_b", "30036->36.3"),
-            PreconditionedCGDataset("Chem97ZtZ", "247->8.48"),
-            PreconditionedCGDataset("bcsstm12", "633194->7.14"),
-            PreconditionedCGDataset("mesh1em1", "19->11.4"),
+            PreconditionedCGDataset("Bai/mhdb416", "3994223509->6.24"),
+            PreconditionedCGDataset("HB/lund_b", "30036->36.3"),
+            PreconditionedCGDataset("Bates/Chem97ZtZ", "247->8.48"),
+            PreconditionedCGDataset("HB/bcsstm12", "633194->7.14"),
+            PreconditionedCGDataset("Pothen/mesh1em1", "19->11.4"),
         ]
 
     def generate(self, dataset: PreconditionedCGDataset) -> DataInstance:
         import scipy.sparse as sp
 
-        A_bin, b, x0 = _generate_cg_data(dataset.source_name, dataset.A)
+        A_bin, b, x0 = _generate_cg_data(
+            dataset.source_name,
+            dataset.A,
+            rhs_index=dataset.rhs_index,
+        )
         A_csr = to_scipy(A_bin).tocsr()
         # Create one block for every processor modelled after
         # this example: https://petsc.org/main/src/ksp/ksp/tutorials/ex7.c.html
@@ -313,15 +325,19 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
                 ),
                 ref_meta={"check_residual": True},
             ),
-            PreconditionedCGDataset("mhdb416", "3994223509->69.7"),
-            PreconditionedCGDataset("lund_b", "30036->144"),
-            PreconditionedCGDataset("Chem97ZtZ", "247->8.48"),
-            PreconditionedCGDataset("bcsstm12", "633194->3160"),
-            PreconditionedCGDataset("mesh1em1", "19->11.6"),
+            PreconditionedCGDataset("Bai/mhdb416", "3994223509->69.7"),
+            PreconditionedCGDataset("HB/lund_b", "30036->144"),
+            PreconditionedCGDataset("Bates/Chem97ZtZ", "247->8.48"),
+            PreconditionedCGDataset("HB/bcsstm12", "633194->3160"),
+            PreconditionedCGDataset("Pothen/mesh1em1", "19->11.6"),
         ]
 
     def generate(self, dataset: PreconditionedCGDataset) -> DataInstance:
-        A_bin, b, x0 = _generate_cg_data(dataset.source_name, dataset.A)
+        A_bin, b, x0 = _generate_cg_data(
+            dataset.source_name,
+            dataset.A,
+            rhs_index=dataset.rhs_index,
+        )
         M = to_scipy(A_bin).diagonal()
         M_bin = from_numpy(M)
         b_bin = from_numpy(b)

@@ -15,6 +15,7 @@ from saps.benchmark import (
 from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     fetch_suitesparse_linear_system,
+    suite_sparse_rhs_dataset_name,
 )
 
 
@@ -32,12 +33,16 @@ class LSQRDataset(SuiteSparseDataset):
         A: np.ndarray | None = None,
         b: np.ndarray | None = None,
         convergence: str | None = None,
+        rhs_index: int | None = None,
     ):
+        dataset_name = suite_sparse_rhs_dataset_name(source_name, rhs_index)
         super().__init__(
-            source_name,
+            dataset_name,
+            source_name=source_name,
             pretty_name=f"LSQR {source_name}",
             suites=suites,
             nnz=nnz,
+            rhs_index=rhs_index,
         )
         self.noise_amt = noise_amt
         self.A = A
@@ -259,16 +264,19 @@ class LSQRGenerator(Generator[LSQRDataset]):
     @property
     def datasets(self) -> list[LSQRDataset]:
         return [
-            LSQRDataset("abb313"),
-            LSQRDataset("ash958"),
-            LSQRDataset("well1033"),
-            LSQRDataset("Maragal_5"),
-            LSQRDataset("illc1850"),
-            LSQRDataset("bayer06"),
+            LSQRDataset("HB/abb313"),
+            LSQRDataset("HB/ash958"),
+            LSQRDataset("HB/well1033"),
+            LSQRDataset("NYPA/Maragal_5"),
+            LSQRDataset("HB/illc1850"),
+            LSQRDataset("Grund/bayer06"),
         ]
 
     def generate(self, dataset: LSQRDataset):
-        A_bin, b, has_real_rhs = fetch_suitesparse_linear_system(dataset.source_name)
+        A_bin, b, has_real_rhs = fetch_suitesparse_linear_system(
+            dataset.source_name,
+            rhs_index=dataset.rhs_index,
+        )
         if not has_real_rhs:
             # Adds a small amount of noise so that Ax != b
             rng = np.random.default_rng(0)
