@@ -30,6 +30,7 @@ def test_toy_ewap_positions_preserve_dataset_coordinates():
     np.testing.assert_allclose(y, np.array([0.0, 0.0, 4.0, 4.0]))
     np.testing.assert_allclose(z, np.zeros(4))
     assert meta["size"] == 4.0
+    assert meta["parameters"]["gravitational_constant"] == 1.0
     assert meta["source_dimensions"] == 2
     assert meta["simulation_dimensions"] == 3
 

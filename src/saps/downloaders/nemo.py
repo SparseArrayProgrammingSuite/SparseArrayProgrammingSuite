@@ -23,6 +23,7 @@ def download_nemo_dataset(
     data_dir: str | Path | None = None,
     num_steps: int = 50,
     box_size: float | None = None,
+    include_mass: bool = False,
 ) -> tuple[list[BinsparseTensor], dict[str, Any]]:
     """Download and parse an ASCII NEMO archive particle snapshot.
 
@@ -34,42 +35,58 @@ def download_nemo_dataset(
     velocities remain in the archive's units.
     """
     local_path = _ensure_downloaded(archive_path, data_dir)
-    x_raw, y_raw, z_raw, vx_raw, vy_raw, vz_raw = parse_nemo_snapshot(
+    rows, column_index = _parse_nemo_rows(
         local_path,
         columns=columns,
-        wrap=wrap,
         expected_particles=expected_particles,
     )
+    x_raw = rows[:, column_index["x"]].copy()
+    y_raw = rows[:, column_index["y"]].copy()
+    z_raw = rows[:, column_index["z"]].copy()
+    vx_raw = rows[:, column_index["vx"]].copy()
+    vy_raw = rows[:, column_index["vy"]].copy()
+    vz_raw = rows[:, column_index["vz"]].copy()
     n_particles = len(x_raw)
     x, y, z, size, offsets = _translate_to_box(x_raw, y_raw, z_raw, box_size)
+    inputs = [
+        from_numpy(x),
+        from_numpy(y),
+        from_numpy(z),
+        from_numpy(vx_raw),
+        from_numpy(vy_raw),
+        from_numpy(vz_raw),
+    ]
+    meta = {
+        "size": size,
+        "steps": num_steps,
+        "n_particles": n_particles,
+        "source_archive": "NEMO",
+        "source_url": f"{NEMO_ARCHIVE_BASE_URL}/{archive_path}",
+        "source_path": archive_path,
+        "source_columns": list(columns),
+        "source_wrap": wrap,
+        "source_x_min": float(x_raw.min()),
+        "source_x_max": float(x_raw.max()),
+        "source_y_min": float(y_raw.min()),
+        "source_y_max": float(y_raw.max()),
+        "source_z_min": float(z_raw.min()),
+        "source_z_max": float(z_raw.max()),
+        "position_offset_x": float(offsets[0]),
+        "position_offset_y": float(offsets[1]),
+        "position_offset_z": float(offsets[2]),
+    }
+    if include_mass:
+        if "mass" not in column_index:
+            raise ValueError(f"NEMO columns for {archive_path} do not include mass")
+        mass = rows[:, column_index["mass"]].copy()
+        inputs.append(from_numpy(mass))
+        meta["source_mass_min"] = float(mass.min())
+        meta["source_mass_max"] = float(mass.max())
+        meta["source_mass_sum"] = float(mass.sum())
+
     return (
-        [
-            from_numpy(x),
-            from_numpy(y),
-            from_numpy(z),
-            from_numpy(vx_raw),
-            from_numpy(vy_raw),
-            from_numpy(vz_raw),
-        ],
-        {
-            "size": size,
-            "steps": num_steps,
-            "n_particles": n_particles,
-            "source_archive": "NEMO",
-            "source_url": f"{NEMO_ARCHIVE_BASE_URL}/{archive_path}",
-            "source_path": archive_path,
-            "source_columns": list(columns),
-            "source_wrap": wrap,
-            "source_x_min": float(x_raw.min()),
-            "source_x_max": float(x_raw.max()),
-            "source_y_min": float(y_raw.min()),
-            "source_y_max": float(y_raw.max()),
-            "source_z_min": float(z_raw.min()),
-            "source_z_max": float(z_raw.max()),
-            "position_offset_x": float(offsets[0]),
-            "position_offset_y": float(offsets[1]),
-            "position_offset_z": float(offsets[2]),
-        },
+        inputs,
+        meta,
     )
 
 
@@ -84,6 +101,27 @@ def parse_nemo_snapshot(
     if not {"x", "y", "z", "vx", "vy", "vz"}.issubset(columns):
         raise ValueError("NEMO columns must include x, y, z, vx, vy, and vz")
 
+    rows, column_index = _parse_nemo_rows(
+        path,
+        columns=columns,
+        expected_particles=expected_particles,
+    )
+    return (
+        rows[:, column_index["x"]].copy(),
+        rows[:, column_index["y"]].copy(),
+        rows[:, column_index["z"]].copy(),
+        rows[:, column_index["vx"]].copy(),
+        rows[:, column_index["vy"]].copy(),
+        rows[:, column_index["vz"]].copy(),
+    )
+
+
+def _parse_nemo_rows(
+    path: str | Path,
+    *,
+    columns: tuple[str, ...],
+    expected_particles: int | None = None,
+) -> tuple[np.ndarray, dict[str, int]]:
     values = np.fromiter(_iter_floats(path), dtype=np.float64)
     width = len(columns)
     if values.size % width != 0:
@@ -99,14 +137,7 @@ def parse_nemo_snapshot(
         )
 
     column_index = {name: idx for idx, name in enumerate(columns)}
-    return (
-        rows[:, column_index["x"]].copy(),
-        rows[:, column_index["y"]].copy(),
-        rows[:, column_index["z"]].copy(),
-        rows[:, column_index["vx"]].copy(),
-        rows[:, column_index["vy"]].copy(),
-        rows[:, column_index["vz"]].copy(),
-    )
+    return rows, column_index
 
 
 def _ensure_downloaded(archive_path: str, data_dir: str | Path | None) -> Path:

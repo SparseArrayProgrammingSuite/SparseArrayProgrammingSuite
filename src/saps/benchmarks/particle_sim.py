@@ -17,17 +17,8 @@ from saps.benchmark import (
 )
 from saps.downloaders.nemo import download_nemo_dataset
 
-mass = 0.01
-cutoff = 0.01
-min_r = cutoff / 100
-dt = 0.0005
-density = 0.0005
-nsteps = 1000
-cs267_default_particles = 1000
-cs267_particle_seed = 1
 
-
-def particle_density_box_size(n_particles: int) -> float:
+def particle_density_box_size(n_particles: int, density: float) -> float:
     return math.pow(density * n_particles, 1.0 / 3.0)
 
 
@@ -54,6 +45,7 @@ class ParticleSimDataset(Dataset):
         suites: list[str] | None = None,
         values: tuple | None = None,
         tags: list[str] | None = None,
+        parameters: dict[str, Any] | None = None,
         source_path: str | None = None,
         source_columns: tuple[str, ...] | None = None,
         source_wrap: bool = False,
@@ -67,13 +59,8 @@ class ParticleSimDataset(Dataset):
             else 0
         )
         self._num_steps = num_steps
-        self._box_size = (
-            box_size
-            if box_size is not None
-            else particle_density_box_size(self._n_particles)
-            if self._n_particles and source_path is None
-            else None
-        )
+        self._parameters = dict(parameters or {})
+        self._box_size = box_size
         self._pretty_name = pretty_name or name
         self._description = description or (
             f"Particle Simulation with {self._n_particles} particles, "
@@ -123,10 +110,15 @@ class ParticleSimDataset(Dataset):
         return self._box_size
 
     @property
+    def parameters(self) -> dict[str, Any]:
+        return dict(self._parameters)
+
+    @property
     def metadata(self) -> dict[str, Any]:
         data = super().metadata
         data["n_particles"] = self.n_particles
         data["num_steps"] = self.num_steps
+        data["parameters"] = self.parameters
         data["source_path"] = self.source_path
         data["source_columns"] = (
             list(self.source_columns) if self.source_columns is not None else None
@@ -147,6 +139,7 @@ class Particle:
         ax=0.0,
         ay=0.0,
         az=0.0,
+        particle_mass=1.0,
     ):
         self.x = x
         self.y = y
@@ -157,33 +150,44 @@ class Particle:
         self.ax = ax
         self.ay = ay
         self.az = az
+        self.mass = particle_mass
 
 
-def apply_force(particle, neighbor):
+def apply_force(particle, neighbor, parameters):
     dx = neighbor.x - particle.x
     dy = neighbor.y - particle.y
     dz = neighbor.z - particle.z
     r2 = dx * dx + dy * dy + dz * dz
+    gravitational_constant = parameters["gravitational_constant"]
+    cutoff = parameters["cutoff"]
 
     if r2 > cutoff * cutoff:
         return
 
-    r2 = max(r2, min_r * min_r)
+    softening = parameters["softening"]
+    r2 = max(r2, softening * softening)
     r = math.sqrt(r2)
 
-    coef = (1 - cutoff / r) / r2 / mass
+    if parameters["force_model"] == "newtonian_gravity":
+        coef = gravitational_constant * neighbor.mass / (r2 * r)
+    else:
+        coef = gravitational_constant * ((1 - cutoff / r) / r2 / parameters["mass"])
     particle.ax += coef * dx
     particle.ay += coef * dy
     particle.az += coef * dz
 
 
-def move(p, size):
+def move(p, size, parameters):
+    dt = parameters["dt"]
     p.vx += p.ax * dt
     p.vy += p.ay * dt
     p.vz += p.az * dt
     p.x += p.vx * dt
     p.y += p.vy * dt
     p.z += p.vz * dt
+
+    if parameters["boundary_model"] != "reflective_box":
+        return
 
     if p.x < 0 or p.x > size:
         if p.x < 0:
@@ -208,29 +212,51 @@ def move(p, size):
         p.vz = -p.vz
 
 
-def simulate_one_step(parts, num_parts, size):
+def simulate_one_step(parts, num_parts, size, parameters):
     for i in range(num_parts):
         parts[i].ax = 0
         parts[i].ay = 0
         parts[i].az = 0
         for j in range(num_parts):
-            apply_force(parts[i], parts[j])
+            apply_force(parts[i], parts[j], parameters)
 
     for i in range(num_parts):
-        move(parts[i], size)
+        move(parts[i], size, parameters)
 
 
-def init_simulation(parts, num_parts, size, steps):
+def init_simulation(parts, num_parts, size, steps, parameters):
     for _ in range(steps):
-        simulate_one_step(parts, num_parts, size)
+        simulate_one_step(parts, num_parts, size, parameters)
 
 
-def reference_particle_sim(x, y, z, vx, vy, vz, size, steps):
+def reference_particle_sim(
+    x,
+    y,
+    z,
+    vx,
+    vy,
+    vz,
+    size,
+    steps,
+    parameters,
+    particle_mass=None,
+):
+    if particle_mass is None:
+        particle_mass = np.full_like(x, parameters.get("particle_mass", 1.0))
     ref_particles = [
-        Particle(xi, yi, zi, vxi, vyi, vzi, 0, 0, 0)
-        for xi, yi, zi, vxi, vyi, vzi in zip(x, y, z, vx, vy, vz, strict=True)
+        Particle(xi, yi, zi, vxi, vyi, vzi, 0, 0, 0, mi)
+        for xi, yi, zi, vxi, vyi, vzi, mi in zip(
+            x,
+            y,
+            z,
+            vx,
+            vy,
+            vz,
+            particle_mass,
+            strict=True,
+        )
     ]
-    init_simulation(ref_particles, len(ref_particles), size, steps)
+    init_simulation(ref_particles, len(ref_particles), size, steps, parameters)
     return [
         np.array([p.x for p in ref_particles]),
         np.array([p.y for p in ref_particles]),
@@ -288,6 +314,15 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
             ParticleSimDataset(
                 "test_particle_sim_two_particles_within_cutoff",
                 suites=["test", "trace"],
+                parameters={
+                    "force_model": "cs267_repulsive",
+                    "boundary_model": "reflective_box",
+                    "mass": 0.01,
+                    "cutoff": 0.01,
+                    "softening": 0.0001,
+                    "dt": 0.0005,
+                    "gravitational_constant": 1.0,
+                },
                 values=(
                     np.array([0.001, 0.002]),
                     np.array([0.001, 0.001]),
@@ -302,6 +337,15 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
             ParticleSimDataset(
                 "test_particle_sim_wall_bounce",
                 suites=["test", "trace"],
+                parameters={
+                    "force_model": "cs267_repulsive",
+                    "boundary_model": "reflective_box",
+                    "mass": 0.01,
+                    "cutoff": 0.01,
+                    "softening": 0.0001,
+                    "dt": 0.0005,
+                    "gravitational_constant": 1.0,
+                },
                 values=(
                     np.array([0.0001]),
                     np.array([0.05]),
@@ -316,11 +360,29 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
             ParticleSimDataset(
                 "test_particle_sim_random_10",
                 suites=["test", "trace"],
+                parameters={
+                    "force_model": "cs267_repulsive",
+                    "boundary_model": "reflective_box",
+                    "mass": 0.01,
+                    "cutoff": 0.01,
+                    "softening": 0.0001,
+                    "dt": 0.0005,
+                    "gravitational_constant": 1.0,
+                },
                 values=generate_particle_test_data(10, 2, 10),
             ),
             ParticleSimDataset(
                 "test_particle_sim_random_50",
                 suites=["test", "trace"],
+                parameters={
+                    "force_model": "cs267_repulsive",
+                    "boundary_model": "reflective_box",
+                    "mass": 0.01,
+                    "cutoff": 0.01,
+                    "softening": 0.0001,
+                    "dt": 0.0005,
+                    "gravitational_constant": 1.0,
+                },
                 values=generate_particle_test_data(50, 2, 20),
             ),
         ]
@@ -329,7 +391,8 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
         if dataset.values is None:
             raise ValueError("Particle simulation test datasets must define values.")
         x, y, z, vx, vy, vz, size, steps = dataset.values
-        expected = reference_particle_sim(x, y, z, vx, vy, vz, size, steps)
+        parameters = dataset.parameters
+        expected = reference_particle_sim(x, y, z, vx, vy, vz, size, steps, parameters)
         return DataInstance(
             inputs=[
                 from_numpy(x),
@@ -339,7 +402,7 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
                 from_numpy(vy),
                 from_numpy(vz),
             ],
-            meta={"size": size, "steps": steps},
+            meta={"size": size, "steps": steps, "parameters": parameters},
             ref_outputs=[from_numpy(value) for value in expected],
         )
 
@@ -350,11 +413,13 @@ class SyntheticParticleSimDataset(ParticleSimDataset):
         name: str,
         n_particles: int,
         seed: int,
+        density: float,
         num_steps: int = 50,
         box_size: float | None = None,
         pretty_name: str | None = None,
         description: str | None = None,
         tags: list[str] | None = None,
+        parameters: dict[str, Any] | None = None,
     ):
         super().__init__(
             name=name,
@@ -364,17 +429,24 @@ class SyntheticParticleSimDataset(ParticleSimDataset):
             pretty_name=pretty_name,
             description=description,
             tags=tags,
+            parameters=parameters,
         )
         self._seed = seed
+        self._density = density
 
     @property
     def seed(self) -> int:
         return self._seed
 
     @property
+    def density(self) -> float:
+        return self._density
+
+    @property
     def metadata(self) -> dict[str, Any]:
         data = super().metadata
         data["seed"] = self.seed
+        data["density"] = self.density
         return data
 
 
@@ -449,9 +521,19 @@ class SyntheticBerkeleyCS267ParticleGenerator(Generator[SyntheticParticleSimData
         return [
             SyntheticParticleSimDataset(
                 name="cs267_hw2_n1000_seed1",
-                n_particles=cs267_default_particles,
-                num_steps=nsteps,
-                seed=cs267_particle_seed,
+                n_particles=1000,
+                num_steps=1000,
+                seed=1,
+                density=0.0005,
+                parameters={
+                    "force_model": "cs267_repulsive",
+                    "boundary_model": "reflective_box",
+                    "mass": 0.01,
+                    "cutoff": 0.01,
+                    "softening": 0.0001,
+                    "dt": 0.0005,
+                    "gravitational_constant": 1.0,
+                },
                 pretty_name="CS267 HW2 Initial Conditions (N=1000)",
                 description=(
                     "CS267 homework-style particle initialization extended to a "
@@ -464,7 +546,8 @@ class SyntheticBerkeleyCS267ParticleGenerator(Generator[SyntheticParticleSimData
     def generate(self, dataset: SyntheticParticleSimDataset):
         rng = np.random.Generator(np.random.MT19937(dataset.seed))
         n = dataset.n_particles
-        size = particle_density_box_size(n)
+        parameters = dataset.parameters
+        size = particle_density_box_size(n, dataset.density)
         sx = math.ceil(math.pow(n, 1.0 / 3.0))
         sy = math.ceil(math.sqrt(n / sx))
         sz = (n + sx * sy - 1) // (sx * sy)
@@ -502,8 +585,9 @@ class SyntheticBerkeleyCS267ParticleGenerator(Generator[SyntheticParticleSimData
                 "size": size,
                 "steps": dataset.num_steps,
                 "n_particles": dataset.n_particles,
-                "density": density,
                 "seed": dataset.seed,
+                "density": dataset.density,
+                "parameters": parameters,
                 "source": "Berkeley CS267 HW2 init_particles extended to 3D",
                 "source_dimensions": 3,
                 "simulation_dimensions": 3,
@@ -563,13 +647,6 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                 year=1911,
             ),
             Ref(
-                title="A bar model for the Galactic bulge",
-                authors=[Author("J. A. Sellwood")],
-                booktitle="Back to the Galaxy",
-                pages="133-136",
-                year=1993,
-            ),
-            Ref(
                 title="The return of the tidal tails in NGC 7252",
                 authors=[
                     Author("John Dubinski"),
@@ -604,6 +681,14 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                 name="nemo_plummer_128",
                 n_particles=128,
                 num_steps=50,
+                parameters={
+                    "force_model": "newtonian_gravity",
+                    "boundary_model": "unbounded",
+                    "cutoff": 1.0,
+                    "dt": 1.0 / 32.0,
+                    "softening": 0.05,
+                    "gravitational_constant": 1.0,
+                },
                 pretty_name="NEMO Plummer (N=128)",
                 description=(
                     "NEMO Plummer-model equilibrium snapshot generated with mkplummer,"
@@ -618,6 +703,14 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                 name="nemo_plummer_1024",
                 n_particles=1024,
                 num_steps=50,
+                parameters={
+                    "force_model": "newtonian_gravity",
+                    "boundary_model": "unbounded",
+                    "cutoff": 1.0,
+                    "dt": 1.0 / 32.0,
+                    "softening": 0.05,
+                    "gravitational_constant": 1.0,
+                },
                 pretty_name="NEMO Plummer (N=1024)",
                 description=(
                     "NEMO Plummer-model equilibrium snapshot generated with mkplummer,"
@@ -629,24 +722,17 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                 source_columns=("mass", "x", "y", "z", "vx", "vy", "vz"),
             ),
             ParticleSimDataset(
-                name="nemo_sellwood_stars",
-                n_particles=43802,
-                num_steps=20,
-                pretty_name="NEMO Sellwood Bar Model",
-                description=(
-                    "Sellwood barred-galactic-bulge snapshot from the NEMO archive,"
-                    " stored as wrapped z, y, x, vz, vy, vx phase-space coordinates."
-                ),
-                suites=["standard"],
-                tags=["physics", "simulation", "sparse", "astronomy", "n-body"],
-                source_path="sellwood/stars.dat.gz",
-                source_columns=("z", "y", "x", "vz", "vy", "vx"),
-                source_wrap=True,
-            ),
-            ParticleSimDataset(
                 name="nemo_dubinski_m31",
                 n_particles=81920,
                 num_steps=10,
+                parameters={
+                    "force_model": "newtonian_gravity",
+                    "boundary_model": "unbounded",
+                    "cutoff": 20.0,
+                    "dt": 1.0 / 32.0,
+                    "softening": 0.05,
+                    "gravitational_constant": 1.0,
+                },
                 pretty_name="NEMO Dubinski MW/M31",
                 description=(
                     "Dubinski Milky Way/Andromeda collision initial conditions from the"
@@ -669,7 +755,9 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
             expected_particles=dataset.n_particles,
             num_steps=dataset.num_steps,
             box_size=dataset.box_size,
+            include_mass="mass" in dataset.source_columns,
         )
+        meta["parameters"] = dataset.parameters
         return DataInstance(inputs=inputs, meta=meta)
 
 
@@ -756,9 +844,17 @@ class ParticleSimBenchmark(Benchmark):
         ]
 
     def benchmark(self, xp, data, meta):
-        x, y, z, vx, vy, vz = data
+        if len(data) == 6:
+            x, y, z, vx, vy, vz = data
+            particle_mass = meta["parameters"].get("particle_mass", 1.0)
+        else:
+            x, y, z, vx, vy, vz, particle_mass = data
         size = meta["size"]
         steps = meta["steps"]
+        parameters = meta["parameters"]
+        dt = parameters["dt"]
+        gravitational_constant = parameters["gravitational_constant"]
+        force_model = parameters["force_model"]
 
         for _ in range(steps):
             # compute forces
@@ -766,15 +862,19 @@ class ParticleSimBenchmark(Benchmark):
             dy = y - y.reshape(-1, 1)
             dz = z - z.reshape(-1, 1)
             r2 = dx * dx + dy * dy + dz * dz
-
+            cutoff = parameters["cutoff"]
+            softening = parameters["softening"]
             mask = r2 > cutoff * cutoff
-
             r2 = xp.where(mask, xp.inf, r2)
-            r2 = xp.maximum(r2, min_r * min_r)
+            r2 = xp.maximum(r2, softening * softening)
             r = xp.sqrt(r2)
 
-            coef = (1 - cutoff / r) / r2 / mass
-            # coef = xp.where(mask, 0, coef)
+            if force_model == "newtonian_gravity":
+                coef = gravitational_constant * particle_mass / (r2 * r)
+            else:
+                coef = gravitational_constant * (
+                    (1 - cutoff / r) / r2 / parameters["mass"]
+                )
 
             ax = coef * dx
             ay = coef * dy
@@ -792,6 +892,9 @@ class ParticleSimBenchmark(Benchmark):
             x += vx * dt
             y += vy * dt
             z += vz * dt
+
+            if parameters["boundary_model"] != "reflective_box":
+                continue
 
             # bounce off walls
             # x
