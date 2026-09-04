@@ -48170,7 +48170,7 @@
       "concepts": "<ccs2012></ccs2012>",
       "description": "The multiplication of a matrix and a vector.C_i = \\sum_j A_ij B_j",
       "file": "src/saps/benchmarks/spmv.py",
-      "freshness": "41a4fea8482fbd647df85d45b31b55d5885647efb9638e0e848eeee649ed7d13",
+      "freshness": "d1462e2017daffb82619d7e283f4c4596df38f7313666cb7f9925c76e462a10b",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
@@ -48181,11 +48181,11 @@
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
-              "asv_param": "dense_matmul_generator.small",
+              "asv_param": "dense_matvec_generator.small",
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense MatVec Input small.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "41a4fea8482fbd647df85d45b31b55d5885647efb9638e0e848eeee649ed7d13",
+              "freshness": "d1462e2017daffb82619d7e283f4c4596df38f7313666cb7f9925c76e462a10b",
               "name": "small",
               "pretty_name": "small",
               "suites": [
@@ -48200,11 +48200,11 @@
               "topics": []
             },
             {
-              "asv_param": "dense_matmul_generator.medium",
+              "asv_param": "dense_matvec_generator.medium",
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense MatVec Input medium.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "41a4fea8482fbd647df85d45b31b55d5885647efb9638e0e848eeee649ed7d13",
+              "freshness": "d1462e2017daffb82619d7e283f4c4596df38f7313666cb7f9925c76e462a10b",
               "name": "medium",
               "pretty_name": "medium",
               "suites": [
@@ -48219,11 +48219,11 @@
               "topics": []
             },
             {
-              "asv_param": "dense_matmul_generator.large",
+              "asv_param": "dense_matvec_generator.large",
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense MatVec Input large.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "41a4fea8482fbd647df85d45b31b55d5885647efb9638e0e848eeee649ed7d13",
+              "freshness": "d1462e2017daffb82619d7e283f4c4596df38f7313666cb7f9925c76e462a10b",
               "name": "large",
               "pretty_name": "large",
               "suites": [
@@ -48238,9 +48238,9 @@
           ],
           "description": "Dense input generator for matrix multiplication.",
           "file": "src/saps/benchmarks/spmv.py",
-          "freshness": "41a4fea8482fbd647df85d45b31b55d5885647efb9638e0e848eeee649ed7d13",
+          "freshness": "d1462e2017daffb82619d7e283f4c4596df38f7313666cb7f9925c76e462a10b",
           "motivation": "Generate dense matrices for matrix multiplication.",
-          "name": "dense_matmul_generator",
+          "name": "dense_matvec_generator",
           "pretty_name": "Dense MatVec Generator",
           "references": [],
           "suites": [
@@ -48261,11 +48261,11 @@
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
-              "asv_param": "suitesparse_matmul_generator.email-Eu-core",
+              "asv_param": "suitesparse_matvec_generator.email-Eu-core",
               "concepts": "<ccs2012></ccs2012>",
               "description": "Suite Sparse MatVec Input email-Eu-core.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "41a4fea8482fbd647df85d45b31b55d5885647efb9638e0e848eeee649ed7d13",
+              "freshness": "d1462e2017daffb82619d7e283f4c4596df38f7313666cb7f9925c76e462a10b",
               "name": "email-Eu-core",
               "pretty_name": "email-Eu-core",
               "suites": [
@@ -48280,11 +48280,11 @@
               "topics": []
             },
             {
-              "asv_param": "suitesparse_matmul_generator.CollegeMsg",
+              "asv_param": "suitesparse_matvec_generator.CollegeMsg",
               "concepts": "<ccs2012></ccs2012>",
               "description": "Suite Sparse MatVec Input CollegeMsg.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "41a4fea8482fbd647df85d45b31b55d5885647efb9638e0e848eeee649ed7d13",
+              "freshness": "d1462e2017daffb82619d7e283f4c4596df38f7313666cb7f9925c76e462a10b",
               "name": "CollegeMsg",
               "pretty_name": "CollegeMsg",
               "suites": [
@@ -48299,11 +48299,11 @@
               "topics": []
             },
             {
-              "asv_param": "suitesparse_matmul_generator.wiki-vote",
+              "asv_param": "suitesparse_matvec_generator.wiki-vote",
               "concepts": "<ccs2012></ccs2012>",
               "description": "Suite Sparse MatVec Input wiki-vote.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "41a4fea8482fbd647df85d45b31b55d5885647efb9638e0e848eeee649ed7d13",
+              "freshness": "d1462e2017daffb82619d7e283f4c4596df38f7313666cb7f9925c76e462a10b",
               "name": "wiki-vote",
               "pretty_name": "wiki-vote",
               "suites": [
@@ -48318,9 +48318,9 @@
           ],
           "description": "Sparse input generator for matrix multiplication based on the suite sparse matrix collection.",
           "file": "src/saps/benchmarks/spmv.py",
-          "freshness": "41a4fea8482fbd647df85d45b31b55d5885647efb9638e0e848eeee649ed7d13",
+          "freshness": "d1462e2017daffb82619d7e283f4c4596df38f7313666cb7f9925c76e462a10b",
           "motivation": "Generate sparse matrices for matrix multiplication.",
-          "name": "suitesparse_matmul_generator",
+          "name": "suitesparse_matvec_generator",
           "pretty_name": "Suite Sparse MatVec Generator",
           "references": [
             "W. Ahrens, T. Collin, R. Patel, K. Deeds, C. Hong, S. Amarasinghe. \"Finch: Sparse and Structured Tensor Programming with Control Flow\", Proc. ACM Program. Lang. OOPSLA, 2025, URL: https://dl.acm.org/doi/pdf/10.1145/3720473.",
@@ -48344,11 +48344,11 @@
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
-              "asv_param": "uniform_random_matmul_generator.uniform-1e-05",
+              "asv_param": "uniform_random_matvec_generator.uniform-1e-05",
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-05.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "41a4fea8482fbd647df85d45b31b55d5885647efb9638e0e848eeee649ed7d13",
+              "freshness": "d1462e2017daffb82619d7e283f4c4596df38f7313666cb7f9925c76e462a10b",
               "name": "uniform-1e-05",
               "pretty_name": "uniform-1e-05",
               "suites": [
@@ -48363,11 +48363,11 @@
               "topics": []
             },
             {
-              "asv_param": "uniform_random_matmul_generator.uniform-1e-04",
+              "asv_param": "uniform_random_matvec_generator.uniform-1e-04",
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-04.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "41a4fea8482fbd647df85d45b31b55d5885647efb9638e0e848eeee649ed7d13",
+              "freshness": "d1462e2017daffb82619d7e283f4c4596df38f7313666cb7f9925c76e462a10b",
               "name": "uniform-1e-04",
               "pretty_name": "uniform-1e-04",
               "suites": [
@@ -48382,11 +48382,11 @@
               "topics": []
             },
             {
-              "asv_param": "uniform_random_matmul_generator.uniform-1e-03",
+              "asv_param": "uniform_random_matvec_generator.uniform-1e-03",
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-03.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "41a4fea8482fbd647df85d45b31b55d5885647efb9638e0e848eeee649ed7d13",
+              "freshness": "d1462e2017daffb82619d7e283f4c4596df38f7313666cb7f9925c76e462a10b",
               "name": "uniform-1e-03",
               "pretty_name": "uniform-1e-03",
               "suites": [
@@ -48401,11 +48401,11 @@
               "topics": []
             },
             {
-              "asv_param": "uniform_random_matmul_generator.uniform-1e-02",
+              "asv_param": "uniform_random_matvec_generator.uniform-1e-02",
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-02.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "41a4fea8482fbd647df85d45b31b55d5885647efb9638e0e848eeee649ed7d13",
+              "freshness": "d1462e2017daffb82619d7e283f4c4596df38f7313666cb7f9925c76e462a10b",
               "name": "uniform-1e-02",
               "pretty_name": "uniform-1e-02",
               "suites": [
@@ -48420,11 +48420,11 @@
               "topics": []
             },
             {
-              "asv_param": "uniform_random_matmul_generator.uniform-1e-01",
+              "asv_param": "uniform_random_matvec_generator.uniform-1e-01",
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-01.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "41a4fea8482fbd647df85d45b31b55d5885647efb9638e0e848eeee649ed7d13",
+              "freshness": "d1462e2017daffb82619d7e283f4c4596df38f7313666cb7f9925c76e462a10b",
               "name": "uniform-1e-01",
               "pretty_name": "uniform-1e-01",
               "suites": [
@@ -48441,9 +48441,9 @@
           ],
           "description": "Generates a pair of uniform random sparse matrices for sparse general matrix-matrix multiplication (SpGEMM) at a range of densities.",
           "file": "src/saps/benchmarks/spmv.py",
-          "freshness": "41a4fea8482fbd647df85d45b31b55d5885647efb9638e0e848eeee649ed7d13",
+          "freshness": "d1462e2017daffb82619d7e283f4c4596df38f7313666cb7f9925c76e462a10b",
           "motivation": "",
-          "name": "uniform_random_matmul_generator",
+          "name": "uniform_random_matvec_generator",
           "pretty_name": "Uniform Random Sparse MatVec Generator",
           "references": [
             "A. Bulu\u00e7, J. R. Gilbert. \"Parallel Sparse Matrix-Matrix Multiplication and Indexing: Implementation and Experiments\", SIAM Journal on Scientific Computing, Vol. 34, No. 4, pp. 170-191, 2012, DOI: 10.1137/110848244."

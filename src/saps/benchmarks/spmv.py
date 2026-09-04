@@ -57,7 +57,7 @@ class DenseMatVecDataset(Dataset):
 class DenseMatVecGenerator(Generator):
     @property
     def name(self) -> str:
-        return "dense_matmul_generator"
+        return "dense_matvec_generator"
 
     @property
     def pretty_name(self) -> str:
@@ -157,7 +157,7 @@ class SuiteSparseMatVecDataset(Dataset):
 class SuiteSparseMatVecGenerator(Generator):
     @property
     def name(self) -> str:
-        return "suitesparse_matmul_generator"
+        return "suitesparse_matvec_generator"
 
     @property
     def cacheable(self) -> bool:
@@ -310,7 +310,7 @@ class UniformRandomMatVecDataset(Dataset):
 class UniformRandomMatVecGenerator(Generator):
     @property
     def name(self) -> str:
-        return "uniform_random_matmul_generator"
+        return "uniform_random_matvec_generator"
 
     @property
     def pretty_name(self) -> str:
