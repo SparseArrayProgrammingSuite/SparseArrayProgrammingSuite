@@ -4,7 +4,7 @@ from typing import Any
 import numpy as np
 
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse.conversions import from_numpy, from_scipy, to_numpy
 
 from saps.benchmark import (
     Author,
@@ -15,6 +15,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.openml import OpenMLDatasetGenerator, fetch_openml_features
 
 
 class RPKMeansRandomDataset(Dataset):
@@ -160,7 +161,7 @@ class RPKMeansGenerator(Generator[RPKMeansRandomDataset]):
         ]
 
     def generate(self, dataset: RPKMeansRandomDataset) -> DataInstance:
-        A_bin = BinsparseFormat.from_numpy(dataset.points)
+        A_bin = from_numpy(dataset.points)
         _, d = dataset.points.shape
         t = int(dataset.c * math.ceil(dataset.k / dataset.eps**2))
         value = 1 / (t**0.5)
@@ -228,18 +229,18 @@ class RPKMeansDataset(Dataset):
         return data
 
 
-class RPKMeansMNISTGenerator(Generator[RPKMeansDataset]):
+class RPKMeansOpenMLGenerator(Generator[RPKMeansDataset]):
     @property
     def name(self) -> str:
-        return "rp_kmeans_mnist"
+        return "rp_kmeans_openml"
 
     @property
     def pretty_name(self) -> str:
-        return "RP k-means MNIST Generator"
+        return "RP k-means OpenML Generator"
 
     @property
     def description(self) -> str:
-        return "Loads MNIST training images for RP k-means clustering."
+        return "Loads OpenML image datasets for RP k-means clustering."
 
     @property
     def suites(self) -> list[str]:
@@ -251,7 +252,10 @@ class RPKMeansMNISTGenerator(Generator[RPKMeansDataset]):
 
     @property
     def authors(self) -> list[Contributor]:
-        return [Contributor("Kevin Wang", "kwang656@gatech.edu")]
+        return [
+            Contributor("Kevin Wang", "kwang656@gatech.edu"),
+            Contributor("Maksim Krylykov", "mkrylykov3@gatech.edu"),
+        ]
 
     @property
     def references(self) -> list[Ref]:
@@ -269,6 +273,12 @@ class RPKMeansMNISTGenerator(Generator[RPKMeansDataset]):
                 url="http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf",
             ),
             Ref(
+                title="Learning Multiple Layers of Features from Tiny Images",
+                authors=[Author("Alex Krizhevsky")],
+                year=2009,
+                url="https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf",
+            ),
+            Ref(
                 title=(
                     "MNIST Dataset Classification Utilizing k-NN Classifier"
                     " with Modified Sliding-window Metric"
@@ -284,22 +294,24 @@ class RPKMeansMNISTGenerator(Generator[RPKMeansDataset]):
     @property
     def motivation(self) -> str:
         return (
-            "MNIST provides 70,000 28×28 grayscale images of handwritten digits "
-            "flattened to 784-dimensional vectors, with a 60K/10K train/test split. "
-            "k = 10 aligns with the ten digit classes."
+            "MNIST and CIFAR-10 provide dense image feature matrices from OpenML. "
+            "k = 10 aligns with the ten classes in each dataset."
         )
+
+    @property
+    def cacheable(self) -> bool:
+        return False
 
     @property
     def datasets(self) -> list[RPKMeansDataset]:
         return [
-            RPKMeansDataset("mnist", k=10, eps=0.3),
+            RPKMeansDataset(dataset.name, k=10, eps=0.3, suites=dataset.suites)
+            for dataset in OpenMLDatasetGenerator().datasets
         ]
 
     def generate(self, dataset: RPKMeansDataset) -> DataInstance:
-        from sklearn.datasets import fetch_openml
-        mnist = fetch_openml("mnist_784", version=1, as_frame=False, parser="auto")
-        X = mnist.data.astype(np.float32) / 255.0
-        training = X[:60000]
+        features, source_meta = fetch_openml_features(dataset.name)
+        training = features[: _openml_training_rows(dataset.name)]
 
         n, d = training.shape
         t = int(dataset.c * math.ceil(dataset.k / dataset.eps**2))
@@ -308,109 +320,29 @@ class RPKMeansMNISTGenerator(Generator[RPKMeansDataset]):
         R = np.where(rng.random((d, t)) < 0.5, value, -value).astype(np.float32)
 
         return DataInstance(
-            inputs=[BinsparseFormat.from_numpy(training), BinsparseFormat.from_numpy(R)],
+            inputs=[from_numpy(training), from_numpy(R)],
             meta={
                 "k": dataset.k,
                 "eps": dataset.eps,
                 "c": dataset.c,
                 "max_iter": dataset.max_iter,
+                "num_rows": int(n),
+                "num_features": int(d),
+                "openml_data_id": source_meta["data_id"],
+                "openml_name": source_meta["openml_name"],
+                "openml_version": source_meta["version"],
+                "source_num_rows": source_meta["num_rows"],
+                "source_num_features": source_meta["num_features"],
             },
         )
 
 
-class RPKMeansCIFAR10Generator(Generator[RPKMeansDataset]):
-    @property
-    def name(self) -> str:
-        return "rp_kmeans_cifar10"
-
-    @property
-    def pretty_name(self) -> str:
-        return "RP k-means CIFAR-10 Generator"
-
-    @property
-    def description(self) -> str:
-        return "Loads CIFAR-10 training images for RP k-means clustering."
-
-    @property
-    def suites(self) -> list[str]:
-        return []
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
-    @property
-    def authors(self) -> list[Contributor]:
-        return [Contributor("Maksim Krylykov", "mkrylykov3@gatech.edu")]
-
-    @property
-    def references(self) -> list[Ref]:
-        return [
-            Ref(
-                title="Learning Multiple Layers of Features from Tiny Images",
-                authors=[Author("Alex Krizhevsky")],
-                year=2009,
-                url="https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf",
-            ),
-        ]
-
-    @property
-    def ai_disclosure(self) -> str:
-        return "No generative AI was used to implement benchmark functions."
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "CIFAR-10 provides 60,000 32×32 color images across 10 classes, each "
-            "flattened to a 3,072-dimensional vector. Its higher dimensionality and "
-            "dense structure contrasts with the Netflix and MNIST cases."
-        )
-
-    @property
-    def datasets(self) -> list[RPKMeansDataset]:
-        return [
-            RPKMeansDataset("cifar10", k=10, eps=0.3),
-        ]
-
-    def generate(self, dataset: RPKMeansDataset) -> DataInstance:
-        import os
-        import pickle
-        import tarfile
-        import urllib.request
-        cache_dir = os.path.join(os.path.expanduser("~"), ".cache", "sparseappbench", "cifar10")
-        extracted_dir = os.path.join(cache_dir, "cifar-10-batches-py")
-
-        if not os.path.exists(extracted_dir):
-            os.makedirs(cache_dir, exist_ok=True)
-            tar_path = os.path.join(cache_dir, "cifar-10-python.tar.gz")
-            urllib.request.urlretrieve(
-                "https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz", tar_path
-            )
-            with tarfile.open(tar_path, "r:gz") as tar:
-                tar.extractall(cache_dir)
-
-        train_arrays = []
-        for i in range(1, 6):
-            with open(os.path.join(extracted_dir, f"data_batch_{i}"), "rb") as f:
-                batch = pickle.load(f, encoding="bytes")
-            train_arrays.append(batch[b"data"])
-        training = np.concatenate(train_arrays, axis=0).astype(np.float32) / 255.0
-
-        n, d = training.shape
-        t = int(dataset.c * math.ceil(dataset.k / dataset.eps**2))
-        value = 1 / (t**0.5)
-        rng = np.random.default_rng(0)
-        R = np.where(rng.random((d, t)) < 0.5, value, -value).astype(np.float32)
-
-        return DataInstance(
-            inputs=[BinsparseFormat.from_numpy(training), BinsparseFormat.from_numpy(R)],
-            meta={
-                "k": dataset.k,
-                "eps": dataset.eps,
-                "c": dataset.c,
-                "max_iter": dataset.max_iter,
-            },
-        )
+def _openml_training_rows(source_name: str) -> int:
+    if source_name == "mnist":
+        return 60000
+    if source_name == "cifar10":
+        return 50000
+    return 2**63 - 1
 
 
 class RPKMeansNetflixGenerator(Generator[RPKMeansDataset]):
@@ -468,21 +400,24 @@ class RPKMeansNetflixGenerator(Generator[RPKMeansDataset]):
 
     def generate(self, dataset: RPKMeansDataset) -> DataInstance:
         import os
-        import kagglehub
+
         import scipy.sparse
+
+        import kagglehub
+
         cache_path = kagglehub.dataset_download("netflix-inc/netflix-prize-data")
 
         row_list = []
         col_list = []
         val_list = []
-        user_map = {}
+        user_map: dict[int, int] = {}
         current_movie = 0
         data_files = sorted(
             f for f in os.listdir(cache_path)
             if f.startswith("combined_data") and f.endswith(".txt")
         )
         for fname in data_files:
-            with open(os.path.join(cache_path, fname), "r") as f:
+            with open(os.path.join(cache_path, fname)) as f:
                 for line in f:
                     line = line.strip()
                     if line.endswith(":"):
@@ -506,9 +441,7 @@ class RPKMeansNetflixGenerator(Generator[RPKMeansDataset]):
 
         rng = np.random.default_rng(0)
         train_coo = data[rng.permutation(n_users)[:5000]].tocoo()
-        training = BinsparseFormat.from_coo(
-            (train_coo.row, train_coo.col), train_coo.data, train_coo.shape
-        )
+        training = from_scipy(train_coo)
 
         d = n_movies
         t = int(dataset.c * math.ceil(dataset.k / dataset.eps**2))
@@ -517,7 +450,7 @@ class RPKMeansNetflixGenerator(Generator[RPKMeansDataset]):
         R = np.where(rng.random((d, t)) < 0.5, value, -value).astype(np.float32)
 
         return DataInstance(
-            inputs=[training, BinsparseFormat.from_numpy(R)],
+            inputs=[training, from_numpy(R)],
             meta={
                 "k": dataset.k,
                 "eps": dataset.eps,
@@ -620,8 +553,7 @@ Dimensionality reduction</concept_desc>
     def generators(self):
         return [
             RPKMeansGenerator(),
-            RPKMeansMNISTGenerator(),
-            RPKMeansCIFAR10Generator(),
+            RPKMeansOpenMLGenerator(),
             RPKMeansNetflixGenerator(),
         ]
 
