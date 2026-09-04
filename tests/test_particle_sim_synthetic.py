@@ -28,7 +28,6 @@ def test_synthetic_berkeley_cs267_particle_generator_has_one_dataset():
     assert dataset.parameters == {
         "force_model": "cs267_repulsive",
         "boundary_model": "reflective_box",
-        "mass": 0.01,
         "cutoff": 0.01,
         "softening": 0.0001,
         "dt": 0.0005,
@@ -48,6 +47,7 @@ def test_synthetic_generator_matches_assignment_layout():
     vx = to_numpy(instance.inputs[3])
     vy = to_numpy(instance.inputs[4])
     vz = to_numpy(instance.inputs[5])
+    mass = to_numpy(instance.inputs[6])
     size = instance.meta["size"]
 
     sx = math.ceil(math.pow(n, 1.0 / 3.0))
@@ -73,8 +73,15 @@ def test_synthetic_generator_matches_assignment_layout():
     assert np.all(vz >= -1.0)
     assert np.all(vz <= 1.0)
 
+    np.testing.assert_allclose(mass, np.asarray(0.01))
+    assert mass.shape == ()
+
     again = generator.generate(generator.datasets[0])
-    for actual, expected_input in zip((x, y, z, vx, vy, vz), again.inputs, strict=True):
+    for actual, expected_input in zip(
+        (x, y, z, vx, vy, vz, mass),
+        again.inputs,
+        strict=True,
+    ):
         expected = to_numpy(expected_input)
         np.testing.assert_allclose(actual, expected)
 
@@ -95,7 +102,7 @@ def test_synthetic_generator_outputs_cs267_metadata():
 
     x = to_numpy(instance.inputs[0])
     assert x.shape == (dataset.n_particles,)
-    assert len(instance.inputs) == 6
+    assert len(instance.inputs) == 7
 
 
 def test_particle_sim_benchmark_registers_synthetic_generator():

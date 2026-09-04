@@ -39,6 +39,7 @@ def download_ewap_dataset(
 
     n = len(x)
     size = _coordinate_extent(x, y, z)
+    mass = np.asarray(0.01, dtype=np.float64)
 
     return (
         [
@@ -48,6 +49,7 @@ def download_ewap_dataset(
             from_numpy(vx),
             from_numpy(vy),
             from_numpy(vz),
+            from_numpy(mass),
         ],
         {
             "size": size,
@@ -55,15 +57,6 @@ def download_ewap_dataset(
             "source_scene": scene,
             "source_url": f"{_OPENTRAJ_BASE}/{scene}/obsmat.txt",
             "n_particles": n,
-            "parameters": {
-                "force_model": "cs267_repulsive",
-                "boundary_model": "reflective_box",
-                "mass": 0.01,
-                "cutoff": 0.01,
-                "softening": 0.0001,
-                "dt": 0.0005,
-                "gravitational_constant": 1.0,
-            },
             "source_dimensions": 2,
             "simulation_dimensions": 3,
             "source_x_min": float(x.min()),
@@ -108,6 +101,7 @@ def load_toy_ewap_dataset(
 
     n = len(x)
     size = _coordinate_extent(x, y, z)
+    mass = np.asarray(0.01, dtype=np.float64)
 
     return (
         [
@@ -117,6 +111,7 @@ def load_toy_ewap_dataset(
             from_numpy(vx),
             from_numpy(vy),
             from_numpy(vz),
+            from_numpy(mass),
         ],
         {
             "size": size,
@@ -124,15 +119,6 @@ def load_toy_ewap_dataset(
             "source_scene": "toy",
             "source_url": "N/A",
             "n_particles": n,
-            "parameters": {
-                "force_model": "cs267_repulsive",
-                "boundary_model": "reflective_box",
-                "mass": 0.01,
-                "cutoff": 0.01,
-                "softening": 0.0001,
-                "dt": 0.0005,
-                "gravitational_constant": 1.0,
-            },
             "source_dimensions": 2,
             "simulation_dimensions": 3,
             "source_x_min": float(x.min()),

@@ -23,7 +23,7 @@ def particle_density_box_size(n_particles: int, density: float) -> float:
     return math.pow(density * n_particles, 1.0 / 3.0)
 
 
-def generate_particle_test_data(num_particles, size, step):
+def generate_particle_test_data(num_particles, size, step, particle_mass):
     rng = np.random.default_rng(42)
     x = rng.random(num_particles) * size
     y = rng.random(num_particles) * size
@@ -31,7 +31,8 @@ def generate_particle_test_data(num_particles, size, step):
     vx = (rng.random(num_particles) - 0.5) * 0.1
     vy = (rng.random(num_particles) - 0.5) * 0.1
     vz = (rng.random(num_particles) - 0.5) * 0.1
-    return x, y, z, vx, vy, vz, size, step
+    mass = np.asarray(particle_mass, dtype=np.float64)
+    return x, y, z, vx, vy, vz, mass, size, step
 
 
 class ParticleSimDataset(Dataset):
@@ -46,7 +47,8 @@ class ParticleSimDataset(Dataset):
         suites: list[str] | None = None,
         values: tuple | None = None,
         tags: list[str] | None = None,
-        parameters: dict[str, Any] | None = None,
+        *,
+        parameters: dict[str, Any],
         source_path: str | None = None,
         source_columns: tuple[str, ...] | None = None,
         source_wrap: bool = False,
@@ -60,7 +62,7 @@ class ParticleSimDataset(Dataset):
             else 0
         )
         self._num_steps = num_steps
-        self._parameters = dict(parameters or {})
+        self._parameters = dict(parameters)
         self._box_size = box_size
         self._pretty_name = pretty_name or name
         self._description = description or (
@@ -140,7 +142,8 @@ class Particle:
         ax=0.0,
         ay=0.0,
         az=0.0,
-        particle_mass=1.0,
+        *,
+        particle_mass: float,
     ):
         self.x = x
         self.y = y
@@ -172,7 +175,7 @@ def apply_force(particle, neighbor, parameters):
     if parameters["force_model"] == "newtonian_gravity":
         coef = gravitational_constant * neighbor.mass / (r2 * r)
     else:
-        coef = gravitational_constant * ((1 - cutoff / r) / r2 / parameters["mass"])
+        coef = gravitational_constant * ((1 - cutoff / r) / r2 / particle.mass)
     particle.ax += coef * dx
     particle.ay += coef * dy
     particle.az += coef * dz
@@ -240,12 +243,10 @@ def reference_particle_sim(
     size,
     steps,
     parameters,
-    particle_mass=None,
+    particle_mass,
 ):
-    if particle_mass is None:
-        particle_mass = np.full_like(x, parameters.get("particle_mass", 1.0))
     ref_particles = [
-        Particle(xi, yi, zi, vxi, vyi, vzi, 0, 0, 0, mi)
+        Particle(xi, yi, zi, vxi, vyi, vzi, 0, 0, 0, particle_mass=float(mi))
         for xi, yi, zi, vxi, vyi, vzi, mi in zip(
             x,
             y,
@@ -253,7 +254,7 @@ def reference_particle_sim(
             vx,
             vy,
             vz,
-            particle_mass,
+            _mass_values(particle_mass, len(x)),
             strict=True,
         )
     ]
@@ -266,6 +267,12 @@ def reference_particle_sim(
         np.array([p.vy for p in ref_particles]),
         np.array([p.vz for p in ref_particles]),
     ]
+
+
+def _mass_values(particle_mass, n_particles):
+    if getattr(particle_mass, "ndim", 0) == 0:
+        return np.full(n_particles, float(particle_mass), dtype=np.float64)
+    return particle_mass
 
 
 class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
@@ -318,7 +325,6 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
                 parameters={
                     "force_model": "cs267_repulsive",
                     "boundary_model": "reflective_box",
-                    "mass": 0.01,
                     "cutoff": 0.01,
                     "softening": 0.0001,
                     "dt": 0.0005,
@@ -331,6 +337,7 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
                     np.array([0.1, 0.0]),
                     np.array([0.0, 0.0]),
                     np.array([0.0, 0.0]),
+                    np.asarray(0.01),
                     2,
                     1,
                 ),
@@ -341,7 +348,6 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
                 parameters={
                     "force_model": "cs267_repulsive",
                     "boundary_model": "reflective_box",
-                    "mass": 0.01,
                     "cutoff": 0.01,
                     "softening": 0.0001,
                     "dt": 0.0005,
@@ -354,6 +360,7 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
                     np.array([-0.1]),
                     np.array([0.0]),
                     np.array([0.0]),
+                    np.asarray(0.01),
                     2,
                     5,
                 ),
@@ -364,13 +371,12 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
                 parameters={
                     "force_model": "cs267_repulsive",
                     "boundary_model": "reflective_box",
-                    "mass": 0.01,
                     "cutoff": 0.01,
                     "softening": 0.0001,
                     "dt": 0.0005,
                     "gravitational_constant": 1.0,
                 },
-                values=generate_particle_test_data(10, 2, 10),
+                values=generate_particle_test_data(10, 2, 10, 0.01),
             ),
             ParticleSimDataset(
                 "test_particle_sim_random_50",
@@ -378,22 +384,32 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
                 parameters={
                     "force_model": "cs267_repulsive",
                     "boundary_model": "reflective_box",
-                    "mass": 0.01,
                     "cutoff": 0.01,
                     "softening": 0.0001,
                     "dt": 0.0005,
                     "gravitational_constant": 1.0,
                 },
-                values=generate_particle_test_data(50, 2, 20),
+                values=generate_particle_test_data(50, 2, 20, 0.01),
             ),
         ]
 
     def generate(self, dataset):
         if dataset.values is None:
             raise ValueError("Particle simulation test datasets must define values.")
-        x, y, z, vx, vy, vz, size, steps = dataset.values
+        x, y, z, vx, vy, vz, mass, size, steps = dataset.values
         parameters = dataset.parameters
-        expected = reference_particle_sim(x, y, z, vx, vy, vz, size, steps, parameters)
+        expected = reference_particle_sim(
+            x,
+            y,
+            z,
+            vx,
+            vy,
+            vz,
+            size,
+            steps,
+            parameters,
+            mass,
+        )
         return DataInstance(
             inputs=[
                 from_numpy(x),
@@ -402,6 +418,7 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
                 from_numpy(vx),
                 from_numpy(vy),
                 from_numpy(vz),
+                from_numpy(mass),
             ],
             meta={"size": size, "steps": steps, "parameters": parameters},
             ref_outputs=[from_numpy(value) for value in expected],
@@ -420,7 +437,8 @@ class SyntheticParticleSimDataset(ParticleSimDataset):
         pretty_name: str | None = None,
         description: str | None = None,
         tags: list[str] | None = None,
-        parameters: dict[str, Any] | None = None,
+        *,
+        parameters: dict[str, Any],
     ):
         super().__init__(
             name=name,
@@ -529,7 +547,6 @@ class SyntheticBerkeleyCS267ParticleGenerator(Generator[SyntheticParticleSimData
                 parameters={
                     "force_model": "cs267_repulsive",
                     "boundary_model": "reflective_box",
-                    "mass": 0.01,
                     "cutoff": 0.01,
                     "softening": 0.0001,
                     "dt": 0.0005,
@@ -560,6 +577,7 @@ class SyntheticBerkeleyCS267ParticleGenerator(Generator[SyntheticParticleSimData
         vx = np.empty(n, dtype=np.float64)
         vy = np.empty(n, dtype=np.float64)
         vz = np.empty(n, dtype=np.float64)
+        mass = np.asarray(0.01, dtype=np.float64)
 
         for i in range(n):
             j = int(rng.integers(0, n - i))
@@ -581,6 +599,7 @@ class SyntheticBerkeleyCS267ParticleGenerator(Generator[SyntheticParticleSimData
                 from_numpy(vx),
                 from_numpy(vy),
                 from_numpy(vz),
+                from_numpy(mass),
             ],
             meta={
                 "size": size,
@@ -698,7 +717,6 @@ class EWAPParticleSimGenerator(Generator[EWAPParticleSimDataset]):
                 parameters={
                     "force_model": "cs267_repulsive",
                     "boundary_model": "reflective_box",
-                    "mass": 0.01,
                     "cutoff": 0.01,
                     "softening": 0.0001,
                     "dt": 0.0005,
@@ -717,7 +735,6 @@ class EWAPParticleSimGenerator(Generator[EWAPParticleSimDataset]):
                 parameters={
                     "force_model": "cs267_repulsive",
                     "boundary_model": "reflective_box",
-                    "mass": 0.01,
                     "cutoff": 0.01,
                     "softening": 0.0001,
                     "dt": 0.0005,
@@ -990,11 +1007,7 @@ class ParticleSimBenchmark(Benchmark):
         ]
 
     def benchmark(self, xp, data, meta):
-        if len(data) == 6:
-            x, y, z, vx, vy, vz = data
-            particle_mass = meta["parameters"].get("particle_mass", 1.0)
-        else:
-            x, y, z, vx, vy, vz, particle_mass = data
+        x, y, z, vx, vy, vz, particle_mass = data
         size = meta["size"]
         steps = meta["steps"]
         parameters = meta["parameters"]
@@ -1019,7 +1032,7 @@ class ParticleSimBenchmark(Benchmark):
                 coef = gravitational_constant * particle_mass / (r2 * r)
             else:
                 coef = gravitational_constant * (
-                    (1 - cutoff / r) / r2 / parameters["mass"]
+                    (1 - cutoff / r) / r2 / particle_mass
                 )
 
             ax = coef * dx

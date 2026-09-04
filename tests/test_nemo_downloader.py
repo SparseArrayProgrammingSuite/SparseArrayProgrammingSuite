@@ -181,6 +181,7 @@ def test_particle_sim_real_generator_uses_nemo(monkeypatch):
         assert dataset.parameters["softening"] == 0.05
         assert dataset.parameters["cutoff"] > 0.0
         assert "particle_mass" not in dataset.parameters
+        assert "mass" not in dataset.parameters
     assert {dataset.name: dataset.parameters["cutoff"] for dataset in datasets} == {
         "nemo_plummer_128": 1.0,
         "nemo_plummer_1024": 1.0,
