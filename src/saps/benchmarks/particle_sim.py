@@ -286,7 +286,12 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
 
     @property
     def description(self):
-        return "Small deterministic particle simulation examples."
+        return (
+            "Small deterministic particle simulation examples using the CS267-style "
+            "repulsive force parameters: cutoff 0.01, softening 0.0001 from the "
+            "CS267 min_r = cutoff / 100 constant, dt 0.0005, G 1.0, and scalar "
+            "mass tensor 0.01."
+        )
 
     @property
     def suites(self):
@@ -306,11 +311,19 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
 
     @property
     def ai_disclosure(self):
-        return ParticleSimBenchmark().ai_disclosure
+        return (
+            "Generative AI was used to construct this generator and its dataset "
+            "structures. This statement was written by hand."
+        )
 
     @property
     def motivation(self):
-        return "Provide small particle examples for benchmark correctness checks."
+        return (
+            "Provide small particle examples for benchmark correctness checks while "
+            "exercising the same CS267-derived cutoff, minimum-radius softening, "
+            "time step, and unit gravitational constant used by the synthetic and "
+            "EWAP repulsive-force datasets."
+        )
 
     @property
     def cacheable(self) -> bool:
@@ -488,7 +501,10 @@ class SyntheticBerkeleyCS267ParticleGenerator(Generator[SyntheticParticleSimData
     def description(self) -> str:
         return (
             "Generates synthetic initial conditions for particle simulation "
-            "benchmarks."
+            "benchmarks. The force parameters follow the Berkeley CS267 homework "
+            "constants where available: cutoff 0.01, softening 0.0001 as the "
+            "benchmark name for CS267 min_r = cutoff / 100, dt 0.0005, and a "
+            "scalar mass tensor 0.01; G 1.0 is used as the benchmark unit scale."
         )
 
     @property
@@ -525,8 +541,8 @@ class SyntheticBerkeleyCS267ParticleGenerator(Generator[SyntheticParticleSimData
     @property
     def ai_disclosure(self) -> str:
         return (
-            "Generative AI was used to construct the generator and dataset structures."
-            " This statement was written by hand."
+            "Generative AI was used to construct this generator and its dataset "
+            "structures. This statement was written by hand."
         )
 
     @property
@@ -534,7 +550,10 @@ class SyntheticBerkeleyCS267ParticleGenerator(Generator[SyntheticParticleSimData
         return (
             "The CS267 homework initializes particles on a shuffled regular grid "
             "with random velocities so baseline implementations can focus on the "
-            "short-range force calculation."
+            "short-range force calculation. Its cutoff, min_r, density, and time "
+            "step constants drive this generator; min_r is recorded as softening "
+            "so the benchmark can share one radius-regularization parameter across "
+            "repulsive and gravitational datasets."
         )
 
     @property
@@ -558,7 +577,10 @@ class SyntheticBerkeleyCS267ParticleGenerator(Generator[SyntheticParticleSimData
                 pretty_name="CS267 HW2 Initial Conditions (N=1000)",
                 description=(
                     "CS267 homework-style particle initialization extended to a "
-                    "shuffled near-cubic grid with random velocities in [-1, 1]."
+                    "shuffled near-cubic grid with random velocities in [-1, 1]. "
+                    "The cutoff, softening, dt, density, and scalar mass tensor "
+                    "come from the CS267-style benchmark setup, with softening "
+                    "standing in for the CS267 min_r constant."
                 ),
                 tags=["physics", "simulation", "sparse", "synthetic", "cs267"],
             ),
@@ -665,7 +687,12 @@ class EWAPParticleSimGenerator(Generator[EWAPParticleSimDataset]):
 
     @property
     def description(self) -> str:
-        return "Loads ETH EWAP pedestrian trajectories as particle initial conditions."
+        return (
+            "Loads ETH EWAP pedestrian trajectories as particle initial conditions. "
+            "EWAP supplies positions and velocities only, so this generator uses the "
+            "same CS267-style repulsive parameters as the synthetic dataset: cutoff "
+            "0.01, softening 0.0001, dt 0.0005, G 1.0, and scalar mass tensor 0.01."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -698,8 +725,8 @@ class EWAPParticleSimGenerator(Generator[EWAPParticleSimDataset]):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "Generative AI was used to construct the generator and dataset structures."
-            " This statement was written by hand."
+            "Generative AI was used to construct this generator and its dataset "
+            "structures. This statement was written by hand."
         )
 
     @property
@@ -707,7 +734,10 @@ class EWAPParticleSimGenerator(Generator[EWAPParticleSimDataset]):
         return (
             "Pedestrian trajectories provide real-world 2D interaction data that can "
             "exercise the particle simulation benchmark without changing the source "
-            "coordinate scale."
+            "coordinate scale. Because the source data is not a physical N-body "
+            "snapshot, the interaction parameters intentionally mirror the "
+            "CS267-derived repulsive-force setup rather than being inferred from "
+            "the EWAP files."
         )
 
     @property
@@ -728,7 +758,9 @@ class EWAPParticleSimGenerator(Generator[EWAPParticleSimDataset]):
                 pretty_name="ETH EWAP ETH Scene",
                 description=(
                     "ETH EWAP seq_eth pedestrian trajectories loaded in dataset "
-                    "coordinates with z and vz preserved from the source column."
+                    "coordinates with z and vz preserved from the source column. "
+                    "The force parameters are the CS267-style repulsive benchmark "
+                    "constants because EWAP does not provide simulation constants."
                 ),
             ),
             EWAPParticleSimDataset(
@@ -746,7 +778,9 @@ class EWAPParticleSimGenerator(Generator[EWAPParticleSimDataset]):
                 pretty_name="ETH EWAP Hotel Scene",
                 description=(
                     "ETH EWAP seq_hotel pedestrian trajectories loaded in dataset "
-                    "coordinates with z and vz preserved from the source column."
+                    "coordinates with z and vz preserved from the source column. "
+                    "The force parameters are the CS267-style repulsive benchmark "
+                    "constants because EWAP does not provide simulation constants."
                 ),
             ),
         ]
@@ -775,7 +809,12 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
 
     @property
     def description(self) -> str:
-        return "Loads real-world initial conditions for particle simulation benchmarks."
+        return (
+            "Loads real-world initial conditions for particle simulation benchmarks. "
+            "NEMO datasets use source mass columns, unscaled archive coordinates, "
+            "Newtonian gravity with G 1.0 in N-body units, dt 1/32, softening 0.05, "
+            "and source-scale cutoffs selected for the benchmark datasets."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -828,15 +867,19 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "Generative AI was used to construct the generator and dataset structures."
-            " This statement was written by hand."
+            "Generative AI was used to construct this generator and its dataset "
+            "structures. This statement was written by hand."
         )
 
     @property
     def motivation(self):
         return (
             "The particle simulation is used to model particle interaction present in"
-            " mechanics, biology, astronomy, and other fields on a simplitic level."
+            " mechanics, biology, astronomy, and other fields on a simplitic level. "
+            "For NEMO snapshots, masses come from the archive tables; G 1.0 follows "
+            "the usual dimensionless N-body unit convention, softening 0.05 follows "
+            "the NEMO eps-style softened-gravity setting, and cutoffs are chosen "
+            "against the preserved source coordinate scale."
         )
 
     @property
@@ -857,7 +900,9 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                 pretty_name="NEMO Plummer (N=128)",
                 description=(
                     "NEMO Plummer-model equilibrium snapshot generated with mkplummer,"
-                    " using mass, position, and velocity columns."
+                    " using mass, position, and velocity columns. The dataset uses "
+                    "source masses, G 1.0 N-body units, dt 1/32, softening 0.05, "
+                    "and cutoff 1.0 for the preserved Plummer coordinate scale."
                 ),
                 suites=["standard"],
                 tags=["physics", "simulation", "sparse", "astronomy", "n-body"],
@@ -879,7 +924,9 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                 pretty_name="NEMO Plummer (N=1024)",
                 description=(
                     "NEMO Plummer-model equilibrium snapshot generated with mkplummer,"
-                    " using mass, position, and velocity columns."
+                    " using mass, position, and velocity columns. The dataset uses "
+                    "source masses, G 1.0 N-body units, dt 1/32, softening 0.05, "
+                    "and cutoff 1.0 for the preserved Plummer coordinate scale."
                 ),
                 suites=["standard"],
                 tags=["physics", "simulation", "sparse", "astronomy", "n-body"],
@@ -901,7 +948,10 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                 pretty_name="NEMO Dubinski MW/M31",
                 description=(
                     "Dubinski Milky Way/Andromeda collision initial conditions from the"
-                    " NEMO archive, stored as mass and six phase-space coordinates."
+                    " NEMO archive, stored as mass and six phase-space coordinates. "
+                    "The dataset uses source masses, G 1.0 N-body units, dt 1/32, "
+                    "softening 0.05, and cutoff 20.0 for the larger preserved "
+                    "Dubinski coordinate scale."
                 ),
                 suites=["standard"],
                 tags=["physics", "simulation", "sparse", "astronomy", "n-body"],
