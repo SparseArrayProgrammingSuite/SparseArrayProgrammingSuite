@@ -1,4 +1,5 @@
 import math
+from typing import Any
 
 import numpy as np
 
@@ -14,38 +15,76 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.downloaders.ewap import download_ewap_dataset
-from saps_framework.binsparse_format import BinsparseFormat
+from saps.downloaders.nemo import download_nemo_dataset
 
 mass = 0.01
 cutoff = 0.01
 min_r = cutoff / 100
 dt = 0.0005
+density = 0.0005
+nsteps = 1000
+cs267_default_particles = 1000
+cs267_particle_seed = 1
+
+
+def particle_density_box_size(n_particles: int) -> float:
+    return math.pow(density * n_particles, 1.0 / 3.0)
 
 
 def generate_particle_test_data(num_particles, size, step):
     rng = np.random.default_rng(42)
     x = rng.random(num_particles) * size
     y = rng.random(num_particles) * size
+    z = rng.random(num_particles) * size
     vx = (rng.random(num_particles) - 0.5) * 0.1
     vy = (rng.random(num_particles) - 0.5) * 0.1
-    return x, y, vx, vy, size, step
+    vz = (rng.random(num_particles) - 0.5) * 0.1
+    return x, y, z, vx, vy, vz, size, step
 
 
 class ParticleSimDataset(Dataset):
     def __init__(
         self,
         name: str,
+        n_particles: int | None = None,
+        num_steps: int = 50,
+        box_size: float | None = None,
         pretty_name: str | None = None,
         description: str | None = None,
         suites: list[str] | None = None,
         values: tuple | None = None,
+        tags: list[str] | None = None,
+        source_path: str | None = None,
+        source_columns: tuple[str, ...] | None = None,
+        source_wrap: bool = False,
     ):
         self._name = name
+        self._n_particles = (
+            n_particles
+            if n_particles is not None
+            else len(values[0])
+            if values is not None
+            else 0
+        )
+        self._num_steps = num_steps
+        self._box_size = (
+            box_size
+            if box_size is not None
+            else particle_density_box_size(self._n_particles)
+            if self._n_particles and source_path is None
+            else None
+        )
         self._pretty_name = pretty_name or name
-        self._description = description or f"Particle simulation input {name}."
+        self._description = description or (
+            f"Particle Simulation with {self._n_particles} particles, "
+            f"{num_steps} steps."
+        )
         self._suites = suites or []
         self.values = values
+        self._tags = tags or ["physics", "simulation", "sparse"]
+        self.source_path = source_path
+        self.source_columns = source_columns
+        self.source_wrap = source_wrap
 
     @property
     def name(self) -> str:
@@ -67,21 +106,64 @@ class ParticleSimDataset(Dataset):
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
+    @property
+    def tags(self) -> list[str]:
+        return self._tags
+
+    @property
+    def n_particles(self) -> int:
+        return self._n_particles
+
+    @property
+    def num_steps(self) -> int:
+        return self._num_steps
+
+    @property
+    def box_size(self) -> float | None:
+        return self._box_size
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        data = super().metadata
+        data["n_particles"] = self.n_particles
+        data["num_steps"] = self.num_steps
+        data["source_path"] = self.source_path
+        data["source_columns"] = (
+            list(self.source_columns) if self.source_columns is not None else None
+        )
+        data["source_wrap"] = self.source_wrap
+        return data
+
 
 class Particle:
-    def __init__(self, x=0.0, y=0.0, vx=0.0, vy=0.0, ax=0.0, ay=0.0):
+    def __init__(
+        self,
+        x=0.0,
+        y=0.0,
+        z=0.0,
+        vx=0.0,
+        vy=0.0,
+        vz=0.0,
+        ax=0.0,
+        ay=0.0,
+        az=0.0,
+    ):
         self.x = x
         self.y = y
+        self.z = z
         self.vx = vx
         self.vy = vy
+        self.vz = vz
         self.ax = ax
         self.ay = ay
+        self.az = az
 
 
 def apply_force(particle, neighbor):
     dx = neighbor.x - particle.x
     dy = neighbor.y - particle.y
-    r2 = dx * dx + dy * dy
+    dz = neighbor.z - particle.z
+    r2 = dx * dx + dy * dy + dz * dz
 
     if r2 > cutoff * cutoff:
         return
@@ -92,13 +174,16 @@ def apply_force(particle, neighbor):
     coef = (1 - cutoff / r) / r2 / mass
     particle.ax += coef * dx
     particle.ay += coef * dy
+    particle.az += coef * dz
 
 
 def move(p, size):
     p.vx += p.ax * dt
     p.vy += p.ay * dt
+    p.vz += p.az * dt
     p.x += p.vx * dt
     p.y += p.vy * dt
+    p.z += p.vz * dt
 
     if p.x < 0 or p.x > size:
         if p.x < 0:
@@ -115,11 +200,19 @@ def move(p, size):
             p.y = 2 * size - p.y
         p.vy = -p.vy
 
+    if p.z < 0 or p.z > size:
+        if p.z < 0:
+            p.z = -p.z
+        else:
+            p.z = 2 * size - p.z
+        p.vz = -p.vz
+
 
 def simulate_one_step(parts, num_parts, size):
     for i in range(num_parts):
         parts[i].ax = 0
         parts[i].ay = 0
+        parts[i].az = 0
         for j in range(num_parts):
             apply_force(parts[i], parts[j])
 
@@ -132,17 +225,19 @@ def init_simulation(parts, num_parts, size, steps):
         simulate_one_step(parts, num_parts, size)
 
 
-def reference_particle_sim(x, y, vx, vy, size, steps):
+def reference_particle_sim(x, y, z, vx, vy, vz, size, steps):
     ref_particles = [
-        Particle(xi, yi, vxi, vyi, 0, 0)
-        for xi, yi, vxi, vyi in zip(x, y, vx, vy, strict=True)
+        Particle(xi, yi, zi, vxi, vyi, vzi, 0, 0, 0)
+        for xi, yi, zi, vxi, vyi, vzi in zip(x, y, z, vx, vy, vz, strict=True)
     ]
     init_simulation(ref_particles, len(ref_particles), size, steps)
     return [
         np.array([p.x for p in ref_particles]),
         np.array([p.y for p in ref_particles]),
+        np.array([p.z for p in ref_particles]),
         np.array([p.vx for p in ref_particles]),
         np.array([p.vy for p in ref_particles]),
+        np.array([p.vz for p in ref_particles]),
     ]
 
 
@@ -196,7 +291,9 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
                 values=(
                     np.array([0.001, 0.002]),
                     np.array([0.001, 0.001]),
+                    np.array([0.001, 0.001]),
                     np.array([0.1, 0.0]),
+                    np.array([0.0, 0.0]),
                     np.array([0.0, 0.0]),
                     2,
                     1,
@@ -208,7 +305,9 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
                 values=(
                     np.array([0.0001]),
                     np.array([0.05]),
+                    np.array([0.05]),
                     np.array([-0.1]),
+                    np.array([0.0]),
                     np.array([0.0]),
                     2,
                     5,
@@ -229,69 +328,20 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
     def generate(self, dataset):
         if dataset.values is None:
             raise ValueError("Particle simulation test datasets must define values.")
-        x, y, vx, vy, size, steps = dataset.values
-        expected = reference_particle_sim(x, y, vx, vy, size, steps)
+        x, y, z, vx, vy, vz, size, steps = dataset.values
+        expected = reference_particle_sim(x, y, z, vx, vy, vz, size, steps)
         return DataInstance(
             inputs=[
                 from_numpy(x),
                 from_numpy(y),
+                from_numpy(z),
                 from_numpy(vx),
                 from_numpy(vy),
+                from_numpy(vz),
             ],
             meta={"size": size, "steps": steps},
             ref_outputs=[from_numpy(value) for value in expected],
         )
-
-
-class ParticleSimDataset(Dataset):
-    def __init__(
-        self,
-        name: str,
-        n_particles: int,
-        num_steps: int = 50,
-        box_size: float | None = None,
-        pretty_name: str | None = None,
-        description: str | None = None,
-        tags: list[str] | None = None,
-    ):
-        self._name = name
-        self._n_particles = n_particles
-        self._num_steps = num_steps
-        # Use the CS267 standard density: size = sqrt(n * 0.0005)
-        self._box_size = box_size if box_size is not None else math.sqrt(n_particles * 0.0005)
-        self._pretty_name = pretty_name or name
-        self._description = description or (
-            f"Particle Simulation with {n_particles} particles, {num_steps} steps."
-        )
-        self._tags = tags or ["physics", "simulation", "sparse"]
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def pretty_name(self) -> str:
-        return self._pretty_name
-
-    @property
-    def description(self) -> str:
-        return self._description
-
-    @property
-    def tags(self) -> list[str]:
-        return self._tags
-
-    @property
-    def n_particles(self) -> int:
-        return self._n_particles
-
-    @property
-    def num_steps(self) -> int:
-        return self._num_steps
-
-    @property
-    def box_size(self) -> float:
-        return self._box_size
 
 
 class SyntheticParticleSimDataset(ParticleSimDataset):
@@ -299,8 +349,7 @@ class SyntheticParticleSimDataset(ParticleSimDataset):
         self,
         name: str,
         n_particles: int,
-        pos_distribution: str = "uniform",
-        vel_distribution: str = "normal",
+        seed: int,
         num_steps: int = 50,
         box_size: float | None = None,
         pretty_name: str | None = None,
@@ -316,39 +365,50 @@ class SyntheticParticleSimDataset(ParticleSimDataset):
             description=description,
             tags=tags,
         )
-        self._pos_distribution = pos_distribution
-        self._vel_distribution = vel_distribution
+        self._seed = seed
 
     @property
-    def pos_distribution(self) -> str:
-        return self._pos_distribution
+    def seed(self) -> int:
+        return self._seed
 
     @property
-    def vel_distribution(self) -> str:
-        return self._vel_distribution
+    def metadata(self) -> dict[str, Any]:
+        data = super().metadata
+        data["seed"] = self.seed
+        return data
 
 
-
-class SyntheticParticleSimGenerator(Generator[SyntheticParticleSimDataset]):
+class SyntheticBerkeleyCS267ParticleGenerator(Generator[SyntheticParticleSimDataset]):
     @property
     def cacheable(self) -> bool:
         return False
 
     @property
     def name(self) -> str:
-        return "synthetic_particle_sim"
+        return "synthetic_berkeley_cs267_particle"
 
     @property
     def pretty_name(self) -> str:
-        return "Synthetic Particle Simulation Generator"
+        return "Synthetic Berkeley CS267 Particle Generator"
 
     @property
     def description(self) -> str:
-        return "Generates synthetic initial conditions for particle simulation benchmarks."
+        return (
+            "Generates synthetic initial conditions for particle simulation "
+            "benchmarks."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return []
 
     @property
     def tags(self) -> list[str]:
         return ["physics", "particle-simulation", "sparse"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -356,7 +416,18 @@ class SyntheticParticleSimGenerator(Generator[SyntheticParticleSimDataset]):
 
     @property
     def references(self) -> list[Ref]:
-        return []
+        return [
+            Ref(
+                title="CS267 HW2-1: Parallelizing a Particle Simulation",
+                authors=[Author("CS 267 Staff")],
+                url="https://sites.google.com/lbl.gov/cs267-spr2025/hw-2-1",
+            ),
+            Ref(
+                title="CS267 HW2-1 Starter Code",
+                authors=[Author("CS 267 Staff")],
+                url="https://github.com/Berkeley-CS267/hw2-1",
+            ),
+        ]
 
     @property
     def ai_disclosure(self) -> str:
@@ -368,91 +439,75 @@ class SyntheticParticleSimGenerator(Generator[SyntheticParticleSimDataset]):
     @property
     def motivation(self):
         return (
-            "The particle simulation is used to model particle interaction present in"
-            " mechanics, biology, astronomy, and other fields on a simplitic level."
+            "The CS267 homework initializes particles on a shuffled regular grid "
+            "with random velocities so baseline implementations can focus on the "
+            "short-range force calculation."
         )
 
     @property
     def datasets(self) -> list[SyntheticParticleSimDataset]:
         return [
             SyntheticParticleSimDataset(
-                name="uniform_pos_normal_vel_n500",
-                n_particles=500,
-                num_steps=20,
-                pretty_name="Uniform Position, Normal Velocity (N=500)",
-            ),
-            SyntheticParticleSimDataset(
-                name="uniform_pos_normal_vel_n2000",
-                n_particles=2000,
-                num_steps=20,
-                pretty_name="Uniform Position, Normal Velocity (N=2000)",
-            ),
-            SyntheticParticleSimDataset(
-                name="uniform_pos_normal_vel_n5000",
-                n_particles=5000,
-                num_steps=10,
-                pretty_name="Uniform Position, Normal Velocity (N=5000)",
-            ),
-            SyntheticParticleSimDataset(
-                name="gaussian_cluster_zero_vel_n500",
-                n_particles=500,
-                num_steps=20,
-                pos_distribution="gaussian_cluster",
-                vel_distribution="zero",
-                pretty_name="Gaussian Cluster, Zero Velocity (N=500)",
+                name="cs267_hw2_n1000_seed1",
+                n_particles=cs267_default_particles,
+                num_steps=nsteps,
+                seed=cs267_particle_seed,
+                pretty_name="CS267 HW2 Initial Conditions (N=1000)",
                 description=(
-                    "500 particles concentrated in a Gaussian cluster at the box center"
-                    " with zero initial velocity. Repulsive forces drive the spreading."
+                    "CS267 homework-style particle initialization extended to a "
+                    "shuffled near-cubic grid with random velocities in [-1, 1]."
                 ),
-            ),
-            SyntheticParticleSimDataset(
-                name="gaussian_cluster_zero_vel_n2000",
-                n_particles=2000,
-                num_steps=20,
-                pos_distribution="gaussian_cluster",
-                vel_distribution="zero",
-                pretty_name="Gaussian Cluster, Zero Velocity (N=2000)",
-                description=(
-                    "2000 particles concentrated in a Gaussian cluster at the box center"
-                    " with zero initial velocity. Repulsive forces drive the spreading."
-                ),
+                tags=["physics", "simulation", "sparse", "synthetic", "cs267"],
             ),
         ]
 
     def generate(self, dataset: SyntheticParticleSimDataset):
-        rng = np.random.default_rng(42)
+        rng = np.random.Generator(np.random.MT19937(dataset.seed))
         n = dataset.n_particles
-        size = dataset.box_size
+        size = particle_density_box_size(n)
+        sx = math.ceil(math.pow(n, 1.0 / 3.0))
+        sy = math.ceil(math.sqrt(n / sx))
+        sz = (n + sx * sy - 1) // (sx * sy)
+        shuffle = list(range(n))
 
-        if dataset.pos_distribution == "uniform":
-            x = rng.uniform(0, size, n).astype(np.float64)
-            y = rng.uniform(0, size, n).astype(np.float64)
-        elif dataset.pos_distribution == "gaussian_cluster":
-            # Tight cluster at box center; sigma ~5% of box size so particles
-            # start well within cutoff of each other and spread under repulsion.
-            sigma = size * 0.05
-            x = np.clip(rng.normal(size / 2, sigma, n), 0, size).astype(np.float64)
-            y = np.clip(rng.normal(size / 2, sigma, n), 0, size).astype(np.float64)
-        else:
-            raise ValueError(f"Unknown pos_distribution: {dataset.pos_distribution!r}")
+        x = np.empty(n, dtype=np.float64)
+        y = np.empty(n, dtype=np.float64)
+        z = np.empty(n, dtype=np.float64)
+        vx = np.empty(n, dtype=np.float64)
+        vy = np.empty(n, dtype=np.float64)
+        vz = np.empty(n, dtype=np.float64)
 
-        if dataset.vel_distribution == "normal":
-            vx = rng.normal(0, 0.5, n).astype(np.float64)
-            vy = rng.normal(0, 0.5, n).astype(np.float64)
-        elif dataset.vel_distribution == "zero":
-            vx = np.zeros(n, dtype=np.float64)
-            vy = np.zeros(n, dtype=np.float64)
-        else:
-            raise ValueError(f"Unknown vel_distribution: {dataset.vel_distribution!r}")
+        for i in range(n):
+            j = int(rng.integers(0, n - i))
+            k = shuffle[j]
+            shuffle[j] = shuffle[n - i - 1]
 
-        return (
-            [
-                BinsparseFormat.from_numpy(x),
-                BinsparseFormat.from_numpy(y),
-                BinsparseFormat.from_numpy(vx),
-                BinsparseFormat.from_numpy(vy),
+            x[i] = size * (1.0 + (k % sx)) / (1 + sx)
+            y[i] = size * (1.0 + ((k // sx) % sy)) / (1 + sy)
+            z[i] = size * (1.0 + (k // (sx * sy))) / (1 + sz)
+            vx[i] = rng.uniform(-1.0, 1.0)
+            vy[i] = rng.uniform(-1.0, 1.0)
+            vz[i] = rng.uniform(-1.0, 1.0)
+
+        return DataInstance(
+            inputs=[
+                from_numpy(x),
+                from_numpy(y),
+                from_numpy(z),
+                from_numpy(vx),
+                from_numpy(vy),
+                from_numpy(vz),
             ],
-            {"size": size, "steps": dataset.num_steps},
+            meta={
+                "size": size,
+                "steps": dataset.num_steps,
+                "n_particles": dataset.n_particles,
+                "density": density,
+                "seed": dataset.seed,
+                "source": "Berkeley CS267 HW2 init_particles extended to 3D",
+                "source_dimensions": 3,
+                "simulation_dimensions": 3,
+            },
         )
 
 
@@ -474,8 +529,16 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
         return "Loads real-world initial conditions for particle simulation benchmarks."
 
     @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
     def tags(self) -> list[str]:
         return ["physics", "particle-simulation", "sparse"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -485,15 +548,39 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title="Learning Social Force Model for Pedestrian Detection",
+                title="N-Body Data Archive",
+                authors=[Author("Peter Teuben")],
+                url="https://carma.astro.umd.edu/nemo/archive/",
+            ),
+            Ref(
+                title="On the problem of distribution in globular star clusters",
                 authors=[
-                    Author("Pellegrini, Stefano"),
-                    Author("Ess, Andreas"),
-                    Author("Schindler, Konrad"),
-                    Author("Van Gool, Luc"),
+                    Author("M. C. Plummer"),
                 ],
-                url="http://www.vision.ee.ethz.ch/datasets/downloads/ewap_dataset_light.tgz",
-            )
+                journal="Monthly Notices of the Royal Astronomical Society",
+                volume=71,
+                pages="460",
+                year=1911,
+            ),
+            Ref(
+                title="A bar model for the Galactic bulge",
+                authors=[Author("J. A. Sellwood")],
+                booktitle="Back to the Galaxy",
+                pages="133-136",
+                year=1993,
+            ),
+            Ref(
+                title="The return of the tidal tails in NGC 7252",
+                authors=[
+                    Author("John Dubinski"),
+                    Author("J. Christopher Mihos"),
+                    Author("Lars Hernquist"),
+                ],
+                journal="The Astrophysical Journal",
+                volume=462,
+                pages="576",
+                year=1996,
+            ),
         ]
 
     @property
@@ -514,35 +601,76 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
     def datasets(self) -> list[ParticleSimDataset]:
         return [
             ParticleSimDataset(
-                name="ewap_seq_eth",
-                n_particles=75,
+                name="nemo_plummer_128",
+                n_particles=128,
                 num_steps=50,
-                pretty_name="ETH EWAP — seq_eth",
+                pretty_name="NEMO Plummer (N=128)",
                 description=(
-                    "Real pedestrian trajectories from the ETH EWAP dataset (scene: seq_eth)."
-                    " Each pedestrian's first observed position and velocity serves as a"
-                    " particle initial condition, rescaled to the CS267 standard box."
+                    "NEMO Plummer-model equilibrium snapshot generated with mkplummer,"
+                    " using mass, position, and velocity columns."
                 ),
-                tags=["physics", "simulation", "sparse", "real-world", "pedestrian"],
+                suites=["standard"],
+                tags=["physics", "simulation", "sparse", "astronomy", "n-body"],
+                source_path="plummer/tab128.gz",
+                source_columns=("mass", "x", "y", "z", "vx", "vy", "vz"),
             ),
             ParticleSimDataset(
-                name="ewap_seq_hotel",
-                n_particles=389,
+                name="nemo_plummer_1024",
+                n_particles=1024,
                 num_steps=50,
-                pretty_name="ETH EWAP — seq_hotel",
+                pretty_name="NEMO Plummer (N=1024)",
                 description=(
-                    "Real pedestrian trajectories from the ETH EWAP dataset (scene: seq_hotel)."
-                    " Each pedestrian's first observed position and velocity serves as a"
-                    " particle initial condition, rescaled to the CS267 standard box."
+                    "NEMO Plummer-model equilibrium snapshot generated with mkplummer,"
+                    " using mass, position, and velocity columns."
                 ),
-                tags=["physics", "simulation", "sparse", "real-world", "pedestrian"],
+                suites=["standard"],
+                tags=["physics", "simulation", "sparse", "astronomy", "n-body"],
+                source_path="plummer/tab1024.gz",
+                source_columns=("mass", "x", "y", "z", "vx", "vy", "vz"),
+            ),
+            ParticleSimDataset(
+                name="nemo_sellwood_stars",
+                n_particles=43802,
+                num_steps=20,
+                pretty_name="NEMO Sellwood Bar Model",
+                description=(
+                    "Sellwood barred-galactic-bulge snapshot from the NEMO archive,"
+                    " stored as wrapped z, y, x, vz, vy, vx phase-space coordinates."
+                ),
+                suites=["standard"],
+                tags=["physics", "simulation", "sparse", "astronomy", "n-body"],
+                source_path="sellwood/stars.dat.gz",
+                source_columns=("z", "y", "x", "vz", "vy", "vx"),
+                source_wrap=True,
+            ),
+            ParticleSimDataset(
+                name="nemo_dubinski_m31",
+                n_particles=81920,
+                num_steps=10,
+                pretty_name="NEMO Dubinski MW/M31",
+                description=(
+                    "Dubinski Milky Way/Andromeda collision initial conditions from the"
+                    " NEMO archive, stored as mass and six phase-space coordinates."
+                ),
+                suites=["standard"],
+                tags=["physics", "simulation", "sparse", "astronomy", "n-body"],
+                source_path="dubinski/dubinski.tab.gz",
+                source_columns=("mass", "x", "y", "z", "vx", "vy", "vz"),
             ),
         ]
 
     def generate(self, dataset: ParticleSimDataset):
-        # Scene name is encoded after the "ewap_" prefix in the dataset name.
-        scene = dataset.name.removeprefix("ewap_")
-        return download_ewap_dataset(scene, num_steps=dataset.num_steps)
+        if dataset.source_path is None or dataset.source_columns is None:
+            raise ValueError(f"Particle dataset {dataset.name} has no NEMO source")
+        inputs, meta = download_nemo_dataset(
+            dataset.source_path,
+            columns=dataset.source_columns,
+            wrap=dataset.source_wrap,
+            expected_particles=dataset.n_particles,
+            num_steps=dataset.num_steps,
+            box_size=dataset.box_size,
+        )
+        return DataInstance(inputs=inputs, meta=meta)
 
 
 class ParticleSimBenchmark(Benchmark):
@@ -621,10 +749,14 @@ class ParticleSimBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [ParticleSimTestGenerator()]
+        return [
+            ParticleSimTestGenerator(),
+            SyntheticBerkeleyCS267ParticleGenerator(),
+            ParticleSimGenerator(),
+        ]
 
     def benchmark(self, xp, data, meta):
-        x, y, vx, vy = data
+        x, y, z, vx, vy, vz = data
         size = meta["size"]
         steps = meta["steps"]
 
@@ -632,7 +764,8 @@ class ParticleSimBenchmark(Benchmark):
             # compute forces
             dx = x - x.reshape(-1, 1)
             dy = y - y.reshape(-1, 1)
-            r2 = dx * dx + dy * dy
+            dz = z - z.reshape(-1, 1)
+            r2 = dx * dx + dy * dy + dz * dz
 
             mask = r2 > cutoff * cutoff
 
@@ -645,16 +778,20 @@ class ParticleSimBenchmark(Benchmark):
 
             ax = coef * dx
             ay = coef * dy
+            az = coef * dz
 
             ax = xp.sum(ax, axis=1)
             ay = xp.sum(ay, axis=1)
+            az = xp.sum(az, axis=1)
 
             # move particles
             vx += ax * dt
             vy += ay * dt
+            vz += az * dt
 
             x += vx * dt
             y += vy * dt
+            z += vz * dt
 
             # bounce off walls
             # x
@@ -673,7 +810,15 @@ class ParticleSimBenchmark(Benchmark):
             y2 = 2 * size - y
             y = xp.where(y > size, y2, y1)
 
-        return [x, y, vx, vy]
+            # z
+            reflected = (z < 0) | (z > size)
+            vz = xp.where(reflected, -vz, vz)
+
+            z1 = xp.abs(z)
+            z2 = 2 * size - z
+            z = xp.where(z > size, z2, z1)
+
+        return [x, y, z, vx, vy, vz]
 
     def check(self, param):
         for item in self._output:

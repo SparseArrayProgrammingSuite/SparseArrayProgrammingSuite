@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import math
 import urllib.request
 from pathlib import Path
 
 import numpy as np
 
-from saps_framework.binsparse_format import BinsparseFormat
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy
 
 _OPENTRAJ_BASE = (
     "https://raw.githubusercontent.com/crowdbotp/OpenTraj/master/datasets/ETH"
@@ -19,13 +19,11 @@ def download_ewap_dataset(
     *,
     data_dir: str | Path | None = None,
     num_steps: int = 50,
-) -> tuple[list[BinsparseFormat], dict]:
+) -> tuple[list[BinsparseTensor], dict]:
     """Download the ETH EWAP pedestrian dataset and return particle initial conditions.
 
     Each unique pedestrian's first observed position and velocity becomes one
-    particle.  Coordinates are rescaled from metres to the CS267 standard box
-    (size = sqrt(n * 0.0005)) so the simulation density matches the synthetic
-    datasets.
+    particle. Coordinates and velocities are preserved in the dataset's units.
 
     ``scene`` must be one of ``"seq_eth"`` or ``"seq_hotel"``.
     """
@@ -37,32 +35,41 @@ def download_ewap_dataset(
     dataset_dir.mkdir(parents=True, exist_ok=True)
 
     obsmat_path = _ensure_downloaded(dataset_dir, scene)
-    x_raw, y_raw, vx_raw, vy_raw = _parse_obsmat(obsmat_path)
+    x, y, z, vx, vy, vz = _parse_obsmat(obsmat_path)
 
-    n = len(x_raw)
-    box_size = math.sqrt(n * 0.0005)
-    x, y, vx, vy = _rescale_to_box(x_raw, y_raw, vx_raw, vy_raw, box_size)
+    n = len(x)
+    size = _coordinate_extent(x, y, z)
 
     return (
         [
-            BinsparseFormat.from_numpy(x),
-            BinsparseFormat.from_numpy(y),
-            BinsparseFormat.from_numpy(vx),
-            BinsparseFormat.from_numpy(vy),
+            from_numpy(x),
+            from_numpy(y),
+            from_numpy(z),
+            from_numpy(vx),
+            from_numpy(vy),
+            from_numpy(vz),
         ],
         {
-            "size": box_size,
+            "size": size,
             "steps": num_steps,
             "source_scene": scene,
             "source_url": f"{_OPENTRAJ_BASE}/{scene}/obsmat.txt",
             "n_particles": n,
+            "source_dimensions": 2,
+            "simulation_dimensions": 3,
+            "source_x_min": float(x.min()),
+            "source_x_max": float(x.max()),
+            "source_y_min": float(y.min()),
+            "source_y_max": float(y.max()),
+            "source_z_min": float(z.min()),
+            "source_z_max": float(z.max()),
         },
     )
 
 
 def load_toy_ewap_dataset(
     num_steps: int = 10,
-) -> tuple[list[BinsparseFormat], dict]:
+) -> tuple[list[BinsparseTensor], dict]:
     """Return a minimal EWAP-shaped dataset from hard-coded data (no network access).
 
     Useful for unit tests.  The toy data contains 4 pedestrians with known
@@ -86,27 +93,36 @@ def load_toy_ewap_dataset(
         tmp_path = Path(f.name)
 
     try:
-        x_raw, y_raw, vx_raw, vy_raw = _parse_obsmat(tmp_path)
+        x, y, z, vx, vy, vz = _parse_obsmat(tmp_path)
     finally:
         tmp_path.unlink(missing_ok=True)
 
-    n = len(x_raw)
-    box_size = math.sqrt(n * 0.0005)
-    x, y, vx, vy = _rescale_to_box(x_raw, y_raw, vx_raw, vy_raw, box_size)
+    n = len(x)
+    size = _coordinate_extent(x, y, z)
 
     return (
         [
-            BinsparseFormat.from_numpy(x),
-            BinsparseFormat.from_numpy(y),
-            BinsparseFormat.from_numpy(vx),
-            BinsparseFormat.from_numpy(vy),
+            from_numpy(x),
+            from_numpy(y),
+            from_numpy(z),
+            from_numpy(vx),
+            from_numpy(vy),
+            from_numpy(vz),
         ],
         {
-            "size": box_size,
+            "size": size,
             "steps": num_steps,
             "source_scene": "toy",
             "source_url": "N/A",
             "n_particles": n,
+            "source_dimensions": 2,
+            "simulation_dimensions": 3,
+            "source_x_min": float(x.min()),
+            "source_x_max": float(x.max()),
+            "source_y_min": float(y.min()),
+            "source_y_max": float(y.max()),
+            "source_z_min": float(z.min()),
+            "source_z_max": float(z.max()),
         },
     )
 
@@ -133,17 +149,18 @@ def _ensure_downloaded(dataset_dir: Path, scene: str) -> Path:
     return obsmat_path
 
 
-def _parse_obsmat(path: Path) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Parse obsmat.txt and return (x, y, vx, vy) for each pedestrian's first frame.
+def _parse_obsmat(
+    path: Path,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Parse obsmat.txt and return first-frame x/y/z and vx/vy/vz arrays.
 
     File columns: frame_id  ped_id  pos_x  pos_z  pos_y  v_x  v_z  v_y
-    We use pos_x (col 2), pos_y (col 4), v_x (col 5), v_y (col 7).
     """
-    first: dict[int, tuple[float, float, float, float]] = {}
+    first: dict[int, tuple[float, float, float, float, float, float]] = {}
     with path.open(encoding="utf-8") as f:
         for line in f:
             stripped = line.strip()
-            if not stripped or stripped.startswith("%") or stripped.startswith("#"):
+            if not stripped or stripped.startswith(("%", "#")):
                 continue
             parts = stripped.split()
             if len(parts) < 8:
@@ -154,33 +171,33 @@ def _parse_obsmat(path: Path) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.nd
             first[ped_id] = (
                 float(parts[2]),  # pos_x
                 float(parts[4]),  # pos_y
+                float(parts[3]),  # pos_z
                 float(parts[5]),  # v_x
                 float(parts[7]),  # v_y
+                float(parts[6]),  # v_z
             )
 
     entries = list(first.values())
-    x  = np.array([e[0] for e in entries], dtype=np.float64)
-    y  = np.array([e[1] for e in entries], dtype=np.float64)
-    vx = np.array([e[2] for e in entries], dtype=np.float64)
-    vy = np.array([e[3] for e in entries], dtype=np.float64)
-    return x, y, vx, vy
+    x = np.array([e[0] for e in entries], dtype=np.float64)
+    y = np.array([e[1] for e in entries], dtype=np.float64)
+    z = np.array([e[2] for e in entries], dtype=np.float64)
+    vx = np.array([e[3] for e in entries], dtype=np.float64)
+    vy = np.array([e[4] for e in entries], dtype=np.float64)
+    vz = np.array([e[5] for e in entries], dtype=np.float64)
+    return x, y, z, vx, vy, vz
 
 
-def _rescale_to_box(
+def _coordinate_extent(
     x: np.ndarray,
     y: np.ndarray,
-    vx: np.ndarray,
-    vy: np.ndarray,
-    box_size: float,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Linearly rescale positions from metres to [0, box_size] and scale velocities by the same factor."""
-    x_min, x_max = x.min(), x.max()
-    y_min, y_max = y.min(), y.max()
-    span = max(x_max - x_min, y_max - y_min, 1e-9)
-    scale = box_size / span
-
-    x_out  = (x - x_min) * scale
-    y_out  = (y - y_min) * scale
-    vx_out = vx * scale
-    vy_out = vy * scale
-    return x_out, y_out, vx_out, vy_out
+    z: np.ndarray,
+) -> float:
+    """Return a benchmark size parameter without changing dataset coordinates."""
+    return float(
+        max(
+            x.max() - x.min(),
+            y.max() - y.min(),
+            z.max() - z.min(),
+            1e-9,
+        )
+    )
