@@ -78,6 +78,7 @@ def test_prepare_ogb_nodeprop_dataset_uses_ogb_fields():
     assert graph.num_tasks == 1
     assert graph.num_classes == 2
     assert graph.num_outputs == 2
+    assert graph.num_raw_edges == 2
     assert graph.metadata["split_sizes"] == {"train": 1, "valid": 1, "test": 1}
     assert graph.metadata["num_normalized_edges"] == 7
 

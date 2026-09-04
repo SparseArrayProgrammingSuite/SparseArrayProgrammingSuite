@@ -145,6 +145,7 @@ class OGBNodePropGenerator(Generator[OGBNodePropDataset]):
                     "Citation network of arXiv Computer Science papers for "
                     "node-property prediction."
                 ),
+                suites=["standard"],
             ),
             OGBNodePropDataset(
                 "ogbn_products",
@@ -154,6 +155,7 @@ class OGBNodePropGenerator(Generator[OGBNodePropDataset]):
                     "Amazon product co-purchasing network for large-scale "
                     "node-property prediction."
                 ),
+                suites=["standard"],
             ),
             OGBNodePropDataset(
                 "ogbn_proteins",
@@ -163,6 +165,7 @@ class OGBNodePropGenerator(Generator[OGBNodePropDataset]):
                     "Protein-protein association network with species labels and "
                     "averaged edge-feature node inputs."
                 ),
+                suites=["standard"],
             ),
         ]
 

@@ -17,7 +17,7 @@ from saps.benchmarks.ogb import OGBNodePropGenerator, fetch_ogb_nodeprop_dataset
 from saps.downloaders.ogb import OGBNodePropData, normalized_undirected_adjacency
 
 
-def test_ogb_gcn_generator_uses_real_features_and_scorch_dimensions(monkeypatch):
+def test_ogb_gcn_generator_derives_dimensions_from_real_features(monkeypatch):
     features = np.arange(12, dtype=np.float32).reshape(3, 4)
     graph = OGBNodePropData(
         name="ogbn-arxiv",
@@ -41,9 +41,7 @@ def test_ogb_gcn_generator_uses_real_features_and_scorch_dimensions(monkeypatch)
     )
     generator = OGBGCNGenerator()
     dataset = generator.datasets[0]
-    dataset.feature_dim = 4
     dataset.hidden_dim = 5
-    dataset.out_dim = 2
     monkeypatch.setattr(
         "saps.benchmarks.gcn.fetch_ogb_nodeprop_dataset", lambda _: graph
     )
@@ -53,18 +51,17 @@ def test_ogb_gcn_generator_uses_real_features_and_scorch_dimensions(monkeypatch)
     np.testing.assert_array_equal(to_numpy(instance.inputs[1]), features)
     assert instance.inputs[2].shape == (4, 5)
     assert instance.inputs[4].shape == (5, 2)
+    assert instance.meta["num_features"] == 4
+    assert instance.meta["num_outputs"] == 2
     json.dumps(instance.meta)
 
 
-def test_ogb_gcn_dataset_declares_arxiv_scorch_dimensions():
+def test_ogb_gcn_dataset_uses_shared_source_descriptor():
     dataset = OGBGCNGenerator().datasets[0]
 
-    assert (
-        dataset.source_name,
-        dataset.feature_dim,
-        dataset.hidden_dim,
-        dataset.out_dim,
-    ) == ("ogbn-arxiv", 128, 256, 40)
+    assert (dataset.source_name, dataset.hidden_dim) == ("ogbn-arxiv", 256)
+    assert "feature_dim" not in dataset.metadata
+    assert "out_dim" not in dataset.metadata
 
 
 def test_ogb_gcn_generator_includes_supported_homogeneous_ogb_workloads():
@@ -72,8 +69,8 @@ def test_ogb_gcn_generator_includes_supported_homogeneous_ogb_workloads():
 
     assert set(datasets) == {"ogbn-arxiv", "ogbn-products", "ogbn-proteins"}
     assert datasets["ogbn-arxiv"].suites == ["standard"]
-    assert datasets["ogbn-products"].suites == []
-    assert datasets["ogbn-proteins"].feature_dim == 8
+    assert datasets["ogbn-products"].suites == ["standard"]
+    assert datasets["ogbn-proteins"].suites == ["standard"]
 
 
 def test_ogb_gcn_proteins_uses_task_count_for_output_width(monkeypatch):
@@ -142,9 +139,7 @@ def test_ogb_generator_runs_through_gcn_with_sparse_framework(monkeypatch):
     dataset = OGBGCNDataset(
         "fake_ogb",
         source_name="fake-ogb",
-        feature_dim=2,
         hidden_dim=3,
-        out_dim=2,
         description="Tiny integration graph.",
     )
     generator = OGBGCNGenerator()

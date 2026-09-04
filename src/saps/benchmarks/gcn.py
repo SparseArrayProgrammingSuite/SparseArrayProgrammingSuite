@@ -14,7 +14,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.ogb import fetch_ogb_nodeprop_dataset
+from saps.benchmarks.ogb import OGBNodePropGenerator, fetch_ogb_nodeprop_dataset
 from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
 
 
@@ -72,17 +72,13 @@ class OGBGCNDataset(Dataset):
         name: str,
         *,
         source_name: str,
-        feature_dim: int,
         hidden_dim: int,
-        out_dim: int,
         description: str,
         suites: list[str] | None = None,
     ):
         self._name = name
         self.source_name = source_name
-        self.feature_dim = feature_dim
         self.hidden_dim = hidden_dim
-        self.out_dim = out_dim
         self._description = description
         self._suites = suites or []
 
@@ -112,9 +108,7 @@ class OGBGCNDataset(Dataset):
         data.update(
             {
                 "source_name": self.source_name,
-                "feature_dim": self.feature_dim,
                 "hidden_dim": self.hidden_dim,
-                "out_dim": self.out_dim,
             }
         )
         return data
@@ -501,62 +495,25 @@ class OGBGCNGenerator(Generator[OGBGCNDataset]):
     def datasets(self) -> list[OGBGCNDataset]:
         return [
             OGBGCNDataset(
-                "ogbn_arxiv",
-                source_name="ogbn-arxiv",
-                feature_dim=128,
+                dataset.name,
+                source_name=dataset.source_name,
                 hidden_dim=256,
-                out_dim=40,
-                description=(
-                    "Full ogbn-arxiv citation graph with 128-dimensional paper "
-                    "features and 40 prediction classes."
-                ),
-                suites=["standard"],
-            ),
-            OGBGCNDataset(
-                "ogbn_products",
-                source_name="ogbn-products",
-                feature_dim=100,
-                hidden_dim=256,
-                out_dim=47,
-                description=(
-                    "Full ogbn-products co-purchasing graph with 100-dimensional "
-                    "product features and 47 prediction classes."
-                ),
-                suites=["standard"],
-            ),
-            OGBGCNDataset(
-                "ogbn_proteins",
-                source_name="ogbn-proteins",
-                feature_dim=8,
-                hidden_dim=256,
-                out_dim=112,
-                description=(
-                    "Full ogbn-proteins association graph; node features are the "
-                    "mean of its 8-dimensional incident edge features."
-                ),
-                suites=["standard"],
-            ),
+                description=dataset.description,
+                suites=dataset.suites,
+            )
+            for dataset in OGBNodePropGenerator().datasets
         ]
 
     def generate(self, dataset: OGBGCNDataset) -> DataInstance:
         graph = fetch_ogb_nodeprop_dataset(dataset.source_name)
-        if graph.num_features != dataset.feature_dim:
-            raise ValueError(
-                f"{dataset.source_name} has {graph.num_features} features, expected "
-                f"{dataset.feature_dim}."
-            )
-        if graph.num_outputs != dataset.out_dim:
-            raise ValueError(
-                f"{dataset.source_name} has {graph.num_outputs} output channels, "
-                f"expected {dataset.out_dim}."
-            )
-
+        feature_dim = graph.num_features
+        out_dim = graph.num_outputs
         rng = np.random.default_rng(0)
         weights1 = rng.standard_normal(
-            (dataset.feature_dim, dataset.hidden_dim), dtype=np.float32
+            (feature_dim, dataset.hidden_dim), dtype=np.float32
         )
         weights2 = rng.standard_normal(
-            (dataset.hidden_dim, dataset.out_dim), dtype=np.float32
+            (dataset.hidden_dim, out_dim), dtype=np.float32
         )
         return DataInstance(
             inputs=[
@@ -565,9 +522,14 @@ class OGBGCNGenerator(Generator[OGBGCNDataset]):
                 from_numpy(weights1),
                 from_numpy(np.zeros(dataset.hidden_dim, dtype=np.float32)),
                 from_numpy(weights2),
-                from_numpy(np.zeros(dataset.out_dim, dtype=np.float32)),
+                from_numpy(np.zeros(out_dim, dtype=np.float32)),
             ],
-            meta=graph.metadata,
+            meta={
+                **graph.metadata,
+                "num_features": feature_dim,
+                "num_outputs": out_dim,
+                "hidden_dim": dataset.hidden_dim,
+            },
         )
 
 
