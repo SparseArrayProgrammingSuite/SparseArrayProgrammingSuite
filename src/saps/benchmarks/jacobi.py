@@ -1,56 +1,136 @@
-import os
-from typing import Any
-
 import numpy as np
-from scipy.io import mmread
-from scipy.sparse import random
+import scipy.sparse as scipy_sparse
 
-import ssgetpy
+import sparse as pydata_sparse
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy, to_scipy
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
-    Dataset,
+    DataInstance,
     Generator,
     Ref,
 )
-from saps_framework import BinsparseFormat
+from saps.benchmarks.suitesparse import (
+    SuiteSparseDataset,
+    fetch_suitesparse_linear_system,
+)
+from saps_framework.binsparse_utils import binsparse_equal
 
-xp = saps.xp
 
-
-class JacobiDataset(Dataset):
+class JacobiDataset(SuiteSparseDataset):
     def __init__(
-        self, source_name: str, has_b_file: bool = False, nnz: int | None = None
+        self,
+        source_name: str,
+        nnz: int | None = None,
+        suites: list[str] | None = None,
+        A: np.ndarray | None = None,
+        b: np.ndarray | None = None,
+        x: np.ndarray | None = None,
     ):
-        self.source_name = source_name
-        self.has_b_file = has_b_file
-        self.nnz = nnz
+        super().__init__(
+            source_name,
+            pretty_name=f"Jacobi {source_name}",
+            suites=suites,
+            nnz=nnz,
+        )
+        self.A = A
+        self.b = b
+        self.x = x
 
+
+class JacobiTestGenerator(Generator[JacobiDataset]):
     @property
     def name(self) -> str:
-        return self.source_name
+        return "jacobi_test_inputs"
 
     @property
     def pretty_name(self) -> str:
-        return f"Jacobi {self.source_name}"
+        return "Jacobi Test Data Generator"
 
     @property
     def description(self) -> str:
-        return f"SuiteSparse matrix {self.source_name}."
+        return "Inlined matrices from the Jacobi pytest examples."
 
     @property
-    def tags(self) -> list[str]:
-        return ["suitesparse", "sparse"]
+    def suites(self) -> list[str]:
+        return ["test", "trace"]
 
     @property
-    def metadata(self) -> dict[str, Any]:
-        data = super().metadata
-        data["nnz"] = self.nnz
-        data["has_b_file"] = self.has_b_file
-        return data
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Benjamin Berol", "bberol3@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to write the benchmark function itself. "
+            "Generative AI was used to debug code. This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Uses small inlined linear systems to verify solver correctness."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[JacobiDataset]:
+        return [
+            JacobiDataset(
+                "test_3x3",
+                suites=["test", "trace"],
+                A=np.array([[4.0, 1.0, 0.0], [1.0, 5.0, 2.0], [0.0, 2.0, 6.0]]),
+                b=np.array([5.0, 8.0, 8.0]),
+                x=np.zeros((3,)),
+            ),
+            JacobiDataset(
+                "test_4x4",
+                suites=["test", "trace"],
+                A=np.array(
+                    [
+                        [10.0, 1.0, 0.0, 2.0],
+                        [1.0, 8.0, 1.0, 0.0],
+                        [0.0, 2.0, 9.0, 1.0],
+                        [1.0, 0.0, 1.0, 7.0],
+                    ]
+                ),
+                b=np.array([16.0, 18.0, 15.0, 16.0]),
+                x=np.zeros((4,)),
+            ),
+            JacobiDataset(
+                "test_3x3_dominant",
+                suites=["test", "trace"],
+                A=np.array([[20.0, 3.0, 1.0], [2.0, 15.0, 4.0], [1.0, 2.0, 18.0]]),
+                b=np.array([24.0, 21.0, 21.0]),
+                x=np.zeros((3,)),
+            ),
+        ]
+
+    def generate(self, dataset: JacobiDataset):
+        if dataset.A is None or dataset.b is None or dataset.x is None:
+            raise ValueError("Jacobi test datasets must define A, b, and x.")
+
+        return DataInstance(
+            inputs=[
+                from_numpy(dataset.A),
+                from_numpy(dataset.b),
+                from_numpy(dataset.x),
+            ],
+            meta={},
+            ref_meta={"check_rounded_residual": True, "round_decimals": 4},
+        )
 
 
 class JacobiGenerator(Generator[JacobiDataset]):
@@ -70,8 +150,12 @@ class JacobiGenerator(Generator[JacobiDataset]):
         )
 
     @property
-    def tags(self) -> list[str]:
-        return ["iterative", "solver", "suitesparse", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -97,6 +181,10 @@ class JacobiGenerator(Generator[JacobiDataset]):
         )
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[JacobiDataset]:
         return [
             JacobiDataset("mesh3em5", nnz=1889),
@@ -110,49 +198,11 @@ class JacobiGenerator(Generator[JacobiDataset]):
         ]
 
     def generate(self, dataset: JacobiDataset):
-        matrices = ssgetpy.search(name=dataset.source_name)
-        if not matrices:
-            raise ValueError(f"No matrix found with name '{dataset.source_name}'")
-        matrix = matrices[0]
-        (path, archive) = matrix.download(extract=True)
-        matrix_path = os.path.join(path, matrix.name + ".mtx")
+        A_bin, b, _has_real_rhs = fetch_suitesparse_linear_system(dataset.source_name)
+        x_bin = from_numpy(np.zeros(A_bin.shape[1]))
+        b_bin = from_numpy(b)
 
-        if matrix_path and os.path.exists(matrix_path):
-            A = mmread(matrix_path)
-        else:
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-
-        rng = np.random.default_rng(0)
-        A = A.tocoo()
-
-        if dataset.has_b_file:
-            matrix_path_b = os.path.join(path, matrix.name + "_b.mtx")
-            if matrix_path_b and os.path.exists(matrix_path_b):
-                b = mmread(matrix_path_b)
-            else:
-                raise FileNotFoundError(f"Matrix file not found at {matrix_path_b}")
-            if not isinstance(b, np.ndarray):
-                b = b.toarray() if hasattr(b, "toarray") else np.asarray(b)
-            b = b.flatten()
-        else:
-            x_rand = random(
-                A.shape[1],
-                1,
-                density=0.1,
-                format="coo",
-                dtype=np.float64,
-                random_state=rng,
-            )
-            b = A @ x_rand
-            b = b.toarray().flatten()
-
-        x = np.zeros(A.shape[1])
-
-        A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
-        b_bin = BinsparseFormat.from_numpy(b)
-        x_bin = BinsparseFormat.from_numpy(x)
-
-        return ([A_bin, b_bin, x_bin], {})
+        return DataInstance(inputs=[A_bin, b_bin, x_bin], meta={})
 
 
 class JacobiBenchmark(Benchmark):
@@ -173,8 +223,34 @@ class JacobiBenchmark(Benchmark):
         return "Solves linear systems using the Jacobi iterative method."
 
     @property
-    def tags(self) -> list[str]:
-        return ["iterative", "solver", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return (
+            """
+        <ccs2012>
+        <concept>
+        <concept_id>10002950.10003705.10003707</concept_id>
+        <concept_desc>Mathematics of computing~Solvers</concept_desc>
+        <concept_significance>500</concept_significance>
+        </concept>
+        <concept>
+        <concept_id>10002950.10003705.10011686</concept_id>
+        <concept_desc>Mathematics of computing~"""
+            "Mathematical software performance"
+            """</concept_desc>
+        <concept_significance>500</concept_significance>
+        </concept>
+        <concept>
+        <concept_id>10002950.10003714.10003715</concept_id>
+        <concept_desc>Mathematics of computing~Numerical analysis</concept_desc>
+        <concept_significance>500</concept_significance>
+        </concept>
+        </ccs2012>
+        """
+        )
 
     @property
     def authors(self) -> list[Contributor]:
@@ -215,12 +291,43 @@ class JacobiBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [JacobiGenerator()]
+        return [JacobiTestGenerator(), JacobiGenerator()]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
+
+        if not self._ref_meta or not self._ref_meta.get("check_rounded_residual"):
+            return
+
+        A_bin, b_bin, _x_bin = self._input
+        try:
+            A_coo = to_scipy(A_bin).tocoo()
+        except TypeError:
+            A_coo = scipy_sparse.coo_array(to_numpy(A_bin))
+        A = pydata_sparse.COO(
+            coords=np.stack((A_coo.row, A_coo.col)),
+            data=A_coo.data,
+            shape=A_coo.shape,
+        )
+        decimals = self._ref_meta["round_decimals"]
+        x_sol = np.round(
+            to_numpy(self._output[0]),
+            decimals=decimals,
+        )
+
+        actual_b = from_numpy(np.asarray(A @ x_sol))
+        expected_b = b_bin
+        assert binsparse_equal(expected_b, actual_b), (
+            f"Jacobi residual mismatch for {param.dataset.name}"
+        )
 
     def _norm(self, xp, v):
         return xp.sqrt(xp.sum(xp.multiply(v, v)))
 
-    def benchmark(self, data: list, meta: dict):
+    def benchmark(self, xp, data: list, meta: dict):
         A, b, x = data
 
         rel_tol = 1e-6

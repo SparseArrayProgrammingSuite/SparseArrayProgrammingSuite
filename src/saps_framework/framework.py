@@ -22,6 +22,9 @@ class Framework(ABC):
     def compute(self, array):
         pass
 
+    def compile(self, func):
+        return func
+
     @abstractmethod
     def einsum(self, prgm, **kwargs):
         pass

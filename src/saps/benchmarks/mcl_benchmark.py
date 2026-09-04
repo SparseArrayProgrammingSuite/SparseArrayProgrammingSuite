@@ -1,22 +1,20 @@
-import os
 from typing import Any
 
-from scipy.io import mmread
+import numpy as np
+import scipy.sparse as scipy_sparse
 
-import ssgetpy
+from binsparse import COORMatrix
+from binsparse.conversions import to_numpy, to_scipy
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
-    Dataset,
+    DataInstance,
     Generator,
     Ref,
 )
-from saps_framework import BinsparseFormat
-
-xp = saps.xp
+from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
 
 
 def _normalize(array_api, matrix):
@@ -39,46 +37,71 @@ def _prune(array_api, matrix, threshold):
     return matrix * mask
 
 
-class MCLDataset(Dataset):
-    def __init__(self, source_name: str):
-        self.source_name = source_name
-
-    @property
-    def name(self) -> str:
-        return self.source_name
-
-    @property
-    def pretty_name(self) -> str:
-        return f"MCL {self.source_name}"
-
-    @property
-    def description(self) -> str:
-        return f"SuiteSparse adjacency matrix {self.source_name}."
-
-    @property
-    def tags(self) -> list[str]:
-        return ["suitesparse", "sparse", "graph"]
-
-
-class MCLGenerator(Generator[MCLDataset]):
-    @property
-    def name(self) -> str:
-        return "mcl_inputs"
-
-    @property
-    def pretty_name(self) -> str:
-        return "MCL SuiteSparse Data Generator"
-
-    @property
-    def description(self) -> str:
-        return (
-            "Data collected from SuiteSparse Matrix Collection consisting of "
-            "sparse adjacency matrices used to evaluate graph clustering performance."
+class MCLDataset(SuiteSparseDataset):
+    def __init__(
+        self,
+        source_name: str,
+        suites: list[str] | None = None,
+        A: Any | None = None,
+        expected_count: int | None = None,
+    ):
+        super().__init__(
+            source_name,
+            pretty_name=f"MCL {source_name}",
+            description=f"SuiteSparse adjacency matrix {source_name}.",
+            suites=suites,
         )
+        self.A = A
+        self.expected_count = expected_count
+
+
+class MCLTestGenerator(Generator[MCLDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
 
     @property
-    def tags(self) -> list[str]:
-        return ["suitesparse", "sparse", "graph", "clustering"]
+    def name(self) -> str:
+        return "mcl_test_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "MCL Test Data Generator"
+
+    @property
+    def description(self) -> str:
+        return "Small MCL examples with expected cluster counts."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["test", "trace"]
+
+    @property
+    def concepts(self) -> str:
+        return """
+<ccs2012>
+<concept>
+<concept_id>10002950.10003705</concept_id>
+<concept_desc>Mathematics of computing~Mathematical software</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10002950.10003705.10011686</concept_id>
+<concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10002950.10003624.10003633.10010917</concept_id>
+<concept_desc>Mathematics of computing~Graph algorithms</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10002950.10003624.10003633.10003640</concept_id>
+<concept_desc>Mathematics of computing~Paths and connectivity problems</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+</ccs2012>
+"""
 
     @property
     def authors(self) -> list[Contributor]:
@@ -98,6 +121,115 @@ class MCLGenerator(Generator[MCLDataset]):
 
     @property
     def datasets(self) -> list[MCLDataset]:
+        planted_clique = np.zeros((10, 10), dtype=np.float32)
+        planted_clique[:4, :4] = 1.0
+        np.fill_diagonal(planted_clique, 0)
+        return [
+            MCLDataset(
+                "two_star_components",
+                suites=["test", "trace"],
+                A=np.array(
+                    [
+                        [0, 1, 1, 1, 0, 0, 0, 0],
+                        [1, 0, 0, 0, 0, 0, 0, 0],
+                        [1, 0, 0, 0, 0, 0, 0, 0],
+                        [1, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 1, 1, 1],
+                        [0, 0, 0, 0, 1, 0, 0, 0],
+                        [0, 0, 0, 0, 1, 0, 0, 0],
+                        [0, 0, 0, 0, 1, 0, 0, 0],
+                    ],
+                    dtype=np.float32,
+                ),
+                expected_count=2,
+            ),
+            MCLDataset(
+                "three_block_pairs",
+                suites=["test", "trace"],
+                A=np.array(
+                    [
+                        [1, 1, 0, 0, 0, 0],
+                        [1, 1, 0, 0, 0, 0],
+                        [0, 0, 1, 1, 0, 0],
+                        [0, 0, 1, 1, 0, 0],
+                        [0, 0, 0, 0, 1, 1],
+                        [0, 0, 0, 0, 1, 1],
+                    ],
+                    dtype=np.float32,
+                ),
+                expected_count=3,
+            ),
+            MCLDataset(
+                "planted_clique",
+                suites=["test", "trace"],
+                A=planted_clique,
+                expected_count=7,
+            ),
+        ]
+
+    def generate(self, dataset: MCLDataset):
+        A = np.asarray(dataset.A)
+        rows, cols = np.nonzero(A)
+        A_bin = COORMatrix(
+            A.shape,
+            len(rows),
+            indices_0=rows,
+            indices_1=cols,
+            values=A[rows, cols],
+        )
+        return DataInstance(
+            inputs=[A_bin],
+            meta={"expansion": 2, "inflation": 2, "loop_value": 1},
+            ref_meta={"expected_count": dataset.expected_count},
+        )
+
+
+class MCLGenerator(Generator[MCLDataset]):
+    @property
+    def name(self) -> str:
+        return "mcl_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "MCL SuiteSparse Data Generator"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Data collected from SuiteSparse Matrix Collection consisting of "
+            "sparse adjacency matrices used to evaluate graph clustering performance."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return MCLBenchmark().authors
+
+    @property
+    def references(self) -> list[Ref]:
+        return MCLBenchmark().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return MCLBenchmark().ai_disclosure
+
+    @property
+    def motivation(self) -> str:
+        return MCLBenchmark().motivation
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[MCLDataset]:
         return [
             MCLDataset("Trefethen_200"),
             MCLDataset("mesh3em5"),
@@ -107,22 +239,16 @@ class MCLGenerator(Generator[MCLDataset]):
             MCLDataset("nos2"),
             MCLDataset("nos3"),
             MCLDataset("dwt_59"),
+            MCLDataset("gap-road"),
+            MCLDataset("gap-twitter"),
+            MCLDataset("gap-web"),
+            MCLDataset("gap-kron"),
+            MCLDataset("gap-urand"),
         ]
 
     def generate(self, dataset: MCLDataset):
-        matrices = ssgetpy.search(name=dataset.source_name)
-        if not matrices:
-            raise ValueError(f"No matrix found with name '{dataset.source_name}'")
-        matrix = matrices[0]
-        path, archive = matrix.download(extract=True)
-        matrix_path = os.path.join(path, matrix.name + ".mtx")
-        if matrix_path and os.path.exists(matrix_path):
-            A = mmread(matrix_path)
-        else:
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-        A = A.tocoo()
-        A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
-        return [A_bin], {}
+        raw = fetch_suitesparse_matrix(dataset.source_name)
+        return DataInstance(inputs=[raw.inputs[0]], meta={})
 
 
 class MCLBenchmark(Benchmark):
@@ -166,10 +292,11 @@ class MCLBenchmark(Benchmark):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title="Matrix Computations",
-                authors=[Author("Gene H. Golub"), Author("Charles F. Van Loan")],
-                publisher="SIAM",
-                year=2013,
+                title="Graph Algorithms in the Language of Linear Algebra",
+                authors=[],
+                publisher="Society for Industrial and Applied Mathematics",
+                year=2011,
+                url="https://doi.org/10.1137/1.9780898719918",
                 doi="10.1137/1.9780898719918",
             ),
             Ref(
@@ -187,14 +314,18 @@ class MCLBenchmark(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
-        return ["clustering", "graph", "iterative", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def generators(self):
-        return [MCLGenerator()]
+        return [MCLTestGenerator(), MCLGenerator()]
 
-    def benchmark(self, data: list[Any], meta: dict[str, Any]):
+    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
         """
                 benchmark(data, meta)
 
@@ -247,10 +378,31 @@ class MCLBenchmark(Benchmark):
             ):
                 current_matrix = _prune(array_api, current_matrix, pruning_threshold)
 
-
             if i % convergence_check_frequency == (
                 convergence_check_frequency - 1
             ) and _sparse_allclose(array_api, current_matrix, previous_matrix):
                 break
 
         return [current_matrix]
+
+    def check(self, param):
+        super().check(param)
+        if not self._ref_meta or "expected_count" not in self._ref_meta:
+            return
+        expected_count = self._ref_meta["expected_count"]
+
+        try:
+            output = to_scipy(self._output[0]).tocoo()
+        except TypeError:
+            output = scipy_sparse.coo_array(to_numpy(self._output[0]))
+        rows = output.row
+        cols = output.col
+        values = output.data
+        present = values != 0
+        rows = rows[present]
+        cols = cols[present]
+        attractors = rows[rows == cols]
+        clusters = {
+            tuple(np.sort(cols[rows == attractor]).tolist()) for attractor in attractors
+        }
+        assert len(clusters) == expected_count

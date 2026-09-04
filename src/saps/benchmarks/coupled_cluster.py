@@ -1,17 +1,16 @@
 import numpy as np
 
-import saps
+from binsparse.conversions import from_numpy, to_numpy
+
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
 )
-from saps_framework.binsparse_format import BinsparseFormat
-
-xp = saps.xp
 
 
 def _as2d_full(xp, F):
@@ -54,7 +53,7 @@ def _ctf_rand(shape, tensor_id, multiplier=16):
     """NS fill: all elements independent, matching CTF fill_rand."""
     idx = _ctf_col_major_idx(shape)
     values = ((idx * multiplier + tensor_id) % 13077) / 13077.0 - 0.5
-    return BinsparseFormat.from_numpy(values)
+    return from_numpy(values)
 
 
 def _make_as2d(shape, tensor_id, multiplier=16):
@@ -70,7 +69,7 @@ def _make_as2d(shape, tensor_id, multiplier=16):
     canon = np.arange(d0)[:, None] < np.arange(d1)[None, :]
     result = np.where(canon, vals, 0.0)
     result = result - result.T
-    return BinsparseFormat.from_numpy(result)
+    return from_numpy(result)
 
 
 def _make_asns_asns(shape, tensor_id, multiplier=16):
@@ -89,7 +88,7 @@ def _make_asns_asns(shape, tensor_id, multiplier=16):
     result = np.where(canon, vals, 0.0)
     result = result - result.transpose(1, 0, 2, 3)
     result = result - result.transpose(0, 1, 3, 2)
-    return BinsparseFormat.from_numpy(result)
+    return from_numpy(result)
 
 
 def _make_asns_nsns(shape, tensor_id, multiplier=16):
@@ -104,7 +103,7 @@ def _make_asns_nsns(shape, tensor_id, multiplier=16):
     canon = np.arange(d0)[:, None, None, None] < np.arange(d1)[None, :, None, None]
     result = np.where(canon, vals, 0.0)
     result = result - result.transpose(1, 0, 2, 3)
-    return BinsparseFormat.from_numpy(result)
+    return from_numpy(result)
 
 
 def _make_nsns_asns(shape, tensor_id, multiplier=16):
@@ -119,7 +118,7 @@ def _make_nsns_asns(shape, tensor_id, multiplier=16):
     canon = np.arange(d2)[None, None, :, None] < np.arange(d3)[None, None, None, :]
     result = np.where(canon, vals, 0.0)
     result = result - result.transpose(0, 1, 3, 2)
-    return BinsparseFormat.from_numpy(result)
+    return from_numpy(result)
 
 
 def make_ccsd_inputs(no, nv):
@@ -175,19 +174,43 @@ def make_ccsd_inputs(no, nv):
         Vaeim_b,
         T1_b,
         T2_b,
-        BinsparseFormat.from_numpy(D1),
-        BinsparseFormat.from_numpy(D2),
+        from_numpy(D1),
+        from_numpy(D2),
+    )
+
+
+def _as_canon_abij(T):
+    nv, _, no, _ = T.shape
+    canon = (
+        np.arange(nv)[:, None, None, None] < np.arange(nv)[None, :, None, None]
+    ) & (np.arange(no)[None, None, :, None] < np.arange(no)[None, None, None, :])
+    T_c = np.where(canon, T, 0.0)
+    return (
+        T_c
+        - T_c.transpose(1, 0, 2, 3)
+        - T_c.transpose(0, 1, 3, 2)
+        + T_c.transpose(1, 0, 3, 2)
     )
 
 
 class CCSDDataset(Dataset):
-    def __init__(self, name, pretty_name, description, tags, no, nv):
+    def __init__(
+        self,
+        name,
+        pretty_name,
+        description,
+        suites,
+        no,
+        nv,
+        ref_outputs=None,
+    ):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
-        self._tags = tags
+        self._suites = suites
         self.no = no
         self.nv = nv
+        self.ref_outputs = ref_outputs
 
     @property
     def name(self) -> str:
@@ -202,11 +225,19 @@ class CCSDDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
 
 class CCSDGenerator(Generator[CCSDDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
     @property
     def name(self) -> str:
         return "ccsd_inputs"
@@ -226,8 +257,30 @@ class CCSDGenerator(Generator[CCSDDataset]):
         )
 
     @property
-    def tags(self) -> list[str]:
-        return ["quantum-chemistry", "ccsd", "antisymmetric", "tensor-contraction"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return """
+<ccs2012>
+<concept>
+<concept_id>10010147.10010341.10010349.10010350</concept_id>
+<concept_desc>Computing methodologies~Quantum mechanic simulation</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10010405.10010432.10010441</concept_id>
+<concept_desc>Applied computing~Physics</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10010405.10010432.10010436</concept_id>
+<concept_desc>Applied computing~Chemistry</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+</ccs2012>
+"""
 
     @property
     def authors(self) -> list[Contributor]:
@@ -288,15 +341,16 @@ class CCSDGenerator(Generator[CCSDDataset]):
                 name="ccsd_small",
                 pretty_name="CCSD Small",
                 description="no=4, nv=6 — matches the C++ CTF reference.",
-                tags=["small"],
+                suites=["test", "trace"],
                 no=4,
                 nv=6,
+                ref_outputs=[from_numpy(np.array(380638.269079))],
             ),
             CCSDDataset(
                 name="ccsd_medium",
                 pretty_name="CCSD Medium",
                 description="no=8, nv=12.",
-                tags=["medium"],
+                suites=[],
                 no=8,
                 nv=12,
             ),
@@ -304,14 +358,18 @@ class CCSDGenerator(Generator[CCSDDataset]):
                 name="ccsd_large",
                 pretty_name="CCSD Large",
                 description="no=16, nv=24.",
-                tags=["large"],
+                suites=[],
                 no=16,
                 nv=24,
             ),
         ]
 
     def generate(self, dataset: CCSDDataset):
-        return make_ccsd_inputs(dataset.no, dataset.nv), {}
+        return DataInstance(
+            inputs=make_ccsd_inputs(dataset.no, dataset.nv),
+            meta={},
+            ref_outputs=dataset.ref_outputs,
+        )
 
 
 class CCSD(Benchmark):
@@ -331,8 +389,12 @@ class CCSD(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
-        return ["quantum-chemistry", "ccsd", "tensor-contraction"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -400,7 +462,7 @@ class CCSD(Benchmark):
     def generators(self):
         return [CCSDGenerator()]
 
-    def benchmark(self, data, meta):
+    def benchmark(self, xp, data, meta):
         (
             Vme,  # (no, nv)
             Vae,  # (nv, nv)
@@ -542,3 +604,20 @@ class CCSD(Benchmark):
         T2_final = 2 * T2_new / D2
 
         return (T1_final, T2_final)
+
+    def check(self, param):
+        super().check(param)
+        if self._ref_outputs is None:
+            return
+
+        reference_norm = to_numpy(self._ref_outputs[0])[()]
+        T1_out = to_numpy(self._output[0])
+        T2_out = to_numpy(self._output[1])
+        assert T1_out.shape == (6, 4)
+        assert T2_out.shape == (6, 6, 4, 4)
+
+        T2_out = _as_canon_abij(T2_out)
+        assert np.allclose(T2_out, -T2_out.transpose(1, 0, 2, 3), atol=1e-10)
+        assert np.allclose(T2_out, -T2_out.transpose(0, 1, 3, 2), atol=1e-10)
+        T_norm = np.linalg.norm(T1_out) + np.linalg.norm(T2_out)
+        assert np.isclose(T_norm, reference_norm, rtol=1e-6)

@@ -12,12 +12,18 @@ from typing import Any
 
 import numpy as np
 
-import gdown
+from binsparse import (
+    BinsparseTensor,
+    COORMatrix,
+    CustomTensor,
+    ElementLevel,
+    SparseLevel,
+)
 
-from saps_framework.binsparse_format import BinsparseFormat
 
-
-def list_gcare_queries(dataset_name: str, data_dir: str | Path | None = None) -> list[str]:
+def list_gcare_queries(
+    dataset_name: str, data_dir: str | Path | None = None
+) -> list[str]:
     """Return query identifiers for *dataset_name* as POSIX paths relative to
     ``queryset/<dataset_name>/``, without the ``.txt`` extension.
 
@@ -27,21 +33,18 @@ def list_gcare_queries(dataset_name: str, data_dir: str | Path | None = None) ->
     _ensure_downloaded(root)
     _, queryset_dir, _ = _get_dirs(root)
     base = queryset_dir / dataset_name
-    return [
-        p.relative_to(base).with_suffix("").as_posix()
-        for p in base.rglob("*.txt")
-    ]
+    return [p.relative_to(base).with_suffix("").as_posix() for p in base.rglob("*.txt")]
 
 
 def load_gcare_graph(
     dataset_name: str,
     *,
     data_dir: str | Path | None = None,
-) -> tuple[list[BinsparseFormat], dict[str, Any]]:
+) -> tuple[list[BinsparseTensor], dict[str, Any]]:
     """Download (if needed) and parse the G-CARE data-graph for *dataset_name*.
 
     Returns ``(bin_mats, graph_meta)`` where *bin_mats* is the list of graph
-    matrices as :class:`BinsparseFormat` and *graph_meta* contains
+    matrices as :class:`BinsparseTensor` and *graph_meta* contains
     ``"matrix_names"``, ``"max_vid"``, and ``"continous_label"``.
     Pass both directly to :func:`load_gcare_query` to build per-query inputs.
     """
@@ -52,22 +55,43 @@ def load_gcare_graph(
         dataset_dir / dataset_name / f"{dataset_name}.txt"
     )
     matrix_names: list[str] = []
-    bin_mats: list[BinsparseFormat] = []
+    bin_mats: list[BinsparseTensor] = []
     for name, raw in raw_sp_mats.items():
         matrix_names.append(name)
-        bin_mats.append(BinsparseFormat.from_coo(raw["I_tuple"], raw["V"], raw["shape"]))
-    meta = {"matrix_names": matrix_names, "max_vid": max_vid, "continous_label": continous_label}
+        indices = tuple(raw["I_tuple"])
+        values = raw["V"]
+        shape = tuple(raw["shape"])
+        if len(shape) == 2:
+            tensor = COORMatrix(
+                shape,
+                len(values),
+                indices_0=indices[0],
+                indices_1=indices[1],
+                values=values,
+            )
+        else:
+            tensor = CustomTensor(
+                shape,
+                len(values),
+                level=SparseLevel(len(shape), ElementLevel(values), indices),
+            )
+        bin_mats.append(tensor)
+    meta = {
+        "matrix_names": matrix_names,
+        "max_vid": max_vid,
+        "continous_label": continous_label,
+    }
     return bin_mats, meta
 
 
 def load_gcare_query(
     dataset_name: str,
     query_rel_path: str,
-    bin_mats: list[BinsparseFormat],
+    bin_mats: list[BinsparseTensor],
     graph_meta: dict[str, Any],
     *,
     data_dir: str | Path | None = None,
-) -> tuple[list[BinsparseFormat], dict]:
+) -> tuple[list[BinsparseTensor], dict]:
     """Build the benchmark input for a single query.
 
     *query_rel_path* is a POSIX path relative to ``queryset/<dataset_name>/``
@@ -84,7 +108,9 @@ def load_gcare_query(
     _ensure_downloaded(root)
     _, queryset_dir, ground_truth_dir = _get_dirs(root)
 
-    all_sp_mats: dict[str, BinsparseFormat] = dict(zip(graph_meta["matrix_names"], bin_mats))
+    all_sp_mats: dict[str, BinsparseTensor] = dict(
+        zip(graph_meta["matrix_names"], bin_mats, strict=True)
+    )
     max_vid: int = graph_meta["max_vid"]
     continous_label: bool = graph_meta["continous_label"]
 
@@ -95,7 +121,9 @@ def load_gcare_query(
 
     query_stem = Path(query_rel_path).name
     gt_matches = list((ground_truth_dir / dataset_name).rglob(f"{query_stem}.txt"))
-    ground_truth = int(gt_matches[0].read_text().strip().split()[0]) if gt_matches else 0
+    ground_truth = (
+        int(gt_matches[0].read_text().strip().split()[0]) if gt_matches else 0
+    )
 
     bin_mats = list(sp_mats_needed.values())
     meta: dict[str, Any] = {
@@ -111,12 +139,15 @@ def load_gcare_query(
 # Download helpers
 # ---------------------------------------------------------------------------
 
+
 def _get_dirs(root: Path) -> tuple[Path, Path, Path]:
     return root / "dataset", root / "queryset", root / "ground_truth"
 
 
 def _ensure_downloaded(root: Path) -> None:
     """Download and extract the three G-CARE tarballs into *root* if not present."""
+    import gdown
+
     dataset_dir, queryset_dir, ground_truth_dir = _get_dirs(root)
 
     dataset_link = "https://drive.google.com/file/d/1HAgSVE-24NOap6_Q1_twH56Dkb2kPvGU/view?usp=sharing"
@@ -154,6 +185,7 @@ def _ensure_downloaded(root: Path) -> None:
 # ---------------------------------------------------------------------------
 # Parsers
 # ---------------------------------------------------------------------------
+
 
 def _parse_graph(p: Path):
     """Parse a G-CARE graph file into raw COO dicts.
@@ -285,39 +317,46 @@ def _parse_query(p: Path, continous_label: bool = True):
 
 def _build_query_matrices(
     query_path: Path,
-    all_sp_mats: dict[str, BinsparseFormat],
+    all_sp_mats: dict[str, BinsparseTensor],
     max_vid: int,
     continous_label: bool,
-) -> tuple[dict[str, BinsparseFormat], str]:
+) -> tuple[dict[str, BinsparseTensor], str]:
     """Select matrices needed by a query from the pre-converted graph matrices.
 
     Missing matrix names (not present in *all_sp_mats*) get a zero or one-hot
     placeholder sized to *max_vid*.  Returns ``(sp_mats_needed, expr)``.
     """
-    expr, _, sp_mats_name = _parse_query(
-        query_path, continous_label=continous_label
-    )
+    expr, _, sp_mats_name = _parse_query(query_path, continous_label=continous_label)
 
-    sp_mats_needed: dict[str, BinsparseFormat] = {}
+    sp_mats_needed: dict[str, BinsparseTensor] = {}
     for sp_name in sp_mats_name:
         if sp_name not in all_sp_mats:
             if sp_name.startswith("P"):  # one-hot node-id vector
-                sp_mats_needed[sp_name] = BinsparseFormat.from_coo(
-                    (np.array([0]), np.array([int(sp_name[1:])])),
-                    np.array([1]),
+                values = np.array([1])
+                sp_mats_needed[sp_name] = CustomTensor(
                     (max_vid + 1,),
+                    len(values),
+                    level=SparseLevel(
+                        1,
+                        ElementLevel(values),
+                        (np.array([int(sp_name[1:])]),),
+                    ),
                 )
             elif sp_name.startswith("V"):  # missing vertex label → all-zero vector
-                sp_mats_needed[sp_name] = BinsparseFormat.from_coo(
-                    (np.array([0]),),
-                    np.array([0]),
+                values = np.array([0])
+                sp_mats_needed[sp_name] = CustomTensor(
                     (max_vid + 1,),
+                    len(values),
+                    level=SparseLevel(1, ElementLevel(values), (np.array([0]),)),
                 )
             elif sp_name.startswith("E"):  # missing edge label → all-zero matrix
-                sp_mats_needed[sp_name] = BinsparseFormat.from_coo(
-                    (np.array([0]), np.array([0])),
-                    np.array([0]),
+                values = np.array([0])
+                sp_mats_needed[sp_name] = COORMatrix(
                     (max_vid + 1, max_vid + 1),
+                    len(values),
+                    indices_0=np.array([0]),
+                    indices_1=np.array([0]),
+                    values=values,
                 )
         else:
             sp_mats_needed[sp_name] = all_sp_mats[sp_name]
@@ -328,6 +367,7 @@ def _build_query_matrices(
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
+
 
 def _default_data_dir() -> Path:
     # src/saps/downloaders/gcare.py → parents[3] = repo root

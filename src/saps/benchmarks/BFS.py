@@ -1,19 +1,27 @@
-from typing import Any
+import numpy as np
 
-import saps
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy
+
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
 )
-
+from saps.benchmarks.suitesparse import (
+    _GAP_KRON_SOURCES,
+    _GAP_ROAD_SOURCES,
+    _GAP_TWITTER_SOURCES,
+    _GAP_URAND_SOURCES,
+    _GAP_WEB_SOURCES,
+    fetch_suitesparse_matrix,
+)
 from saps.downloaders.snap import download_snap_dataset
-from saps_framework.binsparse_format import BinsparseFormat
-
-xp = saps.xp
+from saps_framework.binsparse_utils import binsparse_equal
 
 
 class BreadthFirstSearchDataset(Dataset):
@@ -22,12 +30,18 @@ class BreadthFirstSearchDataset(Dataset):
         name: str,
         pretty_name: str | None = None,
         description: str | None = None,
-        tags: list[str] | None = None,
+        suites: list[str] | None = None,
+        A: np.ndarray | None = None,
+        src: int | None = None,
+        expected: np.ndarray | None = None,
     ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Breadth-first search input {name}."
-        self._tags = tags or ["graph", "sparse"]
+        self._suites = suites or []
+        self.A = A
+        self.src = src
+        self.expected = expected
 
     @property
     def name(self) -> str:
@@ -42,8 +56,154 @@ class BreadthFirstSearchDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+
+class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
+    @property
+    def name(self) -> str:
+        return "bfs_test_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Breadth-First Search Test Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Small deterministic BFS examples with reference outputs."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["test", "trace"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI might have been used to construct tests. This statement "
+            "was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Provide small BFS examples for benchmark correctness checks."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[BreadthFirstSearchDataset]:
+        return [
+            BreadthFirstSearchDataset(
+                "test_bfs_basic",
+                suites=["test", "trace"],
+                A=np.array(
+                    [
+                        [0, 1, 1, 0, 0, 0],
+                        [0, 0, 1, 1, 0, 0],
+                        [0, 0, 0, 0, 1, 0],
+                        [0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 1],
+                        [0, 0, 0, 1, 0, 0],
+                    ],
+                    dtype=bool,
+                ),
+                src=0,
+                expected=np.array([1, 2, 2, 3, 3, 4], dtype=int),
+            ),
+            BreadthFirstSearchDataset(
+                "test_bfs_single_node",
+                suites=["test", "trace"],
+                A=np.array([[0]], dtype=bool),
+                src=0,
+                expected=np.array([1], dtype=int),
+            ),
+            BreadthFirstSearchDataset(
+                "test_bfs_disconnected",
+                suites=["test", "trace"],
+                A=np.array(
+                    [
+                        [0, 1, 0, 0],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 1],
+                        [0, 0, 0, 0],
+                    ],
+                    dtype=bool,
+                ),
+                src=0,
+                expected=np.array([1, 2, 0, 0], dtype=int),
+            ),
+            BreadthFirstSearchDataset(
+                "test_bfs_undirected",
+                suites=["test", "trace"],
+                A=np.array(
+                    [
+                        [0, 1, 0, 0],
+                        [1, 0, 1, 0],
+                        [0, 1, 0, 1],
+                        [0, 0, 1, 0],
+                    ],
+                    dtype=bool,
+                ),
+                src=0,
+                expected=np.array([1, 2, 3, 4], dtype=int),
+            ),
+            BreadthFirstSearchDataset(
+                "test_bfs_cycle",
+                suites=["test", "trace"],
+                A=np.array(
+                    [
+                        [0, 1, 0, 0],
+                        [0, 0, 1, 0],
+                        [0, 0, 0, 1],
+                        [1, 0, 0, 0],
+                    ],
+                    dtype=bool,
+                ),
+                src=0,
+                expected=np.array([1, 2, 3, 4], dtype=int),
+            ),
+            BreadthFirstSearchDataset(
+                "test_bfs_snap_toy",
+                suites=["test", "trace"],
+                A=np.array(
+                    [
+                        [0, 1, 0],
+                        [0, 0, 1],
+                        [0, 0, 0],
+                    ],
+                    dtype=bool,
+                ),
+                src=0,
+                expected=np.array([1, 2, 3], dtype=int),
+            ),
+        ]
+
+    def generate(self, dataset: BreadthFirstSearchDataset) -> DataInstance:
+        if dataset.A is None or dataset.src is None or dataset.expected is None:
+            raise ValueError("BFS test datasets must define A, src, and expected.")
+        return DataInstance(
+            inputs=[from_numpy(dataset.A)],
+            meta={"src": dataset.src},
+            ref_outputs=[from_numpy(dataset.expected)],
+        )
 
 
 class BreadthFirstSearchGenerator(Generator[BreadthFirstSearchDataset]):
@@ -60,8 +220,12 @@ class BreadthFirstSearchGenerator(Generator[BreadthFirstSearchDataset]):
         return "Input generator for breadth-first search benchmarks."
 
     @property
-    def tags(self) -> list[str]:
-        return ["graph", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -92,7 +256,7 @@ class BreadthFirstSearchGenerator(Generator[BreadthFirstSearchDataset]):
                     "Directed email communication network from a European research"
                     " institution, with 1,005 nodes and 25,571 edges."
                 ),
-                tags=["graph", "sparse", "snap", "directed"],
+                suites=[],
             ),
             BreadthFirstSearchDataset(
                 name="snap-facebook_combined",
@@ -101,7 +265,7 @@ class BreadthFirstSearchGenerator(Generator[BreadthFirstSearchDataset]):
                     "Combined Facebook social-circle network, with 4,039 nodes and"
                     " 88,234 edges."
                 ),
-                tags=["graph", "sparse", "snap", "social-network"],
+                suites=[],
             ),
             BreadthFirstSearchDataset(
                 name="snap-ca-GrQc",
@@ -110,7 +274,7 @@ class BreadthFirstSearchGenerator(Generator[BreadthFirstSearchDataset]):
                     "Arxiv General Relativity and Quantum Cosmology collaboration"
                     " network, with 5,242 nodes and 14,496 edges."
                 ),
-                tags=["graph", "sparse", "snap", "collaboration-network"],
+                suites=[],
             ),
             BreadthFirstSearchDataset(
                 name="snap-p2p-Gnutella04",
@@ -119,15 +283,151 @@ class BreadthFirstSearchGenerator(Generator[BreadthFirstSearchDataset]):
                     "Directed Gnutella peer-to-peer network snapshot from August 4,"
                     " 2002, with 10,876 nodes and 39,994 edges."
                 ),
-                tags=["graph", "sparse", "snap", "directed", "peer-to-peer"],
+                suites=[],
             ),
         ]
 
-    def generate(
-        self, dataset: BreadthFirstSearchDataset
-    ) -> tuple[list[BinsparseFormat], Any]:
+    def generate(self, dataset: BreadthFirstSearchDataset) -> DataInstance:
         if dataset.name.startswith("snap"):
-            return download_snap_dataset(dataset.name)
+            inputs, meta = download_snap_dataset(dataset.name)
+            return DataInstance(inputs=inputs, meta=meta)
+        raise ValueError(f"Unsupported BFS dataset: {dataset.name}")
+
+
+class BreadthFirstSearchGAPGenerator(Generator[BreadthFirstSearchDataset]):
+    @property
+    def name(self) -> str:
+        return "bfs_gap_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Breadth-First Search GAP Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "GAP Input generator for breadth-first search benchmarks."
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="The GAP Benchmark Suite",
+                authors=[
+                    Author("Scott Beamer"),
+                    Author("Krste Asanović"),
+                    Author("David Patterson"),
+                ],
+                url="https://arxiv.org/abs/1508.03619",
+                year=2015,
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Generate GAP graph inputs for breadth-first search."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[BreadthFirstSearchDataset]:
+        return (
+            [
+                BreadthFirstSearchDataset(
+                    name=f"gap-road_{src}",
+                    pretty_name="GAP Road",
+                    description=(
+                        "Directed roads with weights in the US, with 23.9M nodes and"
+                        " 58.3M edges."
+                    ),
+                    suites=[],
+                    src=src,
+                )
+                for src in _GAP_ROAD_SOURCES
+            ]
+            + [
+                BreadthFirstSearchDataset(
+                    name=f"gap-twitter_{src}",
+                    pretty_name="GAP Twitter",
+                    description=(
+                        "Directed weighted social network topology of Twitter, with"
+                        " 61.6M nodes and 1,468.4M edges."
+                    ),
+                    suites=[],
+                    src=src,
+                )
+                for src in _GAP_TWITTER_SOURCES
+            ]
+            + [
+                BreadthFirstSearchDataset(
+                    name=f"gap-web_{src}",
+                    pretty_name="GAP Web",
+                    description=(
+                        "A web-crawl of the .sk domain, directed and weighted, with"
+                        " 50.6M nodes and 1,949.4M edges."
+                    ),
+                    suites=[],
+                    src=src,
+                )
+                for src in _GAP_WEB_SOURCES
+            ]
+            + [
+                BreadthFirstSearchDataset(
+                    name=f"gap-kron_{src}",
+                    pretty_name="GAP Kron",
+                    description=(
+                        "Symmetric random undirected weighted graph generated by"
+                        " Kronecker synthetic graph generator with parameters"
+                        " (A=0.57, B=C=0.19, D=0.05). Has 134.2M nodes and 2,111.6M"
+                        " edges."
+                    ),
+                    suites=[],
+                    src=src,
+                )
+                for src in _GAP_KRON_SOURCES
+            ]
+            + [
+                BreadthFirstSearchDataset(
+                    name=f"gap-urand_{src}",
+                    pretty_name="GAP Urand",
+                    description=(
+                        "Symmetric random undirected weighted graph generated by"
+                        " Erdos–Reyni model (Uniform Random) with 134.2M nodes and"
+                        " 2,147.4M edges."
+                    ),
+                    suites=[],
+                    src=src,
+                )
+                for src in _GAP_URAND_SOURCES
+            ]
+        )
+
+    def generate(self, dataset: BreadthFirstSearchDataset) -> DataInstance:
+        if dataset.name.startswith("gap"):
+            raw = fetch_suitesparse_matrix(dataset.name.rsplit("_", 1)[0])
+            meta = raw.meta
+            meta["src"] = dataset.src
+            return DataInstance(inputs=[raw.inputs[0]], meta=meta)
         raise ValueError(f"Unsupported BFS dataset: {dataset.name}")
 
 
@@ -150,8 +450,35 @@ class BreadthFirstSearchBenchmark(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
-        return ["graph", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return """
+<ccs2012>
+<concept>
+<concept_id>10002950.10003705</concept_id>
+<concept_desc>Mathematics of computing~Mathematical software</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10002950.10003705.10011686</concept_id>
+<concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10002950.10003624.10003633.10010917</concept_id>
+<concept_desc>Mathematics of computing~Graph algorithms</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10002950.10003624.10003633.10003640</concept_id>
+<concept_desc>Mathematics of computing~Paths and connectivity problems</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+</ccs2012>
+"""
 
     @property
     def authors(self) -> list[Contributor]:
@@ -196,12 +523,16 @@ class BreadthFirstSearchBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [BreadthFirstSearchGenerator()]
+        return [
+            BreadthFirstSearchGenerator(),
+            BreadthFirstSearchTestGenerator(),
+            BreadthFirstSearchGAPGenerator(),
+        ]
 
-    def benchmark(self, data: list[BinsparseFormat], meta: dict):
-        edges = xp.from_binsparse(data[0])
+    def benchmark(self, xp, data: list, meta: dict):
+        edges = data[0]
         src = meta["src"]
-        
+
         (n, m) = edges.shape
         assert n == m
         visited = xp.zeros((n,), dtype=bool)
@@ -224,3 +555,14 @@ class BreadthFirstSearchBenchmark(Benchmark):
             level_idx += 1
 
         return [level]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
+        if self._ref_outputs is None:
+            return
+        assert binsparse_equal(self._output[0], self._ref_outputs[0]), (
+            f"BFS output mismatch for {param.dataset.name}"
+        )

@@ -1,12 +1,20 @@
 import inspect
+import json
+import logging
 import os
+import re
+import xml.etree.ElementTree as ET
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Generic, TypeAlias, TypeVar
+from pathlib import Path
+from typing import Any, Generic, TypeVar
 
-from saps.framework import xp
+from binsparse import BinsparseTensor as BinsparseTensor
+
+from saps.framework import load_framework
+from saps.freshness import repo_root, source_freshness
 from saps.storage import build_storage_backend
-from saps_framework.binsparse_format import BinsparseFormat
+from saps_framework.framework import Framework
 
 
 @dataclass
@@ -67,6 +75,114 @@ class Ref:
         )
 
 
+def _tag_slug(value: str) -> str:
+    tag = re.sub(r"[^0-9A-Za-z]+", "-", value.lower())
+    return re.sub(r"-+", "-", tag).strip("-")
+
+
+def ccs_xml_to_tags(xml_text: str | None) -> list[str]:
+    """Convert pasted ACM CCS XML into SAPS tag slugs."""
+    if not xml_text:
+        return []
+
+    try:
+        root = ET.fromstring(xml_text)
+    except ET.ParseError:
+        return []
+
+    tags: set[str] = set()
+    for node in root.iter():
+        if node.tag.rsplit("}", 1)[-1] != "concept_desc" or not node.text:
+            continue
+        for part in re.split(r"\s*(?:~|::)\s*", node.text.strip()):
+            tag = _tag_slug(part)
+            if tag:
+                tags.add(tag)
+    return sorted(tags)
+
+
+def _get_or_add_record(records: list[dict], key: str, value: str, defaults: dict):
+    for record in records:
+        if record.get(key) == value:
+            return record
+    record = {key: value, **defaults}
+    records.append(record)
+    return record
+
+
+def _write_statistics_tags(
+    statistics_path: Path,
+    benchmark_name: str,
+    generator_name: str,
+    dataset_name: str,
+    dataset_file: str,
+    dataset_freshness: str,
+    tags: list[str],
+):
+    statistics_path.parent.mkdir(parents=True, exist_ok=True)
+    if statistics_path.exists():
+        document = json.loads(statistics_path.read_text(encoding="utf-8"))
+    else:
+        document = {"benchmarks": []}
+
+    benchmark = _get_or_add_record(
+        document.setdefault("benchmarks", []),
+        "name",
+        benchmark_name,
+        {"statistics": [], "generators": []},
+    )
+    benchmark.setdefault("statistics", [])
+
+    generator = _get_or_add_record(
+        benchmark.setdefault("generators", []),
+        "name",
+        generator_name,
+        {"statistics": [], "datasets": []},
+    )
+    generator.setdefault("statistics", [])
+
+    dataset = _get_or_add_record(
+        generator.setdefault("datasets", []),
+        "name",
+        dataset_name,
+        {
+            "file": dataset_file,
+            "freshness": dataset_freshness,
+            "statistics": [],
+        },
+    )
+    dataset["file"] = dataset_file
+    dataset["freshness"] = dataset_freshness
+    dataset["statistics"] = sorted({*dataset.get("statistics", []), *tags})
+
+    document["benchmarks"] = sorted(
+        document.get("benchmarks", []),
+        key=lambda record: record["name"],
+    )
+    for record in document["benchmarks"]:
+        record["generators"] = sorted(
+            record.get("generators", []),
+            key=lambda generator: generator["name"],
+        )
+        for generator in record["generators"]:
+            generator["datasets"] = sorted(
+                generator.get("datasets", []),
+                key=lambda dataset: dataset["name"],
+            )
+
+    statistics_path.write_text(
+        json.dumps(document, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    logging.getLogger("saps.work").info(
+        "traced %s.%s.%s: %s",
+        benchmark_name,
+        generator_name,
+        dataset_name,
+        ", ".join(tags),
+    )
+
+
 class Metadata(ABC):
     @property
     @abstractmethod
@@ -88,7 +204,25 @@ class Tagged(Metadata):
 
     @property
     @abstractmethod
-    def tags(self) -> list[str]: ...
+    def suites(self) -> list[str]: ...
+
+    @property
+    @abstractmethod
+    def concepts(self) -> str: ...
+
+    @property
+    def topics(self) -> list[str]:
+        return ccs_xml_to_tags(self.concepts)
+
+    @property
+    def file(self) -> str:
+        source_path = Path(inspect.getfile(self.__class__)).resolve()
+        return source_path.relative_to(repo_root()).as_posix()
+
+    @property
+    def freshness(self) -> str:
+        source_path = Path(inspect.getfile(self.__class__)).resolve()
+        return source_freshness(self.__class__.__module__, source_path)
 
 
 class Attributed(ABC):
@@ -115,16 +249,26 @@ class Dataset(Tagged):
     @property
     def metadata(self) -> dict[str, Any]:
         return {
+            "file": self.file,
+            "freshness": self.freshness,
             "name": self.name,
             "pretty_name": self.pretty_name,
             "description": self.description,
-            "tags": self.tags,
+            "suites": self.suites,
+            "concepts": self.concepts,
+            "topics": self.topics,
         }
 
 
+@dataclass
+class DataInstance:
+    inputs: list[Any]
+    meta: dict[str, Any]
+    ref_outputs: list[Any] | None = None
+    ref_meta: dict[str, Any] | None = None
+
+
 TDataset = TypeVar("TDataset", bound=Dataset)
-# Every DataInstance is a tuple of a list of BinsparseFormat objects and a json serializable dictionary
-DataInstance: TypeAlias = tuple[list[BinsparseFormat], dict[str, Any]]
 
 
 class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
@@ -161,10 +305,14 @@ class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
     @property
     def metadata(self) -> dict[str, Any]:
         return {
+            "file": self.file,
+            "freshness": self.freshness,
             "name": self.name,
             "pretty_name": self.pretty_name,
             "description": self.description,
-            "tags": self.tags,
+            "suites": self.suites,
+            "concepts": self.concepts,
+            "topics": self.topics,
             "authors": [str(a) for a in self.authors],
             "references": [str(r) for r in self.references],
             "ai_disclosure": self.ai_disclosure,
@@ -188,7 +336,7 @@ class Benchmark(Tagged, Attributed, Motivated):
     def generators(self) -> list[Generator[Any]]: ...
 
     @abstractmethod
-    def benchmark(self, data: list[Any], meta: Any) -> Any: ...
+    def benchmark(self, xp: Framework, data: list[Any], meta: Any) -> Any: ...
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -200,21 +348,19 @@ class Benchmark(Tagged, Attributed, Motivated):
         except (TypeError, ValueError):
             return
 
-        def _mem_run(self, param):
+        benchmark_source = inspect.getsource(cls.benchmark)
+
+        def _peakmem_run(self, param):
             self.run(param)
+
+        setattr(cls, f"peakmem_{instance.name}", _peakmem_run)
+        getattr(cls, f"peakmem_{instance.name}").pretty_source = benchmark_source
 
         def _time_run(self, param):
             self.run(param)
 
-        setattr(cls, f"mem_{instance.name}", _mem_run)
-        getattr(cls, f"mem_{instance.name}").pretty_source = inspect.getsource(
-            cls.benchmark
-        )
-
         setattr(cls, f"time_{instance.name}", _time_run)
-        getattr(cls, f"time_{instance.name}").pretty_source = inspect.getsource(
-            cls.benchmark
-        )
+        getattr(cls, f"time_{instance.name}").pretty_source = benchmark_source
 
         cls.setup.pretty_source = "\n".join(
             inspect.getsource(generator.generate) for generator in instance.generators
@@ -230,51 +376,187 @@ class Benchmark(Tagged, Attributed, Motivated):
 
     param_names = ["dataset"]
 
-    def setup(self, param):
-        import logging
-
+    def setup(self, param, *, use_cache: bool = True, xp: Framework | None = None):
         if not logging.getLogger().handlers:
             logging.basicConfig(
                 level=logging.INFO,
                 format="%(levelname)s %(name)s: %(message)s",
             )
-        input, meta = param.generator.cached_generate(param.dataset)
-        self._input = input
-        self._meta = meta
+        log_path = os.environ.get("SAPS_LOG_PATH")
+        work_log = logging.getLogger("saps.work")
+        if log_path and not work_log.handlers:
+            Path(log_path).parent.mkdir(parents=True, exist_ok=True)
+            work_log.setLevel(logging.INFO)
+            work_log.propagate = False
+            work_log.addHandler(logging.FileHandler(log_path))
+        if os.environ.get("SAPS_CACHE_DATASETS"):
+            if param.generator.cacheable and not param.generator.backend.upload_dataset(
+                param.generator, param.dataset
+            ):
+                raise RuntimeError(
+                    "Failed to cache dataset "
+                    f"{param.generator.name}.{param.dataset.name}"
+                )
+            raise NotImplementedError("dataset cached")
+        problem = (
+            param.generator.cached_generate(param.dataset)
+            if use_cache
+            else param.generator.generate(param.dataset)
+        )
+        self._input = problem.inputs
+        self._meta = problem.meta
+        self._ref_outputs = problem.ref_outputs
+        self._ref_meta = problem.ref_meta
+        if xp is None:
+            try:
+                xp = load_framework()
+            except RuntimeError:
+                xp = None
+        if xp is not None:
+            self._xp = xp
+
+            def benchmark(data, meta):
+                return self.benchmark(xp, data, meta)
+
+            self._compiled_benchmark = xp.compile(benchmark)
 
     def run(self, param):
+        if not hasattr(self, "_xp") or not hasattr(self, "_compiled_benchmark"):
+            raise RuntimeError(
+                "Benchmark.setup must bind a framework before run. Pass xp to "
+                "setup or set SAPS_FRAMEWORK."
+            )
+        xp = self._xp
+        if hasattr(xp, "reset_stats"):
+            xp.reset_stats()
         input = [xp.from_binsparse(d) for d in self._input]
-        output = self.benchmark(input, self._meta)
+        output = self._compiled_benchmark(input, self._meta)
         output = [xp.to_binsparse(o) for o in output]
         self._output = output
+        self._write_tagger_stats(param, xp)
+
+    def _write_tagger_stats(self, param, xp: Framework):
+        stats_dir = os.environ.get("SAPS_TAGGER_STATS_DIR")
+        statistics_path = os.environ.get("SAPS_STATISTICS_PATH")
+        if not hasattr(xp, "tags"):
+            return
+
+        tags = sorted(getattr(xp, "tags", []))
+        data = {
+            "benchmark_name": self.name,
+            "generator_name": param.generator.name,
+            "dataset_name": param.dataset.name,
+            "tags": tags,
+        }
+        if stats_dir:
+            path = Path(stats_dir)
+            path.mkdir(parents=True, exist_ok=True)
+            record_id = f"{self.name}.{param.generator.name}.{param.dataset.name}"
+            safe_id = "".join(
+                char if char.isalnum() or char in "._-" else "_" for char in record_id
+            )
+            output_path = path / f"{safe_id}.json"
+            output_path.write_text(
+                json.dumps(data, indent=2, default=str) + "\n",
+                encoding="utf-8",
+            )
+        if statistics_path:
+            _write_statistics_tags(
+                Path(statistics_path),
+                self.name,
+                param.generator.name,
+                param.dataset.name,
+                param.dataset.file,
+                param.dataset.freshness,
+                tags,
+            )
 
     def teardown(self, param):
         if hasattr(self, "_output"):
-            self.check_correct(param)
+            self.check(param)
             del self._output
         if hasattr(self, "_meta"):
             del self._meta
+        if hasattr(self, "_ref_outputs"):
+            del self._ref_outputs
+        if hasattr(self, "_ref_meta"):
+            del self._ref_meta
         if hasattr(self, "_input"):
             del self._input
+        if hasattr(self, "_xp"):
+            del self._xp
+        if hasattr(self, "_compiled_benchmark"):
+            del self._compiled_benchmark
 
-    def check_correct(self, param):
-        # TODO do better than this
-        for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
-                "Output must be in binsparse format"
-            )
+    @abstractmethod
+    def check(self, param): ...
 
     @property
     def metadata(self) -> dict[str, Any]:
         return {
+            "file": self.file,
+            "freshness": self.freshness,
             "name": self.name,
             "pretty_name": self.pretty_name,
-            "id": f"{self.__class__.__module__}.{self.__class__.__name__}.{self.name}",
             "description": self.description,
-            "tags": self.tags,
+            "suites": self.suites,
+            "concepts": self.concepts,
+            "topics": self.topics,
             "authors": [str(a) for a in self.authors],
             "references": [str(r) for r in self.references],
             "ai_disclosure": self.ai_disclosure,
             "motivation": self.motivation,
             "generators": [generator.metadata for generator in self.generators],
         }
+
+
+class ShellBenchmark(Benchmark, ABC):
+    @property
+    @abstractmethod
+    def generator(self) -> Generator[Any]: ...
+
+    @property
+    def name(self) -> str:
+        return f"{self.generator.name}_shell"
+
+    @property
+    def pretty_name(self) -> str:
+        return self.generator.pretty_name
+
+    @property
+    def description(self) -> str:
+        return ""
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return ""
+
+    @property
+    def motivation(self) -> str:
+        return ""
+
+    @property
+    def generators(self) -> list[Generator[Any]]:
+        return [self.generator]
+
+    def benchmark(self, xp: Framework, data: list[Any], meta: Any) -> Any:
+        return []
+
+    def check(self, param):
+        pass

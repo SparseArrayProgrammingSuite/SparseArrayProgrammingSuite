@@ -1,26 +1,24 @@
-import os
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
-from scipy.io import mmread
 
-import ssgetpy
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
-import saps
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
 )
-from saps_framework import BinsparseFormat
+from saps.benchmarks.ogb import OGBNodePropGenerator, fetch_ogb_nodeprop_dataset
+from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
 
-xp = saps.xp
 
-
-class GCNDataset(Dataset):
+class GCNDataset(SuiteSparseDataset):
     def __init__(
         self,
         name: str,
@@ -29,29 +27,32 @@ class GCNDataset(Dataset):
         feature_dim: int = 16,
         hidden_dim: int = 8,
         out_dim: int = 1,
+        suites: list[str] | None = None,
+        adjacency: np.ndarray | None = None,
+        features: np.ndarray | None = None,
+        weights1: np.ndarray | None = None,
+        bias1: np.ndarray | None = None,
+        weights2: np.ndarray | None = None,
+        bias2: np.ndarray | None = None,
+        expected: np.ndarray | None = None,
     ):
-        self.dataset_name = name
-        self.dataset_description = description
-        self.source_name = source_name if source_name is not None else name
+        super().__init__(
+            name,
+            source_name=source_name if source_name is not None else name,
+            pretty_name=f"GCN {name}",
+            description=description,
+            suites=suites,
+        )
         self.feature_dim = feature_dim
         self.hidden_dim = hidden_dim
         self.out_dim = out_dim
-
-    @property
-    def name(self) -> str:
-        return self.dataset_name
-
-    @property
-    def pretty_name(self) -> str:
-        return f"GCN {self.dataset_name}"
-
-    @property
-    def description(self) -> str:
-        return self.dataset_description or f"SuiteSparse matrix {self.source_name}."
-
-    @property
-    def tags(self) -> list[str]:
-        return ["suitesparse", "sparse"]
+        self.adjacency = adjacency
+        self.features = features
+        self.weights1 = weights1
+        self.bias1 = bias1
+        self.weights2 = weights2
+        self.bias2 = bias2
+        self.expected = expected
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -61,6 +62,180 @@ class GCNDataset(Dataset):
         data["hidden_dim"] = self.hidden_dim
         data["out_dim"] = self.out_dim
         return data
+
+
+class OGBGCNDataset(Dataset):
+    """A full-graph GCN inference dataset sourced from OGB."""
+
+    def __init__(
+        self,
+        name: str,
+        *,
+        source_name: str,
+        hidden_dim: int,
+        description: str,
+        suites: list[str] | None = None,
+    ):
+        self._name = name
+        self.source_name = source_name
+        self.hidden_dim = hidden_dim
+        self._description = description
+        self._suites = suites or []
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return f"GCN {self.source_name}"
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        data = super().metadata
+        data.update(
+            {
+                "source_name": self.source_name,
+                "hidden_dim": self.hidden_dim,
+            }
+        )
+        return data
+
+
+def gcn_reference_np(adjacency, features, weights1, bias1, weights2, bias2):
+    h1 = adjacency @ features
+    h1 = h1 @ weights1 + bias1
+    h1 = np.maximum(h1, 0)
+    h2 = adjacency @ h1
+    return h2 @ weights2 + bias2
+
+
+class GCNTestGenerator(Generator[GCNDataset]):
+    @property
+    def name(self) -> str:
+        return "gcn_test_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "GCN Test Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Small inlined GCN forward-pass examples."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["test", "trace"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Tarun Devi", "tdevi3@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return GCNBenchmark().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return GCNBenchmark().ai_disclosure
+
+    @property
+    def motivation(self) -> str:
+        return "Uses small graph examples to verify the GCN forward pass."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[GCNDataset]:
+        return [
+            GCNDataset(
+                "test_gcn_3node",
+                suites=["test", "trace"],
+                adjacency=np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]], dtype=np.float32),
+                features=np.array(
+                    [[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]], dtype=np.float32
+                ),
+                weights1=np.array([[1.0, 0.0], [0.0, 1.0]], dtype=np.float32),
+                bias1=np.array([0.0, 0.0], dtype=np.float32),
+                weights2=np.array([[1.0], [1.0]], dtype=np.float32),
+                bias2=np.array([0.0], dtype=np.float32),
+            ),
+            GCNDataset(
+                "test_gcn_simple_2node",
+                suites=["test", "trace"],
+                adjacency=np.array([[0, 1], [1, 0]], dtype=np.float32),
+                features=np.array([[1.0], [2.0]], dtype=np.float32),
+                weights1=np.array([[2.0]], dtype=np.float32),
+                bias1=np.array([0.0], dtype=np.float32),
+                weights2=np.array([[3.0]], dtype=np.float32),
+                bias2=np.array([0.0], dtype=np.float32),
+                expected=np.array([[6.0], [12.0]], dtype=np.float32),
+            ),
+            GCNDataset(
+                "test_gcn_simple_3node_line",
+                suites=["test", "trace"],
+                adjacency=np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]], dtype=np.float32),
+                features=np.array([[1.0], [0.0], [1.0]], dtype=np.float32),
+                weights1=np.array([[1.0]], dtype=np.float32),
+                bias1=np.array([0.0], dtype=np.float32),
+                weights2=np.array([[1.0]], dtype=np.float32),
+                bias2=np.array([0.0], dtype=np.float32),
+                expected=np.array([[2.0], [0.0], [2.0]], dtype=np.float32),
+            ),
+            GCNDataset(
+                "test_gcn_with_relu_activation",
+                suites=["test", "trace"],
+                adjacency=np.array([[0, 1], [1, 0]], dtype=np.float32),
+                features=np.array([[1.0], [-1.0]], dtype=np.float32),
+                weights1=np.array([[1.0]], dtype=np.float32),
+                bias1=np.array([0.0], dtype=np.float32),
+                weights2=np.array([[2.0]], dtype=np.float32),
+                bias2=np.array([0.0], dtype=np.float32),
+                expected=np.array([[2.0], [0.0]], dtype=np.float32),
+            ),
+        ]
+
+    def generate(self, dataset: GCNDataset):
+        required = (
+            dataset.adjacency,
+            dataset.features,
+            dataset.weights1,
+            dataset.bias1,
+            dataset.weights2,
+            dataset.bias2,
+        )
+        if any(item is None for item in required):
+            raise ValueError("GCN test datasets must define all input arrays.")
+
+        arrays = tuple(cast(np.ndarray, item) for item in required)
+        expected = dataset.expected
+        expected = gcn_reference_np(*arrays) if expected is None else expected
+
+        inputs = [from_numpy(item) for item in arrays]
+        return DataInstance(
+            inputs=inputs,
+            meta={},
+            ref_outputs=[from_numpy(expected)],
+            ref_meta={"rtol": 1e-10},
+        )
 
 
 class GCNGenerator(Generator[GCNDataset]):
@@ -77,8 +252,12 @@ class GCNGenerator(Generator[GCNDataset]):
         return "Generates random weights for a 2-layer Graph Convolutional Network."
 
     @property
-    def tags(self) -> list[str]:
-        return ["machine learning", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -102,9 +281,9 @@ class GCNGenerator(Generator[GCNDataset]):
                 url="https://anonymous.4open.science/r/scorch/README.md",
             ),
             Ref(
-                title="Open Graph Benchmark: Datasets for Machine Learning on Graph",
+                title="Open Graph Benchmark: Datasets for Machine Learning on Graphs",
                 authors=[
-                    Author("Wenbing Hu"),
+                    Author("Weihua Hu"),
                     Author("Matthias Fey"),
                     Author("Marinka Zitnik"),
                     Author("Yuxiao Dong"),
@@ -115,7 +294,7 @@ class GCNGenerator(Generator[GCNDataset]):
                 ],
                 journal="Arxiv",
                 volume="arXiv:2005.00687",
-                year=2021,
+                year=2020,
                 url="https://arxiv.org/abs/2005.00687",
             ),
         ]
@@ -141,6 +320,10 @@ class GCNGenerator(Generator[GCNDataset]):
             " Bronstein et al., 2017). W. Hu et al. To represent a graph, an adjaceny"
             " matrix is used, which is inherently sparse."
         )
+
+    @property
+    def cacheable(self) -> bool:
+        return False
 
     @property
     def datasets(self) -> list[GCNDataset]:
@@ -165,7 +348,7 @@ class GCNGenerator(Generator[GCNDataset]):
                 "dg_gcn_social_3",
                 "Larger social network graph.",
                 "ca-GrQc",
-                feature_dim=32,
+                feature_dim=8,
                 hidden_dim=16,
                 out_dim=1,
             ),
@@ -178,18 +361,10 @@ class GCNGenerator(Generator[GCNDataset]):
                 out_dim=1,
             ),
             GCNDataset(
-                "dg_gcn_road_2",
-                "Medium road network graph.",
-                "road_central",
-                feature_dim=16,
-                hidden_dim=8,
-                out_dim=1,
-            ),
-            GCNDataset(
                 "dg_gcn_molecular_1",
                 "Small molecular graph. - Email network.",
                 "email",
-                feature_dim=16,
+                feature_dim=4,
                 hidden_dim=8,
                 out_dim=1,
             ),
@@ -197,7 +372,7 @@ class GCNGenerator(Generator[GCNDataset]):
                 "dg_gcn_molecular_2",
                 "Medium molecular graph - PDDB protein structure.",
                 "Chebyshev3",
-                feature_dim=24,
+                feature_dim=6,
                 hidden_dim=12,
                 out_dim=1,
             ),
@@ -205,15 +380,7 @@ class GCNGenerator(Generator[GCNDataset]):
                 "dg_gcn_citation_1",
                 "Large citation network graph (AIDS-like size).",
                 "ca-HepPh",
-                feature_dim=64,
-                hidden_dim=32,
-                out_dim=1,
-            ),
-            GCNDataset(
-                "dg_gcn_large_2",
-                "Very large road network.",
-                "road_usa",
-                feature_dim=64,
+                feature_dim=16,
                 hidden_dim=32,
                 out_dim=1,
             ),
@@ -233,35 +400,121 @@ class GCNGenerator(Generator[GCNDataset]):
         hidden_dim = dataset.hidden_dim
         out_dim = dataset.out_dim
 
-        source = dataset.source_name
-        matrices = ssgetpy.search(name=source)
-        if not matrices:
-            raise ValueError(f"No matrix found with name '{source}'")
-        matrix = matrices[0]
-        (path, archive) = matrix.download(extract=True)
-        matrix_path = os.path.join(path, matrix.name + ".mtx")
-        if matrix_path and os.path.exists(matrix_path):
-            A = mmread(matrix_path)
-        else:
-            raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
+        raw = fetch_suitesparse_matrix(dataset.source_name)
+        coo = to_scipy(raw.inputs[0]).tocoo()
         rng = np.random.default_rng(0)
-        A = A.tocoo()
 
         # Create feature/weight arrays using the RNG (deterministic)
-        n = A.shape[0]
-        features = rng.standard_normal((n, feature_dim))
-        weights1 = rng.standard_normal((feature_dim, hidden_dim))
-        bias1 = np.zeros((hidden_dim,))
-        weights2 = rng.standard_normal((hidden_dim, out_dim))
-        bias2 = np.zeros((out_dim,))
+        n = raw.meta["shape"][0]
+        features = rng.standard_normal((n, feature_dim), dtype=np.float32)
+        weights1 = rng.standard_normal((feature_dim, hidden_dim), dtype=np.float32)
+        bias1 = np.zeros((hidden_dim,), dtype=np.float32)
+        weights2 = rng.standard_normal((hidden_dim, out_dim), dtype=np.float32)
+        bias2 = np.zeros((out_dim,), dtype=np.float32)
 
-        A_bin = BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape)
-        features_b = BinsparseFormat.from_numpy(features)
-        weights1_b = BinsparseFormat.from_numpy(weights1)
-        bias1_b = BinsparseFormat.from_numpy(bias1)
-        weights2_b = BinsparseFormat.from_numpy(weights2)
-        bias2_b = BinsparseFormat.from_numpy(bias2)
-        return (A_bin, features_b, weights1_b, bias1_b, weights2_b, bias2_b), {}
+        coo.data = coo.data.astype(np.float32, copy=False)
+        A_bin = from_scipy(coo)
+        features_b = from_numpy(features)
+        weights1_b = from_numpy(weights1)
+        bias1_b = from_numpy(bias1)
+        weights2_b = from_numpy(weights2)
+        bias2_b = from_numpy(bias2)
+        return DataInstance(
+            inputs=[A_bin, features_b, weights1_b, bias1_b, weights2_b, bias2_b],
+            meta={},
+        )
+
+
+class OGBGCNGenerator(Generator[OGBGCNDataset]):
+    @property
+    def name(self) -> str:
+        return "gcn_ogb_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Open Graph Benchmark GCN Inputs"
+
+    @property
+    def description(self) -> str:
+        return "Loads full OGB node-property graphs for 2-layer GCN inference."
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Tarun Devi", "tdevi3@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return GCNBenchmark().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to construct the benchmark function itself. "
+            "Generative AI was used to help implement and audit the OGB downloader, "
+            "input generator, tests, documentation, and debugging."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return (
+            "Uses complete real-world node features and graph structure from the "
+            "Open Graph Benchmark instead of synthesized GCN inputs. SAPS caching is "
+            "disabled because its JSON/hex representation would expand these very "
+            "large graphs substantially; OGB maintains the source-data cache instead."
+        )
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[OGBGCNDataset]:
+        return [
+            OGBGCNDataset(
+                dataset.name,
+                source_name=dataset.source_name,
+                hidden_dim=256,
+                description=dataset.description,
+                suites=["standard"],
+            )
+            for dataset in OGBNodePropGenerator().datasets
+        ]
+
+    def generate(self, dataset: OGBGCNDataset) -> DataInstance:
+        graph = fetch_ogb_nodeprop_dataset(dataset.source_name)
+        feature_dim = graph.num_features
+        out_dim = graph.num_outputs
+        rng = np.random.default_rng(0)
+        weights1 = rng.standard_normal(
+            (feature_dim, dataset.hidden_dim), dtype=np.float32
+        )
+        weights2 = rng.standard_normal(
+            (dataset.hidden_dim, out_dim), dtype=np.float32
+        )
+        return DataInstance(
+            inputs=[
+                graph.adjacency,
+                from_numpy(graph.features),
+                from_numpy(weights1),
+                from_numpy(np.zeros(dataset.hidden_dim, dtype=np.float32)),
+                from_numpy(weights2),
+                from_numpy(np.zeros(out_dim, dtype=np.float32)),
+            ],
+            meta={
+                **graph.metadata,
+                "num_features": feature_dim,
+                "num_outputs": out_dim,
+                "hidden_dim": dataset.hidden_dim,
+            },
+        )
 
 
 class GCNBenchmark(Benchmark):
@@ -283,8 +536,25 @@ class GCNBenchmark(Benchmark):
         )
 
     @property
-    def tags(self) -> list[str]:
-        return ["machine learning", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return """
+        <ccs2012>
+        <concept>
+        <concept_id>10010147.10010257.10010293.10010294</concept_id>
+        <concept_desc>Computing methodologies~Neural networks</concept_desc>
+        <concept_significance>500</concept_significance>
+        </concept>
+        <concept>
+        <concept_id>10002950.10003624.10003633.10010917</concept_id>
+        <concept_desc>Mathematics of computing~Graph algorithms</concept_desc>
+        <concept_significance>500</concept_significance>
+        </concept>
+        </ccs2012>
+        """
 
     @property
     def authors(self) -> list[Contributor]:
@@ -308,9 +578,9 @@ class GCNBenchmark(Benchmark):
                 url="https://anonymous.4open.science/r/scorch/README.md",
             ),
             Ref(
-                title="Open Graph Benchmark: Datasets for Machine Learning on Graph",
+                title="Open Graph Benchmark: Datasets for Machine Learning on Graphs",
                 authors=[
-                    Author("Wenbing Hu"),
+                    Author("Weihua Hu"),
                     Author("Matthias Fey"),
                     Author("Marinka Zitnik"),
                     Author("Yuxiao Dong"),
@@ -321,8 +591,21 @@ class GCNBenchmark(Benchmark):
                 ],
                 journal="Arxiv",
                 volume="arXiv:2005.00687",
-                year=2021,
+                year=2020,
                 url="https://arxiv.org/abs/2005.00687",
+            ),
+            Ref(
+                title=(
+                    "Semi-Supervised Classification with Graph Convolutional Networks"
+                ),
+                authors=[
+                    Author("Thomas N. Kipf"),
+                    Author("Max Welling"),
+                ],
+                journal="Arxiv",
+                volume="arXiv:1609.02907",
+                year=2016,
+                url="https://arxiv.org/abs/1609.02907",
             ),
         ]
 
@@ -330,8 +613,8 @@ class GCNBenchmark(Benchmark):
     def ai_disclosure(self) -> str:
         return (
             "No generative AI was used to construct the benchmark function itself."
-            " Generative AI might have been used to construct tests. This statement was"
-            " written by hand."
+            " Generative AI was used to help implement and audit OGB input plumbing,"
+            " tests, documentation, and debugging."
         )
 
     @property
@@ -350,33 +633,51 @@ class GCNBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [GCNGenerator()]
+        return [GCNTestGenerator(), GCNGenerator(), OGBGCNGenerator()]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
+
+        if self._ref_outputs is None:
+            return
+
+        result = to_numpy(self._output[0])
+        expected = to_numpy(self._ref_outputs[0])
+        np.testing.assert_allclose(
+            result,
+            expected,
+            rtol=self._ref_meta["rtol"],
+            err_msg=f"GCN output mismatch for {param.dataset.name}",
+        )
 
     """
     Args:
     ----
     xp : array_api
         Array API module (e.g. numpy, cupy, torch)
-    adjacency_bench : BinsparseFormat
+    adjacency_bench : BinsparseTensor
         Sparse adjacency matrix of the graph
-    features_bench : BinsparseFormat
+    features_bench : BinsparseTensor
         Node feature matrix
-    weights1_bench : BinsparseFormat
+    weights1_bench : BinsparseTensor
         Weights for first GCN layer
-    bias1_bench : BinsparseFormat
+    bias1_bench : BinsparseTensor
         Bias for first GCN layer
-    weights2_bench : BinsparseFormat
+    weights2_bench : BinsparseTensor
         Weights for second GCN layer
-    bias2_bench : BinsparseFormat
+    bias2_bench : BinsparseTensor
         Bias for second GCN layer
 
     Returns:
     -------
-    BinsparseFormat
+    BinsparseTensor
         Output node embeddings after 2-layer GCN
     """
 
-    def benchmark(self, data: list, meta: dict):
+    def benchmark(self, xp, data: list, meta: dict):
         (
             adjacency,
             features,

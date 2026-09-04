@@ -2,17 +2,17 @@ from typing import Any
 
 import numpy as np
 
-import saps
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
+
 from saps.benchmark import (
     Benchmark,
-    BinsparseFormat,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
 )
-
-xp = saps.xp
 
 
 def parse_dimacs(text):
@@ -81,14 +81,14 @@ class MCDataset(Dataset):
         name: str,
         pretty_name: str,
         description: str,
-        tags: list[str],
+        suites: list[str],
         cnf_text: str,
         expected: int,
     ):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
-        self._tags = tags
+        self._suites = suites
         self.cnf_text = cnf_text
         self.expected = expected
 
@@ -105,8 +105,12 @@ class MCDataset(Dataset):
         return self._description
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
 
 class MCGenerator(Generator[MCDataset]):
@@ -126,8 +130,12 @@ class MCGenerator(Generator[MCDataset]):
         )
 
     @property
-    def tags(self) -> list[str]:
-        return ["generator", "model-counting", "cnf", "sparse"]
+    def suites(self) -> list[str]:
+        return ["test", "trace"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -147,13 +155,17 @@ class MCGenerator(Generator[MCDataset]):
         return "Uses a predefined set of formulas to verify correctness."
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[MCDataset]:
         return [
             MCDataset(
                 name="test_1",
                 pretty_name="Test 1: Standard SAT",
                 description="3 variables, 2 clauses",
-                tags=["small", "test"],
+                suites=["test", "trace"],
                 cnf_text="""
                     p cnf 3 2
                     1 -3 0
@@ -165,7 +177,7 @@ class MCGenerator(Generator[MCDataset]):
                 name="test_2",
                 pretty_name="Test 2: Contradiction",
                 description="V1 and not V1",
-                tags=["small", "test"],
+                suites=["test", "trace"],
                 cnf_text="""
                     c contradiction
                     p cnf 1 2
@@ -178,7 +190,7 @@ class MCGenerator(Generator[MCDataset]):
                 name="test_3",
                 pretty_name="Test 3: Single Solution",
                 description="Forces all 3 variables to be true",
-                tags=["small", "test"],
+                suites=["test", "trace"],
                 cnf_text="""
                     c single_solution
                     p cnf 3 3
@@ -192,7 +204,7 @@ class MCGenerator(Generator[MCDataset]):
                 name="test_4",
                 pretty_name="Test 4: Empty Formula",
                 description="No clauses, 2 variables",
-                tags=["small", "test"],
+                suites=["test", "trace"],
                 cnf_text="""
                     c empty_formula
                     p cnf 2 0
@@ -205,7 +217,7 @@ class MCGenerator(Generator[MCDataset]):
         num_vars, clauses = parse_dimacs(dataset.cnf_text)
         expr = clauses_to_einsum(clauses)
 
-        data_list: list[BinsparseFormat] = [xp.to_binsparse(xp.array([0, 1]))]
+        data_list: list[BinsparseTensor] = [from_numpy(np.array([0, 1]))]
 
         default_total = 2**num_vars
 
@@ -216,7 +228,11 @@ class MCGenerator(Generator[MCDataset]):
             "default_total": default_total,
         }
 
-        return data_list, meta
+        return DataInstance(
+            inputs=data_list,
+            meta=meta,
+            ref_outputs=[from_numpy(np.array(dataset.expected))],
+        )
 
 
 class ModelCounting(Benchmark):
@@ -237,8 +253,30 @@ class ModelCounting(Benchmark):
         return "Benchmarks Model Counting Algorithm using einsum operations."
 
     @property
-    def tags(self):
-        return ["model-counting", "SAT", "sparse"]
+    def suites(self):
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return """
+<ccs2012>
+<concept>
+<concept_id>10010583.10010717.10010721.10010727</concept_id>
+<concept_desc>Hardware~Theorem proving and SAT solving</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10002950.10003648.10003662</concept_id>
+<concept_desc>Mathematics of computing~Probabilistic inference problems</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10010583.10010717.10010721.10003791</concept_id>
+<concept_desc>Hardware~Model checking</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+</ccs2012>
+"""
 
     @property
     def authors(self):
@@ -264,7 +302,7 @@ class ModelCounting(Benchmark):
     def generators(self) -> list[Generator[Any]]:
         return [MCGenerator()]
 
-    def benchmark(self, data: list[Any], meta: dict[str, Any]) -> list[Any]:
+    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]) -> list[Any]:
         expr = meta["expr"]
 
         if expr is None:
@@ -273,3 +311,16 @@ class ModelCounting(Benchmark):
         result = xp.einsum(expr, B=data[0])
 
         return [result]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
+        if self._ref_outputs is None:
+            return
+        result = int(to_numpy(self._output[0]))
+        expected = int(to_numpy(self._ref_outputs[0]))
+        assert result == expected, (
+            f"Test '{param.dataset.name}' failed: expected {expected}, got {result}"
+        )

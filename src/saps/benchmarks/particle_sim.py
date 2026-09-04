@@ -1,13 +1,15 @@
 import math
-from typing import Any
 
 import numpy as np
 
-import saps
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
+
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
@@ -15,7 +17,230 @@ from saps.benchmark import (
 from saps.downloaders.ewap import download_ewap_dataset
 from saps_framework.binsparse_format import BinsparseFormat
 
-xp = saps.xp
+mass = 0.01
+cutoff = 0.01
+min_r = cutoff / 100
+dt = 0.0005
+
+
+def generate_particle_test_data(num_particles, size, step):
+    rng = np.random.default_rng(42)
+    x = rng.random(num_particles) * size
+    y = rng.random(num_particles) * size
+    vx = (rng.random(num_particles) - 0.5) * 0.1
+    vy = (rng.random(num_particles) - 0.5) * 0.1
+    return x, y, vx, vy, size, step
+
+
+class ParticleSimDataset(Dataset):
+    def __init__(
+        self,
+        name: str,
+        pretty_name: str | None = None,
+        description: str | None = None,
+        suites: list[str] | None = None,
+        values: tuple | None = None,
+    ):
+        self._name = name
+        self._pretty_name = pretty_name or name
+        self._description = description or f"Particle simulation input {name}."
+        self._suites = suites or []
+        self.values = values
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+
+class Particle:
+    def __init__(self, x=0.0, y=0.0, vx=0.0, vy=0.0, ax=0.0, ay=0.0):
+        self.x = x
+        self.y = y
+        self.vx = vx
+        self.vy = vy
+        self.ax = ax
+        self.ay = ay
+
+
+def apply_force(particle, neighbor):
+    dx = neighbor.x - particle.x
+    dy = neighbor.y - particle.y
+    r2 = dx * dx + dy * dy
+
+    if r2 > cutoff * cutoff:
+        return
+
+    r2 = max(r2, min_r * min_r)
+    r = math.sqrt(r2)
+
+    coef = (1 - cutoff / r) / r2 / mass
+    particle.ax += coef * dx
+    particle.ay += coef * dy
+
+
+def move(p, size):
+    p.vx += p.ax * dt
+    p.vy += p.ay * dt
+    p.x += p.vx * dt
+    p.y += p.vy * dt
+
+    if p.x < 0 or p.x > size:
+        if p.x < 0:
+            p.x = -p.x
+        else:
+            p.x = 2 * size - p.x
+
+        p.vx = -p.vx
+
+    if p.y < 0 or p.y > size:
+        if p.y < 0:
+            p.y = -p.y
+        else:
+            p.y = 2 * size - p.y
+        p.vy = -p.vy
+
+
+def simulate_one_step(parts, num_parts, size):
+    for i in range(num_parts):
+        parts[i].ax = 0
+        parts[i].ay = 0
+        for j in range(num_parts):
+            apply_force(parts[i], parts[j])
+
+    for i in range(num_parts):
+        move(parts[i], size)
+
+
+def init_simulation(parts, num_parts, size, steps):
+    for _ in range(steps):
+        simulate_one_step(parts, num_parts, size)
+
+
+def reference_particle_sim(x, y, vx, vy, size, steps):
+    ref_particles = [
+        Particle(xi, yi, vxi, vyi, 0, 0)
+        for xi, yi, vxi, vyi in zip(x, y, vx, vy, strict=True)
+    ]
+    init_simulation(ref_particles, len(ref_particles), size, steps)
+    return [
+        np.array([p.x for p in ref_particles]),
+        np.array([p.y for p in ref_particles]),
+        np.array([p.vx for p in ref_particles]),
+        np.array([p.vy for p in ref_particles]),
+    ]
+
+
+class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
+    @property
+    def name(self):
+        return "particle_sim_test_inputs"
+
+    @property
+    def pretty_name(self):
+        return "Particle Simulation Test Input Generator"
+
+    @property
+    def description(self):
+        return "Small deterministic particle simulation examples."
+
+    @property
+    def suites(self):
+        return ["test", "trace"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self):
+        return ParticleSimBenchmark().authors
+
+    @property
+    def references(self):
+        return ParticleSimBenchmark().references
+
+    @property
+    def ai_disclosure(self):
+        return ParticleSimBenchmark().ai_disclosure
+
+    @property
+    def motivation(self):
+        return "Provide small particle examples for benchmark correctness checks."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self):
+        return [
+            ParticleSimDataset(
+                "test_particle_sim_two_particles_within_cutoff",
+                suites=["test", "trace"],
+                values=(
+                    np.array([0.001, 0.002]),
+                    np.array([0.001, 0.001]),
+                    np.array([0.1, 0.0]),
+                    np.array([0.0, 0.0]),
+                    2,
+                    1,
+                ),
+            ),
+            ParticleSimDataset(
+                "test_particle_sim_wall_bounce",
+                suites=["test", "trace"],
+                values=(
+                    np.array([0.0001]),
+                    np.array([0.05]),
+                    np.array([-0.1]),
+                    np.array([0.0]),
+                    2,
+                    5,
+                ),
+            ),
+            ParticleSimDataset(
+                "test_particle_sim_random_10",
+                suites=["test", "trace"],
+                values=generate_particle_test_data(10, 2, 10),
+            ),
+            ParticleSimDataset(
+                "test_particle_sim_random_50",
+                suites=["test", "trace"],
+                values=generate_particle_test_data(50, 2, 20),
+            ),
+        ]
+
+    def generate(self, dataset):
+        if dataset.values is None:
+            raise ValueError("Particle simulation test datasets must define values.")
+        x, y, vx, vy, size, steps = dataset.values
+        expected = reference_particle_sim(x, y, vx, vy, size, steps)
+        return DataInstance(
+            inputs=[
+                from_numpy(x),
+                from_numpy(y),
+                from_numpy(vx),
+                from_numpy(vy),
+            ],
+            meta={"size": size, "steps": steps},
+            ref_outputs=[from_numpy(value) for value in expected],
+        )
 
 
 class ParticleSimDataset(Dataset):
@@ -338,8 +563,30 @@ class ParticleSimBenchmark(Benchmark):
         )
 
     @property
-    def tags(self):
-        return ["physics", "simulation", "sparse"]
+    def suites(self):
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return """
+        <ccs2012>
+<concept>
+<concept_id>10010147.10010371.10010382.10010383</concept_id>
+<concept_desc>Computing methodologies~Image processing</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10010147.10010371.10010382.10010236</concept_id>
+<concept_desc>Computing methodologies~Computational photography</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10010405.10010444.10010087.10010096</concept_id>
+<concept_desc>Applied computing~Imaging</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+</ccs2012>
+"""
 
     @property
     def authors(self):
@@ -373,18 +620,13 @@ class ParticleSimBenchmark(Benchmark):
         )
 
     @property
-    def generators(self) -> list[Generator]:
-        return [SyntheticParticleSimGenerator(), ParticleSimGenerator()]
+    def generators(self):
+        return [ParticleSimTestGenerator()]
 
-    def benchmark(self, data, meta):
+    def benchmark(self, xp, data, meta):
         x, y, vx, vy = data
         size = meta["size"]
         steps = meta["steps"]
-        # CONSTANTS
-        mass = 0.01
-        cutoff = 0.01
-        min_r = cutoff / 100
-        dt = 0.0005
 
         for _ in range(steps):
             # compute forces
@@ -432,3 +674,20 @@ class ParticleSimBenchmark(Benchmark):
             y = xp.where(y > size, y2, y1)
 
         return [x, y, vx, vy]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
+        if self._ref_outputs is None:
+            return
+
+        for i, (actual, expected) in enumerate(
+            zip(self._output, self._ref_outputs, strict=True)
+        ):
+            actual_values = to_numpy(actual)
+            expected_values = to_numpy(expected)
+            assert np.all(actual_values == expected_values), (
+                f"Particle simulation output {i} mismatch for {param.dataset.name}"
+            )

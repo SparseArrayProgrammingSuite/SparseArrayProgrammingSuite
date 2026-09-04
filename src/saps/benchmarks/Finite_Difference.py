@@ -1,20 +1,37 @@
 import numpy as np
 
-import saps
+import sparse as pydata_sparse
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, from_sparse, to_numpy, to_sparse
+
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
+    DataInstance,
     Dataset,
     Generator,
     Ref,
 )
 
-xp = saps.xp
+
+def _from_binsparse(array):
+    try:
+        return to_numpy(array)
+    except TypeError:
+        return to_sparse(array).todense()
+
+
+def _to_binsparse(array):
+    if isinstance(array, BinsparseTensor):
+        return array
+    if isinstance(array, pydata_sparse.SparseArray):
+        return from_sparse(array.asformat("coo"))
+    return from_numpy(np.asarray(array))
 
 
 def _lax_freidrichs_matrix_no_flux(Nx):
-    matrix = np.zeros((Nx, Nx))
+    matrix = pydata_sparse.DOK((Nx, Nx), dtype=float)
     for i in range(1, Nx):
         matrix[i, i - 1] = 0.5
     for i in range(Nx - 1):
@@ -28,7 +45,7 @@ def _lax_freidrichs_matrix_no_flux(Nx):
 
 
 def _difference_matrix(Nx):
-    matrix = np.zeros((Nx, Nx))
+    matrix = pydata_sparse.DOK((Nx, Nx), dtype=float)
     for i in range(1, Nx):
         matrix[i, i - 1] = -1
     for i in range(Nx - 1):
@@ -41,10 +58,10 @@ def _difference_matrix(Nx):
 
 
 class FiniteDifferenceDataset(Dataset):
-    def __init__(self, name, pretty_name, tags, Nx, dx, Nt, dt):
+    def __init__(self, name, pretty_name, suites, Nx, dx, Nt, dt):
         self._name = name
         self._pretty_name = pretty_name
-        self._tags = tags
+        self._suites = suites
         self.Nx = Nx
         self.dx = dx
         self.Nt = Nt
@@ -63,11 +80,27 @@ class FiniteDifferenceDataset(Dataset):
         return f"{self.pretty_name}: Nx = {self.Nx}, dx = {self.dx}, dt = {self.dt}."
 
     @property
-    def tags(self) -> list[str]:
-        return self._tags
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
 
 class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
+    def __init__(self, flux=None):
+        self._flux = flux
+
+    def flux(self, u):
+        if self._flux is None:
+            raise ValueError("FiniteDifferenceGenerator requires flux for checks")
+        return self._flux(u)
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
     @property
     def name(self) -> str:
         return "finite_difference_inputs"
@@ -79,18 +112,18 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
     @property
     def description(self) -> str:
         return (
-            "The purpose of this is to analyze the importance of numerical methods for"
-            " PDEs, and applications sparse array theory into these method, through the"
-            " form of benchmarks. This paticular benchmark analyzes the use of the"
-            " Lax–Friedrichs method for solving nonlinear hyberbolic PDEs, with"
-            " numerical stability and accuracy not seen in FTCS. This benchmark will"
-            " run a simulation using both Lax–Friedrichs and analyze core concepts such"
-            " as numerical stability, conservation law consistency, etc."
+            "The finite difference generator uses a finite difference grid of"
+            "500 by 500 cells, matching roughly the scale of a"
+            "real finite difference problem, Norris/torso3 from UF Matrix Collection"
         )
 
     @property
-    def tags(self) -> list[str]:
-        return ["simulation", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -100,21 +133,19 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title=(
-                    "Synthesizing Sound and Precise Abstract Transformers"
-                    " for Nonlinear Hyperbolic PDE Solvers."
-                ),
+                title="The university of Florida sparse matrix collection",
                 authors=[
-                    Author("Laurel, J."),
-                    Author("Laguna, I."),
-                    Author("Hückelheim, J."),
+                    Author("Timothy A. Davis"),
+                    Author("Yifan Hu"),
                 ],
-                journal="Proceedings of the ACM on Programming Languages",
-                volume="9",
-                number="OOPSLA2",
-                pages="1063–1091",
-                year=2025,
-                url="https://doi.org/10.1145/3763088",
+                journal="ACM Transactions on Mathematical Software",
+                publisher="Association for Computing Machinery (ACM)",
+                volume="38",
+                number="1",
+                pages="1-25",
+                year=2011,
+                url="https://doi.org/10.1145/2049662.2049663",
+                doi="10.1145/2049662.2049663",
             )
         ]
 
@@ -137,12 +168,21 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
     def datasets(self) -> list[FiniteDifferenceDataset]:
         return [
             FiniteDifferenceDataset(
-                name="default",
-                pretty_name="Default",
-                tags=["small"],
+                name="fd_test_scale",
+                pretty_name="Finite Difference Test Problem",
+                suites=["test", "trace"],
                 Nx=100,
                 dx=0.1,
                 Nt=100,
+                dt=0.01,
+            ),
+            FiniteDifferenceDataset(
+                name="fd_realistic_scale",
+                pretty_name="Finite Difference Realistic Problem",
+                suites=["standard"],
+                Nx=250000,
+                dx=0.1,
+                Nt=1000,
                 dt=0.01,
             ),
         ]
@@ -152,7 +192,7 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
         density = 0.05
         u_0 = np.zeros(dataset.Nx, dtype=float)
         k = max(1, int(dataset.Nx * density))
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(0)
         idx = rng.choice(dataset.Nx, size=k, replace=False)
         # small random amplitudes to avoid nonlinear overflow
         u_0[idx] = rng.random(k) * 0.5
@@ -162,24 +202,50 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
         difference = _difference_matrix(dataset.Nx)
         matrix = _lax_freidrichs_matrix_no_flux(dataset.Nx)
 
-        data = (
-            xp.to_binsparse(u_0),
-            xp.to_binsparse(matrix),
-            xp.to_binsparse(difference),
-        )
+        data = [
+            _to_binsparse(u_0),
+            _to_binsparse(matrix),
+            _to_binsparse(difference),
+        ]
 
         meta = {
             "timesteps": dataset.Nt,
             "dt": dataset.dt,
             "dx": dataset.dx,
         }
-        return data, meta
+        return DataInstance(inputs=data, meta=meta)
 
 
 class _FiniteDifferenceBenchmarkBase(Benchmark):
     @property
-    def tags(self) -> list[str]:
-        return ["simulation", "sparse"]
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return (
+            """
+            <ccs2012>
+            <concept>
+            <concept_id>10002950.10003705.10011686</concept_id>
+            <concept_desc>Mathematics of computing~"""
+            "Mathematical software performance"
+            """</concept_desc>
+            <concept_significance>500</concept_significance>
+            </concept>
+            <concept>
+            <concept_id>10010147.10010341.10010349.10010357</concept_id>
+            <concept_desc>Computing methodologies~Continuous simulation</concept_desc>
+            <concept_significance>500</concept_significance>
+            </concept>
+            <concept>
+            <concept_id>10002950.10003714.10003715.10003750</concept_id>
+            <concept_desc>Mathematics of computing~Discretization</concept_desc>
+            <concept_significance>500</concept_significance>
+            </concept>
+            </ccs2012>
+        """
+        )
 
     @property
     def authors(self) -> list[Contributor]:
@@ -194,16 +260,18 @@ class _FiniteDifferenceBenchmarkBase(Benchmark):
                     " for Nonlinear Hyperbolic PDE Solvers."
                 ),
                 authors=[
-                    Author("Laurel, J."),
-                    Author("Laguna, I."),
-                    Author("Hückelheim, J."),
+                    Author("Jacob Laurel"),
+                    Author("Ignacio Laguna"),
+                    Author("Jan Hückelheim"),
                 ],
                 journal="Proceedings of the ACM on Programming Languages",
+                publisher="Association for Computing Machinery (ACM)",
                 volume="9",
                 number="OOPSLA2",
-                pages="1063–1091",
+                pages="1063-1091",
                 year=2025,
                 url="https://doi.org/10.1145/3763088",
+                doi="10.1145/3763088",
             )
         ]
 
@@ -236,7 +304,45 @@ class _FiniteDifferenceBenchmarkBase(Benchmark):
 
     @property
     def generators(self):
-        return [FiniteDifferenceGenerator()]
+        return [FiniteDifferenceGenerator(flux=self.flux)]
+
+    def flux(self, u):
+        raise NotImplementedError
+
+    def check(self, param):
+        super().check(param)
+        result = _from_binsparse(self._output[0])
+        u0 = _from_binsparse(self._input[0])
+        dt = self._meta["dt"]
+        dx = self._meta["dx"]
+
+        assert np.allclose(result[0], u0, rtol=1e-12, atol=1e-12)
+
+        time_derivative = np.diff(result, axis=0) / dt
+        for timestep in range(time_derivative.shape[0]):
+            u_n = result[timestep]
+            flux = param.generator.flux(u_n)
+
+            neighbor_average = np.zeros_like(u_n)
+            neighbor_average[1:] += 0.5 * u_n[:-1]
+            neighbor_average[:-1] += 0.5 * u_n[1:]
+            neighbor_average[0] += 0.5 * u_n[-1]
+            neighbor_average[-1] += 0.5 * u_n[0]
+
+            flux_difference = np.zeros_like(u_n)
+            flux_difference[1:] -= flux[:-1]
+            flux_difference[:-1] += flux[1:]
+            flux_difference[0] -= flux[-1]
+            flux_difference[-1] += flux[0]
+
+            flux_derivative = flux_difference / (2 * dx)
+            smoothing_derivative = (neighbor_average - u_n) / dt
+            assert np.allclose(
+                time_derivative[timestep],
+                smoothing_derivative - flux_derivative,
+                rtol=1e-12,
+                atol=1e-12,
+            ), f"{param.dataset.name} has an inconsistent discrete derivative"
 
 
 class BurgersFiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkBase):
@@ -248,7 +354,10 @@ class BurgersFiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkBase):
     def pretty_name(self) -> str:
         return "1D Finite Difference (Burgers flux)"
 
-    def benchmark(self, data: list, meta: dict):
+    def flux(self, u):
+        return 0.5 * u * u
+
+    def benchmark(self, xp, data: list, meta: dict):
         u_0, matrix, dif = data
         timesteps = meta["timesteps"]
         dt = meta["dt"]
@@ -259,7 +368,7 @@ class BurgersFiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkBase):
         u[0] = u_0
         for n in range(Nt - 1):
             u_n = u[n]
-            f = 0.5 * u_n * u_n
+            f = self.flux(u_n)
             u_next = matrix @ u_n - alpha * (dif @ f)
             u[n + 1] = u_next
         return [u]
@@ -274,7 +383,11 @@ class BuckleyLeverettFiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkBase):
     def pretty_name(self) -> str:
         return "1D Finite Difference (Buckley-Leverett flux)"
 
-    def benchmark(self, data: list, meta: dict):
+    def flux(self, u):
+        sq = u * u
+        return sq / (sq + (0.25 * (1 - u) * (1 - u)))
+
+    def benchmark(self, xp, data: list, meta: dict):
         u_0, matrix, dif = data
         timesteps = meta["timesteps"]
         dt = meta["dt"]
@@ -285,8 +398,7 @@ class BuckleyLeverettFiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkBase):
         u[0] = u_0
         for n in range(Nt - 1):
             u_n = u[n]
-            sq = u_n * u_n
-            f = sq / (sq + (0.25 * (1 - u_n) * (1 - u_n)))
+            f = self.flux(u_n)
             u_next = matrix @ u_n - alpha * (dif @ f)
             u[n + 1] = u_next
         return [u]
@@ -303,7 +415,10 @@ class LinearAdvectionFiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkBase):
     def pretty_name(self) -> str:
         return "1D Finite Difference (Linear Advection flux)"
 
-    def benchmark(self, data: list, meta: dict):
+    def flux(self, u):
+        return self.C * u
+
+    def benchmark(self, xp, data: list, meta: dict):
         u_0, matrix, dif = data
         timesteps = meta["timesteps"]
         dt = meta["dt"]
@@ -314,7 +429,7 @@ class LinearAdvectionFiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkBase):
         u[0] = u_0
         for n in range(Nt - 1):
             u_n = u[n]
-            f = self.C * u_n
+            f = self.flux(u_n)
             u_next = matrix @ u_n - alpha * (dif @ f)
             u[n + 1] = u_next
         return [u]
