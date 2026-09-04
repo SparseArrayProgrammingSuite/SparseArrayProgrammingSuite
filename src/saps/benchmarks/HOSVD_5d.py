@@ -2,6 +2,9 @@ from typing import Any
 
 import numpy as np
 
+from binsparse import CustomTensor, ElementLevel, SparseLevel
+from binsparse.conversions import from_numpy, to_numpy
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -11,7 +14,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps_framework import BinsparseFormat
+from saps.benchmarks.frostt import fetch_frostt_tensor, frostt_tensor_shape
 
 
 class HOSVD5DDataset(Dataset):
@@ -147,9 +150,9 @@ class HOSVD5DDenseGenerator(Generator[HOSVD5DDataset]):
 
         X_dense = np.einsum("pqrst,ip,jq,kr,ls,mt->ijklm", G, A, B, C, D, E)
 
-        X_bin = BinsparseFormat.from_numpy(X_dense)
+        X_bin = from_numpy(X_dense)
 
-        ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
+        ranks_bin = from_numpy(np.array(ranks))
         return DataInstance(
             inputs=[X_bin, ranks_bin],
             meta={"max_iter": 50, "tolerance": 1e-8},
@@ -240,11 +243,151 @@ class HOSVD5DSparseGenerator(Generator[HOSVD5DDataset]):
         indices = np.nonzero(X_dense)
         values = X_dense[indices]
 
-        X_bin = BinsparseFormat.from_coo(
-            indices, values, (dim1, dim2, dim3, dim4, dim5)
+        X_bin = CustomTensor(
+            (dim1, dim2, dim3, dim4, dim5),
+            len(values),
+            level=SparseLevel(5, ElementLevel(values), indices),
         )
 
-        ranks_bin = BinsparseFormat.from_numpy(np.array(ranks))
+        ranks_bin = from_numpy(np.array(ranks))
+        return DataInstance(
+            inputs=[X_bin, ranks_bin],
+            meta={"max_iter": 50, "tolerance": 1e-8},
+        )
+
+
+class HOSVD5DFrosttDataset(Dataset):
+    def __init__(self, name, pretty_name, tensor_name, ranks, suites=None):
+        self._name = name
+        self._pretty_name = pretty_name
+        self.tensor_name = tensor_name
+        self.ranks = ranks
+        self._suites = suites or []
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return f"FROSTT tensor {self.tensor_name}, ranks = {self.ranks}."
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+
+def _hosvd_5d_frostt_dataset(tensor_name, ranks):
+    shape = frostt_tensor_shape(tensor_name)
+    assert all(r <= s for r, s in zip(ranks, shape, strict=True)), (
+        f"HOSVD ranks {ranks} exceed shape {shape} for FROSTT tensor {tensor_name}"
+    )
+    return HOSVD5DFrosttDataset(
+        name=f"hosvd_5d_frostt_{tensor_name}",
+        pretty_name=f"HOSVD 5D FROSTT {tensor_name}",
+        tensor_name=tensor_name,
+        ranks=ranks,
+    )
+
+
+class HOSVD5DFrosttGenerator(Generator[HOSVD5DFrosttDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def name(self) -> str:
+        return "hosvd_5d_frostt_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "FROSTT Sparse Tensor Generator for 5D HOSVD"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Real 5th-order sparse tensors downloaded from FROSTT (frostt.io),"
+            " decomposed directly. No dense reconstruction check is performed since"
+            " these tensors are stored in genuinely sparse (COO) form."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return ["standard"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title=(
+                    "FROSTT: The Formidable Repository of Open Sparse Tensors and Tools"
+                ),
+                authors=[
+                    Author("Shaden Smith"),
+                    Author("Jee W. Choi"),
+                    Author("Jiajia Li"),
+                    Author("Richard Vuduc"),
+                    Author("Jongsoo Park"),
+                    Author("Xing Liu"),
+                    Author("George Karypis"),
+                ],
+                url="http://frostt.io/",
+                year=2017,
+            )
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to write the HOSVD algorithm itself, which"
+            " predates this generator. This generator and its FROSTT data-fetching"
+            " were written by a generative AI assistant (Claude) at the user's"
+            " direction."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return (
+            "Real sparse tensors from FROSTT exercise HOSVD's per-mode unfolding"
+            " against genuinely irregular sparsity patterns. lbnl_network's mode"
+            " unfoldings are astronomically large (its 5th mode alone has 868,131"
+            " entries) and cannot be densified for SVD with the current algorithm;"
+            " chicago_crime_geo and vast_2015_mc1_5d are smaller but still heavy."
+        )
+
+    @property
+    def datasets(self) -> list[HOSVD5DFrosttDataset]:
+        return [
+            _hosvd_5d_frostt_dataset(tensor_name, ranks)
+            for tensor_name, ranks in [
+                ("lbnl_network", (5, 5, 5, 5, 5)),
+                ("chicago_crime_geo", (5, 5, 5, 5, 5)),
+                # vast_2015_mc1_5d's 3rd mode has only 2 entries, so its rank is capped.
+                ("vast_2015_mc1_5d", (5, 5, 2, 5, 5)),
+                ("lanl2", (5, 5, 5, 5, 5)),
+            ]
+        ]
+
+    def generate(self, dataset: HOSVD5DFrosttDataset):
+        raw = fetch_frostt_tensor(dataset.tensor_name)
+        X_bin = raw.inputs[0]
+        ranks_bin = from_numpy(np.array(dataset.ranks))
         return DataInstance(
             inputs=[X_bin, ranks_bin],
             meta={"max_iter": 50, "tolerance": 1e-8},
@@ -366,7 +509,11 @@ class HOSVD5DBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [HOSVD5DDenseGenerator(), HOSVD5DSparseGenerator()]
+        return [
+            HOSVD5DDenseGenerator(),
+            HOSVD5DSparseGenerator(),
+            HOSVD5DFrosttGenerator(),
+        ]
 
     def benchmark(self, xp, data: list, meta: dict):
         X, ranks = data
@@ -485,12 +632,9 @@ class HOSVD5DBenchmark(Benchmark):
         super().check(param)
         if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
             return
-        X = self._input[0].data["values"].reshape(self._input[0].data["shape"])
-        core = self._output[0].data["values"].reshape(self._output[0].data["shape"])
-        factors = [
-            output.data["values"].reshape(output.data["shape"])
-            for output in self._output[1:]
-        ]
+        X = to_numpy(self._input[0])
+        core = to_numpy(self._output[0])
+        factors = [to_numpy(output) for output in self._output[1:]]
         X_rec = _reconstruct_tensor(core, factors)
         error = np.linalg.norm(X - X_rec) / np.linalg.norm(X)
         assert error < 1e-5

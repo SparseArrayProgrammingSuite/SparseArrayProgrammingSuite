@@ -1,5 +1,8 @@
 import numpy as np
 
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -9,7 +12,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps_framework import BinsparseFormat
+from saps.benchmarks.frostt import fetch_frostt_tensor
 
 
 class CP3FactorizeableDataset(Dataset):
@@ -132,23 +135,174 @@ class CP3FactorizeableGenerator(Generator):
 
         X = np.einsum("ir,jr,kr->ijk", A, B, C)
         dtype = X.dtype
-        initial_A = BinsparseFormat.from_numpy(
+        initial_A = from_numpy(
             np.random.default_rng(0).random((dim1, rank)).astype(dtype)
         )
-        initial_B = BinsparseFormat.from_numpy(
+        initial_B = from_numpy(
             np.random.default_rng(0).random((dim2, rank)).astype(dtype)
         )
-        initial_C = BinsparseFormat.from_numpy(
+        initial_C = from_numpy(
             np.random.default_rng(0).random((dim3, rank)).astype(dtype)
         )
 
-        X = BinsparseFormat.from_numpy(X)
+        X = from_numpy(X)
         max_iter = dataset.max_iter
 
         return DataInstance(
             inputs=[X, initial_A, initial_B, initial_C],
             meta={"rank": rank, "max_iter": max_iter},
             ref_meta={"check_reconstruction": True, "rel_error_tol": 0.1},
+        )
+
+
+class CP3FrosttDataset(Dataset):
+    def __init__(self, name, pretty_name, tensor_name, rank, max_iter=20, suites=None):
+        self._name = name
+        self._pretty_name = pretty_name
+        self.tensor_name = tensor_name
+        self.rank = rank
+        self.max_iter = max_iter
+        self._suites = suites or []
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return f"FROSTT tensor {self.tensor_name}, rank = {self.rank}."
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+
+class CP3FrosttGenerator(Generator[CP3FrosttDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def name(self):
+        return "cp3_frostt_inputs"
+
+    @property
+    def pretty_name(self):
+        return "FROSTT Sparse Tensor Generator for CP3-ALS"
+
+    @property
+    def description(self):
+        return (
+            "Real 3rd-order sparse tensors downloaded from FROSTT (frostt.io),"
+            " factorized directly. No dense reconstruction check is performed since"
+            " these tensors are stored in genuinely sparse (COO) form."
+        )
+
+    @property
+    def suites(self):
+        return ["standard"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self):
+        return []
+
+    @property
+    def references(self):
+        return [
+            Ref(
+                title=(
+                    "FROSTT: The Formidable Repository of Open Sparse Tensors and Tools"
+                ),
+                authors=[
+                    Author("Shaden Smith"),
+                    Author("Jee W. Choi"),
+                    Author("Jiajia Li"),
+                    Author("Richard Vuduc"),
+                    Author("Jongsoo Park"),
+                    Author("Xing Liu"),
+                    Author("George Karypis"),
+                ],
+                url="http://frostt.io/",
+                year=2017,
+            )
+        ]
+
+    @property
+    def ai_disclosure(self):
+        return (
+            "No generative AI was used to write the CP-ALS algorithm itself, which"
+            " predates this generator. This generator and its FROSTT data-fetching"
+            " were written by a generative AI assistant (Claude) at the user's"
+            " direction."
+        )
+
+    @property
+    def motivation(self):
+        return (
+            "Real sparse tensors from FROSTT exercise CP-ALS's MTTKRP kernel against"
+            " genuinely irregular sparsity patterns, unlike the synthetic"
+            " low-rank-by-construction tensors generated elsewhere in this file."
+        )
+
+    @property
+    def datasets(self):
+        return [
+            CP3FrosttDataset(
+                name=f"cp3_frostt_{tensor_name}",
+                pretty_name=f"CP3 FROSTT {tensor_name}",
+                tensor_name=tensor_name,
+                rank=rank,
+                max_iter=max_iter,
+                suites=suites,
+            )
+            for tensor_name, rank, max_iter, suites in [
+                ("matmul_2_2_2", 2, 20, []),
+                ("matmul_3_3_3", 2, 20, []),
+                ("matmul_4_3_2", 2, 20, []),
+                ("matmul_4_4_3", 2, 20, []),
+                ("matmul_4_4_4", 2, 20, []),
+                ("matmul_5_5_5", 3, 20, []),
+                ("matmul_6_3_3", 3, 20, []),
+                ("nell_2", 10, 5, []),
+                ("vast_2015_mc1_3d", 10, 5, []),
+                ("nell_1", 10, 5, []),
+                ("flickr_3d", 10, 5, []),
+                ("delicious_3d", 10, 5, []),
+                ("amazon_reviews", 10, 5, []),
+                ("patents", 10, 5, []),
+                ("reddit_2015", 10, 5, []),
+                ("fb_m", 10, 5, []),
+                ("darpa", 10, 5, []),
+            ]
+        ]
+
+    def generate(self, dataset: CP3FrosttDataset):
+        raw = fetch_frostt_tensor(dataset.tensor_name)
+        X = raw.inputs[0]
+        rank = dataset.rank
+        dim1, dim2, dim3 = raw.meta["shape"]
+        dtype = to_numpy(X).dtype
+
+        rng = np.random.default_rng(0)
+        initial_A = from_numpy(rng.random((dim1, rank)).astype(dtype))
+        initial_B = from_numpy(rng.random((dim2, rank)).astype(dtype))
+        initial_C = from_numpy(rng.random((dim3, rank)).astype(dtype))
+
+        return DataInstance(
+            inputs=[X, initial_A, initial_B, initial_C],
+            meta={"rank": rank, "max_iter": dataset.max_iter},
         )
 
 
@@ -270,24 +424,23 @@ class CP3_ALS(Benchmark):
     def generators(self):
         return [
             CP3FactorizeableGenerator(),
+            CP3FrosttGenerator(),
         ]
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
 
         if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
             return
 
-        X = self._input[0].data["values"].reshape(self._input[0].data["shape"])
-        A = self._output[0].data["values"].reshape(self._output[0].data["shape"])
-        B = self._output[1].data["values"].reshape(self._output[1].data["shape"])
-        C = self._output[2].data["values"].reshape(self._output[2].data["shape"])
-        lambda_vals = (
-            self._output[3].data["values"].reshape(self._output[3].data["shape"])
-        )
+        X = to_numpy(self._input[0])
+        A = to_numpy(self._output[0])
+        B = to_numpy(self._output[1])
+        C = to_numpy(self._output[2])
+        lambda_vals = to_numpy(self._output[3])
         dim1, dim2, dim3 = X.shape
         rank = self._meta["rank"]
 

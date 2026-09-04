@@ -45,7 +45,9 @@ def _download_and_read_matrix(
     matrix_path = matrix_dir / f"{matrix.name}.mtx"
     if not matrix_path.exists():
         raise FileNotFoundError(f"Matrix file not found at {matrix_path}")
-    return matrix_dir, matrix, mmread(matrix_path).tocoo()
+    A = mmread(matrix_path).tocoo(copy=False)
+    A.sum_duplicates()
+    return matrix_dir, matrix, A
 
 
 def load_suitesparse_matrix(

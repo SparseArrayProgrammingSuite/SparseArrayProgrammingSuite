@@ -1,6 +1,10 @@
 from typing import Any
 
 import numpy as np
+import scipy.sparse as scipy_sparse
+
+from binsparse import COORMatrix
+from binsparse.conversions import to_numpy, to_scipy
 
 from saps.benchmark import (
     Author,
@@ -11,7 +15,6 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
-from saps_framework import BinsparseFormat
 
 
 def _normalize(array_api, matrix):
@@ -167,7 +170,13 @@ class MCLTestGenerator(Generator[MCLDataset]):
     def generate(self, dataset: MCLDataset):
         A = np.asarray(dataset.A)
         rows, cols = np.nonzero(A)
-        A_bin = BinsparseFormat.from_coo((rows, cols), A[rows, cols], A.shape)
+        A_bin = COORMatrix(
+            A.shape,
+            len(rows),
+            indices_0=rows,
+            indices_1=cols,
+            values=A[rows, cols],
+        )
         return DataInstance(
             inputs=[A_bin],
             meta={"expansion": 2, "inflation": 2, "loop_value": 1},
@@ -230,6 +239,11 @@ class MCLGenerator(Generator[MCLDataset]):
             MCLDataset("nos2"),
             MCLDataset("nos3"),
             MCLDataset("dwt_59"),
+            MCLDataset("gap-road"),
+            MCLDataset("gap-twitter"),
+            MCLDataset("gap-web"),
+            MCLDataset("gap-kron"),
+            MCLDataset("gap-urand"),
         ]
 
     def generate(self, dataset: MCLDataset):
@@ -377,10 +391,13 @@ class MCLBenchmark(Benchmark):
             return
         expected_count = self._ref_meta["expected_count"]
 
-        output = BinsparseFormat.to_coo(self._output[0])
-        rows = output.data["indices_0"]
-        cols = output.data["indices_1"]
-        values = output.data["values"]
+        try:
+            output = to_scipy(self._output[0]).tocoo()
+        except TypeError:
+            output = scipy_sparse.coo_array(to_numpy(self._output[0]))
+        rows = output.row
+        cols = output.col
+        values = output.data
         present = values != 0
         rows = rows[present]
         cols = cols[present]

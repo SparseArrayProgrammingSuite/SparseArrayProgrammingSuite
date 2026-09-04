@@ -30,12 +30,12 @@ def _extract_result_json(output: str) -> dict[str, Any]:
 def _test_dataset_slots(benchmark_metadata: dict[str, Any]) -> list[tuple[int, str]]:
     slots = []
     index = 0
-    benchmark_is_test = "test" in benchmark_metadata.get("suites", [])
+    benchmark_name = benchmark_metadata["name"]
     for generator in benchmark_metadata["generators"]:
-        generator_is_test = benchmark_is_test or "test" in generator.get("suites", [])
         for dataset in generator["datasets"]:
-            if generator_is_test or "test" in dataset.get("suites", []):
-                slots.append((index, f"{generator['name']}.{dataset['name']}"))
+            if "test" in dataset.get("tags", []):
+                dataset_key = f"{benchmark_name}.{generator['name']}.{dataset['name']}"
+                slots.append((index, dataset_key))
             index += 1
     return slots
 
@@ -102,8 +102,14 @@ def test_harness_test_suite_outputs_pass_for_all_test_datasets(tmp_path):
     result_json = _extract_result_json(completed.stdout)
     assert result_json["result_count"] > 0
 
-    metadata_path = tmp_path / ".saps/outputs/results/benchmarks_meta.json"
-    benchmark_metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    metadata_document = json.loads(
+        (REPO_ROOT / "metadata.json").read_text(encoding="utf-8")
+    )
+    benchmark_metadata = {
+        asv_id: record
+        for record in metadata_document["benchmarks"]
+        for asv_id in record["asv_ids"].values()
+    }
 
     failures = []
     checked = 0

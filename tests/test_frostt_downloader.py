@@ -1,0 +1,83 @@
+import gzip
+
+import numpy as np
+
+from saps.benchmarks.frostt import _TENSORS
+from saps.downloaders.frostt import _RHS_DTYPES, _parse_tns
+
+
+def _write_tns(path, contents: str) -> None:
+    with gzip.open(path, "wt", encoding="utf-8") as stream:
+        stream.write(contents)
+
+
+def test_rhs_dtype_registry_covers_every_frostt_dataset():
+    assert set(_RHS_DTYPES) == {dataset.path for dataset in _TENSORS}
+
+
+def test_rhs_dtype_registry_represents_frostt_value_kinds():
+    assert _RHS_DTYPES["flickr/flickr-4d.tns.gz"] == np.bool_
+    assert _RHS_DTYPES["reddit-2015/reddit-2015.tns.gz"] == np.int64
+    assert _RHS_DTYPES["patents/patents.tns.gz"] == np.float64
+
+
+def test_parse_tns_uses_requested_rhs_dtype_and_narrows_indices(tmp_path):
+    path = tmp_path / "small.tns.gz"
+    _write_tns(path, "1  2\t3.5\n2\t1   -4.25\n")
+
+    indices, values, shape = _parse_tns(path, np.float32)
+
+    assert shape == (2, 2)
+    assert all(index.dtype == np.int32 for index in indices)
+    assert values.dtype == np.float32
+
+
+def test_parse_tns_keeps_int64_indices_for_large_dimensions(tmp_path):
+    path = tmp_path / "large.tns.gz"
+    _write_tns(path, "2147483648 1 7.000000\n")
+
+    indices, values, shape = _parse_tns(path, np.int16)
+
+    assert shape == (2147483648, 1)
+    assert all(index.dtype == np.int64 for index in indices)
+    assert values.dtype == np.int16
+
+
+def test_parse_tns_honors_expected_shape(tmp_path):
+    path = tmp_path / "declared-shape.tns.gz"
+    _write_tns(path, "1 1 7\n")
+
+    _, _, shape = _parse_tns(path, np.int64, expected_shape=(3, 4))
+
+    assert shape == (3, 4)
+
+
+def test_parse_tns_converts_decimal_encoded_binary_values(tmp_path):
+    path = tmp_path / "binary.tns.gz"
+    _write_tns(path, "1 1 1.000000\n1 2 0.000000\n")
+
+    _, values, _ = _parse_tns(path, np.bool_)
+
+    assert values.dtype == np.bool_
+    assert values.tolist() == [True, False]
+
+
+def test_parse_tns_converts_decimal_encoded_integer_values(tmp_path):
+    path = tmp_path / "integer.tns.gz"
+    _write_tns(path, "1 1 7.000000\n1 2 -3.000000\n")
+
+    _, values, _ = _parse_tns(path, np.int64)
+
+    assert values.dtype == np.int64
+    assert values.tolist() == [7, -3]
+
+
+def test_parse_tns_preserves_large_integer_value_literals(tmp_path):
+    path = tmp_path / "large-integer-value.tns.gz"
+    value = 2**53 + 1
+    _write_tns(path, f"1 1 {value}\n")
+
+    _, values, _ = _parse_tns(path, np.int64)
+
+    assert values.dtype == np.int64
+    assert values.tolist() == [value]

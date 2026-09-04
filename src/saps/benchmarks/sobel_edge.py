@@ -3,8 +3,10 @@ from typing import Any
 
 import numpy as np
 
+from binsparse import BinsparseTensor, COORMatrix
+from binsparse.conversions import from_numpy, to_numpy
+
 from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
-from saps_framework import BinsparseFormat
 
 
 def generate_1d_sobel_matrices(Nx, Ny):
@@ -14,8 +16,12 @@ def generate_1d_sobel_matrices(Nx, Ny):
     D_x_R = np.concatenate([rows, rows])
     D_x_C = np.concatenate([cols1, cols2])
     D_x_V = np.concatenate([np.ones(Nx), -np.ones(Nx)])
-    dx_bin = BinsparseFormat.from_coo(
-        (D_x_R, D_x_C), D_x_V.astype(np.float32), (Nx, Nx)
+    dx_bin = COORMatrix(
+        (Nx, Nx),
+        len(D_x_V),
+        indices_0=D_x_R,
+        indices_1=D_x_C,
+        values=D_x_V.astype(np.float32),
     )
 
     rows = np.arange(Ny)
@@ -25,8 +31,12 @@ def generate_1d_sobel_matrices(Nx, Ny):
     S_y_R = np.concatenate([rows, rows, rows])
     S_y_C = np.concatenate([cols1, cols2, cols3])
     S_y_V = np.concatenate([np.ones(Ny), 2.0 * np.ones(Ny), np.ones(Ny)])
-    sy_bin = BinsparseFormat.from_coo(
-        (S_y_R, S_y_C), S_y_V.astype(np.float32), (Ny, Ny)
+    sy_bin = COORMatrix(
+        (Ny, Ny),
+        len(S_y_V),
+        indices_0=S_y_R,
+        indices_1=S_y_C,
+        values=S_y_V.astype(np.float32),
     )
 
     rows = np.arange(Nx)
@@ -36,8 +46,12 @@ def generate_1d_sobel_matrices(Nx, Ny):
     S_x_R = np.concatenate([rows, rows, rows])
     S_x_C = np.concatenate([cols1, cols2, cols3])
     S_x_V = np.concatenate([np.ones(Nx), 2.0 * np.ones(Nx), np.ones(Nx)])
-    sx_bin = BinsparseFormat.from_coo(
-        (S_x_R, S_x_C), S_x_V.astype(np.float32), (Nx, Nx)
+    sx_bin = COORMatrix(
+        (Nx, Nx),
+        len(S_x_V),
+        indices_0=S_x_R,
+        indices_1=S_x_C,
+        values=S_x_V.astype(np.float32),
     )
 
     rows = np.arange(Ny)
@@ -46,8 +60,12 @@ def generate_1d_sobel_matrices(Nx, Ny):
     D_y_R = np.concatenate([rows, rows])
     D_y_C = np.concatenate([cols1, cols2])
     D_y_V = np.concatenate([np.ones(Ny), -np.ones(Ny)])
-    dy_bin = BinsparseFormat.from_coo(
-        (D_y_R, D_y_C), D_y_V.astype(np.float32), (Ny, Ny)
+    dy_bin = COORMatrix(
+        (Ny, Ny),
+        len(D_y_V),
+        indices_0=D_y_R,
+        indices_1=D_y_C,
+        values=D_y_V.astype(np.float32),
     )
 
     return dx_bin, sy_bin, sx_bin, dy_bin
@@ -223,7 +241,7 @@ class MRISobelTestGenerator(Generator[MRISobelDataset]):
         return DataInstance(
             inputs=problem.inputs,
             meta=problem.meta,
-            ref_outputs=[BinsparseFormat.from_numpy(expected)],
+            ref_outputs=[from_numpy(expected)],
             ref_meta=dataset.ref_meta,
         )
 
@@ -314,10 +332,8 @@ class MRISobelGenerator(Generator[MRISobelDataset]):
         else:
             img_array = np.array(dataset.image, dtype=np.float32)
 
-        image_bin = BinsparseFormat.from_numpy(img_array)
-        threshold_bin = BinsparseFormat.from_numpy(
-            np.array(dataset.threshold_val, dtype=np.float32)
-        )
+        image_bin = from_numpy(img_array)
+        threshold_bin = from_numpy(np.array(dataset.threshold_val, dtype=np.float32))
 
         Nx, Ny = img_array.shape
         dx_bin, sy_bin, sx_bin, dy_bin = generate_1d_sobel_matrices(Nx, Ny)
@@ -417,18 +433,14 @@ class MRISobelEdgeBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
         if self._ref_outputs is None:
             return
 
-        actual = self._output[0].data["values"].reshape(self._output[0].data["shape"])
-        expected = (
-            self._ref_outputs[0]
-            .data["values"]
-            .reshape(self._ref_outputs[0].data["shape"])
-        )
+        actual = to_numpy(self._output[0])
+        expected = to_numpy(self._ref_outputs[0])
 
         assert self._meta == {}
         assert actual.shape == expected.shape
@@ -437,5 +449,5 @@ class MRISobelEdgeBenchmark(Benchmark):
         if self._ref_meta is None:
             return
         assert len(self._input) == self._ref_meta["input_count"]
-        assert tuple(self._input[0].data["shape"]) == self._ref_meta["image_shape"]
-        assert self._input[-1].data["values"].item() == self._ref_meta["threshold"]
+        assert tuple(self._input[0].shape) == self._ref_meta["image_shape"]
+        assert to_numpy(self._input[-1]).item() == self._ref_meta["threshold"]

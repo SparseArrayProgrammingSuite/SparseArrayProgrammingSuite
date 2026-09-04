@@ -1,5 +1,7 @@
 import numpy as np
 
+from binsparse.conversions import from_numpy, to_numpy
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -9,7 +11,6 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps_framework import BinsparseFormat
 
 
 class TransitiveReductionDataset(Dataset):
@@ -118,9 +119,9 @@ class TransitiveReductionTestGenerator(Generator[TransitiveReductionDataset]):
         for i, j, value in dataset.expected_edges:
             expected[i, j] = value
         return DataInstance(
-            inputs=[BinsparseFormat.from_numpy(R)],
+            inputs=[from_numpy(R)],
             meta={"x": 1, "max_iters": 5},
-            ref_outputs=[BinsparseFormat.from_numpy(expected)],
+            ref_outputs=[from_numpy(expected)],
         )
 
 
@@ -257,10 +258,6 @@ class TransitiveReductionBenchmark(Benchmark):
 
     def check(self, param):
         super().check(param)
-        expected = (
-            self._ref_outputs[0]
-            .data["values"]
-            .reshape(self._ref_outputs[0].data["shape"])
-        )
-        actual = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        expected = to_numpy(self._ref_outputs[0])
+        actual = to_numpy(self._output[0])
         assert np.array_equal(actual, expected)

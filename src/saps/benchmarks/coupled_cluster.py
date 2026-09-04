@@ -1,5 +1,7 @@
 import numpy as np
 
+from binsparse.conversions import from_numpy, to_numpy
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -9,7 +11,6 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps_framework.binsparse_format import BinsparseFormat
 
 
 def _as2d_full(xp, F):
@@ -52,7 +53,7 @@ def _ctf_rand(shape, tensor_id, multiplier=16):
     """NS fill: all elements independent, matching CTF fill_rand."""
     idx = _ctf_col_major_idx(shape)
     values = ((idx * multiplier + tensor_id) % 13077) / 13077.0 - 0.5
-    return BinsparseFormat.from_numpy(values)
+    return from_numpy(values)
 
 
 def _make_as2d(shape, tensor_id, multiplier=16):
@@ -68,7 +69,7 @@ def _make_as2d(shape, tensor_id, multiplier=16):
     canon = np.arange(d0)[:, None] < np.arange(d1)[None, :]
     result = np.where(canon, vals, 0.0)
     result = result - result.T
-    return BinsparseFormat.from_numpy(result)
+    return from_numpy(result)
 
 
 def _make_asns_asns(shape, tensor_id, multiplier=16):
@@ -87,7 +88,7 @@ def _make_asns_asns(shape, tensor_id, multiplier=16):
     result = np.where(canon, vals, 0.0)
     result = result - result.transpose(1, 0, 2, 3)
     result = result - result.transpose(0, 1, 3, 2)
-    return BinsparseFormat.from_numpy(result)
+    return from_numpy(result)
 
 
 def _make_asns_nsns(shape, tensor_id, multiplier=16):
@@ -102,7 +103,7 @@ def _make_asns_nsns(shape, tensor_id, multiplier=16):
     canon = np.arange(d0)[:, None, None, None] < np.arange(d1)[None, :, None, None]
     result = np.where(canon, vals, 0.0)
     result = result - result.transpose(1, 0, 2, 3)
-    return BinsparseFormat.from_numpy(result)
+    return from_numpy(result)
 
 
 def _make_nsns_asns(shape, tensor_id, multiplier=16):
@@ -117,7 +118,7 @@ def _make_nsns_asns(shape, tensor_id, multiplier=16):
     canon = np.arange(d2)[None, None, :, None] < np.arange(d3)[None, None, None, :]
     result = np.where(canon, vals, 0.0)
     result = result - result.transpose(0, 1, 3, 2)
-    return BinsparseFormat.from_numpy(result)
+    return from_numpy(result)
 
 
 def make_ccsd_inputs(no, nv):
@@ -173,8 +174,8 @@ def make_ccsd_inputs(no, nv):
         Vaeim_b,
         T1_b,
         T2_b,
-        BinsparseFormat.from_numpy(D1),
-        BinsparseFormat.from_numpy(D2),
+        from_numpy(D1),
+        from_numpy(D2),
     )
 
 
@@ -343,7 +344,7 @@ class CCSDGenerator(Generator[CCSDDataset]):
                 suites=["test", "trace"],
                 no=4,
                 nv=6,
-                ref_outputs=[BinsparseFormat.from_numpy(np.array(380638.269079))],
+                ref_outputs=[from_numpy(np.array(380638.269079))],
             ),
             CCSDDataset(
                 name="ccsd_medium",
@@ -609,13 +610,9 @@ class CCSD(Benchmark):
         if self._ref_outputs is None:
             return
 
-        reference_norm = (
-            self._ref_outputs[0]
-            .data["values"]
-            .reshape(self._ref_outputs[0].data["shape"])[()]
-        )
-        T1_out = self._output[0].data["values"].reshape(self._output[0].data["shape"])
-        T2_out = self._output[1].data["values"].reshape(self._output[1].data["shape"])
+        reference_norm = to_numpy(self._ref_outputs[0])[()]
+        T1_out = to_numpy(self._output[0])
+        T2_out = to_numpy(self._output[1])
         assert T1_out.shape == (6, 4)
         assert T2_out.shape == (6, 6, 4, 4)
 

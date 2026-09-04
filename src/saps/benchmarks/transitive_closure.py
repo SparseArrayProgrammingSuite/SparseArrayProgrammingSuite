@@ -1,5 +1,8 @@
 import numpy as np
 
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -9,8 +12,9 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 from saps.downloaders.snap import download_snap_dataset
-from saps_framework import BinsparseFormat
+from saps_framework.binsparse_utils import binsparse_equal
 
 
 class TransitiveClosureDataset(Dataset):
@@ -128,9 +132,9 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
                 dtype=bool,
             )
             return DataInstance(
-                inputs=[BinsparseFormat.from_numpy(A)],
+                inputs=[from_numpy(A)],
                 meta={},
-                ref_outputs=[BinsparseFormat.from_numpy(expected)],
+                ref_outputs=[from_numpy(expected)],
             )
 
         if dataset.name == "strong-component-count":
@@ -148,7 +152,7 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
                 dtype=bool,
             )
             return DataInstance(
-                inputs=[BinsparseFormat.from_numpy(A)],
+                inputs=[from_numpy(A)],
                 meta={},
                 ref_meta={"strong_component_count": 4},
             )
@@ -166,9 +170,9 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
             raise ValueError(f"Unsupported test dataset: {dataset.name}")
 
         return DataInstance(
-            inputs=[BinsparseFormat.from_numpy(A)],
+            inputs=[from_numpy(A)],
             meta={},
-            ref_outputs=[BinsparseFormat.from_numpy(expected)],
+            ref_outputs=[from_numpy(expected)],
         )
 
 
@@ -239,6 +243,121 @@ class TransitiveClosureGenerator(Generator[TransitiveClosureDataset]):
         if dataset.name.startswith("snap"):
             inputs, meta = download_snap_dataset(dataset.name)
             return DataInstance(inputs=inputs, meta=meta)
+        raise ValueError(f"Unsupported transitive closure dataset: {dataset.name}")
+
+
+class TransitiveClosureGAPGenerator(Generator[TransitiveClosureDataset]):
+    @property
+    def name(self) -> str:
+        return "transitive_closure_gap_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Transitive Closure GAP Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Input GAP generator for transitive closure benchmarks."
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="The GAP Benchmark Suite",
+                authors=[
+                    Author("Scott Beamer"),
+                    Author("Krste Asanović"),
+                    Author("David Patterson"),
+                ],
+                url="https://arxiv.org/abs/1508.03619",
+                year=2015,
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Generate GAP directed graph inputs for transitive closure."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[TransitiveClosureDataset]:
+        return [
+            TransitiveClosureDataset(
+                name="gap-road",
+                pretty_name="GAP Road",
+                description=(
+                    "Directed roads with weights in the US, with 23.9M nodes and"
+                    " 58.3M edges."
+                ),
+                suites=[],
+            ),
+            TransitiveClosureDataset(
+                name="gap-twitter",
+                pretty_name="GAP Twitter",
+                description=(
+                    "Directed weighted social network topology of Twitter, with 61.6M"
+                    " nodes and 1,468.4M edges."
+                ),
+                suites=[],
+            ),
+            TransitiveClosureDataset(
+                name="gap-web",
+                pretty_name="GAP Web",
+                description=(
+                    "A web-crawl of the .sk domain, directed and weighted, with 50.6M"
+                    " nodes and 1,949.4M edges."
+                ),
+                suites=[],
+            ),
+            TransitiveClosureDataset(
+                name="gap-kron",
+                pretty_name="GAP Kron",
+                description=(
+                    "Symmetric random undirected weighted graph generated by"
+                    " Kronecker synthetic graph generator with parameters"
+                    " (A=0.57, B=C=0.19, D=0.05). Has 134.2M nodes and 2,111.6M"
+                    " edges."
+                ),
+                suites=[],
+            ),
+            TransitiveClosureDataset(
+                name="gap-urand",
+                pretty_name="GAP Urand",
+                description=(
+                    "Symmetric random undirected weighted graph generated by"
+                    " Erdos–Reyni model (Uniform Random) with 134.2M nodes and"
+                    " 2,147.4M edges."
+                ),
+                suites=[],
+            ),
+        ]
+
+    def generate(self, dataset: TransitiveClosureDataset) -> DataInstance:
+        if dataset.name.startswith("gap"):
+            raw = fetch_suitesparse_matrix(dataset.name)
+            return DataInstance(inputs=[raw.inputs[0]], meta=raw.meta)
         raise ValueError(f"Unsupported transitive closure dataset: {dataset.name}")
 
 
@@ -326,7 +445,11 @@ class TransitiveClosureBenchmark(Benchmark):
 
     @property
     def generators(self) -> list[Generator[TransitiveClosureDataset]]:
-        return [TransitiveClosureGenerator(), TransitiveClosureTestGenerator()]
+        return [
+            TransitiveClosureGenerator(),
+            TransitiveClosureTestGenerator(),
+            TransitiveClosureGAPGenerator(),
+        ]
 
     def benchmark(self, xp, data, meta):
         edges = data[0]
@@ -352,16 +475,16 @@ class TransitiveClosureBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
         if self._ref_outputs is not None:
-            assert self._output[0] == self._ref_outputs[0], (
+            assert binsparse_equal(self._output[0], self._ref_outputs[0]), (
                 f"Transitive closure mismatch for {param.dataset.name}"
             )
         if self._ref_meta and "strong_component_count" in self._ref_meta:
             output = self._output[0]
-            matrix = output.data["values"].reshape(output.data["shape"])
+            matrix = to_numpy(output)
             visited_set = set()
             count = 0
             for i in range(matrix.shape[0]):
