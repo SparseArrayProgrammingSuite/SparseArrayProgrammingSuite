@@ -1,5 +1,8 @@
 import numpy as np
 
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -10,7 +13,6 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.frostt import fetch_frostt_tensor
-from saps_framework import BinsparseFormat
 
 
 class CP4FactorizeableDataset(Dataset):
@@ -136,20 +138,20 @@ class CP4FactorizeableGenerator(Generator):
 
         X = np.einsum("ir,jr,kr,lr->ijkl", A, B, C, D)
         dtype = X.dtype
-        initial_A = BinsparseFormat.from_numpy(
+        initial_A = from_numpy(
             np.random.default_rng(0).random((dim1, rank)).astype(dtype)
         )
-        initial_B = BinsparseFormat.from_numpy(
+        initial_B = from_numpy(
             np.random.default_rng(0).random((dim2, rank)).astype(dtype)
         )
-        initial_C = BinsparseFormat.from_numpy(
+        initial_C = from_numpy(
             np.random.default_rng(0).random((dim3, rank)).astype(dtype)
         )
-        initial_D = BinsparseFormat.from_numpy(
+        initial_D = from_numpy(
             np.random.default_rng(0).random((dim4, rank)).astype(dtype)
         )
 
-        X = BinsparseFormat.from_numpy(X)
+        X = from_numpy(X)
         max_iter = dataset.max_iter
 
         return DataInstance(
@@ -287,13 +289,13 @@ class CP4FrosttGenerator(Generator[CP4FrosttDataset]):
         X = raw.inputs[0]
         rank = dataset.rank
         dim1, dim2, dim3, dim4 = raw.meta["shape"]
-        dtype = X.data["values"].dtype
+        dtype = to_numpy(X).dtype
 
         rng = np.random.default_rng(0)
-        initial_A = BinsparseFormat.from_numpy(rng.random((dim1, rank)).astype(dtype))
-        initial_B = BinsparseFormat.from_numpy(rng.random((dim2, rank)).astype(dtype))
-        initial_C = BinsparseFormat.from_numpy(rng.random((dim3, rank)).astype(dtype))
-        initial_D = BinsparseFormat.from_numpy(rng.random((dim4, rank)).astype(dtype))
+        initial_A = from_numpy(rng.random((dim1, rank)).astype(dtype))
+        initial_B = from_numpy(rng.random((dim2, rank)).astype(dtype))
+        initial_C = from_numpy(rng.random((dim3, rank)).astype(dtype))
+        initial_D = from_numpy(rng.random((dim4, rank)).astype(dtype))
 
         return DataInstance(
             inputs=[X, initial_A, initial_B, initial_C, initial_D],
@@ -428,21 +430,19 @@ class CP4_ALS(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
 
         if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
             return
 
-        X = self._input[0].data["values"].reshape(self._input[0].data["shape"])
-        A = self._output[0].data["values"].reshape(self._output[0].data["shape"])
-        B = self._output[1].data["values"].reshape(self._output[1].data["shape"])
-        C = self._output[2].data["values"].reshape(self._output[2].data["shape"])
-        D = self._output[3].data["values"].reshape(self._output[3].data["shape"])
-        lambda_vals = (
-            self._output[4].data["values"].reshape(self._output[4].data["shape"])
-        )
+        X = to_numpy(self._input[0])
+        A = to_numpy(self._output[0])
+        B = to_numpy(self._output[1])
+        C = to_numpy(self._output[2])
+        D = to_numpy(self._output[3])
+        lambda_vals = to_numpy(self._output[4])
         dim1, dim2, dim3, dim4 = X.shape
         rank = self._meta["rank"]
 

@@ -9,7 +9,8 @@ from typing import IO
 
 import numpy as np
 
-from saps_framework.binsparse_format import BinsparseFormat
+from binsparse import BinsparseTensor, COORMatrix
+from binsparse.conversions import from_numpy
 
 SNAP_DATA_BASE_URL = "https://snap.stanford.edu/data"
 
@@ -20,7 +21,7 @@ def download_snap_dataset(
     data_dir: str | Path | None = None,
     directed: bool = True,
     remap_nodes: bool = True,
-) -> tuple[list[BinsparseFormat], dict]:
+) -> tuple[list[BinsparseTensor], dict]:
     """Download a SNAP edge-list dataset and return a sparse adjacency matrix.
 
     ``dataset_name`` may be a plain SNAP slug such as ``facebook_combined`` or a
@@ -48,7 +49,7 @@ def download_snap_dataset(
 
 def load_toy_dataset(
     data_dir: str | Path | None = None,
-) -> tuple[list[BinsparseFormat], dict]:
+) -> tuple[list[BinsparseTensor], dict]:
     root = Path(data_dir) if data_dir is not None else _default_data_dir()
     dataset_dir = root / "toy"
     dataset_dir.mkdir(parents=True, exist_ok=True)
@@ -84,7 +85,7 @@ def parse_snap_edge_list(
     *,
     directed: bool = True,
     remap_nodes: bool = True,
-) -> tuple[BinsparseFormat, BinsparseFormat, dict]:
+) -> tuple[BinsparseTensor, BinsparseTensor, dict]:
     """Parse a SNAP ``.txt`` or ``.txt.gz`` edge list into binsparse COO."""
     path = Path(path)
     edges = _read_edges(path)
@@ -113,8 +114,14 @@ def parse_snap_edge_list(
         node_count = int(max(rows.max(), cols.max())) + 1
 
     values = np.ones(rows.shape, dtype=bool)
-    adjacency = BinsparseFormat.from_coo((rows, cols), values, (node_count, node_count))
-    raw_node_ids = BinsparseFormat.from_numpy(raw_node_ids_array)
+    adjacency = COORMatrix(
+        (node_count, node_count),
+        len(values),
+        indices_0=rows,
+        indices_1=cols,
+        values=values,
+    )
+    raw_node_ids = from_numpy(raw_node_ids_array)
     meta = {
         "directed": directed,
         "num_nodes": node_count,

@@ -1,11 +1,10 @@
-import numpy as np
-
 import array_api_compat
 import array_api_compat.torch as torch_xp
 import torch
 import torch._dynamo
+from binsparse.conversions import from_torch, to_torch
 
-from saps_framework import BinsparseFormat, Framework, einsum
+from saps_framework import Framework, einsum
 
 torch._dynamo.config.suppress_errors = True
 
@@ -46,49 +45,15 @@ class PytorchFramework(Framework):
         return PytorchLinalg
 
     def from_binsparse(self, array):
-        if array.data["format"] == "dense":
-            values = np.asarray(array.data["values"]).copy()
-            return torch.from_numpy(values.reshape(array.data["shape"]))
-        if array.data["format"] == "COO":
-            indices = []
-            idx_dim = 0
-            while "indices_" + str(idx_dim) in array.data:
-                indices.append(array.data["indices_" + str(idx_dim)])
-                idx_dim += 1
-
-            values = np.asarray(array.data["values"]).copy()
-            coo = torch.sparse_coo_tensor(
-                torch.from_numpy(np.stack(indices).astype(np.int64, copy=True)),
-                torch.from_numpy(values),
-                size=array.data["shape"],
-            ).coalesce()
-
-            if self.sparse_layout == "CSR":
-                if len(array.data["shape"]) != 2:
-                    raise ValueError("PyTorch CSR only works for 2D matrices")
-                return coo.to_sparse_csr()
-
-            return coo
-
-        raise ValueError("Unsupported format: " + array.data["format"])
+        result = to_torch(array)
+        if self.sparse_layout == "CSR" and result.layout == torch.sparse_coo:
+            if result.ndim != 2:
+                raise ValueError("PyTorch CSR only works for 2D matrices")
+            return result.to_sparse_csr()
+        return result
 
     def to_binsparse(self, array):
-        t = array.detach().cpu()
-        if t.layout == torch.sparse_coo:
-            coo = t.coalesce()
-            indices_tuple = tuple(coo.indices().numpy())
-            return BinsparseFormat.from_coo(
-                indices_tuple, coo.values().resolve_conj().numpy(), tuple(coo.shape)
-            )
-        if t.layout == torch.sparse_csr:
-            coo = t.to_sparse_coo().coalesce()
-            indices_tuple = tuple(coo.indices().numpy())
-            return BinsparseFormat.from_coo(
-                indices_tuple, coo.values().resolve_conj().numpy(), tuple(coo.shape)
-            )
-        if t.layout == torch.strided:
-            return BinsparseFormat.from_numpy(t.resolve_conj().numpy())
-        raise TypeError(f"Unsupported PyTorch layout: {t.layout}")
+        return from_torch(array.detach().cpu())
 
     def lazy(self, array):
         return array

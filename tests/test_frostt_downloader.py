@@ -43,11 +43,41 @@ def test_parse_tns_keeps_int64_indices_for_large_dimensions(tmp_path):
     assert values.dtype == np.int16
 
 
+def test_parse_tns_honors_expected_shape(tmp_path):
+    path = tmp_path / "declared-shape.tns.gz"
+    _write_tns(path, "1 1 7\n")
+
+    _, _, shape = _parse_tns(path, np.int64, expected_shape=(3, 4))
+
+    assert shape == (3, 4)
+
+
 def test_parse_tns_converts_decimal_encoded_binary_values(tmp_path):
     path = tmp_path / "binary.tns.gz"
-    _write_tns(path, "1 1 1.000000\n")
+    _write_tns(path, "1 1 1.000000\n1 2 0.000000\n")
 
     _, values, _ = _parse_tns(path, np.bool_)
 
     assert values.dtype == np.bool_
-    assert values.tolist() == [True]
+    assert values.tolist() == [True, False]
+
+
+def test_parse_tns_converts_decimal_encoded_integer_values(tmp_path):
+    path = tmp_path / "integer.tns.gz"
+    _write_tns(path, "1 1 7.000000\n1 2 -3.000000\n")
+
+    _, values, _ = _parse_tns(path, np.int64)
+
+    assert values.dtype == np.int64
+    assert values.tolist() == [7, -3]
+
+
+def test_parse_tns_preserves_large_integer_value_literals(tmp_path):
+    path = tmp_path / "large-integer-value.tns.gz"
+    value = 2**53 + 1
+    _write_tns(path, f"1 1 {value}\n")
+
+    _, values, _ = _parse_tns(path, np.int64)
+
+    assert values.dtype == np.int64
+    assert values.tolist() == [value]

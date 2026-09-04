@@ -1,6 +1,6 @@
 import os
 
-import requests
+import requests  # type: ignore[import-untyped]
 from ssgetpy import bundle
 from tqdm.auto import tqdm
 

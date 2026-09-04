@@ -1,5 +1,8 @@
 import numpy as np
 
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -11,7 +14,6 @@ from saps.benchmark import (
 )
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 from saps.downloaders.snap import download_snap_dataset
-from saps_framework import BinsparseFormat
 
 
 class ConnectedComponentsDataset(Dataset):
@@ -158,7 +160,7 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
             raise ValueError("Connected-components test datasets must define A.")
 
         return DataInstance(
-            inputs=[BinsparseFormat.from_numpy(dataset.A)],
+            inputs=[from_numpy(dataset.A)],
             meta={},
             ref_meta=dataset.ref_meta,
         )
@@ -487,12 +489,12 @@ class SimplyConnectedComponentsBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
         if not self._ref_meta:
             return
-        labels = self._output[0].data["values"].reshape(self._output[0].data["shape"])
+        labels = to_numpy(self._output[0])
         if "component_count" in self._ref_meta:
             assert len(set(labels.tolist())) == self._ref_meta["component_count"]
         if "shape" in self._ref_meta:

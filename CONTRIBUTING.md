@@ -112,7 +112,7 @@ def concepts(self) -> str:
     """
 ```
 
-Manual suite tags are written to `metadata.json` under `suites`. Topic tags generated from ACM CCS XML are written under `topics`. Trace-derived tags are written to the parallel `statistics.json` hierarchy.
+Manual suite tags are written to `metadata.json` under `suites`. Topic tags generated from ACM CCS XML are written under `topics`. Generated `tags` combine suites, topics, inherited parent tags, and any fresh trace-derived statistics tags folded in during metadata generation.
 
 ## Problem Quality Tags
 
@@ -140,7 +140,7 @@ SAPS records freshness so generated artifacts can be checked against the code th
 - The source file containing the benchmark, generator, or dataset class.
 - The hash of local source files imported by that class.
 - External dependency module names.
-- Installed dependency versions recorded in `dependency_versions`.
+- External dependency names and installed dependency versions in the freshness hash.
 
 Freshness is checked for:
 
@@ -152,8 +152,9 @@ Freshness is checked for:
 After changing benchmark code, generator code, metadata, dependency imports, or storage behavior, regenerate the affected artifacts:
 
 ```bash
-poetry run ./bin/run_benchmark.py --generate-metadata
+poetry run ./bin/generate_metadata.py
 poetry run ./bin/run_benchmark.py --trace-statistics --tag trace --timeout 30 --show-stderr
+poetry run ./bin/generate_metadata.py --statistics statistics.json
 poetry run ./bin/run_benchmark.py --cache-datasets
 ```
 
@@ -164,19 +165,20 @@ Do not edit freshness hashes by hand.
 The repository has a manually dispatched GitHub Actions workflow named `refresh`
 that can regenerate the large derived artifacts in CI. We typically use it
 before publishing a version, to stay in sync with changes to benchmark metadata,
-trace behavior, generator output, dataset freshness, dependency versions, or
+trace behavior, generator output, dependency-sensitive freshness, or
 storage behavior enough that local regeneration is inconvenient or likely to
 differ from CI.
 
 The refresh workflow does three things:
 
-- Builds `metadata.json` once and shares it with later jobs.
+- Builds `metadata.json` once for filtering and again after tracing to fold in fresh statistics tags.
 - Runs trace statistics in four chunks, then merges the chunks into `statistics.json`.
 - Runs dataset caching/upload in four chunks, then merges the chunks into `manifest.json`.
 
 The data jobs use the configured S3 backend and bucket from `.github/workflows/refresh.yml`. Public dataset reads do not need credentials, but uploads do need the repository AWS secrets. The workflow uploads generated JSON as GitHub Actions artifacts:
 
 - `saps-metadata`: generated `metadata.json`.
+- `saps-metadata-final`: generated `metadata.json` with fresh statistics tags folded in.
 - `saps-statistics-final`: merged `statistics.json`.
 - `saps-manifest-final`: merged `manifest.json`.
 
@@ -198,7 +200,7 @@ REMOTE_STORAGE_BUCKET=sparse-array-programming-suite \
 poetry run ./bin/run_benchmark.py --cache-datasets
 ```
 
-Dataset digests should be content hashes of serialized data. Freshness records and dependency versions belong in manifest metadata; they should not force a new remote object when the data bytes have not changed.
+Dataset digests should be content hashes of serialized data. Freshness records belong in manifest metadata; they should not force a new remote object when the data bytes have not changed.
 
 ## Tracing
 

@@ -2,6 +2,9 @@ from typing import Any, cast
 
 import numpy as np
 
+from binsparse import BinsparseTensor, COORMatrix
+from binsparse.conversions import from_numpy, to_numpy, to_scipy
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -11,20 +14,13 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
-from saps_framework import BinsparseFormat
 
 
 def _from_binsparse(array):
-    if array.data["format"] == "dense":
-        return array.data["values"].reshape(array.data["shape"])
-    if array.data["format"] == "COO":
-        shape = array.data["shape"]
-        indices = tuple(array.data[f"indices_{dim}"] for dim in range(len(shape)))
-        values = array.data["values"]
-        dense = np.zeros(shape, dtype=values.dtype)
-        dense[indices] = values
-        return dense
-    raise ValueError(f"Unsupported format: {array.data['format']}")
+    try:
+        return to_numpy(array)
+    except TypeError:
+        return to_scipy(array).toarray()
 
 
 def _gcn_loss(adjacency, features, weights1, bias1, weights2, bias2, targets):
@@ -286,14 +282,14 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
 
         return DataInstance(
             inputs=[
-                BinsparseFormat.from_numpy(adjacency),
-                BinsparseFormat.from_numpy(adjacency.T),
-                BinsparseFormat.from_numpy(features),
-                BinsparseFormat.from_numpy(weights1),
-                BinsparseFormat.from_numpy(bias1),
-                BinsparseFormat.from_numpy(weights2),
-                BinsparseFormat.from_numpy(bias2),
-                BinsparseFormat.from_numpy(targets),
+                from_numpy(adjacency),
+                from_numpy(adjacency.T),
+                from_numpy(features),
+                from_numpy(weights1),
+                from_numpy(bias1),
+                from_numpy(weights2),
+                from_numpy(bias2),
+                from_numpy(targets),
             ],
             meta={
                 "num_iterations": dataset.num_iterations,
@@ -482,7 +478,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
         out_dim = dataset.out_dim
 
         raw = fetch_suitesparse_matrix(dataset.source_name)
-        coo = BinsparseFormat.to_coo(raw.inputs[0])
+        coo = to_scipy(raw.inputs[0]).tocoo()
         rng = np.random.default_rng(0)
 
         # Create feature/weight arrays using the RNG (deterministic)
@@ -494,18 +490,30 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
         bias2 = np.zeros((out_dim,), dtype=np.float32)
         targets = rng.standard_normal((n, out_dim), dtype=np.float32)
 
-        row, col = coo.data["indices_0"], coo.data["indices_1"]
-        shape = coo.data["shape"]
-        values_f32 = coo.data["values"].astype(np.float32, copy=False)
-        A_bin = BinsparseFormat.from_coo((row, col), values_f32, shape)
+        row, col = coo.row, coo.col
+        shape = coo.shape
+        values_f32 = coo.data.astype(np.float32, copy=False)
+        A_bin = COORMatrix(
+            shape,
+            len(values_f32),
+            indices_0=row,
+            indices_1=col,
+            values=values_f32,
+        )
         # Transpose of a COO matrix is its indices swapped; same values, shape reversed.
-        A_T_bin = BinsparseFormat.from_coo((col, row), values_f32, (shape[1], shape[0]))
-        features_b = BinsparseFormat.from_numpy(features)
-        weights1_b = BinsparseFormat.from_numpy(weights1)
-        bias1_b = BinsparseFormat.from_numpy(bias1)
-        weights2_b = BinsparseFormat.from_numpy(weights2)
-        bias2_b = BinsparseFormat.from_numpy(bias2)
-        targets_b = BinsparseFormat.from_numpy(targets)
+        A_T_bin = COORMatrix(
+            (shape[1], shape[0]),
+            len(values_f32),
+            indices_0=col,
+            indices_1=row,
+            values=values_f32,
+        )
+        features_b = from_numpy(features)
+        weights1_b = from_numpy(weights1)
+        bias1_b = from_numpy(bias1)
+        weights2_b = from_numpy(weights2)
+        bias2_b = from_numpy(bias2)
+        targets_b = from_numpy(targets)
         return DataInstance(
             inputs=[
                 A_bin,
@@ -652,7 +660,7 @@ Each iteration:
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
 
@@ -711,21 +719,21 @@ Each iteration:
     ----
     xp : array_api
         Array API module (e.g. numpy, cupy, torch)
-    adjacency_bench : BinsparseFormat
+    adjacency_bench : BinsparseTensor
         Sparse adjacency matrix A (N x N)
-    adjacency_T_bench : BinsparseFormat
+    adjacency_T_bench : BinsparseTensor
         Sparse transposed adjacency matrix A.T (N x N)
-    features_bench : BinsparseFormat
+    features_bench : BinsparseTensor
         Node feature matrix X (N x F)
-    weights1_bench : BinsparseFormat
+    weights1_bench : BinsparseTensor
         Initial weights for first GCN layer W1 (F x H)
-    bias1_bench : BinsparseFormat
+    bias1_bench : BinsparseTensor
         Initial bias for first GCN layer b1 (H,)
-    weights2_bench : BinsparseFormat
+    weights2_bench : BinsparseTensor
         Initial weights for second GCN layer W2 (H x O)
-    bias2_bench : BinsparseFormat
+    bias2_bench : BinsparseTensor
         Initial bias for second GCN layer b2 (O,)
-    targets_bench : BinsparseFormat
+    targets_bench : BinsparseTensor
         Target values T (N x O) for MSE loss
     num_iterations : int
         Number of training iterations (default 10)

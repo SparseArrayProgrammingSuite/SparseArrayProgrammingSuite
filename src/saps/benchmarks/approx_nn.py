@@ -2,6 +2,9 @@ import logging
 
 import numpy as np
 
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, from_scipy, to_numpy
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -11,7 +14,6 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps_framework import BinsparseFormat
 
 
 class JLApproxNNRandomDataset(Dataset):
@@ -301,19 +303,12 @@ class JLApproxNNGenerator(Generator[JLApproxNNRandomDataset]):
         projection_matrix = (U_Neg + U_Pos).tocoo()
 
         meta = {"k": dataset.k, "eps": dataset.eps}
-        P = BinsparseFormat.from_coo(
-            (
-                projection_matrix.row,
-                projection_matrix.col,
-            ),
-            projection_matrix.data,
-            projection_matrix.shape,
-        )
+        P = from_scipy(projection_matrix)
 
         return DataInstance(
             inputs=[
-                BinsparseFormat.from_numpy(data),
-                BinsparseFormat.from_numpy(query),
+                from_numpy(data),
+                from_numpy(query),
                 P,
             ],
             meta=meta,
@@ -860,17 +855,15 @@ Nearest neighbor algorithms</concept_desc>
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
         if not self._ref_meta:
             return
 
-        data = self._input[0].data["values"].reshape(self._input[0].data["shape"])
-        query = self._input[1].data["values"].reshape(self._input[1].data["shape"])
-        nearest_ind = (
-            self._output[0].data["values"].reshape(self._output[0].data["shape"])
-        )
+        data = to_numpy(self._input[0])
+        query = to_numpy(self._input[1])
+        nearest_ind = to_numpy(self._output[0])
 
         diff = np.expand_dims(query, axis=1) - np.expand_dims(data, axis=0)
         orig_distances = np.sqrt(np.sum(diff**2, axis=-1))

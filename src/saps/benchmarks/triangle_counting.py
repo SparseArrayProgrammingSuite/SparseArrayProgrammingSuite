@@ -1,5 +1,8 @@
 import numpy as np
 
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, to_numpy
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -11,7 +14,6 @@ from saps.benchmark import (
 )
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 from saps.downloaders.snap import download_snap_dataset
-from saps_framework import BinsparseFormat
 
 
 class GraphCountingDataset(Dataset):
@@ -159,9 +161,9 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
         if dataset.A is None or dataset.expected is None:
             raise ValueError("Triangle-count test datasets must define A and expected.")
         return DataInstance(
-            inputs=[BinsparseFormat.from_numpy(dataset.A)],
+            inputs=[from_numpy(dataset.A)],
             meta={},
-            ref_outputs=[BinsparseFormat.from_numpy(dataset.expected)],
+            ref_outputs=[from_numpy(dataset.expected)],
         )
 
 
@@ -494,15 +496,11 @@ class TriangleCountBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
         if self._ref_outputs is None:
             return
-        result = self._output[0].data["values"].reshape(self._output[0].data["shape"])
-        expected = (
-            self._ref_outputs[0]
-            .data["values"]
-            .reshape(self._ref_outputs[0].data["shape"])
-        )
+        result = to_numpy(self._output[0])
+        expected = to_numpy(self._ref_outputs[0])
         assert np.allclose(result, expected)
