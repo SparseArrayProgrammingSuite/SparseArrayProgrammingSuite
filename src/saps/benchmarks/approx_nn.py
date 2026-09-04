@@ -14,6 +14,8 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.netflixprize import fetch_netflixprize_matrix
+from saps.benchmarks.openml import OpenMLDatasetGenerator, fetch_openml_features
 
 
 class JLApproxNNRandomDataset(Dataset):
@@ -385,21 +387,21 @@ def _rla_projection(n_features: int, n_samples: int, eps: float, seed: int):
         random_state=rng,
     )
     coo = (U_Neg + U_Pos).tocoo()
-    return BinsparseFormat.from_coo((coo.row, coo.col), coo.data, coo.shape)
+    return from_scipy(coo)
 
 
-class JLApproxNNMNISTGenerator(Generator[JLApproxNNDataset]):
+class JLApproxNNOpenMLGenerator(Generator[JLApproxNNDataset]):
     @property
     def name(self) -> str:
-        return "jl_approx_nn_mnist"
+        return "jl_approx_nn_openml"
 
     @property
     def pretty_name(self) -> str:
-        return "JL ANN MNIST Generator"
+        return "JL ANN OpenML Generator"
 
     @property
     def description(self) -> str:
-        return "Loads MNIST images for JL approximate nearest-neighbor."
+        return "Loads OpenML image datasets for JL approximate nearest-neighbor."
 
     @property
     def suites(self) -> list[str]:
@@ -429,82 +431,6 @@ class JLApproxNNMNISTGenerator(Generator[JLApproxNNDataset]):
                 url="http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf",
             ),
             Ref(
-                title=(
-                    "MNIST Dataset Classification Utilizing k-NN Classifier"
-                    " with Modified Sliding-window Metric"
-                ),
-                authors=[Author("Aditi Grover"), Author("Bahram Toghi")],
-            ),
-        ]
-
-    @property
-    def ai_disclosure(self) -> str:
-        return (
-            "No generative AI was used to construct the benchmark function "
-            "itself. Generative AI might have been used to construct tests."
-        )
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "MNIST provides 70,000 28×28 grayscale images of handwritten digits "
-            "flattened to 784-dimensional vectors, with a 60K/10K train/test split."
-        )
-
-    @property
-    def datasets(self) -> list[JLApproxNNDataset]:
-        return [JLApproxNNDataset("mnist", k=5, eps=0.3, seed=50)]
-
-    def generate(self, dataset: JLApproxNNDataset) -> DataInstance:
-        from sklearn.datasets import fetch_openml
-        mnist = fetch_openml("mnist_784", version=1, as_frame=False, parser="auto")
-        data = mnist.data.astype(np.float32) / 255.0
-        rng = np.random.default_rng(dataset.seed)
-        train = data[rng.choice(60000, size=2000, replace=False)]
-        test = data[60000:][rng.choice(10000, size=200, replace=False)]
-
-        n_samples, n_features = train.shape
-        projection = _rla_projection(n_features, n_samples, dataset.eps, dataset.seed)
-
-        return DataInstance(
-            inputs=[
-                BinsparseFormat.from_numpy(train),
-                BinsparseFormat.from_numpy(test),
-                projection,
-            ],
-            meta={"k": dataset.k, "eps": dataset.eps},
-        )
-
-
-class JLApproxNNCIFAR10Generator(Generator[JLApproxNNDataset]):
-    @property
-    def name(self) -> str:
-        return "jl_approx_nn_cifar10"
-
-    @property
-    def pretty_name(self) -> str:
-        return "JL ANN CIFAR-10 Generator"
-
-    @property
-    def description(self) -> str:
-        return "Loads CIFAR-10 images for JL approximate nearest-neighbor."
-
-    @property
-    def suites(self) -> list[str]:
-        return []
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
-    @property
-    def authors(self) -> list[Contributor]:
-        return [Contributor("Vilohith Gokarakonda", "vgokarakonda3@gatech.edu")]
-
-    @property
-    def references(self) -> list[Ref]:
-        return [
-            Ref(
                 title="Learning Multiple Layers of Features from Tiny Images",
                 authors=[Author("Alex Krizhevsky")],
                 year=2009,
@@ -522,56 +448,53 @@ class JLApproxNNCIFAR10Generator(Generator[JLApproxNNDataset]):
     @property
     def motivation(self) -> str:
         return (
-            "CIFAR-10 provides 60,000 32×32 color images across 10 classes, each "
-            "flattened to a 3,072-dimensional vector. Its higher dimensionality and "
-            "dense structure contrasts with the Netflix and MNIST cases."
+            "MNIST and CIFAR-10 provide dense image feature matrices from OpenML "
+            "for approximate nearest-neighbor search."
         )
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[JLApproxNNDataset]:
-        return [JLApproxNNDataset("cifar10", k=5, eps=0.3, seed=0)]
+        return [
+            JLApproxNNDataset(
+                dataset.name,
+                k=5,
+                eps=0.3,
+                seed=50 if dataset.name == "mnist" else 0,
+                suites=["standard"],
+            )
+            for dataset in OpenMLDatasetGenerator().datasets
+        ]
 
     def generate(self, dataset: JLApproxNNDataset) -> DataInstance:
-        import os
-        import pickle
-        import tarfile
-        import urllib.request
-        cache_dir = os.path.join(os.path.expanduser("~"), ".cache", "sparseappbench", "cifar10")
-        extracted_dir = os.path.join(cache_dir, "cifar-10-batches-py")
-
-        if not os.path.exists(extracted_dir):
-            os.makedirs(cache_dir, exist_ok=True)
-            tar_path = os.path.join(cache_dir, "cifar-10-python.tar.gz")
-            urllib.request.urlretrieve(
-                "https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz", tar_path
-            )
-            with tarfile.open(tar_path, "r:gz") as tar:
-                tar.extractall(cache_dir)
-
-        train_arrays = []
-        for i in range(1, 6):
-            with open(os.path.join(extracted_dir, f"data_batch_{i}"), "rb") as f:
-                batch = pickle.load(f, encoding="bytes")
-            train_arrays.append(batch[b"data"])
-        all_train = np.concatenate(train_arrays, axis=0).astype(np.float32) / 255.0
-
-        with open(os.path.join(extracted_dir, "test_batch"), "rb") as f:
-            all_test = pickle.load(f, encoding="bytes")[b"data"].astype(np.float32) / 255.0
-
-        rng = np.random.default_rng(dataset.seed)
-        train = all_train[rng.choice(len(all_train), size=2000, replace=False)]
-        test = all_test[rng.choice(len(all_test), size=200, replace=False)]
+        features, source_meta = fetch_openml_features(dataset.name)
+        train = features
+        test = features
 
         n_samples, n_features = train.shape
         projection = _rla_projection(n_features, n_samples, dataset.eps, dataset.seed)
 
         return DataInstance(
             inputs=[
-                BinsparseFormat.from_numpy(train),
-                BinsparseFormat.from_numpy(test),
+                from_numpy(train),
+                from_numpy(test),
                 projection,
             ],
-            meta={"k": dataset.k, "eps": dataset.eps},
+            meta={
+                "k": dataset.k,
+                "eps": dataset.eps,
+                "num_train": int(train.shape[0]),
+                "num_query": int(test.shape[0]),
+                "num_features": int(n_features),
+                "openml_data_id": source_meta["data_id"],
+                "openml_name": source_meta["openml_name"],
+                "openml_version": source_meta["version"],
+                "source_num_rows": source_meta["num_rows"],
+                "source_num_features": source_meta["num_features"],
+            },
         )
 
 
@@ -627,58 +550,46 @@ class JLApproxNNNetflixGenerator(Generator[JLApproxNNDataset]):
 
     @property
     def datasets(self) -> list[JLApproxNNDataset]:
-        return [JLApproxNNDataset("netflix", k=5, eps=0.3, seed=0)]
+        return [
+            JLApproxNNDataset(
+                "netflix",
+                k=5,
+                eps=0.3,
+                seed=0,
+                suites=["standard"],
+            )
+        ]
+
+    @property
+    def cacheable(self) -> bool:
+        return False
 
     def generate(self, dataset: JLApproxNNDataset) -> DataInstance:
-        import os
-        import kagglehub
-        import scipy.sparse
-        cache_path = kagglehub.dataset_download("netflix-inc/netflix-prize-data")
+        data, source_meta = fetch_netflixprize_matrix()
 
-        row_list, col_list, val_list = [], [], []
-        user_map = {}
-        current_movie = 0
-        data_files = sorted(
-            f for f in os.listdir(cache_path)
-            if f.startswith("combined_data") and f.endswith(".txt")
+        train_coo = data.tocoo()
+        test_coo = data.tocoo()
+
+        projection = _rla_projection(
+            data.shape[1], train_coo.shape[0], dataset.eps, dataset.seed
         )
-        for fname in data_files:
-            with open(os.path.join(cache_path, fname), "r") as f:
-                for line in f:
-                    line = line.strip()
-                    if line.endswith(":"):
-                        current_movie = int(line[:-1]) - 1
-                    else:
-                        uid_str, rating_str, _ = line.split(",", 2)
-                        uid = int(uid_str)
-                        if uid not in user_map:
-                            user_map[uid] = len(user_map)
-                        row_list.append(user_map[uid])
-                        col_list.append(current_movie)
-                        val_list.append(float(rating_str))
-
-        n_users = len(user_map)
-        n_movies = 17770
-        data = scipy.sparse.csr_matrix(
-            (np.array(val_list, dtype=np.float32),
-             (np.array(row_list, dtype=np.int32), np.array(col_list, dtype=np.int32))),
-            shape=(n_users, n_movies),
-        )
-
-        rng = np.random.default_rng(dataset.seed)
-        perm = rng.permutation(n_users)
-        train_coo = data[perm[:2000]].tocoo()
-        test_coo = data[perm[2000:2200]].tocoo()
-
-        projection = _rla_projection(n_movies, 2000, dataset.eps, dataset.seed)
 
         return DataInstance(
             inputs=[
-                BinsparseFormat.from_coo((train_coo.row, train_coo.col), train_coo.data, train_coo.shape),
-                BinsparseFormat.from_coo((test_coo.row, test_coo.col), test_coo.data, test_coo.shape),
+                from_scipy(train_coo),
+                from_scipy(test_coo),
                 projection,
             ],
-            meta={"k": dataset.k, "eps": dataset.eps},
+            meta={
+                "k": dataset.k,
+                "eps": dataset.eps,
+                "num_train": int(train_coo.shape[0]),
+                "num_query": int(test_coo.shape[0]),
+                "num_features": int(data.shape[1]),
+                "source_num_users": source_meta["num_users"],
+                "source_num_movies": source_meta["num_movies"],
+                "source_num_ratings": source_meta["num_ratings"],
+            },
         )
 
 
@@ -810,8 +721,7 @@ Nearest neighbor algorithms</concept_desc>
         return [
             JLApproxNNTestGenerator(),
             JLApproxNNGenerator(),
-            JLApproxNNMNISTGenerator(),
-            JLApproxNNCIFAR10Generator(),
+            JLApproxNNOpenMLGenerator(),
             JLApproxNNNetflixGenerator(),
         ]
 

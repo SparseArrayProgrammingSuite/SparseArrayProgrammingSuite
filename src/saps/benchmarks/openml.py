@@ -151,7 +151,6 @@ class OpenMLDatasetGenerator(Generator[OpenMLDataset]):
                 description=(
                     "OpenML copy of the MNIST 28x28 handwritten digit image dataset."
                 ),
-                suites=["standard"],
                 scale=255.0,
             ),
             OpenMLDataset(
@@ -163,7 +162,6 @@ class OpenMLDatasetGenerator(Generator[OpenMLDataset]):
                 description=(
                     "OpenML copy of the CIFAR-10 32x32 color image dataset."
                 ),
-                suites=["standard"],
                 scale=255.0,
             ),
         ]

@@ -15,6 +15,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.netflixprize import fetch_netflixprize_matrix
 from saps.benchmarks.openml import OpenMLDatasetGenerator, fetch_openml_features
 
 
@@ -305,13 +306,13 @@ class RPKMeansOpenMLGenerator(Generator[RPKMeansDataset]):
     @property
     def datasets(self) -> list[RPKMeansDataset]:
         return [
-            RPKMeansDataset(dataset.name, k=10, eps=0.3, suites=dataset.suites)
+            RPKMeansDataset(dataset.name, k=10, eps=0.3, suites=["standard"])
             for dataset in OpenMLDatasetGenerator().datasets
         ]
 
     def generate(self, dataset: RPKMeansDataset) -> DataInstance:
         features, source_meta = fetch_openml_features(dataset.name)
-        training = features[: _openml_training_rows(dataset.name)]
+        training = features
 
         n, d = training.shape
         t = int(dataset.c * math.ceil(dataset.k / dataset.eps**2))
@@ -335,14 +336,6 @@ class RPKMeansOpenMLGenerator(Generator[RPKMeansDataset]):
                 "source_num_features": source_meta["num_features"],
             },
         )
-
-
-def _openml_training_rows(source_name: str) -> int:
-    if source_name == "mnist":
-        return 60000
-    if source_name == "cifar10":
-        return 50000
-    return 2**63 - 1
 
 
 class RPKMeansNetflixGenerator(Generator[RPKMeansDataset]):
@@ -395,55 +388,24 @@ class RPKMeansNetflixGenerator(Generator[RPKMeansDataset]):
     @property
     def datasets(self) -> list[RPKMeansDataset]:
         return [
-            RPKMeansDataset("netflix", k=10, eps=0.3),
+            RPKMeansDataset(
+                "netflix",
+                k=10,
+                eps=0.3,
+                suites=["standard"],
+            ),
         ]
 
+    @property
+    def cacheable(self) -> bool:
+        return False
+
     def generate(self, dataset: RPKMeansDataset) -> DataInstance:
-        import os
+        data, source_meta = fetch_netflixprize_matrix()
 
-        import scipy.sparse
+        training = from_scipy(data.tocoo())
 
-        import kagglehub
-
-        cache_path = kagglehub.dataset_download("netflix-inc/netflix-prize-data")
-
-        row_list = []
-        col_list = []
-        val_list = []
-        user_map: dict[int, int] = {}
-        current_movie = 0
-        data_files = sorted(
-            f for f in os.listdir(cache_path)
-            if f.startswith("combined_data") and f.endswith(".txt")
-        )
-        for fname in data_files:
-            with open(os.path.join(cache_path, fname)) as f:
-                for line in f:
-                    line = line.strip()
-                    if line.endswith(":"):
-                        current_movie = int(line[:-1]) - 1
-                    else:
-                        uid_str, rating_str, _ = line.split(",", 2)
-                        uid = int(uid_str)
-                        if uid not in user_map:
-                            user_map[uid] = len(user_map)
-                        row_list.append(user_map[uid])
-                        col_list.append(current_movie)
-                        val_list.append(float(rating_str))
-
-        n_users = len(user_map)
-        n_movies = 17770
-        data = scipy.sparse.csr_matrix(
-            (np.array(val_list, dtype=np.float32),
-             (np.array(row_list, dtype=np.int32), np.array(col_list, dtype=np.int32))),
-            shape=(n_users, n_movies),
-        )
-
-        rng = np.random.default_rng(0)
-        train_coo = data[rng.permutation(n_users)[:5000]].tocoo()
-        training = from_scipy(train_coo)
-
-        d = n_movies
+        d = data.shape[1]
         t = int(dataset.c * math.ceil(dataset.k / dataset.eps**2))
         value = 1 / (t**0.5)
         rng = np.random.default_rng(0)
@@ -456,6 +418,11 @@ class RPKMeansNetflixGenerator(Generator[RPKMeansDataset]):
                 "eps": dataset.eps,
                 "c": dataset.c,
                 "max_iter": dataset.max_iter,
+                "num_rows": source_meta["num_users"],
+                "num_features": source_meta["num_movies"],
+                "source_num_users": source_meta["num_users"],
+                "source_num_movies": source_meta["num_movies"],
+                "source_num_ratings": source_meta["num_ratings"],
             },
         )
 

@@ -1,6 +1,7 @@
 from types import SimpleNamespace
 
 import numpy as np
+import scipy.sparse
 
 from binsparse.conversions import from_numpy, to_numpy
 
@@ -13,6 +14,7 @@ from saps.benchmarks.openml import (
 from saps.benchmarks.rp_kmeans_clustering import (
     RPKMeansBenchmark,
     RPKMeansDataset,
+    RPKMeansNetflixGenerator,
     RPKMeansOpenMLGenerator,
 )
 
@@ -31,6 +33,7 @@ def test_openml_shell_generator_scales_features_and_records_shape(monkeypatch):
     instance = generator.generate(dataset)
 
     assert generator.cacheable
+    assert dataset.suites == []
     assert OpenMLDatasetBenchmark().generator.name == "openml_dataset"
     np.testing.assert_allclose(
         to_numpy(instance.inputs[0]),
@@ -118,3 +121,33 @@ def test_rp_kmeans_benchmark_uses_one_openml_generator_for_standard_datasets():
     assert all(dataset.suites == ["standard"] for dataset in openml_generator.datasets)
     assert "rp_kmeans_mnist" not in {generator.name for generator in generators}
     assert "rp_kmeans_cifar10" not in {generator.name for generator in generators}
+
+
+def test_rp_kmeans_netflix_generator_uses_shared_shell(monkeypatch):
+    source = scipy.sparse.csr_matrix(
+        np.arange(30, dtype=np.float32).reshape(6, 5)
+    )
+
+    def fake_fetch_netflixprize_matrix():
+        return source, {
+            "num_users": source.shape[0],
+            "num_movies": source.shape[1],
+            "num_ratings": source.nnz,
+        }
+
+    monkeypatch.setattr(
+        "saps.benchmarks.rp_kmeans_clustering.fetch_netflixprize_matrix",
+        fake_fetch_netflixprize_matrix,
+    )
+    generator = RPKMeansNetflixGenerator()
+    dataset = generator.datasets[0]
+
+    instance = generator.generate(dataset)
+
+    assert not generator.cacheable
+    assert dataset.suites == ["standard"]
+    assert instance.inputs[0].shape == (6, 5)
+    assert instance.inputs[1].shape == (5, 112)
+    assert instance.meta["num_rows"] == 6
+    assert instance.meta["num_features"] == 5
+    assert instance.meta["source_num_ratings"] == source.nnz
