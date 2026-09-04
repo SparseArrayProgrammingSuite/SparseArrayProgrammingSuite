@@ -15,6 +15,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.downloaders.ewap import download_ewap_dataset
 from saps.downloaders.nemo import download_nemo_dataset
 
 
@@ -595,6 +596,150 @@ class SyntheticBerkeleyCS267ParticleGenerator(Generator[SyntheticParticleSimData
         )
 
 
+class EWAPParticleSimDataset(ParticleSimDataset):
+    def __init__(
+        self,
+        name: str,
+        scene: str,
+        num_steps: int,
+        pretty_name: str,
+        description: str,
+        parameters: dict[str, Any],
+    ):
+        super().__init__(
+            name=name,
+            num_steps=num_steps,
+            pretty_name=pretty_name,
+            description=description,
+            suites=["standard"],
+            tags=["physics", "simulation", "sparse", "pedestrian", "ewap"],
+            parameters=parameters,
+        )
+        self._scene = scene
+
+    @property
+    def scene(self) -> str:
+        return self._scene
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        data = super().metadata
+        data["source_scene"] = self.scene
+        return data
+
+
+class EWAPParticleSimGenerator(Generator[EWAPParticleSimDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def name(self) -> str:
+        return "ewap_particle_sim"
+
+    @property
+    def pretty_name(self) -> str:
+        return "ETH EWAP Particle Simulation Generator"
+
+    @property
+    def description(self) -> str:
+        return "Loads ETH EWAP pedestrian trajectories as particle initial conditions."
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def tags(self) -> list[str]:
+        return ["physics", "particle-simulation", "sparse", "pedestrian", "ewap"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="OpenTraj ETH Dataset",
+                authors=[Author("OpenTraj Contributors")],
+                url=(
+                    "https://github.com/crowdbotp/OpenTraj/tree/master/datasets/ETH"
+                ),
+            )
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
+        )
+
+    @property
+    def motivation(self):
+        return (
+            "Pedestrian trajectories provide real-world 2D interaction data that can "
+            "exercise the particle simulation benchmark without changing the source "
+            "coordinate scale."
+        )
+
+    @property
+    def datasets(self) -> list[EWAPParticleSimDataset]:
+        return [
+            EWAPParticleSimDataset(
+                name="ewap_seq_eth",
+                scene="seq_eth",
+                num_steps=50,
+                parameters={
+                    "force_model": "cs267_repulsive",
+                    "boundary_model": "reflective_box",
+                    "mass": 0.01,
+                    "cutoff": 0.01,
+                    "softening": 0.0001,
+                    "dt": 0.0005,
+                    "gravitational_constant": 1.0,
+                },
+                pretty_name="ETH EWAP ETH Scene",
+                description=(
+                    "ETH EWAP seq_eth pedestrian trajectories loaded in dataset "
+                    "coordinates with z and vz preserved from the source column."
+                ),
+            ),
+            EWAPParticleSimDataset(
+                name="ewap_seq_hotel",
+                scene="seq_hotel",
+                num_steps=50,
+                parameters={
+                    "force_model": "cs267_repulsive",
+                    "boundary_model": "reflective_box",
+                    "mass": 0.01,
+                    "cutoff": 0.01,
+                    "softening": 0.0001,
+                    "dt": 0.0005,
+                    "gravitational_constant": 1.0,
+                },
+                pretty_name="ETH EWAP Hotel Scene",
+                description=(
+                    "ETH EWAP seq_hotel pedestrian trajectories loaded in dataset "
+                    "coordinates with z and vz preserved from the source column."
+                ),
+            ),
+        ]
+
+    def generate(self, dataset: EWAPParticleSimDataset):
+        inputs, meta = download_ewap_dataset(
+            dataset.scene,
+            num_steps=dataset.num_steps,
+        )
+        meta["parameters"] = dataset.parameters
+        return DataInstance(inputs=inputs, meta=meta)
+
+
 class ParticleSimGenerator(Generator[ParticleSimDataset]):
     @property
     def cacheable(self) -> bool:
@@ -840,6 +985,7 @@ class ParticleSimBenchmark(Benchmark):
         return [
             ParticleSimTestGenerator(),
             SyntheticBerkeleyCS267ParticleGenerator(),
+            EWAPParticleSimGenerator(),
             ParticleSimGenerator(),
         ]
 

@@ -3,6 +3,7 @@ import pytest
 import numpy as np
 
 from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy
 
 import saps.benchmarks.particle_sim as ps
 from frameworks.saps_numpy import NumpyFramework
@@ -57,6 +58,45 @@ def test_benchmark_runs_with_toy_ewap_data():
     assert len(result) == 6  # x, y, z, vx, vy, vz
     for arr in result:
         assert arr.shape == (meta["n_particles"],)
+
+
+def test_ewap_particle_sim_generator_uses_downloader(monkeypatch):
+    calls = []
+
+    def fake_download(scene, *, num_steps):
+        calls.append((scene, num_steps))
+        inputs = [
+            from_numpy(np.array([0.0, 1.0], dtype=np.float64)),
+            from_numpy(np.array([0.0, 0.0], dtype=np.float64)),
+            from_numpy(np.zeros(2, dtype=np.float64)),
+            from_numpy(np.zeros(2, dtype=np.float64)),
+            from_numpy(np.zeros(2, dtype=np.float64)),
+            from_numpy(np.zeros(2, dtype=np.float64)),
+        ]
+        return inputs, {"size": 1.0, "steps": num_steps, "n_particles": 2}
+
+    monkeypatch.setattr(ps, "download_ewap_dataset", fake_download)
+
+    generator = ps.EWAPParticleSimGenerator()
+    datasets = generator.datasets
+
+    assert generator.cacheable is False
+    assert [dataset.name for dataset in datasets] == [
+        "ewap_seq_eth",
+        "ewap_seq_hotel",
+    ]
+    assert all(dataset.suites == ["standard"] for dataset in datasets)
+    assert all(
+        dataset.parameters["force_model"] == "cs267_repulsive"
+        for dataset in datasets
+    )
+    assert all(dataset.parameters["softening"] == 0.0001 for dataset in datasets)
+
+    instance = generator.generate(datasets[0])
+
+    assert calls == [("seq_eth", 50)]
+    assert len(instance.inputs) == 6
+    assert instance.meta["parameters"] == datasets[0].parameters
 
 
 @pytest.mark.slow

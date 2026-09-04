@@ -102,5 +102,6 @@ def test_particle_sim_benchmark_registers_synthetic_generator():
     assert [generator.name for generator in ParticleSimBenchmark().generators] == [
         "particle_sim_test_inputs",
         "synthetic_berkeley_cs267_particle",
+        "ewap_particle_sim",
         "particle_sim",
     ]
