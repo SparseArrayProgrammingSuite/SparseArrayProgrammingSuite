@@ -314,7 +314,25 @@ class SDDMMBenchmark(Benchmark):
 
     @property
     def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
+        return """
+<ccs2012>
+<concept>
+<concept_id>10002950.10003705</concept_id>
+<concept_desc>Mathematics of computing~Mathematical software</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10002950.10003705.10011686</concept_id>
+<concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10002950.10003714.10003715</concept_id>
+<concept_desc>Mathematics of computing~Numerical analysis</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+</ccs2012>
+"""
 
     @property
     def authors(self) -> list[Contributor]:
