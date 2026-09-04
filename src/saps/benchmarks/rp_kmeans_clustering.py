@@ -251,7 +251,7 @@ class RPKMeansMNISTGenerator(Generator[RPKMeansDataset]):
 
     @property
     def authors(self) -> list[Contributor]:
-        return [Contributor("Maksim Krylykov", "mkrylykov3@gatech.edu")]
+        return [Contributor("Kevin Wang", "kwang656@gatech.edu")]
 
     @property
     def references(self) -> list[Ref]:
@@ -279,7 +279,7 @@ class RPKMeansMNISTGenerator(Generator[RPKMeansDataset]):
 
     @property
     def ai_disclosure(self) -> str:
-        return "No generative AI was used to implement benchmark functions."
+        return "Generative AI was used to implement this generator."
 
     @property
     def motivation(self) -> str:
