@@ -15,10 +15,7 @@ from saps.downloaders.nemo import download_nemo_dataset, parse_nemo_snapshot
 def test_parse_nemo_row_table(tmp_path):
     path = tmp_path / "plummer.dat.gz"
     with gzip.open(path, "wt", encoding="utf-8") as file:
-        file.write(
-            "0.5 1.0 2.0 3.0 0.1 0.2 0.3\n"
-            "0.5 4.0 6.0 8.0 0.4 0.6 0.8\n"
-        )
+        file.write("0.5 1.0 2.0 3.0 0.1 0.2 0.3\n0.5 4.0 6.0 8.0 0.4 0.6 0.8\n")
 
     x, y, z, vx, vy, vz = parse_nemo_snapshot(
         path,
@@ -37,10 +34,7 @@ def test_parse_nemo_row_table(tmp_path):
 def test_parse_nemo_wrapped_phase_space_stream(tmp_path):
     path = tmp_path / "stars.dat"
     path.write_text(
-        "3.0 2.0\n"
-        "1.0 0.3 0.2 0.1\n"
-        "8.0 7.0 6.0\n"
-        "0.8 0.7 0.6\n",
+        "3.0 2.0\n1.0 0.3 0.2 0.1\n8.0 7.0 6.0\n0.8 0.7 0.6\n",
         encoding="utf-8",
     )
 
@@ -78,8 +72,7 @@ def test_parse_nemo_rejects_partial_snapshot(tmp_path):
 def test_download_nemo_dataset_preserves_archive_scale(tmp_path):
     source = tmp_path / "source.dat"
     source.write_text(
-        "0.5 1.0 2.0 3.0 0.1 0.2 0.3\n"
-        "0.5 4.0 6.0 8.0 0.4 0.6 0.8\n",
+        "0.5 1.0 2.0 3.0 0.1 0.2 0.3\n0.5 4.0 6.0 8.0 0.4 0.6 0.8\n",
         encoding="utf-8",
     )
     archive = tmp_path / "plummer" / "tab2.gz"
@@ -118,8 +111,7 @@ def test_download_nemo_dataset_preserves_archive_scale(tmp_path):
 def test_download_nemo_dataset_can_include_particle_mass(tmp_path):
     source = tmp_path / "source.dat"
     source.write_text(
-        "0.25 1.0 2.0 3.0 0.1 0.2 0.3\n"
-        "0.75 4.0 6.0 8.0 0.4 0.6 0.8\n",
+        "0.25 1.0 2.0 3.0 0.1 0.2 0.3\n0.75 4.0 6.0 8.0 0.4 0.6 0.8\n",
         encoding="utf-8",
     )
     archive = tmp_path / "plummer" / "tab2.gz"

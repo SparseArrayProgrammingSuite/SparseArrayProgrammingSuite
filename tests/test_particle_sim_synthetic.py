@@ -16,9 +16,7 @@ from saps.benchmarks.particle_sim import (
 def test_synthetic_berkeley_cs267_particle_generator_has_one_dataset():
     generator = SyntheticBerkeleyCS267ParticleGenerator()
 
-    assert [dataset.name for dataset in generator.datasets] == [
-        "cs267_hw2_n1000_seed1"
-    ]
+    assert [dataset.name for dataset in generator.datasets] == ["cs267_hw2_n1000_seed1"]
 
     dataset = generator.datasets[0]
     assert dataset.n_particles == 1000

@@ -109,8 +109,7 @@ def test_ewap_particle_sim_generator_uses_downloader(monkeypatch):
     ]
     assert all(dataset.suites == ["standard"] for dataset in datasets)
     assert all(
-        dataset.parameters["force_model"] == "cs267_repulsive"
-        for dataset in datasets
+        dataset.parameters["force_model"] == "cs267_repulsive" for dataset in datasets
     )
     assert all(dataset.parameters["softening"] == 0.0001 for dataset in datasets)
     assert all("mass" not in dataset.parameters for dataset in datasets)

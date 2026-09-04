@@ -716,9 +716,7 @@ class EWAPParticleSimGenerator(Generator[EWAPParticleSimDataset]):
             Ref(
                 title="OpenTraj ETH Dataset",
                 authors=[Author("OpenTraj Contributors")],
-                url=(
-                    "https://github.com/crowdbotp/OpenTraj/tree/master/datasets/ETH"
-                ),
+                url=("https://github.com/crowdbotp/OpenTraj/tree/master/datasets/ETH"),
             )
         ]
 
@@ -1084,9 +1082,7 @@ class ParticleSimBenchmark(Benchmark):
             if force_model == "newtonian_gravity":
                 coef = gravitational_constant * particle_mass / (r2 * r)
             else:
-                coef = gravitational_constant * (
-                    (1 - cutoff / r) / r2 / particle_mass
-                )
+                coef = gravitational_constant * ((1 - cutoff / r) / r2 / particle_mass)
 
             ax = coef * dx
             ay = coef * dy
