@@ -43484,7 +43484,7 @@
       "topics": []
     },
     {
-      "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI might have been used to construct tests. This statement was written by hand.",
+      "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI was used to help implement and audit OGB input plumbing, tests, documentation, and debugging.",
       "asv_ids": {
         "peakmem": "gcn.GCNBenchmark.peakmem_gcn",
         "time": "gcn.GCNBenchmark.time_gcn"
@@ -43495,10 +43495,10 @@
       "concepts": "\n        <ccs2012>\n        <concept>\n        <concept_id>10010147.10010257.10010293.10010294</concept_id>\n        <concept_desc>Computing methodologies~Neural networks</concept_desc>\n        <concept_significance>500</concept_significance>\n        </concept>\n        <concept>\n        <concept_id>10002950.10003624.10003633.10010917</concept_id>\n        <concept_desc>Mathematics of computing~Graph algorithms</concept_desc>\n        <concept_significance>500</concept_significance>\n        </concept>\n        </ccs2012>\n        ",
       "description": "Computes a 2-layer Graph Convolutional Network forward pass: h1 = ReLU(adjacency @ features @ weights1 + bias1) output = adjacency @ h1 @ weights2 + bias2 Implementation based on Scorch (Yan et al., 2024).",
       "file": "src/saps/benchmarks/gcn.py",
-      "freshness": "efc17459d0e10544b3126226dfd70437f1eb32f2eedb5269be5512b58a59e0e9",
+      "freshness": "e8dffac2ae7445be8fbfc4eae2998d42176d64bf04901ad60016842410e54b51",
       "generators": [
         {
-          "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI might have been used to construct tests. This statement was written by hand.",
+          "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI was used to help implement and audit OGB input plumbing, tests, documentation, and debugging.",
           "authors": [
             "Tarun Devi <tdevi3@gatech.edu>"
           ],
@@ -43511,7 +43511,7 @@
               "description": "SuiteSparse matrix test_gcn_3node.",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "efc17459d0e10544b3126226dfd70437f1eb32f2eedb5269be5512b58a59e0e9",
+              "freshness": "e8dffac2ae7445be8fbfc4eae2998d42176d64bf04901ad60016842410e54b51",
               "hidden_dim": 8,
               "name": "test_gcn_3node",
               "nnz": null,
@@ -43538,7 +43538,7 @@
               "description": "SuiteSparse matrix test_gcn_simple_2node.",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "efc17459d0e10544b3126226dfd70437f1eb32f2eedb5269be5512b58a59e0e9",
+              "freshness": "e8dffac2ae7445be8fbfc4eae2998d42176d64bf04901ad60016842410e54b51",
               "hidden_dim": 8,
               "name": "test_gcn_simple_2node",
               "nnz": null,
@@ -43565,7 +43565,7 @@
               "description": "SuiteSparse matrix test_gcn_simple_3node_line.",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "efc17459d0e10544b3126226dfd70437f1eb32f2eedb5269be5512b58a59e0e9",
+              "freshness": "e8dffac2ae7445be8fbfc4eae2998d42176d64bf04901ad60016842410e54b51",
               "hidden_dim": 8,
               "name": "test_gcn_simple_3node_line",
               "nnz": null,
@@ -43592,7 +43592,7 @@
               "description": "SuiteSparse matrix test_gcn_with_relu_activation.",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "efc17459d0e10544b3126226dfd70437f1eb32f2eedb5269be5512b58a59e0e9",
+              "freshness": "e8dffac2ae7445be8fbfc4eae2998d42176d64bf04901ad60016842410e54b51",
               "hidden_dim": 8,
               "name": "test_gcn_with_relu_activation",
               "nnz": null,
@@ -43616,13 +43616,14 @@
           ],
           "description": "Small inlined GCN forward-pass examples.",
           "file": "src/saps/benchmarks/gcn.py",
-          "freshness": "efc17459d0e10544b3126226dfd70437f1eb32f2eedb5269be5512b58a59e0e9",
+          "freshness": "e8dffac2ae7445be8fbfc4eae2998d42176d64bf04901ad60016842410e54b51",
           "motivation": "Uses small graph examples to verify the GCN forward pass.",
           "name": "gcn_test_inputs",
           "pretty_name": "GCN Test Input Generator",
           "references": [
             "Bobby Yan, Alexander J. Root, Trevor Gale, David Broman, Fredrik Kjolstad. \"Scorch: A Library for Sparse Deep Learning\", Arxiv, Vol. arXiv:2405.16883, 2024, URL: https://anonymous.4open.science/r/scorch/README.md.",
-            "Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graphs\", Arxiv, Vol. arXiv:2005.00687, 2020, URL: https://arxiv.org/abs/2005.00687."
+            "Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graphs\", Arxiv, Vol. arXiv:2005.00687, 2020, URL: https://arxiv.org/abs/2005.00687.",
+            "Thomas N. Kipf, Max Welling. \"Semi-Supervised Classification with Graph Convolutional Networks\", Arxiv, Vol. arXiv:1609.02907, 2016, URL: https://arxiv.org/abs/1609.02907."
           ],
           "suites": [
             "test",
@@ -43652,7 +43653,7 @@
               "description": "Small social network graph.",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "efc17459d0e10544b3126226dfd70437f1eb32f2eedb5269be5512b58a59e0e9",
+              "freshness": "e8dffac2ae7445be8fbfc4eae2998d42176d64bf04901ad60016842410e54b51",
               "hidden_dim": 8,
               "name": "dg_gcn_social_1",
               "nnz": null,
@@ -43674,7 +43675,7 @@
               "description": "Medium social network graph.",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "efc17459d0e10544b3126226dfd70437f1eb32f2eedb5269be5512b58a59e0e9",
+              "freshness": "e8dffac2ae7445be8fbfc4eae2998d42176d64bf04901ad60016842410e54b51",
               "hidden_dim": 8,
               "name": "dg_gcn_social_2",
               "nnz": null,
@@ -43696,7 +43697,7 @@
               "description": "Larger social network graph.",
               "feature_dim": 8,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "efc17459d0e10544b3126226dfd70437f1eb32f2eedb5269be5512b58a59e0e9",
+              "freshness": "e8dffac2ae7445be8fbfc4eae2998d42176d64bf04901ad60016842410e54b51",
               "hidden_dim": 16,
               "name": "dg_gcn_social_3",
               "nnz": null,
@@ -43718,7 +43719,7 @@
               "description": "Small road network graph.",
               "feature_dim": 8,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "efc17459d0e10544b3126226dfd70437f1eb32f2eedb5269be5512b58a59e0e9",
+              "freshness": "e8dffac2ae7445be8fbfc4eae2998d42176d64bf04901ad60016842410e54b51",
               "hidden_dim": 4,
               "name": "dg_gcn_road_1",
               "nnz": null,
@@ -43740,7 +43741,7 @@
               "description": "Small molecular graph. - Email network.",
               "feature_dim": 4,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "efc17459d0e10544b3126226dfd70437f1eb32f2eedb5269be5512b58a59e0e9",
+              "freshness": "e8dffac2ae7445be8fbfc4eae2998d42176d64bf04901ad60016842410e54b51",
               "hidden_dim": 8,
               "name": "dg_gcn_molecular_1",
               "nnz": null,
@@ -43762,7 +43763,7 @@
               "description": "Medium molecular graph - PDDB protein structure.",
               "feature_dim": 6,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "efc17459d0e10544b3126226dfd70437f1eb32f2eedb5269be5512b58a59e0e9",
+              "freshness": "e8dffac2ae7445be8fbfc4eae2998d42176d64bf04901ad60016842410e54b51",
               "hidden_dim": 12,
               "name": "dg_gcn_molecular_2",
               "nnz": null,
@@ -43784,7 +43785,7 @@
               "description": "Large citation network graph (AIDS-like size).",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "efc17459d0e10544b3126226dfd70437f1eb32f2eedb5269be5512b58a59e0e9",
+              "freshness": "e8dffac2ae7445be8fbfc4eae2998d42176d64bf04901ad60016842410e54b51",
               "hidden_dim": 32,
               "name": "dg_gcn_citation_1",
               "nnz": null,
@@ -43806,7 +43807,7 @@
               "description": "Original small structural engineering matrix (for backward compatibility).",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "efc17459d0e10544b3126226dfd70437f1eb32f2eedb5269be5512b58a59e0e9",
+              "freshness": "e8dffac2ae7445be8fbfc4eae2998d42176d64bf04901ad60016842410e54b51",
               "hidden_dim": 8,
               "name": "dg_gcn_bcsstk01",
               "nnz": null,
@@ -43825,13 +43826,108 @@
           ],
           "description": "Generates random weights for a 2-layer Graph Convolutional Network.",
           "file": "src/saps/benchmarks/gcn.py",
-          "freshness": "efc17459d0e10544b3126226dfd70437f1eb32f2eedb5269be5512b58a59e0e9",
+          "freshness": "e8dffac2ae7445be8fbfc4eae2998d42176d64bf04901ad60016842410e54b51",
           "motivation": "Graphs are widely used for abstracting systems of interacting objects, such as social networks (Easley et al., 2010), knowledge graphs (Nickel et al., 2015), molecular graphs (Wu et al., 2018), and biological networks (Barabasi & Oltvai, 2004), as well as for modeling 3D objects (Simonovsky & Komodakis, 2017), manifolds (Bronstein et al., 2017), and source code (Allamanis et al., 2017). Machine learning (ML), especially deep learning, on graphs is an emerging field (Hamilton et al., 2017b; Bronstein et al., 2017). W. Hu et al. To represent a graph, an adjaceny matrix is used, which is inherently sparse.",
           "name": "gcn_weights",
           "pretty_name": "Graph Convolutional Network Weights",
           "references": [
             "Bobby Yan, Alexander J. Root, Trevor Gale, David Broman, Fredrik Kjolstad. \"Scorch: A Library for Sparse Deep Learning\", Arxiv, Vol. arXiv:2405.16883, 2024, URL: https://anonymous.4open.science/r/scorch/README.md.",
             "Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graphs\", Arxiv, Vol. arXiv:2005.00687, 2020, URL: https://arxiv.org/abs/2005.00687."
+          ],
+          "suites": [],
+          "tags": [
+            "computing-methodologies",
+            "graph-algorithms",
+            "mathematics-of-computing",
+            "neural-networks"
+          ],
+          "topics": []
+        },
+        {
+          "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI was used to help implement and audit the OGB downloader, input generator, tests, documentation, and debugging.",
+          "authors": [
+            "Tarun Devi <tdevi3@gatech.edu>"
+          ],
+          "cacheable": false,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "gcn_ogb_inputs.ogbn_arxiv",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Citation network of arXiv Computer Science papers for node-property prediction.",
+              "file": "src/saps/benchmarks/gcn.py",
+              "freshness": "e8dffac2ae7445be8fbfc4eae2998d42176d64bf04901ad60016842410e54b51",
+              "hidden_dim": 256,
+              "name": "ogbn_arxiv",
+              "pretty_name": "GCN ogbn-arxiv",
+              "source_name": "ogbn-arxiv",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "computing-methodologies",
+                "graph-algorithms",
+                "mathematics-of-computing",
+                "neural-networks",
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "gcn_ogb_inputs.ogbn_products",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Amazon product co-purchasing network for large-scale node-property prediction.",
+              "file": "src/saps/benchmarks/gcn.py",
+              "freshness": "e8dffac2ae7445be8fbfc4eae2998d42176d64bf04901ad60016842410e54b51",
+              "hidden_dim": 256,
+              "name": "ogbn_products",
+              "pretty_name": "GCN ogbn-products",
+              "source_name": "ogbn-products",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "computing-methodologies",
+                "graph-algorithms",
+                "mathematics-of-computing",
+                "neural-networks",
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "gcn_ogb_inputs.ogbn_proteins",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Protein-protein association network with species labels and averaged edge-feature node inputs.",
+              "file": "src/saps/benchmarks/gcn.py",
+              "freshness": "e8dffac2ae7445be8fbfc4eae2998d42176d64bf04901ad60016842410e54b51",
+              "hidden_dim": 256,
+              "name": "ogbn_proteins",
+              "pretty_name": "GCN ogbn-proteins",
+              "source_name": "ogbn-proteins",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "computing-methodologies",
+                "graph-algorithms",
+                "mathematics-of-computing",
+                "neural-networks",
+                "standard"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "Loads full OGB node-property graphs for 2-layer GCN inference.",
+          "file": "src/saps/benchmarks/gcn.py",
+          "freshness": "e8dffac2ae7445be8fbfc4eae2998d42176d64bf04901ad60016842410e54b51",
+          "motivation": "Uses complete real-world node features and graph structure from the Open Graph Benchmark instead of synthesized GCN inputs. SAPS caching is disabled because its JSON/hex representation would expand these very large graphs substantially; OGB maintains the source-data cache instead.",
+          "name": "gcn_ogb_inputs",
+          "pretty_name": "Open Graph Benchmark GCN Inputs",
+          "references": [
+            "Bobby Yan, Alexander J. Root, Trevor Gale, David Broman, Fredrik Kjolstad. \"Scorch: A Library for Sparse Deep Learning\", Arxiv, Vol. arXiv:2405.16883, 2024, URL: https://anonymous.4open.science/r/scorch/README.md.",
+            "Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graphs\", Arxiv, Vol. arXiv:2005.00687, 2020, URL: https://arxiv.org/abs/2005.00687.",
+            "Thomas N. Kipf, Max Welling. \"Semi-Supervised Classification with Graph Convolutional Networks\", Arxiv, Vol. arXiv:1609.02907, 2016, URL: https://arxiv.org/abs/1609.02907."
           ],
           "suites": [],
           "tags": [
@@ -43848,7 +43944,8 @@
       "pretty_name": "Graph Convolutional Network Inference",
       "references": [
         "Bobby Yan, Alexander J. Root, Trevor Gale, David Broman, Fredrik Kjolstad. \"Scorch: A Library for Sparse Deep Learning\", Arxiv, Vol. arXiv:2405.16883, 2024, URL: https://anonymous.4open.science/r/scorch/README.md.",
-        "Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graphs\", Arxiv, Vol. arXiv:2005.00687, 2020, URL: https://arxiv.org/abs/2005.00687."
+        "Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graphs\", Arxiv, Vol. arXiv:2005.00687, 2020, URL: https://arxiv.org/abs/2005.00687.",
+        "Thomas N. Kipf, Max Welling. \"Semi-Supervised Classification with Graph Convolutional Networks\", Arxiv, Vol. arXiv:1609.02907, 2016, URL: https://arxiv.org/abs/1609.02907."
       ],
       "suites": [],
       "tags": [
@@ -43876,7 +43973,7 @@
       "concepts": "\n        <ccs2012>\n        <concept>\n        <concept_id>10010147.10010257.10010293.10010294</concept_id>\n        <concept_desc>Computing methodologies~Neural networks</concept_desc>\n        <concept_significance>500</concept_significance>\n        </concept>\n        <concept>\n        <concept_id>10002950.10003624.10003633.10010917</concept_id>\n        <concept_desc>Mathematics of computing~Graph algorithms</concept_desc>\n        <concept_significance>500</concept_significance>\n        </concept>\n        </ccs2012>\n        ",
       "description": "\nBenchmarks 2-layer GCN training loop (forward, backward, weight updates).\n\nEach iteration:\n    Forward pass:\n        Z1 = A @ X\n        H1_pre = Z1 @ W1 + b1\n        H1 = ReLU(H1_pre)\n        Z2 = A @ H1\n        Y = Z2 @ W2 + b2\n\n    Backward pass (MSE loss):\n        dY = (2/N) * (Y - T)\n        dW2 = Z2.T @ dY\n        db2 = sum(dY, axis=0)\n        dZ2 = dY @ W2.T\n        dH1 = A.T @ dZ2\n        dH1_pre = dH1 * (H1_pre > 0)\n        dW1 = Z1.T @ dH1_pre\n        db1 = sum(dH1_pre, axis=0)\n\n    Weight updates:\n        W1 = W1 - lr * dW1\n        b1 = b1 - lr * db1\n        W2 = W2 - lr * dW2\n        b2 = b2 - lr * db2\n        ",
       "file": "src/saps/benchmarks/gcn_backward.py",
-      "freshness": "52c043807aa3c28bd102803416bf0d60089143dad3990ec0cb46489065f128de",
+      "freshness": "38807ed9334f6afebb19c01d8e3f48d3b6fa358140de268a8fcf8d23586b8264",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI might have been used to construct tests. This statement was written by hand.",
@@ -43892,7 +43989,7 @@
               "description": "SuiteSparse matrix test_gcn_backward_2node.",
               "feature_dim": 1,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "52c043807aa3c28bd102803416bf0d60089143dad3990ec0cb46489065f128de",
+              "freshness": "38807ed9334f6afebb19c01d8e3f48d3b6fa358140de268a8fcf8d23586b8264",
               "hidden_dim": 4,
               "learning_rate": 0.01,
               "name": "test_gcn_backward_2node",
@@ -43921,7 +44018,7 @@
               "description": "SuiteSparse matrix test_gcn_backward_multidim.",
               "feature_dim": 1,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "52c043807aa3c28bd102803416bf0d60089143dad3990ec0cb46489065f128de",
+              "freshness": "38807ed9334f6afebb19c01d8e3f48d3b6fa358140de268a8fcf8d23586b8264",
               "hidden_dim": 4,
               "learning_rate": 0.01,
               "name": "test_gcn_backward_multidim",
@@ -43950,7 +44047,7 @@
               "description": "SuiteSparse matrix test_gcn_backward_degree_loss.",
               "feature_dim": 1,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "52c043807aa3c28bd102803416bf0d60089143dad3990ec0cb46489065f128de",
+              "freshness": "38807ed9334f6afebb19c01d8e3f48d3b6fa358140de268a8fcf8d23586b8264",
               "hidden_dim": 4,
               "learning_rate": 0.01,
               "name": "test_gcn_backward_degree_loss",
@@ -43979,7 +44076,7 @@
               "description": "SuiteSparse matrix test_gcn_backward_degree_test_graph_loss.",
               "feature_dim": 1,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "52c043807aa3c28bd102803416bf0d60089143dad3990ec0cb46489065f128de",
+              "freshness": "38807ed9334f6afebb19c01d8e3f48d3b6fa358140de268a8fcf8d23586b8264",
               "hidden_dim": 4,
               "learning_rate": 0.01,
               "name": "test_gcn_backward_degree_test_graph_loss",
@@ -44005,7 +44102,7 @@
           ],
           "description": "Small inlined GCN training examples.",
           "file": "src/saps/benchmarks/gcn_backward.py",
-          "freshness": "52c043807aa3c28bd102803416bf0d60089143dad3990ec0cb46489065f128de",
+          "freshness": "38807ed9334f6afebb19c01d8e3f48d3b6fa358140de268a8fcf8d23586b8264",
           "motivation": "Uses small graph examples to verify the GCN training loop.",
           "name": "gcn_backward_test_inputs",
           "pretty_name": "GCN Backward Test Input Generator",
@@ -44041,7 +44138,7 @@
               "description": "Small social network graph.",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "52c043807aa3c28bd102803416bf0d60089143dad3990ec0cb46489065f128de",
+              "freshness": "38807ed9334f6afebb19c01d8e3f48d3b6fa358140de268a8fcf8d23586b8264",
               "hidden_dim": 8,
               "learning_rate": 0.01,
               "name": "dg_gcn_social_1",
@@ -44065,7 +44162,7 @@
               "description": "Medium social network graph.",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "52c043807aa3c28bd102803416bf0d60089143dad3990ec0cb46489065f128de",
+              "freshness": "38807ed9334f6afebb19c01d8e3f48d3b6fa358140de268a8fcf8d23586b8264",
               "hidden_dim": 8,
               "learning_rate": 0.01,
               "name": "dg_gcn_social_2",
@@ -44089,7 +44186,7 @@
               "description": "Larger social network graph.",
               "feature_dim": 8,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "52c043807aa3c28bd102803416bf0d60089143dad3990ec0cb46489065f128de",
+              "freshness": "38807ed9334f6afebb19c01d8e3f48d3b6fa358140de268a8fcf8d23586b8264",
               "hidden_dim": 16,
               "learning_rate": 0.01,
               "name": "dg_gcn_social_3",
@@ -44113,7 +44210,7 @@
               "description": "Small road network graph.",
               "feature_dim": 8,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "52c043807aa3c28bd102803416bf0d60089143dad3990ec0cb46489065f128de",
+              "freshness": "38807ed9334f6afebb19c01d8e3f48d3b6fa358140de268a8fcf8d23586b8264",
               "hidden_dim": 4,
               "learning_rate": 0.01,
               "name": "dg_gcn_road_1",
@@ -44137,7 +44234,7 @@
               "description": "Small molecular graph. - Email network.",
               "feature_dim": 4,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "52c043807aa3c28bd102803416bf0d60089143dad3990ec0cb46489065f128de",
+              "freshness": "38807ed9334f6afebb19c01d8e3f48d3b6fa358140de268a8fcf8d23586b8264",
               "hidden_dim": 8,
               "learning_rate": 0.01,
               "name": "dg_gcn_molecular_1",
@@ -44161,7 +44258,7 @@
               "description": "Medium molecular graph - PDDB protein structure.",
               "feature_dim": 6,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "52c043807aa3c28bd102803416bf0d60089143dad3990ec0cb46489065f128de",
+              "freshness": "38807ed9334f6afebb19c01d8e3f48d3b6fa358140de268a8fcf8d23586b8264",
               "hidden_dim": 12,
               "learning_rate": 0.01,
               "name": "dg_gcn_molecular_2",
@@ -44185,7 +44282,7 @@
               "description": "Large citation network graph (AIDS-like size).",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "52c043807aa3c28bd102803416bf0d60089143dad3990ec0cb46489065f128de",
+              "freshness": "38807ed9334f6afebb19c01d8e3f48d3b6fa358140de268a8fcf8d23586b8264",
               "hidden_dim": 32,
               "learning_rate": 0.01,
               "name": "dg_gcn_citation_1",
@@ -44202,38 +44299,114 @@
                 "neural-networks"
               ],
               "topics": []
-            },
-            {
-              "asv_param": "gcn_weights.dg_gcn_bcsstk01",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "Original small structural engineering matrix (for backward compatibility).",
-              "feature_dim": 16,
-              "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "52c043807aa3c28bd102803416bf0d60089143dad3990ec0cb46489065f128de",
-              "hidden_dim": 8,
-              "learning_rate": 0.01,
-              "name": "dg_gcn_bcsstk01",
-              "nnz": null,
-              "num_iterations": 10,
-              "out_dim": 1,
-              "pretty_name": "GCN dg_gcn_bcsstk01",
-              "source_name": "bcsstk01",
-              "suites": [],
-              "tags": [
-                "computing-methodologies",
-                "graph-algorithms",
-                "mathematics-of-computing",
-                "neural-networks"
-              ],
-              "topics": []
             }
           ],
           "description": "Generates random weights for a 2-layer Graph Convolutional Network.",
           "file": "src/saps/benchmarks/gcn_backward.py",
-          "freshness": "52c043807aa3c28bd102803416bf0d60089143dad3990ec0cb46489065f128de",
+          "freshness": "38807ed9334f6afebb19c01d8e3f48d3b6fa358140de268a8fcf8d23586b8264",
           "motivation": "Graphs are widely used for abstracting systems of interacting objects, such as social networks (Easley et al., 2010), knowledge graphs (Nickel et al., 2015), molecular graphs (Wu et al., 2018), and biological networks (Barabasi & Oltvai, 2004), as well as for modeling 3D objects (Simonovsky & Komodakis, 2017), manifolds (Bronstein et al., 2017), and source code (Allamanis et al., 2017). Machine learning (ML), especially deep learning, on graphs is an emerging field (Hamilton et al., 2017b; Bronstein et al., 2017). W. Hu et al. To represent a graph, an adjaceny matrix is used, which is inherently sparse.",
           "name": "gcn_weights",
           "pretty_name": "Graph Convolutional Network Weights",
+          "references": [
+            "Bobby Yan, Alexander J. Root, Trevor Gale, David Broman, Fredrik Kjolstad. \"Scorch: A Library for Sparse Deep Learning\", Arxiv, Vol. arXiv:2405.16883, 2024, URL: https://anonymous.4open.science/r/scorch/README.md.",
+            "Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graphs\", Arxiv, Vol. arXiv:2005.00687, 2020, URL: https://arxiv.org/abs/2005.00687."
+          ],
+          "suites": [],
+          "tags": [
+            "computing-methodologies",
+            "graph-algorithms",
+            "mathematics-of-computing",
+            "neural-networks"
+          ],
+          "topics": []
+        },
+        {
+          "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI was used to help implement and audit OGB input plumbing, tests, documentation, and debugging.",
+          "authors": [
+            "Tarun Devi <tdevi3@gatech.edu>"
+          ],
+          "cacheable": false,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "gcn_backward_ogb_inputs.ogbn_arxiv",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Citation network of arXiv Computer Science papers for node-property prediction.",
+              "file": "src/saps/benchmarks/gcn_backward.py",
+              "freshness": "38807ed9334f6afebb19c01d8e3f48d3b6fa358140de268a8fcf8d23586b8264",
+              "hidden_dim": 256,
+              "learning_rate": 0.01,
+              "name": "ogbn_arxiv",
+              "num_iterations": 10,
+              "pretty_name": "GCN Backward ogbn-arxiv",
+              "source_name": "ogbn-arxiv",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "computing-methodologies",
+                "graph-algorithms",
+                "mathematics-of-computing",
+                "neural-networks",
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "gcn_backward_ogb_inputs.ogbn_products",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Amazon product co-purchasing network for large-scale node-property prediction.",
+              "file": "src/saps/benchmarks/gcn_backward.py",
+              "freshness": "38807ed9334f6afebb19c01d8e3f48d3b6fa358140de268a8fcf8d23586b8264",
+              "hidden_dim": 256,
+              "learning_rate": 0.01,
+              "name": "ogbn_products",
+              "num_iterations": 10,
+              "pretty_name": "GCN Backward ogbn-products",
+              "source_name": "ogbn-products",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "computing-methodologies",
+                "graph-algorithms",
+                "mathematics-of-computing",
+                "neural-networks",
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "gcn_backward_ogb_inputs.ogbn_proteins",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Protein-protein association network with species labels and averaged edge-feature node inputs.",
+              "file": "src/saps/benchmarks/gcn_backward.py",
+              "freshness": "38807ed9334f6afebb19c01d8e3f48d3b6fa358140de268a8fcf8d23586b8264",
+              "hidden_dim": 256,
+              "learning_rate": 0.01,
+              "name": "ogbn_proteins",
+              "num_iterations": 10,
+              "pretty_name": "GCN Backward ogbn-proteins",
+              "source_name": "ogbn-proteins",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "computing-methodologies",
+                "graph-algorithms",
+                "mathematics-of-computing",
+                "neural-networks",
+                "standard"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "Loads full OGB node-property graphs for 2-layer GCN training.",
+          "file": "src/saps/benchmarks/gcn_backward.py",
+          "freshness": "38807ed9334f6afebb19c01d8e3f48d3b6fa358140de268a8fcf8d23586b8264",
+          "motivation": "Uses complete real-world node features, graph structure, and labels from the Open Graph Benchmark for the GCN training loop. SAPS caching is disabled for these benchmark-specific training tensors because the shared OGB shell generator caches the prepared source graph.",
+          "name": "gcn_backward_ogb_inputs",
+          "pretty_name": "Open Graph Benchmark GCN Backward Inputs",
           "references": [
             "Bobby Yan, Alexander J. Root, Trevor Gale, David Broman, Fredrik Kjolstad. \"Scorch: A Library for Sparse Deep Learning\", Arxiv, Vol. arXiv:2405.16883, 2024, URL: https://anonymous.4open.science/r/scorch/README.md.",
             "Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graphs\", Arxiv, Vol. arXiv:2005.00687, 2020, URL: https://arxiv.org/abs/2005.00687."
@@ -48877,6 +49050,98 @@
         ". \"\", URL: https://www.researchgate.net/publication/310464068_EDGE_DETECTION_OF_MRI_IMAGES_-A_REVIEW.",
         ". \"\", URL: https://pmc.ncbi.nlm.nih.gov/articles/PMC4948115/."
       ],
+      "suites": [],
+      "tags": [],
+      "topics": []
+    },
+    {
+      "ai_disclosure": "",
+      "asv_ids": {
+        "peakmem": "ogb.OGBNodePropBenchmark.peakmem_ogb_nodeprop_shell",
+        "time": "ogb.OGBNodePropBenchmark.time_ogb_nodeprop_shell"
+      },
+      "authors": [],
+      "concepts": "<ccs2012></ccs2012>",
+      "description": "",
+      "file": "src/saps/benchmarks/ogb.py",
+      "freshness": "693d12efcefd82971c23f93f9ae1984c8710b314134cc939249c9fe19fc50bb0",
+      "generators": [
+        {
+          "ai_disclosure": "No generative AI was used to construct the source datasets. Generative AI was used to help implement and audit the OGB downloader, input generator, tests, documentation, and debugging.",
+          "authors": [],
+          "cacheable": true,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "ogb_nodeprop.ogbn_arxiv",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Citation network of arXiv Computer Science papers for node-property prediction.",
+              "file": "src/saps/benchmarks/ogb.py",
+              "freshness": "693d12efcefd82971c23f93f9ae1984c8710b314134cc939249c9fe19fc50bb0",
+              "name": "ogbn_arxiv",
+              "pretty_name": "ogbn-arxiv",
+              "source_name": "ogbn-arxiv",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "ogb_nodeprop.ogbn_products",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Amazon product co-purchasing network for large-scale node-property prediction.",
+              "file": "src/saps/benchmarks/ogb.py",
+              "freshness": "693d12efcefd82971c23f93f9ae1984c8710b314134cc939249c9fe19fc50bb0",
+              "name": "ogbn_products",
+              "pretty_name": "ogbn-products",
+              "source_name": "ogbn-products",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "ogb_nodeprop.ogbn_proteins",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Protein-protein association network with species labels and averaged edge-feature node inputs.",
+              "file": "src/saps/benchmarks/ogb.py",
+              "freshness": "693d12efcefd82971c23f93f9ae1984c8710b314134cc939249c9fe19fc50bb0",
+              "name": "ogbn_proteins",
+              "pretty_name": "ogbn-proteins",
+              "source_name": "ogbn-proteins",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "Downloads, prepares, and caches homogeneous Open Graph Benchmark node-property datasets. Benchmark-specific generators compose this generator so each OGB graph is downloaded and cached once.",
+          "file": "src/saps/benchmarks/ogb.py",
+          "freshness": "693d12efcefd82971c23f93f9ae1984c8710b314134cc939249c9fe19fc50bb0",
+          "motivation": "Large OGB graphs can be reused by several graph-learning benchmarks. Sharing a cacheable generator for the prepared source graph avoids redundant downloads while allowing child benchmark generators to keep their benchmark-specific inputs uncached.",
+          "name": "ogb_nodeprop",
+          "pretty_name": "Open Graph Benchmark Node Property Datasets",
+          "references": [
+            "Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graphs\", Arxiv, Vol. arXiv:2005.00687, 2020, URL: https://arxiv.org/abs/2005.00687."
+          ],
+          "suites": [],
+          "tags": [],
+          "topics": []
+        }
+      ],
+      "motivation": "",
+      "name": "ogb_nodeprop_shell",
+      "pretty_name": "Open Graph Benchmark Node Property Datasets",
+      "references": [],
       "suites": [],
       "tags": [],
       "topics": []
