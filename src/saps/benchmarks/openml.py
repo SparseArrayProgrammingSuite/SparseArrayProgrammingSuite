@@ -159,9 +159,7 @@ class OpenMLDatasetGenerator(Generator[OpenMLDataset]):
                 openml_name="CIFAR_10",
                 version=1,
                 pretty_name="CIFAR-10",
-                description=(
-                    "OpenML copy of the CIFAR-10 32x32 color image dataset."
-                ),
+                description=("OpenML copy of the CIFAR-10 32x32 color image dataset."),
                 scale=255.0,
             ),
         ]

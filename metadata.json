@@ -35,7 +35,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
                 "hardware",
                 "mathematics-of-computing",
                 "model-checking",
@@ -59,7 +58,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
                 "hardware",
                 "mathematics-of-computing",
                 "model-checking",
@@ -83,7 +81,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
                 "hardware",
                 "mathematics-of-computing",
                 "model-checking",
@@ -107,7 +104,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
                 "hardware",
                 "mathematics-of-computing",
                 "model-checking",
@@ -235,7 +231,6 @@
                 "trace"
               ],
               "tags": [
-                "dynamic-sparsity",
                 "test",
                 "trace"
               ],
@@ -254,7 +249,6 @@
                 "trace"
               ],
               "tags": [
-                "dynamic-sparsity",
                 "test",
                 "trace"
               ],
@@ -26826,7 +26820,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
                 "hardware",
                 "mathematics-of-computing",
                 "model-checking",
@@ -26856,7 +26849,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
                 "hardware",
                 "mathematics-of-computing",
                 "model-checking",
@@ -26886,7 +26878,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
                 "hardware",
                 "mathematics-of-computing",
                 "model-checking",
@@ -26916,7 +26907,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
                 "hardware",
                 "mathematics-of-computing",
                 "model-checking",
@@ -26946,9 +26936,7 @@
                 "trace"
               ],
               "tags": [
-                "dense",
                 "hardware",
-                "large-query",
                 "mathematics-of-computing",
                 "model-checking",
                 "probabilistic-inference-problems",
@@ -26977,9 +26965,7 @@
                 "trace"
               ],
               "tags": [
-                "dense",
                 "hardware",
-                "large-query",
                 "mathematics-of-computing",
                 "model-checking",
                 "probabilistic-inference-problems",
@@ -27056,15 +27042,11 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
-                "shape-ops",
                 "test",
                 "trace"
               ],
@@ -27083,15 +27065,11 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
-                "shape-ops",
                 "test",
                 "trace"
               ],
@@ -27110,15 +27088,11 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
-                "shape-ops",
                 "test",
                 "trace"
               ],
@@ -27137,15 +27111,11 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
-                "shape-ops",
                 "test",
                 "trace"
               ],
@@ -27164,15 +27134,11 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
-                "shape-ops",
                 "test",
                 "trace"
               ],
@@ -33157,11 +33123,7 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
@@ -33184,10 +33146,7 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
@@ -33210,11 +33169,7 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
@@ -33237,11 +33192,7 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
@@ -33264,11 +33215,7 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
@@ -33291,11 +33238,7 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
@@ -33318,11 +33261,7 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
@@ -33345,11 +33284,7 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
@@ -33712,10 +33647,7 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
@@ -33738,10 +33670,7 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
@@ -33764,10 +33693,7 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
@@ -33790,10 +33716,7 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
@@ -33816,10 +33739,7 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
@@ -33842,10 +33762,7 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
@@ -39722,9 +39639,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "index-ops",
-                "linalg-ops",
                 "test",
                 "trace"
               ],
@@ -39798,9 +39712,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "index-ops",
-                "linalg-ops",
                 "test",
                 "trace"
               ],
@@ -39874,9 +39785,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "index-ops",
-                "linalg-ops",
                 "test",
                 "trace"
               ],
@@ -39953,8 +39861,6 @@
                 "computing-methodologies",
                 "continuous-simulation",
                 "discretization",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "test",
@@ -40171,8 +40077,6 @@
                 "computing-methodologies",
                 "continuous-simulation",
                 "discretization",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "test",
@@ -40389,11 +40293,8 @@
                 "applied-computing",
                 "chemistry",
                 "computing-methodologies",
-                "dense",
-                "elementary-ops",
                 "physics",
                 "quantum-mechanic-simulation",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -40510,17 +40411,12 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -40538,17 +40434,12 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -40566,17 +40457,12 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -40594,17 +40480,12 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -40622,17 +40503,12 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -40650,17 +40526,12 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             }
@@ -40912,18 +40783,12 @@
               ],
               "tags": [
                 "computing-methodologies",
-                "dense",
                 "factorization-methods",
-                "fancy-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
-                "shape-ops",
-                "tensor",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -41378,19 +41243,12 @@
               ],
               "tags": [
                 "computing-methodologies",
-                "dense",
                 "factorization-methods",
-                "fancy-ops",
-                "large-query",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
-                "shape-ops",
-                "tensor",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -41657,20 +41515,12 @@
               ],
               "tags": [
                 "computing-methodologies",
-                "dense",
                 "factorization-methods",
-                "fancy-ops",
-                "high-dimensional",
-                "large-query",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
-                "shape-ops",
-                "tensor",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -41873,15 +41723,11 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
-                "shape-ops",
                 "test",
                 "trace"
               ],
@@ -41900,15 +41746,11 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
-                "shape-ops",
                 "test",
                 "trace"
               ],
@@ -41927,15 +41769,11 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
-                "shape-ops",
                 "test",
                 "trace"
               ],
@@ -41954,15 +41792,11 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
-                "shape-ops",
                 "test",
                 "trace"
               ],
@@ -41981,15 +41815,11 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
-                "shape-ops",
                 "test",
                 "trace"
               ],
@@ -42008,15 +41838,11 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
-                "shape-ops",
                 "test",
                 "trace"
               ],
@@ -42297,15 +42123,11 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
-                "shape-ops",
                 "test",
                 "trace"
               ],
@@ -42325,15 +42147,11 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
-                "shape-ops",
                 "test",
                 "trace"
               ],
@@ -42353,15 +42171,11 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
-                "shape-ops",
                 "test",
                 "trace"
               ],
@@ -42381,15 +42195,11 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
-                "shape-ops",
                 "test",
                 "trace"
               ],
@@ -42409,15 +42219,11 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
-                "shape-ops",
                 "test",
                 "trace"
               ],
@@ -42437,15 +42243,11 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
-                "shape-ops",
                 "test",
                 "trace"
               ],
@@ -42807,8 +42609,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "elementary-ops",
                 "graph-algorithms",
                 "mathematical-software",
                 "mathematical-software-performance",
@@ -42832,8 +42632,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "elementary-ops",
                 "graph-algorithms",
                 "mathematical-software",
                 "mathematical-software-performance",
@@ -42857,8 +42655,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "elementary-ops",
                 "graph-algorithms",
                 "mathematical-software",
                 "mathematical-software-performance",
@@ -42882,8 +42678,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "elementary-ops",
                 "graph-algorithms",
                 "mathematical-software",
                 "mathematical-software-performance",
@@ -43392,7 +43186,7 @@
       "concepts": "\n        <ccs2012>\n        <concept>\n        <concept_id>10010147.10010257.10010293.10010294</concept_id>\n        <concept_desc>Computing methodologies~Neural networks</concept_desc>\n        <concept_significance>500</concept_significance>\n        </concept>\n        <concept>\n        <concept_id>10002950.10003624.10003633.10010917</concept_id>\n        <concept_desc>Mathematics of computing~Graph algorithms</concept_desc>\n        <concept_significance>500</concept_significance>\n        </concept>\n        </ccs2012>\n        ",
       "description": "Computes a 2-layer Graph Convolutional Network forward pass: h1 = ReLU(adjacency @ features @ weights1 + bias1) output = adjacency @ h1 @ weights2 + bias2 Implementation based on Scorch (Yan et al., 2024).",
       "file": "src/saps/benchmarks/gcn.py",
-      "freshness": "19364e931b8286a23b025587ca6b5f2706420a2fef6454e5ab4aa0e5406063e8",
+      "freshness": "b687d0d21efbbec717f34707359dd1e668eb603071a7d706d44e149e7f0b681d",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI was used to help implement and audit OGB input plumbing, tests, documentation, and debugging.",
@@ -43408,7 +43202,7 @@
               "description": "SuiteSparse matrix test_gcn_3node.",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "19364e931b8286a23b025587ca6b5f2706420a2fef6454e5ab4aa0e5406063e8",
+              "freshness": "b687d0d21efbbec717f34707359dd1e668eb603071a7d706d44e149e7f0b681d",
               "hidden_dim": 8,
               "name": "test_gcn_3node",
               "nnz": null,
@@ -43435,7 +43229,7 @@
               "description": "SuiteSparse matrix test_gcn_simple_2node.",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "19364e931b8286a23b025587ca6b5f2706420a2fef6454e5ab4aa0e5406063e8",
+              "freshness": "b687d0d21efbbec717f34707359dd1e668eb603071a7d706d44e149e7f0b681d",
               "hidden_dim": 8,
               "name": "test_gcn_simple_2node",
               "nnz": null,
@@ -43462,7 +43256,7 @@
               "description": "SuiteSparse matrix test_gcn_simple_3node_line.",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "19364e931b8286a23b025587ca6b5f2706420a2fef6454e5ab4aa0e5406063e8",
+              "freshness": "b687d0d21efbbec717f34707359dd1e668eb603071a7d706d44e149e7f0b681d",
               "hidden_dim": 8,
               "name": "test_gcn_simple_3node_line",
               "nnz": null,
@@ -43489,7 +43283,7 @@
               "description": "SuiteSparse matrix test_gcn_with_relu_activation.",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "19364e931b8286a23b025587ca6b5f2706420a2fef6454e5ab4aa0e5406063e8",
+              "freshness": "b687d0d21efbbec717f34707359dd1e668eb603071a7d706d44e149e7f0b681d",
               "hidden_dim": 8,
               "name": "test_gcn_with_relu_activation",
               "nnz": null,
@@ -43513,7 +43307,7 @@
           ],
           "description": "Small inlined GCN forward-pass examples.",
           "file": "src/saps/benchmarks/gcn.py",
-          "freshness": "19364e931b8286a23b025587ca6b5f2706420a2fef6454e5ab4aa0e5406063e8",
+          "freshness": "b687d0d21efbbec717f34707359dd1e668eb603071a7d706d44e149e7f0b681d",
           "motivation": "Uses small graph examples to verify the GCN forward pass.",
           "name": "gcn_test_inputs",
           "pretty_name": "GCN Test Input Generator",
@@ -43550,7 +43344,7 @@
               "description": "Small social network graph.",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "19364e931b8286a23b025587ca6b5f2706420a2fef6454e5ab4aa0e5406063e8",
+              "freshness": "b687d0d21efbbec717f34707359dd1e668eb603071a7d706d44e149e7f0b681d",
               "hidden_dim": 8,
               "name": "dg_gcn_social_1",
               "nnz": null,
@@ -43572,7 +43366,7 @@
               "description": "Medium social network graph.",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "19364e931b8286a23b025587ca6b5f2706420a2fef6454e5ab4aa0e5406063e8",
+              "freshness": "b687d0d21efbbec717f34707359dd1e668eb603071a7d706d44e149e7f0b681d",
               "hidden_dim": 8,
               "name": "dg_gcn_social_2",
               "nnz": null,
@@ -43594,7 +43388,7 @@
               "description": "Larger social network graph.",
               "feature_dim": 8,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "19364e931b8286a23b025587ca6b5f2706420a2fef6454e5ab4aa0e5406063e8",
+              "freshness": "b687d0d21efbbec717f34707359dd1e668eb603071a7d706d44e149e7f0b681d",
               "hidden_dim": 16,
               "name": "dg_gcn_social_3",
               "nnz": null,
@@ -43616,7 +43410,7 @@
               "description": "Small road network graph.",
               "feature_dim": 8,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "19364e931b8286a23b025587ca6b5f2706420a2fef6454e5ab4aa0e5406063e8",
+              "freshness": "b687d0d21efbbec717f34707359dd1e668eb603071a7d706d44e149e7f0b681d",
               "hidden_dim": 4,
               "name": "dg_gcn_road_1",
               "nnz": null,
@@ -43638,7 +43432,7 @@
               "description": "Small molecular graph. - Email network.",
               "feature_dim": 4,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "19364e931b8286a23b025587ca6b5f2706420a2fef6454e5ab4aa0e5406063e8",
+              "freshness": "b687d0d21efbbec717f34707359dd1e668eb603071a7d706d44e149e7f0b681d",
               "hidden_dim": 8,
               "name": "dg_gcn_molecular_1",
               "nnz": null,
@@ -43660,7 +43454,7 @@
               "description": "Medium molecular graph - PDDB protein structure.",
               "feature_dim": 6,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "19364e931b8286a23b025587ca6b5f2706420a2fef6454e5ab4aa0e5406063e8",
+              "freshness": "b687d0d21efbbec717f34707359dd1e668eb603071a7d706d44e149e7f0b681d",
               "hidden_dim": 12,
               "name": "dg_gcn_molecular_2",
               "nnz": null,
@@ -43682,7 +43476,7 @@
               "description": "Large citation network graph (AIDS-like size).",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "19364e931b8286a23b025587ca6b5f2706420a2fef6454e5ab4aa0e5406063e8",
+              "freshness": "b687d0d21efbbec717f34707359dd1e668eb603071a7d706d44e149e7f0b681d",
               "hidden_dim": 32,
               "name": "dg_gcn_citation_1",
               "nnz": null,
@@ -43704,7 +43498,7 @@
               "description": "Original small structural engineering matrix (for backward compatibility).",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "19364e931b8286a23b025587ca6b5f2706420a2fef6454e5ab4aa0e5406063e8",
+              "freshness": "b687d0d21efbbec717f34707359dd1e668eb603071a7d706d44e149e7f0b681d",
               "hidden_dim": 8,
               "name": "dg_gcn_bcsstk01",
               "nnz": null,
@@ -43723,7 +43517,7 @@
           ],
           "description": "Generates random weights for a 2-layer Graph Convolutional Network.",
           "file": "src/saps/benchmarks/gcn.py",
-          "freshness": "19364e931b8286a23b025587ca6b5f2706420a2fef6454e5ab4aa0e5406063e8",
+          "freshness": "b687d0d21efbbec717f34707359dd1e668eb603071a7d706d44e149e7f0b681d",
           "motivation": "Graphs are widely used for abstracting systems of interacting objects, such as social networks (Easley et al., 2010), knowledge graphs (Nickel et al., 2015), molecular graphs (Wu et al., 2018), and biological networks (Barabasi & Oltvai, 2004), as well as for modeling 3D objects (Simonovsky & Komodakis, 2017), manifolds (Bronstein et al., 2017), and source code (Allamanis et al., 2017). Machine learning (ML), especially deep learning, on graphs is an emerging field (Hamilton et al., 2017b; Bronstein et al., 2017). W. Hu et al. To represent a graph, an adjaceny matrix is used, which is inherently sparse.",
           "name": "gcn_weights",
           "pretty_name": "Graph Convolutional Network Weights",
@@ -43751,13 +43545,11 @@
             {
               "asv_param": "gcn_ogb_inputs.ogbn_arxiv",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Full ogbn-arxiv citation graph with 128-dimensional paper features and 40 prediction classes.",
-              "feature_dim": 128,
+              "description": "Citation network of arXiv Computer Science papers for node-property prediction.",
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "19364e931b8286a23b025587ca6b5f2706420a2fef6454e5ab4aa0e5406063e8",
+              "freshness": "b687d0d21efbbec717f34707359dd1e668eb603071a7d706d44e149e7f0b681d",
               "hidden_dim": 256,
               "name": "ogbn_arxiv",
-              "out_dim": 40,
               "pretty_name": "GCN ogbn-arxiv",
               "source_name": "ogbn-arxiv",
               "suites": [
@@ -43775,49 +43567,51 @@
             {
               "asv_param": "gcn_ogb_inputs.ogbn_products",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Full ogbn-products co-purchasing graph with 100-dimensional product features and 47 prediction classes.",
-              "feature_dim": 100,
+              "description": "Amazon product co-purchasing network for large-scale node-property prediction.",
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "19364e931b8286a23b025587ca6b5f2706420a2fef6454e5ab4aa0e5406063e8",
+              "freshness": "b687d0d21efbbec717f34707359dd1e668eb603071a7d706d44e149e7f0b681d",
               "hidden_dim": 256,
               "name": "ogbn_products",
-              "out_dim": 47,
               "pretty_name": "GCN ogbn-products",
               "source_name": "ogbn-products",
-              "suites": [],
+              "suites": [
+                "standard"
+              ],
               "tags": [
                 "computing-methodologies",
                 "graph-algorithms",
                 "mathematics-of-computing",
-                "neural-networks"
+                "neural-networks",
+                "standard"
               ],
               "topics": []
             },
             {
               "asv_param": "gcn_ogb_inputs.ogbn_proteins",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Full ogbn-proteins association graph; node features are the mean of its 8-dimensional incident edge features.",
-              "feature_dim": 8,
+              "description": "Protein-protein association network with species labels and averaged edge-feature node inputs.",
               "file": "src/saps/benchmarks/gcn.py",
-              "freshness": "19364e931b8286a23b025587ca6b5f2706420a2fef6454e5ab4aa0e5406063e8",
+              "freshness": "b687d0d21efbbec717f34707359dd1e668eb603071a7d706d44e149e7f0b681d",
               "hidden_dim": 256,
               "name": "ogbn_proteins",
-              "out_dim": 112,
               "pretty_name": "GCN ogbn-proteins",
               "source_name": "ogbn-proteins",
-              "suites": [],
+              "suites": [
+                "standard"
+              ],
               "tags": [
                 "computing-methodologies",
                 "graph-algorithms",
                 "mathematics-of-computing",
-                "neural-networks"
+                "neural-networks",
+                "standard"
               ],
               "topics": []
             }
           ],
           "description": "Loads full OGB node-property graphs for 2-layer GCN inference.",
           "file": "src/saps/benchmarks/gcn.py",
-          "freshness": "19364e931b8286a23b025587ca6b5f2706420a2fef6454e5ab4aa0e5406063e8",
+          "freshness": "b687d0d21efbbec717f34707359dd1e668eb603071a7d706d44e149e7f0b681d",
           "motivation": "Uses complete real-world node features and graph structure from the Open Graph Benchmark instead of synthesized GCN inputs. SAPS caching is disabled because its JSON/hex representation would expand these very large graphs substantially; OGB maintains the source-data cache instead.",
           "name": "gcn_ogb_inputs",
           "pretty_name": "Open Graph Benchmark GCN Inputs",
@@ -43870,7 +43664,7 @@
       "concepts": "\n        <ccs2012>\n        <concept>\n        <concept_id>10010147.10010257.10010293.10010294</concept_id>\n        <concept_desc>Computing methodologies~Neural networks</concept_desc>\n        <concept_significance>500</concept_significance>\n        </concept>\n        <concept>\n        <concept_id>10002950.10003624.10003633.10010917</concept_id>\n        <concept_desc>Mathematics of computing~Graph algorithms</concept_desc>\n        <concept_significance>500</concept_significance>\n        </concept>\n        </ccs2012>\n        ",
       "description": "\nBenchmarks 2-layer GCN training loop (forward, backward, weight updates).\n\nEach iteration:\n    Forward pass:\n        Z1 = A @ X\n        H1_pre = Z1 @ W1 + b1\n        H1 = ReLU(H1_pre)\n        Z2 = A @ H1\n        Y = Z2 @ W2 + b2\n\n    Backward pass (MSE loss):\n        dY = (2/N) * (Y - T)\n        dW2 = Z2.T @ dY\n        db2 = sum(dY, axis=0)\n        dZ2 = dY @ W2.T\n        dH1 = A.T @ dZ2\n        dH1_pre = dH1 * (H1_pre > 0)\n        dW1 = Z1.T @ dH1_pre\n        db1 = sum(dH1_pre, axis=0)\n\n    Weight updates:\n        W1 = W1 - lr * dW1\n        b1 = b1 - lr * db1\n        W2 = W2 - lr * dW2\n        b2 = b2 - lr * db2\n        ",
       "file": "src/saps/benchmarks/gcn_backward.py",
-      "freshness": "d3e1edde4ea79376c8ef880c6105a101583b1ab10be9b53de04f5cfb6d7bf096",
+      "freshness": "1018265ecc2a82c12243da9092c06b5dc1edfcc5c52b93d110eaf01a0f77df6f",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI might have been used to construct tests. This statement was written by hand.",
@@ -43886,7 +43680,7 @@
               "description": "SuiteSparse matrix test_gcn_backward_2node.",
               "feature_dim": 1,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "d3e1edde4ea79376c8ef880c6105a101583b1ab10be9b53de04f5cfb6d7bf096",
+              "freshness": "1018265ecc2a82c12243da9092c06b5dc1edfcc5c52b93d110eaf01a0f77df6f",
               "hidden_dim": 4,
               "learning_rate": 0.01,
               "name": "test_gcn_backward_2node",
@@ -43901,10 +43695,7 @@
               ],
               "tags": [
                 "computing-methodologies",
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "linalg-ops",
                 "mathematics-of-computing",
                 "neural-networks",
                 "test",
@@ -43918,7 +43709,7 @@
               "description": "SuiteSparse matrix test_gcn_backward_multidim.",
               "feature_dim": 1,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "d3e1edde4ea79376c8ef880c6105a101583b1ab10be9b53de04f5cfb6d7bf096",
+              "freshness": "1018265ecc2a82c12243da9092c06b5dc1edfcc5c52b93d110eaf01a0f77df6f",
               "hidden_dim": 4,
               "learning_rate": 0.01,
               "name": "test_gcn_backward_multidim",
@@ -43933,10 +43724,7 @@
               ],
               "tags": [
                 "computing-methodologies",
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "linalg-ops",
                 "mathematics-of-computing",
                 "neural-networks",
                 "test",
@@ -43950,7 +43738,7 @@
               "description": "SuiteSparse matrix test_gcn_backward_degree_loss.",
               "feature_dim": 1,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "d3e1edde4ea79376c8ef880c6105a101583b1ab10be9b53de04f5cfb6d7bf096",
+              "freshness": "1018265ecc2a82c12243da9092c06b5dc1edfcc5c52b93d110eaf01a0f77df6f",
               "hidden_dim": 4,
               "learning_rate": 0.01,
               "name": "test_gcn_backward_degree_loss",
@@ -43965,10 +43753,7 @@
               ],
               "tags": [
                 "computing-methodologies",
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "linalg-ops",
                 "mathematics-of-computing",
                 "neural-networks",
                 "test",
@@ -43982,7 +43767,7 @@
               "description": "SuiteSparse matrix test_gcn_backward_degree_test_graph_loss.",
               "feature_dim": 1,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "d3e1edde4ea79376c8ef880c6105a101583b1ab10be9b53de04f5cfb6d7bf096",
+              "freshness": "1018265ecc2a82c12243da9092c06b5dc1edfcc5c52b93d110eaf01a0f77df6f",
               "hidden_dim": 4,
               "learning_rate": 0.01,
               "name": "test_gcn_backward_degree_test_graph_loss",
@@ -43997,10 +43782,7 @@
               ],
               "tags": [
                 "computing-methodologies",
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "linalg-ops",
                 "mathematics-of-computing",
                 "neural-networks",
                 "test",
@@ -44011,7 +43793,7 @@
           ],
           "description": "Small inlined GCN training examples.",
           "file": "src/saps/benchmarks/gcn_backward.py",
-          "freshness": "d3e1edde4ea79376c8ef880c6105a101583b1ab10be9b53de04f5cfb6d7bf096",
+          "freshness": "1018265ecc2a82c12243da9092c06b5dc1edfcc5c52b93d110eaf01a0f77df6f",
           "motivation": "Uses small graph examples to verify the GCN training loop.",
           "name": "gcn_backward_test_inputs",
           "pretty_name": "GCN Backward Test Input Generator",
@@ -44047,7 +43829,7 @@
               "description": "Small social network graph.",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "d3e1edde4ea79376c8ef880c6105a101583b1ab10be9b53de04f5cfb6d7bf096",
+              "freshness": "1018265ecc2a82c12243da9092c06b5dc1edfcc5c52b93d110eaf01a0f77df6f",
               "hidden_dim": 8,
               "learning_rate": 0.01,
               "name": "dg_gcn_social_1",
@@ -44071,7 +43853,7 @@
               "description": "Medium social network graph.",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "d3e1edde4ea79376c8ef880c6105a101583b1ab10be9b53de04f5cfb6d7bf096",
+              "freshness": "1018265ecc2a82c12243da9092c06b5dc1edfcc5c52b93d110eaf01a0f77df6f",
               "hidden_dim": 8,
               "learning_rate": 0.01,
               "name": "dg_gcn_social_2",
@@ -44095,7 +43877,7 @@
               "description": "Larger social network graph.",
               "feature_dim": 8,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "d3e1edde4ea79376c8ef880c6105a101583b1ab10be9b53de04f5cfb6d7bf096",
+              "freshness": "1018265ecc2a82c12243da9092c06b5dc1edfcc5c52b93d110eaf01a0f77df6f",
               "hidden_dim": 16,
               "learning_rate": 0.01,
               "name": "dg_gcn_social_3",
@@ -44119,7 +43901,7 @@
               "description": "Small road network graph.",
               "feature_dim": 8,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "d3e1edde4ea79376c8ef880c6105a101583b1ab10be9b53de04f5cfb6d7bf096",
+              "freshness": "1018265ecc2a82c12243da9092c06b5dc1edfcc5c52b93d110eaf01a0f77df6f",
               "hidden_dim": 4,
               "learning_rate": 0.01,
               "name": "dg_gcn_road_1",
@@ -44143,7 +43925,7 @@
               "description": "Small molecular graph. - Email network.",
               "feature_dim": 4,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "d3e1edde4ea79376c8ef880c6105a101583b1ab10be9b53de04f5cfb6d7bf096",
+              "freshness": "1018265ecc2a82c12243da9092c06b5dc1edfcc5c52b93d110eaf01a0f77df6f",
               "hidden_dim": 8,
               "learning_rate": 0.01,
               "name": "dg_gcn_molecular_1",
@@ -44167,7 +43949,7 @@
               "description": "Medium molecular graph - PDDB protein structure.",
               "feature_dim": 6,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "d3e1edde4ea79376c8ef880c6105a101583b1ab10be9b53de04f5cfb6d7bf096",
+              "freshness": "1018265ecc2a82c12243da9092c06b5dc1edfcc5c52b93d110eaf01a0f77df6f",
               "hidden_dim": 12,
               "learning_rate": 0.01,
               "name": "dg_gcn_molecular_2",
@@ -44191,7 +43973,7 @@
               "description": "Large citation network graph (AIDS-like size).",
               "feature_dim": 16,
               "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "d3e1edde4ea79376c8ef880c6105a101583b1ab10be9b53de04f5cfb6d7bf096",
+              "freshness": "1018265ecc2a82c12243da9092c06b5dc1edfcc5c52b93d110eaf01a0f77df6f",
               "hidden_dim": 32,
               "learning_rate": 0.01,
               "name": "dg_gcn_citation_1",
@@ -44208,38 +43990,114 @@
                 "neural-networks"
               ],
               "topics": []
-            },
-            {
-              "asv_param": "gcn_weights.dg_gcn_bcsstk01",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "Original small structural engineering matrix (for backward compatibility).",
-              "feature_dim": 16,
-              "file": "src/saps/benchmarks/gcn_backward.py",
-              "freshness": "d3e1edde4ea79376c8ef880c6105a101583b1ab10be9b53de04f5cfb6d7bf096",
-              "hidden_dim": 8,
-              "learning_rate": 0.01,
-              "name": "dg_gcn_bcsstk01",
-              "nnz": null,
-              "num_iterations": 10,
-              "out_dim": 1,
-              "pretty_name": "GCN dg_gcn_bcsstk01",
-              "source_name": "bcsstk01",
-              "suites": [],
-              "tags": [
-                "computing-methodologies",
-                "graph-algorithms",
-                "mathematics-of-computing",
-                "neural-networks"
-              ],
-              "topics": []
             }
           ],
           "description": "Generates random weights for a 2-layer Graph Convolutional Network.",
           "file": "src/saps/benchmarks/gcn_backward.py",
-          "freshness": "d3e1edde4ea79376c8ef880c6105a101583b1ab10be9b53de04f5cfb6d7bf096",
+          "freshness": "1018265ecc2a82c12243da9092c06b5dc1edfcc5c52b93d110eaf01a0f77df6f",
           "motivation": "Graphs are widely used for abstracting systems of interacting objects, such as social networks (Easley et al., 2010), knowledge graphs (Nickel et al., 2015), molecular graphs (Wu et al., 2018), and biological networks (Barabasi & Oltvai, 2004), as well as for modeling 3D objects (Simonovsky & Komodakis, 2017), manifolds (Bronstein et al., 2017), and source code (Allamanis et al., 2017). Machine learning (ML), especially deep learning, on graphs is an emerging field (Hamilton et al., 2017b; Bronstein et al., 2017). W. Hu et al. To represent a graph, an adjaceny matrix is used, which is inherently sparse.",
           "name": "gcn_weights",
           "pretty_name": "Graph Convolutional Network Weights",
+          "references": [
+            "Bobby Yan, Alexander J. Root, Trevor Gale, David Broman, Fredrik Kjolstad. \"Scorch: A Library for Sparse Deep Learning\", Arxiv, Vol. arXiv:2405.16883, 2024, URL: https://anonymous.4open.science/r/scorch/README.md.",
+            "Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graphs\", Arxiv, Vol. arXiv:2005.00687, 2020, URL: https://arxiv.org/abs/2005.00687."
+          ],
+          "suites": [],
+          "tags": [
+            "computing-methodologies",
+            "graph-algorithms",
+            "mathematics-of-computing",
+            "neural-networks"
+          ],
+          "topics": []
+        },
+        {
+          "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI was used to help implement and audit OGB input plumbing, tests, documentation, and debugging.",
+          "authors": [
+            "Tarun Devi <tdevi3@gatech.edu>"
+          ],
+          "cacheable": false,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "gcn_backward_ogb_inputs.ogbn_arxiv",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Citation network of arXiv Computer Science papers for node-property prediction.",
+              "file": "src/saps/benchmarks/gcn_backward.py",
+              "freshness": "1018265ecc2a82c12243da9092c06b5dc1edfcc5c52b93d110eaf01a0f77df6f",
+              "hidden_dim": 256,
+              "learning_rate": 0.01,
+              "name": "ogbn_arxiv",
+              "num_iterations": 10,
+              "pretty_name": "GCN Backward ogbn-arxiv",
+              "source_name": "ogbn-arxiv",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "computing-methodologies",
+                "graph-algorithms",
+                "mathematics-of-computing",
+                "neural-networks",
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "gcn_backward_ogb_inputs.ogbn_products",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Amazon product co-purchasing network for large-scale node-property prediction.",
+              "file": "src/saps/benchmarks/gcn_backward.py",
+              "freshness": "1018265ecc2a82c12243da9092c06b5dc1edfcc5c52b93d110eaf01a0f77df6f",
+              "hidden_dim": 256,
+              "learning_rate": 0.01,
+              "name": "ogbn_products",
+              "num_iterations": 10,
+              "pretty_name": "GCN Backward ogbn-products",
+              "source_name": "ogbn-products",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "computing-methodologies",
+                "graph-algorithms",
+                "mathematics-of-computing",
+                "neural-networks",
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "gcn_backward_ogb_inputs.ogbn_proteins",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Protein-protein association network with species labels and averaged edge-feature node inputs.",
+              "file": "src/saps/benchmarks/gcn_backward.py",
+              "freshness": "1018265ecc2a82c12243da9092c06b5dc1edfcc5c52b93d110eaf01a0f77df6f",
+              "hidden_dim": 256,
+              "learning_rate": 0.01,
+              "name": "ogbn_proteins",
+              "num_iterations": 10,
+              "pretty_name": "GCN Backward ogbn-proteins",
+              "source_name": "ogbn-proteins",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "computing-methodologies",
+                "graph-algorithms",
+                "mathematics-of-computing",
+                "neural-networks",
+                "standard"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "Loads full OGB node-property graphs for 2-layer GCN training.",
+          "file": "src/saps/benchmarks/gcn_backward.py",
+          "freshness": "1018265ecc2a82c12243da9092c06b5dc1edfcc5c52b93d110eaf01a0f77df6f",
+          "motivation": "Uses complete real-world node features, graph structure, and labels from the Open Graph Benchmark for the GCN training loop. SAPS caching is disabled for these benchmark-specific training tensors because the shared OGB shell generator caches the prepared source graph.",
+          "name": "gcn_backward_ogb_inputs",
+          "pretty_name": "Open Graph Benchmark GCN Backward Inputs",
           "references": [
             "Bobby Yan, Alexander J. Root, Trevor Gale, David Broman, Fredrik Kjolstad. \"Scorch: A Library for Sparse Deep Learning\", Arxiv, Vol. arXiv:2405.16883, 2024, URL: https://anonymous.4open.science/r/scorch/README.md.",
             "Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graphs\", Arxiv, Vol. arXiv:2005.00687, 2020, URL: https://arxiv.org/abs/2005.00687."
@@ -44311,9 +44169,6 @@
                 "trace"
               ],
               "tags": [
-                "fancy-ops",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
@@ -44337,9 +44192,6 @@
                 "trace"
               ],
               "tags": [
-                "fancy-ops",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
@@ -44363,10 +44215,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
@@ -44390,10 +44238,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
@@ -44417,10 +44261,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
@@ -44695,17 +44535,10 @@
               ],
               "tags": [
                 "computing-methodologies",
-                "dense",
                 "factorization-methods",
-                "fancy-ops",
-                "index-ops",
-                "large-query",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -45215,17 +45048,10 @@
               ],
               "tags": [
                 "computing-methodologies",
-                "dense",
                 "factorization-methods",
-                "fancy-ops",
-                "index-ops",
-                "large-query",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -45549,18 +45375,10 @@
               ],
               "tags": [
                 "computing-methodologies",
-                "dense",
                 "factorization-methods",
-                "fancy-ops",
-                "high-dimensional",
-                "index-ops",
-                "large-query",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -45815,16 +45633,12 @@
                 "trace"
               ],
               "tags": [
-                "fancy-ops",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -45843,17 +45657,12 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -45872,16 +45681,12 @@
                 "trace"
               ],
               "tags": [
-                "fancy-ops",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -45900,17 +45705,12 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -45929,16 +45729,12 @@
                 "trace"
               ],
               "tags": [
-                "fancy-ops",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -45957,16 +45753,12 @@
                 "trace"
               ],
               "tags": [
-                "fancy-ops",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -46143,17 +45935,12 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -46171,17 +45958,12 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -46199,17 +45981,12 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             }
@@ -46437,7 +46214,7 @@
       "concepts": "\n<ccs2012>\n<concept>\n<concept_id>10002951.10003317.10003347.10003356</concept_id>\n<concept_desc>Information systems~Clustering and classification</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002951.10003317.10003347.10003350</concept_id>\n<concept_desc>Information systems~Recommender systems</concept_desc>\n<concept_significance>300</concept_significance>\n</concept>\n<concept>\n<concept_id>10002951.10003317</concept_id>\n<concept_desc>Information systems~Information retrieval</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_desc>Computing methodologies~\nMachine learning algorithms</concept_desc>\n</concept>\n<concept>\n<concept_id>10010147.10010257.10010258.10010260.10003697</concept_id>\n<concept_desc>Computing methodologies~Cluster analysis</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10010147.10010257.10010258.10010260.10010271</concept_id>\n<concept_desc>Computing methodologies~Dimensionality reduction and manifold learning</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_desc>Mathematics of computing~\nDimensionality reduction</concept_desc>\n</concept>\n<concept>\n<concept_desc>Theory of computation~\nNearest neighbor algorithms</concept_desc>\n</concept>\n</ccs2012>\n",
       "description": "Benchmarks Johnson-Lindenstrauss projection followed by k-nearest-neighbor ranking in projected space.",
       "file": "src/saps/benchmarks/approx_nn.py",
-      "freshness": "a52983ef01175163cb3993925ba1dbdae9fd862fa73aa2287a37a38e6ff1e01b",
+      "freshness": "a3ad38cade12d9c767c655d783c7e647a7fca07d0090a4ee3d2fc3435f6b3e91",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI might have been used to construct tests.",
@@ -46453,7 +46230,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "test dense data and query matrices with sparse random projection.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "a52983ef01175163cb3993925ba1dbdae9fd862fa73aa2287a37a38e6ff1e01b",
+              "freshness": "a3ad38cade12d9c767c655d783c7e647a7fca07d0090a4ee3d2fc3435f6b3e91",
               "name": "test_jl_preserves_distance",
               "pretty_name": "test JL ANN",
               "suites": [
@@ -46466,27 +46243,22 @@
                 "computing-methodologies",
                 "dimensionality-reduction",
                 "dimensionality-reduction-and-manifold-learning",
-                "fancy-ops",
-                "index-ops",
                 "information-retrieval",
                 "information-systems",
-                "linalg-ops",
                 "machine-learning-algorithms",
                 "mathematics-of-computing",
                 "nearest-neighbor-algorithms",
                 "recommender-systems",
-                "tensor",
                 "test",
                 "theory-of-computation",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             }
           ],
           "description": "Small JL approximate nearest-neighbor example.",
           "file": "src/saps/benchmarks/approx_nn.py",
-          "freshness": "a52983ef01175163cb3993925ba1dbdae9fd862fa73aa2287a37a38e6ff1e01b",
+          "freshness": "a3ad38cade12d9c767c655d783c7e647a7fca07d0090a4ee3d2fc3435f6b3e91",
           "motivation": "Provide a small JL ANN example for benchmark correctness checks.",
           "name": "jl_projection_test_inputs",
           "pretty_name": "JL Projection Test Input Generator",
@@ -46530,7 +46302,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small random dense data and query matrices with sparse random projection.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "a52983ef01175163cb3993925ba1dbdae9fd862fa73aa2287a37a38e6ff1e01b",
+              "freshness": "a3ad38cade12d9c767c655d783c7e647a7fca07d0090a4ee3d2fc3435f6b3e91",
               "name": "small",
               "pretty_name": "Small JL ANN",
               "suites": [],
@@ -46555,7 +46327,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Medium random dense data and query matrices with sparse random projection.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "a52983ef01175163cb3993925ba1dbdae9fd862fa73aa2287a37a38e6ff1e01b",
+              "freshness": "a3ad38cade12d9c767c655d783c7e647a7fca07d0090a4ee3d2fc3435f6b3e91",
               "name": "medium",
               "pretty_name": "Medium JL ANN",
               "suites": [],
@@ -46580,7 +46352,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Large random dense data and query matrices with sparse random projection.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "a52983ef01175163cb3993925ba1dbdae9fd862fa73aa2287a37a38e6ff1e01b",
+              "freshness": "a3ad38cade12d9c767c655d783c7e647a7fca07d0090a4ee3d2fc3435f6b3e91",
               "name": "large",
               "pretty_name": "Large JL ANN",
               "suites": [],
@@ -46603,13 +46375,168 @@
           ],
           "description": "Generates uniformly random data/query matrices and sparse random projection matrices for JL approximate nearest-neighbor.",
           "file": "src/saps/benchmarks/approx_nn.py",
-          "freshness": "a52983ef01175163cb3993925ba1dbdae9fd862fa73aa2287a37a38e6ff1e01b",
+          "freshness": "a3ad38cade12d9c767c655d783c7e647a7fca07d0090a4ee3d2fc3435f6b3e91",
           "motivation": "Sparse Johnson-Lindenstrauss projection is a fundamental primitive in randomized numerical linear algebra, and is used in many applications such as approximate nearest neighbor search.",
           "name": "jl_projection_inputs",
           "pretty_name": "JL Projection Input Generator",
           "references": [
             "Riley Murray, James Demmel, Michael W. Mahoney, N. Benjamin Erichson, Maksim Melnichenko, Osman Asif Malik, Laura Grigori, Piotr Luszczek, Micha\u0142 Derezi\u0144ski, Miles E. Lopes, Tianyu Liang, Hengrui Luo, Jack Dongarra. \"Randomized Numerical Linear Algebra : A Perspective on the Field With an Eye to Software\", 2023, URL: https://arxiv.org/abs/2302.11474.",
             "scikit-learn contributors. \"Random projection implementation reference\", URL: https://github.com/scikit-learn/scikit-learn/blob/d3898d9d57aeb1e960d266613a2e31b07bca39d7/sklearn/random_projection.py#L615."
+          ],
+          "suites": [],
+          "tags": [
+            "cluster-analysis",
+            "clustering-and-classification",
+            "computing-methodologies",
+            "dimensionality-reduction",
+            "dimensionality-reduction-and-manifold-learning",
+            "information-retrieval",
+            "information-systems",
+            "machine-learning-algorithms",
+            "mathematics-of-computing",
+            "nearest-neighbor-algorithms",
+            "recommender-systems",
+            "theory-of-computation"
+          ],
+          "topics": []
+        },
+        {
+          "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI might have been used to construct tests.",
+          "authors": [
+            "Vilohith Gokarakonda <vgokarakonda3@gatech.edu>"
+          ],
+          "cacheable": false,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "jl_approx_nn_openml.mnist",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "JL approximate nearest-neighbor on mnist.",
+              "file": "src/saps/benchmarks/approx_nn.py",
+              "freshness": "a3ad38cade12d9c767c655d783c7e647a7fca07d0090a4ee3d2fc3435f6b3e91",
+              "name": "mnist",
+              "pretty_name": "JL ANN mnist",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "cluster-analysis",
+                "clustering-and-classification",
+                "computing-methodologies",
+                "dimensionality-reduction",
+                "dimensionality-reduction-and-manifold-learning",
+                "information-retrieval",
+                "information-systems",
+                "machine-learning-algorithms",
+                "mathematics-of-computing",
+                "nearest-neighbor-algorithms",
+                "recommender-systems",
+                "standard",
+                "theory-of-computation"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "jl_approx_nn_openml.cifar10",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "JL approximate nearest-neighbor on cifar10.",
+              "file": "src/saps/benchmarks/approx_nn.py",
+              "freshness": "a3ad38cade12d9c767c655d783c7e647a7fca07d0090a4ee3d2fc3435f6b3e91",
+              "name": "cifar10",
+              "pretty_name": "JL ANN cifar10",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "cluster-analysis",
+                "clustering-and-classification",
+                "computing-methodologies",
+                "dimensionality-reduction",
+                "dimensionality-reduction-and-manifold-learning",
+                "information-retrieval",
+                "information-systems",
+                "machine-learning-algorithms",
+                "mathematics-of-computing",
+                "nearest-neighbor-algorithms",
+                "recommender-systems",
+                "standard",
+                "theory-of-computation"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "Loads OpenML image datasets for JL approximate nearest-neighbor.",
+          "file": "src/saps/benchmarks/approx_nn.py",
+          "freshness": "a3ad38cade12d9c767c655d783c7e647a7fca07d0090a4ee3d2fc3435f6b3e91",
+          "motivation": "MNIST and CIFAR-10 provide dense image feature matrices from OpenML for approximate nearest-neighbor search.",
+          "name": "jl_approx_nn_openml",
+          "pretty_name": "JL ANN OpenML Generator",
+          "references": [
+            "Yann LeCun, L\u00e9on Bottou, Yoshua Bengio, Patrick Haffner. \"Gradient-Based Learning Applied to Document Recognition\", Proceedings of the IEEE, 1998, URL: http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf.",
+            "Alex Krizhevsky. \"Learning Multiple Layers of Features from Tiny Images\", 2009, URL: https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf."
+          ],
+          "suites": [],
+          "tags": [
+            "cluster-analysis",
+            "clustering-and-classification",
+            "computing-methodologies",
+            "dimensionality-reduction",
+            "dimensionality-reduction-and-manifold-learning",
+            "information-retrieval",
+            "information-systems",
+            "machine-learning-algorithms",
+            "mathematics-of-computing",
+            "nearest-neighbor-algorithms",
+            "recommender-systems",
+            "theory-of-computation"
+          ],
+          "topics": []
+        },
+        {
+          "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI might have been used to construct tests.",
+          "authors": [
+            "Vilohith Gokarakonda <vgokarakonda3@gatech.edu>"
+          ],
+          "cacheable": false,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "jl_approx_nn_netflix.netflix",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "JL approximate nearest-neighbor on netflix.",
+              "file": "src/saps/benchmarks/approx_nn.py",
+              "freshness": "a3ad38cade12d9c767c655d783c7e647a7fca07d0090a4ee3d2fc3435f6b3e91",
+              "name": "netflix",
+              "pretty_name": "JL ANN netflix",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "cluster-analysis",
+                "clustering-and-classification",
+                "computing-methodologies",
+                "dimensionality-reduction",
+                "dimensionality-reduction-and-manifold-learning",
+                "information-retrieval",
+                "information-systems",
+                "machine-learning-algorithms",
+                "mathematics-of-computing",
+                "nearest-neighbor-algorithms",
+                "recommender-systems",
+                "standard",
+                "theory-of-computation"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "Loads Netflix Prize ratings for JL approximate nearest-neighbor.",
+          "file": "src/saps/benchmarks/approx_nn.py",
+          "freshness": "a3ad38cade12d9c767c655d783c7e647a7fca07d0090a4ee3d2fc3435f6b3e91",
+          "motivation": "The Netflix Prize dataset provides a ~480K users \u00d7 17,770 movies sparse ratings matrix. Uses sparse JL projection due to the dataset's sparsity.",
+          "name": "jl_approx_nn_netflix",
+          "pretty_name": "JL ANN Netflix Generator",
+          "references": [
+            "Vini Hong, Anastasios Tsamis. \"Use of KNN for the Netflix Prize\", Stanford CS229, URL: https://cs229.stanford.edu/proj2008/HongTsamis-UseOfKNNForTheNetflixPrize.pdf."
           ],
           "suites": [],
           "tags": [
@@ -46704,8 +46631,6 @@
                 "computing-methodologies",
                 "continuous-simulation",
                 "discretization",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "test",
@@ -47104,16 +47029,12 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -47132,16 +47053,12 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -47160,16 +47077,12 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -47188,16 +47101,12 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -47216,16 +47125,12 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -47244,16 +47149,12 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -47272,16 +47173,12 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -47300,16 +47197,12 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -47328,16 +47221,12 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             }
@@ -47572,8 +47461,6 @@
                 "applied-computing",
                 "computational-photography",
                 "computing-methodologies",
-                "dense",
-                "fancy-ops",
                 "image-processing",
                 "imaging",
                 "test",
@@ -47601,8 +47488,6 @@
                 "applied-computing",
                 "computational-photography",
                 "computing-methodologies",
-                "dense",
-                "fancy-ops",
                 "image-processing",
                 "imaging",
                 "test",
@@ -47630,8 +47515,6 @@
                 "applied-computing",
                 "computational-photography",
                 "computing-methodologies",
-                "dense",
-                "fancy-ops",
                 "image-processing",
                 "imaging",
                 "test",
@@ -47847,16 +47730,13 @@
                 "trace"
               ],
               "tags": [
-                "fancy-ops",
                 "graph-algorithms",
-                "linalg-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -47874,16 +47754,13 @@
                 "trace"
               ],
               "tags": [
-                "fancy-ops",
                 "graph-algorithms",
-                "linalg-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -47901,16 +47778,13 @@
                 "trace"
               ],
               "tags": [
-                "fancy-ops",
                 "graph-algorithms",
-                "linalg-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             }
@@ -48185,8 +48059,6 @@
               "pretty_name": "MRI Sobel Edge test_sobel_zero_image",
               "suites": [],
               "tags": [
-                "fancy-ops",
-                "linalg-ops",
                 "test",
                 "trace"
               ],
@@ -48205,8 +48077,6 @@
               "pretty_name": "MRI Sobel Edge test_sobel_vertical_edge",
               "suites": [],
               "tags": [
-                "fancy-ops",
-                "linalg-ops",
                 "test",
                 "trace"
               ],
@@ -48225,8 +48095,6 @@
               "pretty_name": "MRI Sobel Edge test_sobel_horizontal_edge",
               "suites": [],
               "tags": [
-                "fancy-ops",
-                "linalg-ops",
                 "test",
                 "trace"
               ],
@@ -48245,8 +48113,6 @@
               "pretty_name": "MRI Sobel Edge test_sobel_generator_metadata",
               "suites": [],
               "tags": [
-                "fancy-ops",
-                "linalg-ops",
                 "test",
                 "trace"
               ],
@@ -48409,6 +48275,213 @@
       "topics": []
     },
     {
+      "ai_disclosure": "",
+      "asv_ids": {
+        "peakmem": "netflixprize.NetflixPrizeBenchmark.peakmem_netflixprize_shell",
+        "time": "netflixprize.NetflixPrizeBenchmark.time_netflixprize_shell"
+      },
+      "authors": [],
+      "concepts": "<ccs2012></ccs2012>",
+      "description": "",
+      "file": "src/saps/benchmarks/netflixprize.py",
+      "freshness": "5e881aa81b503325bdbebd4813e5ca65438cf4e76d5e073189e2c951ef0b254c",
+      "generators": [
+        {
+          "ai_disclosure": "Generative AI was used to implement this generator.",
+          "authors": [],
+          "cacheable": true,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "netflixprize.netflix",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Netflix Prize ratings parsed into a sparse user-by-movie matrix.",
+              "file": "src/saps/benchmarks/netflixprize.py",
+              "freshness": "5e881aa81b503325bdbebd4813e5ca65438cf4e76d5e073189e2c951ef0b254c",
+              "kaggle_dataset": "netflix-inc/netflix-prize-data",
+              "name": "netflix",
+              "pretty_name": "Netflix Prize",
+              "suites": [],
+              "tags": [],
+              "topics": []
+            }
+          ],
+          "description": "Downloads the Netflix Prize ratings from Kaggle, parses the combined ratings text files, and caches the prepared sparse ratings matrix.",
+          "file": "src/saps/benchmarks/netflixprize.py",
+          "freshness": "5e881aa81b503325bdbebd4813e5ca65438cf4e76d5e073189e2c951ef0b254c",
+          "motivation": "Multiple benchmarks reuse the Netflix Prize ratings matrix. Sharing a cacheable generator for the parsed matrix avoids redundant downloads, parsing, and cached copies.",
+          "name": "netflixprize",
+          "pretty_name": "Netflix Prize Dataset",
+          "references": [
+            "James Bennett, Stan Lanning. \"The Netflix Prize\", 2007, URL: https://www.cs.uic.edu/~liub/KDD-cup-2007/NetflixPrize-description.pdf."
+          ],
+          "suites": [],
+          "tags": [],
+          "topics": []
+        }
+      ],
+      "motivation": "",
+      "name": "netflixprize_shell",
+      "pretty_name": "Netflix Prize Dataset",
+      "references": [],
+      "suites": [],
+      "tags": [],
+      "topics": []
+    },
+    {
+      "ai_disclosure": "",
+      "asv_ids": {
+        "peakmem": "ogb.OGBNodePropBenchmark.peakmem_ogb_nodeprop_shell",
+        "time": "ogb.OGBNodePropBenchmark.time_ogb_nodeprop_shell"
+      },
+      "authors": [],
+      "concepts": "<ccs2012></ccs2012>",
+      "description": "",
+      "file": "src/saps/benchmarks/ogb.py",
+      "freshness": "c34b415ab6d943787bb8ab31fa42440e08b46a43b59c4ef1323ffadde607b8d6",
+      "generators": [
+        {
+          "ai_disclosure": "No generative AI was used to construct the source datasets. Generative AI was used to help implement and audit the OGB downloader, input generator, tests, documentation, and debugging.",
+          "authors": [],
+          "cacheable": true,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "ogb_nodeprop.ogbn_arxiv",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Citation network of arXiv Computer Science papers for node-property prediction.",
+              "file": "src/saps/benchmarks/ogb.py",
+              "freshness": "c34b415ab6d943787bb8ab31fa42440e08b46a43b59c4ef1323ffadde607b8d6",
+              "name": "ogbn_arxiv",
+              "pretty_name": "ogbn-arxiv",
+              "source_name": "ogbn-arxiv",
+              "suites": [],
+              "tags": [],
+              "topics": []
+            },
+            {
+              "asv_param": "ogb_nodeprop.ogbn_products",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Amazon product co-purchasing network for large-scale node-property prediction.",
+              "file": "src/saps/benchmarks/ogb.py",
+              "freshness": "c34b415ab6d943787bb8ab31fa42440e08b46a43b59c4ef1323ffadde607b8d6",
+              "name": "ogbn_products",
+              "pretty_name": "ogbn-products",
+              "source_name": "ogbn-products",
+              "suites": [],
+              "tags": [],
+              "topics": []
+            },
+            {
+              "asv_param": "ogb_nodeprop.ogbn_proteins",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Protein-protein association network with species labels and averaged edge-feature node inputs.",
+              "file": "src/saps/benchmarks/ogb.py",
+              "freshness": "c34b415ab6d943787bb8ab31fa42440e08b46a43b59c4ef1323ffadde607b8d6",
+              "name": "ogbn_proteins",
+              "pretty_name": "ogbn-proteins",
+              "source_name": "ogbn-proteins",
+              "suites": [],
+              "tags": [],
+              "topics": []
+            }
+          ],
+          "description": "Downloads, prepares, and caches homogeneous Open Graph Benchmark node-property datasets. Benchmark-specific generators compose this generator so each OGB graph is downloaded and cached once.",
+          "file": "src/saps/benchmarks/ogb.py",
+          "freshness": "c34b415ab6d943787bb8ab31fa42440e08b46a43b59c4ef1323ffadde607b8d6",
+          "motivation": "Large OGB graphs can be reused by several graph-learning benchmarks. Sharing a cacheable generator for the prepared source graph avoids redundant downloads while allowing child benchmark generators to keep their benchmark-specific inputs uncached.",
+          "name": "ogb_nodeprop",
+          "pretty_name": "Open Graph Benchmark Node Property Datasets",
+          "references": [
+            "Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graphs\", Arxiv, Vol. arXiv:2005.00687, 2020, URL: https://arxiv.org/abs/2005.00687."
+          ],
+          "suites": [],
+          "tags": [],
+          "topics": []
+        }
+      ],
+      "motivation": "",
+      "name": "ogb_nodeprop_shell",
+      "pretty_name": "Open Graph Benchmark Node Property Datasets",
+      "references": [],
+      "suites": [],
+      "tags": [],
+      "topics": []
+    },
+    {
+      "ai_disclosure": "",
+      "asv_ids": {
+        "peakmem": "openml.OpenMLDatasetBenchmark.peakmem_openml_dataset_shell",
+        "time": "openml.OpenMLDatasetBenchmark.time_openml_dataset_shell"
+      },
+      "authors": [],
+      "concepts": "<ccs2012></ccs2012>",
+      "description": "",
+      "file": "src/saps/benchmarks/openml.py",
+      "freshness": "b2a4cf445a6d8bb34cba20983a71c1d0c3d62fdb1f9b81fff5481a130f70952b",
+      "generators": [
+        {
+          "ai_disclosure": "Generative AI was used to implement this generator.",
+          "authors": [],
+          "cacheable": true,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "openml_dataset.mnist",
+              "concepts": "<ccs2012></ccs2012>",
+              "data_id": 554,
+              "description": "OpenML copy of the MNIST 28x28 handwritten digit image dataset.",
+              "file": "src/saps/benchmarks/openml.py",
+              "freshness": "b2a4cf445a6d8bb34cba20983a71c1d0c3d62fdb1f9b81fff5481a130f70952b",
+              "name": "mnist",
+              "openml_name": "mnist_784",
+              "pretty_name": "MNIST",
+              "scale": 255.0,
+              "suites": [],
+              "tags": [],
+              "topics": [],
+              "version": 1
+            },
+            {
+              "asv_param": "openml_dataset.cifar10",
+              "concepts": "<ccs2012></ccs2012>",
+              "data_id": 40927,
+              "description": "OpenML copy of the CIFAR-10 32x32 color image dataset.",
+              "file": "src/saps/benchmarks/openml.py",
+              "freshness": "b2a4cf445a6d8bb34cba20983a71c1d0c3d62fdb1f9b81fff5481a130f70952b",
+              "name": "cifar10",
+              "openml_name": "CIFAR_10",
+              "pretty_name": "CIFAR-10",
+              "scale": 255.0,
+              "suites": [],
+              "tags": [],
+              "topics": [],
+              "version": 1
+            }
+          ],
+          "description": "Downloads, prepares, and caches dense OpenML datasets. Benchmark-specific generators compose this generator so each OpenML dataset is downloaded and cached once.",
+          "file": "src/saps/benchmarks/openml.py",
+          "freshness": "b2a4cf445a6d8bb34cba20983a71c1d0c3d62fdb1f9b81fff5481a130f70952b",
+          "motivation": "Several benchmarks use the same OpenML image datasets. Sharing a cacheable generator for the prepared feature matrix avoids redundant downloads and redundant cached copies.",
+          "name": "openml_dataset",
+          "pretty_name": "OpenML Datasets",
+          "references": [
+            "Joaquin Vanschoren, Jan N. van Rijn, Bernd Bischl, Luis Torgo. \"OpenML: networked science in machine learning\", ACM SIGKDD Explorations Newsletter, Vol. 15, No. 2, pp. 49-60, 2013, URL: https://doi.org/10.1145/2641190.2641198, DOI: 10.1145/2641190.2641198."
+          ],
+          "suites": [],
+          "tags": [],
+          "topics": []
+        }
+      ],
+      "motivation": "",
+      "name": "openml_dataset_shell",
+      "pretty_name": "OpenML Datasets",
+      "references": [],
+      "suites": [],
+      "tags": [],
+      "topics": []
+    },
+    {
       "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI might have been used to construct tests. This statement was written by hand.",
       "asv_ids": {
         "peakmem": "pagerank.PageRankBenchmark.peakmem_pagerank",
@@ -48441,17 +48514,13 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "linalg-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -48468,17 +48537,13 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "linalg-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -48495,17 +48560,13 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "linalg-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -48522,17 +48583,13 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "linalg-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -48549,17 +48606,13 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "linalg-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             }
@@ -48843,14 +48896,10 @@
                 "applied-computing",
                 "computational-photography",
                 "computing-methodologies",
-                "dense",
-                "fancy-ops",
                 "image-processing",
                 "imaging",
-                "shape-ops",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -48870,14 +48919,10 @@
                 "applied-computing",
                 "computational-photography",
                 "computing-methodologies",
-                "dense",
-                "fancy-ops",
                 "image-processing",
                 "imaging",
-                "shape-ops",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -48897,14 +48942,10 @@
                 "applied-computing",
                 "computational-photography",
                 "computing-methodologies",
-                "dense",
-                "fancy-ops",
                 "image-processing",
                 "imaging",
-                "shape-ops",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -48924,14 +48965,10 @@
                 "applied-computing",
                 "computational-photography",
                 "computing-methodologies",
-                "dense",
-                "fancy-ops",
                 "image-processing",
                 "imaging",
-                "shape-ops",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             }
@@ -49020,18 +49057,12 @@
                 "trace"
               ],
               "tags": [
-                "dynamic-sparsity",
-                "fancy-ops",
-                "hypersparse",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -49050,18 +49081,12 @@
                 "trace"
               ],
               "tags": [
-                "dynamic-sparsity",
-                "fancy-ops",
-                "hypersparse",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -49080,18 +49105,12 @@
                 "trace"
               ],
               "tags": [
-                "dynamic-sparsity",
-                "fancy-ops",
-                "hypersparse",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -49110,18 +49129,12 @@
                 "trace"
               ],
               "tags": [
-                "dynamic-sparsity",
-                "fancy-ops",
-                "hypersparse",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -49140,18 +49153,12 @@
                 "trace"
               ],
               "tags": [
-                "dynamic-sparsity",
-                "fancy-ops",
-                "hypersparse",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -49170,18 +49177,12 @@
                 "trace"
               ],
               "tags": [
-                "dynamic-sparsity",
-                "fancy-ops",
-                "hypersparse",
-                "index-ops",
-                "linalg-ops",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "numerical-analysis",
                 "solvers",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -49700,7 +49701,7 @@
       "concepts": "\n<ccs2012>\n<concept>\n<concept_id>10002951.10003317.10003347.10003356</concept_id>\n<concept_desc>Information systems~Clustering and classification</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002951.10003317.10003347.10003350</concept_id>\n<concept_desc>Information systems~Recommender systems</concept_desc>\n<concept_significance>300</concept_significance>\n</concept>\n<concept>\n<concept_desc>Computing methodologies~\nMachine learning algorithms</concept_desc>\n</concept>\n<concept>\n<concept_id>10010147.10010257.10010258.10010260.10003697</concept_id>\n<concept_desc>Computing methodologies~Cluster analysis</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10010147.10010257.10010258.10010260.10010271</concept_id>\n<concept_desc>Computing methodologies~Dimensionality reduction and manifold learning</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_desc>Mathematics of computing~\nDimensionality reduction</concept_desc>\n</concept>\n</ccs2012>\n",
       "description": "Labels points into k clusters.",
       "file": "src/saps/benchmarks/rp_kmeans_clustering.py",
-      "freshness": "0d54cd6aab6e1224ef97fa55aedc32e07ac09908dda9fc4930aefbc6055c6202",
+      "freshness": "42264987305da1ee08699aaeddd99e4c65653e0795794e70b91bba81818e6abc",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to implement benchmark functions.",
@@ -49717,7 +49718,7 @@
               "description": "Manual test points for random-projection k-means clustering.",
               "eps": 0.3,
               "file": "src/saps/benchmarks/rp_kmeans_clustering.py",
-              "freshness": "0d54cd6aab6e1224ef97fa55aedc32e07ac09908dda9fc4930aefbc6055c6202",
+              "freshness": "42264987305da1ee08699aaeddd99e4c65653e0795794e70b91bba81818e6abc",
               "k": 3,
               "max_iter": 5,
               "name": "three_clusters",
@@ -49730,21 +49731,14 @@
                 "cluster-analysis",
                 "clustering-and-classification",
                 "computing-methodologies",
-                "dense",
                 "dimensionality-reduction",
                 "dimensionality-reduction-and-manifold-learning",
-                "fancy-ops",
-                "index-ops",
                 "information-systems",
-                "linalg-ops",
                 "machine-learning-algorithms",
                 "mathematics-of-computing",
                 "recommender-systems",
-                "shape-ops",
-                "tensor",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             },
@@ -49755,7 +49749,7 @@
               "description": "Manual test points for random-projection k-means clustering.",
               "eps": 0.2,
               "file": "src/saps/benchmarks/rp_kmeans_clustering.py",
-              "freshness": "0d54cd6aab6e1224ef97fa55aedc32e07ac09908dda9fc4930aefbc6055c6202",
+              "freshness": "42264987305da1ee08699aaeddd99e4c65653e0795794e70b91bba81818e6abc",
               "k": 2,
               "max_iter": 5,
               "name": "two_clusters",
@@ -49768,33 +49762,180 @@
                 "cluster-analysis",
                 "clustering-and-classification",
                 "computing-methodologies",
-                "dense",
                 "dimensionality-reduction",
                 "dimensionality-reduction-and-manifold-learning",
-                "fancy-ops",
-                "index-ops",
                 "information-systems",
-                "linalg-ops",
                 "machine-learning-algorithms",
                 "mathematics-of-computing",
                 "recommender-systems",
-                "shape-ops",
-                "tensor",
                 "test",
-                "trace",
-                "transcendental-ops"
+                "trace"
               ],
               "topics": []
             }
           ],
           "description": "Test points for this benchmark were created manually.",
           "file": "src/saps/benchmarks/rp_kmeans_clustering.py",
-          "freshness": "0d54cd6aab6e1224ef97fa55aedc32e07ac09908dda9fc4930aefbc6055c6202",
+          "freshness": "42264987305da1ee08699aaeddd99e4c65653e0795794e70b91bba81818e6abc",
           "motivation": "Random Projections reduce dimensionality for k-means clustering. Input points can be high-dimensional and sparse, which are then projected on a random matrix.",
           "name": "rp_kmeans_inputs",
           "pretty_name": "Random Projection k-means Data Generator",
           "references": [
             "Christos Boutsidis, Anastasios Zouzias, Petros Drineas. \"Random Projections for $k$-means Clustering\", Arxiv, Vol. arXiv:1011.4632, 2010, URL: https://arxiv.org/abs/1011.4632."
+          ],
+          "suites": [],
+          "tags": [
+            "cluster-analysis",
+            "clustering-and-classification",
+            "computing-methodologies",
+            "dimensionality-reduction",
+            "dimensionality-reduction-and-manifold-learning",
+            "information-systems",
+            "machine-learning-algorithms",
+            "mathematics-of-computing",
+            "recommender-systems"
+          ],
+          "topics": []
+        },
+        {
+          "ai_disclosure": "Generative AI was used to implement this generator.",
+          "authors": [
+            "Kevin Wang <kwang656@gatech.edu>",
+            "Maksim Krylykov <mkrylykov3@gatech.edu>"
+          ],
+          "cacheable": false,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "rp_kmeans_openml.mnist",
+              "c": 1,
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "RP k-means clustering on mnist.",
+              "eps": 0.3,
+              "file": "src/saps/benchmarks/rp_kmeans_clustering.py",
+              "freshness": "42264987305da1ee08699aaeddd99e4c65653e0795794e70b91bba81818e6abc",
+              "k": 10,
+              "max_iter": 100,
+              "name": "mnist",
+              "pretty_name": "RP k-means mnist",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "cluster-analysis",
+                "clustering-and-classification",
+                "computing-methodologies",
+                "dimensionality-reduction",
+                "dimensionality-reduction-and-manifold-learning",
+                "information-systems",
+                "machine-learning-algorithms",
+                "mathematics-of-computing",
+                "recommender-systems",
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "rp_kmeans_openml.cifar10",
+              "c": 1,
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "RP k-means clustering on cifar10.",
+              "eps": 0.3,
+              "file": "src/saps/benchmarks/rp_kmeans_clustering.py",
+              "freshness": "42264987305da1ee08699aaeddd99e4c65653e0795794e70b91bba81818e6abc",
+              "k": 10,
+              "max_iter": 100,
+              "name": "cifar10",
+              "pretty_name": "RP k-means cifar10",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "cluster-analysis",
+                "clustering-and-classification",
+                "computing-methodologies",
+                "dimensionality-reduction",
+                "dimensionality-reduction-and-manifold-learning",
+                "information-systems",
+                "machine-learning-algorithms",
+                "mathematics-of-computing",
+                "recommender-systems",
+                "standard"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "Loads OpenML image datasets for RP k-means clustering.",
+          "file": "src/saps/benchmarks/rp_kmeans_clustering.py",
+          "freshness": "42264987305da1ee08699aaeddd99e4c65653e0795794e70b91bba81818e6abc",
+          "motivation": "MNIST and CIFAR-10 provide dense image feature matrices from OpenML. k = 10 aligns with the ten classes in each dataset.",
+          "name": "rp_kmeans_openml",
+          "pretty_name": "RP k-means OpenML Generator",
+          "references": [
+            "Yann LeCun, L\u00e9on Bottou, Yoshua Bengio, Patrick Haffner. \"Gradient-Based Learning Applied to Document Recognition\", Proceedings of the IEEE, 1998, URL: http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf.",
+            "Alex Krizhevsky. \"Learning Multiple Layers of Features from Tiny Images\", 2009, URL: https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf.",
+            "Aditi Grover, Bahram Toghi. \"MNIST Dataset Classification Utilizing k-NN Classifier with Modified Sliding-window Metric\"."
+          ],
+          "suites": [],
+          "tags": [
+            "cluster-analysis",
+            "clustering-and-classification",
+            "computing-methodologies",
+            "dimensionality-reduction",
+            "dimensionality-reduction-and-manifold-learning",
+            "information-systems",
+            "machine-learning-algorithms",
+            "mathematics-of-computing",
+            "recommender-systems"
+          ],
+          "topics": []
+        },
+        {
+          "ai_disclosure": "No generative AI was used to implement benchmark functions.",
+          "authors": [
+            "Maksim Krylykov <mkrylykov3@gatech.edu>"
+          ],
+          "cacheable": false,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "rp_kmeans_netflix.netflix",
+              "c": 1,
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "RP k-means clustering on netflix.",
+              "eps": 0.3,
+              "file": "src/saps/benchmarks/rp_kmeans_clustering.py",
+              "freshness": "42264987305da1ee08699aaeddd99e4c65653e0795794e70b91bba81818e6abc",
+              "k": 10,
+              "max_iter": 100,
+              "name": "netflix",
+              "pretty_name": "RP k-means netflix",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "cluster-analysis",
+                "clustering-and-classification",
+                "computing-methodologies",
+                "dimensionality-reduction",
+                "dimensionality-reduction-and-manifold-learning",
+                "information-systems",
+                "machine-learning-algorithms",
+                "mathematics-of-computing",
+                "recommender-systems",
+                "standard"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "Loads Netflix Prize ratings for RP k-means clustering.",
+          "file": "src/saps/benchmarks/rp_kmeans_clustering.py",
+          "freshness": "42264987305da1ee08699aaeddd99e4c65653e0795794e70b91bba81818e6abc",
+          "motivation": "The Netflix Prize dataset provides a ~480K users \u00d7 17,770 movies sparse ratings matrix.",
+          "name": "rp_kmeans_netflix",
+          "pretty_name": "RP k-means Netflix Generator",
+          "references": [
+            "Vini Hong, Anastasios Tsamis. \"Use of KNN for the Netflix Prize\", Stanford CS229, URL: https://cs229.stanford.edu/proj2008/HongTsamis-UseOfKNNForTheNetflixPrize.pdf."
           ],
           "suites": [],
           "tags": [
@@ -49916,12 +50057,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -49948,12 +50086,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -49980,12 +50115,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50012,12 +50144,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50044,12 +50173,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50076,12 +50202,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50108,12 +50231,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50140,12 +50260,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50172,12 +50289,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50204,12 +50318,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50236,12 +50347,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50268,12 +50376,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50300,12 +50405,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50332,12 +50434,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50364,12 +50463,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50396,12 +50492,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50428,12 +50521,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50460,12 +50550,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50492,12 +50579,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50524,12 +50608,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50556,12 +50637,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50588,12 +50666,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50620,12 +50695,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50652,12 +50724,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50684,12 +50753,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50720,12 +50786,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50856,12 +50919,9 @@
               ],
               "tags": [
                 "computer-systems-organization",
-                "dense",
                 "hardware",
                 "quantum-computation",
                 "quantum-computing",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -50938,8 +50998,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
                 "mathematical-software",
                 "mathematical-software-performance",
@@ -50963,8 +51021,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
                 "mathematical-software",
                 "mathematical-software-performance",
@@ -50988,8 +51044,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
                 "mathematical-software",
                 "mathematical-software-performance",
@@ -51013,8 +51067,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
                 "mathematical-software",
                 "mathematical-software-performance",
@@ -51038,8 +51090,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
                 "mathematical-software",
                 "mathematical-software-performance",
@@ -51063,8 +51113,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
                 "mathematical-software",
                 "mathematical-software-performance",
@@ -52111,13 +52159,7 @@
               ],
               "tags": [
                 "computing-methodologies",
-                "dense",
-                "fancy-ops",
                 "game-tree-search",
-                "high-dimensional",
-                "index-ops",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -52137,13 +52179,7 @@
               ],
               "tags": [
                 "computing-methodologies",
-                "dense",
-                "fancy-ops",
                 "game-tree-search",
-                "high-dimensional",
-                "index-ops",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -52163,13 +52199,7 @@
               ],
               "tags": [
                 "computing-methodologies",
-                "dense",
-                "fancy-ops",
                 "game-tree-search",
-                "high-dimensional",
-                "index-ops",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -52189,13 +52219,7 @@
               ],
               "tags": [
                 "computing-methodologies",
-                "dense",
-                "fancy-ops",
                 "game-tree-search",
-                "high-dimensional",
-                "index-ops",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -52215,13 +52239,7 @@
               ],
               "tags": [
                 "computing-methodologies",
-                "dense",
-                "fancy-ops",
                 "game-tree-search",
-                "high-dimensional",
-                "index-ops",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -52241,13 +52259,7 @@
               ],
               "tags": [
                 "computing-methodologies",
-                "dense",
-                "fancy-ops",
                 "game-tree-search",
-                "high-dimensional",
-                "index-ops",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -52267,13 +52279,7 @@
               ],
               "tags": [
                 "computing-methodologies",
-                "dense",
-                "fancy-ops",
                 "game-tree-search",
-                "high-dimensional",
-                "index-ops",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -52293,13 +52299,7 @@
               ],
               "tags": [
                 "computing-methodologies",
-                "dense",
-                "fancy-ops",
                 "game-tree-search",
-                "high-dimensional",
-                "index-ops",
-                "shape-ops",
-                "tensor",
                 "test",
                 "trace"
               ],
@@ -52444,8 +52444,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
                 "mathematical-software",
                 "mathematical-software-performance",
@@ -52469,8 +52467,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
                 "mathematical-software",
                 "mathematical-software-performance",
@@ -52494,8 +52490,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
                 "mathematical-software",
                 "mathematical-software-performance",
@@ -52519,8 +52513,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
                 "mathematical-software",
                 "mathematical-software-performance",
@@ -52544,8 +52536,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
                 "mathematical-software",
                 "mathematical-software-performance",
@@ -52751,15 +52741,11 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
-                "shape-ops",
                 "test",
                 "trace"
               ],
@@ -52778,15 +52764,11 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
-                "shape-ops",
                 "test",
                 "trace"
               ],
@@ -52805,15 +52787,11 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
-                "shape-ops",
                 "test",
                 "trace"
               ],
@@ -52832,15 +52810,11 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "fancy-ops",
                 "graph-algorithms",
-                "index-ops",
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "paths-and-connectivity-problems",
-                "shape-ops",
                 "test",
                 "trace"
               ],
@@ -52925,8 +52899,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "elementary-ops",
                 "graph-algorithms",
                 "mathematical-software",
                 "mathematical-software-performance",
@@ -52950,8 +52922,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "elementary-ops",
                 "graph-algorithms",
                 "mathematical-software",
                 "mathematical-software-performance",
@@ -52975,8 +52945,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "elementary-ops",
                 "graph-algorithms",
                 "mathematical-software",
                 "mathematical-software-performance",
@@ -53000,8 +52968,6 @@
                 "trace"
               ],
               "tags": [
-                "dense",
-                "elementary-ops",
                 "graph-algorithms",
                 "mathematical-software",
                 "mathematical-software-performance",

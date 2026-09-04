@@ -30,9 +30,7 @@ def test_netflixprize_loader_parses_combined_rating_files(tmp_path, monkeypatch)
 
 
 def test_netflixprize_shell_generator_caches_prepared_matrix(monkeypatch):
-    source = scipy.sparse.csr_matrix(
-        np.array([[5, 0, 4], [0, 3, 0]], dtype=np.float32)
-    )
+    source = scipy.sparse.csr_matrix(np.array([[5, 0, 4], [0, 3, 0]], dtype=np.float32))
     monkeypatch.setattr(
         "saps.benchmarks.netflixprize._load_netflixprize_matrix", lambda: source
     )

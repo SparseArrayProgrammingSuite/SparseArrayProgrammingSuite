@@ -65,9 +65,7 @@ def test_fetch_openml_features_uses_shared_cache(monkeypatch):
         calls.append((self.name, dataset.name))
         return raw
 
-    monkeypatch.setattr(
-        OpenMLDatasetGenerator, "cached_generate", fake_cached_generate
-    )
+    monkeypatch.setattr(OpenMLDatasetGenerator, "cached_generate", fake_cached_generate)
 
     features, meta = fetch_openml_features("cifar10")
 
@@ -124,9 +122,7 @@ def test_rp_kmeans_benchmark_uses_one_openml_generator_for_standard_datasets():
 
 
 def test_rp_kmeans_netflix_generator_uses_shared_shell(monkeypatch):
-    source = scipy.sparse.csr_matrix(
-        np.arange(30, dtype=np.float32).reshape(6, 5)
-    )
+    source = scipy.sparse.csr_matrix(np.arange(30, dtype=np.float32).reshape(6, 5))
 
     def fake_fetch_netflixprize_matrix():
         return source, {

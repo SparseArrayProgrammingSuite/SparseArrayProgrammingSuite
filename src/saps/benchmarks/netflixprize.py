@@ -34,9 +34,7 @@ class NetflixPrizeDataset(Dataset):
 
     @property
     def description(self) -> str:
-        return (
-            "Netflix Prize ratings parsed into a sparse user-by-movie matrix."
-        )
+        return "Netflix Prize ratings parsed into a sparse user-by-movie matrix."
 
     @property
     def suites(self) -> list[str]:

@@ -47,9 +47,7 @@ def test_jl_approx_nn_openml_generator_uses_shared_shell(monkeypatch):
 
 
 def test_jl_approx_nn_netflix_generator_uses_shared_shell(monkeypatch):
-    source = scipy.sparse.csr_matrix(
-        np.arange(30, dtype=np.float32).reshape(6, 5)
-    )
+    source = scipy.sparse.csr_matrix(np.arange(30, dtype=np.float32).reshape(6, 5))
 
     def fake_fetch_netflixprize_matrix():
         return source, {
