@@ -496,9 +496,7 @@ class OGBGCNGenerator(Generator[OGBGCNDataset]):
         weights1 = rng.standard_normal(
             (feature_dim, dataset.hidden_dim), dtype=np.float32
         )
-        weights2 = rng.standard_normal(
-            (dataset.hidden_dim, out_dim), dtype=np.float32
-        )
+        weights2 = rng.standard_normal((dataset.hidden_dim, out_dim), dtype=np.float32)
         return DataInstance(
             inputs=[
                 graph.adjacency,
