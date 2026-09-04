@@ -641,7 +641,7 @@ class OGBGCNTrainingGenerator(Generator[OGBGCNTrainingDataset]):
                 dataset.name,
                 source_name=dataset.source_name,
                 description=dataset.description,
-                suites=["standard"]
+                suites=["standard"],
             )
             for dataset in OGBNodePropGenerator().datasets
         ]
