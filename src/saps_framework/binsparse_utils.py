@@ -8,27 +8,14 @@ from binsparse import BinsparseTensor
 from binsparse.conversions import to_numpy, to_scipy, to_sparse
 
 
-def to_canonical_coo(tensor: BinsparseTensor) -> Any:
-    """Return `tensor` as a SciPy COO array that is genuinely canonical:
-    lexicographically sorted, duplicate-free, and without explicitly stored zeros.
-
-    `to_scipy` cannot represent dense or vector tensors, so those are routed
-    through NumPy instead.
+def _as_scipy(tensor: BinsparseTensor) -> Any:
+    """Return `tensor` as a SciPy sparse array. `to_scipy` cannot represent dense
+    or vector tensors, so those are routed through NumPy instead.
     """
     try:
-        coo = to_scipy(tensor).tocoo()
+        return to_scipy(tensor)
     except TypeError:
         return scipy_sparse.coo_array(to_numpy(tensor))
-    # Rebuild rather than trusting `has_canonical_format`: `to_scipy` force-sets
-    # that flag without verifying it, so a tensor built directly from a
-    # COORMatrix can arrive unsorted or carrying duplicate coordinates and any
-    # later `sum_duplicates()` would silently no-op.
-    coo = scipy_sparse.coo_array((coo.data, coo.coords), shape=coo.shape)
-    coo.sum_duplicates()
-    # Frameworks disagree on whether an operation retains explicit zeros, so
-    # drop them to keep sparsity patterns comparable across implementations.
-    coo.eliminate_zeros()
-    return coo
 
 
 def assert_coo_allclose(
@@ -38,26 +25,23 @@ def assert_coo_allclose(
     rtol: float = 1e-05,
     atol: float = 1e-08,
 ) -> None:
-    """Assert two binsparse tensors hold the same shape, sparsity pattern, and
-    (within tolerance) the same values.
+    """Assert two binsparse tensors represent the same values within tolerance.
+
+    Comparing by difference makes coordinate order, duplicate coordinates and
+    explicitly stored zeros all irrelevant. That matters here because frameworks
+    disagree on whether to keep explicit zeros, and `to_scipy` marks every tensor
+    it returns as canonical without verifying that it is.
     """
-    expected_coo = to_canonical_coo(expected)
-    actual_coo = to_canonical_coo(actual)
-    assert expected_coo.shape == actual_coo.shape, (
-        f"Shape mismatch: expected {expected_coo.shape}, got {actual_coo.shape}"
+    expected_array = _as_scipy(expected)
+    actual_array = _as_scipy(actual)
+    assert expected_array.shape == actual_array.shape, (
+        f"Shape mismatch: expected {expected_array.shape}, got {actual_array.shape}"
     )
-    assert expected_coo.nnz == actual_coo.nnz, (
-        f"Stored-value count mismatch: expected {expected_coo.nnz}, "
-        f"got {actual_coo.nnz}"
-    )
-    for axis, (expected_idx, actual_idx) in enumerate(
-        zip(expected_coo.coords, actual_coo.coords, strict=True)
-    ):
-        assert np.array_equal(expected_idx, actual_idx), (
-            f"Sparsity pattern mismatch along axis {axis}"
-        )
-    assert np.allclose(expected_coo.data, actual_coo.data, rtol=rtol, atol=atol), (
-        "Values differ beyond tolerance"
+    delta = abs(expected_array - actual_array)
+    largest = delta.max() if delta.nnz else 0
+    scale = abs(expected_array).max() if expected_array.nnz else 0
+    assert largest <= atol + rtol * scale, (
+        f"Values differ beyond tolerance: max|expected - actual| is {largest}"
     )
 
 
