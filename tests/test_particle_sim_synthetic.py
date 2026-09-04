@@ -24,7 +24,7 @@ def test_synthetic_berkeley_cs267_particle_generator_has_one_dataset():
     assert dataset.n_particles == 1000
     assert dataset.num_steps == 1000
     assert dataset.seed == 1
-    assert dataset.suites == []
+    assert dataset.suites == ["standard"]
     assert dataset.parameters == {
         "force_model": "cs267_repulsive",
         "boundary_model": "reflective_box",

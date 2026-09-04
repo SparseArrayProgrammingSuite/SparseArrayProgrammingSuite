@@ -436,6 +436,7 @@ class SyntheticParticleSimDataset(ParticleSimDataset):
         box_size: float | None = None,
         pretty_name: str | None = None,
         description: str | None = None,
+        suites: list[str] | None = None,
         tags: list[str] | None = None,
         *,
         parameters: dict[str, Any],
@@ -447,6 +448,7 @@ class SyntheticParticleSimDataset(ParticleSimDataset):
             box_size=box_size,
             pretty_name=pretty_name,
             description=description,
+            suites=suites,
             tags=tags,
             parameters=parameters,
         )
@@ -544,6 +546,7 @@ class SyntheticBerkeleyCS267ParticleGenerator(Generator[SyntheticParticleSimData
                 num_steps=1000,
                 seed=1,
                 density=0.0005,
+                suites=["standard"],
                 parameters={
                     "force_model": "cs267_repulsive",
                     "boundary_model": "reflective_box",
