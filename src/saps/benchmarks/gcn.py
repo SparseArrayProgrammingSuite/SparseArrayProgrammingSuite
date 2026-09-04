@@ -360,14 +360,6 @@ class GCNGenerator(Generator[GCNDataset]):
                 hidden_dim=4,
                 out_dim=1,
             ),
-            # GCNDataset( #TODO seems to be too big?
-            #    "dg_gcn_road_2",
-            #    "Medium road network graph.",
-            #    "road_central",
-            #    feature_dim=4,
-            #    hidden_dim=8,
-            #    out_dim=1,
-            # ),
             GCNDataset(
                 "dg_gcn_molecular_1",
                 "Small molecular graph. - Email network.",
@@ -392,14 +384,6 @@ class GCNGenerator(Generator[GCNDataset]):
                 hidden_dim=32,
                 out_dim=1,
             ),
-            # GCNDataset( # seems to be too big?
-            #    "dg_gcn_large_2",
-            #    "Very large road network.",
-            #    "road_usa",
-            #    feature_dim=16,
-            #    hidden_dim=32,
-            #    out_dim=1,
-            # ),
             GCNDataset(
                 "dg_gcn_bcsstk01",
                 "Original small structural engineering matrix"
@@ -499,7 +483,7 @@ class OGBGCNGenerator(Generator[OGBGCNDataset]):
                 source_name=dataset.source_name,
                 hidden_dim=256,
                 description=dataset.description,
-                suites=dataset.suites,
+                suites=["standard"],
             )
             for dataset in OGBNodePropGenerator().datasets
         ]

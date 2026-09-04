@@ -503,14 +503,6 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
                 hidden_dim=4,
                 out_dim=1,
             ),
-            # GCNTrainingDataset(
-            #    "dg_gcn_road_2",
-            #    "Medium road network graph.",
-            #    "road_central",
-            #    feature_dim=4,
-            #    hidden_dim=8,
-            #    out_dim=1,
-            # ),
             GCNTrainingDataset(
                 "dg_gcn_molecular_1",
                 "Small molecular graph. - Email network.",
@@ -533,23 +525,6 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
                 "ca-HepPh",
                 feature_dim=16,
                 hidden_dim=32,
-                out_dim=1,
-            ),
-            # GCNTrainingDataset(
-            #    "dg_gcn_large_2",
-            #    "Very large road network.",
-            #    "road_usa",
-            #    feature_dim=16,
-            #    hidden_dim=32,
-            #    out_dim=1,
-            # ),
-            GCNTrainingDataset(
-                "dg_gcn_bcsstk01",
-                "Original small structural engineering matrix"
-                " (for backward compatibility).",
-                "bcsstk01",
-                feature_dim=16,
-                hidden_dim=8,
                 out_dim=1,
             ),
         ]
@@ -666,7 +641,7 @@ class OGBGCNTrainingGenerator(Generator[OGBGCNTrainingDataset]):
                 dataset.name,
                 source_name=dataset.source_name,
                 description=dataset.description,
-                suites=dataset.suites,
+                suites=["standard"]
             )
             for dataset in OGBNodePropGenerator().datasets
         ]
