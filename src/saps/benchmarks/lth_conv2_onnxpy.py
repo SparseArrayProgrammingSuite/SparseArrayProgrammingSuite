@@ -16,13 +16,14 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
-import gdown
 import numpy as np
+
+import gdown
 import onnx
-from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
 from onnx.reference import ReferenceEvaluator
 from onnxpy import compile_model
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -33,26 +34,26 @@ from saps.benchmark import (
     Ref,
 )
 
-
 _MODEL_ENV = "LTH_CONV2_ONNX"
 _MODEL_FILE_NAME = "conv2_pruned_dense.onnx"
 _MODEL_DATA_FILE_NAME = "conv2_pruned_dense.onnx.data"
 
 _MODEL_URL = (
-    "https://drive.google.com/uc?export=download&"
-    "id=1jxF9fFXidr9h_p6fEQGiRQXZkqkYfn14"
+    "https://drive.google.com/uc?export=download&id=1jxF9fFXidr9h_p6fEQGiRQXZkqkYfn14"
 )
 
 _MODEL_DATA_URL = (
-    "https://drive.google.com/uc?export=download&"
-    "id=1FB_CE91DlFbrPWWT7bQ-ETGRXlzIqEcq"
+    "https://drive.google.com/uc?export=download&id=1FB_CE91DlFbrPWWT7bQ-ETGRXlzIqEcq"
 )
 
 
 def _references() -> list[Ref]:
     return [
         Ref(
-            title="The Lottery Ticket Hypothesis: Finding Sparse, Trainable Neural Networks",
+            title=(
+                "The Lottery Ticket Hypothesis: Finding Sparse, "
+                "Trainable Neural Networks"
+            ),
             authors=[Author("Jonathan Frankle"), Author("Michael Carbin")],
             conference="ICLR",
             year=2019,
@@ -108,9 +109,7 @@ def _model_path() -> Path:
 
         data_path = model_path.with_name(_MODEL_DATA_FILE_NAME)
         if not data_path.is_file():
-            raise FileNotFoundError(
-                f"ONNX external-data file not found: {data_path}"
-            )
+            raise FileNotFoundError(f"ONNX external-data file not found: {data_path}")
 
         return model_path
 
@@ -135,9 +134,7 @@ def _load_generated_model(path: Path):
     spec.loader.exec_module(module)
 
     if not hasattr(module, "model"):
-        raise RuntimeError(
-            f"ONNXPY generated module does not define model(): {path}"
-        )
+        raise RuntimeError(f"ONNXPY generated module does not define model(): {path}")
 
     return module.model
 
@@ -232,24 +229,18 @@ class LTHConv2ONNXPYGenerator(Generator[LTHConv2Dataset]):
         ]
 
         if len(real_inputs) != 1:
-            raise ValueError(
-                f"Expected one runtime input, found {len(real_inputs)}."
-            )
+            raise ValueError(f"Expected one runtime input, found {len(real_inputs)}.")
 
         input_info = real_inputs[0]
 
         shape = []
         for dim in input_info.type.tensor_type.shape.dim:
             if not dim.HasField("dim_value") or dim.dim_value <= 0:
-                raise ValueError(
-                    f"Input {input_info.name!r} must have a static shape."
-                )
+                raise ValueError(f"Input {input_info.name!r} must have a static shape.")
             shape.append(int(dim.dim_value))
 
         dtype = np.dtype(
-            onnx.helper.tensor_dtype_to_np_dtype(
-                input_info.type.tensor_type.elem_type
-            )
+            onnx.helper.tensor_dtype_to_np_dtype(input_info.type.tensor_type.elem_type)
         )
 
         rng = np.random.default_rng(0)
@@ -272,10 +263,7 @@ class LTHConv2ONNXPYBenchmark(Benchmark):
 
     @property
     def description(self) -> str:
-        return (
-            "Runs the pruned Conv-2 ONNX graph through "
-            "ONNXPY-generated Python."
-        )
+        return "Runs the pruned Conv-2 ONNX graph through ONNXPY-generated Python."
 
     @property
     def suites(self) -> list[str]:
@@ -317,12 +305,8 @@ class LTHConv2ONNXPYBenchmark(Benchmark):
         return [LTHConv2ONNXPYGenerator()]
 
     def setup(self, param, *, use_cache: bool = True, xp=None):
-        self._onnxpy_tmpdir = tempfile.TemporaryDirectory(
-            prefix="saps_lth_onnxpy_"
-        )
-        generated_path = (
-            Path(self._onnxpy_tmpdir.name) / "conv2_generated.py"
-        )
+        self._onnxpy_tmpdir = tempfile.TemporaryDirectory(prefix="saps_lth_onnxpy_")
+        generated_path = Path(self._onnxpy_tmpdir.name) / "conv2_generated.py"
 
         try:
             model_path = _model_path()
@@ -341,9 +325,7 @@ class LTHConv2ONNXPYBenchmark(Benchmark):
                 {input_name: dense_input},
             )[0]
 
-            self._ref_outputs = [
-                from_numpy(np.asarray(expected))
-            ]
+            self._ref_outputs = [from_numpy(np.asarray(expected))]
             self._ref_meta = {
                 "rtol": 1e-4,
                 "atol": 1e-4,
