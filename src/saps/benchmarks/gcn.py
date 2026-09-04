@@ -14,8 +14,8 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.ogb import fetch_ogb_nodeprop_dataset
 from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
-from saps.downloaders.ogb import load_ogb_nodeprop_dataset
 
 
 class GCNDataset(SuiteSparseDataset):
@@ -522,6 +522,7 @@ class OGBGCNGenerator(Generator[OGBGCNDataset]):
                     "Full ogbn-products co-purchasing graph with 100-dimensional "
                     "product features and 47 prediction classes."
                 ),
+                suites=["standard"],
             ),
             OGBGCNDataset(
                 "ogbn_proteins",
@@ -533,11 +534,12 @@ class OGBGCNGenerator(Generator[OGBGCNDataset]):
                     "Full ogbn-proteins association graph; node features are the "
                     "mean of its 8-dimensional incident edge features."
                 ),
+                suites=["standard"],
             ),
         ]
 
     def generate(self, dataset: OGBGCNDataset) -> DataInstance:
-        graph = load_ogb_nodeprop_dataset(dataset.source_name)
+        graph = fetch_ogb_nodeprop_dataset(dataset.source_name)
         if graph.num_features != dataset.feature_dim:
             raise ValueError(
                 f"{dataset.source_name} has {graph.num_features} features, expected "

@@ -22,6 +22,7 @@ class OGBNodePropData:
     labels: np.ndarray
     split_indices: dict[str, np.ndarray]
     num_nodes: int
+    num_raw_edges: int
     num_features: int
     num_tasks: int
     num_classes: int
@@ -151,6 +152,7 @@ def _prepare_ogb_nodeprop_dataset(name: str, dataset: Any) -> OGBNodePropData:
         labels=np.asarray(labels),
         split_indices=split_indices,
         num_nodes=num_nodes,
+        num_raw_edges=int(edge_index.shape[1]),
         num_features=int(features.shape[1]),
         num_tasks=num_tasks,
         num_classes=num_classes,
