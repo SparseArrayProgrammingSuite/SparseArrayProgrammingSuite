@@ -271,6 +271,10 @@ class SuiteSparseMatmulGenerator(Generator):
 # spanning very sparse to moderately dense.
 UNIFORM_SPARSE_DENSITIES = [0.00001, 0.0001, 0.001, 0.01, 0.1]
 
+# Above this density the product is effectively fully dense, and building the
+# reference output overruns the test suite's per-benchmark timeout.
+TEST_SUITE_MAX_DENSITY = 0.01
+
 
 class UniformRandomMatmulDataset(Dataset):
     def __init__(
@@ -383,7 +387,9 @@ class UniformRandomMatmulGenerator(Generator):
                 f"uniform-{density:.0e}",
                 dim=5000,
                 density=density,
-                suites=["sparse", "test"],
+                suites=["sparse", "test"]
+                if density <= TEST_SUITE_MAX_DENSITY
+                else ["sparse"],
             )
             for density in UNIFORM_SPARSE_DENSITIES
         ]
