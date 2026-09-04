@@ -88,6 +88,77 @@ def load_suitesparse_rhs(matrix_dir: str | Path, matrix_name: str) -> np.ndarray
     return b.flatten()
 
 
+def read_vector(path: Path) -> np.ndarray:
+    """Read a Matrix Market file holding a single column into a flat array."""
+    from scipy.io import mmread
+
+    values = mmread(path)
+    if not isinstance(values, np.ndarray):
+        values = values.toarray() if hasattr(values, "toarray") else np.asarray(values)
+    return values.flatten()
+
+
+def load_lpnetlib_problem(
+    name: str, *, data_dir: str | Path | None = None
+) -> tuple[Any, np.ndarray, np.ndarray, np.ndarray, np.ndarray, dict[str, Any]]:
+    """Download (if needed) and parse an LPnetlib linear program.
+
+    The LPnetlib group stores each Netlib LP as ``minimize c'x`` subject to
+    ``A x = b`` and ``lo <= x <= hi``, shipping the objective vector, the two
+    bound vectors, and the objective offset ``z0`` as separate Matrix Market
+    files beside the matrix.
+
+    Returns ``(A, b, c, lo, hi, meta)``, with bounds normalized so that an
+    unbounded variable reads as an IEEE infinity. Bounds default to ``lo = 0``
+    and ``hi = inf`` when an entry omits the files entirely. ``z0`` is reported
+    in *meta* rather than returned, since it shifts the objective value without
+    moving the optimum.
+    """
+    matrix_dir, matrix, A = _download_and_read_matrix(name, data_dir)
+    if matrix.group != "LPnetlib":
+        raise ValueError(
+            f"Matrix '{name}' belongs to group '{matrix.group}', not LPnetlib"
+        )
+
+    rows, cols = A.shape
+    c = read_vector(matrix_dir / f"{matrix.name}_c.mtx")
+    b = load_suitesparse_rhs(matrix_dir, matrix.name)
+
+    infinite_bound = 1e30
+    lo_path = matrix_dir / f"{matrix.name}_lo.mtx"
+    hi_path = matrix_dir / f"{matrix.name}_hi.mtx"
+    lo = read_vector(lo_path) if lo_path.exists() else np.zeros(cols)
+    hi = read_vector(hi_path) if hi_path.exists() else np.full(cols, np.inf)
+    lo = np.where(lo <= -infinite_bound, -np.inf, lo)
+    hi = np.where(hi >= infinite_bound, np.inf, hi)
+
+    z0_path = matrix_dir / f"{matrix.name}_z0.mtx"
+    z0 = float(read_vector(z0_path)[0]) if z0_path.exists() else 0.0
+
+    for label, vector, expected in (
+        ("b", b, rows),
+        ("c", c, cols),
+        ("lo", lo, cols),
+        ("hi", hi, cols),
+    ):
+        if vector.shape[0] != expected:
+            raise ValueError(
+                f"LPnetlib problem '{name}' has a {label} vector of length"
+                f" {vector.shape[0]}, expected {expected}"
+            )
+
+    meta = {
+        "dataset_name": name,
+        "matrix_group": matrix.group,
+        "shape": A.shape,
+        "nnz": A.nnz,
+        "z0": z0,
+        "has_lo_file": lo_path.exists(),
+        "has_hi_file": hi_path.exists(),
+    }
+    return A, b, c, lo, hi, meta
+
+
 def random_rhs_for_matrix(A: Any, *, seed: int = 0, density: float = 0.1) -> np.ndarray:
     """Synthesize a deterministic RHS ``b = A @ x`` for a random sparse ``x``."""
     from scipy.sparse import random as sp_random
