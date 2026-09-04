@@ -1,5 +1,8 @@
 import numpy as np
 
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, from_scipy, to_scipy
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -10,7 +13,7 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
-from saps_framework import BinsparseFormat
+from saps_framework.binsparse_utils import assert_coo_allclose
 
 
 class DenseElementwiseDataset(Dataset):
@@ -107,9 +110,9 @@ class DenseElementwiseGenerator(Generator):
         B = gen.random((dataset.dim1, dataset.dim2))
         ref_outputs = None
         if "test" in dataset.suites:
-            ref_outputs = [BinsparseFormat.from_numpy(np.multiply(A, B))]
+            ref_outputs = [from_numpy(np.multiply(A, B))]
         return DataInstance(
-            [BinsparseFormat.from_numpy(A), BinsparseFormat.from_numpy(B)],
+            [from_numpy(A), from_numpy(B)],
             meta={"dataset": dataset.name},
             ref_outputs=ref_outputs,
         )
@@ -256,7 +259,7 @@ class SuiteSparseElementwiseGenerator(Generator):
         ]
 
     def generate(self, dataset: SuiteSparseElementwiseDataset) -> DataInstance:
-        base_coo = fetch_suitesparse_matrix(dataset.matrix).inputs[0].to_scipy_coo()
+        base_coo = to_scipy(fetch_suitesparse_matrix(dataset.matrix).inputs[0]).tocoo()
 
         # A and B are independent random perturbations of the same real matrix,
         # so they have distinct (but similarly structured) sparsity patterns
@@ -268,20 +271,12 @@ class SuiteSparseElementwiseGenerator(Generator):
         ref_outputs = None
         if "test" in dataset.suites:
             output_coo = A_coo.multiply(B_coo).tocoo()
-            ref_outputs = [
-                BinsparseFormat.from_coo(
-                    (output_coo.row, output_coo.col), output_coo.data, output_coo.shape
-                )
-            ]
+            ref_outputs = [from_scipy(output_coo)]
 
         return DataInstance(
             [
-                BinsparseFormat.from_coo(
-                    (A_coo.row, A_coo.col), A_coo.data, A_coo.shape
-                ),
-                BinsparseFormat.from_coo(
-                    (B_coo.row, B_coo.col), B_coo.data, B_coo.shape
-                ),
+                from_scipy(A_coo),
+                from_scipy(B_coo),
             ],
             meta={"dataset": dataset.name},
             ref_outputs=ref_outputs,
@@ -411,17 +406,11 @@ class UniformRandomElementwiseGenerator(Generator):
         ref_outputs = None
         if "test" in dataset.suites:
             output_coo = A.multiply(B).tocoo()
-            ref_outputs = [
-                BinsparseFormat.from_coo(
-                    (output_coo.row, output_coo.col),
-                    output_coo.data,
-                    output_coo.shape,
-                )
-            ]
+            ref_outputs = [from_scipy(output_coo)]
         return DataInstance(
             [
-                BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape),
-                BinsparseFormat.from_coo((B.row, B.col), B.data, B.shape),
+                from_scipy(A),
+                from_scipy(B),
             ],
             meta={"dataset": dataset.name},
             ref_outputs=ref_outputs,
@@ -486,12 +475,9 @@ class ElementwiseBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
         if self._ref_outputs is None:
             return
-        ref_coo = BinsparseFormat.to_coo(self._ref_outputs[0])
-        out_coo = BinsparseFormat.to_coo(self._output[0])
-        assert ref_coo.data["shape"] == out_coo.data["shape"]
-        assert np.allclose(ref_coo.data["values"], out_coo.data["values"])
+        assert_coo_allclose(self._ref_outputs[0], self._output[0])

@@ -1,5 +1,8 @@
 import numpy as np
 
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, from_scipy, to_scipy
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -10,7 +13,7 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
-from saps_framework import BinsparseFormat
+from saps_framework.binsparse_utils import assert_coo_allclose
 
 
 class SDDMMSuiteSparseDataset(Dataset):
@@ -119,7 +122,7 @@ class SDDMMSuiteSparseGenerator(Generator):
 
     def generate(self, dataset: SDDMMSuiteSparseDataset) -> DataInstance:
         S_bin = fetch_suitesparse_matrix(dataset.matrix_name).inputs[0]
-        sample_matrix = S_bin.to_scipy_coo()
+        sample_matrix = to_scipy(S_bin).tocoo()
 
         gen = np.random.Generator(np.random.PCG64(42))
         A = gen.random((sample_matrix.shape[0], dataset.middle_dim))
@@ -127,11 +130,9 @@ class SDDMMSuiteSparseGenerator(Generator):
         ref_outputs = None
         if "test" in dataset.suites:
             ref = sample_matrix.multiply(np.matmul(A, B)).tocoo()
-            ref_outputs = [
-                BinsparseFormat.from_coo((ref.row, ref.col), ref.data, ref.shape)
-            ]
+            ref_outputs = [from_scipy(ref)]
         return DataInstance(
-            [S_bin, BinsparseFormat.from_numpy(A), BinsparseFormat.from_numpy(B)],
+            [S_bin, from_numpy(A), from_numpy(B)],
             meta={"dataset": dataset.name},
             ref_outputs=ref_outputs,
         )
@@ -274,14 +275,12 @@ class UniformRandomSDDMMGenerator(Generator):
         ref_outputs = None
         if "test" in dataset.suites:
             ref = S.multiply(np.matmul(A, B)).tocoo()
-            ref_outputs = [
-                BinsparseFormat.from_coo((ref.row, ref.col), ref.data, ref.shape)
-            ]
+            ref_outputs = [from_scipy(ref)]
         return DataInstance(
             [
-                BinsparseFormat.from_coo((S.row, S.col), S.data, S.shape),
-                BinsparseFormat.from_numpy(A),
-                BinsparseFormat.from_numpy(B),
+                from_scipy(S),
+                from_numpy(A),
+                from_numpy(B),
             ],
             meta={"dataset": dataset.name},
             ref_outputs=ref_outputs,
@@ -361,12 +360,9 @@ class SDDMMBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
         if self._ref_outputs is None:
             return
-        ref_coo = BinsparseFormat.to_coo(self._ref_outputs[0])
-        out_coo = BinsparseFormat.to_coo(self._output[0])
-        assert ref_coo.data["shape"] == out_coo.data["shape"]
-        assert np.allclose(ref_coo.data["values"], out_coo.data["values"])
+        assert_coo_allclose(self._ref_outputs[0], self._output[0])

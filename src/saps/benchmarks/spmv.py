@@ -1,5 +1,8 @@
 import numpy as np
 
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, from_scipy, to_scipy
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -10,7 +13,7 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
-from saps_framework import BinsparseFormat
+from saps_framework.binsparse_utils import assert_coo_allclose
 
 
 class DenseMatVecDataset(Dataset):
@@ -105,9 +108,9 @@ class DenseMatVecGenerator(Generator):
         b = gen.random((dataset.dim2,))
         ref_outputs = None
         if "test" in dataset.suites:
-            ref_outputs = [BinsparseFormat.from_numpy(np.matmul(A, b))]
+            ref_outputs = [from_numpy(np.matmul(A, b))]
         return DataInstance(
-            [BinsparseFormat.from_numpy(A), BinsparseFormat.from_numpy(b)],
+            [from_numpy(A), from_numpy(b)],
             meta={"dataset": dataset.name},
             ref_outputs=ref_outputs,
         )
@@ -240,7 +243,7 @@ class SuiteSparseMatVecGenerator(Generator):
     def generate(self, dataset: SuiteSparseMatVecDataset) -> DataInstance:
         raw = fetch_suitesparse_matrix(dataset.matrix)
         A_bin = raw.inputs[0]
-        A_coo = A_bin.to_scipy_coo()
+        A_coo = to_scipy(A_bin).tocoo()
 
         gen = np.random.Generator(np.random.PCG64(42))
         b = gen.random((A_coo.shape[1],))
@@ -248,10 +251,10 @@ class SuiteSparseMatVecGenerator(Generator):
         ref_outputs = None
         if "test" in dataset.suites:
             output = A_coo @ b
-            ref_outputs = [BinsparseFormat.from_numpy(output)]
+            ref_outputs = [from_numpy(output)]
 
         return DataInstance(
-            [A_bin, BinsparseFormat.from_numpy(b)],
+            [A_bin, from_numpy(b)],
             meta={"dataset": dataset.name},
             ref_outputs=ref_outputs,
         )
@@ -393,11 +396,11 @@ class UniformRandomMatVecGenerator(Generator):
         ref_outputs = None
         if "test" in dataset.suites:
             output = A @ b
-            ref_outputs = [BinsparseFormat.from_numpy(output)]
+            ref_outputs = [from_numpy(output)]
         return DataInstance(
             [
-                BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape),
-                BinsparseFormat.from_numpy(b),
+                from_scipy(A),
+                from_numpy(b),
             ],
             meta={"dataset": dataset.name},
             ref_outputs=ref_outputs,
@@ -479,12 +482,9 @@ class MatrixVectorBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
         if self._ref_outputs is None:
             return
-        ref_coo = BinsparseFormat.to_coo(self._ref_outputs[0])
-        out_coo = BinsparseFormat.to_coo(self._output[0])
-        assert ref_coo.data["shape"] == out_coo.data["shape"]
-        assert np.allclose(ref_coo.data["values"], out_coo.data["values"])
+        assert_coo_allclose(self._ref_outputs[0], self._output[0])

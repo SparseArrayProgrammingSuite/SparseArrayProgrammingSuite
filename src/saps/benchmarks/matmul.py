@@ -1,5 +1,8 @@
 import numpy as np
 
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, from_scipy, to_scipy
+
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -10,7 +13,7 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
-from saps_framework import BinsparseFormat
+from saps_framework.binsparse_utils import assert_coo_allclose
 
 
 class DenseMatmulDataset(Dataset):
@@ -107,9 +110,9 @@ class DenseMatmulGenerator(Generator):
         B = gen.random((dataset.dim2, dataset.dim3))
         ref_outputs = None
         if "test" in dataset.suites:
-            ref_outputs = [BinsparseFormat.from_numpy(np.matmul(A, B))]
+            ref_outputs = [from_numpy(np.matmul(A, B))]
         return DataInstance(
-            [BinsparseFormat.from_numpy(A), BinsparseFormat.from_numpy(B)],
+            [from_numpy(A), from_numpy(B)],
             meta={"dataset": dataset.name},
             ref_outputs=ref_outputs,
         )
@@ -249,17 +252,13 @@ class SuiteSparseMatmulGenerator(Generator):
     def generate(self, dataset: SuiteSparseMatmulDataset) -> DataInstance:
         A_bin = fetch_suitesparse_matrix(dataset.matrix_1).inputs[0]
         B_bin = fetch_suitesparse_matrix(dataset.matrix_2).inputs[0]
-        A_coo = A_bin.to_scipy_coo()
-        B_coo = B_bin.to_scipy_coo()
+        A_coo = to_scipy(A_bin).tocoo()
+        B_coo = to_scipy(B_bin).tocoo()
 
         ref_outputs = None
         if "test" in dataset.suites:
             output_coo = (A_coo @ B_coo).tocoo()
-            ref_outputs = [
-                BinsparseFormat.from_coo(
-                    (output_coo.row, output_coo.col), output_coo.data, output_coo.shape
-                )
-            ]
+            ref_outputs = [from_scipy(output_coo)]
 
         return DataInstance(
             [A_bin, B_bin],
@@ -408,18 +407,9 @@ class UniformRandomMatmulGenerator(Generator):
         ref_outputs = None
         if "test" in dataset.suites:
             output_coo = (A @ B).tocoo()
-            ref_outputs = [
-                BinsparseFormat.from_coo(
-                    (output_coo.row, output_coo.col),
-                    output_coo.data,
-                    output_coo.shape,
-                )
-            ]
+            ref_outputs = [from_scipy(output_coo)]
         return DataInstance(
-            [
-                BinsparseFormat.from_coo((A.row, A.col), A.data, A.shape),
-                BinsparseFormat.from_coo((B.row, B.col), B.data, B.shape),
-            ],
+            [from_scipy(A), from_scipy(B)],
             meta={"dataset": dataset.name},
             ref_outputs=ref_outputs,
         )
@@ -500,12 +490,9 @@ class MatrixMultiplicationBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseFormat), (
+            assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
         if self._ref_outputs is None:
             return
-        ref_coo = BinsparseFormat.to_coo(self._ref_outputs[0])
-        out_coo = BinsparseFormat.to_coo(self._output[0])
-        assert ref_coo.data["shape"] == out_coo.data["shape"]
-        assert np.allclose(ref_coo.data["values"], out_coo.data["values"])
+        assert_coo_allclose(self._ref_outputs[0], self._output[0])
