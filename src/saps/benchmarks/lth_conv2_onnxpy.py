@@ -320,11 +320,13 @@ class LTHConv2ONNXPYBenchmark(Benchmark):
             input_name = self._meta["onnx_input_name"]
 
             model = onnx.load(str(model_path), load_external_data=True)
-            expected = ReferenceEvaluator(model).run(
+            outputs = ReferenceEvaluator(model).run(
                 None,
                 {input_name: dense_input},
-            )[0]
-
+            )
+            if isinstance(outputs, dict):
+                raise TypeError("Expected ReferenceEvaluator outputs as a list")
+            expected = outputs[0]
             self._ref_outputs = [from_numpy(np.asarray(expected))]
             self._ref_meta = {
                 "rtol": 1e-4,
