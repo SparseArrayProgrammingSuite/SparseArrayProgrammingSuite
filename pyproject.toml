@@ -55,6 +55,8 @@ scipy = "==1.17.1"
 ssgetpy = "==1.0rc2"
 torch = "==2.12.1"
 types-requests = "==2.33.0.20260712"
+onnx = "^1.22.0"
+onnxpy = {git = "https://github.com/SparseArrayProgrammingSuite/ONNXPY.git"}
 
 [build-system]
 requires = ["poetry-core>=1.0.8"]
