@@ -474,7 +474,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
             GCNTrainingDataset(
                 "dg_gcn_social_1",
                 "Small social network graph.",
-                "karate",
+                "Newman/karate",
                 feature_dim=16,
                 hidden_dim=8,
                 out_dim=1,
@@ -482,7 +482,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
             GCNTrainingDataset(
                 "dg_gcn_social_2",
                 "Medium social network graph.",
-                "dolphins",
+                "Newman/dolphins",
                 feature_dim=16,
                 hidden_dim=8,
                 out_dim=1,
@@ -490,7 +490,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
             GCNTrainingDataset(
                 "dg_gcn_social_3",
                 "Larger social network graph.",
-                "ca-GrQc",
+                "SNAP/ca-GrQc",
                 feature_dim=8,
                 hidden_dim=16,
                 out_dim=1,
@@ -498,7 +498,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
             GCNTrainingDataset(
                 "dg_gcn_road_1",
                 "Small road network graph.",
-                "chesapeake",
+                "DIMACS10/chesapeake",
                 feature_dim=8,
                 hidden_dim=4,
                 out_dim=1,
@@ -506,7 +506,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
             GCNTrainingDataset(
                 "dg_gcn_molecular_1",
                 "Small molecular graph. - Email network.",
-                "email",
+                "Arenas/email",
                 feature_dim=4,
                 hidden_dim=8,
                 out_dim=1,
@@ -514,7 +514,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
             GCNTrainingDataset(
                 "dg_gcn_molecular_2",
                 "Medium molecular graph - PDDB protein structure.",
-                "Chebyshev3",
+                "Muite/Chebyshev3",
                 feature_dim=6,
                 hidden_dim=12,
                 out_dim=1,
@@ -522,7 +522,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
             GCNTrainingDataset(
                 "dg_gcn_citation_1",
                 "Large citation network graph (AIDS-like size).",
-                "ca-HepPh",
+                "SNAP/ca-HepPh",
                 feature_dim=16,
                 hidden_dim=32,
                 out_dim=1,

@@ -80,7 +80,7 @@ def test_harness_test_suite_outputs_pass_for_all_test_datasets(tmp_path):
             "--tag",
             "test",
             "--check-suite",
-            "--metric",
+            "--metrics",
             "time",
             "--quick",
             "--timeout",

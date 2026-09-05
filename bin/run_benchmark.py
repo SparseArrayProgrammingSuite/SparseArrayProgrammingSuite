@@ -173,6 +173,32 @@ def _metadata_to_asv_benchmarks(
     return benchmarks.filter_out(set(skips))
 
 
+def _load_saps_config(config: str | None) -> dict:
+    config_file = Path(config) if config else Path("saps.conf.json")
+    if not config_file.exists():
+        return {}
+    with open(config_file) as f:
+        return json.load(f)
+
+
+def _apply_config_args(parser: argparse.ArgumentParser, args, config: dict) -> None:
+    for action in parser._actions:
+        if not action.option_strings or action.dest in {"config", "help"}:
+            continue
+        if action.dest not in config:
+            continue
+        if getattr(args, action.dest) == parser.get_default(action.dest):
+            setattr(args, action.dest, config[action.dest])
+
+
+def _resolve_path_values(values):
+    if isinstance(values, list):
+        return [str(Path(value).resolve()) for value in values]
+    if values is not None:
+        return str(Path(values).resolve())
+    return values
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run SAPS benchmarks")
     parser.add_argument(
@@ -184,6 +210,21 @@ def main() -> int:
         "--machine",
         default=None,
         help="Machine name to use (default: host name)",
+    )
+    parser.add_argument(
+        "--saps-dir",
+        default=None,
+        help="Directory for SAPS runner-owned outputs (default: config or .saps)",
+    )
+    parser.add_argument(
+        "--env-dir",
+        default=None,
+        help="Directory where ASV creates benchmark environments",
+    )
+    parser.add_argument(
+        "--results-dir",
+        default=None,
+        help="Directory where ASV writes benchmark results",
     )
     parser.add_argument(
         "--re",
@@ -269,9 +310,7 @@ def main() -> int:
         ),
     )
     parser.add_argument(
-        "--metric",
         "--metrics",
-        dest="metrics",
         nargs="+",
         choices=("peakmem", "time"),
         default=("time",),
@@ -319,6 +358,10 @@ def main() -> int:
         help="Zero-based chunk index to run when --chunk-count is greater than 1.",
     )
     args = parser.parse_args()
+
+    saps_config_data = _load_saps_config(args.config)
+    _apply_config_args(parser, args, saps_config_data)
+
     if args.chunk_count < 1:
         parser.error("--chunk-count must be at least 1")
     if args.chunk_index < 0 or args.chunk_index >= args.chunk_count:
@@ -339,7 +382,7 @@ def main() -> int:
     repo_root = Path(__file__).parent.parent
 
     # Load SAPS configuration
-    saps_dir = Path(".saps").resolve()
+    saps_dir = Path(args.saps_dir or ".saps").resolve()
     saps_dir.mkdir(parents=True, exist_ok=True)
     machine_files_dir = saps_dir / "machine_files"
     outputs_dir = saps_dir / "outputs"
@@ -350,23 +393,8 @@ def main() -> int:
     machine_files_dir.mkdir(parents=True, exist_ok=True)
     outputs_dir.mkdir(parents=True, exist_ok=True)
 
-    # Load optional saps.conf.json
-    saps_config_data = {}
-    if args.config:
-        config_file = Path(args.config)
-        if config_file.exists():
-            with open(config_file) as f:
-                saps_config_data = json.load(f)
-    else:
-        saps_config_file = Path("saps.conf.json")
-        if saps_config_file.exists():
-            with open(saps_config_file) as f:
-                saps_config_data = json.load(f)
-
-    env_dir = Path(saps_config_data.get("env_dir", str(saps_dir / "results")))
-    results_dir = Path(
-        saps_config_data.get("results_dir", str(saps_dir / "outputs" / "results"))
-    )
+    env_dir = Path(args.env_dir or saps_dir / "results")
+    results_dir = Path(args.results_dir or saps_dir / "outputs" / "results")
     if chunk_name:
         env_dir /= chunk_name
         results_dir /= chunk_name
@@ -393,25 +421,11 @@ def main() -> int:
             },
         },
     )
-    matrix.setdefault("env_nobuild", {})
+    matrix_env_nobuild = matrix.setdefault("env_nobuild", {})
     log_path = str(results_dir / "diagnostics.log")
-    os.environ["SAPS_LOG_PATH"] = log_path
-    matrix["env_nobuild"]["SAPS_LOG_PATH"] = [log_path]
     storage_backend = args.remote_storage_backend or DEFAULT_REMOTE_STORAGE_BACKEND
     storage_bucket = args.remote_storage_bucket or DEFAULT_REMOTE_STORAGE_BUCKET
-    if (
-        args.remote_storage_backend is not None
-        or "REMOTE_STORAGE_BACKEND" not in matrix["env_nobuild"]
-    ):
-        matrix["env_nobuild"]["REMOTE_STORAGE_BACKEND"] = [storage_backend]
-    if (
-        args.remote_storage_bucket is not None
-        or "REMOTE_STORAGE_BUCKET" not in matrix["env_nobuild"]
-    ):
-        matrix["env_nobuild"]["REMOTE_STORAGE_BUCKET"] = [storage_bucket]
     cache_dir = str(outputs_dir / "cache")
-    os.environ["SAPS_CACHE_DIR"] = cache_dir
-    matrix["env_nobuild"]["SAPS_CACHE_DIR"] = [cache_dir]
     persistent_metadata_path = Path(
         os.environ.get("SAPS_METADATA_PATH", str(repo_root / "metadata.json"))
     )
@@ -420,16 +434,22 @@ def main() -> int:
     )
     manifest_path = str(repo_root / "manifest.json")
     pythonpath = str(repo_root)
-    os.environ["SAPS_MANIFEST_PATH"] = manifest_path
     os.environ["PYTHONPATH"] = pythonpath
-    os.environ["REMOTE_STORAGE_BACKEND"] = storage_backend
-    os.environ["REMOTE_STORAGE_BUCKET"] = storage_bucket
-    matrix["env_nobuild"]["SAPS_MANIFEST_PATH"] = [manifest_path]
+    saps_env_nobuild = {
+        "SAPS_LOG_PATH": log_path,
+        "REMOTE_STORAGE_BACKEND": storage_backend,
+        "REMOTE_STORAGE_BUCKET": storage_bucket,
+        "SAPS_CACHE_DIR": cache_dir,
+        "SAPS_MANIFEST_PATH": manifest_path,
+    }
     if args.cache_datasets:
-        os.environ["SAPS_CACHE_DATASETS"] = "1"
-        matrix["env_nobuild"]["SAPS_CACHE_DATASETS"] = ["1"]
+        saps_env_nobuild["SAPS_CACHE_DATASETS"] = "1"
     else:
         os.environ.pop("SAPS_CACHE_DATASETS", None)
+
+    os.environ.update(saps_env_nobuild)
+    for key, value in saps_env_nobuild.items():
+        matrix_env_nobuild[key] = [value]
     if args.trace_statistics or args.cache_datasets:
         framework_file = (
             "frameworks/saps_tagger.py"
@@ -468,6 +488,13 @@ def main() -> int:
         "html_dir": str(outputs_dir / "html"),
         "matrix": matrix,
     }
+    for key in ("include", "exclude", "pythons"):
+        if key in saps_config_data:
+            asv_config_dict[key] = saps_config_data[key]
+
+    for include in asv_config_dict.get("include", []):
+        include_env_nobuild = include.setdefault("env_nobuild", {})
+        include_env_nobuild.update(saps_env_nobuild)
     log.info(f"Using SAPS config: {saps_config_data}")
     # Create ASV config from dict
     conf = Config.from_json(asv_config_dict)
@@ -485,18 +512,14 @@ def main() -> int:
     else:
         timeout = 5
 
-    # Convert relative SAPS_FRAMEWORK paths to absolute paths so child processes can
-    # find them
-    cwd = os.getcwd()
-    if "env_nobuild" in conf.matrix and "SAPS_FRAMEWORK" in conf.matrix["env_nobuild"]:
-        abs_paths = []
-        for path in conf.matrix["env_nobuild"]["SAPS_FRAMEWORK"]:
-            path_obj = Path(path)
-            if path_obj.is_absolute():
-                abs_paths.append(path)
-            else:
-                abs_paths.append(str(Path(cwd) / path_obj))
-        conf.matrix["env_nobuild"]["SAPS_FRAMEWORK"] = abs_paths
+    for env_nobuild in [
+        conf.matrix.get("env_nobuild", {}),
+        *(include.get("env_nobuild", {}) for include in conf.include),
+    ]:
+        if "SAPS_FRAMEWORK" in env_nobuild:
+            env_nobuild["SAPS_FRAMEWORK"] = _resolve_path_values(
+                env_nobuild["SAPS_FRAMEWORK"]
+            )
 
     # ASV normally reads and rewrites ~/.asv-machine.json.  Concurrent Slurm
     # array tasks can observe that file while another task has truncated it.

@@ -34,6 +34,12 @@ class ScipyLinalg:
             return spla.norm(x, **kwargs)
         return np.linalg.norm(x, **kwargs)
 
+    @staticmethod
+    def lstsq(a, b, rcond=None, **kwargs):
+        if rcond is not None:
+            kwargs["cond"] = rcond
+        return la.lstsq(a, b, **kwargs)
+
 
 class SciPyFramework(Framework):
     def __init__(self):

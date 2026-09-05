@@ -1,0 +1,84 @@
+{
+  "//": "Competition config using ASV-native include entries. Each include is one competitor environment with its own dependencies.",
+  "environment_type": "virtualenv",
+  "install_command": ["in-dir={env_dir} python -mpip install {build_dir} --force-reinstall"],
+  "timeout": 60,
+  "saps_dir": "competition",
+  "env_dir": "competition/env",
+  "results_dir": "competition/results",
+  "matrix": {},
+  "exclude": [
+    {
+      "env_nobuild": {
+        "SAPS_FRAMEWORK": null
+      }
+    }
+  ],
+  "include": [
+    {
+      "python": "3.12",
+      "req": {
+        "array-api-compat": "1.15.0",
+        "lark": "1.3.1",
+        "networkx": "3.6",
+        "numpy": "2.3",
+        "scipy": "1.17.1",
+        "sparse": "0.17.0",
+        "ssgetpy": "1.0rc2"
+      },
+      "env_nobuild": {
+        "SAPS_FRAMEWORK": "frameworks/saps_numpy.py",
+        "SAPS_REPO_ROOT": "."
+      }
+    },
+    {
+      "python": "3.12",
+      "req": {
+        "array-api-compat": "1.15.0",
+        "lark": "1.3.1",
+        "networkx": "3.6",
+        "numpy": "2.3",
+        "scipy": "1.17.1",
+        "sparse": "0.17.0",
+        "ssgetpy": "1.0rc2"
+      },
+      "env_nobuild": {
+        "SAPS_FRAMEWORK": "frameworks/saps_scipy.py",
+        "SAPS_REPO_ROOT": "."
+      }
+    },
+    {
+      "python": "3.12",
+      "req": {
+        "array-api-compat": "1.15.0",
+        "lark": "1.3.1",
+        "networkx": "3.6",
+        "numpy": "2.3",
+        "scipy": "1.17.1",
+        "sparse": "0.17.0",
+        "ssgetpy": "1.0rc2"
+      },
+      "env_nobuild": {
+        "SAPS_FRAMEWORK": "frameworks/saps_sparse.py",
+        "SAPS_REPO_ROOT": "."
+      }
+    },
+    {
+      "python": "3.12",
+      "req": {
+        "array-api-compat": "1.15.0",
+        "lark": "1.3.1",
+        "networkx": "3.6",
+        "numpy": "2.3",
+        "scipy": "1.17.1",
+        "sparse": "0.17.0",
+        "ssgetpy": "1.0rc2",
+        "torch": "2.12.1"
+      },
+      "env_nobuild": {
+        "SAPS_FRAMEWORK": "frameworks/saps_pytorch.py",
+        "SAPS_REPO_ROOT": "."
+      }
+    }
+  ]
+}

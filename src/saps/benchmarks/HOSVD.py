@@ -24,8 +24,8 @@ class HOSVDDataset(Dataset):
         pretty_name: str,
         description: str,
         suites: list[str],
-        shape: tuple[int, int, int],
-        ranks: tuple[int, int, int],
+        shape: tuple[int, ...],
+        ranks: tuple[int, ...],
         seed: int = 42,
     ):
         self._name = name
@@ -33,6 +33,7 @@ class HOSVDDataset(Dataset):
         self._description = description
         self._suites = suites
         self.shape = shape
+        self.n = len(shape)
         self.ranks = ranks
         self.seed = seed
 
@@ -60,6 +61,7 @@ class HOSVDDataset(Dataset):
     def metadata(self) -> dict[str, Any]:
         data = super().metadata
         data["shape"] = self.shape
+        data["n"] = self.n
         data["ranks"] = self.ranks
         data["seed"] = self.seed
         return data
@@ -92,7 +94,7 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
 
     @property
     def description(self) -> str:
-        return "Generates a dense low-rank 3D tensor using random factor matrices."
+        return "Generates dense low-rank tensors using random factor matrices."
 
     @property
     def suites(self) -> list[str]:
@@ -132,32 +134,82 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
                 ["test", "trace"],
                 (10, 10, 10),
                 (3, 3, 3),
-            )
+            ),
+            HOSVDDataset(
+                "small_dense_4d",
+                "Small dense 4d HOSVD Tensor",
+                "Dense low-rank 4D tensor using random factor matrices.",
+                ["test", "trace"],
+                (10, 10, 10, 10),
+                (3, 3, 3, 3),
+            ),
+            HOSVDDataset(
+                "small_dense_5d",
+                "Small dense 5d HOSVD Tensor",
+                "Dense low-rank 5D tensor using random factor matrices.",
+                ["test", "trace"],
+                (10, 10, 10, 10, 10),
+                (3, 3, 3, 3, 3),
+            ),
         ]
 
     def generate(self, dataset: HOSVDDataset):
-        dim1, dim2, dim3 = dataset.shape
         ranks = dataset.ranks
         rng = np.random.default_rng(dataset.seed)
 
-        G = rng.random(ranks).astype(np.float64)
-        A = rng.random((dim1, ranks[0])).astype(np.float64)
-        B = rng.random((dim2, ranks[1])).astype(np.float64)
-        C = rng.random((dim3, ranks[2])).astype(np.float64)
+        match dataset.n:
+            case 3:
+                dim1, dim2, dim3 = dataset.shape
 
-        X_dense = np.einsum("pqr,ip,jq,kr->ijk", G, A, B, C)
+                G = rng.random(ranks).astype(np.float64)
+                A = rng.random((dim1, ranks[0])).astype(np.float64)
+                B = rng.random((dim2, ranks[1])).astype(np.float64)
+                C = rng.random((dim3, ranks[2])).astype(np.float64)
+
+                X_dense = np.einsum("pqr,ip,jq,kr->ijk", G, A, B, C)
+
+            case 4:
+                dim1, dim2, dim3, dim4 = dataset.shape
+
+                G = rng.random(ranks).astype(np.float64)
+                A = rng.random((dim1, ranks[0])).astype(np.float64)
+                B = rng.random((dim2, ranks[1])).astype(np.float64)
+                C = rng.random((dim3, ranks[2])).astype(np.float64)
+                D = rng.random((dim4, ranks[3])).astype(np.float64)
+
+                X_dense = np.einsum("pqrs,ip,jq,kr,ls->ijkl", G, A, B, C, D)
+
+            case 5:
+                dim1, dim2, dim3, dim4, dim5 = dataset.shape
+
+                G = rng.random(ranks).astype(np.float64)
+                A = rng.random((dim1, ranks[0])).astype(np.float64)
+                B = rng.random((dim2, ranks[1])).astype(np.float64)
+                C = rng.random((dim3, ranks[2])).astype(np.float64)
+                D = rng.random((dim4, ranks[3])).astype(np.float64)
+                E = rng.random((dim5, ranks[4])).astype(np.float64)
+
+                X_dense = np.einsum(
+                    "pqrst,ip,jq,kr,ls,mt->ijklm", G, A, B, C, D, E
+                )
+
+            case _:
+                raise ValueError(f"unsupported HOSVD tensor order {dataset.n}")
 
         X_bin = from_numpy(X_dense)
-
         ranks_bin = from_numpy(np.array(ranks))
         return DataInstance(
             inputs=[X_bin, ranks_bin],
-            meta={"max_iter": 50, "tolerance": 1e-8},
+            meta={"n": dataset.n, "max_iter": 50, "tolerance": 1e-8},
             ref_meta={"check_reconstruction": True},
         )
 
 
 class HOSVDSparseGenerator(Generator[HOSVDDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
     @property
     def name(self) -> str:
         return "hosvd_sparse_inputs"
@@ -168,7 +220,7 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
 
     @property
     def description(self) -> str:
-        return "Generates a sparse low-rank 3D tensor using random factor matrices."
+        return "Generates sparse low-rank tensors using random factor matrices."
 
     @property
     def suites(self) -> list[str]:
@@ -204,16 +256,30 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
             HOSVDDataset(
                 "small_sparse",
                 "Small sparse HOSVD Tensor",
-                "sparse_small Small Sparse HOSVD Tensor Sparse low-rank 3D tensor"
-                " using random factor matrices.",
+                "Sparse low-rank 3D tensor using random factor matrices.",
                 [],
                 (20, 20, 20),
                 (3, 3, 3),
-            )
+            ),
+            HOSVDDataset(
+                "small_sparse_4d",
+                "Small sparse 4d HOSVD Tensor",
+                "Sparse low-rank 4D tensor using random factor matrices.",
+                [],
+                (20, 20, 20, 20),
+                (3, 3, 3, 3),
+            ),
+            HOSVDDataset(
+                "small_sparse_5d",
+                "Small sparse 5d HOSVD Tensor",
+                "Sparse low-rank 5D tensor using random factor matrices.",
+                [],
+                (10, 10, 10, 10, 10),
+                (3, 3, 3, 3, 3),
+            ),
         ]
 
     def generate(self, dataset: HOSVDDataset):
-        dim1, dim2, dim3 = dataset.shape
         ranks = dataset.ranks
         rng = np.random.default_rng(dataset.seed)
 
@@ -226,34 +292,93 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
             mat[indices] = rng.random(nnz)
             return mat.reshape((rows, cols)).astype(np.float64)
 
-        G = get_sparse_factor(ranks[0], ranks[1] * ranks[2], density=0.5).reshape(ranks)
-        A = get_sparse_factor(dim1, ranks[0], density=0.2)
-        B = get_sparse_factor(dim2, ranks[1], density=0.2)
-        C = get_sparse_factor(dim3, ranks[2], density=0.2)
+        match dataset.n:
+            case 3:
+                dim1, dim2, dim3 = dataset.shape
 
-        X_dense = np.einsum("pqr,ip,jq,kr->ijk", G, A, B, C)
+                G = get_sparse_factor(
+                    ranks[0], ranks[1] * ranks[2], density=0.5
+                ).reshape(ranks)
+                A = get_sparse_factor(dim1, ranks[0], density=0.2)
+                B = get_sparse_factor(dim2, ranks[1], density=0.2)
+                C = get_sparse_factor(dim3, ranks[2], density=0.2)
 
-        indices = np.nonzero(X_dense)
-        values = X_dense[indices]
+                X_dense = np.einsum("pqr,ip,jq,kr->ijk", G, A, B, C)
 
-        X_bin = CustomTensor(
-            (dim1, dim2, dim3),
-            len(values),
-            level=SparseLevel(3, ElementLevel(values), indices),
-        )
+                indices = np.nonzero(X_dense)
+                values = X_dense[indices]
+
+                X_bin = CustomTensor(
+                    (dim1, dim2, dim3),
+                    len(values),
+                    level=SparseLevel(3, ElementLevel(values), indices),
+                )
+
+            case 4:
+                dim1, dim2, dim3, dim4 = dataset.shape
+
+                G = get_sparse_factor(
+                    ranks[0], ranks[1] * ranks[2] * ranks[3], density=0.5
+                ).reshape(ranks)
+                A = get_sparse_factor(dim1, ranks[0], density=0.2)
+                B = get_sparse_factor(dim2, ranks[1], density=0.2)
+                C = get_sparse_factor(dim3, ranks[2], density=0.2)
+                D = get_sparse_factor(dim4, ranks[3], density=0.2)
+
+                X_dense = np.einsum("pqrs,ip,jq,kr,ls->ijkl", G, A, B, C, D)
+
+                indices = np.nonzero(X_dense)
+                values = X_dense[indices]
+
+                X_bin = CustomTensor(
+                    (dim1, dim2, dim3, dim4),
+                    len(values),
+                    level=SparseLevel(4, ElementLevel(values), indices),
+                )
+
+            case 5:
+                dim1, dim2, dim3, dim4, dim5 = dataset.shape
+
+                G = get_sparse_factor(
+                    ranks[0],
+                    ranks[1] * ranks[2] * ranks[3] * ranks[4],
+                    density=0.5,
+                ).reshape(ranks)
+                A = get_sparse_factor(dim1, ranks[0], density=0.2)
+                B = get_sparse_factor(dim2, ranks[1], density=0.2)
+                C = get_sparse_factor(dim3, ranks[2], density=0.2)
+                D = get_sparse_factor(dim4, ranks[3], density=0.2)
+                E = get_sparse_factor(dim5, ranks[4], density=0.2)
+
+                X_dense = np.einsum(
+                    "pqrst,ip,jq,kr,ls,mt->ijklm", G, A, B, C, D, E
+                )
+
+                indices = np.nonzero(X_dense)
+                values = X_dense[indices]
+
+                X_bin = CustomTensor(
+                    (dim1, dim2, dim3, dim4, dim5),
+                    len(values),
+                    level=SparseLevel(5, ElementLevel(values), indices),
+                )
+
+            case _:
+                raise ValueError(f"unsupported HOSVD tensor order {dataset.n}")
 
         ranks_bin = from_numpy(np.array(ranks))
         return DataInstance(
             inputs=[X_bin, ranks_bin],
-            meta={"max_iter": 50, "tolerance": 1e-8},
+            meta={"n": dataset.n, "max_iter": 50, "tolerance": 1e-8},
         )
 
 
 class HOSVDFrosttDataset(Dataset):
-    def __init__(self, name, pretty_name, tensor_name, ranks, suites=None):
+    def __init__(self, name, pretty_name, tensor_name, n, ranks, suites=None):
         self._name = name
         self._pretty_name = pretty_name
         self.tensor_name = tensor_name
+        self.n = n
         self.ranks = ranks
         self._suites = suites or []
 
@@ -267,7 +392,7 @@ class HOSVDFrosttDataset(Dataset):
 
     @property
     def description(self) -> str:
-        return f"FROSTT tensor {self.tensor_name}, ranks = {self.ranks}."
+        return f"FROSTT tensor {self.tensor_name}, n = {self.n}, ranks = {self.ranks}."
 
     @property
     def suites(self) -> list[str]:
@@ -280,13 +405,19 @@ class HOSVDFrosttDataset(Dataset):
 
 def _hosvd_frostt_dataset(tensor_name, ranks):
     shape = frostt_tensor_shape(tensor_name)
+    assert len(ranks) == len(shape), (
+        f"HOSVD ranks {ranks} do not match shape {shape} for "
+        f"FROSTT tensor {tensor_name}"
+    )
     assert all(r <= s for r, s in zip(ranks, shape, strict=True)), (
         f"HOSVD ranks {ranks} exceed shape {shape} for FROSTT tensor {tensor_name}"
     )
+    n = len(shape)
     return HOSVDFrosttDataset(
         name=f"hosvd_frostt_{tensor_name}",
         pretty_name=f"HOSVD FROSTT {tensor_name}",
         tensor_name=tensor_name,
+        n=n,
         ranks=ranks,
     )
 
@@ -307,9 +438,9 @@ class HOSVDFrosttGenerator(Generator[HOSVDFrosttDataset]):
     @property
     def description(self) -> str:
         return (
-            "Real 3rd-order sparse tensors downloaded from FROSTT (frostt.io),"
-            " decomposed directly. No dense reconstruction check is performed since"
-            " these tensors are stored in genuinely sparse (COO) form."
+            "Real sparse tensors downloaded from FROSTT (frostt.io), decomposed"
+            " directly. No dense reconstruction check is performed since these tensors"
+            " are stored in genuinely sparse (COO) form."
         )
 
     @property
@@ -358,7 +489,10 @@ class HOSVDFrosttGenerator(Generator[HOSVDFrosttDataset]):
     def motivation(self) -> str:
         return (
             "Real sparse tensors from FROSTT exercise HOSVD's per-mode unfolding"
-            " against genuinely irregular sparsity patterns."
+            " against genuinely irregular sparsity patterns. The larger 4D and 5D"
+            " tensors can have mode unfoldings that are heavy to densify for SVD with"
+            " the current algorithm, so select datasets by name rather than running"
+            " this whole generator unfiltered."
         )
 
     @property
@@ -383,16 +517,29 @@ class HOSVDFrosttGenerator(Generator[HOSVDFrosttDataset]):
                 ("reddit_2015", (5, 5, 5)),
                 ("fb_m", (5, 5, 5)),
                 ("darpa", (5, 5, 5)),
+                ("toy", (2, 2, 2, 2)),
+                ("nips", (5, 5, 5, 5)),
+                ("uber_pickups", (5, 5, 5, 5)),
+                ("chicago_crime_comm", (5, 5, 5, 5)),
+                ("enron", (5, 5, 5, 5)),
+                ("flickr_4d", (5, 5, 5, 5)),
+                ("delicious_4d", (5, 5, 5, 5)),
+                ("lbnl_network", (5, 5, 5, 5, 5)),
+                ("chicago_crime_geo", (5, 5, 5, 5, 5)),
+                # vast_2015_mc1_5d's 3rd mode has only 2 entries, so its rank is capped.
+                ("vast_2015_mc1_5d", (5, 5, 2, 5, 5)),
+                ("lanl2", (5, 5, 5, 5, 5)),
             ]
         ]
 
     def generate(self, dataset: HOSVDFrosttDataset):
         raw = fetch_frostt_tensor(dataset.tensor_name)
+        assert len(raw.meta["shape"]) == dataset.n
         X_bin = raw.inputs[0]
         ranks_bin = from_numpy(np.array(dataset.ranks))
         return DataInstance(
             inputs=[X_bin, ranks_bin],
-            meta={"max_iter": 50, "tolerance": 1e-8},
+            meta={"n": dataset.n, "max_iter": 50, "tolerance": 1e-8},
         )
 
 
@@ -514,81 +661,316 @@ class HOSVDBenchmark(Benchmark):
         return [HOSVDDenseGenerator(), HOSVDSparseGenerator(), HOSVDFrosttGenerator()]
 
     def benchmark(self, xp, data: list, meta: dict):
-        X, ranks = data
-        max_iter = meta.get("max_iter", 50)
-        tolerance = meta.get("tolerance", 1e-8)
+        n = meta["n"]
+        initial_factors: list[Any]
 
-        dimensions = X.shape
-        num_modes = len(dimensions)
+        match n:
+            case 3:
+                X, ranks = data
+                max_iter = meta.get("max_iter", 50)
+                tolerance = meta.get("tolerance", 1e-8)
 
-        # initial HOSVD by performing SVD on matrix unfoldings along each mode
-        initial_factors: list[Any] = [None] * num_modes
-        for mode in range(num_modes):
-            perm = [mode] + list(range(mode)) + list(range(mode + 1, num_modes))
-            unfold = xp.reshape(xp.transpose(X, perm), (dimensions[mode], -1))
+                dimensions = X.shape
+                num_modes = len(dimensions)
 
-            U, S, Vt = xp.linalg.svd(unfold, full_matrices=False)
-            initial_factors[mode] = U[:, : ranks[mode]]
-
-        # iteration to update each factor matrix by projecting the original
-        # tensor onto other factor matrices
-        for _iteration in range(max_iter):
-            prev_factors = initial_factors[:]
-            for mode in range(num_modes):
-                initial_factors[mode] = initial_factors[mode]
-
-                if mode == 0:
-                    update = xp.einsum(
-                        "Y[i, r1, r2] += X[i, j, k] * B[j, r1] * C[k, r2]",
-                        X=X,
-                        B=initial_factors[1],
-                        C=initial_factors[2],
+                # initial HOSVD by performing SVD on matrix unfoldings along each mode
+                initial_factors = [None] * num_modes
+                for mode in range(num_modes):
+                    perm = [mode] + list(range(mode)) + list(
+                        range(mode + 1, num_modes)
                     )
-                elif mode == 1:
-                    update = xp.einsum(
-                        "Y[r0, j, r2] += X[i, j, k] * A[i, r0] * C[k, r2]",
-                        X=X,
-                        A=initial_factors[0],
-                        C=initial_factors[2],
-                    )
-                elif mode == 2:
-                    update = xp.einsum(
-                        "Y[r0, r1, k] += X[i, j, k] * A[i, r0] * B[j, r1]",
-                        X=X,
-                        A=initial_factors[0],
-                        B=initial_factors[1],
-                    )
+                    unfold = xp.reshape(xp.transpose(X, perm), (dimensions[mode], -1))
 
-                perm = [mode] + list(range(mode)) + list(range(mode + 1, num_modes))
-                unfold_update = xp.reshape(
-                    xp.transpose(update, perm), (dimensions[mode], -1)
+                    U, _S, _Vt = xp.linalg.svd(unfold, full_matrices=False)
+                    initial_factors[mode] = U[:, : ranks[mode]]
+
+                # iteration to update each factor matrix by projecting the original
+                # tensor onto other factor matrices
+                for _iteration in range(max_iter):
+                    prev_factors = initial_factors[:]
+                    for mode in range(num_modes):
+                        initial_factors[mode] = initial_factors[mode]
+
+                        if mode == 0:
+                            update = xp.einsum(
+                                "Y[i, r1, r2] += X[i, j, k] * B[j, r1] * C[k, r2]",
+                                X=X,
+                                B=initial_factors[1],
+                                C=initial_factors[2],
+                            )
+                        elif mode == 1:
+                            update = xp.einsum(
+                                "Y[r0, j, r2] += X[i, j, k] * A[i, r0] * C[k, r2]",
+                                X=X,
+                                A=initial_factors[0],
+                                C=initial_factors[2],
+                            )
+                        elif mode == 2:
+                            update = xp.einsum(
+                                "Y[r0, r1, k] += X[i, j, k] * A[i, r0] * B[j, r1]",
+                                X=X,
+                                A=initial_factors[0],
+                                B=initial_factors[1],
+                            )
+
+                        perm = [mode] + list(range(mode)) + list(
+                            range(mode + 1, num_modes)
+                        )
+                        unfold_update = xp.reshape(
+                            xp.transpose(update, perm), (dimensions[mode], -1)
+                        )
+
+                        U, _S, _Vt = xp.linalg.svd(
+                            unfold_update, full_matrices=False
+                        )
+                        initial_factors[mode] = U[:, : ranks[mode]]
+
+                    # stop iterations when solutions stop changing significantly
+                    change = (
+                        xp.linalg.norm(initial_factors[0] - prev_factors[0])
+                        + xp.linalg.norm(initial_factors[1] - prev_factors[1])
+                        + xp.linalg.norm(initial_factors[2] - prev_factors[2])
+                    )
+                    if change[()] < tolerance:
+                        break
+
+                core_tensor = xp.einsum(
+                    "G[p, q, r] += X[i, j, k] * A[i, p] * B[j, q] * C[k, r]",
+                    X=X,
+                    A=initial_factors[0],
+                    B=initial_factors[1],
+                    C=initial_factors[2],
                 )
+                return [
+                    core_tensor,
+                    initial_factors[0],
+                    initial_factors[1],
+                    initial_factors[2],
+                ]
 
-                U, S, Vt = xp.linalg.svd(unfold_update, full_matrices=False)
-                initial_factors[mode] = U[:, : ranks[mode]]
+            case 4:
+                X, ranks = data
+                max_iter = meta.get("max_iter", 50)
+                tolerance = meta.get("tolerance", 1e-8)
 
-            # stop iterations when solutions stop changing significantly
-            change = (
-                xp.linalg.norm(initial_factors[0] - prev_factors[0])
-                + xp.linalg.norm(initial_factors[1] - prev_factors[1])
-                + xp.linalg.norm(initial_factors[2] - prev_factors[2])
-            )
-            if change[()] < tolerance:
-                break
+                dimensions = X.shape
+                num_modes = len(dimensions)
 
-        core_tensor = xp.einsum(
-            "G[p, q, r] += X[i, j, k] * A[i, p] * B[j, q] * C[k, r]",
-            X=X,
-            A=initial_factors[0],
-            B=initial_factors[1],
-            C=initial_factors[2],
-        )
-        return [
-            core_tensor,
-            initial_factors[0],
-            initial_factors[1],
-            initial_factors[2],
-        ]
+                # initial HOSVD by performing SVD on matrix unfoldings along each mode
+                initial_factors = [None] * num_modes
+                for mode in range(num_modes):
+                    perm = [mode] + list(range(mode)) + list(
+                        range(mode + 1, num_modes)
+                    )
+                    unfold = xp.reshape(xp.transpose(X, perm), (dimensions[mode], -1))
+
+                    U, _S, _Vt = xp.linalg.svd(unfold, full_matrices=False)
+                    initial_factors[mode] = U[:, : ranks[mode]]
+
+                # iteration to update each factor matrix by projecting the original
+                # tensor onto other factor matrices
+                for _iteration in range(max_iter):
+                    prev_factors = initial_factors[:]
+                    for mode in range(num_modes):
+                        initial_factors[mode] = initial_factors[mode]
+
+                        if mode == 0:
+                            update = xp.einsum(
+                                "Y[i, r1, r2, r3] += X[i, j, k, l] * B[j, r1] "
+                                "* C[k, r2] * D[l, r3]",
+                                X=X,
+                                B=initial_factors[1],
+                                C=initial_factors[2],
+                                D=initial_factors[3],
+                            )
+                        elif mode == 1:
+                            update = xp.einsum(
+                                "Y[r0, j, r2, r3] += X[i, j, k, l]"
+                                " * A[i, r0]* C[k, r2] * D[l, r3]",
+                                X=X,
+                                A=initial_factors[0],
+                                C=initial_factors[2],
+                                D=initial_factors[3],
+                            )
+                        elif mode == 2:
+                            update = xp.einsum(
+                                "Y[r0, r1, k, r3] += X[i, j, k, l]"
+                                " * A[i, r0]* B[j, r1] * D[l, r3]",
+                                X=X,
+                                A=initial_factors[0],
+                                B=initial_factors[1],
+                                D=initial_factors[3],
+                            )
+                        elif mode == 3:
+                            update = xp.einsum(
+                                "Y[r0, r1, r2, l] += X[i, j, k, l]"
+                                " * A[i, r0]* B[j, r1] * C[k, r2]",
+                                X=X,
+                                A=initial_factors[0],
+                                B=initial_factors[1],
+                                C=initial_factors[2],
+                            )
+
+                        perm = [mode] + list(range(mode)) + list(
+                            range(mode + 1, num_modes)
+                        )
+                        unfold_update = xp.reshape(
+                            xp.transpose(update, perm), (dimensions[mode], -1)
+                        )
+
+                        U, _S, _Vt = xp.linalg.svd(
+                            unfold_update, full_matrices=False
+                        )
+                        initial_factors[mode] = U[:, : ranks[mode]]
+
+                    # stop iterations when solutions stop changing significantly
+                    change = (
+                        xp.linalg.norm(initial_factors[0] - prev_factors[0])
+                        + xp.linalg.norm(initial_factors[1] - prev_factors[1])
+                        + xp.linalg.norm(initial_factors[2] - prev_factors[2])
+                        + xp.linalg.norm(initial_factors[3] - prev_factors[3])
+                    )
+                    if change[()] < tolerance:
+                        break
+
+                core_tensor = xp.einsum(
+                    "G[p, q, r, s] += X[i, j, k, l] * A[i, p]* "
+                    "B[j, q] * C[k, r] * D[l, s]",
+                    X=X,
+                    A=initial_factors[0],
+                    B=initial_factors[1],
+                    C=initial_factors[2],
+                    D=initial_factors[3],
+                )
+                return [
+                    core_tensor,
+                    initial_factors[0],
+                    initial_factors[1],
+                    initial_factors[2],
+                    initial_factors[3],
+                ]
+
+            case 5:
+                X, ranks = data
+                max_iter = meta.get("max_iter", 50)
+                tolerance = meta.get("tolerance", 1e-8)
+
+                dimensions = X.shape
+                num_modes = len(dimensions)
+
+                # initial HOSVD by performing SVD on matrix unfoldings along each mode
+                initial_factors = [None] * num_modes
+                for mode in range(num_modes):
+                    perm = [mode] + list(range(mode)) + list(
+                        range(mode + 1, num_modes)
+                    )
+                    unfold = xp.reshape(xp.transpose(X, perm), (dimensions[mode], -1))
+
+                    U, _S, _Vt = xp.linalg.svd(unfold, full_matrices=False)
+                    initial_factors[mode] = U[:, : ranks[mode]]
+
+                # iteration to update each factor matrix by projecting the original
+                # tensor onto other factor matrices
+                for _iteration in range(max_iter):
+                    prev_factors = initial_factors[:]
+                    for mode in range(num_modes):
+                        initial_factors[mode] = initial_factors[mode]
+
+                        if mode == 0:
+                            update = xp.einsum(
+                                "Y[i, r1, r2, r3, r4] += X[i, j, k, l, m] * B[j, r1]"
+                                "* C[k, r2] * D[l, r3] * E[m, r4]",
+                                X=X,
+                                B=initial_factors[1],
+                                C=initial_factors[2],
+                                D=initial_factors[3],
+                                E=initial_factors[4],
+                            )
+                        elif mode == 1:
+                            update = xp.einsum(
+                                "Y[r0, j, r2, r3, r4] += X[i, j, k, l, m] * A[i, r0]"
+                                "* C[k, r2] * D[l, r3] * E[m, r4]",
+                                X=X,
+                                A=initial_factors[0],
+                                C=initial_factors[2],
+                                D=initial_factors[3],
+                                E=initial_factors[4],
+                            )
+                        elif mode == 2:
+                            update = xp.einsum(
+                                "Y[r0, r1, k, r3, r4] += X[i, j, k, l, m] * A[i, r0]"
+                                "* B[j, r1] * D[l, r3] * E[m, r4]",
+                                X=X,
+                                A=initial_factors[0],
+                                B=initial_factors[1],
+                                D=initial_factors[3],
+                                E=initial_factors[4],
+                            )
+                        elif mode == 3:
+                            update = xp.einsum(
+                                "Y[r0, r1, r2, l, r4] += X[i, j, k, l, m] * A[i, r0]"
+                                "* B[j, r1] * C[k, r2] * E[m, r4]",
+                                X=X,
+                                A=initial_factors[0],
+                                B=initial_factors[1],
+                                C=initial_factors[2],
+                                E=initial_factors[4],
+                            )
+                        elif mode == 4:
+                            update = xp.einsum(
+                                "Y[r0, r1, r2, r3, m] += X[i, j, k, l, m] * A[i, r0]"
+                                "* B[j, r1] * C[k, r2] * D[l, r3]",
+                                X=X,
+                                A=initial_factors[0],
+                                B=initial_factors[1],
+                                C=initial_factors[2],
+                                D=initial_factors[3],
+                            )
+
+                        perm = [mode] + list(range(mode)) + list(
+                            range(mode + 1, num_modes)
+                        )
+                        unfold_update = xp.reshape(
+                            xp.transpose(update, perm), (dimensions[mode], -1)
+                        )
+
+                        U, _S, _Vt = xp.linalg.svd(
+                            unfold_update, full_matrices=False
+                        )
+                        initial_factors[mode] = U[:, : ranks[mode]]
+
+                    # stop iterations when solutions stop changing significantly
+                    change = (
+                        xp.linalg.norm(initial_factors[0] - prev_factors[0])
+                        + xp.linalg.norm(initial_factors[1] - prev_factors[1])
+                        + xp.linalg.norm(initial_factors[2] - prev_factors[2])
+                        + xp.linalg.norm(initial_factors[3] - prev_factors[3])
+                        + xp.linalg.norm(initial_factors[4] - prev_factors[4])
+                    )
+                    if change[()] < tolerance:
+                        break
+
+                core_tensor = xp.einsum(
+                    "G[p, q, r, s, t] += X[i, j, k, l, m] * A[i, p]"
+                    "* B[j, q] * C[k, r] * D[l, s] * E[m, t]",
+                    X=X,
+                    A=initial_factors[0],
+                    B=initial_factors[1],
+                    C=initial_factors[2],
+                    D=initial_factors[3],
+                    E=initial_factors[4],
+                )
+                return [
+                    core_tensor,
+                    initial_factors[0],
+                    initial_factors[1],
+                    initial_factors[2],
+                    initial_factors[3],
+                    initial_factors[4],
+                ]
+
+            case _:
+                raise ValueError(f"unsupported HOSVD tensor order {n}")
 
     def check(self, param):
         super().check(param)
