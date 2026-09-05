@@ -404,16 +404,6 @@
     "file": "src/saps/benchmarks/GMRES.py",
     "freshness": "1735625b4fcc5a6567b386435bcc21468aa304e15e994e3188dfc2c38c747688"
   },
-  "hosvd_4d_sparse_inputs.small_sparse_4d": {
-    "digest": "d2bf3957e898d7163399112396dc34658153c89d126d017e374654612cef9dec",
-    "file": "src/saps/benchmarks/HOSVD_4d.py",
-    "freshness": "2265670ff5b81bdefc51d4bdd1dd13659c00172191a9dc553f56d257df3bd4aa"
-  },
-  "hosvd_5d_sparse_inputs.small_sparse_5d": {
-    "digest": "546c0a918b6d07da7b5281c28522deacc796cff6319536e77f2f2611c30aee68",
-    "file": "src/saps/benchmarks/HOSVD_5d.py",
-    "freshness": "9cbfcc7805d7f8709d6855807bb215bafb30379b84e6add3a52957bb2938ddd4"
-  },
   "hosvd_sparse_inputs.small_sparse": {
     "digest": "2586f27357ee9b8f4939a45448b84710ca22df540c502383d8db056353e31774",
     "file": "src/saps/benchmarks/HOSVD.py",

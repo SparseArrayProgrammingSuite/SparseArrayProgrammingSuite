@@ -681,6 +681,60 @@
         {
           "datasets": [
             {
+              "file": "src/saps/benchmarks/cp_als.py",
+              "freshness": "1990e2427be846c3db7d49c7854b6474635d489c5adc01a5d49288876e8cd362",
+              "name": "cp_factorizeable_4d_tiny",
+              "statistics": [
+                "dense",
+                "fancy-ops",
+                "large-query",
+                "linalg-ops",
+                "shape-ops",
+                "tensor",
+                "transcendental-ops"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/cp_als.py",
+              "freshness": "1990e2427be846c3db7d49c7854b6474635d489c5adc01a5d49288876e8cd362",
+              "name": "cp_factorizeable_5d_tiny",
+              "statistics": [
+                "dense",
+                "fancy-ops",
+                "high-dimensional",
+                "large-query",
+                "linalg-ops",
+                "shape-ops",
+                "tensor",
+                "transcendental-ops"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/cp_als.py",
+              "freshness": "1990e2427be846c3db7d49c7854b6474635d489c5adc01a5d49288876e8cd362",
+              "name": "cp_factorizeable_tiny",
+              "statistics": [
+                "dense",
+                "fancy-ops",
+                "linalg-ops",
+                "shape-ops",
+                "tensor",
+                "transcendental-ops"
+              ]
+            }
+          ],
+          "name": "cp_factorizable",
+          "statistics": []
+        }
+      ],
+      "name": "cp_als",
+      "statistics": []
+    },
+    {
+      "generators": [
+        {
+          "datasets": [
+            {
               "file": "src/saps/benchmarks/fastsv.py",
               "freshness": "0e51da1755dfac30984fec028a4ed38535fcb113b1ce27418444b30de06087be",
               "name": "chain",
@@ -1055,7 +1109,36 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "d5a845d1675be2c22fb1ee395092733537665dd3498977863a8915489035eedb",
+              "freshness": "886de9ab8ee9958ca0395b527b44b81a55d53536141ddbcc959c2b2efed076b4",
+              "name": "small_dense_4d",
+              "statistics": [
+                "dense",
+                "fancy-ops",
+                "index-ops",
+                "large-query",
+                "linalg-ops",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/HOSVD.py",
+              "freshness": "886de9ab8ee9958ca0395b527b44b81a55d53536141ddbcc959c2b2efed076b4",
+              "name": "small_dense_5d",
+              "statistics": [
+                "dense",
+                "fancy-ops",
+                "high-dimensional",
+                "index-ops",
+                "large-query",
+                "linalg-ops",
+                "shape-ops",
+                "tensor"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/HOSVD.py",
+              "freshness": "886de9ab8ee9958ca0395b527b44b81a55d53536141ddbcc959c2b2efed076b4",
               "name": "small_dense_hosvd",
               "statistics": [
                 "dense",
