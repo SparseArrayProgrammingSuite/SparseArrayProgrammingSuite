@@ -1,18 +1,15 @@
 """Lottery Ticket Conv-2 benchmark executed through ONNXPY and SAPS.
 
 The ONNX model is the source of truth. If the model artifacts are not already
-available, they are downloaded from Google Drive. ONNXPY compiles the complete
-Conv-2 graph during benchmark setup, outside the timed region.
+available, they are downloaded from Google Drive. The checked-in ONNXPY output
+contains the complete Conv-2 graph.
 
-The generated ONNXPY model loads its weights internally, while SAPS supplies
-the model's runtime input.
+SAPS supplies both the model's runtime input and the ONNX initializer weights.
 """
 
 from __future__ import annotations
 
-import importlib.util
 import os
-import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -21,8 +18,8 @@ import numpy as np
 import gdown
 import onnx
 from binsparse.conversions import from_numpy, to_numpy
+from onnx import numpy_helper
 from onnx.reference import ReferenceEvaluator
-from onnxpy import compile_model
 
 from saps.benchmark import (
     Author,
@@ -33,6 +30,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks import lth_conv2_onnxpy_model as compiled_model
 
 _MODEL_ENV = "LTH_CONV2_ONNX"
 _MODEL_FILE_NAME = "conv2_pruned_dense.onnx"
@@ -123,22 +121,6 @@ def _model_path() -> Path:
     return model_path.resolve()
 
 
-def _load_generated_model(path: Path):
-    module_name = f"_saps_onnxpy_{abs(hash(path.resolve()))}"
-    spec = importlib.util.spec_from_file_location(module_name, path)
-
-    if spec is None or spec.loader is None:
-        raise RuntimeError(f"Could not import ONNXPY generated file: {path}")
-
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-
-    if not hasattr(module, "model"):
-        raise RuntimeError(f"ONNXPY generated module does not define model(): {path}")
-
-    return module.model
-
-
 class LTHConv2Dataset(Dataset):
     @property
     def name(self) -> str:
@@ -219,7 +201,7 @@ class LTHConv2ONNXPYGenerator(Generator[LTHConv2Dataset]):
         return [LTHConv2Dataset()]
 
     def generate(self, _dataset: LTHConv2Dataset) -> DataInstance:
-        model = onnx.load(str(_model_path()), load_external_data=False)
+        model = onnx.load(str(_model_path()), load_external_data=True)
 
         initializer_names = {tensor.name for tensor in model.graph.initializer}
         real_inputs = [
@@ -245,10 +227,27 @@ class LTHConv2ONNXPYGenerator(Generator[LTHConv2Dataset]):
 
         rng = np.random.default_rng(0)
         model_input = rng.standard_normal(tuple(shape)).astype(dtype)
+        initializers = {tensor.name: tensor for tensor in model.graph.initializer}
+        missing = [
+            name for name in compiled_model.tensor_inputs if name not in initializers
+        ]
+        if missing:
+            raise ValueError(
+                "Expected ONNX initializers not found: " + ", ".join(missing)
+            )
 
         return DataInstance(
-            inputs=[from_numpy(model_input)],
-            meta={"onnx_input_name": input_info.name},
+            inputs=[
+                from_numpy(model_input),
+                *(
+                    from_numpy(np.asarray(numpy_helper.to_array(initializers[name])))
+                    for name in compiled_model.tensor_inputs
+                ),
+            ],
+            meta={
+                "onnx_input_name": input_info.name,
+                "onnx_initializer_names": compiled_model.tensor_inputs,
+            },
         )
 
 
@@ -305,43 +304,26 @@ class LTHConv2ONNXPYBenchmark(Benchmark):
         return [LTHConv2ONNXPYGenerator()]
 
     def setup(self, param, *, use_cache: bool = True, xp=None):
-        self._onnxpy_tmpdir = tempfile.TemporaryDirectory(prefix="saps_lth_onnxpy_")
-        generated_path = Path(self._onnxpy_tmpdir.name) / "conv2_generated.py"
+        model_path = _model_path()
 
-        try:
-            model_path = _model_path()
+        super().setup(param, use_cache=use_cache, xp=xp)
 
-            compile_model(model_path, generated_path)
-            self._onnxpy_model = _load_generated_model(generated_path)
+        dense_input = to_numpy(self._input[0])
+        input_name = self._meta["onnx_input_name"]
 
-            super().setup(param, use_cache=use_cache, xp=xp)
-
-            dense_input = to_numpy(self._input[0])
-            input_name = self._meta["onnx_input_name"]
-
-            model = onnx.load(str(model_path), load_external_data=True)
-            outputs = ReferenceEvaluator(model).run(
-                None,
-                {input_name: dense_input},
-            )
-            if isinstance(outputs, dict):
-                raise TypeError("Expected ReferenceEvaluator outputs as a list")
-            expected = outputs[0]
-            self._ref_outputs = [from_numpy(np.asarray(expected))]
-            self._ref_meta = {
-                "rtol": 1e-4,
-                "atol": 1e-4,
-            }
-
-        except Exception:
-            if hasattr(self, "_onnxpy_model"):
-                del self._onnxpy_model
-
-            if hasattr(self, "_onnxpy_tmpdir"):
-                self._onnxpy_tmpdir.cleanup()
-                del self._onnxpy_tmpdir
-
-            raise
+        model = onnx.load(str(model_path), load_external_data=True)
+        outputs = ReferenceEvaluator(model).run(
+            None,
+            {input_name: dense_input},
+        )
+        if isinstance(outputs, dict):
+            raise TypeError("Expected ReferenceEvaluator outputs as a list")
+        expected = outputs[0]
+        self._ref_outputs = [from_numpy(np.asarray(expected))]
+        self._ref_meta = {
+            "rtol": 1e-4,
+            "atol": 1e-4,
+        }
 
     def benchmark(
         self,
@@ -349,12 +331,7 @@ class LTHConv2ONNXPYBenchmark(Benchmark):
         data: list[Any],
         meta: dict[str, Any],
     ):
-        return [
-            self._onnxpy_model(
-                data[0],
-                xp=xp,
-            )
-        ]
+        return [compiled_model.model(*data, xp=xp)]
 
     def check(self, param):
         actual = to_numpy(self._output[0])
@@ -368,12 +345,4 @@ class LTHConv2ONNXPYBenchmark(Benchmark):
         )
 
     def teardown(self, param):
-        try:
-            super().teardown(param)
-        finally:
-            if hasattr(self, "_onnxpy_model"):
-                del self._onnxpy_model
-
-            if hasattr(self, "_onnxpy_tmpdir"):
-                self._onnxpy_tmpdir.cleanup()
-                del self._onnxpy_tmpdir
+        super().teardown(param)
