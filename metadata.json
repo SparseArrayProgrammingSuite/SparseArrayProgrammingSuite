@@ -48466,7 +48466,7 @@
           "name": "openml_dataset",
           "pretty_name": "OpenML Datasets",
           "references": [
-            "Joaquin Vanschoren, Jan N. van Rijn, Bernd Bischl, Luis Torgo. \"OpenML: networked science in machine learning\", ACM SIGKDD Explorations Newsletter, Vol. 15, No. 2, pp. 49-60, 2013, URL: https://doi.org/10.1145/2641190.2641198, DOI: 10.1145/2641190.2641198."
+            "Joaquin Vanschoren, Jan N. van Rijn, Bernd Bischl, Luis Torgo. \"OpenML\", ACM SIGKDD Explorations Newsletter, Vol. 15, No. 2, pp. 49-60, 2014, URL: https://doi.org/10.1145/2641190.2641198, DOI: 10.1145/2641190.2641198."
           ],
           "suites": [],
           "tags": [],

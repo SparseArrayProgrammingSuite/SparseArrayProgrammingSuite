@@ -110,7 +110,7 @@ class OpenMLDatasetGenerator(Generator[OpenMLDataset]):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title="OpenML: networked science in machine learning",
+                title="OpenML",
                 authors=[
                     Author("Joaquin Vanschoren"),
                     Author("Jan N. van Rijn"),
@@ -121,7 +121,7 @@ class OpenMLDatasetGenerator(Generator[OpenMLDataset]):
                 volume="15",
                 number="2",
                 pages="49-60",
-                year=2013,
+                year=2014,
                 url="https://doi.org/10.1145/2641190.2641198",
                 doi="10.1145/2641190.2641198",
             )
