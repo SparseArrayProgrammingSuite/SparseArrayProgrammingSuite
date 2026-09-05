@@ -188,7 +188,7 @@ class JacobiGenerator(Generator[JacobiDataset]):
     def datasets(self) -> list[JacobiDataset]:
         return [
             JacobiDataset("mesh3em5", nnz=1889),
-            JacobiDataset("Trefethen_200", nnz=2873),
+            JacobiDataset("Trefethen_200", nnz=2890),
             JacobiDataset("Chem97ZtZ", nnz=7361),
             JacobiDataset("Trefethen_500", nnz=8478),
             JacobiDataset("Trefethen_700", nnz=12654),
