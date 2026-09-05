@@ -14,9 +14,11 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.netflixprize import fetch_netflixprize_matrix
+from saps.benchmarks.openml import OpenMLDatasetGenerator, fetch_openml_features
 
 
-class JLApproxNNDataset(Dataset):
+class JLApproxNNRandomDataset(Dataset):
     def __init__(
         self,
         name,
@@ -62,7 +64,7 @@ class JLApproxNNDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class JLApproxNNTestGenerator(Generator[JLApproxNNDataset]):
+class JLApproxNNTestGenerator(Generator[JLApproxNNRandomDataset]):
     @property
     def name(self) -> str:
         return "jl_projection_test_inputs"
@@ -104,9 +106,9 @@ class JLApproxNNTestGenerator(Generator[JLApproxNNDataset]):
         return False
 
     @property
-    def datasets(self) -> list[JLApproxNNDataset]:
+    def datasets(self) -> list[JLApproxNNRandomDataset]:
         return [
-            JLApproxNNDataset(
+            JLApproxNNRandomDataset(
                 name="test_jl_preserves_distance",
                 pretty_name="test JL ANN",
                 description=(
@@ -122,7 +124,7 @@ class JLApproxNNTestGenerator(Generator[JLApproxNNDataset]):
             )
         ]
 
-    def generate(self, dataset: JLApproxNNDataset):
+    def generate(self, dataset: JLApproxNNRandomDataset):
         problem = JLApproxNNGenerator().generate(dataset)
         return DataInstance(
             inputs=problem.inputs,
@@ -131,7 +133,7 @@ class JLApproxNNTestGenerator(Generator[JLApproxNNDataset]):
         )
 
 
-class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
+class JLApproxNNGenerator(Generator[JLApproxNNRandomDataset]):
     @property
     def name(self) -> str:
         return "jl_projection_inputs"
@@ -211,9 +213,9 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
         )
 
     @property
-    def datasets(self) -> list[JLApproxNNDataset]:
+    def datasets(self) -> list[JLApproxNNRandomDataset]:
         return [
-            JLApproxNNDataset(
+            JLApproxNNRandomDataset(
                 name="small",
                 pretty_name="Small JL ANN",
                 description=(
@@ -228,7 +230,7 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
                 eps=0.1,
                 seed=40,
             ),
-            JLApproxNNDataset(
+            JLApproxNNRandomDataset(
                 name="medium",
                 pretty_name="Medium JL ANN",
                 description=(
@@ -243,7 +245,7 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
                 eps=0.1,
                 seed=41,
             ),
-            JLApproxNNDataset(
+            JLApproxNNRandomDataset(
                 name="large",
                 pretty_name="Large JL ANN",
                 description=(
@@ -260,7 +262,7 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
             ),
         ]
 
-    def generate(self, dataset: JLApproxNNDataset):
+    def generate(self, dataset: JLApproxNNRandomDataset):
         import scipy as sp
 
         rng = np.random.default_rng(dataset.seed)
@@ -312,6 +314,282 @@ class JLApproxNNGenerator(Generator[JLApproxNNDataset]):
                 P,
             ],
             meta=meta,
+        )
+
+
+class JLApproxNNDataset(Dataset):
+    def __init__(
+        self,
+        source_name: str,
+        k: int,
+        eps: float,
+        seed: int = 0,
+        suites: list[str] | None = None,
+    ):
+        self._source_name = source_name
+        self.k = k
+        self.eps = eps
+        self.seed = seed
+        self._suites = suites or []
+
+    @property
+    def name(self) -> str:
+        return self._source_name
+
+    @property
+    def pretty_name(self) -> str:
+        return f"JL ANN {self._source_name}"
+
+    @property
+    def description(self) -> str:
+        return f"JL approximate nearest-neighbor on {self._source_name}."
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+
+def _rla_projection(n_features: int, n_samples: int, eps: float, seed: int):
+    import scipy as sp
+
+    # Johnson–Lindenstrauss lemma.
+    # eps is the allowable relative distortion of distances
+    # between the original space and the reduced subspace.
+    target_dim = np.ceil(np.log(n_samples) / (eps * eps)).astype(int)
+    rng = np.random.default_rng(seed)
+    # return rng.standard_normal((n_features, np.round(target_dim).astype(int)))
+
+    s = np.sqrt(n_features)  # s = 1/density
+    density = 1.0 / s  # probability of a nonzero entry = density.
+    density_half = density / 2.0  # probability for + or -
+    scale = np.sqrt(s / target_dim)  # scale = sqrt(s / n_components)
+
+    U_Neg = sp.sparse.random(
+        n_features,
+        target_dim,
+        density_half,
+        data_rvs=lambda k: np.full(
+            k, -scale, dtype=float
+        ),  # specified dtype to see of that made a difference
+        random_state=rng,
+    )
+    U_Pos = sp.sparse.random(
+        n_features,
+        target_dim,
+        density_half,
+        data_rvs=lambda k: np.full(
+            k, scale, dtype=float
+        ),  # specified dtype to see of that made a difference
+        random_state=rng,
+    )
+    coo = (U_Neg + U_Pos).tocoo()
+    return from_scipy(coo)
+
+
+class JLApproxNNOpenMLGenerator(Generator[JLApproxNNDataset]):
+    @property
+    def name(self) -> str:
+        return "jl_approx_nn_openml"
+
+    @property
+    def pretty_name(self) -> str:
+        return "JL ANN OpenML Generator"
+
+    @property
+    def description(self) -> str:
+        return "Loads OpenML image datasets for JL approximate nearest-neighbor."
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Vilohith Gokarakonda", "vgokarakonda3@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="Gradient-Based Learning Applied to Document Recognition",
+                authors=[
+                    Author("Yann LeCun"),
+                    Author("Léon Bottou"),
+                    Author("Yoshua Bengio"),
+                    Author("Patrick Haffner"),
+                ],
+                journal="Proceedings of the IEEE",
+                year=1998,
+                url="http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf",
+            ),
+            Ref(
+                title="Learning Multiple Layers of Features from Tiny Images",
+                authors=[Author("Alex Krizhevsky")],
+                year=2009,
+                url="https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf",
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to construct the benchmark function "
+            "itself. Generative AI might have been used to construct tests."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return (
+            "MNIST and CIFAR-10 provide dense image feature matrices from OpenML "
+            "for approximate nearest-neighbor search."
+        )
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[JLApproxNNDataset]:
+        return [
+            JLApproxNNDataset(
+                dataset.name,
+                k=5,
+                eps=0.3,
+                seed=50 if dataset.name == "mnist" else 0,
+                suites=["standard"],
+            )
+            for dataset in OpenMLDatasetGenerator().datasets
+        ]
+
+    def generate(self, dataset: JLApproxNNDataset) -> DataInstance:
+        features, source_meta = fetch_openml_features(dataset.name)
+        train = features
+        test = features
+
+        n_samples, n_features = train.shape
+        projection = _rla_projection(n_features, n_samples, dataset.eps, dataset.seed)
+
+        return DataInstance(
+            inputs=[
+                from_numpy(train),
+                from_numpy(test),
+                projection,
+            ],
+            meta={
+                "k": dataset.k,
+                "eps": dataset.eps,
+                "num_train": int(train.shape[0]),
+                "num_query": int(test.shape[0]),
+                "num_features": int(n_features),
+                "openml_data_id": source_meta["data_id"],
+                "openml_name": source_meta["openml_name"],
+                "openml_version": source_meta["version"],
+                "source_num_rows": source_meta["num_rows"],
+                "source_num_features": source_meta["num_features"],
+            },
+        )
+
+
+class JLApproxNNNetflixGenerator(Generator[JLApproxNNDataset]):
+    @property
+    def name(self) -> str:
+        return "jl_approx_nn_netflix"
+
+    @property
+    def pretty_name(self) -> str:
+        return "JL ANN Netflix Generator"
+
+    @property
+    def description(self) -> str:
+        return "Loads Netflix Prize ratings for JL approximate nearest-neighbor."
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Vilohith Gokarakonda", "vgokarakonda3@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="Use of KNN for the Netflix Prize",
+                authors=[Author("Vini Hong"), Author("Anastasios Tsamis")],
+                institution="Stanford CS229",
+                url="https://cs229.stanford.edu/proj2008/HongTsamis-UseOfKNNForTheNetflixPrize.pdf",
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to construct the benchmark function "
+            "itself. Generative AI might have been used to construct tests."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return (
+            "The Netflix Prize dataset provides a ~480K users × 17,770 movies sparse "
+            "ratings matrix. Uses sparse JL projection due to the dataset's sparsity."
+        )
+
+    @property
+    def datasets(self) -> list[JLApproxNNDataset]:
+        return [
+            JLApproxNNDataset(
+                "netflix",
+                k=5,
+                eps=0.3,
+                seed=0,
+                suites=["standard"],
+            )
+        ]
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    def generate(self, dataset: JLApproxNNDataset) -> DataInstance:
+        data, source_meta = fetch_netflixprize_matrix()
+
+        train_coo = data.tocoo()
+        test_coo = data.tocoo()
+
+        projection = _rla_projection(
+            data.shape[1], train_coo.shape[0], dataset.eps, dataset.seed
+        )
+
+        return DataInstance(
+            inputs=[
+                from_scipy(train_coo),
+                from_scipy(test_coo),
+                projection,
+            ],
+            meta={
+                "k": dataset.k,
+                "eps": dataset.eps,
+                "num_train": int(train_coo.shape[0]),
+                "num_query": int(test_coo.shape[0]),
+                "num_features": int(data.shape[1]),
+                "source_num_users": source_meta["num_users"],
+                "source_num_movies": source_meta["num_movies"],
+                "source_num_ratings": source_meta["num_ratings"],
+            },
         )
 
 
@@ -440,7 +718,12 @@ Nearest neighbor algorithms</concept_desc>
 
     @property
     def generators(self):
-        return [JLApproxNNTestGenerator(), JLApproxNNGenerator()]
+        return [
+            JLApproxNNTestGenerator(),
+            JLApproxNNGenerator(),
+            JLApproxNNOpenMLGenerator(),
+            JLApproxNNNetflixGenerator(),
+        ]
 
     def benchmark(self, xp, data, meta):
         data, query, P = data
