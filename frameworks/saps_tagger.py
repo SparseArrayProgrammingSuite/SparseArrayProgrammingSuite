@@ -718,7 +718,7 @@ class TaggerFramework(Framework):
             return [
                 self._tensor_stats(value.array, value.elementwise_ops_since_reduction)
             ]
-        if isinstance(value, (list, tuple)):
+        if isinstance(value, list | tuple):
             operands = []
             for item in value:
                 operands.extend(self._collect_operand_stats(item))
@@ -738,7 +738,7 @@ class TaggerFramework(Framework):
     def _collect_elementwise_counts(self, value):
         if isinstance(value, TaggedArray):
             return [value.elementwise_ops_since_reduction]
-        if isinstance(value, (list, tuple)):
+        if isinstance(value, list | tuple):
             counts = []
             for item in value:
                 counts.extend(self._collect_elementwise_counts(item))
@@ -842,6 +842,44 @@ class TaggerFramework(Framework):
             }
         return self._wrap(
             self.wrapped.einsum(prgm, **kwargs),
+            elementwise_ops_since_reduction=result_lineage,
+        )
+
+    def unfold(
+        self,
+        x,
+        kernel_shape,
+        *,
+        axes=None,
+        strides=None,
+        dilations=None,
+        padding=None,
+        fill_value=0,
+    ):
+        kwargs = {
+            "axes": axes,
+            "strides": strides,
+            "dilations": dilations,
+            "padding": padding,
+            "fill_value": fill_value,
+        }
+        self._record_operation("", "unfold", (x, kernel_shape), kwargs)
+        result_lineage = self._result_elementwise_count(
+            "",
+            "unfold",
+            (x, kernel_shape),
+            kwargs,
+        )
+        return self._wrap(
+            self.wrapped.unfold(
+                self._unwrap(x),
+                kernel_shape,
+                axes=axes,
+                strides=strides,
+                dilations=dilations,
+                padding=padding,
+                fill_value=fill_value,
+            ),
             elementwise_ops_since_reduction=result_lineage,
         )
 
