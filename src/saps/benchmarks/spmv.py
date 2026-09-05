@@ -100,6 +100,8 @@ class DenseMatVecGenerator(Generator):
             DenseMatVecDataset("small", 10, 10, suites=["dense", "test"]),
             DenseMatVecDataset("medium", 100, 100, suites=["dense", "test"]),
             DenseMatVecDataset("large", 1000, 1000, suites=["dense"]),
+            # Non-square A, which the SuiteSparse suite does not cover.
+            DenseMatVecDataset("rectangular", 100, 150, suites=["dense", "test"]),
         ]
 
     def generate(self, dataset: DenseMatVecDataset) -> DataInstance:
@@ -154,6 +156,40 @@ class SuiteSparseMatVecDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
+# The SpMV benchmark suite of Vuduc's autotuning study: 26 of its 28 matrices,
+# omitting `bai` and `vavasis3`, which SuiteSparse does not carry under those
+# names.
+# (matrix name, SuiteSparse kind, include in the correctness test suite)
+_SPMV_MATRICES: list[tuple[str, str, bool]] = [
+    ("gemat11", "power network problem sequence", True),
+    ("bayer02", "chemical process simulation problem", True),
+    ("bayer10", "chemical process simulation problem", True),
+    ("orani678", "economic problem", True),
+    ("rdist1", "chemical process simulation problem", True),
+    ("memplus", "circuit simulation problem", True),
+    ("wang4", "semiconductor device problem", False),
+    ("coater2", "computational fluid dynamics problem", False),
+    ("onetone2", "frequency-domain circuit simulation problem", False),
+    ("lhr10", "chemical process simulation problem", False),
+    ("vibrobox", "acoustics problem", False),
+    ("goodwin", "computational fluid dynamics problem", False),
+    ("pwt", "duplicate structural problem", False),
+    ("finan512", "economic problem", False),
+    ("crystk02", "materials problem", False),
+    ("rim", "computational fluid dynamics problem", False),
+    ("olafu", "structural problem", False),
+    ("ex11", "computational fluid dynamics problem", False),
+    ("raefsky4", "structural problem", False),
+    ("bcsstk35", "structural problem", False),
+    ("raefsky3", "computational fluid dynamics problem", False),
+    ("venkat01", "computational fluid dynamics problem sequence", False),
+    ("crystk03", "materials problem", False),
+    ("ct20stif", "structural problem", False),
+    ("nasasrb", "structural problem", False),
+    ("3dtube", "computational fluid dynamics problem", False),
+]
+
+
 class SuiteSparseMatVecGenerator(Generator):
     @property
     def name(self) -> str:
@@ -170,8 +206,9 @@ class SuiteSparseMatVecGenerator(Generator):
     @property
     def description(self) -> str:
         return (
-            "Sparse input generator for matrix multiplication"
-            " based on the suite sparse matrix collection."
+            "Sparse input generator for sparse matrix-vector multiplication,"
+            " drawing real matrices from the SuiteSparse Matrix Collection"
+            " across a range of application domains."
         )
 
     @property
@@ -215,29 +252,57 @@ class SuiteSparseMatVecGenerator(Generator):
                 year=2011,
                 url="https://dl.acm.org/doi/pdf/10.1145/2049662.2049663",
             ),
+            Ref(
+                title="Automatic Performance Tuning of Sparse Matrix Kernels",
+                authors=[Author("R. Vuduc")],
+                institution="University of California, Berkeley",
+                year=2003,
+                url="https://bebop.cs.berkeley.edu/pubs/vuduc2003-dissertation.pdf",
+            ),
+            Ref(
+                title="Evaluation Criteria for Sparse Matrix Storage Formats",
+                authors=[Author("D. Langr"), Author("P. Tvrdik")],
+                journal="IEEE Trans. Parallel Distrib. Syst.",
+                volume=27,
+                number=2,
+                pages="428-440",
+                year=2016,
+                doi="10.1109/TPDS.2015.2401575",
+            ),
         ]
 
     @property
     def ai_disclosure(self) -> str:
         return (
             "Generative AI was not used to write the benchmark function. "
+            "Generative AI might be used for dataset collecting and parsing. "
             "This statement was written by hand."
         )
 
     @property
     def motivation(self) -> str:
-        return "Generate sparse matrices for matrix multiplication."
+        return (
+            "Generate real sparse matrices for matrix-vector multiplication, "
+            "using the benchmark suite of Vuduc's SpMV autotuning study: 26 of "
+            "its 28 matrices, spanning fluid dynamics, structural, materials, "
+            "chemical process, economic, circuit and semiconductor problems. "
+            "`bai` and `vavasis3` are omitted because SuiteSparse does not "
+            "carry them under those names."
+        )
 
     @property
     def datasets(self) -> list[Dataset]:
         return [
             SuiteSparseMatVecDataset(
-                "email-Eu-core", "email-Eu-core", suites=["sparse", "test"]
-            ),
-            SuiteSparseMatVecDataset(
-                "CollegeMsg", "CollegeMsg", suites=["sparse", "test"]
-            ),
-            SuiteSparseMatVecDataset("wiki-vote", "wiki-vote", suites=["sparse"]),
+                name,
+                name,
+                suites=["sparse", "test"] if in_test_suite else ["sparse"],
+                description=(
+                    f"SuiteSparse matrix {name}, included to represent the "
+                    f"'{kind}' domain in the matrix-vector suite."
+                ),
+            )
+            for name, kind, in_test_suite in _SPMV_MATRICES
         ]
 
     def generate(self, dataset: SuiteSparseMatVecDataset) -> DataInstance:
