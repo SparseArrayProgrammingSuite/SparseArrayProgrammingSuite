@@ -30,6 +30,20 @@ class Framework(ABC):
         pass
 
     @abstractmethod
+    def unfold(
+        self,
+        x,
+        kernel_shape,
+        *,
+        axes=None,
+        strides=None,
+        dilations=None,
+        padding=None,
+        fill_value=0,
+    ):
+        pass
+
+    @abstractmethod
     def with_fill_value(self, array, value):
         pass
 

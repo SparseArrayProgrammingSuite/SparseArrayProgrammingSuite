@@ -10,7 +10,7 @@ from binsparse import (
 )
 from binsparse.conversions import from_numpy, to_numpy, to_sparse
 
-from saps_framework import Framework, einsum
+from saps_framework import Framework, einsum, normalize_unfold_args
 
 
 class NumpyFramework(Framework):
@@ -43,6 +43,55 @@ class NumpyFramework(Framework):
 
     def einsum(self, prgm, **kwargs):
         return einsum(np, prgm, **kwargs)
+
+    def unfold(
+        self,
+        x,
+        kernel_shape,
+        *,
+        axes=None,
+        strides=None,
+        dilations=None,
+        padding=None,
+        fill_value=0,
+    ):
+        array = np.asarray(x)
+        kernel_t = tuple(int(size) for size in kernel_shape)
+        axes_t, strides_t, dilations_t, padding_t = normalize_unfold_args(
+            array.ndim,
+            kernel_t,
+            axes,
+            strides,
+            dilations,
+            padding,
+        )
+        effective_kernel = tuple(
+            (kernel - 1) * dilation + 1
+            for kernel, dilation in zip(kernel_t, dilations_t, strict=True)
+        )
+
+        pad_width = [(0, 0)] * array.ndim
+        for axis, pad_pair in zip(axes_t, padding_t, strict=True):
+            pad_width[axis] = pad_pair
+        if any(pair != (0, 0) for pair in pad_width):
+            array = np.pad(
+                array,
+                pad_width,
+                mode="constant",
+                constant_values=fill_value,
+            )
+
+        windows = np.lib.stride_tricks.sliding_window_view(  # type: ignore[call-overload]
+            array,
+            effective_kernel,
+            axis=axes_t,
+        )
+        slices: list[slice] = [slice(None)] * windows.ndim
+        for axis, step in zip(axes_t, strides_t, strict=True):
+            slices[axis] = slice(None, None, step)
+        for window_axis, dilation in enumerate(dilations_t, start=array.ndim):
+            slices[window_axis] = slice(None, None, dilation)
+        return windows[tuple(slices)]
 
     def with_fill_value(self, array, value):
         return array
