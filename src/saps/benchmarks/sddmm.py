@@ -237,7 +237,7 @@ class UniformRandomSDDMMGenerator(Generator):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to write the benchmark function."
+            "No generative AI was used to write the benchmark function. "
             "This statement was written manually."
         )
 

@@ -546,7 +546,7 @@ class MatrixVectorBenchmark(Benchmark):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "Generative AI was not used to write the benchmark function."
+            "Generative AI was not used to write the benchmark function. "
             "This statement was written manually."
         )
 

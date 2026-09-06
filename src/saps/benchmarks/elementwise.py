@@ -365,7 +365,7 @@ class UniformRandomElementwiseGenerator(Generator):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "Generative AI was not used to write the benchmark function itself."
+            "Generative AI was not used to write the benchmark function itself. "
             "This statement was written manually."
         )
 

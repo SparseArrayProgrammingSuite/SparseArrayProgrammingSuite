@@ -410,7 +410,7 @@ class UniformRandomMatmulGenerator(Generator):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "Generative AI was not used to write the benchmark function itself."
+            "Generative AI was not used to write the benchmark function itself. "
             "Generative AI might be used for dataset collecting and parsing. "
             "This statement was written manually."
         )
