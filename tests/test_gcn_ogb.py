@@ -193,6 +193,7 @@ def test_ogb_shell_generator_round_trips_prepared_nodeprop_data(monkeypatch):
     raw = generator.generate(dataset)
 
     assert generator.cacheable
+    assert dataset.suites == []
     assert dataset.metadata["source_name"] == "ogbn-arxiv"
     assert "num_nodes" not in dataset.metadata
     assert raw.meta["num_nodes"] == 3
