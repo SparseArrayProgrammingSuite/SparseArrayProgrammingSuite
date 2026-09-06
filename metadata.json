@@ -52721,10 +52721,10 @@
       "concepts": "\n<ccs2012>\n<concept>\n<concept_id>10002950.10003705</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003705.10011686</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003714.10003715</concept_id>\n<concept_desc>Mathematics of computing~Numerical analysis</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n</ccs2012>\n",
       "description": "The multiplication of two matrices.C_ik = \\sum_k A_ij B_jk",
       "file": "src/saps/benchmarks/sddmm.py",
-      "freshness": "ed23abc0cbe2a0ae556b3a1c084ea27c525769ac431aea7bbb184fb7d84a5796",
+      "freshness": "fa877a615704bfb9cd83427e2bde9a859fd8b622ec950e57cae5cde6d385c4a9",
       "generators": [
         {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
+          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. Generative AI might be used for dataset collecting and parsing. This statement was written by hand.",
           "authors": [
             "Kyle Deeds <kdeeds@bu.edu>"
           ],
@@ -52736,7 +52736,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SDDMM over the nonzero pattern of SuiteSparse graph email-Eu-core with embedding width 128.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "ed23abc0cbe2a0ae556b3a1c084ea27c525769ac431aea7bbb184fb7d84a5796",
+              "freshness": "fa877a615704bfb9cd83427e2bde9a859fd8b622ec950e57cae5cde6d385c4a9",
               "name": "email-Eu-core-128",
               "pretty_name": "email-Eu-core-128",
               "suites": [
@@ -52759,7 +52759,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SDDMM over the nonzero pattern of SuiteSparse graph email with embedding width 128.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "ed23abc0cbe2a0ae556b3a1c084ea27c525769ac431aea7bbb184fb7d84a5796",
+              "freshness": "fa877a615704bfb9cd83427e2bde9a859fd8b622ec950e57cae5cde6d385c4a9",
               "name": "email-128",
               "pretty_name": "email-128",
               "suites": [
@@ -52782,7 +52782,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SDDMM over the nonzero pattern of SuiteSparse graph ca-GrQc with embedding width 128.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "ed23abc0cbe2a0ae556b3a1c084ea27c525769ac431aea7bbb184fb7d84a5796",
+              "freshness": "fa877a615704bfb9cd83427e2bde9a859fd8b622ec950e57cae5cde6d385c4a9",
               "name": "ca-GrQc-128",
               "pretty_name": "ca-GrQc-128",
               "suites": [
@@ -52805,7 +52805,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SDDMM over the nonzero pattern of SuiteSparse graph wiki-vote with embedding width 128.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "ed23abc0cbe2a0ae556b3a1c084ea27c525769ac431aea7bbb184fb7d84a5796",
+              "freshness": "fa877a615704bfb9cd83427e2bde9a859fd8b622ec950e57cae5cde6d385c4a9",
               "name": "wiki-vote-128",
               "pretty_name": "wiki-vote-128",
               "suites": [
@@ -52826,7 +52826,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SDDMM over the nonzero pattern of SuiteSparse graph ca-HepPh with embedding width 128.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "ed23abc0cbe2a0ae556b3a1c084ea27c525769ac431aea7bbb184fb7d84a5796",
+              "freshness": "fa877a615704bfb9cd83427e2bde9a859fd8b622ec950e57cae5cde6d385c4a9",
               "name": "ca-HepPh-128",
               "pretty_name": "ca-HepPh-128",
               "suites": [
@@ -52845,7 +52845,7 @@
           ],
           "description": "Input generator for SDDMM, sampling a dense product at the nonzero pattern of a real graph from the SuiteSparse Matrix Collection.",
           "file": "src/saps/benchmarks/sddmm.py",
-          "freshness": "ed23abc0cbe2a0ae556b3a1c084ea27c525769ac431aea7bbb184fb7d84a5796",
+          "freshness": "fa877a615704bfb9cd83427e2bde9a859fd8b622ec950e57cae5cde6d385c4a9",
           "motivation": "Generate matrices for sampled dense-dense matrix multiplication.",
           "name": "suitesparse_sddmm_generator",
           "pretty_name": "SuiteSparse SDDMM Generator",
@@ -52867,7 +52867,7 @@
           "topics": []
         },
         {
-          "ai_disclosure": "No generative AI was used to write the benchmark function. This statement was written manually.",
+          "ai_disclosure": "No generative AI was used to write the benchmark function. Generative AI might be used for dataset collecting and parsing. This statement was written manually.",
           "authors": [
             "Kyle Deeds <kdeeds@bu.edu>"
           ],
@@ -52879,7 +52879,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random SDDMM input uniform-21-per-row.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "ed23abc0cbe2a0ae556b3a1c084ea27c525769ac431aea7bbb184fb7d84a5796",
+              "freshness": "fa877a615704bfb9cd83427e2bde9a859fd8b622ec950e57cae5cde6d385c4a9",
               "name": "uniform-21-per-row",
               "pretty_name": "uniform-21-per-row",
               "suites": [
@@ -52902,7 +52902,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random SDDMM input uniform-43-per-row.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "ed23abc0cbe2a0ae556b3a1c084ea27c525769ac431aea7bbb184fb7d84a5796",
+              "freshness": "fa877a615704bfb9cd83427e2bde9a859fd8b622ec950e57cae5cde6d385c4a9",
               "name": "uniform-43-per-row",
               "pretty_name": "uniform-43-per-row",
               "suites": [
@@ -52923,7 +52923,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random SDDMM input uniform-65-per-row.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "ed23abc0cbe2a0ae556b3a1c084ea27c525769ac431aea7bbb184fb7d84a5796",
+              "freshness": "fa877a615704bfb9cd83427e2bde9a859fd8b622ec950e57cae5cde6d385c4a9",
               "name": "uniform-65-per-row",
               "pretty_name": "uniform-65-per-row",
               "suites": [
@@ -52944,7 +52944,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random SDDMM input uniform-85-per-row.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "ed23abc0cbe2a0ae556b3a1c084ea27c525769ac431aea7bbb184fb7d84a5796",
+              "freshness": "fa877a615704bfb9cd83427e2bde9a859fd8b622ec950e57cae5cde6d385c4a9",
               "name": "uniform-85-per-row",
               "pretty_name": "uniform-85-per-row",
               "suites": [
@@ -52967,7 +52967,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random SDDMM input uniform-107-per-row.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "ed23abc0cbe2a0ae556b3a1c084ea27c525769ac431aea7bbb184fb7d84a5796",
+              "freshness": "fa877a615704bfb9cd83427e2bde9a859fd8b622ec950e57cae5cde6d385c4a9",
               "name": "uniform-107-per-row",
               "pretty_name": "uniform-107-per-row",
               "suites": [
@@ -52988,7 +52988,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random SDDMM input uniform-128-per-row.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "ed23abc0cbe2a0ae556b3a1c084ea27c525769ac431aea7bbb184fb7d84a5796",
+              "freshness": "fa877a615704bfb9cd83427e2bde9a859fd8b622ec950e57cae5cde6d385c4a9",
               "name": "uniform-128-per-row",
               "pretty_name": "uniform-128-per-row",
               "suites": [
@@ -53009,7 +53009,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random SDDMM input uniform-149-per-row.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "ed23abc0cbe2a0ae556b3a1c084ea27c525769ac431aea7bbb184fb7d84a5796",
+              "freshness": "fa877a615704bfb9cd83427e2bde9a859fd8b622ec950e57cae5cde6d385c4a9",
               "name": "uniform-149-per-row",
               "pretty_name": "uniform-149-per-row",
               "suites": [
@@ -53030,7 +53030,7 @@
           ],
           "description": "Generates SDDMM inputs with a uniform random sparse sampling matrix at a range of densities.",
           "file": "src/saps/benchmarks/sddmm.py",
-          "freshness": "ed23abc0cbe2a0ae556b3a1c084ea27c525769ac431aea7bbb184fb7d84a5796",
+          "freshness": "fa877a615704bfb9cd83427e2bde9a859fd8b622ec950e57cae5cde6d385c4a9",
           "motivation": "Generate Erdos-Renyi sampling matrices for SDDMM, the synthetic workload Bharadwaj et al. use, swept over their range of nonzeros per row so that row occupancy rather than matrix size varies.",
           "name": "uniform_random_sddmm_generator",
           "pretty_name": "Uniform Random SDDMM Generator",
