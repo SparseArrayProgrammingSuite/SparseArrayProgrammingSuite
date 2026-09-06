@@ -118,32 +118,40 @@ class DenseElementwiseGenerator(Generator):
         )
 
 
-def _add_sparse_noise(coo, rng: np.random.Generator, noise_fraction: float = 0.05):
-    """Return a copy of *coo* with ~noise_fraction of its nonzeros replaced by
-    new, randomly placed nonzeros, so nnz stays roughly unchanged while the
-    sparsity pattern shifts. New values are resampled (with replacement) from
-    the existing nonzero values, so the value distribution/dtype is preserved.
+# PASTA varies whether element-wise operands share a nonzero pattern, since the
+# output size is only predictable when they do. Overlap is that parameter here.
+_ELEMENTWISE_OVERLAPS = [1.0, 0.75, 0.5, 0.25]
+
+
+def _matrix_with_overlap(coo, rng: np.random.Generator, overlap: float):
+    """Return a matrix with the same shape and nonzero count as *coo* that
+    shares *overlap* of its nonzero positions, the rest placed at random.
+    Values are resampled from *coo*, preserving the value distribution/dtype.
     """
     import scipy.sparse as sps
 
     n = coo.data.shape[0]
-    k = int(n * noise_fraction)
-    if k == 0:
-        return coo
+    shared = int(round(n * overlap))
+    keep = rng.choice(n, size=shared, replace=False)
+    rows = [coo.row[keep]]
+    cols = [coo.col[keep]]
+    if n - shared:
+        rows.append(rng.integers(0, coo.shape[0], size=n - shared))
+        cols.append(rng.integers(0, coo.shape[1], size=n - shared))
+    return sps.coo_matrix(
+        (rng.choice(coo.data, size=n), (np.concatenate(rows), np.concatenate(cols))),
+        shape=coo.shape,
+    )
 
-    keep = rng.choice(n, size=n - k, replace=False)
-    rows = coo.row[keep]
-    cols = coo.col[keep]
-    values = coo.data[keep]
 
-    new_rows = rng.integers(0, coo.shape[0], size=k)
-    new_cols = rng.integers(0, coo.shape[1], size=k)
-    new_values = rng.choice(coo.data, size=k)
-
-    rows = np.concatenate([rows, new_rows])
-    cols = np.concatenate([cols, new_cols])
-    values = np.concatenate([values, new_values])
-    return sps.coo_matrix((values, (rows, cols)), shape=coo.shape)
+# Real matrices for the element-wise suite, each paired with a copy at every
+# overlap in _ELEMENTWISE_OVERLAPS.
+# (matrix name, include in the correctness test suite)
+_ELEMENTWISE_MATRICES: list[tuple[str, bool]] = [
+    ("email-Eu-core", True),
+    ("ca-GrQc", True),
+    ("wiki-vote", False),
+]
 
 
 class SuiteSparseElementwiseDataset(Dataset):
@@ -151,14 +159,14 @@ class SuiteSparseElementwiseDataset(Dataset):
         self,
         name: str,
         matrix: str,
-        noise_fraction: float = 0.05,
+        overlap: float = 1.0,
         seed: int = 0,
         suites: list[str] | None = None,
         pretty_name: str | None = None,
         description: str | None = None,
     ):
         self.matrix = matrix
-        self.noise_fraction = noise_fraction
+        self.overlap = overlap
         self.seed = seed
         self._name = name
         self._pretty_name = pretty_name or name
@@ -233,40 +241,69 @@ class SuiteSparseElementwiseGenerator(Generator):
                 year=2011,
                 url="https://dl.acm.org/doi/pdf/10.1145/2049662.2049663",
             ),
+            Ref(
+                title="PASTA: A Parallel Sparse Tensor Algorithm Benchmark Suite",
+                authors=[
+                    Author("J. Li"),
+                    Author("Y. Ma"),
+                    Author("X. Wu"),
+                    Author("A. Li"),
+                    Author("K. Barker"),
+                ],
+                journal="CCF Transactions on High Performance Computing",
+                volume=1,
+                number=2,
+                pages="111-130",
+                year=2019,
+                doi="10.1007/s42514-019-00012-w",
+            ),
         ]
 
     @property
     def ai_disclosure(self) -> str:
         return (
             "No generative AI was used to write the benchmark function itself. "
-            "Generative AI was used to debug code. This statement was written by hand."
+            "Generative AI was used to debug code. Generative AI might be used "
+            "for dataset collecting and parsing. This statement was written by "
+            "hand."
         )
 
     @property
     def motivation(self) -> str:
-        return "Generate sparse matrices for elementwise multiplication."
+        return (
+            "Generate real sparse matrices for elementwise multiplication, each "
+            "paired with a matrix sharing a controlled fraction of its nonzero "
+            "positions. PASTA identifies that overlap as what makes the output "
+            "size unpredictable; the matrices themselves are not from PASTA, "
+            "whose datasets are sparse tensors."
+        )
 
     @property
     def datasets(self) -> list[Dataset]:
         return [
             SuiteSparseElementwiseDataset(
-                "email-Eu-core", "email-Eu-core", suites=["sparse", "test"]
-            ),
-            SuiteSparseElementwiseDataset(
-                "CollegeMsg", "CollegeMsg", suites=["sparse", "test"]
-            ),
-            SuiteSparseElementwiseDataset("wiki-vote", "wiki-vote", suites=["sparse"]),
+                f"{matrix}-overlap-{int(overlap * 100)}",
+                matrix,
+                overlap=overlap,
+                suites=["sparse", "test"]
+                if in_test_suite and overlap in (1.0, 0.5)
+                else ["sparse"],
+                description=(
+                    f"SuiteSparse matrix {matrix} multiplied elementwise by a "
+                    f"matrix sharing {int(overlap * 100)}% of its nonzero "
+                    f"positions."
+                ),
+            )
+            for matrix, in_test_suite in _ELEMENTWISE_MATRICES
+            for overlap in _ELEMENTWISE_OVERLAPS
         ]
 
     def generate(self, dataset: SuiteSparseElementwiseDataset) -> DataInstance:
         base_coo = to_scipy(fetch_suitesparse_matrix(dataset.matrix).inputs[0]).tocoo()
 
-        # A and B are independent random perturbations of the same real matrix,
-        # so they have distinct (but similarly structured) sparsity patterns
-        # rather than being identical, while nnz stays roughly unchanged.
         rng = np.random.default_rng(dataset.seed)
-        A_coo = _add_sparse_noise(base_coo, rng, dataset.noise_fraction)
-        B_coo = _add_sparse_noise(base_coo, rng, dataset.noise_fraction)
+        A_coo = base_coo
+        B_coo = _matrix_with_overlap(base_coo, rng, dataset.overlap)
 
         ref_outputs = None
         if "test" in dataset.suites:
@@ -283,9 +320,9 @@ class SuiteSparseElementwiseGenerator(Generator):
         )
 
 
-# Densities (fraction of nonzeros) for the uniform random sparse generator,
-# spanning very sparse to moderately dense.
-UNIFORM_SPARSE_DENSITIES = [0.00001, 0.0001, 0.001, 0.01, 0.1]
+# Fixed occupancy for the random element-wise inputs, so that overlap is the
+# only variable. At this dimension it gives 50 nonzeros per row.
+_ELEMENTWISE_UNIFORM_DENSITY = 0.01
 
 
 class UniformRandomElementwiseDataset(Dataset):
@@ -294,6 +331,7 @@ class UniformRandomElementwiseDataset(Dataset):
         name: str,
         dim: int,
         density: float,
+        overlap: float = 1.0,
         seed: int = 0,
         suites: list[str] | None = None,
         pretty_name: str | None = None,
@@ -307,6 +345,7 @@ class UniformRandomElementwiseDataset(Dataset):
         self._suites = suites or ["sparse", "test"]
         self.dim = dim
         self.density = density
+        self.overlap = overlap
         self.seed = seed
 
     @property
@@ -360,18 +399,42 @@ class UniformRandomElementwiseGenerator(Generator):
 
     @property
     def references(self) -> list[Ref]:
-        return []
+        return [
+            Ref(
+                title="PASTA: A Parallel Sparse Tensor Algorithm Benchmark Suite",
+                authors=[
+                    Author("J. Li"),
+                    Author("Y. Ma"),
+                    Author("X. Wu"),
+                    Author("A. Li"),
+                    Author("K. Barker"),
+                ],
+                journal="CCF Transactions on High Performance Computing",
+                volume=1,
+                number=2,
+                pages="111-130",
+                year=2019,
+                doi="10.1007/s42514-019-00012-w",
+            ),
+        ]
 
     @property
     def ai_disclosure(self) -> str:
         return (
             "Generative AI was not used to write the benchmark function itself. "
+            "Generative AI might be used for dataset collecting and parsing. "
             "This statement was written manually."
         )
 
     @property
     def motivation(self) -> str:
-        return ""
+        return (
+            "Generate uniform random element-wise inputs whose nonzero patterns "
+            "overlap by a controlled fraction, spanning PASTA's two cases: "
+            "operands sharing a pattern, where the output size is known in "
+            "advance, and operands whose patterns differ, where it is not. The "
+            "overlap parameterisation follows PASTA; the inputs are synthetic."
+        )
 
     @property
     def datasets(self) -> list[Dataset]:
@@ -379,12 +442,13 @@ class UniformRandomElementwiseGenerator(Generator):
             UniformRandomElementwiseDataset(
                 # No dots in the name: the framework parses params as
                 # "generator.dataset" by splitting on ".".
-                f"uniform-{density:.0e}",
+                f"uniform-overlap-{int(overlap * 100)}",
                 dim=5000,
-                density=density,
+                density=_ELEMENTWISE_UNIFORM_DENSITY,
+                overlap=overlap,
                 suites=["sparse", "test"],
             )
-            for density in UNIFORM_SPARSE_DENSITIES
+            for overlap in _ELEMENTWISE_OVERLAPS
         ]
 
     def generate(self, dataset: UniformRandomElementwiseDataset) -> DataInstance:
@@ -397,12 +461,7 @@ class UniformRandomElementwiseGenerator(Generator):
             format="coo",
             rng=rng,
         )
-        B = sps.random_array(
-            (dataset.dim, dataset.dim),
-            density=dataset.density,
-            format="coo",
-            rng=rng,
-        )
+        B = _matrix_with_overlap(A, rng, dataset.overlap)
         ref_outputs = None
         if "test" in dataset.suites:
             output_coo = A.multiply(B).tocoo()
@@ -436,7 +495,7 @@ class ElementwiseBenchmark(Benchmark):
 
     @property
     def description(self) -> str:
-        return "The elementwise multiplication of two matrices.C_ij = A_ij * B_ij"
+        return "The elementwise multiplication of two matrices. C_ij = A_ij * B_ij"
 
     @property
     def suites(self) -> list[str]:
