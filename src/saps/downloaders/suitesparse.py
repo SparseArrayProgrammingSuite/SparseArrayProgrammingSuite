@@ -31,7 +31,8 @@ def download_suitesparse_matrix(
     matches = ssgetpy.search(name=name)
     if not matches:
         raise ValueError(f"No matrix found with name '{name}'")
-    matrix = matches[0]
+    exact = [match for match in matches if match.name.lower() == name.lower()]
+    matrix = exact[0] if exact else matches[0]
     path, _archive = matrix.download(destpath=str(root), extract=True)
     return Path(path), matrix
 

@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import re
+import sys
 import xml.etree.ElementTree as ET
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -15,6 +16,35 @@ from saps.framework import load_framework
 from saps.freshness import repo_root, source_freshness
 from saps.storage import build_storage_backend
 from saps_framework.framework import Framework
+
+
+def _apply_memory_limit() -> None:
+    """Cap this process's address space to SAPS_MEMORY_LIMIT_BYTES if set, so a
+    runaway benchmark raises MemoryError instead of OOM-killing the machine.
+
+    Only enforced on Linux: macOS accepts setrlimit(RLIMIT_AS) but silently does
+    not enforce it, and Windows has no resource module at all. On those platforms
+    we warn rather than give a false sense of protection.
+    """
+    limit = os.environ.get("SAPS_MEMORY_LIMIT_BYTES")
+    if not limit:
+        return
+    if sys.platform != "linux":
+        logging.warning(
+            "Memory limit requested (SAPS_MEMORY_LIMIT_BYTES=%s) but it is only "
+            "enforced on Linux; benchmark memory is uncapped on %s.",
+            limit,
+            sys.platform,
+        )
+        return
+    try:
+        import resource
+    except ImportError:  # non-Unix platforms
+        return
+    nbytes = int(limit)
+    _soft, hard = resource.getrlimit(resource.RLIMIT_AS)
+    new_soft = nbytes if hard == resource.RLIM_INFINITY else min(nbytes, hard)
+    resource.setrlimit(resource.RLIMIT_AS, (new_soft, hard))
 
 
 @dataclass
@@ -389,6 +419,7 @@ class Benchmark(Tagged, Attributed, Motivated):
             work_log.setLevel(logging.INFO)
             work_log.propagate = False
             work_log.addHandler(logging.FileHandler(log_path))
+        _apply_memory_limit()
         if os.environ.get("SAPS_CACHE_DATASETS"):
             if param.generator.cacheable and not param.generator.backend.upload_dataset(
                 param.generator, param.dataset

@@ -1,9 +1,48 @@
+from typing import Any
+
 import numpy as np
 import scipy.sparse as scipy_sparse
 
 import sparse
 from binsparse import BinsparseTensor
 from binsparse.conversions import to_numpy, to_scipy, to_sparse
+
+
+def _as_scipy(tensor: BinsparseTensor) -> Any:
+    """Return `tensor` as a SciPy sparse array. `to_scipy` cannot represent dense
+    or vector tensors, so those are routed through NumPy instead.
+    """
+    try:
+        return to_scipy(tensor)
+    except TypeError:
+        return scipy_sparse.coo_array(to_numpy(tensor))
+
+
+def assert_coo_allclose(
+    expected: BinsparseTensor,
+    actual: BinsparseTensor,
+    *,
+    rtol: float = 1e-05,
+    atol: float = 1e-08,
+) -> None:
+    """Assert two binsparse tensors represent the same values within tolerance.
+
+    Comparing by difference makes coordinate order, duplicate coordinates and
+    explicitly stored zeros all irrelevant. That matters here because frameworks
+    disagree on whether to keep explicit zeros, and `to_scipy` marks every tensor
+    it returns as canonical without verifying that it is.
+    """
+    expected_array = _as_scipy(expected)
+    actual_array = _as_scipy(actual)
+    assert expected_array.shape == actual_array.shape, (
+        f"Shape mismatch: expected {expected_array.shape}, got {actual_array.shape}"
+    )
+    delta = abs(expected_array - actual_array)
+    largest = delta.max() if delta.nnz else 0
+    scale = abs(expected_array).max() if expected_array.nnz else 0
+    assert largest <= atol + rtol * scale, (
+        f"Values differ beyond tolerance: max|expected - actual| is {largest}"
+    )
 
 
 def tensor_data(tensor: BinsparseTensor):

@@ -16,6 +16,19 @@ def repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
+_FIRST_PARTY_ROOTS = frozenset({"saps", "saps_framework"})
+
+
+def _is_under_venv(path: Path) -> bool:
+    for prefix in (sys.prefix, sys.base_prefix):
+        try:
+            path.relative_to(Path(prefix).resolve())
+            return True
+        except ValueError:
+            continue
+    return False
+
+
 def _module_path(module_name: str) -> Path | None:
     try:
         spec = importlib.util.find_spec(module_name)
@@ -30,14 +43,14 @@ def _module_path(module_name: str) -> Path | None:
         path.relative_to(repo_root())
     except ValueError:
         return None
-    if "site-packages" in path.parts:
+    # Exclude third-party packages (e.g. numpy installed in the venv) so their
+    # source isn't hashed and their relative imports aren't walked. First-party
+    # packages are kept even when installed under site-packages so that changes
+    # to them still invalidate dataset caches.
+    if module_name.split(".", 1)[0] not in _FIRST_PARTY_ROOTS and (
+        "site-packages" in path.parts or _is_under_venv(path)
+    ):
         return None
-    for prefix in (sys.prefix, sys.base_prefix):
-        try:
-            path.relative_to(Path(prefix).resolve())
-            return None
-        except ValueError:
-            continue
     return path
 
 
