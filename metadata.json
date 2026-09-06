@@ -47907,7 +47907,7 @@
       "concepts": "\n<ccs2012>\n<concept>\n<concept_id>10002950.10003705</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003705.10011686</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003714.10003715</concept_id>\n<concept_desc>Mathematics of computing~Numerical analysis</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n</ccs2012>\n",
       "description": "The multiplication of two matrices.C_ik = \\sum_k A_ij B_jk",
       "file": "src/saps/benchmarks/matmul.py",
-      "freshness": "c9666c82bd8ae503fd694c32cdccbb15f401fd63e7cdce9c500e257f1d8246d1",
+      "freshness": "c932b30a052f799da1c5e761f83031320ac4a81e5ecb0373c6a48d686402724a",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
@@ -47922,7 +47922,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense Matmul Input small.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "c9666c82bd8ae503fd694c32cdccbb15f401fd63e7cdce9c500e257f1d8246d1",
+              "freshness": "c932b30a052f799da1c5e761f83031320ac4a81e5ecb0373c6a48d686402724a",
               "name": "small",
               "pretty_name": "small",
               "suites": [
@@ -47945,7 +47945,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense Matmul Input medium.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "c9666c82bd8ae503fd694c32cdccbb15f401fd63e7cdce9c500e257f1d8246d1",
+              "freshness": "c932b30a052f799da1c5e761f83031320ac4a81e5ecb0373c6a48d686402724a",
               "name": "medium",
               "pretty_name": "medium",
               "suites": [
@@ -47968,7 +47968,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense Matmul Input large.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "c9666c82bd8ae503fd694c32cdccbb15f401fd63e7cdce9c500e257f1d8246d1",
+              "freshness": "c932b30a052f799da1c5e761f83031320ac4a81e5ecb0373c6a48d686402724a",
               "name": "large",
               "pretty_name": "large",
               "suites": [
@@ -47987,7 +47987,7 @@
           ],
           "description": "Dense input generator for matrix multiplication.",
           "file": "src/saps/benchmarks/matmul.py",
-          "freshness": "c9666c82bd8ae503fd694c32cdccbb15f401fd63e7cdce9c500e257f1d8246d1",
+          "freshness": "c932b30a052f799da1c5e761f83031320ac4a81e5ecb0373c6a48d686402724a",
           "motivation": "Generate dense matrices for matrix multiplication.",
           "name": "dense_matmul_generator",
           "pretty_name": "Dense Matmul Generator",
@@ -48014,11 +48014,34 @@
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
+              "asv_param": "suitesparse_matmul_generator.email",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse matrix email, squared to represent graph algorithms in the matrix-matrix suite.",
+              "file": "src/saps/benchmarks/matmul.py",
+              "freshness": "c932b30a052f799da1c5e761f83031320ac4a81e5ecb0373c6a48d686402724a",
+              "name": "email",
+              "pretty_name": "email",
+              "suites": [
+                "sparse",
+                "test"
+              ],
+              "tags": [
+                "mathematical-software",
+                "mathematical-software-performance",
+                "mathematics-of-computing",
+                "micro-benchmark",
+                "numerical-analysis",
+                "sparse",
+                "test"
+              ],
+              "topics": []
+            },
+            {
               "asv_param": "suitesparse_matmul_generator.email-Eu-core",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Suite Sparse Matmul Input email-Eu-core.",
+              "description": "SuiteSparse matrix email-Eu-core, squared to represent graph algorithms in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "c9666c82bd8ae503fd694c32cdccbb15f401fd63e7cdce9c500e257f1d8246d1",
+              "freshness": "c932b30a052f799da1c5e761f83031320ac4a81e5ecb0373c6a48d686402724a",
               "name": "email-Eu-core",
               "pretty_name": "email-Eu-core",
               "suites": [
@@ -48037,13 +48060,13 @@
               "topics": []
             },
             {
-              "asv_param": "suitesparse_matmul_generator.CollegeMsg",
+              "asv_param": "suitesparse_matmul_generator.ca-GrQc",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Suite Sparse Matmul Input CollegeMsg.",
+              "description": "SuiteSparse matrix ca-GrQc, squared to represent graph algorithms in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "c9666c82bd8ae503fd694c32cdccbb15f401fd63e7cdce9c500e257f1d8246d1",
-              "name": "CollegeMsg",
-              "pretty_name": "CollegeMsg",
+              "freshness": "c932b30a052f799da1c5e761f83031320ac4a81e5ecb0373c6a48d686402724a",
+              "name": "ca-GrQc",
+              "pretty_name": "ca-GrQc",
               "suites": [
                 "sparse",
                 "test"
@@ -48060,11 +48083,78 @@
               "topics": []
             },
             {
+              "asv_param": "suitesparse_matmul_generator.bcsstk09",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse matrix bcsstk09, squared to represent algebraic multigrid in the matrix-matrix suite.",
+              "file": "src/saps/benchmarks/matmul.py",
+              "freshness": "c932b30a052f799da1c5e761f83031320ac4a81e5ecb0373c6a48d686402724a",
+              "name": "bcsstk09",
+              "pretty_name": "bcsstk09",
+              "suites": [
+                "sparse",
+                "test"
+              ],
+              "tags": [
+                "mathematical-software",
+                "mathematical-software-performance",
+                "mathematics-of-computing",
+                "micro-benchmark",
+                "numerical-analysis",
+                "sparse",
+                "test"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "suitesparse_matmul_generator.Chebyshev3",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse matrix Chebyshev3, squared to represent algebraic multigrid in the matrix-matrix suite.",
+              "file": "src/saps/benchmarks/matmul.py",
+              "freshness": "c932b30a052f799da1c5e761f83031320ac4a81e5ecb0373c6a48d686402724a",
+              "name": "Chebyshev3",
+              "pretty_name": "Chebyshev3",
+              "suites": [
+                "sparse",
+                "test"
+              ],
+              "tags": [
+                "mathematical-software",
+                "mathematical-software-performance",
+                "mathematics-of-computing",
+                "micro-benchmark",
+                "numerical-analysis",
+                "sparse",
+                "test"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "suitesparse_matmul_generator.CollegeMsg",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse matrix CollegeMsg, squared to represent graph algorithms in the matrix-matrix suite.",
+              "file": "src/saps/benchmarks/matmul.py",
+              "freshness": "c932b30a052f799da1c5e761f83031320ac4a81e5ecb0373c6a48d686402724a",
+              "name": "CollegeMsg",
+              "pretty_name": "CollegeMsg",
+              "suites": [
+                "sparse"
+              ],
+              "tags": [
+                "mathematical-software",
+                "mathematical-software-performance",
+                "mathematics-of-computing",
+                "micro-benchmark",
+                "numerical-analysis",
+                "sparse"
+              ],
+              "topics": []
+            },
+            {
               "asv_param": "suitesparse_matmul_generator.wiki-vote",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Suite Sparse Matmul Input wiki-vote.",
+              "description": "SuiteSparse matrix wiki-vote, squared to represent graph algorithms in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "c9666c82bd8ae503fd694c32cdccbb15f401fd63e7cdce9c500e257f1d8246d1",
+              "freshness": "c932b30a052f799da1c5e761f83031320ac4a81e5ecb0373c6a48d686402724a",
               "name": "wiki-vote",
               "pretty_name": "wiki-vote",
               "suites": [
@@ -48079,17 +48169,102 @@
                 "sparse"
               ],
               "topics": []
+            },
+            {
+              "asv_param": "suitesparse_matmul_generator.ca-HepPh",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse matrix ca-HepPh, squared to represent graph algorithms in the matrix-matrix suite.",
+              "file": "src/saps/benchmarks/matmul.py",
+              "freshness": "c932b30a052f799da1c5e761f83031320ac4a81e5ecb0373c6a48d686402724a",
+              "name": "ca-HepPh",
+              "pretty_name": "ca-HepPh",
+              "suites": [
+                "sparse"
+              ],
+              "tags": [
+                "mathematical-software",
+                "mathematical-software-performance",
+                "mathematics-of-computing",
+                "micro-benchmark",
+                "numerical-analysis",
+                "sparse"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "suitesparse_matmul_generator.Muu",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse matrix Muu, squared to represent algebraic multigrid in the matrix-matrix suite.",
+              "file": "src/saps/benchmarks/matmul.py",
+              "freshness": "c932b30a052f799da1c5e761f83031320ac4a81e5ecb0373c6a48d686402724a",
+              "name": "Muu",
+              "pretty_name": "Muu",
+              "suites": [
+                "sparse"
+              ],
+              "tags": [
+                "mathematical-software",
+                "mathematical-software-performance",
+                "mathematics-of-computing",
+                "micro-benchmark",
+                "numerical-analysis",
+                "sparse"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "suitesparse_matmul_generator.fv2",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse matrix fv2, squared to represent algebraic multigrid in the matrix-matrix suite.",
+              "file": "src/saps/benchmarks/matmul.py",
+              "freshness": "c932b30a052f799da1c5e761f83031320ac4a81e5ecb0373c6a48d686402724a",
+              "name": "fv2",
+              "pretty_name": "fv2",
+              "suites": [
+                "sparse"
+              ],
+              "tags": [
+                "mathematical-software",
+                "mathematical-software-performance",
+                "mathematics-of-computing",
+                "micro-benchmark",
+                "numerical-analysis",
+                "sparse"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "suitesparse_matmul_generator.Dubcova1",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse matrix Dubcova1, squared to represent algebraic multigrid in the matrix-matrix suite.",
+              "file": "src/saps/benchmarks/matmul.py",
+              "freshness": "c932b30a052f799da1c5e761f83031320ac4a81e5ecb0373c6a48d686402724a",
+              "name": "Dubcova1",
+              "pretty_name": "Dubcova1",
+              "suites": [
+                "sparse"
+              ],
+              "tags": [
+                "mathematical-software",
+                "mathematical-software-performance",
+                "mathematics-of-computing",
+                "micro-benchmark",
+                "numerical-analysis",
+                "sparse"
+              ],
+              "topics": []
             }
           ],
-          "description": "Sparse input generator for matrix multiplication based on the suite sparse matrix collection.",
+          "description": "Sparse input generator for sparse matrix-matrix multiplication, drawing real matrices from the SuiteSparse Matrix Collection across the application classes that motivate SpGEMM.",
           "file": "src/saps/benchmarks/matmul.py",
-          "freshness": "c9666c82bd8ae503fd694c32cdccbb15f401fd63e7cdce9c500e257f1d8246d1",
-          "motivation": "Generate sparse matrices for matrix multiplication.",
+          "freshness": "c932b30a052f799da1c5e761f83031320ac4a81e5ecb0373c6a48d686402724a",
+          "motivation": "Generate real sparse matrices for squaring (A*A), the operation both classes of SpGEMM application reduce to: graph algorithms, where A*A gives two-hop neighbourhoods, and algebraic multigrid, where SpGEMM forms the coarse-grid operator.",
           "name": "suitesparse_matmul_generator",
           "pretty_name": "Suite Sparse Matmul Generator",
           "references": [
             "W. Ahrens, T. Collin, R. Patel, K. Deeds, C. Hong, S. Amarasinghe. \"Finch: Sparse and Structured Tensor Programming with Control Flow\", Proc. ACM Program. Lang. OOPSLA, 2025, URL: https://dl.acm.org/doi/pdf/10.1145/3720473.",
-            "T. Davis, Y. Hu. \"The University of Florida Sparse Matrix Collection\", ACM Trans. Math. Softw., 2011, URL: https://dl.acm.org/doi/pdf/10.1145/2049662.2049663."
+            "T. Davis, Y. Hu. \"The University of Florida Sparse Matrix Collection\", ACM Trans. Math. Softw., 2011, URL: https://dl.acm.org/doi/pdf/10.1145/2049662.2049663.",
+            "A. Bulu\u00e7, J. R. Gilbert. \"Parallel Sparse Matrix-Matrix Multiplication and Indexing: Implementation and Experiments\", SIAM Journal on Scientific Computing, Vol. 34, No. 4, pp. 170-191, 2012, DOI: 10.1137/110848244."
           ],
           "suites": [
             "sparse"
@@ -48105,7 +48280,7 @@
           "topics": []
         },
         {
-          "ai_disclosure": "Generative AI was not used to write the benchmark function itself.This statement was written manually.",
+          "ai_disclosure": "Generative AI was not used to write the benchmark function itself.Generative AI might be used for dataset collecting and parsing. This statement was written manually.",
           "authors": [
             "Kyle Deeds <kdeeds@bu.edu>"
           ],
@@ -48117,7 +48292,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-05.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "c9666c82bd8ae503fd694c32cdccbb15f401fd63e7cdce9c500e257f1d8246d1",
+              "freshness": "c932b30a052f799da1c5e761f83031320ac4a81e5ecb0373c6a48d686402724a",
               "name": "uniform-1e-05",
               "pretty_name": "uniform-1e-05",
               "suites": [
@@ -48140,7 +48315,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-04.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "c9666c82bd8ae503fd694c32cdccbb15f401fd63e7cdce9c500e257f1d8246d1",
+              "freshness": "c932b30a052f799da1c5e761f83031320ac4a81e5ecb0373c6a48d686402724a",
               "name": "uniform-1e-04",
               "pretty_name": "uniform-1e-04",
               "suites": [
@@ -48163,7 +48338,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-03.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "c9666c82bd8ae503fd694c32cdccbb15f401fd63e7cdce9c500e257f1d8246d1",
+              "freshness": "c932b30a052f799da1c5e761f83031320ac4a81e5ecb0373c6a48d686402724a",
               "name": "uniform-1e-03",
               "pretty_name": "uniform-1e-03",
               "suites": [
@@ -48186,7 +48361,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-02.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "c9666c82bd8ae503fd694c32cdccbb15f401fd63e7cdce9c500e257f1d8246d1",
+              "freshness": "c932b30a052f799da1c5e761f83031320ac4a81e5ecb0373c6a48d686402724a",
               "name": "uniform-1e-02",
               "pretty_name": "uniform-1e-02",
               "suites": [
@@ -48209,7 +48384,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-01.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "c9666c82bd8ae503fd694c32cdccbb15f401fd63e7cdce9c500e257f1d8246d1",
+              "freshness": "c932b30a052f799da1c5e761f83031320ac4a81e5ecb0373c6a48d686402724a",
               "name": "uniform-1e-01",
               "pretty_name": "uniform-1e-01",
               "suites": [
@@ -48228,7 +48403,7 @@
           ],
           "description": "Generates a pair of uniform random sparse matrices for sparse general matrix-matrix multiplication (SpGEMM) at a range of densities.",
           "file": "src/saps/benchmarks/matmul.py",
-          "freshness": "c9666c82bd8ae503fd694c32cdccbb15f401fd63e7cdce9c500e257f1d8246d1",
+          "freshness": "c932b30a052f799da1c5e761f83031320ac4a81e5ecb0373c6a48d686402724a",
           "motivation": "",
           "name": "uniform_random_matmul_generator",
           "pretty_name": "Uniform Random Sparse Matmul Generator",
