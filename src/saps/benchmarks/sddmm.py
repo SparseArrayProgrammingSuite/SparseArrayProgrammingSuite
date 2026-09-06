@@ -28,8 +28,8 @@ class SDDMMSuiteSparseDataset(Dataset):
     ):
         self._name = name
         self._pretty_name = pretty_name or name
-        self._description = description or f"Dense Matmul Input {self._pretty_name}."
-        self._suites = suites or ["dense", "test"]
+        self._description = description or f"SDDMM Input {self._pretty_name}."
+        self._suites = suites or ["sparse", "test"]
         self.middle_dim = middle_dim
         self.matrix_name = matrix_name
 
@@ -54,6 +54,24 @@ class SDDMMSuiteSparseDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
+# Bharadwaj et al. run SDDMM on real-world matrices at an embedding width of
+# r = 128, the value used here.
+SDDMM_EMBEDDING_WIDTH = 128
+
+# SDDMM's two applications are collaborative filtering and graph neural networks
+# with self-attention. The graphs below cover the latter; the Erdos-Renyi
+# generator below covers the synthetic case the same paper uses. Sizes stay
+# modest because the benchmark forms the dense A @ B product, which costs n**2.
+# (matrix name, include in the correctness test suite)
+_SDDMM_GRAPHS: list[tuple[str, bool]] = [
+    ("email-Eu-core", True),
+    ("email", True),
+    ("ca-GrQc", True),
+    ("wiki-vote", False),
+    ("ca-HepPh", False),
+]
+
+
 class SDDMMSuiteSparseGenerator(Generator):
     @property
     def name(self) -> str:
@@ -65,11 +83,14 @@ class SDDMMSuiteSparseGenerator(Generator):
 
     @property
     def pretty_name(self) -> str:
-        return "SuiteSparse SDMM Generator"
+        return "SuiteSparse SDDMM Generator"
 
     @property
     def description(self) -> str:
-        return "Input generator for SDDMM."
+        return (
+            "Input generator for SDDMM, sampling a dense product at the nonzero"
+            " pattern of a real graph from the SuiteSparse Matrix Collection."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -96,13 +117,29 @@ class SDDMMSuiteSparseGenerator(Generator):
                 year=2011,
                 url="https://dl.acm.org/doi/pdf/10.1145/2049662.2049663",
             ),
+            Ref(
+                title="Distributed-Memory Sparse Kernels for Machine Learning",
+                authors=[
+                    Author("V. Bharadwaj"),
+                    Author("A. Buluç"),
+                    Author("J. Demmel"),
+                ],
+                conference=(
+                    "IEEE International Parallel and Distributed Processing "
+                    "Symposium (IPDPS)"
+                ),
+                year=2022,
+                url="https://arxiv.org/abs/2203.07673",
+            ),
         ]
 
     @property
     def ai_disclosure(self) -> str:
         return (
             "No generative AI was used to write the benchmark function itself. "
-            "Generative AI was used to debug code. This statement was written by hand."
+            "Generative AI was used to debug code. Generative AI might be used "
+            "for dataset collecting and parsing. This statement was written by "
+            "hand."
         )
 
     @property
@@ -113,11 +150,16 @@ class SDDMMSuiteSparseGenerator(Generator):
     def datasets(self) -> list[Dataset]:
         return [
             SDDMMSuiteSparseDataset(
-                "fpga-dcop-17-100", 100, "fpga_dcop_17", suites=["sparse", "test"]
-            ),
-            SDDMMSuiteSparseDataset(
-                "email-enron-400", 400, "email-enron", suites=["sparse"]
-            ),
+                f"{matrix}-{SDDMM_EMBEDDING_WIDTH}",
+                SDDMM_EMBEDDING_WIDTH,
+                matrix,
+                suites=["sparse", "test"] if in_test_suite else ["sparse"],
+                description=(
+                    f"SDDMM over the nonzero pattern of SuiteSparse graph "
+                    f"{matrix} with embedding width {SDDMM_EMBEDDING_WIDTH}."
+                ),
+            )
+            for matrix, in_test_suite in _SDDMM_GRAPHS
         ]
 
     def generate(self, dataset: SDDMMSuiteSparseDataset) -> DataInstance:
@@ -138,9 +180,11 @@ class SDDMMSuiteSparseGenerator(Generator):
         )
 
 
-# Densities (fraction of nonzeros) for the uniform random sparse generators,
-# spanning very sparse to moderately dense.
-UNIFORM_SPARSE_DENSITIES = [0.00001, 0.0001, 0.001, 0.01, 0.1]
+# Nonzeros per row of the sampling matrix, the sweep Bharadwaj et al. use for
+# their Erdos-Renyi experiments. Parameterising by row occupancy rather than by
+# density keeps every row sampled: at this dimension a density of 1e-5 would
+# leave 95% of rows empty, so SDDMM would sample almost nothing.
+_SDDMM_NONZEROS_PER_ROW = [21, 43, 65, 85, 107, 128, 149]
 
 
 class UniformRandomSDDMMDataset(Dataset):
@@ -238,26 +282,36 @@ class UniformRandomSDDMMGenerator(Generator):
     def ai_disclosure(self) -> str:
         return (
             "No generative AI was used to write the benchmark function. "
+            "Generative AI might be used for dataset collecting and parsing. "
             "This statement was written manually."
         )
 
     @property
     def motivation(self) -> str:
-        return ""
+        return (
+            "Generate Erdos-Renyi sampling matrices for SDDMM, the synthetic "
+            "workload Bharadwaj et al. use, swept over their range of nonzeros "
+            "per row so that row occupancy rather than matrix size varies."
+        )
 
     @property
     def datasets(self) -> list[Dataset]:
+        # Bounded by the dense A @ B product the benchmark forms, which costs
+        # dim**2 regardless of how sparse the sampling matrix is.
+        dim = 5000
         return [
             UniformRandomSDDMMDataset(
                 # No dots in the name: the framework parses params as
                 # "generator.dataset" by splitting on ".".
-                f"uniform-{density:.0e}",
-                dim=5000,
-                middle_dim=128,
-                density=density,
-                suites=["sparse", "test"],
+                f"uniform-{nonzeros_per_row}-per-row",
+                dim=dim,
+                middle_dim=SDDMM_EMBEDDING_WIDTH,
+                density=nonzeros_per_row / dim,
+                suites=["sparse", "test"]
+                if nonzeros_per_row in (21, 85, 149)
+                else ["sparse"],
             )
-            for density in UNIFORM_SPARSE_DENSITIES
+            for nonzeros_per_row in _SDDMM_NONZEROS_PER_ROW
         ]
 
     def generate(self, dataset: UniformRandomSDDMMDataset) -> DataInstance:
