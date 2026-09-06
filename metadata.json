@@ -41700,9 +41700,9 @@
         "Kyle Deeds <kdeeds@bu.edu>"
       ],
       "concepts": "\n<ccs2012>\n<concept>\n<concept_id>10002950.10003705</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003705.10011686</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n</ccs2012>\n",
-      "description": "The elementwise multiplication of two matrices.C_ij = A_ij * B_ij",
+      "description": "The elementwise multiplication of two matrices. C_ij = A_ij * B_ij",
       "file": "src/saps/benchmarks/elementwise.py",
-      "freshness": "2682ca878db096d6a2ae5e8ecdc22b64889bdbacbf397ca372876d9f9c9051f2",
+      "freshness": "72e5e5adefae8e4958488fb2b6e5fceca111c8582bc034f87f4b9f50a85aca96",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
@@ -41717,7 +41717,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense Elementwise Input small.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "2682ca878db096d6a2ae5e8ecdc22b64889bdbacbf397ca372876d9f9c9051f2",
+              "freshness": "72e5e5adefae8e4958488fb2b6e5fceca111c8582bc034f87f4b9f50a85aca96",
               "name": "small",
               "pretty_name": "small",
               "suites": [
@@ -41739,7 +41739,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense Elementwise Input medium.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "2682ca878db096d6a2ae5e8ecdc22b64889bdbacbf397ca372876d9f9c9051f2",
+              "freshness": "72e5e5adefae8e4958488fb2b6e5fceca111c8582bc034f87f4b9f50a85aca96",
               "name": "medium",
               "pretty_name": "medium",
               "suites": [
@@ -41761,7 +41761,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense Elementwise Input large.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "2682ca878db096d6a2ae5e8ecdc22b64889bdbacbf397ca372876d9f9c9051f2",
+              "freshness": "72e5e5adefae8e4958488fb2b6e5fceca111c8582bc034f87f4b9f50a85aca96",
               "name": "large",
               "pretty_name": "large",
               "suites": [
@@ -41779,7 +41779,7 @@
           ],
           "description": "Dense input generator for elementwise multiplication.",
           "file": "src/saps/benchmarks/elementwise.py",
-          "freshness": "2682ca878db096d6a2ae5e8ecdc22b64889bdbacbf397ca372876d9f9c9051f2",
+          "freshness": "72e5e5adefae8e4958488fb2b6e5fceca111c8582bc034f87f4b9f50a85aca96",
           "motivation": "Generate dense matrices for elementwise multiplication.",
           "name": "dense_elementwise_generator",
           "pretty_name": "Dense Elementwise Generator",
@@ -41797,7 +41797,7 @@
           "topics": []
         },
         {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
+          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. Generative AI might be used for dataset collecting and parsing. This statement was written by hand.",
           "authors": [
             "Kyle Deeds <kdeeds@bu.edu>"
           ],
@@ -41805,13 +41805,13 @@
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
-              "asv_param": "suitesparse_elementwise_generator.email-Eu-core",
+              "asv_param": "suitesparse_elementwise_generator.email-Eu-core-overlap-100",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Suite Sparse Elementwise Input email-Eu-core.",
+              "description": "SuiteSparse matrix email-Eu-core multiplied elementwise by a matrix sharing 100% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "2682ca878db096d6a2ae5e8ecdc22b64889bdbacbf397ca372876d9f9c9051f2",
-              "name": "email-Eu-core",
-              "pretty_name": "email-Eu-core",
+              "freshness": "72e5e5adefae8e4958488fb2b6e5fceca111c8582bc034f87f4b9f50a85aca96",
+              "name": "email-Eu-core-overlap-100",
+              "pretty_name": "email-Eu-core-overlap-100",
               "suites": [
                 "sparse",
                 "test"
@@ -41827,13 +41827,33 @@
               "topics": []
             },
             {
-              "asv_param": "suitesparse_elementwise_generator.CollegeMsg",
+              "asv_param": "suitesparse_elementwise_generator.email-Eu-core-overlap-75",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Suite Sparse Elementwise Input CollegeMsg.",
+              "description": "SuiteSparse matrix email-Eu-core multiplied elementwise by a matrix sharing 75% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "2682ca878db096d6a2ae5e8ecdc22b64889bdbacbf397ca372876d9f9c9051f2",
-              "name": "CollegeMsg",
-              "pretty_name": "CollegeMsg",
+              "freshness": "72e5e5adefae8e4958488fb2b6e5fceca111c8582bc034f87f4b9f50a85aca96",
+              "name": "email-Eu-core-overlap-75",
+              "pretty_name": "email-Eu-core-overlap-75",
+              "suites": [
+                "sparse"
+              ],
+              "tags": [
+                "mathematical-software",
+                "mathematical-software-performance",
+                "mathematics-of-computing",
+                "micro-benchmark",
+                "sparse"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "suitesparse_elementwise_generator.email-Eu-core-overlap-50",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse matrix email-Eu-core multiplied elementwise by a matrix sharing 50% of its nonzero positions.",
+              "file": "src/saps/benchmarks/elementwise.py",
+              "freshness": "72e5e5adefae8e4958488fb2b6e5fceca111c8582bc034f87f4b9f50a85aca96",
+              "name": "email-Eu-core-overlap-50",
+              "pretty_name": "email-Eu-core-overlap-50",
               "suites": [
                 "sparse",
                 "test"
@@ -41849,13 +41869,177 @@
               "topics": []
             },
             {
-              "asv_param": "suitesparse_elementwise_generator.wiki-vote",
+              "asv_param": "suitesparse_elementwise_generator.email-Eu-core-overlap-25",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Suite Sparse Elementwise Input wiki-vote.",
+              "description": "SuiteSparse matrix email-Eu-core multiplied elementwise by a matrix sharing 25% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "2682ca878db096d6a2ae5e8ecdc22b64889bdbacbf397ca372876d9f9c9051f2",
-              "name": "wiki-vote",
-              "pretty_name": "wiki-vote",
+              "freshness": "72e5e5adefae8e4958488fb2b6e5fceca111c8582bc034f87f4b9f50a85aca96",
+              "name": "email-Eu-core-overlap-25",
+              "pretty_name": "email-Eu-core-overlap-25",
+              "suites": [
+                "sparse"
+              ],
+              "tags": [
+                "mathematical-software",
+                "mathematical-software-performance",
+                "mathematics-of-computing",
+                "micro-benchmark",
+                "sparse"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "suitesparse_elementwise_generator.ca-GrQc-overlap-100",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse matrix ca-GrQc multiplied elementwise by a matrix sharing 100% of its nonzero positions.",
+              "file": "src/saps/benchmarks/elementwise.py",
+              "freshness": "72e5e5adefae8e4958488fb2b6e5fceca111c8582bc034f87f4b9f50a85aca96",
+              "name": "ca-GrQc-overlap-100",
+              "pretty_name": "ca-GrQc-overlap-100",
+              "suites": [
+                "sparse",
+                "test"
+              ],
+              "tags": [
+                "mathematical-software",
+                "mathematical-software-performance",
+                "mathematics-of-computing",
+                "micro-benchmark",
+                "sparse",
+                "test"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "suitesparse_elementwise_generator.ca-GrQc-overlap-75",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse matrix ca-GrQc multiplied elementwise by a matrix sharing 75% of its nonzero positions.",
+              "file": "src/saps/benchmarks/elementwise.py",
+              "freshness": "72e5e5adefae8e4958488fb2b6e5fceca111c8582bc034f87f4b9f50a85aca96",
+              "name": "ca-GrQc-overlap-75",
+              "pretty_name": "ca-GrQc-overlap-75",
+              "suites": [
+                "sparse"
+              ],
+              "tags": [
+                "mathematical-software",
+                "mathematical-software-performance",
+                "mathematics-of-computing",
+                "micro-benchmark",
+                "sparse"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "suitesparse_elementwise_generator.ca-GrQc-overlap-50",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse matrix ca-GrQc multiplied elementwise by a matrix sharing 50% of its nonzero positions.",
+              "file": "src/saps/benchmarks/elementwise.py",
+              "freshness": "72e5e5adefae8e4958488fb2b6e5fceca111c8582bc034f87f4b9f50a85aca96",
+              "name": "ca-GrQc-overlap-50",
+              "pretty_name": "ca-GrQc-overlap-50",
+              "suites": [
+                "sparse",
+                "test"
+              ],
+              "tags": [
+                "mathematical-software",
+                "mathematical-software-performance",
+                "mathematics-of-computing",
+                "micro-benchmark",
+                "sparse",
+                "test"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "suitesparse_elementwise_generator.ca-GrQc-overlap-25",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse matrix ca-GrQc multiplied elementwise by a matrix sharing 25% of its nonzero positions.",
+              "file": "src/saps/benchmarks/elementwise.py",
+              "freshness": "72e5e5adefae8e4958488fb2b6e5fceca111c8582bc034f87f4b9f50a85aca96",
+              "name": "ca-GrQc-overlap-25",
+              "pretty_name": "ca-GrQc-overlap-25",
+              "suites": [
+                "sparse"
+              ],
+              "tags": [
+                "mathematical-software",
+                "mathematical-software-performance",
+                "mathematics-of-computing",
+                "micro-benchmark",
+                "sparse"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "suitesparse_elementwise_generator.wiki-vote-overlap-100",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse matrix wiki-vote multiplied elementwise by a matrix sharing 100% of its nonzero positions.",
+              "file": "src/saps/benchmarks/elementwise.py",
+              "freshness": "72e5e5adefae8e4958488fb2b6e5fceca111c8582bc034f87f4b9f50a85aca96",
+              "name": "wiki-vote-overlap-100",
+              "pretty_name": "wiki-vote-overlap-100",
+              "suites": [
+                "sparse"
+              ],
+              "tags": [
+                "mathematical-software",
+                "mathematical-software-performance",
+                "mathematics-of-computing",
+                "micro-benchmark",
+                "sparse"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "suitesparse_elementwise_generator.wiki-vote-overlap-75",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse matrix wiki-vote multiplied elementwise by a matrix sharing 75% of its nonzero positions.",
+              "file": "src/saps/benchmarks/elementwise.py",
+              "freshness": "72e5e5adefae8e4958488fb2b6e5fceca111c8582bc034f87f4b9f50a85aca96",
+              "name": "wiki-vote-overlap-75",
+              "pretty_name": "wiki-vote-overlap-75",
+              "suites": [
+                "sparse"
+              ],
+              "tags": [
+                "mathematical-software",
+                "mathematical-software-performance",
+                "mathematics-of-computing",
+                "micro-benchmark",
+                "sparse"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "suitesparse_elementwise_generator.wiki-vote-overlap-50",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse matrix wiki-vote multiplied elementwise by a matrix sharing 50% of its nonzero positions.",
+              "file": "src/saps/benchmarks/elementwise.py",
+              "freshness": "72e5e5adefae8e4958488fb2b6e5fceca111c8582bc034f87f4b9f50a85aca96",
+              "name": "wiki-vote-overlap-50",
+              "pretty_name": "wiki-vote-overlap-50",
+              "suites": [
+                "sparse"
+              ],
+              "tags": [
+                "mathematical-software",
+                "mathematical-software-performance",
+                "mathematics-of-computing",
+                "micro-benchmark",
+                "sparse"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "suitesparse_elementwise_generator.wiki-vote-overlap-25",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse matrix wiki-vote multiplied elementwise by a matrix sharing 25% of its nonzero positions.",
+              "file": "src/saps/benchmarks/elementwise.py",
+              "freshness": "72e5e5adefae8e4958488fb2b6e5fceca111c8582bc034f87f4b9f50a85aca96",
+              "name": "wiki-vote-overlap-25",
+              "pretty_name": "wiki-vote-overlap-25",
               "suites": [
                 "sparse"
               ],
@@ -41871,12 +42055,13 @@
           ],
           "description": "Sparse input generator for elementwise multiplication based on the suite sparse matrix collection.",
           "file": "src/saps/benchmarks/elementwise.py",
-          "freshness": "2682ca878db096d6a2ae5e8ecdc22b64889bdbacbf397ca372876d9f9c9051f2",
-          "motivation": "Generate sparse matrices for elementwise multiplication.",
+          "freshness": "72e5e5adefae8e4958488fb2b6e5fceca111c8582bc034f87f4b9f50a85aca96",
+          "motivation": "Generate real sparse matrices for elementwise multiplication, each paired with a matrix sharing a controlled fraction of its nonzero positions. PASTA identifies that overlap as what makes the output size unpredictable; the matrices themselves are not from PASTA, whose datasets are sparse tensors.",
           "name": "suitesparse_elementwise_generator",
           "pretty_name": "Suite Sparse Elementwise Generator",
           "references": [
-            "T. Davis, Y. Hu. \"The University of Florida Sparse Matrix Collection\", ACM Trans. Math. Softw., 2011, URL: https://dl.acm.org/doi/pdf/10.1145/2049662.2049663."
+            "T. Davis, Y. Hu. \"The University of Florida Sparse Matrix Collection\", ACM Trans. Math. Softw., 2011, URL: https://dl.acm.org/doi/pdf/10.1145/2049662.2049663.",
+            "J. Li, Y. Ma, X. Wu, A. Li, K. Barker. \"PASTA: A Parallel Sparse Tensor Algorithm Benchmark Suite\", CCF Transactions on High Performance Computing, Vol. 1, No. 2, pp. 111-130, 2019, DOI: 10.1007/s42514-019-00012-w."
           ],
           "suites": [
             "sparse"
@@ -41891,7 +42076,7 @@
           "topics": []
         },
         {
-          "ai_disclosure": "Generative AI was not used to write the benchmark function itself. This statement was written manually.",
+          "ai_disclosure": "Generative AI was not used to write the benchmark function itself. Generative AI might be used for dataset collecting and parsing. This statement was written manually.",
           "authors": [
             "Kyle Deeds <kdeeds@bu.edu>"
           ],
@@ -41899,13 +42084,13 @@
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
-              "asv_param": "uniform_random_elementwise_generator.uniform-1e-05",
+              "asv_param": "uniform_random_elementwise_generator.uniform-overlap-100",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Uniform random sparse elementwise input uniform-1e-05.",
+              "description": "Uniform random sparse elementwise input uniform-overlap-100.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "2682ca878db096d6a2ae5e8ecdc22b64889bdbacbf397ca372876d9f9c9051f2",
-              "name": "uniform-1e-05",
-              "pretty_name": "uniform-1e-05",
+              "freshness": "72e5e5adefae8e4958488fb2b6e5fceca111c8582bc034f87f4b9f50a85aca96",
+              "name": "uniform-overlap-100",
+              "pretty_name": "uniform-overlap-100",
               "suites": [
                 "sparse",
                 "test"
@@ -41921,13 +42106,13 @@
               "topics": []
             },
             {
-              "asv_param": "uniform_random_elementwise_generator.uniform-1e-04",
+              "asv_param": "uniform_random_elementwise_generator.uniform-overlap-75",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Uniform random sparse elementwise input uniform-1e-04.",
+              "description": "Uniform random sparse elementwise input uniform-overlap-75.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "2682ca878db096d6a2ae5e8ecdc22b64889bdbacbf397ca372876d9f9c9051f2",
-              "name": "uniform-1e-04",
-              "pretty_name": "uniform-1e-04",
+              "freshness": "72e5e5adefae8e4958488fb2b6e5fceca111c8582bc034f87f4b9f50a85aca96",
+              "name": "uniform-overlap-75",
+              "pretty_name": "uniform-overlap-75",
               "suites": [
                 "sparse",
                 "test"
@@ -41943,13 +42128,13 @@
               "topics": []
             },
             {
-              "asv_param": "uniform_random_elementwise_generator.uniform-1e-03",
+              "asv_param": "uniform_random_elementwise_generator.uniform-overlap-50",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Uniform random sparse elementwise input uniform-1e-03.",
+              "description": "Uniform random sparse elementwise input uniform-overlap-50.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "2682ca878db096d6a2ae5e8ecdc22b64889bdbacbf397ca372876d9f9c9051f2",
-              "name": "uniform-1e-03",
-              "pretty_name": "uniform-1e-03",
+              "freshness": "72e5e5adefae8e4958488fb2b6e5fceca111c8582bc034f87f4b9f50a85aca96",
+              "name": "uniform-overlap-50",
+              "pretty_name": "uniform-overlap-50",
               "suites": [
                 "sparse",
                 "test"
@@ -41965,35 +42150,13 @@
               "topics": []
             },
             {
-              "asv_param": "uniform_random_elementwise_generator.uniform-1e-02",
+              "asv_param": "uniform_random_elementwise_generator.uniform-overlap-25",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Uniform random sparse elementwise input uniform-1e-02.",
+              "description": "Uniform random sparse elementwise input uniform-overlap-25.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "2682ca878db096d6a2ae5e8ecdc22b64889bdbacbf397ca372876d9f9c9051f2",
-              "name": "uniform-1e-02",
-              "pretty_name": "uniform-1e-02",
-              "suites": [
-                "sparse",
-                "test"
-              ],
-              "tags": [
-                "mathematical-software",
-                "mathematical-software-performance",
-                "mathematics-of-computing",
-                "micro-benchmark",
-                "sparse",
-                "test"
-              ],
-              "topics": []
-            },
-            {
-              "asv_param": "uniform_random_elementwise_generator.uniform-1e-01",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "Uniform random sparse elementwise input uniform-1e-01.",
-              "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "2682ca878db096d6a2ae5e8ecdc22b64889bdbacbf397ca372876d9f9c9051f2",
-              "name": "uniform-1e-01",
-              "pretty_name": "uniform-1e-01",
+              "freshness": "72e5e5adefae8e4958488fb2b6e5fceca111c8582bc034f87f4b9f50a85aca96",
+              "name": "uniform-overlap-25",
+              "pretty_name": "uniform-overlap-25",
               "suites": [
                 "sparse",
                 "test"
@@ -42011,11 +42174,13 @@
           ],
           "description": "Generates a pair of uniform random sparse matrices for elementwise multiplication at a range of densities.",
           "file": "src/saps/benchmarks/elementwise.py",
-          "freshness": "2682ca878db096d6a2ae5e8ecdc22b64889bdbacbf397ca372876d9f9c9051f2",
-          "motivation": "",
+          "freshness": "72e5e5adefae8e4958488fb2b6e5fceca111c8582bc034f87f4b9f50a85aca96",
+          "motivation": "Generate uniform random element-wise inputs whose nonzero patterns overlap by a controlled fraction, spanning PASTA's two cases: operands sharing a pattern, where the output size is known in advance, and operands whose patterns differ, where it is not. The overlap parameterisation follows PASTA; the inputs are synthetic.",
           "name": "uniform_random_elementwise_generator",
           "pretty_name": "Uniform Random Sparse Elementwise Generator",
-          "references": [],
+          "references": [
+            "J. Li, Y. Ma, X. Wu, A. Li, K. Barker. \"PASTA: A Parallel Sparse Tensor Algorithm Benchmark Suite\", CCF Transactions on High Performance Computing, Vol. 1, No. 2, pp. 111-130, 2019, DOI: 10.1007/s42514-019-00012-w."
+          ],
           "suites": [
             "sparse"
           ],
