@@ -158,6 +158,28 @@ class SuiteSparseMatmulDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
+# Buluc and Gilbert motivate SpGEMM by two application classes: graph
+# algorithms, where A*A gives two-hop neighbourhoods (triangle counting,
+# multi-source BFS), and algebraic multigrid, where SpGEMM forms the Galerkin
+# coarse-grid operator. Both benchmark A*A, so the suite covers both classes.
+# Only small matrices join the test suite: it runs the NumPy framework, which
+# densifies, making cost scale with n**3 rather than with nnz.
+# (matrix name, application class, include in the correctness test suite)
+_MATMUL_MATRICES: list[tuple[str, str, bool]] = [
+    ("email", "graph algorithms", True),
+    ("email-Eu-core", "graph algorithms", True),
+    ("ca-GrQc", "graph algorithms", True),
+    ("bcsstk09", "algebraic multigrid", True),
+    ("Chebyshev3", "algebraic multigrid", True),
+    ("CollegeMsg", "graph algorithms", False),
+    ("wiki-vote", "graph algorithms", False),
+    ("ca-HepPh", "graph algorithms", False),
+    ("Muu", "algebraic multigrid", False),
+    ("fv2", "algebraic multigrid", False),
+    ("Dubcova1", "algebraic multigrid", False),
+]
+
+
 class SuiteSparseMatmulGenerator(Generator):
     @property
     def name(self) -> str:
@@ -174,8 +196,9 @@ class SuiteSparseMatmulGenerator(Generator):
     @property
     def description(self) -> str:
         return (
-            "Sparse input generator for matrix multiplication"
-            " based on the suite sparse matrix collection."
+            "Sparse input generator for sparse matrix-matrix multiplication,"
+            " drawing real matrices from the SuiteSparse Matrix Collection"
+            " across the application classes that motivate SpGEMM."
         )
 
     @property
@@ -219,6 +242,19 @@ class SuiteSparseMatmulGenerator(Generator):
                 year=2011,
                 url="https://dl.acm.org/doi/pdf/10.1145/2049662.2049663",
             ),
+            Ref(
+                title=(
+                    "Parallel Sparse Matrix-Matrix Multiplication and Indexing: "
+                    "Implementation and Experiments"
+                ),
+                authors=[Author("A. Buluç"), Author("J. R. Gilbert")],
+                journal="SIAM Journal on Scientific Computing",
+                volume=34,
+                number=4,
+                pages="170-191",
+                year=2012,
+                doi="10.1137/110848244",
+            ),
         ]
 
     @property
@@ -230,23 +266,27 @@ class SuiteSparseMatmulGenerator(Generator):
 
     @property
     def motivation(self) -> str:
-        return "Generate sparse matrices for matrix multiplication."
+        return (
+            "Generate real sparse matrices for squaring (A*A), the operation "
+            "both classes of SpGEMM application reduce to: graph algorithms, "
+            "where A*A gives two-hop neighbourhoods, and algebraic multigrid, "
+            "where SpGEMM forms the coarse-grid operator."
+        )
 
     @property
     def datasets(self) -> list[Dataset]:
         return [
             SuiteSparseMatmulDataset(
-                "email-Eu-core",
-                "email-Eu-core",
-                "email-Eu-core",
-                suites=["sparse", "test"],
-            ),
-            SuiteSparseMatmulDataset(
-                "CollegeMsg", "CollegeMsg", "CollegeMsg", suites=["sparse", "test"]
-            ),
-            SuiteSparseMatmulDataset(
-                "wiki-vote", "wiki-vote", "wiki-vote", suites=["sparse"]
-            ),
+                name,
+                name,
+                name,
+                suites=["sparse", "test"] if in_test_suite else ["sparse"],
+                description=(
+                    f"SuiteSparse matrix {name}, squared to represent "
+                    f"{application} in the matrix-matrix suite."
+                ),
+            )
+            for name, application, in_test_suite in _MATMUL_MATRICES
         ]
 
     def generate(self, dataset: SuiteSparseMatmulDataset) -> DataInstance:
@@ -371,6 +411,7 @@ class UniformRandomMatmulGenerator(Generator):
     def ai_disclosure(self) -> str:
         return (
             "Generative AI was not used to write the benchmark function itself."
+            "Generative AI might be used for dataset collecting and parsing. "
             "This statement was written manually."
         )
 
