@@ -33,13 +33,11 @@ _MODEL_FILE_NAME = "conv2_pruned_dense.onnx"
 _MODEL_DATA_FILE_NAME = "conv2_pruned_dense.onnx.data"
 
 _MODEL_URL = (
-    "https://zenodo.org/records/22650920/files/"
-    "conv2_pruned_dense.onnx?download=1"
+    "https://zenodo.org/records/22650920/files/conv2_pruned_dense.onnx?download=1"
 )
 
 _MODEL_DATA_URL = (
-    "https://zenodo.org/records/22650920/files/"
-    "conv2_pruned_dense.onnx.data?download=1"
+    "https://zenodo.org/records/22650920/files/conv2_pruned_dense.onnx.data?download=1"
 )
 
 model_inputs = (
