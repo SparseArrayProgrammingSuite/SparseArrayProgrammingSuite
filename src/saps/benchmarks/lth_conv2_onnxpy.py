@@ -9,10 +9,10 @@ from __future__ import annotations
 import os
 from pathlib import Path
 from typing import Any
+from urllib.request import urlretrieve
 
 import numpy as np
 
-import gdown
 import onnx
 from binsparse.conversions import from_numpy, to_numpy
 from onnx import numpy_helper
@@ -688,9 +688,14 @@ def _download_if_missing(url: str, destination: Path) -> None:
     if partial.exists():
         partial.unlink()
 
-    result = gdown.download(url=url, output=str(partial), quiet=False)
+    try:
+        urlretrieve(url, partial)
+    except Exception:
+        if partial.exists():
+            partial.unlink()
+        raise
 
-    if result is None or not partial.is_file() or partial.stat().st_size == 0:
+    if not partial.is_file() or partial.stat().st_size == 0:
         if partial.exists():
             partial.unlink()
         raise RuntimeError(f"Failed to download LTH model artifact from {url}")
