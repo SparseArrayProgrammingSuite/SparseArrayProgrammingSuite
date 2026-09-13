@@ -17,6 +17,12 @@ from saps.benchmark import (
 from saps.downloaders.suitesparse import load_suitesparse_matrix, random_rhs_for_matrix
 
 
+def suite_sparse_rhs_dataset_name(source_name: str, rhs_index: int | None) -> str:
+    if rhs_index is None:
+        return source_name
+    return f"{source_name}__rhs{rhs_index}"
+
+
 class SuiteSparseDataset(Dataset):
     """Base Dataset for benchmarks backed by a SuiteSparse Matrix Collection matrix."""
 
@@ -29,6 +35,7 @@ class SuiteSparseDataset(Dataset):
         description: str | None = None,
         suites: list[str] | None = None,
         nnz: int | None = None,
+        rhs_index: int | None = None,
     ):
         self._name = name
         self.source_name = source_name if source_name is not None else name
@@ -36,6 +43,7 @@ class SuiteSparseDataset(Dataset):
         self._description = description
         self._suites = suites or []
         self.nnz = nnz
+        self.rhs_index = rhs_index
 
     @property
     def name(self) -> str:
@@ -60,61 +68,327 @@ class SuiteSparseDataset(Dataset):
     @property
     def metadata(self) -> dict[str, Any]:
         data = super().metadata
-        data["nnz"] = self.nnz
+        if self.nnz is not None:
+            data["nnz"] = self.nnz
+        if self.rhs_index is not None:
+            data["rhs_index"] = self.rhs_index
         return data
 
 
 _MATRICES: list[SuiteSparseDataset] = [
     SuiteSparseDataset(name)
     for name in [
-        "mesh3em5",
-        "bcsstm02",
-        "fv1",
-        "Muu",
-        "Chem97ZtZ",
-        "Dubcova1",
-        "t3dl_e",
-        "bcsstk09",
-        "Trefethen_200",
-        "Trefethen_500",
-        "Trefethen_700",
-        "fv2",
-        "Trefethen_20000",
-        "abb313",
-        "ash958",
-        "well1033",
-        "Maragal_5",
-        "illc1850",
-        "bayer06",
-        "mhdb416",
-        "lund_b",
-        "bcsstm12",
-        "mesh1em1",
-        "bcsstk05",
-        "nos1",
-        "nos2",
-        "nos3",
-        "dwt_59",
-        "bcspwr01",
-        "bcspwr02",
-        "bcspwr03",
-        "chesapeake",
-        "ash85",
-        "arc130",
-        "bcspwr04",
-        "ash292",
-        "karate",
-        "dolphins",
-        "ca-GrQc",
-        "email",
-        "Chebyshev3",
-        "ca-HepPh",
-        "bcsstk01",
-        "gap-road",
-        "gap-twitter",
-        "gap-web",
-        "gap-kron",
-        "gap-urand",
+        "Pothen/mesh3em5",
+        "HB/bcsstm02",
+        "Norris/fv1",
+        "MathWorks/Muu",
+        "JGD_Trefethen/Trefethen_200",
+        "Norris/fv2",
+        "HB/ash958",
+        "Bai/mhdb416",
+        "HB/lund_b",
+        "HB/bcsstm12",
+        "Pothen/mesh1em1",
+        "HB/bcsstk05",
+        "HB/nos1",
+        "HB/nos2",
+        "HB/nos3",
+        "HB/dwt_59",
+        "HB/bcspwr01",
+        "HB/bcspwr02",
+        "HB/bcspwr03",
+        "DIMACS10/chesapeake",
+        "HB/ash85",
+        "HB/arc130",
+        "HB/bcspwr04",
+        "HB/ash292",
+        "Newman/karate",
+        "Newman/dolphins",
+        "SNAP/ca-GrQc",
+        "Arenas/email",
+        "Muite/Chebyshev3",
+        "SNAP/ca-HepPh",
+        "HB/bcsstk01",
+        "GAP/GAP-road",
+        "GAP/GAP-twitter",
+        "GAP/GAP-web",
+        "GAP/GAP-kron",
+        "GAP/GAP-urand",
+        "ANSYS/Delor338K",
+        "Andrews/Andrews",
+        "Andrianov/ins2",
+        "Andrianov/net100",
+        "Andrianov/net125",
+        "Andrianov/net150",
+        "Andrianov/net25",
+        "Andrianov/net50",
+        "Andrianov/net75",
+        "Bai/bfwa62",
+        "Bai/bfwb398",
+        "Bai/bfwb62",
+        "Bai/bfwb782",
+        "Bai/cdde2",
+        "Bai/cdde4",
+        "Bai/cdde6",
+        "Bai/ck104",
+        "Bai/dw256B",
+        "Bai/dwb512",
+        "Bai/mhd3200b",
+        "Bai/mhd4800b",
+        "Bai/odepb400",
+        "Bai/pde225",
+        "Bai/pde900",
+        "Bai/rdb200",
+        "Bai/rdb200l",
+        "Bindel/ted_B",
+        "Bindel/ted_B_unscaled",
+        "Boeing/bcsstk34",
+        "Boeing/bcsstm39",
+        "Boeing/crystm01",
+        "Boeing/crystm02",
+        "Boeing/crystm03",
+        "Boeing/msc00726",
+        "Botonakis/FEM_3D_thermal1",
+        "Botonakis/FEM_3D_thermal2",
+        "Botonakis/thermomech_TC",
+        "Botonakis/thermomech_dM",
+        "Brunetiere/thermal",
+        "CPM/cz148",
+        "Cunningham/m3plates",
+        "Cunningham/qa8fk",
+        "Cunningham/qa8fm",
+        "FEMLAB/problem1",
+        "FIDAP/ex29",
+        "FIDAP/ex37",
+        "FIDAP/ex5",
+        "FIDAP/ex7",
+        "Freescale/circuit5M_dc",
+        "GHS_indef/blockqp1",
+        "GHS_indef/laser",
+        "GHS_indef/qpband",
+        "GHS_psdef/jnlbrng1",
+        "GHS_psdef/minsurfo",
+        "GHS_psdef/obstclae",
+        "GHS_psdef/wathen100",
+        "GHS_psdef/wathen120",
+        "Grund/meg4",
+        "Grund/poli3",
+        "Grund/poli4",
+        "Grund/poli_large",
+        "Guettel/TEM27623",
+        "HB/ash219",
+        "HB/ash331",
+        "HB/ash608",
+        "HB/bcsstk02",
+        "HB/bcsstk03",
+        "HB/bcsstk04",
+        "HB/bcsstk08",
+        "HB/bcsstk20",
+        "HB/bcsstk22",
+        "HB/bcsstm01",
+        "HB/bcsstm03",
+        "HB/bcsstm04",
+        "HB/bcsstm05",
+        "HB/bcsstm06",
+        "HB/bcsstm07",
+        "HB/bcsstm08",
+        "HB/bcsstm09",
+        "HB/bcsstm11",
+        "HB/bcsstm19",
+        "HB/bcsstm20",
+        "HB/bcsstm21",
+        "HB/bcsstm22",
+        "HB/bcsstm23",
+        "HB/bcsstm24",
+        "HB/bcsstm25",
+        "HB/bcsstm26",
+        "HB/can_144",
+        "HB/can_24",
+        "HB/can_61",
+        "HB/can_62",
+        "HB/can_73",
+        "HB/can_96",
+        "HB/curtis54",
+        "HB/dwt_66",
+        "HB/dwt_72",
+        "HB/fs_183_1",
+        "HB/fs_183_3",
+        "HB/fs_183_4",
+        "HB/fs_183_6",
+        "HB/fs_541_1",
+        "HB/fs_680_1",
+        "HB/fs_680_2",
+        "HB/fs_760_1",
+        "HB/fs_760_2",
+        "HB/fs_760_3",
+        "HB/gr_30_30",
+        "HB/jpwh_991",
+        "HB/lap_25",
+        "HB/lund_a",
+        "HB/nos4",
+        "HB/nos6",
+        "HB/nos7",
+        "HB/pores_1",
+        "HB/psmigr_3",
+        "HB/steam2",
+        "HB/steam3",
+        "HB/watt_1",
+        "HB/watt_2",
+        "Lourakis/bundle1",
+        "MKS/fp",
+        "MathWorks/tomography",
+        "MaxPlanck/shallow_water1",
+        "MaxPlanck/shallow_water2",
+        "Morandini/rotor1",
+        "Mulvey/finan512",
+        "Nemeth/nemeth02",
+        "Nemeth/nemeth03",
+        "Nemeth/nemeth04",
+        "Nemeth/nemeth05",
+        "Nemeth/nemeth06",
+        "Nemeth/nemeth07",
+        "Nemeth/nemeth08",
+        "Nemeth/nemeth09",
+        "Nemeth/nemeth10",
+        "Nemeth/nemeth11",
+        "Nemeth/nemeth12",
+        "Nemeth/nemeth13",
+        "Nemeth/nemeth16",
+        "Nemeth/nemeth17",
+        "Nemeth/nemeth18",
+        "Nemeth/nemeth19",
+        "Nemeth/nemeth20",
+        "Nemeth/nemeth21",
+        "Nemeth/nemeth22",
+        "Nemeth/nemeth23",
+        "Nemeth/nemeth24",
+        "Nemeth/nemeth25",
+        "Nemeth/nemeth26",
+        "Norris/torso2",
+        "Oberwolfach/LF10",
+        "Oberwolfach/LFAT5",
+        "PARSEC/Si2",
+        "Pothen/bodyy4",
+        "Pothen/mesh1e1",
+        "Pothen/mesh1em6",
+        "Pothen/mesh2e1",
+        "Pothen/mesh2em5",
+        "Pothen/mesh3e1",
+        "Pothen/sphere2",
+        "Precima/analytics",
+        "QLi/majorbasis",
+        "Rajat/rajat13",
+        "Rommes/bips98_1450",
+        "Rommes/bips98_606",
+        "Rommes/ww_36_pmec_36",
+        "Sandia/ASIC_100k",
+        "Sandia/ASIC_100ks",
+        "Sandia/ASIC_320ks",
+        "Sandia/ASIC_680k",
+        "Sandia/ASIC_680ks",
+        "Sandia/adder_dcop_31",
+        "Sandia/adder_dcop_32",
+        "Sandia/adder_dcop_33",
+        "Sandia/adder_dcop_34",
+        "Sandia/adder_dcop_35",
+        "Sandia/adder_dcop_36",
+        "Sandia/adder_dcop_37",
+        "Sandia/adder_dcop_38",
+        "Sandia/adder_dcop_40",
+        "Sandia/adder_dcop_41",
+        "Sandia/adder_dcop_42",
+        "Sandia/adder_dcop_43",
+        "Sandia/adder_dcop_44",
+        "Sandia/adder_dcop_45",
+        "Sandia/adder_dcop_46",
+        "Sandia/adder_dcop_47",
+        "Sandia/adder_dcop_48",
+        "Sandia/adder_dcop_49",
+        "Sandia/adder_dcop_50",
+        "Sandia/adder_dcop_51",
+        "Sandia/adder_dcop_52",
+        "Sandia/adder_dcop_53",
+        "Sandia/adder_dcop_54",
+        "Sandia/adder_dcop_55",
+        "Sandia/adder_dcop_57",
+        "Sandia/adder_dcop_58",
+        "Sandia/adder_dcop_59",
+        "Sandia/adder_dcop_60",
+        "Sandia/adder_dcop_61",
+        "Sandia/adder_dcop_62",
+        "Sandia/adder_dcop_63",
+        "Sandia/adder_dcop_64",
+        "Sandia/adder_dcop_65",
+        "Sandia/adder_dcop_66",
+        "Sandia/adder_dcop_67",
+        "Sandia/adder_dcop_68",
+        "Sandia/adder_dcop_69",
+        "Sandia/adder_trans_01",
+        "Sandia/adder_trans_02",
+        "VLSI/ss1",
+        "Wang/swang1",
+        "Wang/swang2",
+        "Zhao/Zhao1",
+    ]
+] + [
+    SuiteSparseDataset(
+        suite_sparse_rhs_dataset_name(source_name, rhs_index),
+        source_name=source_name,
+        rhs_index=rhs_index,
+    )
+    for source_name, rhs_index in [
+        ("Bomhof/circuit_1", 0),
+        ("Bourchtein/atmosmodd", 1),
+        ("Bourchtein/atmosmodj", 1),
+        ("Bourchtein/atmosmodl", 0),
+        ("Bourchtein/atmosmodl", 1),
+        ("Bourchtein/atmosmodm", 0),
+        ("Bourchtein/atmosmodm", 1),
+        ("FEMLAB/poisson2D", 0),
+        ("GHS_indef/boyd1", 0),
+        ("GHS_indef/boyd2", 0),
+        ("Grund/b1_ss", 0),
+        ("Grund/poli", 0),
+        ("HB/orani678", 1),
+        ("HB/orani678", 2),
+        ("HB/orani678", 3),
+        ("HB/orani678", 4),
+        ("HB/orani678", 5),
+        ("HB/orani678", 6),
+        ("HB/orani678", 7),
+        ("HB/orani678", 8),
+        ("HB/orani678", 10),
+        ("HB/orani678", 11),
+        ("HB/orani678", 12),
+        ("HB/orani678", 14),
+        ("HB/orani678", 15),
+        ("HB/orani678", 16),
+        ("HB/orani678", 17),
+        ("HB/orani678", 18),
+        ("HB/orani678", 19),
+        ("HB/orani678", 62),
+        ("Hamm/add32", 0),
+        ("Hamrle/Hamrle1", 0),
+        ("NYPA/Maragal_1", 0),
+        ("NYPA/Maragal_2", 0),
+        ("NYPA/Maragal_3", 0),
+        ("NYPA/Maragal_4", 0),
+        ("NYPA/Maragal_5", 0),
+        ("NYPA/Maragal_6", 0),
+        ("Nasa/nasa2146", 0),
+        ("Sandia/mult_dcop_02", 0),
+        ("Schenk_AFE/af_shell3", 0),
+        ("Schenk_AFE/af_shell4", 0),
+        ("Schenk_AFE/af_shell7", 0),
+        ("Schenk_AFE/af_shell8", 0),
+        ("Simon/raefsky5", 0),
+        ("Simon/raefsky6", 0),
+        ("TOKAMAK/utm1700b", 0),
+        ("TOKAMAK/utm3060", 0),
+        ("Um/2cubes_sphere", 0),
+        ("VDOL/hangGlider_1", 0),
+        ("VDOL/tumorAntiAngiogenesis_1", 0),
+        ("VDOL/tumorAntiAngiogenesis_2", 0),
     ]
 ]
 
@@ -527,7 +801,10 @@ class SuiteSparseMatrixGenerator(Generator[SuiteSparseDataset]):
         return _MATRICES
 
     def generate(self, dataset: SuiteSparseDataset) -> DataInstance:
-        A, b, meta = load_suitesparse_matrix(dataset.source_name)
+        A, b, meta = load_suitesparse_matrix(
+            dataset.source_name,
+            rhs_index=dataset.rhs_index,
+        )
         inputs = [from_scipy(A)]
         if b is not None:
             inputs.append(from_numpy(b))
@@ -540,20 +817,39 @@ class SuiteSparseMatrixBenchmark(ShellBenchmark):
         return SuiteSparseMatrixGenerator()
 
 
-def fetch_suitesparse_matrix(source_name: str) -> DataInstance:
-    """Fetch (and cache) the raw matrix via the shared `SuiteSparseMatrixGenerator`.
+def fetch_suitesparse_matrix(
+    source_name: str,
+    *,
+    rhs_index: int | None = None,
+) -> DataInstance:
+    """Fetch a listed raw matrix via the shared `SuiteSparseMatrixGenerator`.
 
     `.inputs[0]` is the matrix; `.inputs[1]` is its real RHS vector when the
     SuiteSparse collection entry ships one (see `.meta["has_b_file"]`).
     `.meta["shape"]` and `.meta["nnz"]` give the matrix shape/nnz.
     """
     raw_generator = SuiteSparseMatrixGenerator()
-    raw_dataset = next(d for d in raw_generator.datasets if d.name == source_name)
+    raw_dataset = next(
+        (
+            d
+            for d in raw_generator.datasets
+            if (d.source_name, d.rhs_index) == (source_name, rhs_index)
+        ),
+        None,
+    )
+    if raw_dataset is None:
+        raise ValueError(
+            f"Dataset {suite_sparse_rhs_dataset_name(source_name, rhs_index)!r} "
+            "is not listed in SuiteSparseMatrixGenerator.datasets. "
+            "Add it to the shell dataset list before using it."
+        )
     return raw_generator.cached_generate(raw_dataset)
 
 
 def fetch_suitesparse_linear_system(
     source_name: str,
+    *,
+    rhs_index: int | None = None,
 ) -> tuple[BinsparseTensor, np.ndarray, bool]:
     """Fetch a matrix paired with a right-hand-side vector `b` to solve against.
 
@@ -561,10 +857,12 @@ def fetch_suitesparse_linear_system(
     generator synthesizes `b` from the matrix the same deterministic way (`b = A @ x`
     for a random sparse `x`, via `random_rhs_for_matrix`'s defaults) unless the raw
     fetch actually included a real RHS file, so this is shared in one place rather
-    than re-derived per benchmark. `has_real_rhs` tells the caller which happened,
-    since that's the raw fetch's own ground truth, not something the caller tracks.
+    than re-derived per benchmark. If a matrix has multiple RHS vectors, callers
+    should pass *rhs_index* and treat each index as a separate dataset.
+    `has_real_rhs` tells the caller which happened, since that's the raw fetch's
+    own ground truth, not something the caller tracks.
     """
-    raw = fetch_suitesparse_matrix(source_name)
+    raw = fetch_suitesparse_matrix(source_name, rhs_index=rhs_index)
     A_bin = raw.inputs[0]
     has_real_rhs = len(raw.inputs) > 1
     if has_real_rhs:

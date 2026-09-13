@@ -23,9 +23,11 @@ def _module_path(module_name: str) -> Path | None:
         return None
     if spec is None or spec.origin is None:
         return None
-    path = Path(spec.origin).resolve()
+    # Origins such as "frozen" and "built-in" are not filesystem paths.
+    path = Path(spec.origin)
     if path.suffix != ".py":
         return None
+    path = path.resolve()
     try:
         path.relative_to(repo_root())
     except ValueError:

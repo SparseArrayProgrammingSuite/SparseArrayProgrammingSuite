@@ -198,10 +198,17 @@ def fetch_ogb_nodeprop_dataset(source_name: str) -> OGBNodePropData:
     """Fetch (and cache) a prepared OGB node-property dataset via the shared shell."""
     raw_generator = OGBNodePropGenerator()
     raw_dataset = next(
-        dataset
-        for dataset in raw_generator.datasets
-        if dataset.source_name == source_name
+        (
+            dataset
+            for dataset in raw_generator.datasets
+            if dataset.source_name == source_name
+        ),
+        None,
     )
+    if raw_dataset is None:
+        raise ValueError(
+            f"Dataset {source_name!r} is not listed in OGBNodePropGenerator.datasets."
+        )
     raw = raw_generator.cached_generate(raw_dataset)
     split_names = raw.meta.get("split_names") or ["train", "valid", "test"]
     split_indices = {

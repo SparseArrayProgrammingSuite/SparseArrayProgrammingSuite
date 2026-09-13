@@ -414,7 +414,11 @@ class FrosttTensorBenchmark(ShellBenchmark):
 def fetch_frostt_tensor(name: str) -> DataInstance:
     """Fetch (and cache) the raw tensor via the shared `FrosttTensorGenerator`."""
     raw_generator = FrosttTensorGenerator()
-    raw_dataset = next(d for d in raw_generator.datasets if d.name == name)
+    raw_dataset = next((d for d in raw_generator.datasets if d.name == name), None)
+    if raw_dataset is None:
+        raise ValueError(
+            f"Dataset {name!r} is not listed in FrosttTensorGenerator.datasets."
+        )
     return raw_generator.cached_generate(raw_dataset)
 
 

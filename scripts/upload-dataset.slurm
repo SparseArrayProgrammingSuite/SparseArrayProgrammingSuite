@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=dataset-upload
 #SBATCH --nodes=1
-#SBATCH --mem=450G
-#SBATCH --time=04:00:00
+#SBATCH --mem=350G
+#SBATCH --cpus-per-task=24
+#SBATCH --time=08:00:00
 #SBATCH --output=upload-%j.log
 
 set -e
@@ -12,6 +13,7 @@ if [[ -z "$repo_directory" ]]; then
   script_directory=$(cd -- "$(dirname -- "$0")" && pwd)
   repo_directory=$(cd -- "$script_directory/.." && pwd)
 fi
+repo_directory=$(git -C "$repo_directory" rev-parse --show-toplevel)
 
 export PATH="$HOME/.local/bin:$PATH"
 export AWS_PROFILE=dataset-upload

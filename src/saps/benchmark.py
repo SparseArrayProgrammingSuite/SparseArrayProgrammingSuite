@@ -217,7 +217,11 @@ class Tagged(Metadata):
     @property
     def file(self) -> str:
         source_path = Path(inspect.getfile(self.__class__)).resolve()
-        return source_path.relative_to(repo_root()).as_posix()
+        try:
+            package_path = source_path.relative_to(Path(__file__).resolve().parent)
+        except ValueError:
+            return source_path.relative_to(repo_root()).as_posix()
+        return (Path("src/saps") / package_path).as_posix()
 
     @property
     def freshness(self) -> str:

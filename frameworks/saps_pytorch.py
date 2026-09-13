@@ -1,12 +1,15 @@
-import array_api_compat
 import array_api_compat.torch as torch_xp
 import torch
 import torch._dynamo
 from binsparse.conversions import from_torch, to_torch
 
-from saps_framework import Framework, einsum
+from saps_framework import Framework
+from saps_framework.einsum import parse_einsum
 
 torch._dynamo.config.suppress_errors = True
+torch_xp.power = torch.pow  # type: ignore[attr-defined]
+# Keep the Lark parser outside Dynamo; the parsed tensor operations remain traceable.
+_parse_einsum = torch.compiler.disable(parse_einsum)
 
 
 def _is_sparse_tensor(array):
@@ -65,10 +68,7 @@ class PytorchFramework(Framework):
         return torch.compile(func)
 
     def einsum(self, prgm, **kwargs):
-        xp = array_api_compat.array_namespace(*kwargs.values(), use_compat=True)
-        if not hasattr(xp, "power"):
-            xp.power = torch.pow
-        return einsum(xp, prgm, **kwargs)
+        return _parse_einsum(prgm).run(torch_xp, kwargs)
 
     def with_fill_value(self, array, value):
         return array

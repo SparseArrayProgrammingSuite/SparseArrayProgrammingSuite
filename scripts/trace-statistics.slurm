@@ -12,6 +12,7 @@ if [[ -z "$repo_directory" ]]; then
   script_directory=$(cd -- "$(dirname -- "$0")" && pwd)
   repo_directory=$(cd -- "$script_directory/.." && pwd)
 fi
+repo_directory=$(git -C "$repo_directory" rev-parse --show-toplevel)
 
 : "${SAPS_TRACE_CHUNK_COUNT:?SAPS_TRACE_CHUNK_COUNT must be set}"
 : "${SLURM_ARRAY_TASK_ID:?SLURM_ARRAY_TASK_ID must be set}"

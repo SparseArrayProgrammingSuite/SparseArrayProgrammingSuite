@@ -1,9 +1,14 @@
+import sys
+from types import ModuleType
+from typing import Any
+
+import pytest
+
 import numpy as np
 
 from binsparse.conversions import to_scipy
 
 from saps.downloaders.ogb import (
-    _allow_large_download,
     _prepare_ogb_nodeprop_dataset,
     normalized_undirected_adjacency,
 )
@@ -137,10 +142,51 @@ def test_prepare_ogb_nodeprop_dataset_accepts_boolean_inverse_edge_metadata():
     assert graph.metadata["num_normalized_edges"] == 4
 
 
-def test_products_download_policy_requires_explicit_permission(monkeypatch):
-    monkeypatch.delenv("SAPS_ALLOW_LARGE_DOWNLOADS", raising=False)
-    assert not _allow_large_download(None)
-    assert not _allow_large_download(False)
+@pytest.mark.parametrize("fail", [False, True])
+def test_products_download_is_noninteractive_and_restores_callbacks(
+    monkeypatch, tmp_path, fail
+):
+    from saps.downloaders import ogb
 
-    monkeypatch.setenv("SAPS_ALLOW_LARGE_DOWNLOADS", "true")
-    assert _allow_large_download(None)
+    package: Any = ModuleType("ogb")
+    nodeprop: Any = ModuleType("ogb.nodeproppred")
+    dataset_module: Any = ModuleType("ogb.nodeproppred.dataset")
+
+    def original_decide(url):
+        pytest.fail("download prompted")
+
+    dataset_module.decide_download = original_decide
+    sentinel = object()
+
+    def original_download(url, folder):
+        assert url == "https://example.org/products.zip"
+        assert folder == str(tmp_path)
+        if fail:
+            raise RuntimeError("download failed")
+        return sentinel
+
+    dataset_module.download_url = original_download
+
+    def load_dataset(*, name, root):
+        assert name == "ogbn-products"
+        assert root == str(tmp_path)
+        assert dataset_module.decide_download("https://example.org/products.zip")
+        return dataset_module.download_url("http://example.org/products.zip", root)
+
+    nodeprop.NodePropPredDataset = load_dataset
+    nodeprop.dataset = dataset_module
+    package.nodeproppred = nodeprop
+    monkeypatch.setitem(sys.modules, "ogb", package)
+    monkeypatch.setitem(sys.modules, "ogb.nodeproppred", nodeprop)
+    monkeypatch.setitem(sys.modules, "ogb.nodeproppred.dataset", dataset_module)
+    monkeypatch.setattr(ogb, "_prepare_ogb_nodeprop_dataset", lambda name, data: data)
+    if fail:
+        with pytest.raises(RuntimeError, match="download failed"):
+            ogb.load_ogb_nodeprop_dataset("ogbn-products", data_dir=tmp_path)
+    else:
+        assert (
+            ogb.load_ogb_nodeprop_dataset("ogbn-products", data_dir=tmp_path)
+            is sentinel
+        )
+    assert dataset_module.decide_download is original_decide
+    assert dataset_module.download_url is original_download

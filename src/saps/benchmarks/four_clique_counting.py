@@ -12,6 +12,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 from saps.downloaders.snap import download_snap_dataset
 
 
@@ -194,13 +195,28 @@ class FourCliqueCountGenerator(Generator[GraphCountingDataset]):
 
     @property
     def references(self) -> list[Ref]:
-        return []
+        return [
+            Ref(
+                title=(
+                    "SNAP: A General Purpose Network Analysis and Graph Mining Library"
+                ),
+                authors=[
+                    Author("Leskovec, Jure"),
+                    Author("Sosič, Rok"),
+                ],
+                journal="ACM Transactions on Intelligent Systems and Technology",
+                volume=8,
+                number=1,
+                year=2016,
+                url="https://snap.stanford.edu/index.html",
+            )
+        ]
 
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to write the benchmark function itself. "
-            "Generative AI was used to debug code. This statement was written by hand."
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
         )
 
     @property
@@ -209,7 +225,6 @@ class FourCliqueCountGenerator(Generator[GraphCountingDataset]):
 
     @property
     def datasets(self) -> list[GraphCountingDataset]:
-        # 4-clique counting is very expensive (6-way einsum); use small graphs only.
         return [
             GraphCountingDataset(
                 name="snap-email-Eu-core-temporal-Dept3",
@@ -218,7 +233,7 @@ class FourCliqueCountGenerator(Generator[GraphCountingDataset]):
                     "Department 3 email network from the SNAP email-Eu-core"
                     " temporal dataset, with 89 nodes and 1,506 static edges."
                 ),
-                suites=[],
+                suites=["standard"],
             ),
             GraphCountingDataset(
                 name="snap-email-Eu-core-temporal-Dept4",
@@ -227,7 +242,7 @@ class FourCliqueCountGenerator(Generator[GraphCountingDataset]):
                     "Department 4 email network from the SNAP email-Eu-core"
                     " temporal dataset, with 142 nodes and 1,375 static edges."
                 ),
-                suites=[],
+                suites=["standard"],
             ),
         ]
 
@@ -235,6 +250,123 @@ class FourCliqueCountGenerator(Generator[GraphCountingDataset]):
         if dataset.name.startswith("snap"):
             inputs, meta = download_snap_dataset(dataset.name)
             return DataInstance(inputs=inputs, meta=meta)
+        raise ValueError(f"Unsupported 4-clique count dataset: {dataset.name}")
+
+
+class FourCliqueCountGAPGenerator(Generator[GraphCountingDataset]):
+    @property
+    def name(self) -> str:
+        return "four_clique_count_gap_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "4-Clique Count GAP Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Input GAP generator for 4-clique counting benchmarks."
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [
+            Contributor("Willow Ahrens", "ahrens@gatech.edu"),
+        ]
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="The GAP Benchmark Suite",
+                authors=[
+                    Author("Scott Beamer"),
+                    Author("Krste Asanović"),
+                    Author("David Patterson"),
+                ],
+                url="https://arxiv.org/abs/1508.03619",
+                year=2015,
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Generate GAP graph inputs for 4-clique counting."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[GraphCountingDataset]:
+        return [
+            GraphCountingDataset(
+                name="GAP/GAP-road",
+                pretty_name="GAP Road",
+                description=(
+                    "Directed roads with weights in the US, with 23.9M nodes and"
+                    " 58.3M edges."
+                ),
+                suites=["standard"],
+            ),
+            GraphCountingDataset(
+                name="GAP/GAP-twitter",
+                pretty_name="GAP Twitter",
+                description=(
+                    "Directed weighted social network topology of Twitter, with 61.6M"
+                    " nodes and 1,468.4M edges."
+                ),
+                suites=["standard"],
+            ),
+            GraphCountingDataset(
+                name="GAP/GAP-web",
+                pretty_name="GAP Web",
+                description=(
+                    "A web-crawl of the .sk domain, directed and weighted, with 50.6M"
+                    " nodes and 1,949.4M edges."
+                ),
+                suites=["standard"],
+            ),
+            GraphCountingDataset(
+                name="GAP/GAP-kron",
+                pretty_name="GAP Kron",
+                description=(
+                    "Symmetric random undirected weighted graph generated by"
+                    " Kronecker synthetic graph generator with parameters"
+                    " (A=0.57, B=C=0.19, D=0.05). Has 134.2M nodes and 2,111.6M"
+                    " edges."
+                ),
+                suites=["standard"],
+            ),
+            GraphCountingDataset(
+                name="GAP/GAP-urand",
+                pretty_name="GAP Urand",
+                description=(
+                    "Symmetric random undirected weighted graph generated by"
+                    " Erdos–Reyni model (Uniform Random) with 134.2M nodes and"
+                    " 2,147.4M edges."
+                ),
+                suites=["standard"],
+            ),
+        ]
+
+    def generate(self, dataset: GraphCountingDataset) -> DataInstance:
+        if dataset.name.startswith("GAP/"):
+            raw = fetch_suitesparse_matrix(dataset.name)
+            return DataInstance(inputs=[raw.inputs[0]], meta=raw.meta)
         raise ValueError(f"Unsupported 4-clique count dataset: {dataset.name}")
 
 
@@ -355,7 +487,11 @@ class FourCliqueCountBenchmark(Benchmark):
 
     @property
     def generators(self) -> list[Generator[GraphCountingDataset]]:
-        return [FourCliqueCountTestGenerator(), FourCliqueCountGenerator()]
+        return [
+            FourCliqueCountTestGenerator(),
+            FourCliqueCountGenerator(),
+            FourCliqueCountGAPGenerator(),
+        ]
 
     def benchmark(self, xp, data: list, meta: dict):
         A = data[0]

@@ -2,10 +2,13 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
+import itertools
 import json
 import logging
 import os
 import re
+import tempfile
 from pathlib import Path
 
 from asv.benchmarks import Benchmarks
@@ -15,10 +18,11 @@ from asv.console import log
 from asv.environment import ExistingEnvironment, get_environments
 from asv.machine import Machine
 from asv.repo import get_repo
-from asv.results import Results
+from asv.results import Results, get_filename
 from asv.runner import run_benchmarks
 
 from saps.storage import (
+    DEFAULT_CACHE_DIR,
     DEFAULT_REMOTE_STORAGE_BACKEND,
     DEFAULT_REMOTE_STORAGE_BUCKET,
     build_storage_backend,
@@ -67,14 +71,14 @@ def _run_asv_benchmarks(
     results_dir=None,
     print_results=False,
     launch_method=None,
+    resume=False,
+    rounds=None,
 ):
+    extra_params = {"timeout": timeout}
+    if rounds is not None:
+        extra_params["rounds"] = rounds
     failed = 0
     for env in environments:
-        Setup.perform_setup([env], parallel=1)
-        if install_project is not None:
-            conf, repo = install_project
-            env.install_project(conf, repo, commit_hash)
-
         params = dict(machine_params.__dict__)
         params["python"] = env.python
         params.update(env.requirements)
@@ -89,13 +93,25 @@ def _run_asv_benchmarks(
             env_vars=env.env_vars,
         )
 
+        selected_benchmarks = benchmarks
+        if resume:
+            results.load_data(results_dir)
+            selected_benchmarks = _filter_missing_results(benchmarks, results)
+        if not selected_benchmarks:
+            continue
+
+        Setup.perform_setup([env], parallel=1)
+        if install_project is not None:
+            conf, repo = install_project
+            env.install_project(conf, repo, commit_hash)
+
         run_benchmarks(
-            benchmarks=benchmarks,
+            benchmarks=selected_benchmarks,
             env=env,
             results=results,
             show_stderr=show_stderr,
             quick=quick,
-            extra_params={"timeout": timeout},
+            extra_params=extra_params,
             launch_method=launch_method,
         )
         failed += sum(
@@ -107,8 +123,58 @@ def _run_asv_benchmarks(
                 json.dumps(format_results(results, benchmarks), indent=2, default=str)
             )
         if results_dir is not None:
-            results.save(results_dir)
+            _save_results(
+                results, results_dir, selected_benchmarks, machine_params, resume=resume
+            )
     return failed
+
+
+def _save_results(results, results_dir, benchmarks, machine_params, *, resume=False):
+    filename = get_filename(
+        results.params["machine"], results.commit_hash, results.env_name
+    )
+    path = Path(results_dir) / filename
+    previous = json.loads(path.read_text()) if resume and path.exists() else {}
+    details = previous.get("saps", {"machines": {}, "runs": []})
+    if previous and "saps" not in previous:
+        details["legacy_machine"] = {
+            key: value
+            for key, value in previous["params"].items()
+            if key != "python" and key not in previous.get("requirements", {})
+        }
+    machine = dict(machine_params.__dict__)
+    machine["machine"] = machine.pop("hostname", machine["machine"])
+    machine_id = hashlib.sha256(
+        json.dumps(machine, sort_keys=True).encode()
+    ).hexdigest()
+    details["machines"][machine_id] = machine
+    for name, benchmark in benchmarks.items():
+        parameters = list(itertools.product(*benchmark["params"]))
+        selected = benchmarks.benchmark_selection[name]
+        details["runs"].append(
+            {
+                "benchmark": name,
+                "version": benchmark.get("version"),
+                "parameters": [parameters[i] for i in selected]
+                if selected is not None
+                else parameters,
+                "machine": machine_id,
+                "errcode": results.errcode.get(name),
+                "stderr": results.stderr.get(name),
+                "started_at": results.started_at.get(name),
+                "duration_seconds": results.duration.get(name),
+            }
+        )
+    # Publish the ASV data and diagnostics together, so concurrent combiners never
+    # see a partially written result. Hidden staging directories are not combined.
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix=".save-", dir=path.parent) as staging:
+        results.save(staging)
+        staged_path = Path(staging) / filename
+        document = json.loads(staged_path.read_text())
+        document["saps"] = details
+        staged_path.write_text(json.dumps(document) + "\n")
+        staged_path.replace(path)
 
 
 def _load_metadata(metadata_path: Path) -> list[dict]:
@@ -137,6 +203,22 @@ def _filter_metadata(metadata: list[dict], dataset_predicate) -> list[dict]:
         if generators:
             filtered.append({**benchmark, "generators": generators})
     return filtered
+
+
+def _filter_missing_results(benchmarks: Benchmarks, results: Results) -> Benchmarks:
+    filtered = benchmarks.filter_out(set())
+    skips = set()
+    for name in results.get_result_keys(benchmarks):
+        values = results.get_result_value(name, benchmarks[name]["params"])
+        selected = benchmarks.benchmark_selection[name]
+        if selected is None:
+            selected = range(len(values))
+        missing = [index for index in selected if values[index] is None]
+        if missing:
+            filtered._benchmark_selection[name] = missing
+        else:
+            skips.add(name)
+    return filtered.filter_out(skips)
 
 
 def _metadata_to_asv_benchmarks(
@@ -173,6 +255,32 @@ def _metadata_to_asv_benchmarks(
     return benchmarks.filter_out(set(skips))
 
 
+def _load_saps_config(config: str | None) -> dict:
+    config_file = Path(config) if config else Path("saps.conf.json")
+    if not config_file.exists():
+        return {}
+    with open(config_file) as f:
+        return json.load(f)
+
+
+def _apply_config_args(parser: argparse.ArgumentParser, args, config: dict) -> None:
+    for action in parser._actions:
+        if not action.option_strings or action.dest in {"config", "help"}:
+            continue
+        if action.dest not in config:
+            continue
+        if getattr(args, action.dest) == parser.get_default(action.dest):
+            setattr(args, action.dest, config[action.dest])
+
+
+def _resolve_path_values(values):
+    if isinstance(values, list):
+        return [str(Path(value).resolve()) for value in values]
+    if values is not None:
+        return str(Path(values).resolve())
+    return values
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run SAPS benchmarks")
     parser.add_argument(
@@ -184,6 +292,26 @@ def main() -> int:
         "--machine",
         default=None,
         help="Machine name to use (default: host name)",
+    )
+    parser.add_argument(
+        "--saps-dir",
+        default=None,
+        help="Directory for SAPS runner-owned outputs (default: config or .saps)",
+    )
+    parser.add_argument(
+        "--env-dir",
+        default=None,
+        help="Directory where ASV creates benchmark environments",
+    )
+    parser.add_argument(
+        "--results-dir",
+        default=None,
+        help="Directory where ASV writes benchmark results",
+    )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Run only dataset/metric entries missing from saved results.",
     )
     parser.add_argument(
         "--re",
@@ -269,9 +397,7 @@ def main() -> int:
         ),
     )
     parser.add_argument(
-        "--metric",
         "--metrics",
-        dest="metrics",
         nargs="+",
         choices=("peakmem", "time"),
         default=("time",),
@@ -287,6 +413,12 @@ def main() -> int:
         "--quick",
         action="store_true",
         help="Run each benchmark only once",
+    )
+    parser.add_argument(
+        "--rounds",
+        type=int,
+        default=None,
+        help="Timing rounds per benchmark; retains repeated samples within each round",
     )
     parser.add_argument(
         "-v",
@@ -319,6 +451,12 @@ def main() -> int:
         help="Zero-based chunk index to run when --chunk-count is greater than 1.",
     )
     args = parser.parse_args()
+
+    saps_config_data = _load_saps_config(args.config)
+    _apply_config_args(parser, args, saps_config_data)
+
+    if args.rounds is not None and (type(args.rounds) is not int or args.rounds < 1):
+        parser.error("--rounds must be a positive integer")
     if args.chunk_count < 1:
         parser.error("--chunk-count must be at least 1")
     if args.chunk_index < 0 or args.chunk_index >= args.chunk_count:
@@ -339,7 +477,7 @@ def main() -> int:
     repo_root = Path(__file__).parent.parent
 
     # Load SAPS configuration
-    saps_dir = Path(".saps").resolve()
+    saps_dir = Path(args.saps_dir or ".saps").resolve()
     saps_dir.mkdir(parents=True, exist_ok=True)
     machine_files_dir = saps_dir / "machine_files"
     outputs_dir = saps_dir / "outputs"
@@ -350,23 +488,8 @@ def main() -> int:
     machine_files_dir.mkdir(parents=True, exist_ok=True)
     outputs_dir.mkdir(parents=True, exist_ok=True)
 
-    # Load optional saps.conf.json
-    saps_config_data = {}
-    if args.config:
-        config_file = Path(args.config)
-        if config_file.exists():
-            with open(config_file) as f:
-                saps_config_data = json.load(f)
-    else:
-        saps_config_file = Path("saps.conf.json")
-        if saps_config_file.exists():
-            with open(saps_config_file) as f:
-                saps_config_data = json.load(f)
-
-    env_dir = Path(saps_config_data.get("env_dir", str(saps_dir / "results")))
-    results_dir = Path(
-        saps_config_data.get("results_dir", str(saps_dir / "outputs" / "results"))
-    )
+    env_dir = Path(args.env_dir or saps_dir / "results")
+    results_dir = Path(args.results_dir or saps_dir / "outputs" / "results")
     if chunk_name:
         env_dir /= chunk_name
         results_dir /= chunk_name
@@ -393,43 +516,43 @@ def main() -> int:
             },
         },
     )
-    matrix.setdefault("env_nobuild", {})
+    matrix_env_nobuild = matrix.setdefault("env_nobuild", {})
     log_path = str(results_dir / "diagnostics.log")
-    os.environ["SAPS_LOG_PATH"] = log_path
-    matrix["env_nobuild"]["SAPS_LOG_PATH"] = [log_path]
     storage_backend = args.remote_storage_backend or DEFAULT_REMOTE_STORAGE_BACKEND
     storage_bucket = args.remote_storage_bucket or DEFAULT_REMOTE_STORAGE_BUCKET
-    if (
-        args.remote_storage_backend is not None
-        or "REMOTE_STORAGE_BACKEND" not in matrix["env_nobuild"]
-    ):
-        matrix["env_nobuild"]["REMOTE_STORAGE_BACKEND"] = [storage_backend]
-    if (
-        args.remote_storage_bucket is not None
-        or "REMOTE_STORAGE_BUCKET" not in matrix["env_nobuild"]
-    ):
-        matrix["env_nobuild"]["REMOTE_STORAGE_BUCKET"] = [storage_bucket]
-    cache_dir = str(outputs_dir / "cache")
-    os.environ["SAPS_CACHE_DIR"] = cache_dir
-    matrix["env_nobuild"]["SAPS_CACHE_DIR"] = [cache_dir]
+    cache_dir = str(
+        Path(os.environ.get("SAPS_CACHE_DIR") or repo_root / DEFAULT_CACHE_DIR)
+        .expanduser()
+        .resolve()
+    )
     persistent_metadata_path = Path(
         os.environ.get("SAPS_METADATA_PATH", str(repo_root / "metadata.json"))
     )
     persistent_statistics_path = Path(
         os.environ.get("SAPS_STATISTICS_PATH", str(repo_root / "statistics.json"))
     )
-    manifest_path = str(repo_root / "manifest.json")
+    manifest_path = str(
+        Path(os.environ.get("SAPS_MANIFEST_PATH") or repo_root / "manifest.json")
+        .expanduser()
+        .resolve()
+    )
     pythonpath = str(repo_root)
-    os.environ["SAPS_MANIFEST_PATH"] = manifest_path
     os.environ["PYTHONPATH"] = pythonpath
-    os.environ["REMOTE_STORAGE_BACKEND"] = storage_backend
-    os.environ["REMOTE_STORAGE_BUCKET"] = storage_bucket
-    matrix["env_nobuild"]["SAPS_MANIFEST_PATH"] = [manifest_path]
+    saps_env_nobuild = {
+        "SAPS_LOG_PATH": log_path,
+        "REMOTE_STORAGE_BACKEND": storage_backend,
+        "REMOTE_STORAGE_BUCKET": storage_bucket,
+        "SAPS_CACHE_DIR": cache_dir,
+        "SAPS_MANIFEST_PATH": manifest_path,
+    }
     if args.cache_datasets:
-        os.environ["SAPS_CACHE_DATASETS"] = "1"
-        matrix["env_nobuild"]["SAPS_CACHE_DATASETS"] = ["1"]
+        saps_env_nobuild["SAPS_CACHE_DATASETS"] = "1"
     else:
         os.environ.pop("SAPS_CACHE_DATASETS", None)
+
+    os.environ.update(saps_env_nobuild)
+    for key, value in saps_env_nobuild.items():
+        matrix_env_nobuild[key] = [value]
     if args.trace_statistics or args.cache_datasets:
         framework_file = (
             "frameworks/saps_tagger.py"
@@ -460,7 +583,7 @@ def main() -> int:
         ),
         "install_command": saps_config_data.get(
             "install_command",
-            ["in-dir={env_dir} python -mpip install {build_dir} --force-reinstall"],
+            ["in-dir={env_dir} python -mpip install {build_dir}"],
         ),
         "benchmark_dir": str(repo_root / "src/saps/benchmarks"),
         "env_dir": str(env_dir),
@@ -468,11 +591,19 @@ def main() -> int:
         "html_dir": str(outputs_dir / "html"),
         "matrix": matrix,
     }
+    for key in ("include", "exclude", "pythons"):
+        if key in saps_config_data:
+            asv_config_dict[key] = saps_config_data[key]
+
+    for include in asv_config_dict.get("include", []):
+        include_env_nobuild = include.setdefault("env_nobuild", {})
+        include_env_nobuild.update(saps_env_nobuild)
     log.info(f"Using SAPS config: {saps_config_data}")
     # Create ASV config from dict
     conf = Config.from_json(asv_config_dict)
 
     log.info(f"Using SAPS outputs directory: {outputs_dir}")
+    log.info(f"Using SAPS dataset cache: {cache_dir}")
     log.info(f"Using SAPS machine files directory: {machine_files_dir}")
 
     # Determine timeout with hierarchy: CLI arg > config > 5 seconds default
@@ -485,32 +616,20 @@ def main() -> int:
     else:
         timeout = 5
 
-    # Convert relative SAPS_FRAMEWORK paths to absolute paths so child processes can
-    # find them
-    cwd = os.getcwd()
-    if "env_nobuild" in conf.matrix and "SAPS_FRAMEWORK" in conf.matrix["env_nobuild"]:
-        abs_paths = []
-        for path in conf.matrix["env_nobuild"]["SAPS_FRAMEWORK"]:
-            path_obj = Path(path)
-            if path_obj.is_absolute():
-                abs_paths.append(path)
-            else:
-                abs_paths.append(str(Path(cwd) / path_obj))
-        conf.matrix["env_nobuild"]["SAPS_FRAMEWORK"] = abs_paths
+    for env_nobuild in [
+        conf.matrix.get("env_nobuild", {}),
+        *(include.get("env_nobuild", {}) for include in conf.include),
+    ]:
+        for key in ("SAPS_FRAMEWORK", "SAPS_REPO_ROOT"):
+            if key in env_nobuild:
+                env_nobuild[key] = _resolve_path_values(env_nobuild[key])
 
-    # ASV normally reads and rewrites ~/.asv-machine.json.  Concurrent Slurm
-    # array tasks can observe that file while another task has truncated it.
-    # Give each runner process private transient machine state instead.
-    machine_state_path = machine_files_dir / "asv-machine.json"
-    try:
-        machine_params = Machine.load(
-            machine_name=args.machine,
-            interactive=True,
-            use_defaults=True,
-            _path=str(machine_state_path),
-        )
-    finally:
-        machine_state_path.unlink(missing_ok=True)
+    # Read host details without ASV's interactive, shared machine registry.
+    machine_params = Machine()
+    machine_params.__dict__.update(Machine.get_defaults())
+    machine_params.hostname = machine_params.machine
+    if args.machine is not None:
+        machine_params.machine = args.machine
 
     # Normal benchmark runs retain the conventional machine metadata.  Cache
     # and trace workers only need it in memory and may execute concurrently.
@@ -570,6 +689,11 @@ def main() -> int:
     metadata = _filter_metadata(
         _load_metadata(persistent_metadata_path), dataset_predicate
     )
+    if not metadata:
+        log.warning(
+            f"No datasets match filters: tag={args.tag}, no_tag={args.no_tag}, "
+            f"re={args.re}, no_re={args.no_re}"
+        )
     trace_had_selected_datasets = bool(metadata)
     if args.trace_statistics:
         statistics = (
@@ -720,7 +844,7 @@ def main() -> int:
     print(f"Discovered {len(benchmarks)} benchmark entries")
     print(f"Using timeout: {timeout} seconds")
 
-    _run_asv_benchmarks(
+    failed = _run_asv_benchmarks(
         benchmarks=benchmarks,
         environments=environments,
         machine_params=machine_params,
@@ -732,8 +856,10 @@ def main() -> int:
         install_project=(conf, repo),
         results_dir=results_dir,
         print_results=True,
+        resume=args.resume,
+        rounds=args.rounds,
     )
-    return 0
+    return 0 if failed == 0 else 1
 
 
 if __name__ == "__main__":

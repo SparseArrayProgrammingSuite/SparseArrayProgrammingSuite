@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 
 import h5py
 from binsparse import BinsparseTensor, HDF5BinsparseContainer
+from filelock import FileLock
 
 if TYPE_CHECKING:
     from saps.benchmark import DataInstance, Dataset, Generator
@@ -141,30 +142,22 @@ class StorageBackend(ABC):
     def update_manifest(
         self, generator: Generator, dataset: Dataset, digest: str
     ) -> None:
-        manifest = self._read_manifest()
-        manifest[f"{generator.name}.{dataset.name}"] = {
+        record = {
             "digest": digest,
             **self._dataset_manifest_metadata(dataset),
         }
-        self.manifest_path.write_text(
-            json.dumps(manifest, indent=2, sort_keys=True) + "\n",
-            encoding="utf-8",
-        )
-
-    def check_manifest(self, generator: Generator, dataset: Dataset) -> str | None:
-        manifest = self._read_manifest()
-        dataset_key = f"{generator.name}.{dataset.name}"
-        if dataset_key not in manifest:
-            return None
-        record = manifest[dataset_key]
-        if {
-            key: record.get(key) for key in ("file", "freshness")
-        } != self._dataset_manifest_metadata(dataset):
-            logging.info(
-                f"Dataset {generator.name}.{dataset.name} manifest metadata is stale."
-            )
-            return None
-        return record["digest"]
+        with FileLock(self.manifest_path.with_suffix(".lock")):
+            manifest = self._read_manifest()
+            manifest[f"{generator.name}.{dataset.name}"] = record
+            with tempfile.TemporaryDirectory(
+                prefix=".saps-", dir=self.manifest_path.parent
+            ) as staging:
+                staging_path = Path(staging) / "manifest.json"
+                staging_path.write_text(
+                    json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+                    encoding="utf-8",
+                )
+                staging_path.replace(self.manifest_path)
 
     def upload_dataset(self, generator: Generator, dataset: Dataset) -> bool:
         work_log = logging.getLogger("saps.work")
@@ -187,12 +180,10 @@ class StorageBackend(ABC):
             raise
 
     def retrieve_dataset(self, generator: Generator, dataset: Dataset) -> DataInstance:
-        """Retrieve the dataset by, in order:
-        1. The cache
-        2. Remote Storage
-        3. Generating it
-        """
-        digest = self.check_manifest(generator, dataset)
+        """Read prepared data from the cache or remote storage using the manifest."""
+        # Benchmark runs trust the manifest; refresh commands validate freshness.
+        manifest = self._read_manifest()
+        digest = manifest.get(f"{generator.name}.{dataset.name}", {}).get("digest")
         if digest:
             prefix = self.prefix(generator, dataset, digest)
             cache_path = self.cache_dir / prefix
@@ -205,20 +196,40 @@ class StorageBackend(ABC):
                 f"Dataset {generator.name}.{dataset.name} not found in cache at "
                 f"{cache_path}"
             )
-            if self.download_file(prefix, cache_path):
-                assert digest == sha256_file(cache_path), (
-                    "Data integrity check failed: hash mismatch"
-                )
+            with FileLock(cache_path.with_suffix(".lock")):
+                # Another worker may have filled the cache while we waited.
+                if not cache_path.exists():
+                    with tempfile.TemporaryDirectory(
+                        prefix=".saps-", dir=cache_path.parent
+                    ) as staging:
+                        staging_path = Path(staging) / "data.bsp.h5"
+                        if self.download_file(prefix, staging_path):
+                            assert digest == sha256_file(staging_path), (
+                                "Data integrity check failed: hash mismatch"
+                            )
+                            staging_path.replace(cache_path)
+            if cache_path.exists():
                 return self.deserialize_data_from_file(cache_path)
             logging.error(
                 "Failed to download dataset "
                 f"{generator.name}.{dataset.name} from remote storage."
             )
 
-        data, digest, _ = self._generate_and_cache(generator, dataset)
-        self.update_manifest(generator, dataset, digest)
-        logging.info(f"Dataset {generator.name}.{dataset.name} regenerated.")
-        return data
+        # Cache preparation can encounter a shell dependency before the shell's
+        # own ASV entry. Ordinary benchmark runs never generate cacheable inputs.
+        if os.environ.get("SAPS_CACHE_DATASETS") and self.upload_dataset(
+            generator, dataset
+        ):
+            return self.retrieve_dataset(generator, dataset)
+        reason = (
+            "could not be downloaded from remote storage"
+            if digest
+            else f"has no digest in {self.manifest_path}"
+        )
+        raise RuntimeError(
+            f"Dataset {generator.name}.{dataset.name} {reason}. "
+            "Prepare it with --cache-datasets before benchmarking."
+        )
 
 
 class LocalStorageBackend(StorageBackend):

@@ -72,6 +72,8 @@ Generators should be deterministic. If random data is needed, use fixed seeds an
 
 Concrete generators must be reachable from a benchmark so metadata, freshness checks, and dataset caching can discover them. If a generator is intentionally standalone data plumbing rather than part of a runnable benchmark, wrap it in a small `ShellBenchmark`: implement only the `generator` property and let the shell expose the generator under a `{generator.name}_shell` benchmark record.
 
+Each shell generator's `datasets` list is its complete, manually maintained inventory. Fetch functions must look up the requested dataset in that list and raise an error if it is absent; they must never construct an unlisted dataset on demand. Add new source datasets (including each selected SuiteSparse RHS column) to the shell list before referencing them from another benchmark, then regenerate metadata and prepare the cache.
+
 ## Correctness Tests
 
 Every benchmark needs correctness evidence. Acceptable approaches include:

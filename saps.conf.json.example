@@ -2,11 +2,10 @@
   "// saps_dir": "Directory where SAPS stores outputs and machine files",
   "saps_dir": ".saps",
 
-  "branches": ["HEAD"],
   "environment_type": "virtualenv",
   "install_command": ["in-dir={env_dir} python -mpip install {build_dir} --force-reinstall"],
   "env_dir": ".saps/env",
-    "results_dir": ".saps/env",
+  "results_dir": ".saps/outputs/results",
 
   "matrix": {
     "req": {

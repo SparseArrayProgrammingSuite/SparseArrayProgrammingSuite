@@ -231,19 +231,19 @@ class MCLGenerator(Generator[MCLDataset]):
     @property
     def datasets(self) -> list[MCLDataset]:
         return [
-            MCLDataset("Trefethen_200"),
-            MCLDataset("mesh3em5"),
-            MCLDataset("fv1"),
-            MCLDataset("bcsstk05"),
-            MCLDataset("nos1"),
-            MCLDataset("nos2"),
-            MCLDataset("nos3"),
-            MCLDataset("dwt_59"),
-            MCLDataset("gap-road"),
-            MCLDataset("gap-twitter"),
-            MCLDataset("gap-web"),
-            MCLDataset("gap-kron"),
-            MCLDataset("gap-urand"),
+            MCLDataset("JGD_Trefethen/Trefethen_200"),
+            MCLDataset("Pothen/mesh3em5"),
+            MCLDataset("Norris/fv1"),
+            MCLDataset("HB/bcsstk05"),
+            MCLDataset("HB/nos1"),
+            MCLDataset("HB/nos2"),
+            MCLDataset("HB/nos3"),
+            MCLDataset("HB/dwt_59"),
+            MCLDataset("GAP/GAP-road", suites=["standard"]),
+            MCLDataset("GAP/GAP-twitter", suites=["standard"]),
+            MCLDataset("GAP/GAP-web", suites=["standard"]),
+            MCLDataset("GAP/GAP-kron", suites=["standard"]),
+            MCLDataset("GAP/GAP-urand", suites=["standard"]),
         ]
 
     def generate(self, dataset: MCLDataset):

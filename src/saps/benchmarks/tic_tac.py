@@ -347,7 +347,7 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
                 expected=0.0,
                 suites=["test", "trace"],
             ),
-            TicTacToeDataset("empty_board", BOARD_EMPTY, depth=9),
+            TicTacToeDataset("empty_board", BOARD_EMPTY, depth=9, suites=["standard"]),
         ]
 
     def generate(self, dataset: TicTacToeDataset):

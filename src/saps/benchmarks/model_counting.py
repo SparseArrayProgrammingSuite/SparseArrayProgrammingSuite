@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -12,48 +13,24 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ShellBenchmark,
 )
-
-
-def parse_dimacs(text):
-    lines = [line.strip() for line in text.strip().split("\n")]
-    cleaned = [line for line in lines if not line.startswith("c") and line]
-
-    clauses = []
-    num_vars = 0
-    num_clauses = 0
-    rest = []
-
-    for i, line in enumerate(cleaned):
-        if line.startswith("p cnf"):
-            parts = line.split()
-            num_vars = int(parts[2])
-            num_clauses = int(parts[3])
-
-            rest = " ".join(cleaned[i + 1 :]).split()
-            break
-
-    clauses = []
-    current_clause = []
-    idx = 0
-
-    while len(clauses) < num_clauses and idx < len(rest):
-        val = int(rest[idx])
-
-        if val == 0:
-            clauses.append(current_clause)
-            current_clause = []
-        else:
-            current_clause.append(val)
-
-        idx += 1
-
-    return num_vars, clauses
+from saps.downloaders.mccomp import (
+    MCCOMP_REPOSITORY_URL,
+    MCCOMP_TRACKS,
+    download_mccomp_instance,
+    list_mccomp_instances,
+    mccomp_source_url,
+    normalize_mccomp_source_path,
+    parse_dimacs,
+)
 
 
 def clauses_to_einsum(clauses):
     if len(clauses) == 0:
         return None
+    if any(len(clause) == 0 for clause in clauses):
+        return "s[] += False"
 
     clause_strings = []
     for clause in clauses:
@@ -235,6 +212,234 @@ class MCGenerator(Generator[MCDataset]):
         )
 
 
+class MCCompDataset(Dataset):
+    def __init__(self, source_path: str, *, suites: list[str] | None = None):
+        self.source_path = source_path
+        self.track = source_path.split("/", 1)[0]
+        self._suites = suites or []
+
+    @property
+    def name(self) -> str:
+        return self.source_path.removesuffix(".cnf").replace("/", "_").lower()
+
+    @property
+    def pretty_name(self) -> str:
+        return f"MCComp {self.source_path.removesuffix('.cnf')}"
+
+    @property
+    def description(self) -> str:
+        track_description = MCCOMP_TRACKS.get(self.track, ("", "", "model counting"))[2]
+        return f"Model Counting Competition {track_description} instance."
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        data = super().metadata
+        data.update(
+            {
+                "source_path": self.source_path,
+                "track": self.track,
+                "source_url": mccomp_source_url(self.source_path),
+            }
+        )
+        return data
+
+
+class MCCompGenerator(Generator[MCCompDataset]):
+    @property
+    def name(self) -> str:
+        return "mccomp"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Model Counting Competition Test Instances"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Downloads and parses DIMACS CNF instances from the Model Counting "
+            "Competition test-instance repository."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="Model Counting Competition test instances",
+                authors=[],
+                url=MCCOMP_REPOSITORY_URL,
+            )
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return "Generative AI was used to implement this generator."
+
+    @property
+    def motivation(self) -> str:
+        return (
+            "Model counting competition instances provide standard CNF inputs "
+            "for evaluating exact, projected, weighted, and algebraic counting "
+            "workloads."
+        )
+
+    @property
+    def datasets(self) -> list[MCCompDataset]:
+        return [MCCompDataset(source_path) for source_path in list_mccomp_instances()]
+
+    def generate(self, dataset: MCCompDataset):
+        source_path = normalize_mccomp_source_path(dataset.source_path)
+        local_path = download_mccomp_instance(source_path)
+        return DataInstance(
+            inputs=[],
+            meta={
+                "source_repository": MCCOMP_REPOSITORY_URL,
+                "source_path": source_path,
+                "source_url": mccomp_source_url(source_path),
+                "local_path": str(local_path),
+                "track": dataset.track,
+            },
+        )
+
+
+class MCCompBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return MCCompGenerator()
+
+
+class MCCompMCGenerator(Generator[MCCompDataset]):
+    @property
+    def name(self) -> str:
+        return "mccomp_mc"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Model Counting Competition Track1 Generator"
+
+    @property
+    def description(self) -> str:
+        return "Loads exact model counting CNF instances from MCComp Track1."
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return MCCompGenerator().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return "Generative AI was used to implement this generator."
+
+    @property
+    def motivation(self) -> str:
+        return (
+            "Track1 instances have exact integer model counts, so they can be "
+            "run by the existing unweighted model-counting einsum benchmark."
+        )
+
+    @property
+    def datasets(self) -> list[MCCompDataset]:
+        return [
+            MCCompDataset(source_path, suites=["standard"])
+            for source_path in list_mccomp_instances("Track1_MC")
+        ]
+
+    def generate(self, dataset: MCCompDataset):
+        source = fetch_mccomp_instance(dataset.source_path)
+        cnf_text = Path(source.meta["local_path"]).read_text(encoding="utf-8")
+        num_vars, clauses = parse_dimacs(cnf_text)
+        expr = clauses_to_einsum(clauses)
+        exact_type, exact_value = parse_mccomp_exact(cnf_text)
+        if exact_type != "int" or exact_value is None:
+            raise ValueError(
+                f"MCComp Track1 instance lacks an integer answer: {dataset.source_path}"
+            )
+
+        return DataInstance(
+            inputs=[from_numpy(np.asarray([0, 1], dtype=np.int64))],
+            meta={
+                "expr": expr,
+                "num_vars": num_vars,
+                "expected_result": int(exact_value),
+                "default_total": 2**num_vars,
+                "source_generator": MCCompGenerator().name,
+                "source_path": dataset.source_path,
+                "source_problem_type": parse_mccomp_problem_type(cnf_text),
+                "source_num_clauses": len(clauses),
+            },
+            ref_outputs=[from_numpy(np.asarray(int(exact_value), dtype=np.int64))],
+        )
+
+
+def fetch_mccomp_instance(source_name: str) -> DataInstance:
+    """Fetch and cache a parsed MC competition source instance."""
+    source_key = source_name.removesuffix(".cnf")
+    matches = [
+        path
+        for path in list_mccomp_instances()
+        if path.removesuffix(".cnf") == source_key
+        or path.rsplit("/", 1)[-1].removesuffix(".cnf") == source_key
+    ]
+    if len(matches) != 1:
+        message = f"Unknown or ambiguous MC competition instance: {source_name!r}"
+        raise ValueError(message)
+
+    source_path = matches[0]
+    raw_generator = MCCompGenerator()
+    raw_dataset = next(
+        dataset
+        for dataset in raw_generator.datasets
+        if dataset.source_path == source_path
+    )
+    return raw_generator.cached_generate(raw_dataset)
+
+
+def parse_mccomp_problem_type(cnf_text: str) -> str | None:
+    for raw_line in cnf_text.splitlines():
+        parts = raw_line.strip().split()
+        if len(parts) >= 3 and parts[:2] == ["c", "t"]:
+            return parts[2]
+    return None
+
+
+def parse_mccomp_exact(cnf_text: str) -> tuple[str | None, str | None]:
+    for raw_line in cnf_text.splitlines():
+        parts = raw_line.strip().split()
+        if len(parts) >= 6 and parts[0:4] == ["c", "c", "s", "exact"]:
+            return parts[5], " ".join(parts[6:]) if len(parts) > 6 else None
+    return None, None
+
+
 class ModelCounting(Benchmark):
     @property
     def tag(self):
@@ -300,7 +505,7 @@ class ModelCounting(Benchmark):
 
     @property
     def generators(self) -> list[Generator[Any]]:
-        return [MCGenerator()]
+        return [MCGenerator(), MCCompMCGenerator()]
 
     def benchmark(self, xp, data: list[Any], meta: dict[str, Any]) -> list[Any]:
         expr = meta["expr"]

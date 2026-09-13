@@ -249,6 +249,11 @@ class PyDataSparseFramework(Framework):
         xp = self._array_namespace(a)
         return xp.expand_dims(a, axis=axis)
 
+    def stack(self, arrays, *, axis=0):
+        if any(isinstance(array, sp.SparseArray) for array in arrays):
+            return sp.stack([sp.asarray(array) for array in arrays], axis=axis)
+        return compat_np.stack(arrays, axis=axis)
+
     def take(self, x, indices, /, *args, **kwargs):
         if isinstance(indices, sp.SparseArray):
             indices = self._dense(indices)

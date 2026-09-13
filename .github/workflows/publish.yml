@@ -24,10 +24,6 @@ jobs:
             VERSION=$(poetry run python -c 'import tomllib; print("v" + tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
             if [ $? -ne 0 ]; then exit 1; fi
             echo "VERSION=$VERSION" >> $GITHUB_ENV
-      - name: Build and publish to pypi
-        uses: JRubics/poetry-publish@v1.17
-        with:
-          pypi_token: ${{ secrets.PYPI_TOKEN }}
       - name: Create Release
         uses: actions/create-release@v1
         if: success()

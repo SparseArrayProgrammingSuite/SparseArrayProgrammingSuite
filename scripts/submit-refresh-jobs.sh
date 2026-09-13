@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+submission_directory=$(pwd -P)
+# Escape literal percent signs in Slurm filename patterns.
+log_directory="${submission_directory//%/%%}"
+
 script_directory=$(cd -- "$(dirname -- "$0")" && pwd)
 repo_directory=$(cd -- "$script_directory/.." && pwd)
 
@@ -34,8 +38,7 @@ submit_job() {
 upload_job_id=$(
   submit_job \
     -A "$account" \
-    -q embers \
-    -C amd \
+    --output "$log_directory/upload-%j.log" \
     --chdir "$repo_directory" \
     --export=ALL,SAPS_REPO_DIRECTORY="$repo_directory" \
     "$script_directory/upload-dataset.slurm"
@@ -47,6 +50,7 @@ trace_job_id=$(
     -p cpu-small \
     --dependency="afterok:$upload_job_id" \
     --array="0-$trace_array_end" \
+    --output "$log_directory/trace-%A_%a.log" \
     --chdir "$repo_directory" \
     --export=ALL,SAPS_TRACE_CHUNK_COUNT="$trace_chunk_count",SAPS_REPO_DIRECTORY="$repo_directory" \
     "$script_directory/trace-statistics.slurm"
@@ -57,6 +61,7 @@ merge_job_id=$(
     -A "$account" \
     -p cpu-small \
     --dependency="afterok:$trace_job_id" \
+    --output "$log_directory/finalize-metadata-%j.log" \
     --chdir "$repo_directory" \
     --export=ALL,SAPS_TRACE_CHUNK_COUNT="$trace_chunk_count",SAPS_REPO_DIRECTORY="$repo_directory" \
     "$script_directory/finalize-metadata.slurm"

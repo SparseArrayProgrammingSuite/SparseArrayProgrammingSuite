@@ -45,12 +45,13 @@ def load_gcare_graph(
 
     Returns ``(bin_mats, graph_meta)`` where *bin_mats* is the list of graph
     matrices as :class:`BinsparseTensor` and *graph_meta* contains
-    ``"matrix_names"``, ``"max_vid"``, and ``"continous_label"``.
+    ``"matrix_names"``, ``"max_vid"``, ``"continous_label"``, and ``"queries"``
+    containing parsed query expressions, matrix names, and ground-truth counts.
     Pass both directly to :func:`load_gcare_query` to build per-query inputs.
     """
     root = Path(data_dir) if data_dir is not None else _default_data_dir()
     _ensure_downloaded(root)
-    dataset_dir, _, _ = _get_dirs(root)
+    dataset_dir, queryset_dir, ground_truth_dir = _get_dirs(root)
     max_vid, continous_label, raw_sp_mats = _parse_graph(
         dataset_dir / dataset_name / f"{dataset_name}.txt"
     )
@@ -76,10 +77,23 @@ def load_gcare_graph(
                 level=SparseLevel(len(shape), ElementLevel(values), indices),
             )
         bin_mats.append(tensor)
+    ground_truth: dict[str, int] = {}
+    for path in sorted((ground_truth_dir / dataset_name).rglob("*.txt")):
+        ground_truth.setdefault(path.stem, int(path.read_text().strip().split()[0]))
+    queries = {}
+    query_root = queryset_dir / dataset_name
+    for path in sorted(query_root.rglob("*.txt")):
+        expr, _, names = _parse_query(path, continous_label=continous_label)
+        queries[path.relative_to(query_root).with_suffix("").as_posix()] = {
+            "expr": expr,
+            "matrix_names": sorted(names),
+            "gt": ground_truth.get(path.stem, 0),
+        }
     meta = {
         "matrix_names": matrix_names,
         "max_vid": max_vid,
         "continous_label": continous_label,
+        "queries": queries,
     }
     return bin_mats, meta
 

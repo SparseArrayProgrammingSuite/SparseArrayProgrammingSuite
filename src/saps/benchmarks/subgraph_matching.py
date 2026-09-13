@@ -13,10 +13,7 @@ from saps.benchmark import (
     Ref,
     ShellBenchmark,
 )
-from saps.downloaders.gcare import (
-    load_gcare_graph,
-    load_gcare_query,
-)
+from saps.downloaders.gcare import load_gcare_graph
 
 
 class GCareGraphDataset(Dataset):
@@ -331,7 +328,9 @@ class GCareGraphGenerator(Generator[GCareGraphDataset]):
         ]
 
     def generate(self, dataset: GCareGraphDataset):
-        inputs, meta = load_gcare_graph(dataset.name)
+        inputs, meta = load_gcare_graph(
+            dataset.name, data_dir=self.backend.cache_dir / "gcare"
+        )
         return DataInstance(inputs=inputs, meta=meta)
 
 
@@ -355,7 +354,7 @@ class GCareGenerator(Generator[GCareDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return ["standard"]
 
     @property
     def concepts(self) -> str:
@@ -407,16 +406,70 @@ class GCareGenerator(Generator[GCareDataset]):
     def generate(self, dataset: GCareDataset):
         raw_generator = GCareGraphGenerator()
         raw_dataset = next(
-            ds for ds in raw_generator.datasets if ds.name == dataset.subset_name
+            (ds for ds in raw_generator.datasets if ds.name == dataset.subset_name),
+            None,
         )
+        if raw_dataset is None:
+            raise ValueError(
+                f"Dataset {dataset.subset_name!r} is not listed in "
+                "GCareGraphGenerator.datasets."
+            )
         graph_problem = raw_generator.cached_generate(raw_dataset)
-        inputs, meta = load_gcare_query(
-            dataset.subset_name,
-            dataset.query_name,
-            graph_problem.inputs,
-            graph_problem.meta,
+        graph_meta = graph_problem.meta
+        if "queries" not in graph_meta:
+            raise RuntimeError(
+                f"Cached G-CARE graph {dataset.subset_name!r} has no query metadata. "
+                "Refresh it with --cache-datasets --re '^subgraph_gcare_graph$'."
+            )
+        if dataset.query_name not in graph_meta["queries"]:
+            raise ValueError(
+                f"Query {dataset.name} is not in the cached G-CARE queries."
+            )
+        query = graph_meta["queries"][dataset.query_name]
+        graph_matrices = dict(
+            zip(graph_meta["matrix_names"], graph_problem.inputs, strict=True)
         )
-        return DataInstance(inputs=inputs, meta=meta)
+        size = graph_meta["max_vid"] + 1
+        inputs = []
+        for name in query["matrix_names"]:
+            if name in graph_matrices:
+                tensor = graph_matrices[name]
+            elif name.startswith("P"):
+                tensor = CustomTensor(
+                    (size,),
+                    1,
+                    level=SparseLevel(
+                        1,
+                        ElementLevel(np.array([1])),
+                        (np.array([int(name[1:])]),),
+                    ),
+                )
+            elif name.startswith("V"):
+                tensor = CustomTensor(
+                    (size,),
+                    1,
+                    level=SparseLevel(1, ElementLevel(np.array([0])), (np.array([0]),)),
+                )
+            elif name.startswith("E"):
+                tensor = COORMatrix(
+                    (size, size),
+                    1,
+                    indices_0=np.array([0]),
+                    indices_1=np.array([0]),
+                    values=np.array([0]),
+                )
+            else:
+                raise ValueError(f"Cached G-CARE graph is missing matrix {name!r}")
+            inputs.append(tensor)
+        return DataInstance(
+            inputs=inputs,
+            meta={
+                "expr": query["expr"],
+                "gt": query["gt"],
+                "name": dataset.query_name,
+                "matrix_names": query["matrix_names"],
+            },
+        )
 
 
 class GCareHumanGenerator(GCareGenerator):
@@ -2682,12 +2735,8 @@ class GCareYAGOGenerator(GCareGenerator):
 
 class SubgraphMatching(Benchmark):
     @property
-    def tag(self):
-        return "subgraph_matching"
-
-    @property
     def name(self):
-        return "Subgraph Matching Algorithm using einsum"
+        return "subgraph_matching"
 
     @property
     def pretty_name(self):

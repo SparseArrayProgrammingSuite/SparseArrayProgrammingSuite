@@ -15,6 +15,7 @@ from saps.benchmark import (
 from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     fetch_suitesparse_linear_system,
+    suite_sparse_rhs_dataset_name,
 )
 
 
@@ -26,23 +27,33 @@ class LSQRDataset(SuiteSparseDataset):
     def __init__(
         self,
         source_name: str,
-        nnz: int | None = None,
+        *,
         noise_amt: float = 0.1,
         suites: list[str] | None = None,
         A: np.ndarray | None = None,
         b: np.ndarray | None = None,
         convergence: str | None = None,
+        rhs_index: int | None = None,
+        max_iter: int = 1000,
+        rel_tol: float = 1e-6,
     ):
+        dataset_name = suite_sparse_rhs_dataset_name(source_name, rhs_index)
         super().__init__(
-            source_name,
+            dataset_name,
+            source_name=source_name,
             pretty_name=f"LSQR {source_name}",
             suites=suites,
-            nnz=nnz,
+            rhs_index=rhs_index,
         )
         self.noise_amt = noise_amt
         self.A = A
         self.b = b
         self.convergence = convergence
+        self.max_iter = max_iter
+        self.rel_tol = rel_tol
+
+    def benchmark_meta(self) -> dict[str, Any]:
+        return {"max_iter": self.max_iter, "rel_tol": self.rel_tol}
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -205,7 +216,7 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
                 from_numpy(dataset.A),
                 from_numpy(dataset.b),
             ],
-            meta={},
+            meta=dataset.benchmark_meta(),
             ref_meta={"convergence": dataset.convergence},
         )
 
@@ -259,16 +270,63 @@ class LSQRGenerator(Generator[LSQRDataset]):
     @property
     def datasets(self) -> list[LSQRDataset]:
         return [
-            LSQRDataset("abb313"),
-            LSQRDataset("ash958"),
-            LSQRDataset("well1033"),
-            LSQRDataset("Maragal_5"),
-            LSQRDataset("illc1850"),
-            LSQRDataset("bayer06"),
+            LSQRDataset(
+                "ANSYS/Delor338K", suites=["standard"], max_iter=1000, rel_tol=1e-06
+            ),
+            LSQRDataset("HB/ash219", suites=["standard"], max_iter=1000, rel_tol=1e-06),
+            LSQRDataset("HB/ash331", suites=["standard"], max_iter=1000, rel_tol=1e-06),
+            LSQRDataset("HB/ash608", suites=["standard"], max_iter=1000, rel_tol=1e-06),
+            LSQRDataset("HB/ash85", suites=["standard"], max_iter=1000, rel_tol=1e-06),
+            LSQRDataset("HB/ash958", suites=["standard"], max_iter=1000, rel_tol=1e-06),
+            LSQRDataset(
+                "NYPA/Maragal_1",
+                suites=["standard"],
+                max_iter=1000,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            LSQRDataset(
+                "NYPA/Maragal_2",
+                suites=["standard"],
+                max_iter=1000,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            LSQRDataset(
+                "NYPA/Maragal_3",
+                suites=["standard"],
+                max_iter=1000,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            LSQRDataset(
+                "NYPA/Maragal_4",
+                suites=["standard"],
+                max_iter=1000,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            LSQRDataset(
+                "NYPA/Maragal_5",
+                suites=["standard"],
+                max_iter=1000,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
+            LSQRDataset(
+                "NYPA/Maragal_6",
+                suites=["standard"],
+                max_iter=1000,
+                rel_tol=1e-06,
+                rhs_index=0,
+            ),
         ]
 
     def generate(self, dataset: LSQRDataset):
-        A_bin, b, has_real_rhs = fetch_suitesparse_linear_system(dataset.source_name)
+        A_bin, b, has_real_rhs = fetch_suitesparse_linear_system(
+            dataset.source_name,
+            rhs_index=dataset.rhs_index,
+        )
         if not has_real_rhs:
             # Adds a small amount of noise so that Ax != b
             rng = np.random.default_rng(0)
@@ -277,7 +335,7 @@ class LSQRGenerator(Generator[LSQRDataset]):
             b = b + noise
 
         b_bin = from_numpy(b)
-        return DataInstance(inputs=[A_bin, b_bin], meta={})
+        return DataInstance(inputs=[A_bin, b_bin], meta=dataset.benchmark_meta())
 
 
 class LSQRBenchmark(Benchmark):
@@ -399,10 +457,9 @@ class LSQRBenchmark(Benchmark):
 
     def benchmark(self, xp, data: list, meta: dict):
         A, b = data
-        atol = meta.get("atol", 1e-9)
-        btol = meta.get("btol", 1e-9)
+        tolerance = meta.get("rel_tol", 1e-6)
         conlim = meta.get("conlim", 1.0e8)
-        max_iters = meta.get("max_iters", 10000)
+        max_iter = meta.get("max_iter", 1000)
         exit = 0
 
         u = b
@@ -443,7 +500,7 @@ class LSQRBenchmark(Benchmark):
         # Anorm by sqrt(ddnorm)
         Acond = 0
 
-        while it < max_iters and not solution_is_zero:
+        while it < max_iter and not solution_is_zero:
             it += 1
 
             u = A @ v - alpha * u
@@ -489,13 +546,13 @@ class LSQRBenchmark(Benchmark):
             test2 = Arnorm / (Anorm * rnorm)
             test3 = 1 / Acond
 
-            reltol = atol * Anorm * xnorm / bnorm + btol
+            reltol = tolerance * Anorm * xnorm / bnorm + tolerance
 
             # Exits if the condition number grows too high
             if test3 <= ctol:
                 exit = 3
             # Exits if the gradient is small so the min has been found
-            if test2 <= atol:
+            if test2 <= tolerance:
                 exit = 2
             # Exits if the residual is small so we have found the solution
             if test1 <= reltol:

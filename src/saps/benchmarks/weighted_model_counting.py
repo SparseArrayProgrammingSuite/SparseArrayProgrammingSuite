@@ -1,10 +1,11 @@
 import textwrap
+from pathlib import Path
+from typing import Any
 
 import numpy as np
 
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
-from pyparsing import Any
 
 from saps.benchmark import (
     Benchmark,
@@ -14,8 +15,15 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-
-# TODO add generator for https://github.com/arijitsh/mccomp-test-instances/tree/main/Track4_PWMC
+from saps.downloaders.mccomp import (
+    MCCOMP_REPOSITORY_URL,
+    MCCOMP_TRACKS,
+    download_mccomp_instance,
+    list_mccomp_instances,
+    mccomp_source_url,
+    normalize_mccomp_source_path,
+    parse_dimacs,
+)
 
 
 def parse_weight(s):
@@ -28,6 +36,7 @@ def parse_weight(s):
 
 def parse_format(text):
     lines = [line.strip() for line in text.strip().split("\n")]
+    num_vars, clauses = parse_dimacs(text)
 
     weights = {}
     weight_lines = [line for line in lines if line.startswith("c p weight")]
@@ -35,32 +44,6 @@ def parse_format(text):
         parts = line.split()
         literal = int(parts[3])
         weights[literal] = parse_weight(parts[4])
-
-    cleaned = [line for line in lines if not line.startswith("c") and line]
-    num_vars = 0
-    num_clauses = 0
-    rest = []
-
-    for i, line in enumerate(cleaned):
-        if line.startswith("p cnf"):
-            parts = line.split()
-            num_vars = int(parts[2])
-            num_clauses = int(parts[3])
-            rest = " ".join(cleaned[i + 1 :]).split()
-            break
-
-    clauses = []
-    current_clause = []
-    idx = 0
-
-    while len(clauses) < num_clauses and idx < len(rest):
-        val = int(rest[idx])
-        if val == 0:
-            clauses.append(current_clause)
-            current_clause = []
-        else:
-            current_clause.append(val)
-        idx += 1
 
     for lit in list(weights.keys()):
         if -lit not in weights:
@@ -79,6 +62,8 @@ def parse_format(text):
 def clauses_to_einsum(clauses, num_vars):
     if len(clauses) == 0:
         return None
+    if any(len(clause) == 0 for clause in clauses):
+        return "s[] += False"
 
     clause_strings = []
     for clause in clauses:
@@ -154,6 +139,48 @@ class WMCDataset(Dataset):
 </concept>
 </ccs2012>
 """
+
+
+class WMCCompDataset(Dataset):
+    def __init__(self, source_path: str, *, suites: list[str] | None = None):
+        self.source_path = source_path
+        self.track = source_path.split("/", 1)[0]
+        self._suites = suites or []
+
+    @property
+    def name(self) -> str:
+        return self.source_path.removesuffix(".cnf").replace("/", "_").lower()
+
+    @property
+    def pretty_name(self) -> str:
+        return f"MCComp {self.source_path.removesuffix('.cnf')}"
+
+    @property
+    def description(self) -> str:
+        track_description = MCCOMP_TRACKS.get(
+            self.track, ("", "", "weighted model counting")
+        )[2]
+        return f"Model Counting Competition {track_description} instance."
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        data = super().metadata
+        data.update(
+            {
+                "source_path": self.source_path,
+                "track": self.track,
+                "source_url": mccomp_source_url(self.source_path),
+            }
+        )
+        return data
 
 
 class WMCGenerator(Generator[WMCDataset]):
@@ -375,6 +402,95 @@ class WMCGenerator(Generator[WMCDataset]):
         )
 
 
+class MCCompPWMCGenerator(Generator[WMCCompDataset]):
+    @property
+    def name(self) -> str:
+        return "mccomp_pwmc"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Model Counting Competition Track4 Generator"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Loads projected weighted model counting CNF instances from MCComp Track4."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="Model Counting Competition test instances",
+                authors=[],
+                url=MCCOMP_REPOSITORY_URL,
+            )
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return "Generative AI was used to implement this generator."
+
+    @property
+    def motivation(self) -> str:
+        return (
+            "Track4 instances provide weighted CNF formulas from a standard "
+            "model-counting corpus."
+        )
+
+    @property
+    def datasets(self) -> list[WMCCompDataset]:
+        return [
+            WMCCompDataset(source_path, suites=["standard"])
+            for source_path in list_mccomp_instances("Track4_PWMC")
+        ]
+
+    def generate(self, dataset: WMCCompDataset):
+        source_path = normalize_mccomp_source_path(dataset.source_path)
+        local_path = download_mccomp_instance(source_path)
+        cnf_text = Path(local_path).read_text(encoding="utf-8")
+        num_vars, clauses, weights = parse_format(cnf_text)
+        expr = clauses_to_einsum(clauses, num_vars)
+
+        data_list: list[BinsparseTensor] = [
+            from_numpy(np.asarray([0, 1], dtype=np.int64))
+        ]
+        data_list.extend(
+            from_numpy(np.asarray([weights[-i], weights[i]], dtype=np.float64))
+            for i in range(1, num_vars + 1)
+        )
+
+        exact_type, exact_value = parse_mccomp_exact(cnf_text)
+        meta = {
+            "expr": expr,
+            "num_vars": num_vars,
+            "default_total": _default_weighted_total(weights, num_vars),
+            "source_repository": MCCOMP_REPOSITORY_URL,
+            "source_path": source_path,
+            "source_url": mccomp_source_url(source_path),
+            "local_path": str(local_path),
+            "source_problem_type": parse_mccomp_problem_type(cnf_text),
+            "source_num_clauses": len(clauses),
+            "source_exact_type": exact_type,
+            "source_exact_value": exact_value,
+            "source_exact_is_projected": True,
+        }
+
+        return DataInstance(inputs=data_list, meta=meta)
+
+
 class WeightedModelCounting(Benchmark):
     @property
     def tag(self):
@@ -422,7 +538,7 @@ class WeightedModelCounting(Benchmark):
 
     @property
     def generators(self) -> list[Generator[Any]]:
-        return [WMCGenerator()]
+        return [WMCGenerator(), MCCompPWMCGenerator()]
 
     def benchmark(self, xp, data: list[Any], meta: dict[str, Any]) -> list[Any]:
         expr = meta["expr"]
@@ -452,3 +568,26 @@ class WeightedModelCounting(Benchmark):
         assert np.isclose(result, expected, rtol=10e-8), (
             f"Test '{param.dataset.name}' failed: expected {expected}, got {result}"
         )
+
+
+def _default_weighted_total(weights: dict[int, float], num_vars: int) -> float:
+    total = 1.0
+    for i in range(1, num_vars + 1):
+        total *= weights[i] + weights[-i]
+    return total
+
+
+def parse_mccomp_problem_type(cnf_text: str) -> str | None:
+    for raw_line in cnf_text.splitlines():
+        parts = raw_line.strip().split()
+        if len(parts) >= 3 and parts[:2] == ["c", "t"]:
+            return parts[2]
+    return None
+
+
+def parse_mccomp_exact(cnf_text: str) -> tuple[str | None, str | None]:
+    for raw_line in cnf_text.splitlines():
+        parts = raw_line.strip().split()
+        if len(parts) >= 6 and parts[0:4] == ["c", "c", "s", "exact"]:
+            return parts[5], " ".join(parts[6:]) if len(parts) > 6 else None
+    return None, None

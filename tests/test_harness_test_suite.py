@@ -68,37 +68,42 @@ def test_harness_test_suite_outputs_pass_for_all_test_datasets(tmp_path):
                 path for path in (str(REPO_ROOT), env.get("PYTHONPATH", "")) if path
             ),
             "SAPS_FRAMEWORK": str(REPO_ROOT / "frameworks/saps_numpy.py"),
+            "SAPS_CACHE_DIR": str(tmp_path / "cache"),
+            "SAPS_MANIFEST_PATH": str(tmp_path / "manifest.json"),
         }
     )
 
-    completed = subprocess.run(
-        [
-            sys.executable,
-            str(REPO_ROOT / "bin/run_benchmark.py"),
-            "--config",
-            str(config_path),
-            "--tag",
-            "test",
-            "--check-suite",
-            "--metric",
-            "time",
-            "--quick",
-            "--timeout",
-            "30",
-            "--remote-storage-backend",
-            "local",
-            "--remote-storage-bucket",
-            str(tmp_path / "remote-storage"),
-        ],
-        cwd=tmp_path,
-        env=env,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
-        timeout=600,
-    )
+    command = [
+        sys.executable,
+        str(REPO_ROOT / "bin/run_benchmark.py"),
+        "--config",
+        str(config_path),
+        "--tag",
+        "test",
+        "--metrics",
+        "time",
+        "--quick",
+        "--timeout",
+        "30",
+        "--remote-storage-backend",
+        "local",
+        "--remote-storage-bucket",
+        str(tmp_path / "remote-storage"),
+    ]
 
-    assert completed.returncode == 0, completed.stdout
+    # Benchmark runs consume prepared inputs, so populate the isolated cache first.
+    for mode in ("--cache-datasets", "--check-suite"):
+        completed = subprocess.run(
+            [*command, mode],
+            cwd=tmp_path,
+            env=env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            timeout=600,
+        )
+        assert completed.returncode == 0, completed.stdout
+
     result_json = _extract_result_json(completed.stdout)
     assert result_json["result_count"] > 0
 
