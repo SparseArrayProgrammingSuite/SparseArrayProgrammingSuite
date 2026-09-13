@@ -679,7 +679,7 @@ def _references() -> list[Ref]:
         ),
         Ref(
             title="CIFAR Conv-2 Lottery Ticket Hypothesis Experiment",
-            authors=[Author("Ramya Polaki"),
+            authors=[Author("Ramya Polaki")],
             publisher="Zenodo",
             year=2026,
             url="https://zenodo.org/records/22650920",
@@ -721,9 +721,7 @@ def _download_if_missing(url: str, destination: Path) -> None:
 
             urlretrieve(url, partial)
             if partial.stat().st_size == 0:
-                raise RuntimeError(
-                    f"Downloaded an empty LTH model artifact from {url}"
-                )
+                raise RuntimeError(f"Downloaded an empty LTH model artifact from {url}")
 
             partial.replace(destination)
         finally:
