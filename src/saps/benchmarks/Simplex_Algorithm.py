@@ -20,7 +20,7 @@ from __future__ import annotations
 import numpy as np
 
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse.conversions import from_numpy, to_numpy, to_scipy
 
 from saps.benchmark import (
     Author,
@@ -31,8 +31,11 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.suitesparse import SuiteSparseDataset
-from saps.downloaders.suitesparse import load_lpnetlib_problem
+from saps.benchmarks.suitesparse import (
+    _LPNETLIB_PROBLEMS,
+    SuiteSparseDataset,
+    fetch_suitesparse_matrix,
+)
 
 _STATUS_OPTIMAL = 0
 _STATUS_INFEASIBLE = 1
@@ -572,148 +575,7 @@ class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
         )
 
 
-LPNETLIB_PROBLEMS = [
-    "lp_25fv47",
-    "lp_80bau3b",
-    "lp_adlittle",
-    "lp_afiro",
-    "lp_agg",
-    "lp_agg2",
-    "lp_agg3",
-    "lp_bandm",
-    "lp_beaconfd",
-    "lp_blend",
-    "lp_bnl1",
-    "lp_bnl2",
-    "lp_bore3d",
-    "lp_brandy",
-    "lp_capri",
-    "lp_cre_a",
-    "lp_cre_b",
-    "lp_cre_c",
-    "lp_cre_d",
-    "lp_cycle",
-    "lp_czprob",
-    "lp_d2q06c",
-    "lp_d6cube",
-    "lp_degen2",
-    "lp_degen3",
-    "lp_dfl001",
-    "lp_e226",
-    "lp_etamacro",
-    "lp_fffff800",
-    "lp_finnis",
-    "lp_fit1d",
-    "lp_fit1p",
-    "lp_fit2d",
-    "lp_fit2p",
-    "lp_ganges",
-    "lp_gfrd_pnc",
-    "lp_greenbea",
-    "lp_greenbeb",
-    "lp_grow15",
-    "lp_grow22",
-    "lp_grow7",
-    "lp_israel",
-    "lp_kb2",
-    "lp_ken_07",
-    "lp_ken_11",
-    "lp_ken_13",
-    "lp_ken_18",
-    "lp_lotfi",
-    "lp_maros",
-    "lp_maros_r7",
-    "lp_modszk1",
-    "lp_osa_07",
-    "lp_osa_14",
-    "lp_osa_30",
-    "lp_osa_60",
-    "lp_pds_02",
-    "lp_pds_06",
-    "lp_pds_10",
-    "lp_pds_20",
-    "lp_perold",
-    "lp_pilot",
-    "lp_pilot4",
-    "lp_pilot87",
-    "lp_pilot_ja",
-    "lp_pilot_we",
-    "lp_pilotnov",
-    "lp_qap12",
-    "lp_qap15",
-    "lp_qap8",
-    "lp_recipe",
-    "lp_sc105",
-    "lp_sc205",
-    "lp_sc50a",
-    "lp_sc50b",
-    "lp_scagr25",
-    "lp_scagr7",
-    "lp_scfxm1",
-    "lp_scfxm2",
-    "lp_scfxm3",
-    "lp_scorpion",
-    "lp_scrs8",
-    "lp_scsd1",
-    "lp_scsd6",
-    "lp_scsd8",
-    "lp_sctap1",
-    "lp_sctap2",
-    "lp_sctap3",
-    "lp_share1b",
-    "lp_share2b",
-    "lp_shell",
-    "lp_ship04l",
-    "lp_ship04s",
-    "lp_ship08l",
-    "lp_ship08s",
-    "lp_ship12l",
-    "lp_ship12s",
-    "lp_sierra",
-    "lp_stair",
-    "lp_standata",
-    "lp_standgub",
-    "lp_standmps",
-    "lp_stocfor1",
-    "lp_stocfor2",
-    "lp_stocfor3",
-    "lp_truss",
-    "lp_tuff",
-    "lp_vtp_base",
-    "lp_wood1p",
-    "lp_woodw",
-    "lpi_bgdbg1",
-    "lpi_bgetam",
-    "lpi_bgindy",
-    "lpi_bgprtr",
-    "lpi_box1",
-    "lpi_ceria3d",
-    "lpi_chemcom",
-    "lpi_cplex1",
-    "lpi_cplex2",
-    "lpi_ex72a",
-    "lpi_ex73a",
-    "lpi_forest6",
-    "lpi_galenet",
-    "lpi_gosh",
-    "lpi_gran",
-    "lpi_greenbea",
-    "lpi_itest2",
-    "lpi_itest6",
-    "lpi_klein1",
-    "lpi_klein2",
-    "lpi_klein3",
-    "lpi_mondou2",
-    "lpi_pang",
-    "lpi_pilot4i",
-    "lpi_qual",
-    "lpi_reactor",
-    "lpi_refinery",
-    "lpi_vol1",
-    "lpi_woodinfe",
-]
-
-# The members of LPNETLIB_PROBLEMS that this solver settles within its iteration
+# The members of _LPNETLIB_PROBLEMS that this solver settles within its iteration
 # budget, measured by running them; the rest are listed but left untagged.
 _LPNETLIB_TRACTABLE = [
     "lp_adlittle",
@@ -757,6 +619,7 @@ class LPNetlibDataset(SuiteSparseDataset):
     ):
         super().__init__(
             source_name,
+            source_name=f"LPnetlib/{source_name}",
             pretty_name=f"LPnetlib {source_name}",
             description=(
                 f"Netlib linear program {source_name} from the SuiteSparse LPnetlib"
@@ -862,12 +725,18 @@ class LPNetlibGenerator(Generator[LPNetlibDataset]):
                     _STATUS_INFEASIBLE if name.startswith("lpi_") else _STATUS_OPTIMAL
                 ),
             )
-            for name in LPNETLIB_PROBLEMS
+            for name in _LPNETLIB_PROBLEMS
         ]
 
     def generate(self, dataset: LPNetlibDataset) -> DataInstance:
-        A, b, c, lo, hi, meta = load_lpnetlib_problem(dataset.source_name)
-        A_dense = A.toarray()
+        raw = fetch_suitesparse_matrix(dataset.source_name)
+        A_bin, b_bin, c_bin, lo_bin, hi_bin = raw.inputs
+        try:
+            A_dense = to_scipy(A_bin).toarray()
+        except TypeError:
+            A_dense = to_numpy(A_bin)
+        b, c, lo, hi = (to_numpy(vector) for vector in (b_bin, c_bin, lo_bin, hi_bin))
+        meta = raw.meta
         A_std, b_std, c_std, offset = _standard_form_from_bounds(A_dense, b, c, lo, hi)
         reference_status, reference_objective = _reference_solution(
             A_dense, b, c, lo, hi

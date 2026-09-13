@@ -14,7 +14,11 @@ from saps.benchmark import (
     Ref,
     ShellBenchmark,
 )
-from saps.downloaders.suitesparse import load_suitesparse_matrix, random_rhs_for_matrix
+from saps.downloaders.suitesparse import (
+    load_lpnetlib_problem,
+    load_suitesparse_matrix,
+    random_rhs_for_matrix,
+)
 
 
 def suite_sparse_rhs_dataset_name(source_name: str, rhs_index: int | None) -> str:
@@ -74,6 +78,150 @@ class SuiteSparseDataset(Dataset):
             data["rhs_index"] = self.rhs_index
         return data
 
+
+# The Netlib linear programs in the LPnetlib group. Each one ships its objective
+# and bound vectors beside the matrix, which the LP-aware branch of
+# SuiteSparseMatrixGenerator.generate reads along with A and b.
+_LPNETLIB_PROBLEMS: list[str] = [
+    "lp_25fv47",
+    "lp_80bau3b",
+    "lp_adlittle",
+    "lp_afiro",
+    "lp_agg",
+    "lp_agg2",
+    "lp_agg3",
+    "lp_bandm",
+    "lp_beaconfd",
+    "lp_blend",
+    "lp_bnl1",
+    "lp_bnl2",
+    "lp_bore3d",
+    "lp_brandy",
+    "lp_capri",
+    "lp_cre_a",
+    "lp_cre_b",
+    "lp_cre_c",
+    "lp_cre_d",
+    "lp_cycle",
+    "lp_czprob",
+    "lp_d2q06c",
+    "lp_d6cube",
+    "lp_degen2",
+    "lp_degen3",
+    "lp_dfl001",
+    "lp_e226",
+    "lp_etamacro",
+    "lp_fffff800",
+    "lp_finnis",
+    "lp_fit1d",
+    "lp_fit1p",
+    "lp_fit2d",
+    "lp_fit2p",
+    "lp_ganges",
+    "lp_gfrd_pnc",
+    "lp_greenbea",
+    "lp_greenbeb",
+    "lp_grow15",
+    "lp_grow22",
+    "lp_grow7",
+    "lp_israel",
+    "lp_kb2",
+    "lp_ken_07",
+    "lp_ken_11",
+    "lp_ken_13",
+    "lp_ken_18",
+    "lp_lotfi",
+    "lp_maros",
+    "lp_maros_r7",
+    "lp_modszk1",
+    "lp_osa_07",
+    "lp_osa_14",
+    "lp_osa_30",
+    "lp_osa_60",
+    "lp_pds_02",
+    "lp_pds_06",
+    "lp_pds_10",
+    "lp_pds_20",
+    "lp_perold",
+    "lp_pilot",
+    "lp_pilot4",
+    "lp_pilot87",
+    "lp_pilot_ja",
+    "lp_pilot_we",
+    "lp_pilotnov",
+    "lp_qap12",
+    "lp_qap15",
+    "lp_qap8",
+    "lp_recipe",
+    "lp_sc105",
+    "lp_sc205",
+    "lp_sc50a",
+    "lp_sc50b",
+    "lp_scagr25",
+    "lp_scagr7",
+    "lp_scfxm1",
+    "lp_scfxm2",
+    "lp_scfxm3",
+    "lp_scorpion",
+    "lp_scrs8",
+    "lp_scsd1",
+    "lp_scsd6",
+    "lp_scsd8",
+    "lp_sctap1",
+    "lp_sctap2",
+    "lp_sctap3",
+    "lp_share1b",
+    "lp_share2b",
+    "lp_shell",
+    "lp_ship04l",
+    "lp_ship04s",
+    "lp_ship08l",
+    "lp_ship08s",
+    "lp_ship12l",
+    "lp_ship12s",
+    "lp_sierra",
+    "lp_stair",
+    "lp_standata",
+    "lp_standgub",
+    "lp_standmps",
+    "lp_stocfor1",
+    "lp_stocfor2",
+    "lp_stocfor3",
+    "lp_truss",
+    "lp_tuff",
+    "lp_vtp_base",
+    "lp_wood1p",
+    "lp_woodw",
+    "lpi_bgdbg1",
+    "lpi_bgetam",
+    "lpi_bgindy",
+    "lpi_bgprtr",
+    "lpi_box1",
+    "lpi_ceria3d",
+    "lpi_chemcom",
+    "lpi_cplex1",
+    "lpi_cplex2",
+    "lpi_ex72a",
+    "lpi_ex73a",
+    "lpi_forest6",
+    "lpi_galenet",
+    "lpi_gosh",
+    "lpi_gran",
+    "lpi_greenbea",
+    "lpi_itest2",
+    "lpi_itest6",
+    "lpi_klein1",
+    "lpi_klein2",
+    "lpi_klein3",
+    "lpi_mondou2",
+    "lpi_pang",
+    "lpi_pilot4i",
+    "lpi_qual",
+    "lpi_reactor",
+    "lpi_refinery",
+    "lpi_vol1",
+    "lpi_woodinfe",
+]
 
 _MATRICES: list[SuiteSparseDataset] = [
     SuiteSparseDataset(name)
@@ -391,6 +539,7 @@ _MATRICES: list[SuiteSparseDataset] = [
         ("VDOL/tumorAntiAngiogenesis_2", 0),
     ]
 ]
+_MATRICES += [SuiteSparseDataset(f"LPnetlib/{name}") for name in _LPNETLIB_PROBLEMS]
 
 _GAP_ROAD_SOURCES: list[int] = [
     4795720,
@@ -801,6 +950,11 @@ class SuiteSparseMatrixGenerator(Generator[SuiteSparseDataset]):
         return _MATRICES
 
     def generate(self, dataset: SuiteSparseDataset) -> DataInstance:
+        if dataset.source_name.startswith("LPnetlib/"):
+            A, rhs, c, lo, hi, meta = load_lpnetlib_problem(dataset.source_name)
+            inputs = [from_scipy(A)]
+            inputs.extend(from_numpy(vector) for vector in (rhs, c, lo, hi))
+            return DataInstance(inputs=inputs, meta=meta)
         A, b, meta = load_suitesparse_matrix(
             dataset.source_name,
             rhs_index=dataset.rhs_index,
@@ -826,7 +980,9 @@ def fetch_suitesparse_matrix(
 
     `.inputs[0]` is the matrix; `.inputs[1]` is its real RHS vector when the
     SuiteSparse collection entry ships one (see `.meta["has_b_file"]`).
-    `.meta["shape"]` and `.meta["nnz"]` give the matrix shape/nnz.
+    `.meta["shape"]` and `.meta["nnz"]` give the matrix shape/nnz. LPnetlib
+    entries always carry `b`, followed by the objective `c` and the bounds `lo`
+    and `hi` as `.inputs[2:5]`, with the objective offset in `.meta["z0"]`.
     """
     raw_generator = SuiteSparseMatrixGenerator()
     raw_dataset = next(
