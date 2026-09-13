@@ -7,6 +7,7 @@ Regenerate from the ONNXPY checkout with:
 from __future__ import annotations
 
 import os
+import tempfile
 from pathlib import Path
 from typing import Any
 from urllib.request import urlretrieve
@@ -15,6 +16,7 @@ import numpy as np
 
 import onnx
 from binsparse.conversions import from_numpy, to_numpy
+from filelock import FileLock
 from onnx import numpy_helper
 from onnx.reference import ReferenceEvaluator
 
@@ -659,6 +661,8 @@ def _references() -> list[Ref]:
             authors=[Author("Jonathan Frankle"), Author("Michael Carbin")],
             conference="ICLR",
             year=2019,
+            url="https://arxiv.org/abs/1803.03635",
+            doi="10.48550/arXiv.1803.03635",
         ),
         Ref(
             title="Deconstructing Lottery Tickets: Zeros, Signs, and the Supermask",
@@ -670,12 +674,28 @@ def _references() -> list[Ref]:
             ],
             conference="NeurIPS",
             year=2019,
+            url="https://arxiv.org/abs/1905.01067",
+            doi="10.48550/arXiv.1905.01067",
+        ),
+        Ref(
+            title="CIFAR Conv-2 Lottery Ticket Hypothesis Experiment",
+            authors=[Author("Ramya Polaki"),
+            publisher="Zenodo",
+            year=2026,
+            url="https://zenodo.org/records/22650920",
+            doi="10.5281/zenodo.22650920",
         ),
     ]
 
 
 def _default_data_dir() -> Path:
-    return Path(__file__).resolve().parents[3] / "data" / "lth"
+    cache_root = Path(
+        os.environ.get(
+            "SAPS_CACHE_DIR",
+            Path(__file__).resolve().parents[3] / ".saps" / "outputs" / "cache",
+        )
+    )
+    return cache_root.expanduser().resolve() / "artifacts" / "lth"
 
 
 def _download_if_missing(url: str, destination: Path) -> None:
@@ -683,24 +703,32 @@ def _download_if_missing(url: str, destination: Path) -> None:
         return
 
     destination.parent.mkdir(parents=True, exist_ok=True)
-    partial = destination.with_name(destination.name + ".part")
+    lock_path = destination.with_name(destination.name + ".lock")
 
-    if partial.exists():
-        partial.unlink()
+    with FileLock(lock_path):
+        if destination.is_file() and destination.stat().st_size > 0:
+            return
 
-    try:
-        urlretrieve(url, partial)
-    except Exception:
-        if partial.exists():
-            partial.unlink()
-        raise
+        partial = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                prefix=f".{destination.name}.",
+                suffix=".part",
+                dir=destination.parent,
+                delete=False,
+            ) as temporary:
+                partial = Path(temporary.name)
 
-    if not partial.is_file() or partial.stat().st_size == 0:
-        if partial.exists():
-            partial.unlink()
-        raise RuntimeError(f"Failed to download LTH model artifact from {url}")
+            urlretrieve(url, partial)
+            if partial.stat().st_size == 0:
+                raise RuntimeError(
+                    f"Downloaded an empty LTH model artifact from {url}"
+                )
 
-    partial.replace(destination)
+            partial.replace(destination)
+        finally:
+            if partial is not None and partial.exists():
+                partial.unlink()
 
 
 def _model_path() -> Path:
@@ -741,7 +769,11 @@ class LTHConv2Dataset(Dataset):
 
     @property
     def description(self) -> str:
-        return "Pruned CIFAR-10 Conv-2 Lottery Ticket model exported to ONNX."
+        return (
+            "Pruned CIFAR-10 Conv-2 model with approximately 87.84% zero-valued "
+            "parameters, archived with its ONNX external data in Zenodo record "
+            "22650920."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -763,7 +795,11 @@ class LTHConv2ONNXPYGenerator(Generator[LTHConv2Dataset]):
 
     @property
     def description(self) -> str:
-        return "Generates a deterministic runtime input for the Conv-2 model."
+        return (
+            "Loads the Conv-2 ONNX artifact from the runner's shared SAPS cache, "
+            "imports its trained parameters and pruning-induced zeros, and "
+            "generates a deterministic runtime input for SAPS execution."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -796,9 +832,10 @@ class LTHConv2ONNXPYGenerator(Generator[LTHConv2Dataset]):
     @property
     def motivation(self) -> str:
         return (
-            "Lottery-ticket pruning produces neural-network parameters containing "
-            "many exact zeros. This benchmark establishes the complete "
-            "ONNX-to-ONNXPY-to-SAPS inference path for correctness and timing."
+            "This generator turns a reproducible lottery-ticket training artifact "
+            "into fixed benchmark inputs. The runner-managed shared cache and "
+            "locked atomic downloads allow concurrent and chunked SAPS runs to "
+            "reuse the same ONNX files safely."
         )
 
     @property
@@ -869,7 +906,19 @@ class LTHConv2ONNXPYBenchmark(Benchmark):
 
     @property
     def description(self) -> str:
-        return "Runs the pruned Conv-2 ONNX graph through ONNXPY-generated Python."
+        return (
+            "Benchmarks inference for a sparse CIFAR-10 Conv-2 network derived "
+            "from the Lottery Ticket Hypothesis workflow. Using OpenLTH's training "
+            "and pruning infrastructure, and motivated by the original LTH and "
+            "Uber AI lottery-ticket studies, the CIFAR Conv-2 architecture was "
+            "trained on CIFAR-10 and subjected to 20 levels of iterative global "
+            "magnitude pruning. The selected checkpoint and pruning mask were "
+            "combined and exported as a dense ONNX model whose zero-valued "
+            "parameters preserve approximately 87.84% sparsity. The model and its "
+            "external tensor data are archived in Zenodo record 22650920. ONNXPY "
+            "translated that fixed graph into array-based Python, which the current "
+            "SAPS runner executes across supported array frameworks."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -902,8 +951,11 @@ class LTHConv2ONNXPYBenchmark(Benchmark):
     @property
     def motivation(self) -> str:
         return (
-            "The ONNX model remains the source of truth and ONNXPY translates "
-            "the complete graph instead of manually reimplementing Conv-2."
+            "This benchmark connects a reproducible lottery-ticket training "
+            "artifact to framework-independent sparse inference measurement. "
+            "The archived ONNX model is the source of truth, ONNXPY preserves "
+            "its graph as array operations, and the SAPS runner supplies framework "
+            "selection, timing, diagnostics, shared caching, and result recording."
         )
 
     @property
