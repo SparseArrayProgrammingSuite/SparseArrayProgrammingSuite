@@ -658,11 +658,13 @@ def _references() -> list[Ref]:
                 "The Lottery Ticket Hypothesis: Finding Sparse, "
                 "Trainable Neural Networks"
             ),
-            authors=[Author("Jonathan Frankle"), Author("Michael Carbin")],
+            authors=[
+                Author("Jonathan Frankle"),
+                Author("Michael Carbin"),
+            ],
             conference="ICLR",
             year=2019,
             url="https://arxiv.org/abs/1803.03635",
-            doi="10.48550/arXiv.1803.03635",
         ),
         Ref(
             title="Deconstructing Lottery Tickets: Zeros, Signs, and the Supermask",
@@ -675,7 +677,6 @@ def _references() -> list[Ref]:
             conference="NeurIPS",
             year=2019,
             url="https://arxiv.org/abs/1905.01067",
-            doi="10.48550/arXiv.1905.01067",
         ),
         Ref(
             title="CIFAR Conv-2 Lottery Ticket Hypothesis Experiment",
@@ -683,7 +684,6 @@ def _references() -> list[Ref]:
             publisher="Zenodo",
             year=2026,
             url="https://zenodo.org/records/22650920",
-            doi="10.5281/zenodo.22650920",
         ),
     ]
 
