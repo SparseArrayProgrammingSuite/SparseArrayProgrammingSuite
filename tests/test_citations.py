@@ -2,16 +2,92 @@ import importlib
 import inspect
 import pkgutil
 import re
+import xml.etree.ElementTree as ET
 from collections import defaultdict
 from typing import cast
 
-import pytest
+import requests
 
 import saps
 import saps.benchmarks
 from saps import Author, Ref
 
 _DOI_RE = re.compile(r"\b10\.\d{4,9}/[-._;()/:A-Z0-9]+", re.IGNORECASE)
+
+# The `arxiv` package's Client queries export.arxiv.org/api/query, whose
+# id_list lookups (unlike common cached search_query lookups) currently hang
+# or 500 rather than responding, and the package's session.get() call omits
+# a timeout so a stall blocks forever (see arxiv/__init__.py:567 in
+# arxiv==4.0.0, unchanged as of the project's current master). arXiv's own
+# docs recommend the OAI-PMH interface for metadata harvesting instead; it
+# hits a different backend (oaipmh.arxiv.org) and has proven reliable where
+# the legacy query API has not, so we use it directly rather than going
+# through the `arxiv` package.
+_OAI_NS = {
+    "oai": "http://www.openarchives.org/OAI/2.0/",
+    "arxiv": "http://arxiv.org/OAI/arXiv/",
+}
+
+# New-style arXiv IDs (post-2007) encode their original submission year and
+# month as YYMM, e.g. "1508.03619" -> 2015-08. This is the v1 submission
+# year, matching what benchmarks cite. The OAI record's created/updated
+# dates are NOT a substitute: they track the latest revision (e.g. for
+# 1508.03619 they reflect a 2017 revision, four years after the 2015 v1).
+_NEW_STYLE_ARXIV_ID_RE = re.compile(r"^(\d{2})(\d{2})\.\d{4,5}$")
+
+
+def _arxiv_submission_year(arxiv_id: str) -> int | None:
+    match = _NEW_STYLE_ARXIV_ID_RE.match(arxiv_id)
+    return 2000 + int(match.group(1)) if match else None
+
+
+def _oai_arxiv_ref(session: requests.Session, arxiv_id: str) -> Ref | None:
+    bare_id = re.sub(r"v\d+$", "", arxiv_id)
+    response = session.get(
+        "https://export.arxiv.org/oai2",
+        params={
+            "verb": "GetRecord",
+            "identifier": f"oai:arXiv.org:{bare_id}",
+            "metadataPrefix": "arXiv",
+        },
+        timeout=10,
+    )
+    response.raise_for_status()
+    root = ET.fromstring(response.content)
+    if root.find("oai:error", _OAI_NS) is not None:
+        return None
+    record = root.find(".//arxiv:arXiv", _OAI_NS)
+    if record is None:
+        return None
+
+    authors = []
+    for author in record.findall("arxiv:authors/arxiv:author", _OAI_NS):
+        name = " ".join(
+            part
+            for part in [
+                author.findtext("arxiv:forenames", namespaces=_OAI_NS),
+                author.findtext("arxiv:keyname", namespaces=_OAI_NS),
+            ]
+            if part
+        )
+        if name:
+            authors.append(Author(name))
+
+    year = _arxiv_submission_year(bare_id)
+    if year is None:
+        created = record.findtext("arxiv:created", default="", namespaces=_OAI_NS)
+        year = int(created[:4]) if created[:4].isdigit() else None
+
+    return Ref(
+        title=(
+            record.findtext("arxiv:title", default="", namespaces=_OAI_NS) or ""
+        ).strip(),
+        authors=authors,
+        journal="Arxiv",
+        volume=f"arXiv:{arxiv_id}",
+        year=year,
+        url=f"https://arxiv.org/abs/{arxiv_id}",
+    )
 
 
 def _clean_reference_token(value: str) -> str:
@@ -109,17 +185,6 @@ def _crossref_ref(message: dict) -> Ref:
     )
 
 
-def _arxiv_ref(result, arxiv_id: str) -> Ref:
-    return Ref(
-        title=result.title,
-        authors=[Author(author.name) for author in result.authors],
-        journal="Arxiv",
-        volume=f"arXiv:{arxiv_id}",
-        year=result.published.year if result.published else None,
-        url=f"https://arxiv.org/abs/{arxiv_id}",
-    )
-
-
 def _ref_constructor(ref: Ref) -> str:
     fields = [
         ("title", ref.title),
@@ -214,13 +279,12 @@ def _references_by_owner() -> dict[str, tuple[Ref, list[str]]]:
 
 
 def test_citations_match_crossref_or_arxiv():
-    arxiv = pytest.importorskip("arxiv")
     from habanero import Crossref
     from habanero.exceptions import RequestError
     from httpx2 import HTTPStatusError
 
     crossref_client = Crossref(mailto="ahrens@gatech.edu", timeout=10)
-    arxiv_client = arxiv.Client(page_size=1, delay_seconds=0, num_retries=2)
+    arxiv_session = requests.Session()
     failures = []
 
     for ref, owners in _references_by_owner().values():
@@ -231,22 +295,16 @@ def test_citations_match_crossref_or_arxiv():
             if doi:
                 expected = _crossref_ref(crossref_client.works(ids=doi)["message"])
             elif arxiv_id:
-                result = next(
-                    arxiv_client.results(
-                        arxiv.Search(id_list=[arxiv_id], max_results=1)
-                    ),
-                    None,
-                )
-                if result is None:
+                expected = _oai_arxiv_ref(arxiv_session, arxiv_id)
+                if expected is None:
                     continue
-                expected = _arxiv_ref(result, arxiv_id)
             else:
                 continue
         except (
             HTTPStatusError,
             RequestError,
-            arxiv.ArxivError,
-            arxiv.HTTPError,
+            requests.exceptions.RequestException,
+            ET.ParseError,
         ) as exc:
             failures.append(f"Could not fetch {ref}\nowners={owners}\n{exc}")
             continue
