@@ -13,6 +13,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.snap import fetch_snap_graph
 from saps.benchmarks.suitesparse import (
     _GAP_KRON_SOURCES,
     _GAP_ROAD_SOURCES,
@@ -21,7 +22,6 @@ from saps.benchmarks.suitesparse import (
     _GAP_WEB_SOURCES,
     fetch_suitesparse_matrix,
 )
-from saps.downloaders.snap import download_snap_dataset
 
 
 class BellmanFordDataset(Dataset):
@@ -345,6 +345,10 @@ class BellmanFordTestGenerator(Generator[BellmanFordDataset]):
 
 class BellmanFordGenerator(Generator[BellmanFordDataset]):
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def name(self) -> str:
         return "bellman_ford_inputs"
 
@@ -440,8 +444,10 @@ class BellmanFordGenerator(Generator[BellmanFordDataset]):
 
     def generate(self, dataset: BellmanFordDataset) -> DataInstance:
         if dataset.name.startswith("snap"):
-            data, meta = download_snap_dataset(dataset.name)
-            return DataInstance(inputs=[_adjacency_to_distance(data[0])], meta=meta)
+            raw = fetch_snap_graph(dataset.name)
+            return DataInstance(
+                inputs=[_adjacency_to_distance(raw.inputs[0])], meta=raw.meta
+            )
         raise ValueError(f"Unsupported Bellman-Ford dataset: {dataset.name}")
 
 

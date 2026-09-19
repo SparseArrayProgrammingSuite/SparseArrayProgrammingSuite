@@ -13,6 +13,8 @@ import numpy as np
 
 import pandas as pd
 
+from saps.downloaders.cache import download_lock, source_cache_dir
+
 _BASE_URL = "https://s3.us-east-2.amazonaws.com/frostt/frostt_data"
 
 _RHS_DTYPES = {
@@ -48,8 +50,7 @@ _RHS_DTYPES = {
 
 
 def _default_data_dir() -> Path:
-    # src/saps/downloaders/frostt.py -> parents[3] = repo root
-    return Path(__file__).resolve().parents[3] / "data" / "frostt"
+    return source_cache_dir("frostt")
 
 
 def download_frostt_tensor(
@@ -60,9 +61,8 @@ def download_frostt_tensor(
     *path* is the tensor's location under FROSTT's main S3 bucket, e.g.
     ``"matrix-multiplication/matmul_3-3-3.tns.gz"`` or
     ``"chicago-crime/comm/chicago-crime-comm.tns.gz"``, and also determines
-    where the file is cached under ``data/frostt/`` (like the
-    SuiteSparse/SNAP/G-CARE downloaders cache under ``data/suitesparse``,
-    ``data/snap``, ``data/gcare``) unless *data_dir* overrides the location.
+    where the file is cached under ``$SAPS_CACHE_DIR/frostt/`` unless
+    *data_dir* overrides the location.
 
     A few tensors (fb-m, darpa, lanl2) live in a different bucket entirely;
     for those, pass the full download *url* and *path* is only used for local
@@ -70,19 +70,20 @@ def download_frostt_tensor(
     """
     root = Path(data_dir) if data_dir is not None else _default_data_dir()
     dest_path = root / path
-    if dest_path.exists():
-        return dest_path
+    with download_lock(dest_path):
+        if dest_path.exists():
+            return dest_path
 
-    dest_path.parent.mkdir(parents=True, exist_ok=True)
-    download_url = url if url is not None else f"{_BASE_URL}/{path}"
-    tmp_path = dest_path.with_name(dest_path.name + ".tmp")
-    try:
-        urllib.request.urlretrieve(download_url, tmp_path)  # noqa: S310
-        tmp_path.replace(dest_path)
-    except Exception:
-        tmp_path.unlink(missing_ok=True)
-        raise
-    return dest_path
+        dest_path.parent.mkdir(parents=True, exist_ok=True)
+        download_url = url if url is not None else f"{_BASE_URL}/{path}"
+        tmp_path = dest_path.with_name(dest_path.name + ".tmp")
+        try:
+            urllib.request.urlretrieve(download_url, tmp_path)  # noqa: S310
+            tmp_path.replace(dest_path)
+        except Exception:
+            tmp_path.unlink(missing_ok=True)
+            raise
+        return dest_path
 
 
 def _extract_tns_source(path: Path) -> Path | io.BytesIO:

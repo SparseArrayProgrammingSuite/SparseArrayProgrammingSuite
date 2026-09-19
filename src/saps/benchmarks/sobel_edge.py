@@ -317,10 +317,11 @@ class MRISobelGenerator(Generator[MRISobelDataset]):
 
     def generate(self, dataset: MRISobelDataset) -> DataInstance:
         if dataset.image is None:
-            import kagglehub
             from PIL import Image
 
-            path = kagglehub.dataset_download(
+            from saps.downloaders.kaggle import download_kaggle_dataset
+
+            path = download_kaggle_dataset(
                 "navoneel/brain-mri-images-for-brain-tumor-detection"
             )
             img_path = os.path.join(path, dataset.category, dataset.filename)

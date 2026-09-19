@@ -20,13 +20,13 @@ def test_all_four_clique_sources_are_loadable(monkeypatch, generator):
 
     def load_snap(name):
         calls.append(("snap", name))
-        return [adjacency], metadata
+        return DataInstance(inputs=[adjacency], meta=metadata)
 
     def load_gap(name):
         calls.append(("gap", name))
         return DataInstance(inputs=[adjacency, extra_input], meta=metadata)
 
-    monkeypatch.setattr(four, "download_snap_dataset", load_snap)
+    monkeypatch.setattr(four, "fetch_snap_graph", load_snap)
     monkeypatch.setattr(four, "fetch_suitesparse_matrix", load_gap)
     source = (
         "gap" if isinstance(generator, four.FourCliqueCountGAPGenerator) else "snap"

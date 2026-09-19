@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -11,7 +10,7 @@ import numpy as np
 
 from filelock import FileLock
 
-from saps.storage import DEFAULT_CACHE_DIR
+from saps.downloaders.cache import source_cache_dir
 
 
 def download_suitesparse_matrix(
@@ -26,11 +25,7 @@ def download_suitesparse_matrix(
     import ssgetpy
 
     matrix = _find_suitesparse_matrix(ssgetpy, source_name)
-    root = (
-        Path(data_dir)
-        if data_dir is not None
-        else Path(os.environ.get("SAPS_CACHE_DIR") or DEFAULT_CACHE_DIR) / "suitesparse"
-    )
+    root = Path(data_dir) if data_dir is not None else source_cache_dir("suitesparse")
     parent = root / matrix.group
     parent.mkdir(parents=True, exist_ok=True)
     matrix_dir = parent / matrix.name

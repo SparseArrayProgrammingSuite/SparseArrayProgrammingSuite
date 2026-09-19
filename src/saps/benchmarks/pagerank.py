@@ -12,8 +12,8 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.snap import fetch_snap_graph
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
-from saps.downloaders.snap import download_snap_dataset
 
 
 class PageRankDataset(Dataset):
@@ -195,6 +195,10 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
 
 class PageRankGenerator(Generator[PageRankDataset]):
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def name(self) -> str:
         return "pagerank_inputs"
 
@@ -267,8 +271,7 @@ class PageRankGenerator(Generator[PageRankDataset]):
 
     def generate(self, dataset: PageRankDataset) -> DataInstance:
         if dataset.name.startswith("snap"):
-            inputs, meta = download_snap_dataset(dataset.name)
-            return DataInstance(inputs=inputs, meta=meta)
+            return fetch_snap_graph(dataset.name)
         raise ValueError(f"Unsupported PageRank dataset: {dataset.name}")
 
 

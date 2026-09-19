@@ -29,6 +29,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.downloaders.cache import source_cache_dir
 
 _MODEL_ENV = "LTH_CONV2_ONNX"
 _MODEL_FILE_NAME = "conv2_pruned_dense.onnx"
@@ -691,13 +692,7 @@ def _references() -> list[Ref]:
 
 
 def _default_data_dir() -> Path:
-    cache_root = Path(
-        os.environ.get(
-            "SAPS_CACHE_DIR",
-            Path(__file__).resolve().parents[3] / ".saps" / "outputs" / "cache",
-        )
-    )
-    return cache_root.expanduser().resolve() / "artifacts" / "lth"
+    return source_cache_dir("artifacts/lth").resolve()
 
 
 def _download_if_missing(url: str, destination: Path) -> None:

@@ -12,8 +12,8 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.snap import fetch_snap_graph
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
-from saps.downloaders.snap import download_snap_dataset
 
 
 class GraphCountingDataset(Dataset):
@@ -169,6 +169,10 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
 
 class TriangleCountGenerator(Generator[GraphCountingDataset]):
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def name(self) -> str:
         return "triangle_count_inputs"
 
@@ -247,8 +251,7 @@ class TriangleCountGenerator(Generator[GraphCountingDataset]):
 
     def generate(self, dataset: GraphCountingDataset) -> DataInstance:
         if dataset.name.startswith("snap"):
-            inputs, meta = download_snap_dataset(dataset.name)
-            return DataInstance(inputs=inputs, meta=meta)
+            return fetch_snap_graph(dataset.name)
         raise ValueError(f"Unsupported triangle count dataset: {dataset.name}")
 
 

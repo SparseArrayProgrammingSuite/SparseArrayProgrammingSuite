@@ -12,6 +12,8 @@ import numpy as np
 from binsparse import BinsparseTensor, COORMatrix
 from binsparse.conversions import from_numpy
 
+from saps.downloaders.cache import download_lock, source_cache_dir
+
 SNAP_DATA_BASE_URL = "https://snap.stanford.edu/data"
 
 
@@ -57,13 +59,14 @@ def load_toy_dataset(
     gz_path = dataset_dir / "toy.txt.gz"
     txt_path = dataset_dir / "toy.txt"
 
-    if not txt_path.exists():
-        if not gz_path.exists():
-            with gzip.open(gz_path, "wt", encoding="utf-8") as file:
-                file.write("# SNAP edge list\n10 20\n20 40\n")
+    with download_lock(txt_path):
+        if not txt_path.exists():
+            if not gz_path.exists():
+                with gzip.open(gz_path, "wt", encoding="utf-8") as file:
+                    file.write("# SNAP edge list\n10 20\n20 40\n")
 
-        with gzip.open(gz_path, "rb") as source, txt_path.open("wb") as target:
-            shutil.copyfileobj(source, target)
+            with gzip.open(gz_path, "rb") as source, txt_path.open("wb") as target:
+                shutil.copyfileobj(source, target)
 
     edge_list_path = txt_path
     adjacency, raw_node_ids, meta = parse_snap_edge_list(
@@ -134,7 +137,7 @@ def parse_snap_edge_list(
 
 
 def _default_data_dir() -> Path:
-    return Path(__file__).resolve().parents[3] / "data" / "snap"
+    return source_cache_dir("snap")
 
 
 def _snap_slug(dataset_name: str) -> str:
@@ -153,21 +156,27 @@ def _ensure_downloaded(slug: str, dataset_dir: Path) -> Path:
     gz_path = dataset_dir / f"{slug}.txt.gz"
     txt_path = dataset_dir / f"{slug}.txt"
 
-    if txt_path.exists():
-        return txt_path
-    if not gz_path.exists():
-        url = f"{SNAP_DATA_BASE_URL}/{slug}.txt.gz"
-        tmp_path = gz_path.with_suffix(gz_path.suffix + ".tmp")
-        try:
-            urllib.request.urlretrieve(url, tmp_path)
-            tmp_path.replace(gz_path)
-        except Exception:
-            tmp_path.unlink(missing_ok=True)
-            raise
+    with download_lock(txt_path):
+        if txt_path.exists():
+            return txt_path
+        if not gz_path.exists():
+            url = f"{SNAP_DATA_BASE_URL}/{slug}.txt.gz"
+            tmp_path = gz_path.with_suffix(gz_path.suffix + ".tmp")
+            try:
+                urllib.request.urlretrieve(url, tmp_path)
+                tmp_path.replace(gz_path)
+            except Exception:
+                tmp_path.unlink(missing_ok=True)
+                raise
 
-    with gzip.open(gz_path, "rb") as source, txt_path.open("wb") as target:
-        shutil.copyfileobj(source, target)
-    return txt_path
+        tmp_path = txt_path.with_name(txt_path.name + ".tmp")
+        try:
+            with gzip.open(gz_path, "rb") as source, tmp_path.open("wb") as target:
+                shutil.copyfileobj(source, target)
+            tmp_path.replace(txt_path)
+        finally:
+            tmp_path.unlink(missing_ok=True)
+        return txt_path
 
 
 def _read_edges(path: Path) -> list[tuple[int, int]]:

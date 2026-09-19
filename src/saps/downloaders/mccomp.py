@@ -6,6 +6,8 @@ import re
 import urllib.request
 from pathlib import Path
 
+from saps.downloaders.cache import download_lock, source_cache_dir
+
 MCCOMP_REPOSITORY_URL = "https://github.com/arijitsh/mccomp-test-instances"
 MCCOMP_RAW_BASE_URL = (
     "https://raw.githubusercontent.com/arijitsh/mccomp-test-instances/main"
@@ -130,21 +132,22 @@ def normalize_mccomp_source_path(source_name: str) -> str:
 
 
 def _default_data_dir() -> Path:
-    return Path(__file__).resolve().parents[3] / "data" / "mccomp"
+    return source_cache_dir("mccomp")
 
 
 def _ensure_downloaded(source_path: str, data_dir: str | Path | None) -> Path:
     root = Path(data_dir) if data_dir is not None else _default_data_dir()
     dest_path = root / source_path
-    if dest_path.exists():
-        return dest_path
+    with download_lock(dest_path):
+        if dest_path.exists():
+            return dest_path
 
-    dest_path.parent.mkdir(parents=True, exist_ok=True)
-    tmp_path = dest_path.with_name(dest_path.name + ".tmp")
-    try:
-        urllib.request.urlretrieve(mccomp_raw_url(source_path), tmp_path)  # noqa: S310
-        tmp_path.replace(dest_path)
-    except Exception:
-        tmp_path.unlink(missing_ok=True)
-        raise
-    return dest_path
+        dest_path.parent.mkdir(parents=True, exist_ok=True)
+        tmp_path = dest_path.with_name(dest_path.name + ".tmp")
+        try:
+            urllib.request.urlretrieve(mccomp_raw_url(source_path), tmp_path)  # noqa: S310
+            tmp_path.replace(dest_path)
+        except Exception:
+            tmp_path.unlink(missing_ok=True)
+            raise
+        return dest_path

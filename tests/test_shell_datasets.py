@@ -8,6 +8,7 @@ from saps.benchmarks.frostt import fetch_frostt_tensor
 from saps.benchmarks.model_counting import fetch_mccomp_instance
 from saps.benchmarks.ogb import fetch_ogb_nodeprop_dataset
 from saps.benchmarks.openml import fetch_openml_dataset
+from saps.benchmarks.snap import fetch_snap_graph
 from saps.benchmarks.subgraph_matching import GCareHumanGenerator
 from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
@@ -21,6 +22,7 @@ from saps.metadata import _benchmark_instances
 @pytest.mark.parametrize(
     "fetch",
     [
+        fetch_snap_graph,
         fetch_frostt_tensor,
         fetch_mccomp_instance,
         fetch_ogb_nodeprop_dataset,

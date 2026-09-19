@@ -12,6 +12,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.snap import fetch_snap_graph
 from saps.benchmarks.suitesparse import (
     _GAP_KRON_SOURCES,
     _GAP_ROAD_SOURCES,
@@ -20,7 +21,6 @@ from saps.benchmarks.suitesparse import (
     _GAP_WEB_SOURCES,
     fetch_suitesparse_matrix,
 )
-from saps.downloaders.snap import download_snap_dataset
 from saps_framework.binsparse_utils import binsparse_equal
 
 
@@ -208,6 +208,10 @@ class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
 
 class BreadthFirstSearchGenerator(Generator[BreadthFirstSearchDataset]):
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def name(self) -> str:
         return "bfs_inputs"
 
@@ -289,8 +293,7 @@ class BreadthFirstSearchGenerator(Generator[BreadthFirstSearchDataset]):
 
     def generate(self, dataset: BreadthFirstSearchDataset) -> DataInstance:
         if dataset.name.startswith("snap"):
-            inputs, meta = download_snap_dataset(dataset.name)
-            return DataInstance(inputs=inputs, meta=meta)
+            return fetch_snap_graph(dataset.name)
         raise ValueError(f"Unsupported BFS dataset: {dataset.name}")
 
 

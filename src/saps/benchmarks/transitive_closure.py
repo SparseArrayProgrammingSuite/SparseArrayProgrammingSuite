@@ -12,8 +12,8 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.snap import fetch_snap_graph
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
-from saps.downloaders.snap import download_snap_dataset
 from saps_framework.binsparse_utils import binsparse_equal
 
 
@@ -178,6 +178,10 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
 
 class TransitiveClosureGenerator(Generator[TransitiveClosureDataset]):
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def name(self) -> str:
         return "transitive_closure_inputs"
 
@@ -241,8 +245,7 @@ class TransitiveClosureGenerator(Generator[TransitiveClosureDataset]):
 
     def generate(self, dataset: TransitiveClosureDataset) -> DataInstance:
         if dataset.name.startswith("snap"):
-            inputs, meta = download_snap_dataset(dataset.name)
-            return DataInstance(inputs=inputs, meta=meta)
+            return fetch_snap_graph(dataset.name)
         raise ValueError(f"Unsupported transitive closure dataset: {dataset.name}")
 
 

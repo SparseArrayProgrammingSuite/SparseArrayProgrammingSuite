@@ -144,6 +144,32 @@ SuiteSparse source downloads used during cache preparation also share this cache
 under `suitesparse/<group>/<name>`. A lock and atomic publication let workers reuse
 one completed source download across its RHS selections.
 
+SNAP graphs are prepared by `snap_graph_shell` and stored once under
+`snap_graph/<dataset>/<digest>.bsp.h5`. BFS, Bellman-Ford, centrality, connected
+components, FastSV, PageRank, transitive closure, triangle counting, and four-clique
+counting reuse those graphs. The shell stores the directed adjacency and original
+node IDs; Bellman-Ford derives its sparse distance representation during setup.
+The source text/archive cache remains under `snap/`.
+
+Prepare the SNAP shell before running these consumers:
+
+```bash
+poetry run ./bin/run_benchmark.py --cache-datasets --re '^snap_graph$'
+```
+
+The shell's eight source datasets are explicitly listed in
+`src/saps/benchmarks/snap.py`. Add any new source to that inventory before using it
+in another benchmark, then regenerate metadata and prepare the shell cache.
+
+All source downloaders honor `SAPS_CACHE_DIR` (default `.saps/outputs/cache`)
+and lock the cache check, download, and extraction so concurrent jobs reuse
+completed files. Source subdirectories are `suitesparse`, `snap`, `frostt`,
+`gcare`, `nemo`, `ewap`, `slicot`, `mccomp`, `ogb`, and `kaggle`; LTH model files
+use `artifacts/lth`. An explicit downloader `data_dir` takes precedence.
+These source caches persist independently of job-local environments and `$TMPDIR`.
+G-CARE records completed extraction so later loads reuse the extracted files.
+
+
 Each finishing task refreshes the combined files with the results saved so far.
 To rebuild the highest-numbered Slurm run, run from the repository root:
 
