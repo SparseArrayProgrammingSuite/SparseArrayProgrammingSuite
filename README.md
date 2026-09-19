@@ -146,7 +146,7 @@ one completed source download across its RHS selections.
 
 SNAP graphs are prepared by `snap_graph_shell` and stored once under
 `snap_graph/<dataset>/<digest>.bsp.h5`. BFS, Bellman-Ford, centrality, connected
-components, FastSV, PageRank, transitive closure, triangle counting, and four-clique
+components, FastSV, PageRank, transitive closure/reduction, triangle counting, and four-clique
 counting reuse those graphs. The shell stores the directed adjacency and original
 node IDs; Bellman-Ford derives its sparse distance representation during setup.
 The source text/archive cache remains under `snap/`.

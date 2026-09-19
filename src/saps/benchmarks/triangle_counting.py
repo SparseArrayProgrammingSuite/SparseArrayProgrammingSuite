@@ -167,22 +167,22 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
         )
 
 
-class TriangleCountGenerator(Generator[GraphCountingDataset]):
+class TriangleCountSNAPGenerator(Generator[GraphCountingDataset]):
     @property
     def cacheable(self) -> bool:
         return False
 
     @property
     def name(self) -> str:
-        return "triangle_count_inputs"
+        return "triangle_count_snap_inputs"
 
     @property
     def pretty_name(self) -> str:
-        return "Triangle Count Input Generator"
+        return "Triangle Count SNAP Input Generator"
 
     @property
     def description(self) -> str:
-        return "Input generator for triangle counting benchmarks."
+        return "SNAP input generator for triangle counting benchmarks."
 
     @property
     def suites(self) -> list[str]:
@@ -488,7 +488,7 @@ class TriangleCountBenchmark(Benchmark):
     def generators(self) -> list[Generator[GraphCountingDataset]]:
         return [
             TriangleCountTestGenerator(),
-            TriangleCountGenerator(),
+            TriangleCountSNAPGenerator(),
             TriangleCountGAPGenerator(),
         ]
 

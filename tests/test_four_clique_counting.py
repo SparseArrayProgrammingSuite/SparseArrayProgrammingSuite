@@ -10,7 +10,8 @@ from saps.benchmarks import four_clique_counting as four
 
 
 @pytest.mark.parametrize(
-    "generator", [four.FourCliqueCountGenerator(), four.FourCliqueCountGAPGenerator()]
+    "generator",
+    [four.FourCliqueCountSNAPGenerator(), four.FourCliqueCountGAPGenerator()],
 )
 def test_all_four_clique_sources_are_loadable(monkeypatch, generator):
     adjacency = from_scipy(sparse.coo_matrix(np.ones((4, 4)) - np.eye(4)))
@@ -47,7 +48,9 @@ def test_standard_four_clique_parameters_include_snap_and_gap():
     ]
     assert len(parameters) == 7
     snap = [
-        p for p in parameters if isinstance(p.generator, four.FourCliqueCountGenerator)
+        p
+        for p in parameters
+        if isinstance(p.generator, four.FourCliqueCountSNAPGenerator)
     ]
     assert {p.dataset.name for p in snap} == {
         "snap-email-Eu-core-temporal-Dept3",

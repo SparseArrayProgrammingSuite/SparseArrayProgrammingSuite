@@ -166,22 +166,22 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
         )
 
 
-class ConnectedComponentsGenerator(Generator[ConnectedComponentsDataset]):
+class ConnectedComponentsSNAPGenerator(Generator[ConnectedComponentsDataset]):
     @property
     def cacheable(self) -> bool:
         return False
 
     @property
     def name(self) -> str:
-        return "connected_components_inputs"
+        return "connected_components_snap_inputs"
 
     @property
     def pretty_name(self) -> str:
-        return "Connected Components Input Generator"
+        return "Connected Components SNAP Input Generator"
 
     @property
     def description(self) -> str:
-        return "Input generator for connected components benchmarks."
+        return "SNAP input generator for connected components benchmarks."
 
     @property
     def suites(self) -> list[str]:
@@ -463,7 +463,7 @@ class SimplyConnectedComponentsBenchmark(Benchmark):
     def generators(self) -> list[Generator[ConnectedComponentsDataset]]:
         return [
             ConnectedComponentsTestGenerator(),
-            ConnectedComponentsGenerator(),
+            ConnectedComponentsSNAPGenerator(),
             ConnectedComponentsGAPGenerator(),
         ]
 

@@ -168,22 +168,22 @@ class FourCliqueCountTestGenerator(Generator[GraphCountingDataset]):
         )
 
 
-class FourCliqueCountGenerator(Generator[GraphCountingDataset]):
+class FourCliqueCountSNAPGenerator(Generator[GraphCountingDataset]):
     @property
     def cacheable(self) -> bool:
         return False
 
     @property
     def name(self) -> str:
-        return "four_clique_count_inputs"
+        return "four_clique_count_snap_inputs"
 
     @property
     def pretty_name(self) -> str:
-        return "4-Clique Count Input Generator"
+        return "4-Clique Count SNAP Input Generator"
 
     @property
     def description(self) -> str:
-        return "Input generator for 4-clique counting benchmarks."
+        return "SNAP input generator for 4-clique counting benchmarks."
 
     @property
     def suites(self) -> list[str]:
@@ -492,7 +492,7 @@ class FourCliqueCountBenchmark(Benchmark):
     def generators(self) -> list[Generator[GraphCountingDataset]]:
         return [
             FourCliqueCountTestGenerator(),
-            FourCliqueCountGenerator(),
+            FourCliqueCountSNAPGenerator(),
             FourCliqueCountGAPGenerator(),
         ]
 

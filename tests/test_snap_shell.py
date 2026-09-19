@@ -19,15 +19,16 @@ from saps.metadata import _benchmark_instances
 from saps.storage import LocalStorageBackend
 
 _CONSUMERS = [
-    ("BFS", "BreadthFirstSearchGenerator"),
-    ("bellmanford", "BellmanFordGenerator"),
-    ("centrality", "BetweennessCentralityGenerator"),
-    ("connected_components", "ConnectedComponentsGenerator"),
-    ("fastsv", "FastSVGenerator"),
-    ("four_clique_counting", "FourCliqueCountGenerator"),
-    ("pagerank", "PageRankGenerator"),
-    ("transitive_closure", "TransitiveClosureGenerator"),
-    ("triangle_counting", "TriangleCountGenerator"),
+    ("BFS", "BreadthFirstSearchSNAPGenerator"),
+    ("bellmanford", "BellmanFordSNAPGenerator"),
+    ("centrality", "BetweennessCentralitySNAPGenerator"),
+    ("connected_components", "ConnectedComponentsSNAPGenerator"),
+    ("fastsv", "FastSVSNAPGenerator"),
+    ("four_clique_counting", "FourCliqueCountSNAPGenerator"),
+    ("pagerank", "PageRankSNAPGenerator"),
+    ("transitive_closure", "TransitiveClosureSNAPGenerator"),
+    ("triangle_counting", "TriangleCountSNAPGenerator"),
+    ("transitive_reduction", "TransitiveReductionSNAPGenerator"),
 ]
 
 
@@ -87,6 +88,12 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
         np.testing.assert_array_equal(to_sparse(problem.inputs[0]).todense(), expected)
         assert problem.inputs[0].fill_value == np.inf
         assert problem.inputs[0].number_of_stored_values == 5
+    elif module_name == "transitive_reduction":
+        expected = np.array(
+            [[np.inf, 1, np.inf], [np.inf, np.inf, 1], [np.inf, np.inf, np.inf]]
+        )
+        np.testing.assert_array_equal(to_sparse(problem.inputs[0]).todense(), expected)
+        assert problem.inputs[0].number_of_stored_values == 2
     else:
         np.testing.assert_array_equal(
             to_scipy(problem.inputs[0]).toarray(), [[0, 1, 0], [0, 0, 1], [0, 0, 1]]
@@ -100,3 +107,44 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
     forbidden.assert_not_called()
     assert backend.manifest_path.read_bytes() == manifest
     assert len(list(backend.cache_dir.rglob("*.bsp.h5"))) == 1
+
+
+def test_each_gap_graph_problem_has_an_explicit_snap_generator():
+    problems = []
+    for benchmark in _benchmark_instances():
+        generators = benchmark.generators
+        if not any(type(g).__name__.endswith("GAPGenerator") for g in generators):
+            continue
+        problems.append(benchmark.name)
+        snap = [g for g in generators if type(g).__name__.endswith("SNAPGenerator")]
+        assert len(snap) == 1, benchmark.name
+        assert "SNAP" in snap[0].pretty_name
+        assert snap[0].name.endswith("_snap_inputs")
+        assert not snap[0].cacheable
+    assert len(problems) == 10
+
+
+def test_snap_transitive_reduction_removes_redundant_edge(monkeypatch):
+    from scipy.sparse import coo_array
+
+    from binsparse.conversions import from_scipy
+
+    from frameworks.saps_numpy import NumpyFramework
+    from saps.benchmark import DataInstance
+    from saps.benchmarks import transitive_reduction as reduction
+
+    adjacency = from_scipy(coo_array([[0, 1, 1], [0, 0, 1], [0, 0, 0]]))
+    raw = DataInstance(inputs=[adjacency], meta={})
+    monkeypatch.setattr(reduction, "fetch_snap_graph", lambda _: raw)
+    generator = reduction.TransitiveReductionSNAPGenerator()
+    problem = generator.generate(generator.datasets[0])
+    xp = NumpyFramework()
+    actual = reduction.TransitiveReductionBenchmark().benchmark(
+        xp, [xp.from_binsparse(problem.inputs[0])], problem.meta
+    )[0]
+    np.testing.assert_array_equal(
+        actual, [[np.inf, 1, np.inf], [np.inf, np.inf, 1], [np.inf, np.inf, np.inf]]
+    )
+    np.testing.assert_array_equal(
+        to_scipy(adjacency).toarray(), [[0, 1, 1], [0, 0, 1], [0, 0, 0]]
+    )

@@ -176,22 +176,22 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
         )
 
 
-class TransitiveClosureGenerator(Generator[TransitiveClosureDataset]):
+class TransitiveClosureSNAPGenerator(Generator[TransitiveClosureDataset]):
     @property
     def cacheable(self) -> bool:
         return False
 
     @property
     def name(self) -> str:
-        return "transitive_closure_inputs"
+        return "transitive_closure_snap_inputs"
 
     @property
     def pretty_name(self) -> str:
-        return "Transitive Closure Input Generator"
+        return "Transitive Closure SNAP Input Generator"
 
     @property
     def description(self) -> str:
-        return "Input generator for transitive closure benchmarks."
+        return "SNAP input generator for transitive closure benchmarks."
 
     @property
     def suites(self) -> list[str]:
@@ -449,7 +449,7 @@ class TransitiveClosureBenchmark(Benchmark):
     @property
     def generators(self) -> list[Generator[TransitiveClosureDataset]]:
         return [
-            TransitiveClosureGenerator(),
+            TransitiveClosureSNAPGenerator(),
             TransitiveClosureTestGenerator(),
             TransitiveClosureGAPGenerator(),
         ]

@@ -343,22 +343,22 @@ class BellmanFordTestGenerator(Generator[BellmanFordDataset]):
         )
 
 
-class BellmanFordGenerator(Generator[BellmanFordDataset]):
+class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
     @property
     def cacheable(self) -> bool:
         return False
 
     @property
     def name(self) -> str:
-        return "bellman_ford_inputs"
+        return "bellman_ford_snap_inputs"
 
     @property
     def pretty_name(self) -> str:
-        return "Bellman-Ford Input Generator"
+        return "Bellman-Ford SNAP Input Generator"
 
     @property
     def description(self) -> str:
-        return "Input generator for Bellman-Ford shortest-path benchmarks."
+        return "SNAP input generator for Bellman-Ford shortest-path benchmarks."
 
     @property
     def suites(self) -> list[str]:
@@ -709,7 +709,7 @@ class BellmanFordBenchmark(Benchmark):
     def generators(self):
         return [
             BellmanFordTestGenerator(),
-            BellmanFordGenerator(),
+            BellmanFordSNAPGenerator(),
             BellmanFordGAPGenerator(),
         ]
 

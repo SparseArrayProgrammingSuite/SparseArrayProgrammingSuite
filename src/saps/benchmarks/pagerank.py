@@ -193,22 +193,22 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
         )
 
 
-class PageRankGenerator(Generator[PageRankDataset]):
+class PageRankSNAPGenerator(Generator[PageRankDataset]):
     @property
     def cacheable(self) -> bool:
         return False
 
     @property
     def name(self) -> str:
-        return "pagerank_inputs"
+        return "pagerank_snap_inputs"
 
     @property
     def pretty_name(self) -> str:
-        return "PageRank Input Generator"
+        return "PageRank SNAP Input Generator"
 
     @property
     def description(self) -> str:
-        return "Input generator for PageRank benchmarks."
+        return "SNAP input generator for PageRank benchmarks."
 
     @property
     def suites(self) -> list[str]:
@@ -493,7 +493,11 @@ class PageRankBenchmark(Benchmark):
 
     @property
     def generators(self) -> list[Generator[PageRankDataset]]:
-        return [PageRankTestGenerator(), PageRankGenerator(), PageRankGAPGenerator()]
+        return [
+            PageRankTestGenerator(),
+            PageRankSNAPGenerator(),
+            PageRankGAPGenerator(),
+        ]
 
     def benchmark(self, xp, data, meta):
         alpha = meta.get("alpha", 0.85)

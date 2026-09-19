@@ -1,6 +1,7 @@
 import numpy as np
 
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse import COORMatrix
+from binsparse.conversions import from_numpy, to_numpy, to_scipy
 
 from saps.benchmark import (
     Author,
@@ -11,6 +12,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.snap import fetch_snap_graph
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 
 
@@ -137,6 +139,93 @@ class TransitiveReductionTestGenerator(Generator[TransitiveReductionDataset]):
             meta={"x": 1, "max_iters": 5},
             ref_outputs=[from_numpy(expected)],
         )
+
+
+class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def name(self) -> str:
+        return "transitive_reduction_snap_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Transitive Reduction SNAP Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "SNAP input generator for transitive reduction benchmarks."
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Generate sparse directed graph inputs for transitive reduction."
+
+    @property
+    def datasets(self) -> list[TransitiveReductionDataset]:
+        return [
+            TransitiveReductionDataset(
+                name="snap-email-Eu-core",
+                pretty_name="SNAP email-Eu-core",
+                description=(
+                    "Directed email communication network from a European research"
+                    " institution, with 1,005 nodes and 25,571 edges."
+                ),
+                suites=[],
+            ),
+            TransitiveReductionDataset(
+                name="snap-ca-GrQc",
+                pretty_name="SNAP ca-GrQc",
+                description=(
+                    "Arxiv General Relativity and Quantum Cosmology collaboration"
+                    " network, with 5,242 nodes and 14,496 edges."
+                ),
+                suites=[],
+            ),
+        ]
+
+    def generate(self, dataset: TransitiveReductionDataset) -> DataInstance:
+        if dataset.name.startswith("snap"):
+            raw = fetch_snap_graph(dataset.name)
+            edges = to_scipy(raw.inputs[0]).tocoo(copy=True)
+            edges.sum_duplicates()
+            keep = (edges.row != edges.col) & (edges.data != 0)
+            values = np.ones(np.count_nonzero(keep), dtype=float)
+            distances = COORMatrix(
+                edges.shape,
+                values.size,
+                fill=True,
+                fill_value=np.inf,
+                indices_0=edges.row[keep],
+                indices_1=edges.col[keep],
+                values=values,
+            )
+            return DataInstance(inputs=[distances], meta=dict(raw.meta))
+        raise ValueError(f"Unsupported transitive reduction dataset: {dataset.name}")
 
 
 class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
@@ -350,7 +439,11 @@ class TransitiveReductionBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [TransitiveReductionTestGenerator(), TransitiveReductionGAPGenerator()]
+        return [
+            TransitiveReductionTestGenerator(),
+            TransitiveReductionSNAPGenerator(),
+            TransitiveReductionGAPGenerator(),
+        ]
 
     def benchmark(self, xp, data, meta):
         R = data[0]

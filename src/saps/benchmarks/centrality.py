@@ -239,22 +239,22 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
         )
 
 
-class BetweennessCentralityGenerator(Generator[BetweennessCentralityDataset]):
+class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralityDataset]):
     @property
     def cacheable(self) -> bool:
         return False
 
     @property
     def name(self) -> str:
-        return "betweenness_centrality_inputs"
+        return "betweenness_centrality_snap_inputs"
 
     @property
     def pretty_name(self) -> str:
-        return "Betweenness Centrality Input Generator"
+        return "Betweenness Centrality SNAP Input Generator"
 
     @property
     def description(self) -> str:
-        return "Input generator for betweenness centrality benchmarks."
+        return "SNAP input generator for betweenness centrality benchmarks."
 
     @property
     def suites(self) -> list[str]:
@@ -535,7 +535,7 @@ class BetweennessCentralityBenchmark(Benchmark):
     def generators(self) -> list[Generator[BetweennessCentralityDataset]]:
         return [
             BetweennessCentralityTestGenerator(),
-            BetweennessCentralityGenerator(),
+            BetweennessCentralitySNAPGenerator(),
             BetweennessCentralityGAPGenerator(),
         ]
 

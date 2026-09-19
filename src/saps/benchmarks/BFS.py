@@ -206,22 +206,22 @@ class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
         )
 
 
-class BreadthFirstSearchGenerator(Generator[BreadthFirstSearchDataset]):
+class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
     @property
     def cacheable(self) -> bool:
         return False
 
     @property
     def name(self) -> str:
-        return "bfs_inputs"
+        return "bfs_snap_inputs"
 
     @property
     def pretty_name(self) -> str:
-        return "Breadth-First Search Input Generator"
+        return "Breadth-First Search SNAP Input Generator"
 
     @property
     def description(self) -> str:
-        return "Input generator for breadth-first search benchmarks."
+        return "SNAP input generator for breadth-first search benchmarks."
 
     @property
     def suites(self) -> list[str]:
@@ -527,7 +527,7 @@ class BreadthFirstSearchBenchmark(Benchmark):
     @property
     def generators(self):
         return [
-            BreadthFirstSearchGenerator(),
+            BreadthFirstSearchSNAPGenerator(),
             BreadthFirstSearchTestGenerator(),
             BreadthFirstSearchGAPGenerator(),
         ]

@@ -182,22 +182,22 @@ class FastSVTestGenerator(Generator[FastSVDataset]):
         )
 
 
-class FastSVGenerator(Generator[FastSVDataset]):
+class FastSVSNAPGenerator(Generator[FastSVDataset]):
     @property
     def cacheable(self) -> bool:
         return False
 
     @property
     def name(self) -> str:
-        return "fastsv_inputs"
+        return "fastsv_snap_inputs"
 
     @property
     def pretty_name(self) -> str:
-        return "FastSV Input Generator"
+        return "FastSV SNAP Input Generator"
 
     @property
     def description(self) -> str:
-        return "Input generator for FastSV connected-components benchmarks."
+        return "SNAP input generator for FastSV connected-components benchmarks."
 
     @property
     def suites(self) -> list[str]:
@@ -471,7 +471,7 @@ class FastSVBenchmark(Benchmark):
 
     @property
     def generators(self) -> list[Generator[FastSVDataset]]:
-        return [FastSVTestGenerator(), FastSVGenerator(), FastSVGAPGenerator()]
+        return [FastSVTestGenerator(), FastSVSNAPGenerator(), FastSVGAPGenerator()]
 
     def benchmark(self, xp, data, meta):
         A = data[0]
