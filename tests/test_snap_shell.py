@@ -35,7 +35,7 @@ _CONSUMERS = [
 def test_snap_shell_inventory_covers_consumers():
     generator = SNAPGraphGenerator()
     declared = {d.name for d in generator.datasets}
-    assert len(declared) == len(generator.datasets) == 131
+    assert len(declared) == len(generator.datasets) == 113
     assert SNAPGraphBenchmark().name == "snap_graph_shell"
     assert generator.cacheable
     consumed = set()
@@ -157,20 +157,24 @@ def test_snap_catalog_metadata_and_group_concepts():
     from xml.etree import ElementTree as ET
 
     datasets = SNAPGraphGenerator().datasets
-    assert len({d.group for d in datasets}) == 23
+    assert len({group for d in datasets for group in d.groups}) == 23
     for dataset in datasets:
         metadata = dataset.metadata
         assert metadata["types"] == dataset.types
         assert metadata["description"] == dataset.description
         assert metadata["nodes"] == dataset.nodes
         assert metadata["edges"] == dataset.edges
-        assert metadata["group"] == dataset.group
+        assert metadata["groups"] == dataset.groups
         assert ET.fromstring(dataset.concepts).findtext("concept/concept_id")
         assert dataset.topics
-    reddit = [d for d in datasets if d.source_name == "soc-RedditHyperlinks"]
-    assert len(reddit) == 4
-    assert len({d.name for d in reddit}) == 4
-    assert len({d.group for d in reddit}) == 4
+    reddit = [d for d in datasets if d.name == "soc-RedditHyperlinks"]
+    assert len(reddit) == 1
+    assert len(reddit[0].groups) == 4
+    assert reddit[0].static_edges == 858490
+    assert reddit[0].items == "858,490 links between 55,863 subreddits"
+    assert "Subreddit hyperlinks" in reddit[0].types
+    concepts = ET.fromstring(reddit[0].concepts).findall("concept/concept_id")
+    assert len(concepts) == len({c.text for c in concepts}) == 3
     by_name = {d.name: d for d in datasets}
     assert by_name["as-733"].nodes == "103-6,474"
     assert by_name["wiki-hoaxes"].edges is None
