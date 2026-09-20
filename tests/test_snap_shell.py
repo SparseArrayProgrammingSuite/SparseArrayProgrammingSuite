@@ -181,3 +181,69 @@ def test_snap_catalog_metadata_and_group_concepts():
     assert by_name["Deezer Ego-nets"].nodes is None
     assert by_name["Deezer Ego-nets"].graphs == 9629
     assert by_name["web-BeerAdvocate"].items == "1,586,259 beer reviews"
+
+
+def test_source_selection_samples_nonzero_edge_starts_reproducibly():
+    from scipy.sparse import coo_array
+
+    from binsparse import COORMatrix
+
+    from saps.benchmarks.snap import select_source_vertices
+
+    # Row 0 has an explicit zero; row 3 cancels to zero; row 5 is isolated.
+    adjacency = coo_array(
+        ([0, 1, 1, 1, 1, -1], ([0, 1, 1, 4, 3, 3], [2, 2, 4, 4, 2, 2])),
+        shape=(6, 6),
+    )
+    graph = COORMatrix(
+        adjacency.shape,
+        adjacency.nnz,
+        indices_0=adjacency.row,
+        indices_1=adjacency.col,
+        values=adjacency.data,
+    )
+    expected = np.array([1, 1, 4])[np.random.default_rng(42).integers(3, size=100)]
+    actual = select_source_vertices(graph, 100, seed=42)
+    np.testing.assert_array_equal(actual, expected)
+    np.testing.assert_array_equal(select_source_vertices(graph, 100, seed=42), actual)
+    assert set(actual) == {1, 4}
+    # Coalescing takes place on a copy, leaving the input unchanged.
+    assert to_scipy(graph).nnz == 6
+
+
+def test_source_selection_stays_sparse_and_preserves_global_rng():
+    from scipy.sparse import coo_array
+
+    from binsparse.conversions import from_scipy
+
+    from saps.benchmarks.snap import select_source_vertices
+
+    graph = from_scipy(coo_array(([1], ([999999], [2])), shape=(1000000, 1000000)))
+    state = np.random.get_state()  # noqa: NPY002 - verify legacy global state is untouched
+    np.testing.assert_array_equal(select_source_vertices(graph, 3), [999999] * 3)
+    after = np.random.get_state()  # noqa: NPY002 - verify legacy global state is untouched
+    assert state[0] == after[0]
+    np.testing.assert_array_equal(state[1], after[1])
+    assert state[2:] == after[2:]
+
+
+@pytest.mark.parametrize(
+    ("shape", "values", "count", "message"),
+    [
+        ((3, 3), [], 1, "without nonzero edges"),
+        ((3, 3), [0], 1, "without nonzero edges"),
+        ((3, 2), [1], 1, "square"),
+        ((3, 3), [1], 0, "positive"),
+    ],
+)
+def test_source_selection_rejects_invalid_inputs(shape, values, count, message):
+    from scipy.sparse import coo_array
+
+    from binsparse.conversions import from_scipy
+
+    from saps.benchmarks.snap import select_source_vertices
+
+    indices = np.zeros(len(values), dtype=int)
+    graph = from_scipy(coo_array((values, (indices, indices)), shape=shape))
+    with pytest.raises(ValueError, match=message):
+        select_source_vertices(graph, count)

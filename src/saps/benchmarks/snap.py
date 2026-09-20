@@ -3,7 +3,11 @@
 # ruff: noqa: E501
 
 from typing import Any
-from xml.sax.saxutils import escape
+
+import numpy as np
+
+from binsparse import BinsparseTensor
+from binsparse.conversions import to_scipy
 
 from saps.benchmark import (
     Contributor,
@@ -18,102 +22,122 @@ from saps.downloaders.snap import download_snap_dataset
 # Domain classifications selected from ACM CCS 2012:
 # https://dl.acm.org/pb-assets/dl_ccs/acm_ccs2012-1626988337597.xml
 # SNAP group names are dataset categories, not literal CCS taxonomy entries.
-_GROUP_CONCEPTS: dict[str, tuple[str, str]] = {
-    "Social networks": (
-        "10003120.10003130.10003131.10003292",
-        "Human-centered computing~Social networks",
-    ),
-    "Networks with ground-truth communities": (
-        "10003120.10003130.10003134.10003293",
-        "Human-centered computing~Social network analysis",
-    ),
-    "Communication networks": (
-        "10003120.10003130",
-        "Human-centered computing~Collaborative and social computing",
-    ),
-    "Citation networks": (
-        "10002951.10003317.10003365.10010851",
-        "Information systems~Link and co-citation analysis",
-    ),
-    "Collaboration networks": (
-        "10003120.10003130.10003131.10003292",
-        "Human-centered computing~Social networks",
-    ),
-    "Web graphs": (
-        "10003033.10003106.10003114.10003116",
-        "Networks~World Wide Web (network structure)",
-    ),
-    "Product co-purchasing networks": (
-        "10010405.10003550",
-        "Applied computing~Electronic commerce",
-    ),
-    "Internet peer-to-peer networks": (
-        "10003033.10003106.10003114.10003115",
-        "Networks~Peer-to-peer networks",
-    ),
-    "Road networks": (
-        "10002951.10003227.10003236",
-        "Information systems~Spatial-temporal systems",
-    ),
-    "Autonomous systems graphs": (
-        "10003033.10003083.10003090.10011643",
-        "Networks~Network topology types",
-    ),
-    "Signed networks": (
-        "10002951.10003227.10003233.10003449",
-        "Information systems~Reputation systems",
-    ),
-    "Location-based online social networks": (
-        "10003033.10003106.10003114.10011730",
-        "Networks~Online social networks",
-    ),
-    "Wikipedia networks, articles, and metadata": (
-        "10003120.10003130.10003131.10003235",
-        "Human-centered computing~Collaborative content creation",
-    ),
-    "Temporal networks": (
-        "10002951.10002952.10002953.10010820.10010518",
-        "Information systems~Temporal data",
-    ),
-    "User actions": (
-        "10003120.10003130.10011762",
-        (
-            "Human-centered computing~Empirical studies in collaborative and "
-            "social computing"
-        ),
-    ),
-    "Memetracker and Twitter": (
-        "10003033.10003106.10003114.10003118",
-        "Networks~Social media networks",
-    ),
-    "Online communities": (
-        "10003120.10003130.10003131.10003292",
-        "Human-centered computing~Social networks",
-    ),
-    "Online reviews": (
-        "10002951.10003227.10003233.10003449",
-        "Information systems~Reputation systems",
-    ),
-    "Face-to-face communication networks": (
-        "10003120.10003130",
-        "Human-centered computing~Collaborative and social computing",
-    ),
-    "Graph classification datasets": (
-        "10010147.10010257.10010258.10010259.10010263",
-        "Computing methodologies~Supervised learning by classification",
-    ),
-    "Computer communication networks": (
-        "10003033.10003083.10003090",
-        "Networks~Network structure",
-    ),
-    "Cryptocurrency transactions": (
-        "10010405.10003550",
-        "Applied computing~Electronic commerce",
-    ),
-    "Telecom networks": (
-        "10010405.10010432.10010988",
-        "Applied computing~Telecommunications",
-    ),
+_GROUP_CONCEPTS: dict[str, str] = {
+    "Social networks": """<concept>
+<concept_id>10003120.10003130.10003131.10003292</concept_id>
+<concept_desc>Human-centered computing~Social networks</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>""",
+    "Networks with ground-truth communities": """<concept>
+<concept_id>10010147.10010257.10010258.10010260.10003697</concept_id>
+<concept_desc>Computing methodologies~Cluster analysis</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>""",
+    "Communication networks": """<concept>
+<concept_id>10003120.10003130</concept_id>
+<concept_desc>Human-centered computing~Collaborative and social computing</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>""",
+    "Citation networks": """<concept>
+<concept_id>10002951.10003317.10003365.10010851</concept_id>
+<concept_desc>Information systems~Link and co-citation analysis</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>""",
+    "Collaboration networks": """<concept>
+<concept_id>10003120.10003130.10003131.10003292</concept_id>
+<concept_desc>Human-centered computing~Social networks</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>""",
+    "Web graphs": """<concept>
+<concept_id>10003033.10003106.10003114.10003116</concept_id>
+<concept_desc>Networks~World Wide Web (network structure)</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>""",
+    "Product co-purchasing networks": """<concept>
+<concept_id>10010405.10003550</concept_id>
+<concept_desc>Applied computing~Electronic commerce</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>""",
+    "Internet peer-to-peer networks": """<concept>
+<concept_id>10003033.10003106.10003114.10003115</concept_id>
+<concept_desc>Networks~Peer-to-peer networks</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>""",
+    "Road networks": """<concept>
+<concept_id>10002951.10003227.10003236</concept_id>
+<concept_desc>Information systems~Spatial-temporal systems</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>""",
+    "Autonomous systems graphs": """<concept>
+<concept_id>10003033.10003083.10003090</concept_id>
+<concept_desc>Networks~Network structure</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>""",
+    "Signed networks": """<concept>
+<concept_id>10002951.10003227.10003233.10003449</concept_id>
+<concept_desc>Information systems~Reputation systems</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>""",
+    "Location-based online social networks": """<concept>
+<concept_id>10003033.10003106.10003114.10011730</concept_id>
+<concept_desc>Networks~Online social networks</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>""",
+    "Wikipedia networks, articles, and metadata": """<concept>
+<concept_id>10003120.10003130.10003131.10003235</concept_id>
+<concept_desc>Human-centered computing~Collaborative content creation</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>""",
+    "Temporal networks": """<concept>
+<concept_id>10002951.10002952.10002953.10010820.10010518</concept_id>
+<concept_desc>Information systems~Temporal data</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>""",
+    "User actions": """<concept>
+<concept_id>10003120.10003130.10011762</concept_id>
+<concept_desc>Human-centered computing~Empirical studies in collaborative and social computing</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>""",
+    "Memetracker and Twitter": """<concept>
+<concept_id>10003033.10003106.10003114.10003118</concept_id>
+<concept_desc>Networks~Social media networks</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>""",
+    "Online communities": """<concept>
+<concept_id>10003120.10003130.10003131.10003292</concept_id>
+<concept_desc>Human-centered computing~Social networks</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>""",
+    "Online reviews": """<concept>
+<concept_id>10002951.10003227.10003233.10003449</concept_id>
+<concept_desc>Information systems~Reputation systems</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>""",
+    "Face-to-face communication networks": """<concept>
+<concept_id>10003120.10003130</concept_id>
+<concept_desc>Human-centered computing~Collaborative and social computing</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>""",
+    "Graph classification datasets": """<concept>
+<concept_id>10010147.10010257.10010258.10010259.10010263</concept_id>
+<concept_desc>Computing methodologies~Supervised learning by classification</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>""",
+    "Computer communication networks": """<concept>
+<concept_id>10003033.10003083.10003090</concept_id>
+<concept_desc>Networks~Network structure</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>""",
+    "Cryptocurrency transactions": """<concept>
+<concept_id>10010405.10003550</concept_id>
+<concept_desc>Applied computing~Electronic commerce</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>""",
+    "Telecom networks": """<concept>
+<concept_id>10010405.10010432.10010988</concept_id>
+<concept_desc>Applied computing~Telecommunications</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>""",
 }
 
 
@@ -167,18 +191,7 @@ class SNAPDataset(Dataset):
     @property
     def concepts(self) -> str:
         concepts = dict.fromkeys(_GROUP_CONCEPTS[group] for group in self.groups)
-        return (
-            "<ccs2012>"
-            + "".join(
-                "<concept>"
-                f"<concept_id>{concept_id}</concept_id>"
-                f"<concept_desc>{escape(description)}</concept_desc>"
-                "<concept_significance>500</concept_significance>"
-                "</concept>"
-                for concept_id, description in concepts
-            )
-            + "</ccs2012>"
-        )
+        return "<ccs2012>" + "".join(concepts) + "</ccs2012>"
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -403,3 +416,28 @@ def fetch_snap_graph(name: str) -> DataInstance:
             "Add it to the shell dataset list before using it."
         )
     return generator.cached_generate(dataset)
+
+
+def select_source_vertices(
+    graph: BinsparseTensor, count: int = 1, *, seed: int = 0
+) -> np.ndarray:
+    """Sample source vertices from nonzero adjacency edges, with replacement.
+
+    Each directed edge (u, v) contributes u as a candidate, so vertices are
+    sampled in proportion to their outgoing edge counts. Self-loops count as
+    edges. Returned IDs index the adjacency matrix, not the original SNAP IDs.
+    The seed is local and does not change NumPy's global random state.
+    """
+    if count < 1:
+        raise ValueError("Source vertex count must be positive.")
+    edges = to_scipy(graph).tocoo(copy=True)
+    if edges.shape[0] != edges.shape[1]:
+        raise ValueError("Source selection requires a square adjacency matrix.")
+    edges.sum_duplicates()
+    rows = edges.row[edges.data != 0]
+    if rows.size == 0:
+        raise ValueError(
+            "Cannot select source vertices from a graph without nonzero edges."
+        )
+    rng = np.random.default_rng(seed)
+    return rows[rng.integers(rows.size, size=count)].astype(np.int64, copy=False)
