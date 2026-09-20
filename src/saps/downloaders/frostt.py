@@ -11,8 +11,6 @@ from typing import Any
 
 import numpy as np
 
-import pandas as pd
-
 from saps.downloaders.cache import download_lock, source_cache_dir
 
 _BASE_URL = "https://s3.us-east-2.amazonaws.com/frostt/frostt_data"
@@ -126,6 +124,11 @@ def _parse_tns(
     arrays (one per mode), the values array, and the dense shape inferred as
     the maximum index seen per mode.
     """
+    try:
+        import pandas as pd
+    except ImportError as exc:
+        raise RuntimeError("Parsing FROSTT tensor files requires pandas.") from exc
+
     source = _extract_tns_source(path)
     preview = pd.read_csv(source, sep=r"\s+", header=None, comment="#", nrows=1)
     order = preview.shape[1] - 1
