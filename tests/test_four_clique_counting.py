@@ -40,21 +40,17 @@ def test_all_four_clique_sources_are_loadable(monkeypatch, generator):
     assert len(calls) == len(generator.datasets)
 
 
-def test_standard_four_clique_parameters_include_snap_and_gap():
-    parameters = [
-        p
-        for p in four.FourCliqueCountBenchmark().params
-        if "standard" in p.dataset.suites
-    ]
-    assert len(parameters) == 7
+def test_four_clique_parameters_include_full_snap_catalog_and_standard_gap():
+    from saps.benchmarks.snap import SNAPGraphGenerator
+
+    parameters = four.FourCliqueCountBenchmark().params
     snap = [
         p
         for p in parameters
         if isinstance(p.generator, four.FourCliqueCountSNAPGenerator)
     ]
     assert {p.dataset.name for p in snap} == {
-        "email-Eu-core-temporal-Dept3",
-        "email-Eu-core-temporal-Dept4",
+        d.name for d in SNAPGraphGenerator().datasets
     }
     gap = [
         p
@@ -62,4 +58,5 @@ def test_standard_four_clique_parameters_include_snap_and_gap():
         if isinstance(p.generator, four.FourCliqueCountGAPGenerator)
     ]
     assert len(gap) == 5
-    assert all(not p.generator.cacheable for p in gap)
+    assert all("standard" in p.dataset.suites for p in gap)
+    assert all(not p.generator.cacheable for p in snap + gap)

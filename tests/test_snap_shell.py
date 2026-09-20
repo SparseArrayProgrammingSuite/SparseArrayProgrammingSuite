@@ -12,7 +12,9 @@ from saps.benchmark import Generator
 from saps.benchmarks.snap import (
     SNAPGraphBenchmark,
     SNAPGraphGenerator,
+    SNAPSourceDataset,
     fetch_snap_graph,
+    select_source_vertices,
 )
 from saps.downloaders import snap as downloader
 from saps.metadata import _benchmark_instances
@@ -46,12 +48,17 @@ def test_snap_shell_inventory_covers_consumers():
                     type(consumer).__name__.endswith("SNAPGenerator")
                     or consumer.name == "snap_graph"
                 ):
-                    assert dataset.name in declared
+                    graph = (
+                        dataset.graph
+                        if isinstance(dataset, SNAPSourceDataset)
+                        else dataset
+                    )
+                    assert graph.name in declared
                     if consumer.name != generator.name:
                         assert not consumer.cacheable
-                        consumed.add(dataset.name)
+                        consumed.add(graph.name)
     assert consumed <= declared
-    assert len(consumed) == 8
+    assert consumed == declared
 
 
 @pytest.mark.parametrize(("module_name", "class_name"), _CONSUMERS)
@@ -67,8 +74,10 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
     consumer = getattr(module, class_name)()
     dataset = consumer.datasets[0]
     shell = SNAPGraphGenerator()
-    source = next(d for d in shell.datasets if d.name == dataset.name)
-    slug = dataset.name
+    slug = (
+        dataset.graph.name if isinstance(dataset, SNAPSourceDataset) else dataset.name
+    )
+    source = next(d for d in shell.datasets if d.name == slug)
     path = backend.cache_dir / "snap" / slug / f"{slug}.txt"
     path.parent.mkdir(parents=True)
     path.write_text("# directed graph with a self-loop\n10 20\n20 40\n40 40\n")
@@ -85,7 +94,13 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
 
     problem = consumer.cached_generate(dataset)
     assert problem.meta["directed"] is True
-    assert problem.meta["src"] == 0
+    if isinstance(dataset, SNAPSourceDataset):
+        assert problem.meta["seed"] == 0
+        assert problem.meta["src"] == int(
+            select_source_vertices(fetch_snap_graph(slug).inputs[0], seed=0)[0]
+        )
+    else:
+        assert problem.meta["src"] == 0
     if module_name == "bellmanford":
         expected = np.array([[0, 1, np.inf], [np.inf, 0, 1], [np.inf, np.inf, 0]])
         np.testing.assert_array_equal(to_sparse(problem.inputs[0]).todense(), expected)
@@ -103,10 +118,45 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
         )
         np.testing.assert_array_equal(to_numpy(problem.inputs[1]), [10, 20, 40])
     # Subsequent users read the local shared shell object, not per-consumer caches.
-    raw = fetch_snap_graph(dataset.name)
+    raw = fetch_snap_graph(slug)
     assert to_scipy(raw.inputs[0]).toarray()[2, 2] == 1
+    if isinstance(dataset, SNAPSourceDataset):
+        seeded = [d for d in consumer.datasets if d.graph.name == slug]
+        assert [d.seed for d in seeded] == list(range(10))
+        from scipy.sparse.csgraph import shortest_path
+
+        from frameworks.saps_numpy import NumpyFramework
+
+        xp = NumpyFramework()
+        benchmark = (
+            module.BreadthFirstSearchBenchmark()
+            if module_name == "BFS"
+            else module.BellmanFordBenchmark()
+        )
+        for variant in seeded:
+            actual = consumer.cached_generate(variant)
+            distances = shortest_path(
+                to_scipy(raw.inputs[0]).toarray(),
+                directed=True,
+                unweighted=True,
+                indices=actual.meta["src"],
+            )
+            expected_output = (
+                np.where(np.isfinite(distances), distances + 1, 0)
+                if module_name == "BFS"
+                else distances
+            )
+            output = benchmark.benchmark(
+                xp, [xp.from_binsparse(actual.inputs[0])], actual.meta
+            )[0]
+            np.testing.assert_array_equal(output, expected_output)
+            assert actual.meta["src"] == int(
+                select_source_vertices(raw.inputs[0], seed=variant.seed)[0]
+            )
+        assert raw.meta["src"] == 0
+        assert "seed" not in raw.meta
     download.assert_called_once()
-    assert download.call_args.args[0].startswith(f"snap_graph/{dataset.name}/")
+    assert download.call_args.args[0].startswith(f"snap_graph/{slug}/")
     forbidden.assert_not_called()
     assert backend.manifest_path.read_bytes() == manifest
     assert len(list(backend.cache_dir.rglob("*.bsp.h5"))) == 1
@@ -247,3 +297,51 @@ def test_source_selection_rejects_invalid_inputs(shape, values, count, message):
     graph = from_scipy(coo_array((values, (indices, indices)), shape=shape))
     with pytest.raises(ValueError, match=message):
         select_source_vertices(graph, count)
+
+
+@pytest.mark.parametrize(
+    ("module_name", "test_class", "benchmark_class"),
+    [
+        ("BFS", "BreadthFirstSearchTestGenerator", "BreadthFirstSearchBenchmark"),
+        ("bellmanford", "BellmanFordTestGenerator", "BellmanFordBenchmark"),
+    ],
+)
+@pytest.mark.parametrize("seed", range(10))
+def test_seeded_source_test_suite_problems(
+    module_name, test_class, benchmark_class, seed
+):
+    from frameworks.saps_numpy import NumpyFramework
+
+    module = importlib.import_module(f"saps.benchmarks.{module_name}")
+    generator = getattr(module, test_class)()
+    dataset = next(d for d in generator.datasets if d.source_seed == seed)
+    assert "test" in dataset.suites
+    problem = generator.generate(dataset)
+    src = problem.meta["src"]
+    assert src in (1, 2)  # Never the isolated vertex or the sink.
+    assert problem.meta["seed"] == seed
+    xp = NumpyFramework()
+    result = getattr(module, benchmark_class)().benchmark(
+        xp, [xp.from_binsparse(problem.inputs[0])], problem.meta
+    )[0]
+    expected = (
+        {1: [0, 1, 2, 3], 2: [0, 0, 1, 2]}
+        if module_name == "BFS"
+        else {1: [np.inf, 0, 1, 2], 2: [np.inf, np.inf, 0, 1]}
+    )[src]
+    np.testing.assert_array_equal(result, expected)
+    np.testing.assert_array_equal(to_numpy(problem.ref_outputs[0]), expected)
+
+
+def test_all_snap_sources_have_ten_seeded_cases():
+    from saps.benchmarks.bellmanford import BellmanFordSNAPGenerator
+    from saps.benchmarks.BFS import BreadthFirstSearchSNAPGenerator
+
+    graphs = SNAPGraphGenerator().datasets
+    for generator in (BreadthFirstSearchSNAPGenerator(), BellmanFordSNAPGenerator()):
+        datasets = generator.datasets
+        assert len(datasets) == len({d.name for d in datasets}) == len(graphs) * 10
+        assert {(d.graph.name, d.seed) for d in datasets} == {
+            (g.name, seed) for g in graphs for seed in range(10)
+        }
+        assert all(d.metadata["seed"] == d.seed for d in datasets)

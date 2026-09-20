@@ -2,7 +2,7 @@ import numpy as np
 import scipy.sparse as sps
 
 from binsparse import BinsparseTensor, COORMatrix
-from binsparse.conversions import from_numpy, to_numpy, to_scipy
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
 from saps.benchmark import (
     Author,
@@ -13,7 +13,12 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.snap import fetch_snap_graph
+from saps.benchmarks.snap import (
+    SNAPGraphGenerator,
+    SNAPSourceDataset,
+    fetch_snap_source_graph,
+    with_source_vertex,
+)
 from saps.benchmarks.suitesparse import (
     _GAP_KRON_SOURCES,
     _GAP_ROAD_SOURCES,
@@ -34,6 +39,7 @@ class BellmanFordDataset(Dataset):
         A: np.ndarray | None = None,
         src: int = 0,
         expected: np.ndarray | None = None,
+        source_seed: int | None = None,
     ):
         self._name = name
         self._pretty_name = pretty_name or name
@@ -41,6 +47,7 @@ class BellmanFordDataset(Dataset):
         self._suites = suites or []
         self.A = A
         self.src = src
+        self.source_seed = source_seed
         if expected is None and A is not None:
             expected = bellman_ford_reference(A, src)
         self.expected = expected
@@ -331,9 +338,35 @@ class BellmanFordTestGenerator(Generator[BellmanFordDataset]):
                 src=0,
                 expected=np.array([0.0, 1.0, 2.0]),
             ),
+            *[
+                BellmanFordDataset(
+                    name=f"test_bellmanford_snap_source_seed{seed}",
+                    suites=["test"],
+                    A=bellman_ford_matrix(4, [(1, 2), (2, 3)]),
+                    source_seed=seed,
+                )
+                for seed in range(10)
+            ],
         ]
 
     def generate(self, dataset: BellmanFordDataset) -> DataInstance:
+        if dataset.source_seed is not None:
+            if dataset.A is None:
+                raise ValueError(
+                    "Seeded Bellman-Ford tests require an adjacency matrix."
+                )
+            adjacency = np.isfinite(dataset.A) & (dataset.A != 0)
+            raw = with_source_vertex(
+                DataInstance(inputs=[from_scipy(sps.coo_array(adjacency))], meta={}),
+                seed=dataset.source_seed,
+            )
+            return DataInstance(
+                inputs=[_adjacency_to_distance(raw.inputs[0])],
+                meta=raw.meta,
+                ref_outputs=[
+                    from_numpy(bellman_ford_reference(dataset.A, raw.meta["src"]))
+                ],
+            )
         if dataset.A is None or dataset.expected is None:
             raise ValueError("Bellman-Ford test datasets must define A and expected.")
         return DataInstance(
@@ -343,7 +376,7 @@ class BellmanFordTestGenerator(Generator[BellmanFordDataset]):
         )
 
 
-class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
+class BellmanFordSNAPGenerator(Generator[SNAPSourceDataset]):
     @property
     def cacheable(self) -> bool:
         return False
@@ -388,63 +421,16 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
         return "Generate weighted graph inputs for Bellman-Ford."
 
     @property
-    def datasets(self) -> list[BellmanFordDataset]:
+    def datasets(self) -> list[SNAPSourceDataset]:
         return [
-            BellmanFordDataset(
-                name="email-Eu-core-temporal-Dept3",
-                pretty_name="SNAP email-Eu-core temporal Dept3",
-                description=(
-                    "Department 3 email network from the SNAP email-Eu-core"
-                    " temporal dataset, projected to unit-weight edges, with 89"
-                    " nodes and 1,506 static edges."
-                ),
-                suites=[],
-            ),
-            BellmanFordDataset(
-                name="email-Eu-core-temporal-Dept4",
-                pretty_name="SNAP email-Eu-core temporal Dept4",
-                description=(
-                    "Department 4 email network from the SNAP email-Eu-core"
-                    " temporal dataset, projected to unit-weight edges, with 142"
-                    " nodes and 1,375 static edges."
-                ),
-                suites=[],
-            ),
-            BellmanFordDataset(
-                name="email-Eu-core-temporal-Dept2",
-                pretty_name="SNAP email-Eu-core temporal Dept2",
-                description=(
-                    "Department 2 email network from the SNAP email-Eu-core"
-                    " temporal dataset, projected to unit-weight edges, with 162"
-                    " nodes and 1,772 static edges."
-                ),
-                suites=[],
-            ),
-            BellmanFordDataset(
-                name="email-Eu-core-temporal-Dept1",
-                pretty_name="SNAP email-Eu-core temporal Dept1",
-                description=(
-                    "Department 1 email network from the SNAP email-Eu-core"
-                    " temporal dataset, projected to unit-weight edges, with 309"
-                    " nodes and 3,031 static edges."
-                ),
-                suites=[],
-            ),
-            BellmanFordDataset(
-                name="email-Eu-core",
-                pretty_name="SNAP email-Eu-core",
-                description=(
-                    "Directed email communication network from a European research"
-                    " institution, projected to unit-weight edges, with 1,005"
-                    " nodes and 25,571 edges."
-                ),
-                suites=[],
-            ),
+            SNAPSourceDataset(graph, seed)
+            for graph in SNAPGraphGenerator().datasets
+            for seed in range(10)
         ]
 
-    def generate(self, dataset: BellmanFordDataset) -> DataInstance:
+    def generate(self, dataset: SNAPSourceDataset) -> DataInstance:
         if dataset.name in self.dataset_names:
-            raw = fetch_snap_graph(dataset.name)
+            raw = fetch_snap_source_graph(dataset)
             return DataInstance(
                 inputs=[_adjacency_to_distance(raw.inputs[0])], meta=raw.meta
             )

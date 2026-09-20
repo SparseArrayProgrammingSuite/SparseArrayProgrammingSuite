@@ -12,7 +12,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.snap import fetch_snap_graph
+from saps.benchmarks.snap import SNAPDataset, SNAPGraphGenerator, fetch_snap_graph
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 
 
@@ -193,7 +193,7 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
         )
 
 
-class PageRankSNAPGenerator(Generator[PageRankDataset]):
+class PageRankSNAPGenerator(Generator[SNAPDataset]):
     @property
     def cacheable(self) -> bool:
         return False
@@ -238,38 +238,10 @@ class PageRankSNAPGenerator(Generator[PageRankDataset]):
         return "Generate sparse graph inputs for PageRank."
 
     @property
-    def datasets(self) -> list[PageRankDataset]:
-        return [
-            PageRankDataset(
-                name="email-Eu-core",
-                pretty_name="SNAP email-Eu-core",
-                description=(
-                    "Directed email communication network from a European research"
-                    " institution, with 1,005 nodes and 25,571 edges."
-                ),
-                suites=[],
-            ),
-            PageRankDataset(
-                name="ca-GrQc",
-                pretty_name="SNAP ca-GrQc",
-                description=(
-                    "Arxiv General Relativity and Quantum Cosmology collaboration"
-                    " network, with 5,242 nodes and 14,496 edges."
-                ),
-                suites=[],
-            ),
-            PageRankDataset(
-                name="p2p-Gnutella04",
-                pretty_name="SNAP p2p-Gnutella04",
-                description=(
-                    "Directed Gnutella peer-to-peer network snapshot from August 4,"
-                    " 2002, with 10,876 nodes and 39,994 edges."
-                ),
-                suites=[],
-            ),
-        ]
+    def datasets(self) -> list[SNAPDataset]:
+        return SNAPGraphGenerator().datasets
 
-    def generate(self, dataset: PageRankDataset) -> DataInstance:
+    def generate(self, dataset: SNAPDataset) -> DataInstance:
         if dataset.name in self.dataset_names:
             return fetch_snap_graph(dataset.name)
         raise ValueError(f"Unsupported PageRank dataset: {dataset.name}")
@@ -492,7 +464,7 @@ class PageRankBenchmark(Benchmark):
         )
 
     @property
-    def generators(self) -> list[Generator[PageRankDataset]]:
+    def generators(self) -> list[Generator]:
         return [
             PageRankTestGenerator(),
             PageRankSNAPGenerator(),

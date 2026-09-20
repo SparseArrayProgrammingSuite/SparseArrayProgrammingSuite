@@ -14,7 +14,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.snap import fetch_snap_graph
+from saps.benchmarks.snap import SNAPDataset, SNAPGraphGenerator, fetch_snap_graph
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 from saps_framework.binsparse_utils import binsparse_equal
 
@@ -182,7 +182,7 @@ class FastSVTestGenerator(Generator[FastSVDataset]):
         )
 
 
-class FastSVSNAPGenerator(Generator[FastSVDataset]):
+class FastSVSNAPGenerator(Generator[SNAPDataset]):
     @property
     def cacheable(self) -> bool:
         return False
@@ -227,38 +227,10 @@ class FastSVSNAPGenerator(Generator[FastSVDataset]):
         return "Generate sparse graph inputs for FastSV."
 
     @property
-    def datasets(self) -> list[FastSVDataset]:
-        return [
-            FastSVDataset(
-                name="email-Eu-core",
-                pretty_name="SNAP email-Eu-core",
-                description=(
-                    "Directed email communication network from a European research"
-                    " institution, with 1,005 nodes and 25,571 edges."
-                ),
-                suites=[],
-            ),
-            FastSVDataset(
-                name="facebook_combined",
-                pretty_name="SNAP facebook_combined",
-                description=(
-                    "Combined Facebook social-circle network, with 4,039 nodes and"
-                    " 88,234 edges."
-                ),
-                suites=[],
-            ),
-            FastSVDataset(
-                name="ca-GrQc",
-                pretty_name="SNAP ca-GrQc",
-                description=(
-                    "Arxiv General Relativity and Quantum Cosmology collaboration"
-                    " network, with 5,242 nodes and 14,496 edges."
-                ),
-                suites=[],
-            ),
-        ]
+    def datasets(self) -> list[SNAPDataset]:
+        return SNAPGraphGenerator().datasets
 
-    def generate(self, dataset: FastSVDataset) -> DataInstance:
+    def generate(self, dataset: SNAPDataset) -> DataInstance:
         if dataset.name in self.dataset_names:
             return fetch_snap_graph(dataset.name)
         raise ValueError(f"Unsupported FastSV dataset: {dataset.name}")
@@ -470,7 +442,7 @@ class FastSVBenchmark(Benchmark):
         return ""
 
     @property
-    def generators(self) -> list[Generator[FastSVDataset]]:
+    def generators(self) -> list[Generator]:
         return [FastSVTestGenerator(), FastSVSNAPGenerator(), FastSVGAPGenerator()]
 
     def benchmark(self, xp, data, meta):

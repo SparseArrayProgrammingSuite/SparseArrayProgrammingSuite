@@ -1,7 +1,8 @@
 import numpy as np
+from scipy.sparse import coo_array
 
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy
+from binsparse.conversions import from_numpy, from_scipy
 
 from saps.benchmark import (
     Author,
@@ -12,7 +13,12 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.snap import fetch_snap_graph
+from saps.benchmarks.snap import (
+    SNAPGraphGenerator,
+    SNAPSourceDataset,
+    fetch_snap_source_graph,
+    with_source_vertex,
+)
 from saps.benchmarks.suitesparse import (
     _GAP_KRON_SOURCES,
     _GAP_ROAD_SOURCES,
@@ -34,6 +40,7 @@ class BreadthFirstSearchDataset(Dataset):
         A: np.ndarray | None = None,
         src: int | None = None,
         expected: np.ndarray | None = None,
+        source_seed: int | None = None,
     ):
         self._name = name
         self._pretty_name = pretty_name or name
@@ -41,6 +48,7 @@ class BreadthFirstSearchDataset(Dataset):
         self._suites = suites or []
         self.A = A
         self.src = src
+        self.source_seed = source_seed
         self.expected = expected
 
     @property
@@ -194,9 +202,36 @@ class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
                 src=0,
                 expected=np.array([1, 2, 3], dtype=int),
             ),
+            *[
+                BreadthFirstSearchDataset(
+                    name=f"test_bfs_snap_source_seed{seed}",
+                    suites=["test"],
+                    A=np.array(
+                        [[0, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1], [0, 0, 0, 0]],
+                        dtype=bool,
+                    ),
+                    source_seed=seed,
+                )
+                for seed in range(10)
+            ],
         ]
 
     def generate(self, dataset: BreadthFirstSearchDataset) -> DataInstance:
+        if dataset.source_seed is not None:
+            from scipy.sparse.csgraph import shortest_path
+
+            if dataset.A is None:
+                raise ValueError("Seeded BFS tests require an adjacency matrix.")
+            raw = with_source_vertex(
+                DataInstance(inputs=[from_scipy(coo_array(dataset.A))], meta={}),
+                seed=dataset.source_seed,
+            )
+            distances = shortest_path(
+                dataset.A, directed=True, unweighted=True, indices=raw.meta["src"]
+            )
+            levels = np.where(np.isfinite(distances), distances + 1, 0).astype(int)
+            raw.ref_outputs = [from_numpy(levels)]
+            return raw
         if dataset.A is None or dataset.src is None or dataset.expected is None:
             raise ValueError("BFS test datasets must define A, src, and expected.")
         return DataInstance(
@@ -206,7 +241,7 @@ class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
         )
 
 
-class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
+class BreadthFirstSearchSNAPGenerator(Generator[SNAPSourceDataset]):
     @property
     def cacheable(self) -> bool:
         return False
@@ -251,49 +286,16 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
         return "Generate sparse graph inputs for breadth-first search."
 
     @property
-    def datasets(self) -> list[BreadthFirstSearchDataset]:
+    def datasets(self) -> list[SNAPSourceDataset]:
         return [
-            BreadthFirstSearchDataset(
-                name="email-Eu-core",
-                pretty_name="SNAP email-Eu-core",
-                description=(
-                    "Directed email communication network from a European research"
-                    " institution, with 1,005 nodes and 25,571 edges."
-                ),
-                suites=[],
-            ),
-            BreadthFirstSearchDataset(
-                name="facebook_combined",
-                pretty_name="SNAP facebook_combined",
-                description=(
-                    "Combined Facebook social-circle network, with 4,039 nodes and"
-                    " 88,234 edges."
-                ),
-                suites=[],
-            ),
-            BreadthFirstSearchDataset(
-                name="ca-GrQc",
-                pretty_name="SNAP ca-GrQc",
-                description=(
-                    "Arxiv General Relativity and Quantum Cosmology collaboration"
-                    " network, with 5,242 nodes and 14,496 edges."
-                ),
-                suites=[],
-            ),
-            BreadthFirstSearchDataset(
-                name="p2p-Gnutella04",
-                pretty_name="SNAP p2p-Gnutella04",
-                description=(
-                    "Directed Gnutella peer-to-peer network snapshot from August 4,"
-                    " 2002, with 10,876 nodes and 39,994 edges."
-                ),
-                suites=[],
-            ),
+            SNAPSourceDataset(graph, seed)
+            for graph in SNAPGraphGenerator().datasets
+            for seed in range(10)
         ]
 
-    def generate(self, dataset: BreadthFirstSearchDataset) -> DataInstance:
+    def generate(self, dataset: SNAPSourceDataset) -> DataInstance:
         if dataset.name in self.dataset_names:
-            return fetch_snap_graph(dataset.name)
+            return fetch_snap_source_graph(dataset)
         raise ValueError(f"Unsupported BFS dataset: {dataset.name}")
 
 

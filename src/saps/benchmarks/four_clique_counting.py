@@ -12,7 +12,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.snap import fetch_snap_graph
+from saps.benchmarks.snap import SNAPDataset, SNAPGraphGenerator, fetch_snap_graph
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 
 
@@ -168,7 +168,7 @@ class FourCliqueCountTestGenerator(Generator[GraphCountingDataset]):
         )
 
 
-class FourCliqueCountSNAPGenerator(Generator[GraphCountingDataset]):
+class FourCliqueCountSNAPGenerator(Generator[SNAPDataset]):
     @property
     def cacheable(self) -> bool:
         return False
@@ -228,29 +228,10 @@ class FourCliqueCountSNAPGenerator(Generator[GraphCountingDataset]):
         return "Generate sparse graph inputs for 4-clique counting."
 
     @property
-    def datasets(self) -> list[GraphCountingDataset]:
-        return [
-            GraphCountingDataset(
-                name="email-Eu-core-temporal-Dept3",
-                pretty_name="SNAP email-Eu-core temporal Dept3",
-                description=(
-                    "Department 3 email network from the SNAP email-Eu-core"
-                    " temporal dataset, with 89 nodes and 1,506 static edges."
-                ),
-                suites=["standard"],
-            ),
-            GraphCountingDataset(
-                name="email-Eu-core-temporal-Dept4",
-                pretty_name="SNAP email-Eu-core temporal Dept4",
-                description=(
-                    "Department 4 email network from the SNAP email-Eu-core"
-                    " temporal dataset, with 142 nodes and 1,375 static edges."
-                ),
-                suites=["standard"],
-            ),
-        ]
+    def datasets(self) -> list[SNAPDataset]:
+        return SNAPGraphGenerator().datasets
 
-    def generate(self, dataset: GraphCountingDataset) -> DataInstance:
+    def generate(self, dataset: SNAPDataset) -> DataInstance:
         if dataset.name in self.dataset_names:
             return fetch_snap_graph(dataset.name)
         raise ValueError(f"Unsupported 4-clique count dataset: {dataset.name}")
@@ -489,7 +470,7 @@ class FourCliqueCountBenchmark(Benchmark):
         )
 
     @property
-    def generators(self) -> list[Generator[GraphCountingDataset]]:
+    def generators(self) -> list[Generator]:
         return [
             FourCliqueCountTestGenerator(),
             FourCliqueCountSNAPGenerator(),

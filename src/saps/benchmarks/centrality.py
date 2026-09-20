@@ -12,7 +12,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.snap import fetch_snap_graph
+from saps.benchmarks.snap import SNAPDataset, SNAPGraphGenerator, fetch_snap_graph
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 
 
@@ -239,7 +239,7 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
         )
 
 
-class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralityDataset]):
+class BetweennessCentralitySNAPGenerator(Generator[SNAPDataset]):
     @property
     def cacheable(self) -> bool:
         return False
@@ -284,29 +284,10 @@ class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralityDataset]
         return "Generate sparse directed graph inputs for betweenness centrality."
 
     @property
-    def datasets(self) -> list[BetweennessCentralityDataset]:
-        return [
-            BetweennessCentralityDataset(
-                name="email-Eu-core-temporal-Dept3",
-                pretty_name="SNAP email-Eu-core temporal Dept3",
-                description=(
-                    "Department 3 email network from the SNAP email-Eu-core"
-                    " temporal dataset, with 89 nodes and 1,506 static edges."
-                ),
-                suites=[],
-            ),
-            BetweennessCentralityDataset(
-                name="email-Eu-core-temporal-Dept4",
-                pretty_name="SNAP email-Eu-core temporal Dept4",
-                description=(
-                    "Department 4 email network from the SNAP email-Eu-core"
-                    " temporal dataset, with 142 nodes and 1,375 static edges."
-                ),
-                suites=[],
-            ),
-        ]
+    def datasets(self) -> list[SNAPDataset]:
+        return SNAPGraphGenerator().datasets
 
-    def generate(self, dataset: BetweennessCentralityDataset) -> DataInstance:
+    def generate(self, dataset: SNAPDataset) -> DataInstance:
         if dataset.name in self.dataset_names:
             return fetch_snap_graph(dataset.name)
         raise ValueError(f"Unsupported betweenness centrality dataset: {dataset.name}")
@@ -532,7 +513,7 @@ class BetweennessCentralityBenchmark(Benchmark):
         return ""
 
     @property
-    def generators(self) -> list[Generator[BetweennessCentralityDataset]]:
+    def generators(self) -> list[Generator]:
         return [
             BetweennessCentralityTestGenerator(),
             BetweennessCentralitySNAPGenerator(),

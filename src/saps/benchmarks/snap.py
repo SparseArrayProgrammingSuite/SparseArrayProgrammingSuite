@@ -208,6 +208,43 @@ class SNAPDataset(Dataset):
         }
 
 
+class SNAPSourceDataset(Dataset):
+    """A shared SNAP graph paired with a reproducible source-selection seed."""
+
+    def __init__(self, graph: SNAPDataset, seed: int):
+        self.graph = graph
+        self.seed = seed
+
+    @property
+    def name(self) -> str:
+        return f"{self.graph.name}_seed{self.seed}"
+
+    @property
+    def pretty_name(self) -> str:
+        return f"{self.graph.pretty_name} (source seed {self.seed})"
+
+    @property
+    def description(self) -> str:
+        return self.graph.description
+
+    @property
+    def suites(self) -> list[str]:
+        return self.graph.suites
+
+    @property
+    def concepts(self) -> str:
+        return self.graph.concepts
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        return {
+            **self.graph.metadata,
+            **super().metadata,
+            "graph": self.graph.name,
+            "seed": self.seed,
+        }
+
+
 # One explicit entry per source. Additional group memberships and metadata
 # from repeated catalog listings are merged into that source entry.
 # Counts describe the published source, not the remapped prepared adjacency.
@@ -441,3 +478,13 @@ def select_source_vertices(
         )
     rng = np.random.default_rng(seed)
     return rows[rng.integers(rows.size, size=count)].astype(np.int64, copy=False)
+
+
+def with_source_vertex(raw: DataInstance, *, seed: int) -> DataInstance:
+    """Attach a seeded source without changing the shared shell metadata."""
+    src = int(select_source_vertices(raw.inputs[0], seed=seed)[0])
+    return DataInstance(inputs=raw.inputs, meta={**raw.meta, "src": src, "seed": seed})
+
+
+def fetch_snap_source_graph(dataset: SNAPSourceDataset) -> DataInstance:
+    return with_source_vertex(fetch_snap_graph(dataset.graph.name), seed=dataset.seed)
