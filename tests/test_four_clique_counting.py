@@ -53,8 +53,8 @@ def test_standard_four_clique_parameters_include_snap_and_gap():
         if isinstance(p.generator, four.FourCliqueCountSNAPGenerator)
     ]
     assert {p.dataset.name for p in snap} == {
-        "snap-email-Eu-core-temporal-Dept3",
-        "snap-email-Eu-core-temporal-Dept4",
+        "email-Eu-core-temporal-Dept3",
+        "email-Eu-core-temporal-Dept4",
     }
     gap = [
         p

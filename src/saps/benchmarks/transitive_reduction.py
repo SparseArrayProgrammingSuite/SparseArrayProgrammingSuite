@@ -189,7 +189,7 @@ class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
     def datasets(self) -> list[TransitiveReductionDataset]:
         return [
             TransitiveReductionDataset(
-                name="snap-email-Eu-core",
+                name="email-Eu-core",
                 pretty_name="SNAP email-Eu-core",
                 description=(
                     "Directed email communication network from a European research"
@@ -198,7 +198,7 @@ class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
                 suites=[],
             ),
             TransitiveReductionDataset(
-                name="snap-ca-GrQc",
+                name="ca-GrQc",
                 pretty_name="SNAP ca-GrQc",
                 description=(
                     "Arxiv General Relativity and Quantum Cosmology collaboration"
@@ -209,7 +209,7 @@ class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
         ]
 
     def generate(self, dataset: TransitiveReductionDataset) -> DataInstance:
-        if dataset.name.startswith("snap"):
+        if dataset.name in self.dataset_names:
             raw = fetch_snap_graph(dataset.name)
             edges = to_scipy(raw.inputs[0]).tocoo(copy=True)
             edges.sum_duplicates()

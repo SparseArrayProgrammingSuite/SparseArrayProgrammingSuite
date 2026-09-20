@@ -241,7 +241,7 @@ class PageRankSNAPGenerator(Generator[PageRankDataset]):
     def datasets(self) -> list[PageRankDataset]:
         return [
             PageRankDataset(
-                name="snap-email-Eu-core",
+                name="email-Eu-core",
                 pretty_name="SNAP email-Eu-core",
                 description=(
                     "Directed email communication network from a European research"
@@ -250,7 +250,7 @@ class PageRankSNAPGenerator(Generator[PageRankDataset]):
                 suites=[],
             ),
             PageRankDataset(
-                name="snap-ca-GrQc",
+                name="ca-GrQc",
                 pretty_name="SNAP ca-GrQc",
                 description=(
                     "Arxiv General Relativity and Quantum Cosmology collaboration"
@@ -259,7 +259,7 @@ class PageRankSNAPGenerator(Generator[PageRankDataset]):
                 suites=[],
             ),
             PageRankDataset(
-                name="snap-p2p-Gnutella04",
+                name="p2p-Gnutella04",
                 pretty_name="SNAP p2p-Gnutella04",
                 description=(
                     "Directed Gnutella peer-to-peer network snapshot from August 4,"
@@ -270,7 +270,7 @@ class PageRankSNAPGenerator(Generator[PageRankDataset]):
         ]
 
     def generate(self, dataset: PageRankDataset) -> DataInstance:
-        if dataset.name.startswith("snap"):
+        if dataset.name in self.dataset_names:
             return fetch_snap_graph(dataset.name)
         raise ValueError(f"Unsupported PageRank dataset: {dataset.name}")
 

@@ -104,7 +104,7 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
             ),
             TransitiveClosureDataset("cycle", suites=["test", "trace"]),
             TransitiveClosureDataset("one-node", suites=["test", "trace"]),
-            TransitiveClosureDataset("snap-toy", suites=["test", "trace"]),
+            TransitiveClosureDataset("toy", suites=["test", "trace"]),
         ]
 
     def generate(self, dataset: TransitiveClosureDataset) -> DataInstance:
@@ -163,7 +163,7 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
         elif dataset.name == "one-node":
             A = np.array([[0]], dtype=bool)
             expected = np.array([[1]], dtype=bool)
-        elif dataset.name == "snap-toy":
+        elif dataset.name == "toy":
             A = np.array([[0, 1, 0], [0, 0, 1], [0, 0, 0]], dtype=bool)
             expected = np.array([[1, 1, 1], [0, 1, 1], [0, 0, 1]], dtype=bool)
         else:
@@ -224,7 +224,7 @@ class TransitiveClosureSNAPGenerator(Generator[TransitiveClosureDataset]):
     def datasets(self) -> list[TransitiveClosureDataset]:
         return [
             TransitiveClosureDataset(
-                name="snap-email-Eu-core",
+                name="email-Eu-core",
                 pretty_name="SNAP email-Eu-core",
                 description=(
                     "Directed email communication network from a European research"
@@ -233,7 +233,7 @@ class TransitiveClosureSNAPGenerator(Generator[TransitiveClosureDataset]):
                 suites=[],
             ),
             TransitiveClosureDataset(
-                name="snap-ca-GrQc",
+                name="ca-GrQc",
                 pretty_name="SNAP ca-GrQc",
                 description=(
                     "Arxiv General Relativity and Quantum Cosmology collaboration"
@@ -244,7 +244,7 @@ class TransitiveClosureSNAPGenerator(Generator[TransitiveClosureDataset]):
         ]
 
     def generate(self, dataset: TransitiveClosureDataset) -> DataInstance:
-        if dataset.name.startswith("snap"):
+        if dataset.name in self.dataset_names:
             return fetch_snap_graph(dataset.name)
         raise ValueError(f"Unsupported transitive closure dataset: {dataset.name}")
 

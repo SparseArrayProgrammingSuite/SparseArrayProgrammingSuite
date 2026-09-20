@@ -157,7 +157,7 @@ Prepare the SNAP shell before running these consumers:
 poetry run ./bin/run_benchmark.py --cache-datasets --re '^snap_graph$'
 ```
 
-The shell's eight source datasets are explicitly listed in
+The shell's source catalog is explicitly listed in
 `src/saps/benchmarks/snap.py`. Add any new source to that inventory before using it
 in another benchmark, then regenerate metadata and prepare the shell cache.
 

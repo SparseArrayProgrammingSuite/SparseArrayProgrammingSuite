@@ -230,7 +230,7 @@ class TriangleCountSNAPGenerator(Generator[GraphCountingDataset]):
     def datasets(self) -> list[GraphCountingDataset]:
         return [
             GraphCountingDataset(
-                name="snap-email-Eu-core",
+                name="email-Eu-core",
                 pretty_name="SNAP email-Eu-core",
                 description=(
                     "Directed email communication network from a European research"
@@ -239,7 +239,7 @@ class TriangleCountSNAPGenerator(Generator[GraphCountingDataset]):
                 suites=[],
             ),
             GraphCountingDataset(
-                name="snap-ca-GrQc",
+                name="ca-GrQc",
                 pretty_name="SNAP ca-GrQc",
                 description=(
                     "Arxiv General Relativity and Quantum Cosmology collaboration"
@@ -250,7 +250,7 @@ class TriangleCountSNAPGenerator(Generator[GraphCountingDataset]):
         ]
 
     def generate(self, dataset: GraphCountingDataset) -> DataInstance:
-        if dataset.name.startswith("snap"):
+        if dataset.name in self.dataset_names:
             return fetch_snap_graph(dataset.name)
         raise ValueError(f"Unsupported triangle count dataset: {dataset.name}")
 

@@ -230,7 +230,7 @@ class FastSVSNAPGenerator(Generator[FastSVDataset]):
     def datasets(self) -> list[FastSVDataset]:
         return [
             FastSVDataset(
-                name="snap-email-Eu-core",
+                name="email-Eu-core",
                 pretty_name="SNAP email-Eu-core",
                 description=(
                     "Directed email communication network from a European research"
@@ -239,7 +239,7 @@ class FastSVSNAPGenerator(Generator[FastSVDataset]):
                 suites=[],
             ),
             FastSVDataset(
-                name="snap-facebook_combined",
+                name="facebook_combined",
                 pretty_name="SNAP facebook_combined",
                 description=(
                     "Combined Facebook social-circle network, with 4,039 nodes and"
@@ -248,7 +248,7 @@ class FastSVSNAPGenerator(Generator[FastSVDataset]):
                 suites=[],
             ),
             FastSVDataset(
-                name="snap-ca-GrQc",
+                name="ca-GrQc",
                 pretty_name="SNAP ca-GrQc",
                 description=(
                     "Arxiv General Relativity and Quantum Cosmology collaboration"
@@ -259,7 +259,7 @@ class FastSVSNAPGenerator(Generator[FastSVDataset]):
         ]
 
     def generate(self, dataset: FastSVDataset) -> DataInstance:
-        if dataset.name.startswith("snap"):
+        if dataset.name in self.dataset_names:
             return fetch_snap_graph(dataset.name)
         raise ValueError(f"Unsupported FastSV dataset: {dataset.name}")
 

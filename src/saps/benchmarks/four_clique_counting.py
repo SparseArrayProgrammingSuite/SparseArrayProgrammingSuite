@@ -231,7 +231,7 @@ class FourCliqueCountSNAPGenerator(Generator[GraphCountingDataset]):
     def datasets(self) -> list[GraphCountingDataset]:
         return [
             GraphCountingDataset(
-                name="snap-email-Eu-core-temporal-Dept3",
+                name="email-Eu-core-temporal-Dept3",
                 pretty_name="SNAP email-Eu-core temporal Dept3",
                 description=(
                     "Department 3 email network from the SNAP email-Eu-core"
@@ -240,7 +240,7 @@ class FourCliqueCountSNAPGenerator(Generator[GraphCountingDataset]):
                 suites=["standard"],
             ),
             GraphCountingDataset(
-                name="snap-email-Eu-core-temporal-Dept4",
+                name="email-Eu-core-temporal-Dept4",
                 pretty_name="SNAP email-Eu-core temporal Dept4",
                 description=(
                     "Department 4 email network from the SNAP email-Eu-core"
@@ -251,7 +251,7 @@ class FourCliqueCountSNAPGenerator(Generator[GraphCountingDataset]):
         ]
 
     def generate(self, dataset: GraphCountingDataset) -> DataInstance:
-        if dataset.name.startswith("snap"):
+        if dataset.name in self.dataset_names:
             return fetch_snap_graph(dataset.name)
         raise ValueError(f"Unsupported 4-clique count dataset: {dataset.name}")
 

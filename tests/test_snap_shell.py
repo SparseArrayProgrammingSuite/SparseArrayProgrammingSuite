@@ -35,20 +35,23 @@ _CONSUMERS = [
 def test_snap_shell_inventory_covers_consumers():
     generator = SNAPGraphGenerator()
     declared = {d.name for d in generator.datasets}
-    assert len(declared) == len(generator.datasets) == 8
+    assert len(declared) == len(generator.datasets) == 131
     assert SNAPGraphBenchmark().name == "snap_graph_shell"
     assert generator.cacheable
     consumed = set()
     for benchmark in _benchmark_instances():
         for consumer in benchmark.generators:
             for dataset in consumer.datasets:
-                # snap-toy is an in-memory test graph, not a downloaded source.
-                if dataset.name.startswith("snap-") and dataset.name != "snap-toy":
+                if (
+                    type(consumer).__name__.endswith("SNAPGenerator")
+                    or consumer.name == "snap_graph"
+                ):
                     assert dataset.name in declared
                     if consumer.name != generator.name:
                         assert not consumer.cacheable
                         consumed.add(dataset.name)
-    assert consumed == declared
+    assert consumed <= declared
+    assert len(consumed) == 8
 
 
 @pytest.mark.parametrize(("module_name", "class_name"), _CONSUMERS)
@@ -65,7 +68,7 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
     dataset = consumer.datasets[0]
     shell = SNAPGraphGenerator()
     source = next(d for d in shell.datasets if d.name == dataset.name)
-    slug = dataset.name.removeprefix("snap-")
+    slug = dataset.name
     path = backend.cache_dir / "snap" / slug / f"{slug}.txt"
     path.parent.mkdir(parents=True)
     path.write_text("# directed graph with a self-loop\n10 20\n20 40\n40 40\n")
@@ -148,3 +151,29 @@ def test_snap_transitive_reduction_removes_redundant_edge(monkeypatch):
     np.testing.assert_array_equal(
         to_scipy(adjacency).toarray(), [[0, 1, 1], [0, 0, 1], [0, 0, 0]]
     )
+
+
+def test_snap_catalog_metadata_and_group_concepts():
+    from xml.etree import ElementTree as ET
+
+    datasets = SNAPGraphGenerator().datasets
+    assert len({d.group for d in datasets}) == 23
+    for dataset in datasets:
+        metadata = dataset.metadata
+        assert metadata["types"] == dataset.types
+        assert metadata["description"] == dataset.description
+        assert metadata["nodes"] == dataset.nodes
+        assert metadata["edges"] == dataset.edges
+        assert metadata["group"] == dataset.group
+        assert ET.fromstring(dataset.concepts).findtext("concept/concept_id")
+        assert dataset.topics
+    reddit = [d for d in datasets if d.source_name == "soc-RedditHyperlinks"]
+    assert len(reddit) == 4
+    assert len({d.name for d in reddit}) == 4
+    assert len({d.group for d in reddit}) == 4
+    by_name = {d.name: d for d in datasets}
+    assert by_name["as-733"].nodes == "103-6,474"
+    assert by_name["wiki-hoaxes"].edges is None
+    assert by_name["Deezer Ego-nets"].nodes is None
+    assert by_name["Deezer Ego-nets"].graphs == 9629
+    assert by_name["web-BeerAdvocate"].items == "1,586,259 beer reviews"

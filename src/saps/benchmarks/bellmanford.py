@@ -391,7 +391,7 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
     def datasets(self) -> list[BellmanFordDataset]:
         return [
             BellmanFordDataset(
-                name="snap-email-Eu-core-temporal-Dept3",
+                name="email-Eu-core-temporal-Dept3",
                 pretty_name="SNAP email-Eu-core temporal Dept3",
                 description=(
                     "Department 3 email network from the SNAP email-Eu-core"
@@ -401,7 +401,7 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
                 suites=[],
             ),
             BellmanFordDataset(
-                name="snap-email-Eu-core-temporal-Dept4",
+                name="email-Eu-core-temporal-Dept4",
                 pretty_name="SNAP email-Eu-core temporal Dept4",
                 description=(
                     "Department 4 email network from the SNAP email-Eu-core"
@@ -411,7 +411,7 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
                 suites=[],
             ),
             BellmanFordDataset(
-                name="snap-email-Eu-core-temporal-Dept2",
+                name="email-Eu-core-temporal-Dept2",
                 pretty_name="SNAP email-Eu-core temporal Dept2",
                 description=(
                     "Department 2 email network from the SNAP email-Eu-core"
@@ -421,7 +421,7 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
                 suites=[],
             ),
             BellmanFordDataset(
-                name="snap-email-Eu-core-temporal-Dept1",
+                name="email-Eu-core-temporal-Dept1",
                 pretty_name="SNAP email-Eu-core temporal Dept1",
                 description=(
                     "Department 1 email network from the SNAP email-Eu-core"
@@ -431,7 +431,7 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
                 suites=[],
             ),
             BellmanFordDataset(
-                name="snap-email-Eu-core",
+                name="email-Eu-core",
                 pretty_name="SNAP email-Eu-core",
                 description=(
                     "Directed email communication network from a European research"
@@ -443,7 +443,7 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
         ]
 
     def generate(self, dataset: BellmanFordDataset) -> DataInstance:
-        if dataset.name.startswith("snap"):
+        if dataset.name in self.dataset_names:
             raw = fetch_snap_graph(dataset.name)
             return DataInstance(
                 inputs=[_adjacency_to_distance(raw.inputs[0])], meta=raw.meta

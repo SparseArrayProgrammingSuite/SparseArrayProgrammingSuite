@@ -229,7 +229,7 @@ class ConnectedComponentsSNAPGenerator(Generator[ConnectedComponentsDataset]):
     def datasets(self) -> list[ConnectedComponentsDataset]:
         return [
             ConnectedComponentsDataset(
-                name="snap-email-Eu-core",
+                name="email-Eu-core",
                 pretty_name="SNAP email-Eu-core",
                 description=(
                     "Directed email communication network from a European research"
@@ -238,7 +238,7 @@ class ConnectedComponentsSNAPGenerator(Generator[ConnectedComponentsDataset]):
                 suites=[],
             ),
             ConnectedComponentsDataset(
-                name="snap-facebook_combined",
+                name="facebook_combined",
                 pretty_name="SNAP facebook_combined",
                 description=(
                     "Combined Facebook social-circle network, with 4,039 nodes and"
@@ -247,7 +247,7 @@ class ConnectedComponentsSNAPGenerator(Generator[ConnectedComponentsDataset]):
                 suites=[],
             ),
             ConnectedComponentsDataset(
-                name="snap-ca-GrQc",
+                name="ca-GrQc",
                 pretty_name="SNAP ca-GrQc",
                 description=(
                     "Arxiv General Relativity and Quantum Cosmology collaboration"
@@ -258,7 +258,7 @@ class ConnectedComponentsSNAPGenerator(Generator[ConnectedComponentsDataset]):
         ]
 
     def generate(self, dataset: ConnectedComponentsDataset) -> DataInstance:
-        if dataset.name.startswith("snap"):
+        if dataset.name in self.dataset_names:
             return fetch_snap_graph(dataset.name)
         raise ValueError(f"Unsupported connected components dataset: {dataset.name}")
 

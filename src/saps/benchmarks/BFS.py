@@ -254,7 +254,7 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
     def datasets(self) -> list[BreadthFirstSearchDataset]:
         return [
             BreadthFirstSearchDataset(
-                name="snap-email-Eu-core",
+                name="email-Eu-core",
                 pretty_name="SNAP email-Eu-core",
                 description=(
                     "Directed email communication network from a European research"
@@ -263,7 +263,7 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
                 suites=[],
             ),
             BreadthFirstSearchDataset(
-                name="snap-facebook_combined",
+                name="facebook_combined",
                 pretty_name="SNAP facebook_combined",
                 description=(
                     "Combined Facebook social-circle network, with 4,039 nodes and"
@@ -272,7 +272,7 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
                 suites=[],
             ),
             BreadthFirstSearchDataset(
-                name="snap-ca-GrQc",
+                name="ca-GrQc",
                 pretty_name="SNAP ca-GrQc",
                 description=(
                     "Arxiv General Relativity and Quantum Cosmology collaboration"
@@ -281,7 +281,7 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
                 suites=[],
             ),
             BreadthFirstSearchDataset(
-                name="snap-p2p-Gnutella04",
+                name="p2p-Gnutella04",
                 pretty_name="SNAP p2p-Gnutella04",
                 description=(
                     "Directed Gnutella peer-to-peer network snapshot from August 4,"
@@ -292,7 +292,7 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
         ]
 
     def generate(self, dataset: BreadthFirstSearchDataset) -> DataInstance:
-        if dataset.name.startswith("snap"):
+        if dataset.name in self.dataset_names:
             return fetch_snap_graph(dataset.name)
         raise ValueError(f"Unsupported BFS dataset: {dataset.name}")
 

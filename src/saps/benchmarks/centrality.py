@@ -287,7 +287,7 @@ class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralityDataset]
     def datasets(self) -> list[BetweennessCentralityDataset]:
         return [
             BetweennessCentralityDataset(
-                name="snap-email-Eu-core-temporal-Dept3",
+                name="email-Eu-core-temporal-Dept3",
                 pretty_name="SNAP email-Eu-core temporal Dept3",
                 description=(
                     "Department 3 email network from the SNAP email-Eu-core"
@@ -296,7 +296,7 @@ class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralityDataset]
                 suites=[],
             ),
             BetweennessCentralityDataset(
-                name="snap-email-Eu-core-temporal-Dept4",
+                name="email-Eu-core-temporal-Dept4",
                 pretty_name="SNAP email-Eu-core temporal Dept4",
                 description=(
                     "Department 4 email network from the SNAP email-Eu-core"
@@ -307,7 +307,7 @@ class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralityDataset]
         ]
 
     def generate(self, dataset: BetweennessCentralityDataset) -> DataInstance:
-        if dataset.name.startswith("snap"):
+        if dataset.name in self.dataset_names:
             return fetch_snap_graph(dataset.name)
         raise ValueError(f"Unsupported betweenness centrality dataset: {dataset.name}")
 
