@@ -770,9 +770,10 @@ Nearest neighbor algorithms</concept_desc>
 
         for _ in range(log2(nhashes)):
             key_data = xp.zeros(nearest_distances.shape, dtype=projected_data.dtype)
-            key_data[projected_data] = true
             key_query = xp.zeros(nearest_distances.shape, dtype=projected_data.dtype)
-            key_query[projected_query] = true
+            for b in buckets:
+                key_data[b, projected_data[b,:]] = true
+                key_query[b, projected_query[b,:]] = true
             key_query &= sum(candidates) < query_cap
             candidates |= xp.einsum("candidates[q,b] |= key_query[q, b] && key_data[q, b]", candidates=candidates, key_query=key_query, key_data=key_data)
             projected_data /= 2
