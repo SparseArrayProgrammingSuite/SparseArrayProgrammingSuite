@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABC
 
 import numpy as np
 
@@ -35,24 +35,27 @@ def _step_input(t):
     return 5.0 if t >= 0 else 0.0
 
 
-def _rc_derivatives(t, state, R, C, source_voltage):
+def _rc_derivatives(t, state, data, meta):
     """RC circuit derivatives."""
+    R, C = meta["R"], meta["C"]
     tau = R * C
-    Vs = source_voltage(t)
+    Vs = _step_input(t)
     return [(Vs - state[0]) / tau]
 
 
-def _rlc_derivatives(t, state, R, L, C, source_voltage):
+def _rlc_derivatives(t, state, data, meta):
     """RLC circuit derivatives."""
+    R, L, C = meta["R"], meta["L"], meta["C"]
     Vc = state[0]
     dVc = state[1]
-    Vs = source_voltage(t)
+    Vs = _step_input(t)
     d2Vc = (Vs - Vc - R * C * dVc) / (L * C)
     return (dVc, d2Vc)
 
 
-def _lotka_volterra_derivatives(t, state, a, b, c, d):
+def _lotka_volterra_derivatives(t, state, data, meta):
     """Lotka-Volterra derivatives."""
+    a, b, c, d = meta["a"], meta["b"], meta["c"], meta["d"]
     x, y = state
     dxdt = a * x - b * x * y
     dydt = d * x * y - c * y
@@ -104,8 +107,10 @@ def _construct_brusselator_matrix(n, alpha, b):
     return C
 
 
-def _brusselator_derivatives(t, u_vec, n, a, alpha, C, brusselator_cb):
+def _brusselator_derivatives(t, u_vec, data, meta):
     """Brusselator derivatives with diffusion on 2D grid."""
+    C, brusselator_cb = data
+    a = meta["a"]
     u_arr = np.array(u_vec, dtype=float)
 
     lin = C @ u_arr
@@ -125,12 +130,30 @@ def _brusselator_derivatives(t, u_vec, n, a, alpha, C, brusselator_cb):
     return (lin + non_lin).tolist()
 
 
-def _linear_system_derivatives(t, state, A, B, input_value):
+def _linear_system_derivatives(t, state, data, meta):
     """Linear state-space derivatives for dx/dt = A x + B u."""
+    A, B = data
+    input_value = meta["input_value"]
     state_array = np.asarray(state)
     input_dtype = np.result_type(B.dtype, type(input_value), float)
     input_array = np.full(B.shape[1], input_value, dtype=input_dtype)
     return (A @ state_array + B @ input_array).tolist()
+
+
+def _resolve_derivatives(problem_name):
+    match problem_name:
+        case "rc":
+            return _rc_derivatives
+        case "rlc":
+            return _rlc_derivatives
+        case "lotka_volterra":
+            return _lotka_volterra_derivatives
+        case "brusselator":
+            return _brusselator_derivatives
+        case "slicot_ode":
+            return _linear_system_derivatives
+        case _:
+            raise NotImplementedError(f"Unknown ODE problem: {problem_name!r}")
 
 
 # ---------------------------------------------------------------------------
@@ -420,6 +443,7 @@ class RCGenerator(Generator[RCDataset]):
 
     def generate(self, dataset: RCDataset):
         meta = {
+            "problem_name": self.name,
             "span": (0, dataset.t_max),
             "y0": [dataset.V_C_initial],
             "step": dataset.step,
@@ -489,6 +513,7 @@ class RLCGenerator(Generator[RLCDataset]):
 
     def generate(self, dataset: RLCDataset):
         meta = {
+            "problem_name": self.name,
             "span": (0, dataset.t_max),
             "y0": list(dataset.y0),
             "step": dataset.step,
@@ -496,7 +521,7 @@ class RLCGenerator(Generator[RLCDataset]):
             "L": dataset.L,
             "C": dataset.C,
         }
-        return DataInstance(inputs=[], meta=meta)
+        return DataInstance(inputs=[], meta=meta, ref_meta={"check_components": [0]})
 
 
 class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
@@ -560,6 +585,7 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
 
     def generate(self, dataset: LotkaVolterraDataset):
         meta = {
+            "problem_name": self.name,
             "span": (0, dataset.t_max),
             "y0": list(dataset.y0),
             "step": dataset.step,
@@ -568,7 +594,7 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
             "c": dataset.c,
             "d": dataset.d,
         }
-        return DataInstance(inputs=[], meta=meta)
+        return DataInstance(inputs=[], meta=meta, ref_meta={"error_tolerance": 10.0})
 
 
 class BrusselatorGenerator(Generator[BrusselatorDataset]):
@@ -643,6 +669,7 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
 
     def generate(self, dataset: BrusselatorDataset):
         meta = {
+            "problem_name": self.name,
             "span": (0, dataset.t_max),
             "y0": list(dataset.y0),
             "step": dataset.step,
@@ -656,6 +683,7 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
                 from_numpy(np.asarray(dataset.brusselator_cb)),
             ],
             meta=meta,
+            ref_meta={"error_tolerance": 0.5, "real_output": True},
         )
 
 
@@ -776,6 +804,7 @@ class SLICOTGenerator(Generator[SLICOTDataset]):
             )
 
         meta = {
+            "problem_name": self.name,
             "span": (0, dataset.t_max),
             "y0": [0.0] * A.shape[0],
             "step": dataset.step,
@@ -804,11 +833,43 @@ class SLICOTGenerator(Generator[SLICOTDataset]):
 
 
 # ---------------------------------------------------------------------------
-# Integration-scheme abstract bases
+# Integration-method benchmarks
 # ---------------------------------------------------------------------------
 
 
 class _OdeBenchmarkBase(Benchmark, ABC):
+    step_multiplier = 1.0
+
+    @property
+    def suites(self):
+        return []
+
+    @property
+    def generators(self):
+        return [
+            RCGenerator(),
+            RLCGenerator(),
+            LotkaVolterraGenerator(),
+            BrusselatorGenerator(),
+            SLICOTGenerator(),
+        ]
+
+    @property
+    def metadata(self):
+        return {
+            **super().metadata,
+            "step_multiplier": self.step_multiplier,
+        }
+
+    def setup(self, param, **kwargs):
+        super().setup(param, **kwargs)
+        # Older cached inputs do not identify their problem. Use the selected
+        # generator and preserve the cached matrices without modifying its metadata.
+        self._meta = {"problem_name": param.generator.name, **self._meta}
+        if isinstance(param.dataset, SLICOTDataset):
+            # Apply current method settings even when the cached timestep is stale.
+            self._meta["step"] = param.dataset.step * self.step_multiplier
+
     @property
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
@@ -829,30 +890,18 @@ class _OdeBenchmarkBase(Benchmark, ABC):
     def motivation(self):
         return ""
 
-    def _error_tolerance(self):
-        return 0.05
-
-    def _comparison_output(self, y, ref):
-        return y, ref
-
-    def _check_data(self):
-        return [_dense_binsparse_array(item) for item in self._input]
-
-    @abstractmethod
-    def _dydt(self, t, y, data, meta):
-        raise NotImplementedError
-
     def check(self, param):
         super().check(param)
         from scipy.integrate import solve_ivp
 
         time = to_numpy(self._output[0])
         y_out = to_numpy(self._output[1])
-        assert np.all(np.isfinite(y_out)), (
-            f"Non-finite ODE output at step={self._meta['step']}"
-        )
-        data = self._check_data()
-        rhs = lambda t, y: self._dydt(t, list(y), data, self._meta)  # noqa: E731
+        assert np.all(
+            np.isfinite(y_out)
+        ), f"Non-finite ODE output at step={self._meta['step']}"
+        data = [_dense_binsparse_array(item) for item in self._input]
+        dydt = _resolve_derivatives(self._meta["problem_name"])
+        rhs = lambda t, y: dydt(t, list(y), data, self._meta)  # noqa: E731
         y0 = np.asarray(
             self._meta["y0"],
             dtype=np.result_type(y_out.dtype, *(item.dtype for item in data), float),
@@ -866,20 +915,38 @@ class _OdeBenchmarkBase(Benchmark, ABC):
             atol=1e-10,
         )
         assert solution.success, f"ODE reference integration failed: {solution.message}"
-        actual_y, ref_y = self._comparison_output(np.asarray(y_out), solution.y.T)
+        ref_meta = self._ref_meta or {}
+        actual_y, ref_y = np.asarray(y_out), solution.y.T
+        if ref_meta.get("real_output"):
+            actual_y = actual_y.real
+        if "check_components" in ref_meta:
+            components = ref_meta["check_components"]
+            actual_y, ref_y = actual_y[:, components], ref_y[:, components]
+        tolerance = ref_meta.get("error_tolerance", 0.05)
         error = np.max(np.abs(actual_y - ref_y))
-        assert error < self._error_tolerance(), (
+        assert error < tolerance, (
             f"ODE maximum absolute error {error:.6g} exceeds "
-            f"tolerance {self._error_tolerance()} at step={self._meta['step']}"
+            f"tolerance {tolerance} at step={self._meta['step']}"
         )
 
 
-class _ForwardEulerBase(_OdeBenchmarkBase):
+class ForwardEuler(_OdeBenchmarkBase):
+    step_multiplier = 0.01
+
     @property
-    def suites(self):
-        return []
+    def name(self):
+        return "forward_euler"
+
+    @property
+    def pretty_name(self):
+        return "Forward Euler"
+
+    @property
+    def description(self):
+        return "Integrates ODE initial-value problems with the forward Euler method."
 
     def benchmark(self, xp, data, meta):
+        dydt = _resolve_derivatives(meta["problem_name"])
         span = meta["span"]
         y0 = meta["y0"]
         step = meta["step"]
@@ -892,19 +959,33 @@ class _ForwardEulerBase(_OdeBenchmarkBase):
         outputs = [None for _ in inputs]
         outputs[0] = y0
         for i in range(1, len(inputs)):
-            dydt_vector = self._dydt(inputs[i - 1], outputs[i - 1], data, meta)
+            dydt_vector = dydt(inputs[i - 1], outputs[i - 1], data, meta)
             outputs[i] = [
                 outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
             ]
         return (np.asarray(inputs), np.asarray(outputs))
 
 
-class _BackwardEulerBase(_OdeBenchmarkBase):
+class BackwardEuler(_OdeBenchmarkBase):
+    step_multiplier = 0.02
+
     @property
-    def suites(self):
-        return []
+    def name(self):
+        return "backward_euler"
+
+    @property
+    def pretty_name(self):
+        return "Backward Euler"
+
+    @property
+    def description(self):
+        return (
+            "Integrates ODE initial-value problems with backward Euler, "
+            "using ten fixed-point iterations per step."
+        )
 
     def benchmark(self, xp, data, meta):
+        dydt = _resolve_derivatives(meta["problem_name"])
         span = meta["span"]
         y0 = meta["y0"]
         step = meta["step"]
@@ -919,7 +1000,7 @@ class _BackwardEulerBase(_OdeBenchmarkBase):
         for i in range(1, len(inputs)):
             y_guess = outputs[i - 1]
             for _ in range(10):
-                dydt_vector = self._dydt(inputs[i], y_guess, data, meta)
+                dydt_vector = dydt(inputs[i], y_guess, data, meta)
                 y_guess = [
                     outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
                 ]
@@ -927,12 +1008,26 @@ class _BackwardEulerBase(_OdeBenchmarkBase):
         return (np.asarray(inputs), np.asarray(outputs))
 
 
-class _RK4Base(_OdeBenchmarkBase):
+class RungeKutta(_OdeBenchmarkBase):
+    step_multiplier = 1.0
+
     @property
-    def suites(self):
-        return []
+    def name(self):
+        return "runge_kutta"
+
+    @property
+    def pretty_name(self):
+        return "Runge-Kutta (RK4)"
+
+    @property
+    def description(self):
+        return (
+            "Integrates ODE initial-value problems with the classical "
+            "fourth-order Runge-Kutta method."
+        )
 
     def benchmark(self, xp, data, meta):
+        dydt = _resolve_derivatives(meta["problem_name"])
         span = meta["span"]
         y0 = meta["y0"]
         step = meta["step"]
@@ -946,308 +1041,15 @@ class _RK4Base(_OdeBenchmarkBase):
         outputs[0] = y0
         for i in range(1, len(inputs)):
             y_prev = outputs[i - 1]
-            k1 = self._dydt(inputs[i - 1], y_prev, data, meta)
+            k1 = dydt(inputs[i - 1], y_prev, data, meta)
             k2_state = [y_prev[j] + (step / 2) * k1[j] for j in range(len(y0))]
-            k2 = self._dydt(inputs[i - 1] + step / 2, k2_state, data, meta)
+            k2 = dydt(inputs[i - 1] + step / 2, k2_state, data, meta)
             k3_state = [y_prev[j] + (step / 2) * k2[j] for j in range(len(y0))]
-            k3 = self._dydt(inputs[i - 1] + step / 2, k3_state, data, meta)
+            k3 = dydt(inputs[i - 1] + step / 2, k3_state, data, meta)
             k4_state = [y_prev[j] + step * k3[j] for j in range(len(y0))]
-            k4 = self._dydt(inputs[i - 1] + step, k4_state, data, meta)
+            k4 = dydt(inputs[i - 1] + step, k4_state, data, meta)
             outputs[i] = [
                 y_prev[j] + (step / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j])
                 for j in range(len(y0))
             ]
         return (np.asarray(inputs), np.asarray(outputs))
-
-
-# ---------------------------------------------------------------------------
-# RC concrete benchmarks
-# ---------------------------------------------------------------------------
-
-
-class _RCMixin:
-    @property
-    def description(self):
-        return "RC circuit ODE."
-
-    @property
-    def generators(self):
-        return [RCGenerator()]
-
-    def _dydt(self, t, y, data, meta):
-        return _rc_derivatives(t, y, meta["R"], meta["C"], _step_input)
-
-
-class RCForwardEuler(_RCMixin, _ForwardEulerBase):
-    @property
-    def name(self):
-        return "rc_forward_euler"
-
-    @property
-    def pretty_name(self):
-        return "RC Circuit — Forward Euler"
-
-
-class RCBackwardEuler(_RCMixin, _BackwardEulerBase):
-    @property
-    def name(self):
-        return "rc_backward_euler"
-
-    @property
-    def pretty_name(self):
-        return "RC Circuit — Backward Euler"
-
-
-class RCRK4(_RCMixin, _RK4Base):
-    @property
-    def name(self):
-        return "rc_rk4"
-
-    @property
-    def pretty_name(self):
-        return "RC Circuit — RK4"
-
-
-# ---------------------------------------------------------------------------
-# RLC concrete benchmarks
-# ---------------------------------------------------------------------------
-
-
-class _RLCMixin:
-    @property
-    def description(self):
-        return "RLC circuit ODE."
-
-    @property
-    def generators(self):
-        return [RLCGenerator()]
-
-    def _dydt(self, t, y, data, meta):
-        return _rlc_derivatives(t, y, meta["R"], meta["L"], meta["C"], _step_input)
-
-    def _comparison_output(self, y, ref):
-        return y[:, 0], ref[:, 0]
-
-
-class RLCForwardEuler(_RLCMixin, _ForwardEulerBase):
-    @property
-    def name(self):
-        return "rlc_forward_euler"
-
-    @property
-    def pretty_name(self):
-        return "RLC Circuit — Forward Euler"
-
-
-class RLCBackwardEuler(_RLCMixin, _BackwardEulerBase):
-    @property
-    def name(self):
-        return "rlc_backward_euler"
-
-    @property
-    def pretty_name(self):
-        return "RLC Circuit — Backward Euler"
-
-
-class RLCRK4(_RLCMixin, _RK4Base):
-    @property
-    def name(self):
-        return "rlc_rk4"
-
-    @property
-    def pretty_name(self):
-        return "RLC Circuit — RK4"
-
-
-# ---------------------------------------------------------------------------
-# Lotka-Volterra concrete benchmarks
-# ---------------------------------------------------------------------------
-
-
-class _LotkaVolterraMixin:
-    @property
-    def description(self):
-        return "Lotka-Volterra ODE."
-
-    @property
-    def generators(self):
-        return [LotkaVolterraGenerator()]
-
-    def _dydt(self, t, y, data, meta):
-        return _lotka_volterra_derivatives(
-            t, y, meta["a"], meta["b"], meta["c"], meta["d"]
-        )
-
-    def _error_tolerance(self):
-        return 10.0
-
-
-class LotkaVolterraForwardEuler(_LotkaVolterraMixin, _ForwardEulerBase):
-    @property
-    def name(self):
-        return "lotka_volterra_forward_euler"
-
-    @property
-    def pretty_name(self):
-        return "Lotka-Volterra — Forward Euler"
-
-
-class LotkaVolterraBackwardEuler(_LotkaVolterraMixin, _BackwardEulerBase):
-    @property
-    def name(self):
-        return "lotka_volterra_backward_euler"
-
-    @property
-    def pretty_name(self):
-        return "Lotka-Volterra — Backward Euler"
-
-
-class LotkaVolterraRK4(_LotkaVolterraMixin, _RK4Base):
-    @property
-    def name(self):
-        return "lotka_volterra_rk4"
-
-    @property
-    def pretty_name(self):
-        return "Lotka-Volterra — RK4"
-
-
-# ---------------------------------------------------------------------------
-# Brusselator concrete benchmarks
-# ---------------------------------------------------------------------------
-
-
-class _BrusselatorMixin:
-    @property
-    def description(self):
-        return "2D Brusselator ODE with diffusion."
-
-    @property
-    def generators(self):
-        return [BrusselatorGenerator()]
-
-    def _dydt(self, t, y, data, meta):
-        C, brusselator_cb = data
-        return _brusselator_derivatives(
-            t,
-            y,
-            meta["n"],
-            meta["a"],
-            meta["alpha"],
-            C,
-            brusselator_cb,
-        )
-
-    def _error_tolerance(self):
-        return 0.5
-
-    def _comparison_output(self, y, ref):
-        return y.real, ref
-
-
-class BrusselatorForwardEuler(_BrusselatorMixin, _ForwardEulerBase):
-    @property
-    def name(self):
-        return "brusselator_forward_euler"
-
-    @property
-    def pretty_name(self):
-        return "Brusselator — Forward Euler"
-
-
-class BrusselatorBackwardEuler(_BrusselatorMixin, _BackwardEulerBase):
-    @property
-    def name(self):
-        return "brusselator_backward_euler"
-
-    @property
-    def pretty_name(self):
-        return "Brusselator — Backward Euler"
-
-
-class BrusselatorRK4(_BrusselatorMixin, _RK4Base):
-    @property
-    def name(self):
-        return "brusselator_rk4"
-
-    @property
-    def pretty_name(self):
-        return "Brusselator — RK4"
-
-
-# ---------------------------------------------------------------------------
-# SLICOT concrete benchmarks
-# ---------------------------------------------------------------------------
-
-
-class _SLICOTMixin:
-    step_multiplier = 1.0
-
-    @property
-    def metadata(self):
-        return {**super().metadata, "step_multiplier": self.step_multiplier}
-
-    def setup(self, param, **kwargs):
-        super().setup(param, **kwargs)
-        # Integration settings come from the current dataset definition, including
-        # when the matrices were cached with an older timestep.
-        self._meta = {**self._meta, "step": param.dataset.step * self.step_multiplier}
-
-    @property
-    def description(self):
-        return "SLICOT identity-E linear model-reduction ODE."
-
-    @property
-    def generators(self):
-        return [SLICOTGenerator()]
-
-    @property
-    def references(self):
-        return [
-            Ref(
-                title=(
-                    "Benchmark examples for model reduction of linear time "
-                    "invariant dynamical systems"
-                ),
-                authors=[],
-                url=SLICOT_BENCHMARK_PAGE_URL,
-            )
-        ]
-
-    def _dydt(self, t, y, data, meta):
-        A, B = data
-        return _linear_system_derivatives(t, y, A, B, meta["input_value"])
-
-
-class SLICOTForwardEuler(_SLICOTMixin, _ForwardEulerBase):
-    step_multiplier = 0.01
-
-    @property
-    def name(self):
-        return "slicot_forward_euler"
-
-    @property
-    def pretty_name(self):
-        return "SLICOT Linear Systems — Forward Euler"
-
-
-class SLICOTBackwardEuler(_SLICOTMixin, _BackwardEulerBase):
-    step_multiplier = 0.02
-
-    @property
-    def name(self):
-        return "slicot_backward_euler"
-
-    @property
-    def pretty_name(self):
-        return "SLICOT Linear Systems — Backward Euler"
-
-
-class SLICOTRK4(_SLICOTMixin, _RK4Base):
-    @property
-    def name(self):
-        return "slicot_rk4"
-
-    @property
-    def pretty_name(self):
-        return "SLICOT Linear Systems — RK4"

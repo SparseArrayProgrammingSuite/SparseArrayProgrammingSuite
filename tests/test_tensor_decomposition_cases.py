@@ -91,11 +91,11 @@ def test_decomposition_check_rejects_invalid_output(benchmark_cls, corruption):
         benchmark.check(param)
 
 
-@pytest.mark.parametrize("benchmark_cls", _DECOMPOSITION_CLASSES)
+@pytest.mark.parametrize(
+    "benchmark_cls", [cp_als.CP_ALS_3D, cp_als.CP_ALS_4D, cp_als.CP_ALS_5D]
+)
 @pytest.mark.parametrize("ref_meta", [None, {}, {"check_reconstruction": False}])
-def test_decomposition_check_skips_dense_reconstruction(
-    benchmark_cls, ref_meta, monkeypatch
-):
+def test_cp_check_skips_dense_reconstruction(benchmark_cls, ref_meta, monkeypatch):
     benchmark = benchmark_cls()
     benchmark._ref_meta = ref_meta
     benchmark._output = [from_numpy(np.ones(1)) for _ in range(benchmark.n + 1)]

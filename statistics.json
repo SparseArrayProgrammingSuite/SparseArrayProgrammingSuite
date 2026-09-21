@@ -111,6 +111,28 @@
         {
           "datasets": [
             {
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "brusselator_tiny",
+              "statistics": [
+                "dense",
+                "index-ops",
+                "linalg-ops"
+              ]
+            }
+          ],
+          "name": "brusselator",
+          "statistics": []
+        }
+      ],
+      "name": "backward_euler",
+      "statistics": []
+    },
+    {
+      "generators": [
+        {
+          "datasets": [
+            {
               "file": "src/saps/benchmarks/bellmanford.py",
               "freshness": "c140e5e23ad9d8f1352fa92b3e0a97762771b0848346d4d7eafb7aa75923d184",
               "name": "test_bellman_ford_chesapeake_src_0",
@@ -342,72 +364,6 @@
         }
       ],
       "name": "bfs",
-      "statistics": []
-    },
-    {
-      "generators": [
-        {
-          "datasets": [
-            {
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "7b42326d0bbbed07a17b91295dbad12da10ba21f4d2ab4deb7e37e8e97f1bd91",
-              "name": "brusselator_tiny",
-              "statistics": [
-                "dense",
-                "index-ops",
-                "linalg-ops"
-              ]
-            }
-          ],
-          "name": "brusselator",
-          "statistics": []
-        }
-      ],
-      "name": "brusselator_backward_euler",
-      "statistics": []
-    },
-    {
-      "generators": [
-        {
-          "datasets": [
-            {
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "7b42326d0bbbed07a17b91295dbad12da10ba21f4d2ab4deb7e37e8e97f1bd91",
-              "name": "brusselator_tiny",
-              "statistics": [
-                "dense",
-                "index-ops",
-                "linalg-ops"
-              ]
-            }
-          ],
-          "name": "brusselator",
-          "statistics": []
-        }
-      ],
-      "name": "brusselator_forward_euler",
-      "statistics": []
-    },
-    {
-      "generators": [
-        {
-          "datasets": [
-            {
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "7b42326d0bbbed07a17b91295dbad12da10ba21f4d2ab4deb7e37e8e97f1bd91",
-              "name": "brusselator_tiny",
-              "statistics": [
-                "dense",
-                "index-ops",
-                "linalg-ops"
-              ]
-            }
-          ],
-          "name": "brusselator",
-          "statistics": []
-        }
-      ],
-      "name": "brusselator_rk4",
       "statistics": []
     },
     {
@@ -797,6 +753,28 @@
         {
           "datasets": [
             {
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "brusselator_tiny",
+              "statistics": [
+                "dense",
+                "index-ops",
+                "linalg-ops"
+              ]
+            }
+          ],
+          "name": "brusselator",
+          "statistics": []
+        }
+      ],
+      "name": "forward_euler",
+      "statistics": []
+    },
+    {
+      "generators": [
+        {
+          "datasets": [
+            {
               "file": "src/saps/benchmarks/four_clique_counting.py",
               "freshness": "1e30d1b7b23cb9721d0664e69fd1a97f7bc2eb98b75dfd27b196f8919b47531b",
               "name": "test_4clique_count_complete_k3",
@@ -1015,7 +993,7 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "small_dense_hosvd",
               "statistics": [
                 "dense",
@@ -1041,7 +1019,7 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "small_dense_4d",
               "statistics": [
                 "dense",
@@ -1067,7 +1045,7 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "small_dense_5d",
               "statistics": [
                 "dense",
@@ -2034,6 +2012,28 @@
         }
       ],
       "name": "rqc_statevector",
+      "statistics": []
+    },
+    {
+      "generators": [
+        {
+          "datasets": [
+            {
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "brusselator_tiny",
+              "statistics": [
+                "dense",
+                "index-ops",
+                "linalg-ops"
+              ]
+            }
+          ],
+          "name": "brusselator",
+          "statistics": []
+        }
+      ],
+      "name": "runge_kutta",
       "statistics": []
     },
     {

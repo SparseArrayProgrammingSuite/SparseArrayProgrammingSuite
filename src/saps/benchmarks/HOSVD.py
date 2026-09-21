@@ -194,7 +194,6 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
         return DataInstance(
             inputs=[X_bin, ranks_bin],
             meta={"n": dataset.n, "max_iter": 50, "tolerance": 1e-8},
-            ref_meta={"check_reconstruction": True},
         )
 
 
@@ -440,8 +439,7 @@ class HOSVDFrosttGenerator(Generator[HOSVDFrosttDataset]):
     def description(self) -> str:
         return (
             "Real sparse tensors downloaded from FROSTT (frostt.io), decomposed"
-            " directly. No dense reconstruction check is performed since these tensors"
-            " are stored in genuinely sparse (COO) form."
+            " directly from sparse (COO) inputs."
         )
 
     @property
@@ -761,9 +759,6 @@ class HOSVD3DBenchmark(HOSVDBenchmark):
                 item, BinsparseTensor
             ), "Output must be in binsparse format"
 
-        if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
-            return
-
         X = to_numpy(self._input[0])
         rank1, rank2, rank3 = to_numpy(self._input[1])
         core, A, B, C = [to_numpy(output) for output in self._output]
@@ -883,9 +878,6 @@ class HOSVD4DBenchmark(HOSVDBenchmark):
             assert isinstance(
                 item, BinsparseTensor
             ), "Output must be in binsparse format"
-
-        if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
-            return
 
         X = to_numpy(self._input[0])
         rank1, rank2, rank3, rank4 = to_numpy(self._input[1])
@@ -1025,9 +1017,6 @@ class HOSVD5DBenchmark(HOSVDBenchmark):
             assert isinstance(
                 item, BinsparseTensor
             ), "Output must be in binsparse format"
-
-        if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
-            return
 
         X = to_numpy(self._input[0])
         rank1, rank2, rank3, rank4, rank5 = to_numpy(self._input[1])

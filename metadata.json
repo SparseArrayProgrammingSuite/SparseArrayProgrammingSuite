@@ -858,6 +858,445 @@
       "topics": []
     },
     {
+      "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+      "asv_ids": {
+        "peakmem": "ode.BackwardEuler.peakmem_backward_euler",
+        "time": "ode.BackwardEuler.time_backward_euler"
+      },
+      "authors": [
+        "Akarsh Duddu <aduddu3@gatech.edu>"
+      ],
+      "concepts": "<ccs2012></ccs2012>",
+      "description": "Integrates ODE initial-value problems with backward Euler, using ten fixed-point iterations per step.",
+      "file": "src/saps/benchmarks/ode.py",
+      "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+      "generators": [
+        {
+          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+          "authors": [
+            "Akarsh Duddu <aduddu3@gatech.edu>"
+          ],
+          "cacheable": false,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "rc.rc_small",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Small RC circuit",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "rc_small",
+              "pretty_name": "RC Small",
+              "suites": [
+                "test"
+              ],
+              "tags": [
+                "test"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "RC circuit ODE.",
+          "file": "src/saps/benchmarks/ode.py",
+          "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+          "motivation": "",
+          "name": "rc",
+          "pretty_name": "RC Circuit",
+          "references": [],
+          "suites": [],
+          "tags": [],
+          "topics": []
+        },
+        {
+          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+          "authors": [
+            "Akarsh Duddu <aduddu3@gatech.edu>"
+          ],
+          "cacheable": false,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "rlc.rlc_small",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Small RLC circuit",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "rlc_small",
+              "pretty_name": "RLC Small",
+              "suites": [
+                "test"
+              ],
+              "tags": [
+                "test"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "RLC circuit ODE.",
+          "file": "src/saps/benchmarks/ode.py",
+          "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+          "motivation": "",
+          "name": "rlc",
+          "pretty_name": "RLC Circuit",
+          "references": [],
+          "suites": [],
+          "tags": [],
+          "topics": []
+        },
+        {
+          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+          "authors": [
+            "Akarsh Duddu <aduddu3@gatech.edu>"
+          ],
+          "cacheable": false,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "lotka_volterra.lotka_volterra_small",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Small Lotka-Volterra system",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "lotka_volterra_small",
+              "pretty_name": "Lotka-Volterra Small",
+              "suites": [
+                "test"
+              ],
+              "tags": [
+                "test"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "Lotka-Volterra ODE.",
+          "file": "src/saps/benchmarks/ode.py",
+          "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+          "motivation": "",
+          "name": "lotka_volterra",
+          "pretty_name": "Lotka-Volterra",
+          "references": [],
+          "suites": [],
+          "tags": [],
+          "topics": []
+        },
+        {
+          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+          "authors": [
+            "Akarsh Duddu <aduddu3@gatech.edu>"
+          ],
+          "cacheable": false,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "brusselator.brusselator_tiny",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Tiny 2D Brusselator correctness test",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "brusselator_tiny",
+              "pretty_name": "Brusselator Tiny",
+              "suites": [
+                "test",
+                "trace"
+              ],
+              "tags": [
+                "dense",
+                "index-ops",
+                "linalg-ops",
+                "test",
+                "trace"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "brusselator.brusselator_4",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "2D Brusselator with 100x100 grid",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "brusselator_4",
+              "pretty_name": "Brusselator 4x4",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "2D Brusselator ODE with diffusion.",
+          "file": "src/saps/benchmarks/ode.py",
+          "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+          "motivation": "",
+          "name": "brusselator",
+          "pretty_name": "Brusselator",
+          "references": [],
+          "suites": [],
+          "tags": [],
+          "topics": []
+        },
+        {
+          "ai_disclosure": "Generative AI was used to implement this generator.",
+          "authors": [],
+          "cacheable": true,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_eady",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE: model of an atmospheric storm track.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_eady",
+              "pretty_name": "SLICOT Eady example",
+              "source_inputs": 1,
+              "source_name": "eady.mat",
+              "source_order": 598,
+              "source_outputs": 1,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/eady.zip",
+              "step": 0.01,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_cdplayer",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE: classical CD player model.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_cdplayer",
+              "pretty_name": "SLICOT CD player",
+              "source_inputs": 2,
+              "source_name": "CDplayer.mat",
+              "source_order": 120,
+              "source_outputs": 2,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/CDplayer.zip",
+              "step": 4e-05,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_fom",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_fom",
+              "pretty_name": "SLICOT FOM model",
+              "source_inputs": 1,
+              "source_name": "fom.mat",
+              "source_order": 1006,
+              "source_outputs": 1,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/fom.zip",
+              "step": 0.001,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_random",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_random",
+              "pretty_name": "SLICOT Random example",
+              "source_inputs": 1,
+              "source_name": "random.mat",
+              "source_order": 200,
+              "source_outputs": 1,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/random.zip",
+              "step": 5e-05,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_pde",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE: partial differential equation.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_pde",
+              "pretty_name": "SLICOT PDE example",
+              "source_inputs": 1,
+              "source_name": "pde.mat",
+              "source_order": 84,
+              "source_outputs": 1,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/pde.zip",
+              "step": 0.001,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_heat_cont",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE: heat equation in a thin rod.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_heat_cont",
+              "pretty_name": "SLICOT Heat equation (continuous case)",
+              "source_inputs": 1,
+              "source_name": "heat-cont.mat",
+              "source_order": 200,
+              "source_outputs": 1,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/heat-cont.zip",
+              "step": 0.001,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_orr_som",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE: Orr-Sommerfeld operator for Couette flow.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_orr_som",
+              "pretty_name": "SLICOT Orr-Somerfeld example",
+              "source_inputs": 1,
+              "source_name": "Orr-Som.mat",
+              "source_order": 200,
+              "source_outputs": 1,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/Orr-Som.zip",
+              "step": 0.01,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_iss",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE: component 1r of the International Space Station.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_iss",
+              "pretty_name": "SLICOT International space station",
+              "source_inputs": 3,
+              "source_name": "iss.mat",
+              "source_order": 270,
+              "source_outputs": 3,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/iss.zip",
+              "step": 0.01,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_build",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE: motion problem in a building.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_build",
+              "pretty_name": "SLICOT Building model",
+              "source_inputs": 1,
+              "source_name": "build.mat",
+              "source_order": 48,
+              "source_outputs": 1,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/build.zip",
+              "step": 0.01,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_beam",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE: Clamped beam model.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_beam",
+              "pretty_name": "SLICOT Clamped beam model",
+              "source_inputs": 1,
+              "source_name": "beam.mat",
+              "source_order": 348,
+              "source_outputs": 1,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/beam.zip",
+              "step": 0.001,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "Loads SLICOT model-reduction problems without explicit E matrices, preserving stored sparse matrices, treating E as the identity, and defaulting missing B to a normalized single-input vector.",
+          "file": "src/saps/benchmarks/ode.py",
+          "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+          "motivation": "SLICOT model-reduction examples provide realistic linear dynamical systems for ODE integration benchmarks.",
+          "name": "slicot_ode",
+          "pretty_name": "SLICOT Model-Reduction ODE",
+          "references": [
+            ". \"Benchmark examples for model reduction of linear time invariant dynamical systems\", URL: https://www.slicot.org/20-site/126-benchmark-examples-for-model-reduction."
+          ],
+          "suites": [],
+          "tags": [],
+          "topics": []
+        }
+      ],
+      "motivation": "",
+      "name": "backward_euler",
+      "pretty_name": "Backward Euler",
+      "references": [],
+      "step_multiplier": 0.02,
+      "suites": [],
+      "tags": [],
+      "topics": []
+    },
+    {
       "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI might have been used to construct tests.",
       "asv_ids": {
         "peakmem": "bellmanford.BellmanFordBenchmark.peakmem_bellman_ford",
@@ -105705,237 +106144,6 @@
       ]
     },
     {
-      "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-      "asv_ids": {
-        "peakmem": "ode.BrusselatorBackwardEuler.peakmem_brusselator_backward_euler",
-        "time": "ode.BrusselatorBackwardEuler.time_brusselator_backward_euler"
-      },
-      "authors": [
-        "Akarsh Duddu <aduddu3@gatech.edu>"
-      ],
-      "concepts": "<ccs2012></ccs2012>",
-      "description": "2D Brusselator ODE with diffusion.",
-      "file": "src/saps/benchmarks/ode.py",
-      "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-      "generators": [
-        {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-          "authors": [
-            "Akarsh Duddu <aduddu3@gatech.edu>"
-          ],
-          "cacheable": false,
-          "concepts": "<ccs2012></ccs2012>",
-          "datasets": [
-            {
-              "asv_param": "brusselator.brusselator_tiny",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "Tiny 2D Brusselator correctness test",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "brusselator_tiny",
-              "pretty_name": "Brusselator Tiny",
-              "suites": [
-                "test",
-                "trace"
-              ],
-              "tags": [
-                "test",
-                "trace"
-              ],
-              "topics": []
-            },
-            {
-              "asv_param": "brusselator.brusselator_4",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "2D Brusselator with 100x100 grid",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "brusselator_4",
-              "pretty_name": "Brusselator 4x4",
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            }
-          ],
-          "description": "2D Brusselator ODE with diffusion.",
-          "file": "src/saps/benchmarks/ode.py",
-          "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-          "motivation": "",
-          "name": "brusselator",
-          "pretty_name": "Brusselator",
-          "references": [],
-          "suites": [],
-          "tags": [],
-          "topics": []
-        }
-      ],
-      "motivation": "",
-      "name": "brusselator_backward_euler",
-      "pretty_name": "Brusselator \u2014 Backward Euler",
-      "references": [],
-      "suites": [],
-      "tags": [],
-      "topics": []
-    },
-    {
-      "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-      "asv_ids": {
-        "peakmem": "ode.BrusselatorForwardEuler.peakmem_brusselator_forward_euler",
-        "time": "ode.BrusselatorForwardEuler.time_brusselator_forward_euler"
-      },
-      "authors": [
-        "Akarsh Duddu <aduddu3@gatech.edu>"
-      ],
-      "concepts": "<ccs2012></ccs2012>",
-      "description": "2D Brusselator ODE with diffusion.",
-      "file": "src/saps/benchmarks/ode.py",
-      "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-      "generators": [
-        {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-          "authors": [
-            "Akarsh Duddu <aduddu3@gatech.edu>"
-          ],
-          "cacheable": false,
-          "concepts": "<ccs2012></ccs2012>",
-          "datasets": [
-            {
-              "asv_param": "brusselator.brusselator_tiny",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "Tiny 2D Brusselator correctness test",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "brusselator_tiny",
-              "pretty_name": "Brusselator Tiny",
-              "suites": [
-                "test",
-                "trace"
-              ],
-              "tags": [
-                "test",
-                "trace"
-              ],
-              "topics": []
-            },
-            {
-              "asv_param": "brusselator.brusselator_4",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "2D Brusselator with 100x100 grid",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "brusselator_4",
-              "pretty_name": "Brusselator 4x4",
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            }
-          ],
-          "description": "2D Brusselator ODE with diffusion.",
-          "file": "src/saps/benchmarks/ode.py",
-          "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-          "motivation": "",
-          "name": "brusselator",
-          "pretty_name": "Brusselator",
-          "references": [],
-          "suites": [],
-          "tags": [],
-          "topics": []
-        }
-      ],
-      "motivation": "",
-      "name": "brusselator_forward_euler",
-      "pretty_name": "Brusselator \u2014 Forward Euler",
-      "references": [],
-      "suites": [],
-      "tags": [],
-      "topics": []
-    },
-    {
-      "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-      "asv_ids": {
-        "peakmem": "ode.BrusselatorRK4.peakmem_brusselator_rk4",
-        "time": "ode.BrusselatorRK4.time_brusselator_rk4"
-      },
-      "authors": [
-        "Akarsh Duddu <aduddu3@gatech.edu>"
-      ],
-      "concepts": "<ccs2012></ccs2012>",
-      "description": "2D Brusselator ODE with diffusion.",
-      "file": "src/saps/benchmarks/ode.py",
-      "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-      "generators": [
-        {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-          "authors": [
-            "Akarsh Duddu <aduddu3@gatech.edu>"
-          ],
-          "cacheable": false,
-          "concepts": "<ccs2012></ccs2012>",
-          "datasets": [
-            {
-              "asv_param": "brusselator.brusselator_tiny",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "Tiny 2D Brusselator correctness test",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "brusselator_tiny",
-              "pretty_name": "Brusselator Tiny",
-              "suites": [
-                "test",
-                "trace"
-              ],
-              "tags": [
-                "test",
-                "trace"
-              ],
-              "topics": []
-            },
-            {
-              "asv_param": "brusselator.brusselator_4",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "2D Brusselator with 100x100 grid",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "brusselator_4",
-              "pretty_name": "Brusselator 4x4",
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            }
-          ],
-          "description": "2D Brusselator ODE with diffusion.",
-          "file": "src/saps/benchmarks/ode.py",
-          "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-          "motivation": "",
-          "name": "brusselator",
-          "pretty_name": "Brusselator",
-          "references": [],
-          "suites": [],
-          "tags": [],
-          "topics": []
-        }
-      ],
-      "motivation": "",
-      "name": "brusselator_rk4",
-      "pretty_name": "Brusselator \u2014 RK4",
-      "references": [],
-      "suites": [],
-      "tags": [],
-      "topics": []
-    },
-    {
       "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI might have been used to construct tests. This statement was written by hand.",
       "asv_ids": {
         "peakmem": "Finite_Difference.BuckleyLeverettFiniteDifferenceBenchmark.peakmem_buckley_leverett_finite_difference",
@@ -116287,6 +116495,445 @@
         "mathematics-of-computing",
         "paths-and-connectivity-problems"
       ]
+    },
+    {
+      "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+      "asv_ids": {
+        "peakmem": "ode.ForwardEuler.peakmem_forward_euler",
+        "time": "ode.ForwardEuler.time_forward_euler"
+      },
+      "authors": [
+        "Akarsh Duddu <aduddu3@gatech.edu>"
+      ],
+      "concepts": "<ccs2012></ccs2012>",
+      "description": "Integrates ODE initial-value problems with the forward Euler method.",
+      "file": "src/saps/benchmarks/ode.py",
+      "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+      "generators": [
+        {
+          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+          "authors": [
+            "Akarsh Duddu <aduddu3@gatech.edu>"
+          ],
+          "cacheable": false,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "rc.rc_small",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Small RC circuit",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "rc_small",
+              "pretty_name": "RC Small",
+              "suites": [
+                "test"
+              ],
+              "tags": [
+                "test"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "RC circuit ODE.",
+          "file": "src/saps/benchmarks/ode.py",
+          "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+          "motivation": "",
+          "name": "rc",
+          "pretty_name": "RC Circuit",
+          "references": [],
+          "suites": [],
+          "tags": [],
+          "topics": []
+        },
+        {
+          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+          "authors": [
+            "Akarsh Duddu <aduddu3@gatech.edu>"
+          ],
+          "cacheable": false,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "rlc.rlc_small",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Small RLC circuit",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "rlc_small",
+              "pretty_name": "RLC Small",
+              "suites": [
+                "test"
+              ],
+              "tags": [
+                "test"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "RLC circuit ODE.",
+          "file": "src/saps/benchmarks/ode.py",
+          "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+          "motivation": "",
+          "name": "rlc",
+          "pretty_name": "RLC Circuit",
+          "references": [],
+          "suites": [],
+          "tags": [],
+          "topics": []
+        },
+        {
+          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+          "authors": [
+            "Akarsh Duddu <aduddu3@gatech.edu>"
+          ],
+          "cacheable": false,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "lotka_volterra.lotka_volterra_small",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Small Lotka-Volterra system",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "lotka_volterra_small",
+              "pretty_name": "Lotka-Volterra Small",
+              "suites": [
+                "test"
+              ],
+              "tags": [
+                "test"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "Lotka-Volterra ODE.",
+          "file": "src/saps/benchmarks/ode.py",
+          "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+          "motivation": "",
+          "name": "lotka_volterra",
+          "pretty_name": "Lotka-Volterra",
+          "references": [],
+          "suites": [],
+          "tags": [],
+          "topics": []
+        },
+        {
+          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+          "authors": [
+            "Akarsh Duddu <aduddu3@gatech.edu>"
+          ],
+          "cacheable": false,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "brusselator.brusselator_tiny",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Tiny 2D Brusselator correctness test",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "brusselator_tiny",
+              "pretty_name": "Brusselator Tiny",
+              "suites": [
+                "test",
+                "trace"
+              ],
+              "tags": [
+                "dense",
+                "index-ops",
+                "linalg-ops",
+                "test",
+                "trace"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "brusselator.brusselator_4",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "2D Brusselator with 100x100 grid",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "brusselator_4",
+              "pretty_name": "Brusselator 4x4",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "2D Brusselator ODE with diffusion.",
+          "file": "src/saps/benchmarks/ode.py",
+          "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+          "motivation": "",
+          "name": "brusselator",
+          "pretty_name": "Brusselator",
+          "references": [],
+          "suites": [],
+          "tags": [],
+          "topics": []
+        },
+        {
+          "ai_disclosure": "Generative AI was used to implement this generator.",
+          "authors": [],
+          "cacheable": true,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_eady",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE: model of an atmospheric storm track.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_eady",
+              "pretty_name": "SLICOT Eady example",
+              "source_inputs": 1,
+              "source_name": "eady.mat",
+              "source_order": 598,
+              "source_outputs": 1,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/eady.zip",
+              "step": 0.01,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_cdplayer",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE: classical CD player model.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_cdplayer",
+              "pretty_name": "SLICOT CD player",
+              "source_inputs": 2,
+              "source_name": "CDplayer.mat",
+              "source_order": 120,
+              "source_outputs": 2,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/CDplayer.zip",
+              "step": 4e-05,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_fom",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_fom",
+              "pretty_name": "SLICOT FOM model",
+              "source_inputs": 1,
+              "source_name": "fom.mat",
+              "source_order": 1006,
+              "source_outputs": 1,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/fom.zip",
+              "step": 0.001,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_random",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_random",
+              "pretty_name": "SLICOT Random example",
+              "source_inputs": 1,
+              "source_name": "random.mat",
+              "source_order": 200,
+              "source_outputs": 1,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/random.zip",
+              "step": 5e-05,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_pde",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE: partial differential equation.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_pde",
+              "pretty_name": "SLICOT PDE example",
+              "source_inputs": 1,
+              "source_name": "pde.mat",
+              "source_order": 84,
+              "source_outputs": 1,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/pde.zip",
+              "step": 0.001,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_heat_cont",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE: heat equation in a thin rod.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_heat_cont",
+              "pretty_name": "SLICOT Heat equation (continuous case)",
+              "source_inputs": 1,
+              "source_name": "heat-cont.mat",
+              "source_order": 200,
+              "source_outputs": 1,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/heat-cont.zip",
+              "step": 0.001,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_orr_som",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE: Orr-Sommerfeld operator for Couette flow.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_orr_som",
+              "pretty_name": "SLICOT Orr-Somerfeld example",
+              "source_inputs": 1,
+              "source_name": "Orr-Som.mat",
+              "source_order": 200,
+              "source_outputs": 1,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/Orr-Som.zip",
+              "step": 0.01,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_iss",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE: component 1r of the International Space Station.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_iss",
+              "pretty_name": "SLICOT International space station",
+              "source_inputs": 3,
+              "source_name": "iss.mat",
+              "source_order": 270,
+              "source_outputs": 3,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/iss.zip",
+              "step": 0.01,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_build",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE: motion problem in a building.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_build",
+              "pretty_name": "SLICOT Building model",
+              "source_inputs": 1,
+              "source_name": "build.mat",
+              "source_order": 48,
+              "source_outputs": 1,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/build.zip",
+              "step": 0.01,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_beam",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE: Clamped beam model.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_beam",
+              "pretty_name": "SLICOT Clamped beam model",
+              "source_inputs": 1,
+              "source_name": "beam.mat",
+              "source_order": 348,
+              "source_outputs": 1,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/beam.zip",
+              "step": 0.001,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "Loads SLICOT model-reduction problems without explicit E matrices, preserving stored sparse matrices, treating E as the identity, and defaulting missing B to a normalized single-input vector.",
+          "file": "src/saps/benchmarks/ode.py",
+          "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+          "motivation": "SLICOT model-reduction examples provide realistic linear dynamical systems for ODE integration benchmarks.",
+          "name": "slicot_ode",
+          "pretty_name": "SLICOT Model-Reduction ODE",
+          "references": [
+            ". \"Benchmark examples for model reduction of linear time invariant dynamical systems\", URL: https://www.slicot.org/20-site/126-benchmark-examples-for-model-reduction."
+          ],
+          "suites": [],
+          "tags": [],
+          "topics": []
+        }
+      ],
+      "motivation": "",
+      "name": "forward_euler",
+      "pretty_name": "Forward Euler",
+      "references": [],
+      "step_multiplier": 0.01,
+      "suites": [],
+      "tags": [],
+      "topics": []
     },
     {
       "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
@@ -126716,7 +127363,7 @@
       "concepts": "\n        <ccs2012>\n<concept>\n<concept_id>10002950.10003705.10011686</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003714.10003715</concept_id>\n<concept_desc>Mathematics of computing~Numerical analysis</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003714.10003715</concept_id>\n<concept_desc>Mathematics of computing~Numerical analysis</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10010147.10010257.10010293.10010309</concept_id>\n<concept_desc>Computing methodologies~Factorization methods</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n</ccs2012>\n",
       "description": "This code implements the Tucker Decomposition or HOSVD algorithm for decomposing high-order tensors into a core-tensor that can be projected onto factor matrices along each mode. A typical 3D tensor will have 3 modes (row, column, and frontal) and thus 3 factor matrices. The algorithm starts by finding the initial factor matrices by performing SVD on matrix unfoldings along each mode. Certain columns in these factor matrices are selected based on the ranks parameter. Then, the algorithm iteratively updates each factor matrix by projecting the original tensor onto other factor matrices. The iteration continues until max iterations is reached or the change in factor matrices becomes insignificant. The resulting factor matrices and the core tensor are returned by the benchmark function.",
       "file": "src/saps/benchmarks/HOSVD.py",
-      "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+      "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to construct the benchmark function. Generative AI might have been used to construct tests. This statement is written by hand.",
@@ -126731,7 +127378,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense low-rank 3D tensor using random factor matrices.",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "n": 3,
               "name": "small_dense_hosvd",
               "pretty_name": "Small Dense HOSVD Tensor",
@@ -126771,7 +127418,7 @@
           ],
           "description": "Generates dense low-rank tensors using random factor matrices.",
           "file": "src/saps/benchmarks/HOSVD.py",
-          "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+          "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
           "motivation": "The data for this benchmark was created by randomly generating factor matrices that were both sparse and dense. These factor matrices were used to construct a factorizable matrix.",
           "name": "hosvd_dense_inputs",
           "pretty_name": "Dense Low-Rank HOSVD Input Generator",
@@ -126802,7 +127449,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Sparse low-rank 3D tensor using random factor matrices.",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "n": 3,
               "name": "small_sparse",
               "pretty_name": "Small sparse HOSVD Tensor",
@@ -126830,7 +127477,7 @@
           ],
           "description": "Generates sparse low-rank tensors using random factor matrices.",
           "file": "src/saps/benchmarks/HOSVD.py",
-          "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+          "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
           "motivation": "The data for this benchmark was created by randomly generating factor matrices that were both sparse and dense. These factor matrices were used to construct a factorizable matrix.",
           "name": "hosvd_sparse_inputs",
           "pretty_name": "Sparse Low-Rank HOSVD Input Generator",
@@ -126859,7 +127506,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor matmul_2_2_2, n = 3, ranks = (2, 2, 2).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_matmul_2_2_2",
               "pretty_name": "HOSVD FROSTT matmul_2_2_2",
               "suites": [],
@@ -126878,7 +127525,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor matmul_3_3_3, n = 3, ranks = (2, 2, 2).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_matmul_3_3_3",
               "pretty_name": "HOSVD FROSTT matmul_3_3_3",
               "suites": [],
@@ -126897,7 +127544,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor matmul_4_3_2, n = 3, ranks = (2, 2, 2).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_matmul_4_3_2",
               "pretty_name": "HOSVD FROSTT matmul_4_3_2",
               "suites": [],
@@ -126916,7 +127563,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor matmul_4_4_3, n = 3, ranks = (2, 2, 2).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_matmul_4_4_3",
               "pretty_name": "HOSVD FROSTT matmul_4_4_3",
               "suites": [],
@@ -126935,7 +127582,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor matmul_4_4_4, n = 3, ranks = (2, 2, 2).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_matmul_4_4_4",
               "pretty_name": "HOSVD FROSTT matmul_4_4_4",
               "suites": [],
@@ -126954,7 +127601,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor matmul_5_5_5, n = 3, ranks = (2, 2, 2).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_matmul_5_5_5",
               "pretty_name": "HOSVD FROSTT matmul_5_5_5",
               "suites": [],
@@ -126973,7 +127620,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor matmul_6_3_3, n = 3, ranks = (2, 2, 2).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_matmul_6_3_3",
               "pretty_name": "HOSVD FROSTT matmul_6_3_3",
               "suites": [],
@@ -126992,7 +127639,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor nell_2, n = 3, ranks = (5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_nell_2",
               "pretty_name": "HOSVD FROSTT nell_2",
               "suites": [],
@@ -127011,7 +127658,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor vast_2015_mc1_3d, n = 3, ranks = (5, 5, 2).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_vast_2015_mc1_3d",
               "pretty_name": "HOSVD FROSTT vast_2015_mc1_3d",
               "suites": [],
@@ -127030,7 +127677,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor nell_1, n = 3, ranks = (5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_nell_1",
               "pretty_name": "HOSVD FROSTT nell_1",
               "suites": [],
@@ -127049,7 +127696,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor flickr_3d, n = 3, ranks = (5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_flickr_3d",
               "pretty_name": "HOSVD FROSTT flickr_3d",
               "suites": [],
@@ -127068,7 +127715,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor delicious_3d, n = 3, ranks = (5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_delicious_3d",
               "pretty_name": "HOSVD FROSTT delicious_3d",
               "suites": [],
@@ -127087,7 +127734,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor amazon_reviews, n = 3, ranks = (5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_amazon_reviews",
               "pretty_name": "HOSVD FROSTT amazon_reviews",
               "suites": [],
@@ -127106,7 +127753,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor patents, n = 3, ranks = (5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_patents",
               "pretty_name": "HOSVD FROSTT patents",
               "suites": [],
@@ -127125,7 +127772,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor reddit_2015, n = 3, ranks = (5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_reddit_2015",
               "pretty_name": "HOSVD FROSTT reddit_2015",
               "suites": [],
@@ -127144,7 +127791,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor fb_m, n = 3, ranks = (5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_fb_m",
               "pretty_name": "HOSVD FROSTT fb_m",
               "suites": [],
@@ -127163,7 +127810,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor darpa, n = 3, ranks = (5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_darpa",
               "pretty_name": "HOSVD FROSTT darpa",
               "suites": [],
@@ -127178,9 +127825,9 @@
               "topics": []
             }
           ],
-          "description": "Real sparse tensors downloaded from FROSTT (frostt.io), decomposed directly. No dense reconstruction check is performed since these tensors are stored in genuinely sparse (COO) form.",
+          "description": "Real sparse tensors downloaded from FROSTT (frostt.io), decomposed directly from sparse (COO) inputs.",
           "file": "src/saps/benchmarks/HOSVD.py",
-          "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+          "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
           "motivation": "Real sparse tensors from FROSTT exercise HOSVD's per-mode unfolding against genuinely irregular sparsity patterns. The larger 4D and 5D tensors can have mode unfoldings that are heavy to densify for SVD with the current algorithm, so select datasets by name rather than running this whole generator unfiltered.",
           "name": "hosvd_frostt_inputs",
           "pretty_name": "FROSTT Sparse Tensor Generator for HOSVD",
@@ -127236,7 +127883,7 @@
       "concepts": "\n        <ccs2012>\n<concept>\n<concept_id>10002950.10003705.10011686</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003714.10003715</concept_id>\n<concept_desc>Mathematics of computing~Numerical analysis</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003714.10003715</concept_id>\n<concept_desc>Mathematics of computing~Numerical analysis</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10010147.10010257.10010293.10010309</concept_id>\n<concept_desc>Computing methodologies~Factorization methods</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n</ccs2012>\n",
       "description": "This code implements the Tucker Decomposition or HOSVD algorithm for decomposing high-order tensors into a core-tensor that can be projected onto factor matrices along each mode. A typical 3D tensor will have 3 modes (row, column, and frontal) and thus 3 factor matrices. The algorithm starts by finding the initial factor matrices by performing SVD on matrix unfoldings along each mode. Certain columns in these factor matrices are selected based on the ranks parameter. Then, the algorithm iteratively updates each factor matrix by projecting the original tensor onto other factor matrices. The iteration continues until max iterations is reached or the change in factor matrices becomes insignificant. The resulting factor matrices and the core tensor are returned by the benchmark function.",
       "file": "src/saps/benchmarks/HOSVD.py",
-      "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+      "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to construct the benchmark function. Generative AI might have been used to construct tests. This statement is written by hand.",
@@ -127251,7 +127898,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense low-rank 4D tensor using random factor matrices.",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "n": 4,
               "name": "small_dense_4d",
               "pretty_name": "Small dense 4d HOSVD Tensor",
@@ -127293,7 +127940,7 @@
           ],
           "description": "Generates dense low-rank tensors using random factor matrices.",
           "file": "src/saps/benchmarks/HOSVD.py",
-          "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+          "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
           "motivation": "The data for this benchmark was created by randomly generating factor matrices that were both sparse and dense. These factor matrices were used to construct a factorizable matrix.",
           "name": "hosvd_dense_inputs",
           "pretty_name": "Dense Low-Rank HOSVD Input Generator",
@@ -127324,7 +127971,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Sparse low-rank 4D tensor using random factor matrices.",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "n": 4,
               "name": "small_sparse_4d",
               "pretty_name": "Small sparse 4d HOSVD Tensor",
@@ -127354,7 +128001,7 @@
           ],
           "description": "Generates sparse low-rank tensors using random factor matrices.",
           "file": "src/saps/benchmarks/HOSVD.py",
-          "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+          "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
           "motivation": "The data for this benchmark was created by randomly generating factor matrices that were both sparse and dense. These factor matrices were used to construct a factorizable matrix.",
           "name": "hosvd_sparse_inputs",
           "pretty_name": "Sparse Low-Rank HOSVD Input Generator",
@@ -127383,7 +128030,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor toy, n = 4, ranks = (2, 2, 2, 2).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_toy",
               "pretty_name": "HOSVD FROSTT toy",
               "suites": [],
@@ -127402,7 +128049,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor nips, n = 4, ranks = (5, 5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_nips",
               "pretty_name": "HOSVD FROSTT nips",
               "suites": [],
@@ -127421,7 +128068,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor uber_pickups, n = 4, ranks = (5, 5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_uber_pickups",
               "pretty_name": "HOSVD FROSTT uber_pickups",
               "suites": [],
@@ -127440,7 +128087,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor chicago_crime_comm, n = 4, ranks = (5, 5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_chicago_crime_comm",
               "pretty_name": "HOSVD FROSTT chicago_crime_comm",
               "suites": [],
@@ -127459,7 +128106,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor enron, n = 4, ranks = (5, 5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_enron",
               "pretty_name": "HOSVD FROSTT enron",
               "suites": [],
@@ -127478,7 +128125,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor flickr_4d, n = 4, ranks = (5, 5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_flickr_4d",
               "pretty_name": "HOSVD FROSTT flickr_4d",
               "suites": [],
@@ -127497,7 +128144,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor delicious_4d, n = 4, ranks = (5, 5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_delicious_4d",
               "pretty_name": "HOSVD FROSTT delicious_4d",
               "suites": [],
@@ -127512,9 +128159,9 @@
               "topics": []
             }
           ],
-          "description": "Real sparse tensors downloaded from FROSTT (frostt.io), decomposed directly. No dense reconstruction check is performed since these tensors are stored in genuinely sparse (COO) form.",
+          "description": "Real sparse tensors downloaded from FROSTT (frostt.io), decomposed directly from sparse (COO) inputs.",
           "file": "src/saps/benchmarks/HOSVD.py",
-          "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+          "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
           "motivation": "Real sparse tensors from FROSTT exercise HOSVD's per-mode unfolding against genuinely irregular sparsity patterns. The larger 4D and 5D tensors can have mode unfoldings that are heavy to densify for SVD with the current algorithm, so select datasets by name rather than running this whole generator unfiltered.",
           "name": "hosvd_frostt_inputs",
           "pretty_name": "FROSTT Sparse Tensor Generator for HOSVD",
@@ -127570,7 +128217,7 @@
       "concepts": "\n        <ccs2012>\n<concept>\n<concept_id>10002950.10003705.10011686</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003714.10003715</concept_id>\n<concept_desc>Mathematics of computing~Numerical analysis</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003714.10003715</concept_id>\n<concept_desc>Mathematics of computing~Numerical analysis</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10010147.10010257.10010293.10010309</concept_id>\n<concept_desc>Computing methodologies~Factorization methods</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n</ccs2012>\n",
       "description": "This code implements the Tucker Decomposition or HOSVD algorithm for decomposing high-order tensors into a core-tensor that can be projected onto factor matrices along each mode. A typical 3D tensor will have 3 modes (row, column, and frontal) and thus 3 factor matrices. The algorithm starts by finding the initial factor matrices by performing SVD on matrix unfoldings along each mode. Certain columns in these factor matrices are selected based on the ranks parameter. Then, the algorithm iteratively updates each factor matrix by projecting the original tensor onto other factor matrices. The iteration continues until max iterations is reached or the change in factor matrices becomes insignificant. The resulting factor matrices and the core tensor are returned by the benchmark function.",
       "file": "src/saps/benchmarks/HOSVD.py",
-      "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+      "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to construct the benchmark function. Generative AI might have been used to construct tests. This statement is written by hand.",
@@ -127585,7 +128232,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense low-rank 5D tensor using random factor matrices.",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "n": 5,
               "name": "small_dense_5d",
               "pretty_name": "Small dense 5d HOSVD Tensor",
@@ -127630,7 +128277,7 @@
           ],
           "description": "Generates dense low-rank tensors using random factor matrices.",
           "file": "src/saps/benchmarks/HOSVD.py",
-          "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+          "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
           "motivation": "The data for this benchmark was created by randomly generating factor matrices that were both sparse and dense. These factor matrices were used to construct a factorizable matrix.",
           "name": "hosvd_dense_inputs",
           "pretty_name": "Dense Low-Rank HOSVD Input Generator",
@@ -127661,7 +128308,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Sparse low-rank 5D tensor using random factor matrices.",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "n": 5,
               "name": "small_sparse_5d",
               "pretty_name": "Small sparse 5d HOSVD Tensor",
@@ -127693,7 +128340,7 @@
           ],
           "description": "Generates sparse low-rank tensors using random factor matrices.",
           "file": "src/saps/benchmarks/HOSVD.py",
-          "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+          "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
           "motivation": "The data for this benchmark was created by randomly generating factor matrices that were both sparse and dense. These factor matrices were used to construct a factorizable matrix.",
           "name": "hosvd_sparse_inputs",
           "pretty_name": "Sparse Low-Rank HOSVD Input Generator",
@@ -127722,7 +128369,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor lbnl_network, n = 5, ranks = (5, 5, 5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_lbnl_network",
               "pretty_name": "HOSVD FROSTT lbnl_network",
               "suites": [],
@@ -127741,7 +128388,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor chicago_crime_geo, n = 5, ranks = (5, 5, 5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_chicago_crime_geo",
               "pretty_name": "HOSVD FROSTT chicago_crime_geo",
               "suites": [],
@@ -127760,7 +128407,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor vast_2015_mc1_5d, n = 5, ranks = (5, 5, 2, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_vast_2015_mc1_5d",
               "pretty_name": "HOSVD FROSTT vast_2015_mc1_5d",
               "suites": [],
@@ -127779,7 +128426,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "FROSTT tensor lanl2, n = 5, ranks = (5, 5, 5, 5, 5).",
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+              "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
               "name": "hosvd_frostt_lanl2",
               "pretty_name": "HOSVD FROSTT lanl2",
               "suites": [],
@@ -127794,9 +128441,9 @@
               "topics": []
             }
           ],
-          "description": "Real sparse tensors downloaded from FROSTT (frostt.io), decomposed directly. No dense reconstruction check is performed since these tensors are stored in genuinely sparse (COO) form.",
+          "description": "Real sparse tensors downloaded from FROSTT (frostt.io), decomposed directly from sparse (COO) inputs.",
           "file": "src/saps/benchmarks/HOSVD.py",
-          "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
+          "freshness": "2ff6906b991b1e8d85d25ea3680f6a67f9ae797209a7f411e63fd8b8cdfb17ad",
           "motivation": "Real sparse tensors from FROSTT exercise HOSVD's per-mode unfolding against genuinely irregular sparsity patterns. The larger 4D and 5D tensors can have mode unfoldings that are heavy to densify for SVD with the current algorithm, so select datasets by name rather than running this whole generator unfiltered.",
           "name": "hosvd_frostt_inputs",
           "pretty_name": "FROSTT Sparse Tensor Generator for HOSVD",
@@ -133663,183 +134310,6 @@
         "mathematical-software-performance",
         "mathematics-of-computing"
       ]
-    },
-    {
-      "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-      "asv_ids": {
-        "peakmem": "ode.LotkaVolterraBackwardEuler.peakmem_lotka_volterra_backward_euler",
-        "time": "ode.LotkaVolterraBackwardEuler.time_lotka_volterra_backward_euler"
-      },
-      "authors": [
-        "Akarsh Duddu <aduddu3@gatech.edu>"
-      ],
-      "concepts": "<ccs2012></ccs2012>",
-      "description": "Lotka-Volterra ODE.",
-      "file": "src/saps/benchmarks/ode.py",
-      "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-      "generators": [
-        {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-          "authors": [
-            "Akarsh Duddu <aduddu3@gatech.edu>"
-          ],
-          "cacheable": false,
-          "concepts": "<ccs2012></ccs2012>",
-          "datasets": [
-            {
-              "asv_param": "lotka_volterra.lotka_volterra_small",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "Small Lotka-Volterra system",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "lotka_volterra_small",
-              "pretty_name": "Lotka-Volterra Small",
-              "suites": [
-                "test"
-              ],
-              "tags": [
-                "test"
-              ],
-              "topics": []
-            }
-          ],
-          "description": "Lotka-Volterra ODE.",
-          "file": "src/saps/benchmarks/ode.py",
-          "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-          "motivation": "",
-          "name": "lotka_volterra",
-          "pretty_name": "Lotka-Volterra",
-          "references": [],
-          "suites": [],
-          "tags": [],
-          "topics": []
-        }
-      ],
-      "motivation": "",
-      "name": "lotka_volterra_backward_euler",
-      "pretty_name": "Lotka-Volterra \u2014 Backward Euler",
-      "references": [],
-      "suites": [],
-      "tags": [],
-      "topics": []
-    },
-    {
-      "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-      "asv_ids": {
-        "peakmem": "ode.LotkaVolterraForwardEuler.peakmem_lotka_volterra_forward_euler",
-        "time": "ode.LotkaVolterraForwardEuler.time_lotka_volterra_forward_euler"
-      },
-      "authors": [
-        "Akarsh Duddu <aduddu3@gatech.edu>"
-      ],
-      "concepts": "<ccs2012></ccs2012>",
-      "description": "Lotka-Volterra ODE.",
-      "file": "src/saps/benchmarks/ode.py",
-      "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-      "generators": [
-        {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-          "authors": [
-            "Akarsh Duddu <aduddu3@gatech.edu>"
-          ],
-          "cacheable": false,
-          "concepts": "<ccs2012></ccs2012>",
-          "datasets": [
-            {
-              "asv_param": "lotka_volterra.lotka_volterra_small",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "Small Lotka-Volterra system",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "lotka_volterra_small",
-              "pretty_name": "Lotka-Volterra Small",
-              "suites": [
-                "test"
-              ],
-              "tags": [
-                "test"
-              ],
-              "topics": []
-            }
-          ],
-          "description": "Lotka-Volterra ODE.",
-          "file": "src/saps/benchmarks/ode.py",
-          "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-          "motivation": "",
-          "name": "lotka_volterra",
-          "pretty_name": "Lotka-Volterra",
-          "references": [],
-          "suites": [],
-          "tags": [],
-          "topics": []
-        }
-      ],
-      "motivation": "",
-      "name": "lotka_volterra_forward_euler",
-      "pretty_name": "Lotka-Volterra \u2014 Forward Euler",
-      "references": [],
-      "suites": [],
-      "tags": [],
-      "topics": []
-    },
-    {
-      "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-      "asv_ids": {
-        "peakmem": "ode.LotkaVolterraRK4.peakmem_lotka_volterra_rk4",
-        "time": "ode.LotkaVolterraRK4.time_lotka_volterra_rk4"
-      },
-      "authors": [
-        "Akarsh Duddu <aduddu3@gatech.edu>"
-      ],
-      "concepts": "<ccs2012></ccs2012>",
-      "description": "Lotka-Volterra ODE.",
-      "file": "src/saps/benchmarks/ode.py",
-      "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-      "generators": [
-        {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-          "authors": [
-            "Akarsh Duddu <aduddu3@gatech.edu>"
-          ],
-          "cacheable": false,
-          "concepts": "<ccs2012></ccs2012>",
-          "datasets": [
-            {
-              "asv_param": "lotka_volterra.lotka_volterra_small",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "Small Lotka-Volterra system",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "lotka_volterra_small",
-              "pretty_name": "Lotka-Volterra Small",
-              "suites": [
-                "test"
-              ],
-              "tags": [
-                "test"
-              ],
-              "topics": []
-            }
-          ],
-          "description": "Lotka-Volterra ODE.",
-          "file": "src/saps/benchmarks/ode.py",
-          "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-          "motivation": "",
-          "name": "lotka_volterra",
-          "pretty_name": "Lotka-Volterra",
-          "references": [],
-          "suites": [],
-          "tags": [],
-          "topics": []
-        }
-      ],
-      "motivation": "",
-      "name": "lotka_volterra_rk4",
-      "pretty_name": "Lotka-Volterra \u2014 RK4",
-      "references": [],
-      "suites": [],
-      "tags": [],
-      "topics": []
     },
     {
       "ai_disclosure": "Generative AI might have been used to construct tests and to ensure the file follows CONTRIBUTING.md. This statement was written by hand.",
@@ -147299,360 +147769,6 @@
       ]
     },
     {
-      "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-      "asv_ids": {
-        "peakmem": "ode.RCBackwardEuler.peakmem_rc_backward_euler",
-        "time": "ode.RCBackwardEuler.time_rc_backward_euler"
-      },
-      "authors": [
-        "Akarsh Duddu <aduddu3@gatech.edu>"
-      ],
-      "concepts": "<ccs2012></ccs2012>",
-      "description": "RC circuit ODE.",
-      "file": "src/saps/benchmarks/ode.py",
-      "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-      "generators": [
-        {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-          "authors": [
-            "Akarsh Duddu <aduddu3@gatech.edu>"
-          ],
-          "cacheable": false,
-          "concepts": "<ccs2012></ccs2012>",
-          "datasets": [
-            {
-              "asv_param": "rc.rc_small",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "Small RC circuit",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "rc_small",
-              "pretty_name": "RC Small",
-              "suites": [
-                "test"
-              ],
-              "tags": [
-                "test"
-              ],
-              "topics": []
-            }
-          ],
-          "description": "RC circuit ODE.",
-          "file": "src/saps/benchmarks/ode.py",
-          "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-          "motivation": "",
-          "name": "rc",
-          "pretty_name": "RC Circuit",
-          "references": [],
-          "suites": [],
-          "tags": [],
-          "topics": []
-        }
-      ],
-      "motivation": "",
-      "name": "rc_backward_euler",
-      "pretty_name": "RC Circuit \u2014 Backward Euler",
-      "references": [],
-      "suites": [],
-      "tags": [],
-      "topics": []
-    },
-    {
-      "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-      "asv_ids": {
-        "peakmem": "ode.RCForwardEuler.peakmem_rc_forward_euler",
-        "time": "ode.RCForwardEuler.time_rc_forward_euler"
-      },
-      "authors": [
-        "Akarsh Duddu <aduddu3@gatech.edu>"
-      ],
-      "concepts": "<ccs2012></ccs2012>",
-      "description": "RC circuit ODE.",
-      "file": "src/saps/benchmarks/ode.py",
-      "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-      "generators": [
-        {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-          "authors": [
-            "Akarsh Duddu <aduddu3@gatech.edu>"
-          ],
-          "cacheable": false,
-          "concepts": "<ccs2012></ccs2012>",
-          "datasets": [
-            {
-              "asv_param": "rc.rc_small",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "Small RC circuit",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "rc_small",
-              "pretty_name": "RC Small",
-              "suites": [
-                "test"
-              ],
-              "tags": [
-                "test"
-              ],
-              "topics": []
-            }
-          ],
-          "description": "RC circuit ODE.",
-          "file": "src/saps/benchmarks/ode.py",
-          "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-          "motivation": "",
-          "name": "rc",
-          "pretty_name": "RC Circuit",
-          "references": [],
-          "suites": [],
-          "tags": [],
-          "topics": []
-        }
-      ],
-      "motivation": "",
-      "name": "rc_forward_euler",
-      "pretty_name": "RC Circuit \u2014 Forward Euler",
-      "references": [],
-      "suites": [],
-      "tags": [],
-      "topics": []
-    },
-    {
-      "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-      "asv_ids": {
-        "peakmem": "ode.RCRK4.peakmem_rc_rk4",
-        "time": "ode.RCRK4.time_rc_rk4"
-      },
-      "authors": [
-        "Akarsh Duddu <aduddu3@gatech.edu>"
-      ],
-      "concepts": "<ccs2012></ccs2012>",
-      "description": "RC circuit ODE.",
-      "file": "src/saps/benchmarks/ode.py",
-      "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-      "generators": [
-        {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-          "authors": [
-            "Akarsh Duddu <aduddu3@gatech.edu>"
-          ],
-          "cacheable": false,
-          "concepts": "<ccs2012></ccs2012>",
-          "datasets": [
-            {
-              "asv_param": "rc.rc_small",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "Small RC circuit",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "rc_small",
-              "pretty_name": "RC Small",
-              "suites": [
-                "test"
-              ],
-              "tags": [
-                "test"
-              ],
-              "topics": []
-            }
-          ],
-          "description": "RC circuit ODE.",
-          "file": "src/saps/benchmarks/ode.py",
-          "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-          "motivation": "",
-          "name": "rc",
-          "pretty_name": "RC Circuit",
-          "references": [],
-          "suites": [],
-          "tags": [],
-          "topics": []
-        }
-      ],
-      "motivation": "",
-      "name": "rc_rk4",
-      "pretty_name": "RC Circuit \u2014 RK4",
-      "references": [],
-      "suites": [],
-      "tags": [],
-      "topics": []
-    },
-    {
-      "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-      "asv_ids": {
-        "peakmem": "ode.RLCBackwardEuler.peakmem_rlc_backward_euler",
-        "time": "ode.RLCBackwardEuler.time_rlc_backward_euler"
-      },
-      "authors": [
-        "Akarsh Duddu <aduddu3@gatech.edu>"
-      ],
-      "concepts": "<ccs2012></ccs2012>",
-      "description": "RLC circuit ODE.",
-      "file": "src/saps/benchmarks/ode.py",
-      "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-      "generators": [
-        {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-          "authors": [
-            "Akarsh Duddu <aduddu3@gatech.edu>"
-          ],
-          "cacheable": false,
-          "concepts": "<ccs2012></ccs2012>",
-          "datasets": [
-            {
-              "asv_param": "rlc.rlc_small",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "Small RLC circuit",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "rlc_small",
-              "pretty_name": "RLC Small",
-              "suites": [
-                "test"
-              ],
-              "tags": [
-                "test"
-              ],
-              "topics": []
-            }
-          ],
-          "description": "RLC circuit ODE.",
-          "file": "src/saps/benchmarks/ode.py",
-          "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-          "motivation": "",
-          "name": "rlc",
-          "pretty_name": "RLC Circuit",
-          "references": [],
-          "suites": [],
-          "tags": [],
-          "topics": []
-        }
-      ],
-      "motivation": "",
-      "name": "rlc_backward_euler",
-      "pretty_name": "RLC Circuit \u2014 Backward Euler",
-      "references": [],
-      "suites": [],
-      "tags": [],
-      "topics": []
-    },
-    {
-      "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-      "asv_ids": {
-        "peakmem": "ode.RLCForwardEuler.peakmem_rlc_forward_euler",
-        "time": "ode.RLCForwardEuler.time_rlc_forward_euler"
-      },
-      "authors": [
-        "Akarsh Duddu <aduddu3@gatech.edu>"
-      ],
-      "concepts": "<ccs2012></ccs2012>",
-      "description": "RLC circuit ODE.",
-      "file": "src/saps/benchmarks/ode.py",
-      "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-      "generators": [
-        {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-          "authors": [
-            "Akarsh Duddu <aduddu3@gatech.edu>"
-          ],
-          "cacheable": false,
-          "concepts": "<ccs2012></ccs2012>",
-          "datasets": [
-            {
-              "asv_param": "rlc.rlc_small",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "Small RLC circuit",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "rlc_small",
-              "pretty_name": "RLC Small",
-              "suites": [
-                "test"
-              ],
-              "tags": [
-                "test"
-              ],
-              "topics": []
-            }
-          ],
-          "description": "RLC circuit ODE.",
-          "file": "src/saps/benchmarks/ode.py",
-          "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-          "motivation": "",
-          "name": "rlc",
-          "pretty_name": "RLC Circuit",
-          "references": [],
-          "suites": [],
-          "tags": [],
-          "topics": []
-        }
-      ],
-      "motivation": "",
-      "name": "rlc_forward_euler",
-      "pretty_name": "RLC Circuit \u2014 Forward Euler",
-      "references": [],
-      "suites": [],
-      "tags": [],
-      "topics": []
-    },
-    {
-      "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-      "asv_ids": {
-        "peakmem": "ode.RLCRK4.peakmem_rlc_rk4",
-        "time": "ode.RLCRK4.time_rlc_rk4"
-      },
-      "authors": [
-        "Akarsh Duddu <aduddu3@gatech.edu>"
-      ],
-      "concepts": "<ccs2012></ccs2012>",
-      "description": "RLC circuit ODE.",
-      "file": "src/saps/benchmarks/ode.py",
-      "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-      "generators": [
-        {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-          "authors": [
-            "Akarsh Duddu <aduddu3@gatech.edu>"
-          ],
-          "cacheable": false,
-          "concepts": "<ccs2012></ccs2012>",
-          "datasets": [
-            {
-              "asv_param": "rlc.rlc_small",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "Small RLC circuit",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "rlc_small",
-              "pretty_name": "RLC Small",
-              "suites": [
-                "test"
-              ],
-              "tags": [
-                "test"
-              ],
-              "topics": []
-            }
-          ],
-          "description": "RLC circuit ODE.",
-          "file": "src/saps/benchmarks/ode.py",
-          "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-          "motivation": "",
-          "name": "rlc",
-          "pretty_name": "RLC Circuit",
-          "references": [],
-          "suites": [],
-          "tags": [],
-          "topics": []
-        }
-      ],
-      "motivation": "",
-      "name": "rlc_rk4",
-      "pretty_name": "RLC Circuit \u2014 RK4",
-      "references": [],
-      "suites": [],
-      "tags": [],
-      "topics": []
-    },
-    {
       "ai_disclosure": "No generative AI was used to implement benchmark functions.",
       "asv_ids": {
         "peakmem": "rp_kmeans_clustering.RPKMeansBenchmark.peakmem_rp_kmeans_clustering",
@@ -148925,6 +149041,445 @@
         "quantum-computation",
         "quantum-computing"
       ]
+    },
+    {
+      "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+      "asv_ids": {
+        "peakmem": "ode.RungeKutta.peakmem_runge_kutta",
+        "time": "ode.RungeKutta.time_runge_kutta"
+      },
+      "authors": [
+        "Akarsh Duddu <aduddu3@gatech.edu>"
+      ],
+      "concepts": "<ccs2012></ccs2012>",
+      "description": "Integrates ODE initial-value problems with the classical fourth-order Runge-Kutta method.",
+      "file": "src/saps/benchmarks/ode.py",
+      "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+      "generators": [
+        {
+          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+          "authors": [
+            "Akarsh Duddu <aduddu3@gatech.edu>"
+          ],
+          "cacheable": false,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "rc.rc_small",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Small RC circuit",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "rc_small",
+              "pretty_name": "RC Small",
+              "suites": [
+                "test"
+              ],
+              "tags": [
+                "test"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "RC circuit ODE.",
+          "file": "src/saps/benchmarks/ode.py",
+          "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+          "motivation": "",
+          "name": "rc",
+          "pretty_name": "RC Circuit",
+          "references": [],
+          "suites": [],
+          "tags": [],
+          "topics": []
+        },
+        {
+          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+          "authors": [
+            "Akarsh Duddu <aduddu3@gatech.edu>"
+          ],
+          "cacheable": false,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "rlc.rlc_small",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Small RLC circuit",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "rlc_small",
+              "pretty_name": "RLC Small",
+              "suites": [
+                "test"
+              ],
+              "tags": [
+                "test"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "RLC circuit ODE.",
+          "file": "src/saps/benchmarks/ode.py",
+          "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+          "motivation": "",
+          "name": "rlc",
+          "pretty_name": "RLC Circuit",
+          "references": [],
+          "suites": [],
+          "tags": [],
+          "topics": []
+        },
+        {
+          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+          "authors": [
+            "Akarsh Duddu <aduddu3@gatech.edu>"
+          ],
+          "cacheable": false,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "lotka_volterra.lotka_volterra_small",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Small Lotka-Volterra system",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "lotka_volterra_small",
+              "pretty_name": "Lotka-Volterra Small",
+              "suites": [
+                "test"
+              ],
+              "tags": [
+                "test"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "Lotka-Volterra ODE.",
+          "file": "src/saps/benchmarks/ode.py",
+          "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+          "motivation": "",
+          "name": "lotka_volterra",
+          "pretty_name": "Lotka-Volterra",
+          "references": [],
+          "suites": [],
+          "tags": [],
+          "topics": []
+        },
+        {
+          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+          "authors": [
+            "Akarsh Duddu <aduddu3@gatech.edu>"
+          ],
+          "cacheable": false,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "brusselator.brusselator_tiny",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Tiny 2D Brusselator correctness test",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "brusselator_tiny",
+              "pretty_name": "Brusselator Tiny",
+              "suites": [
+                "test",
+                "trace"
+              ],
+              "tags": [
+                "dense",
+                "index-ops",
+                "linalg-ops",
+                "test",
+                "trace"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "brusselator.brusselator_4",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "2D Brusselator with 100x100 grid",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "brusselator_4",
+              "pretty_name": "Brusselator 4x4",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "2D Brusselator ODE with diffusion.",
+          "file": "src/saps/benchmarks/ode.py",
+          "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+          "motivation": "",
+          "name": "brusselator",
+          "pretty_name": "Brusselator",
+          "references": [],
+          "suites": [],
+          "tags": [],
+          "topics": []
+        },
+        {
+          "ai_disclosure": "Generative AI was used to implement this generator.",
+          "authors": [],
+          "cacheable": true,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_eady",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE: model of an atmospheric storm track.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_eady",
+              "pretty_name": "SLICOT Eady example",
+              "source_inputs": 1,
+              "source_name": "eady.mat",
+              "source_order": 598,
+              "source_outputs": 1,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/eady.zip",
+              "step": 0.01,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_cdplayer",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE: classical CD player model.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_cdplayer",
+              "pretty_name": "SLICOT CD player",
+              "source_inputs": 2,
+              "source_name": "CDplayer.mat",
+              "source_order": 120,
+              "source_outputs": 2,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/CDplayer.zip",
+              "step": 4e-05,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_fom",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_fom",
+              "pretty_name": "SLICOT FOM model",
+              "source_inputs": 1,
+              "source_name": "fom.mat",
+              "source_order": 1006,
+              "source_outputs": 1,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/fom.zip",
+              "step": 0.001,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_random",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_random",
+              "pretty_name": "SLICOT Random example",
+              "source_inputs": 1,
+              "source_name": "random.mat",
+              "source_order": 200,
+              "source_outputs": 1,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/random.zip",
+              "step": 5e-05,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_pde",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE: partial differential equation.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_pde",
+              "pretty_name": "SLICOT PDE example",
+              "source_inputs": 1,
+              "source_name": "pde.mat",
+              "source_order": 84,
+              "source_outputs": 1,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/pde.zip",
+              "step": 0.001,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_heat_cont",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE: heat equation in a thin rod.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_heat_cont",
+              "pretty_name": "SLICOT Heat equation (continuous case)",
+              "source_inputs": 1,
+              "source_name": "heat-cont.mat",
+              "source_order": 200,
+              "source_outputs": 1,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/heat-cont.zip",
+              "step": 0.001,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_orr_som",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE: Orr-Sommerfeld operator for Couette flow.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_orr_som",
+              "pretty_name": "SLICOT Orr-Somerfeld example",
+              "source_inputs": 1,
+              "source_name": "Orr-Som.mat",
+              "source_order": 200,
+              "source_outputs": 1,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/Orr-Som.zip",
+              "step": 0.01,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_iss",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE: component 1r of the International Space Station.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_iss",
+              "pretty_name": "SLICOT International space station",
+              "source_inputs": 3,
+              "source_name": "iss.mat",
+              "source_order": 270,
+              "source_outputs": 3,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/iss.zip",
+              "step": 0.01,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_build",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE: motion problem in a building.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_build",
+              "pretty_name": "SLICOT Building model",
+              "source_inputs": 1,
+              "source_name": "build.mat",
+              "source_order": 48,
+              "source_outputs": 1,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/build.zip",
+              "step": 0.01,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            },
+            {
+              "assumed_E": "identity",
+              "asv_param": "slicot_ode.slicot_beam",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SLICOT model-reduction ODE: Clamped beam model.",
+              "file": "src/saps/benchmarks/ode.py",
+              "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+              "name": "slicot_beam",
+              "pretty_name": "SLICOT Clamped beam model",
+              "source_inputs": 1,
+              "source_name": "beam.mat",
+              "source_order": 348,
+              "source_outputs": 1,
+              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/beam.zip",
+              "step": 0.001,
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "standard"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "Loads SLICOT model-reduction problems without explicit E matrices, preserving stored sparse matrices, treating E as the identity, and defaulting missing B to a normalized single-input vector.",
+          "file": "src/saps/benchmarks/ode.py",
+          "freshness": "5e7a54fd679714ef855ec000224bd385308886aba7bb43cef33c1071ab42650d",
+          "motivation": "SLICOT model-reduction examples provide realistic linear dynamical systems for ODE integration benchmarks.",
+          "name": "slicot_ode",
+          "pretty_name": "SLICOT Model-Reduction ODE",
+          "references": [
+            ". \"Benchmark examples for model reduction of linear time invariant dynamical systems\", URL: https://www.slicot.org/20-site/126-benchmark-examples-for-model-reduction."
+          ],
+          "suites": [],
+          "tags": [],
+          "topics": []
+        }
+      ],
+      "motivation": "",
+      "name": "runge_kutta",
+      "pretty_name": "Runge-Kutta (RK4)",
+      "references": [],
+      "step_multiplier": 1.0,
+      "suites": [],
+      "tags": [],
+      "topics": []
     },
     {
       "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
@@ -153729,282 +154284,6 @@
       ]
     },
     {
-      "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-      "asv_ids": {
-        "peakmem": "ode.SLICOTBackwardEuler.peakmem_slicot_backward_euler",
-        "time": "ode.SLICOTBackwardEuler.time_slicot_backward_euler"
-      },
-      "authors": [
-        "Akarsh Duddu <aduddu3@gatech.edu>"
-      ],
-      "concepts": "<ccs2012></ccs2012>",
-      "description": "SLICOT identity-E linear model-reduction ODE.",
-      "file": "src/saps/benchmarks/ode.py",
-      "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-      "generators": [
-        {
-          "ai_disclosure": "Generative AI was used to implement this generator.",
-          "authors": [],
-          "cacheable": true,
-          "concepts": "<ccs2012></ccs2012>",
-          "datasets": [
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_eady",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE: model of an atmospheric storm track.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_eady",
-              "pretty_name": "SLICOT Eady example",
-              "source_inputs": 1,
-              "source_name": "eady.mat",
-              "source_order": 598,
-              "source_outputs": 1,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/eady.zip",
-              "step": 0.01,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_cdplayer",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE: classical CD player model.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_cdplayer",
-              "pretty_name": "SLICOT CD player",
-              "source_inputs": 2,
-              "source_name": "CDplayer.mat",
-              "source_order": 120,
-              "source_outputs": 2,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/CDplayer.zip",
-              "step": 4e-05,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_fom",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_fom",
-              "pretty_name": "SLICOT FOM model",
-              "source_inputs": 1,
-              "source_name": "fom.mat",
-              "source_order": 1006,
-              "source_outputs": 1,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/fom.zip",
-              "step": 0.001,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_random",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_random",
-              "pretty_name": "SLICOT Random example",
-              "source_inputs": 1,
-              "source_name": "random.mat",
-              "source_order": 200,
-              "source_outputs": 1,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/random.zip",
-              "step": 5e-05,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_pde",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE: partial differential equation.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_pde",
-              "pretty_name": "SLICOT PDE example",
-              "source_inputs": 1,
-              "source_name": "pde.mat",
-              "source_order": 84,
-              "source_outputs": 1,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/pde.zip",
-              "step": 0.001,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_heat_cont",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE: heat equation in a thin rod.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_heat_cont",
-              "pretty_name": "SLICOT Heat equation (continuous case)",
-              "source_inputs": 1,
-              "source_name": "heat-cont.mat",
-              "source_order": 200,
-              "source_outputs": 1,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/heat-cont.zip",
-              "step": 0.001,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_orr_som",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE: Orr-Sommerfeld operator for Couette flow.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_orr_som",
-              "pretty_name": "SLICOT Orr-Somerfeld example",
-              "source_inputs": 1,
-              "source_name": "Orr-Som.mat",
-              "source_order": 200,
-              "source_outputs": 1,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/Orr-Som.zip",
-              "step": 0.01,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_iss",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE: component 1r of the International Space Station.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_iss",
-              "pretty_name": "SLICOT International space station",
-              "source_inputs": 3,
-              "source_name": "iss.mat",
-              "source_order": 270,
-              "source_outputs": 3,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/iss.zip",
-              "step": 0.01,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_build",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE: motion problem in a building.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_build",
-              "pretty_name": "SLICOT Building model",
-              "source_inputs": 1,
-              "source_name": "build.mat",
-              "source_order": 48,
-              "source_outputs": 1,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/build.zip",
-              "step": 0.01,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_beam",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE: Clamped beam model.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_beam",
-              "pretty_name": "SLICOT Clamped beam model",
-              "source_inputs": 1,
-              "source_name": "beam.mat",
-              "source_order": 348,
-              "source_outputs": 1,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/beam.zip",
-              "step": 0.001,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            }
-          ],
-          "description": "Loads SLICOT model-reduction problems without explicit E matrices, preserving stored sparse matrices, treating E as the identity, and defaulting missing B to a normalized single-input vector.",
-          "file": "src/saps/benchmarks/ode.py",
-          "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-          "motivation": "SLICOT model-reduction examples provide realistic linear dynamical systems for ODE integration benchmarks.",
-          "name": "slicot_ode",
-          "pretty_name": "SLICOT Model-Reduction ODE",
-          "references": [
-            ". \"Benchmark examples for model reduction of linear time invariant dynamical systems\", URL: https://www.slicot.org/20-site/126-benchmark-examples-for-model-reduction."
-          ],
-          "suites": [],
-          "tags": [],
-          "topics": []
-        }
-      ],
-      "motivation": "",
-      "name": "slicot_backward_euler",
-      "pretty_name": "SLICOT Linear Systems \u2014 Backward Euler",
-      "references": [
-        ". \"Benchmark examples for model reduction of linear time invariant dynamical systems\", URL: https://www.slicot.org/20-site/126-benchmark-examples-for-model-reduction."
-      ],
-      "step_multiplier": 0.02,
-      "suites": [],
-      "tags": [],
-      "topics": []
-    },
-    {
       "ai_disclosure": "Generative AI was used to adapt the found benchmark code to the benchmark format, with minimal changes to the benchmark code itself.",
       "asv_ids": {
         "peakmem": "dae.SlicotDAEBDF.peakmem_slicot_dae_bdf",
@@ -154359,558 +154638,6 @@
         "numerical-analysis",
         "solvers"
       ]
-    },
-    {
-      "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-      "asv_ids": {
-        "peakmem": "ode.SLICOTForwardEuler.peakmem_slicot_forward_euler",
-        "time": "ode.SLICOTForwardEuler.time_slicot_forward_euler"
-      },
-      "authors": [
-        "Akarsh Duddu <aduddu3@gatech.edu>"
-      ],
-      "concepts": "<ccs2012></ccs2012>",
-      "description": "SLICOT identity-E linear model-reduction ODE.",
-      "file": "src/saps/benchmarks/ode.py",
-      "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-      "generators": [
-        {
-          "ai_disclosure": "Generative AI was used to implement this generator.",
-          "authors": [],
-          "cacheable": true,
-          "concepts": "<ccs2012></ccs2012>",
-          "datasets": [
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_eady",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE: model of an atmospheric storm track.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_eady",
-              "pretty_name": "SLICOT Eady example",
-              "source_inputs": 1,
-              "source_name": "eady.mat",
-              "source_order": 598,
-              "source_outputs": 1,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/eady.zip",
-              "step": 0.01,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_cdplayer",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE: classical CD player model.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_cdplayer",
-              "pretty_name": "SLICOT CD player",
-              "source_inputs": 2,
-              "source_name": "CDplayer.mat",
-              "source_order": 120,
-              "source_outputs": 2,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/CDplayer.zip",
-              "step": 4e-05,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_fom",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_fom",
-              "pretty_name": "SLICOT FOM model",
-              "source_inputs": 1,
-              "source_name": "fom.mat",
-              "source_order": 1006,
-              "source_outputs": 1,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/fom.zip",
-              "step": 0.001,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_random",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_random",
-              "pretty_name": "SLICOT Random example",
-              "source_inputs": 1,
-              "source_name": "random.mat",
-              "source_order": 200,
-              "source_outputs": 1,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/random.zip",
-              "step": 5e-05,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_pde",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE: partial differential equation.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_pde",
-              "pretty_name": "SLICOT PDE example",
-              "source_inputs": 1,
-              "source_name": "pde.mat",
-              "source_order": 84,
-              "source_outputs": 1,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/pde.zip",
-              "step": 0.001,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_heat_cont",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE: heat equation in a thin rod.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_heat_cont",
-              "pretty_name": "SLICOT Heat equation (continuous case)",
-              "source_inputs": 1,
-              "source_name": "heat-cont.mat",
-              "source_order": 200,
-              "source_outputs": 1,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/heat-cont.zip",
-              "step": 0.001,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_orr_som",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE: Orr-Sommerfeld operator for Couette flow.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_orr_som",
-              "pretty_name": "SLICOT Orr-Somerfeld example",
-              "source_inputs": 1,
-              "source_name": "Orr-Som.mat",
-              "source_order": 200,
-              "source_outputs": 1,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/Orr-Som.zip",
-              "step": 0.01,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_iss",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE: component 1r of the International Space Station.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_iss",
-              "pretty_name": "SLICOT International space station",
-              "source_inputs": 3,
-              "source_name": "iss.mat",
-              "source_order": 270,
-              "source_outputs": 3,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/iss.zip",
-              "step": 0.01,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_build",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE: motion problem in a building.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_build",
-              "pretty_name": "SLICOT Building model",
-              "source_inputs": 1,
-              "source_name": "build.mat",
-              "source_order": 48,
-              "source_outputs": 1,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/build.zip",
-              "step": 0.01,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_beam",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE: Clamped beam model.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_beam",
-              "pretty_name": "SLICOT Clamped beam model",
-              "source_inputs": 1,
-              "source_name": "beam.mat",
-              "source_order": 348,
-              "source_outputs": 1,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/beam.zip",
-              "step": 0.001,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            }
-          ],
-          "description": "Loads SLICOT model-reduction problems without explicit E matrices, preserving stored sparse matrices, treating E as the identity, and defaulting missing B to a normalized single-input vector.",
-          "file": "src/saps/benchmarks/ode.py",
-          "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-          "motivation": "SLICOT model-reduction examples provide realistic linear dynamical systems for ODE integration benchmarks.",
-          "name": "slicot_ode",
-          "pretty_name": "SLICOT Model-Reduction ODE",
-          "references": [
-            ". \"Benchmark examples for model reduction of linear time invariant dynamical systems\", URL: https://www.slicot.org/20-site/126-benchmark-examples-for-model-reduction."
-          ],
-          "suites": [],
-          "tags": [],
-          "topics": []
-        }
-      ],
-      "motivation": "",
-      "name": "slicot_forward_euler",
-      "pretty_name": "SLICOT Linear Systems \u2014 Forward Euler",
-      "references": [
-        ". \"Benchmark examples for model reduction of linear time invariant dynamical systems\", URL: https://www.slicot.org/20-site/126-benchmark-examples-for-model-reduction."
-      ],
-      "step_multiplier": 0.01,
-      "suites": [],
-      "tags": [],
-      "topics": []
-    },
-    {
-      "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
-      "asv_ids": {
-        "peakmem": "ode.SLICOTRK4.peakmem_slicot_rk4",
-        "time": "ode.SLICOTRK4.time_slicot_rk4"
-      },
-      "authors": [
-        "Akarsh Duddu <aduddu3@gatech.edu>"
-      ],
-      "concepts": "<ccs2012></ccs2012>",
-      "description": "SLICOT identity-E linear model-reduction ODE.",
-      "file": "src/saps/benchmarks/ode.py",
-      "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-      "generators": [
-        {
-          "ai_disclosure": "Generative AI was used to implement this generator.",
-          "authors": [],
-          "cacheable": true,
-          "concepts": "<ccs2012></ccs2012>",
-          "datasets": [
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_eady",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE: model of an atmospheric storm track.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_eady",
-              "pretty_name": "SLICOT Eady example",
-              "source_inputs": 1,
-              "source_name": "eady.mat",
-              "source_order": 598,
-              "source_outputs": 1,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/eady.zip",
-              "step": 0.01,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_cdplayer",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE: classical CD player model.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_cdplayer",
-              "pretty_name": "SLICOT CD player",
-              "source_inputs": 2,
-              "source_name": "CDplayer.mat",
-              "source_order": 120,
-              "source_outputs": 2,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/CDplayer.zip",
-              "step": 4e-05,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_fom",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_fom",
-              "pretty_name": "SLICOT FOM model",
-              "source_inputs": 1,
-              "source_name": "fom.mat",
-              "source_order": 1006,
-              "source_outputs": 1,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/fom.zip",
-              "step": 0.001,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_random",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_random",
-              "pretty_name": "SLICOT Random example",
-              "source_inputs": 1,
-              "source_name": "random.mat",
-              "source_order": 200,
-              "source_outputs": 1,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/random.zip",
-              "step": 5e-05,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_pde",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE: partial differential equation.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_pde",
-              "pretty_name": "SLICOT PDE example",
-              "source_inputs": 1,
-              "source_name": "pde.mat",
-              "source_order": 84,
-              "source_outputs": 1,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/pde.zip",
-              "step": 0.001,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_heat_cont",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE: heat equation in a thin rod.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_heat_cont",
-              "pretty_name": "SLICOT Heat equation (continuous case)",
-              "source_inputs": 1,
-              "source_name": "heat-cont.mat",
-              "source_order": 200,
-              "source_outputs": 1,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/heat-cont.zip",
-              "step": 0.001,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_orr_som",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE: Orr-Sommerfeld operator for Couette flow.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_orr_som",
-              "pretty_name": "SLICOT Orr-Somerfeld example",
-              "source_inputs": 1,
-              "source_name": "Orr-Som.mat",
-              "source_order": 200,
-              "source_outputs": 1,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/Orr-Som.zip",
-              "step": 0.01,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_iss",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE: component 1r of the International Space Station.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_iss",
-              "pretty_name": "SLICOT International space station",
-              "source_inputs": 3,
-              "source_name": "iss.mat",
-              "source_order": 270,
-              "source_outputs": 3,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/iss.zip",
-              "step": 0.01,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_build",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE: motion problem in a building.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_build",
-              "pretty_name": "SLICOT Building model",
-              "source_inputs": 1,
-              "source_name": "build.mat",
-              "source_order": 48,
-              "source_outputs": 1,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/build.zip",
-              "step": 0.01,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            },
-            {
-              "assumed_E": "identity",
-              "asv_param": "slicot_ode.slicot_beam",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "SLICOT model-reduction ODE: Clamped beam model.",
-              "file": "src/saps/benchmarks/ode.py",
-              "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-              "name": "slicot_beam",
-              "pretty_name": "SLICOT Clamped beam model",
-              "source_inputs": 1,
-              "source_name": "beam.mat",
-              "source_order": 348,
-              "source_outputs": 1,
-              "source_url": "https://www.slicot.org/objects/software/shared/bench-data/beam.zip",
-              "step": 0.001,
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "standard"
-              ],
-              "topics": []
-            }
-          ],
-          "description": "Loads SLICOT model-reduction problems without explicit E matrices, preserving stored sparse matrices, treating E as the identity, and defaulting missing B to a normalized single-input vector.",
-          "file": "src/saps/benchmarks/ode.py",
-          "freshness": "2a5fdc24457a102e686deeaf3a8cae13868c6dcb0eb0c070439939b25b495623",
-          "motivation": "SLICOT model-reduction examples provide realistic linear dynamical systems for ODE integration benchmarks.",
-          "name": "slicot_ode",
-          "pretty_name": "SLICOT Model-Reduction ODE",
-          "references": [
-            ". \"Benchmark examples for model reduction of linear time invariant dynamical systems\", URL: https://www.slicot.org/20-site/126-benchmark-examples-for-model-reduction."
-          ],
-          "suites": [],
-          "tags": [],
-          "topics": []
-        }
-      ],
-      "motivation": "",
-      "name": "slicot_rk4",
-      "pretty_name": "SLICOT Linear Systems \u2014 RK4",
-      "references": [
-        ". \"Benchmark examples for model reduction of linear time invariant dynamical systems\", URL: https://www.slicot.org/20-site/126-benchmark-examples-for-model-reduction."
-      ],
-      "step_multiplier": 1.0,
-      "suites": [],
-      "tags": [],
-      "topics": []
     },
     {
       "ai_disclosure": "",
