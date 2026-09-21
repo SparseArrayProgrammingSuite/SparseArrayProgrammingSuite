@@ -742,15 +742,47 @@ Nearest neighbor algorithms</concept_desc>
         if target_dim > n_features:
             target_dim = n_features
 
-        # Project to lower subspace
-        projected_data = xp.matmul(data, P)
-        projected_query = xp.matmul(query, P)
+        # Project to lower subspace and bucket
+        projected_data = xp.matmul(data, P) > 0
+        projected_query = xp.matmul(query, P) > 0
+
+        nhashes = 32
+        nbuckets = 100
+        bucket_data = xp.reshape(projected_data, -1, nhashes, nbuckets)
+        bucket_query = xp.reshape(projected_data, -1, nhashes, nbuckets)
+        strides = 2 ** xp.arange(projected_data.shape[-1])
+        bucket_data = xp.einsum("ijk, k -> ij", bucket_data, strides)
+        bucket_query = xp.einsum("ijk, k -> ij", bucket_query, strides)
+
+
+
+        #scale = xp.norm(projected_data, axis=1).mean()
+        #projected_data /= scale
+        #projected_query /= scale
+
+        delta = eps / 2.0
+
+        nearest_distances = xp.full((query.shape[0], k), xp.inf, dtype=projected_data.dtype)
+        nearest_indices = xp.full((query.shape[0], k), -1, dtype=xp.index)
+
+
+        query_cap = 100
+
+        for _ in range(log2(nhashes)):
+            key_data = xp.zeros(nearest_distances.shape, dtype=projected_data.dtype)
+            key_data[projected_data] = true
+            key_query = xp.zeros(nearest_distances.shape, dtype=projected_data.dtype)
+            key_query[projected_query] = true
+            key_query &= sum(candidates) < query_cap
+            candidates |= xp.einsum("candidates[q,b] |= key_query[q, b] && key_data[q, b]", candidates=candidates, key_query=key_query, key_data=key_data)
+            projected_data /= 2
+            projected_query /= 2
 
         # -----K Nearest Neighbour from here on out--------
 
         # Euclidean distances
         diff = xp.einsum(
-            "X[i, j, k] = Q[i, k] - D[j, k]", Q=projected_query, D=projected_data
+            "X[i, j, k] = (Q[i, k] - D[j, k]) && candidates[i,j]", Q=projected_query, D=projected_data
         )
         distances = xp.sqrt(xp.sum(diff**2, axis=-1))
 
