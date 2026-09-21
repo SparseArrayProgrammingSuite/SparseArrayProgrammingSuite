@@ -14,11 +14,8 @@ from urllib.request import urlretrieve
 
 import numpy as np
 
-import onnx
 from binsparse.conversions import from_numpy, to_numpy
 from filelock import FileLock
-from onnx import numpy_helper
-from onnx.reference import ReferenceEvaluator
 
 from saps.benchmark import (
     Author,
@@ -842,6 +839,9 @@ class LTHConv2ONNXPYGenerator(Generator[LTHConv2Dataset]):
         return [LTHConv2Dataset()]
 
     def generate(self, _dataset: LTHConv2Dataset) -> DataInstance:
+        import onnx
+        from onnx import numpy_helper
+
         model = onnx.load(str(_model_path()), load_external_data=True)
 
         initializer_names = {tensor.name for tensor in model.graph.initializer}
@@ -958,6 +958,9 @@ class LTHConv2ONNXPYBenchmark(Benchmark):
         return [LTHConv2ONNXPYGenerator()]
 
     def setup(self, param, *, use_cache: bool = True, xp=None):
+        import onnx
+        from onnx.reference import ReferenceEvaluator
+
         model_path = _model_path()
 
         super().setup(param, use_cache=use_cache, xp=xp)
