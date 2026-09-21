@@ -564,7 +564,7 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/cp_als.py",
-              "freshness": "6210d61d04ee21b9f5a2752f6e2eed1cfda770dad596cad795db36e800b21860",
+              "freshness": "3bc6daf60afc2438c905fd96edf2333d1d54410c324924e9fdc87747353f0c7f",
               "name": "cp_factorizeable_3d_tiny",
               "statistics": [
                 "dense",
@@ -589,7 +589,7 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/cp_als.py",
-              "freshness": "6210d61d04ee21b9f5a2752f6e2eed1cfda770dad596cad795db36e800b21860",
+              "freshness": "3bc6daf60afc2438c905fd96edf2333d1d54410c324924e9fdc87747353f0c7f",
               "name": "cp_factorizeable_4d_tiny",
               "statistics": [
                 "dense",
@@ -615,7 +615,7 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/cp_als.py",
-              "freshness": "6210d61d04ee21b9f5a2752f6e2eed1cfda770dad596cad795db36e800b21860",
+              "freshness": "3bc6daf60afc2438c905fd96edf2333d1d54410c324924e9fdc87747353f0c7f",
               "name": "cp_factorizeable_5d_tiny",
               "statistics": [
                 "dense",
@@ -1015,7 +1015,7 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "4beb9103eaf12c4e729305dd46bff1f6079dc8775e37c27f9694596eab59e7ba",
+              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
               "name": "small_dense_hosvd",
               "statistics": [
                 "dense",
@@ -1041,7 +1041,7 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "4beb9103eaf12c4e729305dd46bff1f6079dc8775e37c27f9694596eab59e7ba",
+              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
               "name": "small_dense_4d",
               "statistics": [
                 "dense",
@@ -1067,7 +1067,7 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/HOSVD.py",
-              "freshness": "4beb9103eaf12c4e729305dd46bff1f6079dc8775e37c27f9694596eab59e7ba",
+              "freshness": "f7c9857e662e0a2a7b2277c001e800c1468bd88fa717d3ec09b0b0dbc98ca9c7",
               "name": "small_dense_5d",
               "statistics": [
                 "dense",

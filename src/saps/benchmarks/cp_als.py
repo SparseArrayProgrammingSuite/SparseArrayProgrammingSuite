@@ -487,7 +487,7 @@ class CPNFrosttGenerator(Generator[CPFrosttDataset]):
 
 
 class CP_ALS(Benchmark):
-    """Shared metadata and checks for the dimension-specific benchmarks."""
+    """Shared metadata and generators for the dimension-specific benchmarks."""
 
     n: int
 
@@ -610,36 +610,6 @@ class CP_ALS(Benchmark):
             CPNFrosttGenerator(self.n),
         ]
 
-    def check(self, param):
-        for item in self._output:
-            assert isinstance(
-                item, BinsparseTensor
-            ), "Output must be in binsparse format"
-
-        if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
-            return
-
-        X = to_numpy(self._input[0])
-        factors = [to_numpy(output) for output in self._output[:-1]]
-        lambda_vals = to_numpy(self._output[-1])
-        rank = self._meta["rank"]
-        n = self._meta["n"]
-
-        match n:
-            case 3:
-
-            case 4:
-
-            case 5:
-
-            case _:
-                raise ValueError(f"unsupported CP tensor order {n}")
-
-        rel_error = np.linalg.norm(Y - X) / np.linalg.norm(X)
-        assert (
-            rel_error < self._ref_meta["rel_error_tol"]
-        ), f"CP{n} reconstruction error too high: {rel_error:.6f}"
-
     """
     benchmark(X_bench, rank, max_iter)
 
@@ -660,7 +630,6 @@ class CP_ALS(Benchmark):
 
 class CP_ALS_3D(CP_ALS):
     n = 3
-
 
     def benchmark(self, xp, data, meta):
         X, A, B, C = data
@@ -732,15 +701,35 @@ class CP_ALS_3D(CP_ALS):
 
         return [A, B, C, lambda_vals]
 
-                A, B, C = factors
-                dim1, dim2, dim3 = X.shape
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(
+                item, BinsparseTensor
+            ), "Output must be in binsparse format"
 
-                assert A.shape == (dim1, rank)
-                assert B.shape == (dim2, rank)
-                assert C.shape == (dim3, rank)
-                assert lambda_vals.shape == (rank,)
+        if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
+            return
 
-                Y = np.einsum("r,ir,jr,kr->ijk", lambda_vals, A, B, C)
+        X = to_numpy(self._input[0])
+        factors = [to_numpy(output) for output in self._output[:-1]]
+        lambda_vals = to_numpy(self._output[-1])
+        rank = self._meta["rank"]
+
+        A, B, C = factors
+        dim1, dim2, dim3 = X.shape
+
+        assert A.shape == (dim1, rank)
+        assert B.shape == (dim2, rank)
+        assert C.shape == (dim3, rank)
+        assert lambda_vals.shape == (rank,)
+
+        Y = np.einsum("r,ir,jr,kr->ijk", lambda_vals, A, B, C)
+
+        rel_error = np.linalg.norm(Y - X) / np.linalg.norm(X)
+        assert (
+            rel_error < self._ref_meta["rel_error_tol"]
+        ), f"CP3 reconstruction error too high: {rel_error:.6f}"
+
 
 class CP_ALS_4D(CP_ALS):
     n = 4
@@ -844,16 +833,36 @@ class CP_ALS_4D(CP_ALS):
 
         return [A, B, C, D, lambda_vals]
 
-                A, B, C, D = factors
-                dim1, dim2, dim3, dim4 = X.shape
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(
+                item, BinsparseTensor
+            ), "Output must be in binsparse format"
 
-                assert A.shape == (dim1, rank)
-                assert B.shape == (dim2, rank)
-                assert C.shape == (dim3, rank)
-                assert D.shape == (dim4, rank)
-                assert lambda_vals.shape == (rank,)
+        if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
+            return
 
-                Y = np.einsum("r,ir,jr,kr,lr->ijkl", lambda_vals, A, B, C, D)
+        X = to_numpy(self._input[0])
+        factors = [to_numpy(output) for output in self._output[:-1]]
+        lambda_vals = to_numpy(self._output[-1])
+        rank = self._meta["rank"]
+
+        A, B, C, D = factors
+        dim1, dim2, dim3, dim4 = X.shape
+
+        assert A.shape == (dim1, rank)
+        assert B.shape == (dim2, rank)
+        assert C.shape == (dim3, rank)
+        assert D.shape == (dim4, rank)
+        assert lambda_vals.shape == (rank,)
+
+        Y = np.einsum("r,ir,jr,kr,lr->ijkl", lambda_vals, A, B, C, D)
+
+        rel_error = np.linalg.norm(Y - X) / np.linalg.norm(X)
+        assert (
+            rel_error < self._ref_meta["rel_error_tol"]
+        ), f"CP4 reconstruction error too high: {rel_error:.6f}"
+
 
 class CP_ALS_5D(CP_ALS):
     n = 5
@@ -988,14 +997,33 @@ class CP_ALS_5D(CP_ALS):
 
         return [A, B, C, D, E, lambda_vals]
 
-                A, B, C, D, E = factors
-                dim1, dim2, dim3, dim4, dim5 = X.shape
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(
+                item, BinsparseTensor
+            ), "Output must be in binsparse format"
 
-                assert A.shape == (dim1, rank)
-                assert B.shape == (dim2, rank)
-                assert C.shape == (dim3, rank)
-                assert D.shape == (dim4, rank)
-                assert E.shape == (dim5, rank)
-                assert lambda_vals.shape == (rank,)
+        if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
+            return
 
-                Y = np.einsum("r,ir,jr,kr,lr,mr->ijklm", lambda_vals, A, B, C, D, E)
+        X = to_numpy(self._input[0])
+        factors = [to_numpy(output) for output in self._output[:-1]]
+        lambda_vals = to_numpy(self._output[-1])
+        rank = self._meta["rank"]
+
+        A, B, C, D, E = factors
+        dim1, dim2, dim3, dim4, dim5 = X.shape
+
+        assert A.shape == (dim1, rank)
+        assert B.shape == (dim2, rank)
+        assert C.shape == (dim3, rank)
+        assert D.shape == (dim4, rank)
+        assert E.shape == (dim5, rank)
+        assert lambda_vals.shape == (rank,)
+
+        Y = np.einsum("r,ir,jr,kr,lr,mr->ijklm", lambda_vals, A, B, C, D, E)
+
+        rel_error = np.linalg.norm(Y - X) / np.linalg.norm(X)
+        assert (
+            rel_error < self._ref_meta["rel_error_tol"]
+        ), f"CP5 reconstruction error too high: {rel_error:.6f}"

@@ -2,7 +2,7 @@ from typing import Any
 
 import numpy as np
 
-from binsparse import CustomTensor, ElementLevel, SparseLevel
+from binsparse import BinsparseTensor, CustomTensor, ElementLevel, SparseLevel
 from binsparse.conversions import from_numpy, to_numpy
 
 from saps.benchmark import (
@@ -65,7 +65,6 @@ class HOSVDDataset(Dataset):
         data["ranks"] = self.ranks
         data["seed"] = self.seed
         return data
-
 
 
 class HOSVDDenseGenerator(Generator[HOSVDDataset]):
@@ -550,7 +549,7 @@ class HOSVDFrosttGenerator(Generator[HOSVDFrosttDataset]):
 
 
 class HOSVDBenchmark(Benchmark):
-    """Shared metadata and checks for the dimension-specific benchmarks."""
+    """Shared metadata and generators for the dimension-specific benchmarks."""
 
     n: int
 
@@ -674,25 +673,6 @@ class HOSVDBenchmark(Benchmark):
             HOSVDFrosttGenerator(self.n),
         ]
 
-    def check(self, param):
-        super().check(param)
-        if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
-            return
-        X = to_numpy(self._input[0])
-        core = to_numpy(self._output[0])
-        factors = [to_numpy(output) for output in self._output[1:]]
-        num_modes = len(factors)
-        core_idx = "".join(chr(65 + m) for m in range(num_modes))
-        result_idx = "".join(chr(97 + m) for m in range(num_modes))
-        terms = [core_idx]
-        operands = [core]
-        for mode, factor in enumerate(factors):
-            terms.append(f"{result_idx[mode]}{core_idx[mode]}")
-            operands.append(factor)
-        X_rec = np.einsum(f"{','.join(terms)}->{result_idx}", *operands)
-        error = np.linalg.norm(X - X_rec) / np.linalg.norm(X)
-        assert error < 1e-5
-
 
 class HOSVD3DBenchmark(HOSVDBenchmark):
     n = 3
@@ -774,6 +754,29 @@ class HOSVD3DBenchmark(HOSVDBenchmark):
             initial_factors[1],
             initial_factors[2],
         ]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(
+                item, BinsparseTensor
+            ), "Output must be in binsparse format"
+
+        if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
+            return
+
+        X = to_numpy(self._input[0])
+        rank1, rank2, rank3 = to_numpy(self._input[1])
+        core, A, B, C = [to_numpy(output) for output in self._output]
+        dim1, dim2, dim3 = X.shape
+
+        assert core.shape == (rank1, rank2, rank3)
+        assert A.shape == (dim1, rank1)
+        assert B.shape == (dim2, rank2)
+        assert C.shape == (dim3, rank3)
+
+        X_rec = np.einsum("pqr,ip,jq,kr->ijk", core, A, B, C)
+        error = np.linalg.norm(X - X_rec) / np.linalg.norm(X)
+        assert error < 1e-5, f"HOSVD3 reconstruction error too high: {error:.6f}"
 
 
 class HOSVD4DBenchmark(HOSVDBenchmark):
@@ -874,6 +877,30 @@ class HOSVD4DBenchmark(HOSVDBenchmark):
             initial_factors[2],
             initial_factors[3],
         ]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(
+                item, BinsparseTensor
+            ), "Output must be in binsparse format"
+
+        if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
+            return
+
+        X = to_numpy(self._input[0])
+        rank1, rank2, rank3, rank4 = to_numpy(self._input[1])
+        core, A, B, C, D = [to_numpy(output) for output in self._output]
+        dim1, dim2, dim3, dim4 = X.shape
+
+        assert core.shape == (rank1, rank2, rank3, rank4)
+        assert A.shape == (dim1, rank1)
+        assert B.shape == (dim2, rank2)
+        assert C.shape == (dim3, rank3)
+        assert D.shape == (dim4, rank4)
+
+        X_rec = np.einsum("pqrs,ip,jq,kr,ls->ijkl", core, A, B, C, D)
+        error = np.linalg.norm(X - X_rec) / np.linalg.norm(X)
+        assert error < 1e-5, f"HOSVD4 reconstruction error too high: {error:.6f}"
 
 
 class HOSVD5DBenchmark(HOSVDBenchmark):
@@ -992,3 +1019,28 @@ class HOSVD5DBenchmark(HOSVDBenchmark):
             initial_factors[3],
             initial_factors[4],
         ]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(
+                item, BinsparseTensor
+            ), "Output must be in binsparse format"
+
+        if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
+            return
+
+        X = to_numpy(self._input[0])
+        rank1, rank2, rank3, rank4, rank5 = to_numpy(self._input[1])
+        core, A, B, C, D, E = [to_numpy(output) for output in self._output]
+        dim1, dim2, dim3, dim4, dim5 = X.shape
+
+        assert core.shape == (rank1, rank2, rank3, rank4, rank5)
+        assert A.shape == (dim1, rank1)
+        assert B.shape == (dim2, rank2)
+        assert C.shape == (dim3, rank3)
+        assert D.shape == (dim4, rank4)
+        assert E.shape == (dim5, rank5)
+
+        X_rec = np.einsum("pqrst,ip,jq,kr,ls,mt->ijklm", core, A, B, C, D, E)
+        error = np.linalg.norm(X - X_rec) / np.linalg.norm(X)
+        assert error < 1e-5, f"HOSVD5 reconstruction error too high: {error:.6f}"
