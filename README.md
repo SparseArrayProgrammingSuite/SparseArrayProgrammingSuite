@@ -142,7 +142,16 @@ in `gcare/`.
 
 SuiteSparse source downloads used during cache preparation also share this cache,
 under `suitesparse/<group>/<name>`. A lock and atomic publication let workers reuse
-one completed source download across its RHS selections.
+one completed source download across its RHS selections. The `suitesparse_matrix_shell`
+cache stores each matrix with all compatible RHS vectors once. Uncached solver
+generators select individual RHS columns after fetching that shared entry.
+Older caches that stored one entry per RHS need a one-time refresh in the
+dataset-upload environment:
+
+```bash
+poetry run ./bin/generate_metadata.py
+poetry run ./bin/run_benchmark.py --cache-datasets --re '^suitesparse_matrix_shell$'
+```
 
 SNAP graphs are prepared by `snap_graph_shell` and stored once under
 `snap_graph/<dataset>/<digest>.bsp.h5`. BFS, Bellman-Ford, centrality, connected

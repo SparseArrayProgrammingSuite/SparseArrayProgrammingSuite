@@ -78,36 +78,27 @@ def load_suitesparse_matrix(
     source_name: str,
     *,
     data_dir: str | Path | None = None,
-    rhs_index: int | None = None,
 ) -> tuple[Any, np.ndarray | None, dict[str, Any]]:
     """Download (if needed) and parse a SuiteSparse matrix into a SciPy COO matrix.
 
-    Returns ``(A, b, meta)``. ``b`` is the matrix's real right-hand-side vector
-    (``<name>_b.mtx``) when the SuiteSparse collection entry ships one
-    unambiguous RHS vector, or when *rhs_index* selects one RHS from a multi-RHS
-    file. Otherwise ``b`` is ``None``. There's no way to know this ahead of a
-    download -- the SuiteSparse index doesn't expose it -- but checking costs
-    nothing extra since the whole archive is already downloaded and extracted to
-    read the matrix itself.
+    Returns ``(A, b, meta)``. ``b`` contains all real right-hand sides from
+    ``<name>_b.mtx``: a vector for a single RHS, or a matrix with one RHS per
+    column. It is ``None`` when no compatible RHS file is available. The whole
+    archive is downloaded and extracted together, so loading all RHS vectors
+    requires no additional download.
     """
     matrix_dir, matrix, A = _download_and_read_matrix(source_name, data_dir)
     rhs_path = matrix_dir / f"{matrix.name}_b.mtx"
     b = None
     rhs_error = None
-    if not rhs_path.exists():
-        if rhs_index is not None:
-            raise ValueError(f"SuiteSparse matrix '{source_name}' has no RHS file")
-    else:
+    if rhs_path.exists():
         try:
             b = load_suitesparse_rhs(
                 matrix_dir,
                 matrix.name,
                 expected_length=A.shape[0],
-                rhs_index=rhs_index,
             )
         except ValueError as exc:
-            if rhs_index is not None:
-                raise
             rhs_error = str(exc)
     meta = {
         "dataset_name": source_name,
@@ -128,9 +119,8 @@ def load_suitesparse_rhs(
     matrix_name: str,
     *,
     expected_length: int | None = None,
-    rhs_index: int | None = None,
 ) -> np.ndarray:
-    """Load the ``<matrix_name>_b.mtx`` right-hand-side vector from *matrix_dir*."""
+    """Load all RHS vectors, orienting multiple RHSs as columns when length is known."""
     from scipy.io import mmread
 
     rhs_path = Path(matrix_dir) / f"{matrix_name}_b.mtx"
@@ -140,86 +130,23 @@ def load_suitesparse_rhs(
     if not isinstance(b, np.ndarray):
         b = b.toarray() if hasattr(b, "toarray") else np.asarray(b)
     b = np.asarray(b)
-    if expected_length is None:
-        if rhs_index is not None:
-            raise ValueError("rhs_index requires expected_length")
+    if expected_length is not None:
+        if (
+            b.ndim == 2
+            and b.shape[0] != expected_length
+            and b.shape[1] == expected_length
+        ):
+            b = b.T
+        if b.ndim not in (1, 2) or b.shape[0] != expected_length:
+            raise ValueError(
+                f"SuiteSparse RHS file {rhs_path} has shape {b.shape}, "
+                f"expected RHS vectors of length {expected_length}"
+            )
+    if b.ndim == 2 and (
+        b.shape[1] == 1 or (expected_length is None and b.shape[0] == 1)
+    ):
         return b.flatten()
-    return _coerce_rhs_vector(b, expected_length, rhs_path, rhs_index=rhs_index)
-
-
-def _coerce_rhs_vector(
-    rhs: np.ndarray,
-    expected_length: int,
-    rhs_path: Path,
-    *,
-    rhs_index: int | None = None,
-) -> np.ndarray:
-    if rhs_index is not None and rhs_index < 0:
-        raise ValueError(f"rhs_index must be nonnegative, got {rhs_index}")
-
-    if rhs.ndim == 1 and rhs.shape[0] == expected_length:
-        if rhs_index not in (None, 0):
-            raise ValueError(
-                f"SuiteSparse RHS file {rhs_path} contains 1 RHS vector, "
-                f"got rhs_index={rhs_index}"
-            )
-        return rhs
-
-    if rhs.ndim == 2:
-        if rhs.shape == (expected_length, 1):
-            if rhs_index not in (None, 0):
-                raise ValueError(
-                    f"SuiteSparse RHS file {rhs_path} contains 1 RHS vector, "
-                    f"got rhs_index={rhs_index}"
-                )
-            return rhs[:, 0]
-        if rhs.shape == (1, expected_length):
-            if rhs_index not in (None, 0):
-                raise ValueError(
-                    f"SuiteSparse RHS file {rhs_path} contains 1 RHS vector, "
-                    f"got rhs_index={rhs_index}"
-                )
-            return rhs[0, :]
-        if rhs.shape[0] == expected_length:
-            rhs_count = rhs.shape[1]
-            if rhs_index is None:
-                raise ValueError(
-                    f"SuiteSparse RHS file {rhs_path} contains {rhs_count} RHS "
-                    "vectors; select one with rhs_index"
-                )
-            if rhs_index >= rhs_count:
-                raise ValueError(
-                    f"SuiteSparse RHS file {rhs_path} contains {rhs_count} RHS "
-                    f"vectors, got rhs_index={rhs_index}"
-                )
-            return rhs[:, rhs_index]
-        if rhs.shape[1] == expected_length:
-            rhs_count = rhs.shape[0]
-            if rhs_index is None:
-                raise ValueError(
-                    f"SuiteSparse RHS file {rhs_path} contains {rhs_count} RHS "
-                    "vectors; select one with rhs_index"
-                )
-            if rhs_index >= rhs_count:
-                raise ValueError(
-                    f"SuiteSparse RHS file {rhs_path} contains {rhs_count} RHS "
-                    f"vectors, got rhs_index={rhs_index}"
-                )
-            return rhs[rhs_index, :]
-
-    flat = rhs.flatten()
-    if flat.shape[0] == expected_length:
-        if rhs_index not in (None, 0):
-            raise ValueError(
-                f"SuiteSparse RHS file {rhs_path} contains 1 RHS vector, "
-                f"got rhs_index={rhs_index}"
-            )
-        return flat
-
-    raise ValueError(
-        f"SuiteSparse RHS file {rhs_path} has shape {rhs.shape}, "
-        f"expected a vector of length {expected_length}"
-    )
+    return b
 
 
 def read_vector(path: Path) -> np.ndarray:
@@ -256,7 +183,7 @@ def load_lpnetlib_problem(
 
     rows, cols = A.shape
     c = read_vector(matrix_dir / f"{matrix.name}_c.mtx")
-    b = load_suitesparse_rhs(matrix_dir, matrix.name)
+    b = read_vector(matrix_dir / f"{matrix.name}_b.mtx")
 
     infinite_bound = 1e30
     lo_path = matrix_dir / f"{matrix.name}_lo.mtx"
