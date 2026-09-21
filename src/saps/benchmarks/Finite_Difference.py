@@ -298,12 +298,42 @@ class _FiniteDifferenceBenchmarkBase(Benchmark):
             " as numerical stability, conservation law consistency, etc."
         )
 
+    #: keyword identifying which flux function to use; set by subclasses.
+    #: Kept as a plain string (rather than passing the function itself) so
+    #: that it can be serialized in benchmark metadata.
+    flux_name: str = None
+
     @property
     def generators(self):
         return [FiniteDifferenceGenerator(flux=self.flux)]
 
     def flux(self, u):
-        raise NotImplementedError
+        match self.flux_name:
+            case "burgers":
+                return 0.5 * u * u
+            case "buckley_leverett":
+                sq = u * u
+                return sq / (sq + 0.25 * (1 - u) * (1 - u))
+            case "linear_advection":
+                return 1.0 * u
+            case _:
+                raise NotImplementedError(f"Unknown flux_name: {self.flux_name!r}")
+
+    def benchmark(self, xp, data: list, meta: dict):
+        u_0, matrix, dif = data
+        timesteps = meta["timesteps"]
+        dt = meta["dt"]
+        dx = meta["dx"]
+        Nt = timesteps + 1
+        alpha = dt / (2 * dx)
+        u = xp.zeros((Nt, u_0.shape[0]))
+        u[0] = u_0
+        for n in range(Nt - 1):
+            u_n = u[n]
+            f = self.flux(u_n)
+            u_next = matrix @ u_n - alpha * (dif @ f)
+            u[n + 1] = u_next
+        return [u]
 
     def check(self, param):
         super().check(param)
@@ -342,6 +372,8 @@ class _FiniteDifferenceBenchmarkBase(Benchmark):
 
 
 class BurgersFiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkBase):
+    flux_name = "burgers"
+
     @property
     def name(self) -> str:
         return "burgers_finite_difference"
@@ -350,27 +382,10 @@ class BurgersFiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkBase):
     def pretty_name(self) -> str:
         return "1D Finite Difference (Burgers flux)"
 
-    def flux(self, u):
-        return 0.5 * u * u
-
-    def benchmark(self, xp, data: list, meta: dict):
-        u_0, matrix, dif = data
-        timesteps = meta["timesteps"]
-        dt = meta["dt"]
-        dx = meta["dx"]
-        Nt = timesteps + 1
-        alpha = dt / (2 * dx)
-        u = xp.zeros((Nt, u_0.shape[0]))
-        u[0] = u_0
-        for n in range(Nt - 1):
-            u_n = u[n]
-            f = self.flux(u_n)
-            u_next = matrix @ u_n - alpha * (dif @ f)
-            u[n + 1] = u_next
-        return [u]
-
 
 class BuckleyLeverettFiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkBase):
+    flux_name = "buckley_leverett"
+
     @property
     def name(self) -> str:
         return "buckley_leverett_finite_difference"
@@ -379,29 +394,9 @@ class BuckleyLeverettFiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkBase):
     def pretty_name(self) -> str:
         return "1D Finite Difference (Buckley-Leverett flux)"
 
-    def flux(self, u):
-        sq = u * u
-        return sq / (sq + (0.25 * (1 - u) * (1 - u)))
-
-    def benchmark(self, xp, data: list, meta: dict):
-        u_0, matrix, dif = data
-        timesteps = meta["timesteps"]
-        dt = meta["dt"]
-        dx = meta["dx"]
-        Nt = timesteps + 1
-        alpha = dt / (2 * dx)
-        u = xp.zeros((Nt, u_0.shape[0]))
-        u[0] = u_0
-        for n in range(Nt - 1):
-            u_n = u[n]
-            f = self.flux(u_n)
-            u_next = matrix @ u_n - alpha * (dif @ f)
-            u[n + 1] = u_next
-        return [u]
-
 
 class LinearAdvectionFiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkBase):
-    C = 1.0
+    flux_name = "linear_advection"
 
     @property
     def name(self) -> str:
@@ -410,22 +405,3 @@ class LinearAdvectionFiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkBase):
     @property
     def pretty_name(self) -> str:
         return "1D Finite Difference (Linear Advection flux)"
-
-    def flux(self, u):
-        return self.C * u
-
-    def benchmark(self, xp, data: list, meta: dict):
-        u_0, matrix, dif = data
-        timesteps = meta["timesteps"]
-        dt = meta["dt"]
-        dx = meta["dx"]
-        Nt = timesteps + 1
-        alpha = dt / (2 * dx)
-        u = xp.zeros((Nt, u_0.shape[0]))
-        u[0] = u_0
-        for n in range(Nt - 1):
-            u_n = u[n]
-            f = self.flux(u_n)
-            u_next = matrix @ u_n - alpha * (dif @ f)
-            u[n + 1] = u_next
-        return [u]
