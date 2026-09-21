@@ -3,11 +3,11 @@ import pytest
 import numpy as np
 import scipy.sparse
 
-from binsparse.conversions import to_numpy, to_scipy
+from binsparse.conversions import from_numpy, to_numpy, to_scipy
 
+from saps.benchmark import DataInstance
 from saps.benchmarks.approx_nn import (
     JLApproxNearestNeighbor,
-    JLApproxNNDataset,
     JLApproxNNDenseGenerator,
     JLApproxNNDenseNetflixGenerator,
     JLApproxNNDenseOpenMLGenerator,
@@ -16,46 +16,62 @@ from saps.benchmarks.approx_nn import (
     JLApproxNNSparseNetflixGenerator,
     JLApproxNNSparseOpenMLGenerator,
 )
+from saps.benchmarks.openml import OpenMLDatasetGenerator
 
 
 @pytest.mark.parametrize(
     "generator_cls", [JLApproxNNDenseOpenMLGenerator, JLApproxNNSparseOpenMLGenerator]
 )
-def test_jl_approx_nn_openml_generator_uses_shared_shell(monkeypatch, generator_cls):
+@pytest.mark.parametrize(
+    "source_name,data_id,openml_name,task_id",
+    [("mnist", 554, "mnist_784", 3573), ("cifar10", 40927, "CIFAR_10", 167124)],
+)
+def test_jl_approx_nn_openml_generator_uses_cached_task_split(
+    monkeypatch, generator_cls, source_name, data_id, openml_name, task_id
+):
     features = np.arange(48, dtype=np.float32).reshape(12, 4)
+    train = np.array([8, 3, 1, 7, 6, 0, 10, 11, 4])
+    query = np.array([9, 2, 5])
+    calls = []
 
-    def fake_fetch_openml_features(source_name):
-        return features, {
-            "data_id": 554,
-            "openml_name": "mnist_784",
-            "version": 1,
-            "num_rows": features.shape[0],
-            "num_features": features.shape[1],
-        }
+    def fake_cached_generate(self, dataset):
+        calls.append((self.name, dataset.name, dataset.task_id, dataset.fold))
+        return DataInstance(
+            inputs=[from_numpy(value) for value in (features, train, query)],
+            meta={
+                "data_id": data_id,
+                "openml_name": openml_name,
+                "version": 1,
+                "num_rows": len(features),
+                "num_features": 4,
+                "task_id": task_id,
+                "repeat": 0,
+                "fold": 0,
+                "sample": 0,
+            },
+        )
 
-    monkeypatch.setattr(
-        "saps.benchmarks.approx_nn.fetch_openml_features",
-        fake_fetch_openml_features,
-    )
+    monkeypatch.setattr(OpenMLDatasetGenerator, "cached_generate", fake_cached_generate)
     generator = generator_cls()
-    dataset = JLApproxNNDataset("mnist", k=2, eps=0.3, seed=0)
-
+    dataset = next(d for d in generator.datasets if d.name == source_name)
     instance = generator.generate(dataset)
 
+    assert calls == [("openml_dataset", source_name, task_id, 0)]
     assert not generator.cacheable
-    assert {tuple(row) for row in to_numpy(instance.inputs[0])} == {
-        tuple(row) for row in features
-    }
-    assert {tuple(row) for row in to_numpy(instance.inputs[1])} == {
-        tuple(row) for row in features
-    }
+    np.testing.assert_array_equal(to_numpy(instance.inputs[0]), features[train])
+    np.testing.assert_array_equal(to_numpy(instance.inputs[1]), features[query])
     assert instance.inputs[2].shape == (4, 3100)
     assert instance.meta["hash_bits"] == 31
     assert instance.meta["n_tables"] == 100
-    assert instance.meta["num_train"] == 12
-    assert instance.meta["num_query"] == 12
+    assert instance.meta["num_train"] == 9
+    assert instance.meta["num_query"] == 3
     assert instance.meta["num_features"] == 4
-    assert instance.meta["openml_data_id"] == 554
+    assert instance.meta["openml_data_id"] == data_id
+    assert instance.meta["split"] == "openml_task"
+    assert instance.meta["openml_task_id"] == task_id
+    assert instance.meta["openml_task_repeat"] == 0
+    assert instance.meta["openml_task_fold"] == 0
+    assert instance.meta["openml_task_sample"] == 0
 
 
 @pytest.mark.parametrize(

@@ -16,7 +16,10 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.netflixprize import fetch_netflixprize_matrix
-from saps.benchmarks.openml import OpenMLDatasetGenerator, fetch_openml_features
+from saps.benchmarks.openml import (
+    OpenMLDatasetGenerator,
+    fetch_openml_train_test_features,
+)
 
 
 class JLApproxNNRandomDataset(Dataset):
@@ -468,9 +471,7 @@ class _JLApproxNNOpenMLGeneratorMixin(JLApproxNNGeneratorMixin):
         ]
 
     def generate(self, dataset: JLApproxNNDataset) -> DataInstance:
-        features, source_meta = fetch_openml_features(dataset.name)
-        train = features
-        test = features
+        train, test, source_meta = fetch_openml_train_test_features(dataset.name)
 
         n_features = train.shape[1]
         return self._instance(
@@ -478,6 +479,11 @@ class _JLApproxNNOpenMLGeneratorMixin(JLApproxNNGeneratorMixin):
             from_numpy(train),
             from_numpy(test),
             source_meta={
+                "split": "openml_task",
+                "openml_task_id": source_meta["task_id"],
+                "openml_task_repeat": source_meta["repeat"],
+                "openml_task_fold": source_meta["fold"],
+                "openml_task_sample": source_meta["sample"],
                 "num_train": int(train.shape[0]),
                 "num_query": int(test.shape[0]),
                 "num_features": int(n_features),
@@ -853,12 +859,12 @@ Nearest neighbor algorithms</concept_desc>
             n_codes = 2 ** (hash_bits - discarded)
             for table in range(n_tables):
                 # if frameworks were better, we could write:
-                #matches = xp.einsum(
+                # matches = xp.einsum(
                 #    "M[q,n] or= A[q] & (Q[q,t] == D[n,t])",
                 #    A=active,
                 #    Q=table_query,
                 #    D=table_data,
-                #)
+                # )
                 key_data = xp.zeros((n_samples, n_codes), dtype=xp.bool)
                 key_query = xp.zeros((n_queries, n_codes), dtype=xp.bool)
                 key_data[sample_indices, table_data[:, table]] = True
