@@ -1200,18 +1200,39 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "557f4976aa5f886548286c3994805daf0ec5a03c75b646cea18dc985aeeeb2da",
+              "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
               "name": "test_jl_preserves_distance",
               "statistics": [
+                "dense",
                 "fancy-ops",
                 "index-ops",
                 "linalg-ops",
+                "shape-ops",
                 "tensor",
                 "transcendental-ops"
               ]
             }
           ],
-          "name": "jl_projection_test_inputs",
+          "name": "jl_projection_test_inputs_dense",
+          "statistics": []
+        },
+        {
+          "datasets": [
+            {
+              "file": "src/saps/benchmarks/approx_nn.py",
+              "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
+              "name": "test_jl_preserves_distance",
+              "statistics": [
+                "fancy-ops",
+                "index-ops",
+                "linalg-ops",
+                "shape-ops",
+                "tensor",
+                "transcendental-ops"
+              ]
+            }
+          ],
+          "name": "jl_projection_test_inputs_sparse",
           "statistics": []
         }
       ],

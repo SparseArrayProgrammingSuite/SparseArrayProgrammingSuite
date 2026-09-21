@@ -448,6 +448,12 @@ class PyDataSparseFramework(Framework):
             return sp.stack([sp.asarray(array) for array in arrays], axis=axis)
         return compat_np.stack(arrays, axis=axis)
 
+    def argsort(self, x, /, *args, **kwargs):
+        if isinstance(x, sp.SparseArray):
+            x = self._dense(x)
+        xp = self._array_namespace(x)
+        return xp.argsort(x, *args, **kwargs)
+
     def take(self, x, indices, /, *args, **kwargs):
         if isinstance(indices, sp.SparseArray):
             indices = self._dense(indices)

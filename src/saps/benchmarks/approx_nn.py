@@ -1,4 +1,5 @@
 import logging
+from abc import ABC, abstractmethod
 
 import numpy as np
 
@@ -31,6 +32,9 @@ class JLApproxNNRandomDataset(Dataset):
         k,
         eps,
         seed,
+        hash_bits=32,
+        n_tables=100,
+        candidate_target=100,
     ):
         self._name = name
         self._pretty_name = pretty_name
@@ -42,6 +46,9 @@ class JLApproxNNRandomDataset(Dataset):
         self.k = k
         self.eps = eps
         self.seed = seed
+        self.hash_bits = hash_bits
+        self.n_tables = n_tables
+        self.candidate_target = candidate_target
 
     @property
     def name(self) -> str:
@@ -64,89 +71,57 @@ class JLApproxNNRandomDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class JLApproxNNTestGenerator(Generator[JLApproxNNRandomDataset]):
-    @property
-    def name(self) -> str:
-        return "jl_projection_test_inputs"
+class JLApproxNNGeneratorMixin(ABC):
+    projection_kind: str
 
-    @property
-    def pretty_name(self) -> str:
-        return "JL Projection Test Input Generator"
+    @abstractmethod
+    def projection(self, n_features: int, target_dim: int, seed: int):
+        """Generate one projection column per hash bit per table."""
 
-    @property
-    def description(self) -> str:
-        return "Small JL approximate nearest-neighbor example."
-
-    @property
-    def suites(self) -> list[str]:
-        return ["test", "trace"]
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
-    @property
-    def authors(self) -> list[Contributor]:
-        return JLApproxNNGenerator().authors
-
-    @property
-    def references(self) -> list[Ref]:
-        return JLApproxNNGenerator().references
-
-    @property
-    def ai_disclosure(self) -> str:
-        return JLApproxNNGenerator().ai_disclosure
-
-    @property
-    def motivation(self) -> str:
-        return "Provide a small JL ANN example for benchmark correctness checks."
-
-    @property
-    def cacheable(self) -> bool:
-        return False
-
-    @property
-    def datasets(self) -> list[JLApproxNNRandomDataset]:
-        return [
-            JLApproxNNRandomDataset(
-                name="test_jl_preserves_distance",
-                pretty_name="test JL ANN",
-                description=(
-                    "test dense data and query matrices with sparse random projection."
-                ),
-                suites=["test", "trace"],
-                n_samples=20,
-                n_features=10,
-                n_queries=4,
-                k=3,
-                eps=0.01,
-                seed=42,
-            )
-        ]
-
-    def generate(self, dataset: JLApproxNNRandomDataset):
-        problem = JLApproxNNGenerator().generate(dataset)
+    def _instance(self, dataset, data, query, source_meta=None):
+        projection = self.projection(
+            data.shape[1], dataset.hash_bits * dataset.n_tables, dataset.seed
+        )
         return DataInstance(
-            inputs=problem.inputs,
-            meta=problem.meta,
-            ref_meta={"check": "jl_preserves_distance"},
+            inputs=[data, query, projection],
+            meta={
+                **_lsh_meta(dataset),
+                "projection_kind": self.projection_kind,
+                **(source_meta or {}),
+            },
         )
 
 
-class JLApproxNNGenerator(Generator[JLApproxNNRandomDataset]):
+class _DenseProjectionMixin(JLApproxNNGeneratorMixin):
+    projection_kind = "dense"
+
+    def projection(self, n_features: int, target_dim: int, seed: int):
+        # Keep Gaussian hash directions independent of the synthetic data stream.
+        rng = np.random.default_rng([seed, 1])
+        return from_numpy(rng.standard_normal((n_features, target_dim)))
+
+
+class _SparseProjectionMixin(JLApproxNNGeneratorMixin):
+    projection_kind = "sparse"
+
+    def projection(self, n_features: int, target_dim: int, seed: int):
+        return _rla_projection(n_features, target_dim, seed)
+
+
+class _JLApproxNNRandomGeneratorMixin(JLApproxNNGeneratorMixin):
     @property
     def name(self) -> str:
-        return "jl_projection_inputs"
+        return f"jl_projection_inputs_{self.projection_kind}"
 
     @property
     def pretty_name(self) -> str:
-        return "JL Projection Input Generator"
+        return f"JL Projection Input Generator ({self.projection_kind})"
 
     @property
     def description(self) -> str:
         return (
-            "Generates uniformly random data/query matrices and sparse random"
-            " projection matrices for JL approximate nearest-neighbor."
+            "Generates Gaussian random data/query matrices with "
+            f"{self.projection_kind} projections for approximate nearest-neighbor."
         )
 
     @property
@@ -200,8 +175,9 @@ class JLApproxNNGenerator(Generator[JLApproxNNRandomDataset]):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to construct the benchmark function "
-            "itself. Generative AI might have been used to construct tests."
+            "The benchmark algorithm was supplied by its human authors. Generative AI "
+            "assisted with debugging array dimensions, generator refactoring, "
+            "and tests."
         )
 
     @property
@@ -219,8 +195,7 @@ class JLApproxNNGenerator(Generator[JLApproxNNRandomDataset]):
                 name="small",
                 pretty_name="Small JL ANN",
                 description=(
-                    "Small random dense data and query matrices with sparse random"
-                    " projection."
+                    "Small random dense data and query matrices with random projection."
                 ),
                 suites=[],
                 n_samples=256,
@@ -234,7 +209,7 @@ class JLApproxNNGenerator(Generator[JLApproxNNRandomDataset]):
                 name="medium",
                 pretty_name="Medium JL ANN",
                 description=(
-                    "Medium random dense data and query matrices with sparse random"
+                    "Medium random dense data and query matrices with random"
                     " projection."
                 ),
                 suites=[],
@@ -249,8 +224,7 @@ class JLApproxNNGenerator(Generator[JLApproxNNRandomDataset]):
                 name="large",
                 pretty_name="Large JL ANN",
                 description=(
-                    "Large random dense data and query matrices with sparse random"
-                    " projection."
+                    "Large random dense data and query matrices with random projection."
                 ),
                 suites=[],
                 n_samples=4096,
@@ -263,57 +237,66 @@ class JLApproxNNGenerator(Generator[JLApproxNNRandomDataset]):
         ]
 
     def generate(self, dataset: JLApproxNNRandomDataset):
-        import scipy as sp
-
         rng = np.random.default_rng(dataset.seed)
         data = rng.standard_normal((dataset.n_samples, dataset.n_features))
         query = rng.standard_normal((dataset.n_queries, dataset.n_features))
-        eps = dataset.eps
-        seed = dataset.seed
-        n_samples, n_features = data.shape
-        #  Johnson Lindenstrauss Theorem Lemmna.
-        # The eps represents the disortion of distance by epsilon,
-        # between the the original space and the reduced subspace
-        target_dim = np.ceil(np.log(n_samples) / (eps * eps)).astype(int)
+        return self._instance(dataset, from_numpy(data), from_numpy(query))
 
-        rng = np.random.default_rng(seed)
-        # return rng.standard_normal((n_features, np.round(target_dim).astype(int)))
 
-        s = np.sqrt(n_features)  # s = 1/density
-        density = 1.0 / s  # probability of a nonzero entry = density.
-        density_half = density / 2.0  # probability for + or -
-        scale = np.sqrt(s / target_dim)  # scale = sqrt(s / n_components)
+class _JLApproxNNTestGeneratorMixin(_JLApproxNNRandomGeneratorMixin):
+    @property
+    def name(self) -> str:
+        return f"jl_projection_test_inputs_{self.projection_kind}"
 
-        U_Neg = sp.sparse.random(
-            n_features,
-            target_dim,
-            density_half,
-            data_rvs=lambda k: np.full(
-                k, -scale, dtype=float
-            ),  # specified dtype to see of that made a difference
-            random_state=rng,
-        )
-        U_Pos = sp.sparse.random(
-            n_features,
-            target_dim,
-            density_half,
-            data_rvs=lambda k: np.full(
-                k, scale, dtype=float
-            ),  # specified dtype to see of that made a difference
-            random_state=rng,
-        )
-        projection_matrix = (U_Neg + U_Pos).tocoo()
+    @property
+    def pretty_name(self) -> str:
+        return f"JL Projection Test Input Generator ({self.projection_kind})"
 
-        meta = {"k": dataset.k, "eps": dataset.eps}
-        P = from_scipy(projection_matrix)
+    @property
+    def description(self) -> str:
+        return "Small JL approximate nearest-neighbor example."
 
+    @property
+    def suites(self) -> list[str]:
+        return ["test", "trace"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def motivation(self) -> str:
+        return "Provide a small JL ANN example for benchmark correctness checks."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[JLApproxNNRandomDataset]:
+        return [
+            JLApproxNNRandomDataset(
+                name="test_jl_preserves_distance",
+                pretty_name="test JL ANN",
+                description=(
+                    "Test dense data and query matrices with random projection."
+                ),
+                suites=["test", "trace"],
+                n_samples=20,
+                n_features=10,
+                n_queries=4,
+                k=3,
+                eps=0.01,
+                seed=42,
+            )
+        ]
+
+    def generate(self, dataset: JLApproxNNRandomDataset):
+        problem = super().generate(dataset)
         return DataInstance(
-            inputs=[
-                from_numpy(data),
-                from_numpy(query),
-                P,
-            ],
-            meta=meta,
+            inputs=problem.inputs,
+            meta=problem.meta,
+            ref_meta={"check": "jl_preserves_distance"},
         )
 
 
@@ -325,12 +308,18 @@ class JLApproxNNDataset(Dataset):
         eps: float,
         seed: int = 0,
         suites: list[str] | None = None,
+        hash_bits: int = 32,
+        n_tables: int = 100,
+        candidate_target: int = 100,
     ):
         self._source_name = source_name
         self.k = k
         self.eps = eps
         self.seed = seed
         self._suites = suites or []
+        self.hash_bits = hash_bits
+        self.n_tables = n_tables
+        self.candidate_target = candidate_target
 
     @property
     def name(self) -> str:
@@ -353,15 +342,21 @@ class JLApproxNNDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-def _rla_projection(n_features: int, n_samples: int, eps: float, seed: int):
+def _lsh_meta(dataset):
+    return {
+        "k": dataset.k,
+        "eps": dataset.eps,
+        "hash_bits": dataset.hash_bits,
+        "n_tables": dataset.n_tables,
+        "candidate_target": dataset.candidate_target,
+    }
+
+
+def _rla_projection(n_features: int, target_dim: int, seed: int):
     import scipy as sp
 
-    # Johnson–Lindenstrauss lemma.
-    # eps is the allowable relative distortion of distances
-    # between the original space and the reduced subspace.
-    target_dim = np.ceil(np.log(n_samples) / (eps * eps)).astype(int)
+    # Each projection column supplies one sign bit in one LSH table.
     rng = np.random.default_rng(seed)
-    # return rng.standard_normal((n_features, np.round(target_dim).astype(int)))
 
     s = np.sqrt(n_features)  # s = 1/density
     density = 1.0 / s  # probability of a nonzero entry = density.
@@ -390,14 +385,14 @@ def _rla_projection(n_features: int, n_samples: int, eps: float, seed: int):
     return from_scipy(coo)
 
 
-class JLApproxNNOpenMLGenerator(Generator[JLApproxNNDataset]):
+class _JLApproxNNOpenMLGeneratorMixin(JLApproxNNGeneratorMixin):
     @property
     def name(self) -> str:
-        return "jl_approx_nn_openml"
+        return f"jl_approx_nn_openml_{self.projection_kind}"
 
     @property
     def pretty_name(self) -> str:
-        return "JL ANN OpenML Generator"
+        return f"JL ANN OpenML Generator ({self.projection_kind})"
 
     @property
     def description(self) -> str:
@@ -441,8 +436,9 @@ class JLApproxNNOpenMLGenerator(Generator[JLApproxNNDataset]):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to construct the benchmark function "
-            "itself. Generative AI might have been used to construct tests."
+            "The benchmark algorithm was supplied by its human authors. Generative AI "
+            "assisted with debugging array dimensions, generator refactoring, "
+            "and tests."
         )
 
     @property
@@ -474,18 +470,12 @@ class JLApproxNNOpenMLGenerator(Generator[JLApproxNNDataset]):
         train = features
         test = features
 
-        n_samples, n_features = train.shape
-        projection = _rla_projection(n_features, n_samples, dataset.eps, dataset.seed)
-
-        return DataInstance(
-            inputs=[
-                from_numpy(train),
-                from_numpy(test),
-                projection,
-            ],
-            meta={
-                "k": dataset.k,
-                "eps": dataset.eps,
+        n_features = train.shape[1]
+        return self._instance(
+            dataset,
+            from_numpy(train),
+            from_numpy(test),
+            source_meta={
                 "num_train": int(train.shape[0]),
                 "num_query": int(test.shape[0]),
                 "num_features": int(n_features),
@@ -498,14 +488,14 @@ class JLApproxNNOpenMLGenerator(Generator[JLApproxNNDataset]):
         )
 
 
-class JLApproxNNNetflixGenerator(Generator[JLApproxNNDataset]):
+class _JLApproxNNNetflixGeneratorMixin(JLApproxNNGeneratorMixin):
     @property
     def name(self) -> str:
-        return "jl_approx_nn_netflix"
+        return f"jl_approx_nn_netflix_{self.projection_kind}"
 
     @property
     def pretty_name(self) -> str:
-        return "JL ANN Netflix Generator"
+        return f"JL ANN Netflix Generator ({self.projection_kind})"
 
     @property
     def description(self) -> str:
@@ -537,15 +527,16 @@ class JLApproxNNNetflixGenerator(Generator[JLApproxNNDataset]):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to construct the benchmark function "
-            "itself. Generative AI might have been used to construct tests."
+            "The benchmark algorithm was supplied by its human authors. Generative AI "
+            "assisted with debugging array dimensions, generator refactoring, "
+            "and tests."
         )
 
     @property
     def motivation(self) -> str:
         return (
             "The Netflix Prize dataset provides a ~480K users × 17,770 movies sparse "
-            "ratings matrix. Uses sparse JL projection due to the dataset's sparsity."
+            f"ratings matrix, tested with {self.projection_kind} projections."
         )
 
     @property
@@ -570,19 +561,11 @@ class JLApproxNNNetflixGenerator(Generator[JLApproxNNDataset]):
         train_coo = data.tocoo()
         test_coo = data.tocoo()
 
-        projection = _rla_projection(
-            data.shape[1], train_coo.shape[0], dataset.eps, dataset.seed
-        )
-
-        return DataInstance(
-            inputs=[
-                from_scipy(train_coo),
-                from_scipy(test_coo),
-                projection,
-            ],
-            meta={
-                "k": dataset.k,
-                "eps": dataset.eps,
+        return self._instance(
+            dataset,
+            from_scipy(train_coo),
+            from_scipy(test_coo),
+            source_meta={
                 "num_train": int(train_coo.shape[0]),
                 "num_query": int(test_coo.shape[0]),
                 "num_features": int(data.shape[1]),
@@ -591,6 +574,68 @@ class JLApproxNNNetflixGenerator(Generator[JLApproxNNDataset]):
                 "source_num_ratings": source_meta["num_ratings"],
             },
         )
+
+
+class JLApproxNNDenseTestGenerator(
+    _DenseProjectionMixin,
+    _JLApproxNNTestGeneratorMixin,
+    Generator[JLApproxNNRandomDataset],
+):
+    pass
+
+
+class JLApproxNNSparseTestGenerator(
+    _SparseProjectionMixin,
+    _JLApproxNNTestGeneratorMixin,
+    Generator[JLApproxNNRandomDataset],
+):
+    pass
+
+
+class JLApproxNNDenseGenerator(
+    _DenseProjectionMixin,
+    _JLApproxNNRandomGeneratorMixin,
+    Generator[JLApproxNNRandomDataset],
+):
+    pass
+
+
+class JLApproxNNSparseGenerator(
+    _SparseProjectionMixin,
+    _JLApproxNNRandomGeneratorMixin,
+    Generator[JLApproxNNRandomDataset],
+):
+    pass
+
+
+class JLApproxNNDenseOpenMLGenerator(
+    _DenseProjectionMixin, _JLApproxNNOpenMLGeneratorMixin, Generator[JLApproxNNDataset]
+):
+    pass
+
+
+class JLApproxNNSparseOpenMLGenerator(
+    _SparseProjectionMixin,
+    _JLApproxNNOpenMLGeneratorMixin,
+    Generator[JLApproxNNDataset],
+):
+    pass
+
+
+class JLApproxNNDenseNetflixGenerator(
+    _DenseProjectionMixin,
+    _JLApproxNNNetflixGeneratorMixin,
+    Generator[JLApproxNNDataset],
+):
+    pass
+
+
+class JLApproxNNSparseNetflixGenerator(
+    _SparseProjectionMixin,
+    _JLApproxNNNetflixGeneratorMixin,
+    Generator[JLApproxNNDataset],
+):
+    pass
 
 
 class JLApproxNearestNeighbor(Benchmark):
@@ -605,8 +650,8 @@ class JLApproxNearestNeighbor(Benchmark):
     @property
     def description(self):
         return (
-            "Benchmarks Johnson-Lindenstrauss projection followed by"
-            " k-nearest-neighbor ranking in projected space."
+            "Searches progressively shorter sign-hash prefixes across LSH tables,"
+            " then ranks candidates by Euclidean distance in the original space."
         )
 
     @property
@@ -669,6 +714,30 @@ Nearest neighbor algorithms</concept_desc>
     def references(self):
         return [
             Ref(
+                title="LSH Forest: Self-Tuning Indexes for Similarity Search",
+                authors=[
+                    Author("Mayank Bawa"),
+                    Author("Tyson Condie"),
+                    Author("Prasanna Ganesan"),
+                ],
+                year=2005,
+                url="https://www.cs.princeton.edu/courses/archive/spring06/cos592/bib/LSHForest-bawa05.pdf",
+            ),
+            Ref(
+                title=(
+                    "PUFFINN: Parameterless and Universally Fast "
+                    "FInding of Nearest Neighbors"
+                ),
+                authors=[
+                    Author("Martin Aumüller"),
+                    Author("Tobias Christiani"),
+                    Author("Rasmus Pagh"),
+                    Author("Michael Vesterli"),
+                ],
+                year=2019,
+                url="https://arxiv.org/abs/1906.12211",
+            ),
+            Ref(
                 title="Random projection implementation reference",
                 authors=[Author("scikit-learn contributors")],
                 url="https://github.com/scikit-learn/scikit-learn/blob/d3898d9d57aeb1e960d266613a2e31b07bca39d7/sklearn/random_projection.py#L615",
@@ -703,8 +772,9 @@ Nearest neighbor algorithms</concept_desc>
     @property
     def ai_disclosure(self):
         return (
-            "No generative AI was used to construct the benchmark function itself. "
-            "Generative AI might have been used to construct tests."
+            "The benchmark algorithm was supplied by its human authors. Generative AI "
+            "assisted with debugging array dimensions, generator refactoring, "
+            "and tests."
         )
 
     @property
@@ -719,81 +789,88 @@ Nearest neighbor algorithms</concept_desc>
     @property
     def generators(self):
         return [
-            JLApproxNNTestGenerator(),
-            JLApproxNNGenerator(),
-            JLApproxNNOpenMLGenerator(),
-            JLApproxNNNetflixGenerator(),
+            JLApproxNNDenseTestGenerator(),
+            JLApproxNNSparseTestGenerator(),
+            JLApproxNNDenseGenerator(),
+            JLApproxNNSparseGenerator(),
+            JLApproxNNDenseOpenMLGenerator(),
+            JLApproxNNSparseOpenMLGenerator(),
+            JLApproxNNDenseNetflixGenerator(),
+            JLApproxNNSparseNetflixGenerator(),
         ]
 
     def benchmark(self, xp, data, meta):
         data, query, P = data
         k = meta["k"]
-        eps = meta["eps"]
-
+        hash_bits = meta.get("hash_bits", 32)
+        n_tables = meta.get("n_tables", 100)
         n_samples, n_features = data.shape
+        n_queries = query.shape[0]
+        if not 1 <= k <= n_samples:
+            raise ValueError("k must be between 1 and the number of data points")
+        if not 1 <= hash_bits <= 32 or n_tables < 1:
+            raise ValueError("Use 1 to 32 hash bits and at least one table")
+        if query.shape[1] != n_features or P.shape != (
+            n_features,
+            n_tables * hash_bits,
+        ):
+            raise ValueError(
+                "Expected query[:, features] and "
+                "projection[features, n_tables * hash_bits]"
+            )
+        candidate_target = min(n_samples, max(k, meta.get("candidate_target", 100)))
         logging.info(
             f"Data shape: {data.shape}, Query shape: {query.shape}, "
-            f"Projection shape: {P.shape}"
+            f"Projection shape: {P.shape}, Tables: {n_tables}, Bits: {hash_bits}"
         )
-        #  Johnson Lindenstrauss Theorem Lemmna.
-        # The eps represents the disortion of distance by epsilon,
-        # between the the original space and the reduced subspace
-        target_dim = np.log(n_samples) / (eps * eps)
-        if target_dim > n_features:
-            target_dim = n_features
 
-        # Project to lower subspace and bucket
+        # Each table packs hash_bits signs into one nonnegative int64 code.
         projected_data = xp.matmul(data, P) > 0
         projected_query = xp.matmul(query, P) > 0
+        table_data = xp.reshape(projected_data, (n_samples, n_tables, hash_bits))
+        table_query = xp.reshape(projected_query, (n_queries, n_tables, hash_bits))
+        strides = 2 ** xp.arange(hash_bits - 1, -1, -1, dtype=xp.int64)
+        table_data = xp.einsum("H[n,t] += B[n,t,h] * S[h]", B=table_data, S=strides)
+        table_query = xp.einsum("H[q,t] += B[q,t,h] * S[h]", B=table_query, S=strides)
 
-        nhashes = 32
-        nbuckets = 100
-        bucket_data = xp.reshape(projected_data, -1, nhashes, nbuckets)
-        bucket_query = xp.reshape(projected_data, -1, nhashes, nbuckets)
-        strides = 2 ** xp.arange(projected_data.shape[-1])
-        bucket_data = xp.einsum("ijk, k -> ij", bucket_data, strides)
-        bucket_query = xp.einsum("ijk, k -> ij", bucket_query, strides)
+        candidates = xp.zeros((n_queries, n_samples), dtype=xp.bool)
+        # Search successively shorter prefixes, including the empty prefix.
+        # Stop adding candidates independently for each query at the target.
+        for _ in range(hash_bits + 1):
+            active = xp.sum(candidates, axis=1) < candidate_target
+            if not xp.any(active):
+                break
+            matches = xp.einsum(
+                "M[q,n] or= A[q] & (Q[q,t] == D[n,t])",
+                A=active,
+                Q=table_query,
+                D=table_data,
+            )
+            candidates = candidates | matches
+            table_data = table_data // 2
+            table_query = table_query // 2
 
-
-
-        #scale = xp.norm(projected_data, axis=1).mean()
-        #projected_data /= scale
-        #projected_query /= scale
-
-        delta = eps / 2.0
-
-        nearest_distances = xp.full((query.shape[0], k), xp.inf, dtype=projected_data.dtype)
-        nearest_indices = xp.full((query.shape[0], k), -1, dtype=xp.index)
-
-
-        query_cap = 100
-
-        for _ in range(log2(nhashes)):
-            key_data = xp.zeros(nearest_distances.shape, dtype=projected_data.dtype)
-            key_query = xp.zeros(nearest_distances.shape, dtype=projected_data.dtype)
-            for b in buckets:
-                key_data[b, projected_data[b,:]] = true
-                key_query[b, projected_query[b,:]] = true
-            key_query &= sum(candidates) < query_cap
-            candidates |= xp.einsum("candidates[q,b] |= key_query[q, b] && key_data[q, b]", candidates=candidates, key_query=key_query, key_data=key_data)
-            projected_data /= 2
-            projected_query /= 2
-
-        # -----K Nearest Neighbour from here on out--------
-
-        # Euclidean distances
+        # Materialize the query/sample candidate mask before introducing the
+        # feature axis. Mask each operand before subtracting so sparse backends
+        # can retain zeros for non-candidates throughout the distance calculation.
         diff = xp.einsum(
-            "X[i, j, k] = (Q[i, k] - D[j, k]) && candidates[i,j]", Q=projected_query, D=projected_data
+            "X[q,n,f] = C[q,n] * Q[q,f] - C[q,n] * D[n,f]",
+            C=candidates,
+            Q=query,
+            D=data,
         )
-        distances = xp.sqrt(xp.sum(diff**2, axis=-1))
+        candidate_distances = xp.sqrt(xp.sum(diff**2, axis=-1))
+        # Masked zeros are not zero-distance neighbors.
+        distances = xp.where(candidates, candidate_distances, xp.inf)
 
-        # Get nearest k neighbors.
-        sorted_indices = xp.argsort(distances)
-
-        # Get nearest indices and associated distances.
+        sorted_indices = xp.argsort(distances, axis=1)
         nearest_indices = xp.take(sorted_indices, xp.arange(k), axis=1)
-        nearest_distances = xp.take(xp.sort(distances), xp.arange(k), axis=1)
-
+        nearest_distances = xp.einsum(
+            "R[q,k] += D[q,n] * (I[q,k] == N[n])",
+            D=candidate_distances,
+            I=nearest_indices,
+            N=xp.arange(n_samples),
+        )
         return [nearest_indices, nearest_distances]
 
     def check(self, param):

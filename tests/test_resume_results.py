@@ -168,7 +168,7 @@ def test_competition_selects_standard_jl_datasets_without_machine_prompts(
     import json
     import sys
 
-    from saps.benchmarks.approx_nn import JLApproxNNGenerator
+    from saps.benchmarks.approx_nn import JLApproxNNSparseGenerator
 
     root = Path(runner.__file__).resolve().parents[1]
     monkeypatch.chdir(root)
@@ -200,7 +200,7 @@ def test_competition_selects_standard_jl_datasets_without_machine_prompts(
                     "SAPS_REPO_ROOT", include["env_nobuild"]["SAPS_REPO_ROOT"]
                 )
                 worker.chdir(tmp_path)
-                for dataset in JLApproxNNGenerator().datasets:
+                for dataset in JLApproxNNSparseGenerator().datasets:
                     assert dataset.file == "src/saps/benchmarks/approx_nn.py"
         return [object()]
 
@@ -226,6 +226,8 @@ def test_competition_selects_standard_jl_datasets_without_machine_prompts(
             "run_benchmark.py",
             "--config",
             str(root / "competition.config.json"),
+            "--re",
+            "^jl_approx_nn$",
             "--saps-dir",
             str(tmp_path),
             "--env-dir",
@@ -248,9 +250,12 @@ def test_competition_selects_standard_jl_datasets_without_machine_prompts(
     assert (
         actual
         == [
-            "jl_approx_nn_openml.mnist",
-            "jl_approx_nn_openml.cifar10",
-            "jl_approx_nn_netflix.netflix",
+            "jl_approx_nn_openml_dense.mnist",
+            "jl_approx_nn_openml_dense.cifar10",
+            "jl_approx_nn_openml_sparse.mnist",
+            "jl_approx_nn_openml_sparse.cifar10",
+            "jl_approx_nn_netflix_dense.netflix",
+            "jl_approx_nn_netflix_sparse.netflix",
         ][chunk_index::5]
     )
     assert kwargs["machine_params"].machine == "run_12345-task-0"

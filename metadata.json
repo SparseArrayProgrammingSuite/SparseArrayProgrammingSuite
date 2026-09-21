@@ -133705,7 +133705,7 @@
       ]
     },
     {
-      "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI might have been used to construct tests.",
+      "ai_disclosure": "The benchmark algorithm was supplied by its human authors. Generative AI assisted with debugging array dimensions, generator refactoring, and tests.",
       "asv_ids": {
         "peakmem": "approx_nn.JLApproxNearestNeighbor.peakmem_jl_approx_nn",
         "time": "approx_nn.JLApproxNearestNeighbor.time_jl_approx_nn"
@@ -133714,12 +133714,12 @@
         "Vilohith Gokarakonda <vgokarakonda3@gatech.edu>"
       ],
       "concepts": "\n<ccs2012>\n<concept>\n<concept_id>10002951.10003317.10003347.10003356</concept_id>\n<concept_desc>Information systems~Clustering and classification</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002951.10003317.10003347.10003350</concept_id>\n<concept_desc>Information systems~Recommender systems</concept_desc>\n<concept_significance>300</concept_significance>\n</concept>\n<concept>\n<concept_id>10002951.10003317</concept_id>\n<concept_desc>Information systems~Information retrieval</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_desc>Computing methodologies~\nMachine learning algorithms</concept_desc>\n</concept>\n<concept>\n<concept_id>10010147.10010257.10010258.10010260.10003697</concept_id>\n<concept_desc>Computing methodologies~Cluster analysis</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10010147.10010257.10010258.10010260.10010271</concept_id>\n<concept_desc>Computing methodologies~Dimensionality reduction and manifold learning</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_desc>Mathematics of computing~\nDimensionality reduction</concept_desc>\n</concept>\n<concept>\n<concept_desc>Theory of computation~\nNearest neighbor algorithms</concept_desc>\n</concept>\n</ccs2012>\n",
-      "description": "Benchmarks Johnson-Lindenstrauss projection followed by k-nearest-neighbor ranking in projected space.",
+      "description": "Searches progressively shorter sign-hash prefixes across LSH tables, then ranks candidates by Euclidean distance in the original space.",
       "file": "src/saps/benchmarks/approx_nn.py",
-      "freshness": "3a5abc9a1a6c0f29aeefe54a193ace0e6f2c1d59780bfbd8c69111bde8b26144",
+      "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
       "generators": [
         {
-          "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI might have been used to construct tests.",
+          "ai_disclosure": "The benchmark algorithm was supplied by its human authors. Generative AI assisted with debugging array dimensions, generator refactoring, and tests.",
           "authors": [
             "Vilohith Gokarakonda <vgokarakonda3@gatech.edu>",
             "Willow Ahrens <ahrens@gatech.edu>"
@@ -133728,11 +133728,11 @@
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
-              "asv_param": "jl_projection_test_inputs.test_jl_preserves_distance",
+              "asv_param": "jl_projection_test_inputs_dense.test_jl_preserves_distance",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "test dense data and query matrices with sparse random projection.",
+              "description": "Test dense data and query matrices with random projection.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "3a5abc9a1a6c0f29aeefe54a193ace0e6f2c1d59780bfbd8c69111bde8b26144",
+              "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
               "name": "test_jl_preserves_distance",
               "pretty_name": "test JL ANN",
               "suites": [
@@ -133743,27 +133743,34 @@
                 "cluster-analysis",
                 "clustering-and-classification",
                 "computing-methodologies",
+                "dense",
                 "dimensionality-reduction",
                 "dimensionality-reduction-and-manifold-learning",
+                "fancy-ops",
+                "index-ops",
                 "information-retrieval",
                 "information-systems",
+                "linalg-ops",
                 "machine-learning-algorithms",
                 "mathematics-of-computing",
                 "nearest-neighbor-algorithms",
                 "recommender-systems",
+                "shape-ops",
+                "tensor",
                 "test",
                 "theory-of-computation",
-                "trace"
+                "trace",
+                "transcendental-ops"
               ],
               "topics": []
             }
           ],
           "description": "Small JL approximate nearest-neighbor example.",
           "file": "src/saps/benchmarks/approx_nn.py",
-          "freshness": "3a5abc9a1a6c0f29aeefe54a193ace0e6f2c1d59780bfbd8c69111bde8b26144",
+          "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
           "motivation": "Provide a small JL ANN example for benchmark correctness checks.",
-          "name": "jl_projection_test_inputs",
-          "pretty_name": "JL Projection Test Input Generator",
+          "name": "jl_projection_test_inputs_dense",
+          "pretty_name": "JL Projection Test Input Generator (dense)",
           "references": [
             "Riley Murray, James Demmel, Michael W. Mahoney, N. Benjamin Erichson, Maksim Melnichenko, Osman Asif Malik, Laura Grigori, Piotr Luszczek, Micha\u0142 Derezi\u0144ski, Miles E. Lopes, Tianyu Liang, Hengrui Luo, Jack Dongarra. \"Randomized Numerical Linear Algebra : A Perspective on the Field With an Eye to Software\", 2023, URL: https://arxiv.org/abs/2302.11474.",
             "scikit-learn contributors. \"Random projection implementation reference\", URL: https://github.com/scikit-learn/scikit-learn/blob/d3898d9d57aeb1e960d266613a2e31b07bca39d7/sklearn/random_projection.py#L615."
@@ -133791,7 +133798,85 @@
           "topics": []
         },
         {
-          "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI might have been used to construct tests.",
+          "ai_disclosure": "The benchmark algorithm was supplied by its human authors. Generative AI assisted with debugging array dimensions, generator refactoring, and tests.",
+          "authors": [
+            "Vilohith Gokarakonda <vgokarakonda3@gatech.edu>",
+            "Willow Ahrens <ahrens@gatech.edu>"
+          ],
+          "cacheable": false,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "jl_projection_test_inputs_sparse.test_jl_preserves_distance",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Test dense data and query matrices with random projection.",
+              "file": "src/saps/benchmarks/approx_nn.py",
+              "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
+              "name": "test_jl_preserves_distance",
+              "pretty_name": "test JL ANN",
+              "suites": [
+                "test",
+                "trace"
+              ],
+              "tags": [
+                "cluster-analysis",
+                "clustering-and-classification",
+                "computing-methodologies",
+                "dimensionality-reduction",
+                "dimensionality-reduction-and-manifold-learning",
+                "fancy-ops",
+                "index-ops",
+                "information-retrieval",
+                "information-systems",
+                "linalg-ops",
+                "machine-learning-algorithms",
+                "mathematics-of-computing",
+                "nearest-neighbor-algorithms",
+                "recommender-systems",
+                "shape-ops",
+                "tensor",
+                "test",
+                "theory-of-computation",
+                "trace",
+                "transcendental-ops"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "Small JL approximate nearest-neighbor example.",
+          "file": "src/saps/benchmarks/approx_nn.py",
+          "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
+          "motivation": "Provide a small JL ANN example for benchmark correctness checks.",
+          "name": "jl_projection_test_inputs_sparse",
+          "pretty_name": "JL Projection Test Input Generator (sparse)",
+          "references": [
+            "Riley Murray, James Demmel, Michael W. Mahoney, N. Benjamin Erichson, Maksim Melnichenko, Osman Asif Malik, Laura Grigori, Piotr Luszczek, Micha\u0142 Derezi\u0144ski, Miles E. Lopes, Tianyu Liang, Hengrui Luo, Jack Dongarra. \"Randomized Numerical Linear Algebra : A Perspective on the Field With an Eye to Software\", 2023, URL: https://arxiv.org/abs/2302.11474.",
+            "scikit-learn contributors. \"Random projection implementation reference\", URL: https://github.com/scikit-learn/scikit-learn/blob/d3898d9d57aeb1e960d266613a2e31b07bca39d7/sklearn/random_projection.py#L615."
+          ],
+          "suites": [
+            "test",
+            "trace"
+          ],
+          "tags": [
+            "cluster-analysis",
+            "clustering-and-classification",
+            "computing-methodologies",
+            "dimensionality-reduction",
+            "dimensionality-reduction-and-manifold-learning",
+            "information-retrieval",
+            "information-systems",
+            "machine-learning-algorithms",
+            "mathematics-of-computing",
+            "nearest-neighbor-algorithms",
+            "recommender-systems",
+            "test",
+            "theory-of-computation",
+            "trace"
+          ],
+          "topics": []
+        },
+        {
+          "ai_disclosure": "The benchmark algorithm was supplied by its human authors. Generative AI assisted with debugging array dimensions, generator refactoring, and tests.",
           "authors": [
             "Vilohith Gokarakonda <vgokarakonda3@gatech.edu>",
             "Willow Ahrens <ahrens@gatech.edu>"
@@ -133800,11 +133885,11 @@
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
-              "asv_param": "jl_projection_inputs.small",
+              "asv_param": "jl_projection_inputs_dense.small",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Small random dense data and query matrices with sparse random projection.",
+              "description": "Small random dense data and query matrices with random projection.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "3a5abc9a1a6c0f29aeefe54a193ace0e6f2c1d59780bfbd8c69111bde8b26144",
+              "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
               "name": "small",
               "pretty_name": "Small JL ANN",
               "suites": [],
@@ -133825,11 +133910,11 @@
               "topics": []
             },
             {
-              "asv_param": "jl_projection_inputs.medium",
+              "asv_param": "jl_projection_inputs_dense.medium",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Medium random dense data and query matrices with sparse random projection.",
+              "description": "Medium random dense data and query matrices with random projection.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "3a5abc9a1a6c0f29aeefe54a193ace0e6f2c1d59780bfbd8c69111bde8b26144",
+              "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
               "name": "medium",
               "pretty_name": "Medium JL ANN",
               "suites": [],
@@ -133850,11 +133935,11 @@
               "topics": []
             },
             {
-              "asv_param": "jl_projection_inputs.large",
+              "asv_param": "jl_projection_inputs_dense.large",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Large random dense data and query matrices with sparse random projection.",
+              "description": "Large random dense data and query matrices with random projection.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "3a5abc9a1a6c0f29aeefe54a193ace0e6f2c1d59780bfbd8c69111bde8b26144",
+              "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
               "name": "large",
               "pretty_name": "Large JL ANN",
               "suites": [],
@@ -133875,12 +133960,12 @@
               "topics": []
             }
           ],
-          "description": "Generates uniformly random data/query matrices and sparse random projection matrices for JL approximate nearest-neighbor.",
+          "description": "Generates Gaussian random data/query matrices with dense projections for approximate nearest-neighbor.",
           "file": "src/saps/benchmarks/approx_nn.py",
-          "freshness": "3a5abc9a1a6c0f29aeefe54a193ace0e6f2c1d59780bfbd8c69111bde8b26144",
+          "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
           "motivation": "Sparse Johnson-Lindenstrauss projection is a fundamental primitive in randomized numerical linear algebra, and is used in many applications such as approximate nearest neighbor search.",
-          "name": "jl_projection_inputs",
-          "pretty_name": "JL Projection Input Generator",
+          "name": "jl_projection_inputs_dense",
+          "pretty_name": "JL Projection Input Generator (dense)",
           "references": [
             "Riley Murray, James Demmel, Michael W. Mahoney, N. Benjamin Erichson, Maksim Melnichenko, Osman Asif Malik, Laura Grigori, Piotr Luszczek, Micha\u0142 Derezi\u0144ski, Miles E. Lopes, Tianyu Liang, Hengrui Luo, Jack Dongarra. \"Randomized Numerical Linear Algebra : A Perspective on the Field With an Eye to Software\", 2023, URL: https://arxiv.org/abs/2302.11474.",
             "scikit-learn contributors. \"Random projection implementation reference\", URL: https://github.com/scikit-learn/scikit-learn/blob/d3898d9d57aeb1e960d266613a2e31b07bca39d7/sklearn/random_projection.py#L615."
@@ -133903,7 +133988,119 @@
           "topics": []
         },
         {
-          "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI might have been used to construct tests.",
+          "ai_disclosure": "The benchmark algorithm was supplied by its human authors. Generative AI assisted with debugging array dimensions, generator refactoring, and tests.",
+          "authors": [
+            "Vilohith Gokarakonda <vgokarakonda3@gatech.edu>",
+            "Willow Ahrens <ahrens@gatech.edu>"
+          ],
+          "cacheable": true,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "jl_projection_inputs_sparse.small",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Small random dense data and query matrices with random projection.",
+              "file": "src/saps/benchmarks/approx_nn.py",
+              "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
+              "name": "small",
+              "pretty_name": "Small JL ANN",
+              "suites": [],
+              "tags": [
+                "cluster-analysis",
+                "clustering-and-classification",
+                "computing-methodologies",
+                "dimensionality-reduction",
+                "dimensionality-reduction-and-manifold-learning",
+                "information-retrieval",
+                "information-systems",
+                "machine-learning-algorithms",
+                "mathematics-of-computing",
+                "nearest-neighbor-algorithms",
+                "recommender-systems",
+                "theory-of-computation"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "jl_projection_inputs_sparse.medium",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Medium random dense data and query matrices with random projection.",
+              "file": "src/saps/benchmarks/approx_nn.py",
+              "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
+              "name": "medium",
+              "pretty_name": "Medium JL ANN",
+              "suites": [],
+              "tags": [
+                "cluster-analysis",
+                "clustering-and-classification",
+                "computing-methodologies",
+                "dimensionality-reduction",
+                "dimensionality-reduction-and-manifold-learning",
+                "information-retrieval",
+                "information-systems",
+                "machine-learning-algorithms",
+                "mathematics-of-computing",
+                "nearest-neighbor-algorithms",
+                "recommender-systems",
+                "theory-of-computation"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "jl_projection_inputs_sparse.large",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Large random dense data and query matrices with random projection.",
+              "file": "src/saps/benchmarks/approx_nn.py",
+              "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
+              "name": "large",
+              "pretty_name": "Large JL ANN",
+              "suites": [],
+              "tags": [
+                "cluster-analysis",
+                "clustering-and-classification",
+                "computing-methodologies",
+                "dimensionality-reduction",
+                "dimensionality-reduction-and-manifold-learning",
+                "information-retrieval",
+                "information-systems",
+                "machine-learning-algorithms",
+                "mathematics-of-computing",
+                "nearest-neighbor-algorithms",
+                "recommender-systems",
+                "theory-of-computation"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "Generates Gaussian random data/query matrices with sparse projections for approximate nearest-neighbor.",
+          "file": "src/saps/benchmarks/approx_nn.py",
+          "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
+          "motivation": "Sparse Johnson-Lindenstrauss projection is a fundamental primitive in randomized numerical linear algebra, and is used in many applications such as approximate nearest neighbor search.",
+          "name": "jl_projection_inputs_sparse",
+          "pretty_name": "JL Projection Input Generator (sparse)",
+          "references": [
+            "Riley Murray, James Demmel, Michael W. Mahoney, N. Benjamin Erichson, Maksim Melnichenko, Osman Asif Malik, Laura Grigori, Piotr Luszczek, Micha\u0142 Derezi\u0144ski, Miles E. Lopes, Tianyu Liang, Hengrui Luo, Jack Dongarra. \"Randomized Numerical Linear Algebra : A Perspective on the Field With an Eye to Software\", 2023, URL: https://arxiv.org/abs/2302.11474.",
+            "scikit-learn contributors. \"Random projection implementation reference\", URL: https://github.com/scikit-learn/scikit-learn/blob/d3898d9d57aeb1e960d266613a2e31b07bca39d7/sklearn/random_projection.py#L615."
+          ],
+          "suites": [],
+          "tags": [
+            "cluster-analysis",
+            "clustering-and-classification",
+            "computing-methodologies",
+            "dimensionality-reduction",
+            "dimensionality-reduction-and-manifold-learning",
+            "information-retrieval",
+            "information-systems",
+            "machine-learning-algorithms",
+            "mathematics-of-computing",
+            "nearest-neighbor-algorithms",
+            "recommender-systems",
+            "theory-of-computation"
+          ],
+          "topics": []
+        },
+        {
+          "ai_disclosure": "The benchmark algorithm was supplied by its human authors. Generative AI assisted with debugging array dimensions, generator refactoring, and tests.",
           "authors": [
             "Vilohith Gokarakonda <vgokarakonda3@gatech.edu>"
           ],
@@ -133911,11 +134108,11 @@
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
-              "asv_param": "jl_approx_nn_openml.mnist",
+              "asv_param": "jl_approx_nn_openml_dense.mnist",
               "concepts": "<ccs2012></ccs2012>",
               "description": "JL approximate nearest-neighbor on mnist.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "3a5abc9a1a6c0f29aeefe54a193ace0e6f2c1d59780bfbd8c69111bde8b26144",
+              "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
               "name": "mnist",
               "pretty_name": "JL ANN mnist",
               "suites": [
@@ -133939,11 +134136,11 @@
               "topics": []
             },
             {
-              "asv_param": "jl_approx_nn_openml.cifar10",
+              "asv_param": "jl_approx_nn_openml_dense.cifar10",
               "concepts": "<ccs2012></ccs2012>",
               "description": "JL approximate nearest-neighbor on cifar10.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "3a5abc9a1a6c0f29aeefe54a193ace0e6f2c1d59780bfbd8c69111bde8b26144",
+              "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
               "name": "cifar10",
               "pretty_name": "JL ANN cifar10",
               "suites": [
@@ -133969,10 +134166,10 @@
           ],
           "description": "Loads OpenML image datasets for JL approximate nearest-neighbor.",
           "file": "src/saps/benchmarks/approx_nn.py",
-          "freshness": "3a5abc9a1a6c0f29aeefe54a193ace0e6f2c1d59780bfbd8c69111bde8b26144",
+          "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
           "motivation": "MNIST and CIFAR-10 provide dense image feature matrices from OpenML for approximate nearest-neighbor search.",
-          "name": "jl_approx_nn_openml",
-          "pretty_name": "JL ANN OpenML Generator",
+          "name": "jl_approx_nn_openml_dense",
+          "pretty_name": "JL ANN OpenML Generator (dense)",
           "references": [
             "Yann LeCun, L\u00e9on Bottou, Yoshua Bengio, Patrick Haffner. \"Gradient-Based Learning Applied to Document Recognition\", Proceedings of the IEEE, 1998, URL: http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf.",
             "Alex Krizhevsky. \"Learning Multiple Layers of Features from Tiny Images\", 2009, URL: https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf."
@@ -133995,7 +134192,7 @@
           "topics": []
         },
         {
-          "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI might have been used to construct tests.",
+          "ai_disclosure": "The benchmark algorithm was supplied by its human authors. Generative AI assisted with debugging array dimensions, generator refactoring, and tests.",
           "authors": [
             "Vilohith Gokarakonda <vgokarakonda3@gatech.edu>"
           ],
@@ -134003,11 +134200,103 @@
           "concepts": "<ccs2012></ccs2012>",
           "datasets": [
             {
-              "asv_param": "jl_approx_nn_netflix.netflix",
+              "asv_param": "jl_approx_nn_openml_sparse.mnist",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "JL approximate nearest-neighbor on mnist.",
+              "file": "src/saps/benchmarks/approx_nn.py",
+              "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
+              "name": "mnist",
+              "pretty_name": "JL ANN mnist",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "cluster-analysis",
+                "clustering-and-classification",
+                "computing-methodologies",
+                "dimensionality-reduction",
+                "dimensionality-reduction-and-manifold-learning",
+                "information-retrieval",
+                "information-systems",
+                "machine-learning-algorithms",
+                "mathematics-of-computing",
+                "nearest-neighbor-algorithms",
+                "recommender-systems",
+                "standard",
+                "theory-of-computation"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "jl_approx_nn_openml_sparse.cifar10",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "JL approximate nearest-neighbor on cifar10.",
+              "file": "src/saps/benchmarks/approx_nn.py",
+              "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
+              "name": "cifar10",
+              "pretty_name": "JL ANN cifar10",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "cluster-analysis",
+                "clustering-and-classification",
+                "computing-methodologies",
+                "dimensionality-reduction",
+                "dimensionality-reduction-and-manifold-learning",
+                "information-retrieval",
+                "information-systems",
+                "machine-learning-algorithms",
+                "mathematics-of-computing",
+                "nearest-neighbor-algorithms",
+                "recommender-systems",
+                "standard",
+                "theory-of-computation"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "Loads OpenML image datasets for JL approximate nearest-neighbor.",
+          "file": "src/saps/benchmarks/approx_nn.py",
+          "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
+          "motivation": "MNIST and CIFAR-10 provide dense image feature matrices from OpenML for approximate nearest-neighbor search.",
+          "name": "jl_approx_nn_openml_sparse",
+          "pretty_name": "JL ANN OpenML Generator (sparse)",
+          "references": [
+            "Yann LeCun, L\u00e9on Bottou, Yoshua Bengio, Patrick Haffner. \"Gradient-Based Learning Applied to Document Recognition\", Proceedings of the IEEE, 1998, URL: http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf.",
+            "Alex Krizhevsky. \"Learning Multiple Layers of Features from Tiny Images\", 2009, URL: https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf."
+          ],
+          "suites": [],
+          "tags": [
+            "cluster-analysis",
+            "clustering-and-classification",
+            "computing-methodologies",
+            "dimensionality-reduction",
+            "dimensionality-reduction-and-manifold-learning",
+            "information-retrieval",
+            "information-systems",
+            "machine-learning-algorithms",
+            "mathematics-of-computing",
+            "nearest-neighbor-algorithms",
+            "recommender-systems",
+            "theory-of-computation"
+          ],
+          "topics": []
+        },
+        {
+          "ai_disclosure": "The benchmark algorithm was supplied by its human authors. Generative AI assisted with debugging array dimensions, generator refactoring, and tests.",
+          "authors": [
+            "Vilohith Gokarakonda <vgokarakonda3@gatech.edu>"
+          ],
+          "cacheable": false,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "jl_approx_nn_netflix_dense.netflix",
               "concepts": "<ccs2012></ccs2012>",
               "description": "JL approximate nearest-neighbor on netflix.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "3a5abc9a1a6c0f29aeefe54a193ace0e6f2c1d59780bfbd8c69111bde8b26144",
+              "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
               "name": "netflix",
               "pretty_name": "JL ANN netflix",
               "suites": [
@@ -134033,10 +134322,73 @@
           ],
           "description": "Loads Netflix Prize ratings for JL approximate nearest-neighbor.",
           "file": "src/saps/benchmarks/approx_nn.py",
-          "freshness": "3a5abc9a1a6c0f29aeefe54a193ace0e6f2c1d59780bfbd8c69111bde8b26144",
-          "motivation": "The Netflix Prize dataset provides a ~480K users \u00d7 17,770 movies sparse ratings matrix. Uses sparse JL projection due to the dataset's sparsity.",
-          "name": "jl_approx_nn_netflix",
-          "pretty_name": "JL ANN Netflix Generator",
+          "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
+          "motivation": "The Netflix Prize dataset provides a ~480K users \u00d7 17,770 movies sparse ratings matrix, tested with dense projections.",
+          "name": "jl_approx_nn_netflix_dense",
+          "pretty_name": "JL ANN Netflix Generator (dense)",
+          "references": [
+            "Vini Hong, Anastasios Tsamis. \"Use of KNN for the Netflix Prize\", Stanford CS229, URL: https://cs229.stanford.edu/proj2008/HongTsamis-UseOfKNNForTheNetflixPrize.pdf."
+          ],
+          "suites": [],
+          "tags": [
+            "cluster-analysis",
+            "clustering-and-classification",
+            "computing-methodologies",
+            "dimensionality-reduction",
+            "dimensionality-reduction-and-manifold-learning",
+            "information-retrieval",
+            "information-systems",
+            "machine-learning-algorithms",
+            "mathematics-of-computing",
+            "nearest-neighbor-algorithms",
+            "recommender-systems",
+            "theory-of-computation"
+          ],
+          "topics": []
+        },
+        {
+          "ai_disclosure": "The benchmark algorithm was supplied by its human authors. Generative AI assisted with debugging array dimensions, generator refactoring, and tests.",
+          "authors": [
+            "Vilohith Gokarakonda <vgokarakonda3@gatech.edu>"
+          ],
+          "cacheable": false,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "jl_approx_nn_netflix_sparse.netflix",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "JL approximate nearest-neighbor on netflix.",
+              "file": "src/saps/benchmarks/approx_nn.py",
+              "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
+              "name": "netflix",
+              "pretty_name": "JL ANN netflix",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "cluster-analysis",
+                "clustering-and-classification",
+                "computing-methodologies",
+                "dimensionality-reduction",
+                "dimensionality-reduction-and-manifold-learning",
+                "information-retrieval",
+                "information-systems",
+                "machine-learning-algorithms",
+                "mathematics-of-computing",
+                "nearest-neighbor-algorithms",
+                "recommender-systems",
+                "standard",
+                "theory-of-computation"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "Loads Netflix Prize ratings for JL approximate nearest-neighbor.",
+          "file": "src/saps/benchmarks/approx_nn.py",
+          "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
+          "motivation": "The Netflix Prize dataset provides a ~480K users \u00d7 17,770 movies sparse ratings matrix, tested with sparse projections.",
+          "name": "jl_approx_nn_netflix_sparse",
+          "pretty_name": "JL ANN Netflix Generator (sparse)",
           "references": [
             "Vini Hong, Anastasios Tsamis. \"Use of KNN for the Netflix Prize\", Stanford CS229, URL: https://cs229.stanford.edu/proj2008/HongTsamis-UseOfKNNForTheNetflixPrize.pdf."
           ],
@@ -134062,6 +134414,8 @@
       "name": "jl_approx_nn",
       "pretty_name": "Johnson-Lindenstrauss Approximate Nearest Neighbor",
       "references": [
+        "Mayank Bawa, Tyson Condie, Prasanna Ganesan. \"LSH Forest: Self-Tuning Indexes for Similarity Search\", 2005, URL: https://www.cs.princeton.edu/courses/archive/spring06/cos592/bib/LSHForest-bawa05.pdf.",
+        "Martin Aum\u00fcller, Tobias Christiani, Rasmus Pagh, Michael Vesterli. \"PUFFINN: Parameterless and Universally Fast FInding of Nearest Neighbors\", 2019, URL: https://arxiv.org/abs/1906.12211.",
         "scikit-learn contributors. \"Random projection implementation reference\", URL: https://github.com/scikit-learn/scikit-learn/blob/d3898d9d57aeb1e960d266613a2e31b07bca39d7/sklearn/random_projection.py#L615.",
         "Riley Murray, James Demmel, Michael W. Mahoney, N. Benjamin Erichson, Maksim Melnichenko, Osman Asif Malik, Laura Grigori, Piotr Luszczek, Micha\u0142 Derezi\u0144ski, Miles E. Lopes, Tianyu Liang, Hengrui Luo, Jack Dongarra. \"Randomized Numerical Linear Algebra : A Perspective on the Field With an Eye to Software\", Arxiv, Vol. arXiv:2302.11474, 2023, URL: https://arxiv.org/abs/2302.11474."
       ],
