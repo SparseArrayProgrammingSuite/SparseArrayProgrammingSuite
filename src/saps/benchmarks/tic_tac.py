@@ -134,6 +134,13 @@ def minimax_depth5(xp, S_initial, W):
     return backup(xp, S_initial, val1, v1, t0, val0)
 
 
+def minimax_depth6(xp, S_initial, W):
+    c1, v1 = generate_child(xp, S_initial, W)
+    val1 = minimax_depth5(xp, c1, W)
+    t0, val0 = is_terminal(xp, S_initial, W)
+    return backup(xp, S_initial, val1, v1, t0, val0)
+
+
 def minimax(xp, S_initial, W):
     c1, v1 = generate_child(xp, S_initial, W)
     c2, v2 = generate_child(xp, c1, W)
@@ -343,11 +350,11 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
             TicTacToeDataset(
                 "draw_early",
                 BOARD_DRAW_EARLY,
-                depth=5,
+                depth=6,
                 expected=0.0,
-                suites=["test", "trace"],
+                suites=["test", "trace", "standard"],
             ),
-            TicTacToeDataset("empty_board", BOARD_EMPTY, depth=9, suites=["standard"]),
+            TicTacToeDataset("empty_board", BOARD_EMPTY, depth=9, suites=["stress"]),
         ]
 
     def generate(self, dataset: TicTacToeDataset):
@@ -442,6 +449,8 @@ class TicTacToeBenchmark(Benchmark):
             result = minimax_depth3(xp, S, W)
         elif depth == 5:
             result = minimax_depth5(xp, S, W)
+        elif depth == 6:
+            result = minimax_depth6(xp, S, W)
         else:
             result = minimax(xp, S, W)
 
