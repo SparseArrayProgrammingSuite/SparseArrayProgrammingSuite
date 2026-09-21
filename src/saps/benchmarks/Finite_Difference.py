@@ -195,7 +195,7 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
     def datasets(self) -> list[FiniteDifferenceDataset]:
         return [
             FiniteDifferenceDataset(
-                name="fd_test_scale",
+                name=f"fd_test_scale_{self.flux_name}",
                 pretty_name="Finite Difference Test Problem",
                 suites=["test", "trace"],
                 Nx=100,
@@ -204,7 +204,7 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
                 dt=0.01,
             ),
             FiniteDifferenceDataset(
-                name="fd_realistic_scale",
+                name=f"fd_realistic_scale_{self.flux_name}",
                 pretty_name="Finite Difference Realistic Problem",
                 suites=["standard"],
                 Nx=250000,

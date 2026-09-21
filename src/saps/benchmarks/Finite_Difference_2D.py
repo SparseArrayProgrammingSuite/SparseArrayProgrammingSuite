@@ -241,7 +241,7 @@ class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
     def datasets(self) -> list[FiniteDifference2DDataset]:
         return [
             FiniteDifference2DDataset(
-                name="fd2d_test_scale",
+                name=f"fd2d_test_scale_{self.flux_name}",
                 pretty_name="2D Finite Difference Test Problem",
                 suites=["test"],
                 Nx=100,
@@ -252,7 +252,7 @@ class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
                 dt=0.01,
             ),
             FiniteDifference2DDataset(
-                name="fd2d_realistic_scale",
+                name=f"fd2d_realistic_scale_{self.flux_name}",
                 pretty_name="2D Finite Difference Realistic Problem",
                 suites=["standard"],
                 Nx=1000,
