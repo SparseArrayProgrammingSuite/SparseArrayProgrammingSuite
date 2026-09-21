@@ -47,6 +47,9 @@ class CPFactorizeableDataset(Dataset):
 
 
 class CPNFactorizeableGenerator(Generator[CPFactorizeableDataset]):
+    def __init__(self, n: int | None = None):
+        self.n = n
+
     @property
     def name(self):
         return "cp_factorizable"
@@ -99,7 +102,7 @@ class CPNFactorizeableGenerator(Generator[CPFactorizeableDataset]):
 
     @property
     def datasets(self):
-        return [
+        datasets = [
             CPFactorizeableDataset(
                 name="cp_factorizeable_3d_tiny",
                 pretty_name="Tiny Factorizeable CP Tensor",
@@ -145,6 +148,10 @@ class CPNFactorizeableGenerator(Generator[CPFactorizeableDataset]):
                 shape=(10, 10, 10, 10, 10),
                 rank=5,
             ),
+        ]
+
+        return [
+            dataset for dataset in datasets if self.n is None or dataset.n == self.n
         ]
 
     def generate(self, dataset: CPFactorizeableDataset):
@@ -310,6 +317,9 @@ class CPFrosttDataset(Dataset):
 
 
 class CPNFrosttGenerator(Generator[CPFrosttDataset]):
+    def __init__(self, n: int | None = None):
+        self.n = n
+
     @property
     def cacheable(self) -> bool:
         return False
@@ -382,7 +392,7 @@ class CPNFrosttGenerator(Generator[CPFrosttDataset]):
 
     @property
     def datasets(self):
-        return [
+        datasets = [
             CPFrosttDataset(
                 name=f"cp{n}_frostt_{tensor_name}",
                 pretty_name=f"CP{n} FROSTT {tensor_name}",
@@ -422,6 +432,10 @@ class CPNFrosttGenerator(Generator[CPFrosttDataset]):
                 (5, "vast_2015_mc1_5d", 10, 5, []),
                 (5, "lanl2", 10, 5, []),
             ]
+        ]
+
+        return [
+            dataset for dataset in datasets if self.n is None or dataset.n == self.n
         ]
 
     def generate(self, dataset: CPFrosttDataset):
@@ -473,13 +487,20 @@ class CPNFrosttGenerator(Generator[CPFrosttDataset]):
 
 
 class CP_ALS(Benchmark):
+    """Shared metadata and checks for the dimension-specific benchmarks."""
+
+    n: int
+
     @property
     def name(self):
-        return "cp_als"
+        return f"cp_als_{self.n}d"
 
     @property
     def pretty_name(self):
-        return "CANDECOMP/PARAFAC (CP) Decomposition via Alternating Least Squares"
+        return (
+            f"{self.n}D CANDECOMP/PARAFAC (CP) Decomposition "
+            "via Alternating Least Squares"
+        )
 
     @property
     def description(self):
@@ -585,15 +606,15 @@ class CP_ALS(Benchmark):
     @property
     def generators(self):
         return [
-            CPNFactorizeableGenerator(),
-            CPNFrosttGenerator(),
+            CPNFactorizeableGenerator(self.n),
+            CPNFrosttGenerator(self.n),
         ]
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseTensor), (
-                "Output must be in binsparse format"
-            )
+            assert isinstance(
+                item, BinsparseTensor
+            ), "Output must be in binsparse format"
 
         if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
             return
@@ -642,9 +663,9 @@ class CP_ALS(Benchmark):
                 raise ValueError(f"unsupported CP tensor order {n}")
 
         rel_error = np.linalg.norm(Y - X) / np.linalg.norm(X)
-        assert rel_error < self._ref_meta["rel_error_tol"], (
-            f"CP{n} reconstruction error too high: {rel_error:.6f}"
-        )
+        assert (
+            rel_error < self._ref_meta["rel_error_tol"]
+        ), f"CP{n} reconstruction error too high: {rel_error:.6f}"
 
     """
     benchmark(X_bench, rank, max_iter)
@@ -663,314 +684,313 @@ class CP_ALS(Benchmark):
     - lambda are the component weights
     """
 
+
+class CP_ALS_3D(CP_ALS):
+    n = 3
+
     def benchmark(self, xp, data, meta):
-        n = meta["n"]
+        X, A, B, C = data
+        max_iter = meta["max_iter"]
 
-        match n:
-            case 3:
-                X, A, B, C = data
-                max_iter = meta["max_iter"]
+        for _iteration in range(max_iter):
+            # Update A
+            mttkrp_result = xp.einsum(
+                "mttkrp_result[i, r] += X[i, j, k] * B[j, r] * C[k, r]",
+                X=X,
+                B=B,
+                C=C,
+            )
+            CtC = xp.einsum("CtC[r, s] += C[k, r] * C[k, s]", C=C)
+            BtB = xp.einsum("BtB[r, s] += B[j, r] * B[j, s]", B=B)
+            G = xp.multiply(CtC, BtB)
+            G_pinv = xp.linalg.pinv(G)
+            A = xp.matmul(mttkrp_result, G_pinv)
 
-                for _iteration in range(max_iter):
-                    # Update A
-                    mttkrp_result = xp.einsum(
-                        "mttkrp_result[i, r] += X[i, j, k] * B[j, r] * C[k, r]",
-                        X=X,
-                        B=B,
-                        C=C,
-                    )
-                    CtC = xp.einsum("CtC[r, s] += C[k, r] * C[k, s]", C=C)
-                    BtB = xp.einsum("BtB[r, s] += B[j, r] * B[j, s]", B=B)
-                    G = xp.multiply(CtC, BtB)
-                    G_pinv = xp.linalg.pinv(G)
-                    A = xp.matmul(mttkrp_result, G_pinv)
+            # Update B
+            mttkrp_result = xp.einsum(
+                "mttkrp_result[j, r] += X[i, j, k] * A[i, r] * C[k, r]",
+                X=X,
+                A=A,
+                C=C,
+            )
+            AtA = xp.einsum("AtA[r, s] += A[i, r] * A[i, s]", A=A)
+            G = xp.multiply(CtC, AtA)
+            G_pinv = xp.linalg.pinv(G)
+            B = xp.matmul(mttkrp_result, G_pinv)
 
-                    # Update B
-                    mttkrp_result = xp.einsum(
-                        "mttkrp_result[j, r] += X[i, j, k] * A[i, r] * C[k, r]",
-                        X=X,
-                        A=A,
-                        C=C,
-                    )
-                    AtA = xp.einsum("AtA[r, s] += A[i, r] * A[i, s]", A=A)
-                    G = xp.multiply(CtC, AtA)
-                    G_pinv = xp.linalg.pinv(G)
-                    B = xp.matmul(mttkrp_result, G_pinv)
+            # Update C
+            mttkrp_result = xp.einsum(
+                "mttkrp_result[k, r] += X[i, j, k] * A[i, r] * B[j, r]",
+                X=X,
+                A=A,
+                B=B,
+            )
+            BtB = xp.einsum("BtB[r, s] += B[j, r] * B[j, s]", B=B)
+            G = xp.multiply(BtB, AtA)
+            G_pinv = xp.linalg.pinv(G)
+            C = xp.matmul(mttkrp_result, G_pinv)
 
-                    # Update C
-                    mttkrp_result = xp.einsum(
-                        "mttkrp_result[k, r] += X[i, j, k] * A[i, r] * B[j, r]",
-                        X=X,
-                        A=A,
-                        B=B,
-                    )
-                    BtB = xp.einsum("BtB[r, s] += B[j, r] * B[j, s]", B=B)
-                    G = xp.multiply(BtB, AtA)
-                    G_pinv = xp.linalg.pinv(G)
-                    C = xp.matmul(mttkrp_result, G_pinv)
+        # Normalizing factors
+        A_norms_sq = xp.einsum("norms[r] += A[i, r] * A[i, r]", A=A)
+        B_norms_sq = xp.einsum("norms[r] += B[j, r] * B[j, r]", B=B)
+        C_norms_sq = xp.einsum("norms[r] += C[k, r] *C[k, r]", C=C)
 
-                # Normalizing factors
-                A_norms_sq = xp.einsum("norms[r] += A[i, r] * A[i, r]", A=A)
-                B_norms_sq = xp.einsum("norms[r] += B[j, r] * B[j, r]", B=B)
-                C_norms_sq = xp.einsum("norms[r] += C[k, r] *C[k, r]", C=C)
+        A_norms = xp.sqrt(A_norms_sq)
+        B_norms = xp.sqrt(B_norms_sq)
+        C_norms = xp.sqrt(C_norms_sq)
 
-                A_norms = xp.sqrt(A_norms_sq)
-                B_norms = xp.sqrt(B_norms_sq)
-                C_norms = xp.sqrt(C_norms_sq)
+        # Computing lambda
+        lambda_vals = xp.multiply(xp.multiply(A_norms, B_norms), C_norms)
 
-                # Computing lambda
-                lambda_vals = xp.multiply(xp.multiply(A_norms, B_norms), C_norms)
+        A_norms_2d = xp.expand_dims(A_norms, 0)
+        B_norms_2d = xp.expand_dims(B_norms, 0)
+        C_norms_2d = xp.expand_dims(C_norms, 0)
 
-                A_norms_2d = xp.expand_dims(A_norms, 0)
-                B_norms_2d = xp.expand_dims(B_norms, 0)
-                C_norms_2d = xp.expand_dims(C_norms, 0)
+        # Case: avoiding division by zero
+        eps = 1e-10
+        A_norms_safe = xp.maximum(A_norms_2d, eps)
+        B_norms_safe = xp.maximum(B_norms_2d, eps)
+        C_norms_safe = xp.maximum(C_norms_2d, eps)
 
-                # Case: avoiding division by zero
-                eps = 1e-10
-                A_norms_safe = xp.maximum(A_norms_2d, eps)
-                B_norms_safe = xp.maximum(B_norms_2d, eps)
-                C_norms_safe = xp.maximum(C_norms_2d, eps)
+        A = xp.divide(A, A_norms_safe)
+        B = xp.divide(B, B_norms_safe)
+        C = xp.divide(C, C_norms_safe)
 
-                A = xp.divide(A, A_norms_safe)
-                B = xp.divide(B, B_norms_safe)
-                C = xp.divide(C, C_norms_safe)
+        return [A, B, C, lambda_vals]
 
-                return [A, B, C, lambda_vals]
 
-            case 4:
-                X, A, B, C, D = data
-                max_iter = meta["max_iter"]
+class CP_ALS_4D(CP_ALS):
+    n = 4
 
-                for _iteration in range(max_iter):
-                    # Update A
-                    mttkrp_result = xp.einsum(
-                        "mttkrp_result[i, r] += X[i, j, k, l] * "
-                        "B[j, r] * C[k, r] * D[l, r]",
-                        X=X,
-                        B=B,
-                        C=C,
-                        D=D,
-                    )
-                    DtD = xp.einsum("DtD[r, s] += D[l, r] * D[l, s]", D=D)
-                    CtC = xp.einsum("CtC[r, s] += C[k, r] * C[k, s]", C=C)
-                    BtB = xp.einsum("BtB[r, s] += B[j, r] * B[j, s]", B=B)
+    def benchmark(self, xp, data, meta):
+        X, A, B, C, D = data
+        max_iter = meta["max_iter"]
 
-                    G = xp.multiply(xp.multiply(DtD, CtC), BtB)
-                    # G = G + xp.eye(rank, dtype=dtype) * epsilon2
-                    G_pinv = xp.linalg.pinv(G)
-                    A = xp.matmul(mttkrp_result, G_pinv)
+        for _iteration in range(max_iter):
+            # Update A
+            mttkrp_result = xp.einsum(
+                "mttkrp_result[i, r] += X[i, j, k, l] * B[j, r] * C[k, r] * D[l, r]",
+                X=X,
+                B=B,
+                C=C,
+                D=D,
+            )
+            DtD = xp.einsum("DtD[r, s] += D[l, r] * D[l, s]", D=D)
+            CtC = xp.einsum("CtC[r, s] += C[k, r] * C[k, s]", C=C)
+            BtB = xp.einsum("BtB[r, s] += B[j, r] * B[j, s]", B=B)
 
-                    # Update B
-                    mttkrp_result = xp.einsum(
-                        "mttkrp_result[j, r] += X[i, j, k, l] * "
-                        "A[i, r] * C[k, r] * D[l, r]",
-                        X=X,
-                        A=A,
-                        C=C,
-                        D=D,
-                    )
-                    AtA = xp.einsum("AtA[r, s] += A[i, r] * A[i, s]", A=A)
-                    G = xp.multiply(xp.multiply(DtD, CtC), AtA)
-                    # G = G + xp.eye(rank, dtype=dtype) * epsilon2
-                    G_pinv = xp.linalg.pinv(G)
-                    B = xp.matmul(mttkrp_result, G_pinv)
+            G = xp.multiply(xp.multiply(DtD, CtC), BtB)
+            # G = G + xp.eye(rank, dtype=dtype) * epsilon2
+            G_pinv = xp.linalg.pinv(G)
+            A = xp.matmul(mttkrp_result, G_pinv)
 
-                    # Update C
-                    mttkrp_result = xp.einsum(
-                        "mttkrp_result[k, r] += X[i, j, k, l] * "
-                        "A[i, r] * B[j, r] * D[l, r]",
-                        X=X,
-                        A=A,
-                        B=B,
-                        D=D,
-                    )
-                    BtB = xp.einsum("BtB[r, s] += B[j, r] * B[j, s]", B=B)
-                    G = xp.multiply(xp.multiply(DtD, BtB), AtA)
-                    # G = G + xp.eye(rank, dtype=dtype) * epsilon2
-                    G_pinv = xp.linalg.pinv(G)
-                    C = xp.matmul(mttkrp_result, G_pinv)
+            # Update B
+            mttkrp_result = xp.einsum(
+                "mttkrp_result[j, r] += X[i, j, k, l] * A[i, r] * C[k, r] * D[l, r]",
+                X=X,
+                A=A,
+                C=C,
+                D=D,
+            )
+            AtA = xp.einsum("AtA[r, s] += A[i, r] * A[i, s]", A=A)
+            G = xp.multiply(xp.multiply(DtD, CtC), AtA)
+            # G = G + xp.eye(rank, dtype=dtype) * epsilon2
+            G_pinv = xp.linalg.pinv(G)
+            B = xp.matmul(mttkrp_result, G_pinv)
 
-                    # Update D
-                    mttkrp_result = xp.einsum(
-                        "mttkrp_result[l, r] += X[i, j, k, l] * "
-                        "A[i, r] * B[j, r] * C[k, r]",
-                        X=X,
-                        A=A,
-                        B=B,
-                        C=C,
-                    )
-                    CtC = xp.einsum("CtC[r, s] += C[k, r] * C[k, s]", C=C)
-                    G = xp.multiply(xp.multiply(CtC, BtB), AtA)
-                    # G = G + xp.eye(rank, dtype=dtype) * epsilon2
-                    G_pinv = xp.linalg.pinv(G)
-                    D = xp.matmul(mttkrp_result, G_pinv)
+            # Update C
+            mttkrp_result = xp.einsum(
+                "mttkrp_result[k, r] += X[i, j, k, l] * A[i, r] * B[j, r] * D[l, r]",
+                X=X,
+                A=A,
+                B=B,
+                D=D,
+            )
+            BtB = xp.einsum("BtB[r, s] += B[j, r] * B[j, s]", B=B)
+            G = xp.multiply(xp.multiply(DtD, BtB), AtA)
+            # G = G + xp.eye(rank, dtype=dtype) * epsilon2
+            G_pinv = xp.linalg.pinv(G)
+            C = xp.matmul(mttkrp_result, G_pinv)
 
-                # Normalizing factors
-                A_norms_sq = xp.einsum("norms[r] += A[i, r] * A[i, r]", A=A)
-                B_norms_sq = xp.einsum("norms[r] += B[j, r] * B[j, r]", B=B)
-                C_norms_sq = xp.einsum("norms[r] += C[k, r] *C[k, r]", C=C)
-                D_norms_sq = xp.einsum("norms[r] += D[l, r] *D[l, r]", D=D)
+            # Update D
+            mttkrp_result = xp.einsum(
+                "mttkrp_result[l, r] += X[i, j, k, l] * A[i, r] * B[j, r] * C[k, r]",
+                X=X,
+                A=A,
+                B=B,
+                C=C,
+            )
+            CtC = xp.einsum("CtC[r, s] += C[k, r] * C[k, s]", C=C)
+            G = xp.multiply(xp.multiply(CtC, BtB), AtA)
+            # G = G + xp.eye(rank, dtype=dtype) * epsilon2
+            G_pinv = xp.linalg.pinv(G)
+            D = xp.matmul(mttkrp_result, G_pinv)
 
-                A_norms = xp.sqrt(A_norms_sq)
-                B_norms = xp.sqrt(B_norms_sq)
-                C_norms = xp.sqrt(C_norms_sq)
-                D_norms = xp.sqrt(D_norms_sq)
+        # Normalizing factors
+        A_norms_sq = xp.einsum("norms[r] += A[i, r] * A[i, r]", A=A)
+        B_norms_sq = xp.einsum("norms[r] += B[j, r] * B[j, r]", B=B)
+        C_norms_sq = xp.einsum("norms[r] += C[k, r] *C[k, r]", C=C)
+        D_norms_sq = xp.einsum("norms[r] += D[l, r] *D[l, r]", D=D)
 
-                # Computing lambda
-                lambda_vals = xp.multiply(
-                    xp.multiply(xp.multiply(A_norms, B_norms), C_norms), D_norms
-                )
+        A_norms = xp.sqrt(A_norms_sq)
+        B_norms = xp.sqrt(B_norms_sq)
+        C_norms = xp.sqrt(C_norms_sq)
+        D_norms = xp.sqrt(D_norms_sq)
 
-                A_norms_2d = xp.expand_dims(A_norms, 0)
-                B_norms_2d = xp.expand_dims(B_norms, 0)
-                C_norms_2d = xp.expand_dims(C_norms, 0)
-                D_norms_2d = xp.expand_dims(D_norms, 0)
+        # Computing lambda
+        lambda_vals = xp.multiply(
+            xp.multiply(xp.multiply(A_norms, B_norms), C_norms), D_norms
+        )
 
-                # Case: avoiding division by zero
-                eps = 1e-10
-                A_norms_safe = xp.maximum(A_norms_2d, eps)
-                B_norms_safe = xp.maximum(B_norms_2d, eps)
-                C_norms_safe = xp.maximum(C_norms_2d, eps)
-                D_norms_safe = xp.maximum(D_norms_2d, eps)
+        A_norms_2d = xp.expand_dims(A_norms, 0)
+        B_norms_2d = xp.expand_dims(B_norms, 0)
+        C_norms_2d = xp.expand_dims(C_norms, 0)
+        D_norms_2d = xp.expand_dims(D_norms, 0)
 
-                A = xp.divide(A, A_norms_safe)
-                B = xp.divide(B, B_norms_safe)
-                C = xp.divide(C, C_norms_safe)
-                D = xp.divide(D, D_norms_safe)
+        # Case: avoiding division by zero
+        eps = 1e-10
+        A_norms_safe = xp.maximum(A_norms_2d, eps)
+        B_norms_safe = xp.maximum(B_norms_2d, eps)
+        C_norms_safe = xp.maximum(C_norms_2d, eps)
+        D_norms_safe = xp.maximum(D_norms_2d, eps)
 
-                return [A, B, C, D, lambda_vals]
+        A = xp.divide(A, A_norms_safe)
+        B = xp.divide(B, B_norms_safe)
+        C = xp.divide(C, C_norms_safe)
+        D = xp.divide(D, D_norms_safe)
 
-            case 5:
-                X, A, B, C, D, E = data
-                max_iter = meta["max_iter"]
+        return [A, B, C, D, lambda_vals]
 
-                for _iteration in range(max_iter):
-                    # Update A
-                    mttkrp_result = xp.einsum(
-                        "mttkrp_result[i, r] += X[i, j, k, l, m] * "
-                        "B[j, r] * C[k, r] * D[l, r] * E[m, r]",
-                        X=X,
-                        B=B,
-                        C=C,
-                        D=D,
-                        E=E,
-                    )
-                    EtE = xp.einsum("EtE[r, s] += E[m, r] * E[m, s]", E=E)
-                    DtD = xp.einsum("DtD[r, s] += D[l, r] * D[l, s]", D=D)
-                    CtC = xp.einsum("CtC[r, s] += C[k, r] * C[k, s]", C=C)
-                    BtB = xp.einsum("BtB[r, s] += B[j, r] * B[j, s]", B=B)
 
-                    G = xp.multiply(xp.multiply(xp.multiply(EtE, DtD), CtC), BtB)
-                    # G = G + xp.eye(rank, dtype=dtype) * epsilon2
-                    G_pinv = xp.linalg.pinv(G)
-                    A = xp.matmul(mttkrp_result, G_pinv)
+class CP_ALS_5D(CP_ALS):
+    n = 5
 
-                    # Update B
-                    mttkrp_result = xp.einsum(
-                        "mttkrp_result[j, r] += X[i, j, k, l, m] * "
-                        "A[i, r] * C[k, r] * D[l, r] * E[m, r]",
-                        X=X,
-                        A=A,
-                        C=C,
-                        D=D,
-                        E=E,
-                    )
-                    AtA = xp.einsum("AtA[r, s] += A[i, r] * A[i, s]", A=A)
-                    G = xp.multiply(xp.multiply(xp.multiply(EtE, DtD), CtC), AtA)
-                    # G = G + xp.eye(rank, dtype=dtype) * epsilon2
-                    G_pinv = xp.linalg.pinv(G)
-                    B = xp.matmul(mttkrp_result, G_pinv)
+    def benchmark(self, xp, data, meta):
+        X, A, B, C, D, E = data
+        max_iter = meta["max_iter"]
 
-                    # Update C
-                    mttkrp_result = xp.einsum(
-                        "mttkrp_result[k, r] += X[i, j, k, l, m] * "
-                        "A[i, r] * B[j, r] * D[l, r] * E[m, r]",
-                        X=X,
-                        A=A,
-                        B=B,
-                        D=D,
-                        E=E,
-                    )
-                    BtB = xp.einsum("BtB[r, s] += B[j, r] * B[j, s]", B=B)
-                    G = xp.multiply(xp.multiply(xp.multiply(EtE, DtD), BtB), AtA)
-                    # G = G + xp.eye(rank, dtype=dtype) * epsilon2
-                    G_pinv = xp.linalg.pinv(G)
-                    C = xp.matmul(mttkrp_result, G_pinv)
+        for _iteration in range(max_iter):
+            # Update A
+            mttkrp_result = xp.einsum(
+                "mttkrp_result[i, r] += X[i, j, k, l, m] * "
+                "B[j, r] * C[k, r] * D[l, r] * E[m, r]",
+                X=X,
+                B=B,
+                C=C,
+                D=D,
+                E=E,
+            )
+            EtE = xp.einsum("EtE[r, s] += E[m, r] * E[m, s]", E=E)
+            DtD = xp.einsum("DtD[r, s] += D[l, r] * D[l, s]", D=D)
+            CtC = xp.einsum("CtC[r, s] += C[k, r] * C[k, s]", C=C)
+            BtB = xp.einsum("BtB[r, s] += B[j, r] * B[j, s]", B=B)
 
-                    # Update D
-                    mttkrp_result = xp.einsum(
-                        "mttkrp_result[l, r] += X[i, j, k, l, m] * "
-                        "A[i, r] * B[j, r] * C[k, r] * E[m, r]",
-                        X=X,
-                        A=A,
-                        B=B,
-                        C=C,
-                        E=E,
-                    )
-                    CtC = xp.einsum("CtC[r, s] += C[k, r] * C[k, s]", C=C)
-                    G = xp.multiply(xp.multiply(xp.multiply(EtE, CtC), BtB), AtA)
-                    # G = G + xp.eye(rank, dtype=dtype) * epsilon2
-                    G_pinv = xp.linalg.pinv(G)
-                    D = xp.matmul(mttkrp_result, G_pinv)
+            G = xp.multiply(xp.multiply(xp.multiply(EtE, DtD), CtC), BtB)
+            # G = G + xp.eye(rank, dtype=dtype) * epsilon2
+            G_pinv = xp.linalg.pinv(G)
+            A = xp.matmul(mttkrp_result, G_pinv)
 
-                    # Update E
-                    mttkrp_result = xp.einsum(
-                        "mttkrp_result[m, r] += X[i, j, k, l, m] * "
-                        "A[i, r] * B[j, r] * C[k, r] * D[l, r]",
-                        X=X,
-                        A=A,
-                        B=B,
-                        C=C,
-                        D=D,
-                    )
-                    DtD = xp.einsum("DtD[r, s] += D[l, r] * D[l, s]", D=D)
-                    G = xp.multiply(xp.multiply(xp.multiply(DtD, CtC), BtB), AtA)
-                    # G = G + xp.eye(rank, dtype=dtype) * epsilon2
-                    G_pinv = xp.linalg.pinv(G)
-                    E = xp.matmul(mttkrp_result, G_pinv)
+            # Update B
+            mttkrp_result = xp.einsum(
+                "mttkrp_result[j, r] += X[i, j, k, l, m] * "
+                "A[i, r] * C[k, r] * D[l, r] * E[m, r]",
+                X=X,
+                A=A,
+                C=C,
+                D=D,
+                E=E,
+            )
+            AtA = xp.einsum("AtA[r, s] += A[i, r] * A[i, s]", A=A)
+            G = xp.multiply(xp.multiply(xp.multiply(EtE, DtD), CtC), AtA)
+            # G = G + xp.eye(rank, dtype=dtype) * epsilon2
+            G_pinv = xp.linalg.pinv(G)
+            B = xp.matmul(mttkrp_result, G_pinv)
 
-                # Normalizing factors
-                A_norms_sq = xp.einsum("norms[r] += A[i, r] * A[i, r]", A=A)
-                B_norms_sq = xp.einsum("norms[r] += B[j, r] * B[j, r]", B=B)
-                C_norms_sq = xp.einsum("norms[r] += C[k, r] *C[k, r]", C=C)
-                D_norms_sq = xp.einsum("norms[r] += D[l, r] *D[l, r]", D=D)
-                E_norms_sq = xp.einsum("norms[r] += E[m, r] *E[m, r]", E=E)
+            # Update C
+            mttkrp_result = xp.einsum(
+                "mttkrp_result[k, r] += X[i, j, k, l, m] * "
+                "A[i, r] * B[j, r] * D[l, r] * E[m, r]",
+                X=X,
+                A=A,
+                B=B,
+                D=D,
+                E=E,
+            )
+            BtB = xp.einsum("BtB[r, s] += B[j, r] * B[j, s]", B=B)
+            G = xp.multiply(xp.multiply(xp.multiply(EtE, DtD), BtB), AtA)
+            # G = G + xp.eye(rank, dtype=dtype) * epsilon2
+            G_pinv = xp.linalg.pinv(G)
+            C = xp.matmul(mttkrp_result, G_pinv)
 
-                A_norms = xp.sqrt(A_norms_sq)
-                B_norms = xp.sqrt(B_norms_sq)
-                C_norms = xp.sqrt(C_norms_sq)
-                D_norms = xp.sqrt(D_norms_sq)
-                E_norms = xp.sqrt(E_norms_sq)
+            # Update D
+            mttkrp_result = xp.einsum(
+                "mttkrp_result[l, r] += X[i, j, k, l, m] * "
+                "A[i, r] * B[j, r] * C[k, r] * E[m, r]",
+                X=X,
+                A=A,
+                B=B,
+                C=C,
+                E=E,
+            )
+            CtC = xp.einsum("CtC[r, s] += C[k, r] * C[k, s]", C=C)
+            G = xp.multiply(xp.multiply(xp.multiply(EtE, CtC), BtB), AtA)
+            # G = G + xp.eye(rank, dtype=dtype) * epsilon2
+            G_pinv = xp.linalg.pinv(G)
+            D = xp.matmul(mttkrp_result, G_pinv)
 
-                # Computing lambda
-                lambda_vals = xp.multiply(
-                    xp.multiply(
-                        xp.multiply(xp.multiply(A_norms, B_norms), C_norms), D_norms
-                    ),
-                    E_norms,
-                )
+            # Update E
+            mttkrp_result = xp.einsum(
+                "mttkrp_result[m, r] += X[i, j, k, l, m] * "
+                "A[i, r] * B[j, r] * C[k, r] * D[l, r]",
+                X=X,
+                A=A,
+                B=B,
+                C=C,
+                D=D,
+            )
+            DtD = xp.einsum("DtD[r, s] += D[l, r] * D[l, s]", D=D)
+            G = xp.multiply(xp.multiply(xp.multiply(DtD, CtC), BtB), AtA)
+            # G = G + xp.eye(rank, dtype=dtype) * epsilon2
+            G_pinv = xp.linalg.pinv(G)
+            E = xp.matmul(mttkrp_result, G_pinv)
 
-                A_norms_2d = xp.expand_dims(A_norms, 0)
-                B_norms_2d = xp.expand_dims(B_norms, 0)
-                C_norms_2d = xp.expand_dims(C_norms, 0)
-                D_norms_2d = xp.expand_dims(D_norms, 0)
-                E_norms_2d = xp.expand_dims(E_norms, 0)
+        # Normalizing factors
+        A_norms_sq = xp.einsum("norms[r] += A[i, r] * A[i, r]", A=A)
+        B_norms_sq = xp.einsum("norms[r] += B[j, r] * B[j, r]", B=B)
+        C_norms_sq = xp.einsum("norms[r] += C[k, r] *C[k, r]", C=C)
+        D_norms_sq = xp.einsum("norms[r] += D[l, r] *D[l, r]", D=D)
+        E_norms_sq = xp.einsum("norms[r] += E[m, r] *E[m, r]", E=E)
 
-                # Case: avoiding division by zero
-                eps = 1e-10
-                A_norms_safe = xp.maximum(A_norms_2d, eps)
-                B_norms_safe = xp.maximum(B_norms_2d, eps)
-                C_norms_safe = xp.maximum(C_norms_2d, eps)
-                D_norms_safe = xp.maximum(D_norms_2d, eps)
-                E_norms_safe = xp.maximum(E_norms_2d, eps)
+        A_norms = xp.sqrt(A_norms_sq)
+        B_norms = xp.sqrt(B_norms_sq)
+        C_norms = xp.sqrt(C_norms_sq)
+        D_norms = xp.sqrt(D_norms_sq)
+        E_norms = xp.sqrt(E_norms_sq)
 
-                A = xp.divide(A, A_norms_safe)
-                B = xp.divide(B, B_norms_safe)
-                C = xp.divide(C, C_norms_safe)
-                D = xp.divide(D, D_norms_safe)
-                E = xp.divide(E, E_norms_safe)
+        # Computing lambda
+        lambda_vals = xp.multiply(
+            xp.multiply(xp.multiply(xp.multiply(A_norms, B_norms), C_norms), D_norms),
+            E_norms,
+        )
 
-                return [A, B, C, D, E, lambda_vals]
+        A_norms_2d = xp.expand_dims(A_norms, 0)
+        B_norms_2d = xp.expand_dims(B_norms, 0)
+        C_norms_2d = xp.expand_dims(C_norms, 0)
+        D_norms_2d = xp.expand_dims(D_norms, 0)
+        E_norms_2d = xp.expand_dims(E_norms, 0)
 
-            case _:
-                raise ValueError(f"unsupported CP tensor order {n}")
+        # Case: avoiding division by zero
+        eps = 1e-10
+        A_norms_safe = xp.maximum(A_norms_2d, eps)
+        B_norms_safe = xp.maximum(B_norms_2d, eps)
+        C_norms_safe = xp.maximum(C_norms_2d, eps)
+        D_norms_safe = xp.maximum(D_norms_2d, eps)
+        E_norms_safe = xp.maximum(E_norms_2d, eps)
+
+        A = xp.divide(A, A_norms_safe)
+        B = xp.divide(B, B_norms_safe)
+        C = xp.divide(C, C_norms_safe)
+        D = xp.divide(D, D_norms_safe)
+        E = xp.divide(E, E_norms_safe)
+
+        return [A, B, C, D, E, lambda_vals]
