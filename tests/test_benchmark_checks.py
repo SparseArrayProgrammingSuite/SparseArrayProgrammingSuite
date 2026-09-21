@@ -78,7 +78,10 @@ def test_benchmark_modules_do_not_define_global_xp():
 
 @pytest.mark.parametrize(("benchmark_cls", "param"), list(_test_params()))
 @pytest.mark.parametrize("framework_cls", _framework_params())
-def test_benchmark_check(benchmark_cls: type[Benchmark], param, framework_cls):
+def test_benchmark_check(
+    benchmark_cls: type[Benchmark], param, framework_cls, monkeypatch
+):
+    monkeypatch.setenv("SAPS_CHECK_SUITE", "1")
     xp = framework_cls()
     benchmark = benchmark_cls()
     benchmark.setup(param, use_cache=False, xp=xp)

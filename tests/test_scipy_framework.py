@@ -61,7 +61,8 @@ def test_scipy_expand_sparse_vector(axis):
     np.testing.assert_array_equal(result.toarray(), np.expand_dims([1, 0, 3], axis))
 
 
-def test_scipy_sparse_bfs_checks_all_test_datasets():
+def test_scipy_sparse_bfs_checks_all_test_datasets(monkeypatch):
+    monkeypatch.setenv("SAPS_CHECK_SUITE", "1")
     xp = SciPyFramework()
     benchmark = BreadthFirstSearchBenchmark()
     params = [param for param in benchmark.params if "test" in param.dataset.suites]

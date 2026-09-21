@@ -428,7 +428,7 @@ class BurgersFiniteDifference2DBenchmark(_FiniteDifference2DBenchmarkBase):
         dy = meta["dy"]
 
         Nt = timesteps + 1
-        u = xp.zeros((Nt, u_0.shape[0]))
+        u = xp.zeros((Nt, u_0.shape[0]), dtype=u_0.dtype)
         u[0] = u_0
 
         alpha = dt / (2 * dx)

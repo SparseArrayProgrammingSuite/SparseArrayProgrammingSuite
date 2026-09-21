@@ -354,6 +354,9 @@ Run the full test suite with:
 poetry run pytest
 ```
 
+Correctness checks run only in `--check-suite` mode. Normal timing and tracing runs skip checks, even
+when selecting `--tag test`.
+
 For a quick runner smoke test over CI-sized datasets:
 
 ```bash

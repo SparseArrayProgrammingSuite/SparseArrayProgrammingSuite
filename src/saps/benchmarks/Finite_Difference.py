@@ -98,10 +98,6 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
         return self._flux(u)
 
     @property
-    def cacheable(self) -> bool:
-        return False
-
-    @property
     def name(self) -> str:
         return "finite_difference_inputs"
 

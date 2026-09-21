@@ -300,3 +300,46 @@ def test_saved_diagnostics_preserve_machines_across_resume(
     loaded.load_data(tmp_path)
     assert loaded.get_result_value(name, benchmark["params"])[:2] == [1.0, 2.0]
     assert not list(tmp_path.rglob(".save-*"))
+
+
+@pytest.mark.parametrize(
+    ("flags", "expected"),
+    [
+        ([], "0"),
+        (["--tag", "test"], "0"),
+        (["--check-suite"], "1"),
+        (["--trace-statistics"], "0"),
+        (["--cache-datasets"], "0"),
+    ],
+)
+def test_runner_propagates_explicit_check_mode(
+    runner, tmp_path, monkeypatch, flags, expected
+):
+    import os
+    import sys
+
+    # Stale parent/config settings must not enable checks for normal timing runs.
+    monkeypatch.setattr(os, "environ", {**os.environ, "SAPS_CHECK_SUITE": "1"})
+    config = {
+        "matrix": {"env_nobuild": {"SAPS_CHECK_SUITE": ["1"]}},
+        "include": [{"python": "3.12", "env_nobuild": {"SAPS_CHECK_SUITE": "1"}}],
+    }
+    monkeypatch.setattr(runner, "_load_saps_config", lambda _: config)
+    monkeypatch.setattr(
+        sys, "argv", ["run_benchmark.py", "--saps-dir", str(tmp_path), *flags]
+    )
+    captured = []
+
+    class ConfigCaptured(Exception):
+        pass
+
+    def capture(value):
+        captured.append(value)
+        raise ConfigCaptured
+
+    monkeypatch.setattr(runner.Config, "from_json", capture)
+    with pytest.raises(ConfigCaptured):
+        runner.main()
+    assert os.environ["SAPS_CHECK_SUITE"] == expected
+    assert captured[0]["matrix"]["env_nobuild"]["SAPS_CHECK_SUITE"] == [expected]
+    assert captured[0]["include"][0]["env_nobuild"]["SAPS_CHECK_SUITE"] == expected
