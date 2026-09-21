@@ -171,3 +171,18 @@ def test_jl_projection_variants_share_random_inputs_and_are_reproducible():
     assert dense.meta["hash_bits"] == 5
     assert dense.meta["n_tables"] == 7
     assert dense.meta["candidate_target"] == 4
+    for i in (3, 4):
+        np.testing.assert_array_equal(
+            to_numpy(dense.inputs[i]), to_numpy(sparse.inputs[i])
+        )
+        np.testing.assert_array_equal(
+            to_numpy(dense.inputs[i]),
+            to_numpy(dense_generator.generate(dataset).inputs[i]),
+        )
+
+
+def test_sparse_projection_has_paper_density_and_standard_gaussian_values():
+    projection = to_scipy(JLApproxNNSparseGenerator().projection(512, 256, 42))
+    assert projection.nnz / (512 * 256) == pytest.approx(1 / np.sqrt(512), abs=0.003)
+    assert abs(projection.data.mean()) < 0.1
+    assert projection.data.std() == pytest.approx(1, abs=0.1)

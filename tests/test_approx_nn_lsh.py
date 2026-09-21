@@ -33,7 +33,7 @@ def run_lsh(request):
     framework, sparse_inputs = request.param
     xp = framework()
 
-    def run(data, query, projection, **meta):
+    def run(data, query, projection, *, eps=1.0, offsets=None, strides=None, **meta):
         arrays = []
         for array in (data, query, projection):
             array = np.asarray(array, dtype=np.float64)
@@ -43,6 +43,12 @@ def run_lsh(request):
                 else from_numpy(array)
             )
             arrays.append(xp.from_binsparse(tensor))
+        if offsets is None:
+            offsets = np.full((meta["n_tables"], meta["hash_bits"]), 0.5)
+        if strides is None:
+            strides = np.arange(1, meta["hash_bits"] + 1, dtype=np.int64)
+        arrays.extend(xp.from_binsparse(from_numpy(x)) for x in (offsets, strides))
+        meta["eps"] = eps
         outputs = JLApproxNearestNeighbor().benchmark(xp, arrays, meta)
         return [
             NumpyFramework().from_binsparse(xp.to_binsparse(output))
@@ -70,33 +76,46 @@ def test_lsh_exhaustive_candidates_match_euclidean_knn(run_lsh):
     )
 
 
-def test_lsh_queries_stop_independently_and_exclude_non_candidates(run_lsh):
-    # Query 0 matches code 11 immediately. Query 1 has code 00 and must
-    # shorten it to match 01; query 0 must not then acquire its closer 10 point.
-    data = [[5, 5], [1, -1], [-2, 1]]
-    query = [[0.1, 0.1], [-0.1, -0.1]]
+@pytest.mark.parametrize(
+    "eps,expected_indices,expected_distances",
+    [(1.0, [[0], [2]], [0.98, 1.0]), (2.0, [[1], [2]], [0.02, 1.0])],
+)
+def test_lsh_queries_stop_independently_and_exclude_non_candidates(
+    run_lsh, eps, expected_indices, expected_distances
+):
+    # Query 0 stops in bin 0. Query 1 needs width 2; query 0 must not then
+    # acquire its closer point across the original negative bin boundary.
+    data = [[0.49], [-0.51], [2.51]]
+    query = [[-0.49], [1.51]]
     indices, distances = run_lsh(
-        data, query, np.eye(2), k=1, hash_bits=2, n_tables=1, candidate_target=1
+        data,
+        query,
+        [[1, 0, 0, 0]],
+        k=1,
+        eps=eps,
+        hash_bits=4,
+        n_tables=1,
+        candidate_target=1,
     )
-    np.testing.assert_array_equal(indices, [[0], [2]])
-    np.testing.assert_allclose(
-        distances[:, 0], [np.hypot(4.9, 4.9), np.hypot(1.9, 1.1)]
-    )
+    np.testing.assert_array_equal(indices, expected_indices)
+    np.testing.assert_allclose(distances[:, 0], expected_distances)
 
 
 def test_lsh_unions_tables_and_returns_distinct_neighbors(run_lsh):
     # The first point collides in both tables; the next two each collide in one.
     indices, distances = run_lsh(
-        [[3, 1], [3, -1], [-2, 1], [-2, -1]],
-        [[1, 1]],
-        np.eye(2),
+        [[0.1, 0.1], [0.1, 2.1], [3.1, 0.1], [3.1, 2.1]],
+        [[0, 0]],
+        [[1, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 1, 0, 0, 0]],
         k=3,
-        hash_bits=1,
+        hash_bits=4,
         n_tables=2,
         candidate_target=3,
     )
     np.testing.assert_array_equal(indices, [[0, 1, 2]])
-    np.testing.assert_allclose(distances, [[2, np.sqrt(8), 3]])
+    np.testing.assert_allclose(
+        distances, [[np.sqrt(0.02), np.sqrt(4.42), np.sqrt(9.62)]]
+    )
 
 
 @pytest.mark.parametrize(
@@ -105,8 +124,8 @@ def test_lsh_unions_tables_and_returns_distinct_neighbors(run_lsh):
     indirect=True,
     ids=["dense-input", "sparse-input"],
 )
-def test_lsh_31_bit_codes_reach_empty_prefix_and_at_least_k_candidates(run_lsh):
-    # The maximum 31-bit code must reach zero after dropping all 31 bits.
+def test_lsh_31_bit_codes_widen_bins_to_at_least_k_candidates(run_lsh):
+    # Negative and positive projections must eventually share wide enough bins.
     indices, distances = run_lsh(
         [[-2, 0], [-1, 0], [-3, 1]],
         [[1, 0]],

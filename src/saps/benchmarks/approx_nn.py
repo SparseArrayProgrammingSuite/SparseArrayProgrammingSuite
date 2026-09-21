@@ -79,14 +79,19 @@ class JLApproxNNGeneratorMixin(ABC):
 
     @abstractmethod
     def projection(self, n_features: int, target_dim: int, seed: int):
-        """Generate one projection column per hash bit per table."""
+        """Generate the scalar projections combined in each LSH table."""
 
     def _instance(self, dataset, data, query, source_meta=None):
         projection = self.projection(
             data.shape[1], dataset.hash_bits * dataset.n_tables, dataset.seed
         )
+        rng = np.random.default_rng([dataset.seed, 2])
+        offsets = rng.uniform(
+            np.finfo(float).eps, 1.0, size=(dataset.n_tables, dataset.hash_bits)
+        )
+        strides = rng.integers(1, 2**dataset.hash_bits, size=dataset.hash_bits)
         return DataInstance(
-            inputs=[data, query, projection],
+            inputs=[data, query, projection, from_numpy(offsets), from_numpy(strides)],
             meta={
                 **_lsh_meta(dataset),
                 "projection_kind": self.projection_kind,
@@ -360,34 +365,20 @@ def _lsh_meta(dataset):
 def _rla_projection(n_features: int, target_dim: int, seed: int):
     import scipy as sp
 
-    # Each projection column supplies one sign bit in one LSH table.
+    # Hyvonen et al. (2016), Section II-B: N(0, 1) with probability 1/sqrt(d),
+    # otherwise zero. https://doi.org/10.1109/BigData.2016.7840682
     rng = np.random.default_rng(seed)
-
-    s = np.sqrt(n_features)  # s = 1/density
-    density = 1.0 / s  # probability of a nonzero entry = density.
-    density_half = density / 2.0  # probability for + or -
-    scale = np.sqrt(s / target_dim)  # scale = sqrt(s / n_components)
-
-    U_Neg = sp.sparse.random(
+    size = n_features * target_dim
+    # Binomial count plus a uniform support gives independent Bernoulli entries.
+    nnz = rng.binomial(size, 1.0 / np.sqrt(n_features))
+    projection = sp.sparse.random(
         n_features,
         target_dim,
-        density_half,
-        data_rvs=lambda k: np.full(
-            k, -scale, dtype=float
-        ),  # specified dtype to see of that made a difference
+        density=nnz / size,
+        data_rvs=rng.standard_normal,
         random_state=rng,
     )
-    U_Pos = sp.sparse.random(
-        n_features,
-        target_dim,
-        density_half,
-        data_rvs=lambda k: np.full(
-            k, scale, dtype=float
-        ),  # specified dtype to see of that made a difference
-        random_state=rng,
-    )
-    coo = (U_Neg + U_Pos).tocoo()
-    return from_scipy(coo)
+    return from_scipy(projection)
 
 
 class _JLApproxNNOpenMLGeneratorMixin(JLApproxNNGeneratorMixin):
@@ -658,7 +649,7 @@ class JLApproxNearestNeighbor(Benchmark):
     @property
     def description(self):
         return (
-            "Searches progressively shorter sign-hash prefixes across LSH tables,"
+            "Searches progressively wider Euclidean buckets across LSH tables,"
             " then ranks candidates by Euclidean distance in the original space."
         )
 
@@ -808,8 +799,9 @@ Nearest neighbor algorithms</concept_desc>
         ]
 
     def benchmark(self, xp, data, meta):
-        data, query, P = data
+        data, query, P, offsets, strides = data
         k = meta["k"]
+        width = meta["eps"]
         hash_bits = meta.get("hash_bits", 31)
         n_tables = meta.get("n_tables", 100)
         n_samples, n_features = data.shape
@@ -818,6 +810,8 @@ Nearest neighbor algorithms</concept_desc>
             raise ValueError("k must be between 1 and the number of data points")
         if not 1 <= hash_bits <= 31 or n_tables < 1:
             raise ValueError("Use 1 to 31 hash bits and at least one table")
+        if not np.isfinite(width) or width <= 0:
+            raise ValueError("eps must be a finite, positive initial bucket width")
         if query.shape[1] != n_features or P.shape != (
             n_features,
             n_tables * hash_bits,
@@ -832,31 +826,52 @@ Nearest neighbor algorithms</concept_desc>
             f"Projection shape: {P.shape}, Tables: {n_tables}, Bits: {hash_bits}"
         )
 
-        # Each table packs hash_bits signs into one uint32 scatter index.
-        projected_data = xp.matmul(data, P) > 0
-        projected_query = xp.matmul(query, P) > 0
-        table_data = xp.reshape(projected_data, (n_samples, n_tables, hash_bits))
-        table_query = xp.reshape(projected_query, (n_queries, n_tables, hash_bits))
-        strides = 2 ** xp.arange(hash_bits - 1, -1, -1, dtype=xp.int64)
-        table_data = xp.astype(
-            xp.einsum("H[n,t] += B[n,t,h] * S[h]", B=table_data, S=strides),
-            xp.uint32,
+        projected_data = xp.reshape(
+            xp.matmul(data, P), (n_samples, n_tables, hash_bits)
         )
-        table_query = xp.astype(
-            xp.einsum("H[q,t] += B[q,t,h] * S[h]", B=table_query, S=strides),
-            xp.uint32,
+        projected_query = xp.reshape(
+            xp.matmul(query, P), (n_queries, n_tables, hash_bits)
         )
 
         candidates = xp.zeros((n_queries, n_samples), dtype=xp.bool)
         sample_indices = xp.arange(n_samples, dtype=xp.uint64)
         query_indices = xp.arange(n_queries, dtype=xp.uint64)
-        # Search successively shorter prefixes, including the empty prefix.
-        # Stop adding candidates independently for each query at the target.
-        for discarded in range(hash_bits + 1):
+        n_codes = 2**hash_bits
+        modulus = xp.asarray(n_codes, dtype=xp.int64)
+        # Widen bins from eps, freezing each query when it reaches the target.
+        # Positive fractional offsets eventually put all finite projections in 0.
+        while True:
             active = xp.sum(candidates, axis=1) < candidate_target
             if not xp.any(active):
                 break
-            n_codes = 2 ** (hash_bits - discarded)
+            table_data = xp.astype(
+                xp.floor(projected_data / width + offsets) % n_codes, xp.int64
+            )
+            table_query = xp.astype(
+                xp.floor(projected_query / width + offsets) % n_codes, xp.int64
+            )
+            # Mix the signed bins into one uint32 scatter index. Reduce each
+            # product before summing to avoid overflowing int64 at 31 bits.
+            table_data = xp.astype(
+                xp.einsum(
+                    "H[n,t] += (B[n,t,h] * S[h]) % M[]",
+                    B=table_data,
+                    S=strides,
+                    M=modulus,
+                )
+                % n_codes,
+                xp.uint32,
+            )
+            table_query = xp.astype(
+                xp.einsum(
+                    "H[q,t] += (B[q,t,h] * S[h]) % M[]",
+                    B=table_query,
+                    S=strides,
+                    M=modulus,
+                )
+                % n_codes,
+                xp.uint32,
+            )
             for table in range(n_tables):
                 # if frameworks were better, we could write:
                 # matches = xp.einsum(
@@ -873,8 +888,7 @@ Nearest neighbor algorithms</concept_desc>
                     "M[q,n] or= Q[q,h] & D[n,h]", Q=key_query, D=key_data
                 )
                 candidates = candidates | matches
-            table_data = table_data // 2
-            table_query = table_query // 2
+            width *= 2
 
         # Materialize the query/sample candidate mask before introducing the
         # feature axis. Mask each operand before subtracting so sparse backends
