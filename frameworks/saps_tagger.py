@@ -337,7 +337,7 @@ class TaggedArray:
 
     def __setitem__(self, key, value):
         self.framework._record_operation("array", "setitem", (self, key, value), {})
-        self.array[key] = self.framework._unwrap(value)
+        self.array[self.framework._unwrap(key)] = self.framework._unwrap(value)
 
     def __array__(self, dtype=None):
         data = np.asarray(self.array)

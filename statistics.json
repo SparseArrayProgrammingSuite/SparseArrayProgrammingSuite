@@ -1200,13 +1200,16 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
+              "freshness": "079f9b166288e9f6a14b096697e0480b1d2098082c78e33c18594e02dac280b2",
               "name": "test_jl_preserves_distance",
               "statistics": [
                 "dense",
+                "dynamic-sparsity",
                 "fancy-ops",
+                "hypersparse",
                 "index-ops",
                 "linalg-ops",
+                "nonzero-fill",
                 "shape-ops",
                 "tensor",
                 "transcendental-ops"
@@ -1220,12 +1223,15 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "b19b54a3d273f2355cddcacb835f5d42ed3c1bd58316c0a2b25eb57c07962e5b",
+              "freshness": "079f9b166288e9f6a14b096697e0480b1d2098082c78e33c18594e02dac280b2",
               "name": "test_jl_preserves_distance",
               "statistics": [
+                "dynamic-sparsity",
                 "fancy-ops",
+                "hypersparse",
                 "index-ops",
                 "linalg-ops",
+                "nonzero-fill",
                 "shape-ops",
                 "tensor",
                 "transcendental-ops"

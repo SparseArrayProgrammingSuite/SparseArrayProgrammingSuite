@@ -237,6 +237,29 @@ def _sparse_unfold_with_diagonals(
     return sp.COO(output_coords, output_data, shape=output_shape)
 
 
+class _MutableCOO(sp.COO):
+    """COO arithmetic with indexed assignment through a temporary DOK builder."""
+
+    def __setitem__(self, key, value):
+        if isinstance(key, tuple):
+            key = tuple(
+                PyDataSparseFramework._dense(index)
+                if isinstance(index, sp.SparseArray)
+                else index
+                for index in key
+            )
+        elif isinstance(key, sp.SparseArray):
+            key = PyDataSparseFramework._dense(key)
+        if isinstance(value, sp.SparseArray):
+            value = PyDataSparseFramework._dense(value)
+        builder = sp.DOK.from_coo(self)
+        builder[key] = value
+        updated = builder.to_coo()
+        self.coords = updated.coords
+        self.data = updated.data
+        self._cache = None
+
+
 class PyDataSparseFramework(Framework):
     _sparse_first: set[str] = set()
     _dtype_attrs = {
@@ -416,7 +439,10 @@ class PyDataSparseFramework(Framework):
         return xp.matmul(x1, x2, **kwargs)
 
     def zeros(self, shape, *args, **kwargs):
-        return compat_np.zeros(shape, *args, **kwargs)
+        # Vectors also serve as dense index and scalar buffers in the suite.
+        if not isinstance(shape, tuple | list) or len(shape) < 2:
+            return compat_np.zeros(shape, *args, **kwargs)
+        return _MutableCOO(sp.zeros(shape, *args, **kwargs))
 
     def arange(self, *args, **kwargs):
         return compat_np.arange(*args, **kwargs)
@@ -461,6 +487,34 @@ class PyDataSparseFramework(Framework):
             return sp.take(x, indices, *args, **kwargs)
         xp = self._array_namespace(x)
         return xp.take(x, indices, *args, **kwargs)
+
+    def take_along_axis(self, x, indices, /, *, axis=-1):
+        if isinstance(indices, sp.SparseArray):
+            indices = self._dense(indices)
+        if not isinstance(x, sp.SparseArray):
+            xp = self._array_namespace(x)
+            return xp.take_along_axis(x, indices, axis=axis)
+
+        if not -x.ndim <= axis < x.ndim:
+            raise IndexError("axis is out of bounds")
+        axis %= x.ndim
+        if indices.ndim != x.ndim:
+            raise ValueError(
+                "indices and input must have the same number of dimensions"
+            )
+        if indices.dtype.kind not in "iu":
+            raise IndexError("indices must be integers")
+
+        # COO accepts paired 1D index arrays. Broadcast only the output indices,
+        # gather those entries, and restore the output shape without densifying x.
+        indexers = []
+        for dim, size in enumerate(x.shape):
+            shape = [1] * x.ndim
+            shape[dim] = size
+            indexers.append(indices if dim == axis else np.arange(size).reshape(shape))
+        indexers = np.broadcast_arrays(*indexers)
+        result = x.asformat("coo")[tuple(index.ravel() for index in indexers)]
+        return result.reshape(indexers[0].shape)
 
     def item(self, array):
         if isinstance(array, sp.SparseArray):

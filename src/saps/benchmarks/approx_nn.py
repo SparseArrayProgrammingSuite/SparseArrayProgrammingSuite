@@ -32,7 +32,7 @@ class JLApproxNNRandomDataset(Dataset):
         k,
         eps,
         seed,
-        hash_bits=32,
+        hash_bits=31,
         n_tables=100,
         candidate_target=100,
     ):
@@ -288,6 +288,8 @@ class _JLApproxNNTestGeneratorMixin(_JLApproxNNRandomGeneratorMixin):
                 k=3,
                 eps=0.01,
                 seed=42,
+                # Keep the raw hash axis small enough for dense-framework tests.
+                hash_bits=8,
             )
         ]
 
@@ -308,7 +310,7 @@ class JLApproxNNDataset(Dataset):
         eps: float,
         seed: int = 0,
         suites: list[str] | None = None,
-        hash_bits: int = 32,
+        hash_bits: int = 31,
         n_tables: int = 100,
         candidate_target: int = 100,
     ):
@@ -802,14 +804,14 @@ Nearest neighbor algorithms</concept_desc>
     def benchmark(self, xp, data, meta):
         data, query, P = data
         k = meta["k"]
-        hash_bits = meta.get("hash_bits", 32)
+        hash_bits = meta.get("hash_bits", 31)
         n_tables = meta.get("n_tables", 100)
         n_samples, n_features = data.shape
         n_queries = query.shape[0]
         if not 1 <= k <= n_samples:
             raise ValueError("k must be between 1 and the number of data points")
-        if not 1 <= hash_bits <= 32 or n_tables < 1:
-            raise ValueError("Use 1 to 32 hash bits and at least one table")
+        if not 1 <= hash_bits <= 31 or n_tables < 1:
+            raise ValueError("Use 1 to 31 hash bits and at least one table")
         if query.shape[1] != n_features or P.shape != (
             n_features,
             n_tables * hash_bits,
@@ -824,29 +826,47 @@ Nearest neighbor algorithms</concept_desc>
             f"Projection shape: {P.shape}, Tables: {n_tables}, Bits: {hash_bits}"
         )
 
-        # Each table packs hash_bits signs into one nonnegative int64 code.
+        # Each table packs hash_bits signs into one uint32 scatter index.
         projected_data = xp.matmul(data, P) > 0
         projected_query = xp.matmul(query, P) > 0
         table_data = xp.reshape(projected_data, (n_samples, n_tables, hash_bits))
         table_query = xp.reshape(projected_query, (n_queries, n_tables, hash_bits))
         strides = 2 ** xp.arange(hash_bits - 1, -1, -1, dtype=xp.int64)
-        table_data = xp.einsum("H[n,t] += B[n,t,h] * S[h]", B=table_data, S=strides)
-        table_query = xp.einsum("H[q,t] += B[q,t,h] * S[h]", B=table_query, S=strides)
+        table_data = xp.astype(
+            xp.einsum("H[n,t] += B[n,t,h] * S[h]", B=table_data, S=strides),
+            xp.uint32,
+        )
+        table_query = xp.astype(
+            xp.einsum("H[q,t] += B[q,t,h] * S[h]", B=table_query, S=strides),
+            xp.uint32,
+        )
 
         candidates = xp.zeros((n_queries, n_samples), dtype=xp.bool)
+        sample_indices = xp.arange(n_samples, dtype=xp.uint64)
+        query_indices = xp.arange(n_queries, dtype=xp.uint64)
         # Search successively shorter prefixes, including the empty prefix.
         # Stop adding candidates independently for each query at the target.
-        for _ in range(hash_bits + 1):
+        for discarded in range(hash_bits + 1):
             active = xp.sum(candidates, axis=1) < candidate_target
             if not xp.any(active):
                 break
-            matches = xp.einsum(
-                "M[q,n] or= A[q] & (Q[q,t] == D[n,t])",
-                A=active,
-                Q=table_query,
-                D=table_data,
-            )
-            candidates = candidates | matches
+            n_codes = 2 ** (hash_bits - discarded)
+            for table in range(n_tables):
+                # if frameworks were better, we could write:
+                #matches = xp.einsum(
+                #    "M[q,n] or= A[q] & (Q[q,t] == D[n,t])",
+                #    A=active,
+                #    Q=table_query,
+                #    D=table_data,
+                #)
+                key_data = xp.zeros((n_samples, n_codes), dtype=xp.bool)
+                key_query = xp.zeros((n_queries, n_codes), dtype=xp.bool)
+                key_data[sample_indices, table_data[:, table]] = True
+                key_query[query_indices, table_query[:, table]] = active
+                matches = xp.einsum(
+                    "M[q,n] or= Q[q,h] & D[n,h]", Q=key_query, D=key_data
+                )
+                candidates = candidates | matches
             table_data = table_data // 2
             table_query = table_query // 2
 
@@ -859,18 +879,13 @@ Nearest neighbor algorithms</concept_desc>
             Q=query,
             D=data,
         )
-        candidate_distances = xp.sqrt(xp.sum(diff**2, axis=-1))
+        distances = xp.sqrt(xp.sum(diff**2, axis=-1))
         # Masked zeros are not zero-distance neighbors.
-        distances = xp.where(candidates, candidate_distances, xp.inf)
+        distances = xp.where(candidates, distances, xp.inf)
 
         sorted_indices = xp.argsort(distances, axis=1)
         nearest_indices = xp.take(sorted_indices, xp.arange(k), axis=1)
-        nearest_distances = xp.einsum(
-            "R[q,k] += D[q,n] * (I[q,k] == N[n])",
-            D=candidate_distances,
-            I=nearest_indices,
-            N=xp.arange(n_samples),
-        )
+        nearest_distances = xp.take_along_axis(distances, nearest_indices, axis=1)
         return [nearest_indices, nearest_distances]
 
     def check(self, param):

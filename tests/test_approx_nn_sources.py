@@ -49,8 +49,8 @@ def test_jl_approx_nn_openml_generator_uses_shared_shell(monkeypatch, generator_
     assert {tuple(row) for row in to_numpy(instance.inputs[1])} == {
         tuple(row) for row in features
     }
-    assert instance.inputs[2].shape == (4, 3200)
-    assert instance.meta["hash_bits"] == 32
+    assert instance.inputs[2].shape == (4, 3100)
+    assert instance.meta["hash_bits"] == 31
     assert instance.meta["n_tables"] == 100
     assert instance.meta["num_train"] == 12
     assert instance.meta["num_query"] == 12
@@ -84,8 +84,8 @@ def test_jl_approx_nn_netflix_generator_uses_shared_shell(monkeypatch, generator
     assert dataset.suites == ["standard"]
     assert to_scipy(instance.inputs[0]).shape == (6, 5)
     assert to_scipy(instance.inputs[1]).shape == (6, 5)
-    assert instance.inputs[2].shape == (5, 3200)
-    assert instance.meta["hash_bits"] == 32
+    assert instance.inputs[2].shape == (5, 3100)
+    assert instance.meta["hash_bits"] == 31
     assert instance.meta["n_tables"] == 100
     assert instance.meta["num_train"] == 6
     assert instance.meta["num_query"] == 6
