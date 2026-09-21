@@ -57,6 +57,41 @@ def _difference_matrix(Nx):
     return matrix
 
 
+#: Flux functions, keyed by name. Functions can't be serialized in
+#: benchmark metadata, so the generator stores this keyword instead and
+#: both the generator and the benchmark look the function up by name.
+_FLUX_PRETTY_NAMES = {
+    "burgers": "Burgers",
+    "buckley_leverett": "Buckley-Leverett",
+    "linear_advection": "Linear Advection",
+}
+
+
+def _burgers_flux(u):
+    return 0.5 * u * u
+
+
+def _buckley_leverett_flux(u):
+    sq = u * u
+    return sq / (sq + 0.25 * (1 - u) * (1 - u))
+
+
+def _linear_advection_flux(u):
+    return 1.0 * u
+
+
+def _resolve_flux(flux_name):
+    match flux_name:
+        case "burgers":
+            return _burgers_flux
+        case "buckley_leverett":
+            return _buckley_leverett_flux
+        case "linear_advection":
+            return _linear_advection_flux
+        case _:
+            raise NotImplementedError(f"Unknown flux_name: {flux_name!r}")
+
+
 class FiniteDifferenceDataset(Dataset):
     def __init__(self, name, pretty_name, suites, Nx, dx, Nt, dt):
         self._name = name
@@ -89,28 +124,24 @@ class FiniteDifferenceDataset(Dataset):
 
 
 class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
-    def __init__(self, flux=None):
-        self._flux = flux
-
-    def flux(self, u):
-        if self._flux is None:
-            raise ValueError("FiniteDifferenceGenerator requires flux for checks")
-        return self._flux(u)
+    def __init__(self, flux_name):
+        self.flux_name = flux_name
 
     @property
     def name(self) -> str:
-        return "finite_difference_inputs"
+        return f"finite_difference_inputs_{self.flux_name}"
 
     @property
     def pretty_name(self) -> str:
-        return "Finite Difference Data Generator"
+        return f"Finite Difference Data Generator ({_FLUX_PRETTY_NAMES[self.flux_name]} flux)"
 
     @property
     def description(self) -> str:
         return (
             "The finite difference generator uses a finite difference grid of"
             "500 by 500 cells, matching roughly the scale of a"
-            "real finite difference problem, Norris/torso3 from UF Matrix Collection"
+            "real finite difference problem, Norris/torso3 from UF Matrix Collection,"
+            f" using the {_FLUX_PRETTY_NAMES[self.flux_name]} flux function."
         )
 
     @property
@@ -208,11 +239,20 @@ class FiniteDifferenceGenerator(Generator[FiniteDifferenceDataset]):
             "timesteps": dataset.Nt,
             "dt": dataset.dt,
             "dx": dataset.dx,
+            "flux_name": self.flux_name,
         }
         return DataInstance(inputs=data, meta=meta)
 
 
-class _FiniteDifferenceBenchmarkBase(Benchmark):
+class FiniteDifferenceBenchmark(Benchmark):
+    @property
+    def name(self) -> str:
+        return "finite_difference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "1D Finite Difference"
+
     @property
     def suites(self) -> list[str]:
         return []
@@ -298,39 +338,27 @@ class _FiniteDifferenceBenchmarkBase(Benchmark):
             " as numerical stability, conservation law consistency, etc."
         )
 
-    #: keyword identifying which flux function to use; set by subclasses.
-    #: Kept as a plain string (rather than passing the function itself) so
-    #: that it can be serialized in benchmark metadata.
-    flux_name: str = None
-
     @property
     def generators(self):
-        return [FiniteDifferenceGenerator(flux=self.flux)]
-
-    def flux(self, u):
-        match self.flux_name:
-            case "burgers":
-                return 0.5 * u * u
-            case "buckley_leverett":
-                sq = u * u
-                return sq / (sq + 0.25 * (1 - u) * (1 - u))
-            case "linear_advection":
-                return 1.0 * u
-            case _:
-                raise NotImplementedError(f"Unknown flux_name: {self.flux_name!r}")
+        return [
+            FiniteDifferenceGenerator(flux_name="burgers"),
+            FiniteDifferenceGenerator(flux_name="buckley_leverett"),
+            FiniteDifferenceGenerator(flux_name="linear_advection"),
+        ]
 
     def benchmark(self, xp, data: list, meta: dict):
         u_0, matrix, dif = data
         timesteps = meta["timesteps"]
         dt = meta["dt"]
         dx = meta["dx"]
+        flux = _resolve_flux(meta["flux_name"])
         Nt = timesteps + 1
         alpha = dt / (2 * dx)
         u = xp.zeros((Nt, u_0.shape[0]))
         u[0] = u_0
         for n in range(Nt - 1):
             u_n = u[n]
-            f = self.flux(u_n)
+            f = flux(u_n)
             u_next = matrix @ u_n - alpha * (dif @ f)
             u[n + 1] = u_next
         return [u]
@@ -341,13 +369,14 @@ class _FiniteDifferenceBenchmarkBase(Benchmark):
         u0 = _from_binsparse(self._input[0])
         dt = self._meta["dt"]
         dx = self._meta["dx"]
+        flux_fn = _resolve_flux(self._meta["flux_name"])
 
         assert np.allclose(result[0], u0, rtol=1e-12, atol=1e-12)
 
         time_derivative = np.diff(result, axis=0) / dt
         for timestep in range(time_derivative.shape[0]):
             u_n = result[timestep]
-            flux = param.generator.flux(u_n)
+            flux = flux_fn(u_n)
 
             neighbor_average = np.zeros_like(u_n)
             neighbor_average[1:] += 0.5 * u_n[:-1]
@@ -369,39 +398,3 @@ class _FiniteDifferenceBenchmarkBase(Benchmark):
                 rtol=1e-12,
                 atol=1e-12,
             ), f"{param.dataset.name} has an inconsistent discrete derivative"
-
-
-class BurgersFiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkBase):
-    flux_name = "burgers"
-
-    @property
-    def name(self) -> str:
-        return "burgers_finite_difference"
-
-    @property
-    def pretty_name(self) -> str:
-        return "1D Finite Difference (Burgers flux)"
-
-
-class BuckleyLeverettFiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkBase):
-    flux_name = "buckley_leverett"
-
-    @property
-    def name(self) -> str:
-        return "buckley_leverett_finite_difference"
-
-    @property
-    def pretty_name(self) -> str:
-        return "1D Finite Difference (Buckley-Leverett flux)"
-
-
-class LinearAdvectionFiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkBase):
-    flux_name = "linear_advection"
-
-    @property
-    def name(self) -> str:
-        return "linear_advection_finite_difference"
-
-    @property
-    def pretty_name(self) -> str:
-        return "1D Finite Difference (Linear Advection flux)"
