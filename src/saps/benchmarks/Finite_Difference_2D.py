@@ -76,6 +76,52 @@ def _difference_matrix_y_direction(number_spatial_x, number_spatial_y):
     return dif_y_matrix
 
 
+#: Flux functions, keyed by name. Functions can't be serialized in
+#: benchmark metadata, so the generator stores this keyword instead and
+#: both the generator and the benchmark look the functions up by name.
+_FLUX_PRETTY_NAMES = {
+    "burgers": "Burgers",
+    "buckley_leverett": "Buckley-Leverett",
+    "linear_advection": "Linear Advection",
+}
+
+_LINEAR_ADVECTION_CX = 0.9
+_LINEAR_ADVECTION_CY = 0.9
+
+
+def _burgers_flux_x(u):
+    return 0.5 * u * u
+
+
+def _burgers_flux_y(u):
+    return (1 / 3) * u * u
+
+
+def _buckley_leverett_flux(u):
+    sq = u * u
+    return sq / (sq + 0.25 * (1 - u) * (1 - u))
+
+
+def _linear_advection_flux_x(u):
+    return _LINEAR_ADVECTION_CX * u
+
+
+def _linear_advection_flux_y(u):
+    return _LINEAR_ADVECTION_CY * u
+
+
+def _resolve_flux(flux_name):
+    match flux_name:
+        case "burgers":
+            return _burgers_flux_x, _burgers_flux_y
+        case "buckley_leverett":
+            return _buckley_leverett_flux, _buckley_leverett_flux
+        case "linear_advection":
+            return _linear_advection_flux_x, _linear_advection_flux_y
+        case _:
+            raise NotImplementedError(f"Unknown flux_name: {flux_name!r}")
+
+
 class FiniteDifference2DDataset(Dataset):
     def __init__(
         self,
@@ -124,34 +170,24 @@ class FiniteDifference2DDataset(Dataset):
 
 
 class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
-    def __init__(self, flux_x=None, flux_y=None):
-        self._flux_x = flux_x
-        self._flux_y = flux_y
-
-    def flux_x(self, u):
-        if self._flux_x is None:
-            raise ValueError("FiniteDifference2DGenerator requires flux_x for checks")
-        return self._flux_x(u)
-
-    def flux_y(self, u):
-        if self._flux_y is None:
-            raise ValueError("FiniteDifference2DGenerator requires flux_y for checks")
-        return self._flux_y(u)
+    def __init__(self, flux_name):
+        self.flux_name = flux_name
 
     @property
     def name(self) -> str:
-        return "finite_difference_inputs_2d"
+        return f"finite_difference_inputs_2d_{self.flux_name}"
 
     @property
     def pretty_name(self) -> str:
-        return "Finite Difference Data Generator"
+        return f"Finite Difference Data Generator ({_FLUX_PRETTY_NAMES[self.flux_name]} flux)"
 
     @property
     def description(self) -> str:
         return (
             "The finite difference generator uses a finite difference grid of"
             "500 by 500 cells, matching roughly the scale of a"
-            "real finite difference problem, Norris/torso3 from UF Matrix Collection"
+            "real finite difference problem, Norris/torso3 from UF Matrix Collection,"
+            f" using the {_FLUX_PRETTY_NAMES[self.flux_name]} flux function."
         )
 
     @property
@@ -255,6 +291,7 @@ class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
             "dt": dataset.dt,
             "dx": dataset.dx,
             "dy": dataset.dy,
+            "flux_name": self.flux_name,
         }
         return DataInstance(
             inputs=data,
@@ -262,7 +299,15 @@ class FiniteDifference2DGenerator(Generator[FiniteDifference2DDataset]):
         )
 
 
-class _FiniteDifference2DBenchmarkBase(Benchmark):
+class FiniteDifference2DBenchmark(Benchmark):
+    @property
+    def name(self) -> str:
+        return "finite_difference_2d"
+
+    @property
+    def pretty_name(self) -> str:
+        return "2D Finite Difference"
+
     @property
     def suites(self) -> list[str]:
         return []
@@ -351,14 +396,34 @@ class _FiniteDifference2DBenchmarkBase(Benchmark):
     @property
     def generators(self):
         return [
-            FiniteDifference2DGenerator(flux_x=self.flux_x, flux_y=self.flux_y),
+            FiniteDifference2DGenerator(flux_name="burgers"),
+            FiniteDifference2DGenerator(flux_name="buckley_leverett"),
+            FiniteDifference2DGenerator(flux_name="linear_advection"),
         ]
 
-    def flux_x(self, u):
-        raise NotImplementedError
+    def benchmark(self, xp, data: list, meta: dict):
+        u_0, matrix, diff_x, diff_y = data
+        timesteps = meta["timesteps"]
+        dt = meta["dt"]
+        dx = meta["dx"]
+        dy = meta["dy"]
+        flux_x, flux_y = _resolve_flux(meta["flux_name"])
 
-    def flux_y(self, u):
-        raise NotImplementedError
+        Nt = timesteps + 1
+        u = xp.zeros((Nt, u_0.shape[0]), dtype=u_0.dtype)
+        u[0] = u_0
+
+        alpha = dt / (2 * dx)
+        beta = dt / (2 * dy)
+
+        for n in range(Nt - 1):
+            u_n = u[n]
+            fl_x = flux_x(u_n)
+            fl_y = flux_y(u_n)
+            u_next = matrix @ u_n - alpha * (diff_x @ fl_x) - beta * (diff_y @ fl_y)
+            u[n + 1] = u_next
+
+        return [u]
 
     def check(self, param):
         super().check(param)
@@ -369,6 +434,7 @@ class _FiniteDifference2DBenchmarkBase(Benchmark):
         dy = self._meta["dy"]
         Nx = param.dataset.Nx
         Ny = param.dataset.Ny
+        flux_x_fn, flux_y_fn = _resolve_flux(self._meta["flux_name"])
 
         assert np.allclose(result[0], u0, rtol=1e-12, atol=1e-12)
 
@@ -376,8 +442,8 @@ class _FiniteDifference2DBenchmarkBase(Benchmark):
         for timestep in range(time_derivative.shape[0]):
             u_n = result[timestep]
             u_grid = u_n.reshape(Ny, Nx)
-            flux_x = param.generator.flux_x(u_n).reshape(Ny, Nx)
-            flux_y = param.generator.flux_y(u_n).reshape(Ny, Nx)
+            flux_x = flux_x_fn(u_n).reshape(Ny, Nx)
+            flux_y = flux_y_fn(u_n).reshape(Ny, Nx)
 
             neighbor_average = np.zeros_like(u_grid)
             neighbor_average[:, 1:] += 0.25 * u_grid[:, :-1]
@@ -403,125 +469,3 @@ class _FiniteDifference2DBenchmarkBase(Benchmark):
                 rtol=1e-12,
                 atol=1e-12,
             ), f"{param.dataset.name} has an inconsistent discrete derivative"
-
-
-class BurgersFiniteDifference2DBenchmark(_FiniteDifference2DBenchmarkBase):
-    @property
-    def name(self) -> str:
-        return "burgers_finite_difference_2d"
-
-    @property
-    def pretty_name(self) -> str:
-        return "2D Finite Difference (Burgers flux)"
-
-    def flux_x(self, u):
-        return 0.5 * u * u
-
-    def flux_y(self, u):
-        return (1 / 3) * u * u
-
-    def benchmark(self, xp, data: list, meta: dict):
-        u_0, matrix, diff_x, diff_y = data
-        timesteps = meta["timesteps"]
-        dt = meta["dt"]
-        dx = meta["dx"]
-        dy = meta["dy"]
-
-        Nt = timesteps + 1
-        u = xp.zeros((Nt, u_0.shape[0]), dtype=u_0.dtype)
-        u[0] = u_0
-
-        alpha = dt / (2 * dx)
-        beta = dt / (2 * dy)
-
-        for n in range(Nt - 1):
-            u_n = u[n]
-            fl_x = self.flux_x(u_n)
-            fl_y = self.flux_y(u_n)
-            u_next = matrix @ u_n - alpha * (diff_x @ fl_x) - beta * (diff_y @ fl_y)
-            u[n + 1] = u_next
-
-        return [u]
-
-
-class BuckleyLeverettFiniteDifference2DBenchmark(_FiniteDifference2DBenchmarkBase):
-    @property
-    def name(self) -> str:
-        return "buckley_leverett_finite_difference_2d"
-
-    @property
-    def pretty_name(self) -> str:
-        return "2D Finite Difference (Buckley-Leverett flux)"
-
-    def flux_x(self, u):
-        sq = u * u
-        denom = sq + (0.25 * (1 - u) * (1 - u))
-        return sq / denom
-
-    def flux_y(self, u):
-        return self.flux_x(u)
-
-    def benchmark(self, xp, data: list, meta: dict):
-        u_0, matrix, diff_x, diff_y = data
-        timesteps = meta["timesteps"]
-        dt = meta["dt"]
-        dx = meta["dx"]
-        dy = meta["dy"]
-
-        Nt = timesteps + 1
-        u = xp.zeros((Nt, u_0.shape[0]))
-        u[0] = u_0
-
-        alpha = dt / (2 * dx)
-        beta = dt / (2 * dy)
-
-        for n in range(Nt - 1):
-            u_n = u[n]
-            fl_x = self.flux_x(u_n)
-            fl_y = self.flux_y(u_n)
-            u_next = matrix @ u_n - alpha * (diff_x @ fl_x) - beta * (diff_y @ fl_y)
-            u[n + 1] = u_next
-
-        return [u]
-
-
-class LinearAdvectionFiniteDifference2DBenchmark(_FiniteDifference2DBenchmarkBase):
-    CX = 0.9
-    CY = 0.9
-
-    @property
-    def name(self) -> str:
-        return "linear_advection_finite_difference_2d"
-
-    @property
-    def pretty_name(self) -> str:
-        return "2D Finite Difference (Linear Advection flux)"
-
-    def flux_x(self, u):
-        return self.CX * u
-
-    def flux_y(self, u):
-        return self.CY * u
-
-    def benchmark(self, xp, data: list, meta: dict):
-        u_0, matrix, diff_x, diff_y = data
-        timesteps = meta["timesteps"]
-        dt = meta["dt"]
-        dx = meta["dx"]
-        dy = meta["dy"]
-
-        Nt = timesteps + 1
-        u = xp.zeros((Nt, u_0.shape[0]))
-        u[0] = u_0
-
-        alpha = dt / (2 * dx)
-        beta = dt / (2 * dy)
-
-        for n in range(Nt - 1):
-            u_n = u[n]
-            fl_x = self.flux_x(u_n)
-            fl_y = self.flux_y(u_n)
-            u_next = matrix @ u_n - alpha * (diff_x @ fl_x) - beta * (diff_y @ fl_y)
-            u[n + 1] = u_next
-
-        return [u]
