@@ -2,7 +2,7 @@ import numpy as np
 import scipy.sparse as sps
 
 from binsparse import BinsparseTensor, COORMatrix
-from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
 
 from saps.benchmark import (
     Author,
@@ -27,6 +27,13 @@ from saps.benchmarks.suitesparse import (
     _GAP_WEB_SOURCES,
     fetch_suitesparse_matrix,
 )
+
+
+def _from_binsparse(array):
+    try:
+        return to_numpy(array)
+    except TypeError:
+        return to_sparse(array).todense()
 
 
 class BellmanFordDataset(Dataset):
@@ -727,8 +734,8 @@ class BellmanFordBenchmark(Benchmark):
         if self._ref_outputs is None:
             return
 
-        result = to_numpy(self._output[0])
-        expected = to_numpy(self._ref_outputs[0])
+        result = _from_binsparse(self._output[0])
+        expected = _from_binsparse(self._ref_outputs[0])
         assert np.allclose(result, expected, equal_nan=True), (
             f"Bellman-Ford output mismatch for {param.dataset.name}"
         )

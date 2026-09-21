@@ -325,6 +325,9 @@ class PyDataSparseFramework(Framework):
         if all(not isinstance(value, sp.SparseArray) for value in kwargs.values()):
             xp = self._array_namespace(*kwargs.values())
             return einsum(xp, prgm, **kwargs)
+        kwargs = {
+            key: self._sparse_compatible_arg(value) for key, value in kwargs.items()
+        }
         return einsum(sp, prgm, **kwargs)
 
     def unfold(
