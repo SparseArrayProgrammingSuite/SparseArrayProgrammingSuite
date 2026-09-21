@@ -627,38 +627,11 @@ class CP_ALS(Benchmark):
 
         match n:
             case 3:
-                A, B, C = factors
-                dim1, dim2, dim3 = X.shape
 
-                assert A.shape == (dim1, rank)
-                assert B.shape == (dim2, rank)
-                assert C.shape == (dim3, rank)
-                assert lambda_vals.shape == (rank,)
-
-                Y = np.einsum("r,ir,jr,kr->ijk", lambda_vals, A, B, C)
             case 4:
-                A, B, C, D = factors
-                dim1, dim2, dim3, dim4 = X.shape
 
-                assert A.shape == (dim1, rank)
-                assert B.shape == (dim2, rank)
-                assert C.shape == (dim3, rank)
-                assert D.shape == (dim4, rank)
-                assert lambda_vals.shape == (rank,)
-
-                Y = np.einsum("r,ir,jr,kr,lr->ijkl", lambda_vals, A, B, C, D)
             case 5:
-                A, B, C, D, E = factors
-                dim1, dim2, dim3, dim4, dim5 = X.shape
 
-                assert A.shape == (dim1, rank)
-                assert B.shape == (dim2, rank)
-                assert C.shape == (dim3, rank)
-                assert D.shape == (dim4, rank)
-                assert E.shape == (dim5, rank)
-                assert lambda_vals.shape == (rank,)
-
-                Y = np.einsum("r,ir,jr,kr,lr,mr->ijklm", lambda_vals, A, B, C, D, E)
             case _:
                 raise ValueError(f"unsupported CP tensor order {n}")
 
@@ -687,6 +660,7 @@ class CP_ALS(Benchmark):
 
 class CP_ALS_3D(CP_ALS):
     n = 3
+
 
     def benchmark(self, xp, data, meta):
         X, A, B, C = data
@@ -758,6 +732,15 @@ class CP_ALS_3D(CP_ALS):
 
         return [A, B, C, lambda_vals]
 
+                A, B, C = factors
+                dim1, dim2, dim3 = X.shape
+
+                assert A.shape == (dim1, rank)
+                assert B.shape == (dim2, rank)
+                assert C.shape == (dim3, rank)
+                assert lambda_vals.shape == (rank,)
+
+                Y = np.einsum("r,ir,jr,kr->ijk", lambda_vals, A, B, C)
 
 class CP_ALS_4D(CP_ALS):
     n = 4
@@ -861,6 +844,16 @@ class CP_ALS_4D(CP_ALS):
 
         return [A, B, C, D, lambda_vals]
 
+                A, B, C, D = factors
+                dim1, dim2, dim3, dim4 = X.shape
+
+                assert A.shape == (dim1, rank)
+                assert B.shape == (dim2, rank)
+                assert C.shape == (dim3, rank)
+                assert D.shape == (dim4, rank)
+                assert lambda_vals.shape == (rank,)
+
+                Y = np.einsum("r,ir,jr,kr,lr->ijkl", lambda_vals, A, B, C, D)
 
 class CP_ALS_5D(CP_ALS):
     n = 5
@@ -994,3 +987,15 @@ class CP_ALS_5D(CP_ALS):
         E = xp.divide(E, E_norms_safe)
 
         return [A, B, C, D, E, lambda_vals]
+
+                A, B, C, D, E = factors
+                dim1, dim2, dim3, dim4, dim5 = X.shape
+
+                assert A.shape == (dim1, rank)
+                assert B.shape == (dim2, rank)
+                assert C.shape == (dim3, rank)
+                assert D.shape == (dim4, rank)
+                assert E.shape == (dim5, rank)
+                assert lambda_vals.shape == (rank,)
+
+                Y = np.einsum("r,ir,jr,kr,lr,mr->ijklm", lambda_vals, A, B, C, D, E)

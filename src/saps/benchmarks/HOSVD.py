@@ -67,17 +67,6 @@ class HOSVDDataset(Dataset):
         return data
 
 
-def _reconstruct_tensor(core, factors):
-    num_modes = len(factors)
-    core_idx = "".join(chr(65 + m) for m in range(num_modes))
-    result_idx = "".join(chr(97 + m) for m in range(num_modes))
-    terms = [core_idx]
-    operands = [core]
-    for mode, factor in enumerate(factors):
-        terms.append(f"{result_idx[mode]}{core_idx[mode]}")
-        operands.append(factor)
-    return np.einsum(f"{','.join(terms)}->{result_idx}", *operands)
-
 
 class HOSVDDenseGenerator(Generator[HOSVDDataset]):
     def __init__(self, n: int | None = None):
@@ -692,7 +681,15 @@ class HOSVDBenchmark(Benchmark):
         X = to_numpy(self._input[0])
         core = to_numpy(self._output[0])
         factors = [to_numpy(output) for output in self._output[1:]]
-        X_rec = _reconstruct_tensor(core, factors)
+        num_modes = len(factors)
+        core_idx = "".join(chr(65 + m) for m in range(num_modes))
+        result_idx = "".join(chr(97 + m) for m in range(num_modes))
+        terms = [core_idx]
+        operands = [core]
+        for mode, factor in enumerate(factors):
+            terms.append(f"{result_idx[mode]}{core_idx[mode]}")
+            operands.append(factor)
+        X_rec = np.einsum(f"{','.join(terms)}->{result_idx}", *operands)
         error = np.linalg.norm(X - X_rec) / np.linalg.norm(X)
         assert error < 1e-5
 
