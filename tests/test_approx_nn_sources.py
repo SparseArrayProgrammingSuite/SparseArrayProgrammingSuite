@@ -64,7 +64,6 @@ def test_jl_approx_nn_openml_generator_uses_cached_task_split(
         4,
         instance.meta["n_projections"] * instance.meta["n_tables"],
     )
-    assert instance.meta["hash_bits"] == 31
     assert 1 <= instance.meta["n_tables"] <= dataset.max_tables
     assert (
         instance.meta["estimated_retrieval_probability"] >= dataset.target_probability
@@ -110,7 +109,6 @@ def test_jl_approx_nn_netflix_generator_uses_shared_shell(monkeypatch, generator
         5,
         instance.meta["n_projections"] * instance.meta["n_tables"],
     )
-    assert instance.meta["hash_bits"] == 31
     assert 1 <= instance.meta["n_tables"] <= dataset.max_tables
     assert (
         instance.meta["estimated_retrieval_probability"] >= dataset.target_probability
@@ -154,7 +152,6 @@ def test_jl_projection_variants_share_random_inputs_and_are_reproducible():
         2,
         0.1,
         42,
-        hash_bits=5,
         max_tables=7,
         max_projections=9,
         candidate_target=4,
@@ -196,7 +193,6 @@ def test_jl_projection_variants_share_random_inputs_and_are_reproducible():
         dense.meta["bucket_width"] * 12**-0.25
     )
     assert sparse.meta["projection_kind"] == "sparse"
-    assert dense.meta["hash_bits"] == 5
     assert 1 <= dense.meta["n_tables"] <= 7
     assert 1 <= dense.meta["n_projections"] <= 9
     assert dense.meta["estimated_retrieval_probability"] >= dataset.target_probability

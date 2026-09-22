@@ -70,7 +70,7 @@ def test_lsh_exhaustive_candidates_match_euclidean_knn(run_lsh):
     data[np.abs(data) < 0.5] = 0
     query[np.abs(query) < 0.5] = 0
     indices, distances = run_lsh(
-        data, query, projection, k=3, hash_bits=2, n_tables=2, candidate_target=9
+        data, query, projection, k=3, n_tables=2, candidate_target=9
     )
     expected_distances = np.linalg.norm(query[:, None, :] - data[None, :, :], axis=2)
     expected_indices = np.argsort(expected_distances, axis=1)[:, :3]
@@ -97,7 +97,6 @@ def test_lsh_queries_stop_independently_and_exclude_non_candidates(
         [[1, 0, 0, 0]],
         k=1,
         bucket_width=bucket_width,
-        hash_bits=4,
         n_tables=1,
         candidate_target=1,
     )
@@ -112,7 +111,6 @@ def test_lsh_unions_tables_and_returns_distinct_neighbors(run_lsh):
         [[0, 0]],
         [[1, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 1, 0, 0, 0]],
         k=3,
-        hash_bits=4,
         n_tables=2,
         candidate_target=3,
     )
@@ -128,14 +126,13 @@ def test_lsh_unions_tables_and_returns_distinct_neighbors(run_lsh):
     indirect=True,
     ids=["dense-input", "sparse-input"],
 )
-def test_lsh_31_bit_codes_widen_bins_to_at_least_k_candidates(run_lsh):
+def test_lsh_widens_bins_until_negative_and_positive_projections_collide(run_lsh):
     # Negative and positive projections must eventually share wide enough bins.
     indices, distances = run_lsh(
         [[-2, 0], [-1, 0], [-3, 1]],
         [[1, 0]],
         np.vstack([np.ones(6), np.zeros(6)]),
         k=2,
-        hash_bits=31,
         n_tables=2,
         candidate_target=1,
     )

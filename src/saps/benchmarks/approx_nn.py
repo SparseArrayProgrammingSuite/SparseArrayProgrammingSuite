@@ -36,7 +36,6 @@ class JLApproxNNRandomDataset(Dataset):
         k,
         eps,
         seed,
-        hash_bits,
         max_tables,
         max_projections,
         candidate_target,
@@ -52,7 +51,6 @@ class JLApproxNNRandomDataset(Dataset):
         self.k = k
         self.eps = eps
         self.seed = seed
-        self.hash_bits = hash_bits
         self.max_tables = max_tables
         self.max_projections = max_projections
         self.candidate_target = candidate_target
@@ -84,6 +82,11 @@ class JLApproxNNRandomDataset(Dataset):
 # its own reference width (see `projection`) so that this same ratio applies
 # after normalizing by that kind's projected standard deviation.
 _REFERENCE_WIDTH_RATIO = 4.0
+
+# Bits used to mix each table's projection bins into one scalar code
+# (benchmark() compares codes directly, so this only affects the odds of an
+# accidental collision between unrelated bins, not correctness or memory).
+_HASH_BITS = 31
 
 
 def _collision_probability(width_ratio: float) -> float:
@@ -175,8 +178,6 @@ class JLApproxNNGeneratorMixin(ABC):
             raise ValueError("Require nonempty queries and 1 <= k <= data rows")
         if not 0 < dataset.target_probability <= 1:
             raise ValueError("target_probability must be in (0, 1]")
-        if not 1 <= dataset.hash_bits <= 31:
-            raise ValueError("Use 1 to 31 hash bits")
 
         # How many hashes to use, and how far to widen the reference ratio,
         # follows from the dataset config alone; it needs no data.
@@ -191,7 +192,7 @@ class JLApproxNNGeneratorMixin(ABC):
             projection = to_scipy(projection).tocsr()
         rng = np.random.default_rng([dataset.seed, 2])
         offsets = rng.uniform(np.finfo(float).eps, 1.0, (n_tables, n_projections))
-        strides = rng.integers(1, 2**dataset.hash_bits, size=n_projections)
+        strides = rng.integers(1, 2**_HASH_BITS, size=n_projections)
 
         # Estimate a typical k-th-nearest-neighbor distance from a small
         # sample, purely to scale the bucket width to the data; it has no
@@ -399,7 +400,6 @@ class _JLApproxNNRandomGeneratorMixin(JLApproxNNGeneratorMixin):
                 k=5,
                 eps=0.1,
                 seed=40,
-                hash_bits=31,
                 max_tables=64,
                 max_projections=16,
                 candidate_target=100,
@@ -419,7 +419,6 @@ class _JLApproxNNRandomGeneratorMixin(JLApproxNNGeneratorMixin):
                 k=5,
                 eps=0.1,
                 seed=41,
-                hash_bits=31,
                 max_tables=64,
                 max_projections=16,
                 candidate_target=100,
@@ -438,7 +437,6 @@ class _JLApproxNNRandomGeneratorMixin(JLApproxNNGeneratorMixin):
                 k=5,
                 eps=0.1,
                 seed=42,
-                hash_bits=31,
                 max_tables=64,
                 max_projections=16,
                 candidate_target=100,
@@ -501,8 +499,6 @@ class _JLApproxNNTestGeneratorMixin(_JLApproxNNRandomGeneratorMixin):
                 k=3,
                 eps=0.01,
                 seed=42,
-                # Keep the raw hash axis small enough for dense-framework tests.
-                hash_bits=8,
                 max_tables=64,
                 max_projections=16,
                 candidate_target=100,
@@ -527,7 +523,6 @@ class JLApproxNNDataset(Dataset):
         eps: float,
         seed: int,
         suites: list[str],
-        hash_bits: int,
         max_tables: int,
         max_projections: int,
         candidate_target: int,
@@ -538,7 +533,6 @@ class JLApproxNNDataset(Dataset):
         self.eps = eps
         self.seed = seed
         self._suites = suites
-        self.hash_bits = hash_bits
         self.max_tables = max_tables
         self.max_projections = max_projections
         self.candidate_target = candidate_target
@@ -569,7 +563,6 @@ def _lsh_meta(dataset):
     return {
         "k": dataset.k,
         "eps": dataset.eps,
-        "hash_bits": dataset.hash_bits,
         "max_tables": dataset.max_tables,
         "max_projections": dataset.max_projections,
         "target_probability": dataset.target_probability,
@@ -674,7 +667,6 @@ class _JLApproxNNOpenMLGeneratorMixin(JLApproxNNGeneratorMixin):
                 eps=0.3,
                 seed=50 if dataset.name == "mnist" else 0,
                 suites=["standard"],
-                hash_bits=31,
                 max_tables=64,
                 max_projections=16,
                 candidate_target=100,
@@ -773,7 +765,6 @@ class _JLApproxNNNetflixGeneratorMixin(JLApproxNNGeneratorMixin):
                 eps=0.3,
                 seed=0,
                 suites=["standard"],
-                hash_bits=31,
                 max_tables=64,
                 max_projections=16,
                 candidate_target=100,
@@ -1030,9 +1021,9 @@ Nearest neighbor algorithms</concept_desc>
         data, query, P, offsets, strides = data
         k = meta["k"]
         width = meta["bucket_width"]
-        hash_bits = meta.get("hash_bits", 31)
+        hash_bits = _HASH_BITS
         n_projections = meta["n_projections"]
-        n_tables = meta.get("n_tables", 100)
+        n_tables = meta["n_tables"]
         n_samples, n_features = data.shape
         n_queries = query.shape[0]
         if not 1 <= k <= n_samples:
@@ -1051,7 +1042,7 @@ Nearest neighbor algorithms</concept_desc>
                 "Expected query[:, features] and "
                 "projection[features, n_tables * n_projections]"
             )
-        candidate_target = min(n_samples, max(k, meta.get("candidate_target", 100)))
+        candidate_target = min(n_samples, max(k, meta["candidate_target"]))
         logging.info(
             f"Data shape: {data.shape}, Query shape: {query.shape}, "
             f"Projection shape: {P.shape}, Tables: {n_tables}, "
@@ -1066,8 +1057,6 @@ Nearest neighbor algorithms</concept_desc>
         )
 
         candidates = xp.zeros((n_queries, n_samples), dtype=xp.bool)
-        sample_indices = xp.arange(n_samples, dtype=xp.uint64)
-        query_indices = xp.arange(n_queries, dtype=xp.uint64)
         n_codes = 2**hash_bits
         modulus = xp.asarray(n_codes, dtype=xp.int64)
         # Widen bins from the projection's width, freezing queries at the target.
@@ -1082,8 +1071,11 @@ Nearest neighbor algorithms</concept_desc>
             table_query = xp.astype(
                 xp.floor(projected_query / width + offsets) % n_codes, xp.int64
             )
-            # Mix the signed bins into one uint32 scatter index. Reduce each
-            # product before summing to avoid overflowing int64 at 31 bits.
+            # Mix the signed bins into one uint32 code. Reduce each product
+            # before summing to avoid overflowing int64 at 31 bits.
+            # Codes live in [1, n_codes] (not [0, n_codes)) so that 0 is free
+            # to mean "no query": zeroing an already-satisfied query's row
+            # below then can't spuriously collide with any real data code.
             table_data = xp.astype(
                 xp.einsum(
                     "H[n,t] += (B[n,t,h] * S[h]) % M[]",
@@ -1091,7 +1083,8 @@ Nearest neighbor algorithms</concept_desc>
                     S=strides,
                     M=modulus,
                 )
-                % n_codes,
+                % n_codes
+                + 1,
                 xp.uint32,
             )
             table_query = xp.astype(
@@ -1101,25 +1094,20 @@ Nearest neighbor algorithms</concept_desc>
                     S=strides,
                     M=modulus,
                 )
-                % n_codes,
+                % n_codes
+                + 1,
                 xp.uint32,
             )
-            for table in range(n_tables):
-                # if frameworks were better, we could write:
-                # matches = xp.einsum(
-                #    "M[q,n] or= A[q] & (Q[q,t] == D[n,t])",
-                #    A=active,
-                #    Q=table_query,
-                #    D=table_data,
-                # )
-                key_data = xp.zeros((n_samples, n_codes), dtype=xp.bool)
-                key_query = xp.zeros((n_queries, n_codes), dtype=xp.bool)
-                key_data[sample_indices, table_data[:, table]] = True
-                key_query[query_indices, table_query[:, table]] = active
-                matches = xp.einsum(
-                    "M[q,n] or= Q[q,h] & D[n,h]", Q=key_query, D=key_data
-                )
-                candidates = candidates | matches
+            # Zero out already-satisfied queries so they carry no explicit
+            # entries into the comparison below, instead of comparing
+            # everyone and masking after.
+            table_query = table_query * xp.astype(active, table_query.dtype)[:, None]
+            # A query and a sample collide iff their mixed codes match in any
+            # table; no need to build a one-hot code axis for it.
+            matches = xp.einsum(
+                "M[q,n] or= (Q[q,t] == D[n,t])", Q=table_query, D=table_data
+            )
+            candidates = candidates | matches
             width *= 2
 
         # Materialize the query/sample candidate mask before introducing the
