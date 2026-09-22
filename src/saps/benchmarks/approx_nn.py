@@ -1034,61 +1034,68 @@ Nearest neighbor algorithms</concept_desc>
             xp.matmul(query, P), (n_queries, n_tables, n_projections)
         )
 
-        # SimHash bits as +/-1 (not 0/1): a sum of matching-vs-differing
-        # signs is a matmul contraction, not a broadcast equality compare.
-        # Computed via xp.matmul below rather than the generic einsum DSL:
-        # the DSL's reduction broadcasts every operand out to the full
-        # (q, n, n_tables, n_projections) shape before reducing, which is
-        # intractable at realistic sizes, and numpy-style sum reductions
-        # silently upcast int8 to int64 even when they don't. matmul does
-        # neither -- every backend lowers it to an actual contraction and
-        # preserves the input dtype.
-        # Sign never fixes at 0 (unlike the projection matmul above, which
-        # is linear), so a sparse backend can't represent it with a zero
-        # fill value -- and its own matmul requires one. table_data/query
-        # are only (n or q) x n_tables x n_projections though, tiny next to
-        # the (q, n) results below, so densifying them here is free.
-        table_data = xp.from_binsparse(
-            xp.to_binsparse(xp.astype(xp.where(projected_data >= 0, 1, -1), xp.int8))
-        )
-        table_query = xp.from_binsparse(
-            xp.to_binsparse(xp.astype(xp.where(projected_query >= 0, 1, -1), xp.int8))
-        )
+        # Bit-pack each row's n_projections signs into one integer per
+        # table, projection i at bit i (ascending -- nothing downstream
+        # cares which physical bit a given projection lands on, only that
+        # the first m projections are always some fixed, nested subset of
+        # bits as m shrinks round to round, which ascending order gives
+        # for free), so a round's "exact agreement on the first m signs"
+        # becomes "the low m bits of the packed codes match": one masked
+        # equality compare per round on a (q, n, n_tables) shape, not a
+        # slice into n_projections columns re-contracted from scratch
+        # every round.
+        if n_projections <= 8:
+            code_dtype = xp.uint8
+        elif n_projections <= 16:
+            code_dtype = xp.uint16
+        elif n_projections <= 32:
+            code_dtype = xp.uint32
+        else:
+            code_dtype = xp.uint64
+        # Packing sums bit_i * 2**i via matmul against a fixed weight
+        # vector, requesting code_dtype as its dtype directly (both
+        # frameworks' matmul forward that through to a same-kind-safe
+        # cast on the result, so this stays narrow rather than computing
+        # in whatever wider dtype the contraction would otherwise pick).
+        # sparse.matmul still requires a zero fill value on its inputs
+        # regardless of the requested output dtype, which is what > 0
+        # (not >= 0) is for: projected_data is a linear map of the
+        # (sparse-safe) projection matmul above, so its own fill value is
+        # 0, and 0 > 0 is False, keeping the comparison's fill value at
+        # False (0) too -- >= 0 would instead make every implicit zero
+        # satisfy the comparison and flip the fill value to 1. This only
+        # changes how the (never explicitly stored, measure-zero for real
+        # projections) case of an exact-zero projection is classified,
+        # not real near-neighbor behavior.
+        weights = xp.astype(2 ** xp.arange(n_projections), code_dtype)
+        table_data = xp.matmul(projected_data > 0, weights, dtype=code_dtype)
+        table_query = xp.matmul(projected_query > 0, weights, dtype=code_dtype)
 
         candidates = xp.zeros((n_queries, n_samples), dtype=xp.bool)
         # Each round requires EXACT agreement on a fixed-length prefix of
         # the n_projections signs -- not a Hamming-radius count -- and
         # shortens that prefix by one sign a round, starting from the full
-        # n_projections (the finest, smallest-candidate-set partition).
-        # A sum of m terms, each +/-1, can only equal m if every one of
-        # them agrees, so checking the prefix sum against its own maximum
-        # is exactly an exact-match test. required_projections == 0
-        # accepts everyone, so this always terminates.
+        # n_projections (the finest, smallest-candidate-set partition). The
+        # first m signs are exactly the low m bits of the packed codes
+        # (ascending packing), so masking off the rest and comparing codes
+        # directly does the same job. At m == 0 the mask is 0, so every
+        # code compares equal and "accept everyone" falls out for free
+        # instead of a separate branch; that round always satisfies
+        # candidate_target <= n_samples for every query, so this always
+        # terminates.
         required_projections = n_projections
         while True:
             active = xp.sum(candidates, axis=1) < candidate_target
             if not xp.any(active):
                 break
-            if required_projections <= 0:
-                candidates = candidates | active[:, None]
-            else:
-                m = required_projections
-                # Batched matmul over the table axis, on just the first m
-                # signs -- (t,q,m) @ (t,m,n) -> (t,q,n), moved to (q,n,t).
-                # One tensor contraction; n_tables is never iterated over
-                # in Python, just carried as a batch axis the backend's
-                # own matmul handles.
-                prefix_agreement = xp.permute_dims(
-                    xp.matmul(
-                        xp.permute_dims(table_query[:, :, :m], (1, 0, 2)),
-                        xp.permute_dims(table_data[:, :, :m], (1, 2, 0)),
-                    ),
-                    (1, 2, 0),
-                )
-                # OR across tables via a reduction over the trailing axis,
-                # not a Python loop over n_tables.
-                matches = xp.any(prefix_agreement == m, axis=-1)
-                candidates = candidates | (matches & active[:, None])
+            m = max(required_projections, 0)
+            mask = xp.asarray((1 << m) - 1, dtype=code_dtype)
+            matches = xp.einsum(
+                "M[q,n] or= (Q[q,t] == D[n,t])",
+                Q=table_query & mask,
+                D=table_data & mask,
+            )
+            candidates = candidates | (matches & active[:, None])
             required_projections -= 1
 
         # Rank candidates by cosine distance, what SimHash actually targets.

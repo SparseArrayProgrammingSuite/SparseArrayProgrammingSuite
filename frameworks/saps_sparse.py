@@ -439,7 +439,19 @@ class PyDataSparseFramework(Framework):
 
     def matmul(self, x1, x2, /, **kwargs):
         if isinstance(x1, sp.SparseArray) or isinstance(x2, sp.SparseArray):
-            return x1 @ x2
+            # sparse.matmul (unlike the array-api namespace below) takes no
+            # kwargs at all, so a caller-requested dtype has to be applied
+            # as a cast afterward instead of steering the contraction
+            # itself -- unlike the dense path, this can't avoid computing
+            # in whatever wider dtype the contraction naturally uses first.
+            dtype = kwargs.pop("dtype", None)
+            if kwargs:
+                raise TypeError(
+                    f"PyDataSparseFramework.matmul doesn't support {sorted(kwargs)} "
+                    "for sparse operands"
+                )
+            result = x1 @ x2
+            return result if dtype is None else result.astype(dtype)
         xp = self._array_namespace(x1, x2)
         return xp.matmul(x1, x2, **kwargs)
 
