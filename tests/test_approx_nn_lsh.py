@@ -69,12 +69,12 @@ def test_lsh_exhaustive_candidates_match_cosine_knn(run_lsh):
 
 
 def test_lsh_queries_stop_independently_and_exclude_non_candidates(run_lsh):
-    # d0 matches query 0 exactly (both signs), so query 0 is satisfied after
-    # the first (strictest) round. d2 only agrees with query 0 on one of two
-    # signs -- it needs a later, looser round -- but is nonetheless *closer*
-    # in cosine distance than d0. Query 0 must not pick it up once it has
-    # already stopped. Query 1 needs that same looser round to find d1 at
-    # all, so the search does keep going past round 0.
+    # d0 matches query 0 exactly on the full 2-sign prefix, so query 0 is
+    # satisfied after the first (strictest) round. d2 only matches query 0's
+    # first sign -- it needs the shorter, 1-sign prefix round -- but is
+    # nonetheless *closer* in cosine distance than d0. Query 0 must not pick
+    # it up once it has already stopped. Query 1 needs that same shorter
+    # prefix to find d1 at all, so the search does keep going past round 0.
     data = [[1, 5], [-1, 5], [1, -0.05]]  # d0, d1, d2
     query = [[1, 0.1], [-1, -0.1]]
     projection = [[1, 0], [0, 1]]
@@ -122,13 +122,13 @@ def test_lsh_unions_tables_and_returns_distinct_neighbors(run_lsh):
     )
 
 
-def test_lsh_relaxes_hamming_radius_until_opposite_signed_projections_collide(
+def test_lsh_shortens_the_required_prefix_until_opposite_signed_projections_collide(
     run_lsh,
 ):
     # Every hash bit depends only on feature 0's sign, so the query (positive
-    # feature 0) starts out disagreeing with every point (all negative
-    # feature 0) in every table and every bit. Only the fully relaxed round
-    # (accept everyone) picks them up.
+    # feature 0) disagrees with every point (all negative feature 0) on
+    # every sign in every table -- no exact-match prefix length shorter
+    # than the fully relaxed round (accept everyone) picks them up.
     data = [[-2, 0], [-1, 0], [-3, 1]]
     query = [[1, 0]]
     projection = [[1, 1, 1, 1], [0, 0, 0, 0]]

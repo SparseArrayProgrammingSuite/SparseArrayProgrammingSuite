@@ -23,7 +23,7 @@ from saps.benchmarks.openml import (
 )
 
 
-class JLApproxNNRandomDataset(Dataset):
+class SimHashApproxNNRandomDataset(Dataset):
     def __init__(
         self,
         name,
@@ -77,100 +77,102 @@ class JLApproxNNRandomDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-# E2LSH manual, Sec. 3.3.2 (PDF page 12): recommended bucket width for a
-# Gaussian projection at reference radius R = 1. Every projection kind scales
-# its own reference width (see `projection`) so that this same ratio applies
-# after normalizing by that kind's projected standard deviation.
-_REFERENCE_WIDTH_RATIO = 4.0
+# A single random hyperplane bit collides for two UNRELATED points with
+# probability exactly 0.5 (Charikar 2002: P[sign match] = 1 - theta/pi, at
+# theta = pi/2), regardless of dimension or dataset -- no calibration
+# needed. That is what bounds candidate-set size, so tuning targets it
+# directly instead of a near-neighbor similarity guess: a guess weak enough
+# to need no data (e.g. 1/sqrt(n_features)) is too close to 0.5 itself to
+# ever buy both a small candidate set and a real recall guarantee at once,
+# since the two nearly-identical per-bit probabilities need exponentially
+# more tables to tell apart as n_projections grows.
+_RANDOM_COLLISION_PROBABILITY = 0.5
 
-# Bits used to mix each table's projection bins into one scalar code
-# (benchmark() compares codes directly, so this only affects the odds of an
-# accidental collision between unrelated bins, not correctness or memory).
-_HASH_BITS = 31
+# Reference near-neighbor cosine similarity, used only to report an
+# estimated retrieval probability alongside the chosen (n_projections,
+# n_tables) -- not to choose them. 1/sqrt(n_features) is the typical cosine
+# similarity between two independent random vectors in that many dimensions
+# (its standard deviation around 0), i.e. one standard deviation of
+# "signal" above pure randomness: a deliberately conservative estimate,
+# since real near neighbors are usually far more similar than that.
+_REFERENCE_SIMILARITY_SCALE = 1.0
 
 
-def _collision_probability(width_ratio: float) -> float:
-    """E2LSH probability that a single Gaussian-projection hash of bucket
-    width w collides for two points at distance r, as a function of
-    width_ratio = w / r (Datar et al. 2004)."""
-    if width_ratio <= 0:
-        return 0.0
-    if not np.isfinite(width_ratio):
-        return 1.0
-    from scipy.stats import norm
+def _collision_probability(cosine_similarity: float) -> float:
+    """SimHash collision probability for two vectors at the given cosine
+    similarity: P[sign(r @ u) == sign(r @ v)] = 1 - theta / pi, where theta
+    is the angle between them (Charikar 2002, Theorem 1)."""
+    cosine_similarity = min(1.0, max(-1.0, cosine_similarity))
+    return 1.0 - math.acos(cosine_similarity) / math.pi
 
-    return float(
-        1
-        - 2 * norm.cdf(-width_ratio)
-        - (2 / (width_ratio * math.sqrt(2 * math.pi)))
-        * (1 - math.exp(-(width_ratio**2) / 2))
+
+def _tune_lsh(dataset, n_features: int, n_samples: int):
+    """Pick n_projections so that, spread over the full max_tables budget,
+    the expected number of accidental (unrelated-point) matches lands near
+    candidate_target -- selectivity is fundamentally about how many points
+    there are to accidentally collide with, not just n_features, so
+    n_samples has to enter the picture somewhere. Always spends the whole
+    table budget: more tables only ever help recall for a fixed
+    candidate-set size (see the module docstring for why recall isn't the
+    optimization target here). estimated_retrieval_probability is reported
+    for reference against a conservative near-neighbor similarity guess,
+    not solved for; real recall on structured data is typically much
+    better than that guess suggests."""
+    n_tables = dataset.max_tables
+    if dataset.candidate_target > 0:
+        expected_false_matches = max(n_samples * n_tables, 1) / dataset.candidate_target
+        n_projections = math.ceil(
+            math.log(max(expected_false_matches, 1.0), 1.0 / _RANDOM_COLLISION_PROBABILITY)
+        )
+    else:
+        n_projections = dataset.max_projections
+    n_projections = min(dataset.max_projections, max(1, n_projections))
+
+    reference_similarity = min(
+        1.0, _REFERENCE_SIMILARITY_SCALE / math.sqrt(max(n_features, 1))
     )
+    p = _collision_probability(reference_similarity)
+    probability = 1 - (1 - p**n_projections) ** n_tables
+    return n_projections, n_tables, probability
 
 
-def _tables_needed(hit_probability: float, target_probability: float) -> int:
-    """Tables t such that 1 - (1 - hit_probability) ** t >= target_probability."""
-    if hit_probability >= 1:
-        return 1
-    return max(
-        1,
-        math.ceil(math.log1p(-target_probability) / math.log1p(-hit_probability)),
-    )
-
-
-def _tune_lsh(dataset):
-    """Pick the cheapest (n_projections, n_tables) whose analytic retrieval
-    probability reaches the target, widening the reference ratio if even the
-    largest allowed counts fall short. Depends only on dataset config, not
-    on any data, so the actual bucket width is just `widen` away from being
-    known: bucket_width = reference_width(kind) * radius * widen."""
-    widen = 1.0
-    while True:
-        p = _collision_probability(_REFERENCE_WIDTH_RATIO * widen)
-        options = []
-        for n_projections in range(1, dataset.max_projections + 1):
-            n_tables = _tables_needed(p**n_projections, dataset.target_probability)
-            if n_tables <= dataset.max_tables:
-                options.append((n_projections * n_tables, n_projections, n_tables))
-        if options:
-            _, n_projections, n_tables = min(options)
-            probability = 1 - (1 - p**n_projections) ** n_tables
-            return n_projections, n_tables, widen, probability
-        widen *= 2
-
-
-class JLApproxNNGeneratorMixin(ABC):
+class SimHashApproxNNGeneratorMixin(ABC):
     projection_kind: str
     projection_description: str
     tuning_description = (
-        "Using the E2LSH collision-probability formula, generation first picks "
-        "the fewest total table x projection hashes whose analytic retrieval "
-        "probability reaches the target, independent of the data, widening "
-        "the reference ratio if even the largest allowed table and projection "
-        "counts fall short. It then samples up to 8 query rows and max(256, "
-        "k) data rows with a fixed seed and measures the median distance "
-        "from each sampled query to its k-th nearest sampled data point, "
-        "purely to scale the resulting bucket width to the data. This is a "
-        "calibration estimate from a small sample, not full-dataset recall."
+        "Generation picks n_projections so that, using the full "
+        "max_tables budget, the expected number of accidental matches "
+        "between unrelated points lands near candidate_target (see "
+        "_tune_lsh) -- a random hyperplane bit collides for two unrelated "
+        "points with probability exactly 0.5 regardless of the data, so "
+        "this needs no pass over it, only its shape. It always spends the "
+        "whole table budget, since more tables can only help recall for a "
+        "fixed candidate-set size; estimated_retrieval_probability is "
+        "reported against a conservative near-neighbor similarity guess "
+        "for reference, not solved for. At benchmark time, each round "
+        "requires exact agreement on a fixed-length prefix of the "
+        "n_projections signs, shortening that prefix by one sign a round "
+        "until candidate_target points are found."
     )
 
     @property
     def projection_references(self) -> list[Ref]:
         return [
             Ref(
-                title="E2LSH 0.1 User Manual",
-                authors=[Author("Alexandr Andoni"), Author("Piotr Indyk")],
-                year=2005,
-                url="https://www.mit.edu/~andoni/LSH/manual.pdf#page=12",
+                title="Similarity Estimation Techniques from Rounding Algorithms",
+                authors=[Author("Moses S. Charikar")],
+                year=2002,
+                doi="10.1145/509907.509965",
+                url="https://www.cs.princeton.edu/courses/archive/spring04/cos598B/bib/CharikarEstim.pdf",
             ),
         ]
 
     @abstractmethod
     def projection(self, n_features: int, target_dim: int, seed: int):
-        """Return the scalar projections and their unit-radius bucket width."""
+        """Return the scalar projections defining each hash hyperplane."""
 
     def _instance(self, dataset, data, query, source_meta=None):
         from scipy.sparse import issparse
-        from scipy.spatial.distance import cdist
 
         if dataset.max_tables < 1 or dataset.max_projections < 1:
             raise ValueError("max_tables and max_projections must be positive")
@@ -179,98 +181,67 @@ class JLApproxNNGeneratorMixin(ABC):
         if not 0 < dataset.target_probability <= 1:
             raise ValueError("target_probability must be in (0, 1]")
 
-        # How many hashes to use, and how far to widen the reference ratio,
-        # follows from the dataset config alone; it needs no data.
-        n_projections, n_tables, widen, probability = _tune_lsh(dataset)
+        n_features = data.shape[1]
+        # How many hyperplanes and tables to use follows from the data's
+        # shape alone (n_features, n_samples), not its values; it needs no
+        # data pass (see _tune_lsh).
+        n_projections, n_tables, probability = _tune_lsh(
+            dataset, n_features, data.shape[0]
+        )
 
-        projection, reference_width = self.projection(
-            data.shape[1], n_tables * n_projections, dataset.seed
+        projection = self.projection(
+            n_features, n_tables * n_projections, dataset.seed
         )
         try:
             projection = to_numpy(projection)
         except TypeError:
             projection = to_scipy(projection).tocsr()
-        rng = np.random.default_rng([dataset.seed, 2])
-        offsets = rng.uniform(np.finfo(float).eps, 1.0, (n_tables, n_projections))
-        strides = rng.integers(1, 2**_HASH_BITS, size=n_projections)
-
-        # Estimate a typical k-th-nearest-neighbor distance from a small
-        # sample, purely to scale the bucket width to the data; it has no
-        # other use.
-        rng = np.random.default_rng([dataset.seed, 3])
-        data = data.tocsr() if issparse(data) else data
-        query = query.tocsr() if issparse(query) else query
-        sample_data = data[
-            rng.choice(data.shape[0], min(data.shape[0], max(256, dataset.k)), False)
-        ]
-        sample_query = query[rng.choice(query.shape[0], min(query.shape[0], 8), False)]
-        sample_data = sample_data.toarray() if issparse(sample_data) else sample_data
-        sample_query = (
-            sample_query.toarray() if issparse(sample_query) else sample_query
-        )
-        radii = np.sort(cdist(sample_query, sample_data), axis=1)[:, dataset.k - 1]
-        positive = radii[radii > 0]
-        radius = float(np.median(positive)) if positive.size else 1.0
-
-        bucket_width_scale = radius * widen
-        bucket_width = reference_width * bucket_width_scale
 
         def as_binsparse(array):
             return from_scipy(array) if issparse(array) else from_numpy(array)
 
         return DataInstance(
-            inputs=[
-                as_binsparse(x) for x in (data, query, projection, offsets, strides)
-            ],
+            inputs=[as_binsparse(x) for x in (data, query, projection)],
             meta={
                 **_lsh_meta(dataset),
-                "bucket_width": bucket_width,
-                "bucket_width_scale": bucket_width_scale,
                 "n_projections": n_projections,
                 "n_tables": n_tables,
                 "estimated_retrieval_probability": probability,
-                "calibration_radius": radius,
-                "calibration_queries": sample_query.shape[0],
-                "calibration_samples": sample_data.shape[0],
                 "projection_kind": self.projection_kind,
                 **(source_meta or {}),
             },
         )
 
 
-class _DenseProjectionMixin(JLApproxNNGeneratorMixin):
+class _DenseProjectionMixin(SimHashApproxNNGeneratorMixin):
     projection_kind = "dense"
     projection_description = (
-        "Projection coefficients are independent N(0, 1) variables. For a fixed "
-        "difference vector v, Var(r @ v) = ||v||_2^2 over random projections r, "
-        "so the reference bucket width of 4 (E2LSH manual Sec. 3.3.2, final "
-        "paragraph before Sec. 3.4, PDF page 12, printed page 11) applies "
-        "directly at reference radius R = 1."
+        "Projection coefficients are independent N(0, 1) variables, so each "
+        "hash hyperplane's normal is a uniformly random direction. For any "
+        "fixed pair of vectors u, v with angle theta between them, "
+        "P[sign(r @ u) == sign(r @ v)] = 1 - theta / pi over the random "
+        "direction r (Charikar 2002, Theorem 1), independent of u and v's "
+        "norms -- unlike E2LSH's Euclidean bucketing, no width calibration "
+        "against the data's scale is needed."
     )
 
     def projection(self, n_features: int, target_dim: int, seed: int):
         # Keep Gaussian hash directions independent of the synthetic data stream.
         rng = np.random.default_rng([seed, 1])
-        return from_numpy(rng.standard_normal((n_features, target_dim))), 4.0
+        return from_numpy(rng.standard_normal((n_features, target_dim)))
 
 
-class _SparseProjectionMixin(JLApproxNNGeneratorMixin):
+class _SparseProjectionMixin(SimHashApproxNNGeneratorMixin):
     projection_kind = "sparse"
     projection_description = (
         "Projection coefficients are r_i = z_i * g_i, with independent "
         "z_i ~ Bernoulli(a), g_i ~ N(0, 1), and a = 1/sqrt(d) for d features "
-        "(Hyvonen et al., Algorithm 1, lines 8-12; Sec. II-B). Since E[r_i] = 0 "
-        "and Var(r_i) = E[z_i^2] * E[g_i^2] = a, independence gives "
-        "Var(r @ v) = a * sum_i(v_i^2) = a * ||v||_2^2 for a fixed difference "
-        "vector v. Dense E2LSH projections have variance ||v||_2^2, so the "
-        "ratio of standard deviations is sqrt(a) = d**(-1/4). We scale its "
-        "width by this ratio: w = 4 * d**(-1/4), using reference radius "
-        "R = 1 and the E2LSH manual's Sec. 3.3.2 recommendation (PDF page 12, "
-        "printed page 11). This matches Var((r @ v) / w) between sparse and "
-        "dense projections. It is our derived scale adjustment, not a width "
-        "prescribed by the MRPT paper, which uses median splits. Matching "
-        "variance alone does not guarantee the same projection distribution or "
-        "collision probabilities."
+        "-- a standard database-friendly substitute for dense Gaussian "
+        "directions (Achlioptas 2003). Charikar's "
+        "P[sign(r @ u) == sign(r @ v)] = 1 - theta / pi is proven for "
+        "spherically symmetric r such as Gaussian; for this sparse, "
+        "non-spherical r it is only an empirical approximation, not a "
+        "proven guarantee."
     )
 
     @property
@@ -279,37 +250,28 @@ class _SparseProjectionMixin(JLApproxNNGeneratorMixin):
             *super().projection_references,
             Ref(
                 title=(
-                    "Fast Nearest Neighbor Search through "
-                    "Sparse Random Projections and Voting"
+                    "Database-Friendly Random Projections: "
+                    "Johnson-Lindenstrauss with Binary Coins"
                 ),
-                authors=[
-                    Author("Ville Hyvönen"),
-                    Author("Teemu Pitkänen"),
-                    Author("Sotiris Tasoulis"),
-                    Author("Elias Jääsaari"),
-                    Author("Risto Tuomainen"),
-                    Author("Liang Wang"),
-                    Author("Jukka Corander"),
-                    Author("Teemu Roos"),
-                ],
-                year=2016,
-                doi="10.1109/BigData.2016.7840682",
-                url="https://helda.helsinki.fi/server/api/core/bitstreams/7c057e23-8530-4848-afb1-919fba55c706/content",
+                authors=[Author("Dimitris Achlioptas")],
+                journal="Journal of Computer and System Sciences",
+                year=2003,
+                doi="10.1016/S0022-0000(03)00025-4",
             ),
         ]
 
     def projection(self, n_features: int, target_dim: int, seed: int):
-        return _rla_projection(n_features, target_dim, seed), 4.0 * n_features**-0.25
+        return _rla_projection(n_features, target_dim, seed)
 
 
-class _JLApproxNNRandomGeneratorMixin(JLApproxNNGeneratorMixin):
+class _SimHashApproxNNRandomGeneratorMixin(SimHashApproxNNGeneratorMixin):
     @property
     def name(self) -> str:
-        return f"jl_projection_inputs_{self.projection_kind}"
+        return f"simhash_projection_inputs_{self.projection_kind}"
 
     @property
     def pretty_name(self) -> str:
-        return f"JL Projection Input Generator ({self.projection_kind})"
+        return f"SimHash Projection Input Generator ({self.projection_kind})"
 
     @property
     def description(self) -> str:
@@ -371,25 +333,28 @@ class _JLApproxNNRandomGeneratorMixin(JLApproxNNGeneratorMixin):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "The benchmark algorithm was supplied by its human authors. Generative AI "
-            "assisted with debugging array dimensions, generator refactoring, "
+            "The benchmark algorithm was supplied by its human authors, who "
+            "directed switching it from E2LSH bucketing to SimHash. "
+            "Generative AI implemented the SimHash redesign and assisted "
+            "with debugging array dimensions, generator refactoring, "
             "parameter calibration, and tests."
         )
 
     @property
     def motivation(self) -> str:
         return (
-            "Sparse Johnson-Lindenstrauss projection is a fundamental primitive "
-            "in randomized numerical linear algebra, and is used in many "
-            "applications such as approximate nearest neighbor search."
+            "Random hyperplane hashing (SimHash) is a fundamental primitive "
+            "in locality-sensitive hashing and randomized numerical linear "
+            "algebra, used in many applications such as approximate nearest "
+            "neighbor search and near-duplicate detection."
         )
 
     @property
-    def datasets(self) -> list[JLApproxNNRandomDataset]:
+    def datasets(self) -> list[SimHashApproxNNRandomDataset]:
         return [
-            JLApproxNNRandomDataset(
+            SimHashApproxNNRandomDataset(
                 name="small",
-                pretty_name="Small JL ANN",
+                pretty_name="Small SimHash ANN",
                 description=(
                     "Small random dense data and query matrices with random projection."
                 ),
@@ -405,9 +370,9 @@ class _JLApproxNNRandomGeneratorMixin(JLApproxNNGeneratorMixin):
                 candidate_target=100,
                 target_probability=0.9,
             ),
-            JLApproxNNRandomDataset(
+            SimHashApproxNNRandomDataset(
                 name="medium",
-                pretty_name="Medium JL ANN",
+                pretty_name="Medium SimHash ANN",
                 description=(
                     "Medium random dense data and query matrices with random"
                     " projection."
@@ -424,9 +389,9 @@ class _JLApproxNNRandomGeneratorMixin(JLApproxNNGeneratorMixin):
                 candidate_target=100,
                 target_probability=0.9,
             ),
-            JLApproxNNRandomDataset(
+            SimHashApproxNNRandomDataset(
                 name="large",
-                pretty_name="Large JL ANN",
+                pretty_name="Large SimHash ANN",
                 description=(
                     "Large random dense data and query matrices with random projection."
                 ),
@@ -444,26 +409,26 @@ class _JLApproxNNRandomGeneratorMixin(JLApproxNNGeneratorMixin):
             ),
         ]
 
-    def generate(self, dataset: JLApproxNNRandomDataset):
+    def generate(self, dataset: SimHashApproxNNRandomDataset):
         rng = np.random.default_rng(dataset.seed)
         data = rng.standard_normal((dataset.n_samples, dataset.n_features))
         query = rng.standard_normal((dataset.n_queries, dataset.n_features))
         return self._instance(dataset, data, query)
 
 
-class _JLApproxNNTestGeneratorMixin(_JLApproxNNRandomGeneratorMixin):
+class _SimHashApproxNNTestGeneratorMixin(_SimHashApproxNNRandomGeneratorMixin):
     @property
     def name(self) -> str:
-        return f"jl_projection_test_inputs_{self.projection_kind}"
+        return f"simhash_projection_test_inputs_{self.projection_kind}"
 
     @property
     def pretty_name(self) -> str:
-        return f"JL Projection Test Input Generator ({self.projection_kind})"
+        return f"SimHash Projection Test Input Generator ({self.projection_kind})"
 
     @property
     def description(self) -> str:
         return (
-            "Small JL approximate nearest-neighbor example. "
+            "Small SimHash approximate nearest-neighbor example. "
             f"{self.projection_description} {self.tuning_description}"
         )
 
@@ -477,18 +442,18 @@ class _JLApproxNNTestGeneratorMixin(_JLApproxNNRandomGeneratorMixin):
 
     @property
     def motivation(self) -> str:
-        return "Provide a small JL ANN example for benchmark correctness checks."
+        return "Provide a small SimHash ANN example for benchmark correctness checks."
 
     @property
     def cacheable(self) -> bool:
         return False
 
     @property
-    def datasets(self) -> list[JLApproxNNRandomDataset]:
+    def datasets(self) -> list[SimHashApproxNNRandomDataset]:
         return [
-            JLApproxNNRandomDataset(
-                name="test_jl_preserves_distance",
-                pretty_name="test JL ANN",
+            SimHashApproxNNRandomDataset(
+                name="test_simhash_preserves_similarity",
+                pretty_name="test SimHash ANN",
                 description=(
                     "Test dense data and query matrices with random projection."
                 ),
@@ -506,16 +471,16 @@ class _JLApproxNNTestGeneratorMixin(_JLApproxNNRandomGeneratorMixin):
             )
         ]
 
-    def generate(self, dataset: JLApproxNNRandomDataset):
+    def generate(self, dataset: SimHashApproxNNRandomDataset):
         problem = super().generate(dataset)
         return DataInstance(
             inputs=problem.inputs,
             meta=problem.meta,
-            ref_meta={"check": "jl_preserves_distance"},
+            ref_meta={"check": "simhash_preserves_cosine_similarity"},
         )
 
 
-class JLApproxNNDataset(Dataset):
+class SimHashApproxNNDataset(Dataset):
     def __init__(
         self,
         source_name: str,
@@ -544,11 +509,11 @@ class JLApproxNNDataset(Dataset):
 
     @property
     def pretty_name(self) -> str:
-        return f"JL ANN {self._source_name}"
+        return f"SimHash ANN {self._source_name}"
 
     @property
     def description(self) -> str:
-        return f"JL approximate nearest-neighbor on {self._source_name}."
+        return f"SimHash approximate nearest-neighbor on {self._source_name}."
 
     @property
     def suites(self) -> list[str]:
@@ -587,19 +552,19 @@ def _rla_projection(n_features: int, target_dim: int, seed: int):
     return from_scipy(projection)
 
 
-class _JLApproxNNOpenMLGeneratorMixin(JLApproxNNGeneratorMixin):
+class _SimHashApproxNNOpenMLGeneratorMixin(SimHashApproxNNGeneratorMixin):
     @property
     def name(self) -> str:
-        return f"jl_approx_nn_openml_{self.projection_kind}"
+        return f"simhash_approx_nn_openml_{self.projection_kind}"
 
     @property
     def pretty_name(self) -> str:
-        return f"JL ANN OpenML Generator ({self.projection_kind})"
+        return f"SimHash ANN OpenML Generator ({self.projection_kind})"
 
     @property
     def description(self) -> str:
         return (
-            "Loads OpenML image datasets for JL approximate nearest-neighbor. "
+            "Loads OpenML image datasets for SimHash approximate nearest-neighbor. "
             f"{self.projection_description} {self.tuning_description}"
         )
 
@@ -642,8 +607,10 @@ class _JLApproxNNOpenMLGeneratorMixin(JLApproxNNGeneratorMixin):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "The benchmark algorithm was supplied by its human authors. Generative AI "
-            "assisted with debugging array dimensions, generator refactoring, "
+            "The benchmark algorithm was supplied by its human authors, who "
+            "directed switching it from E2LSH bucketing to SimHash. "
+            "Generative AI implemented the SimHash redesign and assisted "
+            "with debugging array dimensions, generator refactoring, "
             "parameter calibration, and tests."
         )
 
@@ -659,9 +626,9 @@ class _JLApproxNNOpenMLGeneratorMixin(JLApproxNNGeneratorMixin):
         return False
 
     @property
-    def datasets(self) -> list[JLApproxNNDataset]:
+    def datasets(self) -> list[SimHashApproxNNDataset]:
         return [
-            JLApproxNNDataset(
+            SimHashApproxNNDataset(
                 dataset.name,
                 k=5,
                 eps=0.3,
@@ -675,7 +642,7 @@ class _JLApproxNNOpenMLGeneratorMixin(JLApproxNNGeneratorMixin):
             for dataset in OpenMLDatasetGenerator().datasets
         ]
 
-    def generate(self, dataset: JLApproxNNDataset) -> DataInstance:
+    def generate(self, dataset: SimHashApproxNNDataset) -> DataInstance:
         train, test, source_meta = fetch_openml_train_test_features(dataset.name)
 
         n_features = train.shape[1]
@@ -701,19 +668,19 @@ class _JLApproxNNOpenMLGeneratorMixin(JLApproxNNGeneratorMixin):
         )
 
 
-class _JLApproxNNNetflixGeneratorMixin(JLApproxNNGeneratorMixin):
+class _SimHashApproxNNNetflixGeneratorMixin(SimHashApproxNNGeneratorMixin):
     @property
     def name(self) -> str:
-        return f"jl_approx_nn_netflix_{self.projection_kind}"
+        return f"simhash_approx_nn_netflix_{self.projection_kind}"
 
     @property
     def pretty_name(self) -> str:
-        return f"JL ANN Netflix Generator ({self.projection_kind})"
+        return f"SimHash ANN Netflix Generator ({self.projection_kind})"
 
     @property
     def description(self) -> str:
         return (
-            "Loads Netflix Prize ratings for JL approximate nearest-neighbor. "
+            "Loads Netflix Prize ratings for SimHash approximate nearest-neighbor. "
             f"{self.projection_description} {self.tuning_description}"
         )
 
@@ -744,8 +711,10 @@ class _JLApproxNNNetflixGeneratorMixin(JLApproxNNGeneratorMixin):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "The benchmark algorithm was supplied by its human authors. Generative AI "
-            "assisted with debugging array dimensions, generator refactoring, "
+            "The benchmark algorithm was supplied by its human authors, who "
+            "directed switching it from E2LSH bucketing to SimHash. "
+            "Generative AI implemented the SimHash redesign and assisted "
+            "with debugging array dimensions, generator refactoring, "
             "parameter calibration, and tests."
         )
 
@@ -757,9 +726,9 @@ class _JLApproxNNNetflixGeneratorMixin(JLApproxNNGeneratorMixin):
         )
 
     @property
-    def datasets(self) -> list[JLApproxNNDataset]:
+    def datasets(self) -> list[SimHashApproxNNDataset]:
         return [
-            JLApproxNNDataset(
+            SimHashApproxNNDataset(
                 "netflix",
                 k=5,
                 eps=0.3,
@@ -776,7 +745,7 @@ class _JLApproxNNNetflixGeneratorMixin(JLApproxNNGeneratorMixin):
     def cacheable(self) -> bool:
         return False
 
-    def generate(self, dataset: JLApproxNNDataset) -> DataInstance:
+    def generate(self, dataset: SimHashApproxNNDataset) -> DataInstance:
         data, source_meta = fetch_netflixprize_matrix()
 
         return self._instance(
@@ -794,82 +763,85 @@ class _JLApproxNNNetflixGeneratorMixin(JLApproxNNGeneratorMixin):
         )
 
 
-class JLApproxNNDenseTestGenerator(
+class SimHashApproxNNDenseTestGenerator(
     _DenseProjectionMixin,
-    _JLApproxNNTestGeneratorMixin,
-    Generator[JLApproxNNRandomDataset],
+    _SimHashApproxNNTestGeneratorMixin,
+    Generator[SimHashApproxNNRandomDataset],
 ):
     pass
 
 
-class JLApproxNNSparseTestGenerator(
+class SimHashApproxNNSparseTestGenerator(
     _SparseProjectionMixin,
-    _JLApproxNNTestGeneratorMixin,
-    Generator[JLApproxNNRandomDataset],
+    _SimHashApproxNNTestGeneratorMixin,
+    Generator[SimHashApproxNNRandomDataset],
 ):
     pass
 
 
-class JLApproxNNDenseGenerator(
+class SimHashApproxNNDenseGenerator(
     _DenseProjectionMixin,
-    _JLApproxNNRandomGeneratorMixin,
-    Generator[JLApproxNNRandomDataset],
+    _SimHashApproxNNRandomGeneratorMixin,
+    Generator[SimHashApproxNNRandomDataset],
 ):
     pass
 
 
-class JLApproxNNSparseGenerator(
+class SimHashApproxNNSparseGenerator(
     _SparseProjectionMixin,
-    _JLApproxNNRandomGeneratorMixin,
-    Generator[JLApproxNNRandomDataset],
+    _SimHashApproxNNRandomGeneratorMixin,
+    Generator[SimHashApproxNNRandomDataset],
 ):
     pass
 
 
-class JLApproxNNDenseOpenMLGenerator(
-    _DenseProjectionMixin, _JLApproxNNOpenMLGeneratorMixin, Generator[JLApproxNNDataset]
-):
-    pass
-
-
-class JLApproxNNSparseOpenMLGenerator(
-    _SparseProjectionMixin,
-    _JLApproxNNOpenMLGeneratorMixin,
-    Generator[JLApproxNNDataset],
-):
-    pass
-
-
-class JLApproxNNDenseNetflixGenerator(
+class SimHashApproxNNDenseOpenMLGenerator(
     _DenseProjectionMixin,
-    _JLApproxNNNetflixGeneratorMixin,
-    Generator[JLApproxNNDataset],
+    _SimHashApproxNNOpenMLGeneratorMixin,
+    Generator[SimHashApproxNNDataset],
 ):
     pass
 
 
-class JLApproxNNSparseNetflixGenerator(
+class SimHashApproxNNSparseOpenMLGenerator(
     _SparseProjectionMixin,
-    _JLApproxNNNetflixGeneratorMixin,
-    Generator[JLApproxNNDataset],
+    _SimHashApproxNNOpenMLGeneratorMixin,
+    Generator[SimHashApproxNNDataset],
 ):
     pass
 
 
-class JLApproxNearestNeighbor(Benchmark):
+class SimHashApproxNNDenseNetflixGenerator(
+    _DenseProjectionMixin,
+    _SimHashApproxNNNetflixGeneratorMixin,
+    Generator[SimHashApproxNNDataset],
+):
+    pass
+
+
+class SimHashApproxNNSparseNetflixGenerator(
+    _SparseProjectionMixin,
+    _SimHashApproxNNNetflixGeneratorMixin,
+    Generator[SimHashApproxNNDataset],
+):
+    pass
+
+
+class SimHashApproxNearestNeighbor(Benchmark):
     @property
     def name(self):
-        return "jl_approx_nn"
+        return "simhash_approx_nn"
 
     @property
     def pretty_name(self):
-        return "Johnson-Lindenstrauss Approximate Nearest Neighbor"
+        return "SimHash Approximate Nearest Neighbor"
 
     @property
     def description(self):
         return (
-            "Searches progressively wider Euclidean buckets across LSH tables,"
-            " then ranks candidates by Euclidean distance in the original space."
+            "Searches progressively larger Hamming-radius buckets of SimHash"
+            " signatures across LSH tables, then ranks candidates by cosine"
+            " distance in the original space."
         )
 
     @property
@@ -932,6 +904,13 @@ Nearest neighbor algorithms</concept_desc>
     def references(self):
         return [
             Ref(
+                title="Similarity Estimation Techniques from Rounding Algorithms",
+                authors=[Author("Moses S. Charikar")],
+                year=2002,
+                doi="10.1145/509907.509965",
+                url="https://www.cs.princeton.edu/courses/archive/spring04/cos598B/bib/CharikarEstim.pdf",
+            ),
+            Ref(
                 title="LSH Forest: Self-Tuning Indexes for Similarity Search",
                 authors=[
                     Author("Mayank Bawa"),
@@ -990,8 +969,12 @@ Nearest neighbor algorithms</concept_desc>
     @property
     def ai_disclosure(self):
         return (
-            "The benchmark algorithm was supplied by its human authors. Generative AI "
-            "assisted with debugging array dimensions, generator refactoring, "
+            "The benchmark algorithm was supplied by its human authors, who "
+            "directed switching it from E2LSH bucketing to SimHash -- "
+            "encoding hyperplane signs as +/-1 so LSH agreement is a matmul "
+            "contraction rather than a broadcast equality compare. "
+            "Generative AI implemented the SimHash redesign and assisted "
+            "with debugging array dimensions, generator refactoring, "
             "parameter calibration, and tests."
         )
 
@@ -999,41 +982,36 @@ Nearest neighbor algorithms</concept_desc>
     def motivation(self):
         return (
             "The purpose of this is to create python tests that are for RLA methods. "
-            "Specifically, I will first show the application of the JL Lemma for NN. "
-            "My goal is to write benchmarks on applications of RNLA, for graph "
-            "algorithms, PDEs, and Scientific Machine Learning"
+            "Specifically, I will first show the application of random hyperplane "
+            "hashing (SimHash) for NN. My goal is to write benchmarks on "
+            "applications of RNLA, for graph algorithms, PDEs, and Scientific "
+            "Machine Learning"
         )
 
     @property
     def generators(self):
         return [
-            JLApproxNNDenseTestGenerator(),
-            JLApproxNNSparseTestGenerator(),
-            JLApproxNNDenseGenerator(),
-            JLApproxNNSparseGenerator(),
-            JLApproxNNDenseOpenMLGenerator(),
-            JLApproxNNSparseOpenMLGenerator(),
-            JLApproxNNDenseNetflixGenerator(),
-            JLApproxNNSparseNetflixGenerator(),
+            SimHashApproxNNDenseTestGenerator(),
+            SimHashApproxNNSparseTestGenerator(),
+            SimHashApproxNNDenseGenerator(),
+            SimHashApproxNNSparseGenerator(),
+            SimHashApproxNNDenseOpenMLGenerator(),
+            SimHashApproxNNSparseOpenMLGenerator(),
+            SimHashApproxNNDenseNetflixGenerator(),
+            SimHashApproxNNSparseNetflixGenerator(),
         ]
 
     def benchmark(self, xp, data, meta):
-        data, query, P, offsets, strides = data
+        data, query, P = data
         k = meta["k"]
-        width = meta["bucket_width"]
-        hash_bits = _HASH_BITS
         n_projections = meta["n_projections"]
         n_tables = meta["n_tables"]
         n_samples, n_features = data.shape
         n_queries = query.shape[0]
         if not 1 <= k <= n_samples:
             raise ValueError("k must be between 1 and the number of data points")
-        if not 1 <= hash_bits <= 31 or n_tables < 1 or n_projections < 1:
-            raise ValueError(
-                "Use 1 to 31 hash bits and positive table/projection counts"
-            )
-        if not np.isfinite(width) or width <= 0:
-            raise ValueError("bucket_width must be finite and positive")
+        if n_tables < 1 or n_projections < 1:
+            raise ValueError("n_tables and n_projections must be positive")
         if query.shape[1] != n_features or P.shape != (
             n_features,
             n_tables * n_projections,
@@ -1046,7 +1024,7 @@ Nearest neighbor algorithms</concept_desc>
         logging.info(
             f"Data shape: {data.shape}, Query shape: {query.shape}, "
             f"Projection shape: {P.shape}, Tables: {n_tables}, "
-            f"Projections per table: {n_projections}, Bits: {hash_bits}"
+            f"Projections per table: {n_projections}"
         )
 
         projected_data = xp.reshape(
@@ -1056,70 +1034,74 @@ Nearest neighbor algorithms</concept_desc>
             xp.matmul(query, P), (n_queries, n_tables, n_projections)
         )
 
+        # SimHash bits as +/-1 (not 0/1): a sum of matching-vs-differing
+        # signs is a matmul contraction, not a broadcast equality compare.
+        # Computed via xp.matmul below rather than the generic einsum DSL:
+        # the DSL's reduction broadcasts every operand out to the full
+        # (q, n, n_tables, n_projections) shape before reducing, which is
+        # intractable at realistic sizes, and numpy-style sum reductions
+        # silently upcast int8 to int64 even when they don't. matmul does
+        # neither -- every backend lowers it to an actual contraction and
+        # preserves the input dtype.
+        # Sign never fixes at 0 (unlike the projection matmul above, which
+        # is linear), so a sparse backend can't represent it with a zero
+        # fill value -- and its own matmul requires one. table_data/query
+        # are only (n or q) x n_tables x n_projections though, tiny next to
+        # the (q, n) results below, so densifying them here is free.
+        table_data = xp.from_binsparse(
+            xp.to_binsparse(xp.astype(xp.where(projected_data >= 0, 1, -1), xp.int8))
+        )
+        table_query = xp.from_binsparse(
+            xp.to_binsparse(xp.astype(xp.where(projected_query >= 0, 1, -1), xp.int8))
+        )
+
         candidates = xp.zeros((n_queries, n_samples), dtype=xp.bool)
-        n_codes = 2**hash_bits
-        modulus = xp.asarray(n_codes, dtype=xp.int64)
-        # Widen bins from the projection's width, freezing queries at the target.
-        # Positive fractional offsets eventually put all finite projections in 0.
+        # Each round requires EXACT agreement on a fixed-length prefix of
+        # the n_projections signs -- not a Hamming-radius count -- and
+        # shortens that prefix by one sign a round, starting from the full
+        # n_projections (the finest, smallest-candidate-set partition).
+        # A sum of m terms, each +/-1, can only equal m if every one of
+        # them agrees, so checking the prefix sum against its own maximum
+        # is exactly an exact-match test. required_projections == 0
+        # accepts everyone, so this always terminates.
+        required_projections = n_projections
         while True:
             active = xp.sum(candidates, axis=1) < candidate_target
             if not xp.any(active):
                 break
-            table_data = xp.astype(
-                xp.floor(projected_data / width + offsets) % n_codes, xp.int64
-            )
-            table_query = xp.astype(
-                xp.floor(projected_query / width + offsets) % n_codes, xp.int64
-            )
-            # Mix the signed bins into one uint32 code. Reduce each product
-            # before summing to avoid overflowing int64 at 31 bits.
-            # Codes live in [1, n_codes] (not [0, n_codes)) so that 0 is free
-            # to mean "no query": zeroing an already-satisfied query's row
-            # below then can't spuriously collide with any real data code.
-            table_data = xp.astype(
-                xp.einsum(
-                    "H[n,t] += (B[n,t,h] * S[h]) % M[]",
-                    B=table_data,
-                    S=strides,
-                    M=modulus,
+            if required_projections <= 0:
+                candidates = candidates | active[:, None]
+            else:
+                m = required_projections
+                # Batched matmul over the table axis, on just the first m
+                # signs -- (t,q,m) @ (t,m,n) -> (t,q,n), moved to (q,n,t).
+                # One tensor contraction; n_tables is never iterated over
+                # in Python, just carried as a batch axis the backend's
+                # own matmul handles.
+                prefix_agreement = xp.permute_dims(
+                    xp.matmul(
+                        xp.permute_dims(table_query[:, :, :m], (1, 0, 2)),
+                        xp.permute_dims(table_data[:, :, :m], (1, 2, 0)),
+                    ),
+                    (1, 2, 0),
                 )
-                % n_codes
-                + 1,
-                xp.uint32,
-            )
-            table_query = xp.astype(
-                xp.einsum(
-                    "H[q,t] += (B[q,t,h] * S[h]) % M[]",
-                    B=table_query,
-                    S=strides,
-                    M=modulus,
-                )
-                % n_codes
-                + 1,
-                xp.uint32,
-            )
-            # Zero out already-satisfied queries so they carry no explicit
-            # entries into the comparison below, instead of comparing
-            # everyone and masking after.
-            table_query = table_query * xp.astype(active, table_query.dtype)[:, None]
-            # A query and a sample collide iff their mixed codes match in any
-            # table; no need to build a one-hot code axis for it.
-            matches = xp.einsum(
-                "M[q,n] or= (Q[q,t] == D[n,t])", Q=table_query, D=table_data
-            )
-            candidates = candidates | matches
-            width *= 2
+                # OR across tables via a reduction over the trailing axis,
+                # not a Python loop over n_tables.
+                matches = xp.any(prefix_agreement == m, axis=-1)
+                candidates = candidates | (matches & active[:, None])
+            required_projections -= 1
 
-        # Materialize the query/sample candidate mask before introducing the
-        # feature axis. Mask each operand before subtracting so sparse backends
-        # can retain zeros for non-candidates throughout the distance calculation.
-        diff = xp.einsum(
-            "X[q,n,f] = C[q,n] * Q[q,f] - C[q,n] * D[n,f]",
-            C=candidates,
-            Q=query,
-            D=data,
-        )
-        distances = xp.sqrt(xp.sum(diff**2, axis=-1))
+        # Rank candidates by cosine distance, what SimHash actually targets.
+        # A full (q, n) matmul over every pair, same reasoning as agreement
+        # above: no feature axis survives into the output, so there's no
+        # broadcast to avoid by masking before the contraction.
+        dot = xp.matmul(query, xp.permute_dims(data, (1, 0)))
+        query_norm = xp.sqrt(xp.sum(query**2, axis=-1))
+        data_norm = xp.sqrt(xp.sum(data**2, axis=-1))
+        # Guard zero-norm rows so they compare as maximally dissimilar
+        # instead of nan.
+        denom = xp.maximum(query_norm[:, None] * data_norm[None, :], 1e-10)
+        distances = 1 - dot / denom
         # Masked zeros are not zero-distance neighbors.
         distances = xp.where(candidates, distances, xp.inf)
 
@@ -1136,12 +1118,13 @@ Nearest neighbor algorithms</concept_desc>
         if not self._ref_meta:
             return
 
+        from scipy.spatial.distance import cdist
+
         data = to_numpy(self._input[0])
         query = to_numpy(self._input[1])
         nearest_ind = to_numpy(self._output[0])
 
-        diff = np.expand_dims(query, axis=1) - np.expand_dims(data, axis=0)
-        orig_distances = np.sqrt(np.sum(diff**2, axis=-1))
+        orig_distances = cdist(query, data, metric="cosine")
 
         true_nearest = np.min(orig_distances, axis=1)
         approx_nearest = orig_distances[

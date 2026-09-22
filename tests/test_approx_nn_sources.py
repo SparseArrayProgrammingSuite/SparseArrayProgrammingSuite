@@ -65,10 +65,8 @@ def test_simhash_approx_nn_openml_generator_uses_cached_task_split(
         4,
         instance.meta["n_projections"] * instance.meta["n_tables"],
     )
-    assert 1 <= instance.meta["n_tables"] <= dataset.max_tables
-    assert (
-        instance.meta["estimated_retrieval_probability"] >= dataset.target_probability
-    )
+    assert instance.meta["n_tables"] == dataset.max_tables
+    assert 0 <= instance.meta["estimated_retrieval_probability"] <= 1
     assert instance.meta["num_train"] == 9
     assert instance.meta["num_query"] == 3
     assert instance.meta["num_features"] == 4
@@ -113,10 +111,8 @@ def test_simhash_approx_nn_netflix_generator_uses_shared_shell(
         5,
         instance.meta["n_projections"] * instance.meta["n_tables"],
     )
-    assert 1 <= instance.meta["n_tables"] <= dataset.max_tables
-    assert (
-        instance.meta["estimated_retrieval_probability"] >= dataset.target_probability
-    )
+    assert instance.meta["n_tables"] == dataset.max_tables
+    assert 0 <= instance.meta["estimated_retrieval_probability"] <= 1
     assert instance.meta["num_train"] == 6
     assert instance.meta["num_query"] == 6
     assert instance.meta["source_num_ratings"] == source.nnz
@@ -190,9 +186,9 @@ def test_simhash_projection_variants_share_random_inputs_and_are_reproducible():
     )
     assert dense.meta == {**sparse.meta, "projection_kind": "dense"}
     assert sparse.meta["projection_kind"] == "sparse"
-    assert 1 <= dense.meta["n_tables"] <= 7
+    assert dense.meta["n_tables"] == 7
     assert 1 <= dense.meta["n_projections"] <= 9
-    assert dense.meta["estimated_retrieval_probability"] >= dataset.target_probability
+    assert 0 <= dense.meta["estimated_retrieval_probability"] <= 1
     assert dense.meta["candidate_target"] == 4
 
 

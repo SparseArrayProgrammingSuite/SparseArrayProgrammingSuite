@@ -8,16 +8,15 @@ from saps.benchmarks.approx_nn import (
     SimHashApproxNNDenseGenerator,
     SimHashApproxNNRandomDataset,
     _collision_probability,
-    _tables_needed,
     _tune_lsh,
 )
 
 
 class _Dataset:
-    def __init__(self, max_tables, max_projections, target_probability):
+    def __init__(self, max_tables, max_projections, candidate_target):
         self.max_tables = max_tables
         self.max_projections = max_projections
-        self.target_probability = target_probability
+        self.candidate_target = candidate_target
 
 
 @pytest.mark.parametrize("cosine_similarity", [-1.0, -0.5, 0.0, 0.5, 1.0])
@@ -37,60 +36,62 @@ def test_collision_probability_limits_and_monotonicity():
     assert all(a <= b for a, b in zip(probabilities, probabilities[1:], strict=False))
 
 
-def test_tables_needed_is_the_minimum_that_reaches_target():
-    for hit_probability, target in [(0.3, 0.9), (0.05, 0.99), (0.8, 0.999)]:
-        tables = _tables_needed(hit_probability, target)
-        assert 1 - (1 - hit_probability) ** tables >= target
-        assert tables == 1 or 1 - (1 - hit_probability) ** (tables - 1) < target
+def test_tune_lsh_always_spends_the_full_table_budget():
+    for max_tables in (1, 7, 64):
+        dataset = _Dataset(max_tables=max_tables, max_projections=9, candidate_target=4)
+        _, n_tables, _ = _tune_lsh(dataset, n_features=12, n_samples=9)
+        assert n_tables == max_tables
 
 
-def test_tables_needed_certain_hit_uses_one_table():
-    assert _tables_needed(1.0, 0.999) == 1
+def test_tune_lsh_bounds_expected_accidental_matches_by_candidate_target():
+    dataset = _Dataset(max_tables=7, max_projections=16, candidate_target=100)
+    n_samples = 63000
+    n_projections, n_tables, _ = _tune_lsh(dataset, n_features=784, n_samples=n_samples)
+    expected_at_n = n_samples * n_tables * 0.5**n_projections
+    expected_at_n_minus_1 = n_samples * n_tables * 0.5 ** (n_projections - 1)
+    # n_projections is the fewest signs that bring the expected number of
+    # accidental (unrelated-point) matches down to candidate_target.
+    assert expected_at_n <= dataset.candidate_target
+    assert expected_at_n_minus_1 > dataset.candidate_target
 
 
-def test_tune_lsh_meets_target_with_the_fewest_total_hashes():
-    dataset = _Dataset(max_tables=9, max_projections=6, target_probability=0.9)
-    n_projections, n_tables, probability = _tune_lsh(dataset, n_features=64)
-    assert probability >= dataset.target_probability
-    assert 1 <= n_tables <= dataset.max_tables
-    assert 1 <= n_projections <= dataset.max_projections
-    if n_projections > 1:
-        cheaper = _tune_lsh(
-            _Dataset(
-                max_tables=dataset.max_tables,
-                max_projections=n_projections - 1,
-                target_probability=dataset.target_probability,
-            ),
-            n_features=64,
-        )
-        assert cheaper[2] < dataset.target_probability or (
-            cheaper[0] * cheaper[1] >= n_projections * n_tables
-        )
+def test_tune_lsh_clamps_to_max_projections_when_target_is_very_tight():
+    dataset = _Dataset(max_tables=64, max_projections=16, candidate_target=1)
+    n_projections, n_tables, _ = _tune_lsh(dataset, n_features=784, n_samples=10**9)
+    assert n_projections == dataset.max_projections
+    assert n_tables == dataset.max_tables
 
 
-def test_tune_lsh_falls_back_to_the_best_effort_when_target_is_unreachable():
-    dataset = _Dataset(max_tables=1, max_projections=1, target_probability=0.999999)
-    n_projections, n_tables, probability = _tune_lsh(dataset, n_features=10000)
+def test_tune_lsh_clamps_to_at_least_one_projection():
+    dataset = _Dataset(max_tables=4, max_projections=16, candidate_target=10**9)
+    n_projections, n_tables, _ = _tune_lsh(dataset, n_features=784, n_samples=10)
     assert n_projections == 1
-    assert n_tables == 1
-    # A single table and projection can't reach 0.999999 for a near-orthogonal
-    # reference similarity; _tune_lsh should still return its best option
-    # rather than looping or raising.
-    assert 0 < probability < dataset.target_probability
+    assert n_tables == dataset.max_tables
 
 
-def test_tune_lsh_is_deterministic_and_depends_only_on_dataset_and_n_features():
-    dataset = _Dataset(max_tables=9, max_projections=6, target_probability=0.9)
-    assert _tune_lsh(dataset, n_features=64) == _tune_lsh(dataset, n_features=64)
+def test_tune_lsh_uses_max_projections_for_a_zero_candidate_target():
+    dataset = _Dataset(max_tables=4, max_projections=9, candidate_target=0)
+    n_projections, n_tables, _ = _tune_lsh(dataset, n_features=12, n_samples=9)
+    assert n_projections == dataset.max_projections
+    assert n_tables == dataset.max_tables
 
 
-def test_tune_lsh_needs_more_hashes_as_features_grow():
-    # More features means a weaker reference similarity (1/sqrt(n_features)),
-    # so tuning should never get cheaper as n_features grows.
-    dataset = _Dataset(max_tables=64, max_projections=16, target_probability=0.9)
-    small = _tune_lsh(dataset, n_features=4)
-    large = _tune_lsh(dataset, n_features=4096)
-    assert small[0] * small[1] <= large[0] * large[1]
+def test_tune_lsh_is_deterministic_and_depends_only_on_dataset_shape():
+    dataset = _Dataset(max_tables=7, max_projections=9, candidate_target=4)
+    assert _tune_lsh(dataset, n_features=12, n_samples=9) == _tune_lsh(
+        dataset, n_features=12, n_samples=9
+    )
+
+
+def test_tune_lsh_reports_the_reference_similarity_probability_estimate():
+    dataset = _Dataset(max_tables=7, max_projections=9, candidate_target=4)
+    n_projections, n_tables, probability = _tune_lsh(
+        dataset, n_features=12, n_samples=9
+    )
+    reference_similarity = 1.0 / math.sqrt(12)
+    p = _collision_probability(reference_similarity)
+    expected_probability = 1 - (1 - p**n_projections) ** n_tables
+    assert probability == pytest.approx(expected_probability)
 
 
 def test_generate_tuning_depends_only_on_shape_not_data_values():
@@ -117,12 +118,8 @@ def test_generate_tuning_depends_only_on_shape_not_data_values():
         dataset, rng.standard_normal((9, 12)), rng.standard_normal((3, 12))
     )
     assert zeros.meta["n_projections"] == random_data.meta["n_projections"]
-    assert zeros.meta["n_tables"] == random_data.meta["n_tables"]
+    assert zeros.meta["n_tables"] == random_data.meta["n_tables"] == dataset.max_tables
     assert (
         zeros.meta["estimated_retrieval_probability"]
         == random_data.meta["estimated_retrieval_probability"]
-    )
-    assert (
-        zeros.meta["estimated_retrieval_probability"] >= dataset.target_probability
-        or zeros.meta["n_tables"] == dataset.max_tables
     )
