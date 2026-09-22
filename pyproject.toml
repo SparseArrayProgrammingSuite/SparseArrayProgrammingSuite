@@ -61,6 +61,13 @@ types-requests = "==2.33.0.20260712"
 onnx = "^1.22.0"
 onnxpy = {git = "https://github.com/SparseArrayProgrammingSuite/ONNXPY.git"}
 
+# CuPy 14.2 adds the cupyx sparse array API used by this framework.
+[tool.poetry.group.gpu]
+optional = true
+
+[tool.poetry.group.gpu.dependencies]
+cupy-cuda13x = ">=14.2.0"
+
 [build-system]
 requires = ["poetry-core>=1.0.8"]
 build-backend = "poetry.core.masonry.api"
