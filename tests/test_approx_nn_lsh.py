@@ -33,7 +33,11 @@ def run_lsh(request):
     framework, sparse_inputs = request.param
     xp = framework()
 
-    def run(data, query, projection, *, eps=1.0, offsets=None, strides=None, **meta):
+    def run(
+        data, query, projection, *, bucket_width=1.0, offsets=None, strides=None, **meta
+    ):
+        n_projections = np.asarray(projection).shape[1] // meta["n_tables"]
+        meta["n_projections"] = n_projections
         arrays = []
         for array in (data, query, projection):
             array = np.asarray(array, dtype=np.float64)
@@ -44,11 +48,11 @@ def run_lsh(request):
             )
             arrays.append(xp.from_binsparse(tensor))
         if offsets is None:
-            offsets = np.full((meta["n_tables"], meta["hash_bits"]), 0.5)
+            offsets = np.full((meta["n_tables"], n_projections), 0.5)
         if strides is None:
-            strides = np.arange(1, meta["hash_bits"] + 1, dtype=np.int64)
+            strides = np.arange(1, n_projections + 1, dtype=np.int64)
         arrays.extend(xp.from_binsparse(from_numpy(x)) for x in (offsets, strides))
-        meta["eps"] = eps
+        meta["bucket_width"] = bucket_width
         outputs = JLApproxNearestNeighbor().benchmark(xp, arrays, meta)
         return [
             NumpyFramework().from_binsparse(xp.to_binsparse(output))
@@ -66,7 +70,7 @@ def test_lsh_exhaustive_candidates_match_euclidean_knn(run_lsh):
     data[np.abs(data) < 0.5] = 0
     query[np.abs(query) < 0.5] = 0
     indices, distances = run_lsh(
-        data, query, projection, k=3, hash_bits=3, n_tables=2, candidate_target=9
+        data, query, projection, k=3, hash_bits=2, n_tables=2, candidate_target=9
     )
     expected_distances = np.linalg.norm(query[:, None, :] - data[None, :, :], axis=2)
     expected_indices = np.argsort(expected_distances, axis=1)[:, :3]
@@ -77,11 +81,11 @@ def test_lsh_exhaustive_candidates_match_euclidean_knn(run_lsh):
 
 
 @pytest.mark.parametrize(
-    "eps,expected_indices,expected_distances",
+    "bucket_width,expected_indices,expected_distances",
     [(1.0, [[0], [2]], [0.98, 1.0]), (2.0, [[1], [2]], [0.02, 1.0])],
 )
 def test_lsh_queries_stop_independently_and_exclude_non_candidates(
-    run_lsh, eps, expected_indices, expected_distances
+    run_lsh, bucket_width, expected_indices, expected_distances
 ):
     # Query 0 stops in bin 0. Query 1 needs width 2; query 0 must not then
     # acquire its closer point across the original negative bin boundary.
@@ -92,7 +96,7 @@ def test_lsh_queries_stop_independently_and_exclude_non_candidates(
         query,
         [[1, 0, 0, 0]],
         k=1,
-        eps=eps,
+        bucket_width=bucket_width,
         hash_bits=4,
         n_tables=1,
         candidate_target=1,
@@ -129,7 +133,7 @@ def test_lsh_31_bit_codes_widen_bins_to_at_least_k_candidates(run_lsh):
     indices, distances = run_lsh(
         [[-2, 0], [-1, 0], [-3, 1]],
         [[1, 0]],
-        np.vstack([np.ones(62), np.zeros(62)]),
+        np.vstack([np.ones(6), np.zeros(6)]),
         k=2,
         hash_bits=31,
         n_tables=2,

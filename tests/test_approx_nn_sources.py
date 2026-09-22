@@ -60,9 +60,15 @@ def test_jl_approx_nn_openml_generator_uses_cached_task_split(
     assert not generator.cacheable
     np.testing.assert_array_equal(to_numpy(instance.inputs[0]), features[train])
     np.testing.assert_array_equal(to_numpy(instance.inputs[1]), features[query])
-    assert instance.inputs[2].shape == (4, 3100)
+    assert instance.inputs[2].shape == (
+        4,
+        instance.meta["n_projections"] * instance.meta["n_tables"],
+    )
     assert instance.meta["hash_bits"] == 31
-    assert instance.meta["n_tables"] == 100
+    assert 1 <= instance.meta["n_tables"] <= dataset.max_tables
+    assert (
+        instance.meta["estimated_retrieval_probability"] >= dataset.target_probability
+    )
     assert instance.meta["num_train"] == 9
     assert instance.meta["num_query"] == 3
     assert instance.meta["num_features"] == 4
@@ -100,9 +106,15 @@ def test_jl_approx_nn_netflix_generator_uses_shared_shell(monkeypatch, generator
     assert dataset.suites == ["standard"]
     assert to_scipy(instance.inputs[0]).shape == (6, 5)
     assert to_scipy(instance.inputs[1]).shape == (6, 5)
-    assert instance.inputs[2].shape == (5, 3100)
+    assert instance.inputs[2].shape == (
+        5,
+        instance.meta["n_projections"] * instance.meta["n_tables"],
+    )
     assert instance.meta["hash_bits"] == 31
-    assert instance.meta["n_tables"] == 100
+    assert 1 <= instance.meta["n_tables"] <= dataset.max_tables
+    assert (
+        instance.meta["estimated_retrieval_probability"] >= dataset.target_probability
+    )
     assert instance.meta["num_train"] == 6
     assert instance.meta["num_query"] == 6
     assert instance.meta["source_num_ratings"] == source.nnz
@@ -143,8 +155,10 @@ def test_jl_projection_variants_share_random_inputs_and_are_reproducible():
         0.1,
         42,
         hash_bits=5,
-        n_tables=7,
+        max_tables=7,
+        max_projections=9,
         candidate_target=4,
+        target_probability=0.9,
     )
     dense_generator = JLApproxNNDenseGenerator()
     sparse_generator = JLApproxNNSparseGenerator()
@@ -156,7 +170,14 @@ def test_jl_projection_variants_share_random_inputs_and_are_reproducible():
         )
     dense_projection = to_numpy(dense.inputs[2])
     sparse_projection = to_scipy(sparse.inputs[2])
-    assert dense_projection.shape == sparse_projection.shape == (12, 35)
+    assert (
+        dense_projection.shape
+        == sparse_projection.shape
+        == (
+            12,
+            dense.meta["n_projections"] * dense.meta["n_tables"],
+        )
+    )
     assert np.count_nonzero(dense_projection) == dense_projection.size
     assert 0 < sparse_projection.nnz < dense_projection.size
     np.testing.assert_array_equal(
@@ -166,10 +187,19 @@ def test_jl_projection_variants_share_random_inputs_and_are_reproducible():
         sparse_projection.toarray(),
         to_scipy(sparse_generator.generate(dataset).inputs[2]).toarray(),
     )
-    assert dense.meta == {**sparse.meta, "projection_kind": "dense"}
+    assert dense.meta == {
+        **sparse.meta,
+        "projection_kind": "dense",
+        "bucket_width": 4.0 * dense.meta["bucket_width_scale"],
+    }
+    assert sparse.meta["bucket_width"] == pytest.approx(
+        dense.meta["bucket_width"] * 12**-0.25
+    )
     assert sparse.meta["projection_kind"] == "sparse"
     assert dense.meta["hash_bits"] == 5
-    assert dense.meta["n_tables"] == 7
+    assert 1 <= dense.meta["n_tables"] <= 7
+    assert 1 <= dense.meta["n_projections"] <= 9
+    assert dense.meta["estimated_retrieval_probability"] >= dataset.target_probability
     assert dense.meta["candidate_target"] == 4
     for i in (3, 4):
         np.testing.assert_array_equal(
@@ -182,7 +212,9 @@ def test_jl_projection_variants_share_random_inputs_and_are_reproducible():
 
 
 def test_sparse_projection_has_paper_density_and_standard_gaussian_values():
-    projection = to_scipy(JLApproxNNSparseGenerator().projection(512, 256, 42))
+    projection, bucket_width = JLApproxNNSparseGenerator().projection(512, 256, 42)
+    projection = to_scipy(projection)
+    assert bucket_width == pytest.approx(4.0 * 512**-0.25)
     assert projection.nnz / (512 * 256) == pytest.approx(1 / np.sqrt(512), abs=0.003)
     assert abs(projection.data.mean()) < 0.1
     assert projection.data.std() == pytest.approx(1, abs=0.1)
