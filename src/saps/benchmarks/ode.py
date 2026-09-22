@@ -35,28 +35,28 @@ def _step_input(t):
     return 5.0 if t >= 0 else 0.0
 
 
-def _rc_derivatives(t, state, R, C, source_voltage):
+def _rc_derivatives(xp, t, state, R, C, source_voltage):
     """RC circuit derivatives."""
     tau = R * C
     Vs = source_voltage(t)
-    return [(Vs - state[0]) / tau]
+    return xp.stack([(Vs - state[0]) / tau])
 
 
-def _rlc_derivatives(t, state, R, L, C, source_voltage):
+def _rlc_derivatives(xp, t, state, R, L, C, source_voltage):
     """RLC circuit derivatives."""
     Vc = state[0]
     dVc = state[1]
     Vs = source_voltage(t)
     d2Vc = (Vs - Vc - R * C * dVc) / (L * C)
-    return (dVc, d2Vc)
+    return xp.stack((dVc, d2Vc))
 
 
-def _lotka_volterra_derivatives(t, state, a, b, c, d):
+def _lotka_volterra_derivatives(xp, t, state, a, b, c, d):
     """Lotka-Volterra derivatives."""
     x, y = state
     dxdt = a * x - b * x * y
     dydt = d * x * y - c * y
-    return (dxdt, dydt)
+    return xp.stack((dxdt, dydt))
 
 
 def _limit(a, N):
@@ -104,33 +104,43 @@ def _construct_brusselator_matrix(n, alpha, b):
     return C
 
 
-def _brusselator_derivatives(t, u_vec, n, a, alpha, C, brusselator_cb):
+def _brusselator_derivatives(xp, t, u_vec, n, a, alpha, C, brusselator_cb):
     """Brusselator derivatives with diffusion on 2D grid."""
-    u_arr = np.array(u_vec, dtype=float)
+    # Build the state in the caller's namespace: C is a framework array, and on
+    # an accelerator framework it cannot be combined with a host NumPy array.
+    u_arr = xp.asarray(u_vec, dtype=xp.float64)
 
     lin = C @ u_arr
     lin[0::2] += a
 
     if t >= 1.1:
-        lin += np.array(brusselator_cb)
+        lin += brusselator_cb
 
     u_vals = u_arr[0::2]
     v_vals = u_arr[1::2]
     uv2 = u_vals**2 * v_vals
 
-    non_lin = np.zeros(len(u_vec), dtype=float)
+    non_lin = xp.zeros(len(u_vec), dtype=xp.float64)
     non_lin[0::2] = uv2
     non_lin[1::2] = -uv2
 
-    return (lin + non_lin).tolist()
+    return lin + non_lin
 
 
-def _linear_system_derivatives(t, state, A, B, input_value):
+def _linear_system_derivatives(xp, t, state, A, B, input_value):
     """Linear state-space derivatives for dx/dt = A x + B u."""
-    state_array = np.asarray(state)
-    input_dtype = np.result_type(B.dtype, type(input_value), float)
-    input_array = np.full(B.shape[1], input_value, dtype=input_dtype)
-    return (A @ state_array + B @ input_array).tolist()
+    state_array = xp.asarray(state)
+    input_dtype = xp.result_type(B.dtype, xp.float64)
+    input_array = xp.full((B.shape[1],), input_value, dtype=input_dtype)
+    return A @ state_array + B @ input_array
+
+
+def _initial_state(xp, y0, data):
+    dtype = xp.result_type(
+        xp.float64,
+        *(getattr(array, "dtype", xp.float64) for array in data),
+    )
+    return xp.asarray(y0, dtype=dtype)
 
 
 # ---------------------------------------------------------------------------
@@ -839,7 +849,7 @@ class _OdeBenchmarkBase(Benchmark, ABC):
         return [_dense_binsparse_array(item) for item in self._input]
 
     @abstractmethod
-    def _dydt(self, t, y, data, meta):
+    def _dydt(self, xp, t, y, data, meta):
         raise NotImplementedError
 
     def check(self, param):
@@ -852,7 +862,9 @@ class _OdeBenchmarkBase(Benchmark, ABC):
             f"Non-finite ODE output at step={self._meta['step']}"
         )
         data = self._check_data()
-        rhs = lambda t, y: self._dydt(t, list(y), data, self._meta)  # noqa: E731
+        # _check_data materializes dense NumPy arrays, so the reference
+        # integration runs in the NumPy namespace regardless of the framework.
+        rhs = lambda t, y: self._dydt(np, t, list(y), data, self._meta)  # noqa: E731
         y0 = np.asarray(
             self._meta["y0"],
             dtype=np.result_type(y_out.dtype, *(item.dtype for item in data), float),
@@ -889,14 +901,12 @@ class _ForwardEulerBase(_OdeBenchmarkBase):
             inputs.append(curr)
             curr += step
 
-        outputs = [None for _ in inputs]
-        outputs[0] = y0
+        outputs = [_initial_state(xp, y0, data)]
         for i in range(1, len(inputs)):
-            dydt_vector = self._dydt(inputs[i - 1], outputs[i - 1], data, meta)
-            outputs[i] = [
-                outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
-            ]
-        return (np.asarray(inputs), np.asarray(outputs))
+            state = outputs[-1]
+            dydt_vector = self._dydt(xp, inputs[i - 1], state, data, meta)
+            outputs.append(state + step * dydt_vector)
+        return xp.asarray(inputs, dtype=xp.float64), xp.stack(outputs, axis=0)
 
 
 class _BackwardEulerBase(_OdeBenchmarkBase):
@@ -914,17 +924,15 @@ class _BackwardEulerBase(_OdeBenchmarkBase):
             inputs.append(curr)
             curr += step
 
-        outputs = [None for _ in inputs]
-        outputs[0] = y0
+        outputs = [_initial_state(xp, y0, data)]
         for i in range(1, len(inputs)):
-            y_guess = outputs[i - 1]
+            previous = outputs[-1]
+            y_guess = previous
             for _ in range(10):
-                dydt_vector = self._dydt(inputs[i], y_guess, data, meta)
-                y_guess = [
-                    outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
-                ]
-            outputs[i] = y_guess
-        return (np.asarray(inputs), np.asarray(outputs))
+                dydt_vector = self._dydt(xp, inputs[i], y_guess, data, meta)
+                y_guess = previous + dydt_vector * step
+            outputs.append(y_guess)
+        return xp.asarray(inputs, dtype=xp.float64), xp.stack(outputs, axis=0)
 
 
 class _RK4Base(_OdeBenchmarkBase):
@@ -942,22 +950,18 @@ class _RK4Base(_OdeBenchmarkBase):
             inputs.append(curr)
             curr += step
 
-        outputs = [None for _ in inputs]
-        outputs[0] = y0
+        outputs = [_initial_state(xp, y0, data)]
         for i in range(1, len(inputs)):
-            y_prev = outputs[i - 1]
-            k1 = self._dydt(inputs[i - 1], y_prev, data, meta)
-            k2_state = [y_prev[j] + (step / 2) * k1[j] for j in range(len(y0))]
-            k2 = self._dydt(inputs[i - 1] + step / 2, k2_state, data, meta)
-            k3_state = [y_prev[j] + (step / 2) * k2[j] for j in range(len(y0))]
-            k3 = self._dydt(inputs[i - 1] + step / 2, k3_state, data, meta)
-            k4_state = [y_prev[j] + step * k3[j] for j in range(len(y0))]
-            k4 = self._dydt(inputs[i - 1] + step, k4_state, data, meta)
-            outputs[i] = [
-                y_prev[j] + (step / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j])
-                for j in range(len(y0))
-            ]
-        return (np.asarray(inputs), np.asarray(outputs))
+            y_prev = outputs[-1]
+            k1 = self._dydt(xp, inputs[i - 1], y_prev, data, meta)
+            k2_state = y_prev + (step / 2) * k1
+            k2 = self._dydt(xp, inputs[i - 1] + step / 2, k2_state, data, meta)
+            k3_state = y_prev + (step / 2) * k2
+            k3 = self._dydt(xp, inputs[i - 1] + step / 2, k3_state, data, meta)
+            k4_state = y_prev + step * k3
+            k4 = self._dydt(xp, inputs[i - 1] + step, k4_state, data, meta)
+            outputs.append(y_prev + (step / 6) * (k1 + 2 * k2 + 2 * k3 + k4))
+        return xp.asarray(inputs, dtype=xp.float64), xp.stack(outputs, axis=0)
 
 
 # ---------------------------------------------------------------------------
@@ -974,8 +978,8 @@ class _RCMixin:
     def generators(self):
         return [RCGenerator()]
 
-    def _dydt(self, t, y, data, meta):
-        return _rc_derivatives(t, y, meta["R"], meta["C"], _step_input)
+    def _dydt(self, xp, t, y, data, meta):
+        return _rc_derivatives(xp, t, y, meta["R"], meta["C"], _step_input)
 
 
 class RCForwardEuler(_RCMixin, _ForwardEulerBase):
@@ -1022,8 +1026,8 @@ class _RLCMixin:
     def generators(self):
         return [RLCGenerator()]
 
-    def _dydt(self, t, y, data, meta):
-        return _rlc_derivatives(t, y, meta["R"], meta["L"], meta["C"], _step_input)
+    def _dydt(self, xp, t, y, data, meta):
+        return _rlc_derivatives(xp, t, y, meta["R"], meta["L"], meta["C"], _step_input)
 
     def _comparison_output(self, y, ref):
         return y[:, 0], ref[:, 0]
@@ -1073,9 +1077,9 @@ class _LotkaVolterraMixin:
     def generators(self):
         return [LotkaVolterraGenerator()]
 
-    def _dydt(self, t, y, data, meta):
+    def _dydt(self, xp, t, y, data, meta):
         return _lotka_volterra_derivatives(
-            t, y, meta["a"], meta["b"], meta["c"], meta["d"]
+            xp, t, y, meta["a"], meta["b"], meta["c"], meta["d"]
         )
 
     def _error_tolerance(self):
@@ -1126,9 +1130,16 @@ class _BrusselatorMixin:
     def generators(self):
         return [BrusselatorGenerator()]
 
-    def _dydt(self, t, y, data, meta):
+    def benchmark(self, xp, data, meta):
+        C, brusselator_cb = data
+        return super().benchmark(
+            xp, [C, xp.asarray(brusselator_cb, dtype=xp.float64)], meta
+        )
+
+    def _dydt(self, xp, t, y, data, meta):
         C, brusselator_cb = data
         return _brusselator_derivatives(
+            xp,
             t,
             y,
             meta["n"],
@@ -1214,9 +1225,9 @@ class _SLICOTMixin:
             )
         ]
 
-    def _dydt(self, t, y, data, meta):
+    def _dydt(self, xp, t, y, data, meta):
         A, B = data
-        return _linear_system_derivatives(t, y, A, B, meta["input_value"])
+        return _linear_system_derivatives(xp, t, y, A, B, meta["input_value"])
 
 
 class SLICOTForwardEuler(_SLICOTMixin, _ForwardEulerBase):

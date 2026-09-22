@@ -170,7 +170,7 @@ def test_slicot_forward_euler_runs_linear_system():
         "input_value": 3.0,
     }
 
-    time, states = benchmark.benchmark(None, data, meta)
+    time, states = benchmark.benchmark(NumpyFramework(), data, meta)
 
     np.testing.assert_allclose(time, np.array([0.0, 0.1, 0.2]))
     np.testing.assert_allclose(states[:, 0], np.array([0.0, 0.6, 1.2]))
@@ -225,7 +225,7 @@ def test_slicot_check_preserves_complex_reference(drop_imaginary):
         "step": 0.01,
         "input_value": 1.0,
     }
-    time, states = benchmark.benchmark(None, data, benchmark._meta)
+    time, states = benchmark.benchmark(NumpyFramework(), data, benchmark._meta)
     if drop_imaginary:
         states = states.real
     benchmark._output = [from_numpy(time), from_numpy(states)]
@@ -248,7 +248,8 @@ def test_slicot_check_still_rejects_unstable_steps():
         "input_value": 1.0,
     }
     benchmark._output = [
-        from_numpy(item) for item in benchmark.benchmark(None, data, benchmark._meta)
+        from_numpy(item)
+        for item in benchmark.benchmark(NumpyFramework(), data, benchmark._meta)
     ]
 
     with pytest.raises(AssertionError, match="exceeds tolerance 0.05 at step=0.01"):
