@@ -94,7 +94,7 @@ class MaskedMRITestGenerator(Generator[MaskedMRIDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -131,7 +131,7 @@ class MaskedMRITestGenerator(Generator[MaskedMRIDataset]):
                 t2_val=100.0,
                 image=np.zeros((5, 5), dtype=np.float32),
                 roi=np.ones((5, 5), dtype=bool),
-                suites=["test", "trace"],
+                suites=["test"],
             ),
             MaskedMRIDataset(
                 "test_masked_mri_basic_roi",
@@ -159,7 +159,7 @@ class MaskedMRITestGenerator(Generator[MaskedMRIDataset]):
                     ],
                     dtype=bool,
                 ),
-                suites=["test", "trace"],
+                suites=["test"],
             ),
             MaskedMRIDataset(
                 "test_masked_mri_generator_builds_default_roi",
@@ -168,7 +168,7 @@ class MaskedMRITestGenerator(Generator[MaskedMRIDataset]):
                 t1_val=10.0,
                 t2_val=20.0,
                 image=np.arange(36, dtype=np.float32).reshape(6, 6),
-                suites=["test", "trace"],
+                suites=["test"],
                 ref_meta={"default_roi": True},
             ),
         ]
@@ -234,10 +234,10 @@ class MaskedMRIGenerator(Generator[MaskedMRIDataset]):
     @property
     def datasets(self) -> list[MaskedMRIDataset]:
         return [
-            MaskedMRIDataset("masked_mri_1", "yes", "Y157.JPG"),
-            MaskedMRIDataset("masked_mri_2", "yes", "Y6.jpg"),
-            MaskedMRIDataset("masked_mri_3", "yes", "Y194.jpg"),
-            MaskedMRIDataset("masked_mri_4", "yes", "Y180.jpg"),
+            MaskedMRIDataset("masked_mri_1", "yes", "Y157.JPG", suites=["trace"]),
+            MaskedMRIDataset("masked_mri_2", "yes", "Y6.jpg", suites=["trace"]),
+            MaskedMRIDataset("masked_mri_3", "yes", "Y194.jpg", suites=["trace"]),
+            MaskedMRIDataset("masked_mri_4", "yes", "Y180.jpg", suites=["trace"]),
         ]
 
     def generate(self, dataset: MaskedMRIDataset) -> DataInstance:

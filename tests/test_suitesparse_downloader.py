@@ -173,38 +173,39 @@ def test_failed_suitesparse_extraction_can_be_retried(monkeypatch, tmp_path):
     assert (matrix_dir / "small.mtx").read_text() == "test/small"
 
 
-def test_load_suitesparse_rhs_requires_index_for_multiple_rhs(tmp_path):
-    matrix_dir = tmp_path / "multi"
-    matrix_dir.mkdir()
-    (matrix_dir / "multi_b.mtx").write_text(
-        "%%MatrixMarket matrix array real general\n3 2\n1.0\n2.0\n3.0\n4.0\n5.0\n6.0\n",
-        encoding="utf-8",
+@pytest.mark.parametrize("transpose", [False, True])
+@pytest.mark.parametrize("sparse_rhs", [False, True])
+def test_load_suitesparse_rhs_returns_all_columns(tmp_path, transpose, sparse_rhs):
+    from scipy.io import mmwrite
+    from scipy.sparse import coo_matrix
+
+    rhs = np.array([[1.0, 4.0], [2.0, 5.0], [3.0, 6.0]])
+    stored = rhs.T if transpose else rhs
+    mmwrite(tmp_path / "multi_b.mtx", coo_matrix(stored) if sparse_rhs else stored)
+
+    loaded = suitesparse.load_suitesparse_rhs(tmp_path, "multi", expected_length=3)
+    np.testing.assert_array_equal(loaded, rhs)
+    # Without the matrix dimensions, retain the file's orientation and all RHSs.
+    np.testing.assert_array_equal(
+        suitesparse.load_suitesparse_rhs(tmp_path, "multi"), stored
     )
 
-    with pytest.raises(ValueError, match="contains 2 RHS vectors"):
-        suitesparse.load_suitesparse_rhs(matrix_dir, "multi", expected_length=3)
 
-    b = suitesparse.load_suitesparse_rhs(
-        matrix_dir,
-        "multi",
-        expected_length=3,
-        rhs_index=1,
-    )
+@pytest.mark.parametrize("rhs_count", [1, 2])
+@pytest.mark.parametrize("transpose", [False, True])
+def test_load_suitesparse_matrix_includes_all_rhs(
+    monkeypatch, tmp_path, rhs_count, transpose
+):
+    from scipy.io import mmwrite
 
-    assert np.array_equal(b, np.array([4.0, 5.0, 6.0]))
-
-
-def test_load_suitesparse_matrix_ignores_unindexed_multiple_rhs(monkeypatch, tmp_path):
     matrix_dir = tmp_path / "multi"
     matrix_dir.mkdir()
     (matrix_dir / "multi.mtx").write_text(
         "%%MatrixMarket matrix coordinate real general\n3 3 1\n1 1 2.0\n",
         encoding="utf-8",
     )
-    (matrix_dir / "multi_b.mtx").write_text(
-        "%%MatrixMarket matrix array real general\n3 2\n1.0\n2.0\n3.0\n4.0\n5.0\n6.0\n",
-        encoding="utf-8",
-    )
+    rhs = np.arange(3 * rhs_count, dtype=float).reshape(3, rhs_count)
+    mmwrite(matrix_dir / "multi_b.mtx", rhs.T if transpose else rhs)
 
     matrix = SimpleNamespace(name="multi", group="test")
     monkeypatch.setattr(
@@ -215,38 +216,7 @@ def test_load_suitesparse_matrix_ignores_unindexed_multiple_rhs(monkeypatch, tmp
 
     _, b, meta = suitesparse.load_suitesparse_matrix("test/multi", data_dir=tmp_path)
 
-    assert b is None
-    assert meta["has_b_file"] is False
-    assert meta["ignored_b_file"] is True
-    assert "select one with rhs_index" in meta["rhs_error"]
-
-
-def test_load_suitesparse_matrix_selects_rhs_index(monkeypatch, tmp_path):
-    matrix_dir = tmp_path / "multi"
-    matrix_dir.mkdir()
-    (matrix_dir / "multi.mtx").write_text(
-        "%%MatrixMarket matrix coordinate real general\n3 3 1\n1 1 2.0\n",
-        encoding="utf-8",
-    )
-    (matrix_dir / "multi_b.mtx").write_text(
-        "%%MatrixMarket matrix array real general\n3 2\n1.0\n2.0\n3.0\n4.0\n5.0\n6.0\n",
-        encoding="utf-8",
-    )
-
-    matrix = SimpleNamespace(name="multi", group="test")
-    monkeypatch.setattr(
-        suitesparse,
-        "download_suitesparse_matrix",
-        lambda name, data_dir=None: (matrix_dir, matrix),
-    )
-
-    _, b, meta = suitesparse.load_suitesparse_matrix(
-        "test/multi",
-        data_dir=tmp_path,
-        rhs_index=1,
-    )
-
-    assert np.array_equal(b, np.array([4.0, 5.0, 6.0]))
+    np.testing.assert_array_equal(b, rhs[:, 0] if rhs_count == 1 else rhs)
     assert meta["has_b_file"] is True
     assert "ignored_b_file" not in meta
 
@@ -275,4 +245,4 @@ def test_load_suitesparse_matrix_ignores_mismatched_rhs(monkeypatch, tmp_path):
     assert b is None
     assert meta["has_b_file"] is False
     assert meta["ignored_b_file"] is True
-    assert "expected a vector of length 3" in meta["rhs_error"]
+    assert "expected RHS vectors of length 3" in meta["rhs_error"]

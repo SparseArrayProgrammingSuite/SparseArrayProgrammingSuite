@@ -428,7 +428,7 @@ class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -508,7 +508,7 @@ class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
         return [
             LinearProgrammingDataset(
                 "test_lp_bounded_unique_optimum",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=A1,
                 b=b1,
                 c=c1,
@@ -517,7 +517,7 @@ class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
             ),
             LinearProgrammingDataset(
                 "test_lp_infeasible",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=A2,
                 b=b2,
                 c=c2,
@@ -526,7 +526,7 @@ class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
             ),
             LinearProgrammingDataset(
                 "test_lp_unbounded",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=A3,
                 b=b3,
                 c=c3,
@@ -535,7 +535,7 @@ class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
             ),
             LinearProgrammingDataset(
                 "test_lp_degenerate_tie",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=A4,
                 b=b4,
                 c=c4,
@@ -544,7 +544,7 @@ class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
             ),
             LinearProgrammingDataset(
                 "test_lp_singleton",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=A5,
                 b=b5,
                 c=c5,
@@ -720,7 +720,7 @@ class LPNetlibGenerator(Generator[LPNetlibDataset]):
         return [
             LPNetlibDataset(
                 name,
-                suites=["standard"] if name in _LPNETLIB_TRACTABLE else [],
+                suites=["standard", "trace"] if name in _LPNETLIB_TRACTABLE else [],
                 expected_status=(
                     _STATUS_INFEASIBLE if name.startswith("lpi_") else _STATUS_OPTIMAL
                 ),

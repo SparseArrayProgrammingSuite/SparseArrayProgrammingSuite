@@ -112,7 +112,7 @@ def test_slicot_dae_generator_uses_explicit_descriptor_problems():
         "MNA_4.mat",
         "MNA_5.mat",
     ]
-    assert all(dataset.suites == ["standard"] for dataset in datasets)
+    assert all(dataset.suites == ["standard", "trace"] for dataset in datasets)
 
 
 def test_lu_permutations():

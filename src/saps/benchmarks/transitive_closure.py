@@ -66,7 +66,7 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -98,13 +98,11 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
     @property
     def datasets(self) -> list[TransitiveClosureDataset]:
         return [
-            TransitiveClosureDataset("dag", suites=["test", "trace"]),
-            TransitiveClosureDataset(
-                "strong-component-count", suites=["test", "trace"]
-            ),
-            TransitiveClosureDataset("cycle", suites=["test", "trace"]),
-            TransitiveClosureDataset("one-node", suites=["test", "trace"]),
-            TransitiveClosureDataset("toy", suites=["test", "trace"]),
+            TransitiveClosureDataset("dag", suites=["test"]),
+            TransitiveClosureDataset("strong-component-count", suites=["test"]),
+            TransitiveClosureDataset("cycle", suites=["test"]),
+            TransitiveClosureDataset("one-node", suites=["test"]),
+            TransitiveClosureDataset("toy", suites=["test"]),
         ]
 
     def generate(self, dataset: TransitiveClosureDataset) -> DataInstance:

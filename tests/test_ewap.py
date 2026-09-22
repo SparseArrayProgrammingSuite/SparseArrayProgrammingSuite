@@ -107,7 +107,7 @@ def test_ewap_particle_sim_generator_uses_downloader(monkeypatch):
         "ewap_seq_eth",
         "ewap_seq_hotel",
     ]
-    assert all(dataset.suites == ["standard"] for dataset in datasets)
+    assert all(dataset.suites == ["standard", "trace"] for dataset in datasets)
     assert all(
         dataset.parameters["force_model"] == "cs267_repulsive" for dataset in datasets
     )

@@ -198,7 +198,7 @@ class WMCGenerator(Generator[WMCDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -234,7 +234,7 @@ class WMCGenerator(Generator[WMCDataset]):
                 name="test_1",
                 pretty_name="Test 1: Satisfiable",
                 description="(V1 or V2) and (not V1 or V2)",
-                suites=["test", "trace"],
+                suites=["test"],
                 cnf_text=textwrap.dedent(
                     """\
                     c (V1 or V2) and (not V1 or V2)
@@ -253,7 +253,7 @@ class WMCGenerator(Generator[WMCDataset]):
                 name="test_2",
                 pretty_name="Test 2: Unsatisfiable",
                 description="V1 and not V1",
-                suites=["test", "trace"],
+                suites=["test"],
                 cnf_text=textwrap.dedent(
                     """\
                     c V1 and not V1 (unsatisfiable)
@@ -270,7 +270,7 @@ class WMCGenerator(Generator[WMCDataset]):
                 name="test_3",
                 pretty_name="Test 3: No Clauses",
                 description="p cnf 2 0",
-                suites=["test", "trace"],
+                suites=["test"],
                 cnf_text=textwrap.dedent(
                     """\
                     c no clauses
@@ -287,7 +287,7 @@ class WMCGenerator(Generator[WMCDataset]):
                 name="test_4",
                 pretty_name="Test 4: Default Weights",
                 description="V1 or V2 (default weights)",
-                suites=["test", "trace"],
+                suites=["test"],
                 cnf_text=textwrap.dedent(
                     """\
                     c V1 or V2 (default weights)
@@ -301,7 +301,7 @@ class WMCGenerator(Generator[WMCDataset]):
                 name="test_5",
                 pretty_name="Test 5: 3-Var Formula",
                 description="(V1 or V2) and (not V2 or V3)",
-                suites=["test", "trace"],
+                suites=["test"],
                 cnf_text=textwrap.dedent(
                     """\
                     c (V1 or V2) and (not V2 or V3)
@@ -329,7 +329,7 @@ class WMCGenerator(Generator[WMCDataset]):
                     and (not V12 or not V17 or V18) and (V14 or V19 or not V20)
                     and (not V15 or V16 or V20) and (V17 or not V18 or V19)
                 """,
-                suites=["test", "trace"],
+                suites=["test"],
                 cnf_text=textwrap.dedent(
                     """\
                     c 20 var WMC problem
@@ -453,7 +453,7 @@ class MCCompPWMCGenerator(Generator[WMCCompDataset]):
     @property
     def datasets(self) -> list[WMCCompDataset]:
         return [
-            WMCCompDataset(source_path, suites=["standard"])
+            WMCCompDataset(source_path, suites=["standard", "trace"])
             for source_path in list_mccomp_instances("Track4_PWMC")
         ]
 

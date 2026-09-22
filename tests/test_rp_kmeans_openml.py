@@ -177,7 +177,9 @@ def test_rp_kmeans_benchmark_uses_one_openml_generator_for_standard_datasets():
         "mnist",
         "cifar10",
     ]
-    assert all(dataset.suites == ["standard"] for dataset in openml_generator.datasets)
+    assert all(
+        dataset.suites == ["standard", "trace"] for dataset in openml_generator.datasets
+    )
     assert "rp_kmeans_mnist" not in {generator.name for generator in generators}
     assert "rp_kmeans_cifar10" not in {generator.name for generator in generators}
 

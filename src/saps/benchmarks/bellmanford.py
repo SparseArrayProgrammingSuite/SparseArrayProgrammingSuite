@@ -117,7 +117,7 @@ class BellmanFordTestGenerator(Generator[BellmanFordDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -316,31 +316,31 @@ class BellmanFordTestGenerator(Generator[BellmanFordDataset]):
         return [
             BellmanFordDataset(
                 name="test_bellman_ford_tribes_src_0",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=tribes,
                 src=0,
             ),
             BellmanFordDataset(
                 name="test_bellman_ford_chesapeake_src_0",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=chesapeake,
                 src=0,
             ),
             BellmanFordDataset(
                 name="test_bellman_ford_chesapeake_src_10",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=chesapeake,
                 src=10,
             ),
             BellmanFordDataset(
                 name="test_bellman_ford_chesapeake_src_38",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=chesapeake,
                 src=38,
             ),
             BellmanFordDataset(
                 name="test_bellman_ford_snap_toy",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=bellman_ford_matrix(3, [(0, 1), (1, 2)]),
                 src=0,
                 expected=np.array([0.0, 1.0, 2.0]),

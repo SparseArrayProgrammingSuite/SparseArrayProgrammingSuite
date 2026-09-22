@@ -69,7 +69,7 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -103,13 +103,13 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
         return [
             ConnectedComponentsDataset(
                 "test_cc_fully_connected",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]], dtype=bool),
                 ref_meta={"component_count": 1},
             ),
             ConnectedComponentsDataset(
                 "test_cc_two_disconnected_components",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 0, 0],
@@ -123,13 +123,13 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
             ),
             ConnectedComponentsDataset(
                 "test_cc_isolated_nodes",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.zeros((4, 4), dtype=bool),
                 ref_meta={"component_count": 4},
             ),
             ConnectedComponentsDataset(
                 "test_cc_directed_star_pointing_inward",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 0, 0, 0],
@@ -143,13 +143,13 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
             ),
             ConnectedComponentsDataset(
                 "test_cc_single_node",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.zeros((1, 1), dtype=bool),
                 ref_meta={"shape": [1]},
             ),
             ConnectedComponentsDataset(
                 "test_cc_snap_toy",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array([[0, 1, 0], [0, 0, 1], [0, 0, 0]], dtype=bool),
                 ref_meta={"component_count": 1},
             ),

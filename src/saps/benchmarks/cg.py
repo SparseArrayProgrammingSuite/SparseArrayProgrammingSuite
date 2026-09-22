@@ -69,7 +69,7 @@ class CGTestGenerator(Generator[CGDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -103,21 +103,21 @@ class CGTestGenerator(Generator[CGDataset]):
         return [
             CGDataset(
                 "test_3x3_tridiagonal",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]),
                 b=np.array([4.0, 8.0, 16.0]),
                 x=np.zeros((3,)),
             ),
             CGDataset(
                 "test_3x3_dense",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array([[7.0, 2.0, 1.0], [2.0, 6.0, -1.0], [1.0, -1.0, 5.0]]),
                 b=np.array([13.0, -3.0, 8.0]),
                 x=np.zeros((3,)),
             ),
             CGDataset(
                 "test_4x4_tridiagonal",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [8.0, -1.0, 0.0, 0.0],
@@ -131,14 +131,14 @@ class CGTestGenerator(Generator[CGDataset]):
             ),
             CGDataset(
                 "test_3x3_indefinite_sparse",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array([[12.0, 2.0, -1.0], [2.0, 10.0, 3.0], [-1.0, 3.0, 9.0]]),
                 b=np.array([40.0, 10.0, -18.0]),
                 x=np.zeros((3,)),
             ),
             CGDataset(
                 "test_3x3_scaled_tridiagonal",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [[120.0, -2.0, 0.0], [-2.0, 120.0, -2.0], [0.0, -2.0, 120.0]]
                 ),
@@ -147,7 +147,7 @@ class CGTestGenerator(Generator[CGDataset]):
             ),
             CGDataset(
                 "test_5x5_sparse",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [15.0, -2.0, 0.0, 0.0, -1.0],
@@ -232,173 +232,326 @@ class CGGenerator(Generator[CGDataset]):
     def datasets(self) -> list[CGDataset]:
         return [
             CGDataset(
-                "Andrews/Andrews", suites=["standard"], max_iter=100, rel_tol=1e-06
-            ),
-            CGDataset(
-                "Andrianov/ins2", suites=["standard"], max_iter=100, rel_tol=1e-06
-            ),
-            CGDataset(
-                "Andrianov/net100", suites=["standard"], max_iter=100, rel_tol=1e-06
-            ),
-            CGDataset(
-                "Andrianov/net125", suites=["standard"], max_iter=100, rel_tol=1e-06
-            ),
-            CGDataset(
-                "Andrianov/net150", suites=["standard"], max_iter=100, rel_tol=1e-06
-            ),
-            CGDataset(
-                "Andrianov/net25", suites=["standard"], max_iter=100, rel_tol=1e-06
-            ),
-            CGDataset(
-                "Andrianov/net50", suites=["standard"], max_iter=100, rel_tol=1e-06
-            ),
-            CGDataset(
-                "Andrianov/net75", suites=["standard"], max_iter=100, rel_tol=1e-06
-            ),
-            CGDataset("Bai/bfwb398", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("Bai/bfwb62", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("Bai/bfwb782", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("Bai/dw256B", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("Bai/dwb512", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("Bai/odepb400", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("Bindel/ted_B", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset(
-                "Bindel/ted_B_unscaled",
-                suites=["standard"],
+                "Andrews/Andrews",
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
             CGDataset(
-                "Boeing/crystm01", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Andrianov/ins2",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Boeing/crystm02", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Andrianov/net100",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Boeing/crystm03", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Andrianov/net125",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            CGDataset(
+                "Andrianov/net150",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            CGDataset(
+                "Andrianov/net25",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            CGDataset(
+                "Andrianov/net50",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            CGDataset(
+                "Andrianov/net75",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            CGDataset(
+                "Bai/bfwb398", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "Bai/bfwb62", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "Bai/bfwb782", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "Bai/dw256B", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "Bai/dwb512", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "Bai/odepb400",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            CGDataset(
+                "Bindel/ted_B",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            CGDataset(
+                "Bindel/ted_B_unscaled",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            CGDataset(
+                "Boeing/crystm01",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            CGDataset(
+                "Boeing/crystm02",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            CGDataset(
+                "Boeing/crystm03",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
                 "Botonakis/thermomech_TC",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
             CGDataset(
                 "Botonakis/thermomech_dM",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
             CGDataset(
                 "Bourchtein/atmosmodd",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=1,
             ),
             CGDataset(
                 "Bourchtein/atmosmodj",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=1,
             ),
             CGDataset(
                 "Bourchtein/atmosmodl",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=1,
             ),
             CGDataset(
                 "Bourchtein/atmosmodm",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=1,
             ),
             CGDataset(
-                "Brunetiere/thermal", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Brunetiere/thermal",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Cunningham/m3plates", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Cunningham/m3plates",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Cunningham/qa8fm", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Cunningham/qa8fm",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
                 "FEMLAB/poisson2D",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             CGDataset(
-                "FEMLAB/problem1", suites=["standard"], max_iter=100, rel_tol=1e-06
-            ),
-            CGDataset("FIDAP/ex29", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("FIDAP/ex37", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("FIDAP/ex5", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("FIDAP/ex7", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset(
-                "GHS_indef/blockqp1", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "FEMLAB/problem1",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "GHS_indef/laser", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "FIDAP/ex29", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             CGDataset(
-                "GHS_indef/qpband", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "FIDAP/ex37", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             CGDataset(
-                "GHS_psdef/jnlbrng1", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "FIDAP/ex5", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             CGDataset(
-                "GHS_psdef/minsurfo", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "FIDAP/ex7", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             CGDataset(
-                "GHS_psdef/obstclae", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "GHS_indef/blockqp1",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
-            CGDataset("Grund/meg4", suites=["standard"], max_iter=100, rel_tol=1e-06),
+            CGDataset(
+                "GHS_indef/laser",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            CGDataset(
+                "GHS_indef/qpband",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            CGDataset(
+                "GHS_psdef/jnlbrng1",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            CGDataset(
+                "GHS_psdef/minsurfo",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            CGDataset(
+                "GHS_psdef/obstclae",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            CGDataset(
+                "Grund/meg4", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
             CGDataset(
                 "Grund/poli",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            CGDataset("HB/bcspwr01", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/bcspwr02", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/bcsstk01", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/bcsstk02", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/bcsstm01", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/bcsstm02", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/bcsstm03", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/bcsstm04", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/bcsstm05", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/bcsstm06", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/bcsstm08", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/bcsstm09", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/bcsstm11", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/bcsstm19", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/bcsstm20", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/bcsstm21", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/bcsstm22", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/can_144", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/can_24", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/can_61", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/can_62", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/can_73", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/can_96", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/dwt_59", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/dwt_66", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/dwt_72", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/fs_541_1", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/gr_30_30", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/lap_25", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/nos4", suites=["standard"], max_iter=100, rel_tol=1e-06),
+            CGDataset(
+                "HB/bcspwr01", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/bcspwr02", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/bcsstk01", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/bcsstk02", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/bcsstm01", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/bcsstm02", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/bcsstm03", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/bcsstm04", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/bcsstm05", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/bcsstm06", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/bcsstm08", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/bcsstm09", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/bcsstm11", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/bcsstm19", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/bcsstm20", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/bcsstm21", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/bcsstm22", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/can_144", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/can_24", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/can_61", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/can_62", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/can_73", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/can_96", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/dwt_59", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/dwt_66", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/dwt_72", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/fs_541_1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/gr_30_30", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/lap_25", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/nos4", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
             CGDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=1,
@@ -522,184 +675,343 @@ class CGGenerator(Generator[CGDataset]):
                 rel_tol=1e-06,
                 rhs_index=8,
             ),
-            CGDataset("HB/watt_1", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("HB/watt_2", suites=["standard"], max_iter=100, rel_tol=1e-06),
+            CGDataset(
+                "HB/watt_1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            CGDataset(
+                "HB/watt_2", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
             CGDataset(
                 "Hamm/add32",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            CGDataset("MKS/fp", suites=["standard"], max_iter=100, rel_tol=1e-06),
             CGDataset(
-                "MathWorks/Muu", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "MKS/fp", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             CGDataset(
-                "MathWorks/tomography", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "MathWorks/Muu",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            CGDataset(
+                "MathWorks/tomography",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
                 "MaxPlanck/shallow_water1",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
             CGDataset(
                 "MaxPlanck/shallow_water2",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
             CGDataset(
-                "Mulvey/finan512", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Mulvey/finan512",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
                 "Nasa/nasa2146",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             CGDataset(
-                "Nemeth/nemeth02", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth02",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Nemeth/nemeth03", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth03",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Nemeth/nemeth04", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth04",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Nemeth/nemeth05", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth05",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Nemeth/nemeth06", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth06",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Nemeth/nemeth07", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth07",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Nemeth/nemeth08", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth08",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Nemeth/nemeth09", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth09",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Nemeth/nemeth10", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth10",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Nemeth/nemeth11", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth11",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Nemeth/nemeth12", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth12",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Nemeth/nemeth13", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth13",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Nemeth/nemeth16", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth16",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Nemeth/nemeth17", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth17",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Nemeth/nemeth18", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth18",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Nemeth/nemeth19", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth19",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Nemeth/nemeth20", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth20",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Nemeth/nemeth21", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth21",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Nemeth/nemeth22", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth22",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Nemeth/nemeth23", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth23",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Nemeth/nemeth24", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth24",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Nemeth/nemeth25", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth25",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Nemeth/nemeth26", suites=["standard"], max_iter=100, rel_tol=1e-06
-            ),
-            CGDataset("Norris/fv1", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset("Norris/fv2", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset(
-                "Oberwolfach/LF10", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth26",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Oberwolfach/LFAT5", suites=["standard"], max_iter=100, rel_tol=1e-06
-            ),
-            CGDataset("PARSEC/Si2", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            CGDataset(
-                "Pothen/mesh1e1", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Norris/fv1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             CGDataset(
-                "Pothen/mesh1em1", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Norris/fv2", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             CGDataset(
-                "Pothen/mesh1em6", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Oberwolfach/LF10",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Pothen/mesh2e1", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Oberwolfach/LFAT5",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Pothen/mesh2em5", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "PARSEC/Si2", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             CGDataset(
-                "Pothen/mesh3e1", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Pothen/mesh1e1",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Pothen/mesh3em5", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Pothen/mesh1em1",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Pothen/sphere2", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Pothen/mesh1em6",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Precima/analytics", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Pothen/mesh2e1",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Sandia/ASIC_100k", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Pothen/mesh2em5",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Sandia/ASIC_100ks", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Pothen/mesh3e1",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Sandia/ASIC_320ks", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Pothen/mesh3em5",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Sandia/adder_dcop_61", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Pothen/sphere2",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Sandia/adder_dcop_62", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Precima/analytics",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Sandia/adder_dcop_63", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/ASIC_100k",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Sandia/adder_dcop_64", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/ASIC_100ks",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Sandia/adder_dcop_65", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/ASIC_320ks",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Sandia/adder_dcop_66", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_61",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Sandia/adder_dcop_67", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_62",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Sandia/adder_dcop_68", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_63",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
-                "Sandia/adder_dcop_69", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_64",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            CGDataset(
+                "Sandia/adder_dcop_65",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            CGDataset(
+                "Sandia/adder_dcop_66",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            CGDataset(
+                "Sandia/adder_dcop_67",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            CGDataset(
+                "Sandia/adder_dcop_68",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            CGDataset(
+                "Sandia/adder_dcop_69",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             CGDataset(
                 "Schenk_AFE/af_shell3",
@@ -731,26 +1043,28 @@ class CGGenerator(Generator[CGDataset]):
             ),
             CGDataset(
                 "VDOL/hangGlider_1",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             CGDataset(
                 "VDOL/tumorAntiAngiogenesis_1",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             CGDataset(
                 "VDOL/tumorAntiAngiogenesis_2",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            CGDataset("VLSI/ss1", suites=["standard"], max_iter=100, rel_tol=1e-06),
+            CGDataset(
+                "VLSI/ss1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
         ]
 
     def generate(self, dataset: CGDataset) -> DataInstance:

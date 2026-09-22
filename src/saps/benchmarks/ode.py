@@ -645,7 +645,7 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
                 name="brusselator_tiny",
                 pretty_name="Brusselator Tiny",
                 description="Tiny 2D Brusselator correctness test",
-                suites=["test", "trace"],
+                suites=["test"],
                 n=2,
                 a=3.4,
                 b=1.0,
@@ -657,7 +657,7 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
                 name="brusselator_4",
                 pretty_name="Brusselator 4x4",
                 description="2D Brusselator with 100x100 grid",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 n=100,
                 a=3.4,
                 b=1.0,
@@ -745,15 +745,15 @@ class SLICOTGenerator(Generator[SLICOTDataset]):
         # Base timesteps, scaled by each method's step_multiplier at setup.
         # Validated over t_max=0.1 at the 0.05 absolute-error tolerance.
         return [
-            SLICOTDataset("eady.mat", suites=["standard"]),
+            SLICOTDataset("eady.mat", suites=["standard", "trace"]),
             SLICOTDataset("CDplayer.mat", suites=["standard"], step=4e-5),
-            SLICOTDataset("fom.mat", suites=["standard"], step=0.001),
+            SLICOTDataset("fom.mat", suites=["standard", "trace"], step=0.001),
             SLICOTDataset("random.mat", suites=["standard"], step=5e-5),
-            SLICOTDataset("pde.mat", suites=["standard"], step=0.001),
-            SLICOTDataset("heat-cont.mat", suites=["standard"], step=0.001),
-            SLICOTDataset("Orr-Som.mat", suites=["standard"]),
-            SLICOTDataset("iss.mat", suites=["standard"]),
-            SLICOTDataset("build.mat", suites=["standard"]),
+            SLICOTDataset("pde.mat", suites=["standard", "trace"], step=0.001),
+            SLICOTDataset("heat-cont.mat", suites=["standard", "trace"], step=0.001),
+            SLICOTDataset("Orr-Som.mat", suites=["standard", "trace"]),
+            SLICOTDataset("iss.mat", suites=["standard", "trace"]),
+            SLICOTDataset("build.mat", suites=["standard", "trace"]),
             SLICOTDataset("beam.mat", suites=["standard"], step=0.001),
         ]
 
@@ -896,9 +896,9 @@ class _OdeBenchmarkBase(Benchmark, ABC):
 
         time = to_numpy(self._output[0])
         y_out = to_numpy(self._output[1])
-        assert np.all(
-            np.isfinite(y_out)
-        ), f"Non-finite ODE output at step={self._meta['step']}"
+        assert np.all(np.isfinite(y_out)), (
+            f"Non-finite ODE output at step={self._meta['step']}"
+        )
         data = [_dense_binsparse_array(item) for item in self._input]
         dydt = _resolve_derivatives(self._meta["problem_name"])
         rhs = lambda t, y: dydt(t, list(y), data, self._meta)  # noqa: E731

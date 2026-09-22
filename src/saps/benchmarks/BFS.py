@@ -87,7 +87,7 @@ class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -121,7 +121,7 @@ class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
         return [
             BreadthFirstSearchDataset(
                 "test_bfs_basic",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 1, 0, 0, 0],
@@ -138,14 +138,14 @@ class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
             ),
             BreadthFirstSearchDataset(
                 "test_bfs_single_node",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array([[0]], dtype=bool),
                 src=0,
                 expected=np.array([1], dtype=int),
             ),
             BreadthFirstSearchDataset(
                 "test_bfs_disconnected",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 0, 0],
@@ -160,7 +160,7 @@ class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
             ),
             BreadthFirstSearchDataset(
                 "test_bfs_undirected",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 0, 0],
@@ -175,7 +175,7 @@ class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
             ),
             BreadthFirstSearchDataset(
                 "test_bfs_cycle",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 0, 0],
@@ -190,7 +190,7 @@ class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
             ),
             BreadthFirstSearchDataset(
                 "test_bfs_snap_toy",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 0],

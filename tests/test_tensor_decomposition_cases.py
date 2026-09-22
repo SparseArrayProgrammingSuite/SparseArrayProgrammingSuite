@@ -61,7 +61,6 @@ def test_dimension_cases_partition_datasets(name, generator_classes):
             assert param.dataset.n == n
             actual[param.generator.name, param.dataset.name] += 1
         assert any("test" in param.dataset.suites for param in benchmark.params)
-        assert any("trace" in param.dataset.suites for param in benchmark.params)
         for metric in ("time", "peakmem"):
             assert [
                 method for method in dir(benchmark) if method.startswith(f"{metric}_")

@@ -87,7 +87,7 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -120,7 +120,7 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
         return [
             GMRESDataset(
                 "test_gmres_random_42",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=random_42[0],
                 b=random_42[1],
                 x0=random_42[2],
@@ -131,7 +131,7 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
             ),
             GMRESDataset(
                 "test_gmres_random_123",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=random_123[0],
                 b=random_123[1],
                 x0=random_123[2],
@@ -142,7 +142,7 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
             ),
             GMRESDataset(
                 "test_gmres_diagonal",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array([[2.0, 0.0], [0.0, 3.0]]),
                 b=np.array([4.0, 9.0]),
                 x0=np.zeros(2),
@@ -153,7 +153,7 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
             ),
             GMRESDataset(
                 "test_gmres_3x3",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array([[10.0, 2.0, 1.0], [1.0, 20.0, 1.0], [1.0, 2.0, 10.0]]),
                 b=np.array([13.0, 22.0, 13.0]),
                 x0=np.zeros(3),
@@ -164,7 +164,7 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
             ),
             GMRESDataset(
                 "test_gmres_4x4",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [4.0, -1.0, 0.0, 0.0],
@@ -256,95 +256,124 @@ class GMRESGenerator(Generator[GMRESDataset]):
     def datasets(self) -> list[GMRESDataset]:
         return [
             GMRESDataset(
-                "Andrews/Andrews", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Andrews/Andrews",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Andrianov/ins2", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Andrianov/ins2",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Andrianov/net100", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Andrianov/net100",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Andrianov/net125", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Andrianov/net125",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Andrianov/net150", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Andrianov/net150",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Andrianov/net25", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Andrianov/net25",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Andrianov/net50", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Andrianov/net50",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Andrianov/net75", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Andrianov/net75",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Bai/bfwa62", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Bai/bfwa62", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "Bai/bfwb398", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Bai/bfwb398", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "Bai/bfwb62", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Bai/bfwb62", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "Bai/bfwb782", suites=["standard"], max_iter=100, rel_tol=1e-06
-            ),
-            GMRESDataset("Bai/ck104", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            GMRESDataset(
-                "Bai/dw256B", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Bai/bfwb782", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "Bai/dwb512", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Bai/ck104", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "Bai/pde225", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Bai/dw256B", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "Bai/rdb200", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Bai/dwb512", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "Bai/rdb200l", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Bai/pde225", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "Bindel/ted_B", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Bai/rdb200", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            GMRESDataset(
+                "Bai/rdb200l", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            GMRESDataset(
+                "Bindel/ted_B",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
                 "Bindel/ted_B_unscaled",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
             GMRESDataset(
                 "Bomhof/circuit_1",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             GMRESDataset(
                 "Botonakis/thermomech_TC",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
             GMRESDataset(
                 "Botonakis/thermomech_dM",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
             GMRESDataset(
                 "Bourchtein/atmosmodd",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=1,
             ),
             GMRESDataset(
                 "Bourchtein/atmosmodj",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=1,
@@ -378,36 +407,57 @@ class GMRESGenerator(Generator[GMRESDataset]):
                 rhs_index=1,
             ),
             GMRESDataset(
-                "Brunetiere/thermal", suites=["standard"], max_iter=100, rel_tol=1e-06
-            ),
-            GMRESDataset("CPM/cz148", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            GMRESDataset(
-                "Cunningham/m3plates", suites=["standard"], max_iter=100, rel_tol=1e-06
-            ),
-            GMRESDataset(
-                "Cunningham/qa8fk", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Brunetiere/thermal",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Cunningham/qa8fm", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "CPM/cz148", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            GMRESDataset(
+                "Cunningham/m3plates",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            GMRESDataset(
+                "Cunningham/qa8fk",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            GMRESDataset(
+                "Cunningham/qa8fm",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
                 "FEMLAB/poisson2D",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             GMRESDataset(
-                "FEMLAB/problem1", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "FEMLAB/problem1",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "FIDAP/ex29", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "FIDAP/ex29", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "FIDAP/ex37", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "FIDAP/ex37", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            GMRESDataset("FIDAP/ex5", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            GMRESDataset("FIDAP/ex7", suites=["standard"], max_iter=100, rel_tol=1e-06),
+            GMRESDataset(
+                "FIDAP/ex5", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            GMRESDataset(
+                "FIDAP/ex7", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
             GMRESDataset(
                 "Freescale/circuit5M_dc",
                 suites=["standard"],
@@ -415,154 +465,192 @@ class GMRESGenerator(Generator[GMRESDataset]):
                 rel_tol=1e-06,
             ),
             GMRESDataset(
-                "GHS_indef/blockqp1", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "GHS_indef/blockqp1",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
                 "GHS_indef/boyd1",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             GMRESDataset(
                 "GHS_indef/boyd2",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             GMRESDataset(
-                "GHS_indef/laser", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "GHS_indef/laser",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "GHS_indef/qpband", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "GHS_indef/qpband",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "GHS_psdef/jnlbrng1", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "GHS_psdef/jnlbrng1",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "GHS_psdef/minsurfo", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "GHS_psdef/minsurfo",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "GHS_psdef/obstclae", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "GHS_psdef/obstclae",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "GHS_psdef/wathen120", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "GHS_psdef/wathen120",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
                 "Grund/b1_ss",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             GMRESDataset(
-                "Grund/meg4", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Grund/meg4", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
                 "Grund/poli",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             GMRESDataset(
-                "Grund/poli3", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Grund/poli3", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "Grund/poli4", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Grund/poli4", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "Grund/poli_large", suites=["standard"], max_iter=100, rel_tol=1e-06
-            ),
-            GMRESDataset("HB/arc130", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            GMRESDataset(
-                "HB/bcspwr01", suites=["standard"], max_iter=100, rel_tol=1e-06
-            ),
-            GMRESDataset(
-                "HB/bcspwr02", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Grund/poli_large",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "HB/bcsstk01", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/arc130", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "HB/bcsstk02", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/bcspwr01", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "HB/bcsstk20", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/bcspwr02", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "HB/bcsstm01", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/bcsstk01", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "HB/bcsstm02", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/bcsstk02", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "HB/bcsstm03", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/bcsstk20", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "HB/bcsstm04", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/bcsstm01", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "HB/bcsstm05", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/bcsstm02", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "HB/bcsstm06", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/bcsstm03", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "HB/bcsstm08", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/bcsstm04", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "HB/bcsstm09", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/bcsstm05", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "HB/bcsstm11", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/bcsstm06", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "HB/bcsstm19", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/bcsstm08", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "HB/bcsstm20", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/bcsstm09", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "HB/bcsstm21", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/bcsstm11", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "HB/bcsstm22", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/bcsstm19", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "HB/can_144", suites=["standard"], max_iter=100, rel_tol=1e-06
-            ),
-            GMRESDataset("HB/can_24", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            GMRESDataset("HB/can_61", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            GMRESDataset("HB/can_73", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            GMRESDataset(
-                "HB/curtis54", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/bcsstm20", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "HB/fs_541_1", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/bcsstm21", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "HB/fs_760_1", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/bcsstm22", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "HB/fs_760_2", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/can_144", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "HB/fs_760_3", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/can_24", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "HB/gr_30_30", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/can_61", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "HB/jpwh_991", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/can_73", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            GMRESDataset("HB/lap_25", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            GMRESDataset("HB/nos4", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            GMRESDataset("HB/nos7", suites=["standard"], max_iter=100, rel_tol=1e-06),
+            GMRESDataset(
+                "HB/curtis54", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            GMRESDataset(
+                "HB/fs_541_1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            GMRESDataset(
+                "HB/fs_760_1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            GMRESDataset(
+                "HB/fs_760_2", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            GMRESDataset(
+                "HB/fs_760_3", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            GMRESDataset(
+                "HB/gr_30_30", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            GMRESDataset(
+                "HB/jpwh_991", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            GMRESDataset(
+                "HB/lap_25", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            GMRESDataset(
+                "HB/nos4", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            GMRESDataset(
+                "HB/nos7", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
             GMRESDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=1,
@@ -687,321 +775,583 @@ class GMRESGenerator(Generator[GMRESDataset]):
                 rhs_index=8,
             ),
             GMRESDataset(
-                "HB/pores_1", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/pores_1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "HB/psmigr_3", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "HB/psmigr_3", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            GMRESDataset("HB/steam2", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            GMRESDataset("HB/steam3", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            GMRESDataset("HB/watt_1", suites=["standard"], max_iter=100, rel_tol=1e-06),
-            GMRESDataset("HB/watt_2", suites=["standard"], max_iter=100, rel_tol=1e-06),
+            GMRESDataset(
+                "HB/steam2", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            GMRESDataset(
+                "HB/steam3", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            GMRESDataset(
+                "HB/watt_1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            GMRESDataset(
+                "HB/watt_2", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
             GMRESDataset(
                 "Hamrle/Hamrle1",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            GMRESDataset("MKS/fp", suites=["standard"], max_iter=100, rel_tol=1e-06),
             GMRESDataset(
-                "MathWorks/Muu", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "MKS/fp", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "MathWorks/tomography", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "MathWorks/Muu",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
+            ),
+            GMRESDataset(
+                "MathWorks/tomography",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
                 "MaxPlanck/shallow_water1",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
             GMRESDataset(
                 "MaxPlanck/shallow_water2",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Morandini/rotor1", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Morandini/rotor1",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Mulvey/finan512", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Mulvey/finan512",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
                 "Nasa/nasa2146",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             GMRESDataset(
-                "Nemeth/nemeth02", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth02",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Nemeth/nemeth03", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth03",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Nemeth/nemeth04", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth04",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Nemeth/nemeth05", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth05",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Nemeth/nemeth06", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth06",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Nemeth/nemeth07", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth07",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Nemeth/nemeth08", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth08",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Nemeth/nemeth09", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth09",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Nemeth/nemeth10", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth10",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Nemeth/nemeth11", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth11",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Nemeth/nemeth12", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth12",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Nemeth/nemeth13", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth13",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Nemeth/nemeth16", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth16",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Nemeth/nemeth17", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth17",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Nemeth/nemeth18", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth18",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Nemeth/nemeth19", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth19",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Nemeth/nemeth20", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth20",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Nemeth/nemeth21", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth21",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Nemeth/nemeth22", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth22",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Nemeth/nemeth23", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth23",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Nemeth/nemeth24", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth24",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Nemeth/nemeth25", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth25",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Nemeth/nemeth26", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Nemeth/nemeth26",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Norris/fv1", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Norris/fv1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "Norris/fv2", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Norris/fv2", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "Norris/torso2", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Norris/torso2",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Oberwolfach/LF10", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Oberwolfach/LF10",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Oberwolfach/LFAT5", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Oberwolfach/LFAT5",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "PARSEC/Si2", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "PARSEC/Si2", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "Pothen/mesh1e1", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Pothen/mesh1e1",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Pothen/mesh1em1", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Pothen/mesh1em1",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Pothen/mesh1em6", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Pothen/mesh1em6",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Pothen/mesh2e1", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Pothen/mesh2e1",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Pothen/mesh2em5", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Pothen/mesh2em5",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Pothen/mesh3e1", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Pothen/mesh3e1",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Pothen/mesh3em5", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Pothen/mesh3em5",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Pothen/sphere2", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Pothen/sphere2",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Precima/analytics", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Precima/analytics",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Rajat/rajat13", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Rajat/rajat13",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Rommes/bips98_1450", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Rommes/bips98_1450",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Rommes/bips98_606", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Rommes/bips98_606",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Rommes/ww_36_pmec_36", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Rommes/ww_36_pmec_36",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/ASIC_100k", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/ASIC_100k",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/ASIC_100ks", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/ASIC_100ks",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/ASIC_320ks", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/ASIC_320ks",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
                 "Sandia/ASIC_680k", suites=["standard"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "Sandia/ASIC_680ks", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/ASIC_680ks",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_31", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_31",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_32", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_32",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_33", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_33",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_34", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_34",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_35", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_35",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_36", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_36",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_37", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_37",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_38", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_38",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_40", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_40",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_41", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_41",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_42", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_42",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_43", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_43",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_44", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_44",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_45", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_45",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_46", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_46",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_47", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_47",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_48", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_48",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_49", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_49",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_50", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_50",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_51", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_51",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_52", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_52",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_53", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_53",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_54", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_54",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_55", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_55",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_57", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_57",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_58", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_58",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_59", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_59",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_60", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_60",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_61", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_61",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_62", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_62",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_63", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_63",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_64", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_64",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_65", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_65",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_66", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_66",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_67", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_67",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_68", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_68",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/adder_dcop_69", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/adder_dcop_69",
+                suites=["standard", "trace"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
                 "Sandia/adder_trans_01",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
             GMRESDataset(
                 "Sandia/adder_trans_02",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
             GMRESDataset(
                 "Sandia/mult_dcop_02",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
@@ -1036,55 +1386,57 @@ class GMRESGenerator(Generator[GMRESDataset]):
             ),
             GMRESDataset(
                 "Simon/raefsky5",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             GMRESDataset(
                 "TOKAMAK/utm1700b",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             GMRESDataset(
                 "TOKAMAK/utm3060",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             GMRESDataset(
                 "VDOL/hangGlider_1",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             GMRESDataset(
                 "VDOL/tumorAntiAngiogenesis_1",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             GMRESDataset(
                 "VDOL/tumorAntiAngiogenesis_2",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            GMRESDataset("VLSI/ss1", suites=["standard"], max_iter=100, rel_tol=1e-06),
             GMRESDataset(
-                "Wang/swang1", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "VLSI/ss1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "Wang/swang2", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Wang/swang1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "Zhao/Zhao1", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Wang/swang2", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+            ),
+            GMRESDataset(
+                "Zhao/Zhao1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
         ]
 
