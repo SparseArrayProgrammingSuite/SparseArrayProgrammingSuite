@@ -1,6 +1,7 @@
 import numpy as np
 
 from binsparse import (
+    CSRMatrix,
     CustomTensor,
     DenseLevel,
     DMATCMatrix,
@@ -8,7 +9,7 @@ from binsparse import (
     DVECVector,
     ElementLevel,
 )
-from binsparse.conversions import from_numpy, to_numpy, to_sparse
+from binsparse.conversions import from_numpy, to_numpy, to_scipy, to_sparse
 
 from saps_framework import Framework, einsum, normalize_unfold_args
 
@@ -29,6 +30,10 @@ class NumpyFramework(Framework):
                 level=DenseLevel(rank=rank, level=ElementLevel()),
             ) if rank == len(shape):
                 return to_numpy(array)
+            case CSRMatrix():  # also matches CSCMatrix, a CSRMatrix subclass
+                # to_sparse (pydata/sparse) only reads COO; go through SciPy,
+                # which reads CSR/CSC/COO, instead of densifying via COO.
+                return to_scipy(array).toarray()
             case _:
                 return np.asarray(to_sparse(array).todense())
 

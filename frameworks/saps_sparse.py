@@ -8,6 +8,7 @@ import array_api_compat
 import array_api_compat.numpy as compat_np
 import sparse as sp
 from binsparse import (
+    CSRMatrix,
     CustomTensor,
     DenseLevel,
     DMATCMatrix,
@@ -15,7 +16,7 @@ from binsparse import (
     DVECVector,
     ElementLevel,
 )
-from binsparse.conversions import from_numpy, from_sparse, to_numpy, to_sparse
+from binsparse.conversions import from_numpy, from_sparse, to_numpy, to_scipy, to_sparse
 
 from saps_framework import (
     Framework,
@@ -320,6 +321,10 @@ class PyDataSparseFramework(Framework):
                 level=DenseLevel(rank=rank, level=ElementLevel()),
             ) if rank == len(shape):
                 return to_numpy(array)
+            case CSRMatrix():  # also matches CSCMatrix, a CSRMatrix subclass
+                # to_sparse only reads COO; go through SciPy (which reads
+                # CSR/CSC/COO) and into GCXS instead of densifying via COO.
+                return sp.GCXS.from_scipy_sparse(to_scipy(array))
             case _:
                 return to_sparse(array)
 
