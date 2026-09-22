@@ -68,7 +68,7 @@ def test_ogb_gcn_generator_includes_supported_homogeneous_ogb_workloads():
     datasets = {dataset.source_name: dataset for dataset in OGBGCNGenerator().datasets}
 
     assert set(datasets) == {"ogbn-arxiv", "ogbn-products", "ogbn-proteins"}
-    assert datasets["ogbn-arxiv"].suites == ["standard"]
+    assert datasets["ogbn-arxiv"].suites == ["standard", "trace"]
     assert datasets["ogbn-products"].suites == ["standard"]
     assert datasets["ogbn-proteins"].suites == ["standard"]
 

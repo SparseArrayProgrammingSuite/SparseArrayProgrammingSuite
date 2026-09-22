@@ -116,7 +116,7 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -162,7 +162,7 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
         return [
             BetweennessCentralityDataset(
                 name="test_joels_case",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 1, 0, 0],
@@ -177,19 +177,19 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
             ),
             BetweennessCentralityDataset(
                 name="test_basic_empty",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.zeros((3, 3)),
                 expected=np.array([0.0, 0.0, 0.0]),
             ),
             BetweennessCentralityDataset(
                 name="test_basic_chain",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array([[0, 1, 0], [0, 0, 1], [0, 0, 0]], dtype=float),
                 expected=np.array([0.0, 1.0, 0.0]),
             ),
             BetweennessCentralityDataset(
                 name="test_basic_two_components",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [[0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1], [0, 0, 0, 0]],
                     dtype=float,
@@ -198,25 +198,25 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
             ),
             BetweennessCentralityDataset(
                 name="test_matrix_vertex_algorithm_comparison",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=random_A,
                 expected=reference_bc_alg_6_4(random_A),
             ),
             BetweennessCentralityDataset(
                 name="test_undirected_graph",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=undirected_A,
                 expected=reference_bc_alg_6_4(undirected_A),
             ),
             BetweennessCentralityDataset(
                 name="test_networkx",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=networkx_A,
                 expected=reference_bc_alg_6_4(networkx_A),
             ),
             BetweennessCentralityDataset(
                 name="test_centrality_snap_toy",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 0],

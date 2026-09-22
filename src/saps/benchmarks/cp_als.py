@@ -106,7 +106,7 @@ class CPNFactorizeableGenerator(Generator[CPFactorizeableDataset]):
             CPFactorizeableDataset(
                 name="cp_factorizeable_3d_tiny",
                 pretty_name="Tiny Factorizeable CP Tensor",
-                suites=["test", "trace"],
+                suites=["test"],
                 shape=(6, 6, 6),
                 rank=2,
                 max_iter=20,
@@ -121,7 +121,7 @@ class CPNFactorizeableGenerator(Generator[CPFactorizeableDataset]):
             CPFactorizeableDataset(
                 name="cp_factorizeable_4d_tiny",
                 pretty_name="Tiny 4D Factorizeable CP Tensor",
-                suites=["test", "trace"],
+                suites=["test"],
                 shape=(5, 5, 5, 5),
                 rank=1,
                 max_iter=20,
@@ -136,7 +136,7 @@ class CPNFactorizeableGenerator(Generator[CPFactorizeableDataset]):
             CPFactorizeableDataset(
                 name="cp_factorizeable_5d_tiny",
                 pretty_name="Tiny 5D Factorizeable CP Tensor",
-                suites=["test", "trace"],
+                suites=["test"],
                 shape=(4, 4, 4, 4, 4),
                 rank=2,
                 max_iter=20,

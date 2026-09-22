@@ -69,7 +69,7 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -103,7 +103,7 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
         return [
             GraphCountingDataset(
                 "test_triangle_count_single_triangle",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 1],
@@ -116,7 +116,7 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
             ),
             GraphCountingDataset(
                 "test_triangle_count_path",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 0, 0],
@@ -130,7 +130,7 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
             ),
             GraphCountingDataset(
                 "test_triangle_count_4_clique",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 1, 1],
@@ -144,7 +144,7 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
             ),
             GraphCountingDataset(
                 "test_triangle_snap_toy",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 0],

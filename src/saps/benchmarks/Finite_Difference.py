@@ -203,7 +203,7 @@ class FiniteDifferenceGenerator(
             FiniteDifferenceDataset(
                 name=f"fd_test_scale_{self.flux_name}",
                 pretty_name="Finite Difference Test Problem",
-                suites=["test", "trace"],
+                suites=["test"],
                 Nx=100,
                 dx=0.1,
                 Nt=100,

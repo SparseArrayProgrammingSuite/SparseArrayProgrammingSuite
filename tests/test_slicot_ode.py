@@ -44,7 +44,7 @@ def test_slicot_generator_uses_all_identity_e_problems():
         "build.mat",
         "beam.mat",
     ]
-    assert all(dataset.suites == ["standard"] for dataset in generator.datasets)
+    assert all("standard" in dataset.suites for dataset in generator.datasets)
 
 
 def test_slicot_generator_loads_a_and_b_and_ignores_c_d(monkeypatch):

@@ -79,7 +79,7 @@ class JLApproxNNTestGenerator(Generator[JLApproxNNRandomDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -114,7 +114,7 @@ class JLApproxNNTestGenerator(Generator[JLApproxNNRandomDataset]):
                 description=(
                     "test dense data and query matrices with sparse random projection."
                 ),
-                suites=["test", "trace"],
+                suites=["test"],
                 n_samples=20,
                 n_features=10,
                 n_queries=4,

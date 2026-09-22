@@ -77,7 +77,7 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -108,14 +108,14 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
         return [
             LSQRDataset(
                 "test_lsqr_underdetermined_3",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0]]),
                 b=np.array([4.1, 10.1]),
                 convergence="residual",
             ),
             LSQRDataset(
                 "test_lsqr_overdetermined_3",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [7.0, 2.0, 1.0],
@@ -129,14 +129,14 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
             ),
             LSQRDataset(
                 "test_lsqr_exact_3",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]),
                 b=np.array([4.0, 8.0, 16.0]),
                 convergence="residual",
             ),
             LSQRDataset(
                 "test_lsqr_underdetermined_4",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [8.0, -1.0, 0.0, 0.0],
@@ -149,7 +149,7 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
             ),
             LSQRDataset(
                 "test_lsqr_overdetermined_sparse",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [12.0, 2.0, -1.0],
@@ -163,7 +163,7 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
             ),
             LSQRDataset(
                 "test_lsqr_exact_4",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [8.0, -1.0, 0.0, 0.0],
@@ -177,14 +177,14 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
             ),
             LSQRDataset(
                 "test_lsqr_scaled_underdetermined",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array([[120.0, -2.0, 0.0], [-2.0, 120.0, -2.0]]),
                 b=np.array([118.1, 116.1]),
                 convergence="residual",
             ),
             LSQRDataset(
                 "test_lsqr_overdetermined_dense",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [[1.0, 2.0, 0.0], [0.0, 3.0, 1.0], [1.0, 0.0, 4.0], [2.0, 1.0, 3.0]]
                 ),
@@ -193,7 +193,7 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
             ),
             LSQRDataset(
                 "test_lsqr_exact_5",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [15.0, -2.0, 0.0, 0.0, -1.0],
@@ -273,42 +273,52 @@ class LSQRGenerator(Generator[LSQRDataset]):
             LSQRDataset(
                 "ANSYS/Delor338K", suites=["standard"], max_iter=1000, rel_tol=1e-06
             ),
-            LSQRDataset("HB/ash219", suites=["standard"], max_iter=1000, rel_tol=1e-06),
-            LSQRDataset("HB/ash331", suites=["standard"], max_iter=1000, rel_tol=1e-06),
-            LSQRDataset("HB/ash608", suites=["standard"], max_iter=1000, rel_tol=1e-06),
-            LSQRDataset("HB/ash85", suites=["standard"], max_iter=1000, rel_tol=1e-06),
-            LSQRDataset("HB/ash958", suites=["standard"], max_iter=1000, rel_tol=1e-06),
+            LSQRDataset(
+                "HB/ash219", suites=["standard", "trace"], max_iter=1000, rel_tol=1e-06
+            ),
+            LSQRDataset(
+                "HB/ash331", suites=["standard", "trace"], max_iter=1000, rel_tol=1e-06
+            ),
+            LSQRDataset(
+                "HB/ash608", suites=["standard", "trace"], max_iter=1000, rel_tol=1e-06
+            ),
+            LSQRDataset(
+                "HB/ash85", suites=["standard", "trace"], max_iter=1000, rel_tol=1e-06
+            ),
+            LSQRDataset(
+                "HB/ash958", suites=["standard", "trace"], max_iter=1000, rel_tol=1e-06
+            ),
             LSQRDataset(
                 "NYPA/Maragal_1",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=1000,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             LSQRDataset(
                 "NYPA/Maragal_2",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=1000,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             LSQRDataset(
                 "NYPA/Maragal_3",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=1000,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             LSQRDataset(
                 "NYPA/Maragal_4",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=1000,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             LSQRDataset(
                 "NYPA/Maragal_5",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=1000,
                 rel_tol=1e-06,
                 rhs_index=0,

@@ -79,7 +79,7 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -113,25 +113,25 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
         return [
             PageRankDataset(
                 name="test_pagerank_two_node_cycle",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array([[0, 1], [1, 0]], dtype=float),
                 expected=np.array([0.5, 0.5], dtype=float),
             ),
             PageRankDataset(
                 name="test_pagerank_three_node_chain",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0]], dtype=float),
                 ref_meta={"rank_order": [0, 1, 2]},
             ),
             PageRankDataset(
                 name="test_pagerank_two_node_sink",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array([[0, 0], [1, 0]], dtype=float),
                 ref_meta={"rank_order": [0, 1]},
             ),
             PageRankDataset(
                 name="test_pagerank_against_networkx",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 0, 0, 0],
@@ -157,7 +157,7 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
             ),
             PageRankDataset(
                 name="test_pagerank_snap_toy",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 0],

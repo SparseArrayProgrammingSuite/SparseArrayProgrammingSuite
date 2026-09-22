@@ -137,7 +137,7 @@ class GCNTestGenerator(Generator[GCNDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -168,7 +168,7 @@ class GCNTestGenerator(Generator[GCNDataset]):
         return [
             GCNDataset(
                 "test_gcn_3node",
-                suites=["test", "trace"],
+                suites=["test"],
                 adjacency=np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]], dtype=np.float32),
                 features=np.array(
                     [[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]], dtype=np.float32
@@ -180,7 +180,7 @@ class GCNTestGenerator(Generator[GCNDataset]):
             ),
             GCNDataset(
                 "test_gcn_simple_2node",
-                suites=["test", "trace"],
+                suites=["test"],
                 adjacency=np.array([[0, 1], [1, 0]], dtype=np.float32),
                 features=np.array([[1.0], [2.0]], dtype=np.float32),
                 weights1=np.array([[2.0]], dtype=np.float32),
@@ -191,7 +191,7 @@ class GCNTestGenerator(Generator[GCNDataset]):
             ),
             GCNDataset(
                 "test_gcn_simple_3node_line",
-                suites=["test", "trace"],
+                suites=["test"],
                 adjacency=np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]], dtype=np.float32),
                 features=np.array([[1.0], [0.0], [1.0]], dtype=np.float32),
                 weights1=np.array([[1.0]], dtype=np.float32),
@@ -202,7 +202,7 @@ class GCNTestGenerator(Generator[GCNDataset]):
             ),
             GCNDataset(
                 "test_gcn_with_relu_activation",
-                suites=["test", "trace"],
+                suites=["test"],
                 adjacency=np.array([[0, 1], [1, 0]], dtype=np.float32),
                 features=np.array([[1.0], [-1.0]], dtype=np.float32),
                 weights1=np.array([[1.0]], dtype=np.float32),
@@ -483,7 +483,9 @@ class OGBGCNGenerator(Generator[OGBGCNDataset]):
                 source_name=dataset.source_name,
                 hidden_dim=256,
                 description=dataset.description,
-                suites=["standard"],
+                suites=["standard", "trace"]
+                if dataset.name == "ogbn_arxiv"
+                else ["standard"],
             )
             for dataset in OGBNodePropGenerator().datasets
         ]
