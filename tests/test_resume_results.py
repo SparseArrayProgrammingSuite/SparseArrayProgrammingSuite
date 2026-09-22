@@ -162,20 +162,20 @@ def test_resume_merges_results_per_environment_and_skips_completed_runs(
 
 @pytest.mark.parametrize("chunk_index", range(5))
 @pytest.mark.parametrize("cache_override", ["", "shared-cache"])
-def test_competition_selects_standard_jl_datasets_without_machine_prompts(
+def test_competition_selects_standard_simhash_datasets_without_machine_prompts(
     runner, monkeypatch, tmp_path, chunk_index, cache_override
 ):
     import json
     import sys
 
-    from saps.benchmarks.approx_nn import JLApproxNNSparseGenerator
+    from saps.benchmarks.approx_nn import SimHashApproxNNSparseGenerator
 
     root = Path(runner.__file__).resolve().parents[1]
     monkeypatch.chdir(root)
     monkeypatch.setenv("SAPS_CACHE_DIR", cache_override)
     expected_cache = str(root / (cache_override or ".saps/outputs/cache"))
     metadata = json.loads((root / "metadata.json").read_text())["benchmarks"]
-    benchmark = next(item for item in metadata if item["name"] == "jl_approx_nn")
+    benchmark = next(item for item in metadata if item["name"] == "simhash_approx_nn")
     params = [
         dataset["asv_param"]
         for generator in benchmark["generators"]
@@ -200,7 +200,7 @@ def test_competition_selects_standard_jl_datasets_without_machine_prompts(
                     "SAPS_REPO_ROOT", include["env_nobuild"]["SAPS_REPO_ROOT"]
                 )
                 worker.chdir(tmp_path)
-                for dataset in JLApproxNNSparseGenerator().datasets:
+                for dataset in SimHashApproxNNSparseGenerator().datasets:
                     assert dataset.file == "src/saps/benchmarks/approx_nn.py"
         return [object()]
 
@@ -227,7 +227,7 @@ def test_competition_selects_standard_jl_datasets_without_machine_prompts(
             "--config",
             str(root / "competition.config.json"),
             "--re",
-            "^jl_approx_nn$",
+            "^simhash_approx_nn$",
             "--saps-dir",
             str(tmp_path),
             "--env-dir",
@@ -250,12 +250,12 @@ def test_competition_selects_standard_jl_datasets_without_machine_prompts(
     assert (
         actual
         == [
-            "jl_approx_nn_openml_dense.mnist",
-            "jl_approx_nn_openml_dense.cifar10",
-            "jl_approx_nn_openml_sparse.mnist",
-            "jl_approx_nn_openml_sparse.cifar10",
-            "jl_approx_nn_netflix_dense.netflix",
-            "jl_approx_nn_netflix_sparse.netflix",
+            "simhash_approx_nn_openml_dense.mnist",
+            "simhash_approx_nn_openml_dense.cifar10",
+            "simhash_approx_nn_openml_sparse.mnist",
+            "simhash_approx_nn_openml_sparse.cifar10",
+            "simhash_approx_nn_netflix_dense.netflix",
+            "simhash_approx_nn_netflix_sparse.netflix",
         ][chunk_index::5]
     )
     assert kwargs["machine_params"].machine == "run_12345-task-0"

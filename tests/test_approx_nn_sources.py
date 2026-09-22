@@ -7,26 +7,27 @@ from binsparse.conversions import from_numpy, to_numpy, to_scipy
 
 from saps.benchmark import DataInstance
 from saps.benchmarks.approx_nn import (
-    JLApproxNearestNeighbor,
-    JLApproxNNDenseGenerator,
-    JLApproxNNDenseNetflixGenerator,
-    JLApproxNNDenseOpenMLGenerator,
-    JLApproxNNRandomDataset,
-    JLApproxNNSparseGenerator,
-    JLApproxNNSparseNetflixGenerator,
-    JLApproxNNSparseOpenMLGenerator,
+    SimHashApproxNearestNeighbor,
+    SimHashApproxNNDenseGenerator,
+    SimHashApproxNNDenseNetflixGenerator,
+    SimHashApproxNNDenseOpenMLGenerator,
+    SimHashApproxNNRandomDataset,
+    SimHashApproxNNSparseGenerator,
+    SimHashApproxNNSparseNetflixGenerator,
+    SimHashApproxNNSparseOpenMLGenerator,
 )
 from saps.benchmarks.openml import OpenMLDatasetGenerator
 
 
 @pytest.mark.parametrize(
-    "generator_cls", [JLApproxNNDenseOpenMLGenerator, JLApproxNNSparseOpenMLGenerator]
+    "generator_cls",
+    [SimHashApproxNNDenseOpenMLGenerator, SimHashApproxNNSparseOpenMLGenerator],
 )
 @pytest.mark.parametrize(
     "source_name,data_id,openml_name,task_id",
     [("mnist", 554, "mnist_784", 3573), ("cifar10", 40927, "CIFAR_10", 167124)],
 )
-def test_jl_approx_nn_openml_generator_uses_cached_task_split(
+def test_simhash_approx_nn_openml_generator_uses_cached_task_split(
     monkeypatch, generator_cls, source_name, data_id, openml_name, task_id
 ):
     features = np.arange(48, dtype=np.float32).reshape(12, 4)
@@ -80,9 +81,12 @@ def test_jl_approx_nn_openml_generator_uses_cached_task_split(
 
 
 @pytest.mark.parametrize(
-    "generator_cls", [JLApproxNNDenseNetflixGenerator, JLApproxNNSparseNetflixGenerator]
+    "generator_cls",
+    [SimHashApproxNNDenseNetflixGenerator, SimHashApproxNNSparseNetflixGenerator],
 )
-def test_jl_approx_nn_netflix_generator_uses_shared_shell(monkeypatch, generator_cls):
+def test_simhash_approx_nn_netflix_generator_uses_shared_shell(
+    monkeypatch, generator_cls
+):
     source = scipy.sparse.csr_matrix(np.arange(30, dtype=np.float32).reshape(6, 5))
 
     def fake_fetch_netflixprize_matrix():
@@ -118,14 +122,14 @@ def test_jl_approx_nn_netflix_generator_uses_shared_shell(monkeypatch, generator
     assert instance.meta["source_num_ratings"] == source.nnz
 
 
-def test_jl_approx_nn_benchmark_uses_openml_and_netflix_shell_generators():
-    generators = JLApproxNearestNeighbor().generators
+def test_simhash_approx_nn_benchmark_uses_openml_and_netflix_shell_generators():
+    generators = SimHashApproxNearestNeighbor().generators
     generator_names = {generator.name for generator in generators}
     for kind in ("dense", "sparse"):
         openml_generator = next(
             generator
             for generator in generators
-            if generator.name == f"jl_approx_nn_openml_{kind}"
+            if generator.name == f"simhash_approx_nn_openml_{kind}"
         )
         assert [dataset.name for dataset in openml_generator.datasets] == [
             "mnist",
@@ -134,14 +138,14 @@ def test_jl_approx_nn_benchmark_uses_openml_and_netflix_shell_generators():
         assert all(
             dataset.suites == ["standard"] for dataset in openml_generator.datasets
         )
-        assert f"jl_approx_nn_netflix_{kind}" in generator_names
-        assert f"jl_projection_inputs_{kind}" in generator_names
-        assert f"jl_projection_test_inputs_{kind}" in generator_names
+        assert f"simhash_approx_nn_netflix_{kind}" in generator_names
+        assert f"simhash_projection_inputs_{kind}" in generator_names
+        assert f"simhash_projection_test_inputs_{kind}" in generator_names
     assert len(generator_names) == len(generators) == 8
 
 
-def test_jl_projection_variants_share_random_inputs_and_are_reproducible():
-    dataset = JLApproxNNRandomDataset(
+def test_simhash_projection_variants_share_random_inputs_and_are_reproducible():
+    dataset = SimHashApproxNNRandomDataset(
         "custom",
         "Custom",
         "Custom",
@@ -157,8 +161,8 @@ def test_jl_projection_variants_share_random_inputs_and_are_reproducible():
         candidate_target=4,
         target_probability=0.9,
     )
-    dense_generator = JLApproxNNDenseGenerator()
-    sparse_generator = JLApproxNNSparseGenerator()
+    dense_generator = SimHashApproxNNDenseGenerator()
+    sparse_generator = SimHashApproxNNSparseGenerator()
     dense = dense_generator.generate(dataset)
     sparse = sparse_generator.generate(dataset)
     for i in (0, 1):
@@ -184,33 +188,17 @@ def test_jl_projection_variants_share_random_inputs_and_are_reproducible():
         sparse_projection.toarray(),
         to_scipy(sparse_generator.generate(dataset).inputs[2]).toarray(),
     )
-    assert dense.meta == {
-        **sparse.meta,
-        "projection_kind": "dense",
-        "bucket_width": 4.0 * dense.meta["bucket_width_scale"],
-    }
-    assert sparse.meta["bucket_width"] == pytest.approx(
-        dense.meta["bucket_width"] * 12**-0.25
-    )
+    assert dense.meta == {**sparse.meta, "projection_kind": "dense"}
     assert sparse.meta["projection_kind"] == "sparse"
     assert 1 <= dense.meta["n_tables"] <= 7
     assert 1 <= dense.meta["n_projections"] <= 9
     assert dense.meta["estimated_retrieval_probability"] >= dataset.target_probability
     assert dense.meta["candidate_target"] == 4
-    for i in (3, 4):
-        np.testing.assert_array_equal(
-            to_numpy(dense.inputs[i]), to_numpy(sparse.inputs[i])
-        )
-        np.testing.assert_array_equal(
-            to_numpy(dense.inputs[i]),
-            to_numpy(dense_generator.generate(dataset).inputs[i]),
-        )
 
 
 def test_sparse_projection_has_paper_density_and_standard_gaussian_values():
-    projection, bucket_width = JLApproxNNSparseGenerator().projection(512, 256, 42)
+    projection = SimHashApproxNNSparseGenerator().projection(512, 256, 42)
     projection = to_scipy(projection)
-    assert bucket_width == pytest.approx(4.0 * 512**-0.25)
     assert projection.nnz / (512 * 256) == pytest.approx(1 / np.sqrt(512), abs=0.003)
     assert abs(projection.data.mean()) < 0.1
     assert projection.data.std() == pytest.approx(1, abs=0.1)
