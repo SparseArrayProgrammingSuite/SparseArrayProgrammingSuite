@@ -151,6 +151,13 @@ pytest-mypy = "==1.0.1"
 pytest-regressions = "==2.8.3"
 types-requests = "==2.33.0.20260712"
 
+# CuPy 14.2 adds the cupyx sparse array API used by this framework.
+[tool.poetry.group.gpu]
+optional = true
+
+[tool.poetry.group.gpu.dependencies]
+cupy-cuda13x = ">=14.2.0"
+
 [build-system]
 requires = ["poetry-core>=1.0.8"]
 build-backend = "poetry.core.masonry.api"
