@@ -1437,7 +1437,7 @@
   "suitesparse_matrix.GAP/GAP-kron": {
     "digest": "c7f9367dcf268a3588845a2b010e35db570db7c94d7dbe7e6b8317efd8cf018a",
     "file": "src/saps/benchmarks/suitesparse.py",
-    "freshness": "89f0bb68f6aca33fcdc9a2477421ca7e7c59efa32be8b973e7dfe0e9621aa381"
+    "freshness": "0321442dbfc5af1bda43a41121eb63dba8929d935f5ce54816e55bc62dbd14fd"
   },
   "suitesparse_matrix.GAP/GAP-road": {
     "digest": "2051c4d2a423f51f75ba5bfec9735b7b6151d253f45a0d6eb4211dce46cdd210",
