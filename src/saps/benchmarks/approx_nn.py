@@ -1112,11 +1112,11 @@ Nearest neighbor algorithms</concept_desc>
             m = max(required_projections, 0)
             mask = xp.asarray((1 << m) - 1, dtype=code_dtype)
             masked_data = table_data & mask
-            masked_query = table_query & mask
+            masked_query = (table_query & mask) * active[:, None]
             matches = xp.any(
                 masked_query[:, None, :] == masked_data[None, :, :], axis=-1
             )
-            candidates = candidates | (matches & active[:, None])
+            candidates = candidates | matches
             required_projections -= 1
 
         # Rank candidates by cosine distance, what SimHash actually targets.

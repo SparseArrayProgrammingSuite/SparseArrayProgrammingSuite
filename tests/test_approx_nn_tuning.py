@@ -5,6 +5,7 @@ import pytest
 import numpy as np
 
 from saps.benchmarks.approx_nn import (
+    _RANDOM_COLLISION_PROBABILITY,
     SimHashApproxNNDenseGenerator,
     SimHashApproxNNRandomDataset,
     _collision_probability,
@@ -44,11 +45,13 @@ def test_tune_lsh_always_spends_the_full_table_budget():
 
 
 def test_tune_lsh_bounds_expected_accidental_matches_by_candidate_target():
-    dataset = _Dataset(max_tables=7, max_projections=16, candidate_target=100)
+    dataset = _Dataset(max_tables=7, max_projections=32, candidate_target=100)
     n_samples = 63000
     n_projections, n_tables, _ = _tune_lsh(dataset, n_features=784, n_samples=n_samples)
-    expected_at_n = n_samples * n_tables * 0.5**n_projections
-    expected_at_n_minus_1 = n_samples * n_tables * 0.5 ** (n_projections - 1)
+    expected_at_n = n_samples * n_tables * _RANDOM_COLLISION_PROBABILITY**n_projections
+    expected_at_n_minus_1 = (
+        n_samples * n_tables * _RANDOM_COLLISION_PROBABILITY ** (n_projections - 1)
+    )
     # n_projections is the fewest signs that bring the expected number of
     # accidental (unrelated-point) matches down to candidate_target.
     assert expected_at_n <= dataset.candidate_target
