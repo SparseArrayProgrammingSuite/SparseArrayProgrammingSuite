@@ -17,6 +17,10 @@ from saps.benchmarks.snap import (
     fetch_snap_graph,
     select_source_vertices,
 )
+from saps.benchmarks.suitesparse import (
+    SuiteSparseMatrixGenerator,
+    fetch_suitesparse_matrix,
+)
 from saps.downloaders import suitesparse as downloader
 from saps.metadata import _benchmark_instances
 from saps.storage import LocalStorageBackend
@@ -55,7 +59,7 @@ def test_snap_shell_inventory_covers_consumers():
         & declared
     )
     assert SNAPGraphBenchmark().name == "snap_graph_shell"
-    assert generator.cacheable
+    assert not generator.cacheable
     consumed = set()
     for benchmark in _benchmark_instances():
         for consumer in benchmark.generators:
@@ -98,12 +102,14 @@ def test_snap_shell_preserves_suitesparse_matrix_and_discards_extras(
     monkeypatch.setattr(downloader, "download_suitesparse_matrix", download)
     generator = SNAPGraphGenerator()
     dataset = next(d for d in generator.datasets if d.name == name)
+    shell = SuiteSparseMatrixGenerator()
+    source = next(d for d in shell.datasets if d.source_name == dataset.source_name)
+    assert backend.upload_dataset(shell, source)
+    download.assert_called_once_with(f"SNAP/{name}", data_dir=None)
+    download.side_effect = AssertionError("Unexpected source download")
 
-    problem = generator.generate(dataset)
+    problem = generator.cached_generate(dataset)
 
-    download.assert_called_once_with(
-        f"SNAP/{name}", data_dir=backend.cache_dir / "suitesparse"
-    )
     assert len(problem.inputs) == 1
     np.testing.assert_array_equal(
         to_scipy(problem.inputs[0]).toarray(),
@@ -112,6 +118,11 @@ def test_snap_shell_preserves_suitesparse_matrix_and_discards_extras(
     assert problem.meta == {}
     assert problem.ref_outputs is None
     assert problem.ref_meta is None
+    # Dropping the extras for graph benchmarks leaves the shared source intact.
+    shared = fetch_suitesparse_matrix(dataset.source_name)
+    assert len(shared.inputs) == 2
+    assert shared.meta["has_b_file"]
+    np.testing.assert_array_equal(to_numpy(shared.inputs[1]), [1, 2, 3, 4])
 
 
 @pytest.mark.parametrize(("module_name", "class_name"), _CONSUMERS)
@@ -126,11 +137,11 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
     module = importlib.import_module(f"saps.benchmarks.{module_name}")
     consumer = getattr(module, class_name)()
     dataset = consumer.datasets[0]
-    shell = SNAPGraphGenerator()
+    shell = SuiteSparseMatrixGenerator()
     slug = (
         dataset.graph.name if isinstance(dataset, SNAPSourceDataset) else dataset.name
     )
-    source = next(d for d in shell.datasets if d.name == slug)
+    source = next(d for d in shell.datasets if d.source_name == f"SNAP/{slug}")
     path = backend.cache_dir / "suitesparse" / "SNAP" / slug / f"{slug}.mtx"
     path.parent.mkdir(parents=True)
     path.write_text(
@@ -141,14 +152,12 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
     )
     monkeypatch.setattr(downloader, "download_suitesparse_matrix", source_download)
     assert backend.upload_dataset(shell, source)
-    source_download.assert_called_once_with(
-        f"SNAP/{slug}", data_dir=backend.cache_dir / "suitesparse"
-    )
+    source_download.assert_called_once_with(f"SNAP/{slug}", data_dir=None)
     # Simulate another worker with only the manifest and remote prepared object.
     shutil.rmtree(backend.cache_dir)
     forbidden = Mock(side_effect=AssertionError("Unexpected source download"))
     monkeypatch.setattr(downloader, "download_suitesparse_matrix", forbidden)
-    monkeypatch.setattr("saps.benchmarks.snap.load_suitesparse_matrix", forbidden)
+    monkeypatch.setattr("saps.benchmarks.suitesparse.load_suitesparse_matrix", forbidden)
     monkeypatch.setattr(backend, "upload_dataset", forbidden)
     download = Mock(wraps=backend.download_file)
     monkeypatch.setattr(backend, "download_file", download)
@@ -217,7 +226,7 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
     assert len(raw.inputs) == 1
     assert raw.meta == {}
     download.assert_called_once()
-    assert download.call_args.args[0].startswith(f"snap_graph/{slug}/")
+    assert download.call_args.args[0].startswith(f"suitesparse_matrix/SNAP/{slug}/")
     forbidden.assert_not_called()
     assert backend.manifest_path.read_bytes() == manifest
     assert len(list(backend.cache_dir.rglob("*.bsp.h5"))) == 1

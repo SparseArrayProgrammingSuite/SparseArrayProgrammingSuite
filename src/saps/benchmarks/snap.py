@@ -7,7 +7,7 @@ from typing import Any
 import numpy as np
 
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_scipy, to_scipy
+from binsparse.conversions import to_scipy
 
 from saps.benchmark import (
     Contributor,
@@ -17,7 +17,7 @@ from saps.benchmark import (
     Ref,
     ShellBenchmark,
 )
-from saps.downloaders.suitesparse import load_suitesparse_matrix
+from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 
 # Domain classifications selected from ACM CCS 2012:
 # https://dl.acm.org/pb-assets/dl_ccs/acm_ccs2012-1626988337597.xml
@@ -398,6 +398,10 @@ _GRAPHS = [
 
 class SNAPGraphGenerator(Generator[SNAPDataset]):
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def name(self) -> str:
         return "snap_graph"
 
@@ -431,17 +435,15 @@ class SNAPGraphGenerator(Generator[SNAPDataset]):
 
     @property
     def motivation(self) -> str:
-        return "Prepare each SNAP graph once for reuse across graph benchmarks."
+        return "Reuse prepared SuiteSparse SNAP matrices across graph benchmarks."
 
     @property
     def datasets(self) -> list[SNAPDataset]:
         return _GRAPHS
 
     def generate(self, dataset: SNAPDataset) -> DataInstance:
-        matrix, _, _ = load_suitesparse_matrix(
-            dataset.source_name, data_dir=self.backend.cache_dir / "suitesparse"
-        )
-        return DataInstance(inputs=[from_scipy(matrix)], meta={})
+        raw = fetch_suitesparse_matrix(dataset.source_name)
+        return DataInstance(inputs=[raw.inputs[0]], meta={})
 
 
 class SNAPGraphBenchmark(ShellBenchmark):
