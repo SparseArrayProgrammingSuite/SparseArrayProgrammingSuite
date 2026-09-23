@@ -253,6 +253,39 @@ class _MutableCOO(sp.COO):
             key = PyDataSparseFramework._dense(key)
         if isinstance(value, sp.SparseArray):
             value = PyDataSparseFramework._dense(value)
+        # Scattering into an empty array with no repeated coordinates is
+        # exactly building a COO from these coordinates -- construct it
+        # directly (vectorized) instead of going through DOK, whose own
+        # __setitem__ is a pure-Python loop over every index (see
+        # sparse.numba_backend._dok.DOK._fancy_setitem), which dominates
+        # runtime at realistic sizes regardless of how few entries are
+        # actually being set. COO sums duplicate coordinates instead of
+        # this class's (and DOK's) last-write-wins, so this only applies
+        # once verified duplicate-free -- itself a cheap vectorized check,
+        # unlike the Python loop it's replacing.
+        if (
+            self.nnz == 0
+            and isinstance(key, tuple)
+            and len(key) == self.ndim
+            and all(isinstance(index, np.ndarray) and index.ndim == 1 for index in key)
+        ):
+            flat = np.ravel_multi_index(key, self.shape)
+            if len(np.unique(flat)) == len(flat):
+                coords = np.stack(key)
+                data = np.broadcast_to(
+                    np.asarray(value, dtype=self.dtype), (coords.shape[1],)
+                )
+                updated = sp.COO(
+                    coords,
+                    data,
+                    shape=self.shape,
+                    fill_value=self.fill_value,
+                    has_duplicates=False,
+                )
+                self.coords = updated.coords
+                self.data = updated.data
+                self._cache = None
+                return
         builder = sp.DOK.from_coo(self)
         builder[key] = value
         updated = builder.to_coo()
