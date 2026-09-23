@@ -153,22 +153,28 @@ poetry run ./bin/generate_metadata.py
 poetry run ./bin/run_benchmark.py --cache-datasets --re '^suitesparse_matrix_shell$'
 ```
 
-SNAP graphs are prepared by `snap_graph_shell` and stored once under
-`snap_graph/<dataset>/<digest>.bsp.h5`. BFS, Bellman-Ford, centrality, connected
+SNAP graphs are prepared by `suitesparse_matrix_shell` and stored once under
+`suitesparse_matrix/SNAP/<name>/<digest>.bsp.h5`. BFS, Bellman-Ford, centrality, connected
 components, FastSV, PageRank, transitive closure/reduction, triangle counting, and four-clique
-counting reuse those graphs. The shell stores the directed adjacency and original
-node IDs; Bellman-Ford derives its sparse distance representation during setup.
-The source text/archive cache remains under `snap/`.
+counting reuse those graphs. The uncached `snap_graph` generator reads these
+prepared SuiteSparse inputs and returns only the matrix, preserving its values
+and dimensions. Bellman-Ford derives its sparse distance representation
+during setup. Source archives share the `suitesparse/SNAP/` cache.
 
-Prepare the SNAP shell before running these consumers:
+Regenerate metadata and prepare the SuiteSparse cache before running these consumers
+with the SuiteSparse sources:
 
 ```bash
-poetry run ./bin/run_benchmark.py --cache-datasets --re '^snap_graph$'
+poetry run ./bin/generate_metadata.py
+poetry run ./bin/run_benchmark.py --cache-datasets --re '^suitesparse_matrix_shell$'
 ```
 
-The shell's source catalog is explicitly listed in
-`src/saps/benchmarks/snap.py`. Add any new source to that inventory before using it
-in another benchmark, then regenerate metadata and prepare the shell cache.
+The 68 SuiteSparse SNAP sources are explicitly listed in
+`src/saps/benchmarks/snap.py` and the shared inventory in
+`src/saps/benchmarks/suitesparse.py`. Add new sources to both inventories, then
+regenerate metadata and prepare the SuiteSparse cache. Entries without SuiteSparse
+matrices remain commented out with their original metadata and are not exposed
+by SNAP generators.
 
 The OpenML shell caches the feature matrix together with train/test row indices
 from a pinned task, repeat, fold, and sample. MNIST uses task 3573 and CIFAR-10 uses
@@ -182,7 +188,7 @@ poetry run ./bin/run_benchmark.py --cache-datasets --re '^openml_dataset$'
 
 All source downloaders honor `SAPS_CACHE_DIR` (default `.saps/outputs/cache`)
 and lock the cache check, download, and extraction so concurrent jobs reuse
-completed files. Source subdirectories are `suitesparse`, `snap`, `frostt`,
+completed files. Source subdirectories are `suitesparse`, `frostt`,
 `gcare`, `nemo`, `ewap`, `slicot`, `mccomp`, `ogb`, and `kaggle`; LTH model files
 use `artifacts/lth`. An explicit downloader `data_dir` takes precedence.
 These source caches persist independently of job-local environments and `$TMPDIR`.

@@ -8,7 +8,7 @@ from saps.benchmarks.frostt import fetch_frostt_tensor
 from saps.benchmarks.model_counting import fetch_mccomp_instance
 from saps.benchmarks.ogb import fetch_ogb_nodeprop_dataset
 from saps.benchmarks.openml import fetch_openml_dataset
-from saps.benchmarks.snap import fetch_snap_graph
+from saps.benchmarks.snap import SNAPGraphGenerator, fetch_snap_graph
 from saps.benchmarks.subgraph_matching import GCareHumanGenerator
 from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
@@ -93,3 +93,7 @@ def test_suitesparse_shell_lists_all_declared_consumers():
     # GAP graph datasets use their own Dataset classes and share these raw inputs.
     for name in ("road", "twitter", "web", "kron", "urand"):
         assert f"GAP/GAP-{name}" in declared
+
+    # SNAP graph adapters also use their own Dataset class and share this cache.
+    snap_sources = {dataset.source_name for dataset in SNAPGraphGenerator().datasets}
+    assert {name for name in declared if name.startswith("SNAP/")} == snap_sources

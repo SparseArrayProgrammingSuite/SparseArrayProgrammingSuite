@@ -1,4 +1,3 @@
-import gzip
 import importlib
 import io
 import sys
@@ -25,13 +24,12 @@ from saps.downloaders import (
     nemo,
     ogb,
     slicot,
-    snap,
 )
 from saps.storage import DEFAULT_CACHE_DIR
 
 
 @pytest.mark.parametrize(
-    "source", ["ewap", "frostt", "gcare", "mccomp", "nemo", "ogb", "slicot", "snap"]
+    "source", ["ewap", "frostt", "gcare", "mccomp", "nemo", "ogb", "slicot"]
 )
 @pytest.mark.parametrize("override", [None, "", "shared-cache", "~/shared-cache"])
 def test_source_cache_location(monkeypatch, tmp_path, source, override):
@@ -68,7 +66,7 @@ def _concurrent(call):
 
 @pytest.mark.parametrize(
     "source",
-    ["ewap", "frostt", "mccomp", "nemo", "snap", "slicot", "slicot_collection"],
+    ["ewap", "frostt", "mccomp", "nemo", "slicot", "slicot_collection"],
 )
 def test_concurrent_source_downloads_reuse_completed_file(
     monkeypatch, tmp_path, blocked_waiter, source
@@ -80,16 +78,13 @@ def test_concurrent_source_downloads_reuse_completed_file(
         "frostt": lambda: frostt.download_frostt_tensor("test.gz", data_dir=root),
         "mccomp": lambda: mccomp._ensure_downloaded("test.cnf", root),
         "nemo": lambda: nemo._ensure_downloaded("test.gz", root),
-        "snap": lambda: snap._ensure_downloaded("test", root),
         "slicot": lambda: slicot.download_slicot_problem("eady", data_dir=root),
         "slicot_collection": lambda: slicot.download_slicot_collection(data_dir=root),
     }
 
     def download(url, path):
         assert blocked_waiter.wait(timeout=10)
-        if source == "snap":
-            Path(path).write_bytes(gzip.compress(b"1 2\n"))
-        elif source == "slicot":
+        if source == "slicot":
             with zipfile.ZipFile(path, "w") as archive:
                 archive.writestr("eady.mat", b"complete")
         else:
@@ -100,7 +95,7 @@ def test_concurrent_source_downloads_reuse_completed_file(
     first, second = _concurrent(calls[source])
     assert first == second
     assert first.is_relative_to(root)
-    assert first.read_bytes() == (b"1 2\n" if source == "snap" else b"complete")
+    assert first.read_bytes() == b"complete"
     download_mock.assert_called_once()
     assert not (tmp_path / "shared").exists()
 
