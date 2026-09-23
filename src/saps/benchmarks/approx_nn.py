@@ -17,10 +17,7 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.netflixprize import fetch_netflixprize_matrix
-from saps.benchmarks.openml import (
-    OpenMLDatasetGenerator,
-    fetch_openml_train_test_features,
-)
+from saps.benchmarks.openml import fetch_openml_train_test_features
 
 
 class SimHashApproxNNRandomDataset(Dataset):
@@ -154,21 +151,11 @@ class SimHashApproxNNGeneratorMixin(ABC):
     projection_kind: str
     projection_description: str
     tuning_description = (
-        "Generation picks n_projections so that, using the full "
-        "max_tables budget, the expected number of accidental matches "
-        "between unrelated points lands near candidate_target (see "
-        "_tune_lsh) -- a random hyperplane bit is assumed to collide for "
-        "two unrelated points with a fixed probability corresponding to "
-        "cosine similarity 0.4 (not the textbook orthogonal assumption of "
-        "0, which understates real datasets' shared structure), so this "
-        "needs no pass over the data, only its shape. It always spends "
-        "the whole table budget, since more tables can only help recall "
-        "for a fixed candidate-set size; estimated_retrieval_probability "
-        "is reported against a conservative near-neighbor similarity "
-        "guess for reference, not solved for. At benchmark time, each "
-        "round requires exact agreement on a fixed-length prefix of the "
-        "n_projections signs, shortening that prefix by one sign a round "
-        "until candidate_target points are found."
+        "n_projections is picked from data shape alone so the expected "
+        "accidental-match count across the full max_tables budget lands "
+        "near candidate_target (see _tune_lsh). At benchmark time, each "
+        "round requires exact agreement on a shrinking prefix of the "
+        "n_projections signs until candidate_target points are found."
     )
 
     @property
@@ -645,17 +632,27 @@ class _SimHashApproxNNOpenMLGeneratorMixin(SimHashApproxNNGeneratorMixin):
     def datasets(self) -> list[SimHashApproxNNDataset]:
         return [
             SimHashApproxNNDataset(
-                dataset.name,
+                "mnist",
                 k=5,
                 eps=0.3,
-                seed=50 if dataset.name == "mnist" else 0,
+                seed=50,
+                suites=["standard", "trace"],
+                max_tables=64,
+                max_projections=32,
+                candidate_target=100,
+                target_probability=0.9,
+            ),
+            SimHashApproxNNDataset(
+                "cifar10",
+                k=5,
+                eps=0.3,
+                seed=0,
                 suites=["standard"],
                 max_tables=64,
                 max_projections=32,
                 candidate_target=100,
                 target_probability=0.9,
-            )
-            for dataset in OpenMLDatasetGenerator().datasets
+            ),
         ]
 
     def generate(self, dataset: SimHashApproxNNDataset) -> DataInstance:
@@ -855,9 +852,9 @@ class SimHashApproxNearestNeighbor(Benchmark):
     @property
     def description(self):
         return (
-            "Searches progressively larger Hamming-radius buckets of SimHash"
-            " signatures across LSH tables, then ranks candidates by cosine"
-            " distance in the original space."
+            "Matches SimHash signatures across LSH tables on a shrinking "
+            "prefix of signs until enough candidates are found, then ranks "
+            "them by cosine distance in the original space."
         )
 
     @property
@@ -1051,15 +1048,9 @@ Nearest neighbor algorithms</concept_desc>
         )
 
         # Bit-pack each row's n_projections signs into one integer per
-        # table, projection i at bit i (ascending -- nothing downstream
-        # cares which physical bit a given projection lands on, only that
-        # the first m projections are always some fixed, nested subset of
-        # bits as m shrinks round to round, which ascending order gives
-        # for free), so a round's "exact agreement on the first m signs"
-        # becomes "the low m bits of the packed codes match": one masked
-        # equality compare per round on a (q, n, n_tables) shape, not a
-        # slice into n_projections columns re-contracted from scratch
-        # every round.
+        # table (projection i -> bit i), so a round's "agreement on the
+        # first m signs" is just "the low m bits of the packed codes
+        # match".
         if n_projections <= 8:
             code_dtype = xp.uint8
         elif n_projections <= 16:
@@ -1068,42 +1059,16 @@ Nearest neighbor algorithms</concept_desc>
             code_dtype = xp.uint32
         else:
             code_dtype = xp.uint64
-        # Packing sums bit_i * 2**i via matmul against a fixed weight
-        # vector, requesting code_dtype as its dtype directly (both
-        # frameworks' matmul forward that through to a same-kind-safe
-        # cast on the result, so this stays narrow rather than computing
-        # in whatever wider dtype the contraction would otherwise pick).
-        # sparse.matmul still requires a zero fill value on its inputs
-        # regardless of the requested output dtype, which is what > 0
-        # (not >= 0) is for: projected_data is a linear map of the
-        # (sparse-safe) projection matmul above, so its own fill value is
-        # 0, and 0 > 0 is False, keeping the comparison's fill value at
-        # False (0) too -- >= 0 would instead make every implicit zero
-        # satisfy the comparison and flip the fill value to 1. This only
-        # changes how the (never explicitly stored, measure-zero for real
-        # projections) case of an exact-zero projection is classified,
-        # not real near-neighbor behavior.
+        # >0 (not >=0) keeps a sparse-safe zero fill value through matmul.
         weights = xp.astype(2 ** xp.arange(n_projections), code_dtype)
         table_data = xp.matmul(projected_data > 0, weights, dtype=code_dtype)
         table_query = xp.matmul(projected_query > 0, weights, dtype=code_dtype)
 
         candidates = xp.zeros((n_queries, n_samples), dtype=xp.bool)
-        # Each round requires EXACT agreement on a fixed-length prefix of
-        # the n_projections signs -- not a Hamming-radius count -- and
-        # shortens that prefix by one sign a round, starting from the full
-        # n_projections (the finest, smallest-candidate-set partition). The
-        # first m signs are exactly the low m bits of the packed codes
-        # (ascending packing), so masking off the rest and comparing the
-        # masked codes does the same job as comparing the first m signs
-        # directly. At m == 0 the mask is 0, so every code matches and
-        # "accept everyone" falls out for free instead of a separate
-        # branch; that round always satisfies candidate_target <= n_samples
-        # for every query, so this always terminates.
-        #
-        # This benchmark exists to compare array-API backends against each
-        # other on the same computation, so the matching step is plain
-        # broadcast + compare (Q[q,t] == D[n,t]) rather than anything that
-        # special-cases a backend's own sparse/dense internals.
+        # Each round requires exact agreement on a shrinking prefix of the
+        # n_projections signs (the low m bits of the packed codes), until
+        # every query has candidate_target candidates. m == 0 accepts
+        # everyone, so this always terminates.
         required_projections = n_projections
         while True:
             active = xp.sum(candidates, axis=1) < candidate_target
@@ -1112,23 +1077,30 @@ Nearest neighbor algorithms</concept_desc>
             m = max(required_projections, 0)
             mask = xp.asarray((1 << m) - 1, dtype=code_dtype)
             masked_data = table_data & mask
-            masked_query = (table_query & mask) * active[:, None]
-            matches = xp.any(
-                masked_query[:, None, :] == masked_data[None, :, :], axis=-1
+            masked_query = xp.einsum(
+                "M[q,t] = (Q[q,t] & Mask[]) * A[q]",
+                Q=table_query,
+                Mask=mask,
+                A=active,
+            )
+            matches = xp.einsum(
+                "Match[q,n] or= (Q[q,t] == D[n,t])",
+                Q=masked_query,
+                D=masked_data,
             )
             candidates = candidates | matches
             required_projections -= 1
 
-        # Rank candidates by cosine distance, what SimHash actually targets.
-        # A full (q, n) matmul over every pair, same reasoning as agreement
-        # above: no feature axis survives into the output, so there's no
-        # broadcast to avoid by masking before the contraction.
+        # Rerank candidates by cosine distance.
         dot = xp.matmul(query, xp.permute_dims(data, (1, 0)))
         query_norm = xp.sqrt(xp.sum(query**2, axis=-1))
         data_norm = xp.sqrt(xp.sum(data**2, axis=-1))
-        # Guard zero-norm rows so they compare as maximally dissimilar
-        # instead of nan.
-        denom = xp.maximum(query_norm[:, None] * data_norm[None, :], 1e-10)
+        # 1e-10 floor guards zero-norm rows against a nan from 0/0.
+        denom = xp.einsum(
+            "Denom[q,n] = max(Qn[q] * Dn[n], 1e-10)",
+            Qn=query_norm,
+            Dn=data_norm,
+        )
         distances = 1 - dot / denom
         distances = xp.where(candidates, distances, xp.inf)
 
