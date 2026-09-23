@@ -1,5 +1,6 @@
 import importlib
 import shutil
+from types import SimpleNamespace
 from unittest.mock import Mock
 
 import pytest
@@ -16,7 +17,7 @@ from saps.benchmarks.snap import (
     fetch_snap_graph,
     select_source_vertices,
 )
-from saps.downloaders import snap as downloader
+from saps.downloaders import suitesparse as downloader
 from saps.metadata import _benchmark_instances
 from saps.storage import LocalStorageBackend
 
@@ -37,7 +38,22 @@ _CONSUMERS = [
 def test_snap_shell_inventory_covers_consumers():
     generator = SNAPGraphGenerator()
     declared = {d.name for d in generator.datasets}
-    assert len(declared) == len(generator.datasets) == 113
+    assert len(declared) == len(generator.datasets) == 68
+    assert {"soc-Slashdot0902", "as-735", "as-caida"} <= declared
+    assert (
+        not {
+            "facebook_combined",
+            "soc-Slashdot0922",
+            "as-733",
+            "as-Caida",
+            "Deezer Ego-nets",
+            "GitHub Stargazers",
+            "Reddit Threads",
+            "Ego-Nets",
+            "ERC20-stablecoins",
+        }
+        & declared
+    )
     assert SNAPGraphBenchmark().name == "snap_graph_shell"
     assert generator.cacheable
     consumed = set()
@@ -61,6 +77,43 @@ def test_snap_shell_inventory_covers_consumers():
     assert consumed == declared
 
 
+@pytest.mark.parametrize("name", ["soc-Slashdot0902", "as-735", "as-caida"])
+def test_snap_shell_preserves_suitesparse_matrix_and_discards_extras(
+    monkeypatch, tmp_path, name
+):
+    backend = LocalStorageBackend(
+        tmp_path / "remote", tmp_path / "manifest.json", tmp_path / "cache"
+    )
+    monkeypatch.setattr(Generator, "backend", property(lambda _: backend))
+    matrix_dir = tmp_path / name
+    matrix_dir.mkdir()
+    # Preserve signed values, Matrix Market symmetry, and isolated vertices.
+    (matrix_dir / f"{name}.mtx").write_text(
+        "%%MatrixMarket matrix coordinate real symmetric\n4 4 2\n2 1 -2\n4 2 3\n"
+    )
+    (matrix_dir / f"{name}_b.mtx").write_text(
+        "%%MatrixMarket matrix array real general\n4 1\n1\n2\n3\n4\n"
+    )
+    download = Mock(return_value=(matrix_dir, SimpleNamespace(group="SNAP", name=name)))
+    monkeypatch.setattr(downloader, "download_suitesparse_matrix", download)
+    generator = SNAPGraphGenerator()
+    dataset = next(d for d in generator.datasets if d.name == name)
+
+    problem = generator.generate(dataset)
+
+    download.assert_called_once_with(
+        f"SNAP/{name}", data_dir=backend.cache_dir / "suitesparse"
+    )
+    assert len(problem.inputs) == 1
+    np.testing.assert_array_equal(
+        to_scipy(problem.inputs[0]).toarray(),
+        [[0, -2, 0, 0], [-2, 0, 0, 3], [0, 0, 0, 0], [0, 3, 0, 0]],
+    )
+    assert problem.meta == {}
+    assert problem.ref_outputs is None
+    assert problem.ref_meta is None
+
+
 @pytest.mark.parametrize(("module_name", "class_name"), _CONSUMERS)
 def test_snap_consumer_reads_shared_remote_graph_without_source_download(
     monkeypatch, tmp_path, module_name, class_name
@@ -78,29 +131,38 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
         dataset.graph.name if isinstance(dataset, SNAPSourceDataset) else dataset.name
     )
     source = next(d for d in shell.datasets if d.name == slug)
-    path = backend.cache_dir / "snap" / slug / f"{slug}.txt"
+    path = backend.cache_dir / "suitesparse" / "SNAP" / slug / f"{slug}.mtx"
     path.parent.mkdir(parents=True)
-    path.write_text("# directed graph with a self-loop\n10 20\n20 40\n40 40\n")
+    path.write_text(
+        "%%MatrixMarket matrix coordinate pattern general\n3 3 3\n1 2\n2 3\n3 3\n"
+    )
+    source_download = Mock(
+        return_value=(path.parent, SimpleNamespace(group="SNAP", name=slug))
+    )
+    monkeypatch.setattr(downloader, "download_suitesparse_matrix", source_download)
     assert backend.upload_dataset(shell, source)
+    source_download.assert_called_once_with(
+        f"SNAP/{slug}", data_dir=backend.cache_dir / "suitesparse"
+    )
     # Simulate another worker with only the manifest and remote prepared object.
     shutil.rmtree(backend.cache_dir)
     forbidden = Mock(side_effect=AssertionError("Unexpected source download"))
-    monkeypatch.setattr(downloader, "download_snap_dataset", forbidden)
-    monkeypatch.setattr("saps.benchmarks.snap.download_snap_dataset", forbidden)
+    monkeypatch.setattr(downloader, "download_suitesparse_matrix", forbidden)
+    monkeypatch.setattr("saps.benchmarks.snap.load_suitesparse_matrix", forbidden)
     monkeypatch.setattr(backend, "upload_dataset", forbidden)
     download = Mock(wraps=backend.download_file)
     monkeypatch.setattr(backend, "download_file", download)
     manifest = backend.manifest_path.read_bytes()
 
     problem = consumer.cached_generate(dataset)
-    assert problem.meta["directed"] is True
+    assert len(problem.inputs) == 1
     if isinstance(dataset, SNAPSourceDataset):
         assert problem.meta["seed"] == 0
         assert problem.meta["src"] == int(
             select_source_vertices(fetch_snap_graph(slug).inputs[0], seed=0)[0]
         )
     else:
-        assert problem.meta["src"] == 0
+        assert problem.meta == {}
     if module_name == "bellmanford":
         expected = np.array([[0, 1, np.inf], [np.inf, 0, 1], [np.inf, np.inf, 0]])
         np.testing.assert_array_equal(to_sparse(problem.inputs[0]).todense(), expected)
@@ -116,7 +178,6 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
         np.testing.assert_array_equal(
             to_scipy(problem.inputs[0]).toarray(), [[0, 1, 0], [0, 0, 1], [0, 0, 1]]
         )
-        np.testing.assert_array_equal(to_numpy(problem.inputs[1]), [10, 20, 40])
     # Subsequent users read the local shared shell object, not per-consumer caches.
     raw = fetch_snap_graph(slug)
     assert to_scipy(raw.inputs[0]).toarray()[2, 2] == 1
@@ -153,8 +214,8 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
             assert actual.meta["src"] == int(
                 select_source_vertices(raw.inputs[0], seed=variant.seed)[0]
             )
-        assert raw.meta["src"] == 0
-        assert "seed" not in raw.meta
+    assert len(raw.inputs) == 1
+    assert raw.meta == {}
     download.assert_called_once()
     assert download.call_args.args[0].startswith(f"snap_graph/{slug}/")
     forbidden.assert_not_called()
@@ -207,9 +268,9 @@ def test_snap_catalog_metadata_and_group_concepts():
     from xml.etree import ElementTree as ET
 
     datasets = SNAPGraphGenerator().datasets
-    assert len({group for d in datasets for group in d.groups}) == 23
     for dataset in datasets:
         metadata = dataset.metadata
+        assert metadata["source_name"] == f"SNAP/{dataset.name}"
         assert metadata["types"] == dataset.types
         assert metadata["description"] == dataset.description
         assert metadata["nodes"] == dataset.nodes
@@ -217,20 +278,14 @@ def test_snap_catalog_metadata_and_group_concepts():
         assert metadata["groups"] == dataset.groups
         assert ET.fromstring(dataset.concepts).findtext("concept/concept_id")
         assert dataset.topics
-    reddit = [d for d in datasets if d.name == "soc-RedditHyperlinks"]
-    assert len(reddit) == 1
-    assert len(reddit[0].groups) == 4
-    assert reddit[0].static_edges == 858490
-    assert reddit[0].items == "858,490 links between 55,863 subreddits"
-    assert "Subreddit hyperlinks" in reddit[0].types
-    concepts = ET.fromstring(reddit[0].concepts).findall("concept/concept_id")
-    assert len(concepts) == len({c.text for c in concepts}) == 3
     by_name = {d.name: d for d in datasets}
-    assert by_name["as-733"].nodes == "103-6,474"
-    assert by_name["wiki-hoaxes"].edges is None
-    assert by_name["Deezer Ego-nets"].nodes is None
-    assert by_name["Deezer Ego-nets"].graphs == 9629
-    assert by_name["web-BeerAdvocate"].items == "1,586,259 beer reviews"
+    rfa = by_name["wiki-RfA"]
+    assert len(rfa.groups) == 3
+    concepts = ET.fromstring(rfa.concepts).findall("concept/concept_id")
+    assert len(concepts) == len({c.text for c in concepts}) == 3
+    assert by_name["as-735"].nodes == "103-6,474"
+    assert by_name["com-Amazon"].communities == 75149
+    assert by_name["email-Eu-core-temporal"].static_edges == 24929
 
 
 def test_source_selection_samples_nonzero_edge_starts_reproducibly():
