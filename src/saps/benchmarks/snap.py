@@ -243,7 +243,79 @@ class SNAPSourceDataset(Dataset):
             "graph": self.graph.name,
             "seed": self.seed,
         }
+2284 SNAP/soc-Epinions1     who-trusts-whom network of Epinions.com
+2285 SNAP/soc-LiveJournal1  LiveJournal social network
+2286 SNAP/soc-Slashdot0811  Slashdot social network, Nov 2008
+2287 SNAP/soc-Slashdot0902  Slashdot social network, Feb 2009
+2288 SNAP/wiki-Vote         Wikipedia who-votes-on-whom network
+2289 SNAP/email-EuAll       Email network from a EU research institution
+2290 SNAP/email-Enron       Email communication network from Enron
+2291 SNAP/wiki-Talk         Wikipedia talk (communication) network
+2292 SNAP/cit-HepPh         Arxiv High Energy Physics paper citation network
+2293 SNAP/cit-HepTh         Arxiv High Energy Physics paper citation network
+2294 SNAP/cit-Patents       Citation network among US Patents
+2295 SNAP/ca-AstroPh        Collaboration network of Arxiv Astro Physics
+2296 SNAP/ca-CondMat        Collaboration network of Arxiv Condensed Matter
+2297 SNAP/ca-GrQc           Collaboration network of Arxiv General Relativity
+2298 SNAP/ca-HepPh          Collaboration network of Arxiv High Energy Physics
+2299 SNAP/ca-HepTh          Collaboration network of Arxiv High Energy Physics Theory
+2300 SNAP/web-BerkStan      Web graph of Berkeley and Stanford
+2301 SNAP/web-Google        Web graph from Google
+2302 SNAP/web-NotreDame     Web graph of Notre Dame
+2303 SNAP/web-Stanford      Web graph of Stanford.edu
+2304 SNAP/amazon0302        Amazon product co-purchasing network from March 2 2003
+2305 SNAP/amazon0312        Amazon product co-purchasing network from March 12 2003
+2306 SNAP/amazon0505        Amazon product co-purchasing network from May 5 2003
+2307 SNAP/amazon0601        Amazon product co-purchasing network from June 1 2003
+2308 SNAP/p2p-Gnutella04    Gnutella peer to peer network from August 4 2002
+2309 SNAP/p2p-Gnutella05    Gnutella peer to peer network from August 5 2002
+2310 SNAP/p2p-Gnutella06    Gnutella peer to peer network from August 6 2002
+2311 SNAP/p2p-Gnutella08    Gnutella peer to peer network from August 8 2002
+2312 SNAP/p2p-Gnutella09    Gnutella peer to peer network from August 9 2002
+2313 SNAP/p2p-Gnutella24    Gnutella peer to peer network from August 24 2002
+2314 SNAP/p2p-Gnutella25    Gnutella peer to peer network from August 25 2002
+2315 SNAP/p2p-Gnutella30    Gnutella peer to peer network from August 30 2002
+2316 SNAP/p2p-Gnutella31    Gnutella peer to peer network from August 31 2002
+2317 SNAP/roadNet-CA        Road network of California
+2318 SNAP/roadNet-PA        Road network of Pennsylvania
+2319 SNAP/roadNet-TX        Road network of Texas
+2320 SNAP/as-735            733 daily instances(graphs) from November 8 1997 to January 2 2000
+2321 SNAP/as-Skitter        Internet topology graph, from traceroutes run daily in 2005
+2322 SNAP/as-caida          The CAIDA AS Relationships Datasets, from January 2004 to November 2007
+2323 SNAP/Oregon-1          AS peering information inferred from Oregon route-views between March 31 and May 26 2001
+2324 SNAP/Oregon-2          AS peering information inferred from Oregon route-views between March 31 and May 26 2001
+2325 SNAP/soc-sign-epinions         Epinions signed social network
+2326 SNAP/soc-sign-Slashdot081106   Slashdot Zoo signed social network from November 6 2008
+2327 SNAP/soc-sign-Slashdot090216   Slashdot Zoo signed social network from February 16 2009
+2328 SNAP/soc-sign-Slashdot090221   Slashdot Zoo signed social network from February 21 2009
 
+Then the following problems were added in July 2018.  All data and
+metadata from the SNAP data set was imported into the SuiteSparse
+Matrix Collection.
+
+2777 SNAP/CollegeMsg                Messages on a Facebook-like platform at UC-Irvine
+2778 SNAP/com-Amazon                Amazon product network
+2779 SNAP/com-DBLP                  DBLP collaboration network
+2780 SNAP/com-Friendster            Friendster online social network
+2781 SNAP/com-LiveJournal           LiveJournal online social network
+2782 SNAP/com-Orkut                 Orkut online social network
+2783 SNAP/com-Youtube               Youtube online social network
+2784 SNAP/email-Eu-core             E-mail network
+2785 SNAP/email-Eu-core-temporal    E-mails between users at a research institution
+2786 SNAP/higgs-twitter             twitter messages re: Higgs boson on 4th July 2012.
+2787 SNAP/loc-Brightkite            Brightkite location based online social network
+2788 SNAP/loc-Gowalla               Gowalla location based online social network
+2789 SNAP/soc-Pokec                 Pokec online social network
+2790 SNAP/soc-sign-bitcoin-alpha    Bitcoin Alpha web of trust network
+2791 SNAP/soc-sign-bitcoin-otc      Bitcoin OTC web of trust network
+2792 SNAP/sx-askubuntu              Comments, questions, and answers on Ask Ubuntu
+2793 SNAP/sx-mathoverflow           Comments, questions, and answers on Math Overflow
+2794 SNAP/sx-stackoverflow          Comments, questions, and answers on Stack Overflow
+2795 SNAP/sx-superuser              Comments, questions, and answers on Super User
+2796 SNAP/twitter7                  A collection of 476 million tweets collected between June-Dec 2009
+2797 SNAP/wiki-RfA                  Wikipedia Requests for Adminship (with text)
+2798 SNAP/wiki-talk-temporal        Users editing talk pages on Wikipedia
+2799 SNAP/wiki-topcats              Wikipedia hyperlinks (with communities)
 
 # One explicit entry per source. Additional group memberships and metadata
 # from repeated catalog listings are merged into that source entry.
