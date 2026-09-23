@@ -173,8 +173,8 @@ The 68 SuiteSparse SNAP sources are explicitly listed in
 `src/saps/benchmarks/snap.py` and the shared inventory in
 `src/saps/benchmarks/suitesparse.py`. Add new sources to both inventories, then
 regenerate metadata and prepare the SuiteSparse cache. Entries without SuiteSparse
-matrices remain commented out with
-their original metadata and are not exposed by SNAP generators.
+matrices remain commented out with their original metadata and are not exposed
+by SNAP generators.
 
 The OpenML shell caches the feature matrix together with train/test row indices
 from a pinned task, repeat, fold, and sample. MNIST uses task 3573 and CIFAR-10 uses

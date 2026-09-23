@@ -157,7 +157,9 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
     shutil.rmtree(backend.cache_dir)
     forbidden = Mock(side_effect=AssertionError("Unexpected source download"))
     monkeypatch.setattr(downloader, "download_suitesparse_matrix", forbidden)
-    monkeypatch.setattr("saps.benchmarks.suitesparse.load_suitesparse_matrix", forbidden)
+    monkeypatch.setattr(
+        "saps.benchmarks.suitesparse.load_suitesparse_matrix", forbidden
+    )
     monkeypatch.setattr(backend, "upload_dataset", forbidden)
     download = Mock(wraps=backend.download_file)
     monkeypatch.setattr(backend, "download_file", download)
