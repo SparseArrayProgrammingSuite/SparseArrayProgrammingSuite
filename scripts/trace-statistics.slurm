@@ -41,7 +41,7 @@ poetry run ./bin/run_benchmark.py \
   --tag trace \
   --chunk-count "$SAPS_TRACE_CHUNK_COUNT" \
   --chunk-index "$SLURM_ARRAY_TASK_ID" \
-  --timeout "${SAPS_TRACE_TIMEOUT:-30}" \
+  --timeout "${SAPS_TRACE_TIMEOUT:-120}" \
   --show-stderr \
   --remote-storage-backend "$REMOTE_STORAGE_BACKEND" \
   --remote-storage-bucket "$REMOTE_STORAGE_BUCKET"
