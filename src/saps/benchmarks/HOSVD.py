@@ -406,9 +406,9 @@ def _hosvd_frostt_dataset(tensor_name, ranks):
         f"HOSVD ranks {ranks} do not match shape {shape} for "
         f"FROSTT tensor {tensor_name}"
     )
-    assert all(
-        r <= s for r, s in zip(ranks, shape, strict=True)
-    ), f"HOSVD ranks {ranks} exceed shape {shape} for FROSTT tensor {tensor_name}"
+    assert all(r <= s for r, s in zip(ranks, shape, strict=True)), (
+        f"HOSVD ranks {ranks} exceed shape {shape} for FROSTT tensor {tensor_name}"
+    )
     n = len(shape)
     return HOSVDFrosttDataset(
         name=f"hosvd_frostt_{tensor_name}",
@@ -755,9 +755,9 @@ class HOSVD3DBenchmark(HOSVDBenchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(
-                item, BinsparseTensor
-            ), "Output must be in binsparse format"
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
 
         X = to_numpy(self._input[0])
         rank1, rank2, rank3 = to_numpy(self._input[1])
@@ -875,9 +875,9 @@ class HOSVD4DBenchmark(HOSVDBenchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(
-                item, BinsparseTensor
-            ), "Output must be in binsparse format"
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
 
         X = to_numpy(self._input[0])
         rank1, rank2, rank3, rank4 = to_numpy(self._input[1])
@@ -1014,9 +1014,9 @@ class HOSVD5DBenchmark(HOSVDBenchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(
-                item, BinsparseTensor
-            ), "Output must be in binsparse format"
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
 
         X = to_numpy(self._input[0])
         rank1, rank2, rank3, rank4, rank5 = to_numpy(self._input[1])

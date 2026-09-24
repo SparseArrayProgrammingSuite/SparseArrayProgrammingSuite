@@ -703,9 +703,9 @@ class CP_ALS_3D(CP_ALS):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(
-                item, BinsparseTensor
-            ), "Output must be in binsparse format"
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
 
         if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
             return
@@ -726,9 +726,9 @@ class CP_ALS_3D(CP_ALS):
         Y = np.einsum("r,ir,jr,kr->ijk", lambda_vals, A, B, C)
 
         rel_error = np.linalg.norm(Y - X) / np.linalg.norm(X)
-        assert (
-            rel_error < self._ref_meta["rel_error_tol"]
-        ), f"CP3 reconstruction error too high: {rel_error:.6f}"
+        assert rel_error < self._ref_meta["rel_error_tol"], (
+            f"CP3 reconstruction error too high: {rel_error:.6f}"
+        )
 
 
 class CP_ALS_4D(CP_ALS):
@@ -835,9 +835,9 @@ class CP_ALS_4D(CP_ALS):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(
-                item, BinsparseTensor
-            ), "Output must be in binsparse format"
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
 
         if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
             return
@@ -859,9 +859,9 @@ class CP_ALS_4D(CP_ALS):
         Y = np.einsum("r,ir,jr,kr,lr->ijkl", lambda_vals, A, B, C, D)
 
         rel_error = np.linalg.norm(Y - X) / np.linalg.norm(X)
-        assert (
-            rel_error < self._ref_meta["rel_error_tol"]
-        ), f"CP4 reconstruction error too high: {rel_error:.6f}"
+        assert rel_error < self._ref_meta["rel_error_tol"], (
+            f"CP4 reconstruction error too high: {rel_error:.6f}"
+        )
 
 
 class CP_ALS_5D(CP_ALS):
@@ -999,9 +999,9 @@ class CP_ALS_5D(CP_ALS):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(
-                item, BinsparseTensor
-            ), "Output must be in binsparse format"
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
 
         if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
             return
@@ -1024,6 +1024,6 @@ class CP_ALS_5D(CP_ALS):
         Y = np.einsum("r,ir,jr,kr,lr,mr->ijklm", lambda_vals, A, B, C, D, E)
 
         rel_error = np.linalg.norm(Y - X) / np.linalg.norm(X)
-        assert (
-            rel_error < self._ref_meta["rel_error_tol"]
-        ), f"CP5 reconstruction error too high: {rel_error:.6f}"
+        assert rel_error < self._ref_meta["rel_error_tol"], (
+            f"CP5 reconstruction error too high: {rel_error:.6f}"
+        )

@@ -127,9 +127,7 @@ def _tune_lsh(dataset, n_features: int, n_samples: int):
     better than that guess suggests."""
     n_tables = dataset.max_tables
     if dataset.candidate_target > 0:
-        expected_false_matches = (
-            max(n_samples * n_tables, 1) / dataset.candidate_target
-        )
+        expected_false_matches = max(n_samples * n_tables, 1) / dataset.candidate_target
         n_projections = math.ceil(
             math.log(
                 max(expected_false_matches, 1.0), 1.0 / _RANDOM_COLLISION_PROBABILITY
@@ -192,9 +190,7 @@ class SimHashApproxNNGeneratorMixin(ABC):
             dataset, n_features, data.shape[0]
         )
 
-        projection = self.projection(
-            n_features, n_tables * n_projections, dataset.seed
-        )
+        projection = self.projection(n_features, n_tables * n_projections, dataset.seed)
         try:
             projection = to_numpy(projection)
         except TypeError:
@@ -1111,9 +1107,9 @@ Nearest neighbor algorithms</concept_desc>
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(
-                item, BinsparseTensor
-            ), "Output must be in binsparse format"
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
         if not self._ref_meta:
             return
 
