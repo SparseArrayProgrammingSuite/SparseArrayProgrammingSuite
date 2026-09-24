@@ -93,8 +93,10 @@ def test_dry_run_and_no_op_preserve_bytes(pruner, documents):
         '{"benchmarks": {}}',
         '{"benchmarks": [{"generators": []}, {}]}',
         '{"benchmarks": [{"generators": [{"name": "x", "datasets": []}]}]}',
-        '{"benchmarks": [{"generators": '
-        '[{"name": "x", "cacheable": "false", "datasets": []}]}]}',
+        (
+            '{"benchmarks": [{"generators": '
+            '[{"name": "x", "cacheable": "false", "datasets": []}]}]}'
+        ),
     ],
 )
 def test_invalid_metadata_leaves_manifest_intact(pruner, documents, document):

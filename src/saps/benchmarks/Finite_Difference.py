@@ -128,7 +128,8 @@ class _FiniteDifferenceGeneratorMixin:
 
     @property
     def pretty_name(self) -> str:
-        return f"Finite Difference Data Generator ({_FLUX_PRETTY_NAMES[self.flux_name]} flux)"
+        flux = _FLUX_PRETTY_NAMES[self.flux_name]
+        return f"Finite Difference Data Generator ({flux} flux)"
 
     @property
     def description(self) -> str:
