@@ -21,7 +21,7 @@ cd "$repo_directory"
 poetry run ./bin/generate_metadata.py
 
 account="${SAPS_SLURM_ACCOUNT:-gts-wahrens6}"
-trace_chunk_count="${SAPS_TRACE_CHUNK_COUNT:-4}"
+trace_chunk_count="${SAPS_TRACE_CHUNK_COUNT:-8}"
 trace_array_end=$((trace_chunk_count - 1))
 
 if ((trace_chunk_count < 1)); then

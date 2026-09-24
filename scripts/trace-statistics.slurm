@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=statistics-trace
 #SBATCH --nodes=1
-#SBATCH --mem=16G
+#SBATCH --mem=192G
+#SBATCH --cpus-per-task=12
 #SBATCH --time=04:00:00
 #SBATCH --output=trace-%A_%a.log
 
