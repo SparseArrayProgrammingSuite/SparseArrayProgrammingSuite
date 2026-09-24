@@ -654,6 +654,12 @@ def main() -> int:
             if key in env_nobuild:
                 env_nobuild[key] = _resolve_path_values(env_nobuild[key])
 
+    if asv_config_dict["environment_type"] == "existing:same":
+        for key in ("SAPS_FRAMEWORK", "SAPS_REPO_ROOT"):
+            values = conf.matrix.get("env_nobuild", {}).get(key)
+            if isinstance(values, list) and len(values) == 1:
+                os.environ[key] = values[0]
+
     # Read host details without ASV's interactive, shared machine registry.
     machine_params = Machine()
     machine_params.__dict__.update(Machine.get_defaults())
