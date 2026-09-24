@@ -238,6 +238,15 @@ def _sparse_unfold_with_diagonals(
     return sp.COO(output_coords, output_data, shape=output_shape)
 
 
+def _is_full_slice(index) -> bool:
+    return (
+        isinstance(index, slice)
+        and index.start in (None, 0)
+        and index.stop is None
+        and index.step in (None, 1)
+    )
+
+
 class _MutableCOO(sp.COO):
     """COO arithmetic with indexed assignment through a temporary DOK builder."""
 
@@ -284,6 +293,34 @@ class _MutableCOO(sp.COO):
                 )
                 self.coords = updated.coords
                 self.data = updated.data
+                self._cache = None
+                return
+        # A full slice on one axis and a scalar on the other (Q[:, i] = ...,
+        # row-major equivalent) is a whole-row/column replace: filter out
+        # that row/column's existing coordinates and append the new ones,
+        # vectorized, instead of DOK's element-by-element Python loop. This
+        # is the pattern iterative solvers hit rewriting one Krylov basis
+        # column per step -- and it's a *replace*, so old entries at that
+        # index must be dropped, not summed with the new ones the way COO
+        # construction would.
+        if self.ndim == 2 and isinstance(key, tuple) and len(key) == 2:
+            if _is_full_slice(key[0]) and isinstance(key[1], (int, np.integer)):
+                varying_axis, fixed_axis, fixed_index = 0, 1, int(key[1])
+            elif isinstance(key[0], (int, np.integer)) and _is_full_slice(key[1]):
+                varying_axis, fixed_axis, fixed_index = 1, 0, int(key[0])
+            else:
+                varying_axis = None
+            if varying_axis is not None:
+                value = np.broadcast_to(
+                    np.asarray(value, dtype=self.dtype), (self.shape[varying_axis],)
+                )
+                keep = self.coords[fixed_axis] != fixed_index
+                nonfill = np.flatnonzero(value != self.fill_value)
+                new_coords = np.empty((2, len(nonfill)), dtype=self.coords.dtype)
+                new_coords[varying_axis] = nonfill
+                new_coords[fixed_axis] = fixed_index
+                self.coords = np.concatenate([self.coords[:, keep], new_coords], axis=1)
+                self.data = np.concatenate([self.data[keep], value[nonfill]])
                 self._cache = None
                 return
         builder = sp.DOK.from_coo(self)

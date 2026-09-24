@@ -1595,7 +1595,6 @@ class GMRESBenchmark(Benchmark):
 
             x_cycle_start = x0
             for i in range(restart):
-                x0 = (x0, rcurr)
                 rcurr = A @ Q[:, i]
 
                 H[: i + 1, i] = xp.vecdot(Q[:, : i + 1].T, rcurr)
