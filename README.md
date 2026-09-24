@@ -123,6 +123,19 @@ verified before entering the shared cache. Missing manifest entries or unavailab
 prepared data fail setup with an instruction to run `--cache-datasets`; normal
 runs never regenerate cacheable inputs or write manifest metadata.
 
+Prune unused manifest entries using `metadata.json` as the source of truth:
+
+```bash
+poetry run ./bin/prune_manifest.py --dry-run
+poetry run ./bin/prune_manifest.py
+```
+
+The script removes entries absent from metadata or belonging only to generators
+with `cacheable: false`, preserving retained records regardless of freshness.
+Regenerate metadata first if benchmark definitions have changed. Use `--metadata`
+and `--manifest` for alternate files; the manifest also honors `SAPS_MANIFEST_PATH`.
+Pruning does not delete local cache files or remote objects.
+
 Generators marked `cacheable = False` still assemble benchmark inputs during
 setup from their shared source datasets. Those transformations must preserve
 sparsity and use prepared data. The G-CARE downloader reads graph matrices,
