@@ -78,7 +78,7 @@ class SmartSparseLinalg:
     @staticmethod
     def lstsq(A, b, **kwargs):
         return np.linalg.lstsq(
-            SmartSparseLinalg._dense(A), PyDataSparseLinalg._dense(b), **kwargs
+            SmartSparseLinalg._dense(A), SmartSparseLinalg._dense(b), **kwargs
         )
 
     @staticmethod
@@ -382,6 +382,49 @@ class SmartSparseFramework(Framework):
     def compute(self, array):
         return array
 
+    def to_dense(self, array):
+        # A sparse array can carry a nonzero fill value (e.g. downstream of
+        # a boolean mask that's mostly True) without being sparse in any
+        # useful sense; densifying is then both cheap and the only way to
+        # feed it to ordinary elementwise ops without tripping pydata/
+        # sparse's mixed sparse-dense guard.
+        if hasattr(array, "todense"):
+            return array.todense()
+        return array
+
+    def where(self, condition, x, y):
+        # A sparse boolean condition selecting from a dense x with a scalar
+        # fill y (e.g. an LSH candidate mask picking real distances out of
+        # a dense distance matrix, else infinity) never needs the dense
+        # result materialized: gather x's values at condition's stored
+        # (true, since fill_value is falsy) coordinates and hand them back
+        # in a COO with fill_value=y -- O(nnz) instead of O(condition.size).
+        # The generic dispatch below would instead sparsify x, since it
+        # sparsifies every argument once any one of them is sparse.
+        if (
+            isinstance(condition, sp.SparseArray)
+            and condition.ndim == 2
+            and not condition.fill_value
+            and not isinstance(x, sp.SparseArray)
+            and x.shape == condition.shape
+            and np.isscalar(y)
+        ):
+            coo = condition if isinstance(condition, sp.COO) else condition.asformat("coo")
+            rows, cols = coo.coords
+            x = np.asarray(x)
+            return sp.COO(
+                coo.coords,
+                x[rows, cols],
+                shape=condition.shape,
+                fill_value=x.dtype.type(y),
+            )
+        if self._has_sparse_arg(condition, x, y):
+            condition, x, y = (
+                self._sparse_compatible_arg(arg) for arg in (condition, x, y)
+            )
+            return sp.where(condition, x, y)
+        return compat_np.where(condition, x, y)
+
     def einsum(self, prgm, **kwargs):
         if all(not isinstance(value, sp.SparseArray) for value in kwargs.values()):
             xp = self._array_namespace(*kwargs.values())
@@ -483,10 +526,33 @@ class SmartSparseFramework(Framework):
                     f"SmartSparseFramework.matmul doesn't support {sorted(kwargs)} "
                     "for sparse operands"
                 )
+            if (
+                isinstance(x1, sp.SparseArray)
+                and isinstance(x2, sp.SparseArray)
+                and x1.ndim == 2
+                and x2.ndim == 2
+            ):
+                # Two genuinely sparse (as opposed to formally sparse, e.g.
+                # LSH bucket indicators) 2D operands: go through SciPy's
+                # CSR-CSR product instead of pydata/sparse's own `@`. That
+                # path (sparse/_coo/core.py's linear_loc-based reshape/
+                # tensordot machinery, flagged by its own "this self.size
+                # enforces a 2**64 limit to array size" TODO) is built for
+                # general N-D contractions, not tuned for the very wide,
+                # very sparse 2D case -- SciPy's is.
+                result = self._to_scipy_sparse(x1) @ self._to_scipy_sparse(x2)
+                result = sp.GCXS.from_scipy_sparse(result.tocsr())
+                return result if dtype is None else result.astype(dtype)
             result = x1 @ x2
             return result if dtype is None else result.astype(dtype)
         xp = self._array_namespace(x1, x2)
         return xp.matmul(x1, x2, **kwargs)
+
+    @staticmethod
+    def _to_scipy_sparse(array):
+        if hasattr(array, "to_scipy_sparse"):
+            return array.to_scipy_sparse()
+        return sps.coo_matrix(np.asarray(array))
 
     def zeros(self, shape, *args, **kwargs):
         # Vectors also serve as dense index and scalar buffers in the suite.

@@ -1071,19 +1071,42 @@ Nearest neighbor algorithms</concept_desc>
             if not xp.any(active):
                 break
             m = max(required_projections, 0)
+            n_buckets = 1 << m
             mask = xp.asarray((1 << m) - 1, dtype=code_dtype)
-            masked_data = table_data & mask
-            masked_query = xp.einsum(
-                "M[q,t] = (Q[q,t] & Mask[]) * A[q]",
-                Q=table_query,
-                Mask=mask,
-                A=active,
+            masked_data = xp.to_dense(table_data & mask)
+            masked_query = xp.to_dense(
+                xp.einsum(
+                    "M[q,t] = (Q[q,t] & Mask[]) * A[q]",
+                    Q=table_query,
+                    Mask=mask,
+                    A=active,
+                )
             )
-            matches = xp.einsum(
-                "Match[q,n] or= (Q[q,t] == D[n,t])",
-                Q=masked_query,
-                D=masked_data,
+
+            # One-hot each row's (table, code) into a combined column
+            # (table * n_buckets + code); a sparse matmul then counts, per
+            # (query, sample) pair, how many tables agree -- the same
+            # result as the dense broadcast below, without ever
+            # materializing an O(n_queries * n_samples * n_tables) array:
+            #   matches = xp.einsum(
+            #       "Match[q,n] or= (Q[q,t] == D[n,t])",
+            #       Q=masked_query, D=masked_data,
+            #   )
+            offsets = xp.astype(xp.arange(n_tables), xp.int64) * n_buckets
+            query_indicator = xp.zeros((n_queries, n_tables * n_buckets), dtype=xp.uint8)
+            query_indicator[
+                xp.reshape(xp.arange(n_queries)[:, None] + offsets * 0, (-1,)),
+                xp.reshape(xp.astype(masked_query, xp.int64) + offsets, (-1,)),
+            ] = 1
+            data_indicator = xp.zeros((n_samples, n_tables * n_buckets), dtype=xp.uint8)
+            data_indicator[
+                xp.reshape(xp.arange(n_samples)[:, None] + offsets * 0, (-1,)),
+                xp.reshape(xp.astype(masked_data, xp.int64) + offsets, (-1,)),
+            ] = 1
+            matches = (
+                xp.matmul(query_indicator, xp.permute_dims(data_indicator, (1, 0))) > 0
             )
+
             candidates = candidates | matches
             required_projections -= 1
 
