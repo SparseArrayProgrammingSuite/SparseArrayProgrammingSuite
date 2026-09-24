@@ -1,0 +1,120 @@
+---------------------------------------
+Begin Slurm Prolog: Sep-23-2026 21:49:19
+Job ID:    13510949
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  dataset-upload
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+INFO:root:Using SAPS config: {'environment_type': 'existing:same'}
+· Using SAPS config: {'environment_type': 'existing:same'}INFO:root:Using SAPS outputs directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs
+
+· Using SAPS outputs directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputsINFO:root:Using SAPS dataset cache: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache
+
+· Using SAPS dataset cache: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cacheINFO:root:Using SAPS machine files directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/machine_files
+
+· Using SAPS machine files directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/machine_filesINFO:root:Discovering benchmarks
+
+· Discovering benchmarksINFO:root:Benchmarking existing-py_storage_home_hcoda1_7_wahrens6_.cache_pypoetry_virtualenvs_saps-RkeCTkZF-py3.12_bin_python3
+Discovered 3 benchmark entries for caching
+Using timeout: 5000 seconds
+
+· Benchmarking existing-py_storage_home_hcoda1_7_wahrens6_.cache_pypoetry_virtualenvs_saps-RkeCTkZF-py3.12_bin_python3INFO:root:...ference2DBenchmark.time_finite_difference_2d
+
+·· ...ference2DBenchmark.time_finite_difference_2d                 okINFO:root:==================================================================================== =====
+                                      dataset                                             
+------------------------------------------------------------------------------------ -----
+            finite_difference_inputs_2d_burgers.fd2d_test_scale_burgers               n/a 
+          finite_difference_inputs_2d_burgers.fd2d_realistic_scale_burgers            n/a 
+   finite_difference_inputs_2d_buckley_leverett.fd2d_test_scale_buckley_leverett      n/a 
+ finite_difference_inputs_2d_buckley_leverett.fd2d_realistic_scale_buckley_leverett   n/a 
+   finite_difference_inputs_2d_linear_advection.fd2d_test_scale_linear_advection      n/a 
+ finite_difference_inputs_2d_linear_advection.fd2d_realistic_scale_linear_advection   n/a 
+==================================================================================== =====
+
+·· ==================================================================================== =====
+                                         dataset                                             
+   ------------------------------------------------------------------------------------ -----
+               finite_difference_inputs_2d_burgers.fd2d_test_scale_burgers               n/a 
+             finite_difference_inputs_2d_burgers.fd2d_realistic_scale_burgers            n/a 
+      finite_difference_inputs_2d_buckley_leverett.fd2d_test_scale_buckley_leverett      n/a 
+    finite_difference_inputs_2d_buckley_leverett.fd2d_realistic_scale_buckley_leverett   n/a 
+      finite_difference_inputs_2d_linear_advection.fd2d_test_scale_linear_advection      n/a 
+    finite_difference_inputs_2d_linear_advection.fd2d_realistic_scale_linear_advection   n/a 
+   ==================================================================================== =====
+INFO:root:...teDifferenceBenchmark.time_finite_difference
+
+·· ...teDifferenceBenchmark.time_finite_difference                 okINFO:root:=============================================================================== =====
+                                    dataset                                          
+------------------------------------------------------------------------------- -----
+             finite_difference_inputs_burgers.fd_test_scale_burgers              n/a 
+          finite_difference_inputs_burgers.fd_realistic_scale_burgers            n/a 
+    finite_difference_inputs_buckley_leverett.fd_test_scale_buckley_leverett     n/a 
+ finite_difference_inputs_buckley_leverett.fd_realistic_scale_buckley_leverett   n/a 
+    finite_difference_inputs_linear_advection.fd_test_scale_linear_advection     n/a 
+ finite_difference_inputs_linear_advection.fd_realistic_scale_linear_advection   n/a 
+=============================================================================== =====
+
+·· =============================================================================== =====
+                                       dataset                                          
+   ------------------------------------------------------------------------------- -----
+                finite_difference_inputs_burgers.fd_test_scale_burgers              n/a 
+             finite_difference_inputs_burgers.fd_realistic_scale_burgers            n/a 
+       finite_difference_inputs_buckley_leverett.fd_test_scale_buckley_leverett     n/a 
+    finite_difference_inputs_buckley_leverett.fd_realistic_scale_buckley_leverett   n/a 
+       finite_difference_inputs_linear_advection.fd_test_scale_linear_advection     n/a 
+    finite_difference_inputs_linear_advection.fd_realistic_scale_linear_advection   n/a 
+   =============================================================================== =====
+INFO:root:...ApproxNearestNeighbor.time_simhash_approx_nn
+
+·· ...ApproxNearestNeighbor.time_simhash_approx_nn                 okINFO:root:========================================================================= =====
+                                 dataset                                       
+------------------------------------------------------------------------- -----
+  simhash_projection_test_inputs_dense.test_simhash_preserves_similarity   n/a 
+ simhash_projection_test_inputs_sparse.test_simhash_preserves_similarity   n/a 
+                  simhash_projection_inputs_dense.small                    n/a 
+                  simhash_projection_inputs_dense.medium                   n/a 
+                  simhash_projection_inputs_dense.large                    n/a 
+                  simhash_projection_inputs_sparse.small                   n/a 
+                 simhash_projection_inputs_sparse.medium                   n/a 
+                  simhash_projection_inputs_sparse.large                   n/a 
+                   simhash_approx_nn_openml_dense.mnist                    n/a 
+                  simhash_approx_nn_openml_dense.cifar10                   n/a 
+                  simhash_approx_nn_openml_sparse.mnist                    n/a 
+                 simhash_approx_nn_openml_sparse.cifar10                   n/a 
+                 simhash_approx_nn_netflix_dense.netflix                   n/a 
+                 simhash_approx_nn_netflix_sparse.netflix                  n/a 
+========================================================================= =====
+
+·· ========================================================================= =====
+                                    dataset                                       
+   ------------------------------------------------------------------------- -----
+     simhash_projection_test_inputs_dense.test_simhash_preserves_similarity   n/a 
+    simhash_projection_test_inputs_sparse.test_simhash_preserves_similarity   n/a 
+                     simhash_projection_inputs_dense.small                    n/a 
+                     simhash_projection_inputs_dense.medium                   n/a 
+                     simhash_projection_inputs_dense.large                    n/a 
+                     simhash_projection_inputs_sparse.small                   n/a 
+                    simhash_projection_inputs_sparse.medium                   n/a 
+                     simhash_projection_inputs_sparse.large                   n/a 
+                      simhash_approx_nn_openml_dense.mnist                    n/a 
+                     simhash_approx_nn_openml_dense.cifar10                   n/a 
+                     simhash_approx_nn_openml_sparse.mnist                    n/a 
+                    simhash_approx_nn_openml_sparse.cifar10                   n/a 
+                    simhash_approx_nn_netflix_dense.netflix                   n/a 
+                    simhash_approx_nn_netflix_sparse.netflix                  n/a 
+   ========================================================================= =====
+cache summary: selected=18 failed_benchmark_entries=0
+---------------------------------------
+Begin Slurm Epilog: Sep-23-2026 22:12:56
+Job ID:        13510949
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      dataset-upload
+Resources:     cpu=24,mem=350G,node=1
+Rsrc Used:     cput=09:16:48,vmem=0,walltime=00:23:12,mem=2428324K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-10-1
+---------------------------------------
