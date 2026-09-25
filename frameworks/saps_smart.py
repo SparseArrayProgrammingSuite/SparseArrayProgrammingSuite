@@ -446,7 +446,11 @@ class SmartSparseFramework(Framework):
             and x.shape == condition.shape
             and np.isscalar(y)
         ):
-            coo = condition if isinstance(condition, sp.COO) else condition.asformat("coo")
+            coo = (
+                condition
+                if isinstance(condition, sp.COO)
+                else condition.asformat("coo")
+            )
             rows, cols = coo.coords
             x = np.asarray(x)
             return sp.COO(

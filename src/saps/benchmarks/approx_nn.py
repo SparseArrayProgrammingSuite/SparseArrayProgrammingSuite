@@ -1093,7 +1093,9 @@ Nearest neighbor algorithms</concept_desc>
             #       Q=masked_query, D=masked_data,
             #   )
             offsets = xp.astype(xp.arange(n_tables), xp.int64) * n_buckets
-            query_indicator = xp.zeros((n_queries, n_tables * n_buckets), dtype=xp.uint8)
+            query_indicator = xp.zeros(
+                (n_queries, n_tables * n_buckets), dtype=xp.uint8
+            )
             query_indicator[
                 xp.reshape(xp.arange(n_queries)[:, None] + offsets * 0, (-1,)),
                 xp.reshape(xp.astype(masked_query, xp.int64) + offsets, (-1,)),
