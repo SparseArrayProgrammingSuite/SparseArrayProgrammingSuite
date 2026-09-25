@@ -5,6 +5,7 @@ import scipy.sparse as sps
 
 from binsparse.conversions import from_scipy, to_numpy
 
+from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_scipy import SciPyFramework
 from saps.benchmarks.BFS import BreadthFirstSearchBenchmark
 
@@ -70,7 +71,8 @@ def test_scipy_sparse_bfs_checks_all_test_datasets(monkeypatch):
     for param in params:
         benchmark.setup(param, use_cache=False, xp=xp)
         benchmark._input = [
-            from_scipy(sps.csr_array(to_numpy(item))) for item in benchmark._input
+            from_scipy(sps.csr_array(NumpyFramework().from_binsparse(item)))
+            for item in benchmark._input
         ]
         benchmark.run(param)
         benchmark.teardown(param)
