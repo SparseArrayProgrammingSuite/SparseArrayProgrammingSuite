@@ -148,8 +148,8 @@ def _matrix_with_overlap(coo, rng: np.random.Generator, overlap: float):
 # overlap in _ELEMENTWISE_OVERLAPS.
 # (matrix name, include in the correctness test suite)
 _ELEMENTWISE_MATRICES: list[tuple[str, bool]] = [
-    ("SNAP/email-Eu-core", True),
-    ("SNAP/ca-GrQc", True),
+    ("SNAP/email-Eu-core", False),
+    ("SNAP/ca-GrQc", False),
     ("SNAP/wiki-Vote", False),
 ]
 

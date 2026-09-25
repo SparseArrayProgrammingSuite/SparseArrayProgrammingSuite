@@ -76940,16 +76940,14 @@
               "name": "email-Eu-core-overlap-100",
               "pretty_name": "email-Eu-core-overlap-100",
               "suites": [
-                "sparse",
-                "test"
+                "sparse"
               ],
               "tags": [
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "micro-benchmark",
-                "sparse",
-                "test"
+                "sparse"
               ],
               "topics": []
             },
@@ -76982,16 +76980,14 @@
               "name": "email-Eu-core-overlap-50",
               "pretty_name": "email-Eu-core-overlap-50",
               "suites": [
-                "sparse",
-                "test"
+                "sparse"
               ],
               "tags": [
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "micro-benchmark",
-                "sparse",
-                "test"
+                "sparse"
               ],
               "topics": []
             },
@@ -77024,16 +77020,14 @@
               "name": "ca-GrQc-overlap-100",
               "pretty_name": "ca-GrQc-overlap-100",
               "suites": [
-                "sparse",
-                "test"
+                "sparse"
               ],
               "tags": [
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "micro-benchmark",
-                "sparse",
-                "test"
+                "sparse"
               ],
               "topics": []
             },
@@ -77066,16 +77060,14 @@
               "name": "ca-GrQc-overlap-50",
               "pretty_name": "ca-GrQc-overlap-50",
               "suites": [
-                "sparse",
-                "test"
+                "sparse"
               ],
               "tags": [
                 "mathematical-software",
                 "mathematical-software-performance",
                 "mathematics-of-computing",
                 "micro-benchmark",
-                "sparse",
-                "test"
+                "sparse"
               ],
               "topics": []
             },
@@ -103386,8 +103378,7 @@
               "name": "email",
               "pretty_name": "email",
               "suites": [
-                "sparse",
-                "test"
+                "sparse"
               ],
               "tags": [
                 "mathematical-software",
@@ -103395,8 +103386,7 @@
                 "mathematics-of-computing",
                 "micro-benchmark",
                 "numerical-analysis",
-                "sparse",
-                "test"
+                "sparse"
               ],
               "topics": []
             },
@@ -103409,8 +103399,7 @@
               "name": "email-Eu-core",
               "pretty_name": "email-Eu-core",
               "suites": [
-                "sparse",
-                "test"
+                "sparse"
               ],
               "tags": [
                 "mathematical-software",
@@ -103418,8 +103407,7 @@
                 "mathematics-of-computing",
                 "micro-benchmark",
                 "numerical-analysis",
-                "sparse",
-                "test"
+                "sparse"
               ],
               "topics": []
             },
@@ -103432,8 +103420,7 @@
               "name": "ca-GrQc",
               "pretty_name": "ca-GrQc",
               "suites": [
-                "sparse",
-                "test"
+                "sparse"
               ],
               "tags": [
                 "mathematical-software",
@@ -103441,8 +103428,7 @@
                 "mathematics-of-computing",
                 "micro-benchmark",
                 "numerical-analysis",
-                "sparse",
-                "test"
+                "sparse"
               ],
               "topics": []
             },
@@ -103455,8 +103441,7 @@
               "name": "bcsstk09",
               "pretty_name": "bcsstk09",
               "suites": [
-                "sparse",
-                "test"
+                "sparse"
               ],
               "tags": [
                 "mathematical-software",
@@ -103464,8 +103449,7 @@
                 "mathematics-of-computing",
                 "micro-benchmark",
                 "numerical-analysis",
-                "sparse",
-                "test"
+                "sparse"
               ],
               "topics": []
             },
@@ -103478,8 +103462,7 @@
               "name": "Chebyshev3",
               "pretty_name": "Chebyshev3",
               "suites": [
-                "sparse",
-                "test"
+                "sparse"
               ],
               "tags": [
                 "mathematical-software",
@@ -103487,8 +103470,7 @@
                 "mathematics-of-computing",
                 "micro-benchmark",
                 "numerical-analysis",
-                "sparse",
-                "test"
+                "sparse"
               ],
               "topics": []
             },
@@ -103959,8 +103941,7 @@
               "name": "gemat11",
               "pretty_name": "gemat11",
               "suites": [
-                "sparse",
-                "test"
+                "sparse"
               ],
               "tags": [
                 "mathematical-software",
@@ -103968,8 +103949,7 @@
                 "mathematics-of-computing",
                 "micro-benchmark",
                 "numerical-analysis",
-                "sparse",
-                "test"
+                "sparse"
               ],
               "topics": []
             },
@@ -103982,8 +103962,7 @@
               "name": "bayer02",
               "pretty_name": "bayer02",
               "suites": [
-                "sparse",
-                "test"
+                "sparse"
               ],
               "tags": [
                 "mathematical-software",
@@ -103991,8 +103970,7 @@
                 "mathematics-of-computing",
                 "micro-benchmark",
                 "numerical-analysis",
-                "sparse",
-                "test"
+                "sparse"
               ],
               "topics": []
             },
@@ -104005,8 +103983,7 @@
               "name": "bayer10",
               "pretty_name": "bayer10",
               "suites": [
-                "sparse",
-                "test"
+                "sparse"
               ],
               "tags": [
                 "mathematical-software",
@@ -104014,8 +103991,7 @@
                 "mathematics-of-computing",
                 "micro-benchmark",
                 "numerical-analysis",
-                "sparse",
-                "test"
+                "sparse"
               ],
               "topics": []
             },
@@ -104028,8 +104004,7 @@
               "name": "orani678",
               "pretty_name": "orani678",
               "suites": [
-                "sparse",
-                "test"
+                "sparse"
               ],
               "tags": [
                 "mathematical-software",
@@ -104037,8 +104012,7 @@
                 "mathematics-of-computing",
                 "micro-benchmark",
                 "numerical-analysis",
-                "sparse",
-                "test"
+                "sparse"
               ],
               "topics": []
             },
@@ -104051,8 +104025,7 @@
               "name": "rdist1",
               "pretty_name": "rdist1",
               "suites": [
-                "sparse",
-                "test"
+                "sparse"
               ],
               "tags": [
                 "mathematical-software",
@@ -104060,8 +104033,7 @@
                 "mathematics-of-computing",
                 "micro-benchmark",
                 "numerical-analysis",
-                "sparse",
-                "test"
+                "sparse"
               ],
               "topics": []
             },
@@ -104074,8 +104046,7 @@
               "name": "memplus",
               "pretty_name": "memplus",
               "suites": [
-                "sparse",
-                "test"
+                "sparse"
               ],
               "tags": [
                 "mathematical-software",
@@ -104083,8 +104054,7 @@
                 "mathematics-of-computing",
                 "micro-benchmark",
                 "numerical-analysis",
-                "sparse",
-                "test"
+                "sparse"
               ],
               "topics": []
             },
@@ -114052,8 +114022,7 @@
               "name": "email-Eu-core-128",
               "pretty_name": "email-Eu-core-128",
               "suites": [
-                "sparse",
-                "test"
+                "sparse"
               ],
               "tags": [
                 "mathematical-software",
@@ -114061,8 +114030,7 @@
                 "mathematics-of-computing",
                 "micro-benchmark",
                 "numerical-analysis",
-                "sparse",
-                "test"
+                "sparse"
               ],
               "topics": []
             },
@@ -114075,8 +114043,7 @@
               "name": "email-128",
               "pretty_name": "email-128",
               "suites": [
-                "sparse",
-                "test"
+                "sparse"
               ],
               "tags": [
                 "mathematical-software",
@@ -114084,8 +114051,7 @@
                 "mathematics-of-computing",
                 "micro-benchmark",
                 "numerical-analysis",
-                "sparse",
-                "test"
+                "sparse"
               ],
               "topics": []
             },
@@ -114098,8 +114064,7 @@
               "name": "ca-GrQc-128",
               "pretty_name": "ca-GrQc-128",
               "suites": [
-                "sparse",
-                "test"
+                "sparse"
               ],
               "tags": [
                 "mathematical-software",
@@ -114107,8 +114072,7 @@
                 "mathematics-of-computing",
                 "micro-benchmark",
                 "numerical-analysis",
-                "sparse",
-                "test"
+                "sparse"
               ],
               "topics": []
             },

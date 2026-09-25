@@ -162,15 +162,14 @@ class SuiteSparseMatmulDataset(Dataset):
 # algorithms, where A*A gives two-hop neighbourhoods (triangle counting,
 # multi-source BFS), and algebraic multigrid, where SpGEMM forms the Galerkin
 # coarse-grid operator. Both benchmark A*A, so the suite covers both classes.
-# Only small matrices join the test suite: it runs the NumPy framework, which
-# densifies, making cost scale with n**3 rather than with nnz.
+# No SuiteSparse matrix joins the test suite: tests must not download data.
 # (matrix name, application class, include in the correctness test suite)
 _MATMUL_MATRICES: list[tuple[str, str, bool]] = [
-    ("Arenas/email", "graph algorithms", True),
-    ("SNAP/email-Eu-core", "graph algorithms", True),
-    ("SNAP/ca-GrQc", "graph algorithms", True),
-    ("HB/bcsstk09", "algebraic multigrid", True),
-    ("Muite/Chebyshev3", "algebraic multigrid", True),
+    ("Arenas/email", "graph algorithms", False),
+    ("SNAP/email-Eu-core", "graph algorithms", False),
+    ("SNAP/ca-GrQc", "graph algorithms", False),
+    ("HB/bcsstk09", "algebraic multigrid", False),
+    ("Muite/Chebyshev3", "algebraic multigrid", False),
     ("SNAP/CollegeMsg", "graph algorithms", False),
     ("SNAP/wiki-Vote", "graph algorithms", False),
     ("SNAP/ca-HepPh", "graph algorithms", False),

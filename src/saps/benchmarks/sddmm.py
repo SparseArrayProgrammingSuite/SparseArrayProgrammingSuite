@@ -64,9 +64,9 @@ SDDMM_EMBEDDING_WIDTH = 128
 # modest because the benchmark forms the dense A @ B product, which costs n**2.
 # (matrix name, include in the correctness test suite)
 _SDDMM_GRAPHS: list[tuple[str, bool]] = [
-    ("SNAP/email-Eu-core", True),
-    ("Arenas/email", True),
-    ("SNAP/ca-GrQc", True),
+    ("SNAP/email-Eu-core", False),
+    ("Arenas/email", False),
+    ("SNAP/ca-GrQc", False),
     ("SNAP/wiki-Vote", False),
     ("SNAP/ca-HepPh", False),
 ]
