@@ -1073,14 +1073,12 @@ Nearest neighbor algorithms</concept_desc>
             m = max(required_projections, 0)
             n_buckets = 1 << m
             mask = xp.asarray((1 << m) - 1, dtype=code_dtype)
-            masked_data = xp.to_dense(table_data & mask)
-            masked_query = xp.to_dense(
-                xp.einsum(
-                    "M[q,t] = (Q[q,t] & Mask[]) * A[q]",
-                    Q=table_query,
-                    Mask=mask,
-                    A=active,
-                )
+            masked_data = table_data & mask
+            masked_query = xp.einsum(
+                "M[q,t] = (Q[q,t] & Mask[]) * A[q]",
+                Q=table_query,
+                Mask=mask,
+                A=active,
             )
 
             # One-hot each row's (table, code) into a combined column

@@ -429,6 +429,19 @@ class SmartSparseFramework(Framework):
             return array.todense()
         return array
 
+    def sum(self, x, axis=None, **kwargs):
+        # A reduction always produces something smaller than its input --
+        # dropping an axis entirely, at minimum -- so there's no size
+        # justification for the result to stay sparse the way there is for
+        # e.g. matmul. Keeping it sparse only risks a nonzero fill value
+        # (a comparison like `sum(...) < target` flips the fill to True
+        # once the implicit zero rows satisfy it) poisoning everything
+        # downstream with pydata/sparse's mixed sparse-dense guard.
+        if isinstance(x, sp.SparseArray):
+            return self.to_dense(sp.sum(x, axis=axis, **kwargs))
+        xp = self._array_namespace(x)
+        return xp.sum(x, axis=axis, **kwargs)
+
     def where(self, condition, x, y):
         # A sparse boolean condition selecting from a dense x with a scalar
         # fill y (e.g. an LSH candidate mask picking real distances out of
