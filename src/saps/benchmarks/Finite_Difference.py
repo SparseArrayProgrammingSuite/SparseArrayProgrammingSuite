@@ -126,6 +126,8 @@ class FiniteDifferenceDataset(Dataset):
 class _FiniteDifferenceGeneratorMixin:
     """Metadata shared by the 1D and 2D finite-difference generators."""
 
+    flux_name: str
+
     @property
     def pretty_name(self) -> str:
         flux = _FLUX_PRETTY_NAMES[self.flux_name]
