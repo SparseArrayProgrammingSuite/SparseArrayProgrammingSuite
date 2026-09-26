@@ -572,6 +572,7 @@ def main() -> int:
         "REMOTE_STORAGE_BUCKET": storage_bucket,
         "SAPS_CACHE_DIR": cache_dir,
         "SAPS_MANIFEST_PATH": manifest_path,
+        "SAPS_CHECK_SUITE": ("1" if args.check_suite else "0"),
     }
     if args.memory_limit is not None:
         saps_env_nobuild["SAPS_MEMORY_LIMIT_BYTES"] = str(args.memory_limit)

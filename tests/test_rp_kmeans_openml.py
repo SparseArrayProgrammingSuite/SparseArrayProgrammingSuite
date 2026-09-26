@@ -32,6 +32,10 @@ def test_openml_shell_generator_scales_features_and_records_shape(monkeypatch):
         )
 
     monkeypatch.setattr("saps.benchmarks.openml._fetch_openml", fake_fetch_openml)
+    monkeypatch.setattr(
+        "saps.benchmarks.openml._fetch_openml_task_split",
+        lambda dataset, num_rows: (np.array([1]), np.array([0])),
+    )
     generator = OpenMLDatasetGenerator()
     dataset = generator.datasets[0]
 
@@ -51,6 +55,10 @@ def test_openml_shell_generator_scales_features_and_records_shape(monkeypatch):
     assert instance.meta["fetched_version"] == 1
     assert instance.meta["num_rows"] == 2
     assert instance.meta["num_features"] == 2
+    np.testing.assert_array_equal(to_numpy(instance.inputs[1]), [1])
+    np.testing.assert_array_equal(to_numpy(instance.inputs[2]), [0])
+    assert instance.meta["task_id"] == 3573
+    assert instance.meta["fold"] == 0
 
 
 @pytest.mark.parametrize("cache_override", ["", "shared-cache"])
@@ -169,7 +177,9 @@ def test_rp_kmeans_benchmark_uses_one_openml_generator_for_standard_datasets():
         "mnist",
         "cifar10",
     ]
-    assert all(dataset.suites == ["standard"] for dataset in openml_generator.datasets)
+    assert all(
+        dataset.suites == ["standard", "trace"] for dataset in openml_generator.datasets
+    )
     assert "rp_kmeans_mnist" not in {generator.name for generator in generators}
     assert "rp_kmeans_cifar10" not in {generator.name for generator in generators}
 

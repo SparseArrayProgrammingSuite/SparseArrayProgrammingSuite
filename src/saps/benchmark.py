@@ -508,7 +508,11 @@ class Benchmark(Tagged, Attributed, Motivated):
 
     def teardown(self, param):
         if hasattr(self, "_output"):
-            self.check(param)
+            if (
+                os.environ.get("SAPS_CHECK_SUITE") == "1"
+                and "test" in param.dataset.suites
+            ):
+                self.check(param)
             del self._output
         if hasattr(self, "_meta"):
             del self._meta

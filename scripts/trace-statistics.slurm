@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=statistics-trace
 #SBATCH --nodes=1
-#SBATCH --mem=16G
+#SBATCH --mem=192G
+#SBATCH --cpus-per-task=12
 #SBATCH --time=04:00:00
 #SBATCH --output=trace-%A_%a.log
 
@@ -40,7 +41,7 @@ poetry run ./bin/run_benchmark.py \
   --tag trace \
   --chunk-count "$SAPS_TRACE_CHUNK_COUNT" \
   --chunk-index "$SLURM_ARRAY_TASK_ID" \
-  --timeout "${SAPS_TRACE_TIMEOUT:-30}" \
+  --timeout "${SAPS_TRACE_TIMEOUT:-120}" \
   --show-stderr \
   --remote-storage-backend "$REMOTE_STORAGE_BACKEND" \
   --remote-storage-bucket "$REMOTE_STORAGE_BUCKET"

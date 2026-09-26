@@ -13,6 +13,23 @@ torch_xp.power = torch.pow  # type: ignore[attr-defined]
 _parse_einsum = torch.compiler.disable(parse_einsum)
 
 
+# torch can't promote these with bool (or run matmul on them), so bool operands
+# are cast to the unsigned dtype first.
+_WIDE_UNSIGNED = frozenset({torch.uint16, torch.uint32, torch.uint64})
+_BOOL_PROMOTED_OPS = frozenset(
+    {"add", "subtract", "multiply", "bitwise_and", "bitwise_or", "bitwise_xor"}
+)
+
+
+def _cast_bool_to_wide_unsigned(x1, x2):
+    if torch.is_tensor(x1) and torch.is_tensor(x2):
+        if x1.dtype == torch.bool and x2.dtype in _WIDE_UNSIGNED:
+            x1 = x1.to(x2.dtype)
+        elif x2.dtype == torch.bool and x1.dtype in _WIDE_UNSIGNED:
+            x2 = x2.to(x1.dtype)
+    return x1, x2
+
+
 def _is_sparse_tensor(array):
     return array.layout in {
         torch.sparse_coo,
@@ -69,7 +86,7 @@ class PytorchFramework(Framework):
         return torch.compile(func)
 
     def einsum(self, prgm, **kwargs):
-        return _parse_einsum(prgm).run(torch_xp, kwargs)
+        return _parse_einsum(prgm).run(self, kwargs)
 
     def unfold(
         self,
@@ -148,6 +165,15 @@ class PytorchFramework(Framework):
     def with_fill_value(self, array, value):
         return array
 
+    def matmul(self, x1, x2, /, **kwargs):
+        x1, x2 = _cast_bool_to_wide_unsigned(x1, x2)
+        if x1.dtype in _WIDE_UNSIGNED or x2.dtype in _WIDE_UNSIGNED:
+            out_dtype = torch.result_type(x1, x2)
+            return torch_xp.matmul(x1.to(torch.int64), x2.to(torch.int64), **kwargs).to(
+                out_dtype
+            )
+        return torch_xp.matmul(x1, x2, **kwargs)
+
     def maximum(self, x, y):
         if not torch.is_tensor(y):
             y = torch.as_tensor(y, dtype=x.dtype, device=x.device)
@@ -159,9 +185,16 @@ class PytorchFramework(Framework):
         return torch.minimum(x, y)
 
     def __getattr__(self, name):
-        if hasattr(torch_xp, name):
-            return getattr(torch_xp, name)
-        return getattr(torch, name)
+        attr = (
+            getattr(torch_xp, name) if hasattr(torch_xp, name) else getattr(torch, name)
+        )
+        if name in _BOOL_PROMOTED_OPS:
+
+            def op(x1, x2, /, **kwargs):
+                return attr(*_cast_bool_to_wide_unsigned(x1, x2), **kwargs)
+
+            return op
+        return attr
 
 
 xp = PytorchFramework()

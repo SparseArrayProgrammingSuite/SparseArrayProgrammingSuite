@@ -162,20 +162,20 @@ def test_resume_merges_results_per_environment_and_skips_completed_runs(
 
 @pytest.mark.parametrize("chunk_index", range(5))
 @pytest.mark.parametrize("cache_override", ["", "shared-cache"])
-def test_competition_selects_standard_jl_datasets_without_machine_prompts(
+def test_competition_selects_standard_simhash_datasets_without_machine_prompts(
     runner, monkeypatch, tmp_path, chunk_index, cache_override
 ):
     import json
     import sys
 
-    from saps.benchmarks.approx_nn import JLApproxNNGenerator
+    from saps.benchmarks.approx_nn import SimHashApproxNNSparseGenerator
 
     root = Path(runner.__file__).resolve().parents[1]
     monkeypatch.chdir(root)
     monkeypatch.setenv("SAPS_CACHE_DIR", cache_override)
     expected_cache = str(root / (cache_override or ".saps/outputs/cache"))
     metadata = json.loads((root / "metadata.json").read_text())["benchmarks"]
-    benchmark = next(item for item in metadata if item["name"] == "jl_approx_nn")
+    benchmark = next(item for item in metadata if item["name"] == "simhash_approx_nn")
     params = [
         dataset["asv_param"]
         for generator in benchmark["generators"]
@@ -200,7 +200,7 @@ def test_competition_selects_standard_jl_datasets_without_machine_prompts(
                     "SAPS_REPO_ROOT", include["env_nobuild"]["SAPS_REPO_ROOT"]
                 )
                 worker.chdir(tmp_path)
-                for dataset in JLApproxNNGenerator().datasets:
+                for dataset in SimHashApproxNNSparseGenerator().datasets:
                     assert dataset.file == "src/saps/benchmarks/approx_nn.py"
         return [object()]
 
@@ -226,6 +226,8 @@ def test_competition_selects_standard_jl_datasets_without_machine_prompts(
             "run_benchmark.py",
             "--config",
             str(root / "competition.config.json"),
+            "--re",
+            "^simhash_approx_nn$",
             "--saps-dir",
             str(tmp_path),
             "--env-dir",
@@ -248,9 +250,12 @@ def test_competition_selects_standard_jl_datasets_without_machine_prompts(
     assert (
         actual
         == [
-            "jl_approx_nn_openml.mnist",
-            "jl_approx_nn_openml.cifar10",
-            "jl_approx_nn_netflix.netflix",
+            "simhash_approx_nn_openml_dense.mnist",
+            "simhash_approx_nn_openml_dense.cifar10",
+            "simhash_approx_nn_openml_sparse.mnist",
+            "simhash_approx_nn_openml_sparse.cifar10",
+            "simhash_approx_nn_netflix_dense.netflix",
+            "simhash_approx_nn_netflix_sparse.netflix",
         ][chunk_index::5]
     )
     assert kwargs["machine_params"].machine == "run_12345-task-0"
@@ -300,3 +305,46 @@ def test_saved_diagnostics_preserve_machines_across_resume(
     loaded.load_data(tmp_path)
     assert loaded.get_result_value(name, benchmark["params"])[:2] == [1.0, 2.0]
     assert not list(tmp_path.rglob(".save-*"))
+
+
+@pytest.mark.parametrize(
+    ("flags", "expected"),
+    [
+        ([], "0"),
+        (["--tag", "test"], "0"),
+        (["--check-suite"], "1"),
+        (["--trace-statistics"], "0"),
+        (["--cache-datasets"], "0"),
+    ],
+)
+def test_runner_propagates_explicit_check_mode(
+    runner, tmp_path, monkeypatch, flags, expected
+):
+    import os
+    import sys
+
+    # Stale parent/config settings must not enable checks for normal timing runs.
+    monkeypatch.setattr(os, "environ", {**os.environ, "SAPS_CHECK_SUITE": "1"})
+    config = {
+        "matrix": {"env_nobuild": {"SAPS_CHECK_SUITE": ["1"]}},
+        "include": [{"python": "3.12", "env_nobuild": {"SAPS_CHECK_SUITE": "1"}}],
+    }
+    monkeypatch.setattr(runner, "_load_saps_config", lambda _: config)
+    monkeypatch.setattr(
+        sys, "argv", ["run_benchmark.py", "--saps-dir", str(tmp_path), *flags]
+    )
+    captured = []
+
+    class ConfigCaptured(Exception):
+        pass
+
+    def capture(value):
+        captured.append(value)
+        raise ConfigCaptured
+
+    monkeypatch.setattr(runner.Config, "from_json", capture)
+    with pytest.raises(ConfigCaptured):
+        runner.main()
+    assert os.environ["SAPS_CHECK_SUITE"] == expected
+    assert captured[0]["matrix"]["env_nobuild"]["SAPS_CHECK_SUITE"] == [expected]
+    assert captured[0]["include"][0]["env_nobuild"]["SAPS_CHECK_SUITE"] == expected

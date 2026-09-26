@@ -12,8 +12,8 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.snap import SNAPDataset, SNAPGraphGenerator, fetch_snap_graph
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
-from saps.downloaders.snap import download_snap_dataset
 
 
 class ConnectedComponentsDataset(Dataset):
@@ -69,7 +69,7 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -103,13 +103,13 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
         return [
             ConnectedComponentsDataset(
                 "test_cc_fully_connected",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]], dtype=bool),
                 ref_meta={"component_count": 1},
             ),
             ConnectedComponentsDataset(
                 "test_cc_two_disconnected_components",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 0, 0],
@@ -123,13 +123,13 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
             ),
             ConnectedComponentsDataset(
                 "test_cc_isolated_nodes",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.zeros((4, 4), dtype=bool),
                 ref_meta={"component_count": 4},
             ),
             ConnectedComponentsDataset(
                 "test_cc_directed_star_pointing_inward",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 0, 0, 0],
@@ -143,13 +143,13 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
             ),
             ConnectedComponentsDataset(
                 "test_cc_single_node",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.zeros((1, 1), dtype=bool),
                 ref_meta={"shape": [1]},
             ),
             ConnectedComponentsDataset(
                 "test_cc_snap_toy",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array([[0, 1, 0], [0, 0, 1], [0, 0, 0]], dtype=bool),
                 ref_meta={"component_count": 1},
             ),
@@ -166,18 +166,22 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
         )
 
 
-class ConnectedComponentsGenerator(Generator[ConnectedComponentsDataset]):
+class ConnectedComponentsSNAPGenerator(Generator[SNAPDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
     @property
     def name(self) -> str:
-        return "connected_components_inputs"
+        return "connected_components_snap_inputs"
 
     @property
     def pretty_name(self) -> str:
-        return "Connected Components Input Generator"
+        return "Connected Components SNAP Input Generator"
 
     @property
     def description(self) -> str:
-        return "Input generator for connected components benchmarks."
+        return "SNAP input generator for connected components benchmarks."
 
     @property
     def suites(self) -> list[str]:
@@ -222,41 +226,12 @@ class ConnectedComponentsGenerator(Generator[ConnectedComponentsDataset]):
         return "Generate sparse graph inputs for connected components."
 
     @property
-    def datasets(self) -> list[ConnectedComponentsDataset]:
-        return [
-            ConnectedComponentsDataset(
-                name="snap-email-Eu-core",
-                pretty_name="SNAP email-Eu-core",
-                description=(
-                    "Directed email communication network from a European research"
-                    " institution, with 1,005 nodes and 25,571 edges."
-                ),
-                suites=[],
-            ),
-            ConnectedComponentsDataset(
-                name="snap-facebook_combined",
-                pretty_name="SNAP facebook_combined",
-                description=(
-                    "Combined Facebook social-circle network, with 4,039 nodes and"
-                    " 88,234 edges."
-                ),
-                suites=[],
-            ),
-            ConnectedComponentsDataset(
-                name="snap-ca-GrQc",
-                pretty_name="SNAP ca-GrQc",
-                description=(
-                    "Arxiv General Relativity and Quantum Cosmology collaboration"
-                    " network, with 5,242 nodes and 14,496 edges."
-                ),
-                suites=[],
-            ),
-        ]
+    def datasets(self) -> list[SNAPDataset]:
+        return SNAPGraphGenerator().datasets
 
-    def generate(self, dataset: ConnectedComponentsDataset) -> DataInstance:
-        if dataset.name.startswith("snap"):
-            inputs, meta = download_snap_dataset(dataset.name)
-            return DataInstance(inputs=inputs, meta=meta)
+    def generate(self, dataset: SNAPDataset) -> DataInstance:
+        if dataset.name in self.dataset_names:
+            return fetch_snap_graph(dataset.name)
         raise ValueError(f"Unsupported connected components dataset: {dataset.name}")
 
 
@@ -457,10 +432,10 @@ class SimplyConnectedComponentsBenchmark(Benchmark):
         return ""
 
     @property
-    def generators(self) -> list[Generator[ConnectedComponentsDataset]]:
+    def generators(self) -> list[Generator]:
         return [
             ConnectedComponentsTestGenerator(),
-            ConnectedComponentsGenerator(),
+            ConnectedComponentsSNAPGenerator(),
             ConnectedComponentsGAPGenerator(),
         ]
 

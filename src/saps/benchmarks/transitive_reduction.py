@@ -1,6 +1,7 @@
 import numpy as np
 
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse import COORMatrix
+from binsparse.conversions import from_numpy, to_numpy, to_scipy
 
 from saps.benchmark import (
     Author,
@@ -11,6 +12,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.snap import SNAPDataset, SNAPGraphGenerator, fetch_snap_graph
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 
 
@@ -74,7 +76,7 @@ class TransitiveReductionTestGenerator(Generator[TransitiveReductionDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -103,25 +105,25 @@ class TransitiveReductionTestGenerator(Generator[TransitiveReductionDataset]):
                 "remove_long_direct_edge",
                 edges=[(0, 1, 10.0), (1, 2, 10.0), (0, 2, 30.0)],
                 expected_edges=[(0, 1, 10.0), (1, 2, 10.0)],
-                suites=["test", "trace"],
+                suites=["test"],
             ),
             TransitiveReductionDataset(
                 "keep_short_direct_edge",
                 edges=[(0, 1, 10.0), (1, 2, 10.0), (0, 2, 15.0)],
                 expected_edges=[(0, 1, 10.0), (1, 2, 10.0), (0, 2, 15.0)],
-                suites=["test", "trace"],
+                suites=["test"],
             ),
             TransitiveReductionDataset(
                 "keep_when_indirect_is_long",
                 edges=[(0, 1, 40.0), (1, 2, 40.0), (0, 2, 30.0)],
                 expected_edges=[(0, 1, 40.0), (1, 2, 40.0), (0, 2, 30.0)],
-                suites=["test", "trace"],
+                suites=["test"],
             ),
             TransitiveReductionDataset(
                 "remove_equal_direct_edge",
                 edges=[(0, 1, 10.0), (1, 2, 10.0), (0, 2, 20.0)],
                 expected_edges=[(0, 1, 10.0), (1, 2, 10.0)],
-                suites=["test", "trace"],
+                suites=["test"],
             ),
         ]
 
@@ -137,6 +139,74 @@ class TransitiveReductionTestGenerator(Generator[TransitiveReductionDataset]):
             meta={"x": 1, "max_iters": 5},
             ref_outputs=[from_numpy(expected)],
         )
+
+
+class TransitiveReductionSNAPGenerator(Generator[SNAPDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def name(self) -> str:
+        return "transitive_reduction_snap_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Transitive Reduction SNAP Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "SNAP input generator for transitive reduction benchmarks."
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Generate sparse directed graph inputs for transitive reduction."
+
+    @property
+    def datasets(self) -> list[SNAPDataset]:
+        return SNAPGraphGenerator().datasets
+
+    def generate(self, dataset: SNAPDataset) -> DataInstance:
+        if dataset.name in self.dataset_names:
+            raw = fetch_snap_graph(dataset.name)
+            edges = to_scipy(raw.inputs[0]).tocoo(copy=True)
+            edges.sum_duplicates()
+            keep = (edges.row != edges.col) & (edges.data != 0)
+            values = np.ones(np.count_nonzero(keep), dtype=float)
+            distances = COORMatrix(
+                edges.shape,
+                values.size,
+                fill=True,
+                fill_value=np.inf,
+                indices_0=edges.row[keep],
+                indices_1=edges.col[keep],
+                values=values,
+            )
+            return DataInstance(inputs=[distances], meta=dict(raw.meta))
+        raise ValueError(f"Unsupported transitive reduction dataset: {dataset.name}")
 
 
 class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
@@ -350,7 +420,11 @@ class TransitiveReductionBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [TransitiveReductionTestGenerator(), TransitiveReductionGAPGenerator()]
+        return [
+            TransitiveReductionTestGenerator(),
+            TransitiveReductionSNAPGenerator(),
+            TransitiveReductionGAPGenerator(),
+        ]
 
     def benchmark(self, xp, data, meta):
         R = data[0]

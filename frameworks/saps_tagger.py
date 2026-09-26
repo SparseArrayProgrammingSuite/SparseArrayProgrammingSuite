@@ -4,7 +4,7 @@ from typing import Any
 
 import numpy as np
 
-from saps_sparse import PyDataSparseFramework
+from saps_smart import SmartSparseFramework
 
 from saps_framework import Framework
 
@@ -337,7 +337,7 @@ class TaggedArray:
 
     def __setitem__(self, key, value):
         self.framework._record_operation("array", "setitem", (self, key, value), {})
-        self.array[key] = self.framework._unwrap(value)
+        self.array[self.framework._unwrap(key)] = self.framework._unwrap(value)
 
     def __array__(self, dtype=None):
         data = np.asarray(self.array)
@@ -633,7 +633,7 @@ class TaggedLinalg:
 
 class TaggerFramework(Framework):
     def __init__(self, wrapped: Framework | None = None):
-        self.wrapped = wrapped or PyDataSparseFramework()
+        self.wrapped = wrapped or SmartSparseFramework()
         self.stats: dict[str, Any] = {
             "operators": {},
             "operator_arg_counts": {},

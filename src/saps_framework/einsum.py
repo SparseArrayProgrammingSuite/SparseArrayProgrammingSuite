@@ -162,7 +162,7 @@ class Literal(EinsumExpr):
 
     def run(self, xp, loops, kwargs):
         # Create a scalar array with the same shape as needed
-        shape = [1] * len(loops)
+        shape = (1,) * len(loops)
         return xp.full(shape, self.value)
 
 

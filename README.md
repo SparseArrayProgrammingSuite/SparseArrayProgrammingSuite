@@ -123,6 +123,19 @@ verified before entering the shared cache. Missing manifest entries or unavailab
 prepared data fail setup with an instruction to run `--cache-datasets`; normal
 runs never regenerate cacheable inputs or write manifest metadata.
 
+Prune unused manifest entries using `metadata.json` as the source of truth:
+
+```bash
+poetry run ./bin/prune_manifest.py --dry-run
+poetry run ./bin/prune_manifest.py
+```
+
+The script removes entries absent from metadata or belonging only to generators
+with `cacheable: false`, preserving retained records regardless of freshness.
+Regenerate metadata first if benchmark definitions have changed. Use `--metadata`
+and `--manifest` for alternate files; the manifest also honors `SAPS_MANIFEST_PATH`.
+Pruning does not delete local cache files or remote objects.
+
 Generators marked `cacheable = False` still assemble benchmark inputs during
 setup from their shared source datasets. Those transformations must preserve
 sparsity and use prepared data. The G-CARE downloader reads graph matrices,
@@ -142,7 +155,58 @@ in `gcare/`.
 
 SuiteSparse source downloads used during cache preparation also share this cache,
 under `suitesparse/<group>/<name>`. A lock and atomic publication let workers reuse
-one completed source download across its RHS selections.
+one completed source download across its RHS selections. The `suitesparse_matrix_shell`
+cache stores each matrix with all compatible RHS vectors once. Uncached solver
+generators select individual RHS columns after fetching that shared entry.
+Older caches that stored one entry per RHS need a one-time refresh in the
+dataset-upload environment:
+
+```bash
+poetry run ./bin/generate_metadata.py
+poetry run ./bin/run_benchmark.py --cache-datasets --re '^suitesparse_matrix_shell$'
+```
+
+SNAP graphs are prepared by `suitesparse_matrix_shell` and stored once under
+`suitesparse_matrix/SNAP/<name>/<digest>.bsp.h5`. BFS, Bellman-Ford, centrality, connected
+components, FastSV, PageRank, transitive closure/reduction, triangle counting, and four-clique
+counting reuse those graphs. The uncached `snap_graph` generator reads these
+prepared SuiteSparse inputs and returns only the matrix, preserving its values
+and dimensions. Bellman-Ford derives its sparse distance representation
+during setup. Source archives share the `suitesparse/SNAP/` cache.
+
+Regenerate metadata and prepare the SuiteSparse cache before running these consumers
+with the SuiteSparse sources:
+
+```bash
+poetry run ./bin/generate_metadata.py
+poetry run ./bin/run_benchmark.py --cache-datasets --re '^suitesparse_matrix_shell$'
+```
+
+The 68 SuiteSparse SNAP sources are explicitly listed in
+`src/saps/benchmarks/snap.py` and the shared inventory in
+`src/saps/benchmarks/suitesparse.py`. Add new sources to both inventories, then
+regenerate metadata and prepare the SuiteSparse cache. Entries without SuiteSparse
+matrices remain commented out with their original metadata and are not exposed
+by SNAP generators.
+
+The OpenML shell caches the feature matrix together with train/test row indices
+from a pinned task, repeat, fold, and sample. MNIST uses task 3573 and CIFAR-10 uses
+task 167124, both at repeat 0, fold 0, sample 0. ANN generators consume these splits;
+clustering generators can still consume the complete feature matrix. Refresh old
+OpenML caches that contain only the feature matrix with:
+
+```bash
+poetry run ./bin/run_benchmark.py --cache-datasets --re '^openml_dataset$'
+```
+
+All source downloaders honor `SAPS_CACHE_DIR` (default `.saps/outputs/cache`)
+and lock the cache check, download, and extraction so concurrent jobs reuse
+completed files. Source subdirectories are `suitesparse`, `frostt`,
+`gcare`, `nemo`, `ewap`, `slicot`, `mccomp`, `ogb`, and `kaggle`; LTH model files
+use `artifacts/lth`. An explicit downloader `data_dir` takes precedence.
+These source caches persist independently of job-local environments and `$TMPDIR`.
+G-CARE records completed extraction so later loads reuse the extracted files.
+
 
 Each finishing task refreshes the combined files with the results saved so far.
 To rebuild the highest-numbered Slurm run, run from the repository root:
@@ -327,6 +391,9 @@ Run the full test suite with:
 ```bash
 poetry run pytest
 ```
+
+Correctness checks run only in `--check-suite` mode. Normal timing and tracing runs skip checks, even
+when selecting `--tag test`.
 
 For a quick runner smoke test over CI-sized datasets:
 

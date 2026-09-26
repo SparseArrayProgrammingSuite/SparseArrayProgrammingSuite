@@ -20,6 +20,8 @@ from binsparse import (
     SparseLevel,
 )
 
+from saps.downloaders.cache import download_lock, source_cache_dir
+
 
 def list_gcare_queries(
     dataset_name: str, data_dir: str | Path | None = None
@@ -162,38 +164,57 @@ def _ensure_downloaded(root: Path) -> None:
     """Download and extract the three G-CARE tarballs into *root* if not present."""
     import gdown
 
-    dataset_dir, queryset_dir, ground_truth_dir = _get_dirs(root)
+    with download_lock(root / ".sources"):
+        dataset_dir, queryset_dir, ground_truth_dir = _get_dirs(root)
 
-    dataset_link = "https://drive.google.com/file/d/1HAgSVE-24NOap6_Q1_twH56Dkb2kPvGU/view?usp=sharing"
-    queryset_link = "https://drive.google.com/file/d/1Dlj43rBAOVPAsfzKlYxIbZ9RsqeGM_MN/view?usp=sharing"
-    ground_truth_link = "https://drive.google.com/file/d/1Bc6Q2RZQTcIB8IfOw5KafNYwPhq2BO94/view?usp=sharing"
+        dataset_link = "https://drive.google.com/file/d/1HAgSVE-24NOap6_Q1_twH56Dkb2kPvGU/view?usp=sharing"
+        queryset_link = "https://drive.google.com/file/d/1Dlj43rBAOVPAsfzKlYxIbZ9RsqeGM_MN/view?usp=sharing"
+        ground_truth_link = "https://drive.google.com/file/d/1Bc6Q2RZQTcIB8IfOw5KafNYwPhq2BO94/view?usp=sharing"
 
-    dataset_dir.mkdir(parents=True, exist_ok=True)
-    gdown.cached_download(  # type: ignore[attr-defined]
-        dataset_link,
-        str(dataset_dir / "dataset.tar.gz"),
-        hash="sha256:78B86CDA06115C4554CDFCFB93A7FBC8ECB759DF39927510DD02CED4228A95E4".lower(),
-    )
-    with tarfile.open(dataset_dir / "dataset.tar.gz", "r:gz") as tar:
-        tar.extractall(path=dataset_dir, filter="data")
+        dataset_dir.mkdir(parents=True, exist_ok=True)
+        archive_hash = (
+            "sha256:78b86cda06115c4554cdfcfb93a7fbc8ecb759df39927510dd02ced4228a95e4"
+        )
+        gdown.cached_download(  # type: ignore[attr-defined]
+            dataset_link,
+            str(dataset_dir / "dataset.tar.gz"),
+            hash=archive_hash,
+        )
+        marker = dataset_dir / (".extracted-" + archive_hash.split(":", 1)[1])
+        if not marker.exists():
+            with tarfile.open(dataset_dir / "dataset.tar.gz", "r:gz") as tar:
+                tar.extractall(path=dataset_dir, filter="data")
+            marker.touch()
 
-    queryset_dir.mkdir(parents=True, exist_ok=True)
-    gdown.cached_download(  # type: ignore[attr-defined]
-        queryset_link,
-        str(queryset_dir / "queryset.tar.gz"),
-        hash="sha256:C8DC9F978296559E9E55335A989CE16E7B5BCBA7AA9D43E25FBD9E588D00EBC7".lower(),
-    )
-    with tarfile.open(queryset_dir / "queryset.tar.gz", "r:gz") as tar:
-        tar.extractall(path=queryset_dir, filter="data")
+        queryset_dir.mkdir(parents=True, exist_ok=True)
+        archive_hash = (
+            "sha256:c8dc9f978296559e9e55335a989ce16e7b5bcba7aa9d43e25fbd9e588d00ebc7"
+        )
+        gdown.cached_download(  # type: ignore[attr-defined]
+            queryset_link,
+            str(queryset_dir / "queryset.tar.gz"),
+            hash=archive_hash,
+        )
+        marker = queryset_dir / (".extracted-" + archive_hash.split(":", 1)[1])
+        if not marker.exists():
+            with tarfile.open(queryset_dir / "queryset.tar.gz", "r:gz") as tar:
+                tar.extractall(path=queryset_dir, filter="data")
+            marker.touch()
 
-    ground_truth_dir.mkdir(parents=True, exist_ok=True)
-    gdown.cached_download(  # type: ignore[attr-defined]
-        ground_truth_link,
-        str(ground_truth_dir / "ground_truth.tar.gz"),
-        hash="sha256:22E59F4FC06FFB79711D582513C6422CA555422C9947FDE64A52F0A9292D382C".lower(),
-    )
-    with tarfile.open(ground_truth_dir / "ground_truth.tar.gz", "r:gz") as tar:
-        tar.extractall(path=ground_truth_dir, filter="data")
+        ground_truth_dir.mkdir(parents=True, exist_ok=True)
+        archive_hash = (
+            "sha256:22e59f4fc06ffb79711d582513c6422ca555422c9947fde64a52f0a9292d382c"
+        )
+        gdown.cached_download(  # type: ignore[attr-defined]
+            ground_truth_link,
+            str(ground_truth_dir / "ground_truth.tar.gz"),
+            hash=archive_hash,
+        )
+        marker = ground_truth_dir / (".extracted-" + archive_hash.split(":", 1)[1])
+        if not marker.exists():
+            with tarfile.open(ground_truth_dir / "ground_truth.tar.gz", "r:gz") as tar:
+                tar.extractall(path=ground_truth_dir, filter="data")
+            marker.touch()
 
 
 # ---------------------------------------------------------------------------
@@ -384,5 +405,4 @@ def _build_query_matrices(
 
 
 def _default_data_dir() -> Path:
-    # src/saps/downloaders/gcare.py → parents[3] = repo root
-    return Path(__file__).resolve().parents[3] / "data" / "gcare"
+    return source_cache_dir("gcare")

@@ -12,8 +12,8 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.snap import SNAPDataset, SNAPGraphGenerator, fetch_snap_graph
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
-from saps.downloaders.snap import download_snap_dataset
 
 
 class PageRankDataset(Dataset):
@@ -79,7 +79,7 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -113,25 +113,25 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
         return [
             PageRankDataset(
                 name="test_pagerank_two_node_cycle",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array([[0, 1], [1, 0]], dtype=float),
                 expected=np.array([0.5, 0.5], dtype=float),
             ),
             PageRankDataset(
                 name="test_pagerank_three_node_chain",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0]], dtype=float),
                 ref_meta={"rank_order": [0, 1, 2]},
             ),
             PageRankDataset(
                 name="test_pagerank_two_node_sink",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array([[0, 0], [1, 0]], dtype=float),
                 ref_meta={"rank_order": [0, 1]},
             ),
             PageRankDataset(
                 name="test_pagerank_against_networkx",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 0, 0, 0],
@@ -157,7 +157,7 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
             ),
             PageRankDataset(
                 name="test_pagerank_snap_toy",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 0],
@@ -193,18 +193,22 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
         )
 
 
-class PageRankGenerator(Generator[PageRankDataset]):
+class PageRankSNAPGenerator(Generator[SNAPDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
     @property
     def name(self) -> str:
-        return "pagerank_inputs"
+        return "pagerank_snap_inputs"
 
     @property
     def pretty_name(self) -> str:
-        return "PageRank Input Generator"
+        return "PageRank SNAP Input Generator"
 
     @property
     def description(self) -> str:
-        return "Input generator for PageRank benchmarks."
+        return "SNAP input generator for PageRank benchmarks."
 
     @property
     def suites(self) -> list[str]:
@@ -234,41 +238,12 @@ class PageRankGenerator(Generator[PageRankDataset]):
         return "Generate sparse graph inputs for PageRank."
 
     @property
-    def datasets(self) -> list[PageRankDataset]:
-        return [
-            PageRankDataset(
-                name="snap-email-Eu-core",
-                pretty_name="SNAP email-Eu-core",
-                description=(
-                    "Directed email communication network from a European research"
-                    " institution, with 1,005 nodes and 25,571 edges."
-                ),
-                suites=[],
-            ),
-            PageRankDataset(
-                name="snap-ca-GrQc",
-                pretty_name="SNAP ca-GrQc",
-                description=(
-                    "Arxiv General Relativity and Quantum Cosmology collaboration"
-                    " network, with 5,242 nodes and 14,496 edges."
-                ),
-                suites=[],
-            ),
-            PageRankDataset(
-                name="snap-p2p-Gnutella04",
-                pretty_name="SNAP p2p-Gnutella04",
-                description=(
-                    "Directed Gnutella peer-to-peer network snapshot from August 4,"
-                    " 2002, with 10,876 nodes and 39,994 edges."
-                ),
-                suites=[],
-            ),
-        ]
+    def datasets(self) -> list[SNAPDataset]:
+        return SNAPGraphGenerator().datasets
 
-    def generate(self, dataset: PageRankDataset) -> DataInstance:
-        if dataset.name.startswith("snap"):
-            inputs, meta = download_snap_dataset(dataset.name)
-            return DataInstance(inputs=inputs, meta=meta)
+    def generate(self, dataset: SNAPDataset) -> DataInstance:
+        if dataset.name in self.dataset_names:
+            return fetch_snap_graph(dataset.name)
         raise ValueError(f"Unsupported PageRank dataset: {dataset.name}")
 
 
@@ -489,8 +464,12 @@ class PageRankBenchmark(Benchmark):
         )
 
     @property
-    def generators(self) -> list[Generator[PageRankDataset]]:
-        return [PageRankTestGenerator(), PageRankGenerator(), PageRankGAPGenerator()]
+    def generators(self) -> list[Generator]:
+        return [
+            PageRankTestGenerator(),
+            PageRankSNAPGenerator(),
+            PageRankGAPGenerator(),
+        ]
 
     def benchmark(self, xp, data, meta):
         alpha = meta.get("alpha", 0.85)

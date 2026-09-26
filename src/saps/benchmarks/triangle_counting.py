@@ -12,8 +12,8 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.snap import SNAPDataset, SNAPGraphGenerator, fetch_snap_graph
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
-from saps.downloaders.snap import download_snap_dataset
 
 
 class GraphCountingDataset(Dataset):
@@ -69,7 +69,7 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -103,7 +103,7 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
         return [
             GraphCountingDataset(
                 "test_triangle_count_single_triangle",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 1],
@@ -116,7 +116,7 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
             ),
             GraphCountingDataset(
                 "test_triangle_count_path",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 0, 0],
@@ -130,7 +130,7 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
             ),
             GraphCountingDataset(
                 "test_triangle_count_4_clique",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 1, 1],
@@ -144,7 +144,7 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
             ),
             GraphCountingDataset(
                 "test_triangle_snap_toy",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 0],
@@ -167,18 +167,22 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
         )
 
 
-class TriangleCountGenerator(Generator[GraphCountingDataset]):
+class TriangleCountSNAPGenerator(Generator[SNAPDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
     @property
     def name(self) -> str:
-        return "triangle_count_inputs"
+        return "triangle_count_snap_inputs"
 
     @property
     def pretty_name(self) -> str:
-        return "Triangle Count Input Generator"
+        return "Triangle Count SNAP Input Generator"
 
     @property
     def description(self) -> str:
-        return "Input generator for triangle counting benchmarks."
+        return "SNAP input generator for triangle counting benchmarks."
 
     @property
     def suites(self) -> list[str]:
@@ -223,32 +227,12 @@ class TriangleCountGenerator(Generator[GraphCountingDataset]):
         return "Generate sparse graph inputs for triangle counting."
 
     @property
-    def datasets(self) -> list[GraphCountingDataset]:
-        return [
-            GraphCountingDataset(
-                name="snap-email-Eu-core",
-                pretty_name="SNAP email-Eu-core",
-                description=(
-                    "Directed email communication network from a European research"
-                    " institution, with 1,005 nodes and 25,571 edges."
-                ),
-                suites=[],
-            ),
-            GraphCountingDataset(
-                name="snap-ca-GrQc",
-                pretty_name="SNAP ca-GrQc",
-                description=(
-                    "Arxiv General Relativity and Quantum Cosmology collaboration"
-                    " network, with 5,242 nodes and 14,496 edges."
-                ),
-                suites=[],
-            ),
-        ]
+    def datasets(self) -> list[SNAPDataset]:
+        return SNAPGraphGenerator().datasets
 
-    def generate(self, dataset: GraphCountingDataset) -> DataInstance:
-        if dataset.name.startswith("snap"):
-            inputs, meta = download_snap_dataset(dataset.name)
-            return DataInstance(inputs=inputs, meta=meta)
+    def generate(self, dataset: SNAPDataset) -> DataInstance:
+        if dataset.name in self.dataset_names:
+            return fetch_snap_graph(dataset.name)
         raise ValueError(f"Unsupported triangle count dataset: {dataset.name}")
 
 
@@ -482,10 +466,10 @@ class TriangleCountBenchmark(Benchmark):
         )
 
     @property
-    def generators(self) -> list[Generator[GraphCountingDataset]]:
+    def generators(self) -> list[Generator]:
         return [
             TriangleCountTestGenerator(),
-            TriangleCountGenerator(),
+            TriangleCountSNAPGenerator(),
             TriangleCountGAPGenerator(),
         ]
 

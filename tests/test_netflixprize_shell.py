@@ -15,12 +15,12 @@ from saps.benchmarks.netflixprize import (
 
 
 def test_netflixprize_loader_parses_combined_rating_files(tmp_path, monkeypatch):
-    import kagglehub
+    from saps.downloaders import kaggle
 
     (tmp_path / "combined_data_1.txt").write_text(
         "1:\n10,5,2005-01-01\n20,3,2005-01-02\n2:\n10,4,2005-01-03\n"
     )
-    monkeypatch.setattr(kagglehub, "dataset_download", lambda _: str(tmp_path))
+    monkeypatch.setattr(kaggle, "download_kaggle_dataset", lambda _: tmp_path)
 
     matrix = _load_netflixprize_matrix()
 

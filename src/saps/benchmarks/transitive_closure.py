@@ -12,8 +12,8 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.snap import SNAPDataset, SNAPGraphGenerator, fetch_snap_graph
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
-from saps.downloaders.snap import download_snap_dataset
 from saps_framework.binsparse_utils import binsparse_equal
 
 
@@ -66,7 +66,7 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -98,13 +98,11 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
     @property
     def datasets(self) -> list[TransitiveClosureDataset]:
         return [
-            TransitiveClosureDataset("dag", suites=["test", "trace"]),
-            TransitiveClosureDataset(
-                "strong-component-count", suites=["test", "trace"]
-            ),
-            TransitiveClosureDataset("cycle", suites=["test", "trace"]),
-            TransitiveClosureDataset("one-node", suites=["test", "trace"]),
-            TransitiveClosureDataset("snap-toy", suites=["test", "trace"]),
+            TransitiveClosureDataset("dag", suites=["test"]),
+            TransitiveClosureDataset("strong-component-count", suites=["test"]),
+            TransitiveClosureDataset("cycle", suites=["test"]),
+            TransitiveClosureDataset("one-node", suites=["test"]),
+            TransitiveClosureDataset("toy", suites=["test"]),
         ]
 
     def generate(self, dataset: TransitiveClosureDataset) -> DataInstance:
@@ -163,7 +161,7 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
         elif dataset.name == "one-node":
             A = np.array([[0]], dtype=bool)
             expected = np.array([[1]], dtype=bool)
-        elif dataset.name == "snap-toy":
+        elif dataset.name == "toy":
             A = np.array([[0, 1, 0], [0, 0, 1], [0, 0, 0]], dtype=bool)
             expected = np.array([[1, 1, 1], [0, 1, 1], [0, 0, 1]], dtype=bool)
         else:
@@ -176,18 +174,22 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
         )
 
 
-class TransitiveClosureGenerator(Generator[TransitiveClosureDataset]):
+class TransitiveClosureSNAPGenerator(Generator[SNAPDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
     @property
     def name(self) -> str:
-        return "transitive_closure_inputs"
+        return "transitive_closure_snap_inputs"
 
     @property
     def pretty_name(self) -> str:
-        return "Transitive Closure Input Generator"
+        return "Transitive Closure SNAP Input Generator"
 
     @property
     def description(self) -> str:
-        return "Input generator for transitive closure benchmarks."
+        return "SNAP input generator for transitive closure benchmarks."
 
     @property
     def suites(self) -> list[str]:
@@ -217,32 +219,12 @@ class TransitiveClosureGenerator(Generator[TransitiveClosureDataset]):
         return "Generate sparse directed graph inputs for transitive closure."
 
     @property
-    def datasets(self) -> list[TransitiveClosureDataset]:
-        return [
-            TransitiveClosureDataset(
-                name="snap-email-Eu-core",
-                pretty_name="SNAP email-Eu-core",
-                description=(
-                    "Directed email communication network from a European research"
-                    " institution, with 1,005 nodes and 25,571 edges."
-                ),
-                suites=[],
-            ),
-            TransitiveClosureDataset(
-                name="snap-ca-GrQc",
-                pretty_name="SNAP ca-GrQc",
-                description=(
-                    "Arxiv General Relativity and Quantum Cosmology collaboration"
-                    " network, with 5,242 nodes and 14,496 edges."
-                ),
-                suites=[],
-            ),
-        ]
+    def datasets(self) -> list[SNAPDataset]:
+        return SNAPGraphGenerator().datasets
 
-    def generate(self, dataset: TransitiveClosureDataset) -> DataInstance:
-        if dataset.name.startswith("snap"):
-            inputs, meta = download_snap_dataset(dataset.name)
-            return DataInstance(inputs=inputs, meta=meta)
+    def generate(self, dataset: SNAPDataset) -> DataInstance:
+        if dataset.name in self.dataset_names:
+            return fetch_snap_graph(dataset.name)
         raise ValueError(f"Unsupported transitive closure dataset: {dataset.name}")
 
 
@@ -444,9 +426,9 @@ class TransitiveClosureBenchmark(Benchmark):
         return ""
 
     @property
-    def generators(self) -> list[Generator[TransitiveClosureDataset]]:
+    def generators(self) -> list[Generator]:
         return [
-            TransitiveClosureGenerator(),
+            TransitiveClosureSNAPGenerator(),
             TransitiveClosureTestGenerator(),
             TransitiveClosureGAPGenerator(),
         ]

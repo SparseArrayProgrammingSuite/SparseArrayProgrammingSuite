@@ -12,8 +12,8 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.snap import SNAPDataset, SNAPGraphGenerator, fetch_snap_graph
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
-from saps.downloaders.snap import download_snap_dataset
 
 
 class BetweennessCentralityDataset(Dataset):
@@ -116,7 +116,7 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -162,7 +162,7 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
         return [
             BetweennessCentralityDataset(
                 name="test_joels_case",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 1, 0, 0],
@@ -177,19 +177,19 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
             ),
             BetweennessCentralityDataset(
                 name="test_basic_empty",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.zeros((3, 3)),
                 expected=np.array([0.0, 0.0, 0.0]),
             ),
             BetweennessCentralityDataset(
                 name="test_basic_chain",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array([[0, 1, 0], [0, 0, 1], [0, 0, 0]], dtype=float),
                 expected=np.array([0.0, 1.0, 0.0]),
             ),
             BetweennessCentralityDataset(
                 name="test_basic_two_components",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [[0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1], [0, 0, 0, 0]],
                     dtype=float,
@@ -198,25 +198,25 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
             ),
             BetweennessCentralityDataset(
                 name="test_matrix_vertex_algorithm_comparison",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=random_A,
                 expected=reference_bc_alg_6_4(random_A),
             ),
             BetweennessCentralityDataset(
                 name="test_undirected_graph",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=undirected_A,
                 expected=reference_bc_alg_6_4(undirected_A),
             ),
             BetweennessCentralityDataset(
                 name="test_networkx",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=networkx_A,
                 expected=reference_bc_alg_6_4(networkx_A),
             ),
             BetweennessCentralityDataset(
                 name="test_centrality_snap_toy",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 0],
@@ -239,18 +239,22 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
         )
 
 
-class BetweennessCentralityGenerator(Generator[BetweennessCentralityDataset]):
+class BetweennessCentralitySNAPGenerator(Generator[SNAPDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
     @property
     def name(self) -> str:
-        return "betweenness_centrality_inputs"
+        return "betweenness_centrality_snap_inputs"
 
     @property
     def pretty_name(self) -> str:
-        return "Betweenness Centrality Input Generator"
+        return "Betweenness Centrality SNAP Input Generator"
 
     @property
     def description(self) -> str:
-        return "Input generator for betweenness centrality benchmarks."
+        return "SNAP input generator for betweenness centrality benchmarks."
 
     @property
     def suites(self) -> list[str]:
@@ -280,32 +284,12 @@ class BetweennessCentralityGenerator(Generator[BetweennessCentralityDataset]):
         return "Generate sparse directed graph inputs for betweenness centrality."
 
     @property
-    def datasets(self) -> list[BetweennessCentralityDataset]:
-        return [
-            BetweennessCentralityDataset(
-                name="snap-email-Eu-core-temporal-Dept3",
-                pretty_name="SNAP email-Eu-core temporal Dept3",
-                description=(
-                    "Department 3 email network from the SNAP email-Eu-core"
-                    " temporal dataset, with 89 nodes and 1,506 static edges."
-                ),
-                suites=[],
-            ),
-            BetweennessCentralityDataset(
-                name="snap-email-Eu-core-temporal-Dept4",
-                pretty_name="SNAP email-Eu-core temporal Dept4",
-                description=(
-                    "Department 4 email network from the SNAP email-Eu-core"
-                    " temporal dataset, with 142 nodes and 1,375 static edges."
-                ),
-                suites=[],
-            ),
-        ]
+    def datasets(self) -> list[SNAPDataset]:
+        return SNAPGraphGenerator().datasets
 
-    def generate(self, dataset: BetweennessCentralityDataset) -> DataInstance:
-        if dataset.name.startswith("snap"):
-            inputs, meta = download_snap_dataset(dataset.name)
-            return DataInstance(inputs=inputs, meta=meta)
+    def generate(self, dataset: SNAPDataset) -> DataInstance:
+        if dataset.name in self.dataset_names:
+            return fetch_snap_graph(dataset.name)
         raise ValueError(f"Unsupported betweenness centrality dataset: {dataset.name}")
 
 
@@ -529,10 +513,10 @@ class BetweennessCentralityBenchmark(Benchmark):
         return ""
 
     @property
-    def generators(self) -> list[Generator[BetweennessCentralityDataset]]:
+    def generators(self) -> list[Generator]:
         return [
             BetweennessCentralityTestGenerator(),
-            BetweennessCentralityGenerator(),
+            BetweennessCentralitySNAPGenerator(),
             BetweennessCentralityGAPGenerator(),
         ]
 

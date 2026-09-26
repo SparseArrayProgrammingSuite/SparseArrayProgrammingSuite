@@ -80,14 +80,14 @@ def test_pytorch_einsum_compiles_tensor_operations():
     assert {torch.subtract, torch.add, torch.pow} <= targets
 
 
-def test_pytorch_compiled_jl_matches_eager():
-    from saps.benchmarks.approx_nn import JLApproxNearestNeighbor
+def test_pytorch_compiled_simhash_matches_eager():
+    from saps.benchmarks.approx_nn import SimHashApproxNearestNeighbor
 
-    benchmark = JLApproxNearestNeighbor()
+    benchmark = SimHashApproxNearestNeighbor()
     param = next(
         param
         for param in benchmark.params
-        if str(param) == "jl_projection_inputs.small"
+        if str(param) == "simhash_projection_inputs_dense.small"
     )
     xp = PytorchFramework()
     benchmark.setup(param, xp=xp, use_cache=False)

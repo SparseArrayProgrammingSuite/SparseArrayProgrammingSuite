@@ -12,8 +12,8 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.snap import SNAPDataset, SNAPGraphGenerator, fetch_snap_graph
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
-from saps.downloaders.snap import download_snap_dataset
 
 
 class GraphCountingDataset(Dataset):
@@ -69,7 +69,7 @@ class FourCliqueCountTestGenerator(Generator[GraphCountingDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -103,7 +103,7 @@ class FourCliqueCountTestGenerator(Generator[GraphCountingDataset]):
         return [
             GraphCountingDataset(
                 "test_4clique_count_complete_k3",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 1],
@@ -116,7 +116,7 @@ class FourCliqueCountTestGenerator(Generator[GraphCountingDataset]):
             ),
             GraphCountingDataset(
                 "test_4clique_count_single_k4",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 1, 1],
@@ -130,7 +130,7 @@ class FourCliqueCountTestGenerator(Generator[GraphCountingDataset]):
             ),
             GraphCountingDataset(
                 "test_4clique_count_overlapping",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 1, 1, 0],
@@ -145,7 +145,7 @@ class FourCliqueCountTestGenerator(Generator[GraphCountingDataset]):
             ),
             GraphCountingDataset(
                 "test_4clique_snap_toy",
-                suites=["test", "trace"],
+                suites=["test"],
                 A=np.array(
                     [
                         [0, 1, 0],
@@ -168,18 +168,22 @@ class FourCliqueCountTestGenerator(Generator[GraphCountingDataset]):
         )
 
 
-class FourCliqueCountGenerator(Generator[GraphCountingDataset]):
+class FourCliqueCountSNAPGenerator(Generator[SNAPDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
     @property
     def name(self) -> str:
-        return "four_clique_count_inputs"
+        return "four_clique_count_snap_inputs"
 
     @property
     def pretty_name(self) -> str:
-        return "4-Clique Count Input Generator"
+        return "4-Clique Count SNAP Input Generator"
 
     @property
     def description(self) -> str:
-        return "Input generator for 4-clique counting benchmarks."
+        return "SNAP input generator for 4-clique counting benchmarks."
 
     @property
     def suites(self) -> list[str]:
@@ -224,32 +228,12 @@ class FourCliqueCountGenerator(Generator[GraphCountingDataset]):
         return "Generate sparse graph inputs for 4-clique counting."
 
     @property
-    def datasets(self) -> list[GraphCountingDataset]:
-        return [
-            GraphCountingDataset(
-                name="snap-email-Eu-core-temporal-Dept3",
-                pretty_name="SNAP email-Eu-core temporal Dept3",
-                description=(
-                    "Department 3 email network from the SNAP email-Eu-core"
-                    " temporal dataset, with 89 nodes and 1,506 static edges."
-                ),
-                suites=["standard"],
-            ),
-            GraphCountingDataset(
-                name="snap-email-Eu-core-temporal-Dept4",
-                pretty_name="SNAP email-Eu-core temporal Dept4",
-                description=(
-                    "Department 4 email network from the SNAP email-Eu-core"
-                    " temporal dataset, with 142 nodes and 1,375 static edges."
-                ),
-                suites=["standard"],
-            ),
-        ]
+    def datasets(self) -> list[SNAPDataset]:
+        return SNAPGraphGenerator().datasets
 
-    def generate(self, dataset: GraphCountingDataset) -> DataInstance:
-        if dataset.name.startswith("snap"):
-            inputs, meta = download_snap_dataset(dataset.name)
-            return DataInstance(inputs=inputs, meta=meta)
+    def generate(self, dataset: SNAPDataset) -> DataInstance:
+        if dataset.name in self.dataset_names:
+            return fetch_snap_graph(dataset.name)
         raise ValueError(f"Unsupported 4-clique count dataset: {dataset.name}")
 
 
@@ -486,10 +470,10 @@ class FourCliqueCountBenchmark(Benchmark):
         )
 
     @property
-    def generators(self) -> list[Generator[GraphCountingDataset]]:
+    def generators(self) -> list[Generator]:
         return [
             FourCliqueCountTestGenerator(),
-            FourCliqueCountGenerator(),
+            FourCliqueCountSNAPGenerator(),
             FourCliqueCountGAPGenerator(),
         ]
 

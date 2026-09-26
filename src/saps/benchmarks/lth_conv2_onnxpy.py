@@ -14,11 +14,8 @@ from urllib.request import urlretrieve
 
 import numpy as np
 
-import onnx
 from binsparse.conversions import from_numpy, to_numpy
 from filelock import FileLock
-from onnx import numpy_helper
-from onnx.reference import ReferenceEvaluator
 
 from saps.benchmark import (
     Author,
@@ -29,6 +26,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.downloaders.cache import source_cache_dir
 
 _MODEL_ENV = "LTH_CONV2_ONNX"
 _MODEL_FILE_NAME = "conv2_pruned_dense.onnx"
@@ -691,13 +689,7 @@ def _references() -> list[Ref]:
 
 
 def _default_data_dir() -> Path:
-    cache_root = Path(
-        os.environ.get(
-            "SAPS_CACHE_DIR",
-            Path(__file__).resolve().parents[3] / ".saps" / "outputs" / "cache",
-        )
-    )
-    return cache_root.expanduser().resolve() / "artifacts" / "lth"
+    return source_cache_dir("artifacts/lth").resolve()
 
 
 def _download_if_missing(url: str, destination: Path) -> None:
@@ -847,6 +839,9 @@ class LTHConv2ONNXPYGenerator(Generator[LTHConv2Dataset]):
         return [LTHConv2Dataset()]
 
     def generate(self, _dataset: LTHConv2Dataset) -> DataInstance:
+        import onnx
+        from onnx import numpy_helper
+
         model = onnx.load(str(_model_path()), load_external_data=True)
 
         initializer_names = {tensor.name for tensor in model.graph.initializer}
@@ -963,6 +958,9 @@ class LTHConv2ONNXPYBenchmark(Benchmark):
         return [LTHConv2ONNXPYGenerator()]
 
     def setup(self, param, *, use_cache: bool = True, xp=None):
+        import onnx
+        from onnx.reference import ReferenceEvaluator
+
         model_path = _model_path()
 
         super().setup(param, use_cache=use_cache, xp=xp)

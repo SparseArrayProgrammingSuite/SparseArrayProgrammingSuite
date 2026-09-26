@@ -127,9 +127,9 @@ def _load_netflixprize_matrix():
 
     import scipy.sparse
 
-    import kagglehub
+    from saps.downloaders.kaggle import download_kaggle_dataset
 
-    cache_path = kagglehub.dataset_download("netflix-inc/netflix-prize-data")
+    cache_path = download_kaggle_dataset("netflix-inc/netflix-prize-data")
     row_list = []
     col_list = []
     val_list = []

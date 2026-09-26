@@ -295,7 +295,7 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
 
     @property
     def suites(self):
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -334,7 +334,7 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
         return [
             ParticleSimDataset(
                 "test_particle_sim_two_particles_within_cutoff",
-                suites=["test", "trace"],
+                suites=["test"],
                 parameters={
                     "force_model": "cs267_repulsive",
                     "boundary_model": "reflective_box",
@@ -357,7 +357,7 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
             ),
             ParticleSimDataset(
                 "test_particle_sim_wall_bounce",
-                suites=["test", "trace"],
+                suites=["test"],
                 parameters={
                     "force_model": "cs267_repulsive",
                     "boundary_model": "reflective_box",
@@ -380,7 +380,7 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
             ),
             ParticleSimDataset(
                 "test_particle_sim_random_10",
-                suites=["test", "trace"],
+                suites=["test"],
                 parameters={
                     "force_model": "cs267_repulsive",
                     "boundary_model": "reflective_box",
@@ -393,7 +393,7 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
             ),
             ParticleSimDataset(
                 "test_particle_sim_random_50",
-                suites=["test", "trace"],
+                suites=["test"],
                 parameters={
                     "force_model": "cs267_repulsive",
                     "boundary_model": "reflective_box",
@@ -649,13 +649,14 @@ class EWAPParticleSimDataset(ParticleSimDataset):
         pretty_name: str,
         description: str,
         parameters: dict[str, Any],
+        suites: list[str] | None = None,
     ):
         super().__init__(
             name=name,
             num_steps=num_steps,
             pretty_name=pretty_name,
             description=description,
-            suites=["standard"],
+            suites=["standard"] if suites is None else suites,
             tags=["physics", "simulation", "sparse", "pedestrian", "ewap"],
             parameters=parameters,
         )
@@ -760,6 +761,7 @@ class EWAPParticleSimGenerator(Generator[EWAPParticleSimDataset]):
                     "The force parameters are the CS267-style repulsive benchmark "
                     "constants because EWAP does not provide simulation constants."
                 ),
+                suites=["standard", "trace"],
             ),
             EWAPParticleSimDataset(
                 name="ewap_seq_hotel",
@@ -780,6 +782,7 @@ class EWAPParticleSimGenerator(Generator[EWAPParticleSimDataset]):
                     "The force parameters are the CS267-style repulsive benchmark "
                     "constants because EWAP does not provide simulation constants."
                 ),
+                suites=["standard", "trace"],
             ),
         ]
 
@@ -902,7 +905,7 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                     "source masses, G 1.0 N-body units, dt 1/32, softening 0.05, "
                     "and cutoff 1.0 for the preserved Plummer coordinate scale."
                 ),
-                suites=["standard"],
+                suites=["standard", "trace"],
                 tags=["physics", "simulation", "sparse", "astronomy", "n-body"],
                 source_path="plummer/tab128.gz",
                 source_columns=("mass", "x", "y", "z", "vx", "vy", "vz"),
@@ -926,7 +929,7 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                     "source masses, G 1.0 N-body units, dt 1/32, softening 0.05, "
                     "and cutoff 1.0 for the preserved Plummer coordinate scale."
                 ),
-                suites=["standard"],
+                suites=["standard", "trace"],
                 tags=["physics", "simulation", "sparse", "astronomy", "n-body"],
                 source_path="plummer/tab1024.gz",
                 source_columns=("mass", "x", "y", "z", "vx", "vy", "vz"),

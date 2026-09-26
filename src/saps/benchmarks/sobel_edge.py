@@ -80,8 +80,9 @@ class MRISobelDataset(Dataset):
         threshold_val: float = 150.0,
         image: np.ndarray | None = None,
         ref_meta: dict[str, Any] | None = None,
+        suites: list[str] | None = None,
     ):
-        self._suites: list[str] = []
+        self._suites = suites or []
         self.source_name = name
         self.category = category
         self.filename = filename
@@ -153,7 +154,7 @@ class MRISobelTestGenerator(Generator[MRISobelDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -309,18 +310,19 @@ class MRISobelGenerator(Generator[MRISobelDataset]):
     @property
     def datasets(self) -> list[MRISobelDataset]:
         return [
-            MRISobelDataset("mri_sobel_1", "yes", "Y157.JPG"),
-            MRISobelDataset("mri_sobel_2", "yes", "Y6.jpg"),
-            MRISobelDataset("mri_sobel_3", "yes", "Y194.jpg"),
-            MRISobelDataset("mri_sobel_4", "yes", "Y180.jpg"),
+            MRISobelDataset("mri_sobel_1", "yes", "Y157.JPG", suites=["trace"]),
+            MRISobelDataset("mri_sobel_2", "yes", "Y6.jpg", suites=["trace"]),
+            MRISobelDataset("mri_sobel_3", "yes", "Y194.jpg", suites=["trace"]),
+            MRISobelDataset("mri_sobel_4", "yes", "Y180.jpg", suites=["trace"]),
         ]
 
     def generate(self, dataset: MRISobelDataset) -> DataInstance:
         if dataset.image is None:
-            import kagglehub
             from PIL import Image
 
-            path = kagglehub.dataset_download(
+            from saps.downloaders.kaggle import download_kaggle_dataset
+
+            path = download_kaggle_dataset(
                 "navoneel/brain-mri-images-for-brain-tumor-detection"
             )
             img_path = os.path.join(path, dataset.category, dataset.filename)
