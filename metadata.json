@@ -76829,7 +76829,7 @@
       "concepts": "\n<ccs2012>\n<concept>\n<concept_id>10002950.10003705</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003705.10011686</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n</ccs2012>\n",
       "description": "The elementwise multiplication of two matrices. C_ij = A_ij * B_ij",
       "file": "src/saps/benchmarks/elementwise.py",
-      "freshness": "9beb02052f8e9761e265da7e32c53458d4adad96acd0b7fea8cb3bc267930a51",
+      "freshness": "bdc555496a3df891f653e0a11c6eb5de41a3a10c7eb5c36345db34d6b5846b1b",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
@@ -76844,7 +76844,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense Elementwise Input small.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "9beb02052f8e9761e265da7e32c53458d4adad96acd0b7fea8cb3bc267930a51",
+              "freshness": "bdc555496a3df891f653e0a11c6eb5de41a3a10c7eb5c36345db34d6b5846b1b",
               "name": "small",
               "pretty_name": "small",
               "suites": [
@@ -76866,7 +76866,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense Elementwise Input medium.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "9beb02052f8e9761e265da7e32c53458d4adad96acd0b7fea8cb3bc267930a51",
+              "freshness": "bdc555496a3df891f653e0a11c6eb5de41a3a10c7eb5c36345db34d6b5846b1b",
               "name": "medium",
               "pretty_name": "medium",
               "suites": [
@@ -76888,7 +76888,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense Elementwise Input large.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "9beb02052f8e9761e265da7e32c53458d4adad96acd0b7fea8cb3bc267930a51",
+              "freshness": "bdc555496a3df891f653e0a11c6eb5de41a3a10c7eb5c36345db34d6b5846b1b",
               "name": "large",
               "pretty_name": "large",
               "suites": [
@@ -76906,7 +76906,7 @@
           ],
           "description": "Dense input generator for elementwise multiplication.",
           "file": "src/saps/benchmarks/elementwise.py",
-          "freshness": "9beb02052f8e9761e265da7e32c53458d4adad96acd0b7fea8cb3bc267930a51",
+          "freshness": "bdc555496a3df891f653e0a11c6eb5de41a3a10c7eb5c36345db34d6b5846b1b",
           "motivation": "Generate dense matrices for elementwise multiplication.",
           "name": "dense_elementwise_generator",
           "pretty_name": "Dense Elementwise Generator",
@@ -76936,7 +76936,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/email-Eu-core multiplied elementwise by a matrix sharing 100% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "9beb02052f8e9761e265da7e32c53458d4adad96acd0b7fea8cb3bc267930a51",
+              "freshness": "bdc555496a3df891f653e0a11c6eb5de41a3a10c7eb5c36345db34d6b5846b1b",
               "name": "email-Eu-core-overlap-100",
               "pretty_name": "email-Eu-core-overlap-100",
               "suites": [
@@ -76956,7 +76956,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/email-Eu-core multiplied elementwise by a matrix sharing 75% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "9beb02052f8e9761e265da7e32c53458d4adad96acd0b7fea8cb3bc267930a51",
+              "freshness": "bdc555496a3df891f653e0a11c6eb5de41a3a10c7eb5c36345db34d6b5846b1b",
               "name": "email-Eu-core-overlap-75",
               "pretty_name": "email-Eu-core-overlap-75",
               "suites": [
@@ -76976,7 +76976,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/email-Eu-core multiplied elementwise by a matrix sharing 50% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "9beb02052f8e9761e265da7e32c53458d4adad96acd0b7fea8cb3bc267930a51",
+              "freshness": "bdc555496a3df891f653e0a11c6eb5de41a3a10c7eb5c36345db34d6b5846b1b",
               "name": "email-Eu-core-overlap-50",
               "pretty_name": "email-Eu-core-overlap-50",
               "suites": [
@@ -76996,7 +76996,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/email-Eu-core multiplied elementwise by a matrix sharing 25% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "9beb02052f8e9761e265da7e32c53458d4adad96acd0b7fea8cb3bc267930a51",
+              "freshness": "bdc555496a3df891f653e0a11c6eb5de41a3a10c7eb5c36345db34d6b5846b1b",
               "name": "email-Eu-core-overlap-25",
               "pretty_name": "email-Eu-core-overlap-25",
               "suites": [
@@ -77016,7 +77016,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/ca-GrQc multiplied elementwise by a matrix sharing 100% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "9beb02052f8e9761e265da7e32c53458d4adad96acd0b7fea8cb3bc267930a51",
+              "freshness": "bdc555496a3df891f653e0a11c6eb5de41a3a10c7eb5c36345db34d6b5846b1b",
               "name": "ca-GrQc-overlap-100",
               "pretty_name": "ca-GrQc-overlap-100",
               "suites": [
@@ -77036,7 +77036,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/ca-GrQc multiplied elementwise by a matrix sharing 75% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "9beb02052f8e9761e265da7e32c53458d4adad96acd0b7fea8cb3bc267930a51",
+              "freshness": "bdc555496a3df891f653e0a11c6eb5de41a3a10c7eb5c36345db34d6b5846b1b",
               "name": "ca-GrQc-overlap-75",
               "pretty_name": "ca-GrQc-overlap-75",
               "suites": [
@@ -77056,7 +77056,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/ca-GrQc multiplied elementwise by a matrix sharing 50% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "9beb02052f8e9761e265da7e32c53458d4adad96acd0b7fea8cb3bc267930a51",
+              "freshness": "bdc555496a3df891f653e0a11c6eb5de41a3a10c7eb5c36345db34d6b5846b1b",
               "name": "ca-GrQc-overlap-50",
               "pretty_name": "ca-GrQc-overlap-50",
               "suites": [
@@ -77076,7 +77076,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/ca-GrQc multiplied elementwise by a matrix sharing 25% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "9beb02052f8e9761e265da7e32c53458d4adad96acd0b7fea8cb3bc267930a51",
+              "freshness": "bdc555496a3df891f653e0a11c6eb5de41a3a10c7eb5c36345db34d6b5846b1b",
               "name": "ca-GrQc-overlap-25",
               "pretty_name": "ca-GrQc-overlap-25",
               "suites": [
@@ -77096,7 +77096,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/wiki-Vote multiplied elementwise by a matrix sharing 100% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "9beb02052f8e9761e265da7e32c53458d4adad96acd0b7fea8cb3bc267930a51",
+              "freshness": "bdc555496a3df891f653e0a11c6eb5de41a3a10c7eb5c36345db34d6b5846b1b",
               "name": "wiki-Vote-overlap-100",
               "pretty_name": "wiki-Vote-overlap-100",
               "suites": [
@@ -77116,7 +77116,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/wiki-Vote multiplied elementwise by a matrix sharing 75% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "9beb02052f8e9761e265da7e32c53458d4adad96acd0b7fea8cb3bc267930a51",
+              "freshness": "bdc555496a3df891f653e0a11c6eb5de41a3a10c7eb5c36345db34d6b5846b1b",
               "name": "wiki-Vote-overlap-75",
               "pretty_name": "wiki-Vote-overlap-75",
               "suites": [
@@ -77136,7 +77136,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/wiki-Vote multiplied elementwise by a matrix sharing 50% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "9beb02052f8e9761e265da7e32c53458d4adad96acd0b7fea8cb3bc267930a51",
+              "freshness": "bdc555496a3df891f653e0a11c6eb5de41a3a10c7eb5c36345db34d6b5846b1b",
               "name": "wiki-Vote-overlap-50",
               "pretty_name": "wiki-Vote-overlap-50",
               "suites": [
@@ -77156,7 +77156,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/wiki-Vote multiplied elementwise by a matrix sharing 25% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "9beb02052f8e9761e265da7e32c53458d4adad96acd0b7fea8cb3bc267930a51",
+              "freshness": "bdc555496a3df891f653e0a11c6eb5de41a3a10c7eb5c36345db34d6b5846b1b",
               "name": "wiki-Vote-overlap-25",
               "pretty_name": "wiki-Vote-overlap-25",
               "suites": [
@@ -77174,7 +77174,7 @@
           ],
           "description": "Sparse input generator for elementwise multiplication based on the suite sparse matrix collection.",
           "file": "src/saps/benchmarks/elementwise.py",
-          "freshness": "9beb02052f8e9761e265da7e32c53458d4adad96acd0b7fea8cb3bc267930a51",
+          "freshness": "bdc555496a3df891f653e0a11c6eb5de41a3a10c7eb5c36345db34d6b5846b1b",
           "motivation": "Generate real sparse matrices for elementwise multiplication, each paired with a matrix sharing a controlled fraction of its nonzero positions. PASTA identifies that overlap as what makes the output size unpredictable; the matrices themselves are not from PASTA, whose datasets are sparse tensors.",
           "name": "suitesparse_elementwise_generator",
           "pretty_name": "Suite Sparse Elementwise Generator",
@@ -77207,7 +77207,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse elementwise input uniform-overlap-100.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "9beb02052f8e9761e265da7e32c53458d4adad96acd0b7fea8cb3bc267930a51",
+              "freshness": "bdc555496a3df891f653e0a11c6eb5de41a3a10c7eb5c36345db34d6b5846b1b",
               "name": "uniform-overlap-100",
               "pretty_name": "uniform-overlap-100",
               "suites": [
@@ -77229,7 +77229,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse elementwise input uniform-overlap-75.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "9beb02052f8e9761e265da7e32c53458d4adad96acd0b7fea8cb3bc267930a51",
+              "freshness": "bdc555496a3df891f653e0a11c6eb5de41a3a10c7eb5c36345db34d6b5846b1b",
               "name": "uniform-overlap-75",
               "pretty_name": "uniform-overlap-75",
               "suites": [
@@ -77251,7 +77251,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse elementwise input uniform-overlap-50.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "9beb02052f8e9761e265da7e32c53458d4adad96acd0b7fea8cb3bc267930a51",
+              "freshness": "bdc555496a3df891f653e0a11c6eb5de41a3a10c7eb5c36345db34d6b5846b1b",
               "name": "uniform-overlap-50",
               "pretty_name": "uniform-overlap-50",
               "suites": [
@@ -77273,7 +77273,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse elementwise input uniform-overlap-25.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "9beb02052f8e9761e265da7e32c53458d4adad96acd0b7fea8cb3bc267930a51",
+              "freshness": "bdc555496a3df891f653e0a11c6eb5de41a3a10c7eb5c36345db34d6b5846b1b",
               "name": "uniform-overlap-25",
               "pretty_name": "uniform-overlap-25",
               "suites": [
@@ -77293,7 +77293,7 @@
           ],
           "description": "Generates a pair of uniform random sparse matrices for elementwise multiplication at a range of densities.",
           "file": "src/saps/benchmarks/elementwise.py",
-          "freshness": "9beb02052f8e9761e265da7e32c53458d4adad96acd0b7fea8cb3bc267930a51",
+          "freshness": "bdc555496a3df891f653e0a11c6eb5de41a3a10c7eb5c36345db34d6b5846b1b",
           "motivation": "Generate uniform random element-wise inputs whose nonzero patterns overlap by a controlled fraction, spanning PASTA's two cases: operands sharing a pattern, where the output size is known in advance, and operands whose patterns differ, where it is not. The overlap parameterisation follows PASTA; the inputs are synthetic.",
           "name": "uniform_random_elementwise_generator",
           "pretty_name": "Uniform Random Sparse Elementwise Generator",
@@ -103263,7 +103263,7 @@
       "concepts": "\n<ccs2012>\n<concept>\n<concept_id>10002950.10003705</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003705.10011686</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003714.10003715</concept_id>\n<concept_desc>Mathematics of computing~Numerical analysis</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n</ccs2012>\n",
       "description": "The multiplication of two matrices.C_ik = \\sum_k A_ij B_jk",
       "file": "src/saps/benchmarks/matmul.py",
-      "freshness": "a2c470158aa6d1c13d5e5ae13ff88543406a52bd0839115e8f7ad6e1164252a2",
+      "freshness": "2cdb13caee248e22ef23c3fe3d6e7db04be3e096ca7611ea15277c49cced7d56",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
@@ -103278,7 +103278,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense Matmul Input small.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "a2c470158aa6d1c13d5e5ae13ff88543406a52bd0839115e8f7ad6e1164252a2",
+              "freshness": "2cdb13caee248e22ef23c3fe3d6e7db04be3e096ca7611ea15277c49cced7d56",
               "name": "small",
               "pretty_name": "small",
               "suites": [
@@ -103301,7 +103301,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense Matmul Input medium.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "a2c470158aa6d1c13d5e5ae13ff88543406a52bd0839115e8f7ad6e1164252a2",
+              "freshness": "2cdb13caee248e22ef23c3fe3d6e7db04be3e096ca7611ea15277c49cced7d56",
               "name": "medium",
               "pretty_name": "medium",
               "suites": [
@@ -103324,7 +103324,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense Matmul Input large.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "a2c470158aa6d1c13d5e5ae13ff88543406a52bd0839115e8f7ad6e1164252a2",
+              "freshness": "2cdb13caee248e22ef23c3fe3d6e7db04be3e096ca7611ea15277c49cced7d56",
               "name": "large",
               "pretty_name": "large",
               "suites": [
@@ -103343,7 +103343,7 @@
           ],
           "description": "Dense input generator for matrix multiplication.",
           "file": "src/saps/benchmarks/matmul.py",
-          "freshness": "a2c470158aa6d1c13d5e5ae13ff88543406a52bd0839115e8f7ad6e1164252a2",
+          "freshness": "2cdb13caee248e22ef23c3fe3d6e7db04be3e096ca7611ea15277c49cced7d56",
           "motivation": "Generate dense matrices for matrix multiplication.",
           "name": "dense_matmul_generator",
           "pretty_name": "Dense Matmul Generator",
@@ -103374,7 +103374,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Arenas/email, squared to represent graph algorithms in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "a2c470158aa6d1c13d5e5ae13ff88543406a52bd0839115e8f7ad6e1164252a2",
+              "freshness": "2cdb13caee248e22ef23c3fe3d6e7db04be3e096ca7611ea15277c49cced7d56",
               "name": "email",
               "pretty_name": "email",
               "suites": [
@@ -103395,7 +103395,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/email-Eu-core, squared to represent graph algorithms in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "a2c470158aa6d1c13d5e5ae13ff88543406a52bd0839115e8f7ad6e1164252a2",
+              "freshness": "2cdb13caee248e22ef23c3fe3d6e7db04be3e096ca7611ea15277c49cced7d56",
               "name": "email-Eu-core",
               "pretty_name": "email-Eu-core",
               "suites": [
@@ -103416,7 +103416,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/ca-GrQc, squared to represent graph algorithms in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "a2c470158aa6d1c13d5e5ae13ff88543406a52bd0839115e8f7ad6e1164252a2",
+              "freshness": "2cdb13caee248e22ef23c3fe3d6e7db04be3e096ca7611ea15277c49cced7d56",
               "name": "ca-GrQc",
               "pretty_name": "ca-GrQc",
               "suites": [
@@ -103437,7 +103437,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/bcsstk09, squared to represent algebraic multigrid in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "a2c470158aa6d1c13d5e5ae13ff88543406a52bd0839115e8f7ad6e1164252a2",
+              "freshness": "2cdb13caee248e22ef23c3fe3d6e7db04be3e096ca7611ea15277c49cced7d56",
               "name": "bcsstk09",
               "pretty_name": "bcsstk09",
               "suites": [
@@ -103458,7 +103458,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Muite/Chebyshev3, squared to represent algebraic multigrid in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "a2c470158aa6d1c13d5e5ae13ff88543406a52bd0839115e8f7ad6e1164252a2",
+              "freshness": "2cdb13caee248e22ef23c3fe3d6e7db04be3e096ca7611ea15277c49cced7d56",
               "name": "Chebyshev3",
               "pretty_name": "Chebyshev3",
               "suites": [
@@ -103479,7 +103479,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/CollegeMsg, squared to represent graph algorithms in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "a2c470158aa6d1c13d5e5ae13ff88543406a52bd0839115e8f7ad6e1164252a2",
+              "freshness": "2cdb13caee248e22ef23c3fe3d6e7db04be3e096ca7611ea15277c49cced7d56",
               "name": "CollegeMsg",
               "pretty_name": "CollegeMsg",
               "suites": [
@@ -103500,7 +103500,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/wiki-Vote, squared to represent graph algorithms in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "a2c470158aa6d1c13d5e5ae13ff88543406a52bd0839115e8f7ad6e1164252a2",
+              "freshness": "2cdb13caee248e22ef23c3fe3d6e7db04be3e096ca7611ea15277c49cced7d56",
               "name": "wiki-Vote",
               "pretty_name": "wiki-Vote",
               "suites": [
@@ -103521,7 +103521,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/ca-HepPh, squared to represent graph algorithms in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "a2c470158aa6d1c13d5e5ae13ff88543406a52bd0839115e8f7ad6e1164252a2",
+              "freshness": "2cdb13caee248e22ef23c3fe3d6e7db04be3e096ca7611ea15277c49cced7d56",
               "name": "ca-HepPh",
               "pretty_name": "ca-HepPh",
               "suites": [
@@ -103542,7 +103542,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix MathWorks/Muu, squared to represent algebraic multigrid in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "a2c470158aa6d1c13d5e5ae13ff88543406a52bd0839115e8f7ad6e1164252a2",
+              "freshness": "2cdb13caee248e22ef23c3fe3d6e7db04be3e096ca7611ea15277c49cced7d56",
               "name": "Muu",
               "pretty_name": "Muu",
               "suites": [
@@ -103563,7 +103563,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Norris/fv2, squared to represent algebraic multigrid in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "a2c470158aa6d1c13d5e5ae13ff88543406a52bd0839115e8f7ad6e1164252a2",
+              "freshness": "2cdb13caee248e22ef23c3fe3d6e7db04be3e096ca7611ea15277c49cced7d56",
               "name": "fv2",
               "pretty_name": "fv2",
               "suites": [
@@ -103584,7 +103584,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix UTEP/Dubcova1, squared to represent algebraic multigrid in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "a2c470158aa6d1c13d5e5ae13ff88543406a52bd0839115e8f7ad6e1164252a2",
+              "freshness": "2cdb13caee248e22ef23c3fe3d6e7db04be3e096ca7611ea15277c49cced7d56",
               "name": "Dubcova1",
               "pretty_name": "Dubcova1",
               "suites": [
@@ -103603,7 +103603,7 @@
           ],
           "description": "Sparse input generator for sparse matrix-matrix multiplication, drawing real matrices from the SuiteSparse Matrix Collection across the application classes that motivate SpGEMM.",
           "file": "src/saps/benchmarks/matmul.py",
-          "freshness": "a2c470158aa6d1c13d5e5ae13ff88543406a52bd0839115e8f7ad6e1164252a2",
+          "freshness": "2cdb13caee248e22ef23c3fe3d6e7db04be3e096ca7611ea15277c49cced7d56",
           "motivation": "Generate real sparse matrices for squaring (A*A), the operation both classes of SpGEMM application reduce to: graph algorithms, where A*A gives two-hop neighbourhoods, and algebraic multigrid, where SpGEMM forms the coarse-grid operator. Buluc and Gilbert motivate those two classes; the matrices themselves are selected here rather than taken from that work.",
           "name": "suitesparse_matmul_generator",
           "pretty_name": "Suite Sparse Matmul Generator",
@@ -103638,7 +103638,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-05.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "a2c470158aa6d1c13d5e5ae13ff88543406a52bd0839115e8f7ad6e1164252a2",
+              "freshness": "2cdb13caee248e22ef23c3fe3d6e7db04be3e096ca7611ea15277c49cced7d56",
               "name": "uniform-1e-05",
               "pretty_name": "uniform-1e-05",
               "suites": [
@@ -103661,7 +103661,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-04.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "a2c470158aa6d1c13d5e5ae13ff88543406a52bd0839115e8f7ad6e1164252a2",
+              "freshness": "2cdb13caee248e22ef23c3fe3d6e7db04be3e096ca7611ea15277c49cced7d56",
               "name": "uniform-1e-04",
               "pretty_name": "uniform-1e-04",
               "suites": [
@@ -103684,7 +103684,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-03.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "a2c470158aa6d1c13d5e5ae13ff88543406a52bd0839115e8f7ad6e1164252a2",
+              "freshness": "2cdb13caee248e22ef23c3fe3d6e7db04be3e096ca7611ea15277c49cced7d56",
               "name": "uniform-1e-03",
               "pretty_name": "uniform-1e-03",
               "suites": [
@@ -103707,7 +103707,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-02.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "a2c470158aa6d1c13d5e5ae13ff88543406a52bd0839115e8f7ad6e1164252a2",
+              "freshness": "2cdb13caee248e22ef23c3fe3d6e7db04be3e096ca7611ea15277c49cced7d56",
               "name": "uniform-1e-02",
               "pretty_name": "uniform-1e-02",
               "suites": [
@@ -103728,7 +103728,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-01.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "a2c470158aa6d1c13d5e5ae13ff88543406a52bd0839115e8f7ad6e1164252a2",
+              "freshness": "2cdb13caee248e22ef23c3fe3d6e7db04be3e096ca7611ea15277c49cced7d56",
               "name": "uniform-1e-01",
               "pretty_name": "uniform-1e-01",
               "suites": [
@@ -103747,7 +103747,7 @@
           ],
           "description": "Generates a pair of uniform random sparse matrices for sparse general matrix-matrix multiplication (SpGEMM) at a range of densities.",
           "file": "src/saps/benchmarks/matmul.py",
-          "freshness": "a2c470158aa6d1c13d5e5ae13ff88543406a52bd0839115e8f7ad6e1164252a2",
+          "freshness": "2cdb13caee248e22ef23c3fe3d6e7db04be3e096ca7611ea15277c49cced7d56",
           "motivation": "Generate pairs of uniform random sparse matrices for SpGEMM over a range of densities. The density values are a synthetic sweep.",
           "name": "uniform_random_matmul_generator",
           "pretty_name": "Uniform Random Sparse Matmul Generator",
@@ -103801,7 +103801,7 @@
       "concepts": "\n<ccs2012>\n<concept>\n<concept_id>10002950.10003705</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003705.10011686</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003714.10003715</concept_id>\n<concept_desc>Mathematics of computing~Numerical analysis</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n</ccs2012>\n",
       "description": "The multiplication of a matrix and a vector.C_i = \\sum_j A_ij B_j",
       "file": "src/saps/benchmarks/spmv.py",
-      "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+      "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
@@ -103816,7 +103816,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense MatVec Input small.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "small",
               "pretty_name": "small",
               "suites": [
@@ -103839,7 +103839,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense MatVec Input medium.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "medium",
               "pretty_name": "medium",
               "suites": [
@@ -103862,7 +103862,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense MatVec Input large.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "large",
               "pretty_name": "large",
               "suites": [
@@ -103883,7 +103883,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense MatVec Input rectangular.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "rectangular",
               "pretty_name": "rectangular",
               "suites": [
@@ -103904,7 +103904,7 @@
           ],
           "description": "Dense input generator for matrix-vector multiplication.",
           "file": "src/saps/benchmarks/spmv.py",
-          "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+          "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
           "motivation": "Generate dense matrices for matrix-vector multiplication.",
           "name": "dense_matvec_generator",
           "pretty_name": "Dense MatVec Generator",
@@ -103935,7 +103935,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/gemat11, included to represent the 'power network problem sequence' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "gemat11",
               "pretty_name": "gemat11",
               "suites": [
@@ -103956,7 +103956,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Grund/bayer02, included to represent the 'chemical process simulation problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "bayer02",
               "pretty_name": "bayer02",
               "suites": [
@@ -103977,7 +103977,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Grund/bayer10, included to represent the 'chemical process simulation problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "bayer10",
               "pretty_name": "bayer10",
               "suites": [
@@ -103998,7 +103998,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/orani678, included to represent the 'economic problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "orani678",
               "pretty_name": "orani678",
               "suites": [
@@ -104019,7 +104019,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Zitney/rdist1, included to represent the 'chemical process simulation problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "rdist1",
               "pretty_name": "rdist1",
               "suites": [
@@ -104040,7 +104040,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Hamm/memplus, included to represent the 'circuit simulation problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "memplus",
               "pretty_name": "memplus",
               "suites": [
@@ -104061,7 +104061,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Wang/wang4, included to represent the 'semiconductor device problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "wang4",
               "pretty_name": "wang4",
               "suites": [
@@ -104082,7 +104082,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Brethour/coater2, included to represent the 'computational fluid dynamics problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "coater2",
               "pretty_name": "coater2",
               "suites": [
@@ -104103,7 +104103,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix ATandT/onetone2, included to represent the 'frequency-domain circuit simulation problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "onetone2",
               "pretty_name": "onetone2",
               "suites": [
@@ -104124,7 +104124,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Mallya/lhr10, included to represent the 'chemical process simulation problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "lhr10",
               "pretty_name": "lhr10",
               "suites": [
@@ -104145,7 +104145,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Cote/vibrobox, included to represent the 'acoustics problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "vibrobox",
               "pretty_name": "vibrobox",
               "suites": [
@@ -104166,7 +104166,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Goodwin/goodwin, included to represent the 'computational fluid dynamics problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "goodwin",
               "pretty_name": "goodwin",
               "suites": [
@@ -104187,7 +104187,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nasa/pwt, included to represent the 'duplicate structural problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "pwt",
               "pretty_name": "pwt",
               "suites": [
@@ -104208,7 +104208,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Mulvey/finan512, included to represent the 'economic problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "finan512",
               "pretty_name": "finan512",
               "suites": [
@@ -104229,7 +104229,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Boeing/crystk02, included to represent the 'materials problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "crystk02",
               "pretty_name": "crystk02",
               "suites": [
@@ -104250,7 +104250,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Goodwin/rim, included to represent the 'computational fluid dynamics problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "rim",
               "pretty_name": "rim",
               "suites": [
@@ -104271,7 +104271,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Simon/olafu, included to represent the 'structural problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "olafu",
               "pretty_name": "olafu",
               "suites": [
@@ -104292,7 +104292,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix FIDAP/ex11, included to represent the 'computational fluid dynamics problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "ex11",
               "pretty_name": "ex11",
               "suites": [
@@ -104313,7 +104313,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Simon/raefsky4, included to represent the 'structural problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "raefsky4",
               "pretty_name": "raefsky4",
               "suites": [
@@ -104334,7 +104334,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Boeing/bcsstk35, included to represent the 'structural problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "bcsstk35",
               "pretty_name": "bcsstk35",
               "suites": [
@@ -104355,7 +104355,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Simon/raefsky3, included to represent the 'computational fluid dynamics problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "raefsky3",
               "pretty_name": "raefsky3",
               "suites": [
@@ -104376,7 +104376,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Simon/venkat01, included to represent the 'computational fluid dynamics problem sequence' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "venkat01",
               "pretty_name": "venkat01",
               "suites": [
@@ -104397,7 +104397,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Boeing/crystk03, included to represent the 'materials problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "crystk03",
               "pretty_name": "crystk03",
               "suites": [
@@ -104418,7 +104418,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Boeing/ct20stif, included to represent the 'structural problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "ct20stif",
               "pretty_name": "ct20stif",
               "suites": [
@@ -104439,7 +104439,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nasa/nasasrb, included to represent the 'structural problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "nasasrb",
               "pretty_name": "nasasrb",
               "suites": [
@@ -104460,7 +104460,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Rothberg/3dtube, included to represent the 'computational fluid dynamics problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "3dtube",
               "pretty_name": "3dtube",
               "suites": [
@@ -104479,7 +104479,7 @@
           ],
           "description": "Sparse input generator for sparse matrix-vector multiplication, drawing real matrices from the SuiteSparse Matrix Collection across a range of application domains.",
           "file": "src/saps/benchmarks/spmv.py",
-          "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+          "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
           "motivation": "Generate real sparse matrices for matrix-vector multiplication, using the benchmark suite of Vuduc's SpMV autotuning study: 26 of its 28 matrices, spanning fluid dynamics, structural, materials, chemical process, economic, circuit and semiconductor problems. `bai` and `vavasis3` are omitted because SuiteSparse does not carry them under those names.",
           "name": "suitesparse_matvec_generator",
           "pretty_name": "Suite Sparse MatVec Generator",
@@ -104515,7 +104515,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-05.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "uniform-1e-05",
               "pretty_name": "uniform-1e-05",
               "suites": [
@@ -104538,7 +104538,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-04.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "uniform-1e-04",
               "pretty_name": "uniform-1e-04",
               "suites": [
@@ -104561,7 +104561,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-03.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "uniform-1e-03",
               "pretty_name": "uniform-1e-03",
               "suites": [
@@ -104584,7 +104584,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-02.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "uniform-1e-02",
               "pretty_name": "uniform-1e-02",
               "suites": [
@@ -104607,7 +104607,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-01.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+              "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
               "name": "uniform-1e-01",
               "pretty_name": "uniform-1e-01",
               "suites": [
@@ -104628,7 +104628,7 @@
           ],
           "description": "Generates a pair of uniform random sparse matrices for sparse general matrix-matrix multiplication (SpGEMM) at a range of densities.",
           "file": "src/saps/benchmarks/spmv.py",
-          "freshness": "a11e64bb5322f0b677ad47147d4d24cd8fb4800f7e2960cb30ab06e650acaf2d",
+          "freshness": "78627ef7fb5b46c3da4314081b803eaa4cf28c054590a222692444d972477dce",
           "motivation": "Generate uniform random sparse matrices for matrix-vector multiplication over a range of densities. The density values are just a synthetic sweep.",
           "name": "uniform_random_matvec_generator",
           "pretty_name": "Uniform Random Sparse MatVec Generator",
@@ -114001,7 +114001,7 @@
       "concepts": "\n<ccs2012>\n<concept>\n<concept_id>10002950.10003705</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003705.10011686</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003714.10003715</concept_id>\n<concept_desc>Mathematics of computing~Numerical analysis</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n</ccs2012>\n",
       "description": "The multiplication of two matrices.C_ik = \\sum_k A_ij B_jk",
       "file": "src/saps/benchmarks/sddmm.py",
-      "freshness": "f619fcdb831e9309a163302d78df1a483f81d9cf30c80374348f4c5aefdd5cc0",
+      "freshness": "2bac9876ee9ded11709fe5030b53f2acd06af9cbe703a3a96f2e0b254344799e",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. Generative AI might be used for dataset collecting and parsing. This statement was written by hand.",
@@ -114016,7 +114016,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SDDMM over the nonzero pattern of SuiteSparse graph SNAP/email-Eu-core with embedding width 128.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "f619fcdb831e9309a163302d78df1a483f81d9cf30c80374348f4c5aefdd5cc0",
+              "freshness": "2bac9876ee9ded11709fe5030b53f2acd06af9cbe703a3a96f2e0b254344799e",
               "name": "email-Eu-core-128",
               "pretty_name": "email-Eu-core-128",
               "suites": [
@@ -114037,7 +114037,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SDDMM over the nonzero pattern of SuiteSparse graph Arenas/email with embedding width 128.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "f619fcdb831e9309a163302d78df1a483f81d9cf30c80374348f4c5aefdd5cc0",
+              "freshness": "2bac9876ee9ded11709fe5030b53f2acd06af9cbe703a3a96f2e0b254344799e",
               "name": "email-128",
               "pretty_name": "email-128",
               "suites": [
@@ -114058,7 +114058,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SDDMM over the nonzero pattern of SuiteSparse graph SNAP/ca-GrQc with embedding width 128.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "f619fcdb831e9309a163302d78df1a483f81d9cf30c80374348f4c5aefdd5cc0",
+              "freshness": "2bac9876ee9ded11709fe5030b53f2acd06af9cbe703a3a96f2e0b254344799e",
               "name": "ca-GrQc-128",
               "pretty_name": "ca-GrQc-128",
               "suites": [
@@ -114079,7 +114079,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SDDMM over the nonzero pattern of SuiteSparse graph SNAP/wiki-Vote with embedding width 128.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "f619fcdb831e9309a163302d78df1a483f81d9cf30c80374348f4c5aefdd5cc0",
+              "freshness": "2bac9876ee9ded11709fe5030b53f2acd06af9cbe703a3a96f2e0b254344799e",
               "name": "wiki-Vote-128",
               "pretty_name": "wiki-Vote-128",
               "suites": [
@@ -114100,7 +114100,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SDDMM over the nonzero pattern of SuiteSparse graph SNAP/ca-HepPh with embedding width 128.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "f619fcdb831e9309a163302d78df1a483f81d9cf30c80374348f4c5aefdd5cc0",
+              "freshness": "2bac9876ee9ded11709fe5030b53f2acd06af9cbe703a3a96f2e0b254344799e",
               "name": "ca-HepPh-128",
               "pretty_name": "ca-HepPh-128",
               "suites": [
@@ -114119,7 +114119,7 @@
           ],
           "description": "Input generator for SDDMM, sampling a dense product at the nonzero pattern of a real graph from the SuiteSparse Matrix Collection.",
           "file": "src/saps/benchmarks/sddmm.py",
-          "freshness": "f619fcdb831e9309a163302d78df1a483f81d9cf30c80374348f4c5aefdd5cc0",
+          "freshness": "2bac9876ee9ded11709fe5030b53f2acd06af9cbe703a3a96f2e0b254344799e",
           "motivation": "Generate real sparse matrices for SDDMM, sampling the dense product at the nonzero pattern of a graph. Bharadwaj et al. name graph neural networks with self-attention as one of SDDMM's two applications and run real matrices at an embedding width of 128, the value used here; their own matrices hold hundreds of millions of nonzeros, so the graphs themselves are selected here.",
           "name": "suitesparse_sddmm_generator",
           "pretty_name": "SuiteSparse SDDMM Generator",
@@ -114153,7 +114153,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random SDDMM input uniform-21-per-row.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "f619fcdb831e9309a163302d78df1a483f81d9cf30c80374348f4c5aefdd5cc0",
+              "freshness": "2bac9876ee9ded11709fe5030b53f2acd06af9cbe703a3a96f2e0b254344799e",
               "name": "uniform-21-per-row",
               "pretty_name": "uniform-21-per-row",
               "suites": [
@@ -114176,7 +114176,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random SDDMM input uniform-43-per-row.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "f619fcdb831e9309a163302d78df1a483f81d9cf30c80374348f4c5aefdd5cc0",
+              "freshness": "2bac9876ee9ded11709fe5030b53f2acd06af9cbe703a3a96f2e0b254344799e",
               "name": "uniform-43-per-row",
               "pretty_name": "uniform-43-per-row",
               "suites": [
@@ -114197,7 +114197,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random SDDMM input uniform-65-per-row.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "f619fcdb831e9309a163302d78df1a483f81d9cf30c80374348f4c5aefdd5cc0",
+              "freshness": "2bac9876ee9ded11709fe5030b53f2acd06af9cbe703a3a96f2e0b254344799e",
               "name": "uniform-65-per-row",
               "pretty_name": "uniform-65-per-row",
               "suites": [
@@ -114218,7 +114218,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random SDDMM input uniform-85-per-row.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "f619fcdb831e9309a163302d78df1a483f81d9cf30c80374348f4c5aefdd5cc0",
+              "freshness": "2bac9876ee9ded11709fe5030b53f2acd06af9cbe703a3a96f2e0b254344799e",
               "name": "uniform-85-per-row",
               "pretty_name": "uniform-85-per-row",
               "suites": [
@@ -114241,7 +114241,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random SDDMM input uniform-107-per-row.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "f619fcdb831e9309a163302d78df1a483f81d9cf30c80374348f4c5aefdd5cc0",
+              "freshness": "2bac9876ee9ded11709fe5030b53f2acd06af9cbe703a3a96f2e0b254344799e",
               "name": "uniform-107-per-row",
               "pretty_name": "uniform-107-per-row",
               "suites": [
@@ -114262,7 +114262,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random SDDMM input uniform-128-per-row.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "f619fcdb831e9309a163302d78df1a483f81d9cf30c80374348f4c5aefdd5cc0",
+              "freshness": "2bac9876ee9ded11709fe5030b53f2acd06af9cbe703a3a96f2e0b254344799e",
               "name": "uniform-128-per-row",
               "pretty_name": "uniform-128-per-row",
               "suites": [
@@ -114283,7 +114283,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random SDDMM input uniform-149-per-row.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "f619fcdb831e9309a163302d78df1a483f81d9cf30c80374348f4c5aefdd5cc0",
+              "freshness": "2bac9876ee9ded11709fe5030b53f2acd06af9cbe703a3a96f2e0b254344799e",
               "name": "uniform-149-per-row",
               "pretty_name": "uniform-149-per-row",
               "suites": [
@@ -114304,7 +114304,7 @@
           ],
           "description": "Generates SDDMM inputs with a uniform random sparse sampling matrix at a range of densities.",
           "file": "src/saps/benchmarks/sddmm.py",
-          "freshness": "f619fcdb831e9309a163302d78df1a483f81d9cf30c80374348f4c5aefdd5cc0",
+          "freshness": "2bac9876ee9ded11709fe5030b53f2acd06af9cbe703a3a96f2e0b254344799e",
           "motivation": "Generate Erdos-Renyi sampling matrices for SDDMM, the synthetic workload Bharadwaj et al. use, swept over their range of nonzeros per row so that row occupancy rather than matrix size varies.",
           "name": "uniform_random_sddmm_generator",
           "pretty_name": "Uniform Random SDDMM Generator",
@@ -114360,7 +114360,7 @@
       "concepts": "\n<ccs2012>\n<concept>\n<concept_id>10002951.10003317.10003347.10003356</concept_id>\n<concept_desc>Information systems~Clustering and classification</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002951.10003317.10003347.10003350</concept_id>\n<concept_desc>Information systems~Recommender systems</concept_desc>\n<concept_significance>300</concept_significance>\n</concept>\n<concept>\n<concept_id>10002951.10003317</concept_id>\n<concept_desc>Information systems~Information retrieval</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_desc>Computing methodologies~\nMachine learning algorithms</concept_desc>\n</concept>\n<concept>\n<concept_id>10010147.10010257.10010258.10010260.10003697</concept_id>\n<concept_desc>Computing methodologies~Cluster analysis</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10010147.10010257.10010258.10010260.10010271</concept_id>\n<concept_desc>Computing methodologies~Dimensionality reduction and manifold learning</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_desc>Mathematics of computing~\nDimensionality reduction</concept_desc>\n</concept>\n<concept>\n<concept_desc>Theory of computation~\nNearest neighbor algorithms</concept_desc>\n</concept>\n</ccs2012>\n",
       "description": "Matches SimHash signatures across LSH tables on a shrinking prefix of signs until enough candidates are found, then ranks them by cosine distance in the original space.",
       "file": "src/saps/benchmarks/approx_nn.py",
-      "freshness": "2a9e86291eb1a57616fc9bb51b83a78cb522459e656b0ecf6b10770aa8d3438f",
+      "freshness": "2904353651633b1a605b236b07ffd9b0ad5649444b36221bcf9367d64e64feaf",
       "generators": [
         {
           "ai_disclosure": "The benchmark algorithm was supplied by its human authors, who directed switching it from E2LSH bucketing to SimHash. Generative AI implemented the SimHash redesign and assisted with debugging array dimensions, generator refactoring, parameter calibration, and tests.",
@@ -114376,7 +114376,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Test dense data and query matrices with random projection.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "2a9e86291eb1a57616fc9bb51b83a78cb522459e656b0ecf6b10770aa8d3438f",
+              "freshness": "2904353651633b1a605b236b07ffd9b0ad5649444b36221bcf9367d64e64feaf",
               "name": "test_simhash_preserves_similarity",
               "pretty_name": "test SimHash ANN",
               "suites": [
@@ -114413,7 +114413,7 @@
           ],
           "description": "Small SimHash approximate nearest-neighbor example. Projection coefficients are independent N(0, 1) variables, so each hash hyperplane's normal is a uniformly random direction. For any fixed pair of vectors u, v with angle theta between them, P[sign(r @ u) == sign(r @ v)] = 1 - theta / pi over the random direction r (Charikar 2002, Theorem 1), independent of u and v's norms -- unlike E2LSH's Euclidean bucketing, no width calibration against the data's scale is needed. n_projections is picked from data shape alone so the expected accidental-match count across the full max_tables budget lands near candidate_target (see _tune_lsh). At benchmark time, each round requires exact agreement on a shrinking prefix of the n_projections signs until candidate_target points are found.",
           "file": "src/saps/benchmarks/approx_nn.py",
-          "freshness": "2a9e86291eb1a57616fc9bb51b83a78cb522459e656b0ecf6b10770aa8d3438f",
+          "freshness": "2904353651633b1a605b236b07ffd9b0ad5649444b36221bcf9367d64e64feaf",
           "motivation": "Provide a small SimHash ANN example for benchmark correctness checks.",
           "name": "simhash_projection_test_inputs_dense",
           "pretty_name": "SimHash Projection Test Input Generator (dense)",
@@ -114458,7 +114458,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Test dense data and query matrices with random projection.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "2a9e86291eb1a57616fc9bb51b83a78cb522459e656b0ecf6b10770aa8d3438f",
+              "freshness": "2904353651633b1a605b236b07ffd9b0ad5649444b36221bcf9367d64e64feaf",
               "name": "test_simhash_preserves_similarity",
               "pretty_name": "test SimHash ANN",
               "suites": [
@@ -114495,7 +114495,7 @@
           ],
           "description": "Small SimHash approximate nearest-neighbor example. Projection coefficients are r_i = z_i * g_i, with independent z_i ~ Bernoulli(a), g_i ~ N(0, 1), and a = 1/sqrt(d) for d features -- a standard database-friendly substitute for dense Gaussian directions (Achlioptas 2003). Charikar's P[sign(r @ u) == sign(r @ v)] = 1 - theta / pi is proven for spherically symmetric r such as Gaussian; for this sparse, non-spherical r it is only an empirical approximation, not a proven guarantee. n_projections is picked from data shape alone so the expected accidental-match count across the full max_tables budget lands near candidate_target (see _tune_lsh). At benchmark time, each round requires exact agreement on a shrinking prefix of the n_projections signs until candidate_target points are found.",
           "file": "src/saps/benchmarks/approx_nn.py",
-          "freshness": "2a9e86291eb1a57616fc9bb51b83a78cb522459e656b0ecf6b10770aa8d3438f",
+          "freshness": "2904353651633b1a605b236b07ffd9b0ad5649444b36221bcf9367d64e64feaf",
           "motivation": "Provide a small SimHash ANN example for benchmark correctness checks.",
           "name": "simhash_projection_test_inputs_sparse",
           "pretty_name": "SimHash Projection Test Input Generator (sparse)",
@@ -114541,7 +114541,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small random dense data and query matrices with random projection.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "2a9e86291eb1a57616fc9bb51b83a78cb522459e656b0ecf6b10770aa8d3438f",
+              "freshness": "2904353651633b1a605b236b07ffd9b0ad5649444b36221bcf9367d64e64feaf",
               "name": "small",
               "pretty_name": "Small SimHash ANN",
               "suites": [],
@@ -114566,7 +114566,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Medium random dense data and query matrices with random projection.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "2a9e86291eb1a57616fc9bb51b83a78cb522459e656b0ecf6b10770aa8d3438f",
+              "freshness": "2904353651633b1a605b236b07ffd9b0ad5649444b36221bcf9367d64e64feaf",
               "name": "medium",
               "pretty_name": "Medium SimHash ANN",
               "suites": [],
@@ -114591,7 +114591,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Large random dense data and query matrices with random projection.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "2a9e86291eb1a57616fc9bb51b83a78cb522459e656b0ecf6b10770aa8d3438f",
+              "freshness": "2904353651633b1a605b236b07ffd9b0ad5649444b36221bcf9367d64e64feaf",
               "name": "large",
               "pretty_name": "Large SimHash ANN",
               "suites": [],
@@ -114614,7 +114614,7 @@
           ],
           "description": "Generates Gaussian random data/query matrices with dense projections for approximate nearest-neighbor. Projection coefficients are independent N(0, 1) variables, so each hash hyperplane's normal is a uniformly random direction. For any fixed pair of vectors u, v with angle theta between them, P[sign(r @ u) == sign(r @ v)] = 1 - theta / pi over the random direction r (Charikar 2002, Theorem 1), independent of u and v's norms -- unlike E2LSH's Euclidean bucketing, no width calibration against the data's scale is needed. n_projections is picked from data shape alone so the expected accidental-match count across the full max_tables budget lands near candidate_target (see _tune_lsh). At benchmark time, each round requires exact agreement on a shrinking prefix of the n_projections signs until candidate_target points are found.",
           "file": "src/saps/benchmarks/approx_nn.py",
-          "freshness": "2a9e86291eb1a57616fc9bb51b83a78cb522459e656b0ecf6b10770aa8d3438f",
+          "freshness": "2904353651633b1a605b236b07ffd9b0ad5649444b36221bcf9367d64e64feaf",
           "motivation": "Random hyperplane hashing (SimHash) is a fundamental primitive in locality-sensitive hashing and randomized numerical linear algebra, used in many applications such as approximate nearest neighbor search and near-duplicate detection.",
           "name": "simhash_projection_inputs_dense",
           "pretty_name": "SimHash Projection Input Generator (dense)",
@@ -114654,7 +114654,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small random dense data and query matrices with random projection.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "2a9e86291eb1a57616fc9bb51b83a78cb522459e656b0ecf6b10770aa8d3438f",
+              "freshness": "2904353651633b1a605b236b07ffd9b0ad5649444b36221bcf9367d64e64feaf",
               "name": "small",
               "pretty_name": "Small SimHash ANN",
               "suites": [],
@@ -114679,7 +114679,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Medium random dense data and query matrices with random projection.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "2a9e86291eb1a57616fc9bb51b83a78cb522459e656b0ecf6b10770aa8d3438f",
+              "freshness": "2904353651633b1a605b236b07ffd9b0ad5649444b36221bcf9367d64e64feaf",
               "name": "medium",
               "pretty_name": "Medium SimHash ANN",
               "suites": [],
@@ -114704,7 +114704,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Large random dense data and query matrices with random projection.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "2a9e86291eb1a57616fc9bb51b83a78cb522459e656b0ecf6b10770aa8d3438f",
+              "freshness": "2904353651633b1a605b236b07ffd9b0ad5649444b36221bcf9367d64e64feaf",
               "name": "large",
               "pretty_name": "Large SimHash ANN",
               "suites": [],
@@ -114727,7 +114727,7 @@
           ],
           "description": "Generates Gaussian random data/query matrices with sparse projections for approximate nearest-neighbor. Projection coefficients are r_i = z_i * g_i, with independent z_i ~ Bernoulli(a), g_i ~ N(0, 1), and a = 1/sqrt(d) for d features -- a standard database-friendly substitute for dense Gaussian directions (Achlioptas 2003). Charikar's P[sign(r @ u) == sign(r @ v)] = 1 - theta / pi is proven for spherically symmetric r such as Gaussian; for this sparse, non-spherical r it is only an empirical approximation, not a proven guarantee. n_projections is picked from data shape alone so the expected accidental-match count across the full max_tables budget lands near candidate_target (see _tune_lsh). At benchmark time, each round requires exact agreement on a shrinking prefix of the n_projections signs until candidate_target points are found.",
           "file": "src/saps/benchmarks/approx_nn.py",
-          "freshness": "2a9e86291eb1a57616fc9bb51b83a78cb522459e656b0ecf6b10770aa8d3438f",
+          "freshness": "2904353651633b1a605b236b07ffd9b0ad5649444b36221bcf9367d64e64feaf",
           "motivation": "Random hyperplane hashing (SimHash) is a fundamental primitive in locality-sensitive hashing and randomized numerical linear algebra, used in many applications such as approximate nearest neighbor search and near-duplicate detection.",
           "name": "simhash_projection_inputs_sparse",
           "pretty_name": "SimHash Projection Input Generator (sparse)",
@@ -114767,7 +114767,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SimHash approximate nearest-neighbor on mnist.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "2a9e86291eb1a57616fc9bb51b83a78cb522459e656b0ecf6b10770aa8d3438f",
+              "freshness": "2904353651633b1a605b236b07ffd9b0ad5649444b36221bcf9367d64e64feaf",
               "name": "mnist",
               "pretty_name": "SimHash ANN mnist",
               "suites": [
@@ -114806,7 +114806,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SimHash approximate nearest-neighbor on cifar10.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "2a9e86291eb1a57616fc9bb51b83a78cb522459e656b0ecf6b10770aa8d3438f",
+              "freshness": "2904353651633b1a605b236b07ffd9b0ad5649444b36221bcf9367d64e64feaf",
               "name": "cifar10",
               "pretty_name": "SimHash ANN cifar10",
               "suites": [
@@ -114832,7 +114832,7 @@
           ],
           "description": "Loads OpenML image datasets for SimHash approximate nearest-neighbor. Projection coefficients are independent N(0, 1) variables, so each hash hyperplane's normal is a uniformly random direction. For any fixed pair of vectors u, v with angle theta between them, P[sign(r @ u) == sign(r @ v)] = 1 - theta / pi over the random direction r (Charikar 2002, Theorem 1), independent of u and v's norms -- unlike E2LSH's Euclidean bucketing, no width calibration against the data's scale is needed. n_projections is picked from data shape alone so the expected accidental-match count across the full max_tables budget lands near candidate_target (see _tune_lsh). At benchmark time, each round requires exact agreement on a shrinking prefix of the n_projections signs until candidate_target points are found.",
           "file": "src/saps/benchmarks/approx_nn.py",
-          "freshness": "2a9e86291eb1a57616fc9bb51b83a78cb522459e656b0ecf6b10770aa8d3438f",
+          "freshness": "2904353651633b1a605b236b07ffd9b0ad5649444b36221bcf9367d64e64feaf",
           "motivation": "MNIST and CIFAR-10 provide dense image feature matrices from OpenML for approximate nearest-neighbor search.",
           "name": "simhash_approx_nn_openml_dense",
           "pretty_name": "SimHash ANN OpenML Generator (dense)",
@@ -114871,7 +114871,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SimHash approximate nearest-neighbor on mnist.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "2a9e86291eb1a57616fc9bb51b83a78cb522459e656b0ecf6b10770aa8d3438f",
+              "freshness": "2904353651633b1a605b236b07ffd9b0ad5649444b36221bcf9367d64e64feaf",
               "name": "mnist",
               "pretty_name": "SimHash ANN mnist",
               "suites": [
@@ -114910,7 +114910,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SimHash approximate nearest-neighbor on cifar10.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "2a9e86291eb1a57616fc9bb51b83a78cb522459e656b0ecf6b10770aa8d3438f",
+              "freshness": "2904353651633b1a605b236b07ffd9b0ad5649444b36221bcf9367d64e64feaf",
               "name": "cifar10",
               "pretty_name": "SimHash ANN cifar10",
               "suites": [
@@ -114936,7 +114936,7 @@
           ],
           "description": "Loads OpenML image datasets for SimHash approximate nearest-neighbor. Projection coefficients are r_i = z_i * g_i, with independent z_i ~ Bernoulli(a), g_i ~ N(0, 1), and a = 1/sqrt(d) for d features -- a standard database-friendly substitute for dense Gaussian directions (Achlioptas 2003). Charikar's P[sign(r @ u) == sign(r @ v)] = 1 - theta / pi is proven for spherically symmetric r such as Gaussian; for this sparse, non-spherical r it is only an empirical approximation, not a proven guarantee. n_projections is picked from data shape alone so the expected accidental-match count across the full max_tables budget lands near candidate_target (see _tune_lsh). At benchmark time, each round requires exact agreement on a shrinking prefix of the n_projections signs until candidate_target points are found.",
           "file": "src/saps/benchmarks/approx_nn.py",
-          "freshness": "2a9e86291eb1a57616fc9bb51b83a78cb522459e656b0ecf6b10770aa8d3438f",
+          "freshness": "2904353651633b1a605b236b07ffd9b0ad5649444b36221bcf9367d64e64feaf",
           "motivation": "MNIST and CIFAR-10 provide dense image feature matrices from OpenML for approximate nearest-neighbor search.",
           "name": "simhash_approx_nn_openml_sparse",
           "pretty_name": "SimHash ANN OpenML Generator (sparse)",
@@ -114976,7 +114976,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SimHash approximate nearest-neighbor on netflix.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "2a9e86291eb1a57616fc9bb51b83a78cb522459e656b0ecf6b10770aa8d3438f",
+              "freshness": "2904353651633b1a605b236b07ffd9b0ad5649444b36221bcf9367d64e64feaf",
               "name": "netflix",
               "pretty_name": "SimHash ANN netflix",
               "suites": [
@@ -115002,7 +115002,7 @@
           ],
           "description": "Loads Netflix Prize ratings for SimHash approximate nearest-neighbor. Projection coefficients are independent N(0, 1) variables, so each hash hyperplane's normal is a uniformly random direction. For any fixed pair of vectors u, v with angle theta between them, P[sign(r @ u) == sign(r @ v)] = 1 - theta / pi over the random direction r (Charikar 2002, Theorem 1), independent of u and v's norms -- unlike E2LSH's Euclidean bucketing, no width calibration against the data's scale is needed. n_projections is picked from data shape alone so the expected accidental-match count across the full max_tables budget lands near candidate_target (see _tune_lsh). At benchmark time, each round requires exact agreement on a shrinking prefix of the n_projections signs until candidate_target points are found.",
           "file": "src/saps/benchmarks/approx_nn.py",
-          "freshness": "2a9e86291eb1a57616fc9bb51b83a78cb522459e656b0ecf6b10770aa8d3438f",
+          "freshness": "2904353651633b1a605b236b07ffd9b0ad5649444b36221bcf9367d64e64feaf",
           "motivation": "The Netflix Prize dataset provides a ~480K users \u00d7 17,770 movies sparse ratings matrix, tested with dense projections.",
           "name": "simhash_approx_nn_netflix_dense",
           "pretty_name": "SimHash ANN Netflix Generator (dense)",
@@ -115040,7 +115040,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SimHash approximate nearest-neighbor on netflix.",
               "file": "src/saps/benchmarks/approx_nn.py",
-              "freshness": "2a9e86291eb1a57616fc9bb51b83a78cb522459e656b0ecf6b10770aa8d3438f",
+              "freshness": "2904353651633b1a605b236b07ffd9b0ad5649444b36221bcf9367d64e64feaf",
               "name": "netflix",
               "pretty_name": "SimHash ANN netflix",
               "suites": [
@@ -115066,7 +115066,7 @@
           ],
           "description": "Loads Netflix Prize ratings for SimHash approximate nearest-neighbor. Projection coefficients are r_i = z_i * g_i, with independent z_i ~ Bernoulli(a), g_i ~ N(0, 1), and a = 1/sqrt(d) for d features -- a standard database-friendly substitute for dense Gaussian directions (Achlioptas 2003). Charikar's P[sign(r @ u) == sign(r @ v)] = 1 - theta / pi is proven for spherically symmetric r such as Gaussian; for this sparse, non-spherical r it is only an empirical approximation, not a proven guarantee. n_projections is picked from data shape alone so the expected accidental-match count across the full max_tables budget lands near candidate_target (see _tune_lsh). At benchmark time, each round requires exact agreement on a shrinking prefix of the n_projections signs until candidate_target points are found.",
           "file": "src/saps/benchmarks/approx_nn.py",
-          "freshness": "2a9e86291eb1a57616fc9bb51b83a78cb522459e656b0ecf6b10770aa8d3438f",
+          "freshness": "2904353651633b1a605b236b07ffd9b0ad5649444b36221bcf9367d64e64feaf",
           "motivation": "The Netflix Prize dataset provides a ~480K users \u00d7 17,770 movies sparse ratings matrix, tested with sparse projections.",
           "name": "simhash_approx_nn_netflix_sparse",
           "pretty_name": "SimHash ANN Netflix Generator (sparse)",
