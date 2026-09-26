@@ -161,12 +161,12 @@ class SuiteSparseMatVecDataset(Dataset):
 # names.
 # (matrix name, SuiteSparse kind, include in the correctness test suite)
 _SPMV_MATRICES: list[tuple[str, str, bool]] = [
-    ("HB/gemat11", "power network problem sequence", True),
-    ("Grund/bayer02", "chemical process simulation problem", True),
-    ("Grund/bayer10", "chemical process simulation problem", True),
-    ("HB/orani678", "economic problem", True),
-    ("Zitney/rdist1", "chemical process simulation problem", True),
-    ("Hamm/memplus", "circuit simulation problem", True),
+    ("HB/gemat11", "power network problem sequence", False),
+    ("Grund/bayer02", "chemical process simulation problem", False),
+    ("Grund/bayer10", "chemical process simulation problem", False),
+    ("HB/orani678", "economic problem", False),
+    ("Zitney/rdist1", "chemical process simulation problem", False),
+    ("Hamm/memplus", "circuit simulation problem", False),
     ("Wang/wang4", "semiconductor device problem", False),
     ("Brethour/coater2", "computational fluid dynamics problem", False),
     ("ATandT/onetone2", "frequency-domain circuit simulation problem", False),

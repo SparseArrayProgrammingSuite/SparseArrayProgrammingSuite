@@ -1057,8 +1057,8 @@ Nearest neighbor algorithms</concept_desc>
             code_dtype = xp.uint64
         # >0 (not >=0) keeps a sparse-safe zero fill value through matmul.
         weights = xp.astype(2 ** xp.arange(n_projections), code_dtype)
-        table_data = xp.matmul(projected_data > 0, weights, dtype=code_dtype)
-        table_query = xp.matmul(projected_query > 0, weights, dtype=code_dtype)
+        table_data = xp.matmul(xp.astype(projected_data > 0, code_dtype), weights)
+        table_query = xp.matmul(xp.astype(projected_query > 0, code_dtype), weights)
 
         candidates = xp.zeros((n_queries, n_samples), dtype=xp.bool)
         # Each round requires exact agreement on a shrinking prefix of the
@@ -1096,12 +1096,12 @@ Nearest neighbor algorithms</concept_desc>
             )
             query_indicator[
                 xp.reshape(xp.arange(n_queries)[:, None] + offsets * 0, (-1,)),
-                xp.reshape(xp.astype(masked_query, xp.int64) + offsets, (-1,)),
+                xp.reshape(xp.add(xp.astype(masked_query, xp.int64), offsets), (-1,)),
             ] = 1
             data_indicator = xp.zeros((n_samples, n_tables * n_buckets), dtype=xp.uint8)
             data_indicator[
                 xp.reshape(xp.arange(n_samples)[:, None] + offsets * 0, (-1,)),
-                xp.reshape(xp.astype(masked_data, xp.int64) + offsets, (-1,)),
+                xp.reshape(xp.add(xp.astype(masked_data, xp.int64), offsets), (-1,)),
             ] = 1
             matches = (
                 xp.matmul(query_indicator, xp.permute_dims(data_indicator, (1, 0))) > 0

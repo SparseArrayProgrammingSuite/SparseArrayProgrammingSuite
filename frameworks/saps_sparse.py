@@ -470,6 +470,20 @@ class PyDataSparseFramework(Framework):
         xp = self._array_namespace(a)
         return xp.diagonal(a, *args, **kwargs)
 
+    def add(self, x1, x2, /, **kwargs):
+        # Sparse + dense-array has no constant fill value, so pydata/sparse
+        # refuses it; the result is dense anyway, so densify the sparse side.
+        sparse1 = isinstance(x1, sp.SparseArray)
+        sparse2 = isinstance(x2, sp.SparseArray)
+        if sparse1 != sparse2:
+            dense = x2 if sparse1 else x1
+            if isinstance(dense, np.ndarray) and dense.ndim > 0:
+                return compat_np.add(self._dense(x1), self._dense(x2), **kwargs)
+        if sparse1 or sparse2:
+            x1, x2 = self._sparse_compatible_arg(x1), self._sparse_compatible_arg(x2)
+            return sp.add(x1, x2, **kwargs)
+        return compat_np.add(x1, x2, **kwargs)
+
     def matmul(self, x1, x2, /, **kwargs):
         if isinstance(x1, sp.SparseArray) or isinstance(x2, sp.SparseArray):
             # sparse.matmul (unlike the array-api namespace below) takes no
