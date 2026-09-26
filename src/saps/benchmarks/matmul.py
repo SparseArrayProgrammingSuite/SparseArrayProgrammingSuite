@@ -314,7 +314,7 @@ UNIFORM_SPARSE_DENSITIES = [0.00001, 0.0001, 0.001, 0.01, 0.1]
 
 # Above this density the product is effectively fully dense, and building the
 # reference output overruns the test suite's per-benchmark timeout.
-TEST_SUITE_MAX_DENSITY = 0.01
+TEST_SUITE_MAX_DENSITY = 0.001
 
 
 class UniformRandomMatmulDataset(Dataset):

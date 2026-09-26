@@ -103711,8 +103711,7 @@
               "name": "uniform-1e-02",
               "pretty_name": "uniform-1e-02",
               "suites": [
-                "sparse",
-                "test"
+                "sparse"
               ],
               "tags": [
                 "mathematical-software",
@@ -103720,8 +103719,7 @@
                 "mathematics-of-computing",
                 "micro-benchmark",
                 "numerical-analysis",
-                "sparse",
-                "test"
+                "sparse"
               ],
               "topics": []
             },
