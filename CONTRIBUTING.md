@@ -56,7 +56,14 @@ def benchmark(self, xp, meta, A, b, x0):
     return x
 ```
 
-When the number of inputs depends on the dataset (for example, subgraph matching, which receives one tensor per query relation), collect them with `*data_args` instead, after any fixed leading inputs: `def benchmark(self, xp, meta, B, *data_args)`.
+When the number of inputs depends on the dataset (for example, the ODE solvers, whose inputs depend on the problem being integrated), collect them with `*data_args` instead, after any fixed leading inputs: `def benchmark(self, xp, meta, *data_args)`.
+
+If each dataset would need its own signature, prefer one benchmark class per dataset, generated from a shared abstract base with the helpers in `src/saps/codegen.py`. Two benchmarks do this:
+
+- **Subgraph matching:** `src/saps/benchmarks/subgraph_queries.py` holds one class per query, built on `SubgraphQueryBenchmark`. To add or remove a query, edit `TOY_QUERIES` or `GCARE_QUERIES` in `subgraph_matching.py` and run `poetry run ./bin/generate_subgraph_benchmarks.py`.
+- **Weighted model counting:** `src/saps/benchmarks/weighted_model_counting_formulas.py` holds one class per formula, built on `WeightedModelCountingBenchmark`. The formulas come from the `WMCGenerator` and `MCCompPWMCGenerator` dataset lists. After changing either, run `poetry run ./bin/generate_wmc_benchmarks.py`.
+
+Don't edit generated modules by hand. Each generator's `--check` flag reports whether its committed module is current.
 
 Benchmark functions should:
 
