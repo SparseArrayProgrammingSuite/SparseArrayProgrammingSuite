@@ -86848,7 +86848,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml",
+                "group-machine-learning",
                 "test"
               ],
               "topics": []
@@ -86873,7 +86873,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml",
+                "group-machine-learning",
                 "test"
               ],
               "topics": []
@@ -86898,7 +86898,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml",
+                "group-machine-learning",
                 "test"
               ],
               "topics": []
@@ -86923,7 +86923,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml",
+                "group-machine-learning",
                 "test"
               ],
               "topics": []
@@ -86948,7 +86948,7 @@
             "ccs-graph-algorithms",
             "ccs-mathematics-of-computing",
             "ccs-neural-networks",
-            "group-ml",
+            "group-machine-learning",
             "test"
           ],
           "topics": []
@@ -86979,7 +86979,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml"
+                "group-machine-learning"
               ],
               "topics": []
             },
@@ -87001,7 +87001,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml"
+                "group-machine-learning"
               ],
               "topics": []
             },
@@ -87023,7 +87023,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml"
+                "group-machine-learning"
               ],
               "topics": []
             },
@@ -87045,7 +87045,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml"
+                "group-machine-learning"
               ],
               "topics": []
             },
@@ -87067,7 +87067,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml"
+                "group-machine-learning"
               ],
               "topics": []
             },
@@ -87089,7 +87089,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml"
+                "group-machine-learning"
               ],
               "topics": []
             },
@@ -87111,7 +87111,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml"
+                "group-machine-learning"
               ],
               "topics": []
             },
@@ -87133,7 +87133,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml"
+                "group-machine-learning"
               ],
               "topics": []
             }
@@ -87154,7 +87154,7 @@
             "ccs-graph-algorithms",
             "ccs-mathematics-of-computing",
             "ccs-neural-networks",
-            "group-ml"
+            "group-machine-learning"
           ],
           "topics": []
         },
@@ -87185,7 +87185,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml",
+                "group-machine-learning",
                 "standard",
                 "trace"
               ],
@@ -87209,7 +87209,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml",
+                "group-machine-learning",
                 "standard"
               ],
               "topics": []
@@ -87232,7 +87232,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml",
+                "group-machine-learning",
                 "standard"
               ],
               "topics": []
@@ -87255,7 +87255,7 @@
             "ccs-graph-algorithms",
             "ccs-mathematics-of-computing",
             "ccs-neural-networks",
-            "group-ml"
+            "group-machine-learning"
           ],
           "topics": []
         }
@@ -87269,14 +87269,14 @@
         "Thomas N. Kipf, Max Welling. \"Semi-Supervised Classification with Graph Convolutional Networks\", Arxiv, Vol. arXiv:1609.02907, 2016, URL: https://arxiv.org/abs/1609.02907."
       ],
       "suites": [
-        "group-ml"
+        "group-machine-learning"
       ],
       "tags": [
         "ccs-computing-methodologies",
         "ccs-graph-algorithms",
         "ccs-mathematics-of-computing",
         "ccs-neural-networks",
-        "group-ml"
+        "group-machine-learning"
       ],
       "topics": [
         "ccs-computing-methodologies",
@@ -87329,7 +87329,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml",
+                "group-machine-learning",
                 "test"
               ],
               "topics": []
@@ -87356,7 +87356,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml",
+                "group-machine-learning",
                 "test"
               ],
               "topics": []
@@ -87383,7 +87383,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml",
+                "group-machine-learning",
                 "test"
               ],
               "topics": []
@@ -87410,7 +87410,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml",
+                "group-machine-learning",
                 "test"
               ],
               "topics": []
@@ -87434,7 +87434,7 @@
             "ccs-graph-algorithms",
             "ccs-mathematics-of-computing",
             "ccs-neural-networks",
-            "group-ml",
+            "group-machine-learning",
             "test"
           ],
           "topics": []
@@ -87467,7 +87467,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml"
+                "group-machine-learning"
               ],
               "topics": []
             },
@@ -87491,7 +87491,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml"
+                "group-machine-learning"
               ],
               "topics": []
             },
@@ -87515,7 +87515,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml"
+                "group-machine-learning"
               ],
               "topics": []
             },
@@ -87539,7 +87539,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml"
+                "group-machine-learning"
               ],
               "topics": []
             },
@@ -87563,7 +87563,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml"
+                "group-machine-learning"
               ],
               "topics": []
             },
@@ -87587,7 +87587,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml"
+                "group-machine-learning"
               ],
               "topics": []
             },
@@ -87611,7 +87611,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml"
+                "group-machine-learning"
               ],
               "topics": []
             }
@@ -87632,7 +87632,7 @@
             "ccs-graph-algorithms",
             "ccs-mathematics-of-computing",
             "ccs-neural-networks",
-            "group-ml"
+            "group-machine-learning"
           ],
           "topics": []
         },
@@ -87664,7 +87664,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml",
+                "group-machine-learning",
                 "standard"
               ],
               "topics": []
@@ -87689,7 +87689,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml",
+                "group-machine-learning",
                 "standard"
               ],
               "topics": []
@@ -87714,7 +87714,7 @@
                 "ccs-graph-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-neural-networks",
-                "group-ml",
+                "group-machine-learning",
                 "standard"
               ],
               "topics": []
@@ -87736,7 +87736,7 @@
             "ccs-graph-algorithms",
             "ccs-mathematics-of-computing",
             "ccs-neural-networks",
-            "group-ml"
+            "group-machine-learning"
           ],
           "topics": []
         }
@@ -87749,14 +87749,14 @@
         "Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, Jure Leskovec. \"Open Graph Benchmark: Datasets for Machine Learning on Graphs\", Arxiv, Vol. arXiv:2005.00687, 2020, URL: https://arxiv.org/abs/2005.00687."
       ],
       "suites": [
-        "group-ml"
+        "group-machine-learning"
       ],
       "tags": [
         "ccs-computing-methodologies",
         "ccs-graph-algorithms",
         "ccs-mathematics-of-computing",
         "ccs-neural-networks",
-        "group-ml"
+        "group-machine-learning"
       ],
       "topics": [
         "ccs-computing-methodologies",
@@ -103539,7 +103539,7 @@
                 "lth"
               ],
               "tags": [
-                "group-ml",
+                "group-machine-learning",
                 "lth"
               ],
               "topics": []
@@ -103560,7 +103560,7 @@
             "lth"
           ],
           "tags": [
-            "group-ml",
+            "group-machine-learning",
             "lth"
           ],
           "topics": []
@@ -103576,10 +103576,10 @@
       ],
       "suites": [
         "lth",
-        "group-ml"
+        "group-machine-learning"
       ],
       "tags": [
-        "group-ml",
+        "group-machine-learning",
         "lth"
       ],
       "topics": []
@@ -112721,7 +112721,7 @@
                 "ccs-machine-learning-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-recommender-systems",
-                "group-ml",
+                "group-machine-learning",
                 "test"
               ],
               "topics": []
@@ -112751,7 +112751,7 @@
                 "ccs-machine-learning-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-recommender-systems",
-                "group-ml",
+                "group-machine-learning",
                 "test"
               ],
               "topics": []
@@ -112777,7 +112777,7 @@
             "ccs-machine-learning-algorithms",
             "ccs-mathematics-of-computing",
             "ccs-recommender-systems",
-            "group-ml"
+            "group-machine-learning"
           ],
           "topics": []
         },
@@ -112816,7 +112816,7 @@
                 "ccs-machine-learning-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-recommender-systems",
-                "group-ml",
+                "group-machine-learning",
                 "standard",
                 "trace"
               ],
@@ -112848,7 +112848,7 @@
                 "ccs-machine-learning-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-recommender-systems",
-                "group-ml",
+                "group-machine-learning",
                 "standard",
                 "trace"
               ],
@@ -112877,7 +112877,7 @@
             "ccs-machine-learning-algorithms",
             "ccs-mathematics-of-computing",
             "ccs-recommender-systems",
-            "group-ml"
+            "group-machine-learning"
           ],
           "topics": []
         },
@@ -112914,7 +112914,7 @@
                 "ccs-machine-learning-algorithms",
                 "ccs-mathematics-of-computing",
                 "ccs-recommender-systems",
-                "group-ml",
+                "group-machine-learning",
                 "standard"
               ],
               "topics": []
@@ -112940,7 +112940,7 @@
             "ccs-machine-learning-algorithms",
             "ccs-mathematics-of-computing",
             "ccs-recommender-systems",
-            "group-ml"
+            "group-machine-learning"
           ],
           "topics": []
         }
@@ -112952,7 +112952,7 @@
         "Christos Boutsidis, Anastasios Zouzias, Petros Drineas. \"Random Projections for $k$-means Clustering\", Arxiv, Vol. arXiv:1011.4632, 2010, URL: https://arxiv.org/abs/1011.4632."
       ],
       "suites": [
-        "group-ml"
+        "group-machine-learning"
       ],
       "tags": [
         "ccs-cluster-analysis",
@@ -112964,7 +112964,7 @@
         "ccs-machine-learning-algorithms",
         "ccs-mathematics-of-computing",
         "ccs-recommender-systems",
-        "group-ml"
+        "group-machine-learning"
       ],
       "topics": [
         "ccs-cluster-analysis",

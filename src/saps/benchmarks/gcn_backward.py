@@ -720,7 +720,7 @@ Each iteration:
 
     @property
     def suites(self) -> list[str]:
-        return ["group-ml"]
+        return ["group-machine-learning"]
 
     @property
     def concepts(self) -> str:
