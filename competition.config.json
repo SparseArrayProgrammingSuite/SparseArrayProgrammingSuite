@@ -6,7 +6,7 @@
   "rounds": 1,
   "resume": true,
   "metrics": ["time"],
-  "tag": ["standard"],
+  "tag": ["suite-standard"],
   "saps_dir": "competition/run_local/task_0",
   "env_dir": "competition/run_local/task_0/env",
   "results_dir": "competition/run_local/task_0/results",

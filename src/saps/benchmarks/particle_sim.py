@@ -1114,9 +1114,9 @@ class ParticleSimBenchmark(Benchmark):
             # densely and masked afterwards.
             candidates = axis_candidates(x) & axis_candidates(y) & axis_candidates(z)
 
-            dx = xp.multiply(candidates, x - x.reshape(-1, 1))
-            dy = xp.multiply(candidates, y - y.reshape(-1, 1))
-            dz = xp.multiply(candidates, z - z.reshape(-1, 1))
+            dx = xp.multiply(candidates, x - xp.reshape(x, (-1, 1)))
+            dy = xp.multiply(candidates, y - xp.reshape(y, (-1, 1)))
+            dz = xp.multiply(candidates, z - xp.reshape(z, (-1, 1)))
             r2 = dx * dx + dy * dy + dz * dz
             within_cutoff = r2 <= cutoff * cutoff
             r2 = xp.where(within_cutoff, r2, xp.inf)

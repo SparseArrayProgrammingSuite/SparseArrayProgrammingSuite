@@ -147,7 +147,7 @@ SAPS records freshness so generated artifacts can be checked against the code th
 Freshness is checked for:
 
 - `metadata.json`: benchmark, generator, and dataset metadata.
-- `statistics.json`: trace-derived tags for datasets selected by the `trace` suite.
+- `statistics.json`: trace-derived tags for datasets selected by the `suite-trace` tag.
 - `manifest.json`: cached dataset digests and freshness records.
 - Remote storage: every manifest record must point to an object that exists in the configured backend.
 
@@ -155,7 +155,7 @@ After changing benchmark code, generator code, metadata, dependency imports, or 
 
 ```bash
 poetry run ./bin/generate_metadata.py
-poetry run ./bin/run_benchmark.py --trace-statistics --tag trace --timeout 30 --show-stderr
+poetry run ./bin/run_benchmark.py --trace-statistics --tag suite-trace --timeout 30 --show-stderr
 poetry run ./bin/generate_metadata.py --statistics statistics.json
 poetry run ./bin/run_benchmark.py --cache-datasets
 ```
