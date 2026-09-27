@@ -286,7 +286,7 @@ def tags_from_stats(stats: dict) -> list[str]:
     ):
         tags.add("dynamic-sparsity")
 
-    return sorted(tags)
+    return sorted(f"feature-{tag}" for tag in tags)
 
 
 class TaggedArray:
