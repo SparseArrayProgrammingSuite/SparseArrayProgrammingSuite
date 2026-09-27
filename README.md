@@ -70,8 +70,18 @@ SAPS_COMPETITION_ARGS="--metrics time peakmem" \
 Slurm stdout and stderr logs go to the directory where you submit the job:
 `competition-%A_%a.log`, `upload-%j.log`, `trace-%A_%a.log`, or
 `finalize-metadata-%j.log`. The refresh launcher (`scripts/submit-refresh-jobs.sh`)
-also preserves the directory where you invoked it for all three jobs' logs.
-You can submit the Slurm scripts from the repository root or any subdirectory.
+also preserves the directory where you invoked it for all three (or four, with
+`--with-competition`) jobs' logs. You can submit the Slurm scripts from the
+repository root or any subdirectory.
+
+Pass `--with-competition` to `scripts/submit-refresh-jobs.sh` to also submit a
+competition run once the upload/trace/merge chain finishes successfully
+(`sbatch --dependency=afterok:<merge job>`), instead of submitting
+`scripts/run-competition.slurm` separately:
+
+```bash
+scripts/submit-refresh-jobs.sh --with-competition
+```
 
 The competition script emails `ahrens@gatech.edu` when the array finishes or
 fails. Notifications cover the whole array. Override the recipient at submission
