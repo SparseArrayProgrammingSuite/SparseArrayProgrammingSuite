@@ -127,7 +127,7 @@ def ccs_xml_to_tags(xml_text: str | None) -> list[str]:
         for part in re.split(r"\s*(?:~|::)\s*", node.text.strip()):
             tag = _tag_slug(part)
             if tag:
-                tags.add(f"ccs-{tag}")
+                tags.add(f"concept-{tag}")
     return sorted(tags)
 
 
