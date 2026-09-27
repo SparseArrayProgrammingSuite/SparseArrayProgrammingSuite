@@ -200,11 +200,6 @@ class SciPyFramework(Framework):
             return from_numpy(np.asarray(array))
         raise TypeError(f"Type {type(array)} is not a recognized SciPy/NumPy format.")
 
-    def lazy(self, array):
-        return array
-
-    def compute(self, array):
-        return array
 
     def einsum(self, prgm, **kwargs):
         return einsum(self, prgm, **kwargs)

@@ -315,12 +315,6 @@ class PyDataSparseFramework(Framework):
             return from_numpy(np.asarray(array))
         raise ValueError("Unsupported array type: " + str(type(array)))
 
-    def lazy(self, array):
-        return array
-
-    def compute(self, array):
-        return array
-
     def einsum(self, prgm, **kwargs):
         if all(not isinstance(value, sp.SparseArray) for value in kwargs.values()):
             xp = self._array_namespace(*kwargs.values())

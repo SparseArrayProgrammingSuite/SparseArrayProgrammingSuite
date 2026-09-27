@@ -35,12 +35,6 @@ class NumpyFramework(Framework):
     def to_binsparse(self, array):
         return from_numpy(np.asarray(array))
 
-    def lazy(self, array):
-        return array
-
-    def compute(self, array):
-        return array
-
     def einsum(self, prgm, **kwargs):
         return einsum(np, prgm, **kwargs)
 

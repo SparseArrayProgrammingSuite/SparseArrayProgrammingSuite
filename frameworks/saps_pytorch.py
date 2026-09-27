@@ -59,12 +59,6 @@ class PytorchFramework(Framework):
     def to_binsparse(self, array):
         return from_torch(array.detach().cpu())
 
-    def lazy(self, array):
-        return array
-
-    def compute(self, array):
-        return array
-
     def compile(self, func):
         return torch.compile(func)
 

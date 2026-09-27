@@ -810,22 +810,6 @@ class TaggerFramework(Framework):
         self._record_operation("", "to_binsparse", (array,), {})
         return self.wrapped.to_binsparse(self._unwrap(array))
 
-    def lazy(self, array):
-        self._record_operation("", "lazy", (array,), {})
-        result_lineage = self._result_elementwise_count("", "lazy", (array,), {})
-        return self._wrap(
-            self.wrapped.lazy(self._unwrap(array)),
-            elementwise_ops_since_reduction=result_lineage,
-        )
-
-    def compute(self, array):
-        self._record_operation("", "compute", (array,), {})
-        result_lineage = self._result_elementwise_count("", "compute", (array,), {})
-        return self._wrap(
-            self.wrapped.compute(self._unwrap(array)),
-            elementwise_ops_since_reduction=result_lineage,
-        )
-
     def compile(self, func):
         self._record_operation("", "compile", (func,), {})
         return self.wrapped.compile(func)

@@ -10,12 +10,18 @@ from binsparse.conversions import to_numpy, to_scipy, to_sparse
 
 def _as_scipy(tensor: BinsparseTensor) -> Any:
     """Return `tensor` as a SciPy sparse array. `to_scipy` cannot represent dense
-    or vector tensors, so those are routed through NumPy instead.
+    or vector tensors, so those are routed through NumPy or, when sparse, through
+    PyData/Sparse into an n-dimensional `coo_array`.
     """
     try:
         return to_scipy(tensor)
     except TypeError:
+        pass
+    try:
         return scipy_sparse.coo_array(to_numpy(tensor))
+    except TypeError:
+        coo = to_sparse(tensor)
+        return scipy_sparse.coo_array((coo.data, coo.coords), shape=coo.shape)
 
 
 def assert_coo_allclose(

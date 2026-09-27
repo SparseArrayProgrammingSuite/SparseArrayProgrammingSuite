@@ -12,16 +12,6 @@ class Framework(ABC):
     def to_binsparse(self, array):
         pass
 
-    # Eager Tensor -> Lazy Tensor
-    @abstractmethod
-    def lazy(self, array):
-        pass
-
-    # Lazy Tensor -> Eager Tensor
-    @abstractmethod
-    def compute(self, array):
-        pass
-
     def compile(self, func):
         return func
 
