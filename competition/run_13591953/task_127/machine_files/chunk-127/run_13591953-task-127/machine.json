@@ -1,0 +1,10 @@
+{
+    "arch": "x86_64",
+    "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
+    "hostname": "atl1-1-02-003-10-1.pace.gatech.edu",
+    "machine": "run_13591953-task-127",
+    "num_cpu": "24",
+    "os": "Linux 5.14.0-570.128.1.el9_6.x86_64",
+    "ram": "394317904",
+    "version": 1
+}
