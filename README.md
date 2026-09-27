@@ -68,11 +68,15 @@ SAPS_COMPETITION_ARGS="--metrics time peakmem" \
 ```
 
 Slurm stdout and stderr logs go to the directory where you submit the job:
-`competition-%A_%a.log`, `upload-%j.log`, `trace-%A_%a.log`, or
+`competition-%A_%a.log`, `upload-%A_%a.log`, `trace-%A_%a.log`, or
 `finalize-metadata-%j.log`. The refresh launcher (`scripts/submit-refresh-jobs.sh`)
 also preserves the directory where you invoked it for all three (or four, with
 `--with-competition`) jobs' logs. You can submit the Slurm scripts from the
 repository root or any subdirectory.
+
+Dataset uploads run as an eight-task array. Set `SAPS_UPLOAD_CHUNK_COUNT` when
+using the refresh launcher to change the number of upload tasks. Tracing waits
+for every upload task to succeed.
 
 Pass `--with-competition` to `scripts/submit-refresh-jobs.sh` to also submit a
 competition run once the upload/trace/merge chain finishes successfully

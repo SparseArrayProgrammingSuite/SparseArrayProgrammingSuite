@@ -807,12 +807,23 @@ def main() -> int:
         def in_chunk(
             _benchmark: dict,
             _generator: dict,
-            _dataset: dict,
+            dataset: dict,
             dataset_number: int,
         ) -> bool:
+            if args.cache_datasets:
+                # Other upload workers can make entries fresh before we start.
+                # Assign by cache key so filtering those entries cannot shift chunks.
+                dataset_number = int.from_bytes(
+                    hashlib.sha256(dataset["asv_param"].encode()).digest()[:8], "big"
+                )
             return dataset_number % args.chunk_count == args.chunk_index
 
         metadata = _filter_metadata(metadata, in_chunk)
+        chunk_kept = sum(
+            len(generator["datasets"])
+            for benchmark in metadata
+            for generator in benchmark["generators"]
+        )
 
     benchmarks = _metadata_to_asv_benchmarks(metadata, benchmarks, benchmark_metrics)
     if args.cache_datasets:
