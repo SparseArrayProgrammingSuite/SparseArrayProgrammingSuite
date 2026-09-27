@@ -522,7 +522,8 @@ class PyDataSparseFramework(Framework):
         return np.array(obj, *args, **kwargs)
 
     def eye(self, *args, **kwargs):
-        return compat_np.eye(*args, **kwargs)
+        dtype = kwargs.pop("dtype", None)
+        return sp.eye(*args, dtype=float if dtype is None else dtype, **kwargs)
 
     def ones(self, *args, **kwargs):
         return compat_np.ones(*args, **kwargs)
