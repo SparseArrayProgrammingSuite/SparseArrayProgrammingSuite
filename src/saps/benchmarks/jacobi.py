@@ -831,7 +831,7 @@ class JacobiBenchmark(Benchmark):
         max_iter = meta.get("max_iter", 1000)
 
         tolerance = max(rel_tol * self._norm(xp, b)[()], abs_tol)
-        d = xp.with_fill_value(xp.diagonal(A), 1)
+        d = xp.replace(xp.diagonal(A), 0, 1)
         if xp.any(d == 0):
             raise ValueError("Jacobi requires nonzero diagonal entries.")
 

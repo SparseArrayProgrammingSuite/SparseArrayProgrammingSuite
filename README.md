@@ -379,6 +379,7 @@ A framework wrapper is responsible for:
 - `from_binsparse(array)`: convert SAPS `BinsparseFormat` inputs into framework arrays.
 - `to_binsparse(array)`: convert framework outputs back into `BinsparseFormat`.
 - `compute(array)` and `lazy(array)`: force or preserve evaluation as appropriate for the framework.
+- `replace(arr, old, new)`: return an array with matching values replaced, including implicit sparse values; NaN matches NaN. Leave the input unchanged.
 - `einsum(...)` and Array API operations used by benchmarks.
 - `__getattr__`: commonly used to forward Array API calls to the wrapped module.
 

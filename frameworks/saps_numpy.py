@@ -98,8 +98,8 @@ class NumpyFramework(Framework):
             slices[window_axis] = slice(None, None, dilation)
         return windows[tuple(slices)]
 
-    def with_fill_value(self, array, value):
-        return array
+    def replace(self, arr, old, new):
+        return np.where(np.isnan(arr) if old != old else arr == old, new, arr)
 
     def __getattr__(self, name):
         return getattr(np, name)

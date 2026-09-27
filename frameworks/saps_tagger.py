@@ -48,6 +48,7 @@ _ELEMENTWISE_OPERATORS = {
     "positive",
     "power",
     "remainder",
+    "replace",
     "sin",
     "sinh",
     "sqrt",
@@ -211,6 +212,7 @@ def tags_from_stats(stats: dict) -> list[str]:
         "min",
         "minimum",
         "not_equal",
+        "replace",
         "sort",
         "where",
     }
@@ -883,14 +885,13 @@ class TaggerFramework(Framework):
             elementwise_ops_since_reduction=result_lineage,
         )
 
-    def with_fill_value(self, array, value):
-        self._record_operation("", "with_fill_value", (array, value), {})
+    def replace(self, arr, old, new):
+        self._record_operation("", "replace", (arr, old, new), {})
         result_lineage = self._result_elementwise_count(
-            "", "with_fill_value", (array, value), {}
+            "", "replace", (arr, old, new), {}
         )
-        array = self._unwrap(array)
         return self._wrap(
-            self.wrapped.with_fill_value(array, value),
+            self.wrapped.replace(*(self._unwrap(value) for value in (arr, old, new))),
             elementwise_ops_since_reduction=result_lineage,
         )
 

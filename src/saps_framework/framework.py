@@ -44,8 +44,12 @@ class Framework(ABC):
         pass
 
     @abstractmethod
-    def with_fill_value(self, array, value):
-        pass
+    def replace(self, arr, old, new):
+        """Return an array with every occurrence of scalar old replaced by new.
+
+        Includes implicit sparse values and treats NaN as matching NaN.
+        The input is not modified.
+        """
 
     @abstractmethod
     def __getattr__(self, name):

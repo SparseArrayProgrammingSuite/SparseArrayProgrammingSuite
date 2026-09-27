@@ -373,8 +373,23 @@ class SciPyFramework(Framework):
         xp = self._array_namespace(x1, x2)
         return xp.power(x1, x2, **kwargs)
 
-    def with_fill_value(self, array, value):
-        return array
+    def replace(self, arr, old, new):
+        if sps.issparse(arr):
+            if old == 0 and new != 0:
+                arr = arr.toarray()
+            else:
+                result = arr.tocoo(copy=True)
+                result.sum_duplicates()
+                values = result.data
+                result.data = np.where(
+                    np.isnan(values) if old != old else values == old, new, values
+                )
+                result.eliminate_zeros()
+                return result.asformat(arr.format)
+        if isinstance(arr, pydata_sparse.DOK):
+            arr = arr.asformat("coo")
+        xp = pydata_sparse if isinstance(arr, pydata_sparse.SparseArray) else np
+        return xp.where(xp.isnan(arr) if old != old else arr == old, new, arr)
 
     def __getattr__(self, name):
         for module in self._modules:

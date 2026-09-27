@@ -1747,10 +1747,7 @@ class _JacobiCGMixin:
         return [JacobiCGGenerator()]
 
     def _solve_cg(self, xp, M, r):
-        output = r / M
-        if hasattr(xp, "with_fill_value"):
-            return xp.with_fill_value(output, 0)
-        return output
+        return xp.replace(r / M, xp.nan, 0)
 
 
 class PreconditionedCGBenchmark(_BlockJacobiCGMixin, _PreconditionedCGBase):

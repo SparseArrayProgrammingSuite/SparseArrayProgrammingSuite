@@ -585,12 +585,11 @@ class PyDataSparseFramework(Framework):
             return self._dense(array).item()
         return array.item()
 
-    def with_fill_value(self, array, value):
-        if isinstance(array, sp.SparseArray):
-            res = array.copy(deep=False)
-            res.fill_value = array.dtype.type(value)
-            return res
-        return array
+    def replace(self, arr, old, new):
+        if isinstance(arr, sp.DOK):
+            arr = arr.asformat("coo")
+        xp = sp if isinstance(arr, sp.SparseArray) else np
+        return xp.where(xp.isnan(arr) if old != old else arr == old, new, arr)
 
     @property
     def linalg(self):
