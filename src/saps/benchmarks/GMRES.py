@@ -466,7 +466,7 @@ class GMRESGenerator(Generator[GMRESDataset]):
             ),
             GMRESDataset(
                 "GHS_indef/blockqp1",
-                suites=["standard", "trace"],
+                suites=["standard"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
@@ -1096,13 +1096,13 @@ class GMRESGenerator(Generator[GMRESDataset]):
             ),
             GMRESDataset(
                 "Sandia/ASIC_100ks",
-                suites=["standard", "trace"],
+                suites=["standard"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
             GMRESDataset(
                 "Sandia/ASIC_320ks",
-                suites=["standard", "trace"],
+                suites=["standard"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),

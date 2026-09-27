@@ -351,9 +351,18 @@ class SmartSparseFramework(Framework):
         self._modules = [sp, compat_np, np]
 
     @staticmethod
-    def _has_sparse_arg(*args, **kwargs):
-        return any(isinstance(arg, sp.SparseArray) for arg in args) or any(
-            isinstance(value, sp.SparseArray) for value in kwargs.values()
+    def _is_sparse(arg):
+        # Sequence arguments (e.g. concat's array list) count too, or a mixed
+        # list would dispatch to NumPy and reach pydata/sparse's concatenate
+        # through __array_function__ with its dense members unconverted.
+        if isinstance(arg, list | tuple):
+            return any(isinstance(item, sp.SparseArray) for item in arg)
+        return isinstance(arg, sp.SparseArray)
+
+    @classmethod
+    def _has_sparse_arg(cls, *args, **kwargs):
+        return any(cls._is_sparse(arg) for arg in args) or any(
+            cls._is_sparse(value) for value in kwargs.values()
         )
 
     @staticmethod
@@ -377,6 +386,11 @@ class SmartSparseFramework(Framework):
     def _sparse_compatible_arg(arg):
         if isinstance(arg, np.ndarray):
             return sp.asarray(arg)
+        if isinstance(arg, list | tuple):
+            return type(arg)(
+                sp.asarray(item) if isinstance(item, np.ndarray) else item
+                for item in arg
+            )
         return arg
 
     def from_binsparse(self, array):
