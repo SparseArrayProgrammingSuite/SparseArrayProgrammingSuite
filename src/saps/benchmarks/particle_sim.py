@@ -1068,17 +1068,58 @@ class ParticleSimBenchmark(Benchmark):
         dt = parameters["dt"]
         gravitational_constant = parameters["gravitational_constant"]
         force_model = parameters["force_model"]
+        cutoff = parameters["cutoff"]
+        softening = parameters["softening"]
+
+        n_particles = x.shape[0]
+        # Divide each axis into cutoff-wide buckets: floor(coord / cutoff)
+        # guarantees that any two particles within cutoff distance along
+        # that axis fall in the same bucket or an immediately neighboring
+        # one, so checking the 3-wide stencil {-1, 0, 1} of bucket ids --
+        # the same fixed-neighbor-offset idea a finite-difference stencil
+        # uses -- never misses a true interaction. ``n_buckets`` only needs
+        # to be a generous, cutoff-driven bound on how many distinct bucket
+        # ids can occur; it does not need to size an entire grid.
+        n_buckets = (
+            max(1, math.ceil(size / cutoff) + 2) if cutoff > 0 and size > 0 else 1
+        )
+        stencil = xp.astype(xp.arange(3) - 1, xp.int64)
+        particle_index = xp.arange(n_particles)
+
+        def axis_candidates(coord):
+            # Mark each particle at its bucket, widened by the stencil
+            # {-1, 0, 1}: two particles are candidates along this axis iff
+            # their widened bucket sets overlap, i.e. their bucket ids are
+            # within 2 of each other -- a superset of "within 1", so no pair
+            # actually within cutoff distance is ever excluded. One indicator
+            # matmul'd against itself replaces a separate own/neighbor pair.
+            bucket = xp.astype(xp.floor(coord / cutoff), xp.int64)
+            reach = xp.minimum(
+                xp.maximum(bucket[:, None] + stencil[None, :], 0), n_buckets - 1
+            )
+            rows = xp.reshape(particle_index[:, None] + stencil[None, :] * 0, (-1,))
+
+            # One-hot-indicator-then-matmul, the same idiom approx_nn.py uses
+            # to gather LSH candidates: a sparse matmul counting shared
+            # bucket columns, instead of a dense N x N compare.
+            indicator = xp.zeros((n_particles, n_buckets), dtype=xp.uint8)
+            indicator[rows, xp.reshape(reach, (-1,))] = 1
+            return xp.matmul(indicator, xp.permute_dims(indicator, (1, 0))) > 0
 
         for _ in range(steps):
-            # compute forces
-            dx = x - x.reshape(-1, 1)
-            dy = y - y.reshape(-1, 1)
-            dz = z - z.reshape(-1, 1)
+            # A pair is a force candidate only if it is bucket-adjacent on
+            # every axis: dx/dy/dz (and therefore every downstream force
+            # contribution) stay structurally zero for any pair the
+            # bucketing has already ruled out, instead of being computed
+            # densely and masked afterwards.
+            candidates = axis_candidates(x) & axis_candidates(y) & axis_candidates(z)
+
+            dx = xp.multiply(candidates, x - x.reshape(-1, 1))
+            dy = xp.multiply(candidates, y - y.reshape(-1, 1))
+            dz = xp.multiply(candidates, z - z.reshape(-1, 1))
             r2 = dx * dx + dy * dy + dz * dz
-            cutoff = parameters["cutoff"]
-            softening = parameters["softening"]
-            mask = r2 > cutoff * cutoff
-            r2 = xp.where(mask, xp.inf, r2)
+            within_cutoff = r2 <= cutoff * cutoff
+            r2 = xp.where(within_cutoff, r2, xp.inf)
             r2 = xp.maximum(r2, softening * softening)
             r = xp.sqrt(r2)
 
