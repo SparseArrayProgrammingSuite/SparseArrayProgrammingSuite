@@ -341,7 +341,7 @@ class CCSDGenerator(Generator[CCSDDataset]):
                 name="ccsd_small",
                 pretty_name="CCSD Small",
                 description="no=4, nv=6 — matches the C++ CTF reference.",
-                suites=["standard", "test"],
+                suites=["standard", "test", "trace"],
                 no=4,
                 nv=6,
                 ref_outputs=[from_numpy(np.array(380638.269079))],

@@ -688,6 +688,9 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
 
 
 class SLICOTGenerator(Generator[SLICOTDataset]):
+    def __init__(self, trace_datasets: tuple[str, ...] = ()):
+        self.trace_datasets = trace_datasets
+
     @property
     def name(self) -> str:
         return "slicot_ode"
@@ -744,7 +747,7 @@ class SLICOTGenerator(Generator[SLICOTDataset]):
     def datasets(self) -> list[SLICOTDataset]:
         # Base timesteps, scaled by each method's step_multiplier at setup.
         # Validated over t_max=0.1 at the 0.05 absolute-error tolerance.
-        return [
+        datasets = [
             SLICOTDataset("eady.mat", suites=["standard", "trace"]),
             SLICOTDataset("CDplayer.mat", suites=["standard"], step=4e-5),
             SLICOTDataset("fom.mat", suites=["standard", "trace"], step=0.001),
@@ -756,6 +759,10 @@ class SLICOTGenerator(Generator[SLICOTDataset]):
             SLICOTDataset("build.mat", suites=["standard", "trace"]),
             SLICOTDataset("beam.mat", suites=["standard"], step=0.001),
         ]
+        for dataset in datasets:
+            if dataset.name in self.trace_datasets and "trace" not in dataset.suites:
+                dataset.suites.append("trace")
+        return datasets
 
     def generate(self, dataset: SLICOTDataset):
         from scipy import sparse as scipy_sparse
@@ -839,6 +846,7 @@ class SLICOTGenerator(Generator[SLICOTDataset]):
 
 class _OdeBenchmarkBase(Benchmark, ABC):
     step_multiplier = 1.0
+    slicot_trace_datasets: tuple[str, ...] = ()
 
     @property
     def suites(self):
@@ -851,7 +859,7 @@ class _OdeBenchmarkBase(Benchmark, ABC):
             RLCGenerator(),
             LotkaVolterraGenerator(),
             BrusselatorGenerator(),
-            SLICOTGenerator(),
+            SLICOTGenerator(trace_datasets=self.slicot_trace_datasets),
         ]
 
     @property
@@ -932,6 +940,7 @@ class _OdeBenchmarkBase(Benchmark, ABC):
 
 class ForwardEuler(_OdeBenchmarkBase):
     step_multiplier = 0.01
+    slicot_trace_datasets = ("slicot_beam",)
 
     @property
     def name(self):
@@ -1010,6 +1019,7 @@ class BackwardEuler(_OdeBenchmarkBase):
 
 class RungeKutta(_OdeBenchmarkBase):
     step_multiplier = 1.0
+    slicot_trace_datasets = ("slicot_cdplayer", "slicot_random", "slicot_beam")
 
     @property
     def name(self):
