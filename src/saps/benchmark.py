@@ -364,18 +364,6 @@ class Param(Generic[TDataset]):
         return f"{self.generator.name}.{self.dataset.name}"
 
 
-def _as_outputs(result: Any) -> tuple[Any, ...]:
-    """Normalize a benchmark's return value to a tuple of outputs."""
-    if isinstance(result, tuple):
-        return result
-    if isinstance(result, list):
-        raise TypeError(
-            "Benchmarks return outputs directly (`return x`) or as a tuple "
-            "(`return x, y`), not as a list."
-        )
-    return (result,)
-
-
 class Benchmark(Tagged, Attributed, Motivated):
     @property
     @abstractmethod
@@ -490,7 +478,9 @@ class Benchmark(Tagged, Attributed, Motivated):
         if hasattr(xp, "reset_stats"):
             xp.reset_stats()
         input = [xp.from_binsparse(d) for d in self._input]
-        output = _as_outputs(self._compiled_benchmark(self._meta, *input))
+        output = self._compiled_benchmark(self._meta, *input)
+        if not isinstance(output, tuple):
+            output = (output,)
         output = [xp.to_binsparse(o) for o in output]
         self._output = output
         self._write_tagger_stats(param, xp)
