@@ -78572,7 +78572,7 @@
       "concepts": "\n<ccs2012>\n<concept>\n<concept_id>10002950.10003705</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003705.10011686</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n</ccs2012>\n",
       "description": "The elementwise multiplication of two matrices. C_ij = A_ij * B_ij",
       "file": "src/saps/benchmarks/elementwise.py",
-      "freshness": "cb4733e364cfb8bc4bf36a9bc791d33f7e6fb06bb44da6ae2fba34b9da065ce8",
+      "freshness": "993b0b2b68b9fb9f62e3af8921f2cf1319b5f0e87c89bac351608630d2d3a936",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
@@ -78587,7 +78587,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense Elementwise Input small.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "cb4733e364cfb8bc4bf36a9bc791d33f7e6fb06bb44da6ae2fba34b9da065ce8",
+              "freshness": "993b0b2b68b9fb9f62e3af8921f2cf1319b5f0e87c89bac351608630d2d3a936",
               "name": "small",
               "pretty_name": "small",
               "suites": [
@@ -78599,8 +78599,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "dense",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "test"
               ],
               "topics": []
@@ -78610,7 +78609,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense Elementwise Input medium.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "cb4733e364cfb8bc4bf36a9bc791d33f7e6fb06bb44da6ae2fba34b9da065ce8",
+              "freshness": "993b0b2b68b9fb9f62e3af8921f2cf1319b5f0e87c89bac351608630d2d3a936",
               "name": "medium",
               "pretty_name": "medium",
               "suites": [
@@ -78622,8 +78621,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "dense",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "test"
               ],
               "topics": []
@@ -78633,7 +78631,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense Elementwise Input large.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "cb4733e364cfb8bc4bf36a9bc791d33f7e6fb06bb44da6ae2fba34b9da065ce8",
+              "freshness": "993b0b2b68b9fb9f62e3af8921f2cf1319b5f0e87c89bac351608630d2d3a936",
               "name": "large",
               "pretty_name": "large",
               "suites": [
@@ -78644,15 +78642,14 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "dense",
-                "group-core-kernels",
-                "micro-benchmark"
+                "microkernel"
               ],
               "topics": []
             }
           ],
           "description": "Dense input generator for elementwise multiplication.",
           "file": "src/saps/benchmarks/elementwise.py",
-          "freshness": "cb4733e364cfb8bc4bf36a9bc791d33f7e6fb06bb44da6ae2fba34b9da065ce8",
+          "freshness": "993b0b2b68b9fb9f62e3af8921f2cf1319b5f0e87c89bac351608630d2d3a936",
           "motivation": "Generate dense matrices for elementwise multiplication.",
           "name": "dense_elementwise_generator",
           "pretty_name": "Dense Elementwise Generator",
@@ -78665,8 +78662,7 @@
             "ccs-mathematical-software-performance",
             "ccs-mathematics-of-computing",
             "dense",
-            "group-core-kernels",
-            "micro-benchmark"
+            "microkernel"
           ],
           "topics": []
         },
@@ -78683,7 +78679,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/email-Eu-core multiplied elementwise by a matrix sharing 100% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "cb4733e364cfb8bc4bf36a9bc791d33f7e6fb06bb44da6ae2fba34b9da065ce8",
+              "freshness": "993b0b2b68b9fb9f62e3af8921f2cf1319b5f0e87c89bac351608630d2d3a936",
               "name": "email-Eu-core-overlap-100",
               "pretty_name": "email-Eu-core-overlap-100",
               "suites": [
@@ -78693,8 +78689,7 @@
                 "ccs-mathematical-software",
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -78704,7 +78699,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/email-Eu-core multiplied elementwise by a matrix sharing 75% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "cb4733e364cfb8bc4bf36a9bc791d33f7e6fb06bb44da6ae2fba34b9da065ce8",
+              "freshness": "993b0b2b68b9fb9f62e3af8921f2cf1319b5f0e87c89bac351608630d2d3a936",
               "name": "email-Eu-core-overlap-75",
               "pretty_name": "email-Eu-core-overlap-75",
               "suites": [
@@ -78714,8 +78709,7 @@
                 "ccs-mathematical-software",
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -78725,7 +78719,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/email-Eu-core multiplied elementwise by a matrix sharing 50% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "cb4733e364cfb8bc4bf36a9bc791d33f7e6fb06bb44da6ae2fba34b9da065ce8",
+              "freshness": "993b0b2b68b9fb9f62e3af8921f2cf1319b5f0e87c89bac351608630d2d3a936",
               "name": "email-Eu-core-overlap-50",
               "pretty_name": "email-Eu-core-overlap-50",
               "suites": [
@@ -78735,8 +78729,7 @@
                 "ccs-mathematical-software",
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -78746,7 +78739,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/email-Eu-core multiplied elementwise by a matrix sharing 25% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "cb4733e364cfb8bc4bf36a9bc791d33f7e6fb06bb44da6ae2fba34b9da065ce8",
+              "freshness": "993b0b2b68b9fb9f62e3af8921f2cf1319b5f0e87c89bac351608630d2d3a936",
               "name": "email-Eu-core-overlap-25",
               "pretty_name": "email-Eu-core-overlap-25",
               "suites": [
@@ -78756,8 +78749,7 @@
                 "ccs-mathematical-software",
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -78767,7 +78759,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/ca-GrQc multiplied elementwise by a matrix sharing 100% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "cb4733e364cfb8bc4bf36a9bc791d33f7e6fb06bb44da6ae2fba34b9da065ce8",
+              "freshness": "993b0b2b68b9fb9f62e3af8921f2cf1319b5f0e87c89bac351608630d2d3a936",
               "name": "ca-GrQc-overlap-100",
               "pretty_name": "ca-GrQc-overlap-100",
               "suites": [
@@ -78777,8 +78769,7 @@
                 "ccs-mathematical-software",
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -78788,7 +78779,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/ca-GrQc multiplied elementwise by a matrix sharing 75% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "cb4733e364cfb8bc4bf36a9bc791d33f7e6fb06bb44da6ae2fba34b9da065ce8",
+              "freshness": "993b0b2b68b9fb9f62e3af8921f2cf1319b5f0e87c89bac351608630d2d3a936",
               "name": "ca-GrQc-overlap-75",
               "pretty_name": "ca-GrQc-overlap-75",
               "suites": [
@@ -78798,8 +78789,7 @@
                 "ccs-mathematical-software",
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -78809,7 +78799,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/ca-GrQc multiplied elementwise by a matrix sharing 50% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "cb4733e364cfb8bc4bf36a9bc791d33f7e6fb06bb44da6ae2fba34b9da065ce8",
+              "freshness": "993b0b2b68b9fb9f62e3af8921f2cf1319b5f0e87c89bac351608630d2d3a936",
               "name": "ca-GrQc-overlap-50",
               "pretty_name": "ca-GrQc-overlap-50",
               "suites": [
@@ -78819,8 +78809,7 @@
                 "ccs-mathematical-software",
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -78830,7 +78819,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/ca-GrQc multiplied elementwise by a matrix sharing 25% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "cb4733e364cfb8bc4bf36a9bc791d33f7e6fb06bb44da6ae2fba34b9da065ce8",
+              "freshness": "993b0b2b68b9fb9f62e3af8921f2cf1319b5f0e87c89bac351608630d2d3a936",
               "name": "ca-GrQc-overlap-25",
               "pretty_name": "ca-GrQc-overlap-25",
               "suites": [
@@ -78840,8 +78829,7 @@
                 "ccs-mathematical-software",
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -78851,7 +78839,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/wiki-Vote multiplied elementwise by a matrix sharing 100% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "cb4733e364cfb8bc4bf36a9bc791d33f7e6fb06bb44da6ae2fba34b9da065ce8",
+              "freshness": "993b0b2b68b9fb9f62e3af8921f2cf1319b5f0e87c89bac351608630d2d3a936",
               "name": "wiki-Vote-overlap-100",
               "pretty_name": "wiki-Vote-overlap-100",
               "suites": [
@@ -78861,8 +78849,7 @@
                 "ccs-mathematical-software",
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -78872,7 +78859,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/wiki-Vote multiplied elementwise by a matrix sharing 75% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "cb4733e364cfb8bc4bf36a9bc791d33f7e6fb06bb44da6ae2fba34b9da065ce8",
+              "freshness": "993b0b2b68b9fb9f62e3af8921f2cf1319b5f0e87c89bac351608630d2d3a936",
               "name": "wiki-Vote-overlap-75",
               "pretty_name": "wiki-Vote-overlap-75",
               "suites": [
@@ -78882,8 +78869,7 @@
                 "ccs-mathematical-software",
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -78893,7 +78879,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/wiki-Vote multiplied elementwise by a matrix sharing 50% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "cb4733e364cfb8bc4bf36a9bc791d33f7e6fb06bb44da6ae2fba34b9da065ce8",
+              "freshness": "993b0b2b68b9fb9f62e3af8921f2cf1319b5f0e87c89bac351608630d2d3a936",
               "name": "wiki-Vote-overlap-50",
               "pretty_name": "wiki-Vote-overlap-50",
               "suites": [
@@ -78903,8 +78889,7 @@
                 "ccs-mathematical-software",
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -78914,7 +78899,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/wiki-Vote multiplied elementwise by a matrix sharing 25% of its nonzero positions.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "cb4733e364cfb8bc4bf36a9bc791d33f7e6fb06bb44da6ae2fba34b9da065ce8",
+              "freshness": "993b0b2b68b9fb9f62e3af8921f2cf1319b5f0e87c89bac351608630d2d3a936",
               "name": "wiki-Vote-overlap-25",
               "pretty_name": "wiki-Vote-overlap-25",
               "suites": [
@@ -78924,8 +78909,7 @@
                 "ccs-mathematical-software",
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -78933,7 +78917,7 @@
           ],
           "description": "Sparse input generator for elementwise multiplication based on the suite sparse matrix collection.",
           "file": "src/saps/benchmarks/elementwise.py",
-          "freshness": "cb4733e364cfb8bc4bf36a9bc791d33f7e6fb06bb44da6ae2fba34b9da065ce8",
+          "freshness": "993b0b2b68b9fb9f62e3af8921f2cf1319b5f0e87c89bac351608630d2d3a936",
           "motivation": "Generate real sparse matrices for elementwise multiplication, each paired with a matrix sharing a controlled fraction of its nonzero positions. PASTA identifies that overlap as what makes the output size unpredictable; the matrices themselves are not from PASTA, whose datasets are sparse tensors.",
           "name": "suitesparse_elementwise_generator",
           "pretty_name": "Suite Sparse Elementwise Generator",
@@ -78948,8 +78932,7 @@
             "ccs-mathematical-software",
             "ccs-mathematical-software-performance",
             "ccs-mathematics-of-computing",
-            "group-core-kernels",
-            "micro-benchmark",
+            "microkernel",
             "sparse"
           ],
           "topics": []
@@ -78967,7 +78950,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse elementwise input uniform-overlap-100.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "cb4733e364cfb8bc4bf36a9bc791d33f7e6fb06bb44da6ae2fba34b9da065ce8",
+              "freshness": "993b0b2b68b9fb9f62e3af8921f2cf1319b5f0e87c89bac351608630d2d3a936",
               "name": "uniform-overlap-100",
               "pretty_name": "uniform-overlap-100",
               "suites": [
@@ -78978,8 +78961,7 @@
                 "ccs-mathematical-software",
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse",
                 "test"
               ],
@@ -78990,7 +78972,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse elementwise input uniform-overlap-75.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "cb4733e364cfb8bc4bf36a9bc791d33f7e6fb06bb44da6ae2fba34b9da065ce8",
+              "freshness": "993b0b2b68b9fb9f62e3af8921f2cf1319b5f0e87c89bac351608630d2d3a936",
               "name": "uniform-overlap-75",
               "pretty_name": "uniform-overlap-75",
               "suites": [
@@ -79001,8 +78983,7 @@
                 "ccs-mathematical-software",
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse",
                 "test"
               ],
@@ -79013,7 +78994,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse elementwise input uniform-overlap-50.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "cb4733e364cfb8bc4bf36a9bc791d33f7e6fb06bb44da6ae2fba34b9da065ce8",
+              "freshness": "993b0b2b68b9fb9f62e3af8921f2cf1319b5f0e87c89bac351608630d2d3a936",
               "name": "uniform-overlap-50",
               "pretty_name": "uniform-overlap-50",
               "suites": [
@@ -79024,8 +79005,7 @@
                 "ccs-mathematical-software",
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse",
                 "test"
               ],
@@ -79036,7 +79016,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse elementwise input uniform-overlap-25.",
               "file": "src/saps/benchmarks/elementwise.py",
-              "freshness": "cb4733e364cfb8bc4bf36a9bc791d33f7e6fb06bb44da6ae2fba34b9da065ce8",
+              "freshness": "993b0b2b68b9fb9f62e3af8921f2cf1319b5f0e87c89bac351608630d2d3a936",
               "name": "uniform-overlap-25",
               "pretty_name": "uniform-overlap-25",
               "suites": [
@@ -79047,8 +79027,7 @@
                 "ccs-mathematical-software",
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse",
                 "test"
               ],
@@ -79057,7 +79036,7 @@
           ],
           "description": "Generates a pair of uniform random sparse matrices for elementwise multiplication at a range of densities.",
           "file": "src/saps/benchmarks/elementwise.py",
-          "freshness": "cb4733e364cfb8bc4bf36a9bc791d33f7e6fb06bb44da6ae2fba34b9da065ce8",
+          "freshness": "993b0b2b68b9fb9f62e3af8921f2cf1319b5f0e87c89bac351608630d2d3a936",
           "motivation": "Generate uniform random element-wise inputs whose nonzero patterns overlap by a controlled fraction, spanning PASTA's two cases: operands sharing a pattern, where the output size is known in advance, and operands whose patterns differ, where it is not. The overlap parameterisation follows PASTA; the inputs are synthetic.",
           "name": "uniform_random_elementwise_generator",
           "pretty_name": "Uniform Random Sparse Elementwise Generator",
@@ -79071,8 +79050,7 @@
             "ccs-mathematical-software",
             "ccs-mathematical-software-performance",
             "ccs-mathematics-of-computing",
-            "group-core-kernels",
-            "micro-benchmark",
+            "microkernel",
             "sparse"
           ],
           "topics": []
@@ -79083,15 +79061,13 @@
       "pretty_name": "Elementwise Multiplication",
       "references": [],
       "suites": [
-        "micro-benchmark",
-        "group-core-kernels"
+        "microkernel"
       ],
       "tags": [
         "ccs-mathematical-software",
         "ccs-mathematical-software-performance",
         "ccs-mathematics-of-computing",
-        "group-core-kernels",
-        "micro-benchmark"
+        "microkernel"
       ],
       "topics": [
         "ccs-mathematical-software",
@@ -103892,7 +103868,7 @@
       "concepts": "\n<ccs2012>\n<concept>\n<concept_id>10002950.10003705</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003705.10011686</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003714.10003715</concept_id>\n<concept_desc>Mathematics of computing~Numerical analysis</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n</ccs2012>\n",
       "description": "The multiplication of two matrices.C_ik = \\sum_k A_ij B_jk",
       "file": "src/saps/benchmarks/matmul.py",
-      "freshness": "bd0fdaa80be1e37ab542177635a98d58d3e5f43531d965c85b12ef8e32d527c4",
+      "freshness": "48508eb340097fdce2b58374d816036e68c7ba1749a0a7ccc109ff460e4103ab",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
@@ -103907,7 +103883,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense Matmul Input small.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "bd0fdaa80be1e37ab542177635a98d58d3e5f43531d965c85b12ef8e32d527c4",
+              "freshness": "48508eb340097fdce2b58374d816036e68c7ba1749a0a7ccc109ff460e4103ab",
               "name": "small",
               "pretty_name": "small",
               "suites": [
@@ -103920,8 +103896,7 @@
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
                 "dense",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "test"
               ],
               "topics": []
@@ -103931,7 +103906,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense Matmul Input medium.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "bd0fdaa80be1e37ab542177635a98d58d3e5f43531d965c85b12ef8e32d527c4",
+              "freshness": "48508eb340097fdce2b58374d816036e68c7ba1749a0a7ccc109ff460e4103ab",
               "name": "medium",
               "pretty_name": "medium",
               "suites": [
@@ -103944,8 +103919,7 @@
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
                 "dense",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "test"
               ],
               "topics": []
@@ -103955,7 +103929,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense Matmul Input large.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "bd0fdaa80be1e37ab542177635a98d58d3e5f43531d965c85b12ef8e32d527c4",
+              "freshness": "48508eb340097fdce2b58374d816036e68c7ba1749a0a7ccc109ff460e4103ab",
               "name": "large",
               "pretty_name": "large",
               "suites": [
@@ -103967,15 +103941,14 @@
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
                 "dense",
-                "group-core-kernels",
-                "micro-benchmark"
+                "microkernel"
               ],
               "topics": []
             }
           ],
           "description": "Dense input generator for matrix multiplication.",
           "file": "src/saps/benchmarks/matmul.py",
-          "freshness": "bd0fdaa80be1e37ab542177635a98d58d3e5f43531d965c85b12ef8e32d527c4",
+          "freshness": "48508eb340097fdce2b58374d816036e68c7ba1749a0a7ccc109ff460e4103ab",
           "motivation": "Generate dense matrices for matrix multiplication.",
           "name": "dense_matmul_generator",
           "pretty_name": "Dense Matmul Generator",
@@ -103989,8 +103962,7 @@
             "ccs-mathematics-of-computing",
             "ccs-numerical-analysis",
             "dense",
-            "group-core-kernels",
-            "micro-benchmark"
+            "microkernel"
           ],
           "topics": []
         },
@@ -104007,7 +103979,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Arenas/email, squared to represent graph algorithms in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "bd0fdaa80be1e37ab542177635a98d58d3e5f43531d965c85b12ef8e32d527c4",
+              "freshness": "48508eb340097fdce2b58374d816036e68c7ba1749a0a7ccc109ff460e4103ab",
               "name": "email",
               "pretty_name": "email",
               "suites": [
@@ -104018,8 +103990,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104029,7 +104000,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/email-Eu-core, squared to represent graph algorithms in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "bd0fdaa80be1e37ab542177635a98d58d3e5f43531d965c85b12ef8e32d527c4",
+              "freshness": "48508eb340097fdce2b58374d816036e68c7ba1749a0a7ccc109ff460e4103ab",
               "name": "email-Eu-core",
               "pretty_name": "email-Eu-core",
               "suites": [
@@ -104040,8 +104011,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104051,7 +104021,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/ca-GrQc, squared to represent graph algorithms in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "bd0fdaa80be1e37ab542177635a98d58d3e5f43531d965c85b12ef8e32d527c4",
+              "freshness": "48508eb340097fdce2b58374d816036e68c7ba1749a0a7ccc109ff460e4103ab",
               "name": "ca-GrQc",
               "pretty_name": "ca-GrQc",
               "suites": [
@@ -104062,8 +104032,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104073,7 +104042,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/bcsstk09, squared to represent algebraic multigrid in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "bd0fdaa80be1e37ab542177635a98d58d3e5f43531d965c85b12ef8e32d527c4",
+              "freshness": "48508eb340097fdce2b58374d816036e68c7ba1749a0a7ccc109ff460e4103ab",
               "name": "bcsstk09",
               "pretty_name": "bcsstk09",
               "suites": [
@@ -104084,8 +104053,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104095,7 +104063,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Muite/Chebyshev3, squared to represent algebraic multigrid in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "bd0fdaa80be1e37ab542177635a98d58d3e5f43531d965c85b12ef8e32d527c4",
+              "freshness": "48508eb340097fdce2b58374d816036e68c7ba1749a0a7ccc109ff460e4103ab",
               "name": "Chebyshev3",
               "pretty_name": "Chebyshev3",
               "suites": [
@@ -104106,8 +104074,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104117,7 +104084,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/CollegeMsg, squared to represent graph algorithms in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "bd0fdaa80be1e37ab542177635a98d58d3e5f43531d965c85b12ef8e32d527c4",
+              "freshness": "48508eb340097fdce2b58374d816036e68c7ba1749a0a7ccc109ff460e4103ab",
               "name": "CollegeMsg",
               "pretty_name": "CollegeMsg",
               "suites": [
@@ -104128,8 +104095,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104139,7 +104105,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/wiki-Vote, squared to represent graph algorithms in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "bd0fdaa80be1e37ab542177635a98d58d3e5f43531d965c85b12ef8e32d527c4",
+              "freshness": "48508eb340097fdce2b58374d816036e68c7ba1749a0a7ccc109ff460e4103ab",
               "name": "wiki-Vote",
               "pretty_name": "wiki-Vote",
               "suites": [
@@ -104150,8 +104116,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104161,7 +104126,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix SNAP/ca-HepPh, squared to represent graph algorithms in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "bd0fdaa80be1e37ab542177635a98d58d3e5f43531d965c85b12ef8e32d527c4",
+              "freshness": "48508eb340097fdce2b58374d816036e68c7ba1749a0a7ccc109ff460e4103ab",
               "name": "ca-HepPh",
               "pretty_name": "ca-HepPh",
               "suites": [
@@ -104172,8 +104137,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104183,7 +104147,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix MathWorks/Muu, squared to represent algebraic multigrid in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "bd0fdaa80be1e37ab542177635a98d58d3e5f43531d965c85b12ef8e32d527c4",
+              "freshness": "48508eb340097fdce2b58374d816036e68c7ba1749a0a7ccc109ff460e4103ab",
               "name": "Muu",
               "pretty_name": "Muu",
               "suites": [
@@ -104194,8 +104158,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104205,7 +104168,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Norris/fv2, squared to represent algebraic multigrid in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "bd0fdaa80be1e37ab542177635a98d58d3e5f43531d965c85b12ef8e32d527c4",
+              "freshness": "48508eb340097fdce2b58374d816036e68c7ba1749a0a7ccc109ff460e4103ab",
               "name": "fv2",
               "pretty_name": "fv2",
               "suites": [
@@ -104216,8 +104179,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104227,7 +104189,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix UTEP/Dubcova1, squared to represent algebraic multigrid in the matrix-matrix suite.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "bd0fdaa80be1e37ab542177635a98d58d3e5f43531d965c85b12ef8e32d527c4",
+              "freshness": "48508eb340097fdce2b58374d816036e68c7ba1749a0a7ccc109ff460e4103ab",
               "name": "Dubcova1",
               "pretty_name": "Dubcova1",
               "suites": [
@@ -104238,8 +104200,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104247,7 +104208,7 @@
           ],
           "description": "Sparse input generator for sparse matrix-matrix multiplication, drawing real matrices from the SuiteSparse Matrix Collection across the application classes that motivate SpGEMM.",
           "file": "src/saps/benchmarks/matmul.py",
-          "freshness": "bd0fdaa80be1e37ab542177635a98d58d3e5f43531d965c85b12ef8e32d527c4",
+          "freshness": "48508eb340097fdce2b58374d816036e68c7ba1749a0a7ccc109ff460e4103ab",
           "motivation": "Generate real sparse matrices for squaring (A*A), the operation both classes of SpGEMM application reduce to: graph algorithms, where A*A gives two-hop neighbourhoods, and algebraic multigrid, where SpGEMM forms the coarse-grid operator. Buluc and Gilbert motivate those two classes; the matrices themselves are selected here rather than taken from that work.",
           "name": "suitesparse_matmul_generator",
           "pretty_name": "Suite Sparse Matmul Generator",
@@ -104264,8 +104225,7 @@
             "ccs-mathematical-software-performance",
             "ccs-mathematics-of-computing",
             "ccs-numerical-analysis",
-            "group-core-kernels",
-            "micro-benchmark",
+            "microkernel",
             "sparse"
           ],
           "topics": []
@@ -104283,7 +104243,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-05.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "bd0fdaa80be1e37ab542177635a98d58d3e5f43531d965c85b12ef8e32d527c4",
+              "freshness": "48508eb340097fdce2b58374d816036e68c7ba1749a0a7ccc109ff460e4103ab",
               "name": "uniform-1e-05",
               "pretty_name": "uniform-1e-05",
               "suites": [
@@ -104295,8 +104255,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse",
                 "test"
               ],
@@ -104307,7 +104266,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-04.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "bd0fdaa80be1e37ab542177635a98d58d3e5f43531d965c85b12ef8e32d527c4",
+              "freshness": "48508eb340097fdce2b58374d816036e68c7ba1749a0a7ccc109ff460e4103ab",
               "name": "uniform-1e-04",
               "pretty_name": "uniform-1e-04",
               "suites": [
@@ -104319,8 +104278,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse",
                 "test"
               ],
@@ -104331,7 +104289,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-03.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "bd0fdaa80be1e37ab542177635a98d58d3e5f43531d965c85b12ef8e32d527c4",
+              "freshness": "48508eb340097fdce2b58374d816036e68c7ba1749a0a7ccc109ff460e4103ab",
               "name": "uniform-1e-03",
               "pretty_name": "uniform-1e-03",
               "suites": [
@@ -104343,8 +104301,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse",
                 "test"
               ],
@@ -104355,7 +104312,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-02.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "bd0fdaa80be1e37ab542177635a98d58d3e5f43531d965c85b12ef8e32d527c4",
+              "freshness": "48508eb340097fdce2b58374d816036e68c7ba1749a0a7ccc109ff460e4103ab",
               "name": "uniform-1e-02",
               "pretty_name": "uniform-1e-02",
               "suites": [
@@ -104366,8 +104323,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104377,7 +104333,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-01.",
               "file": "src/saps/benchmarks/matmul.py",
-              "freshness": "bd0fdaa80be1e37ab542177635a98d58d3e5f43531d965c85b12ef8e32d527c4",
+              "freshness": "48508eb340097fdce2b58374d816036e68c7ba1749a0a7ccc109ff460e4103ab",
               "name": "uniform-1e-01",
               "pretty_name": "uniform-1e-01",
               "suites": [
@@ -104388,8 +104344,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104397,7 +104352,7 @@
           ],
           "description": "Generates a pair of uniform random sparse matrices for sparse general matrix-matrix multiplication (SpGEMM) at a range of densities.",
           "file": "src/saps/benchmarks/matmul.py",
-          "freshness": "bd0fdaa80be1e37ab542177635a98d58d3e5f43531d965c85b12ef8e32d527c4",
+          "freshness": "48508eb340097fdce2b58374d816036e68c7ba1749a0a7ccc109ff460e4103ab",
           "motivation": "Generate pairs of uniform random sparse matrices for SpGEMM over a range of densities. The density values are a synthetic sweep.",
           "name": "uniform_random_matmul_generator",
           "pretty_name": "Uniform Random Sparse Matmul Generator",
@@ -104410,8 +104365,7 @@
             "ccs-mathematical-software-performance",
             "ccs-mathematics-of-computing",
             "ccs-numerical-analysis",
-            "group-core-kernels",
-            "micro-benchmark",
+            "microkernel",
             "sparse"
           ],
           "topics": []
@@ -104424,16 +104378,14 @@
         "W. Ahrens, T. Collin, R. Patel, K. Deeds, C. Hong, S. Amarasinghe. \"Finch: Sparse and Structured Tensor Programming with Control Flow\", Proc. ACM Program. Lang. OOPSLA, 2025, URL: https://dl.acm.org/doi/pdf/10.1145/3720473."
       ],
       "suites": [
-        "micro-benchmark",
-        "group-core-kernels"
+        "microkernel"
       ],
       "tags": [
         "ccs-mathematical-software",
         "ccs-mathematical-software-performance",
         "ccs-mathematics-of-computing",
         "ccs-numerical-analysis",
-        "group-core-kernels",
-        "micro-benchmark"
+        "microkernel"
       ],
       "topics": [
         "ccs-mathematical-software",
@@ -104454,7 +104406,7 @@
       "concepts": "\n<ccs2012>\n<concept>\n<concept_id>10002950.10003705</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003705.10011686</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003714.10003715</concept_id>\n<concept_desc>Mathematics of computing~Numerical analysis</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n</ccs2012>\n",
       "description": "The multiplication of a matrix and a vector.C_i = \\sum_j A_ij B_j",
       "file": "src/saps/benchmarks/spmv.py",
-      "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+      "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
@@ -104469,7 +104421,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense MatVec Input small.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "small",
               "pretty_name": "small",
               "suites": [
@@ -104482,8 +104434,7 @@
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
                 "dense",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "test"
               ],
               "topics": []
@@ -104493,7 +104444,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense MatVec Input medium.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "medium",
               "pretty_name": "medium",
               "suites": [
@@ -104506,8 +104457,7 @@
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
                 "dense",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "test"
               ],
               "topics": []
@@ -104517,7 +104467,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense MatVec Input large.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "large",
               "pretty_name": "large",
               "suites": [
@@ -104529,8 +104479,7 @@
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
                 "dense",
-                "group-core-kernels",
-                "micro-benchmark"
+                "microkernel"
               ],
               "topics": []
             },
@@ -104539,7 +104488,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Dense MatVec Input rectangular.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "rectangular",
               "pretty_name": "rectangular",
               "suites": [
@@ -104552,8 +104501,7 @@
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
                 "dense",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "test"
               ],
               "topics": []
@@ -104561,7 +104509,7 @@
           ],
           "description": "Dense input generator for matrix-vector multiplication.",
           "file": "src/saps/benchmarks/spmv.py",
-          "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+          "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
           "motivation": "Generate dense matrices for matrix-vector multiplication.",
           "name": "dense_matvec_generator",
           "pretty_name": "Dense MatVec Generator",
@@ -104575,8 +104523,7 @@
             "ccs-mathematics-of-computing",
             "ccs-numerical-analysis",
             "dense",
-            "group-core-kernels",
-            "micro-benchmark"
+            "microkernel"
           ],
           "topics": []
         },
@@ -104593,7 +104540,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/gemat11, included to represent the 'power network problem sequence' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "gemat11",
               "pretty_name": "gemat11",
               "suites": [
@@ -104604,8 +104551,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104615,7 +104561,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Grund/bayer02, included to represent the 'chemical process simulation problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "bayer02",
               "pretty_name": "bayer02",
               "suites": [
@@ -104626,8 +104572,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104637,7 +104582,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Grund/bayer10, included to represent the 'chemical process simulation problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "bayer10",
               "pretty_name": "bayer10",
               "suites": [
@@ -104648,8 +104593,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104659,7 +104603,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/orani678, included to represent the 'economic problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "orani678",
               "pretty_name": "orani678",
               "suites": [
@@ -104670,8 +104614,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104681,7 +104624,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Zitney/rdist1, included to represent the 'chemical process simulation problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "rdist1",
               "pretty_name": "rdist1",
               "suites": [
@@ -104692,8 +104635,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104703,7 +104645,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Hamm/memplus, included to represent the 'circuit simulation problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "memplus",
               "pretty_name": "memplus",
               "suites": [
@@ -104714,8 +104656,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104725,7 +104666,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Wang/wang4, included to represent the 'semiconductor device problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "wang4",
               "pretty_name": "wang4",
               "suites": [
@@ -104736,8 +104677,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104747,7 +104687,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Brethour/coater2, included to represent the 'computational fluid dynamics problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "coater2",
               "pretty_name": "coater2",
               "suites": [
@@ -104758,8 +104698,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104769,7 +104708,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix ATandT/onetone2, included to represent the 'frequency-domain circuit simulation problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "onetone2",
               "pretty_name": "onetone2",
               "suites": [
@@ -104780,8 +104719,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104791,7 +104729,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Mallya/lhr10, included to represent the 'chemical process simulation problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "lhr10",
               "pretty_name": "lhr10",
               "suites": [
@@ -104802,8 +104740,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104813,7 +104750,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Cote/vibrobox, included to represent the 'acoustics problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "vibrobox",
               "pretty_name": "vibrobox",
               "suites": [
@@ -104824,8 +104761,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104835,7 +104771,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Goodwin/goodwin, included to represent the 'computational fluid dynamics problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "goodwin",
               "pretty_name": "goodwin",
               "suites": [
@@ -104846,8 +104782,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104857,7 +104792,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nasa/pwt, included to represent the 'duplicate structural problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "pwt",
               "pretty_name": "pwt",
               "suites": [
@@ -104868,8 +104803,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104879,7 +104813,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Mulvey/finan512, included to represent the 'economic problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "finan512",
               "pretty_name": "finan512",
               "suites": [
@@ -104890,8 +104824,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104901,7 +104834,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Boeing/crystk02, included to represent the 'materials problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "crystk02",
               "pretty_name": "crystk02",
               "suites": [
@@ -104912,8 +104845,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104923,7 +104855,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Goodwin/rim, included to represent the 'computational fluid dynamics problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "rim",
               "pretty_name": "rim",
               "suites": [
@@ -104934,8 +104866,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104945,7 +104876,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Simon/olafu, included to represent the 'structural problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "olafu",
               "pretty_name": "olafu",
               "suites": [
@@ -104956,8 +104887,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104967,7 +104897,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix FIDAP/ex11, included to represent the 'computational fluid dynamics problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "ex11",
               "pretty_name": "ex11",
               "suites": [
@@ -104978,8 +104908,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -104989,7 +104918,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Simon/raefsky4, included to represent the 'structural problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "raefsky4",
               "pretty_name": "raefsky4",
               "suites": [
@@ -105000,8 +104929,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -105011,7 +104939,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Boeing/bcsstk35, included to represent the 'structural problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "bcsstk35",
               "pretty_name": "bcsstk35",
               "suites": [
@@ -105022,8 +104950,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -105033,7 +104960,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Simon/raefsky3, included to represent the 'computational fluid dynamics problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "raefsky3",
               "pretty_name": "raefsky3",
               "suites": [
@@ -105044,8 +104971,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -105055,7 +104981,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Simon/venkat01, included to represent the 'computational fluid dynamics problem sequence' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "venkat01",
               "pretty_name": "venkat01",
               "suites": [
@@ -105066,8 +104992,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -105077,7 +105002,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Boeing/crystk03, included to represent the 'materials problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "crystk03",
               "pretty_name": "crystk03",
               "suites": [
@@ -105088,8 +105013,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -105099,7 +105023,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Boeing/ct20stif, included to represent the 'structural problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "ct20stif",
               "pretty_name": "ct20stif",
               "suites": [
@@ -105110,8 +105034,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -105121,7 +105044,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nasa/nasasrb, included to represent the 'structural problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "nasasrb",
               "pretty_name": "nasasrb",
               "suites": [
@@ -105132,8 +105055,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -105143,7 +105065,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Rothberg/3dtube, included to represent the 'computational fluid dynamics problem' domain in the matrix-vector suite.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "3dtube",
               "pretty_name": "3dtube",
               "suites": [
@@ -105154,8 +105076,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -105163,7 +105084,7 @@
           ],
           "description": "Sparse input generator for sparse matrix-vector multiplication, drawing real matrices from the SuiteSparse Matrix Collection across a range of application domains.",
           "file": "src/saps/benchmarks/spmv.py",
-          "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+          "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
           "motivation": "Generate real sparse matrices for matrix-vector multiplication, using the benchmark suite of Vuduc's SpMV autotuning study: 26 of its 28 matrices, spanning fluid dynamics, structural, materials, chemical process, economic, circuit and semiconductor problems. `bai` and `vavasis3` are omitted because SuiteSparse does not carry them under those names.",
           "name": "suitesparse_matvec_generator",
           "pretty_name": "Suite Sparse MatVec Generator",
@@ -105181,8 +105102,7 @@
             "ccs-mathematical-software-performance",
             "ccs-mathematics-of-computing",
             "ccs-numerical-analysis",
-            "group-core-kernels",
-            "micro-benchmark",
+            "microkernel",
             "sparse"
           ],
           "topics": []
@@ -105200,7 +105120,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-05.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "uniform-1e-05",
               "pretty_name": "uniform-1e-05",
               "suites": [
@@ -105212,8 +105132,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse",
                 "test"
               ],
@@ -105224,7 +105143,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-04.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "uniform-1e-04",
               "pretty_name": "uniform-1e-04",
               "suites": [
@@ -105236,8 +105155,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse",
                 "test"
               ],
@@ -105248,7 +105166,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-03.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "uniform-1e-03",
               "pretty_name": "uniform-1e-03",
               "suites": [
@@ -105260,8 +105178,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse",
                 "test"
               ],
@@ -105272,7 +105189,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-02.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "uniform-1e-02",
               "pretty_name": "uniform-1e-02",
               "suites": [
@@ -105284,8 +105201,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse",
                 "test"
               ],
@@ -105296,7 +105212,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random sparse matmul input uniform-1e-01.",
               "file": "src/saps/benchmarks/spmv.py",
-              "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+              "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
               "name": "uniform-1e-01",
               "pretty_name": "uniform-1e-01",
               "suites": [
@@ -105308,8 +105224,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse",
                 "test"
               ],
@@ -105318,7 +105233,7 @@
           ],
           "description": "Generates a pair of uniform random sparse matrices for sparse general matrix-matrix multiplication (SpGEMM) at a range of densities.",
           "file": "src/saps/benchmarks/spmv.py",
-          "freshness": "d6715f3675816e543285c2395aa764ac7726a9f1a8a1823b9e3b65da71d4f155",
+          "freshness": "3708c14eb3b454a58a6fb27e26f5f992d64f9e39c218eeb3e78c4b8163d8aab9",
           "motivation": "Generate uniform random sparse matrices for matrix-vector multiplication over a range of densities. The density values are just a synthetic sweep.",
           "name": "uniform_random_matvec_generator",
           "pretty_name": "Uniform Random Sparse MatVec Generator",
@@ -105331,8 +105246,7 @@
             "ccs-mathematical-software-performance",
             "ccs-mathematics-of-computing",
             "ccs-numerical-analysis",
-            "group-core-kernels",
-            "micro-benchmark",
+            "microkernel",
             "sparse"
           ],
           "topics": []
@@ -105345,16 +105259,14 @@
         "W. Ahrens, T. Collin, R. Patel, K. Deeds, C. Hong, S. Amarasinghe. \"Finch: Sparse and Structured Tensor Programming with Control Flow\", Proc. ACM Program. Lang. OOPSLA, 2025, URL: https://dl.acm.org/doi/pdf/10.1145/3720473."
       ],
       "suites": [
-        "micro-benchmark",
-        "group-core-kernels"
+        "microkernel"
       ],
       "tags": [
         "ccs-mathematical-software",
         "ccs-mathematical-software-performance",
         "ccs-mathematics-of-computing",
         "ccs-numerical-analysis",
-        "group-core-kernels",
-        "micro-benchmark"
+        "microkernel"
       ],
       "topics": [
         "ccs-mathematical-software",
@@ -114432,7 +114344,7 @@
       "concepts": "\n<ccs2012>\n<concept>\n<concept_id>10002950.10003705</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003705.10011686</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003714.10003715</concept_id>\n<concept_desc>Mathematics of computing~Numerical analysis</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n</ccs2012>\n",
       "description": "The multiplication of two matrices.C_ik = \\sum_k A_ij B_jk",
       "file": "src/saps/benchmarks/sddmm.py",
-      "freshness": "7519dce13517690c9b42546e7eb9a3b915f81c8903fcbd6881dc2342525e78b9",
+      "freshness": "315beee6be81e72b2d0453115306507407996baef39a0f04d2581510d3414c8d",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. Generative AI might be used for dataset collecting and parsing. This statement was written by hand.",
@@ -114447,7 +114359,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SDDMM over the nonzero pattern of SuiteSparse graph SNAP/email-Eu-core with embedding width 128.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "7519dce13517690c9b42546e7eb9a3b915f81c8903fcbd6881dc2342525e78b9",
+              "freshness": "315beee6be81e72b2d0453115306507407996baef39a0f04d2581510d3414c8d",
               "name": "email-Eu-core-128",
               "pretty_name": "email-Eu-core-128",
               "suites": [
@@ -114458,8 +114370,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -114469,7 +114380,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SDDMM over the nonzero pattern of SuiteSparse graph Arenas/email with embedding width 128.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "7519dce13517690c9b42546e7eb9a3b915f81c8903fcbd6881dc2342525e78b9",
+              "freshness": "315beee6be81e72b2d0453115306507407996baef39a0f04d2581510d3414c8d",
               "name": "email-128",
               "pretty_name": "email-128",
               "suites": [
@@ -114480,8 +114391,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -114491,7 +114401,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SDDMM over the nonzero pattern of SuiteSparse graph SNAP/ca-GrQc with embedding width 128.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "7519dce13517690c9b42546e7eb9a3b915f81c8903fcbd6881dc2342525e78b9",
+              "freshness": "315beee6be81e72b2d0453115306507407996baef39a0f04d2581510d3414c8d",
               "name": "ca-GrQc-128",
               "pretty_name": "ca-GrQc-128",
               "suites": [
@@ -114502,8 +114412,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -114513,7 +114422,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SDDMM over the nonzero pattern of SuiteSparse graph SNAP/wiki-Vote with embedding width 128.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "7519dce13517690c9b42546e7eb9a3b915f81c8903fcbd6881dc2342525e78b9",
+              "freshness": "315beee6be81e72b2d0453115306507407996baef39a0f04d2581510d3414c8d",
               "name": "wiki-Vote-128",
               "pretty_name": "wiki-Vote-128",
               "suites": [
@@ -114524,8 +114433,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -114535,7 +114443,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SDDMM over the nonzero pattern of SuiteSparse graph SNAP/ca-HepPh with embedding width 128.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "7519dce13517690c9b42546e7eb9a3b915f81c8903fcbd6881dc2342525e78b9",
+              "freshness": "315beee6be81e72b2d0453115306507407996baef39a0f04d2581510d3414c8d",
               "name": "ca-HepPh-128",
               "pretty_name": "ca-HepPh-128",
               "suites": [
@@ -114546,8 +114454,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -114555,7 +114462,7 @@
           ],
           "description": "Input generator for SDDMM, sampling a dense product at the nonzero pattern of a real graph from the SuiteSparse Matrix Collection.",
           "file": "src/saps/benchmarks/sddmm.py",
-          "freshness": "7519dce13517690c9b42546e7eb9a3b915f81c8903fcbd6881dc2342525e78b9",
+          "freshness": "315beee6be81e72b2d0453115306507407996baef39a0f04d2581510d3414c8d",
           "motivation": "Generate real sparse matrices for SDDMM, sampling the dense product at the nonzero pattern of a graph. Bharadwaj et al. name graph neural networks with self-attention as one of SDDMM's two applications and run real matrices at an embedding width of 128, the value used here; their own matrices hold hundreds of millions of nonzeros, so the graphs themselves are selected here.",
           "name": "suitesparse_sddmm_generator",
           "pretty_name": "SuiteSparse SDDMM Generator",
@@ -114571,8 +114478,7 @@
             "ccs-mathematical-software-performance",
             "ccs-mathematics-of-computing",
             "ccs-numerical-analysis",
-            "group-core-kernels",
-            "micro-benchmark",
+            "microkernel",
             "sparse"
           ],
           "topics": []
@@ -114590,7 +114496,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random SDDMM input uniform-21-per-row.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "7519dce13517690c9b42546e7eb9a3b915f81c8903fcbd6881dc2342525e78b9",
+              "freshness": "315beee6be81e72b2d0453115306507407996baef39a0f04d2581510d3414c8d",
               "name": "uniform-21-per-row",
               "pretty_name": "uniform-21-per-row",
               "suites": [
@@ -114602,8 +114508,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse",
                 "test"
               ],
@@ -114614,7 +114519,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random SDDMM input uniform-43-per-row.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "7519dce13517690c9b42546e7eb9a3b915f81c8903fcbd6881dc2342525e78b9",
+              "freshness": "315beee6be81e72b2d0453115306507407996baef39a0f04d2581510d3414c8d",
               "name": "uniform-43-per-row",
               "pretty_name": "uniform-43-per-row",
               "suites": [
@@ -114625,8 +114530,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -114636,7 +114540,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random SDDMM input uniform-65-per-row.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "7519dce13517690c9b42546e7eb9a3b915f81c8903fcbd6881dc2342525e78b9",
+              "freshness": "315beee6be81e72b2d0453115306507407996baef39a0f04d2581510d3414c8d",
               "name": "uniform-65-per-row",
               "pretty_name": "uniform-65-per-row",
               "suites": [
@@ -114647,8 +114551,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -114658,7 +114561,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random SDDMM input uniform-85-per-row.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "7519dce13517690c9b42546e7eb9a3b915f81c8903fcbd6881dc2342525e78b9",
+              "freshness": "315beee6be81e72b2d0453115306507407996baef39a0f04d2581510d3414c8d",
               "name": "uniform-85-per-row",
               "pretty_name": "uniform-85-per-row",
               "suites": [
@@ -114670,8 +114573,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse",
                 "test"
               ],
@@ -114682,7 +114584,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random SDDMM input uniform-107-per-row.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "7519dce13517690c9b42546e7eb9a3b915f81c8903fcbd6881dc2342525e78b9",
+              "freshness": "315beee6be81e72b2d0453115306507407996baef39a0f04d2581510d3414c8d",
               "name": "uniform-107-per-row",
               "pretty_name": "uniform-107-per-row",
               "suites": [
@@ -114693,8 +114595,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -114704,7 +114605,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random SDDMM input uniform-128-per-row.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "7519dce13517690c9b42546e7eb9a3b915f81c8903fcbd6881dc2342525e78b9",
+              "freshness": "315beee6be81e72b2d0453115306507407996baef39a0f04d2581510d3414c8d",
               "name": "uniform-128-per-row",
               "pretty_name": "uniform-128-per-row",
               "suites": [
@@ -114715,8 +114616,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse"
               ],
               "topics": []
@@ -114726,7 +114626,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Uniform random SDDMM input uniform-149-per-row.",
               "file": "src/saps/benchmarks/sddmm.py",
-              "freshness": "7519dce13517690c9b42546e7eb9a3b915f81c8903fcbd6881dc2342525e78b9",
+              "freshness": "315beee6be81e72b2d0453115306507407996baef39a0f04d2581510d3414c8d",
               "name": "uniform-149-per-row",
               "pretty_name": "uniform-149-per-row",
               "suites": [
@@ -114738,8 +114638,7 @@
                 "ccs-mathematical-software-performance",
                 "ccs-mathematics-of-computing",
                 "ccs-numerical-analysis",
-                "group-core-kernels",
-                "micro-benchmark",
+                "microkernel",
                 "sparse",
                 "test"
               ],
@@ -114748,7 +114647,7 @@
           ],
           "description": "Generates SDDMM inputs with a uniform random sparse sampling matrix at a range of densities.",
           "file": "src/saps/benchmarks/sddmm.py",
-          "freshness": "7519dce13517690c9b42546e7eb9a3b915f81c8903fcbd6881dc2342525e78b9",
+          "freshness": "315beee6be81e72b2d0453115306507407996baef39a0f04d2581510d3414c8d",
           "motivation": "Generate Erdos-Renyi sampling matrices for SDDMM, the synthetic workload Bharadwaj et al. use, swept over their range of nonzeros per row so that row occupancy rather than matrix size varies.",
           "name": "uniform_random_sddmm_generator",
           "pretty_name": "Uniform Random SDDMM Generator",
@@ -114763,8 +114662,7 @@
             "ccs-mathematical-software-performance",
             "ccs-mathematics-of-computing",
             "ccs-numerical-analysis",
-            "group-core-kernels",
-            "micro-benchmark",
+            "microkernel",
             "sparse"
           ],
           "topics": []
@@ -114777,16 +114675,14 @@
         "I. Nisa, A. Sukumaran-Rajam, S. Kurt, C. Hong, P. Sadayappan. \"Sampled Dense Matrix Multiplication for High-Performance Machine Learning\", IEEE HiPC, 2018, URL: https://ieeexplore.ieee.org/iel7/8632556/8638028/08638042.pdf."
       ],
       "suites": [
-        "micro-benchmark",
-        "group-core-kernels"
+        "microkernel"
       ],
       "tags": [
         "ccs-mathematical-software",
         "ccs-mathematical-software-performance",
         "ccs-mathematics-of-computing",
         "ccs-numerical-analysis",
-        "group-core-kernels",
-        "micro-benchmark"
+        "microkernel"
       ],
       "topics": [
         "ccs-mathematical-software",

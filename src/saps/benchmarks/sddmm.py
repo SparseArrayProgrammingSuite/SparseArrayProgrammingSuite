@@ -371,7 +371,7 @@ class SDDMMBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["micro-benchmark", "group-core-kernels"]
+        return ["microkernel"]
 
     @property
     def concepts(self) -> str:
