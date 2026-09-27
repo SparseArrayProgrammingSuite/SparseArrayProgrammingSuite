@@ -364,13 +364,38 @@ class Param(Generic[TDataset]):
         return f"{self.generator.name}.{self.dataset.name}"
 
 
+def _as_outputs(result: Any) -> tuple[Any, ...]:
+    """Normalize a benchmark's return value to a tuple of outputs."""
+    if isinstance(result, tuple):
+        return result
+    if isinstance(result, list):
+        raise TypeError(
+            "Benchmarks return outputs directly (`return x`) or as a tuple "
+            "(`return x, y`), not as a list."
+        )
+    return (result,)
+
+
 class Benchmark(Tagged, Attributed, Motivated):
     @property
     @abstractmethod
     def generators(self) -> list[Generator[Any]]: ...
 
     @abstractmethod
-    def benchmark(self, xp: Framework, data: list[Any], meta: Any) -> Any: ...
+    def benchmark(
+        self, xp: Framework, meta: Any, *data_args: Any, **kwargs: Any
+    ) -> Any:
+        """Run the benchmark on the generator's inputs.
+
+        Declare one positional parameter per input array after ``meta``, in the
+        order the generator produces them (``def benchmark(self, xp, meta, A, b)``),
+        or ``*data_args`` when the number of inputs varies by dataset. Return a
+        single output directly (``return x``) or several as a tuple
+        (``return x, y``).
+
+        The trailing ``*data_args``/``**kwargs`` let type checkers accept either
+        style of override; SAPS itself only passes inputs positionally.
+        """
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -450,8 +475,8 @@ class Benchmark(Tagged, Attributed, Motivated):
         if xp is not None:
             self._xp = xp
 
-            def benchmark(data, meta):
-                return self.benchmark(xp, data, meta)
+            def benchmark(meta, *data_args):
+                return self.benchmark(xp, meta, *data_args)
 
             self._compiled_benchmark = xp.compile(benchmark)
 
@@ -465,7 +490,7 @@ class Benchmark(Tagged, Attributed, Motivated):
         if hasattr(xp, "reset_stats"):
             xp.reset_stats()
         input = [xp.from_binsparse(d) for d in self._input]
-        output = self._compiled_benchmark(input, self._meta)
+        output = _as_outputs(self._compiled_benchmark(self._meta, *input))
         output = [xp.to_binsparse(o) for o in output]
         self._output = output
         self._write_tagger_stats(param, xp)
@@ -594,8 +619,8 @@ class ShellBenchmark(Benchmark, ABC):
     def generators(self) -> list[Generator[Any]]:
         return [self.generator]
 
-    def benchmark(self, xp: Framework, data: list[Any], meta: Any) -> Any:
-        return []
+    def benchmark(self, xp: Framework, meta: Any, *data_args: Any) -> Any:
+        return ()
 
     def check(self, param):
         pass

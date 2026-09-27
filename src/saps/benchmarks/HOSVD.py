@@ -675,9 +675,8 @@ class HOSVDBenchmark(Benchmark):
 class HOSVD3DBenchmark(HOSVDBenchmark):
     n = 3
 
-    def benchmark(self, xp, data: list, meta: dict):
+    def benchmark(self, xp, meta: dict, X, ranks):
         initial_factors: list[Any]
-        X, ranks = data
         max_iter = meta.get("max_iter", 50)
         tolerance = meta.get("tolerance", 1e-8)
 
@@ -746,12 +745,12 @@ class HOSVD3DBenchmark(HOSVDBenchmark):
             B=initial_factors[1],
             C=initial_factors[2],
         )
-        return [
+        return (
             core_tensor,
             initial_factors[0],
             initial_factors[1],
             initial_factors[2],
-        ]
+        )
 
     def check(self, param):
         for item in self._output:
@@ -777,9 +776,8 @@ class HOSVD3DBenchmark(HOSVDBenchmark):
 class HOSVD4DBenchmark(HOSVDBenchmark):
     n = 4
 
-    def benchmark(self, xp, data: list, meta: dict):
+    def benchmark(self, xp, meta: dict, X, ranks):
         initial_factors: list[Any]
-        X, ranks = data
         max_iter = meta.get("max_iter", 50)
         tolerance = meta.get("tolerance", 1e-8)
 
@@ -865,13 +863,13 @@ class HOSVD4DBenchmark(HOSVDBenchmark):
             C=initial_factors[2],
             D=initial_factors[3],
         )
-        return [
+        return (
             core_tensor,
             initial_factors[0],
             initial_factors[1],
             initial_factors[2],
             initial_factors[3],
-        ]
+        )
 
     def check(self, param):
         for item in self._output:
@@ -898,9 +896,8 @@ class HOSVD4DBenchmark(HOSVDBenchmark):
 class HOSVD5DBenchmark(HOSVDBenchmark):
     n = 5
 
-    def benchmark(self, xp, data: list, meta: dict):
+    def benchmark(self, xp, meta: dict, X, ranks):
         initial_factors: list[Any]
-        X, ranks = data
         max_iter = meta.get("max_iter", 50)
         tolerance = meta.get("tolerance", 1e-8)
 
@@ -1003,14 +1000,14 @@ class HOSVD5DBenchmark(HOSVDBenchmark):
             D=initial_factors[3],
             E=initial_factors[4],
         )
-        return [
+        return (
             core_tensor,
             initial_factors[0],
             initial_factors[1],
             initial_factors[2],
             initial_factors[3],
             initial_factors[4],
-        ]
+        )
 
     def check(self, param):
         for item in self._output:

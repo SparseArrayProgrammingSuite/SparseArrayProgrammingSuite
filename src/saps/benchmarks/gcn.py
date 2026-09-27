@@ -677,15 +677,9 @@ class GCNBenchmark(Benchmark):
         Output node embeddings after 2-layer GCN
     """
 
-    def benchmark(self, xp, data: list, meta: dict):
-        (
-            adjacency,
-            features,
-            weights1,
-            bias1,
-            weights2,
-            bias2,
-        ) = data
+    def benchmark(
+        self, xp, meta: dict, adjacency, features, weights1, bias1, weights2, bias2
+    ):
 
         # Layer 1: adjacency @ features -> linear transform -> ReLU
         h1 = adjacency @ features
@@ -694,7 +688,4 @@ class GCNBenchmark(Benchmark):
 
         # Layer 2: adjacency @ h1 -> linear transform
         h2 = adjacency @ h1
-        output = h2 @ weights2 + bias2
-
-        solution = output
-        return [solution]
+        return h2 @ weights2 + bias2

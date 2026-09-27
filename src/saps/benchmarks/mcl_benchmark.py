@@ -325,7 +325,7 @@ class MCLBenchmark(Benchmark):
     def generators(self):
         return [MCLTestGenerator(), MCLGenerator()]
 
-    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
+    def benchmark(self, xp, meta: dict[str, Any], graph):
         """
                 benchmark(data, meta)
 
@@ -350,7 +350,6 @@ class MCLBenchmark(Benchmark):
 
         """
         array_api = xp
-        graph = data[0]
         expansion = meta.get("expansion", 2)
         inflation = meta.get("inflation", 2)
         loop_value = meta.get("loop_value", 1)
@@ -383,7 +382,7 @@ class MCLBenchmark(Benchmark):
             ) and _sparse_allclose(array_api, current_matrix, previous_matrix):
                 break
 
-        return [current_matrix]
+        return current_matrix
 
     def check(self, param):
         super().check(param)

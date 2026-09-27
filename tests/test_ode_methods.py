@@ -62,7 +62,7 @@ def test_ode_methods_integrate_exponential_decay(benchmark_cls, expected):
         "input_value": 0.0,
     }
 
-    time, states = benchmark_cls().benchmark(NumpyFramework(), data, meta)
+    time, states = benchmark_cls().benchmark(NumpyFramework(), meta, *data)
 
     np.testing.assert_allclose(time, [0.0, 0.1])
     np.testing.assert_allclose(states[:, 0], [1.0, expected], rtol=1e-10, atol=1e-12)

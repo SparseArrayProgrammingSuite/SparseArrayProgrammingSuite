@@ -1060,8 +1060,7 @@ class ParticleSimBenchmark(Benchmark):
             ParticleSimGenerator(),
         ]
 
-    def benchmark(self, xp, data, meta):
-        x, y, z, vx, vy, vz, particle_mass = data
+    def benchmark(self, xp, meta, x, y, z, vx, vy, vz, particle_mass):
         size = meta["size"]
         steps = meta["steps"]
         parameters = meta["parameters"]
@@ -1132,7 +1131,7 @@ class ParticleSimBenchmark(Benchmark):
             z2 = 2 * size - z
             z = xp.where(z > size, z2, z1)
 
-        return [x, y, z, vx, vy, vz]
+        return x, y, z, vx, vy, vz
 
     def check(self, param):
         for item in self._output:

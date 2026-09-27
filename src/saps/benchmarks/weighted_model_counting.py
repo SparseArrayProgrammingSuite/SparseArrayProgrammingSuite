@@ -540,21 +540,19 @@ class WeightedModelCounting(Benchmark):
     def generators(self) -> list[Generator[Any]]:
         return [WMCGenerator(), MCCompPWMCGenerator()]
 
-    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]) -> list[Any]:
+    def benchmark(self, xp, meta: dict[str, Any], B, *data_args) -> Any:
         expr = meta["expr"]
 
         if expr is None:
-            return [xp.array(meta["default_total"], dtype=np.float64)]
+            return xp.array(meta["default_total"], dtype=np.float64)
 
         num_vars = meta["num_vars"]
 
-        args = {"B": data[0]}
+        args = {"B": B}
         for i in range(1, num_vars + 1):
-            args[f"W{i}"] = data[i]
+            args[f"W{i}"] = data_args[i - 1]
 
-        result = xp.einsum(expr, **args)
-
-        return [result]
+        return xp.einsum(expr, **args)
 
     def check(self, param):
         for item in self._output:

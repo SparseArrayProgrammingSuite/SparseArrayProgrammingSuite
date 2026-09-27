@@ -439,8 +439,7 @@ class SimplyConnectedComponentsBenchmark(Benchmark):
             ConnectedComponentsGAPGenerator(),
         ]
 
-    def benchmark(self, xp, data, meta):
-        edges = data[0]
+    def benchmark(self, xp, meta, edges):
         (n, m) = edges.shape
         assert m == n
 
@@ -460,7 +459,7 @@ class SimplyConnectedComponentsBenchmark(Benchmark):
             if xp.all(xp.equal(labels, nextLabels)):
                 break
             labels = nextLabels
-        return [labels]
+        return labels
 
     def check(self, param):
         for item in self._output:

@@ -471,12 +471,11 @@ class PageRankBenchmark(Benchmark):
             PageRankGAPGenerator(),
         ]
 
-    def benchmark(self, xp, data, meta):
+    def benchmark(self, xp, meta, A):
         alpha = meta.get("alpha", 0.85)
         max_iter = meta.get("max_iter", 100)
         tol = meta.get("tol", 1e-8)
 
-        A = data[0]
         out_degree = xp.sum(A, axis=0)
         M = xp.array(A, dtype=float)
         N = A.shape[0]
@@ -494,7 +493,7 @@ class PageRankBenchmark(Benchmark):
             if diff < tol:
                 break
             x = x_new
-        return [x]
+        return x
 
     def check(self, param):
         for item in self._output:

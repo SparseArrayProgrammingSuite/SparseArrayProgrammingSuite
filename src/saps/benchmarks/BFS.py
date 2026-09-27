@@ -534,8 +534,7 @@ class BreadthFirstSearchBenchmark(Benchmark):
             BreadthFirstSearchGAPGenerator(),
         ]
 
-    def benchmark(self, xp, data: list, meta: dict):
-        edges = data[0]
+    def benchmark(self, xp, meta: dict, edges):
         src = meta["src"]
 
         (n, m) = edges.shape
@@ -559,7 +558,7 @@ class BreadthFirstSearchBenchmark(Benchmark):
 
             level_idx += 1
 
-        return [level]
+        return level
 
     def check(self, param):
         for item in self._output:

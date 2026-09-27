@@ -982,13 +982,8 @@ class LTHConv2ONNXPYBenchmark(Benchmark):
             "atol": 1e-4,
         }
 
-    def benchmark(
-        self,
-        xp,
-        data: list[Any],
-        meta: dict[str, Any],
-    ):
-        return [model(*data, xp=xp)]
+    def benchmark(self, xp, meta: dict[str, Any], *data_args: Any):
+        return model(*data_args, xp=xp)
 
     def check(self, param):
         actual = to_numpy(self._output[0])

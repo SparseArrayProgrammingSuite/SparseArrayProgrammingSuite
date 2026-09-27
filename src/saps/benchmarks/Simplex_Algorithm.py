@@ -909,13 +909,12 @@ class LinearProgrammingBenchmark(Benchmark):
             LPNetlibGenerator(),
         ]
 
-    def benchmark(self, xp, data: list, meta: dict):
-        A, b, c = data[0], data[1], data[2]
+    def benchmark(self, xp, meta: dict, A, b, c):
         max_iter = meta.get("max_iter", 10_000)
 
         x, status_code = _solve_standard_form(xp, A, b, c, max_iter=max_iter)
         status = xp.reshape(xp.asarray(status_code), (1,))
-        return [x, status]
+        return x, status
 
     def _check_solution(self, param):
         """To check that the sol is optimal, we compare the solution vector

@@ -945,7 +945,7 @@ class ForwardEuler(_OdeBenchmarkBase):
     def description(self):
         return "Integrates ODE initial-value problems with the forward Euler method."
 
-    def benchmark(self, xp, data, meta):
+    def benchmark(self, xp, meta, *data_args):
         dydt = _resolve_derivatives(meta["problem_name"])
         span = meta["span"]
         y0 = meta["y0"]
@@ -959,7 +959,7 @@ class ForwardEuler(_OdeBenchmarkBase):
         outputs = [None for _ in inputs]
         outputs[0] = y0
         for i in range(1, len(inputs)):
-            dydt_vector = dydt(inputs[i - 1], outputs[i - 1], data, meta)
+            dydt_vector = dydt(inputs[i - 1], outputs[i - 1], data_args, meta)
             outputs[i] = [
                 outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
             ]
@@ -984,7 +984,7 @@ class BackwardEuler(_OdeBenchmarkBase):
             "using ten fixed-point iterations per step."
         )
 
-    def benchmark(self, xp, data, meta):
+    def benchmark(self, xp, meta, *data_args):
         dydt = _resolve_derivatives(meta["problem_name"])
         span = meta["span"]
         y0 = meta["y0"]
@@ -1000,7 +1000,7 @@ class BackwardEuler(_OdeBenchmarkBase):
         for i in range(1, len(inputs)):
             y_guess = outputs[i - 1]
             for _ in range(10):
-                dydt_vector = dydt(inputs[i], y_guess, data, meta)
+                dydt_vector = dydt(inputs[i], y_guess, data_args, meta)
                 y_guess = [
                     outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
                 ]
@@ -1026,7 +1026,7 @@ class RungeKutta(_OdeBenchmarkBase):
             "fourth-order Runge-Kutta method."
         )
 
-    def benchmark(self, xp, data, meta):
+    def benchmark(self, xp, meta, *data_args):
         dydt = _resolve_derivatives(meta["problem_name"])
         span = meta["span"]
         y0 = meta["y0"]
@@ -1041,13 +1041,13 @@ class RungeKutta(_OdeBenchmarkBase):
         outputs[0] = y0
         for i in range(1, len(inputs)):
             y_prev = outputs[i - 1]
-            k1 = dydt(inputs[i - 1], y_prev, data, meta)
+            k1 = dydt(inputs[i - 1], y_prev, data_args, meta)
             k2_state = [y_prev[j] + (step / 2) * k1[j] for j in range(len(y0))]
-            k2 = dydt(inputs[i - 1] + step / 2, k2_state, data, meta)
+            k2 = dydt(inputs[i - 1] + step / 2, k2_state, data_args, meta)
             k3_state = [y_prev[j] + (step / 2) * k2[j] for j in range(len(y0))]
-            k3 = dydt(inputs[i - 1] + step / 2, k3_state, data, meta)
+            k3 = dydt(inputs[i - 1] + step / 2, k3_state, data_args, meta)
             k4_state = [y_prev[j] + step * k3[j] for j in range(len(y0))]
-            k4 = dydt(inputs[i - 1] + step, k4_state, data, meta)
+            k4 = dydt(inputs[i - 1] + step, k4_state, data_args, meta)
             outputs[i] = [
                 y_prev[j] + (step / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j])
                 for j in range(len(y0))

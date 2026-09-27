@@ -48,6 +48,16 @@ Good benchmarks are adapted from real applications, papers, textbooks, or establ
 
 Benchmark functions should be plain Python functions whose first argument is the framework wrapper, conventionally named `xp`. The wrapper represents the sparse array framework being tested, such as NumPy, SciPy, pydata/sparse, or another implementation.
 
+The benchmark method takes `xp`, then the generator's `meta`, then one named parameter per input array, in the order the generator produces them. It returns a single output directly or several as a tuple:
+
+```python
+def benchmark(self, xp, meta, A, b, x0):
+    ...
+    return x
+```
+
+When the number of inputs depends on the dataset (for example, subgraph matching, which receives one tensor per query relation), collect them with `*data_args` instead, after any fixed leading inputs: `def benchmark(self, xp, meta, B, *data_args)`.
+
 Benchmark functions should:
 
 - Use Array API style operations through `xp`.
@@ -55,7 +65,7 @@ Benchmark functions should:
 - Avoid framework-specific shortcuts that only one implementation can support.
 - Avoid file I/O, threads, networking, global mutable state, recursion, and non-determinism.
 - Convert input `BinsparseFormat` values to framework arrays during setup, not inside the measured function body.
-- Return framework arrays that SAPS can convert back to `BinsparseFormat`.
+- Return framework arrays that SAPS can convert back to `BinsparseFormat`, as `return x` or `return x, y` rather than a list.
 
 Prefer clear translations over clever rewrites. If the original application uses a sparse matrix expression, preserve that structure unless a small adaptation is needed to fit the Array API style.
 

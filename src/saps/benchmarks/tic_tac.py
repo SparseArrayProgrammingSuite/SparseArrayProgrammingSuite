@@ -438,9 +438,8 @@ class TicTacToeBenchmark(Benchmark):
     def generators(self):
         return [TicTacToeGenerator()]
 
-    def benchmark(self, xp, data: list, meta: dict):
+    def benchmark(self, xp, meta: dict, S):
         depth = meta.get("depth", 9)
-        S = data[0]
         W = build_win_masks(xp)
 
         if depth == 2:
@@ -454,7 +453,7 @@ class TicTacToeBenchmark(Benchmark):
         else:
             result = minimax(xp, S, W)
 
-        return [result]
+        return result
 
     def check(self, param):
         super().check(param)

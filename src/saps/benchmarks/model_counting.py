@@ -507,15 +507,13 @@ class ModelCounting(Benchmark):
     def generators(self) -> list[Generator[Any]]:
         return [MCGenerator(), MCCompMCGenerator()]
 
-    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]) -> list[Any]:
+    def benchmark(self, xp, meta: dict[str, Any], B) -> Any:
         expr = meta["expr"]
 
         if expr is None:
-            return [xp.array(meta["default_total"], dtype=np.int64)]
+            return xp.array(meta["default_total"], dtype=np.int64)
 
-        result = xp.einsum(expr, B=data[0])
-
-        return [result]
+        return xp.einsum(expr, B=B)
 
     def check(self, param):
         for item in self._output:

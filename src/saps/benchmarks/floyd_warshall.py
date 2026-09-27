@@ -639,18 +639,17 @@ class FloydWarshallBenchmark(Benchmark):
     def generators(self):
         return [FloydWarshallTestGenerator(), FloydWarshallGenerator()]
 
-    def benchmark(self, xp, data, meta):
+    def benchmark(self, xp, meta, G):
         """
         Returns the all pair shortest path i.e. A[i,j] is the shortest
         path from i to j
         """
-        G = data[0]
         n, m = G.shape
         assert n == m
         for k in range(n):
             G_k = xp.expand_dims(G[:, k], axis=1) + xp.expand_dims(G[k, :], axis=0)
             G = xp.minimum(G, G_k)
-        return [G]
+        return G
 
     def check(self, param):
         for item in self._output:

@@ -2790,9 +2790,9 @@ class SubgraphMatching(Benchmark):
             GCareYAGOGenerator(),
         ]
 
-    def benchmark(self, xp, data, meta):
-        sp_mats = dict(zip(meta["matrix_names"], data, strict=True))
-        return [xp.einsum(meta["expr"], **sp_mats)]
+    def benchmark(self, xp, meta, *data_args):
+        sp_mats = dict(zip(meta["matrix_names"], data_args, strict=True))
+        return xp.einsum(meta["expr"], **sp_mats)
 
     def check(self, param):
         super().check(param)
