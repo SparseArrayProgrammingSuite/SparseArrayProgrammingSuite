@@ -120,20 +120,20 @@ Manual suite tags are written to `metadata.json` under `suites`. Topic tags gene
 
 These tags describe the general character of a problem, and are generated programatically by running --trace-statistics:
 
-- `high-dimensional`: 5 or more dimensions in a tensor.
-- `tensor`: 3 or more dimensions in a tensor.
-- `large-query`: 5 or more operands on one line.
-- `elementary-ops`: PEMDAS-only.
-- `transcendental-ops`: contains sin, cos, pow, exp, or related operations.
-- `shape-ops`: reshape, concat, transpose, squeeze, or similar operations.
-- `linalg-ops`: contains `xp.linalg` or solver-like operations. `dot` is okay.
-- `fancy-ops`: min, max, and, or, shift, or similar operations.
-- `index-ops`: contains indexing.
-- `nonzero-fill`: uses a fill value other than zero.
-- `iterative`: loops over a matrix or repeats until convergence.
-- `dense`: exclusively dense problems.
-- `hypersparse`: contains hypersparsity, such as `nnz << n` for a dimension.
-- `dynamic-sparsity`: sparse-sparse interactions may change the sparsity pattern.
+- `feature-high-dimensional`: 5 or more dimensions in a tensor.
+- `feature-tensor`: 3 or more dimensions in a tensor.
+- `feature-large-query`: 5 or more operands on one line.
+- `feature-elementary-ops`: PEMDAS-only.
+- `feature-transcendental-ops`: contains sin, cos, pow, exp, or related operations.
+- `feature-shape-ops`: reshape, concat, transpose, squeeze, or similar operations.
+- `feature-linalg-ops`: contains `xp.linalg` or solver-like operations. `dot` is okay.
+- `feature-fancy-ops`: min, max, and, or, shift, or similar operations.
+- `feature-index-ops`: contains indexing.
+- `feature-nonzero-fill`: uses a fill value other than zero.
+- `feature-iterative`: loops over a matrix or repeats until convergence.
+- `feature-dense`: exclusively dense problems.
+- `feature-hypersparse`: contains hypersparsity, such as `nnz << n` for a dimension.
+- `feature-dynamic-sparsity`: sparse-sparse interactions may change the sparsity pattern.
 
 ## Freshness
 

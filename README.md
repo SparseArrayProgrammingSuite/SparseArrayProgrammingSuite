@@ -465,7 +465,7 @@ poetry run ./bin/run_benchmark.py \
   --show-stderr
 ```
 
-Datasets get traced when their generated metadata has the `trace` tag. Tracing executes the benchmark with `frameworks/saps_tagger.py`, records which array operations and sparsity-relevant behaviors were observed, and writes those derived tags to `statistics.json`. Fold fresh trace-derived tags into `metadata.json` with:
+Datasets get traced when their generated metadata has the `trace` tag. Tracing executes the benchmark with `frameworks/saps_tagger.py`, records which array operations and sparsity-relevant behaviors were observed, and writes those derived tags with a `feature-` prefix to `statistics.json`. Fold fresh trace-derived tags into `metadata.json` with:
 
 ```bash
 poetry run ./bin/generate_metadata.py --statistics statistics.json
