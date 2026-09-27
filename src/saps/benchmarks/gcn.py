@@ -537,7 +537,7 @@ class GCNBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return ["group-ml"]
 
     @property
     def concepts(self) -> str:

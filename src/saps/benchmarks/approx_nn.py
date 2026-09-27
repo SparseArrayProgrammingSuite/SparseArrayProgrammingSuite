@@ -855,7 +855,7 @@ class SimHashApproxNearestNeighbor(Benchmark):
 
     @property
     def suites(self):
-        return []
+        return ["group-spatial"]
 
     @property
     def concepts(self) -> str:

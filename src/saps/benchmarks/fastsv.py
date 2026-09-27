@@ -372,7 +372,7 @@ class FastSVBenchmark(Benchmark):
 
     @property
     def suites(self):
-        return []
+        return ["group-graphs-iterative"]
 
     @property
     def concepts(self) -> str:

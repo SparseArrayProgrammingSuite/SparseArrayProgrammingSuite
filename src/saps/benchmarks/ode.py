@@ -842,7 +842,7 @@ class _OdeBenchmarkBase(Benchmark, ABC):
 
     @property
     def suites(self):
-        return []
+        return ["group-timestepping"]
 
     @property
     def generators(self):

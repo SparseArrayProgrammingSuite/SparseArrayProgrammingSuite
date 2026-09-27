@@ -397,7 +397,7 @@ class FourCliqueCountBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return ["group-graphs-query"]
 
     @property
     def concepts(self) -> str:

@@ -1630,7 +1630,7 @@ class _PreconditionedCGBase(Benchmark, ABC):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return ["group-solvers"]
 
     @property
     def concepts(self) -> str:

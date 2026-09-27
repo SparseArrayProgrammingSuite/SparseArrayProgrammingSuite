@@ -433,7 +433,7 @@ class BetweennessCentralityBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return ["group-graphs-iterative"]
 
     @property
     def concepts(self) -> str:

@@ -2748,7 +2748,7 @@ class SubgraphMatching(Benchmark):
 
     @property
     def suites(self):
-        return []
+        return ["group-graphs-query"]
 
     @property
     def concepts(self) -> str:
