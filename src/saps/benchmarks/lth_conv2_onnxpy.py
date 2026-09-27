@@ -982,8 +982,38 @@ class LTHConv2ONNXPYBenchmark(Benchmark):
             "atol": 1e-4,
         }
 
-    def benchmark(self, xp, meta: dict[str, Any], *data_args: Any):
-        return model(*data_args, xp=xp)
+    def benchmark(
+        self,
+        xp,
+        meta: dict[str, Any],
+        input,
+        layers_0_conv1_weight,
+        layers_0_conv1_bias,
+        layers_0_conv2_weight,
+        layers_0_conv2_bias,
+        fc1_weight,
+        fc1_bias,
+        fc2_weight,
+        fc2_bias,
+        fc3_weight,
+        fc3_bias,
+        val_4,
+    ):
+        return model(
+            input,
+            layers_0_conv1_weight,
+            layers_0_conv1_bias,
+            layers_0_conv2_weight,
+            layers_0_conv2_bias,
+            fc1_weight,
+            fc1_bias,
+            fc2_weight,
+            fc2_bias,
+            fc3_weight,
+            fc3_bias,
+            val_4,
+            xp=xp,
+        )
 
     def check(self, param):
         actual = to_numpy(self._output[0])
