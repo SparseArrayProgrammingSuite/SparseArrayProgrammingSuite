@@ -190,7 +190,7 @@ class SNAPDataset(Dataset):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard"]
+        return []
 
     @property
     def concepts(self) -> str:
