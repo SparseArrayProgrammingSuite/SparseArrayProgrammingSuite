@@ -1,6 +1,6 @@
 ---------------------------------------
-Begin Slurm Prolog: Sep-27-2026 21:00:17
-Job ID:    13654704
+Begin Slurm Prolog: Sep-27-2026 23:03:10
+Job ID:    13659772
 User ID:   wahrens6
 Account:   gts-wahrens6
 Job name:  statistics-trace
@@ -39,7 +39,7 @@ Using timeout: 120.0 seconds
            gmres_inputs.Andrianov/net50              n/a   
            gmres_inputs.Andrianov/net75              n/a   
              gmres_inputs.Bai/bfwa62                 n/a   
-             gmres_inputs.Bai/bfwb398              14.2±0s 
+             gmres_inputs.Bai/bfwb398              14.0±0s 
              gmres_inputs.Bai/bfwb62                 n/a   
              gmres_inputs.Bai/bfwb782                n/a   
               gmres_inputs.Bai/ck104                 n/a   
@@ -47,7 +47,7 @@ Using timeout: 120.0 seconds
              gmres_inputs.Bai/dwb512                 n/a   
              gmres_inputs.Bai/pde225                 n/a   
              gmres_inputs.Bai/rdb200                 n/a   
-             gmres_inputs.Bai/rdb200l              13.0±0s 
+             gmres_inputs.Bai/rdb200l              11.5±0s 
             gmres_inputs.Bindel/ted_B                n/a   
         gmres_inputs.Bindel/ted_B_unscaled           n/a   
        gmres_inputs.Bomhof/circuit_1__rhs0           n/a   
@@ -65,7 +65,7 @@ Using timeout: 120.0 seconds
           gmres_inputs.Cunningham/qa8fk              n/a   
           gmres_inputs.Cunningham/qa8fm              n/a   
        gmres_inputs.FEMLAB/poisson2D__rhs0           n/a   
-           gmres_inputs.FEMLAB/problem1            13.5±0s 
+           gmres_inputs.FEMLAB/problem1            11.7±0s 
              gmres_inputs.FIDAP/ex29                 n/a   
              gmres_inputs.FIDAP/ex37                 n/a   
               gmres_inputs.FIDAP/ex5                 n/a   
@@ -77,7 +77,7 @@ Using timeout: 120.0 seconds
            gmres_inputs.GHS_indef/laser              n/a   
           gmres_inputs.GHS_indef/qpband              n/a   
          gmres_inputs.GHS_psdef/jnlbrng1             n/a   
-         gmres_inputs.GHS_psdef/minsurfo           1.78±0m 
+         gmres_inputs.GHS_psdef/minsurfo           1.79±0m 
          gmres_inputs.GHS_psdef/obstclae             n/a   
          gmres_inputs.GHS_psdef/wathen120            n/a   
           gmres_inputs.Grund/b1_ss__rhs0             n/a   
@@ -85,7 +85,7 @@ Using timeout: 120.0 seconds
           gmres_inputs.Grund/poli__rhs0              n/a   
              gmres_inputs.Grund/poli3                n/a   
              gmres_inputs.Grund/poli4                n/a   
-          gmres_inputs.Grund/poli_large            16.5±0s 
+          gmres_inputs.Grund/poli_large            16.6±0s 
               gmres_inputs.HB/arc130                 n/a   
              gmres_inputs.HB/bcspwr01                n/a   
              gmres_inputs.HB/bcspwr02                n/a   
@@ -93,7 +93,7 @@ Using timeout: 120.0 seconds
              gmres_inputs.HB/bcsstk02                n/a   
              gmres_inputs.HB/bcsstk20                n/a   
              gmres_inputs.HB/bcsstm01                n/a   
-             gmres_inputs.HB/bcsstm02              12.2±0s 
+             gmres_inputs.HB/bcsstm02              10.9±0s 
              gmres_inputs.HB/bcsstm03                n/a   
              gmres_inputs.HB/bcsstm04                n/a   
              gmres_inputs.HB/bcsstm05                n/a   
@@ -101,7 +101,7 @@ Using timeout: 120.0 seconds
              gmres_inputs.HB/bcsstm08                n/a   
              gmres_inputs.HB/bcsstm09                n/a   
              gmres_inputs.HB/bcsstm11                n/a   
-             gmres_inputs.HB/bcsstm19              11.0±0s 
+             gmres_inputs.HB/bcsstm19              11.1±0s 
              gmres_inputs.HB/bcsstm20                n/a   
              gmres_inputs.HB/bcsstm21                n/a   
              gmres_inputs.HB/bcsstm22                n/a   
@@ -117,7 +117,7 @@ Using timeout: 120.0 seconds
              gmres_inputs.HB/gr_30_30                n/a   
              gmres_inputs.HB/jpwh_991                n/a   
               gmres_inputs.HB/lap_25                 n/a   
-               gmres_inputs.HB/nos4                11.3±0s 
+               gmres_inputs.HB/nos4                13.4±0s 
                gmres_inputs.HB/nos7                  n/a   
           gmres_inputs.HB/orani678__rhs1             n/a   
          gmres_inputs.HB/orani678__rhs10             n/a   
@@ -125,7 +125,7 @@ Using timeout: 120.0 seconds
          gmres_inputs.HB/orani678__rhs12             n/a   
          gmres_inputs.HB/orani678__rhs14             n/a   
          gmres_inputs.HB/orani678__rhs15             n/a   
-         gmres_inputs.HB/orani678__rhs16           2.42±0s 
+         gmres_inputs.HB/orani678__rhs16           2.55±0s 
          gmres_inputs.HB/orani678__rhs17             n/a   
          gmres_inputs.HB/orani678__rhs18             n/a   
          gmres_inputs.HB/orani678__rhs19             n/a   
@@ -133,7 +133,7 @@ Using timeout: 120.0 seconds
           gmres_inputs.HB/orani678__rhs3             n/a   
           gmres_inputs.HB/orani678__rhs4             n/a   
           gmres_inputs.HB/orani678__rhs5             n/a   
-          gmres_inputs.HB/orani678__rhs6           2.42±0s 
+          gmres_inputs.HB/orani678__rhs6           2.51±0s 
          gmres_inputs.HB/orani678__rhs62             n/a   
           gmres_inputs.HB/orani678__rhs7             n/a   
           gmres_inputs.HB/orani678__rhs8             n/a   
@@ -141,7 +141,7 @@ Using timeout: 120.0 seconds
              gmres_inputs.HB/psmigr_3                n/a   
               gmres_inputs.HB/steam2                 n/a   
               gmres_inputs.HB/steam3                 n/a   
-              gmres_inputs.HB/watt_1               10.9±0s 
+              gmres_inputs.HB/watt_1               9.55±0s 
               gmres_inputs.HB/watt_2                 n/a   
         gmres_inputs.Hamrle/Hamrle1__rhs0            n/a   
                gmres_inputs.MKS/fp                   n/a   
@@ -152,7 +152,7 @@ Using timeout: 120.0 seconds
           gmres_inputs.Morandini/rotor1              n/a   
            gmres_inputs.Mulvey/finan512              n/a   
          gmres_inputs.Nasa/nasa2146__rhs0            n/a   
-           gmres_inputs.Nemeth/nemeth02            35.9±0s 
+           gmres_inputs.Nemeth/nemeth02            36.0±0s 
            gmres_inputs.Nemeth/nemeth03              n/a   
            gmres_inputs.Nemeth/nemeth04              n/a   
            gmres_inputs.Nemeth/nemeth05              n/a   
@@ -160,7 +160,7 @@ Using timeout: 120.0 seconds
            gmres_inputs.Nemeth/nemeth07              n/a   
            gmres_inputs.Nemeth/nemeth08              n/a   
            gmres_inputs.Nemeth/nemeth09              n/a   
-           gmres_inputs.Nemeth/nemeth10            38.1±0s 
+           gmres_inputs.Nemeth/nemeth10            38.3±0s 
            gmres_inputs.Nemeth/nemeth11              n/a   
            gmres_inputs.Nemeth/nemeth12              n/a   
            gmres_inputs.Nemeth/nemeth13              n/a   
@@ -168,7 +168,7 @@ Using timeout: 120.0 seconds
            gmres_inputs.Nemeth/nemeth17              n/a   
            gmres_inputs.Nemeth/nemeth18              n/a   
            gmres_inputs.Nemeth/nemeth19              n/a   
-           gmres_inputs.Nemeth/nemeth20            42.7±0s 
+           gmres_inputs.Nemeth/nemeth20            42.6±0s 
            gmres_inputs.Nemeth/nemeth21              n/a   
            gmres_inputs.Nemeth/nemeth22              n/a   
            gmres_inputs.Nemeth/nemeth23              n/a   
@@ -185,7 +185,7 @@ Using timeout: 120.0 seconds
            gmres_inputs.Pothen/mesh1em1              n/a   
            gmres_inputs.Pothen/mesh1em6              n/a   
            gmres_inputs.Pothen/mesh2e1               n/a   
-           gmres_inputs.Pothen/mesh2em5            11.4±0s 
+           gmres_inputs.Pothen/mesh2em5            11.5±0s 
            gmres_inputs.Pothen/mesh3e1               n/a   
            gmres_inputs.Pothen/mesh3em5              n/a   
            gmres_inputs.Pothen/sphere2               n/a   
@@ -215,7 +215,7 @@ Using timeout: 120.0 seconds
         gmres_inputs.Sandia/adder_dcop_45            n/a   
         gmres_inputs.Sandia/adder_dcop_46            n/a   
         gmres_inputs.Sandia/adder_dcop_47            n/a   
-        gmres_inputs.Sandia/adder_dcop_48          16.4±0s 
+        gmres_inputs.Sandia/adder_dcop_48          16.6±0s 
         gmres_inputs.Sandia/adder_dcop_49            n/a   
         gmres_inputs.Sandia/adder_dcop_50            n/a   
         gmres_inputs.Sandia/adder_dcop_51            n/a   
@@ -223,7 +223,7 @@ Using timeout: 120.0 seconds
         gmres_inputs.Sandia/adder_dcop_53            n/a   
         gmres_inputs.Sandia/adder_dcop_54            n/a   
         gmres_inputs.Sandia/adder_dcop_55            n/a   
-        gmres_inputs.Sandia/adder_dcop_57          14.5±0s 
+        gmres_inputs.Sandia/adder_dcop_57          14.7±0s 
         gmres_inputs.Sandia/adder_dcop_58            n/a   
         gmres_inputs.Sandia/adder_dcop_59            n/a   
         gmres_inputs.Sandia/adder_dcop_60            n/a   
@@ -231,7 +231,7 @@ Using timeout: 120.0 seconds
         gmres_inputs.Sandia/adder_dcop_62            n/a   
         gmres_inputs.Sandia/adder_dcop_63            n/a   
         gmres_inputs.Sandia/adder_dcop_64            n/a   
-        gmres_inputs.Sandia/adder_dcop_65          14.6±0s 
+        gmres_inputs.Sandia/adder_dcop_65          15.0±0s 
         gmres_inputs.Sandia/adder_dcop_66            n/a   
         gmres_inputs.Sandia/adder_dcop_67            n/a   
         gmres_inputs.Sandia/adder_dcop_68            n/a   
@@ -243,7 +243,7 @@ Using timeout: 120.0 seconds
      gmres_inputs.Schenk_AFE/af_shell4__rhs0         n/a   
      gmres_inputs.Schenk_AFE/af_shell7__rhs0         n/a   
      gmres_inputs.Schenk_AFE/af_shell8__rhs0         n/a   
-        gmres_inputs.Simon/raefsky5__rhs0          28.2±0s 
+        gmres_inputs.Simon/raefsky5__rhs0          28.5±0s 
        gmres_inputs.TOKAMAK/utm1700b__rhs0           n/a   
         gmres_inputs.TOKAMAK/utm3060__rhs0           n/a   
        gmres_inputs.VDOL/hangGlider_1__rhs0          n/a   
@@ -272,7 +272,7 @@ Using timeout: 120.0 seconds
               gmres_inputs.Andrianov/net50              n/a   
               gmres_inputs.Andrianov/net75              n/a   
                 gmres_inputs.Bai/bfwa62                 n/a   
-                gmres_inputs.Bai/bfwb398              14.2±0s 
+                gmres_inputs.Bai/bfwb398              14.0±0s 
                 gmres_inputs.Bai/bfwb62                 n/a   
                 gmres_inputs.Bai/bfwb782                n/a   
                  gmres_inputs.Bai/ck104                 n/a   
@@ -280,7 +280,7 @@ Using timeout: 120.0 seconds
                 gmres_inputs.Bai/dwb512                 n/a   
                 gmres_inputs.Bai/pde225                 n/a   
                 gmres_inputs.Bai/rdb200                 n/a   
-                gmres_inputs.Bai/rdb200l              13.0±0s 
+                gmres_inputs.Bai/rdb200l              11.5±0s 
                gmres_inputs.Bindel/ted_B                n/a   
            gmres_inputs.Bindel/ted_B_unscaled           n/a   
           gmres_inputs.Bomhof/circuit_1__rhs0           n/a   
@@ -298,7 +298,7 @@ Using timeout: 120.0 seconds
              gmres_inputs.Cunningham/qa8fk              n/a   
              gmres_inputs.Cunningham/qa8fm              n/a   
           gmres_inputs.FEMLAB/poisson2D__rhs0           n/a   
-              gmres_inputs.FEMLAB/problem1            13.5±0s 
+              gmres_inputs.FEMLAB/problem1            11.7±0s 
                 gmres_inputs.FIDAP/ex29                 n/a   
                 gmres_inputs.FIDAP/ex37                 n/a   
                  gmres_inputs.FIDAP/ex5                 n/a   
@@ -310,7 +310,7 @@ Using timeout: 120.0 seconds
               gmres_inputs.GHS_indef/laser              n/a   
              gmres_inputs.GHS_indef/qpband              n/a   
             gmres_inputs.GHS_psdef/jnlbrng1             n/a   
-            gmres_inputs.GHS_psdef/minsurfo           1.78±0m 
+            gmres_inputs.GHS_psdef/minsurfo           1.79±0m 
             gmres_inputs.GHS_psdef/obstclae             n/a   
             gmres_inputs.GHS_psdef/wathen120            n/a   
              gmres_inputs.Grund/b1_ss__rhs0             n/a   
@@ -318,7 +318,7 @@ Using timeout: 120.0 seconds
              gmres_inputs.Grund/poli__rhs0              n/a   
                 gmres_inputs.Grund/poli3                n/a   
                 gmres_inputs.Grund/poli4                n/a   
-             gmres_inputs.Grund/poli_large            16.5±0s 
+             gmres_inputs.Grund/poli_large            16.6±0s 
                  gmres_inputs.HB/arc130                 n/a   
                 gmres_inputs.HB/bcspwr01                n/a   
                 gmres_inputs.HB/bcspwr02                n/a   
@@ -326,7 +326,7 @@ Using timeout: 120.0 seconds
                 gmres_inputs.HB/bcsstk02                n/a   
                 gmres_inputs.HB/bcsstk20                n/a   
                 gmres_inputs.HB/bcsstm01                n/a   
-                gmres_inputs.HB/bcsstm02              12.2±0s 
+                gmres_inputs.HB/bcsstm02              10.9±0s 
                 gmres_inputs.HB/bcsstm03                n/a   
                 gmres_inputs.HB/bcsstm04                n/a   
                 gmres_inputs.HB/bcsstm05                n/a   
@@ -334,7 +334,7 @@ Using timeout: 120.0 seconds
                 gmres_inputs.HB/bcsstm08                n/a   
                 gmres_inputs.HB/bcsstm09                n/a   
                 gmres_inputs.HB/bcsstm11                n/a   
-                gmres_inputs.HB/bcsstm19              11.0±0s 
+                gmres_inputs.HB/bcsstm19              11.1±0s 
                 gmres_inputs.HB/bcsstm20                n/a   
                 gmres_inputs.HB/bcsstm21                n/a   
                 gmres_inputs.HB/bcsstm22                n/a   
@@ -350,7 +350,7 @@ Using timeout: 120.0 seconds
                 gmres_inputs.HB/gr_30_30                n/a   
                 gmres_inputs.HB/jpwh_991                n/a   
                  gmres_inputs.HB/lap_25                 n/a   
-                  gmres_inputs.HB/nos4                11.3±0s 
+                  gmres_inputs.HB/nos4                13.4±0s 
                   gmres_inputs.HB/nos7                  n/a   
              gmres_inputs.HB/orani678__rhs1             n/a   
             gmres_inputs.HB/orani678__rhs10             n/a   
@@ -358,7 +358,7 @@ Using timeout: 120.0 seconds
             gmres_inputs.HB/orani678__rhs12             n/a   
             gmres_inputs.HB/orani678__rhs14             n/a   
             gmres_inputs.HB/orani678__rhs15             n/a   
-            gmres_inputs.HB/orani678__rhs16           2.42±0s 
+            gmres_inputs.HB/orani678__rhs16           2.55±0s 
             gmres_inputs.HB/orani678__rhs17             n/a   
             gmres_inputs.HB/orani678__rhs18             n/a   
             gmres_inputs.HB/orani678__rhs19             n/a   
@@ -366,7 +366,7 @@ Using timeout: 120.0 seconds
              gmres_inputs.HB/orani678__rhs3             n/a   
              gmres_inputs.HB/orani678__rhs4             n/a   
              gmres_inputs.HB/orani678__rhs5             n/a   
-             gmres_inputs.HB/orani678__rhs6           2.42±0s 
+             gmres_inputs.HB/orani678__rhs6           2.51±0s 
             gmres_inputs.HB/orani678__rhs62             n/a   
              gmres_inputs.HB/orani678__rhs7             n/a   
              gmres_inputs.HB/orani678__rhs8             n/a   
@@ -374,7 +374,7 @@ Using timeout: 120.0 seconds
                 gmres_inputs.HB/psmigr_3                n/a   
                  gmres_inputs.HB/steam2                 n/a   
                  gmres_inputs.HB/steam3                 n/a   
-                 gmres_inputs.HB/watt_1               10.9±0s 
+                 gmres_inputs.HB/watt_1               9.55±0s 
                  gmres_inputs.HB/watt_2                 n/a   
            gmres_inputs.Hamrle/Hamrle1__rhs0            n/a   
                   gmres_inputs.MKS/fp                   n/a   
@@ -385,7 +385,7 @@ Using timeout: 120.0 seconds
              gmres_inputs.Morandini/rotor1              n/a   
               gmres_inputs.Mulvey/finan512              n/a   
             gmres_inputs.Nasa/nasa2146__rhs0            n/a   
-              gmres_inputs.Nemeth/nemeth02            35.9±0s 
+              gmres_inputs.Nemeth/nemeth02            36.0±0s 
               gmres_inputs.Nemeth/nemeth03              n/a   
               gmres_inputs.Nemeth/nemeth04              n/a   
               gmres_inputs.Nemeth/nemeth05              n/a   
@@ -393,7 +393,7 @@ Using timeout: 120.0 seconds
               gmres_inputs.Nemeth/nemeth07              n/a   
               gmres_inputs.Nemeth/nemeth08              n/a   
               gmres_inputs.Nemeth/nemeth09              n/a   
-              gmres_inputs.Nemeth/nemeth10            38.1±0s 
+              gmres_inputs.Nemeth/nemeth10            38.3±0s 
               gmres_inputs.Nemeth/nemeth11              n/a   
               gmres_inputs.Nemeth/nemeth12              n/a   
               gmres_inputs.Nemeth/nemeth13              n/a   
@@ -401,7 +401,7 @@ Using timeout: 120.0 seconds
               gmres_inputs.Nemeth/nemeth17              n/a   
               gmres_inputs.Nemeth/nemeth18              n/a   
               gmres_inputs.Nemeth/nemeth19              n/a   
-              gmres_inputs.Nemeth/nemeth20            42.7±0s 
+              gmres_inputs.Nemeth/nemeth20            42.6±0s 
               gmres_inputs.Nemeth/nemeth21              n/a   
               gmres_inputs.Nemeth/nemeth22              n/a   
               gmres_inputs.Nemeth/nemeth23              n/a   
@@ -418,7 +418,7 @@ Using timeout: 120.0 seconds
               gmres_inputs.Pothen/mesh1em1              n/a   
               gmres_inputs.Pothen/mesh1em6              n/a   
               gmres_inputs.Pothen/mesh2e1               n/a   
-              gmres_inputs.Pothen/mesh2em5            11.4±0s 
+              gmres_inputs.Pothen/mesh2em5            11.5±0s 
               gmres_inputs.Pothen/mesh3e1               n/a   
               gmres_inputs.Pothen/mesh3em5              n/a   
               gmres_inputs.Pothen/sphere2               n/a   
@@ -448,7 +448,7 @@ Using timeout: 120.0 seconds
            gmres_inputs.Sandia/adder_dcop_45            n/a   
            gmres_inputs.Sandia/adder_dcop_46            n/a   
            gmres_inputs.Sandia/adder_dcop_47            n/a   
-           gmres_inputs.Sandia/adder_dcop_48          16.4±0s 
+           gmres_inputs.Sandia/adder_dcop_48          16.6±0s 
            gmres_inputs.Sandia/adder_dcop_49            n/a   
            gmres_inputs.Sandia/adder_dcop_50            n/a   
            gmres_inputs.Sandia/adder_dcop_51            n/a   
@@ -456,7 +456,7 @@ Using timeout: 120.0 seconds
            gmres_inputs.Sandia/adder_dcop_53            n/a   
            gmres_inputs.Sandia/adder_dcop_54            n/a   
            gmres_inputs.Sandia/adder_dcop_55            n/a   
-           gmres_inputs.Sandia/adder_dcop_57          14.5±0s 
+           gmres_inputs.Sandia/adder_dcop_57          14.7±0s 
            gmres_inputs.Sandia/adder_dcop_58            n/a   
            gmres_inputs.Sandia/adder_dcop_59            n/a   
            gmres_inputs.Sandia/adder_dcop_60            n/a   
@@ -464,7 +464,7 @@ Using timeout: 120.0 seconds
            gmres_inputs.Sandia/adder_dcop_62            n/a   
            gmres_inputs.Sandia/adder_dcop_63            n/a   
            gmres_inputs.Sandia/adder_dcop_64            n/a   
-           gmres_inputs.Sandia/adder_dcop_65          14.6±0s 
+           gmres_inputs.Sandia/adder_dcop_65          15.0±0s 
            gmres_inputs.Sandia/adder_dcop_66            n/a   
            gmres_inputs.Sandia/adder_dcop_67            n/a   
            gmres_inputs.Sandia/adder_dcop_68            n/a   
@@ -476,7 +476,7 @@ Using timeout: 120.0 seconds
         gmres_inputs.Schenk_AFE/af_shell4__rhs0         n/a   
         gmres_inputs.Schenk_AFE/af_shell7__rhs0         n/a   
         gmres_inputs.Schenk_AFE/af_shell8__rhs0         n/a   
-           gmres_inputs.Simon/raefsky5__rhs0          28.2±0s 
+           gmres_inputs.Simon/raefsky5__rhs0          28.5±0s 
           gmres_inputs.TOKAMAK/utm1700b__rhs0           n/a   
            gmres_inputs.TOKAMAK/utm3060__rhs0           n/a   
           gmres_inputs.VDOL/hangGlider_1__rhs0          n/a   
@@ -681,7 +681,7 @@ INFO:root:...m.LinearProgrammingBenchmark.time_lp_simplex
            lpnetlib_inputs.lp_grow15               n/a   
            lpnetlib_inputs.lp_grow22               n/a   
             lpnetlib_inputs.lp_grow7               n/a   
-           lpnetlib_inputs.lp_israel             19.1±0s 
+           lpnetlib_inputs.lp_israel             19.3±0s 
              lpnetlib_inputs.lp_kb2                n/a   
            lpnetlib_inputs.lp_ken_07               n/a   
            lpnetlib_inputs.lp_ken_11               n/a   
@@ -715,7 +715,7 @@ INFO:root:...m.LinearProgrammingBenchmark.time_lp_simplex
             lpnetlib_inputs.lp_sc50a               n/a   
             lpnetlib_inputs.lp_sc50b               n/a   
            lpnetlib_inputs.lp_scagr25              n/a   
-           lpnetlib_inputs.lp_scagr7             15.4±0s 
+           lpnetlib_inputs.lp_scagr7             15.7±0s 
            lpnetlib_inputs.lp_scfxm1               n/a   
            lpnetlib_inputs.lp_scfxm2               n/a   
            lpnetlib_inputs.lp_scfxm3               n/a   
@@ -760,7 +760,7 @@ INFO:root:...m.LinearProgrammingBenchmark.time_lp_simplex
            lpnetlib_inputs.lpi_cplex2              n/a   
            lpnetlib_inputs.lpi_ex72a               n/a   
            lpnetlib_inputs.lpi_ex73a               n/a   
-          lpnetlib_inputs.lpi_forest6            14.4±0s 
+          lpnetlib_inputs.lpi_forest6            14.7±0s 
           lpnetlib_inputs.lpi_galenet              n/a   
             lpnetlib_inputs.lpi_gosh               n/a   
             lpnetlib_inputs.lpi_gran               n/a   
@@ -829,7 +829,7 @@ INFO:root:...m.LinearProgrammingBenchmark.time_lp_simplex
               lpnetlib_inputs.lp_grow15               n/a   
               lpnetlib_inputs.lp_grow22               n/a   
                lpnetlib_inputs.lp_grow7               n/a   
-              lpnetlib_inputs.lp_israel             19.1±0s 
+              lpnetlib_inputs.lp_israel             19.3±0s 
                 lpnetlib_inputs.lp_kb2                n/a   
               lpnetlib_inputs.lp_ken_07               n/a   
               lpnetlib_inputs.lp_ken_11               n/a   
@@ -863,7 +863,7 @@ INFO:root:...m.LinearProgrammingBenchmark.time_lp_simplex
                lpnetlib_inputs.lp_sc50a               n/a   
                lpnetlib_inputs.lp_sc50b               n/a   
               lpnetlib_inputs.lp_scagr25              n/a   
-              lpnetlib_inputs.lp_scagr7             15.4±0s 
+              lpnetlib_inputs.lp_scagr7             15.7±0s 
               lpnetlib_inputs.lp_scfxm1               n/a   
               lpnetlib_inputs.lp_scfxm2               n/a   
               lpnetlib_inputs.lp_scfxm3               n/a   
@@ -908,7 +908,7 @@ INFO:root:...m.LinearProgrammingBenchmark.time_lp_simplex
               lpnetlib_inputs.lpi_cplex2              n/a   
               lpnetlib_inputs.lpi_ex72a               n/a   
               lpnetlib_inputs.lpi_ex73a               n/a   
-             lpnetlib_inputs.lpi_forest6            14.4±0s 
+             lpnetlib_inputs.lpi_forest6            14.7±0s 
              lpnetlib_inputs.lpi_galenet              n/a   
                lpnetlib_inputs.lpi_gosh               n/a   
                lpnetlib_inputs.lpi_gran               n/a   
@@ -950,7 +950,7 @@ INFO:root:...ApproxNearestNeighbor.time_simhash_approx_nn
                                  dataset                                           
 ------------------------------------------------------------------------- ---------
   simhash_projection_test_inputs_dense.test_simhash_preserves_similarity     n/a   
- simhash_projection_test_inputs_sparse.test_simhash_preserves_similarity   16.6±0s 
+ simhash_projection_test_inputs_sparse.test_simhash_preserves_similarity   15.0±0s 
                   simhash_projection_inputs_dense.small                      n/a   
                   simhash_projection_inputs_dense.medium                     n/a   
                   simhash_projection_inputs_dense.large                      n/a   
@@ -969,7 +969,7 @@ INFO:root:...ApproxNearestNeighbor.time_simhash_approx_nn
                                     dataset                                           
    ------------------------------------------------------------------------- ---------
      simhash_projection_test_inputs_dense.test_simhash_preserves_similarity     n/a   
-    simhash_projection_test_inputs_sparse.test_simhash_preserves_similarity   16.6±0s 
+    simhash_projection_test_inputs_sparse.test_simhash_preserves_similarity   15.0±0s 
                      simhash_projection_inputs_dense.small                      n/a   
                      simhash_projection_inputs_dense.medium                     n/a   
                      simhash_projection_inputs_dense.large                      n/a   
@@ -999,7 +999,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
   cg_test_inputs.test_3x3_indefinite_sparse       n/a   
   cg_test_inputs.test_3x3_scaled_tridiagonal      n/a   
         cg_test_inputs.test_5x5_sparse            n/a   
-          cg_inputs.Andrews/Andrews             6.49±0s 
+          cg_inputs.Andrews/Andrews             6.61±0s 
            cg_inputs.Andrianov/ins2               n/a   
           cg_inputs.Andrianov/net100              n/a   
           cg_inputs.Andrianov/net125              n/a   
@@ -1007,7 +1007,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
           cg_inputs.Andrianov/net25               n/a   
           cg_inputs.Andrianov/net50               n/a   
           cg_inputs.Andrianov/net75               n/a   
-            cg_inputs.Bai/bfwb398               2.46±0s 
+            cg_inputs.Bai/bfwb398               2.57±0s 
              cg_inputs.Bai/bfwb62                 n/a   
             cg_inputs.Bai/bfwb782                 n/a   
              cg_inputs.Bai/dw256B                 n/a   
@@ -1015,7 +1015,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
             cg_inputs.Bai/odepb400                n/a   
             cg_inputs.Bindel/ted_B                n/a   
        cg_inputs.Bindel/ted_B_unscaled            n/a   
-          cg_inputs.Boeing/crystm01             2.86±0s 
+          cg_inputs.Boeing/crystm01             2.92±0s 
           cg_inputs.Boeing/crystm02               n/a   
           cg_inputs.Boeing/crystm03               n/a   
       cg_inputs.Botonakis/thermomech_TC           n/a   
@@ -1031,7 +1031,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
           cg_inputs.FEMLAB/problem1               n/a   
              cg_inputs.FIDAP/ex29                 n/a   
              cg_inputs.FIDAP/ex37                 n/a   
-             cg_inputs.FIDAP/ex5                2.43±0s 
+             cg_inputs.FIDAP/ex5                2.50±0s 
              cg_inputs.FIDAP/ex7                  n/a   
          cg_inputs.GHS_indef/blockqp1             n/a   
           cg_inputs.GHS_indef/laser               n/a   
@@ -1039,7 +1039,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
          cg_inputs.GHS_psdef/jnlbrng1             n/a   
          cg_inputs.GHS_psdef/minsurfo             n/a   
          cg_inputs.GHS_psdef/obstclae             n/a   
-             cg_inputs.Grund/meg4               2.98±0s 
+             cg_inputs.Grund/meg4               2.66±0s 
           cg_inputs.Grund/poli__rhs0              n/a   
             cg_inputs.HB/bcspwr01                 n/a   
             cg_inputs.HB/bcspwr02                 n/a   
@@ -1047,7 +1047,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
             cg_inputs.HB/bcsstk02                 n/a   
             cg_inputs.HB/bcsstm01                 n/a   
             cg_inputs.HB/bcsstm02                 n/a   
-            cg_inputs.HB/bcsstm03               2.43±0s 
+            cg_inputs.HB/bcsstm03               2.50±0s 
             cg_inputs.HB/bcsstm04                 n/a   
             cg_inputs.HB/bcsstm05                 n/a   
             cg_inputs.HB/bcsstm06                 n/a   
@@ -1055,7 +1055,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
             cg_inputs.HB/bcsstm09                 n/a   
             cg_inputs.HB/bcsstm11                 n/a   
             cg_inputs.HB/bcsstm19                 n/a   
-            cg_inputs.HB/bcsstm20               2.44±0s 
+            cg_inputs.HB/bcsstm20               2.52±0s 
             cg_inputs.HB/bcsstm21                 n/a   
             cg_inputs.HB/bcsstm22                 n/a   
              cg_inputs.HB/can_144                 n/a   
@@ -1063,7 +1063,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
              cg_inputs.HB/can_61                  n/a   
              cg_inputs.HB/can_62                  n/a   
              cg_inputs.HB/can_73                  n/a   
-             cg_inputs.HB/can_96                2.51±0s 
+             cg_inputs.HB/can_96                2.57±0s 
              cg_inputs.HB/dwt_59                  n/a   
              cg_inputs.HB/dwt_66                  n/a   
              cg_inputs.HB/dwt_72                  n/a   
@@ -1071,7 +1071,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
             cg_inputs.HB/gr_30_30                 n/a   
              cg_inputs.HB/lap_25                  n/a   
               cg_inputs.HB/nos4                   n/a   
-         cg_inputs.HB/orani678__rhs1            2.44±0s 
+         cg_inputs.HB/orani678__rhs1            2.51±0s 
          cg_inputs.HB/orani678__rhs10             n/a   
          cg_inputs.HB/orani678__rhs11             n/a   
          cg_inputs.HB/orani678__rhs12             n/a   
@@ -1079,7 +1079,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
          cg_inputs.HB/orani678__rhs15             n/a   
          cg_inputs.HB/orani678__rhs16             n/a   
          cg_inputs.HB/orani678__rhs17             n/a   
-         cg_inputs.HB/orani678__rhs18           2.58±0s 
+         cg_inputs.HB/orani678__rhs18           2.49±0s 
          cg_inputs.HB/orani678__rhs19             n/a   
          cg_inputs.HB/orani678__rhs2              n/a   
          cg_inputs.HB/orani678__rhs3              n/a   
@@ -1087,7 +1087,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
          cg_inputs.HB/orani678__rhs5              n/a   
          cg_inputs.HB/orani678__rhs6              n/a   
          cg_inputs.HB/orani678__rhs62             n/a   
-         cg_inputs.HB/orani678__rhs7            4.12±0s 
+         cg_inputs.HB/orani678__rhs7            4.23±0s 
          cg_inputs.HB/orani678__rhs8              n/a   
              cg_inputs.HB/watt_1                  n/a   
              cg_inputs.HB/watt_2                  n/a   
@@ -1095,7 +1095,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
                cg_inputs.MKS/fp                   n/a   
            cg_inputs.MathWorks/Muu                n/a   
         cg_inputs.MathWorks/tomography            n/a   
-      cg_inputs.MaxPlanck/shallow_water1        2.69±0s 
+      cg_inputs.MaxPlanck/shallow_water1        2.78±0s 
       cg_inputs.MaxPlanck/shallow_water2          n/a   
           cg_inputs.Mulvey/finan512               n/a   
         cg_inputs.Nasa/nasa2146__rhs0             n/a   
@@ -1103,7 +1103,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
           cg_inputs.Nemeth/nemeth03               n/a   
           cg_inputs.Nemeth/nemeth04               n/a   
           cg_inputs.Nemeth/nemeth05               n/a   
-          cg_inputs.Nemeth/nemeth06             2.55±0s 
+          cg_inputs.Nemeth/nemeth06             2.61±0s 
           cg_inputs.Nemeth/nemeth07               n/a   
           cg_inputs.Nemeth/nemeth08               n/a   
           cg_inputs.Nemeth/nemeth09               n/a   
@@ -1111,7 +1111,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
           cg_inputs.Nemeth/nemeth11               n/a   
           cg_inputs.Nemeth/nemeth12               n/a   
           cg_inputs.Nemeth/nemeth13               n/a   
-          cg_inputs.Nemeth/nemeth16             3.87±0s 
+          cg_inputs.Nemeth/nemeth16             3.97±0s 
           cg_inputs.Nemeth/nemeth17               n/a   
           cg_inputs.Nemeth/nemeth18               n/a   
           cg_inputs.Nemeth/nemeth19               n/a   
@@ -1119,7 +1119,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
           cg_inputs.Nemeth/nemeth21               n/a   
           cg_inputs.Nemeth/nemeth22               n/a   
           cg_inputs.Nemeth/nemeth23               n/a   
-          cg_inputs.Nemeth/nemeth24             2.83±0s 
+          cg_inputs.Nemeth/nemeth24             2.92±0s 
           cg_inputs.Nemeth/nemeth25               n/a   
           cg_inputs.Nemeth/nemeth26               n/a   
              cg_inputs.Norris/fv1                 n/a   
@@ -1127,7 +1127,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
           cg_inputs.Oberwolfach/LF10              n/a   
          cg_inputs.Oberwolfach/LFAT5              n/a   
              cg_inputs.PARSEC/Si2                 n/a   
-           cg_inputs.Pothen/mesh1e1             2.43±0s 
+           cg_inputs.Pothen/mesh1e1             2.50±0s 
           cg_inputs.Pothen/mesh1em1               n/a   
           cg_inputs.Pothen/mesh1em6               n/a   
            cg_inputs.Pothen/mesh2e1               n/a   
@@ -1135,7 +1135,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
            cg_inputs.Pothen/mesh3e1               n/a   
           cg_inputs.Pothen/mesh3em5               n/a   
            cg_inputs.Pothen/sphere2               n/a   
-         cg_inputs.Precima/analytics            4.58±0s 
+         cg_inputs.Precima/analytics            4.63±0s 
           cg_inputs.Sandia/ASIC_100k              n/a   
          cg_inputs.Sandia/ASIC_100ks              n/a   
          cg_inputs.Sandia/ASIC_320ks              n/a   
@@ -1143,7 +1143,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
         cg_inputs.Sandia/adder_dcop_62            n/a   
         cg_inputs.Sandia/adder_dcop_63            n/a   
         cg_inputs.Sandia/adder_dcop_64            n/a   
-        cg_inputs.Sandia/adder_dcop_65          2.55±0s 
+        cg_inputs.Sandia/adder_dcop_65          2.63±0s 
         cg_inputs.Sandia/adder_dcop_66            n/a   
         cg_inputs.Sandia/adder_dcop_67            n/a   
         cg_inputs.Sandia/adder_dcop_68            n/a   
@@ -1155,7 +1155,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
       cg_inputs.VDOL/hangGlider_1__rhs0           n/a   
  cg_inputs.VDOL/tumorAntiAngiogenesis_1__rhs0     n/a   
  cg_inputs.VDOL/tumorAntiAngiogenesis_2__rhs0     n/a   
-              cg_inputs.VLSI/ss1                3.31±0s 
+              cg_inputs.VLSI/ss1                3.41±0s 
 ============================================== =========
 
 ·· ============================================== =========
@@ -1167,7 +1167,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
      cg_test_inputs.test_3x3_indefinite_sparse       n/a   
      cg_test_inputs.test_3x3_scaled_tridiagonal      n/a   
            cg_test_inputs.test_5x5_sparse            n/a   
-             cg_inputs.Andrews/Andrews             6.49±0s 
+             cg_inputs.Andrews/Andrews             6.61±0s 
               cg_inputs.Andrianov/ins2               n/a   
              cg_inputs.Andrianov/net100              n/a   
              cg_inputs.Andrianov/net125              n/a   
@@ -1175,7 +1175,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
              cg_inputs.Andrianov/net25               n/a   
              cg_inputs.Andrianov/net50               n/a   
              cg_inputs.Andrianov/net75               n/a   
-               cg_inputs.Bai/bfwb398               2.46±0s 
+               cg_inputs.Bai/bfwb398               2.57±0s 
                 cg_inputs.Bai/bfwb62                 n/a   
                cg_inputs.Bai/bfwb782                 n/a   
                 cg_inputs.Bai/dw256B                 n/a   
@@ -1183,7 +1183,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
                cg_inputs.Bai/odepb400                n/a   
                cg_inputs.Bindel/ted_B                n/a   
           cg_inputs.Bindel/ted_B_unscaled            n/a   
-             cg_inputs.Boeing/crystm01             2.86±0s 
+             cg_inputs.Boeing/crystm01             2.92±0s 
              cg_inputs.Boeing/crystm02               n/a   
              cg_inputs.Boeing/crystm03               n/a   
          cg_inputs.Botonakis/thermomech_TC           n/a   
@@ -1199,7 +1199,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
              cg_inputs.FEMLAB/problem1               n/a   
                 cg_inputs.FIDAP/ex29                 n/a   
                 cg_inputs.FIDAP/ex37                 n/a   
-                cg_inputs.FIDAP/ex5                2.43±0s 
+                cg_inputs.FIDAP/ex5                2.50±0s 
                 cg_inputs.FIDAP/ex7                  n/a   
             cg_inputs.GHS_indef/blockqp1             n/a   
              cg_inputs.GHS_indef/laser               n/a   
@@ -1207,7 +1207,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
             cg_inputs.GHS_psdef/jnlbrng1             n/a   
             cg_inputs.GHS_psdef/minsurfo             n/a   
             cg_inputs.GHS_psdef/obstclae             n/a   
-                cg_inputs.Grund/meg4               2.98±0s 
+                cg_inputs.Grund/meg4               2.66±0s 
              cg_inputs.Grund/poli__rhs0              n/a   
                cg_inputs.HB/bcspwr01                 n/a   
                cg_inputs.HB/bcspwr02                 n/a   
@@ -1215,7 +1215,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
                cg_inputs.HB/bcsstk02                 n/a   
                cg_inputs.HB/bcsstm01                 n/a   
                cg_inputs.HB/bcsstm02                 n/a   
-               cg_inputs.HB/bcsstm03               2.43±0s 
+               cg_inputs.HB/bcsstm03               2.50±0s 
                cg_inputs.HB/bcsstm04                 n/a   
                cg_inputs.HB/bcsstm05                 n/a   
                cg_inputs.HB/bcsstm06                 n/a   
@@ -1223,7 +1223,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
                cg_inputs.HB/bcsstm09                 n/a   
                cg_inputs.HB/bcsstm11                 n/a   
                cg_inputs.HB/bcsstm19                 n/a   
-               cg_inputs.HB/bcsstm20               2.44±0s 
+               cg_inputs.HB/bcsstm20               2.52±0s 
                cg_inputs.HB/bcsstm21                 n/a   
                cg_inputs.HB/bcsstm22                 n/a   
                 cg_inputs.HB/can_144                 n/a   
@@ -1231,7 +1231,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
                 cg_inputs.HB/can_61                  n/a   
                 cg_inputs.HB/can_62                  n/a   
                 cg_inputs.HB/can_73                  n/a   
-                cg_inputs.HB/can_96                2.51±0s 
+                cg_inputs.HB/can_96                2.57±0s 
                 cg_inputs.HB/dwt_59                  n/a   
                 cg_inputs.HB/dwt_66                  n/a   
                 cg_inputs.HB/dwt_72                  n/a   
@@ -1239,7 +1239,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
                cg_inputs.HB/gr_30_30                 n/a   
                 cg_inputs.HB/lap_25                  n/a   
                  cg_inputs.HB/nos4                   n/a   
-            cg_inputs.HB/orani678__rhs1            2.44±0s 
+            cg_inputs.HB/orani678__rhs1            2.51±0s 
             cg_inputs.HB/orani678__rhs10             n/a   
             cg_inputs.HB/orani678__rhs11             n/a   
             cg_inputs.HB/orani678__rhs12             n/a   
@@ -1247,7 +1247,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
             cg_inputs.HB/orani678__rhs15             n/a   
             cg_inputs.HB/orani678__rhs16             n/a   
             cg_inputs.HB/orani678__rhs17             n/a   
-            cg_inputs.HB/orani678__rhs18           2.58±0s 
+            cg_inputs.HB/orani678__rhs18           2.49±0s 
             cg_inputs.HB/orani678__rhs19             n/a   
             cg_inputs.HB/orani678__rhs2              n/a   
             cg_inputs.HB/orani678__rhs3              n/a   
@@ -1255,7 +1255,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
             cg_inputs.HB/orani678__rhs5              n/a   
             cg_inputs.HB/orani678__rhs6              n/a   
             cg_inputs.HB/orani678__rhs62             n/a   
-            cg_inputs.HB/orani678__rhs7            4.12±0s 
+            cg_inputs.HB/orani678__rhs7            4.23±0s 
             cg_inputs.HB/orani678__rhs8              n/a   
                 cg_inputs.HB/watt_1                  n/a   
                 cg_inputs.HB/watt_2                  n/a   
@@ -1263,7 +1263,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
                   cg_inputs.MKS/fp                   n/a   
               cg_inputs.MathWorks/Muu                n/a   
            cg_inputs.MathWorks/tomography            n/a   
-         cg_inputs.MaxPlanck/shallow_water1        2.69±0s 
+         cg_inputs.MaxPlanck/shallow_water1        2.78±0s 
          cg_inputs.MaxPlanck/shallow_water2          n/a   
              cg_inputs.Mulvey/finan512               n/a   
            cg_inputs.Nasa/nasa2146__rhs0             n/a   
@@ -1271,7 +1271,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
              cg_inputs.Nemeth/nemeth03               n/a   
              cg_inputs.Nemeth/nemeth04               n/a   
              cg_inputs.Nemeth/nemeth05               n/a   
-             cg_inputs.Nemeth/nemeth06             2.55±0s 
+             cg_inputs.Nemeth/nemeth06             2.61±0s 
              cg_inputs.Nemeth/nemeth07               n/a   
              cg_inputs.Nemeth/nemeth08               n/a   
              cg_inputs.Nemeth/nemeth09               n/a   
@@ -1279,7 +1279,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
              cg_inputs.Nemeth/nemeth11               n/a   
              cg_inputs.Nemeth/nemeth12               n/a   
              cg_inputs.Nemeth/nemeth13               n/a   
-             cg_inputs.Nemeth/nemeth16             3.87±0s 
+             cg_inputs.Nemeth/nemeth16             3.97±0s 
              cg_inputs.Nemeth/nemeth17               n/a   
              cg_inputs.Nemeth/nemeth18               n/a   
              cg_inputs.Nemeth/nemeth19               n/a   
@@ -1287,7 +1287,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
              cg_inputs.Nemeth/nemeth21               n/a   
              cg_inputs.Nemeth/nemeth22               n/a   
              cg_inputs.Nemeth/nemeth23               n/a   
-             cg_inputs.Nemeth/nemeth24             2.83±0s 
+             cg_inputs.Nemeth/nemeth24             2.92±0s 
              cg_inputs.Nemeth/nemeth25               n/a   
              cg_inputs.Nemeth/nemeth26               n/a   
                 cg_inputs.Norris/fv1                 n/a   
@@ -1295,7 +1295,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
              cg_inputs.Oberwolfach/LF10              n/a   
             cg_inputs.Oberwolfach/LFAT5              n/a   
                 cg_inputs.PARSEC/Si2                 n/a   
-              cg_inputs.Pothen/mesh1e1             2.43±0s 
+              cg_inputs.Pothen/mesh1e1             2.50±0s 
              cg_inputs.Pothen/mesh1em1               n/a   
              cg_inputs.Pothen/mesh1em6               n/a   
               cg_inputs.Pothen/mesh2e1               n/a   
@@ -1303,7 +1303,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
               cg_inputs.Pothen/mesh3e1               n/a   
              cg_inputs.Pothen/mesh3em5               n/a   
               cg_inputs.Pothen/sphere2               n/a   
-            cg_inputs.Precima/analytics            4.58±0s 
+            cg_inputs.Precima/analytics            4.63±0s 
              cg_inputs.Sandia/ASIC_100k              n/a   
             cg_inputs.Sandia/ASIC_100ks              n/a   
             cg_inputs.Sandia/ASIC_320ks              n/a   
@@ -1311,7 +1311,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
            cg_inputs.Sandia/adder_dcop_62            n/a   
            cg_inputs.Sandia/adder_dcop_63            n/a   
            cg_inputs.Sandia/adder_dcop_64            n/a   
-           cg_inputs.Sandia/adder_dcop_65          2.55±0s 
+           cg_inputs.Sandia/adder_dcop_65          2.63±0s 
            cg_inputs.Sandia/adder_dcop_66            n/a   
            cg_inputs.Sandia/adder_dcop_67            n/a   
            cg_inputs.Sandia/adder_dcop_68            n/a   
@@ -1323,7 +1323,7 @@ INFO:root:cg.CGBenchmark.time_cg_solver
          cg_inputs.VDOL/hangGlider_1__rhs0           n/a   
     cg_inputs.VDOL/tumorAntiAngiogenesis_1__rhs0     n/a   
     cg_inputs.VDOL/tumorAntiAngiogenesis_2__rhs0     n/a   
-                 cg_inputs.VLSI/ss1                3.31±0s 
+                 cg_inputs.VLSI/ss1                3.41±0s 
    ============================================== =========
 ERROR:root:For parameters: cg_inputs.Andrews/Andrews
 INFO root: Dataset suitesparse_matrix.Andrews/Andrews found in cache.
@@ -1451,7 +1451,7 @@ INFO:root:cp_als.CP_ALS_4D.time_cp_als_4d
 ------------------------------------------------ ---------
     cp_factorizable.cp_factorizeable_4d_tiny        n/a   
    cp_factorizable.cp_factorizeable_4d_small        n/a   
-        cp_frostt_inputs.cp4_frostt_toy           4.29±0s 
+        cp_frostt_inputs.cp4_frostt_toy           4.08±0s 
         cp_frostt_inputs.cp4_frostt_nips            n/a   
     cp_frostt_inputs.cp4_frostt_uber_pickups        n/a   
  cp_frostt_inputs.cp4_frostt_chicago_crime_comm     n/a   
@@ -1465,7 +1465,7 @@ INFO:root:cp_als.CP_ALS_4D.time_cp_als_4d
    ------------------------------------------------ ---------
        cp_factorizable.cp_factorizeable_4d_tiny        n/a   
       cp_factorizable.cp_factorizeable_4d_small        n/a   
-           cp_frostt_inputs.cp4_frostt_toy           4.29±0s 
+           cp_frostt_inputs.cp4_frostt_toy           4.08±0s 
            cp_frostt_inputs.cp4_frostt_nips            n/a   
        cp_frostt_inputs.cp4_frostt_uber_pickups        n/a   
     cp_frostt_inputs.cp4_frostt_chicago_crime_comm     n/a   
@@ -1489,7 +1489,7 @@ INFO:root:dae.SlicotDAEBDF.time_slicot_dae_bdf
        slicot_dae_inputs.heat-disc            n/a   
          slicot_dae_inputs.MNA_1              n/a   
          slicot_dae_inputs.MNA_2              n/a   
-         slicot_dae_inputs.MNA_3            5.07±0s 
+         slicot_dae_inputs.MNA_3            5.15±0s 
          slicot_dae_inputs.MNA_4              n/a   
          slicot_dae_inputs.MNA_5              n/a   
 ========================================== =========
@@ -1503,7 +1503,7 @@ INFO:root:dae.SlicotDAEBDF.time_slicot_dae_bdf
           slicot_dae_inputs.heat-disc            n/a   
             slicot_dae_inputs.MNA_1              n/a   
             slicot_dae_inputs.MNA_2              n/a   
-            slicot_dae_inputs.MNA_3            5.07±0s 
+            slicot_dae_inputs.MNA_3            5.15±0s 
             slicot_dae_inputs.MNA_4              n/a   
             slicot_dae_inputs.MNA_5              n/a   
    ========================================== =========
@@ -1516,7 +1516,7 @@ INFO:root:jacobi.JacobiBenchmark.time_jacobi_solver
        jacobi_test_inputs.test_4x4            n/a   
    jacobi_test_inputs.test_3x3_dominant       n/a   
       jacobi_inputs.Andrews/Andrews           n/a   
-         jacobi_inputs.Bai/cdde2            6.08±0s 
+         jacobi_inputs.Bai/cdde2            6.14±0s 
          jacobi_inputs.Bai/cdde4              n/a   
          jacobi_inputs.Bai/cdde6              n/a   
          jacobi_inputs.Bai/dw256B             n/a   
@@ -1524,7 +1524,7 @@ INFO:root:jacobi.JacobiBenchmark.time_jacobi_solver
          jacobi_inputs.Bai/pde900             n/a   
    jacobi_inputs.Bindel/ted_B_unscaled        n/a   
       jacobi_inputs.Boeing/bcsstm39           n/a   
- jacobi_inputs.Bourchtein/atmosmodd__rhs1   10.7±0s 
+ jacobi_inputs.Bourchtein/atmosmodd__rhs1   11.8±0s 
  jacobi_inputs.Bourchtein/atmosmodj__rhs1     n/a   
  jacobi_inputs.Bourchtein/atmosmodl__rhs1     n/a   
  jacobi_inputs.Bourchtein/atmosmodm__rhs1     n/a   
@@ -1535,7 +1535,7 @@ INFO:root:jacobi.JacobiBenchmark.time_jacobi_solver
      jacobi_inputs.GHS_psdef/minsurfo         n/a   
      jacobi_inputs.GHS_psdef/obstclae         n/a   
       jacobi_inputs.Grund/poli__rhs0          n/a   
-        jacobi_inputs.Grund/poli3           6.05±0s 
+        jacobi_inputs.Grund/poli3           6.11±0s 
         jacobi_inputs.Grund/poli4             n/a   
       jacobi_inputs.Grund/poli_large          n/a   
          jacobi_inputs.HB/arc130              n/a   
@@ -1543,7 +1543,7 @@ INFO:root:jacobi.JacobiBenchmark.time_jacobi_solver
         jacobi_inputs.HB/bcsstm05             n/a   
         jacobi_inputs.HB/bcsstm06             n/a   
         jacobi_inputs.HB/bcsstm08             n/a   
-        jacobi_inputs.HB/bcsstm09           5.95±0s 
+        jacobi_inputs.HB/bcsstm09           6.00±0s 
         jacobi_inputs.HB/bcsstm11             n/a   
         jacobi_inputs.HB/bcsstm19             n/a   
         jacobi_inputs.HB/bcsstm20             n/a   
@@ -1551,7 +1551,7 @@ INFO:root:jacobi.JacobiBenchmark.time_jacobi_solver
         jacobi_inputs.HB/bcsstm22             n/a   
         jacobi_inputs.HB/bcsstm23             n/a   
         jacobi_inputs.HB/bcsstm24             n/a   
-        jacobi_inputs.HB/bcsstm25           5.97±0s 
+        jacobi_inputs.HB/bcsstm25           6.00±0s 
         jacobi_inputs.HB/bcsstm26             n/a   
         jacobi_inputs.HB/fs_183_1             n/a   
         jacobi_inputs.HB/fs_183_3             n/a   
@@ -1559,7 +1559,7 @@ INFO:root:jacobi.JacobiBenchmark.time_jacobi_solver
         jacobi_inputs.HB/fs_183_6             n/a   
         jacobi_inputs.HB/fs_541_1             n/a   
         jacobi_inputs.HB/fs_680_1             n/a   
-        jacobi_inputs.HB/fs_680_2           6.72±0s 
+        jacobi_inputs.HB/fs_680_2           6.68±0s 
         jacobi_inputs.HB/fs_760_1             n/a   
         jacobi_inputs.HB/gr_30_30             n/a   
         jacobi_inputs.HB/jpwh_991             n/a   
@@ -1567,7 +1567,7 @@ INFO:root:jacobi.JacobiBenchmark.time_jacobi_solver
          jacobi_inputs.HB/watt_1              n/a   
       jacobi_inputs.Hamm/add32__rhs0          n/a   
     jacobi_inputs.MathWorks/tomography        n/a   
-  jacobi_inputs.MaxPlanck/shallow_water1    6.36±0s 
+  jacobi_inputs.MaxPlanck/shallow_water1    6.39±0s 
   jacobi_inputs.MaxPlanck/shallow_water2      n/a   
       jacobi_inputs.Mulvey/finan512           n/a   
     jacobi_inputs.Nasa/nasa2146__rhs0         n/a   
@@ -1575,7 +1575,7 @@ INFO:root:jacobi.JacobiBenchmark.time_jacobi_solver
       jacobi_inputs.Nemeth/nemeth03           n/a   
       jacobi_inputs.Nemeth/nemeth04           n/a   
       jacobi_inputs.Nemeth/nemeth05           n/a   
-      jacobi_inputs.Nemeth/nemeth06         6.10±0s 
+      jacobi_inputs.Nemeth/nemeth06         6.18±0s 
       jacobi_inputs.Nemeth/nemeth07           n/a   
       jacobi_inputs.Nemeth/nemeth08           n/a   
       jacobi_inputs.Nemeth/nemeth09           n/a   
@@ -1583,7 +1583,7 @@ INFO:root:jacobi.JacobiBenchmark.time_jacobi_solver
       jacobi_inputs.Nemeth/nemeth11           n/a   
       jacobi_inputs.Nemeth/nemeth12           n/a   
       jacobi_inputs.Nemeth/nemeth13           n/a   
-         jacobi_inputs.Norris/fv1           6.24±0s 
+         jacobi_inputs.Norris/fv1           6.32±0s 
          jacobi_inputs.Norris/fv2             n/a   
        jacobi_inputs.Norris/torso2            n/a   
        jacobi_inputs.Pothen/mesh1e1           n/a   
@@ -1591,7 +1591,7 @@ INFO:root:jacobi.JacobiBenchmark.time_jacobi_solver
       jacobi_inputs.Pothen/mesh1em6           n/a   
        jacobi_inputs.Pothen/mesh2e1           n/a   
       jacobi_inputs.Pothen/mesh2em5           n/a   
-       jacobi_inputs.Pothen/mesh3e1         6.38±0s 
+       jacobi_inputs.Pothen/mesh3e1         6.16±0s 
       jacobi_inputs.Pothen/mesh3em5           n/a   
        jacobi_inputs.QLi/majorbasis           n/a   
     jacobi_inputs.Simon/raefsky5__rhs0        n/a   
@@ -1599,7 +1599,7 @@ INFO:root:jacobi.JacobiBenchmark.time_jacobi_solver
    jacobi_inputs.TOKAMAK/utm1700b__rhs0       n/a   
    jacobi_inputs.TOKAMAK/utm3060__rhs0        n/a   
           jacobi_inputs.VLSI/ss1              n/a   
-        jacobi_inputs.Wang/swang1           7.99±0s 
+        jacobi_inputs.Wang/swang1           8.24±0s 
         jacobi_inputs.Wang/swang2             n/a   
 ========================================== =========
 
@@ -1610,7 +1610,7 @@ INFO:root:jacobi.JacobiBenchmark.time_jacobi_solver
           jacobi_test_inputs.test_4x4            n/a   
       jacobi_test_inputs.test_3x3_dominant       n/a   
          jacobi_inputs.Andrews/Andrews           n/a   
-            jacobi_inputs.Bai/cdde2            6.08±0s 
+            jacobi_inputs.Bai/cdde2            6.14±0s 
             jacobi_inputs.Bai/cdde4              n/a   
             jacobi_inputs.Bai/cdde6              n/a   
             jacobi_inputs.Bai/dw256B             n/a   
@@ -1618,7 +1618,7 @@ INFO:root:jacobi.JacobiBenchmark.time_jacobi_solver
             jacobi_inputs.Bai/pde900             n/a   
       jacobi_inputs.Bindel/ted_B_unscaled        n/a   
          jacobi_inputs.Boeing/bcsstm39           n/a   
-    jacobi_inputs.Bourchtein/atmosmodd__rhs1   10.7±0s 
+    jacobi_inputs.Bourchtein/atmosmodd__rhs1   11.8±0s 
     jacobi_inputs.Bourchtein/atmosmodj__rhs1     n/a   
     jacobi_inputs.Bourchtein/atmosmodl__rhs1     n/a   
     jacobi_inputs.Bourchtein/atmosmodm__rhs1     n/a   
@@ -1629,7 +1629,7 @@ INFO:root:jacobi.JacobiBenchmark.time_jacobi_solver
         jacobi_inputs.GHS_psdef/minsurfo         n/a   
         jacobi_inputs.GHS_psdef/obstclae         n/a   
          jacobi_inputs.Grund/poli__rhs0          n/a   
-           jacobi_inputs.Grund/poli3           6.05±0s 
+           jacobi_inputs.Grund/poli3           6.11±0s 
            jacobi_inputs.Grund/poli4             n/a   
          jacobi_inputs.Grund/poli_large          n/a   
             jacobi_inputs.HB/arc130              n/a   
@@ -1637,7 +1637,7 @@ INFO:root:jacobi.JacobiBenchmark.time_jacobi_solver
            jacobi_inputs.HB/bcsstm05             n/a   
            jacobi_inputs.HB/bcsstm06             n/a   
            jacobi_inputs.HB/bcsstm08             n/a   
-           jacobi_inputs.HB/bcsstm09           5.95±0s 
+           jacobi_inputs.HB/bcsstm09           6.00±0s 
            jacobi_inputs.HB/bcsstm11             n/a   
            jacobi_inputs.HB/bcsstm19             n/a   
            jacobi_inputs.HB/bcsstm20             n/a   
@@ -1645,7 +1645,7 @@ INFO:root:jacobi.JacobiBenchmark.time_jacobi_solver
            jacobi_inputs.HB/bcsstm22             n/a   
            jacobi_inputs.HB/bcsstm23             n/a   
            jacobi_inputs.HB/bcsstm24             n/a   
-           jacobi_inputs.HB/bcsstm25           5.97±0s 
+           jacobi_inputs.HB/bcsstm25           6.00±0s 
            jacobi_inputs.HB/bcsstm26             n/a   
            jacobi_inputs.HB/fs_183_1             n/a   
            jacobi_inputs.HB/fs_183_3             n/a   
@@ -1653,7 +1653,7 @@ INFO:root:jacobi.JacobiBenchmark.time_jacobi_solver
            jacobi_inputs.HB/fs_183_6             n/a   
            jacobi_inputs.HB/fs_541_1             n/a   
            jacobi_inputs.HB/fs_680_1             n/a   
-           jacobi_inputs.HB/fs_680_2           6.72±0s 
+           jacobi_inputs.HB/fs_680_2           6.68±0s 
            jacobi_inputs.HB/fs_760_1             n/a   
            jacobi_inputs.HB/gr_30_30             n/a   
            jacobi_inputs.HB/jpwh_991             n/a   
@@ -1661,7 +1661,7 @@ INFO:root:jacobi.JacobiBenchmark.time_jacobi_solver
             jacobi_inputs.HB/watt_1              n/a   
          jacobi_inputs.Hamm/add32__rhs0          n/a   
        jacobi_inputs.MathWorks/tomography        n/a   
-     jacobi_inputs.MaxPlanck/shallow_water1    6.36±0s 
+     jacobi_inputs.MaxPlanck/shallow_water1    6.39±0s 
      jacobi_inputs.MaxPlanck/shallow_water2      n/a   
          jacobi_inputs.Mulvey/finan512           n/a   
        jacobi_inputs.Nasa/nasa2146__rhs0         n/a   
@@ -1669,7 +1669,7 @@ INFO:root:jacobi.JacobiBenchmark.time_jacobi_solver
          jacobi_inputs.Nemeth/nemeth03           n/a   
          jacobi_inputs.Nemeth/nemeth04           n/a   
          jacobi_inputs.Nemeth/nemeth05           n/a   
-         jacobi_inputs.Nemeth/nemeth06         6.10±0s 
+         jacobi_inputs.Nemeth/nemeth06         6.18±0s 
          jacobi_inputs.Nemeth/nemeth07           n/a   
          jacobi_inputs.Nemeth/nemeth08           n/a   
          jacobi_inputs.Nemeth/nemeth09           n/a   
@@ -1677,7 +1677,7 @@ INFO:root:jacobi.JacobiBenchmark.time_jacobi_solver
          jacobi_inputs.Nemeth/nemeth11           n/a   
          jacobi_inputs.Nemeth/nemeth12           n/a   
          jacobi_inputs.Nemeth/nemeth13           n/a   
-            jacobi_inputs.Norris/fv1           6.24±0s 
+            jacobi_inputs.Norris/fv1           6.32±0s 
             jacobi_inputs.Norris/fv2             n/a   
           jacobi_inputs.Norris/torso2            n/a   
           jacobi_inputs.Pothen/mesh1e1           n/a   
@@ -1685,7 +1685,7 @@ INFO:root:jacobi.JacobiBenchmark.time_jacobi_solver
          jacobi_inputs.Pothen/mesh1em6           n/a   
           jacobi_inputs.Pothen/mesh2e1           n/a   
          jacobi_inputs.Pothen/mesh2em5           n/a   
-          jacobi_inputs.Pothen/mesh3e1         6.38±0s 
+          jacobi_inputs.Pothen/mesh3e1         6.16±0s 
          jacobi_inputs.Pothen/mesh3em5           n/a   
           jacobi_inputs.QLi/majorbasis           n/a   
        jacobi_inputs.Simon/raefsky5__rhs0        n/a   
@@ -1693,7 +1693,7 @@ INFO:root:jacobi.JacobiBenchmark.time_jacobi_solver
       jacobi_inputs.TOKAMAK/utm1700b__rhs0       n/a   
       jacobi_inputs.TOKAMAK/utm3060__rhs0        n/a   
              jacobi_inputs.VLSI/ss1              n/a   
-           jacobi_inputs.Wang/swang1           7.99±0s 
+           jacobi_inputs.Wang/swang1           8.24±0s 
            jacobi_inputs.Wang/swang2             n/a   
    ========================================== =========
 ERROR:root:For parameters: jacobi_inputs.Bai/cdde2
@@ -1778,7 +1778,7 @@ INFO:root:lsqr.LSQRBenchmark.time_lsqr
             lsqr_inputs.ANSYS/Delor338K                n/a   
                lsqr_inputs.HB/ash219                   n/a   
                lsqr_inputs.HB/ash331                   n/a   
-               lsqr_inputs.HB/ash608                 2.44±0s 
+               lsqr_inputs.HB/ash608                 2.48±0s 
                 lsqr_inputs.HB/ash85                   n/a   
                lsqr_inputs.HB/ash958                   n/a   
           lsqr_inputs.NYPA/Maragal_1__rhs0             n/a   
@@ -1804,7 +1804,7 @@ INFO:root:lsqr.LSQRBenchmark.time_lsqr
                lsqr_inputs.ANSYS/Delor338K                n/a   
                   lsqr_inputs.HB/ash219                   n/a   
                   lsqr_inputs.HB/ash331                   n/a   
-                  lsqr_inputs.HB/ash608                 2.44±0s 
+                  lsqr_inputs.HB/ash608                 2.48±0s 
                    lsqr_inputs.HB/ash85                   n/a   
                   lsqr_inputs.HB/ash958                   n/a   
              lsqr_inputs.NYPA/Maragal_1__rhs0             n/a   
@@ -1835,7 +1835,7 @@ INFO:root:...delCounting.time_Model Counting using einsum
  mccomp_mc.track1_mc_random_mc_5      n/a   
  mccomp_mc.track1_mc_random_mc_6      n/a   
  mccomp_mc.track1_mc_random_mc_7      n/a   
- mccomp_mc.track1_mc_random_mc_8    792±0ms 
+ mccomp_mc.track1_mc_random_mc_8    813±0ms 
  mccomp_mc.track1_mc_random_mc_9      n/a   
  mccomp_mc.track1_mc_random_mc_10     n/a   
 ================================== =========
@@ -1854,7 +1854,7 @@ INFO:root:...delCounting.time_Model Counting using einsum
     mccomp_mc.track1_mc_random_mc_5      n/a   
     mccomp_mc.track1_mc_random_mc_6      n/a   
     mccomp_mc.track1_mc_random_mc_7      n/a   
-    mccomp_mc.track1_mc_random_mc_8    792±0ms 
+    mccomp_mc.track1_mc_random_mc_8    813±0ms 
     mccomp_mc.track1_mc_random_mc_9      n/a   
     mccomp_mc.track1_mc_random_mc_10     n/a   
    ================================== =========
@@ -1871,7 +1871,7 @@ INFO:root:....MaskedMRIEdgeBenchmark.time_masked_mri_edge
           masked_mri_test_inputs.test_masked_mri_zero_image              n/a   
            masked_mri_test_inputs.test_masked_mri_basic_roi              n/a   
  masked_mri_test_inputs.test_masked_mri_generator_builds_default_roi     n/a   
-                    masked_mri_inputs.masked_mri_1                     958±0ms 
+                    masked_mri_inputs.masked_mri_1                     865±0ms 
                     masked_mri_inputs.masked_mri_2                       n/a   
                     masked_mri_inputs.masked_mri_3                       n/a   
                     masked_mri_inputs.masked_mri_4                       n/a   
@@ -1883,7 +1883,7 @@ INFO:root:....MaskedMRIEdgeBenchmark.time_masked_mri_edge
              masked_mri_test_inputs.test_masked_mri_zero_image              n/a   
               masked_mri_test_inputs.test_masked_mri_basic_roi              n/a   
     masked_mri_test_inputs.test_masked_mri_generator_builds_default_roi     n/a   
-                       masked_mri_inputs.masked_mri_1                     958±0ms 
+                       masked_mri_inputs.masked_mri_1                     865±0ms 
                        masked_mri_inputs.masked_mri_2                       n/a   
                        masked_mri_inputs.masked_mri_3                       n/a   
                        masked_mri_inputs.masked_mri_4                       n/a   
@@ -1907,7 +1907,7 @@ INFO:root:ode.BackwardEuler.time_backward_euler
       slicot_ode.slicot_cdplayer         n/a   
         slicot_ode.slicot_fom            n/a   
        slicot_ode.slicot_random          n/a   
-        slicot_ode.slicot_pde          48.8±0s 
+        slicot_ode.slicot_pde          48.6±0s 
      slicot_ode.slicot_heat_cont         n/a   
       slicot_ode.slicot_orr_som          n/a   
         slicot_ode.slicot_iss            n/a   
@@ -1927,7 +1927,7 @@ INFO:root:ode.BackwardEuler.time_backward_euler
          slicot_ode.slicot_cdplayer         n/a   
            slicot_ode.slicot_fom            n/a   
           slicot_ode.slicot_random          n/a   
-           slicot_ode.slicot_pde          48.8±0s 
+           slicot_ode.slicot_pde          48.6±0s 
         slicot_ode.slicot_heat_cont         n/a   
          slicot_ode.slicot_orr_som          n/a   
            slicot_ode.slicot_iss            n/a   
@@ -1957,7 +1957,7 @@ INFO:root:ode.ForwardEuler.time_forward_euler
      slicot_ode.slicot_heat_cont         n/a   
       slicot_ode.slicot_orr_som          n/a   
         slicot_ode.slicot_iss            n/a   
-       slicot_ode.slicot_build         4.89±0s 
+       slicot_ode.slicot_build         5.06±0s 
         slicot_ode.slicot_beam           n/a   
 ===================================== =========
 
@@ -1977,7 +1977,7 @@ INFO:root:ode.ForwardEuler.time_forward_euler
         slicot_ode.slicot_heat_cont         n/a   
          slicot_ode.slicot_orr_som          n/a   
            slicot_ode.slicot_iss            n/a   
-          slicot_ode.slicot_build         4.89±0s 
+          slicot_ode.slicot_build         5.06±0s 
            slicot_ode.slicot_beam           n/a   
    ===================================== =========
 ERROR:root:For parameters: slicot_ode.slicot_build
@@ -1998,7 +1998,7 @@ INFO:root:ode.RungeKutta.time_runge_kutta
         slicot_ode.slicot_eady           n/a   
       slicot_ode.slicot_cdplayer         n/a   
         slicot_ode.slicot_fom            n/a   
-       slicot_ode.slicot_random        11.9±0s 
+       slicot_ode.slicot_random        12.2±0s 
         slicot_ode.slicot_pde            n/a   
      slicot_ode.slicot_heat_cont         n/a   
       slicot_ode.slicot_orr_som          n/a   
@@ -2018,7 +2018,7 @@ INFO:root:ode.RungeKutta.time_runge_kutta
            slicot_ode.slicot_eady           n/a   
          slicot_ode.slicot_cdplayer         n/a   
            slicot_ode.slicot_fom            n/a   
-          slicot_ode.slicot_random        11.9±0s 
+          slicot_ode.slicot_random        12.2±0s 
            slicot_ode.slicot_pde            n/a   
         slicot_ode.slicot_heat_cont         n/a   
          slicot_ode.slicot_orr_som          n/a   
@@ -2041,7 +2041,7 @@ INFO:root:...e_sim.ParticleSimBenchmark.time_particle_sim
           particle_sim_test_inputs.test_particle_sim_random_10              n/a   
           particle_sim_test_inputs.test_particle_sim_random_50              n/a   
         synthetic_berkeley_cs267_particle.cs267_hw2_n1000_seed1             n/a   
-                     ewap_particle_sim.ewap_seq_eth                       13.6±0s 
+                     ewap_particle_sim.ewap_seq_eth                       14.0±0s 
                     ewap_particle_sim.ewap_seq_hotel                        n/a   
                      particle_sim.nemo_plummer_128                          n/a   
                      particle_sim.nemo_plummer_1024                         n/a   
@@ -2056,7 +2056,7 @@ INFO:root:...e_sim.ParticleSimBenchmark.time_particle_sim
              particle_sim_test_inputs.test_particle_sim_random_10              n/a   
              particle_sim_test_inputs.test_particle_sim_random_50              n/a   
            synthetic_berkeley_cs267_particle.cs267_hw2_n1000_seed1             n/a   
-                        ewap_particle_sim.ewap_seq_eth                       13.6±0s 
+                        ewap_particle_sim.ewap_seq_eth                       14.0±0s 
                        ewap_particle_sim.ewap_seq_hotel                        n/a   
                         particle_sim.nemo_plummer_128                          n/a   
                         particle_sim.nemo_plummer_1024                         n/a   
@@ -2080,7 +2080,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
           jacobi_cg_inputs.Andrianov/net150              n/a   
            jacobi_cg_inputs.Andrianov/net25              n/a   
            jacobi_cg_inputs.Andrianov/net50              n/a   
-           jacobi_cg_inputs.Andrianov/net75            6.46±0s 
+           jacobi_cg_inputs.Andrianov/net75            6.90±0s 
              jacobi_cg_inputs.Bai/bfwb398                n/a   
              jacobi_cg_inputs.Bai/bfwb62                 n/a   
              jacobi_cg_inputs.Bai/bfwb782                n/a   
@@ -2088,7 +2088,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
              jacobi_cg_inputs.Bai/dwb512                 n/a   
             jacobi_cg_inputs.Bai/mhd3200b                n/a   
             jacobi_cg_inputs.Bai/mhd4800b                n/a   
-             jacobi_cg_inputs.Bai/mhdb416              2.45±0s 
+             jacobi_cg_inputs.Bai/mhdb416              2.54±0s 
             jacobi_cg_inputs.Bindel/ted_B                n/a   
         jacobi_cg_inputs.Bindel/ted_B_unscaled           n/a   
            jacobi_cg_inputs.Boeing/bcsstk34              n/a   
@@ -2096,7 +2096,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
            jacobi_cg_inputs.Boeing/crystm01              n/a   
            jacobi_cg_inputs.Boeing/crystm02              n/a   
            jacobi_cg_inputs.Boeing/crystm03              n/a   
-           jacobi_cg_inputs.Boeing/msc00726            2.65±0s 
+           jacobi_cg_inputs.Boeing/msc00726            2.71±0s 
       jacobi_cg_inputs.Botonakis/FEM_3D_thermal1         n/a   
       jacobi_cg_inputs.Botonakis/FEM_3D_thermal2         n/a   
        jacobi_cg_inputs.Botonakis/thermomech_TC          n/a   
@@ -2104,7 +2104,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
      jacobi_cg_inputs.Bourchtein/atmosmodd__rhs1         n/a   
      jacobi_cg_inputs.Bourchtein/atmosmodj__rhs1         n/a   
      jacobi_cg_inputs.Bourchtein/atmosmodl__rhs1         n/a   
-     jacobi_cg_inputs.Bourchtein/atmosmodm__rhs1       19.5±0s 
+     jacobi_cg_inputs.Bourchtein/atmosmodm__rhs1       19.6±0s 
          jacobi_cg_inputs.Brunetiere/thermal             n/a   
           jacobi_cg_inputs.Cunningham/qa8fm              n/a   
        jacobi_cg_inputs.FEMLAB/poisson2D__rhs0           n/a   
@@ -2112,7 +2112,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
              jacobi_cg_inputs.FIDAP/ex29                 n/a   
              jacobi_cg_inputs.FIDAP/ex37                 n/a   
               jacobi_cg_inputs.FIDAP/ex5                 n/a   
-              jacobi_cg_inputs.FIDAP/ex7               2.64±0s 
+              jacobi_cg_inputs.FIDAP/ex7               2.71±0s 
        jacobi_cg_inputs.Freescale/circuit5M_dc           n/a   
          jacobi_cg_inputs.GHS_psdef/jnlbrng1             n/a   
          jacobi_cg_inputs.GHS_psdef/minsurfo             n/a   
@@ -2121,7 +2121,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
          jacobi_cg_inputs.GHS_psdef/wathen120            n/a   
           jacobi_cg_inputs.Grund/poli__rhs0              n/a   
           jacobi_cg_inputs.Guettel/TEM27623              n/a   
-             jacobi_cg_inputs.HB/bcspwr01              2.48±0s 
+             jacobi_cg_inputs.HB/bcspwr01              2.56±0s 
              jacobi_cg_inputs.HB/bcspwr02                n/a   
              jacobi_cg_inputs.HB/bcsstk01                n/a   
              jacobi_cg_inputs.HB/bcsstk02                n/a   
@@ -2129,7 +2129,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
              jacobi_cg_inputs.HB/bcsstk08                n/a   
              jacobi_cg_inputs.HB/bcsstk22                n/a   
              jacobi_cg_inputs.HB/bcsstm02                n/a   
-             jacobi_cg_inputs.HB/bcsstm05              2.43±0s 
+             jacobi_cg_inputs.HB/bcsstm05              2.52±0s 
              jacobi_cg_inputs.HB/bcsstm06                n/a   
              jacobi_cg_inputs.HB/bcsstm07                n/a   
              jacobi_cg_inputs.HB/bcsstm08                n/a   
@@ -2137,7 +2137,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
              jacobi_cg_inputs.HB/bcsstm11                n/a   
              jacobi_cg_inputs.HB/bcsstm19                n/a   
              jacobi_cg_inputs.HB/bcsstm20                n/a   
-             jacobi_cg_inputs.HB/bcsstm21              2.43±0s 
+             jacobi_cg_inputs.HB/bcsstm21              2.52±0s 
              jacobi_cg_inputs.HB/bcsstm22                n/a   
              jacobi_cg_inputs.HB/bcsstm23                n/a   
              jacobi_cg_inputs.HB/bcsstm24                n/a   
@@ -2145,7 +2145,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
              jacobi_cg_inputs.HB/bcsstm26                n/a   
              jacobi_cg_inputs.HB/can_144                 n/a   
               jacobi_cg_inputs.HB/can_24                 n/a   
-              jacobi_cg_inputs.HB/can_61               2.50±0s 
+              jacobi_cg_inputs.HB/can_61               2.59±0s 
               jacobi_cg_inputs.HB/can_62                 n/a   
               jacobi_cg_inputs.HB/can_73                 n/a   
               jacobi_cg_inputs.HB/can_96                 n/a   
@@ -2153,7 +2153,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
               jacobi_cg_inputs.HB/dwt_66                 n/a   
               jacobi_cg_inputs.HB/dwt_72                 n/a   
              jacobi_cg_inputs.HB/fs_541_1                n/a   
-             jacobi_cg_inputs.HB/gr_30_30              2.87±0s 
+             jacobi_cg_inputs.HB/gr_30_30              2.93±0s 
              jacobi_cg_inputs.HB/jpwh_991                n/a   
               jacobi_cg_inputs.HB/lap_25                 n/a   
               jacobi_cg_inputs.HB/lund_a                 n/a   
@@ -2161,7 +2161,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
                jacobi_cg_inputs.HB/nos4                  n/a   
                jacobi_cg_inputs.HB/nos6                  n/a   
                jacobi_cg_inputs.HB/nos7                  n/a   
-          jacobi_cg_inputs.HB/orani678__rhs1           2.46±0s 
+          jacobi_cg_inputs.HB/orani678__rhs1           2.54±0s 
          jacobi_cg_inputs.HB/orani678__rhs10             n/a   
          jacobi_cg_inputs.HB/orani678__rhs11             n/a   
          jacobi_cg_inputs.HB/orani678__rhs12             n/a   
@@ -2169,7 +2169,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
          jacobi_cg_inputs.HB/orani678__rhs15             n/a   
          jacobi_cg_inputs.HB/orani678__rhs16             n/a   
          jacobi_cg_inputs.HB/orani678__rhs17             n/a   
-         jacobi_cg_inputs.HB/orani678__rhs18           2.44±0s 
+         jacobi_cg_inputs.HB/orani678__rhs18           2.52±0s 
          jacobi_cg_inputs.HB/orani678__rhs19             n/a   
           jacobi_cg_inputs.HB/orani678__rhs2             n/a   
           jacobi_cg_inputs.HB/orani678__rhs3             n/a   
@@ -2177,7 +2177,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
           jacobi_cg_inputs.HB/orani678__rhs5             n/a   
           jacobi_cg_inputs.HB/orani678__rhs6             n/a   
          jacobi_cg_inputs.HB/orani678__rhs62             n/a   
-          jacobi_cg_inputs.HB/orani678__rhs7           2.44±0s 
+          jacobi_cg_inputs.HB/orani678__rhs7           2.50±0s 
           jacobi_cg_inputs.HB/orani678__rhs8             n/a   
               jacobi_cg_inputs.HB/watt_1                 n/a   
           jacobi_cg_inputs.Hamm/add32__rhs0              n/a   
@@ -2185,7 +2185,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
             jacobi_cg_inputs.MathWorks/Muu               n/a   
         jacobi_cg_inputs.MathWorks/tomography            n/a   
       jacobi_cg_inputs.MaxPlanck/shallow_water1          n/a   
-      jacobi_cg_inputs.MaxPlanck/shallow_water2        3.25±0s 
+      jacobi_cg_inputs.MaxPlanck/shallow_water2        3.33±0s 
            jacobi_cg_inputs.Mulvey/finan512              n/a   
          jacobi_cg_inputs.Nasa/nasa2146__rhs0            n/a   
            jacobi_cg_inputs.Nemeth/nemeth02              n/a   
@@ -2193,7 +2193,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
            jacobi_cg_inputs.Nemeth/nemeth04              n/a   
            jacobi_cg_inputs.Nemeth/nemeth05              n/a   
            jacobi_cg_inputs.Nemeth/nemeth06              n/a   
-           jacobi_cg_inputs.Nemeth/nemeth07            2.55±0s 
+           jacobi_cg_inputs.Nemeth/nemeth07            2.61±0s 
            jacobi_cg_inputs.Nemeth/nemeth08              n/a   
            jacobi_cg_inputs.Nemeth/nemeth09              n/a   
            jacobi_cg_inputs.Nemeth/nemeth10              n/a   
@@ -2201,7 +2201,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
            jacobi_cg_inputs.Nemeth/nemeth12              n/a   
            jacobi_cg_inputs.Nemeth/nemeth13              n/a   
            jacobi_cg_inputs.Nemeth/nemeth16              n/a   
-           jacobi_cg_inputs.Nemeth/nemeth17            5.77±0s 
+           jacobi_cg_inputs.Nemeth/nemeth17            5.88±0s 
              jacobi_cg_inputs.Norris/fv1                 n/a   
              jacobi_cg_inputs.Norris/fv2                 n/a   
           jacobi_cg_inputs.Oberwolfach/LF10              n/a   
@@ -2209,7 +2209,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
              jacobi_cg_inputs.PARSEC/Si2                 n/a   
             jacobi_cg_inputs.Pothen/bodyy4               n/a   
            jacobi_cg_inputs.Pothen/mesh1e1               n/a   
-           jacobi_cg_inputs.Pothen/mesh1em1            2.45±0s 
+           jacobi_cg_inputs.Pothen/mesh1em1            2.53±0s 
            jacobi_cg_inputs.Pothen/mesh1em6              n/a   
            jacobi_cg_inputs.Pothen/mesh2e1               n/a   
            jacobi_cg_inputs.Pothen/mesh2em5              n/a   
@@ -2217,7 +2217,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
            jacobi_cg_inputs.Pothen/mesh3em5              n/a   
            jacobi_cg_inputs.Pothen/sphere2               n/a   
           jacobi_cg_inputs.Sandia/ASIC_100ks             n/a   
-          jacobi_cg_inputs.Sandia/ASIC_320ks           2.78±0s 
+          jacobi_cg_inputs.Sandia/ASIC_320ks           2.89±0s 
           jacobi_cg_inputs.Sandia/ASIC_680ks             n/a   
      jacobi_cg_inputs.Schenk_AFE/af_shell3__rhs0         n/a   
      jacobi_cg_inputs.Schenk_AFE/af_shell4__rhs0         n/a   
@@ -2246,7 +2246,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
              jacobi_cg_inputs.Andrianov/net150              n/a   
               jacobi_cg_inputs.Andrianov/net25              n/a   
               jacobi_cg_inputs.Andrianov/net50              n/a   
-              jacobi_cg_inputs.Andrianov/net75            6.46±0s 
+              jacobi_cg_inputs.Andrianov/net75            6.90±0s 
                 jacobi_cg_inputs.Bai/bfwb398                n/a   
                 jacobi_cg_inputs.Bai/bfwb62                 n/a   
                 jacobi_cg_inputs.Bai/bfwb782                n/a   
@@ -2254,7 +2254,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
                 jacobi_cg_inputs.Bai/dwb512                 n/a   
                jacobi_cg_inputs.Bai/mhd3200b                n/a   
                jacobi_cg_inputs.Bai/mhd4800b                n/a   
-                jacobi_cg_inputs.Bai/mhdb416              2.45±0s 
+                jacobi_cg_inputs.Bai/mhdb416              2.54±0s 
                jacobi_cg_inputs.Bindel/ted_B                n/a   
            jacobi_cg_inputs.Bindel/ted_B_unscaled           n/a   
               jacobi_cg_inputs.Boeing/bcsstk34              n/a   
@@ -2262,7 +2262,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
               jacobi_cg_inputs.Boeing/crystm01              n/a   
               jacobi_cg_inputs.Boeing/crystm02              n/a   
               jacobi_cg_inputs.Boeing/crystm03              n/a   
-              jacobi_cg_inputs.Boeing/msc00726            2.65±0s 
+              jacobi_cg_inputs.Boeing/msc00726            2.71±0s 
          jacobi_cg_inputs.Botonakis/FEM_3D_thermal1         n/a   
          jacobi_cg_inputs.Botonakis/FEM_3D_thermal2         n/a   
           jacobi_cg_inputs.Botonakis/thermomech_TC          n/a   
@@ -2270,7 +2270,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
         jacobi_cg_inputs.Bourchtein/atmosmodd__rhs1         n/a   
         jacobi_cg_inputs.Bourchtein/atmosmodj__rhs1         n/a   
         jacobi_cg_inputs.Bourchtein/atmosmodl__rhs1         n/a   
-        jacobi_cg_inputs.Bourchtein/atmosmodm__rhs1       19.5±0s 
+        jacobi_cg_inputs.Bourchtein/atmosmodm__rhs1       19.6±0s 
             jacobi_cg_inputs.Brunetiere/thermal             n/a   
              jacobi_cg_inputs.Cunningham/qa8fm              n/a   
           jacobi_cg_inputs.FEMLAB/poisson2D__rhs0           n/a   
@@ -2278,7 +2278,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
                 jacobi_cg_inputs.FIDAP/ex29                 n/a   
                 jacobi_cg_inputs.FIDAP/ex37                 n/a   
                  jacobi_cg_inputs.FIDAP/ex5                 n/a   
-                 jacobi_cg_inputs.FIDAP/ex7               2.64±0s 
+                 jacobi_cg_inputs.FIDAP/ex7               2.71±0s 
           jacobi_cg_inputs.Freescale/circuit5M_dc           n/a   
             jacobi_cg_inputs.GHS_psdef/jnlbrng1             n/a   
             jacobi_cg_inputs.GHS_psdef/minsurfo             n/a   
@@ -2287,7 +2287,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
             jacobi_cg_inputs.GHS_psdef/wathen120            n/a   
              jacobi_cg_inputs.Grund/poli__rhs0              n/a   
              jacobi_cg_inputs.Guettel/TEM27623              n/a   
-                jacobi_cg_inputs.HB/bcspwr01              2.48±0s 
+                jacobi_cg_inputs.HB/bcspwr01              2.56±0s 
                 jacobi_cg_inputs.HB/bcspwr02                n/a   
                 jacobi_cg_inputs.HB/bcsstk01                n/a   
                 jacobi_cg_inputs.HB/bcsstk02                n/a   
@@ -2295,7 +2295,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
                 jacobi_cg_inputs.HB/bcsstk08                n/a   
                 jacobi_cg_inputs.HB/bcsstk22                n/a   
                 jacobi_cg_inputs.HB/bcsstm02                n/a   
-                jacobi_cg_inputs.HB/bcsstm05              2.43±0s 
+                jacobi_cg_inputs.HB/bcsstm05              2.52±0s 
                 jacobi_cg_inputs.HB/bcsstm06                n/a   
                 jacobi_cg_inputs.HB/bcsstm07                n/a   
                 jacobi_cg_inputs.HB/bcsstm08                n/a   
@@ -2303,7 +2303,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
                 jacobi_cg_inputs.HB/bcsstm11                n/a   
                 jacobi_cg_inputs.HB/bcsstm19                n/a   
                 jacobi_cg_inputs.HB/bcsstm20                n/a   
-                jacobi_cg_inputs.HB/bcsstm21              2.43±0s 
+                jacobi_cg_inputs.HB/bcsstm21              2.52±0s 
                 jacobi_cg_inputs.HB/bcsstm22                n/a   
                 jacobi_cg_inputs.HB/bcsstm23                n/a   
                 jacobi_cg_inputs.HB/bcsstm24                n/a   
@@ -2311,7 +2311,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
                 jacobi_cg_inputs.HB/bcsstm26                n/a   
                 jacobi_cg_inputs.HB/can_144                 n/a   
                  jacobi_cg_inputs.HB/can_24                 n/a   
-                 jacobi_cg_inputs.HB/can_61               2.50±0s 
+                 jacobi_cg_inputs.HB/can_61               2.59±0s 
                  jacobi_cg_inputs.HB/can_62                 n/a   
                  jacobi_cg_inputs.HB/can_73                 n/a   
                  jacobi_cg_inputs.HB/can_96                 n/a   
@@ -2319,7 +2319,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
                  jacobi_cg_inputs.HB/dwt_66                 n/a   
                  jacobi_cg_inputs.HB/dwt_72                 n/a   
                 jacobi_cg_inputs.HB/fs_541_1                n/a   
-                jacobi_cg_inputs.HB/gr_30_30              2.87±0s 
+                jacobi_cg_inputs.HB/gr_30_30              2.93±0s 
                 jacobi_cg_inputs.HB/jpwh_991                n/a   
                  jacobi_cg_inputs.HB/lap_25                 n/a   
                  jacobi_cg_inputs.HB/lund_a                 n/a   
@@ -2327,7 +2327,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
                   jacobi_cg_inputs.HB/nos4                  n/a   
                   jacobi_cg_inputs.HB/nos6                  n/a   
                   jacobi_cg_inputs.HB/nos7                  n/a   
-             jacobi_cg_inputs.HB/orani678__rhs1           2.46±0s 
+             jacobi_cg_inputs.HB/orani678__rhs1           2.54±0s 
             jacobi_cg_inputs.HB/orani678__rhs10             n/a   
             jacobi_cg_inputs.HB/orani678__rhs11             n/a   
             jacobi_cg_inputs.HB/orani678__rhs12             n/a   
@@ -2335,7 +2335,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
             jacobi_cg_inputs.HB/orani678__rhs15             n/a   
             jacobi_cg_inputs.HB/orani678__rhs16             n/a   
             jacobi_cg_inputs.HB/orani678__rhs17             n/a   
-            jacobi_cg_inputs.HB/orani678__rhs18           2.44±0s 
+            jacobi_cg_inputs.HB/orani678__rhs18           2.52±0s 
             jacobi_cg_inputs.HB/orani678__rhs19             n/a   
              jacobi_cg_inputs.HB/orani678__rhs2             n/a   
              jacobi_cg_inputs.HB/orani678__rhs3             n/a   
@@ -2343,7 +2343,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
              jacobi_cg_inputs.HB/orani678__rhs5             n/a   
              jacobi_cg_inputs.HB/orani678__rhs6             n/a   
             jacobi_cg_inputs.HB/orani678__rhs62             n/a   
-             jacobi_cg_inputs.HB/orani678__rhs7           2.44±0s 
+             jacobi_cg_inputs.HB/orani678__rhs7           2.50±0s 
              jacobi_cg_inputs.HB/orani678__rhs8             n/a   
                  jacobi_cg_inputs.HB/watt_1                 n/a   
              jacobi_cg_inputs.Hamm/add32__rhs0              n/a   
@@ -2351,7 +2351,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
                jacobi_cg_inputs.MathWorks/Muu               n/a   
            jacobi_cg_inputs.MathWorks/tomography            n/a   
          jacobi_cg_inputs.MaxPlanck/shallow_water1          n/a   
-         jacobi_cg_inputs.MaxPlanck/shallow_water2        3.25±0s 
+         jacobi_cg_inputs.MaxPlanck/shallow_water2        3.33±0s 
               jacobi_cg_inputs.Mulvey/finan512              n/a   
             jacobi_cg_inputs.Nasa/nasa2146__rhs0            n/a   
               jacobi_cg_inputs.Nemeth/nemeth02              n/a   
@@ -2359,7 +2359,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
               jacobi_cg_inputs.Nemeth/nemeth04              n/a   
               jacobi_cg_inputs.Nemeth/nemeth05              n/a   
               jacobi_cg_inputs.Nemeth/nemeth06              n/a   
-              jacobi_cg_inputs.Nemeth/nemeth07            2.55±0s 
+              jacobi_cg_inputs.Nemeth/nemeth07            2.61±0s 
               jacobi_cg_inputs.Nemeth/nemeth08              n/a   
               jacobi_cg_inputs.Nemeth/nemeth09              n/a   
               jacobi_cg_inputs.Nemeth/nemeth10              n/a   
@@ -2367,7 +2367,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
               jacobi_cg_inputs.Nemeth/nemeth12              n/a   
               jacobi_cg_inputs.Nemeth/nemeth13              n/a   
               jacobi_cg_inputs.Nemeth/nemeth16              n/a   
-              jacobi_cg_inputs.Nemeth/nemeth17            5.77±0s 
+              jacobi_cg_inputs.Nemeth/nemeth17            5.88±0s 
                 jacobi_cg_inputs.Norris/fv1                 n/a   
                 jacobi_cg_inputs.Norris/fv2                 n/a   
              jacobi_cg_inputs.Oberwolfach/LF10              n/a   
@@ -2375,7 +2375,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
                 jacobi_cg_inputs.PARSEC/Si2                 n/a   
                jacobi_cg_inputs.Pothen/bodyy4               n/a   
               jacobi_cg_inputs.Pothen/mesh1e1               n/a   
-              jacobi_cg_inputs.Pothen/mesh1em1            2.45±0s 
+              jacobi_cg_inputs.Pothen/mesh1em1            2.53±0s 
               jacobi_cg_inputs.Pothen/mesh1em6              n/a   
               jacobi_cg_inputs.Pothen/mesh2e1               n/a   
               jacobi_cg_inputs.Pothen/mesh2em5              n/a   
@@ -2383,7 +2383,7 @@ INFO:root:...nedCGBenchmark.time_jacobi_preconditioned_cg
               jacobi_cg_inputs.Pothen/mesh3em5              n/a   
               jacobi_cg_inputs.Pothen/sphere2               n/a   
              jacobi_cg_inputs.Sandia/ASIC_100ks             n/a   
-             jacobi_cg_inputs.Sandia/ASIC_320ks           2.78±0s 
+             jacobi_cg_inputs.Sandia/ASIC_320ks           2.89±0s 
              jacobi_cg_inputs.Sandia/ASIC_680ks             n/a   
         jacobi_cg_inputs.Schenk_AFE/af_shell3__rhs0         n/a   
         jacobi_cg_inputs.Schenk_AFE/af_shell4__rhs0         n/a   
@@ -2529,7 +2529,7 @@ INFO:root:...onditionedCGBenchmark.time_preconditioned_cg
      block_jacobi_cg_inputs.Andrianov/net100          n/a   
      block_jacobi_cg_inputs.Andrianov/net125          n/a   
      block_jacobi_cg_inputs.Andrianov/net150          n/a   
-      block_jacobi_cg_inputs.Andrianov/net25        13.1±0s 
+      block_jacobi_cg_inputs.Andrianov/net25        13.6±0s 
       block_jacobi_cg_inputs.Andrianov/net50          n/a   
       block_jacobi_cg_inputs.Andrianov/net75          n/a   
         block_jacobi_cg_inputs.Bai/dw256B             n/a   
@@ -2537,7 +2537,7 @@ INFO:root:...onditionedCGBenchmark.time_preconditioned_cg
        block_jacobi_cg_inputs.Bai/mhd3200b            n/a   
        block_jacobi_cg_inputs.Bai/mhd4800b            n/a   
         block_jacobi_cg_inputs.Bai/mhdb416            n/a   
-       block_jacobi_cg_inputs.Bindel/ted_B          7.47±0s 
+       block_jacobi_cg_inputs.Bindel/ted_B          7.59±0s 
    block_jacobi_cg_inputs.Bindel/ted_B_unscaled       n/a   
       block_jacobi_cg_inputs.Boeing/bcsstk34          n/a   
       block_jacobi_cg_inputs.Boeing/bcsstm39          n/a   
@@ -2545,7 +2545,7 @@ INFO:root:...onditionedCGBenchmark.time_preconditioned_cg
       block_jacobi_cg_inputs.Boeing/crystm02          n/a   
       block_jacobi_cg_inputs.Boeing/crystm03          n/a   
  block_jacobi_cg_inputs.Botonakis/FEM_3D_thermal1     n/a   
- block_jacobi_cg_inputs.Botonakis/FEM_3D_thermal2   31.8±0s 
+ block_jacobi_cg_inputs.Botonakis/FEM_3D_thermal2   32.0±0s 
   block_jacobi_cg_inputs.Botonakis/thermomech_TC      n/a   
   block_jacobi_cg_inputs.Botonakis/thermomech_dM      n/a   
     block_jacobi_cg_inputs.Brunetiere/thermal         n/a   
@@ -2553,7 +2553,7 @@ INFO:root:...onditionedCGBenchmark.time_preconditioned_cg
   block_jacobi_cg_inputs.FEMLAB/poisson2D__rhs0       n/a   
       block_jacobi_cg_inputs.FEMLAB/problem1          n/a   
         block_jacobi_cg_inputs.FIDAP/ex29             n/a   
-        block_jacobi_cg_inputs.FIDAP/ex37           7.36±0s 
+        block_jacobi_cg_inputs.FIDAP/ex37           7.52±0s 
          block_jacobi_cg_inputs.FIDAP/ex5             n/a   
          block_jacobi_cg_inputs.FIDAP/ex7             n/a   
   block_jacobi_cg_inputs.Freescale/circuit5M_dc       n/a   
@@ -2562,7 +2562,7 @@ INFO:root:...onditionedCGBenchmark.time_preconditioned_cg
     block_jacobi_cg_inputs.GHS_psdef/obstclae         n/a   
     block_jacobi_cg_inputs.GHS_psdef/wathen100        n/a   
     block_jacobi_cg_inputs.GHS_psdef/wathen120        n/a   
-     block_jacobi_cg_inputs.Grund/poli__rhs0        8.84±0s 
+     block_jacobi_cg_inputs.Grund/poli__rhs0        9.39±0s 
      block_jacobi_cg_inputs.Guettel/TEM27623          n/a   
         block_jacobi_cg_inputs.HB/bcsstk01            n/a   
         block_jacobi_cg_inputs.HB/bcsstk02            n/a   
@@ -2570,7 +2570,7 @@ INFO:root:...onditionedCGBenchmark.time_preconditioned_cg
         block_jacobi_cg_inputs.HB/bcsstk04            n/a   
         block_jacobi_cg_inputs.HB/bcsstk05            n/a   
         block_jacobi_cg_inputs.HB/bcsstk08            n/a   
-        block_jacobi_cg_inputs.HB/bcsstk22          7.54±0s 
+        block_jacobi_cg_inputs.HB/bcsstk22          7.64±0s 
         block_jacobi_cg_inputs.HB/bcsstm02            n/a   
         block_jacobi_cg_inputs.HB/bcsstm05            n/a   
         block_jacobi_cg_inputs.HB/bcsstm06            n/a   
@@ -2578,7 +2578,7 @@ INFO:root:...onditionedCGBenchmark.time_preconditioned_cg
         block_jacobi_cg_inputs.HB/bcsstm08            n/a   
         block_jacobi_cg_inputs.HB/bcsstm09            n/a   
         block_jacobi_cg_inputs.HB/bcsstm11            n/a   
-        block_jacobi_cg_inputs.HB/bcsstm12          8.06±0s 
+        block_jacobi_cg_inputs.HB/bcsstm12          8.20±0s 
         block_jacobi_cg_inputs.HB/bcsstm19            n/a   
         block_jacobi_cg_inputs.HB/bcsstm20            n/a   
         block_jacobi_cg_inputs.HB/bcsstm21            n/a   
@@ -2586,7 +2586,7 @@ INFO:root:...onditionedCGBenchmark.time_preconditioned_cg
         block_jacobi_cg_inputs.HB/bcsstm23            n/a   
         block_jacobi_cg_inputs.HB/bcsstm24            n/a   
         block_jacobi_cg_inputs.HB/bcsstm25            n/a   
-        block_jacobi_cg_inputs.HB/bcsstm26          7.04±0s 
+        block_jacobi_cg_inputs.HB/bcsstm26          7.35±0s 
         block_jacobi_cg_inputs.HB/fs_541_1            n/a   
         block_jacobi_cg_inputs.HB/gr_30_30            n/a   
          block_jacobi_cg_inputs.HB/lund_a             n/a   
@@ -2594,7 +2594,7 @@ INFO:root:...onditionedCGBenchmark.time_preconditioned_cg
           block_jacobi_cg_inputs.HB/nos1              n/a   
           block_jacobi_cg_inputs.HB/nos4              n/a   
           block_jacobi_cg_inputs.HB/nos6              n/a   
-          block_jacobi_cg_inputs.HB/nos7            7.31±0s 
+          block_jacobi_cg_inputs.HB/nos7            7.44±0s 
      block_jacobi_cg_inputs.Hamm/add32__rhs0          n/a   
      block_jacobi_cg_inputs.Lourakis/bundle1          n/a   
        block_jacobi_cg_inputs.MathWorks/Muu           n/a   
@@ -2602,7 +2602,7 @@ INFO:root:...onditionedCGBenchmark.time_preconditioned_cg
  block_jacobi_cg_inputs.MaxPlanck/shallow_water1      n/a   
  block_jacobi_cg_inputs.MaxPlanck/shallow_water2      n/a   
       block_jacobi_cg_inputs.Mulvey/finan512          n/a   
-    block_jacobi_cg_inputs.Nasa/nasa2146__rhs0      5.87±0s 
+    block_jacobi_cg_inputs.Nasa/nasa2146__rhs0      5.98±0s 
         block_jacobi_cg_inputs.Norris/fv1             n/a   
         block_jacobi_cg_inputs.Norris/fv2             n/a   
      block_jacobi_cg_inputs.Oberwolfach/LF10          n/a   
@@ -2610,7 +2610,7 @@ INFO:root:...onditionedCGBenchmark.time_preconditioned_cg
         block_jacobi_cg_inputs.PARSEC/Si2             n/a   
        block_jacobi_cg_inputs.Pothen/bodyy4           n/a   
       block_jacobi_cg_inputs.Pothen/mesh1e1           n/a   
-      block_jacobi_cg_inputs.Pothen/mesh1em1        7.16±0s 
+      block_jacobi_cg_inputs.Pothen/mesh1em1        7.28±0s 
       block_jacobi_cg_inputs.Pothen/mesh1em6          n/a   
       block_jacobi_cg_inputs.Pothen/mesh2e1           n/a   
       block_jacobi_cg_inputs.Pothen/mesh2em5          n/a   
@@ -2618,7 +2618,7 @@ INFO:root:...onditionedCGBenchmark.time_preconditioned_cg
       block_jacobi_cg_inputs.Pothen/mesh3em5          n/a   
      block_jacobi_cg_inputs.Sandia/ASIC_100ks         n/a   
      block_jacobi_cg_inputs.Sandia/ASIC_320ks         n/a   
-  block_jacobi_cg_inputs.Um/2cubes_sphere__rhs0     15.7±0s 
+  block_jacobi_cg_inputs.Um/2cubes_sphere__rhs0     15.9±0s 
 ================================================== =========
 
 ·· ================================================== =========
@@ -2634,7 +2634,7 @@ INFO:root:...onditionedCGBenchmark.time_preconditioned_cg
         block_jacobi_cg_inputs.Andrianov/net100          n/a   
         block_jacobi_cg_inputs.Andrianov/net125          n/a   
         block_jacobi_cg_inputs.Andrianov/net150          n/a   
-         block_jacobi_cg_inputs.Andrianov/net25        13.1±0s 
+         block_jacobi_cg_inputs.Andrianov/net25        13.6±0s 
          block_jacobi_cg_inputs.Andrianov/net50          n/a   
          block_jacobi_cg_inputs.Andrianov/net75          n/a   
            block_jacobi_cg_inputs.Bai/dw256B             n/a   
@@ -2642,7 +2642,7 @@ INFO:root:...onditionedCGBenchmark.time_preconditioned_cg
           block_jacobi_cg_inputs.Bai/mhd3200b            n/a   
           block_jacobi_cg_inputs.Bai/mhd4800b            n/a   
            block_jacobi_cg_inputs.Bai/mhdb416            n/a   
-          block_jacobi_cg_inputs.Bindel/ted_B          7.47±0s 
+          block_jacobi_cg_inputs.Bindel/ted_B          7.59±0s 
       block_jacobi_cg_inputs.Bindel/ted_B_unscaled       n/a   
          block_jacobi_cg_inputs.Boeing/bcsstk34          n/a   
          block_jacobi_cg_inputs.Boeing/bcsstm39          n/a   
@@ -2650,7 +2650,7 @@ INFO:root:...onditionedCGBenchmark.time_preconditioned_cg
          block_jacobi_cg_inputs.Boeing/crystm02          n/a   
          block_jacobi_cg_inputs.Boeing/crystm03          n/a   
     block_jacobi_cg_inputs.Botonakis/FEM_3D_thermal1     n/a   
-    block_jacobi_cg_inputs.Botonakis/FEM_3D_thermal2   31.8±0s 
+    block_jacobi_cg_inputs.Botonakis/FEM_3D_thermal2   32.0±0s 
      block_jacobi_cg_inputs.Botonakis/thermomech_TC      n/a   
      block_jacobi_cg_inputs.Botonakis/thermomech_dM      n/a   
        block_jacobi_cg_inputs.Brunetiere/thermal         n/a   
@@ -2658,7 +2658,7 @@ INFO:root:...onditionedCGBenchmark.time_preconditioned_cg
      block_jacobi_cg_inputs.FEMLAB/poisson2D__rhs0       n/a   
          block_jacobi_cg_inputs.FEMLAB/problem1          n/a   
            block_jacobi_cg_inputs.FIDAP/ex29             n/a   
-           block_jacobi_cg_inputs.FIDAP/ex37           7.36±0s 
+           block_jacobi_cg_inputs.FIDAP/ex37           7.52±0s 
             block_jacobi_cg_inputs.FIDAP/ex5             n/a   
             block_jacobi_cg_inputs.FIDAP/ex7             n/a   
      block_jacobi_cg_inputs.Freescale/circuit5M_dc       n/a   
@@ -2667,7 +2667,7 @@ INFO:root:...onditionedCGBenchmark.time_preconditioned_cg
        block_jacobi_cg_inputs.GHS_psdef/obstclae         n/a   
        block_jacobi_cg_inputs.GHS_psdef/wathen100        n/a   
        block_jacobi_cg_inputs.GHS_psdef/wathen120        n/a   
-        block_jacobi_cg_inputs.Grund/poli__rhs0        8.84±0s 
+        block_jacobi_cg_inputs.Grund/poli__rhs0        9.39±0s 
         block_jacobi_cg_inputs.Guettel/TEM27623          n/a   
            block_jacobi_cg_inputs.HB/bcsstk01            n/a   
            block_jacobi_cg_inputs.HB/bcsstk02            n/a   
@@ -2675,7 +2675,7 @@ INFO:root:...onditionedCGBenchmark.time_preconditioned_cg
            block_jacobi_cg_inputs.HB/bcsstk04            n/a   
            block_jacobi_cg_inputs.HB/bcsstk05            n/a   
            block_jacobi_cg_inputs.HB/bcsstk08            n/a   
-           block_jacobi_cg_inputs.HB/bcsstk22          7.54±0s 
+           block_jacobi_cg_inputs.HB/bcsstk22          7.64±0s 
            block_jacobi_cg_inputs.HB/bcsstm02            n/a   
            block_jacobi_cg_inputs.HB/bcsstm05            n/a   
            block_jacobi_cg_inputs.HB/bcsstm06            n/a   
@@ -2683,7 +2683,7 @@ INFO:root:...onditionedCGBenchmark.time_preconditioned_cg
            block_jacobi_cg_inputs.HB/bcsstm08            n/a   
            block_jacobi_cg_inputs.HB/bcsstm09            n/a   
            block_jacobi_cg_inputs.HB/bcsstm11            n/a   
-           block_jacobi_cg_inputs.HB/bcsstm12          8.06±0s 
+           block_jacobi_cg_inputs.HB/bcsstm12          8.20±0s 
            block_jacobi_cg_inputs.HB/bcsstm19            n/a   
            block_jacobi_cg_inputs.HB/bcsstm20            n/a   
            block_jacobi_cg_inputs.HB/bcsstm21            n/a   
@@ -2691,7 +2691,7 @@ INFO:root:...onditionedCGBenchmark.time_preconditioned_cg
            block_jacobi_cg_inputs.HB/bcsstm23            n/a   
            block_jacobi_cg_inputs.HB/bcsstm24            n/a   
            block_jacobi_cg_inputs.HB/bcsstm25            n/a   
-           block_jacobi_cg_inputs.HB/bcsstm26          7.04±0s 
+           block_jacobi_cg_inputs.HB/bcsstm26          7.35±0s 
            block_jacobi_cg_inputs.HB/fs_541_1            n/a   
            block_jacobi_cg_inputs.HB/gr_30_30            n/a   
             block_jacobi_cg_inputs.HB/lund_a             n/a   
@@ -2699,7 +2699,7 @@ INFO:root:...onditionedCGBenchmark.time_preconditioned_cg
              block_jacobi_cg_inputs.HB/nos1              n/a   
              block_jacobi_cg_inputs.HB/nos4              n/a   
              block_jacobi_cg_inputs.HB/nos6              n/a   
-             block_jacobi_cg_inputs.HB/nos7            7.31±0s 
+             block_jacobi_cg_inputs.HB/nos7            7.44±0s 
         block_jacobi_cg_inputs.Hamm/add32__rhs0          n/a   
         block_jacobi_cg_inputs.Lourakis/bundle1          n/a   
           block_jacobi_cg_inputs.MathWorks/Muu           n/a   
@@ -2707,7 +2707,7 @@ INFO:root:...onditionedCGBenchmark.time_preconditioned_cg
     block_jacobi_cg_inputs.MaxPlanck/shallow_water1      n/a   
     block_jacobi_cg_inputs.MaxPlanck/shallow_water2      n/a   
          block_jacobi_cg_inputs.Mulvey/finan512          n/a   
-       block_jacobi_cg_inputs.Nasa/nasa2146__rhs0      5.87±0s 
+       block_jacobi_cg_inputs.Nasa/nasa2146__rhs0      5.98±0s 
            block_jacobi_cg_inputs.Norris/fv1             n/a   
            block_jacobi_cg_inputs.Norris/fv2             n/a   
         block_jacobi_cg_inputs.Oberwolfach/LF10          n/a   
@@ -2715,7 +2715,7 @@ INFO:root:...onditionedCGBenchmark.time_preconditioned_cg
            block_jacobi_cg_inputs.PARSEC/Si2             n/a   
           block_jacobi_cg_inputs.Pothen/bodyy4           n/a   
          block_jacobi_cg_inputs.Pothen/mesh1e1           n/a   
-         block_jacobi_cg_inputs.Pothen/mesh1em1        7.16±0s 
+         block_jacobi_cg_inputs.Pothen/mesh1em1        7.28±0s 
          block_jacobi_cg_inputs.Pothen/mesh1em6          n/a   
          block_jacobi_cg_inputs.Pothen/mesh2e1           n/a   
          block_jacobi_cg_inputs.Pothen/mesh2em5          n/a   
@@ -2723,7 +2723,7 @@ INFO:root:...onditionedCGBenchmark.time_preconditioned_cg
          block_jacobi_cg_inputs.Pothen/mesh3em5          n/a   
         block_jacobi_cg_inputs.Sandia/ASIC_100ks         n/a   
         block_jacobi_cg_inputs.Sandia/ASIC_320ks         n/a   
-     block_jacobi_cg_inputs.Um/2cubes_sphere__rhs0     15.7±0s 
+     block_jacobi_cg_inputs.Um/2cubes_sphere__rhs0     15.9±0s 
    ================================================== =========
 ERROR:root:For parameters: block_jacobi_cg_inputs.Andrianov/net25
 INFO root: Dataset suitesparse_matrix.Andrianov/net25 found in cache.
@@ -2810,7 +2810,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
   subgraph_gcare_human.human/Star_3/uf_Q_2_2     n/a   
   subgraph_gcare_human.human/Star_3/uf_Q_0_1     n/a   
   subgraph_gcare_human.human/Star_3/uf_Q_2_3     n/a   
-  subgraph_gcare_human.human/Star_3/uf_Q_1_1   4.38±0s 
+  subgraph_gcare_human.human/Star_3/uf_Q_1_1   4.40±0s 
   subgraph_gcare_human.human/Star_3/uf_Q_1_3     n/a   
   subgraph_gcare_human.human/Star_3/uf_Q_1_2     n/a   
   subgraph_gcare_human.human/Star_3/uf_Q_1_6     n/a   
@@ -2818,7 +2818,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
   subgraph_gcare_human.human/Star_3/uf_Q_1_4     n/a   
  subgraph_gcare_human.human/Chain_3/uf_Q_1_1     n/a   
  subgraph_gcare_human.human/Chain_3/uf_Q_1_3     n/a   
- subgraph_gcare_human.human/Chain_3/uf_Q_1_2   4.45±0s 
+ subgraph_gcare_human.human/Chain_3/uf_Q_1_2   4.50±0s 
  subgraph_gcare_human.human/Graph_3/uf_Q_2_1     n/a   
  subgraph_gcare_human.human/Graph_3/uf_Q_0_3     n/a   
  subgraph_gcare_human.human/Graph_3/uf_Q_0_2     n/a   
@@ -2826,7 +2826,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
  subgraph_gcare_human.human/Graph_3/uf_Q_0_1     n/a   
  subgraph_gcare_human.human/Graph_3/uf_Q_2_3     n/a   
  subgraph_gcare_human.human/Graph_3/uf_Q_0_5     n/a   
- subgraph_gcare_human.human/Graph_3/uf_Q_0_4   4.29±0s 
+ subgraph_gcare_human.human/Graph_3/uf_Q_0_4   4.35±0s 
  subgraph_gcare_human.human/Graph_3/uf_Q_2_6     n/a   
  subgraph_gcare_human.human/Graph_3/uf_Q_2_4     n/a   
  subgraph_gcare_human.human/Graph_3/uf_Q_0_6     n/a   
@@ -2834,7 +2834,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
  subgraph_gcare_human.human/Graph_3/uf_Q_3_2     n/a   
  subgraph_gcare_human.human/Graph_3/uf_Q_3_3     n/a   
  subgraph_gcare_human.human/Graph_3/uf_Q_1_1     n/a   
- subgraph_gcare_human.human/Graph_3/uf_Q_1_3   4.62±0s 
+ subgraph_gcare_human.human/Graph_3/uf_Q_1_3   4.32±0s 
  subgraph_gcare_human.human/Graph_3/uf_Q_3_1     n/a   
  subgraph_gcare_human.human/Graph_3/uf_Q_1_2     n/a   
  subgraph_gcare_human.human/Graph_3/uf_Q_3_4     n/a   
@@ -2842,7 +2842,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
  subgraph_gcare_human.human/Graph_3/uf_Q_3_7     n/a   
  subgraph_gcare_human.human/Graph_3/uf_Q_3_6     n/a   
  subgraph_gcare_human.human/Graph_3/uf_Q_1_4     n/a   
- subgraph_gcare_human.human/Graph_3/uf_Q_3_8   4.70±0s 
+ subgraph_gcare_human.human/Graph_3/uf_Q_3_8   4.36±0s 
  subgraph_gcare_human.human/Graph_3/uf_Q_3_9     n/a   
   subgraph_gcare_human.human/Tree_3/uf_Q_2_1     n/a   
   subgraph_gcare_human.human/Tree_3/uf_Q_0_3     n/a   
@@ -3226,7 +3226,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
    subgraph_gcare_aids.aids/Star_3/uf_Q_4_5      n/a   
    subgraph_gcare_aids.aids/Star_3/uf_Q_0_1      n/a   
    subgraph_gcare_aids.aids/Star_3/uf_Q_2_3      n/a   
-   subgraph_gcare_aids.aids/Star_3/uf_Q_2_7    4.31±0s 
+   subgraph_gcare_aids.aids/Star_3/uf_Q_2_7    4.36±0s 
    subgraph_gcare_aids.aids/Star_3/uf_Q_4_1      n/a   
   subgraph_gcare_aids.aids/Star_3/uf_Q_2_12      n/a   
    subgraph_gcare_aids.aids/Star_3/uf_Q_2_6      n/a   
@@ -3238,7 +3238,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
    subgraph_gcare_aids.aids/Star_3/uf_Q_2_5      n/a   
   subgraph_gcare_aids.aids/Star_3/uf_Q_4_17      n/a   
    subgraph_gcare_aids.aids/Star_3/uf_Q_3_2      n/a   
-   subgraph_gcare_aids.aids/Star_3/uf_Q_3_3    4.69±0s 
+   subgraph_gcare_aids.aids/Star_3/uf_Q_3_3    4.37±0s 
    subgraph_gcare_aids.aids/Star_3/uf_Q_1_1      n/a   
   subgraph_gcare_aids.aids/Star_3/uf_Q_4_16      n/a   
   subgraph_gcare_aids.aids/Star_3/uf_Q_4_14      n/a   
@@ -3250,7 +3250,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
    subgraph_gcare_aids.aids/Star_3/uf_Q_1_6      n/a   
    subgraph_gcare_aids.aids/Star_3/uf_Q_3_4      n/a   
    subgraph_gcare_aids.aids/Star_3/uf_Q_3_5      n/a   
-   subgraph_gcare_aids.aids/Star_3/uf_Q_1_7    4.31±0s 
+   subgraph_gcare_aids.aids/Star_3/uf_Q_1_7    4.37±0s 
   subgraph_gcare_aids.aids/Star_3/uf_Q_4_10      n/a   
   subgraph_gcare_aids.aids/Star_3/uf_Q_4_12      n/a   
    subgraph_gcare_aids.aids/Star_3/uf_Q_1_5      n/a   
@@ -3261,7 +3261,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
   subgraph_gcare_aids.aids/Star_3/uf_Q_3_17      n/a   
    subgraph_gcare_aids.aids/Star_3/uf_Q_1_9      n/a   
    subgraph_gcare_aids.aids/Star_3/uf_Q_1_8      n/a   
-  subgraph_gcare_aids.aids/Star_3/uf_Q_3_16    4.35±0s 
+  subgraph_gcare_aids.aids/Star_3/uf_Q_3_16    4.39±0s 
   subgraph_gcare_aids.aids/Star_3/uf_Q_3_14      n/a   
    subgraph_gcare_aids.aids/Star_3/uf_Q_3_8      n/a   
    subgraph_gcare_aids.aids/Star_3/uf_Q_3_9      n/a   
@@ -3273,7 +3273,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
   subgraph_gcare_aids.aids/Star_3/uf_Q_3_10      n/a   
   subgraph_gcare_aids.aids/Star_3/uf_Q_3_12      n/a   
   subgraph_gcare_aids.aids/Star_3/uf_Q_3_13      n/a   
-   subgraph_gcare_aids.aids/Star_3/uf_Q_2_8    4.35±0s 
+   subgraph_gcare_aids.aids/Star_3/uf_Q_2_8    6.42±0s 
    subgraph_gcare_aids.aids/Star_3/uf_Q_2_9      n/a   
    subgraph_gcare_aids.aids/Star_3/uf_Q_4_8      n/a   
    subgraph_gcare_aids.aids/Star_3/uf_Q_4_9      n/a   
@@ -3332,7 +3332,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
   subgraph_gcare_aids.aids/Chain_3/uf_Q_4_17     n/a   
   subgraph_gcare_aids.aids/Chain_3/uf_Q_3_2      n/a   
   subgraph_gcare_aids.aids/Chain_3/uf_Q_3_3      n/a   
-  subgraph_gcare_aids.aids/Chain_3/uf_Q_1_1    6.09±0s 
+  subgraph_gcare_aids.aids/Chain_3/uf_Q_1_1    4.37±0s 
   subgraph_gcare_aids.aids/Chain_3/uf_Q_4_16     n/a   
   subgraph_gcare_aids.aids/Chain_3/uf_Q_4_14     n/a   
   subgraph_gcare_aids.aids/Chain_3/uf_Q_1_3      n/a   
@@ -3353,7 +3353,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
   subgraph_gcare_aids.aids/Chain_3/uf_Q_1_4      n/a   
   subgraph_gcare_aids.aids/Chain_3/uf_Q_4_13     n/a   
   subgraph_gcare_aids.aids/Chain_3/uf_Q_3_8      n/a   
-  subgraph_gcare_aids.aids/Chain_3/uf_Q_3_9    4.35±0s 
+  subgraph_gcare_aids.aids/Chain_3/uf_Q_3_9    4.40±0s 
   subgraph_gcare_aids.aids/Chain_3/uf_Q_4_20     n/a   
   subgraph_gcare_aids.aids/Chain_3/uf_Q_4_18     n/a   
   subgraph_gcare_aids.aids/Chain_3/uf_Q_3_11     n/a   
@@ -3370,7 +3370,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
   subgraph_gcare_aids.aids/Graph_3/uf_Q_0_1      n/a   
   subgraph_gcare_aids.aids/Graph_3/uf_Q_4_1      n/a   
   subgraph_gcare_aids.aids/Graph_3/uf_Q_2_12     n/a   
-  subgraph_gcare_aids.aids/Graph_3/uf_Q_2_10   4.34±0s 
+  subgraph_gcare_aids.aids/Graph_3/uf_Q_2_10   4.39±0s 
   subgraph_gcare_aids.aids/Graph_3/uf_Q_2_11     n/a   
   subgraph_gcare_aids.aids/Graph_3/uf_Q_2_5      n/a   
   subgraph_gcare_aids.aids/Graph_3/uf_Q_4_17     n/a   
@@ -3379,7 +3379,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
   subgraph_gcare_aids.aids/Graph_3/uf_Q_1_1      n/a   
   subgraph_gcare_aids.aids/Graph_3/uf_Q_1_3      n/a   
   subgraph_gcare_aids.aids/Graph_3/uf_Q_1_18     n/a   
-  subgraph_gcare_aids.aids/Graph_3/uf_Q_3_1    4.33±0s 
+  subgraph_gcare_aids.aids/Graph_3/uf_Q_3_1    4.62±0s 
   subgraph_gcare_aids.aids/Graph_3/uf_Q_1_19     n/a   
   subgraph_gcare_aids.aids/Graph_3/uf_Q_1_2      n/a   
   subgraph_gcare_aids.aids/Graph_3/uf_Q_4_11     n/a   
@@ -3389,7 +3389,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
   subgraph_gcare_aids.aids/Graph_3/uf_Q_1_7      n/a   
   subgraph_gcare_aids.aids/Graph_3/uf_Q_4_10     n/a   
   subgraph_gcare_aids.aids/Graph_3/uf_Q_5_1      n/a   
-  subgraph_gcare_aids.aids/Graph_3/uf_Q_1_5    4.31±0s 
+  subgraph_gcare_aids.aids/Graph_3/uf_Q_1_5    4.35±0s 
   subgraph_gcare_aids.aids/Graph_3/uf_Q_3_7      n/a   
   subgraph_gcare_aids.aids/Graph_3/uf_Q_1_12     n/a   
   subgraph_gcare_aids.aids/Graph_3/uf_Q_1_9      n/a   
@@ -3397,7 +3397,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
   subgraph_gcare_aids.aids/Graph_3/uf_Q_1_13     n/a   
   subgraph_gcare_aids.aids/Graph_3/uf_Q_1_11     n/a   
   subgraph_gcare_aids.aids/Graph_3/uf_Q_3_8      n/a   
-  subgraph_gcare_aids.aids/Graph_3/uf_Q_3_9    4.46±0s 
+  subgraph_gcare_aids.aids/Graph_3/uf_Q_3_9    4.51±0s 
   subgraph_gcare_aids.aids/Graph_3/uf_Q_3_11     n/a   
   subgraph_gcare_aids.aids/Graph_3/uf_Q_1_14     n/a   
   subgraph_gcare_aids.aids/Graph_3/uf_Q_3_12     n/a   
@@ -3405,7 +3405,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
   subgraph_gcare_aids.aids/Graph_3/uf_Q_1_16     n/a   
   subgraph_gcare_aids.aids/Graph_3/uf_Q_3_13     n/a   
   subgraph_gcare_aids.aids/Graph_3/uf_Q_2_8      n/a   
-  subgraph_gcare_aids.aids/Graph_3/uf_Q_2_9    4.53±0s 
+  subgraph_gcare_aids.aids/Graph_3/uf_Q_2_9    4.40±0s 
   subgraph_gcare_aids.aids/Graph_3/uf_Q_4_9      n/a   
   subgraph_gcare_aids.aids/Petal_6/uf_Q_2_1      n/a   
   subgraph_gcare_aids.aids/Petal_6/uf_Q_4_7      n/a   
@@ -3461,7 +3461,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_2_16     n/a   
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_2_17     n/a   
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_2_3      n/a   
-  subgraph_gcare_aids.aids/Cycle_3/uf_Q_2_7    4.47±0s 
+  subgraph_gcare_aids.aids/Cycle_3/uf_Q_2_7    4.51±0s 
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_2_13     n/a   
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_2_12     n/a   
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_2_6      n/a   
@@ -3469,7 +3469,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_2_10     n/a   
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_2_11     n/a   
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_2_5      n/a   
-  subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_2    4.50±0s 
+  subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_2    4.53±0s 
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_3      n/a   
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_1_1      n/a   
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_1_3      n/a   
@@ -3477,7 +3477,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_1_2      n/a   
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_20     n/a   
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_18     n/a   
-  subgraph_gcare_aids.aids/Cycle_3/uf_Q_1_6    4.48±0s 
+  subgraph_gcare_aids.aids/Cycle_3/uf_Q_1_6    4.52±0s 
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_4      n/a   
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_5      n/a   
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_1_7      n/a   
@@ -3485,7 +3485,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_7      n/a   
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_6      n/a   
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_1_4      n/a   
-  subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_17   4.50±0s 
+  subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_17   6.83±0s 
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_1_9      n/a   
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_1_8      n/a   
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_16     n/a   
@@ -3493,7 +3493,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_8      n/a   
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_9      n/a   
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_15     n/a   
-  subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_11   4.51±0s 
+  subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_11   4.50±0s 
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_10     n/a   
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_12     n/a   
   subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_13     n/a   
@@ -3530,7 +3530,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
    subgraph_gcare_aids.aids/Tree_3/uf_Q_2_2      n/a   
    subgraph_gcare_aids.aids/Tree_3/uf_Q_4_4      n/a   
    subgraph_gcare_aids.aids/Tree_3/uf_Q_4_5      n/a   
-   subgraph_gcare_aids.aids/Tree_3/uf_Q_0_1    6.17±0s 
+   subgraph_gcare_aids.aids/Tree_3/uf_Q_0_1    4.36±0s 
    subgraph_gcare_aids.aids/Tree_3/uf_Q_2_3      n/a   
    subgraph_gcare_aids.aids/Tree_3/uf_Q_2_7      n/a   
    subgraph_gcare_aids.aids/Tree_3/uf_Q_4_1      n/a   
@@ -3547,7 +3547,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
   subgraph_gcare_aids.aids/Tree_3/uf_Q_4_14      n/a   
    subgraph_gcare_aids.aids/Tree_3/uf_Q_1_3      n/a   
    subgraph_gcare_aids.aids/Tree_3/uf_Q_3_1      n/a   
-   subgraph_gcare_aids.aids/Tree_3/uf_Q_1_2    4.34±0s 
+   subgraph_gcare_aids.aids/Tree_3/uf_Q_1_2    4.35±0s 
   subgraph_gcare_aids.aids/Tree_3/uf_Q_4_15      n/a   
   subgraph_gcare_aids.aids/Tree_3/uf_Q_4_11      n/a   
    subgraph_gcare_aids.aids/Tree_3/uf_Q_1_6      n/a   
@@ -3561,7 +3561,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
    subgraph_gcare_aids.aids/Tree_3/uf_Q_3_6      n/a   
    subgraph_gcare_aids.aids/Tree_3/uf_Q_1_4      n/a   
   subgraph_gcare_aids.aids/Tree_3/uf_Q_4_13      n/a   
-   subgraph_gcare_aids.aids/Tree_3/uf_Q_3_8    4.35±0s 
+   subgraph_gcare_aids.aids/Tree_3/uf_Q_3_8    4.41±0s 
    subgraph_gcare_aids.aids/Tree_3/uf_Q_3_9      n/a   
   subgraph_gcare_aids.aids/Tree_3/uf_Q_4_20      n/a   
   subgraph_gcare_aids.aids/Tree_3/uf_Q_4_18      n/a   
@@ -5020,7 +5020,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
      subgraph_gcare_human.human/Star_3/uf_Q_2_2     n/a   
      subgraph_gcare_human.human/Star_3/uf_Q_0_1     n/a   
      subgraph_gcare_human.human/Star_3/uf_Q_2_3     n/a   
-     subgraph_gcare_human.human/Star_3/uf_Q_1_1   4.38±0s 
+     subgraph_gcare_human.human/Star_3/uf_Q_1_1   4.40±0s 
      subgraph_gcare_human.human/Star_3/uf_Q_1_3     n/a   
      subgraph_gcare_human.human/Star_3/uf_Q_1_2     n/a   
      subgraph_gcare_human.human/Star_3/uf_Q_1_6     n/a   
@@ -5028,7 +5028,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
      subgraph_gcare_human.human/Star_3/uf_Q_1_4     n/a   
     subgraph_gcare_human.human/Chain_3/uf_Q_1_1     n/a   
     subgraph_gcare_human.human/Chain_3/uf_Q_1_3     n/a   
-    subgraph_gcare_human.human/Chain_3/uf_Q_1_2   4.45±0s 
+    subgraph_gcare_human.human/Chain_3/uf_Q_1_2   4.50±0s 
     subgraph_gcare_human.human/Graph_3/uf_Q_2_1     n/a   
     subgraph_gcare_human.human/Graph_3/uf_Q_0_3     n/a   
     subgraph_gcare_human.human/Graph_3/uf_Q_0_2     n/a   
@@ -5036,7 +5036,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
     subgraph_gcare_human.human/Graph_3/uf_Q_0_1     n/a   
     subgraph_gcare_human.human/Graph_3/uf_Q_2_3     n/a   
     subgraph_gcare_human.human/Graph_3/uf_Q_0_5     n/a   
-    subgraph_gcare_human.human/Graph_3/uf_Q_0_4   4.29±0s 
+    subgraph_gcare_human.human/Graph_3/uf_Q_0_4   4.35±0s 
     subgraph_gcare_human.human/Graph_3/uf_Q_2_6     n/a   
     subgraph_gcare_human.human/Graph_3/uf_Q_2_4     n/a   
     subgraph_gcare_human.human/Graph_3/uf_Q_0_6     n/a   
@@ -5044,7 +5044,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
     subgraph_gcare_human.human/Graph_3/uf_Q_3_2     n/a   
     subgraph_gcare_human.human/Graph_3/uf_Q_3_3     n/a   
     subgraph_gcare_human.human/Graph_3/uf_Q_1_1     n/a   
-    subgraph_gcare_human.human/Graph_3/uf_Q_1_3   4.62±0s 
+    subgraph_gcare_human.human/Graph_3/uf_Q_1_3   4.32±0s 
     subgraph_gcare_human.human/Graph_3/uf_Q_3_1     n/a   
     subgraph_gcare_human.human/Graph_3/uf_Q_1_2     n/a   
     subgraph_gcare_human.human/Graph_3/uf_Q_3_4     n/a   
@@ -5052,7 +5052,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
     subgraph_gcare_human.human/Graph_3/uf_Q_3_7     n/a   
     subgraph_gcare_human.human/Graph_3/uf_Q_3_6     n/a   
     subgraph_gcare_human.human/Graph_3/uf_Q_1_4     n/a   
-    subgraph_gcare_human.human/Graph_3/uf_Q_3_8   4.70±0s 
+    subgraph_gcare_human.human/Graph_3/uf_Q_3_8   4.36±0s 
     subgraph_gcare_human.human/Graph_3/uf_Q_3_9     n/a   
      subgraph_gcare_human.human/Tree_3/uf_Q_2_1     n/a   
      subgraph_gcare_human.human/Tree_3/uf_Q_0_3     n/a   
@@ -5436,7 +5436,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
       subgraph_gcare_aids.aids/Star_3/uf_Q_4_5      n/a   
       subgraph_gcare_aids.aids/Star_3/uf_Q_0_1      n/a   
       subgraph_gcare_aids.aids/Star_3/uf_Q_2_3      n/a   
-      subgraph_gcare_aids.aids/Star_3/uf_Q_2_7    4.31±0s 
+      subgraph_gcare_aids.aids/Star_3/uf_Q_2_7    4.36±0s 
       subgraph_gcare_aids.aids/Star_3/uf_Q_4_1      n/a   
      subgraph_gcare_aids.aids/Star_3/uf_Q_2_12      n/a   
       subgraph_gcare_aids.aids/Star_3/uf_Q_2_6      n/a   
@@ -5448,7 +5448,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
       subgraph_gcare_aids.aids/Star_3/uf_Q_2_5      n/a   
      subgraph_gcare_aids.aids/Star_3/uf_Q_4_17      n/a   
       subgraph_gcare_aids.aids/Star_3/uf_Q_3_2      n/a   
-      subgraph_gcare_aids.aids/Star_3/uf_Q_3_3    4.69±0s 
+      subgraph_gcare_aids.aids/Star_3/uf_Q_3_3    4.37±0s 
       subgraph_gcare_aids.aids/Star_3/uf_Q_1_1      n/a   
      subgraph_gcare_aids.aids/Star_3/uf_Q_4_16      n/a   
      subgraph_gcare_aids.aids/Star_3/uf_Q_4_14      n/a   
@@ -5460,7 +5460,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
       subgraph_gcare_aids.aids/Star_3/uf_Q_1_6      n/a   
       subgraph_gcare_aids.aids/Star_3/uf_Q_3_4      n/a   
       subgraph_gcare_aids.aids/Star_3/uf_Q_3_5      n/a   
-      subgraph_gcare_aids.aids/Star_3/uf_Q_1_7    4.31±0s 
+      subgraph_gcare_aids.aids/Star_3/uf_Q_1_7    4.37±0s 
      subgraph_gcare_aids.aids/Star_3/uf_Q_4_10      n/a   
      subgraph_gcare_aids.aids/Star_3/uf_Q_4_12      n/a   
       subgraph_gcare_aids.aids/Star_3/uf_Q_1_5      n/a   
@@ -5471,7 +5471,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
      subgraph_gcare_aids.aids/Star_3/uf_Q_3_17      n/a   
       subgraph_gcare_aids.aids/Star_3/uf_Q_1_9      n/a   
       subgraph_gcare_aids.aids/Star_3/uf_Q_1_8      n/a   
-     subgraph_gcare_aids.aids/Star_3/uf_Q_3_16    4.35±0s 
+     subgraph_gcare_aids.aids/Star_3/uf_Q_3_16    4.39±0s 
      subgraph_gcare_aids.aids/Star_3/uf_Q_3_14      n/a   
       subgraph_gcare_aids.aids/Star_3/uf_Q_3_8      n/a   
       subgraph_gcare_aids.aids/Star_3/uf_Q_3_9      n/a   
@@ -5483,7 +5483,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
      subgraph_gcare_aids.aids/Star_3/uf_Q_3_10      n/a   
      subgraph_gcare_aids.aids/Star_3/uf_Q_3_12      n/a   
      subgraph_gcare_aids.aids/Star_3/uf_Q_3_13      n/a   
-      subgraph_gcare_aids.aids/Star_3/uf_Q_2_8    4.35±0s 
+      subgraph_gcare_aids.aids/Star_3/uf_Q_2_8    6.42±0s 
       subgraph_gcare_aids.aids/Star_3/uf_Q_2_9      n/a   
       subgraph_gcare_aids.aids/Star_3/uf_Q_4_8      n/a   
       subgraph_gcare_aids.aids/Star_3/uf_Q_4_9      n/a   
@@ -5542,7 +5542,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
      subgraph_gcare_aids.aids/Chain_3/uf_Q_4_17     n/a   
      subgraph_gcare_aids.aids/Chain_3/uf_Q_3_2      n/a   
      subgraph_gcare_aids.aids/Chain_3/uf_Q_3_3      n/a   
-     subgraph_gcare_aids.aids/Chain_3/uf_Q_1_1    6.09±0s 
+     subgraph_gcare_aids.aids/Chain_3/uf_Q_1_1    4.37±0s 
      subgraph_gcare_aids.aids/Chain_3/uf_Q_4_16     n/a   
      subgraph_gcare_aids.aids/Chain_3/uf_Q_4_14     n/a   
      subgraph_gcare_aids.aids/Chain_3/uf_Q_1_3      n/a   
@@ -5563,7 +5563,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
      subgraph_gcare_aids.aids/Chain_3/uf_Q_1_4      n/a   
      subgraph_gcare_aids.aids/Chain_3/uf_Q_4_13     n/a   
      subgraph_gcare_aids.aids/Chain_3/uf_Q_3_8      n/a   
-     subgraph_gcare_aids.aids/Chain_3/uf_Q_3_9    4.35±0s 
+     subgraph_gcare_aids.aids/Chain_3/uf_Q_3_9    4.40±0s 
      subgraph_gcare_aids.aids/Chain_3/uf_Q_4_20     n/a   
      subgraph_gcare_aids.aids/Chain_3/uf_Q_4_18     n/a   
      subgraph_gcare_aids.aids/Chain_3/uf_Q_3_11     n/a   
@@ -5580,7 +5580,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
      subgraph_gcare_aids.aids/Graph_3/uf_Q_0_1      n/a   
      subgraph_gcare_aids.aids/Graph_3/uf_Q_4_1      n/a   
      subgraph_gcare_aids.aids/Graph_3/uf_Q_2_12     n/a   
-     subgraph_gcare_aids.aids/Graph_3/uf_Q_2_10   4.34±0s 
+     subgraph_gcare_aids.aids/Graph_3/uf_Q_2_10   4.39±0s 
      subgraph_gcare_aids.aids/Graph_3/uf_Q_2_11     n/a   
      subgraph_gcare_aids.aids/Graph_3/uf_Q_2_5      n/a   
      subgraph_gcare_aids.aids/Graph_3/uf_Q_4_17     n/a   
@@ -5589,7 +5589,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
      subgraph_gcare_aids.aids/Graph_3/uf_Q_1_1      n/a   
      subgraph_gcare_aids.aids/Graph_3/uf_Q_1_3      n/a   
      subgraph_gcare_aids.aids/Graph_3/uf_Q_1_18     n/a   
-     subgraph_gcare_aids.aids/Graph_3/uf_Q_3_1    4.33±0s 
+     subgraph_gcare_aids.aids/Graph_3/uf_Q_3_1    4.62±0s 
      subgraph_gcare_aids.aids/Graph_3/uf_Q_1_19     n/a   
      subgraph_gcare_aids.aids/Graph_3/uf_Q_1_2      n/a   
      subgraph_gcare_aids.aids/Graph_3/uf_Q_4_11     n/a   
@@ -5599,7 +5599,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
      subgraph_gcare_aids.aids/Graph_3/uf_Q_1_7      n/a   
      subgraph_gcare_aids.aids/Graph_3/uf_Q_4_10     n/a   
      subgraph_gcare_aids.aids/Graph_3/uf_Q_5_1      n/a   
-     subgraph_gcare_aids.aids/Graph_3/uf_Q_1_5    4.31±0s 
+     subgraph_gcare_aids.aids/Graph_3/uf_Q_1_5    4.35±0s 
      subgraph_gcare_aids.aids/Graph_3/uf_Q_3_7      n/a   
      subgraph_gcare_aids.aids/Graph_3/uf_Q_1_12     n/a   
      subgraph_gcare_aids.aids/Graph_3/uf_Q_1_9      n/a   
@@ -5607,7 +5607,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
      subgraph_gcare_aids.aids/Graph_3/uf_Q_1_13     n/a   
      subgraph_gcare_aids.aids/Graph_3/uf_Q_1_11     n/a   
      subgraph_gcare_aids.aids/Graph_3/uf_Q_3_8      n/a   
-     subgraph_gcare_aids.aids/Graph_3/uf_Q_3_9    4.46±0s 
+     subgraph_gcare_aids.aids/Graph_3/uf_Q_3_9    4.51±0s 
      subgraph_gcare_aids.aids/Graph_3/uf_Q_3_11     n/a   
      subgraph_gcare_aids.aids/Graph_3/uf_Q_1_14     n/a   
      subgraph_gcare_aids.aids/Graph_3/uf_Q_3_12     n/a   
@@ -5615,7 +5615,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
      subgraph_gcare_aids.aids/Graph_3/uf_Q_1_16     n/a   
      subgraph_gcare_aids.aids/Graph_3/uf_Q_3_13     n/a   
      subgraph_gcare_aids.aids/Graph_3/uf_Q_2_8      n/a   
-     subgraph_gcare_aids.aids/Graph_3/uf_Q_2_9    4.53±0s 
+     subgraph_gcare_aids.aids/Graph_3/uf_Q_2_9    4.40±0s 
      subgraph_gcare_aids.aids/Graph_3/uf_Q_4_9      n/a   
      subgraph_gcare_aids.aids/Petal_6/uf_Q_2_1      n/a   
      subgraph_gcare_aids.aids/Petal_6/uf_Q_4_7      n/a   
@@ -5671,7 +5671,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_2_16     n/a   
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_2_17     n/a   
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_2_3      n/a   
-     subgraph_gcare_aids.aids/Cycle_3/uf_Q_2_7    4.47±0s 
+     subgraph_gcare_aids.aids/Cycle_3/uf_Q_2_7    4.51±0s 
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_2_13     n/a   
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_2_12     n/a   
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_2_6      n/a   
@@ -5679,7 +5679,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_2_10     n/a   
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_2_11     n/a   
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_2_5      n/a   
-     subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_2    4.50±0s 
+     subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_2    4.53±0s 
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_3      n/a   
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_1_1      n/a   
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_1_3      n/a   
@@ -5687,7 +5687,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_1_2      n/a   
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_20     n/a   
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_18     n/a   
-     subgraph_gcare_aids.aids/Cycle_3/uf_Q_1_6    4.48±0s 
+     subgraph_gcare_aids.aids/Cycle_3/uf_Q_1_6    4.52±0s 
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_4      n/a   
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_5      n/a   
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_1_7      n/a   
@@ -5695,7 +5695,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_7      n/a   
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_6      n/a   
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_1_4      n/a   
-     subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_17   4.50±0s 
+     subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_17   6.83±0s 
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_1_9      n/a   
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_1_8      n/a   
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_16     n/a   
@@ -5703,7 +5703,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_8      n/a   
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_9      n/a   
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_15     n/a   
-     subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_11   4.51±0s 
+     subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_11   4.50±0s 
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_10     n/a   
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_12     n/a   
      subgraph_gcare_aids.aids/Cycle_3/uf_Q_3_13     n/a   
@@ -5740,7 +5740,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
       subgraph_gcare_aids.aids/Tree_3/uf_Q_2_2      n/a   
       subgraph_gcare_aids.aids/Tree_3/uf_Q_4_4      n/a   
       subgraph_gcare_aids.aids/Tree_3/uf_Q_4_5      n/a   
-      subgraph_gcare_aids.aids/Tree_3/uf_Q_0_1    6.17±0s 
+      subgraph_gcare_aids.aids/Tree_3/uf_Q_0_1    4.36±0s 
       subgraph_gcare_aids.aids/Tree_3/uf_Q_2_3      n/a   
       subgraph_gcare_aids.aids/Tree_3/uf_Q_2_7      n/a   
       subgraph_gcare_aids.aids/Tree_3/uf_Q_4_1      n/a   
@@ -5757,7 +5757,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
      subgraph_gcare_aids.aids/Tree_3/uf_Q_4_14      n/a   
       subgraph_gcare_aids.aids/Tree_3/uf_Q_1_3      n/a   
       subgraph_gcare_aids.aids/Tree_3/uf_Q_3_1      n/a   
-      subgraph_gcare_aids.aids/Tree_3/uf_Q_1_2    4.34±0s 
+      subgraph_gcare_aids.aids/Tree_3/uf_Q_1_2    4.35±0s 
      subgraph_gcare_aids.aids/Tree_3/uf_Q_4_15      n/a   
      subgraph_gcare_aids.aids/Tree_3/uf_Q_4_11      n/a   
       subgraph_gcare_aids.aids/Tree_3/uf_Q_1_6      n/a   
@@ -5771,7 +5771,7 @@ INFO:root:...hing.SubgraphMatching.time_subgraph_matching
       subgraph_gcare_aids.aids/Tree_3/uf_Q_3_6      n/a   
       subgraph_gcare_aids.aids/Tree_3/uf_Q_1_4      n/a   
      subgraph_gcare_aids.aids/Tree_3/uf_Q_4_13      n/a   
-      subgraph_gcare_aids.aids/Tree_3/uf_Q_3_8    4.35±0s 
+      subgraph_gcare_aids.aids/Tree_3/uf_Q_3_8    4.41±0s 
       subgraph_gcare_aids.aids/Tree_3/uf_Q_3_9      n/a   
      subgraph_gcare_aids.aids/Tree_3/uf_Q_4_20      n/a   
      subgraph_gcare_aids.aids/Tree_3/uf_Q_4_18      n/a   
@@ -7388,7 +7388,7 @@ INFO:root:...ng.time_Weighted Model Counting using einsum
  mccomp_pwmc.track4_pwmc_random_pwmc_3      n/a   
  mccomp_pwmc.track4_pwmc_random_pwmc_4      n/a   
  mccomp_pwmc.track4_pwmc_random_pwmc_5      n/a   
- mccomp_pwmc.track4_pwmc_random_pwmc_6    866±0ms 
+ mccomp_pwmc.track4_pwmc_random_pwmc_6    848±0ms 
  mccomp_pwmc.track4_pwmc_random_pwmc_7      n/a   
  mccomp_pwmc.track4_pwmc_random_pwmc_8      n/a   
  mccomp_pwmc.track4_pwmc_random_pwmc_9      n/a   
@@ -7409,7 +7409,7 @@ INFO:root:...ng.time_Weighted Model Counting using einsum
     mccomp_pwmc.track4_pwmc_random_pwmc_3      n/a   
     mccomp_pwmc.track4_pwmc_random_pwmc_4      n/a   
     mccomp_pwmc.track4_pwmc_random_pwmc_5      n/a   
-    mccomp_pwmc.track4_pwmc_random_pwmc_6    866±0ms 
+    mccomp_pwmc.track4_pwmc_random_pwmc_6    848±0ms 
     mccomp_pwmc.track4_pwmc_random_pwmc_7      n/a   
     mccomp_pwmc.track4_pwmc_random_pwmc_8      n/a   
     mccomp_pwmc.track4_pwmc_random_pwmc_9      n/a   
@@ -7422,15 +7422,15 @@ INFO root: Dataset mccomp_pwmc.track4_pwmc_random_pwmc_6 found in cache.
     INFO root: Dataset mccomp_pwmc.track4_pwmc_random_pwmc_6 found in cache.
 tag summary: tagged_records=125 failed_benchmark_entries=0
 ---------------------------------------
-Begin Slurm Epilog: Sep-27-2026 21:22:40
-Job ID:        13654704
-Array Job ID:  13654704_7
+Begin Slurm Epilog: Sep-27-2026 23:25:39
+Job ID:        13659772
+Array Job ID:  13659772_7
 User ID:       wahrens6
 Account:       gts-wahrens6
 Job name:      statistics-trace
 Resources:     cpu=12,mem=192G,node=1
-Rsrc Used:     cput=04:33:12,vmem=0,walltime=00:22:46,mem=15144100K,energy_used=0
+Rsrc Used:     cput=04:20:48,vmem=0,walltime=00:21:44,mem=15086116K,energy_used=0
 Partition:     cpu-medium
 QOS:           inferno
-Nodes:         atl1-1-01-005-36-2
+Nodes:         atl1-1-01-003-32-2
 ---------------------------------------
