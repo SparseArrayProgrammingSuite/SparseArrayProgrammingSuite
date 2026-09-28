@@ -161,15 +161,22 @@ def apply_force(particle, neighbor, parameters):
     dx = neighbor.x - particle.x
     dy = neighbor.y - particle.y
     dz = neighbor.z - particle.z
-    r2 = dx * dx + dy * dy + dz * dz
     gravitational_constant = parameters["gravitational_constant"]
     cutoff = parameters["cutoff"]
 
-    if r2 > cutoff * cutoff:
+    # The interaction region is the 27 neighboring cells, including our own.
+    if any(
+        abs(math.floor(a / cutoff) - math.floor(b / cutoff)) > 1
+        for a, b in (
+            (particle.x, neighbor.x),
+            (particle.y, neighbor.y),
+            (particle.z, neighbor.z),
+        )
+    ):
         return
 
     softening = parameters["softening"]
-    r2 = max(r2, softening * softening)
+    r2 = max(dx * dx + dy * dy + dz * dz, softening * softening)
     r = math.sqrt(r2)
 
     if parameters["force_model"] == "newtonian_gravity":
@@ -814,7 +821,7 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
             "Loads real-world initial conditions for particle simulation benchmarks. "
             "NEMO datasets use source mass columns, unscaled archive coordinates, "
             "Newtonian gravity with G 1.0 in N-body units, dt 1/32, softening 0.05, "
-            "and short interaction cutoffs chosen to exercise sparse workloads "
+            "and short interaction bucket widths chosen to exercise sparse workloads "
             "rather than accurately approximate full gravitational forces."
         )
 
@@ -906,7 +913,7 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                     "NEMO Plummer-model equilibrium snapshot generated with mkplummer,"
                     " using mass, position, and velocity columns. The dataset uses "
                     "source masses, G 1.0 N-body units, dt 1/32, softening 0.05, "
-                    "and cutoff 0.2 to create a sparse, truncated-gravity workload. "
+                    "and bucket width 0.2 to create a sparse gravity workload. "
                     "This cutoff is not a physically validated approximation."
                 ),
                 suites=["standard", "trace"],
@@ -931,7 +938,7 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                     "NEMO Plummer-model equilibrium snapshot generated with mkplummer,"
                     " using mass, position, and velocity columns. The dataset uses "
                     "source masses, G 1.0 N-body units, dt 1/32, softening 0.05, "
-                    "and cutoff 0.2 to create a sparse, truncated-gravity workload. "
+                    "and bucket width 0.2 to create a sparse gravity workload. "
                     "This cutoff is not a physically validated approximation."
                 ),
                 suites=["standard", "trace"],
@@ -956,8 +963,8 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                     "Dubinski Milky Way/Andromeda collision initial conditions from the"
                     " NEMO archive, stored as mass and six phase-space coordinates. "
                     "The dataset uses source masses, G 1.0 N-body units, dt 1/32, "
-                    "softening 0.05, and cutoff 0.1 to create a sparse, "
-                    "truncated-gravity workload. This cutoff is not a physically "
+                    "softening 0.05, and bucket width 0.1 to create a sparse "
+                    "gravity workload. This width is not a physically "
                     "validated approximation."
                 ),
                 suites=["standard"],
@@ -996,7 +1003,10 @@ class ParticleSimBenchmark(Benchmark):
     def description(self):
         return (
             "Benchmark implementation for Particule_Simulation_Algorithm using sparse"
-            " array operations. This benchmark evaluates performance characteristics"
+            " array operations. The cutoff parameter is the cell width: particles"
+            " interact when their cell indices differ by at most one on every"
+            " axis, without a spherical distance cutoff. Distance still determines"
+            " force strength. This benchmark evaluates performance characteristics"
             " and numerical properties."
         )
 
@@ -1045,9 +1055,8 @@ class ParticleSimBenchmark(Benchmark):
     @property
     def ai_disclosure(self):
         return (
-            "No generative AI was used for the benchmark function itself. Generative"
-            " AI might have been used to construct tests. This statement was written by"
-            " hand."
+            "Generative AI was used to revise the benchmark's bucket interaction"
+            " calculation and associated tests."
         )
 
     @property
@@ -1078,54 +1087,59 @@ class ParticleSimBenchmark(Benchmark):
         softening = parameters["softening"]
 
         n_particles = x.shape[0]
-        # Divide each axis into cutoff-wide buckets: floor(coord / cutoff)
-        # guarantees that any two particles within cutoff distance along
-        # that axis fall in the same bucket or an immediately neighboring
-        # one, so checking the 3-wide stencil {-1, 0, 1} of bucket ids --
-        # the same fixed-neighbor-offset idea a finite-difference stencil
-        # uses -- never misses a true interaction. ``n_buckets`` only needs
-        # to be a generous, cutoff-driven bound on how many distinct bucket
-        # ids can occur; it does not need to size an entire grid.
-        n_buckets = (
-            max(1, math.ceil(size / cutoff) + 2) if cutoff > 0 and size > 0 else 1
-        )
-        stencil = xp.astype(xp.arange(3) - 1, xp.int64)
         particle_index = xp.arange(n_particles)
 
-        def axis_candidates(coord):
-            # Mark each particle at its bucket, widened by the stencil
-            # {-1, 0, 1}: two particles are candidates along this axis iff
-            # their widened bucket sets overlap, i.e. their bucket ids are
-            # within 2 of each other -- a superset of "within 1", so no pair
-            # actually within cutoff distance is ever excluded. One indicator
-            # matmul'd against itself replaces a separate own/neighbor pair.
-            bucket = xp.astype(xp.floor(coord / cutoff), xp.int64)
-            reach = xp.minimum(
-                xp.maximum(bucket[:, None] + stencil[None, :], 0), n_buckets - 1
-            )
-            rows = xp.reshape(particle_index[:, None] + stencil[None, :] * 0, (-1,))
-
-            # One-hot-indicator-then-matmul, the same idiom approx_nn.py uses
-            # to gather LSH candidates: a sparse matmul counting shared
-            # bucket columns, instead of a dense N x N compare.
-            indicator = xp.zeros((n_particles, n_buckets), dtype=xp.uint8)
-            indicator[rows, xp.reshape(reach, (-1,))] = 1
-            return xp.matmul(indicator, xp.permute_dims(indicator, (1, 0))) > 0
-
         for _ in range(steps):
-            # A pair is a force candidate only if it is bucket-adjacent on
-            # every axis: dx/dy/dz (and therefore every downstream force
-            # contribution) stay structurally zero for any pair the
-            # bucketing has already ruled out, instead of being computed
-            # densely and masked afterwards.
-            candidates = axis_candidates(x) & axis_candidates(y) & axis_candidates(z)
+            # Particles interact when their buckets, `cutoff` wide, are at most
+            # one apart on every axis: own @ band @ own.T per axis, where own
+            # puts each particle in its bucket and band links adjacent buckets.
+            bx = xp.astype(xp.floor(x / cutoff), xp.int64)
+            by = xp.astype(xp.floor(y / cutoff), xp.int64)
+            bz = xp.astype(xp.floor(z / cutoff), xp.int64)
+            bx = bx - xp.min(bx)
+            by = by - xp.min(by)
+            bz = bz - xp.min(bz)
+            nx = int(xp.max(bx)) + 1
+            ny = int(xp.max(by)) + 1
+            nz = int(xp.max(bz)) + 1
 
-            dx = xp.multiply(candidates, x - xp.reshape(x, (-1, 1)))
-            dy = xp.multiply(candidates, y - xp.reshape(y, (-1, 1)))
-            dz = xp.multiply(candidates, z - xp.reshape(z, (-1, 1)))
+            own_x = xp.zeros((n_particles, nx), dtype=xp.uint8)
+            own_y = xp.zeros((n_particles, ny), dtype=xp.uint8)
+            own_z = xp.zeros((n_particles, nz), dtype=xp.uint8)
+            own_x[particle_index, bx] = 1
+            own_y[particle_index, by] = 1
+            own_z[particle_index, bz] = 1
+
+            band_x = (
+                xp.eye(nx, k=-1, dtype=xp.uint8)
+                + xp.eye(nx, dtype=xp.uint8)
+                + xp.eye(nx, k=1, dtype=xp.uint8)
+            )
+            band_y = (
+                xp.eye(ny, k=-1, dtype=xp.uint8)
+                + xp.eye(ny, dtype=xp.uint8)
+                + xp.eye(ny, k=1, dtype=xp.uint8)
+            )
+            band_z = (
+                xp.eye(nz, k=-1, dtype=xp.uint8)
+                + xp.eye(nz, dtype=xp.uint8)
+                + xp.eye(nz, k=1, dtype=xp.uint8)
+            )
+
+            near_x = xp.matmul(xp.matmul(own_x, band_x), xp.permute_dims(own_x, (1, 0)))
+            near_y = xp.matmul(xp.matmul(own_y, band_y), xp.permute_dims(own_y, (1, 0)))
+            near_z = xp.matmul(xp.matmul(own_z, band_z), xp.permute_dims(own_z, (1, 0)))
+            candidates = (near_x > 0) & (near_y > 0) & (near_z > 0)
+
+            # Masking each side before subtracting only forms differences for
+            # candidate pairs, never the full x - x.T.
+            dx = candidates * x - candidates * xp.reshape(x, (-1, 1))
+            dy = candidates * y - candidates * xp.reshape(y, (-1, 1))
+            dz = candidates * z - candidates * xp.reshape(z, (-1, 1))
             r2 = dx * dx + dy * dy + dz * dz
-            within_cutoff = r2 <= cutoff * cutoff
-            r2 = xp.where(within_cutoff, r2, xp.inf)
+            # Distance sets force strength only; bucket overlap selects pairs.
+            # Nonneighbors have zero force, including the implicit sparse fill.
+            r2 = xp.where(candidates, r2, xp.inf)
             r2 = xp.maximum(r2, softening * softening)
             r = xp.sqrt(r2)
 

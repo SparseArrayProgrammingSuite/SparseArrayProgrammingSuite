@@ -1248,7 +1248,7 @@ class SmartSparseFramework(Framework):
     def call(self, name, func, args, kwargs):
         op = name.rsplit(".", 1)[-1]
         if op in _ELEMENTWISE:
-            return self._elementwise(func, args, kwargs)
+            return self._elementwise(op, func, args, kwargs)
         if op in _CONTRACTIONS or name.startswith("linalg."):
             return self._contraction(func, args, kwargs)
         if op in _CONCATENATIONS:
@@ -1267,7 +1267,7 @@ class SmartSparseFramework(Framework):
                     fill = np.asarray(args[0].fill_value).astype(dtype)[()]
         return self.wrap(result, fill)
 
-    def _elementwise(self, func, args, kwargs):
+    def _elementwise(self, op, func, args, kwargs):
         raw_args = self.unwrap(args)
         raw_kwargs = self.unwrap(kwargs)
         operands = self._operands(args, kwargs)
@@ -1297,6 +1297,22 @@ class SmartSparseFramework(Framework):
                 if not _is_constant(func(*probe_args, **probe_kwargs)):
                     raw_args = [_densify(raw) for raw in raw_args]
                     raw_kwargs = {k: _densify(raw) for k, raw in raw_kwargs.items()}
+                elif isinstance(
+                    getattr(np, op, None), np.ufunc
+                ) and np.broadcast_shapes(
+                    *(raw.shape for raw in operands if _is_sparse(raw))
+                ) == np.broadcast_shapes(
+                    *(
+                        raw.shape
+                        for raw in operands
+                        if _is_sparse(raw) or _is_dense(raw)
+                    )
+                ):
+                    # Hand pydata/sparse the dense operand as is: it reads it
+                    # only at the sparse coordinates. The kernels would store
+                    # it as a full COO instead, and broadcasting that against
+                    # a sparse matrix expands to every coordinate pair.
+                    func = getattr(np, op)
 
         return self.wrap(func(*raw_args, **raw_kwargs), fill)
 

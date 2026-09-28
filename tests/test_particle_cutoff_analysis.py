@@ -2,7 +2,6 @@
 
 import numpy as np
 
-from saps.benchmarks.particle_sim import Particle, apply_force
 from scripts.analyze_particle_cutoff import acceleration_curve, error_metrics
 
 
@@ -13,20 +12,15 @@ def test_cutoff_curve_matches_scalar_force_with_masses_and_softening():
     radii = np.array([0.005, 0.01, 1.0, 3.0])
     full, truncated, density = acceleration_curve(position, mass, 0.05, 1.7, radii)
     for index, radius in enumerate(radii):
-        particles = [
-            Particle(*point, particle_mass=m)
-            for point, m in zip(position, mass, strict=True)
-        ]
-        parameters = {
-            "cutoff": radius,
-            "softening": 0.05,
-            "gravitational_constant": 1.7,
-            "force_model": "newtonian_gravity",
-        }
-        for particle in particles:
-            for neighbor in particles:
-                apply_force(particle, neighbor, parameters)
-        expected = [[p.ax, p.ay, p.az] for p in particles]
+        expected = np.zeros_like(position, dtype=float)
+        for i, point in enumerate(position):
+            for j, neighbor in enumerate(position):
+                delta = neighbor - point
+                distance2 = float(delta @ delta)
+                if distance2 <= radius**2:
+                    expected[i] += (
+                        1.7 * mass[j] * delta / max(distance2, 0.05**2) ** 1.5
+                    )
         np.testing.assert_allclose(truncated[index], expected, atol=1e-12)
         single_full, single_truncated, single_density = acceleration_curve(
             position, mass, 0.05, 1.7, np.array([radius])
