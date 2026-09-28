@@ -5,11 +5,11 @@ import numpy as np
 import array_api_compat.numpy as compat_np
 import sparse as sp
 
-from frameworks.saps_smart import SmartSparseFramework
+from frameworks.saps_smart import SmartSparseKernels
 from frameworks.saps_sparse import PyDataSparseFramework
 
 
-@pytest.fixture(params=[SmartSparseFramework, PyDataSparseFramework])
+@pytest.fixture(params=[SmartSparseKernels, PyDataSparseFramework])
 def xp(request):
     return request.param()
 

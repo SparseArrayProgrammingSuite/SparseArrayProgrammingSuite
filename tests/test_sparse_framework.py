@@ -5,7 +5,7 @@ import numpy as np
 import array_api_compat.numpy as compat_np
 import sparse as sp
 
-from frameworks.saps_smart import SmartSparseFramework
+from frameworks.saps_smart import SmartSparseKernels
 from frameworks.saps_sparse import PyDataSparseFramework
 
 
@@ -28,7 +28,7 @@ def test_stack_dense_and_sparse_arrays(sparse_inputs, axis):
     np.testing.assert_array_equal(actual, np.stack(dense, axis=axis))
 
 
-@pytest.mark.parametrize("framework_cls", [PyDataSparseFramework, SmartSparseFramework])
+@pytest.mark.parametrize("framework_cls", [PyDataSparseFramework, SmartSparseKernels])
 @pytest.mark.parametrize("name", ["concat", "concatenate"])
 @pytest.mark.parametrize(
     "sparse_inputs", [(False, False), (True, False), (False, True), (True, True)]

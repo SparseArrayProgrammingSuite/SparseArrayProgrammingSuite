@@ -424,7 +424,7 @@ poetry run ./bin/run_benchmark.py \
 Freshness tests check that generated artifacts still match the source code and metadata in the repository:
 
 - `metadata.json` matches benchmark, generator, and dataset metadata.
-- `statistics.json` contains current trace-derived tags for datasets selected by the `trace` tag.
+- `statistics.json` contains current trace-derived tags for datasets selected by the `suite-trace` tag.
 - `manifest.json` records current dataset freshness.
 - Every concrete generator is reachable through a benchmark, including shell benchmarks for intentionally standalone generators.
 - Every manifest record points to a dataset object that exists in the configured remote storage backend.

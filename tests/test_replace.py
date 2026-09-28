@@ -13,7 +13,7 @@ from binsparse.conversions import from_numpy, from_sparse
 from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_pytorch import PytorchFramework
 from frameworks.saps_scipy import SciPyFramework
-from frameworks.saps_smart import SmartSparseFramework
+from frameworks.saps_smart import SmartSparseFramework, SmartSparseKernels
 from frameworks.saps_sparse import PyDataSparseFramework
 from saps.benchmarks.jacobi import JacobiBenchmark
 from saps.benchmarks.preconditioned_cg import JacobiPreconditionedCGBenchmark
@@ -75,7 +75,7 @@ def test_replace_scalar_and_empty_arrays(xp, shape):
     np.testing.assert_array_equal(result, np.full(shape, 2))
 
 
-@pytest.mark.parametrize("framework", [PyDataSparseFramework, SmartSparseFramework])
+@pytest.mark.parametrize("framework", [PyDataSparseFramework, SmartSparseKernels])
 @pytest.mark.parametrize("format", ["coo", "gcxs", "dok"])
 def test_replace_sparse_fill_and_stored_values(framework, format):
     array = sp.COO(
@@ -151,7 +151,7 @@ def test_tagger_records_replace_and_nonzero_fill(monkeypatch):
     assert xp.stats["operators"]["replace"] == 1
     assert xp.stats["operator_arg_counts"]["replace"] == [3]
     assert result.elementwise_ops_since_reduction == 1
-    assert {"nonzero-fill", "fancy-ops"} <= set(xp.tags)
+    assert {"feature-nonzero-fill", "feature-fancy-ops"} <= set(xp.tags)
 
 
 @pytest.mark.parametrize(

@@ -311,7 +311,7 @@ def test_saved_diagnostics_preserve_machines_across_resume(
     ("flags", "expected"),
     [
         ([], "0"),
-        (["--tag", "test"], "0"),
+        (["--tag", "suite-test"], "0"),
         (["--check-suite"], "1"),
         (["--trace-statistics"], "0"),
         (["--cache-datasets"], "0"),

@@ -4,7 +4,7 @@ from typing import Any
 
 import numpy as np
 
-from saps_smart import SmartSparseFramework
+from saps_smart import SmartSparseFramework, WrappedArray
 
 from saps_framework import Framework
 
@@ -664,6 +664,10 @@ class TaggerFramework(Framework):
         )
 
     def _tensor_stats(self, array, elementwise_ops_since_reduction=0):
+        # Describe a wrapped tensor by its storage: a dense array's remembered
+        # fill value isn't a sparse format feature.
+        if isinstance(array, WrappedArray):
+            array = array.array
         shape = array.shape
         if shape is not None:
             shape = tuple(int(dim) for dim in shape)

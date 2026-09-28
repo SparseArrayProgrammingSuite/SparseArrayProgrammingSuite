@@ -90,15 +90,13 @@ Datasets represent one run of a benchmark. Generators group similar data-generat
 
 Tags can be applied to datasets, generators, or benchmarks. If a generator or benchmark is tagged, its datasets inherit that tag.
 
-Common suite tags include:
+Suites are listed by name in `suites`, and each one becomes a `suite-<name>` tag (for example, the `test` suite is selected with `--tag suite-test`). Common suites include:
 
 - `test`: datasets that run in CI and cover dense/sparse cases, different sizes, and code paths.
 - `standard`: canonical datasets in the suite.
 - `trace`: datasets whose operation behavior should be traced into `statistics.json`.
-- `dynamic`: datasets with random seeds or generated kernels.
-- `AI`: AI-generated datasets.
 
-Use ACM CCS XML to describe problem domains. Paste the XML into `concepts`, and SAPS generates lowercase hyphenated topic tags such as `applied-computing`, `physical-sciences-and-engineering`, or `aerospace`.
+Use ACM CCS XML to describe problem domains. Paste the XML into `concepts`, and SAPS generates lowercase hyphenated topic tags prefixed with `concept-`, such as `concept-applied-computing`, `concept-physical-sciences-and-engineering`, or `concept-aerospace`.
 
 Every benchmark, generator, and dataset provides `concepts`. Use `"<ccs2012></ccs2012>"` as a stub until you have a classification. You can use the [ACM CCS 2012 generator](https://dl.acm.org/ccs/ccs.cfm), copy its XML output, and paste it in as `concepts`:
 
@@ -130,7 +128,6 @@ These tags describe the general character of a problem, and are generated progra
 - `feature-fancy-ops`: min, max, and, or, shift, or similar operations.
 - `feature-index-ops`: contains indexing.
 - `feature-nonzero-fill`: uses a fill value other than zero.
-- `feature-iterative`: loops over a matrix or repeats until convergence.
 - `feature-dense`: exclusively dense problems.
 - `feature-hypersparse`: contains hypersparsity, such as `nnz << n` for a dimension.
 - `feature-dynamic-sparsity`: sparse-sparse interactions may change the sparsity pattern.
@@ -208,7 +205,7 @@ Dataset digests should be content hashes of serialized data. Freshness records b
 
 Tracing runs selected benchmark cases with `frameworks/saps_tagger.py`. The tagger records observed array operations and sparsity-relevant behavior, then writes those derived tags to `statistics.json`.
 
-A dataset is selected for tracing when the benchmark, generator, or dataset has the `trace` suite tag. Use `trace` for representative datasets that should describe the benchmark's operation mix. Avoid tracing huge datasets unless their scale is necessary for the behavior being observed.
+A dataset is selected for tracing when the benchmark, generator, or dataset is in the `trace` suite (tagged `suite-trace`). Use `trace` for representative datasets that should describe the benchmark's operation mix. Avoid tracing huge datasets unless their scale is necessary for the behavior being observed.
 
 Tracing should not change the semantics of a benchmark. It is a metadata pass over selected benchmark executions.
 
