@@ -26,7 +26,6 @@ from saps_framework import (
 )
 
 
-
 class PyDataSparseLinalg:
     @staticmethod
     def _dense(array):

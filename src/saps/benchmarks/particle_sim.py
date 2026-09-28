@@ -1197,9 +1197,9 @@ class ParticleSimBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(
-                item, BinsparseTensor
-            ), "Output must be in binsparse format"
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
         if self._ref_outputs is None:
             return
 
@@ -1211,6 +1211,6 @@ class ParticleSimBenchmark(Benchmark):
             except TypeError:
                 actual_values = to_sparse(actual).todense()
             expected_values = to_numpy(expected)
-            assert np.all(
-                actual_values == expected_values
-            ), f"Particle simulation output {i} mismatch for {param.dataset.name}"
+            assert np.all(actual_values == expected_values), (
+                f"Particle simulation output {i} mismatch for {param.dataset.name}"
+            )
