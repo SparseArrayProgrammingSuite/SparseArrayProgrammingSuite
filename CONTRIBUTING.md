@@ -56,14 +56,12 @@ def benchmark(self, xp, meta, A, b, x0):
     return x
 ```
 
-Every benchmark in the suite has a fixed parameter list. If the inputs differ between datasets, split the benchmark so that each class has one signature. The ODE benchmarks do this by hand, with one class per (solver, problem) pair in `ode.py`. When there are many datasets, generate the classes (see below). `*data_args` remains available as a last resort, after any fixed leading inputs: `def benchmark(self, xp, meta, *data_args)`.
+Every benchmark function has a fixed parameter list. If the inputs differ between datasets, there are two ways to keep it that way:
 
-If each dataset would need its own signature, prefer one benchmark class per dataset, generated from a shared abstract base with the helpers in `src/saps/codegen.py`. Two benchmarks do this:
+- **Split the benchmark by hand** when there are only a few distinct signatures. The ODE benchmarks do this, with one class per (solver, problem) pair in `ode.py`.
+- **Generate the function per dataset** when every dataset needs its own signature. Override `Generator.generate_benchmark_function(dataset, problem, benchmark)` to return a function `benchmark(xp, meta, *inputs)` built from the dataset's metadata with `saps.codegen.define_function`. SAPS calls this during setup, so it isn't timed. The default returns the benchmark's own `benchmark` method unchanged. Subgraph matching (one parameter per query matrix), weighted model counting (`B, W1, ..., Wn`) and model counting generate their functions this way, and their benchmark classes' `benchmark` methods only raise.
 
-- **Subgraph matching:** `src/saps/benchmarks/subgraph_queries.py` holds one class per query, built on `SubgraphQueryBenchmark`. To add or remove a query, edit `TOY_QUERIES` or `GCARE_QUERIES` in `subgraph_matching.py` and run `poetry run ./bin/generate_subgraph_benchmarks.py`.
-- **Weighted model counting:** `src/saps/benchmarks/weighted_model_counting_formulas.py` holds one class per formula, built on `WeightedModelCountingBenchmark`. The formulas come from the `WMCGenerator` and `MCCompPWMCGenerator` dataset lists. After changing either, run `poetry run ./bin/generate_wmc_benchmarks.py`.
-
-Don't edit generated modules by hand. Each generator's `--check` flag reports whether its committed module is current.
+`*data_args` remains available as a last resort, after any fixed leading inputs: `def benchmark(self, xp, meta, *data_args)`.
 
 Benchmark functions should:
 

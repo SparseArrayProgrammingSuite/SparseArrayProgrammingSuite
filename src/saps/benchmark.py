@@ -6,6 +6,7 @@ import re
 import sys
 import xml.etree.ElementTree as ET
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Generic, TypeVar
@@ -336,6 +337,19 @@ class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
     @abstractmethod
     def generate(self, dataset: TDataset) -> DataInstance: ...
 
+    def generate_benchmark_function(
+        self, dataset: TDataset, problem: DataInstance, benchmark: Callable[..., Any]
+    ) -> Callable[..., Any]:
+        """Return the function that computes ``dataset`` with ``problem``'s inputs.
+
+        The result is called as ``function(xp, meta, *inputs)``. By default it is
+        ``benchmark``, the benchmark's bound ``benchmark`` method. Generators
+        whose datasets each need their own fixed-arity signature (for example,
+        one parameter per matrix of a query) override this to build that
+        function at setup time, typically with ``saps.codegen.define_function``.
+        """
+        return benchmark
+
     @property
     def metadata(self) -> dict[str, Any]:
         return {
@@ -462,9 +476,12 @@ class Benchmark(Tagged, Attributed, Motivated):
                 xp = None
         if xp is not None:
             self._xp = xp
+            function = param.generator.generate_benchmark_function(
+                param.dataset, problem, self.benchmark
+            )
 
             def benchmark(meta, *data_args):
-                return self.benchmark(xp, meta, *data_args)
+                return function(xp, meta, *data_args)
 
             self._compiled_benchmark = xp.compile(benchmark)
 

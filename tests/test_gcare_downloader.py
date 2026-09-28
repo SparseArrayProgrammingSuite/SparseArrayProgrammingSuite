@@ -13,10 +13,9 @@ from binsparse.conversions import to_sparse
 from saps.benchmark import DataInstance, Generator
 from saps.benchmarks import subgraph_matching
 from saps.benchmarks.subgraph_matching import (
+    GCareDataset,
     GCareGraphGenerator,
-    SubgraphQueryBenchmark,
-    _gcare_query_inputs,
-    gcare_query,
+    GCareHumanGenerator,
 )
 from saps.downloaders import gcare
 from saps.storage import LocalStorageBackend
@@ -64,31 +63,20 @@ def test_gcare_cached_graph_contains_everything_for_query_setup(monkeypatch, tmp
     monkeypatch.setattr(
         gcare, "_parse_query", Mock(side_effect=AssertionError("parse"))
     )
-    query, _ = gcare_query("human", "Star_3/uf_Q_2_1")
-    assert query["gt"] == 1
-    assert query["expr"] == "S[] += V0[v_0] * P0[v_0] * V1[v_1] * C[v_1] * E2[v_0,v_1]"
-
-    class HumanStar3Query(SubgraphQueryBenchmark):
-        source = "gcare"
-        subset = "human"
-        query_name = "Star_3/uf_Q_2_1"
-
-        def benchmark(self, xp, meta, C, E2, P0, V0, V1):
-            raise NotImplementedError
-
-    benchmark = HumanStar3Query()
-    generator = benchmark.generators[0]
-    problem = generator.generate(generator.datasets[0])
+    query_generator = GCareHumanGenerator()
+    problem = query_generator.generate(query_generator.datasets[0])
 
     assert problem.meta["gt"] == 1
-    matrices = dict(zip(benchmark.matrix_names, problem.inputs, strict=True))
+    assert (
+        problem.meta["expr"]
+        == "S[] += V0[v_0] * P0[v_0] * V1[v_1] * C[v_1] * E2[v_0,v_1]"
+    )
+    matrices = dict(zip(problem.meta["matrix_names"], problem.inputs, strict=True))
     np.testing.assert_array_equal(to_sparse(matrices["P0"]).todense(), [1, 0, 0])
     np.testing.assert_array_equal(to_sparse(matrices["C"]).todense(), [1, 0, 1])
     assert to_sparse(matrices["E2"])[0, 2] == 1
-    missing_query, _ = gcare_query("human", "Star_3/missing_label")
-    missing_names = missing_query["matrix_names"]
-    inputs, _ = _gcare_query_inputs("human", "Star_3/missing_label", missing_names)
-    matrices = dict(zip(missing_names, inputs, strict=True))
+    missing = query_generator.generate(GCareDataset("human", "Star_3/missing_label"))
+    matrices = dict(zip(missing.meta["matrix_names"], missing.inputs, strict=True))
     assert not np.any(to_sparse(matrices["V99"]).todense())
     assert not np.any(to_sparse(matrices["E99"]).todense())
     assert not root.exists()
@@ -131,6 +119,6 @@ def test_gcare_incomplete_cache_fails_without_downloading(
     )
 
     with pytest.raises(exception, match=message):
-        gcare_query("human", "missing")
+        GCareHumanGenerator().generate(GCareDataset("human", "missing"))
 
     download.assert_not_called()

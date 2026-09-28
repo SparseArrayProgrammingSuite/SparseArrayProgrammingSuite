@@ -1,4 +1,3 @@
-import inspect
 import textwrap
 from abc import ABC
 from pathlib import Path
@@ -16,6 +15,11 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+)
+from saps.codegen import (
+    constant_function_source,
+    define_function,
+    einsum_function_source,
 )
 from saps.downloaders.mccomp import (
     MCCOMP_REPOSITORY_URL,
@@ -185,20 +189,22 @@ class WMCCompDataset(Dataset):
         return data
 
 
-def _only_dataset(datasets: list, only: str | None) -> list:
-    """All ``datasets``, or just the one named ``only``."""
-    if only is None:
-        return datasets
-    selected = [dataset for dataset in datasets if dataset.name == only]
-    if not selected:
-        raise ValueError(f"Unknown dataset {only!r}")
-    return selected
+class _WMCFunctionGenerator(Generator[Any], ABC):
+    """Builds each formula's benchmark function, with parameters ``B, W1, ..., Wn``."""
+
+    def generate_benchmark_function(self, dataset, problem, benchmark):
+        meta = problem.meta
+        params = ["B", *(f"W{i}" for i in range(1, meta["num_vars"] + 1))]
+        if meta["expr"] is None:
+            source = constant_function_source(meta["default_total"], "float64", params)
+        else:
+            source = einsum_function_source(meta["expr"], params)
+        return define_function(
+            source, f"<saps-generated {self.name}.{dataset.name}>", {"np": np}
+        )
 
 
-class WMCGenerator(Generator[WMCDataset]):
-    def __init__(self, only: str | None = None):
-        self._only = only
-
+class WMCGenerator(_WMCFunctionGenerator, Generator[WMCDataset]):
     @property
     def name(self) -> str:
         return "wmc_generator"
@@ -244,10 +250,6 @@ class WMCGenerator(Generator[WMCDataset]):
 
     @property
     def datasets(self) -> list[WMCDataset]:
-        return _only_dataset(self.all_datasets, self._only)
-
-    @property
-    def all_datasets(self) -> list[WMCDataset]:
         return [
             WMCDataset(
                 name="test_1",
@@ -421,10 +423,7 @@ class WMCGenerator(Generator[WMCDataset]):
         )
 
 
-class MCCompPWMCGenerator(Generator[WMCCompDataset]):
-    def __init__(self, only: str | None = None):
-        self._only = only
-
+class MCCompPWMCGenerator(_WMCFunctionGenerator, Generator[WMCCompDataset]):
     @property
     def name(self) -> str:
         return "mccomp_pwmc"
@@ -474,10 +473,6 @@ class MCCompPWMCGenerator(Generator[WMCCompDataset]):
 
     @property
     def datasets(self) -> list[WMCCompDataset]:
-        return _only_dataset(self.all_datasets, self._only)
-
-    @property
-    def all_datasets(self) -> list[WMCCompDataset]:
         return [
             WMCCompDataset(source_path, suites=["standard", "trace"])
             for source_path in list_mccomp_instances("Track4_PWMC")
@@ -517,30 +512,18 @@ class MCCompPWMCGenerator(Generator[WMCCompDataset]):
         return DataInstance(inputs=data_list, meta=meta)
 
 
-class WeightedModelCountingBenchmark(Benchmark, ABC):
-    """Weighted model count of one CNF formula, computed with a single einsum.
-
-    Generated subclasses (saps.benchmarks.weighted_model_counting_formulas) set
-    ``source`` (``"test"`` or ``"mccomp"``) and ``dataset_name``, and define
-    ``benchmark`` with parameters ``B, W1, ..., Wn`` after ``xp`` and ``meta``.
-    Regenerate them with ./bin/generate_wmc_benchmarks.py.
-    """
-
-    source: str
-    dataset_name: str
-
+class WeightedModelCounting(Benchmark):
     @property
-    def num_vars(self) -> int:
-        # Parameters after self, xp, meta and B are the weights W1..Wn.
-        return len(inspect.signature(type(self).benchmark).parameters) - 4
+    def tag(self):
+        return "weighted_model_counting"
 
     @property
     def name(self):
-        return f"weighted_model_counting_{self.dataset_name}"
+        return "Weighted Model Counting using einsum"
 
     @property
     def pretty_name(self):
-        return f"Weighted Model Counting ({self.dataset_name})"
+        return "Weighted Model Counting using einsum"
 
     @property
     def description(self):
@@ -576,18 +559,13 @@ class WeightedModelCountingBenchmark(Benchmark, ABC):
 
     @property
     def generators(self) -> list[Generator[Any]]:
-        if self.source == "test":
-            return [WMCGenerator(only=self.dataset_name)]
-        return [MCCompPWMCGenerator(only=self.dataset_name)]
+        return [WMCGenerator(), MCCompPWMCGenerator()]
 
-    def setup(self, param, *, use_cache: bool = True, xp=None):
-        super().setup(param, use_cache=use_cache, xp=xp)
-        if self._meta["num_vars"] != self.num_vars:
-            raise RuntimeError(
-                f"{param} has {self._meta['num_vars']} variables, but "
-                f"{type(self).__name__}.benchmark takes {self.num_vars} weights. "
-                "Regenerate with ./bin/generate_wmc_benchmarks.py."
-            )
+    def benchmark(self, xp, meta):
+        raise NotImplementedError(
+            "Weighted model counting functions are generated per formula by the "
+            "generator's generate_benchmark_function."
+        )
 
     def check(self, param):
         for item in self._output:
@@ -601,19 +579,6 @@ class WeightedModelCountingBenchmark(Benchmark, ABC):
         assert np.isclose(result, expected, rtol=10e-8), (
             f"Test '{param.dataset.name}' failed: expected {expected}, got {result}"
         )
-
-
-def wmc_formulas() -> list[tuple[str, Dataset, str]]:
-    """Every formula that gets a generated benchmark: ``(source, dataset, cnf)``."""
-    formulas: list[tuple[str, Dataset, str]] = [
-        ("test", dataset, dataset.cnf_text) for dataset in WMCGenerator().datasets
-    ]
-    for dataset in MCCompPWMCGenerator().datasets:
-        path = download_mccomp_instance(
-            normalize_mccomp_source_path(dataset.source_path)
-        )
-        formulas.append(("mccomp", dataset, Path(path).read_text(encoding="utf-8")))
-    return formulas
 
 
 def _default_weighted_total(weights: dict[int, float], num_vars: int) -> float:

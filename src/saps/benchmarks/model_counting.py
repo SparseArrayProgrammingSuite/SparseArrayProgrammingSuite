@@ -1,3 +1,4 @@
+from abc import ABC
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,11 @@ from saps.benchmark import (
     Generator,
     Ref,
     ShellBenchmark,
+)
+from saps.codegen import (
+    constant_function_source,
+    define_function,
+    einsum_function_source,
 )
 from saps.downloaders.mccomp import (
     MCCOMP_REPOSITORY_URL,
@@ -90,7 +96,22 @@ class MCDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class MCGenerator(Generator[MCDataset]):
+class _MCFunctionGenerator(Generator[Any], ABC):
+    """Builds each formula's benchmark function, with the parameter ``B``."""
+
+    def generate_benchmark_function(self, dataset, problem, benchmark):
+        meta = problem.meta
+        params = ["B"]
+        if meta["expr"] is None:
+            source = constant_function_source(meta["default_total"], "int64", params)
+        else:
+            source = einsum_function_source(meta["expr"], params)
+        return define_function(
+            source, f"<saps-generated {self.name}.{dataset.name}>", {"np": np}
+        )
+
+
+class MCGenerator(_MCFunctionGenerator, Generator[MCDataset]):
     @property
     def name(self) -> str:
         return "mc_generator"
@@ -327,7 +348,7 @@ class MCCompBenchmark(ShellBenchmark):
         return MCCompGenerator()
 
 
-class MCCompMCGenerator(Generator[MCCompDataset]):
+class MCCompMCGenerator(_MCFunctionGenerator, Generator[MCCompDataset]):
     @property
     def name(self) -> str:
         return "mccomp_mc"
@@ -507,13 +528,11 @@ class ModelCounting(Benchmark):
     def generators(self) -> list[Generator[Any]]:
         return [MCGenerator(), MCCompMCGenerator()]
 
-    def benchmark(self, xp, meta: dict[str, Any], B) -> Any:
-        expr = meta["expr"]
-
-        if expr is None:
-            return xp.array(meta["default_total"], dtype=np.int64)
-
-        return xp.einsum(expr, B=B)
+    def benchmark(self, xp, meta):
+        raise NotImplementedError(
+            "Model counting functions are generated per formula by the "
+            "generator's generate_benchmark_function."
+        )
 
     def check(self, param):
         for item in self._output:

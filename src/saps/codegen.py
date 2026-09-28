@@ -1,99 +1,56 @@
-"""Rendering helpers for generated benchmark modules.
+"""Build benchmark functions from source at run time.
 
-The helpers emit code in the layout ``ruff format`` would produce, so a
-generated module is stable under the formatter and ``--check`` can compare a
-fresh render against the committed file byte for byte.
+Generators whose datasets each need a different benchmark signature override
+``Generator.generate_benchmark_function`` and build that dataset's function with
+these helpers. Source registered through ``define_function`` stays visible to
+``inspect.getsource``, which source-level compilers such as ``finch_fused.jit``
+rely on.
 """
 
-import difflib
-import sys
-from collections.abc import Iterable, Sequence
-from pathlib import Path
-
-LINE_LENGTH = 88
-_BENCHMARK_ARGS = ("self", "xp", "meta")
+import builtins
+import linecache
+from collections.abc import Callable, Sequence
+from typing import Any
 
 
-def fits(line: str) -> bool:
-    return len(line) <= LINE_LENGTH
+def define_function(
+    source: str, filename: str, namespace: dict[str, Any] | None = None
+) -> Callable[..., Any]:
+    """Compile ``source`` (a single ``def``) under ``filename`` and return it.
 
-
-def render_string(
-    text: str, indent: str, suffix: str = "", delimiter: str = " "
-) -> list[str]:
-    """Render a string literal, split into implicit concatenation if too long.
-
-    Splits only after occurrences of ``delimiter``, which stays at the end of
-    each piece.
+    ``filename`` should be unique per generated function, e.g.
+    ``"<saps-generated generator.dataset>"``; it appears in tracebacks and is
+    registered in ``linecache`` so ``inspect.getsource`` can find the source.
+    ``namespace`` supplies the function's globals.
     """
-    if fits(f'{indent}"{text}"{suffix}'):
-        return [f'{indent}"{text}"{suffix}']
-    terms = text.split(delimiter)
-    pieces = [term + delimiter for term in terms[:-1]] + [terms[-1]]
-    lines, current = [], ""
-    for piece in pieces:
-        if current and not fits(f'{indent}"{current}{piece}"'):
-            lines.append(f'{indent}"{current}"')
-            current = ""
-        current += piece
-    lines.append(f'{indent}"{current}"{suffix}')
-    return lines
+    code = compile(source, filename, "exec")
+    lines = source.splitlines(keepends=True)
+    linecache.cache[filename] = (len(source), None, lines, filename)
+    scope: dict[str, Any] = {"__builtins__": builtins, **(namespace or {})}
+    local: dict[str, Any] = {}
+    exec(code, scope, local)  # noqa: S102
+    functions = [value for value in local.values() if callable(value)]
+    if len(functions) != 1:
+        raise ValueError(f"{filename}: expected one function, got {sorted(local)}")
+    return functions[0]
 
 
-def render_signature(params: Sequence[str]) -> list[str]:
-    """Render ``def benchmark(self, xp, meta, *params):`` inside a class body."""
-    args = [*_BENCHMARK_ARGS, *params]
-    one_line = f"    def benchmark({', '.join(args)}):"
-    if fits(one_line):
-        return [one_line]
-    hugged = f"        {', '.join(args)}"
-    if fits(hugged):
-        return ["    def benchmark(", hugged, "    ):"]
-    return ["    def benchmark(", *(f"        {arg}," for arg in args), "    ):"]
+def _signature(params: Sequence[str]) -> str:
+    for name in params:
+        if not name.isidentifier():
+            raise ValueError(f"Invalid parameter name {name!r}")
+    return f"def benchmark({', '.join(['xp', 'meta', *params])}):\n"
 
 
-def render_einsum_return(
-    expr: str, params: Sequence[str], delimiter: str = " "
-) -> list[str]:
-    """Render ``return xp.einsum(expr, p=p, ...)`` inside a method body."""
-    kwargs = [f"{name}={name}" for name in params]
-    one_line = f'        return xp.einsum("{expr}", {", ".join(kwargs)})'
-    if fits(one_line):
-        return [one_line]
-    hugged = f'            "{expr}", {", ".join(kwargs)}'
-    if fits(hugged):
-        return ["        return xp.einsum(", hugged, "        )"]
-    return [
-        "        return xp.einsum(",
-        *render_string(expr, "            ", ",", delimiter),
-        *(f"            {kwarg}," for kwarg in kwargs),
-        "        )",
-    ]
+def einsum_function_source(expr: str, params: Sequence[str]) -> str:
+    """Source for ``benchmark(xp, meta, *params)`` evaluating one einsum."""
+    kwargs = ", ".join(f"{name}={name}" for name in params)
+    return _signature(params) + f"    return xp.einsum({expr!r}, {kwargs})\n"
 
 
-def require_unique(names: Iterable[str], what: str) -> None:
-    names = list(names)
-    duplicates = sorted({name for name in names if names.count(name) > 1})
-    if duplicates:
-        raise ValueError(f"Duplicate generated {what}: {duplicates}")
+def constant_function_source(value: Any, dtype: str, params: Sequence[str]) -> str:
+    """Source for ``benchmark(xp, meta, *params)`` returning a constant array.
 
-
-def write_or_check(path: Path, rendered: str, check: bool) -> int:
-    """Write ``rendered`` to ``path``, or with ``check`` diff it and return 1."""
-    if check:
-        current = path.read_text() if path.exists() else ""
-        if current == rendered:
-            print(f"{path} is up to date")
-            return 0
-        sys.stdout.writelines(
-            difflib.unified_diff(
-                current.splitlines(keepends=True),
-                rendered.splitlines(keepends=True),
-                str(path),
-                "rendered",
-            )
-        )
-        return 1
-    path.write_text(rendered)
-    print(f"wrote {path}")
-    return 0
+    The function refers to ``np``, so define it with ``{"np": numpy}``.
+    """
+    return _signature(params) + f"    return xp.array({value!r}, dtype=np.{dtype})\n"
