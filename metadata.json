@@ -927,7 +927,7 @@
       "concepts": "<ccs2012></ccs2012>",
       "description": "Integrates ODE initial-value problems with backward Euler, using ten fixed-point iterations per step.",
       "file": "src/saps/benchmarks/ode.py",
-      "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+      "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
@@ -942,7 +942,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small RC circuit",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "rc_small",
               "pretty_name": "RC Small",
               "suites": [
@@ -957,7 +957,7 @@
           ],
           "description": "RC circuit ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+          "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
           "motivation": "",
           "name": "rc",
           "pretty_name": "RC Circuit",
@@ -981,7 +981,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small RLC circuit",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "rlc_small",
               "pretty_name": "RLC Small",
               "suites": [
@@ -996,7 +996,7 @@
           ],
           "description": "RLC circuit ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+          "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
           "motivation": "",
           "name": "rlc",
           "pretty_name": "RLC Circuit",
@@ -1020,7 +1020,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small Lotka-Volterra system",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "lotka_volterra_small",
               "pretty_name": "Lotka-Volterra Small",
               "suites": [
@@ -1035,7 +1035,7 @@
           ],
           "description": "Lotka-Volterra ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+          "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
           "motivation": "",
           "name": "lotka_volterra",
           "pretty_name": "Lotka-Volterra",
@@ -1059,7 +1059,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Tiny 2D Brusselator correctness test",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "brusselator_tiny",
               "pretty_name": "Brusselator Tiny",
               "suites": [
@@ -1076,7 +1076,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "2D Brusselator with 100x100 grid",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "brusselator_4",
               "pretty_name": "Brusselator 4x4",
               "suites": [
@@ -1093,7 +1093,7 @@
           ],
           "description": "2D Brusselator ODE with diffusion.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+          "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
           "motivation": "",
           "name": "brusselator",
           "pretty_name": "Brusselator",
@@ -1116,7 +1116,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: model of an atmospheric storm track.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_eady",
               "pretty_name": "SLICOT Eady example",
               "source_inputs": 1,
@@ -1142,7 +1142,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: classical CD player model.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_cdplayer",
               "pretty_name": "SLICOT CD player",
               "source_inputs": 2,
@@ -1166,7 +1166,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_fom",
               "pretty_name": "SLICOT FOM model",
               "source_inputs": 1,
@@ -1176,13 +1176,11 @@
               "source_url": "https://www.slicot.org/objects/software/shared/bench-data/fom.zip",
               "step": 0.001,
               "suites": [
-                "standard",
-                "trace"
+                "standard"
               ],
               "tags": [
                 "suite-group-timestepping",
-                "suite-standard",
-                "suite-trace"
+                "suite-standard"
               ],
               "topics": []
             },
@@ -1192,7 +1190,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_random",
               "pretty_name": "SLICOT Random example",
               "source_inputs": 1,
@@ -1216,7 +1214,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: partial differential equation.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_pde",
               "pretty_name": "SLICOT PDE example",
               "source_inputs": 1,
@@ -1242,7 +1240,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: heat equation in a thin rod.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_heat_cont",
               "pretty_name": "SLICOT Heat equation (continuous case)",
               "source_inputs": 1,
@@ -1252,13 +1250,11 @@
               "source_url": "https://www.slicot.org/objects/software/shared/bench-data/heat-cont.zip",
               "step": 0.001,
               "suites": [
-                "standard",
-                "trace"
+                "standard"
               ],
               "tags": [
                 "suite-group-timestepping",
-                "suite-standard",
-                "suite-trace"
+                "suite-standard"
               ],
               "topics": []
             },
@@ -1268,7 +1264,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: Orr-Sommerfeld operator for Couette flow.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_orr_som",
               "pretty_name": "SLICOT Orr-Somerfeld example",
               "source_inputs": 1,
@@ -1294,7 +1290,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: component 1r of the International Space Station.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_iss",
               "pretty_name": "SLICOT International space station",
               "source_inputs": 3,
@@ -1320,7 +1316,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: motion problem in a building.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_build",
               "pretty_name": "SLICOT Building model",
               "source_inputs": 1,
@@ -1346,7 +1342,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: Clamped beam model.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_beam",
               "pretty_name": "SLICOT Clamped beam model",
               "source_inputs": 1,
@@ -1367,7 +1363,7 @@
           ],
           "description": "Loads SLICOT model-reduction problems without explicit E matrices, preserving stored sparse matrices, treating E as the identity, and defaulting missing B to a normalized single-input vector.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+          "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
           "motivation": "SLICOT model-reduction examples provide realistic linear dynamical systems for ODE integration benchmarks.",
           "name": "slicot_ode",
           "pretty_name": "SLICOT Model-Reduction ODE",
@@ -84605,7 +84601,7 @@
       "concepts": "<ccs2012></ccs2012>",
       "description": "Integrates ODE initial-value problems with the forward Euler method.",
       "file": "src/saps/benchmarks/ode.py",
-      "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+      "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
@@ -84620,7 +84616,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small RC circuit",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "rc_small",
               "pretty_name": "RC Small",
               "suites": [
@@ -84635,7 +84631,7 @@
           ],
           "description": "RC circuit ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+          "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
           "motivation": "",
           "name": "rc",
           "pretty_name": "RC Circuit",
@@ -84659,7 +84655,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small RLC circuit",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "rlc_small",
               "pretty_name": "RLC Small",
               "suites": [
@@ -84674,7 +84670,7 @@
           ],
           "description": "RLC circuit ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+          "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
           "motivation": "",
           "name": "rlc",
           "pretty_name": "RLC Circuit",
@@ -84698,7 +84694,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small Lotka-Volterra system",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "lotka_volterra_small",
               "pretty_name": "Lotka-Volterra Small",
               "suites": [
@@ -84713,7 +84709,7 @@
           ],
           "description": "Lotka-Volterra ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+          "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
           "motivation": "",
           "name": "lotka_volterra",
           "pretty_name": "Lotka-Volterra",
@@ -84737,7 +84733,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Tiny 2D Brusselator correctness test",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "brusselator_tiny",
               "pretty_name": "Brusselator Tiny",
               "suites": [
@@ -84754,7 +84750,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "2D Brusselator with 100x100 grid",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "brusselator_4",
               "pretty_name": "Brusselator 4x4",
               "suites": [
@@ -84771,7 +84767,7 @@
           ],
           "description": "2D Brusselator ODE with diffusion.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+          "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
           "motivation": "",
           "name": "brusselator",
           "pretty_name": "Brusselator",
@@ -84794,7 +84790,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: model of an atmospheric storm track.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_eady",
               "pretty_name": "SLICOT Eady example",
               "source_inputs": 1,
@@ -84820,7 +84816,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: classical CD player model.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_cdplayer",
               "pretty_name": "SLICOT CD player",
               "source_inputs": 2,
@@ -84844,7 +84840,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_fom",
               "pretty_name": "SLICOT FOM model",
               "source_inputs": 1,
@@ -84854,13 +84850,11 @@
               "source_url": "https://www.slicot.org/objects/software/shared/bench-data/fom.zip",
               "step": 0.001,
               "suites": [
-                "standard",
-                "trace"
+                "standard"
               ],
               "tags": [
                 "suite-group-timestepping",
-                "suite-standard",
-                "suite-trace"
+                "suite-standard"
               ],
               "topics": []
             },
@@ -84870,7 +84864,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_random",
               "pretty_name": "SLICOT Random example",
               "source_inputs": 1,
@@ -84894,7 +84888,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: partial differential equation.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_pde",
               "pretty_name": "SLICOT PDE example",
               "source_inputs": 1,
@@ -84920,7 +84914,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: heat equation in a thin rod.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_heat_cont",
               "pretty_name": "SLICOT Heat equation (continuous case)",
               "source_inputs": 1,
@@ -84930,13 +84924,11 @@
               "source_url": "https://www.slicot.org/objects/software/shared/bench-data/heat-cont.zip",
               "step": 0.001,
               "suites": [
-                "standard",
-                "trace"
+                "standard"
               ],
               "tags": [
                 "suite-group-timestepping",
-                "suite-standard",
-                "suite-trace"
+                "suite-standard"
               ],
               "topics": []
             },
@@ -84946,7 +84938,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: Orr-Sommerfeld operator for Couette flow.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_orr_som",
               "pretty_name": "SLICOT Orr-Somerfeld example",
               "source_inputs": 1,
@@ -84972,7 +84964,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: component 1r of the International Space Station.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_iss",
               "pretty_name": "SLICOT International space station",
               "source_inputs": 3,
@@ -84998,7 +84990,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: motion problem in a building.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_build",
               "pretty_name": "SLICOT Building model",
               "source_inputs": 1,
@@ -85024,7 +85016,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: Clamped beam model.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_beam",
               "pretty_name": "SLICOT Clamped beam model",
               "source_inputs": 1,
@@ -85047,7 +85039,7 @@
           ],
           "description": "Loads SLICOT model-reduction problems without explicit E matrices, preserving stored sparse matrices, treating E as the identity, and defaulting missing B to a normalized single-input vector.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+          "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
           "motivation": "SLICOT model-reduction examples provide realistic linear dynamical systems for ODE integration benchmarks.",
           "name": "slicot_ode",
           "pretty_name": "SLICOT Model-Reduction ODE",
@@ -89394,7 +89386,7 @@
       "concepts": "\n        <ccs2012>\n        <concept>\n        <concept_id>10002950.10003705.10003707</concept_id>\n        <concept_desc>Mathematics of computing~Solvers</concept_desc>\n        <concept_significance>500</concept_significance>\n        </concept>\n        <concept>\n        <concept_id>10002950.10003705.10011686</concept_id>\n        <concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>\n        <concept_significance>500</concept_significance>\n        </concept>\n        <concept>\n        <concept_id>10002950.10003714.10003715</concept_id>\n        <concept_desc>Mathematics of computing~Numerical analysis</concept_desc>\n        <concept_significance>500</concept_significance>\n        </concept>\n        </ccs2012>\n        ",
       "description": "This code is implements the GMRES algorithm for solving indefinite and non-symmetric linear systems. The algorithm follows the Arnoldi iteration process where a Krylov matrix is maintained at each iteration. Starting with an initial guess and the residual for that guess, the matrix A is dot producted with the previous residual to obtain the next basis vector. This algorithm also uses a similar method to Gram-Schmidt to ensure that the Kyrlov matrix is orthogonal. I also maintain an upper Hessenberg matrix which keeps track of the dot products between different basis vectors and the norm of the new basis vector. The Hessenberg matrix follows the property: Q_n * A = Q_(n+1) * H_n where Q is the Krylov matrix. This matrix allows for a simplified least squares problem to be solved at each iteration so that the residual is minimized at each step. My implementation restarts the Kyrlov matrix every 50 iterations and will end when the current residual / initial residual is less than the tolerance level.",
       "file": "src/saps/benchmarks/GMRES.py",
-      "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+      "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to construct the benchmark function. Generative AI might have been used to construct tests. This statement is written by hand.",
@@ -89409,7 +89401,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix test_gmres_random_42.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "test_gmres_random_42",
               "pretty_name": "GMRES test_gmres_random_42",
               "suites": [
@@ -89430,7 +89422,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix test_gmres_random_123.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "test_gmres_random_123",
               "pretty_name": "GMRES test_gmres_random_123",
               "suites": [
@@ -89451,7 +89443,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix test_gmres_diagonal.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "test_gmres_diagonal",
               "pretty_name": "GMRES test_gmres_diagonal",
               "suites": [
@@ -89472,7 +89464,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix test_gmres_3x3.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "test_gmres_3x3",
               "pretty_name": "GMRES test_gmres_3x3",
               "suites": [
@@ -89493,7 +89485,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix test_gmres_4x4.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "test_gmres_4x4",
               "pretty_name": "GMRES test_gmres_4x4",
               "suites": [
@@ -89512,7 +89504,7 @@
           ],
           "description": "Inlined matrices and seeded systems from the GMRES pytest examples.",
           "file": "src/saps/benchmarks/GMRES.py",
-          "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+          "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
           "motivation": "Uses small inlined linear systems to verify GMRES convergence.",
           "name": "gmres_test_inputs",
           "pretty_name": "GMRES Test Data Generator",
@@ -89546,7 +89538,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Andrews/Andrews.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Andrews/Andrews",
               "pretty_name": "GMRES Andrews/Andrews",
               "suites": [
@@ -89567,7 +89559,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Andrianov/ins2.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Andrianov/ins2",
               "pretty_name": "GMRES Andrianov/ins2",
               "suites": [
@@ -89588,12 +89580,11 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Andrianov/net100.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Andrianov/net100",
               "pretty_name": "GMRES Andrianov/net100",
               "suites": [
-                "standard",
-                "trace"
+                "standard"
               ],
               "tags": [
                 "concept-mathematical-software-performance",
@@ -89601,8 +89592,7 @@
                 "concept-numerical-analysis",
                 "concept-solvers",
                 "suite-group-solvers",
-                "suite-standard",
-                "suite-trace"
+                "suite-standard"
               ],
               "topics": []
             },
@@ -89611,7 +89601,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Andrianov/net125.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Andrianov/net125",
               "pretty_name": "GMRES Andrianov/net125",
               "suites": [
@@ -89632,7 +89622,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Andrianov/net150.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Andrianov/net150",
               "pretty_name": "GMRES Andrianov/net150",
               "suites": [
@@ -89653,7 +89643,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Andrianov/net25.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Andrianov/net25",
               "pretty_name": "GMRES Andrianov/net25",
               "suites": [
@@ -89676,12 +89666,11 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Andrianov/net50.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Andrianov/net50",
               "pretty_name": "GMRES Andrianov/net50",
               "suites": [
-                "standard",
-                "trace"
+                "standard"
               ],
               "tags": [
                 "concept-mathematical-software-performance",
@@ -89689,8 +89678,7 @@
                 "concept-numerical-analysis",
                 "concept-solvers",
                 "suite-group-solvers",
-                "suite-standard",
-                "suite-trace"
+                "suite-standard"
               ],
               "topics": []
             },
@@ -89699,12 +89687,11 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Andrianov/net75.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Andrianov/net75",
               "pretty_name": "GMRES Andrianov/net75",
               "suites": [
-                "standard",
-                "trace"
+                "standard"
               ],
               "tags": [
                 "concept-mathematical-software-performance",
@@ -89712,8 +89699,7 @@
                 "concept-numerical-analysis",
                 "concept-solvers",
                 "suite-group-solvers",
-                "suite-standard",
-                "suite-trace"
+                "suite-standard"
               ],
               "topics": []
             },
@@ -89722,7 +89708,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Bai/bfwa62.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Bai/bfwa62",
               "pretty_name": "GMRES Bai/bfwa62",
               "suites": [
@@ -89745,7 +89731,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Bai/bfwb398.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Bai/bfwb398",
               "pretty_name": "GMRES Bai/bfwb398",
               "suites": [
@@ -89768,7 +89754,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Bai/bfwb62.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Bai/bfwb62",
               "pretty_name": "GMRES Bai/bfwb62",
               "suites": [
@@ -89791,7 +89777,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Bai/bfwb782.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Bai/bfwb782",
               "pretty_name": "GMRES Bai/bfwb782",
               "suites": [
@@ -89814,7 +89800,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Bai/ck104.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Bai/ck104",
               "pretty_name": "GMRES Bai/ck104",
               "suites": [
@@ -89837,7 +89823,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Bai/dw256B.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Bai/dw256B",
               "pretty_name": "GMRES Bai/dw256B",
               "suites": [
@@ -89860,7 +89846,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Bai/dwb512.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Bai/dwb512",
               "pretty_name": "GMRES Bai/dwb512",
               "suites": [
@@ -89883,7 +89869,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Bai/pde225.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Bai/pde225",
               "pretty_name": "GMRES Bai/pde225",
               "suites": [
@@ -89906,7 +89892,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Bai/rdb200.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Bai/rdb200",
               "pretty_name": "GMRES Bai/rdb200",
               "suites": [
@@ -89929,7 +89915,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Bai/rdb200l.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Bai/rdb200l",
               "pretty_name": "GMRES Bai/rdb200l",
               "suites": [
@@ -89952,7 +89938,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Bindel/ted_B.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Bindel/ted_B",
               "pretty_name": "GMRES Bindel/ted_B",
               "suites": [
@@ -89975,7 +89961,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Bindel/ted_B_unscaled.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Bindel/ted_B_unscaled",
               "pretty_name": "GMRES Bindel/ted_B_unscaled",
               "suites": [
@@ -89998,7 +89984,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Bomhof/circuit_1.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Bomhof/circuit_1__rhs0",
               "pretty_name": "GMRES Bomhof/circuit_1",
               "rhs_index": 0,
@@ -90022,7 +90008,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Botonakis/thermomech_TC.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Botonakis/thermomech_TC",
               "pretty_name": "GMRES Botonakis/thermomech_TC",
               "suites": [
@@ -90043,7 +90029,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Botonakis/thermomech_dM.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Botonakis/thermomech_dM",
               "pretty_name": "GMRES Botonakis/thermomech_dM",
               "suites": [
@@ -90064,7 +90050,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Bourchtein/atmosmodd.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Bourchtein/atmosmodd__rhs1",
               "pretty_name": "GMRES Bourchtein/atmosmodd",
               "rhs_index": 1,
@@ -90086,7 +90072,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Bourchtein/atmosmodj.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Bourchtein/atmosmodj__rhs1",
               "pretty_name": "GMRES Bourchtein/atmosmodj",
               "rhs_index": 1,
@@ -90108,7 +90094,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Bourchtein/atmosmodl.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Bourchtein/atmosmodl__rhs0",
               "pretty_name": "GMRES Bourchtein/atmosmodl",
               "rhs_index": 0,
@@ -90130,7 +90116,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Bourchtein/atmosmodl.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Bourchtein/atmosmodl__rhs1",
               "pretty_name": "GMRES Bourchtein/atmosmodl",
               "rhs_index": 1,
@@ -90152,7 +90138,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Bourchtein/atmosmodm.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Bourchtein/atmosmodm__rhs0",
               "pretty_name": "GMRES Bourchtein/atmosmodm",
               "rhs_index": 0,
@@ -90174,7 +90160,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Bourchtein/atmosmodm.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Bourchtein/atmosmodm__rhs1",
               "pretty_name": "GMRES Bourchtein/atmosmodm",
               "rhs_index": 1,
@@ -90196,7 +90182,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Brunetiere/thermal.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Brunetiere/thermal",
               "pretty_name": "GMRES Brunetiere/thermal",
               "suites": [
@@ -90219,7 +90205,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix CPM/cz148.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "CPM/cz148",
               "pretty_name": "GMRES CPM/cz148",
               "suites": [
@@ -90242,7 +90228,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Cunningham/m3plates.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Cunningham/m3plates",
               "pretty_name": "GMRES Cunningham/m3plates",
               "suites": [
@@ -90265,7 +90251,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Cunningham/qa8fk.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Cunningham/qa8fk",
               "pretty_name": "GMRES Cunningham/qa8fk",
               "suites": [
@@ -90286,7 +90272,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Cunningham/qa8fm.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Cunningham/qa8fm",
               "pretty_name": "GMRES Cunningham/qa8fm",
               "suites": [
@@ -90307,7 +90293,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix FEMLAB/poisson2D.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "FEMLAB/poisson2D__rhs0",
               "pretty_name": "GMRES FEMLAB/poisson2D",
               "rhs_index": 0,
@@ -90331,7 +90317,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix FEMLAB/problem1.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "FEMLAB/problem1",
               "pretty_name": "GMRES FEMLAB/problem1",
               "suites": [
@@ -90354,7 +90340,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix FIDAP/ex29.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "FIDAP/ex29",
               "pretty_name": "GMRES FIDAP/ex29",
               "suites": [
@@ -90377,7 +90363,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix FIDAP/ex37.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "FIDAP/ex37",
               "pretty_name": "GMRES FIDAP/ex37",
               "suites": [
@@ -90400,7 +90386,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix FIDAP/ex5.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "FIDAP/ex5",
               "pretty_name": "GMRES FIDAP/ex5",
               "suites": [
@@ -90423,7 +90409,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix FIDAP/ex7.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "FIDAP/ex7",
               "pretty_name": "GMRES FIDAP/ex7",
               "suites": [
@@ -90446,7 +90432,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Freescale/circuit5M_dc.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Freescale/circuit5M_dc",
               "pretty_name": "GMRES Freescale/circuit5M_dc",
               "suites": [
@@ -90467,7 +90453,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix GHS_indef/blockqp1.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "GHS_indef/blockqp1",
               "pretty_name": "GMRES GHS_indef/blockqp1",
               "suites": [
@@ -90488,7 +90474,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix GHS_indef/boyd1.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "GHS_indef/boyd1__rhs0",
               "pretty_name": "GMRES GHS_indef/boyd1",
               "rhs_index": 0,
@@ -90510,7 +90496,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix GHS_indef/boyd2.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "GHS_indef/boyd2__rhs0",
               "pretty_name": "GMRES GHS_indef/boyd2",
               "rhs_index": 0,
@@ -90532,7 +90518,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix GHS_indef/laser.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "GHS_indef/laser",
               "pretty_name": "GMRES GHS_indef/laser",
               "suites": [
@@ -90555,7 +90541,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix GHS_indef/qpband.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "GHS_indef/qpband",
               "pretty_name": "GMRES GHS_indef/qpband",
               "suites": [
@@ -90578,12 +90564,11 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix GHS_psdef/jnlbrng1.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "GHS_psdef/jnlbrng1",
               "pretty_name": "GMRES GHS_psdef/jnlbrng1",
               "suites": [
-                "standard",
-                "trace"
+                "standard"
               ],
               "tags": [
                 "concept-mathematical-software-performance",
@@ -90591,8 +90576,7 @@
                 "concept-numerical-analysis",
                 "concept-solvers",
                 "suite-group-solvers",
-                "suite-standard",
-                "suite-trace"
+                "suite-standard"
               ],
               "topics": []
             },
@@ -90601,12 +90585,11 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix GHS_psdef/minsurfo.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "GHS_psdef/minsurfo",
               "pretty_name": "GMRES GHS_psdef/minsurfo",
               "suites": [
-                "standard",
-                "trace"
+                "standard"
               ],
               "tags": [
                 "concept-mathematical-software-performance",
@@ -90614,8 +90597,7 @@
                 "concept-numerical-analysis",
                 "concept-solvers",
                 "suite-group-solvers",
-                "suite-standard",
-                "suite-trace"
+                "suite-standard"
               ],
               "topics": []
             },
@@ -90624,12 +90606,11 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix GHS_psdef/obstclae.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "GHS_psdef/obstclae",
               "pretty_name": "GMRES GHS_psdef/obstclae",
               "suites": [
-                "standard",
-                "trace"
+                "standard"
               ],
               "tags": [
                 "concept-mathematical-software-performance",
@@ -90637,8 +90618,7 @@
                 "concept-numerical-analysis",
                 "concept-solvers",
                 "suite-group-solvers",
-                "suite-standard",
-                "suite-trace"
+                "suite-standard"
               ],
               "topics": []
             },
@@ -90647,12 +90627,11 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix GHS_psdef/wathen120.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "GHS_psdef/wathen120",
               "pretty_name": "GMRES GHS_psdef/wathen120",
               "suites": [
-                "standard",
-                "trace"
+                "standard"
               ],
               "tags": [
                 "concept-mathematical-software-performance",
@@ -90660,8 +90639,7 @@
                 "concept-numerical-analysis",
                 "concept-solvers",
                 "suite-group-solvers",
-                "suite-standard",
-                "suite-trace"
+                "suite-standard"
               ],
               "topics": []
             },
@@ -90670,7 +90648,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Grund/b1_ss.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Grund/b1_ss__rhs0",
               "pretty_name": "GMRES Grund/b1_ss",
               "rhs_index": 0,
@@ -90694,7 +90672,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Grund/meg4.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Grund/meg4",
               "pretty_name": "GMRES Grund/meg4",
               "suites": [
@@ -90717,7 +90695,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Grund/poli.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Grund/poli__rhs0",
               "pretty_name": "GMRES Grund/poli",
               "rhs_index": 0,
@@ -90741,7 +90719,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Grund/poli3.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Grund/poli3",
               "pretty_name": "GMRES Grund/poli3",
               "suites": [
@@ -90764,7 +90742,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Grund/poli4.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Grund/poli4",
               "pretty_name": "GMRES Grund/poli4",
               "suites": [
@@ -90787,7 +90765,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Grund/poli_large.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Grund/poli_large",
               "pretty_name": "GMRES Grund/poli_large",
               "suites": [
@@ -90810,7 +90788,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/arc130.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/arc130",
               "pretty_name": "GMRES HB/arc130",
               "suites": [
@@ -90833,7 +90811,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/bcspwr01.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/bcspwr01",
               "pretty_name": "GMRES HB/bcspwr01",
               "suites": [
@@ -90856,7 +90834,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/bcspwr02.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/bcspwr02",
               "pretty_name": "GMRES HB/bcspwr02",
               "suites": [
@@ -90879,7 +90857,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/bcsstk01.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/bcsstk01",
               "pretty_name": "GMRES HB/bcsstk01",
               "suites": [
@@ -90902,7 +90880,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/bcsstk02.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/bcsstk02",
               "pretty_name": "GMRES HB/bcsstk02",
               "suites": [
@@ -90925,7 +90903,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/bcsstk20.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/bcsstk20",
               "pretty_name": "GMRES HB/bcsstk20",
               "suites": [
@@ -90948,7 +90926,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/bcsstm01.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/bcsstm01",
               "pretty_name": "GMRES HB/bcsstm01",
               "suites": [
@@ -90971,7 +90949,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/bcsstm02.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/bcsstm02",
               "pretty_name": "GMRES HB/bcsstm02",
               "suites": [
@@ -90994,7 +90972,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/bcsstm03.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/bcsstm03",
               "pretty_name": "GMRES HB/bcsstm03",
               "suites": [
@@ -91017,7 +90995,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/bcsstm04.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/bcsstm04",
               "pretty_name": "GMRES HB/bcsstm04",
               "suites": [
@@ -91040,7 +91018,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/bcsstm05.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/bcsstm05",
               "pretty_name": "GMRES HB/bcsstm05",
               "suites": [
@@ -91063,7 +91041,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/bcsstm06.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/bcsstm06",
               "pretty_name": "GMRES HB/bcsstm06",
               "suites": [
@@ -91086,7 +91064,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/bcsstm08.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/bcsstm08",
               "pretty_name": "GMRES HB/bcsstm08",
               "suites": [
@@ -91109,7 +91087,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/bcsstm09.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/bcsstm09",
               "pretty_name": "GMRES HB/bcsstm09",
               "suites": [
@@ -91132,7 +91110,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/bcsstm11.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/bcsstm11",
               "pretty_name": "GMRES HB/bcsstm11",
               "suites": [
@@ -91155,7 +91133,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/bcsstm19.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/bcsstm19",
               "pretty_name": "GMRES HB/bcsstm19",
               "suites": [
@@ -91178,7 +91156,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/bcsstm20.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/bcsstm20",
               "pretty_name": "GMRES HB/bcsstm20",
               "suites": [
@@ -91201,7 +91179,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/bcsstm21.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/bcsstm21",
               "pretty_name": "GMRES HB/bcsstm21",
               "suites": [
@@ -91224,7 +91202,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/bcsstm22.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/bcsstm22",
               "pretty_name": "GMRES HB/bcsstm22",
               "suites": [
@@ -91247,7 +91225,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/can_144.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/can_144",
               "pretty_name": "GMRES HB/can_144",
               "suites": [
@@ -91270,7 +91248,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/can_24.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/can_24",
               "pretty_name": "GMRES HB/can_24",
               "suites": [
@@ -91293,7 +91271,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/can_61.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/can_61",
               "pretty_name": "GMRES HB/can_61",
               "suites": [
@@ -91316,7 +91294,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/can_73.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/can_73",
               "pretty_name": "GMRES HB/can_73",
               "suites": [
@@ -91339,7 +91317,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/curtis54.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/curtis54",
               "pretty_name": "GMRES HB/curtis54",
               "suites": [
@@ -91362,7 +91340,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/fs_541_1.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/fs_541_1",
               "pretty_name": "GMRES HB/fs_541_1",
               "suites": [
@@ -91385,7 +91363,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/fs_760_1.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/fs_760_1",
               "pretty_name": "GMRES HB/fs_760_1",
               "suites": [
@@ -91408,7 +91386,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/fs_760_2.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/fs_760_2",
               "pretty_name": "GMRES HB/fs_760_2",
               "suites": [
@@ -91431,7 +91409,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/fs_760_3.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/fs_760_3",
               "pretty_name": "GMRES HB/fs_760_3",
               "suites": [
@@ -91454,7 +91432,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/gr_30_30.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/gr_30_30",
               "pretty_name": "GMRES HB/gr_30_30",
               "suites": [
@@ -91477,7 +91455,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/jpwh_991.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/jpwh_991",
               "pretty_name": "GMRES HB/jpwh_991",
               "suites": [
@@ -91500,7 +91478,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/lap_25.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/lap_25",
               "pretty_name": "GMRES HB/lap_25",
               "suites": [
@@ -91523,7 +91501,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/nos4.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/nos4",
               "pretty_name": "GMRES HB/nos4",
               "suites": [
@@ -91546,7 +91524,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/nos7.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/nos7",
               "pretty_name": "GMRES HB/nos7",
               "suites": [
@@ -91569,7 +91547,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/orani678.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/orani678__rhs1",
               "pretty_name": "GMRES HB/orani678",
               "rhs_index": 1,
@@ -91593,7 +91571,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/orani678.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/orani678__rhs10",
               "pretty_name": "GMRES HB/orani678",
               "rhs_index": 10,
@@ -91617,7 +91595,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/orani678.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/orani678__rhs11",
               "pretty_name": "GMRES HB/orani678",
               "rhs_index": 11,
@@ -91641,7 +91619,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/orani678.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/orani678__rhs12",
               "pretty_name": "GMRES HB/orani678",
               "rhs_index": 12,
@@ -91665,7 +91643,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/orani678.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/orani678__rhs14",
               "pretty_name": "GMRES HB/orani678",
               "rhs_index": 14,
@@ -91689,7 +91667,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/orani678.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/orani678__rhs15",
               "pretty_name": "GMRES HB/orani678",
               "rhs_index": 15,
@@ -91713,7 +91691,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/orani678.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/orani678__rhs16",
               "pretty_name": "GMRES HB/orani678",
               "rhs_index": 16,
@@ -91737,7 +91715,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/orani678.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/orani678__rhs17",
               "pretty_name": "GMRES HB/orani678",
               "rhs_index": 17,
@@ -91761,7 +91739,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/orani678.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/orani678__rhs18",
               "pretty_name": "GMRES HB/orani678",
               "rhs_index": 18,
@@ -91785,7 +91763,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/orani678.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/orani678__rhs19",
               "pretty_name": "GMRES HB/orani678",
               "rhs_index": 19,
@@ -91809,7 +91787,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/orani678.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/orani678__rhs2",
               "pretty_name": "GMRES HB/orani678",
               "rhs_index": 2,
@@ -91833,7 +91811,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/orani678.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/orani678__rhs3",
               "pretty_name": "GMRES HB/orani678",
               "rhs_index": 3,
@@ -91857,7 +91835,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/orani678.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/orani678__rhs4",
               "pretty_name": "GMRES HB/orani678",
               "rhs_index": 4,
@@ -91881,7 +91859,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/orani678.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/orani678__rhs5",
               "pretty_name": "GMRES HB/orani678",
               "rhs_index": 5,
@@ -91905,7 +91883,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/orani678.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/orani678__rhs6",
               "pretty_name": "GMRES HB/orani678",
               "rhs_index": 6,
@@ -91929,7 +91907,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/orani678.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/orani678__rhs62",
               "pretty_name": "GMRES HB/orani678",
               "rhs_index": 62,
@@ -91953,7 +91931,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/orani678.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/orani678__rhs7",
               "pretty_name": "GMRES HB/orani678",
               "rhs_index": 7,
@@ -91977,7 +91955,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/orani678.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/orani678__rhs8",
               "pretty_name": "GMRES HB/orani678",
               "rhs_index": 8,
@@ -92001,7 +91979,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/pores_1.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/pores_1",
               "pretty_name": "GMRES HB/pores_1",
               "suites": [
@@ -92024,7 +92002,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/psmigr_3.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/psmigr_3",
               "pretty_name": "GMRES HB/psmigr_3",
               "suites": [
@@ -92047,7 +92025,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/steam2.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/steam2",
               "pretty_name": "GMRES HB/steam2",
               "suites": [
@@ -92070,7 +92048,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/steam3.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/steam3",
               "pretty_name": "GMRES HB/steam3",
               "suites": [
@@ -92093,7 +92071,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/watt_1.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/watt_1",
               "pretty_name": "GMRES HB/watt_1",
               "suites": [
@@ -92116,7 +92094,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix HB/watt_2.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "HB/watt_2",
               "pretty_name": "GMRES HB/watt_2",
               "suites": [
@@ -92139,7 +92117,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Hamrle/Hamrle1.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Hamrle/Hamrle1__rhs0",
               "pretty_name": "GMRES Hamrle/Hamrle1",
               "rhs_index": 0,
@@ -92163,7 +92141,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix MKS/fp.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "MKS/fp",
               "pretty_name": "GMRES MKS/fp",
               "suites": [
@@ -92186,7 +92164,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix MathWorks/Muu.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "MathWorks/Muu",
               "pretty_name": "GMRES MathWorks/Muu",
               "suites": [
@@ -92209,7 +92187,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix MathWorks/tomography.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "MathWorks/tomography",
               "pretty_name": "GMRES MathWorks/tomography",
               "suites": [
@@ -92232,7 +92210,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix MaxPlanck/shallow_water1.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "MaxPlanck/shallow_water1",
               "pretty_name": "GMRES MaxPlanck/shallow_water1",
               "suites": [
@@ -92253,7 +92231,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix MaxPlanck/shallow_water2.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "MaxPlanck/shallow_water2",
               "pretty_name": "GMRES MaxPlanck/shallow_water2",
               "suites": [
@@ -92274,7 +92252,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Morandini/rotor1.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Morandini/rotor1",
               "pretty_name": "GMRES Morandini/rotor1",
               "suites": [
@@ -92297,7 +92275,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Mulvey/finan512.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Mulvey/finan512",
               "pretty_name": "GMRES Mulvey/finan512",
               "suites": [
@@ -92318,7 +92296,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nasa/nasa2146.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Nasa/nasa2146__rhs0",
               "pretty_name": "GMRES Nasa/nasa2146",
               "rhs_index": 0,
@@ -92342,7 +92320,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nemeth/nemeth02.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Nemeth/nemeth02",
               "pretty_name": "GMRES Nemeth/nemeth02",
               "suites": [
@@ -92365,7 +92343,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nemeth/nemeth03.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Nemeth/nemeth03",
               "pretty_name": "GMRES Nemeth/nemeth03",
               "suites": [
@@ -92388,7 +92366,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nemeth/nemeth04.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Nemeth/nemeth04",
               "pretty_name": "GMRES Nemeth/nemeth04",
               "suites": [
@@ -92411,7 +92389,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nemeth/nemeth05.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Nemeth/nemeth05",
               "pretty_name": "GMRES Nemeth/nemeth05",
               "suites": [
@@ -92434,7 +92412,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nemeth/nemeth06.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Nemeth/nemeth06",
               "pretty_name": "GMRES Nemeth/nemeth06",
               "suites": [
@@ -92457,7 +92435,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nemeth/nemeth07.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Nemeth/nemeth07",
               "pretty_name": "GMRES Nemeth/nemeth07",
               "suites": [
@@ -92480,7 +92458,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nemeth/nemeth08.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Nemeth/nemeth08",
               "pretty_name": "GMRES Nemeth/nemeth08",
               "suites": [
@@ -92503,7 +92481,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nemeth/nemeth09.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Nemeth/nemeth09",
               "pretty_name": "GMRES Nemeth/nemeth09",
               "suites": [
@@ -92526,7 +92504,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nemeth/nemeth10.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Nemeth/nemeth10",
               "pretty_name": "GMRES Nemeth/nemeth10",
               "suites": [
@@ -92549,7 +92527,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nemeth/nemeth11.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Nemeth/nemeth11",
               "pretty_name": "GMRES Nemeth/nemeth11",
               "suites": [
@@ -92572,7 +92550,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nemeth/nemeth12.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Nemeth/nemeth12",
               "pretty_name": "GMRES Nemeth/nemeth12",
               "suites": [
@@ -92595,7 +92573,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nemeth/nemeth13.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Nemeth/nemeth13",
               "pretty_name": "GMRES Nemeth/nemeth13",
               "suites": [
@@ -92618,7 +92596,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nemeth/nemeth16.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Nemeth/nemeth16",
               "pretty_name": "GMRES Nemeth/nemeth16",
               "suites": [
@@ -92641,7 +92619,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nemeth/nemeth17.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Nemeth/nemeth17",
               "pretty_name": "GMRES Nemeth/nemeth17",
               "suites": [
@@ -92664,7 +92642,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nemeth/nemeth18.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Nemeth/nemeth18",
               "pretty_name": "GMRES Nemeth/nemeth18",
               "suites": [
@@ -92687,7 +92665,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nemeth/nemeth19.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Nemeth/nemeth19",
               "pretty_name": "GMRES Nemeth/nemeth19",
               "suites": [
@@ -92710,7 +92688,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nemeth/nemeth20.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Nemeth/nemeth20",
               "pretty_name": "GMRES Nemeth/nemeth20",
               "suites": [
@@ -92733,7 +92711,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nemeth/nemeth21.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Nemeth/nemeth21",
               "pretty_name": "GMRES Nemeth/nemeth21",
               "suites": [
@@ -92756,7 +92734,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nemeth/nemeth22.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Nemeth/nemeth22",
               "pretty_name": "GMRES Nemeth/nemeth22",
               "suites": [
@@ -92779,7 +92757,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nemeth/nemeth23.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Nemeth/nemeth23",
               "pretty_name": "GMRES Nemeth/nemeth23",
               "suites": [
@@ -92802,7 +92780,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nemeth/nemeth24.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Nemeth/nemeth24",
               "pretty_name": "GMRES Nemeth/nemeth24",
               "suites": [
@@ -92825,7 +92803,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nemeth/nemeth25.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Nemeth/nemeth25",
               "pretty_name": "GMRES Nemeth/nemeth25",
               "suites": [
@@ -92848,7 +92826,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Nemeth/nemeth26.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Nemeth/nemeth26",
               "pretty_name": "GMRES Nemeth/nemeth26",
               "suites": [
@@ -92871,7 +92849,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Norris/fv1.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Norris/fv1",
               "pretty_name": "GMRES Norris/fv1",
               "suites": [
@@ -92894,7 +92872,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Norris/fv2.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Norris/fv2",
               "pretty_name": "GMRES Norris/fv2",
               "suites": [
@@ -92917,7 +92895,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Norris/torso2.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Norris/torso2",
               "pretty_name": "GMRES Norris/torso2",
               "suites": [
@@ -92938,7 +92916,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Oberwolfach/LF10.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Oberwolfach/LF10",
               "pretty_name": "GMRES Oberwolfach/LF10",
               "suites": [
@@ -92961,7 +92939,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Oberwolfach/LFAT5.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Oberwolfach/LFAT5",
               "pretty_name": "GMRES Oberwolfach/LFAT5",
               "suites": [
@@ -92984,7 +92962,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix PARSEC/Si2.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "PARSEC/Si2",
               "pretty_name": "GMRES PARSEC/Si2",
               "suites": [
@@ -93007,7 +92985,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Pothen/mesh1e1.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Pothen/mesh1e1",
               "pretty_name": "GMRES Pothen/mesh1e1",
               "suites": [
@@ -93030,7 +93008,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Pothen/mesh1em1.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Pothen/mesh1em1",
               "pretty_name": "GMRES Pothen/mesh1em1",
               "suites": [
@@ -93053,7 +93031,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Pothen/mesh1em6.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Pothen/mesh1em6",
               "pretty_name": "GMRES Pothen/mesh1em6",
               "suites": [
@@ -93076,7 +93054,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Pothen/mesh2e1.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Pothen/mesh2e1",
               "pretty_name": "GMRES Pothen/mesh2e1",
               "suites": [
@@ -93099,7 +93077,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Pothen/mesh2em5.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Pothen/mesh2em5",
               "pretty_name": "GMRES Pothen/mesh2em5",
               "suites": [
@@ -93122,7 +93100,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Pothen/mesh3e1.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Pothen/mesh3e1",
               "pretty_name": "GMRES Pothen/mesh3e1",
               "suites": [
@@ -93145,7 +93123,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Pothen/mesh3em5.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Pothen/mesh3em5",
               "pretty_name": "GMRES Pothen/mesh3em5",
               "suites": [
@@ -93168,7 +93146,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Pothen/sphere2.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Pothen/sphere2",
               "pretty_name": "GMRES Pothen/sphere2",
               "suites": [
@@ -93191,7 +93169,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Precima/analytics.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Precima/analytics",
               "pretty_name": "GMRES Precima/analytics",
               "suites": [
@@ -93212,7 +93190,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Rajat/rajat13.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Rajat/rajat13",
               "pretty_name": "GMRES Rajat/rajat13",
               "suites": [
@@ -93235,7 +93213,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Rommes/bips98_1450.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Rommes/bips98_1450",
               "pretty_name": "GMRES Rommes/bips98_1450",
               "suites": [
@@ -93258,7 +93236,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Rommes/bips98_606.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Rommes/bips98_606",
               "pretty_name": "GMRES Rommes/bips98_606",
               "suites": [
@@ -93281,7 +93259,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Rommes/ww_36_pmec_36.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Rommes/ww_36_pmec_36",
               "pretty_name": "GMRES Rommes/ww_36_pmec_36",
               "suites": [
@@ -93304,7 +93282,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/ASIC_100k.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/ASIC_100k",
               "pretty_name": "GMRES Sandia/ASIC_100k",
               "suites": [
@@ -93325,7 +93303,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/ASIC_100ks.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/ASIC_100ks",
               "pretty_name": "GMRES Sandia/ASIC_100ks",
               "suites": [
@@ -93346,7 +93324,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/ASIC_320ks.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/ASIC_320ks",
               "pretty_name": "GMRES Sandia/ASIC_320ks",
               "suites": [
@@ -93367,7 +93345,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/ASIC_680k.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/ASIC_680k",
               "pretty_name": "GMRES Sandia/ASIC_680k",
               "suites": [
@@ -93388,7 +93366,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/ASIC_680ks.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/ASIC_680ks",
               "pretty_name": "GMRES Sandia/ASIC_680ks",
               "suites": [
@@ -93409,7 +93387,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_31.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_31",
               "pretty_name": "GMRES Sandia/adder_dcop_31",
               "suites": [
@@ -93432,7 +93410,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_32.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_32",
               "pretty_name": "GMRES Sandia/adder_dcop_32",
               "suites": [
@@ -93455,7 +93433,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_33.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_33",
               "pretty_name": "GMRES Sandia/adder_dcop_33",
               "suites": [
@@ -93478,7 +93456,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_34.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_34",
               "pretty_name": "GMRES Sandia/adder_dcop_34",
               "suites": [
@@ -93501,7 +93479,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_35.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_35",
               "pretty_name": "GMRES Sandia/adder_dcop_35",
               "suites": [
@@ -93524,7 +93502,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_36.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_36",
               "pretty_name": "GMRES Sandia/adder_dcop_36",
               "suites": [
@@ -93547,7 +93525,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_37.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_37",
               "pretty_name": "GMRES Sandia/adder_dcop_37",
               "suites": [
@@ -93570,7 +93548,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_38.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_38",
               "pretty_name": "GMRES Sandia/adder_dcop_38",
               "suites": [
@@ -93593,7 +93571,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_40.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_40",
               "pretty_name": "GMRES Sandia/adder_dcop_40",
               "suites": [
@@ -93616,7 +93594,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_41.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_41",
               "pretty_name": "GMRES Sandia/adder_dcop_41",
               "suites": [
@@ -93639,7 +93617,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_42.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_42",
               "pretty_name": "GMRES Sandia/adder_dcop_42",
               "suites": [
@@ -93662,7 +93640,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_43.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_43",
               "pretty_name": "GMRES Sandia/adder_dcop_43",
               "suites": [
@@ -93685,7 +93663,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_44.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_44",
               "pretty_name": "GMRES Sandia/adder_dcop_44",
               "suites": [
@@ -93708,7 +93686,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_45.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_45",
               "pretty_name": "GMRES Sandia/adder_dcop_45",
               "suites": [
@@ -93731,7 +93709,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_46.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_46",
               "pretty_name": "GMRES Sandia/adder_dcop_46",
               "suites": [
@@ -93754,7 +93732,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_47.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_47",
               "pretty_name": "GMRES Sandia/adder_dcop_47",
               "suites": [
@@ -93777,7 +93755,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_48.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_48",
               "pretty_name": "GMRES Sandia/adder_dcop_48",
               "suites": [
@@ -93800,7 +93778,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_49.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_49",
               "pretty_name": "GMRES Sandia/adder_dcop_49",
               "suites": [
@@ -93823,7 +93801,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_50.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_50",
               "pretty_name": "GMRES Sandia/adder_dcop_50",
               "suites": [
@@ -93846,7 +93824,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_51.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_51",
               "pretty_name": "GMRES Sandia/adder_dcop_51",
               "suites": [
@@ -93869,7 +93847,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_52.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_52",
               "pretty_name": "GMRES Sandia/adder_dcop_52",
               "suites": [
@@ -93892,7 +93870,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_53.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_53",
               "pretty_name": "GMRES Sandia/adder_dcop_53",
               "suites": [
@@ -93915,7 +93893,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_54.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_54",
               "pretty_name": "GMRES Sandia/adder_dcop_54",
               "suites": [
@@ -93938,7 +93916,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_55.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_55",
               "pretty_name": "GMRES Sandia/adder_dcop_55",
               "suites": [
@@ -93961,7 +93939,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_57.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_57",
               "pretty_name": "GMRES Sandia/adder_dcop_57",
               "suites": [
@@ -93984,7 +93962,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_58.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_58",
               "pretty_name": "GMRES Sandia/adder_dcop_58",
               "suites": [
@@ -94007,7 +93985,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_59.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_59",
               "pretty_name": "GMRES Sandia/adder_dcop_59",
               "suites": [
@@ -94030,7 +94008,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_60.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_60",
               "pretty_name": "GMRES Sandia/adder_dcop_60",
               "suites": [
@@ -94053,7 +94031,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_61.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_61",
               "pretty_name": "GMRES Sandia/adder_dcop_61",
               "suites": [
@@ -94076,7 +94054,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_62.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_62",
               "pretty_name": "GMRES Sandia/adder_dcop_62",
               "suites": [
@@ -94099,7 +94077,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_63.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_63",
               "pretty_name": "GMRES Sandia/adder_dcop_63",
               "suites": [
@@ -94122,7 +94100,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_64.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_64",
               "pretty_name": "GMRES Sandia/adder_dcop_64",
               "suites": [
@@ -94145,7 +94123,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_65.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_65",
               "pretty_name": "GMRES Sandia/adder_dcop_65",
               "suites": [
@@ -94168,7 +94146,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_66.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_66",
               "pretty_name": "GMRES Sandia/adder_dcop_66",
               "suites": [
@@ -94191,7 +94169,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_67.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_67",
               "pretty_name": "GMRES Sandia/adder_dcop_67",
               "suites": [
@@ -94214,7 +94192,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_68.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_68",
               "pretty_name": "GMRES Sandia/adder_dcop_68",
               "suites": [
@@ -94237,7 +94215,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_dcop_69.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_dcop_69",
               "pretty_name": "GMRES Sandia/adder_dcop_69",
               "suites": [
@@ -94260,7 +94238,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_trans_01.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_trans_01",
               "pretty_name": "GMRES Sandia/adder_trans_01",
               "suites": [
@@ -94283,7 +94261,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/adder_trans_02.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/adder_trans_02",
               "pretty_name": "GMRES Sandia/adder_trans_02",
               "suites": [
@@ -94306,13 +94284,12 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Sandia/mult_dcop_02.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Sandia/mult_dcop_02__rhs0",
               "pretty_name": "GMRES Sandia/mult_dcop_02",
               "rhs_index": 0,
               "suites": [
-                "standard",
-                "trace"
+                "standard"
               ],
               "tags": [
                 "concept-mathematical-software-performance",
@@ -94320,8 +94297,7 @@
                 "concept-numerical-analysis",
                 "concept-solvers",
                 "suite-group-solvers",
-                "suite-standard",
-                "suite-trace"
+                "suite-standard"
               ],
               "topics": []
             },
@@ -94330,7 +94306,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Schenk_AFE/af_shell3.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Schenk_AFE/af_shell3__rhs0",
               "pretty_name": "GMRES Schenk_AFE/af_shell3",
               "rhs_index": 0,
@@ -94352,7 +94328,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Schenk_AFE/af_shell4.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Schenk_AFE/af_shell4__rhs0",
               "pretty_name": "GMRES Schenk_AFE/af_shell4",
               "rhs_index": 0,
@@ -94374,7 +94350,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Schenk_AFE/af_shell7.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Schenk_AFE/af_shell7__rhs0",
               "pretty_name": "GMRES Schenk_AFE/af_shell7",
               "rhs_index": 0,
@@ -94396,7 +94372,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Schenk_AFE/af_shell8.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Schenk_AFE/af_shell8__rhs0",
               "pretty_name": "GMRES Schenk_AFE/af_shell8",
               "rhs_index": 0,
@@ -94418,7 +94394,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Simon/raefsky5.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Simon/raefsky5__rhs0",
               "pretty_name": "GMRES Simon/raefsky5",
               "rhs_index": 0,
@@ -94442,7 +94418,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix TOKAMAK/utm1700b.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "TOKAMAK/utm1700b__rhs0",
               "pretty_name": "GMRES TOKAMAK/utm1700b",
               "rhs_index": 0,
@@ -94466,7 +94442,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix TOKAMAK/utm3060.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "TOKAMAK/utm3060__rhs0",
               "pretty_name": "GMRES TOKAMAK/utm3060",
               "rhs_index": 0,
@@ -94490,7 +94466,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix VDOL/hangGlider_1.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "VDOL/hangGlider_1__rhs0",
               "pretty_name": "GMRES VDOL/hangGlider_1",
               "rhs_index": 0,
@@ -94514,7 +94490,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix VDOL/tumorAntiAngiogenesis_1.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "VDOL/tumorAntiAngiogenesis_1__rhs0",
               "pretty_name": "GMRES VDOL/tumorAntiAngiogenesis_1",
               "rhs_index": 0,
@@ -94538,7 +94514,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix VDOL/tumorAntiAngiogenesis_2.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "VDOL/tumorAntiAngiogenesis_2__rhs0",
               "pretty_name": "GMRES VDOL/tumorAntiAngiogenesis_2",
               "rhs_index": 0,
@@ -94562,7 +94538,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix VLSI/ss1.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "VLSI/ss1",
               "pretty_name": "GMRES VLSI/ss1",
               "suites": [
@@ -94583,7 +94559,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Wang/swang1.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Wang/swang1",
               "pretty_name": "GMRES Wang/swang1",
               "suites": [
@@ -94606,7 +94582,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Wang/swang2.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Wang/swang2",
               "pretty_name": "GMRES Wang/swang2",
               "suites": [
@@ -94629,12 +94605,11 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse matrix Zhao/Zhao1.",
               "file": "src/saps/benchmarks/GMRES.py",
-              "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+              "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
               "name": "Zhao/Zhao1",
               "pretty_name": "GMRES Zhao/Zhao1",
               "suites": [
-                "standard",
-                "trace"
+                "standard"
               ],
               "tags": [
                 "concept-mathematical-software-performance",
@@ -94642,15 +94617,14 @@
                 "concept-numerical-analysis",
                 "concept-solvers",
                 "suite-group-solvers",
-                "suite-standard",
-                "suite-trace"
+                "suite-standard"
               ],
               "topics": []
             }
           ],
           "description": "Accesses and prepares sparse matrices from SuiteSparse for GMRES.",
           "file": "src/saps/benchmarks/GMRES.py",
-          "freshness": "2ccb6f259169a2ff29721778e0a9c747734dcf8bef38e12664469b105fc1ed24",
+          "freshness": "b49786f1fc23d5968409285d720c46689f55cabcbc197b636a2f223e804907de",
           "motivation": "GMRES is the most widely used and effective method for solving linear systems that are indefinite, non-symmetric, and sparse.",
           "name": "gmres_inputs",
           "pretty_name": "GMRES SuiteSparse Data Generator",
@@ -105201,7 +105175,7 @@
       "concepts": "<ccs2012></ccs2012>",
       "description": "Benchmarks inference for a sparse CIFAR-10 Conv-2 network derived from the Lottery Ticket Hypothesis workflow. Using OpenLTH's training and pruning infrastructure, and motivated by the original LTH and Uber AI lottery-ticket studies, the CIFAR Conv-2 architecture was trained on CIFAR-10 and subjected to 20 levels of iterative global magnitude pruning. The selected checkpoint and pruning mask were combined and exported as a dense ONNX model whose zero-valued parameters preserve approximately 87.84% sparsity. The model and its external tensor data are archived in Zenodo record 22650920. ONNXPY translated that fixed graph into array-based Python, which the current SAPS runner executes across supported array frameworks.",
       "file": "src/saps/benchmarks/lth_conv2_onnxpy.py",
-      "freshness": "3eda3befbf6b4cbfdc95cdfb6efe0bbd06a58b70d13c2988e50567bcb8c91087",
+      "freshness": "9ee916cc5ff3f4b0beb6d09b96783132be305e87ac841aab03bcffaab0d39615",
       "generators": [
         {
           "ai_disclosure": "Generative AI was used to assist with adapting existing benchmark integration code to the current SAPS and ONNXPY APIs. The model training, pruning workflow, benchmark objective, and model artifacts were created by the contributors.",
@@ -105217,7 +105191,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Pruned CIFAR-10 Conv-2 model with approximately 87.84% zero-valued parameters, archived with its ONNX external data in Zenodo record 22650920.",
               "file": "src/saps/benchmarks/lth_conv2_onnxpy.py",
-              "freshness": "3eda3befbf6b4cbfdc95cdfb6efe0bbd06a58b70d13c2988e50567bcb8c91087",
+              "freshness": "9ee916cc5ff3f4b0beb6d09b96783132be305e87ac841aab03bcffaab0d39615",
               "name": "conv2_pruned",
               "pretty_name": "Lottery Ticket Conv-2 Pruned Model",
               "suites": [
@@ -105232,7 +105206,7 @@
           ],
           "description": "Loads the Conv-2 ONNX artifact from the runner's shared SAPS cache, imports its trained parameters and pruning-induced zeros, and generates a deterministic runtime input for SAPS execution.",
           "file": "src/saps/benchmarks/lth_conv2_onnxpy.py",
-          "freshness": "3eda3befbf6b4cbfdc95cdfb6efe0bbd06a58b70d13c2988e50567bcb8c91087",
+          "freshness": "9ee916cc5ff3f4b0beb6d09b96783132be305e87ac841aab03bcffaab0d39615",
           "motivation": "This generator turns a reproducible lottery-ticket training artifact into fixed benchmark inputs. The runner-managed shared cache and locked atomic downloads allow concurrent and chunked SAPS runs to reuse the same ONNX files safely.",
           "name": "lth_conv2_onnxpy_inputs",
           "pretty_name": "Lottery Ticket Conv-2 ONNXPY Inputs",
@@ -115645,7 +115619,7 @@
       "concepts": "<ccs2012></ccs2012>",
       "description": "Integrates ODE initial-value problems with the classical fourth-order Runge-Kutta method.",
       "file": "src/saps/benchmarks/ode.py",
-      "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+      "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
@@ -115660,7 +115634,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small RC circuit",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "rc_small",
               "pretty_name": "RC Small",
               "suites": [
@@ -115675,7 +115649,7 @@
           ],
           "description": "RC circuit ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+          "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
           "motivation": "",
           "name": "rc",
           "pretty_name": "RC Circuit",
@@ -115699,7 +115673,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small RLC circuit",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "rlc_small",
               "pretty_name": "RLC Small",
               "suites": [
@@ -115714,7 +115688,7 @@
           ],
           "description": "RLC circuit ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+          "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
           "motivation": "",
           "name": "rlc",
           "pretty_name": "RLC Circuit",
@@ -115738,7 +115712,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small Lotka-Volterra system",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "lotka_volterra_small",
               "pretty_name": "Lotka-Volterra Small",
               "suites": [
@@ -115753,7 +115727,7 @@
           ],
           "description": "Lotka-Volterra ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+          "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
           "motivation": "",
           "name": "lotka_volterra",
           "pretty_name": "Lotka-Volterra",
@@ -115777,7 +115751,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Tiny 2D Brusselator correctness test",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "brusselator_tiny",
               "pretty_name": "Brusselator Tiny",
               "suites": [
@@ -115794,7 +115768,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "2D Brusselator with 100x100 grid",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "brusselator_4",
               "pretty_name": "Brusselator 4x4",
               "suites": [
@@ -115811,7 +115785,7 @@
           ],
           "description": "2D Brusselator ODE with diffusion.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+          "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
           "motivation": "",
           "name": "brusselator",
           "pretty_name": "Brusselator",
@@ -115834,7 +115808,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: model of an atmospheric storm track.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_eady",
               "pretty_name": "SLICOT Eady example",
               "source_inputs": 1,
@@ -115860,7 +115834,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: classical CD player model.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_cdplayer",
               "pretty_name": "SLICOT CD player",
               "source_inputs": 2,
@@ -115886,7 +115860,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_fom",
               "pretty_name": "SLICOT FOM model",
               "source_inputs": 1,
@@ -115896,13 +115870,11 @@
               "source_url": "https://www.slicot.org/objects/software/shared/bench-data/fom.zip",
               "step": 0.001,
               "suites": [
-                "standard",
-                "trace"
+                "standard"
               ],
               "tags": [
                 "suite-group-timestepping",
-                "suite-standard",
-                "suite-trace"
+                "suite-standard"
               ],
               "topics": []
             },
@@ -115912,7 +115884,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_random",
               "pretty_name": "SLICOT Random example",
               "source_inputs": 1,
@@ -115938,7 +115910,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: partial differential equation.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_pde",
               "pretty_name": "SLICOT PDE example",
               "source_inputs": 1,
@@ -115964,7 +115936,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: heat equation in a thin rod.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_heat_cont",
               "pretty_name": "SLICOT Heat equation (continuous case)",
               "source_inputs": 1,
@@ -115974,13 +115946,11 @@
               "source_url": "https://www.slicot.org/objects/software/shared/bench-data/heat-cont.zip",
               "step": 0.001,
               "suites": [
-                "standard",
-                "trace"
+                "standard"
               ],
               "tags": [
                 "suite-group-timestepping",
-                "suite-standard",
-                "suite-trace"
+                "suite-standard"
               ],
               "topics": []
             },
@@ -115990,7 +115960,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: Orr-Sommerfeld operator for Couette flow.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_orr_som",
               "pretty_name": "SLICOT Orr-Somerfeld example",
               "source_inputs": 1,
@@ -116016,7 +115986,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: component 1r of the International Space Station.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_iss",
               "pretty_name": "SLICOT International space station",
               "source_inputs": 3,
@@ -116042,7 +116012,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: motion problem in a building.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_build",
               "pretty_name": "SLICOT Building model",
               "source_inputs": 1,
@@ -116068,7 +116038,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: Clamped beam model.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+              "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
               "name": "slicot_beam",
               "pretty_name": "SLICOT Clamped beam model",
               "source_inputs": 1,
@@ -116091,7 +116061,7 @@
           ],
           "description": "Loads SLICOT model-reduction problems without explicit E matrices, preserving stored sparse matrices, treating E as the identity, and defaulting missing B to a normalized single-input vector.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "50442d6ba81a22b934921cde688ef84c66df391c7142059e1c27c99ab3b5f85d",
+          "freshness": "8cd514dbd8a74525cb6dbce4e6f695338bf2f489d187b8f1136075790da35361",
           "motivation": "SLICOT model-reduction examples provide realistic linear dynamical systems for ODE integration benchmarks.",
           "name": "slicot_ode",
           "pretty_name": "SLICOT Model-Reduction ODE",
