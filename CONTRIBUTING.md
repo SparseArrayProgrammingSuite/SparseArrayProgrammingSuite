@@ -56,7 +56,7 @@ def benchmark(self, xp, meta, A, b, x0):
     return x
 ```
 
-When the number of inputs depends on the dataset (for example, the ODE solvers, whose inputs depend on the problem being integrated), collect them with `*data_args` instead, after any fixed leading inputs: `def benchmark(self, xp, meta, *data_args)`.
+Every benchmark in the suite has a fixed parameter list. If the inputs differ between datasets, split the benchmark so that each class has one signature. The ODE benchmarks do this by hand, with one class per (solver, problem) pair in `ode.py`. When there are many datasets, generate the classes (see below). `*data_args` remains available as a last resort, after any fixed leading inputs: `def benchmark(self, xp, meta, *data_args)`.
 
 If each dataset would need its own signature, prefer one benchmark class per dataset, generated from a shared abstract base with the helpers in `src/saps/codegen.py`. Two benchmarks do this:
 
