@@ -4,7 +4,7 @@ from typing import Any
 import numpy as np
 
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse.conversions import from_numpy, to_numpy, to_sparse
 
 from saps.benchmark import (
     Author,
@@ -814,7 +814,8 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
             "Loads real-world initial conditions for particle simulation benchmarks. "
             "NEMO datasets use source mass columns, unscaled archive coordinates, "
             "Newtonian gravity with G 1.0 in N-body units, dt 1/32, softening 0.05, "
-            "and source-scale cutoffs selected for the benchmark datasets."
+            "and short interaction cutoffs chosen to exercise sparse workloads "
+            "rather than accurately approximate full gravitational forces."
         )
 
     @property
@@ -879,8 +880,10 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
             " mechanics, biology, astronomy, and other fields on a simplitic level. "
             "For NEMO snapshots, masses come from the archive tables; G 1.0 follows "
             "the usual dimensionless N-body unit convention, softening 0.05 follows "
-            "the NEMO eps-style softened-gravity setting, and cutoffs are chosen "
-            "against the preserved source coordinate scale."
+            "the NEMO eps-style softened-gravity setting. The smaller cutoffs "
+            "are workload parameters chosen for sparse interactions on the "
+            "preserved source coordinates; they do not meet a physical "
+            "force-error target."
         )
 
     @property
@@ -893,7 +896,7 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                 parameters={
                     "force_model": "newtonian_gravity",
                     "boundary_model": "unbounded",
-                    "cutoff": 1.0,
+                    "cutoff": 0.2,
                     "dt": 1.0 / 32.0,
                     "softening": 0.05,
                     "gravitational_constant": 1.0,
@@ -903,7 +906,8 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                     "NEMO Plummer-model equilibrium snapshot generated with mkplummer,"
                     " using mass, position, and velocity columns. The dataset uses "
                     "source masses, G 1.0 N-body units, dt 1/32, softening 0.05, "
-                    "and cutoff 1.0 for the preserved Plummer coordinate scale."
+                    "and cutoff 0.2 to create a sparse, truncated-gravity workload. "
+                    "This cutoff is not a physically validated approximation."
                 ),
                 suites=["standard", "trace"],
                 tags=["physics", "simulation", "sparse", "astronomy", "n-body"],
@@ -917,7 +921,7 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                 parameters={
                     "force_model": "newtonian_gravity",
                     "boundary_model": "unbounded",
-                    "cutoff": 1.0,
+                    "cutoff": 0.2,
                     "dt": 1.0 / 32.0,
                     "softening": 0.05,
                     "gravitational_constant": 1.0,
@@ -927,7 +931,8 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                     "NEMO Plummer-model equilibrium snapshot generated with mkplummer,"
                     " using mass, position, and velocity columns. The dataset uses "
                     "source masses, G 1.0 N-body units, dt 1/32, softening 0.05, "
-                    "and cutoff 1.0 for the preserved Plummer coordinate scale."
+                    "and cutoff 0.2 to create a sparse, truncated-gravity workload. "
+                    "This cutoff is not a physically validated approximation."
                 ),
                 suites=["standard", "trace"],
                 tags=["physics", "simulation", "sparse", "astronomy", "n-body"],
@@ -941,7 +946,7 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                 parameters={
                     "force_model": "newtonian_gravity",
                     "boundary_model": "unbounded",
-                    "cutoff": 20.0,
+                    "cutoff": 0.1,
                     "dt": 1.0 / 32.0,
                     "softening": 0.05,
                     "gravitational_constant": 1.0,
@@ -951,8 +956,9 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                     "Dubinski Milky Way/Andromeda collision initial conditions from the"
                     " NEMO archive, stored as mass and six phase-space coordinates. "
                     "The dataset uses source masses, G 1.0 N-body units, dt 1/32, "
-                    "softening 0.05, and cutoff 20.0 for the larger preserved "
-                    "Dubinski coordinate scale."
+                    "softening 0.05, and cutoff 0.1 to create a sparse, "
+                    "truncated-gravity workload. This cutoff is not a physically "
+                    "validated approximation."
                 ),
                 suites=["standard"],
                 tags=["physics", "simulation", "sparse", "astronomy", "n-body"],
@@ -1177,17 +1183,20 @@ class ParticleSimBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseTensor), (
-                "Output must be in binsparse format"
-            )
+            assert isinstance(
+                item, BinsparseTensor
+            ), "Output must be in binsparse format"
         if self._ref_outputs is None:
             return
 
         for i, (actual, expected) in enumerate(
             zip(self._output, self._ref_outputs, strict=True)
         ):
-            actual_values = to_numpy(actual)
+            try:
+                actual_values = to_numpy(actual)
+            except TypeError:
+                actual_values = to_sparse(actual).todense()
             expected_values = to_numpy(expected)
-            assert np.all(actual_values == expected_values), (
-                f"Particle simulation output {i} mismatch for {param.dataset.name}"
-            )
+            assert np.all(
+                actual_values == expected_values
+            ), f"Particle simulation output {i} mismatch for {param.dataset.name}"
