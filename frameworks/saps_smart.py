@@ -416,11 +416,11 @@ class SmartSparseKernels(Framework):
 
     def to_binsparse(self, array):
         if isinstance(array, sp.COO):
-            if array.ndim == 0 or not self._fill_value_is_zero(array):
+            if array.ndim == 0:
                 return from_numpy(self._dense(array))
             return from_sparse(array)
         if isinstance(array, sp.SparseArray):
-            if array.ndim == 0 or not self._fill_value_is_zero(array):
+            if array.ndim == 0:
                 return from_numpy(self._dense(array))
             return self.to_binsparse(array.tocoo())
         if isinstance(array, np.ndarray):
@@ -446,15 +446,10 @@ class SmartSparseKernels(Framework):
         return array
 
     def sum(self, x, axis=None, **kwargs):
-        # A reduction always produces something smaller than its input --
-        # dropping an axis entirely, at minimum -- so there's no size
-        # justification for the result to stay sparse the way there is for
-        # e.g. matmul. Keeping it sparse only risks a nonzero fill value
-        # (a comparison like `sum(...) < target` flips the fill to True
-        # once the implicit zero rows satisfy it) poisoning everything
-        # downstream with pydata/sparse's mixed sparse-dense guard.
+        # A reduced axis can still contain millions of elements. Preserve the
+        # sparse result and its fill value; WrappedArray handles mixed operands.
         if isinstance(x, sp.SparseArray):
-            return self.to_dense(sp.sum(x, axis=axis, **kwargs))
+            return sp.sum(x, axis=axis, **kwargs)
         xp = self._array_namespace(x)
         return xp.sum(x, axis=axis, **kwargs)
 

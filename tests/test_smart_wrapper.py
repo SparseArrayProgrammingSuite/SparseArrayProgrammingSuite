@@ -101,3 +101,40 @@ def test_scalar_conversions_and_array_methods(xp):
     assert xp.eye(2, 3).T.shape == (3, 2)
     assert xp.eye(2, 3).reshape((3, 2)).shape == (3, 2)
     assert xp.eye(3).astype(np.int32).dtype == np.int32
+
+
+def test_large_sparse_sum_does_not_densify(xp, monkeypatch):
+    array = sp.COO([[0, 1], [7, 999_999]], [2.0, 3.0], shape=(2, 1_000_000))
+
+    def forbid_dense(self):
+        pytest.fail("sparse reduction must not allocate a dense output")
+
+    monkeypatch.setattr(sp.COO, "todense", forbid_dense)
+    result = xp.sum(xp.wrap(array), axis=0)
+
+    assert isinstance(result.array, sp.COO)
+    assert result.shape == (1_000_000,)
+    np.testing.assert_array_equal(result.array.coords, [[7, 999_999]])
+    np.testing.assert_array_equal(result.array.data, [2.0, 3.0])
+
+
+@pytest.mark.parametrize("fill", [True, np.inf, -1.0])
+def test_sparse_output_preserves_nonzero_fill(xp, monkeypatch, fill):
+    array = sp.COO(
+        [[7]],
+        np.asarray([0], dtype=type(fill)),
+        shape=(1_000_000,),
+        fill_value=fill,
+    )
+
+    def forbid_dense(self):
+        pytest.fail("binsparse conversion must preserve sparse output")
+
+    monkeypatch.setattr(sp.COO, "todense", forbid_dense)
+    result = xp.from_binsparse(xp.to_binsparse(xp.wrap(array)))
+
+    assert isinstance(result.array, sp.COO)
+    assert result.shape == array.shape
+    assert result.fill_value == fill
+    np.testing.assert_array_equal(result.array.coords, array.coords)
+    np.testing.assert_array_equal(result.array.data, array.data)
