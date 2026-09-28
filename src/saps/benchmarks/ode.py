@@ -108,6 +108,18 @@ def _construct_brusselator_matrix(n, alpha, b):
     return C
 
 
+def _brusselator_forcing(n):
+    """Forcing term applied inside a disk of the 2D grid once t >= 1.1."""
+    brusselator_cb = [0.0] * (n * n * 2)
+    for i in range(n):
+        for j in range(n):
+            x = i / (n - 1)
+            y = j / (n - 1)
+            if (x - 0.3) ** 2 + (y - 0.6) ** 2 <= 0.1**2:
+                brusselator_cb[(i * n + j) * 2] = 5
+    return brusselator_cb
+
+
 def _brusselator_derivatives(t, u_vec, meta, C, brusselator_cb):
     """Brusselator derivatives with diffusion on 2D grid."""
     a = meta["a"]
@@ -266,17 +278,6 @@ class BrusselatorDataset(Dataset):
         self.alpha = alpha
         self.t_max = t_max
         self.step = step
-        self.y0 = _init_brusselator_2d(n)
-        self.C = _construct_brusselator_matrix(n, alpha, b)
-
-        size = n * n * 2
-        self.brusselator_cb = [0.0] * size
-        for i in range(n):
-            for j in range(n):
-                x = i / (n - 1)
-                y = j / (n - 1)
-                if (x - 0.3) ** 2 + (y - 0.6) ** 2 <= 0.1**2:
-                    self.brusselator_cb[(i * n + j) * 2] = 5
 
     @property
     def name(self) -> str:
@@ -651,19 +652,23 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
         ]
 
     def generate(self, dataset: BrusselatorDataset):
+        # Built here rather than in the dataset: C is dense (2n^2)^2, about
+        # 3.2 GB for n=100, and datasets are listed far more often than generated.
+        n = dataset.n
+        C = _construct_brusselator_matrix(n, dataset.alpha, dataset.b)
         meta = {
             "problem_name": self.name,
             "span": (0, dataset.t_max),
-            "y0": list(dataset.y0),
+            "y0": list(_init_brusselator_2d(n)),
             "step": dataset.step,
-            "n": dataset.n,
+            "n": n,
             "a": dataset.a,
             "alpha": dataset.alpha,
         }
         return DataInstance(
             inputs=[
-                from_numpy(dataset.C),
-                from_numpy(np.asarray(dataset.brusselator_cb)),
+                from_numpy(C),
+                from_numpy(np.asarray(_brusselator_forcing(n))),
             ],
             meta=meta,
             ref_meta={"error_tolerance": 0.5, "real_output": True},
