@@ -894,8 +894,18 @@ Each iteration:
         (final_loss, final_W1, final_b1, final_W2, final_b2)
     """
 
-    def benchmark(self, xp, data: list, meta: dict):
-        adjacency, features, weights1, bias1, weights2, bias2, targets = data
+    def benchmark(
+        self,
+        xp,
+        meta: dict,
+        adjacency,
+        features,
+        weights1,
+        bias1,
+        weights2,
+        bias2,
+        targets,
+    ):
         adjacency_T = adjacency.T
         num_iterations = meta["num_iterations"]
         learning_rate = meta["learning_rate"]

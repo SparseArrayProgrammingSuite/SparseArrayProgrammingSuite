@@ -465,8 +465,7 @@ class LSQRBenchmark(Benchmark):
                 1e-5 * np.linalg.norm(A.T @ b) + 1e-5
             )
 
-    def benchmark(self, xp, data: list, meta: dict):
-        A, b = data
+    def benchmark(self, xp, meta: dict, A, b):
         tolerance = meta.get("rel_tol", 1e-6)
         conlim = meta.get("conlim", 1.0e8)
         max_iter = meta.get("max_iter", 1000)
@@ -571,4 +570,4 @@ class LSQRBenchmark(Benchmark):
             if exit > 0:
                 break
 
-        return [x]
+        return x

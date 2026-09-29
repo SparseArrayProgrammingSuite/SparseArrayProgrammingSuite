@@ -473,10 +473,9 @@ class TriangleCountBenchmark(Benchmark):
             TriangleCountGAPGenerator(),
         ]
 
-    def benchmark(self, xp, data: list, meta: dict):
-        A = data[0]
+    def benchmark(self, xp, meta: dict, A):
         triangles = xp.einsum("S[] += A[i,j] * A[j,k] * A[k,i]", A=A) / 6
-        return [xp.asarray(triangles)]
+        return xp.asarray(triangles)
 
     def check(self, param):
         for item in self._output:

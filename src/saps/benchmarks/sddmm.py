@@ -431,11 +431,8 @@ class SDDMMBenchmark(Benchmark):
     def generators(self) -> list[Generator]:
         return [SDDMMSuiteSparseGenerator(), UniformRandomSDDMMGenerator()]
 
-    def benchmark(self, xp, data: list, meta: dict):
-        S = data[0]
-        A = data[1]
-        B = data[2]
-        return [xp.multiply(S, A @ B)]
+    def benchmark(self, xp, meta: dict, S, A, B):
+        return xp.multiply(S, A @ B)
 
     def check(self, param):
         for item in self._output:

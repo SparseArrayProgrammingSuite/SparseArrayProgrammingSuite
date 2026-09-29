@@ -422,16 +422,14 @@ class MRISobelEdgeBenchmark(Benchmark):
     def generators(self) -> list[Generator[Any]]:
         return [MRISobelTestGenerator(), MRISobelGenerator()]
 
-    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
-        image, D_x, S_y, S_x, D_y, threshold = data
+    def benchmark(self, xp, meta: dict[str, Any], image, D_x, S_y, S_x, D_y, threshold):
 
         gx = D_x @ image @ S_y
         gy = S_x @ image @ D_y
 
         magnitude = xp.abs(gx) + xp.abs(gy)
-        edges = magnitude > threshold
 
-        return [edges]
+        return magnitude > threshold
 
     def check(self, param):
         for item in self._output:

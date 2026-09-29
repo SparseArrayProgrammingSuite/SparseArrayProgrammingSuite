@@ -520,8 +520,7 @@ class BetweennessCentralityBenchmark(Benchmark):
             BetweennessCentralityGAPGenerator(),
         ]
 
-    def benchmark(self, xp, data, meta):
-        G = data[0]
+    def benchmark(self, xp, meta, G):
         n = G.shape[0]
         bc_scores = xp.zeros((n,), dtype=float)
 
@@ -571,7 +570,7 @@ class BetweennessCentralityBenchmark(Benchmark):
 
             bc_scores = bc_scores + score_update
 
-        return [bc_scores]
+        return bc_scores
 
     def check(self, param):
         for item in self._output:

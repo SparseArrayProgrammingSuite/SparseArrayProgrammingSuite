@@ -1,3 +1,6 @@
+from abc import ABC
+from typing import Any
+
 import numpy as np
 
 from binsparse import COORMatrix, CustomTensor, ElementLevel, SparseLevel
@@ -13,6 +16,7 @@ from saps.benchmark import (
     Ref,
     ShellBenchmark,
 )
+from saps.codegen import define_function, einsum_function_source
 from saps.downloaders.gcare import load_gcare_graph
 
 
@@ -119,7 +123,19 @@ class SubgraphMatchingTestDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class SubgraphMatchingTestGenerator(Generator[SubgraphMatchingTestDataset]):
+class _SubgraphFunctionGenerator(Generator[Any], ABC):
+    """Builds each query's benchmark function, with one parameter per matrix."""
+
+    def generate_benchmark_function(self, dataset, problem, benchmark):
+        source = einsum_function_source(
+            problem.meta["expr"], problem.meta["matrix_names"]
+        )
+        return define_function(source, f"<saps-generated {self.name}.{dataset.name}>")
+
+
+class SubgraphMatchingTestGenerator(
+    _SubgraphFunctionGenerator, Generator[SubgraphMatchingTestDataset]
+):
     @property
     def cacheable(self) -> bool:
         return False
@@ -340,7 +356,7 @@ class GCareGraphBenchmark(ShellBenchmark):
         return GCareGraphGenerator()
 
 
-class GCareGenerator(Generator[GCareDataset]):
+class GCareGenerator(_SubgraphFunctionGenerator, Generator[GCareDataset]):
     @property
     def cacheable(self) -> bool:
         return False
@@ -2790,9 +2806,11 @@ class SubgraphMatching(Benchmark):
             GCareYAGOGenerator(),
         ]
 
-    def benchmark(self, xp, data, meta):
-        sp_mats = dict(zip(meta["matrix_names"], data, strict=True))
-        return [xp.einsum(meta["expr"], **sp_mats)]
+    def benchmark(self, xp, meta):
+        raise NotImplementedError(
+            "Subgraph matching functions are generated per query by the "
+            "generator's generate_benchmark_function."
+        )
 
     def check(self, param):
         super().check(param)

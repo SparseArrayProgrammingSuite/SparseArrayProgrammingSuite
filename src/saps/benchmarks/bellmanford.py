@@ -706,8 +706,7 @@ class BellmanFordBenchmark(Benchmark):
             BellmanFordGAPGenerator(),
         ]
 
-    def benchmark(self, xp, data, meta):
-        edges = data[0]
+    def benchmark(self, xp, meta, edges):
         src = meta["src"]
 
         n = edges.shape[0]
@@ -724,7 +723,7 @@ class BellmanFordBenchmark(Benchmark):
             if stop:
                 break
 
-        return [D]
+        return D
 
     def check(self, param):
         for item in self._output:

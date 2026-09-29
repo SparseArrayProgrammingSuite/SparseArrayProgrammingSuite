@@ -545,10 +545,8 @@ class MatrixVectorBenchmark(Benchmark):
             UniformRandomMatVecGenerator(),
         ]
 
-    def benchmark(self, xp, data: list, meta: dict):
-        A = data[0]
-        b = data[1]
-        return [xp.matmul(A, b)]
+    def benchmark(self, xp, meta: dict, A, b):
+        return xp.matmul(A, b)
 
     def check(self, param):
         for item in self._output:

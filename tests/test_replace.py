@@ -159,8 +159,8 @@ def test_tagger_records_replace_and_nonzero_fill(monkeypatch):
 )
 def test_jacobi_keeps_implicit_diagonal_fill_behavior(xp):
     matrix = xp.from_binsparse(from_sparse(sp.asarray([[0.0, 0.0], [0.0, 3.0]])))
-    (result,) = JacobiBenchmark().benchmark(
-        xp, [matrix, xp.asarray([0.0, 6.0]), xp.asarray([0.0, 0.0])], {}
+    result = JacobiBenchmark().benchmark(
+        xp, {}, matrix, xp.asarray([0.0, 6.0]), xp.asarray([0.0, 0.0])
     )
     np.testing.assert_array_equal(dense(result), [0, 2])
 

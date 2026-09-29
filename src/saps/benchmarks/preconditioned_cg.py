@@ -1688,8 +1688,7 @@ class _PreconditionedCGBase(Benchmark, ABC):
             f"Preconditioned CG residual too high for {param.dataset.name}"
         )
 
-    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
-        A, b, x0, M = data
+    def benchmark(self, xp, meta: dict[str, Any], A, b, x0, M):
         rel_tol = meta.get("rel_tol", 1e-6)
         abs_tol = meta.get("abs_tol", 1e-20)
         max_iter = meta.get("max_iter", 100)
@@ -1727,8 +1726,7 @@ class _PreconditionedCGBase(Benchmark, ABC):
                 rho = new_rho
                 rr = new_rr
 
-        x_solution = x
-        return [x_solution]
+        return x
 
 
 class _BlockJacobiCGMixin:

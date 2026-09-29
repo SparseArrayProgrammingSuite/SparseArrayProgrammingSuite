@@ -359,8 +359,7 @@ class FiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
             FiniteDifferenceGenerator(flux_name="linear_advection"),
         ]
 
-    def benchmark(self, xp, data: list, meta: dict):
-        u_0, matrix, dif = data
+    def benchmark(self, xp, meta: dict, u_0, matrix, dif):
         timesteps = meta["timesteps"]
         dt = meta["dt"]
         dx = meta["dx"]
@@ -374,7 +373,7 @@ class FiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
             f = flux(u_n)
             u_next = matrix @ u_n - alpha * (dif @ f)
             u[n + 1] = u_next
-        return [u]
+        return u
 
     def check(self, param):
         super().check(param)
@@ -623,8 +622,7 @@ class FiniteDifference2DBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
             FiniteDifference2DGenerator(flux_name="linear_advection"),
         ]
 
-    def benchmark(self, xp, data: list, meta: dict):
-        u_0, matrix, diff_x, diff_y = data
+    def benchmark(self, xp, meta: dict, u_0, matrix, diff_x, diff_y):
         timesteps = meta["timesteps"]
         dt = meta["dt"]
         dx = meta["dx"]
@@ -645,7 +643,7 @@ class FiniteDifference2DBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
             u_next = matrix @ u_n - alpha * (diff_x @ fl_x) - beta * (diff_y @ fl_y)
             u[n + 1] = u_next
 
-        return [u]
+        return u
 
     def check(self, param):
         super().check(param)

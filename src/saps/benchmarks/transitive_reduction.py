@@ -426,8 +426,7 @@ class TransitiveReductionBenchmark(Benchmark):
             TransitiveReductionGAPGenerator(),
         ]
 
-    def benchmark(self, xp, data, meta):
-        R = data[0]
+    def benchmark(self, xp, meta, R):
         x = meta.get("x", 1)
         max_iters = meta.get("max_iters", 10)
 
@@ -457,7 +456,7 @@ class TransitiveReductionBenchmark(Benchmark):
 
             R_nnz_prev = R_nnz_new
 
-        return [R]
+        return R
 
     def check(self, param):
         super().check(param)

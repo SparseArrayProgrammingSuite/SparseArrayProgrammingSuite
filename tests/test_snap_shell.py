@@ -219,8 +219,8 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
                 else distances
             )
             output = benchmark.benchmark(
-                xp, [xp.from_binsparse(actual.inputs[0])], actual.meta
-            )[0]
+                xp, actual.meta, xp.from_binsparse(actual.inputs[0])
+            )
             np.testing.assert_array_equal(output, expected_output)
             assert actual.meta["src"] == int(
                 select_source_vertices(raw.inputs[0], seed=variant.seed)[0]
@@ -265,8 +265,8 @@ def test_snap_transitive_reduction_removes_redundant_edge(monkeypatch):
     problem = generator.generate(generator.datasets[0])
     xp = NumpyFramework()
     actual = reduction.TransitiveReductionBenchmark().benchmark(
-        xp, [xp.from_binsparse(problem.inputs[0])], problem.meta
-    )[0]
+        xp, problem.meta, xp.from_binsparse(problem.inputs[0])
+    )
     np.testing.assert_array_equal(
         actual, [[np.inf, 1, np.inf], [np.inf, np.inf, 1], [np.inf, np.inf, np.inf]]
     )
@@ -388,8 +388,8 @@ def test_seeded_source_test_suite_problems(
     assert problem.meta["seed"] == seed
     xp = NumpyFramework()
     result = getattr(module, benchmark_class)().benchmark(
-        xp, [xp.from_binsparse(problem.inputs[0])], problem.meta
-    )[0]
+        xp, problem.meta, xp.from_binsparse(problem.inputs[0])
+    )
     expected = (
         {1: [0, 1, 2, 3], 2: [0, 0, 1, 2]}
         if module_name == "BFS"
