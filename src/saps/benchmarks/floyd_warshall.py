@@ -462,7 +462,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 name="HB/ash292",
                 pretty_name="ASH 292",
                 description="Sparse SuiteSparse graph input for Floyd-Warshall.",
-                suites=[],
+                suites=["trace"],
                 source="HB/ash292",
                 symmetrize=False,
             ),

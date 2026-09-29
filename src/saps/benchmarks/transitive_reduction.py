@@ -187,8 +187,12 @@ class TransitiveReductionSNAPGenerator(Generator[SNAPDataset]):
 
     @property
     def datasets(self) -> list[SNAPDataset]:
+        trace = ("email-Eu-core",)
         return [
-            graph.with_suites(["standard"]) for graph in SNAPGraphGenerator().datasets
+            graph.with_suites(
+                ["standard", "trace"] if graph.name in trace else ["standard"]
+            )
+            for graph in SNAPGraphGenerator().datasets
         ]
 
     def generate(self, dataset: SNAPDataset) -> DataInstance:

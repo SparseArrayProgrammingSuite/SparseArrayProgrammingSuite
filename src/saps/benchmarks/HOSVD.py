@@ -272,6 +272,14 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
                 (10, 10, 10, 10, 10),
                 (3, 3, 3, 3, 3),
             ),
+            HOSVDDataset(
+                "trace_sparse_5d",
+                "Trace sparse 5d HOSVD Tensor",
+                "A smaller sparse low-rank 5D tensor, so saps_smart traces quickly.",
+                ["trace"],
+                (6, 6, 6, 6, 6),
+                (2, 2, 2, 2, 2),
+            ),
         ]
 
         return [
@@ -400,7 +408,7 @@ class HOSVDFrosttDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-def _hosvd_frostt_dataset(tensor_name, ranks):
+def _hosvd_frostt_dataset(tensor_name, ranks, suites=None):
     shape = frostt_tensor_shape(tensor_name)
     assert len(ranks) == len(shape), (
         f"HOSVD ranks {ranks} do not match shape {shape} for "
@@ -416,6 +424,7 @@ def _hosvd_frostt_dataset(tensor_name, ranks):
         tensor_name=tensor_name,
         n=n,
         ranks=ranks,
+        suites=suites,
     )
 
 
@@ -496,8 +505,12 @@ class HOSVDFrosttGenerator(Generator[HOSVDFrosttDataset]):
 
     @property
     def datasets(self) -> list[HOSVDFrosttDataset]:
+        # Small 3D and 4D tensors that saps_smart finishes in seconds.
+        trace = {"matmul_5_5_5", "toy"}
         datasets = [
-            _hosvd_frostt_dataset(tensor_name, ranks)
+            _hosvd_frostt_dataset(
+                tensor_name, ranks, suites=["trace"] if tensor_name in trace else None
+            )
             for tensor_name, ranks in [
                 ("matmul_2_2_2", (2, 2, 2)),
                 ("matmul_3_3_3", (2, 2, 2)),

@@ -526,6 +526,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
                 feature_dim=16,
                 hidden_dim=32,
                 out_dim=1,
+                suites=["trace"],
             ),
         ]
 
