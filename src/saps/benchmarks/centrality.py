@@ -285,7 +285,8 @@ class BetweennessCentralitySNAPGenerator(Generator[SNAPDataset]):
 
     @property
     def datasets(self) -> list[SNAPDataset]:
-        return SNAPGraphGenerator().datasets
+        # Successful standard-suite Smart runs <= 30s in competition/run_13662472.
+        return SNAPGraphGenerator(trace_datasets=("email-Eu-core-temporal",)).datasets
 
     def generate(self, dataset: SNAPDataset) -> DataInstance:
         if dataset.name in self.dataset_names:

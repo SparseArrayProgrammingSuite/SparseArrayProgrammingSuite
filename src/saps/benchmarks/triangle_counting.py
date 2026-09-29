@@ -228,7 +228,49 @@ class TriangleCountSNAPGenerator(Generator[SNAPDataset]):
 
     @property
     def datasets(self) -> list[SNAPDataset]:
-        return SNAPGraphGenerator().datasets
+        # Successful standard-suite Smart runs <= 30s in competition/run_13662472.
+        return SNAPGraphGenerator(
+            trace_datasets=(
+                "CollegeMsg",
+                "Oregon-1",
+                "Oregon-2",
+                "amazon0302",
+                "amazon0312",
+                "amazon0505",
+                "amazon0601",
+                "as-735",
+                "as-caida",
+                "ca-HepTh",
+                "com-Amazon",
+                "com-DBLP",
+                "email-Eu-core",
+                "email-Eu-core-temporal",
+                "loc-Brightkite",
+                "p2p-Gnutella04",
+                "p2p-Gnutella05",
+                "p2p-Gnutella06",
+                "p2p-Gnutella08",
+                "p2p-Gnutella09",
+                "p2p-Gnutella24",
+                "p2p-Gnutella25",
+                "p2p-Gnutella30",
+                "p2p-Gnutella31",
+                "roadNet-CA",
+                "roadNet-PA",
+                "roadNet-TX",
+                "soc-Epinions1",
+                "soc-sign-Slashdot081106",
+                "soc-sign-Slashdot090216",
+                "soc-sign-Slashdot090221",
+                "soc-sign-bitcoin-alpha",
+                "soc-sign-bitcoin-otc",
+                "sx-askubuntu",
+                "sx-mathoverflow",
+                "web-Stanford",
+                "wiki-RfA",
+                "wiki-Vote",
+            )
+        ).datasets
 
     def generate(self, dataset: SNAPDataset) -> DataInstance:
         if dataset.name in self.dataset_names:

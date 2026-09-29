@@ -411,3 +411,26 @@ def test_all_snap_sources_have_ten_seeded_cases():
             (g.name, seed) for g in graphs for seed in range(10)
         }
         assert all(d.metadata["seed"] == d.seed for d in datasets)
+
+
+def test_snap_trace_selection_does_not_mutate_shared_graphs():
+    selected = SNAPGraphGenerator(trace_datasets=("email-Eu-core-temporal",))
+    datasets = {dataset.name: dataset for dataset in selected.datasets}
+    assert datasets["email-Eu-core-temporal"].suites == ["trace"]
+    assert datasets["soc-Slashdot0902"].suites == []
+    assert all(dataset.suites == [] for dataset in SNAPGraphGenerator().datasets)
+    datasets["email-Eu-core-temporal"].suites.append("test")
+    assert next(
+        dataset
+        for dataset in selected.datasets
+        if dataset.name == "email-Eu-core-temporal"
+    ).suites == ["trace"]
+
+
+def test_snap_source_trace_selection_is_seed_specific():
+    graph = SNAPGraphGenerator().datasets[0]
+    selected = SNAPSourceDataset(graph, 0, suites=["trace"])
+    other = SNAPSourceDataset(graph, 1)
+    assert selected.suites == ["trace"]
+    assert other.suites == []
+    assert graph.suites == []

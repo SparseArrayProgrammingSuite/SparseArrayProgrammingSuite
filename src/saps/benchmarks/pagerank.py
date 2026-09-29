@@ -239,7 +239,19 @@ class PageRankSNAPGenerator(Generator[SNAPDataset]):
 
     @property
     def datasets(self) -> list[SNAPDataset]:
-        return SNAPGraphGenerator().datasets
+        # Successful standard-suite Smart runs <= 30s in competition/run_13662472.
+        return SNAPGraphGenerator(
+            trace_datasets=(
+                "CollegeMsg",
+                "ca-GrQc",
+                "email-Eu-core",
+                "email-Eu-core-temporal",
+                "p2p-Gnutella08",
+                "soc-sign-bitcoin-alpha",
+                "wiki-RfA",
+                "wiki-Vote",
+            )
+        ).datasets
 
     def generate(self, dataset: SNAPDataset) -> DataInstance:
         if dataset.name in self.dataset_names:

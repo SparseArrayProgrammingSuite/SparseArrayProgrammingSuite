@@ -229,7 +229,21 @@ class FourCliqueCountSNAPGenerator(Generator[SNAPDataset]):
 
     @property
     def datasets(self) -> list[SNAPDataset]:
-        return SNAPGraphGenerator().datasets
+        # Successful standard-suite Smart runs <= 30s in competition/run_13662472.
+        return SNAPGraphGenerator(
+            trace_datasets=(
+                "ca-GrQc",
+                "ca-HepTh",
+                "p2p-Gnutella04",
+                "p2p-Gnutella05",
+                "p2p-Gnutella06",
+                "p2p-Gnutella08",
+                "p2p-Gnutella09",
+                "p2p-Gnutella24",
+                "p2p-Gnutella25",
+                "p2p-Gnutella30",
+            )
+        ).datasets
 
     def generate(self, dataset: SNAPDataset) -> DataInstance:
         if dataset.name in self.dataset_names:
