@@ -143,10 +143,6 @@ class TransitiveReductionTestGenerator(Generator[TransitiveReductionDataset]):
 
 class TransitiveReductionSNAPGenerator(Generator[SNAPDataset]):
     @property
-    def cacheable(self) -> bool:
-        return False
-
-    @property
     def name(self) -> str:
         return "transitive_reduction_snap_inputs"
 
@@ -160,7 +156,7 @@ class TransitiveReductionSNAPGenerator(Generator[SNAPDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard"]
+        return []
 
     @property
     def concepts(self) -> str:
@@ -186,8 +182,14 @@ class TransitiveReductionSNAPGenerator(Generator[SNAPDataset]):
         return "Generate sparse directed graph inputs for transitive reduction."
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[SNAPDataset]:
-        return SNAPGraphGenerator().datasets
+        return [
+            graph.with_suites(["standard"]) for graph in SNAPGraphGenerator().datasets
+        ]
 
     def generate(self, dataset: SNAPDataset) -> DataInstance:
         if dataset.name in self.dataset_names:

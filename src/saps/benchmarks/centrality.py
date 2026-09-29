@@ -241,10 +241,6 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
 
 class BetweennessCentralitySNAPGenerator(Generator[SNAPDataset]):
     @property
-    def cacheable(self) -> bool:
-        return False
-
-    @property
     def name(self) -> str:
         return "betweenness_centrality_snap_inputs"
 
@@ -258,7 +254,7 @@ class BetweennessCentralitySNAPGenerator(Generator[SNAPDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard"]
+        return []
 
     @property
     def concepts(self) -> str:
@@ -284,9 +280,19 @@ class BetweennessCentralitySNAPGenerator(Generator[SNAPDataset]):
         return "Generate sparse directed graph inputs for betweenness centrality."
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[SNAPDataset]:
         # Successful standard-suite Smart runs <= 30s in competition/run_13662472.
-        return SNAPGraphGenerator(trace_datasets=("email-Eu-core-temporal",)).datasets
+        trace = ("email-Eu-core-temporal",)
+        return [
+            graph.with_suites(
+                ["standard", "trace"] if graph.name in trace else ["standard"]
+            )
+            for graph in SNAPGraphGenerator().datasets
+        ]
 
     def generate(self, dataset: SNAPDataset) -> DataInstance:
         if dataset.name in self.dataset_names:

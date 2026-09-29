@@ -243,10 +243,6 @@ class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
 
 class BreadthFirstSearchSNAPGenerator(Generator[SNAPSourceDataset]):
     @property
-    def cacheable(self) -> bool:
-        return False
-
-    @property
     def name(self) -> str:
         return "bfs_snap_inputs"
 
@@ -260,7 +256,7 @@ class BreadthFirstSearchSNAPGenerator(Generator[SNAPSourceDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard"]
+        return []
 
     @property
     def concepts(self) -> str:
@@ -284,6 +280,10 @@ class BreadthFirstSearchSNAPGenerator(Generator[SNAPSourceDataset]):
     @property
     def motivation(self) -> str:
         return "Generate sparse graph inputs for breadth-first search."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
 
     @property
     def datasets(self) -> list[SNAPSourceDataset]:
@@ -351,7 +351,11 @@ class BreadthFirstSearchSNAPGenerator(Generator[SNAPSourceDataset]):
             SNAPSourceDataset(
                 graph,
                 seed,
-                suites=["trace"] if seed in trace_seeds.get(graph.name, ()) else [],
+                suites=(
+                    ["standard", "trace"]
+                    if seed in trace_seeds.get(graph.name, ())
+                    else ["standard"]
+                ),
             )
             for graph in SNAPGraphGenerator().datasets
             for seed in range(10)

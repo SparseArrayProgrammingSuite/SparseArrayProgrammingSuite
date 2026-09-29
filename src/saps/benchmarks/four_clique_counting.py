@@ -170,10 +170,6 @@ class FourCliqueCountTestGenerator(Generator[GraphCountingDataset]):
 
 class FourCliqueCountSNAPGenerator(Generator[SNAPDataset]):
     @property
-    def cacheable(self) -> bool:
-        return False
-
-    @property
     def name(self) -> str:
         return "four_clique_count_snap_inputs"
 
@@ -187,7 +183,7 @@ class FourCliqueCountSNAPGenerator(Generator[SNAPDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard"]
+        return []
 
     @property
     def concepts(self) -> str:
@@ -228,22 +224,30 @@ class FourCliqueCountSNAPGenerator(Generator[SNAPDataset]):
         return "Generate sparse graph inputs for 4-clique counting."
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[SNAPDataset]:
         # Successful standard-suite Smart runs <= 30s in competition/run_13662472.
-        return SNAPGraphGenerator(
-            trace_datasets=(
-                "ca-GrQc",
-                "ca-HepTh",
-                "p2p-Gnutella04",
-                "p2p-Gnutella05",
-                "p2p-Gnutella06",
-                "p2p-Gnutella08",
-                "p2p-Gnutella09",
-                "p2p-Gnutella24",
-                "p2p-Gnutella25",
-                "p2p-Gnutella30",
+        trace = (
+            "ca-GrQc",
+            "ca-HepTh",
+            "p2p-Gnutella04",
+            "p2p-Gnutella05",
+            "p2p-Gnutella06",
+            "p2p-Gnutella08",
+            "p2p-Gnutella09",
+            "p2p-Gnutella24",
+            "p2p-Gnutella25",
+            "p2p-Gnutella30",
+        )
+        return [
+            graph.with_suites(
+                ["standard", "trace"] if graph.name in trace else ["standard"]
             )
-        ).datasets
+            for graph in SNAPGraphGenerator().datasets
+        ]
 
     def generate(self, dataset: SNAPDataset) -> DataInstance:
         if dataset.name in self.dataset_names:

@@ -385,10 +385,6 @@ class BellmanFordTestGenerator(Generator[BellmanFordDataset]):
 
 class BellmanFordSNAPGenerator(Generator[SNAPSourceDataset]):
     @property
-    def cacheable(self) -> bool:
-        return False
-
-    @property
     def name(self) -> str:
         return "bellman_ford_snap_inputs"
 
@@ -402,7 +398,7 @@ class BellmanFordSNAPGenerator(Generator[SNAPSourceDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard"]
+        return []
 
     @property
     def concepts(self) -> str:
@@ -426,6 +422,10 @@ class BellmanFordSNAPGenerator(Generator[SNAPSourceDataset]):
     @property
     def motivation(self) -> str:
         return "Generate weighted graph inputs for Bellman-Ford."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
 
     @property
     def datasets(self) -> list[SNAPSourceDataset]:
@@ -490,7 +490,11 @@ class BellmanFordSNAPGenerator(Generator[SNAPSourceDataset]):
             SNAPSourceDataset(
                 graph,
                 seed,
-                suites=["trace"] if seed in trace_seeds.get(graph.name, ()) else [],
+                suites=(
+                    ["standard", "trace"]
+                    if seed in trace_seeds.get(graph.name, ())
+                    else ["standard"]
+                ),
             )
             for graph in SNAPGraphGenerator().datasets
             for seed in range(10)

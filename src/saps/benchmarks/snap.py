@@ -200,6 +200,12 @@ class SNAPDataset(Dataset):
         concepts = dict.fromkeys(_GROUP_CONCEPTS[group] for group in self.groups)
         return "<ccs2012>" + "".join(concepts) + "</ccs2012>"
 
+    def with_suites(self, suites: list[str]) -> "SNAPDataset":
+        """A copy of this shared graph listed under ``suites``."""
+        dataset = copy(self)
+        dataset._suites = list(suites)
+        return dataset
+
     @property
     def metadata(self) -> dict[str, Any]:
         return {
@@ -403,9 +409,6 @@ _GRAPHS = [
 
 
 class SNAPGraphGenerator(Generator[SNAPDataset]):
-    def __init__(self, trace_datasets: tuple[str, ...] = ()):
-        self.trace_datasets = frozenset(trace_datasets)
-
     @property
     def cacheable(self) -> bool:
         return False
@@ -448,13 +451,7 @@ class SNAPGraphGenerator(Generator[SNAPDataset]):
 
     @property
     def datasets(self) -> list[SNAPDataset]:
-        datasets = []
-        for graph in _GRAPHS:
-            if graph.name in self.trace_datasets:
-                graph = copy(graph)
-                graph._suites = list(dict.fromkeys([*graph.suites, "trace"]))
-            datasets.append(graph)
-        return datasets
+        return list(_GRAPHS)
 
     def generate(self, dataset: SNAPDataset) -> DataInstance:
         raw = fetch_suitesparse_matrix(dataset.source_name)

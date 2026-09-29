@@ -176,10 +176,6 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
 
 class TransitiveClosureSNAPGenerator(Generator[SNAPDataset]):
     @property
-    def cacheable(self) -> bool:
-        return False
-
-    @property
     def name(self) -> str:
         return "transitive_closure_snap_inputs"
 
@@ -193,7 +189,7 @@ class TransitiveClosureSNAPGenerator(Generator[SNAPDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard"]
+        return []
 
     @property
     def concepts(self) -> str:
@@ -219,8 +215,14 @@ class TransitiveClosureSNAPGenerator(Generator[SNAPDataset]):
         return "Generate sparse directed graph inputs for transitive closure."
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[SNAPDataset]:
-        return SNAPGraphGenerator().datasets
+        return [
+            graph.with_suites(["standard"]) for graph in SNAPGraphGenerator().datasets
+        ]
 
     def generate(self, dataset: SNAPDataset) -> DataInstance:
         if dataset.name in self.dataset_names:

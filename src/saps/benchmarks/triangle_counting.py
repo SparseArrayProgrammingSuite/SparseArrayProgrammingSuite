@@ -169,10 +169,6 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
 
 class TriangleCountSNAPGenerator(Generator[SNAPDataset]):
     @property
-    def cacheable(self) -> bool:
-        return False
-
-    @property
     def name(self) -> str:
         return "triangle_count_snap_inputs"
 
@@ -186,7 +182,7 @@ class TriangleCountSNAPGenerator(Generator[SNAPDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard"]
+        return []
 
     @property
     def concepts(self) -> str:
@@ -227,50 +223,58 @@ class TriangleCountSNAPGenerator(Generator[SNAPDataset]):
         return "Generate sparse graph inputs for triangle counting."
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[SNAPDataset]:
         # Successful standard-suite Smart runs <= 30s in competition/run_13662472.
-        return SNAPGraphGenerator(
-            trace_datasets=(
-                "CollegeMsg",
-                "Oregon-1",
-                "Oregon-2",
-                "amazon0302",
-                "amazon0312",
-                "amazon0505",
-                "amazon0601",
-                "as-735",
-                "as-caida",
-                "ca-HepTh",
-                "com-Amazon",
-                "com-DBLP",
-                "email-Eu-core",
-                "email-Eu-core-temporal",
-                "loc-Brightkite",
-                "p2p-Gnutella04",
-                "p2p-Gnutella05",
-                "p2p-Gnutella06",
-                "p2p-Gnutella08",
-                "p2p-Gnutella09",
-                "p2p-Gnutella24",
-                "p2p-Gnutella25",
-                "p2p-Gnutella30",
-                "p2p-Gnutella31",
-                "roadNet-CA",
-                "roadNet-PA",
-                "roadNet-TX",
-                "soc-Epinions1",
-                "soc-sign-Slashdot081106",
-                "soc-sign-Slashdot090216",
-                "soc-sign-Slashdot090221",
-                "soc-sign-bitcoin-alpha",
-                "soc-sign-bitcoin-otc",
-                "sx-askubuntu",
-                "sx-mathoverflow",
-                "web-Stanford",
-                "wiki-RfA",
-                "wiki-Vote",
+        trace = (
+            "CollegeMsg",
+            "Oregon-1",
+            "Oregon-2",
+            "amazon0302",
+            "amazon0312",
+            "amazon0505",
+            "amazon0601",
+            "as-735",
+            "as-caida",
+            "ca-HepTh",
+            "com-Amazon",
+            "com-DBLP",
+            "email-Eu-core",
+            "email-Eu-core-temporal",
+            "loc-Brightkite",
+            "p2p-Gnutella04",
+            "p2p-Gnutella05",
+            "p2p-Gnutella06",
+            "p2p-Gnutella08",
+            "p2p-Gnutella09",
+            "p2p-Gnutella24",
+            "p2p-Gnutella25",
+            "p2p-Gnutella30",
+            "p2p-Gnutella31",
+            "roadNet-CA",
+            "roadNet-PA",
+            "roadNet-TX",
+            "soc-Epinions1",
+            "soc-sign-Slashdot081106",
+            "soc-sign-Slashdot090216",
+            "soc-sign-Slashdot090221",
+            "soc-sign-bitcoin-alpha",
+            "soc-sign-bitcoin-otc",
+            "sx-askubuntu",
+            "sx-mathoverflow",
+            "web-Stanford",
+            "wiki-RfA",
+            "wiki-Vote",
+        )
+        return [
+            graph.with_suites(
+                ["standard", "trace"] if graph.name in trace else ["standard"]
             )
-        ).datasets
+            for graph in SNAPGraphGenerator().datasets
+        ]
 
     def generate(self, dataset: SNAPDataset) -> DataInstance:
         if dataset.name in self.dataset_names:
