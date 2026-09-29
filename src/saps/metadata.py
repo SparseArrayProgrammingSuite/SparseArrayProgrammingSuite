@@ -11,7 +11,6 @@ from typing import Any
 import saps.benchmarks
 from saps.benchmark import Benchmark
 
-
 SUITE_TAG_PREFIX = "suite-"
 
 
