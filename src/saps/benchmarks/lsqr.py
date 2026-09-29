@@ -411,7 +411,7 @@ class LSQRBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return ["group-solvers"]
 
     @property
     def concepts(self) -> str:

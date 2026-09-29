@@ -311,7 +311,7 @@ def test_saved_diagnostics_preserve_machines_across_resume(
     ("flags", "expected"),
     [
         ([], "0"),
-        (["--tag", "test"], "0"),
+        (["--tag", "suite-test"], "0"),
         (["--check-suite"], "1"),
         (["--trace-statistics"], "0"),
         (["--cache-datasets"], "0"),
@@ -348,3 +348,102 @@ def test_runner_propagates_explicit_check_mode(
     assert os.environ["SAPS_CHECK_SUITE"] == expected
     assert captured[0]["matrix"]["env_nobuild"]["SAPS_CHECK_SUITE"] == [expected]
     assert captured[0]["include"][0]["env_nobuild"]["SAPS_CHECK_SUITE"] == expected
+
+
+def test_upload_chunks_cover_datasets_as_shared_manifest_changes(
+    runner, monkeypatch, tmp_path
+):
+    import json
+    import os
+    import sys
+
+    monkeypatch.setattr(os, "environ", dict(os.environ))
+    manifest_path = tmp_path / "manifest.json"
+    monkeypatch.setenv("SAPS_MANIFEST_PATH", str(manifest_path))
+    monkeypatch.setenv("SAPS_CACHE_DIR", str(tmp_path / "cache"))
+    monkeypatch.setattr(runner, "_load_saps_config", lambda _: {})
+    datasets = [
+        {
+            "name": f"d{i}",
+            "asv_param": f"shared.d{i}",
+            "file": "example.py",
+            "freshness": "fresh",
+            "tags": [],
+        }
+        for i in range(64)
+    ]
+    params = [dataset["asv_param"] for dataset in datasets]
+    # Two benchmarks share the same cacheable generator.
+    metadata = [
+        {
+            "name": name,
+            "asv_ids": {"time": f"{name}.time"},
+            "generators": [{"name": "shared", "cacheable": True, "datasets": datasets}],
+        }
+        for name in ("first", "second")
+    ]
+    monkeypatch.setattr(runner, "_load_metadata", lambda _: metadata)
+    monkeypatch.setattr(
+        runner.Benchmarks,
+        "discover",
+        lambda conf, **kwargs: runner.Benchmarks(
+            conf,
+            [{"name": b["asv_ids"]["time"], "params": [params]} for b in metadata],
+        ),
+    )
+    monkeypatch.setattr(
+        runner,
+        "get_repo",
+        lambda conf: SimpleNamespace(
+            get_hash_from_name=lambda name: "abcdef123456", get_date=lambda commit: 0
+        ),
+    )
+    monkeypatch.setattr(
+        runner,
+        "build_storage_backend",
+        lambda *args, **kwargs: SimpleNamespace(
+            manifest_record_exists=lambda *args: True
+        ),
+    )
+    monkeypatch.setattr(
+        runner.Machine, "get_defaults", lambda: {"machine": "host", "cpu": "test"}
+    )
+    uploaded = []
+
+    def execute(**kwargs):
+        manifest = (
+            json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
+        )
+        for indices in kwargs["benchmarks"].benchmark_selection.values():
+            for index in indices:
+                key = params[index]
+                assert key not in uploaded
+                uploaded.append(key)
+                manifest[key] = {
+                    "file": "example.py",
+                    "freshness": "fresh",
+                    "digest": key,
+                }
+        manifest_path.write_text(json.dumps(manifest))
+        return 0
+
+    monkeypatch.setattr(runner, "_run_asv_benchmarks", execute)
+    # Later tasks see uploads completed by earlier tasks. Chunk ownership must
+    # remain fixed despite that shrinking list of datasets needing an upload.
+    for chunk in range(8):
+        monkeypatch.setattr(
+            sys,
+            "argv",
+            [
+                "run_benchmark.py",
+                "--cache-datasets",
+                "--saps-dir",
+                str(tmp_path),
+                "--chunk-count",
+                "8",
+                "--chunk-index",
+                str(chunk),
+            ],
+        )
+        assert runner.main() == 0
+    assert set(uploaded) == set(params)

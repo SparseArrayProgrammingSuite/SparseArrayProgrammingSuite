@@ -269,7 +269,7 @@ class GMRESGenerator(Generator[GMRESDataset]):
             ),
             GMRESDataset(
                 "Andrianov/net100",
-                suites=["standard", "trace"],
+                suites=["standard"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
@@ -293,13 +293,13 @@ class GMRESGenerator(Generator[GMRESDataset]):
             ),
             GMRESDataset(
                 "Andrianov/net50",
-                suites=["standard", "trace"],
+                suites=["standard"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
             GMRESDataset(
                 "Andrianov/net75",
-                suites=["standard", "trace"],
+                suites=["standard"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
@@ -498,25 +498,25 @@ class GMRESGenerator(Generator[GMRESDataset]):
             ),
             GMRESDataset(
                 "GHS_psdef/jnlbrng1",
-                suites=["standard", "trace"],
+                suites=["standard"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
             GMRESDataset(
                 "GHS_psdef/minsurfo",
-                suites=["standard", "trace"],
+                suites=["standard"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
             GMRESDataset(
                 "GHS_psdef/obstclae",
-                suites=["standard", "trace"],
+                suites=["standard"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
             GMRESDataset(
                 "GHS_psdef/wathen120",
-                suites=["standard", "trace"],
+                suites=["standard"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
@@ -657,119 +657,119 @@ class GMRESGenerator(Generator[GMRESDataset]):
             ),
             GMRESDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=10,
             ),
             GMRESDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=11,
             ),
             GMRESDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=12,
             ),
             GMRESDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=14,
             ),
             GMRESDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=15,
             ),
             GMRESDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=16,
             ),
             GMRESDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=17,
             ),
             GMRESDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=18,
             ),
             GMRESDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=19,
             ),
             GMRESDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=2,
             ),
             GMRESDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=3,
             ),
             GMRESDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=4,
             ),
             GMRESDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=5,
             ),
             GMRESDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=6,
             ),
             GMRESDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=62,
             ),
             GMRESDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=7,
             ),
             GMRESDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=8,
@@ -1351,7 +1351,7 @@ class GMRESGenerator(Generator[GMRESDataset]):
             ),
             GMRESDataset(
                 "Sandia/mult_dcop_02",
-                suites=["standard", "trace"],
+                suites=["standard"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
@@ -1434,7 +1434,7 @@ class GMRESGenerator(Generator[GMRESDataset]):
                 "Wang/swang2", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
             GMRESDataset(
-                "Zhao/Zhao1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
+                "Zhao/Zhao1", suites=["standard"], max_iter=100, rel_tol=1e-06
             ),
         ]
 
@@ -1513,7 +1513,7 @@ class GMRESBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return ["group-solvers"]
 
     @property
     def concepts(self) -> str:

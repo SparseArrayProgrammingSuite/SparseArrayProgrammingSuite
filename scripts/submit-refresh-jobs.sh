@@ -1,6 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+with_competition=false
+while (($# > 0)); do
+  case "$1" in
+    --with-competition)
+      with_competition=true
+      shift
+      ;;
+    *)
+      echo "usage: $0 [--with-competition]" >&2
+      exit 2
+      ;;
+  esac
+done
+
 submission_directory=$(pwd -P)
 # Escape literal percent signs in Slurm filename patterns.
 log_directory="${submission_directory//%/%%}"
@@ -21,8 +35,14 @@ cd "$repo_directory"
 poetry run ./bin/generate_metadata.py
 
 account="${SAPS_SLURM_ACCOUNT:-gts-wahrens6}"
+upload_chunk_count="${SAPS_UPLOAD_CHUNK_COUNT:-8}"
 trace_chunk_count="${SAPS_TRACE_CHUNK_COUNT:-8}"
 trace_array_end=$((trace_chunk_count - 1))
+
+if ((upload_chunk_count < 1)); then
+  echo "SAPS_UPLOAD_CHUNK_COUNT must be at least 1" >&2
+  exit 1
+fi
 
 if ((trace_chunk_count < 1)); then
   echo "SAPS_TRACE_CHUNK_COUNT must be at least 1" >&2
@@ -38,7 +58,8 @@ submit_job() {
 upload_job_id=$(
   submit_job \
     -A "$account" \
-    --output "$log_directory/upload-%j.log" \
+    --array="0-$((upload_chunk_count - 1))" \
+    --output "$log_directory/upload-%A_%a.log" \
     --chdir "$repo_directory" \
     --export=ALL,SAPS_REPO_DIRECTORY="$repo_directory" \
     "$script_directory/upload-dataset.slurm"
@@ -67,9 +88,28 @@ merge_job_id=$(
     "$script_directory/finalize-metadata.slurm"
 )
 
+competition_job_id=""
+if $with_competition; then
+  competition_job_id=$(
+    submit_job \
+      -A "$account" \
+      --dependency="afterok:$merge_job_id" \
+      --output "$log_directory/competition-%A_%a.log" \
+      --chdir "$repo_directory" \
+      --export=ALL,SAPS_REPO_DIRECTORY="$repo_directory" \
+      "$script_directory/run-competition.slurm"
+  )
+fi
+
 cat <<EOF
 submitted SAPS data refresh:
-  upload:           $upload_job_id
+  upload array:     $upload_job_id
   trace array:      $trace_job_id
   merge + metadata: $merge_job_id
 EOF
+
+if [[ -n "$competition_job_id" ]]; then
+  cat <<EOF
+  competition:      $competition_job_id
+EOF
+fi

@@ -17,7 +17,8 @@ pytestmark = pytest.mark.skipif(
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_refresh_logs_use_invocation_directory(tmp_path):
+@pytest.mark.parametrize("upload_chunks", [None, "3"])
+def test_refresh_logs_use_invocation_directory(tmp_path, upload_chunks):
     scripts = tmp_path / "repo" / "scripts"
     scripts.mkdir(parents=True)
     submission = tmp_path / "submitted from 50%"
@@ -48,6 +49,9 @@ def test_refresh_logs_use_invocation_directory(tmp_path):
         "BASH_ENV": str(shell_env),
         "SAPS_TEST_SUBMISSIONS": str(record),
     }
+    env.pop("SAPS_UPLOAD_CHUNK_COUNT", None)
+    if upload_chunks is not None:
+        env["SAPS_UPLOAD_CHUNK_COUNT"] = upload_chunks
     subprocess.run(
         ["bash", str(scripts / "submit-refresh-jobs.sh")],
         cwd=submission,
@@ -57,8 +61,10 @@ def test_refresh_logs_use_invocation_directory(tmp_path):
         text=True,
     )
     submissions = [json.loads(line) for line in record.read_text().splitlines()]
-    names = ["upload-%j.log", "trace-%A_%a.log", "finalize-metadata-%j.log"]
+    names = ["upload-%A_%a.log", "trace-%A_%a.log", "finalize-metadata-%j.log"]
     assert len(submissions) == len(names)
+    assert f"--array=0-{int(upload_chunks or '8') - 1}" in submissions[0]
+    assert "--dependency=afterok:12345" in submissions[1]
     for args, name in zip(submissions, names, strict=True):
         expected = str(submission.resolve()).replace("%", "%%") + "/" + name
         assert args[args.index("--output") + 1] == expected
@@ -154,6 +160,10 @@ def test_slurm_submission_from_scripts_directory(tmp_path, script_name, commands
         "poetry() {\n"
         '  [[ "$PWD" == "$SAPS_TEST_ROOT" ]] || return 90\n'
         '  [[ "$1" == run && -f "$2" ]] || return 91\n'
+        '  if [[ "$SAPS_TEST_SCRIPT" == upload-dataset.slurm ]]; then\n'
+        '    [[ "$3 $4 $5" == "--cache-datasets --chunk-count 5" ]] || return 92\n'
+        '    [[ "$6 $7" == "--chunk-index 0" ]] || return 93\n'
+        "  fi\n"
         '  printf "%s\\n" "$2" >> "$SAPS_TEST_COMMANDS"\n'
         "}\n"
     )
@@ -165,6 +175,7 @@ def test_slurm_submission_from_scripts_directory(tmp_path, script_name, commands
         "BASH_ENV": str(shell_env),
         "SAPS_TEST_ROOT": str(ROOT),
         "SAPS_TEST_COMMANDS": str(record),
+        "SAPS_TEST_SCRIPT": script_name,
         "SLURM_SUBMIT_DIR": str(ROOT / "scripts"),
         "SLURM_ARRAY_JOB_ID": "12345",
         "SLURM_ARRAY_TASK_ID": "0",

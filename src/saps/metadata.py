@@ -11,6 +11,8 @@ from typing import Any
 import saps.benchmarks
 from saps.benchmark import Benchmark
 
+SUITE_TAG_PREFIX = "suite-"
+
 
 def _record_key(record: dict[str, Any]) -> str:
     return record["name"]
@@ -75,7 +77,7 @@ def _record_tags(
     return sorted(
         {
             *inherited,
-            *record.get("suites", []),
+            *(f"{SUITE_TAG_PREFIX}{suite}" for suite in record.get("suites", [])),
             *record.get("topics", []),
             *_statistics_tags(statistics_records, key, freshness=freshness),
         }

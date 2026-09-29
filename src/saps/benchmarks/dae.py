@@ -513,7 +513,7 @@ class SlicotDAEGenerator(_DescriptorDAEGenerator):
 class _DescriptorDAEBenchmark(Benchmark):
     @property
     def suites(self) -> list[str]:
-        return []
+        return ["group-timestepping"]
 
     @property
     def concepts(self) -> str:

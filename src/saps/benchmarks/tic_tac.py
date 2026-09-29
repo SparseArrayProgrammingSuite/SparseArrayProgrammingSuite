@@ -352,7 +352,7 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
                 BOARD_DRAW_EARLY,
                 depth=6,
                 expected=0.0,
-                suites=["test", "standard"],
+                suites=["test", "standard", "trace"],
             ),
             TicTacToeDataset("empty_board", BOARD_EMPTY, depth=9, suites=["stress"]),
         ]
@@ -393,7 +393,7 @@ class TicTacToeBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return ["group-logic"]
 
     @property
     def concepts(self) -> str:

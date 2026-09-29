@@ -162,8 +162,29 @@ class PytorchFramework(Framework):
             fill_value = fill_value.detach().cpu().item()
         return F.pad(x, tuple(pad), mode="constant", value=float(fill_value))
 
-    def with_fill_value(self, array, value):
-        return array
+    def replace(self, arr, old, new):
+        if _is_sparse_tensor(arr):
+            if old == 0 and new != 0:
+                arr = arr.to_dense()
+            else:
+                coo = arr.to_sparse_coo().coalesce()
+                values = coo.values()
+                values = torch.where(
+                    torch.isnan(values) if old != old else values == old, new, values
+                )
+                result = torch.sparse_coo_tensor(
+                    coo.indices(),
+                    values,
+                    coo.shape,
+                    device=arr.device,
+                    is_coalesced=True,
+                )
+                if arr.layout == torch.sparse_csr:
+                    return result.to_sparse_csr()
+                if arr.layout == torch.sparse_csc:
+                    return result.to_sparse_csc()
+                return result
+        return torch.where(torch.isnan(arr) if old != old else arr == old, new, arr)
 
     def matmul(self, x1, x2, /, **kwargs):
         x1, x2 = _cast_bool_to_wide_unsigned(x1, x2)

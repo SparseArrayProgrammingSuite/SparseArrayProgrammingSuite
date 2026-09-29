@@ -917,7 +917,7 @@ class LTHConv2ONNXPYBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["lth"]
+        return ["lth", "group-machine-learning"]
 
     @property
     def concepts(self) -> str:
