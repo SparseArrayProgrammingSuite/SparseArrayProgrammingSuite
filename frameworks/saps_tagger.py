@@ -4,7 +4,7 @@ from typing import Any
 
 import numpy as np
 
-from saps_smart import SmartSparseFramework
+from saps_smart import SmartSparseFramework, WrappedArray
 
 from saps_framework import Framework
 
@@ -48,6 +48,7 @@ _ELEMENTWISE_OPERATORS = {
     "positive",
     "power",
     "remainder",
+    "replace",
     "sin",
     "sinh",
     "sqrt",
@@ -211,6 +212,7 @@ def tags_from_stats(stats: dict) -> list[str]:
         "min",
         "minimum",
         "not_equal",
+        "replace",
         "sort",
         "where",
     }
@@ -284,7 +286,7 @@ def tags_from_stats(stats: dict) -> list[str]:
     ):
         tags.add("dynamic-sparsity")
 
-    return sorted(tags)
+    return sorted(f"feature-{tag}" for tag in tags)
 
 
 class TaggedArray:
@@ -662,6 +664,10 @@ class TaggerFramework(Framework):
         )
 
     def _tensor_stats(self, array, elementwise_ops_since_reduction=0):
+        # Describe a wrapped tensor by its storage: a dense array's remembered
+        # fill value isn't a sparse format feature.
+        if isinstance(array, WrappedArray):
+            array = array.array
         shape = array.shape
         if shape is not None:
             shape = tuple(int(dim) for dim in shape)
@@ -883,14 +889,13 @@ class TaggerFramework(Framework):
             elementwise_ops_since_reduction=result_lineage,
         )
 
-    def with_fill_value(self, array, value):
-        self._record_operation("", "with_fill_value", (array, value), {})
+    def replace(self, arr, old, new):
+        self._record_operation("", "replace", (arr, old, new), {})
         result_lineage = self._result_elementwise_count(
-            "", "with_fill_value", (array, value), {}
+            "", "replace", (arr, old, new), {}
         )
-        array = self._unwrap(array)
         return self._wrap(
-            self.wrapped.with_fill_value(array, value),
+            self.wrapped.replace(*(self._unwrap(value) for value in (arr, old, new))),
             elementwise_ops_since_reduction=result_lineage,
         )
 

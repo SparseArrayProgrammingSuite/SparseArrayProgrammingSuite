@@ -4,7 +4,8 @@
 #SBATCH --mem=350G
 #SBATCH --cpus-per-task=24
 #SBATCH --time=08:00:00
-#SBATCH --output=upload-%j.log
+#SBATCH --array=0-7
+#SBATCH --output=upload-%A_%a.log
 
 set -e
 
@@ -22,4 +23,7 @@ export REMOTE_STORAGE_BUCKET=sparse-array-programming-suite
 
 cd "$repo_directory"
 
-poetry run ./bin/run_benchmark.py --cache-datasets
+poetry run ./bin/run_benchmark.py \
+  --cache-datasets \
+  --chunk-count "${SLURM_ARRAY_TASK_COUNT:-1}" \
+  --chunk-index "${SLURM_ARRAY_TASK_ID:-0}"

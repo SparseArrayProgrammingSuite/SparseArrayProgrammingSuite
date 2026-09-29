@@ -499,7 +499,7 @@ class ElementwiseBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["micro-benchmark"]
+        return ["microkernel"]
 
     @property
     def concepts(self) -> str:

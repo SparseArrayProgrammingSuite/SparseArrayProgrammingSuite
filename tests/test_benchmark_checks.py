@@ -13,7 +13,7 @@ import pytest
 import saps
 import saps.benchmarks
 from frameworks.saps_numpy import NumpyFramework
-from frameworks.saps_sparse import PyDataSparseFramework
+from frameworks.saps_smart import SmartSparseFramework
 from saps.benchmark import Benchmark
 
 
@@ -35,7 +35,7 @@ def _benchmark_classes() -> Iterator[type[Benchmark]]:
 def _framework_params():
     return [
         pytest.param(NumpyFramework, id="numpy"),
-        pytest.param(PyDataSparseFramework, id="sparse"),
+        pytest.param(SmartSparseFramework, id="smart"),
     ]
 
 

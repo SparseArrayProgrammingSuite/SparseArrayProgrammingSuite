@@ -212,7 +212,7 @@ class PageRankSNAPGenerator(Generator[SNAPDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return ["standard"]
 
     @property
     def concepts(self) -> str:
@@ -385,7 +385,7 @@ class PageRankBenchmark(Benchmark):
 
     @property
     def suites(self):
-        return []
+        return ["group-graphs-iterative"]
 
     @property
     def concepts(self) -> str:

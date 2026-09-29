@@ -480,7 +480,7 @@ class ModelCounting(Benchmark):
 
     @property
     def suites(self):
-        return []
+        return ["group-logic"]
 
     @property
     def concepts(self) -> str:

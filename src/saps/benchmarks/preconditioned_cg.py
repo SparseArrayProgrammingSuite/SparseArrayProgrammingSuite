@@ -1146,119 +1146,119 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
             ),
             PreconditionedCGDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=10,
             ),
             PreconditionedCGDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=11,
             ),
             PreconditionedCGDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=12,
             ),
             PreconditionedCGDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=14,
             ),
             PreconditionedCGDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=15,
             ),
             PreconditionedCGDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=16,
             ),
             PreconditionedCGDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=17,
             ),
             PreconditionedCGDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=18,
             ),
             PreconditionedCGDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=19,
             ),
             PreconditionedCGDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=2,
             ),
             PreconditionedCGDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=3,
             ),
             PreconditionedCGDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=4,
             ),
             PreconditionedCGDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=5,
             ),
             PreconditionedCGDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=6,
             ),
             PreconditionedCGDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=62,
             ),
             PreconditionedCGDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=7,
             ),
             PreconditionedCGDataset(
                 "HB/orani678",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=8,
@@ -1630,7 +1630,7 @@ class _PreconditionedCGBase(Benchmark, ABC):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return ["group-solvers"]
 
     @property
     def concepts(self) -> str:
@@ -1745,10 +1745,7 @@ class _JacobiCGMixin:
         return [JacobiCGGenerator()]
 
     def _solve_cg(self, xp, M, r):
-        output = r / M
-        if hasattr(xp, "with_fill_value"):
-            return xp.with_fill_value(output, 0)
-        return output
+        return xp.replace(r / M, xp.nan, 0)
 
 
 class PreconditionedCGBenchmark(_BlockJacobiCGMixin, _PreconditionedCGBase):

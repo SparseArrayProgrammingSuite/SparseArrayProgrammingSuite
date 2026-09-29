@@ -676,6 +676,9 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
 
 
 class SLICOTGenerator(Generator[SLICOTDataset]):
+    def __init__(self, trace_datasets: tuple[str, ...] = ()):
+        self.trace_datasets = trace_datasets
+
     @property
     def name(self) -> str:
         return "slicot_ode"
@@ -732,18 +735,22 @@ class SLICOTGenerator(Generator[SLICOTDataset]):
     def datasets(self) -> list[SLICOTDataset]:
         # Base timesteps, scaled by each method's step_multiplier at setup.
         # Validated over t_max=0.1 at the 0.05 absolute-error tolerance.
-        return [
+        datasets = [
             SLICOTDataset("eady.mat", suites=["standard", "trace"]),
             SLICOTDataset("CDplayer.mat", suites=["standard"], step=4e-5),
-            SLICOTDataset("fom.mat", suites=["standard", "trace"], step=0.001),
+            SLICOTDataset("fom.mat", suites=["standard"], step=0.001),
             SLICOTDataset("random.mat", suites=["standard"], step=5e-5),
             SLICOTDataset("pde.mat", suites=["standard", "trace"], step=0.001),
-            SLICOTDataset("heat-cont.mat", suites=["standard", "trace"], step=0.001),
+            SLICOTDataset("heat-cont.mat", suites=["standard"], step=0.001),
             SLICOTDataset("Orr-Som.mat", suites=["standard", "trace"]),
             SLICOTDataset("iss.mat", suites=["standard", "trace"]),
             SLICOTDataset("build.mat", suites=["standard", "trace"]),
             SLICOTDataset("beam.mat", suites=["standard"], step=0.001),
         ]
+        for dataset in datasets:
+            if dataset.name in self.trace_datasets and "trace" not in dataset.suites:
+                dataset.suites.append("trace")
+        return datasets
 
     def generate(self, dataset: SLICOTDataset):
         from scipy import sparse as scipy_sparse
@@ -900,6 +907,7 @@ class _ForwardEuler:
         "Integrates ODE initial-value problems with the forward Euler method."
     )
     step_multiplier = 0.01
+    slicot_trace_datasets: tuple[str, ...] = ("slicot_beam",)
 
 
 class _BackwardEuler:
@@ -920,6 +928,11 @@ class _RungeKutta:
         "fourth-order Runge-Kutta method."
     )
     step_multiplier = 1.0
+    slicot_trace_datasets: tuple[str, ...] = (
+        "slicot_cdplayer",
+        "slicot_random",
+        "slicot_beam",
+    )
 
 
 # Problem mixins: generator and derivative function, which takes the problem's
@@ -949,6 +962,10 @@ class _BrusselatorProblem:
 class _SLICOTProblem:
     generator_cls: type[Generator] = SLICOTGenerator
     derivatives = staticmethod(_linear_system_derivatives)
+    slicot_trace_datasets: tuple[str, ...]
+
+    def _make_generator(self) -> Generator:
+        return SLICOTGenerator(trace_datasets=self.slicot_trace_datasets)
 
 
 class _OdeBenchmarkBase(Benchmark, ABC):
@@ -964,10 +981,15 @@ class _OdeBenchmarkBase(Benchmark, ABC):
     step_multiplier: float
     generator_cls: type[Generator]
     derivatives: Any
+    # SLICOT datasets this solver additionally tags ``trace``.
+    slicot_trace_datasets: tuple[str, ...] = ()
+
+    def _make_generator(self) -> Generator:
+        return self.generator_cls()
 
     @property
     def _generator(self) -> Generator:
-        return self.generator_cls()
+        return self._make_generator()
 
     @property
     def name(self):
@@ -983,7 +1005,7 @@ class _OdeBenchmarkBase(Benchmark, ABC):
 
     @property
     def suites(self):
-        return []
+        return ["group-timestepping"]
 
     @property
     def generators(self):

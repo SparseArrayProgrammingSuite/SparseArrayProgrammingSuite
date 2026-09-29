@@ -38,7 +38,7 @@ export SAPS_TAGGER_STATS_DIR="$tagger_stats_dir"
 
 poetry run ./bin/run_benchmark.py \
   --trace-statistics \
-  --tag trace \
+  --tag suite-trace \
   --chunk-count "$SAPS_TRACE_CHUNK_COUNT" \
   --chunk-index "$SLURM_ARRAY_TASK_ID" \
   --timeout "${SAPS_TRACE_TIMEOUT:-120}" \

@@ -88,7 +88,7 @@ def _trace_dataset_lookup(metadata: dict) -> dict[tuple[str, str, str], dict]:
         benchmark_name = benchmark["name"]
         for generator in benchmark["generators"]:
             for dataset in generator["datasets"]:
-                if "trace" in dataset.get("tags", []):
+                if "suite-trace" in dataset.get("tags", []):
                     datasets[(benchmark_name, generator["name"], dataset["name"])] = (
                         dataset
                     )
@@ -135,14 +135,14 @@ def test_metadata_tags_are_inherited():
         assert set(benchmark["asv_ids"]) == {"peakmem", "time"}
         benchmark_tags = set(benchmark["tags"])
         assert benchmark_tags >= {
-            *benchmark.get("suites", []),
+            *(f"suite-{suite}" for suite in benchmark.get("suites", [])),
             *benchmark.get("topics", []),
         }
         for generator in benchmark["generators"]:
             generator_tags = set(generator["tags"])
             assert generator_tags >= benchmark_tags
             assert generator_tags >= {
-                *generator.get("suites", []),
+                *(f"suite-{suite}" for suite in generator.get("suites", [])),
                 *generator.get("topics", []),
             }
             for dataset in generator["datasets"]:
@@ -150,7 +150,7 @@ def test_metadata_tags_are_inherited():
                 dataset_tags = set(dataset["tags"])
                 assert dataset_tags >= generator_tags
                 assert dataset_tags >= {
-                    *dataset.get("suites", []),
+                    *(f"suite-{suite}" for suite in dataset.get("suites", [])),
                     *dataset.get("topics", []),
                 }
 

@@ -260,7 +260,7 @@ class BreadthFirstSearchSNAPGenerator(Generator[SNAPSourceDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return ["standard"]
 
     @property
     def concepts(self) -> str:
@@ -456,7 +456,7 @@ class BreadthFirstSearchBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return ["group-graphs-iterative"]
 
     @property
     def concepts(self) -> str:

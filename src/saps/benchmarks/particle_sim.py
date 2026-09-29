@@ -4,7 +4,7 @@ from typing import Any
 import numpy as np
 
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse.conversions import from_numpy, to_numpy, to_sparse
 
 from saps.benchmark import (
     Author,
@@ -161,15 +161,22 @@ def apply_force(particle, neighbor, parameters):
     dx = neighbor.x - particle.x
     dy = neighbor.y - particle.y
     dz = neighbor.z - particle.z
-    r2 = dx * dx + dy * dy + dz * dz
     gravitational_constant = parameters["gravitational_constant"]
     cutoff = parameters["cutoff"]
 
-    if r2 > cutoff * cutoff:
+    # The interaction region is the 27 neighboring cells, including our own.
+    if any(
+        abs(math.floor(a / cutoff) - math.floor(b / cutoff)) > 1
+        for a, b in (
+            (particle.x, neighbor.x),
+            (particle.y, neighbor.y),
+            (particle.z, neighbor.z),
+        )
+    ):
         return
 
     softening = parameters["softening"]
-    r2 = max(r2, softening * softening)
+    r2 = max(dx * dx + dy * dy + dz * dz, softening * softening)
     r = math.sqrt(r2)
 
     if parameters["force_model"] == "newtonian_gravity":
@@ -814,7 +821,8 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
             "Loads real-world initial conditions for particle simulation benchmarks. "
             "NEMO datasets use source mass columns, unscaled archive coordinates, "
             "Newtonian gravity with G 1.0 in N-body units, dt 1/32, softening 0.05, "
-            "and source-scale cutoffs selected for the benchmark datasets."
+            "and short interaction bucket widths chosen to exercise sparse workloads "
+            "rather than accurately approximate full gravitational forces."
         )
 
     @property
@@ -879,8 +887,10 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
             " mechanics, biology, astronomy, and other fields on a simplitic level. "
             "For NEMO snapshots, masses come from the archive tables; G 1.0 follows "
             "the usual dimensionless N-body unit convention, softening 0.05 follows "
-            "the NEMO eps-style softened-gravity setting, and cutoffs are chosen "
-            "against the preserved source coordinate scale."
+            "the NEMO eps-style softened-gravity setting. The smaller cutoffs "
+            "are workload parameters chosen for sparse interactions on the "
+            "preserved source coordinates; they do not meet a physical "
+            "force-error target."
         )
 
     @property
@@ -893,7 +903,7 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                 parameters={
                     "force_model": "newtonian_gravity",
                     "boundary_model": "unbounded",
-                    "cutoff": 1.0,
+                    "cutoff": 0.2,
                     "dt": 1.0 / 32.0,
                     "softening": 0.05,
                     "gravitational_constant": 1.0,
@@ -903,7 +913,8 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                     "NEMO Plummer-model equilibrium snapshot generated with mkplummer,"
                     " using mass, position, and velocity columns. The dataset uses "
                     "source masses, G 1.0 N-body units, dt 1/32, softening 0.05, "
-                    "and cutoff 1.0 for the preserved Plummer coordinate scale."
+                    "and bucket width 0.2 to create a sparse gravity workload. "
+                    "This cutoff is not a physically validated approximation."
                 ),
                 suites=["standard", "trace"],
                 tags=["physics", "simulation", "sparse", "astronomy", "n-body"],
@@ -917,7 +928,7 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                 parameters={
                     "force_model": "newtonian_gravity",
                     "boundary_model": "unbounded",
-                    "cutoff": 1.0,
+                    "cutoff": 0.2,
                     "dt": 1.0 / 32.0,
                     "softening": 0.05,
                     "gravitational_constant": 1.0,
@@ -927,7 +938,8 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                     "NEMO Plummer-model equilibrium snapshot generated with mkplummer,"
                     " using mass, position, and velocity columns. The dataset uses "
                     "source masses, G 1.0 N-body units, dt 1/32, softening 0.05, "
-                    "and cutoff 1.0 for the preserved Plummer coordinate scale."
+                    "and bucket width 0.2 to create a sparse gravity workload. "
+                    "This cutoff is not a physically validated approximation."
                 ),
                 suites=["standard", "trace"],
                 tags=["physics", "simulation", "sparse", "astronomy", "n-body"],
@@ -941,7 +953,7 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                 parameters={
                     "force_model": "newtonian_gravity",
                     "boundary_model": "unbounded",
-                    "cutoff": 20.0,
+                    "cutoff": 0.1,
                     "dt": 1.0 / 32.0,
                     "softening": 0.05,
                     "gravitational_constant": 1.0,
@@ -951,8 +963,9 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                     "Dubinski Milky Way/Andromeda collision initial conditions from the"
                     " NEMO archive, stored as mass and six phase-space coordinates. "
                     "The dataset uses source masses, G 1.0 N-body units, dt 1/32, "
-                    "softening 0.05, and cutoff 20.0 for the larger preserved "
-                    "Dubinski coordinate scale."
+                    "softening 0.05, and bucket width 0.1 to create a sparse "
+                    "gravity workload. This width is not a physically "
+                    "validated approximation."
                 ),
                 suites=["standard"],
                 tags=["physics", "simulation", "sparse", "astronomy", "n-body"],
@@ -990,13 +1003,16 @@ class ParticleSimBenchmark(Benchmark):
     def description(self):
         return (
             "Benchmark implementation for Particule_Simulation_Algorithm using sparse"
-            " array operations. This benchmark evaluates performance characteristics"
+            " array operations. The cutoff parameter is the cell width: particles"
+            " interact when their cell indices differ by at most one on every"
+            " axis, without a spherical distance cutoff. Distance still determines"
+            " force strength. This benchmark evaluates performance characteristics"
             " and numerical properties."
         )
 
     @property
     def suites(self):
-        return []
+        return ["group-spatial"]
 
     @property
     def concepts(self) -> str:
@@ -1039,9 +1055,8 @@ class ParticleSimBenchmark(Benchmark):
     @property
     def ai_disclosure(self):
         return (
-            "No generative AI was used for the benchmark function itself. Generative"
-            " AI might have been used to construct tests. This statement was written by"
-            " hand."
+            "Generative AI was used to revise the benchmark's bucket interaction"
+            " calculation and associated tests."
         )
 
     @property
@@ -1067,17 +1082,63 @@ class ParticleSimBenchmark(Benchmark):
         dt = parameters["dt"]
         gravitational_constant = parameters["gravitational_constant"]
         force_model = parameters["force_model"]
+        cutoff = parameters["cutoff"]
+        softening = parameters["softening"]
+
+        n_particles = x.shape[0]
+        particle_index = xp.arange(n_particles)
 
         for _ in range(steps):
-            # compute forces
-            dx = x - x.reshape(-1, 1)
-            dy = y - y.reshape(-1, 1)
-            dz = z - z.reshape(-1, 1)
+            # Particles interact when their buckets, `cutoff` wide, are at most
+            # one apart on every axis: own @ band @ own.T per axis, where own
+            # puts each particle in its bucket and band links adjacent buckets.
+            bx = xp.astype(xp.floor(x / cutoff), xp.int64)
+            by = xp.astype(xp.floor(y / cutoff), xp.int64)
+            bz = xp.astype(xp.floor(z / cutoff), xp.int64)
+            bx = bx - xp.min(bx)
+            by = by - xp.min(by)
+            bz = bz - xp.min(bz)
+            nx = int(xp.max(bx)) + 1
+            ny = int(xp.max(by)) + 1
+            nz = int(xp.max(bz)) + 1
+
+            own_x = xp.zeros((n_particles, nx), dtype=xp.uint8)
+            own_y = xp.zeros((n_particles, ny), dtype=xp.uint8)
+            own_z = xp.zeros((n_particles, nz), dtype=xp.uint8)
+            own_x[particle_index, bx] = 1
+            own_y[particle_index, by] = 1
+            own_z[particle_index, bz] = 1
+
+            band_x = (
+                xp.eye(nx, k=-1, dtype=xp.uint8)
+                + xp.eye(nx, dtype=xp.uint8)
+                + xp.eye(nx, k=1, dtype=xp.uint8)
+            )
+            band_y = (
+                xp.eye(ny, k=-1, dtype=xp.uint8)
+                + xp.eye(ny, dtype=xp.uint8)
+                + xp.eye(ny, k=1, dtype=xp.uint8)
+            )
+            band_z = (
+                xp.eye(nz, k=-1, dtype=xp.uint8)
+                + xp.eye(nz, dtype=xp.uint8)
+                + xp.eye(nz, k=1, dtype=xp.uint8)
+            )
+
+            near_x = xp.matmul(xp.matmul(own_x, band_x), xp.permute_dims(own_x, (1, 0)))
+            near_y = xp.matmul(xp.matmul(own_y, band_y), xp.permute_dims(own_y, (1, 0)))
+            near_z = xp.matmul(xp.matmul(own_z, band_z), xp.permute_dims(own_z, (1, 0)))
+            candidates = (near_x > 0) & (near_y > 0) & (near_z > 0)
+
+            # Masking each side before subtracting only forms differences for
+            # candidate pairs, never the full x - x.T.
+            dx = candidates * x - candidates * xp.reshape(x, (-1, 1))
+            dy = candidates * y - candidates * xp.reshape(y, (-1, 1))
+            dz = candidates * z - candidates * xp.reshape(z, (-1, 1))
             r2 = dx * dx + dy * dy + dz * dz
-            cutoff = parameters["cutoff"]
-            softening = parameters["softening"]
-            mask = r2 > cutoff * cutoff
-            r2 = xp.where(mask, xp.inf, r2)
+            # Distance sets force strength only; bucket overlap selects pairs.
+            # Nonneighbors have zero force, including the implicit sparse fill.
+            r2 = xp.where(candidates, r2, xp.inf)
             r2 = xp.maximum(r2, softening * softening)
             r = xp.sqrt(r2)
 
@@ -1144,7 +1205,10 @@ class ParticleSimBenchmark(Benchmark):
         for i, (actual, expected) in enumerate(
             zip(self._output, self._ref_outputs, strict=True)
         ):
-            actual_values = to_numpy(actual)
+            try:
+                actual_values = to_numpy(actual)
+            except TypeError:
+                actual_values = to_sparse(actual).todense()
             expected_values = to_numpy(expected)
             assert np.all(actual_values == expected_values), (
                 f"Particle simulation output {i} mismatch for {param.dataset.name}"

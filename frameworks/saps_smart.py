@@ -1,3 +1,5 @@
+import operator
+import types
 from itertools import product
 
 import numpy as np
@@ -253,15 +255,15 @@ class _MutableCOO(sp.COO):
     def __setitem__(self, key, value):
         if isinstance(key, tuple):
             key = tuple(
-                SmartSparseFramework._dense(index)
+                SmartSparseKernels._dense(index)
                 if isinstance(index, sp.SparseArray)
                 else index
                 for index in key
             )
         elif isinstance(key, sp.SparseArray):
-            key = SmartSparseFramework._dense(key)
+            key = SmartSparseKernels._dense(key)
         if isinstance(value, sp.SparseArray):
-            value = SmartSparseFramework._dense(value)
+            value = SmartSparseKernels._dense(value)
         # Scattering into an empty array with no repeated coordinates is
         # exactly building a COO from these coordinates -- construct it
         # directly (vectorized) instead of going through DOK, whose own
@@ -331,7 +333,7 @@ class _MutableCOO(sp.COO):
         self._cache = None
 
 
-class SmartSparseFramework(Framework):
+class SmartSparseKernels(Framework):
     _sparse_first: set[str] = set()
     _dtype_attrs = {
         "bool",
@@ -351,9 +353,18 @@ class SmartSparseFramework(Framework):
         self._modules = [sp, compat_np, np]
 
     @staticmethod
-    def _has_sparse_arg(*args, **kwargs):
-        return any(isinstance(arg, sp.SparseArray) for arg in args) or any(
-            isinstance(value, sp.SparseArray) for value in kwargs.values()
+    def _is_sparse(arg):
+        # Sequence arguments (e.g. concat's array list) count too, or a mixed
+        # list would dispatch to NumPy and reach pydata/sparse's concatenate
+        # through __array_function__ with its dense members unconverted.
+        if isinstance(arg, list | tuple):
+            return any(isinstance(item, sp.SparseArray) for item in arg)
+        return isinstance(arg, sp.SparseArray)
+
+    @classmethod
+    def _has_sparse_arg(cls, *args, **kwargs):
+        return any(cls._is_sparse(arg) for arg in args) or any(
+            cls._is_sparse(value) for value in kwargs.values()
         )
 
     @staticmethod
@@ -377,6 +388,11 @@ class SmartSparseFramework(Framework):
     def _sparse_compatible_arg(arg):
         if isinstance(arg, np.ndarray):
             return sp.asarray(arg)
+        if isinstance(arg, list | tuple):
+            return type(arg)(
+                sp.asarray(item) if isinstance(item, np.ndarray) else item
+                for item in arg
+            )
         return arg
 
     def from_binsparse(self, array):
@@ -400,11 +416,11 @@ class SmartSparseFramework(Framework):
 
     def to_binsparse(self, array):
         if isinstance(array, sp.COO):
-            if array.ndim == 0 or not self._fill_value_is_zero(array):
+            if array.ndim == 0:
                 return from_numpy(self._dense(array))
             return from_sparse(array)
         if isinstance(array, sp.SparseArray):
-            if array.ndim == 0 or not self._fill_value_is_zero(array):
+            if array.ndim == 0:
                 return from_numpy(self._dense(array))
             return self.to_binsparse(array.tocoo())
         if isinstance(array, np.ndarray):
@@ -430,15 +446,10 @@ class SmartSparseFramework(Framework):
         return array
 
     def sum(self, x, axis=None, **kwargs):
-        # A reduction always produces something smaller than its input --
-        # dropping an axis entirely, at minimum -- so there's no size
-        # justification for the result to stay sparse the way there is for
-        # e.g. matmul. Keeping it sparse only risks a nonzero fill value
-        # (a comparison like `sum(...) < target` flips the fill to True
-        # once the implicit zero rows satisfy it) poisoning everything
-        # downstream with pydata/sparse's mixed sparse-dense guard.
+        # A reduced axis can still contain millions of elements. Preserve the
+        # sparse result and its fill value; WrappedArray handles mixed operands.
         if isinstance(x, sp.SparseArray):
-            return self.to_dense(sp.sum(x, axis=axis, **kwargs))
+            return sp.sum(x, axis=axis, **kwargs)
         xp = self._array_namespace(x)
         return xp.sum(x, axis=axis, **kwargs)
 
@@ -577,7 +588,7 @@ class SmartSparseFramework(Framework):
             dtype = kwargs.pop("dtype", None)
             if kwargs:
                 raise TypeError(
-                    f"SmartSparseFramework.matmul doesn't support {sorted(kwargs)} "
+                    f"SmartSparseKernels.matmul doesn't support {sorted(kwargs)} "
                     "for sparse operands"
                 )
             if (
@@ -628,7 +639,8 @@ class SmartSparseFramework(Framework):
         return np.array(obj, *args, **kwargs)
 
     def eye(self, *args, **kwargs):
-        return compat_np.eye(*args, **kwargs)
+        dtype = kwargs.pop("dtype", None)
+        return sp.eye(*args, dtype=float if dtype is None else dtype, **kwargs)
 
     def ones(self, *args, **kwargs):
         return compat_np.ones(*args, **kwargs)
@@ -691,12 +703,11 @@ class SmartSparseFramework(Framework):
             return self._dense(array).item()
         return array.item()
 
-    def with_fill_value(self, array, value):
-        if isinstance(array, sp.SparseArray):
-            res = array.copy(deep=False)
-            res.fill_value = array.dtype.type(value)
-            return res
-        return array
+    def replace(self, arr, old, new):
+        if isinstance(arr, sp.DOK):
+            arr = arr.asformat("coo")
+        xp = sp if isinstance(arr, sp.SparseArray) else np
+        return xp.where(xp.isnan(arr) if old != old else arr == old, new, arr)
 
     @property
     def linalg(self):
@@ -733,6 +744,697 @@ class SmartSparseFramework(Framework):
                 return attr
 
         raise AttributeError(f"'{self.__class__.__name__}' has no attribute '{name}'")
+
+
+# Mixed sparse-dense policy for frameworks built on pydata/sparse.
+#
+# pydata/sparse refuses most operations mixing sparse and dense operands unless
+# the result can stay sparse, and its contractions refuse nonzero fill values.
+# The framework below intercepts those operations and densifies only when
+# no sparse result can represent the answer, or when the backend can't operate on
+# the sparse operand:
+#
+# - Elementwise: if applying the op to the sparse operands' fill values and the
+#   dense operands gives a constant, the result has that fill and stays sparse.
+#   Otherwise it is dense, and remembers the op applied to all operands' fill
+#   values as its own fill value.
+# - Contractions and linalg: sparse operands with a nonzero fill are densified.
+# - Concatenation: dense members are stored sparsely under their own fill value
+#   when every member agrees on it; otherwise everything is densified.
+# - Indexing: sparse keys, and sparse values assigned into dense arrays, are
+#   densified.
+#
+# Dense results of shape-only operations keep their input's fill value.
+
+_ELEMENTWISE = {
+    "abs",
+    "acos",
+    "acosh",
+    "add",
+    "asin",
+    "asinh",
+    "atan",
+    "atan2",
+    "atanh",
+    "bitwise_and",
+    "bitwise_invert",
+    "bitwise_left_shift",
+    "bitwise_or",
+    "bitwise_right_shift",
+    "bitwise_xor",
+    "ceil",
+    "clip",
+    "conj",
+    "copysign",
+    "cos",
+    "cosh",
+    "divide",
+    "equal",
+    "exp",
+    "expm1",
+    "floor",
+    "floor_divide",
+    "greater",
+    "greater_equal",
+    "hypot",
+    "imag",
+    "isfinite",
+    "isinf",
+    "isnan",
+    "less",
+    "less_equal",
+    "log",
+    "log1p",
+    "log2",
+    "log10",
+    "logaddexp",
+    "logical_and",
+    "logical_not",
+    "logical_or",
+    "logical_xor",
+    "maximum",
+    "minimum",
+    "multiply",
+    "negative",
+    "nextafter",
+    "not_equal",
+    "positive",
+    "pow",
+    "power",
+    "real",
+    "reciprocal",
+    "remainder",
+    "replace",
+    "round",
+    "sign",
+    "signbit",
+    "sin",
+    "sinh",
+    "sqrt",
+    "square",
+    "subtract",
+    "tan",
+    "tanh",
+    "trunc",
+    "where",
+}
+
+_CONTRACTIONS = {
+    "dot",
+    "einsum",
+    "inner",
+    "kron",
+    "matmul",
+    "outer",
+    "tensordot",
+    "vecdot",
+}
+
+_CONCATENATIONS = {"concat", "concatenate", "stack"}
+
+_FILL_PRESERVING = {
+    "asarray",
+    "broadcast_to",
+    "copy",
+    "expand_dims",
+    "flatten",
+    "flip",
+    "getitem",
+    "matrix_transpose",
+    "moveaxis",
+    "permute_dims",
+    "ravel",
+    "reshape",
+    "roll",
+    "squeeze",
+    "swapaxes",
+    "to_dense",
+    "todense",
+    "transpose",
+}
+
+
+def _is_sparse(raw) -> bool:
+    return isinstance(raw, sp.SparseArray)
+
+
+def _is_dense(raw) -> bool:
+    return isinstance(raw, np.ndarray) and raw.ndim > 0
+
+
+def _densify(raw):
+    return raw.todense() if _is_sparse(raw) else raw
+
+
+def _is_constant(array) -> bool:
+    flat = np.asarray(array).ravel()
+    if flat.size == 0:
+        return True
+    same = flat == flat[0]
+    if flat.dtype.kind in "fc":
+        same |= np.isnan(flat) & np.isnan(flat[0])
+    return bool(np.all(same))
+
+
+class WrappedArray:
+    """An eager tensor whose every operation is redirected through its framework.
+
+    ``array`` is the backend storage. ``fill_value`` is the value its implicit
+    entries would take if it were stored sparsely: a sparse backing array's own
+    fill value, or, for a dense one, whatever the framework says it was derived
+    from (0 unless told otherwise). ``mod`` is the framework every operation is
+    redirected to.
+    """
+
+    # NumPy defers to the reflected operators below for ``ndarray <op> self``.
+    __array_ufunc__ = None
+
+    def __init__(self, mod: "SmartSparseFramework", array, fill_value=0):
+        self.mod = mod
+        self.array = array
+        self._fill_value = fill_value
+
+    @property
+    def fill_value(self):
+        return getattr(self.array, "fill_value", self._fill_value)
+
+    @property
+    def shape(self):
+        return self.array.shape
+
+    @property
+    def dtype(self):
+        return self.array.dtype
+
+    @property
+    def ndim(self):
+        return self.array.ndim
+
+    @property
+    def size(self):
+        return self.array.size
+
+    @property
+    def T(self):
+        return self.mod.permute_dims(self, tuple(reversed(range(self.ndim))))
+
+    @property
+    def mT(self):
+        return self.mod.matrix_transpose(self)
+
+    def __repr__(self):
+        return f"WrappedArray({self.array!r}, fill_value={self.fill_value!r})"
+
+    def __len__(self):
+        return self.shape[0]
+
+    def __iter__(self):
+        for i in range(len(self)):
+            yield self[i]
+
+    def __getattr__(self, name):
+        # Private and dunder lookups (e.g. copy's __setstate__, or anything
+        # before __init__ has run) must not recurse into the framework.
+        if name.startswith("_") or name in ("array", "mod"):
+            raise AttributeError(name)
+        return self.mod.array_attribute(self, name)
+
+    def __array__(self, dtype=None, copy=None):
+        return self.mod.asnumpy(self, dtype=dtype)
+
+    def __array_namespace__(self, *, api_version=None):
+        if api_version not in {None, "2024.12"}:
+            raise ValueError(f'"{api_version}" Array API version not supported.')
+        return self.mod
+
+    def __getitem__(self, key):
+        return self.mod.getitem(self, key)
+
+    def __setitem__(self, key, value):
+        self.mod.setitem(self, key, value)
+
+    def item(self):
+        return self.mod.item(self)
+
+    def __add__(self, other):
+        return self.mod.add(self, other)
+
+    def __radd__(self, other):
+        return self.mod.add(other, self)
+
+    def __sub__(self, other):
+        return self.mod.subtract(self, other)
+
+    def __rsub__(self, other):
+        return self.mod.subtract(other, self)
+
+    def __mul__(self, other):
+        return self.mod.multiply(self, other)
+
+    def __rmul__(self, other):
+        return self.mod.multiply(other, self)
+
+    def __abs__(self):
+        return self.mod.abs(self)
+
+    def __pos__(self):
+        return self.mod.positive(self)
+
+    def __neg__(self):
+        return self.mod.negative(self)
+
+    def __invert__(self):
+        return self.mod.bitwise_invert(self)
+
+    def __and__(self, other):
+        return self.mod.bitwise_and(self, other)
+
+    def __rand__(self, other):
+        return self.mod.bitwise_and(other, self)
+
+    def __lshift__(self, other):
+        return self.mod.bitwise_left_shift(self, other)
+
+    def __rlshift__(self, other):
+        return self.mod.bitwise_left_shift(other, self)
+
+    def __or__(self, other):
+        return self.mod.bitwise_or(self, other)
+
+    def __ror__(self, other):
+        return self.mod.bitwise_or(other, self)
+
+    def __rshift__(self, other):
+        return self.mod.bitwise_right_shift(self, other)
+
+    def __rrshift__(self, other):
+        return self.mod.bitwise_right_shift(other, self)
+
+    def __xor__(self, other):
+        return self.mod.bitwise_xor(self, other)
+
+    def __rxor__(self, other):
+        return self.mod.bitwise_xor(other, self)
+
+    def __truediv__(self, other):
+        return self.mod.divide(self, other)
+
+    def __rtruediv__(self, other):
+        return self.mod.divide(other, self)
+
+    def __floordiv__(self, other):
+        return self.mod.floor_divide(self, other)
+
+    def __rfloordiv__(self, other):
+        return self.mod.floor_divide(other, self)
+
+    def __mod__(self, other):
+        return self.mod.remainder(self, other)
+
+    def __rmod__(self, other):
+        return self.mod.remainder(other, self)
+
+    def __pow__(self, other):
+        return self.mod.power(self, other)
+
+    def __rpow__(self, other):
+        return self.mod.power(other, self)
+
+    def __matmul__(self, other):
+        return self.mod.matmul(self, other)
+
+    def __rmatmul__(self, other):
+        return self.mod.matmul(other, self)
+
+    def __sin__(self):
+        return self.mod.sin(self)
+
+    def __sinh__(self):
+        return self.mod.sinh(self)
+
+    def __cos__(self):
+        return self.mod.cos(self)
+
+    def __cosh__(self):
+        return self.mod.cosh(self)
+
+    def __tan__(self):
+        return self.mod.tan(self)
+
+    def __tanh__(self):
+        return self.mod.tanh(self)
+
+    def __asin__(self):
+        return self.mod.asin(self)
+
+    def __asinh__(self):
+        return self.mod.asinh(self)
+
+    def __acos__(self):
+        return self.mod.acos(self)
+
+    def __acosh__(self):
+        return self.mod.acosh(self)
+
+    def __atan__(self):
+        return self.mod.atan(self)
+
+    def __atanh__(self):
+        return self.mod.atanh(self)
+
+    def __atan2__(self, other):
+        return self.mod.atan2(self, other)
+
+    def __complex__(self):
+        if self.ndim != 0:
+            raise ValueError("Cannot convert non-scalar tensor to complex.")
+        return complex(self.item())
+
+    def __float__(self):
+        if self.ndim != 0:
+            raise ValueError("Cannot convert non-scalar tensor to float.")
+        return float(self.item())
+
+    def __int__(self):
+        if self.ndim != 0:
+            raise ValueError("Cannot convert non-scalar tensor to int.")
+        return int(self.item())
+
+    def __bool__(self):
+        if self.ndim != 0:
+            raise ValueError("Cannot convert non-scalar tensor to bool.")
+        return bool(self.item())
+
+    def __index__(self) -> int:
+        if self.ndim != 0:
+            raise ValueError("Cannot convert non-scalar tensor to index.")
+        return operator.index(self.item())
+
+    def __log__(self):
+        return self.mod.log(self)
+
+    def __log1p__(self):
+        return self.mod.log1p(self)
+
+    def __log2__(self):
+        return self.mod.log2(self)
+
+    def __log10__(self):
+        return self.mod.log10(self)
+
+    def __logaddexp__(self, other):
+        return self.mod.logaddexp(self, other)
+
+    def __logical_and__(self, other):
+        return self.mod.logical_and(self, other)
+
+    def __logical_or__(self, other):
+        return self.mod.logical_or(self, other)
+
+    def __logical_xor__(self, other):
+        return self.mod.logical_xor(self, other)
+
+    def __logical_not__(self):
+        return self.mod.logical_not(self)
+
+    def __lt__(self, other):
+        return self.mod.less(self, other)
+
+    def __le__(self, other):
+        return self.mod.less_equal(self, other)
+
+    def __gt__(self, other):
+        return self.mod.greater(self, other)
+
+    def __ge__(self, other):
+        return self.mod.greater_equal(self, other)
+
+    def __eq__(self, other):  # type: ignore[override]
+        return self.mod.equal(self, other)
+
+    def __ne__(self, other):  # type: ignore[override]
+        return self.mod.not_equal(self, other)
+
+    __hash__ = None  # type: ignore[assignment]
+
+
+class WrappedNamespace:
+    """A sub-namespace such as ``xp.linalg`` whose calls also go through ``call``."""
+
+    def __init__(self, framework: "SmartSparseFramework", namespace, prefix: str):
+        self.framework = framework
+        self.namespace = namespace
+        self.prefix = prefix
+
+    def __getattr__(self, name):
+        return self.framework._resolve(f"{self.prefix}.{name}", self.namespace, name)
+
+
+class SmartSparseFramework(Framework):
+    """SmartSparseKernels over WrappedArrays; every tensor operation goes through xp.
+
+    ``kernels`` does the work on raw NumPy and pydata/sparse arrays. Every
+    operation, whether called as ``xp.<name>(...)``, as an operator, or as an
+    array method, reaches ``call(name, func, args, kwargs)``, which unwraps the
+    arguments, densifies where a mixed sparse-dense operation needs it (see the
+    policy above), runs ``func`` and wraps the result.
+    """
+
+    def __init__(self):
+        self.kernels = SmartSparseKernels()
+
+    def is_array(self, value) -> bool:
+        return isinstance(value, np.ndarray | sp.SparseArray)
+
+    @staticmethod
+    def _fill(value):
+        """An operand's fill value, or the operand itself if it isn't an array."""
+        if isinstance(value, WrappedArray):
+            return value.fill_value
+        if _is_sparse(value):
+            return value.fill_value
+        if isinstance(value, np.ndarray) and value.ndim > 0:
+            return value.dtype.type(0)
+        return value
+
+    def _operands(self, args, kwargs):
+        values = list(args) + list(kwargs.values())
+        return [self.unwrap(value) for value in values]
+
+    def wrap(self, value, fill_value=0):
+        if isinstance(value, WrappedArray):
+            return value
+        if isinstance(value, list):
+            return [self.wrap(item, fill_value) for item in value]
+        if isinstance(value, tuple):
+            items = [self.wrap(item, fill_value) for item in value]
+            return type(value)(*items) if hasattr(value, "_fields") else tuple(items)
+        if self.is_array(value):
+            return WrappedArray(self, value, fill_value)
+        return value
+
+    def unwrap(self, value):
+        if isinstance(value, WrappedArray):
+            return value.array
+        if isinstance(value, list):
+            return [self.unwrap(item) for item in value]
+        if isinstance(value, tuple):
+            items = [self.unwrap(item) for item in value]
+            return type(value)(*items) if hasattr(value, "_fields") else tuple(items)
+        if isinstance(value, dict):
+            return {key: self.unwrap(item) for key, item in value.items()}
+        return value
+
+    def call(self, name, func, args, kwargs):
+        op = name.rsplit(".", 1)[-1]
+        if op in _ELEMENTWISE:
+            return self._elementwise(op, func, args, kwargs)
+        if op in _CONTRACTIONS or name.startswith("linalg."):
+            return self._contraction(func, args, kwargs)
+        if op in _CONCATENATIONS:
+            return self._concatenate(func, args, kwargs)
+        if op in ("getitem", "setitem"):
+            return self._index(name, func, args)
+
+        result = func(*self.unwrap(args), **self.unwrap(kwargs))
+        fill = 0
+        if args and isinstance(args[0], WrappedArray):
+            if op in _FILL_PRESERVING:
+                fill = args[0].fill_value
+            elif op == "astype":
+                dtype = args[1] if len(args) > 1 else kwargs["dtype"]
+                with np.errstate(all="ignore"):
+                    fill = np.asarray(args[0].fill_value).astype(dtype)[()]
+        return self.wrap(result, fill)
+
+    def _elementwise(self, op, func, args, kwargs):
+        raw_args = self.unwrap(args)
+        raw_kwargs = self.unwrap(kwargs)
+        operands = self._operands(args, kwargs)
+
+        def with_fills(dense):
+            # Replace sparse operands by their fill values, and dense operands
+            # by theirs too unless `dense` asks to keep them as arrays.
+            def replace(value, raw):
+                if _is_sparse(raw) or (not dense and _is_dense(raw)):
+                    return self._fill(value)
+                return raw
+
+            return (
+                [
+                    replace(value, raw)
+                    for value, raw in zip(args, raw_args, strict=True)
+                ],
+                {key: replace(kwargs[key], raw) for key, raw in raw_kwargs.items()},
+            )
+
+        with np.errstate(all="ignore"):
+            fill_args, fill_kwargs = with_fills(dense=False)
+            fill = np.asarray(func(*fill_args, **fill_kwargs))[()]
+
+            if any(map(_is_sparse, operands)) and any(map(_is_dense, operands)):
+                probe_args, probe_kwargs = with_fills(dense=True)
+                if not _is_constant(func(*probe_args, **probe_kwargs)):
+                    raw_args = [_densify(raw) for raw in raw_args]
+                    raw_kwargs = {k: _densify(raw) for k, raw in raw_kwargs.items()}
+                elif isinstance(
+                    getattr(np, op, None), np.ufunc
+                ) and np.broadcast_shapes(
+                    *(raw.shape for raw in operands if _is_sparse(raw))
+                ) == np.broadcast_shapes(
+                    *(
+                        raw.shape
+                        for raw in operands
+                        if _is_sparse(raw) or _is_dense(raw)
+                    )
+                ):
+                    # Hand pydata/sparse the dense operand as is: it reads it
+                    # only at the sparse coordinates. The kernels would store
+                    # it as a full COO instead, and broadcasting that against
+                    # a sparse matrix expands to every coordinate pair.
+                    func = getattr(np, op)
+
+        return self.wrap(func(*raw_args, **raw_kwargs), fill)
+
+    def _contraction(self, func, args, kwargs):
+        def prepare(raw):
+            if _is_sparse(raw) and not np.all(np.asarray(raw.fill_value) == 0):
+                return raw.todense()
+            if isinstance(raw, list | tuple):
+                return type(raw)(prepare(item) for item in raw)
+            return raw
+
+        raw_args = [prepare(raw) for raw in self.unwrap(args)]
+        raw_kwargs = {key: prepare(raw) for key, raw in self.unwrap(kwargs).items()}
+        return self.wrap(func(*raw_args, **raw_kwargs))
+
+    def _concatenate(self, func, args, kwargs):
+        (arrays, *rest) = args
+        raws = self.unwrap(list(arrays))
+        fills = [self._fill(array) for array in arrays]
+        fill = fills[0] if fills and _is_constant(np.asarray(fills)) else None
+        if any(map(_is_sparse, raws)):
+            if fill is None:
+                raws = [_densify(raw) for raw in raws]
+            else:
+                raws = [
+                    raw if _is_sparse(raw) else sp.COO.from_numpy(raw, fill_value=fill)
+                    for raw in raws
+                ]
+        fill = 0 if fill is None else fill
+        return self.wrap(func(raws, *self.unwrap(rest), **self.unwrap(kwargs)), fill)
+
+    def _index(self, name, func, args):
+        (array, key, *value) = self.unwrap(args)
+        if isinstance(key, tuple):
+            key = tuple(_densify(index) for index in key)
+        else:
+            key = _densify(key)
+        if name == "setitem":
+            (value,) = value
+            if not _is_sparse(array):
+                value = _densify(value)
+            func(array, key, value)
+            return None
+        return self.wrap(func(array, key), self._fill(args[0]))
+
+    def _resolve(self, name, namespace, attr_name):
+        attr = getattr(namespace, attr_name)
+        if isinstance(attr, type) or not callable(attr):
+            if isinstance(attr, types.ModuleType):
+                return WrappedNamespace(self, attr, name)
+            return attr
+
+        def wrapped(*args, **kwargs):
+            return self.call(name, attr, args, kwargs)
+
+        wrapped.__name__ = attr_name
+        return wrapped
+
+    # Redirect targets for WrappedArray that aren't Array API functions.
+
+    def getitem(self, array, key):
+        return self.call("getitem", operator.getitem, (array, key), {})
+
+    def setitem(self, array, key, value):
+        self.call("setitem", operator.setitem, (array, key, value), {})
+
+    def item(self, array):
+        return self.call("item", self.kernels.item, (array,), {})
+
+    def asnumpy(self, array, dtype=None):
+        raw = self.unwrap(array)
+        for method in ("todense", "toarray"):
+            if hasattr(raw, method):
+                raw = getattr(raw, method)()
+                break
+        return np.asarray(raw, dtype=dtype)
+
+    def array_attribute(self, array, name):
+        attr = getattr(array.array, name)
+        if not callable(attr):
+            return self.wrap(attr)
+
+        def method(raw, *args, **kwargs):
+            return getattr(raw, name)(*args, **kwargs)
+
+        method.__name__ = name
+        return lambda *args, **kwargs: self.call(name, method, (array, *args), kwargs)
+
+    # Framework interface.
+
+    def from_binsparse(self, array):
+        return self.wrap(self.kernels.from_binsparse(array))
+
+    def to_binsparse(self, array):
+        return self.kernels.to_binsparse(self.unwrap(array))
+
+    def lazy(self, array):
+        return self.call("lazy", self.kernels.lazy, (array,), {})
+
+    def compute(self, array):
+        return self.call("compute", self.kernels.compute, (array,), {})
+
+    def compile(self, func):
+        return self.kernels.compile(func)
+
+    def einsum(self, prgm, **kwargs):
+        return self.call("einsum", self.kernels.einsum, (prgm,), kwargs)
+
+    def unfold(self, x, kernel_shape, **kwargs):
+        return self.call("unfold", self.kernels.unfold, (x, kernel_shape), kwargs)
+
+    def replace(self, arr, old, new):
+        return self.call("replace", self.kernels.replace, (arr, old, new), {})
+
+    @property
+    def linalg(self):
+        return WrappedNamespace(self, self.kernels.linalg, "linalg")
+
+    def __getattr__(self, name):
+        if name.startswith("_") or name == "kernels":
+            raise AttributeError(name)
+        return self._resolve(name, self.kernels, name)
 
 
 xp = SmartSparseFramework()

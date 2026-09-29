@@ -1,0 +1,94 @@
+---------------------------------------
+Begin Slurm Prolog: Sep-28-2026 06:35:58
+Job ID:    13670715
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-competition
+Partition: cpu-small
+QOS:       inferno
+---------------------------------------
+INFO:root:Using SAPS config: {'//': 'Competition config using ASV-native include entries. Each include is one competitor environment with its own dependencies.', 'environment_type': 'virtualenv', 'install_command': ['in-dir={env_dir} python -mpip install {build_dir}'], 'timeout': 120, 'rounds': 1, 'resume': True, 'metrics': ['time'], 'tag': ['suite-standard'], 'saps_dir': 'competition/run_local/task_0', 'env_dir': 'competition/run_local/task_0/env', 'results_dir': 'competition/run_local/task_0/results', 'matrix': {'env_nobuild': {'SAPS_LOG_PATH': ['/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/competition/run_13662472/task_30/results/chunk-30/diagnostics.log'], 'REMOTE_STORAGE_BACKEND': ['s3'], 'REMOTE_STORAGE_BUCKET': ['sparse-array-programming-suite'], 'SAPS_CACHE_DIR': ['/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache'], 'SAPS_MANIFEST_PATH': ['/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json'], 'SAPS_CHECK_SUITE': ['0']}}, 'exclude': [{'env_nobuild': {'SAPS_FRAMEWORK': None}}], 'include': [{'python': '3.12', 'req': {'array-api-compat': '1.15.0', 'lark': '1.3.1', 'networkx': '3.6', 'numpy': '2.3', 'scipy': '1.17.1', 'sparse': '0.17.0', 'ssgetpy': '1.0rc2'}, 'env_nobuild': {'SAPS_FRAMEWORK': 'frameworks/saps_numpy.py', 'SAPS_REPO_ROOT': '.', 'SAPS_LOG_PATH': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/competition/run_13662472/task_30/results/chunk-30/diagnostics.log', 'REMOTE_STORAGE_BACKEND': 's3', 'REMOTE_STORAGE_BUCKET': 'sparse-array-programming-suite', 'SAPS_CACHE_DIR': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache', 'SAPS_MANIFEST_PATH': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json', 'SAPS_CHECK_SUITE': '0'}}, {'python': '3.12', 'req': {'array-api-compat': '1.15.0', 'lark': '1.3.1', 'networkx': '3.6', 'numpy': '2.3', 'scipy': '1.17.1', 'sparse': '0.17.0', 'ssgetpy': '1.0rc2'}, 'env_nobuild': {'SAPS_FRAMEWORK': 'frameworks/saps_scipy.py', 'SAPS_REPO_ROOT': '.', 'SAPS_LOG_PATH': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/competition/run_13662472/task_30/results/chunk-30/diagnostics.log', 'REMOTE_STORAGE_BACKEND': 's3', 'REMOTE_STORAGE_BUCKET': 'sparse-array-programming-suite', 'SAPS_CACHE_DIR': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache', 'SAPS_MANIFEST_PATH': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json', 'SAPS_CHECK_SUITE': '0'}}, {'python': '3.12', 'req': {'array-api-compat': '1.15.0', 'lark': '1.3.1', 'networkx': '3.6', 'numpy': '2.3', 'scipy': '1.17.1', 'sparse': '0.17.0', 'ssgetpy': '1.0rc2'}, 'env_nobuild': {'SAPS_FRAMEWORK': 'frameworks/saps_sparse.py', 'SAPS_REPO_ROOT': '.', 'SAPS_LOG_PATH': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/competition/run_13662472/task_30/results/chunk-30/diagnostics.log', 'REMOTE_STORAGE_BACKEND': 's3', 'REMOTE_STORAGE_BUCKET': 'sparse-array-programming-suite', 'SAPS_CACHE_DIR': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache', 'SAPS_MANIFEST_PATH': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json', 'SAPS_CHECK_SUITE': '0'}}, {'python': '3.12', 'req': {'array-api-compat': '1.15.0', 'lark': '1.3.1', 'networkx': '3.6', 'numpy': '2.3', 'scipy': '1.17.1', 'sparse': '0.17.0', 'ssgetpy': '1.0rc2'}, 'env_nobuild': {'SAPS_FRAMEWORK': 'frameworks/saps_smart.py', 'SAPS_REPO_ROOT': '.', 'SAPS_LOG_PATH': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/competition/run_13662472/task_30/results/chunk-30/diagnostics.log', 'REMOTE_STORAGE_BACKEND': 's3', 'REMOTE_STORAGE_BUCKET': 'sparse-array-programming-suite', 'SAPS_CACHE_DIR': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache', 'SAPS_MANIFEST_PATH': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json', 'SAPS_CHECK_SUITE': '0'}}, {'python': '3.12', 'req': {'array-api-compat': '1.15.0', 'lark': '1.3.1', 'networkx': '3.6', 'numpy': '2.3', 'scipy': '1.17.1', 'sparse': '0.17.0', 'ssgetpy': '1.0rc2', 'torch': '2.12.1'}, 'env_nobuild': {'SAPS_FRAMEWORK': 'frameworks/saps_pytorch.py', 'SAPS_REPO_ROOT': '.', 'SAPS_LOG_PATH': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/competition/run_13662472/task_30/results/chunk-30/diagnostics.log', 'REMOTE_STORAGE_BACKEND': 's3', 'REMOTE_STORAGE_BUCKET': 'sparse-array-programming-suite', 'SAPS_CACHE_DIR': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache', 'SAPS_MANIFEST_PATH': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json', 'SAPS_CHECK_SUITE': '0'}}]}
+· Using SAPS config: {'//': 'Competition config using ASV-native include entries. Each include is one competitor environment with its own dependencies.', 'environment_type': 'virtualenv', 'install_command': ['in-dir={env_dir} python -mpip install {build_dir}'], 'timeout': 120, 'rounds': 1, 'resume': True, 'metrics': ['time'], 'tag': ['suite-standard'], 'saps_dir': 'competition/run_local/task_0', 'env_dir': 'competition/run_local/task_0/env', 'results_dir': 'competition/run_local/task_0/results', 'matrix': {'env_nobuild': {'SAPS_LOG_PATH': ['/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/competition/run_13662472/task_30/results/chunk-30/diagnostics.log'], 'REMOTE_STORAGE_BACKEND': ['s3'], 'REMOTE_STORAGE_BUCKET': ['sparse-array-programming-suite'], 'SAPS_CACHE_DIR': ['/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache'], 'SAPS_MANIFEST_PATH': ['/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json'], 'SAPS_CHECK_SUITE': ['0']}}, 'exclude': [{'env_nobuild': {'SAPS_FRAMEWORK': None}}], 'include': [{'python': '3.12', 'req': {'array-api-compat': '1.15.0', 'lark': '1.3.1', 'networkx': '3.6', 'numpy': '2.3', 'scipy': '1.17.1', 'sparse': '0.17.0', 'ssgetpy': '1.0rc2'}, 'env_nobuild': {'SAPS_FRAMEWORK': 'frameworks/saps_numpy.py', 'SAPS_REPO_ROOT': '.', 'SAPS_LOG_PATH': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/competition/run_13662472/task_30/results/chunk-30/diagnostics.log', 'REMOTE_STORAGE_BACKEND': 's3', 'REMOTE_STORAGE_BUCKET': 'sparse-array-programming-suite', 'SAPS_CACHE_DIR': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache', 'SAPS_MANIFEST_PATH': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json', 'SAPS_CHECK_SUITE': '0'}}, {'python': '3.12', 'req': {'array-api-compat': '1.15.0', 'lark': '1.3.1', 'networkx': '3.6', 'numpy': '2.3', 'scipy': '1.17.1', 'sparse': '0.17.0', 'ssgetpy': '1.0rc2'}, 'env_nobuild': {'SAPS_FRAMEWORK': 'frameworks/saps_scipy.py', 'SAPS_REPO_ROOT': '.', 'SAPS_LOG_PATH': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/competition/run_13662472/task_30/results/chunk-30/diagnostics.log', 'REMOTE_STORAGE_BACKEND': 's3', 'REMOTE_STORAGE_BUCKET': 'sparse-array-programming-suite', 'SAPS_CACHE_DIR': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache', 'SAPS_MANIFEST_PATH': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json', 'SAPS_CHECK_SUITE': '0'}}, {'python': '3.12', 'req': {'array-api-compat': '1.15.0', 'lark': '1.3.1', 'networkx': '3.6', 'numpy': '2.3', 'scipy': '1.17.1', 'sparse': '0.17.0', 'ssgetpy': '1.0rc2'}, 'env_nobuild': {'SAPS_FRAMEWORK': 'frameworks/saps_sparse.py', 'SAPS_REPO_ROOT': '.', 'SAPS_LOG_PATH': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/competition/run_13662472/task_30/results/chunk-30/diagnostics.log', 'REMOTE_STORAGE_BACKEND': 's3', 'REMOTE_STORAGE_BUCKET': 'sparse-array-programming-suite', 'SAPS_CACHE_DIR': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache', 'SAPS_MANIFEST_PATH': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json', 'SAPS_CHECK_SUITE': '0'}}, {'python': '3.12', 'req': {'array-api-compat': '1.15.0', 'lark': '1.3.1', 'networkx': '3.6', 'numpy': '2.3', 'scipy': '1.17.1', 'sparse': '0.17.0', 'ssgetpy': '1.0rc2'}, 'env_nobuild': {'SAPS_FRAMEWORK': 'frameworks/saps_smart.py', 'SAPS_REPO_ROOT': '.', 'SAPS_LOG_PATH': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/competition/run_13662472/task_30/results/chunk-30/diagnostics.log', 'REMOTE_STORAGE_BACKEND': 's3', 'REMOTE_STORAGE_BUCKET': 'sparse-array-programming-suite', 'SAPS_CACHE_DIR': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache', 'SAPS_MANIFEST_PATH': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json', 'SAPS_CHECK_SUITE': '0'}}, {'python': '3.12', 'req': {'array-api-compat': '1.15.0', 'lark': '1.3.1', 'networkx': '3.6', 'numpy': '2.3', 'scipy': '1.17.1', 'sparse': '0.17.0', 'ssgetpy': '1.0rc2', 'torch': '2.12.1'}, 'env_nobuild': {'SAPS_FRAMEWORK': 'frameworks/saps_pytorch.py', 'SAPS_REPO_ROOT': '.', 'SAPS_LOG_PATH': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/competition/run_13662472/task_30/results/chunk-30/diagnostics.log', 'REMOTE_STORAGE_BACKEND': 's3', 'REMOTE_STORAGE_BUCKET': 'sparse-array-programming-suite', 'SAPS_CACHE_DIR': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache', 'SAPS_MANIFEST_PATH': '/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json', 'SAPS_CHECK_SUITE': '0'}}]}INFO:root:Using SAPS outputs directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/competition/run_13662472/task_30/outputs/chunk-30
+
+· Using SAPS outputs directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/competition/run_13662472/task_30/outputs/chunk-30INFO:root:Using SAPS dataset cache: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache
+
+· Using SAPS dataset cache: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cacheINFO:root:Using SAPS machine files directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/competition/run_13662472/task_30/machine_files/chunk-30
+
+· Using SAPS machine files directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/competition/run_13662472/task_30/machine_files/chunk-30INFO:root:Discovering benchmarks
+
+· Discovering benchmarksINFO:root:Creating environments
+Discovered 15 benchmark entries
+Using timeout: 120 seconds
+
+· Creating environmentsINFO:root:Uninstalling from virtualenv-py3.12-array-api-compat1.15.0-lark1.3.1-networkx3.6-numpy2.3-scipy1.17.1-sparse0.17.0-ssgetpy1.0rc2-REMOTE_STORAGE_BACKENDs3-REMOTE_STORAGE_BUCKETsparse-array-programming-suite-SAPS_CACHE_DIR_storage_scratch1_7_wahrens6_SparseArrayProgrammingSuite_.saps_outputs_cache-SAPS_CHECK_SUITE0-SAPS_FRAMEWORK_storage_scratch1_7_wahrens6_SparseArrayProgrammingSuite_frameworks_saps_numpy.py-SAPS_LOG_PATH_storage_scratch1_7_wahrens6_SparseArrayProgrammingSuite_competition_run_13662472_task_30_results_chunk-30_diagnostics.log-SAPS_MANIFEST_PATH_storage_scratch1_7_wahrens6_SparseArrayProgrammingSuite_manifest.json-SAPS_REPO_ROOT_storage_scratch1_7_wahrens6_SparseArrayProgrammingSuite
+
+· Uninstalling from virtualenv-py3.12-array-api-compat1.15.0-lark1.3.1-networkx3.6-numpy2.3-scipy1.17.1-sparse0.17.0-ssgetpy1.0rc2-REMOTE_STORAGE_BACKENDs3-REMOTE_STORAGE_BUCKETsparse-array-programming-suite-SAPS_CACHE_DIR_storage_scratch1_7_wahrens6_SparseArrayProgrammingSuite_.saps_outputs_cache-SAPS_CHECK_SUITE0-SAPS_FRAMEWORK_storage_scratch1_7_wahrens6_SparseArrayProgrammingSuite_frameworks_saps_numpy.py-SAPS_LOG_PATH_storage_scratch1_7_wahrens6_SparseArrayProgrammingSuite_competition_run_13662472_task_30_results_chunk-30_diagnostics.log-SAPS_MANIFEST_PATH_storage_scratch1_7_wahrens6_SparseArrayProgrammingSuite_manifest.json-SAPS_REPO_ROOT_storage_scratch1_7_wahrens6_SparseArrayProgrammingSuiteINFO:root:Building 60c81bea <wma/more-tags> for virtualenv-py3.12-array-api-compat1.15.0-lark1.3.1-networkx3.6-numpy2.3-scipy1.17.1-sparse0.17.0-ssgetpy1.0rc2-REMOTE_STORAGE_BACKENDs3-REMOTE_STORAGE_BUCKETsparse-array-programming-suite-SAPS_CACHE_DIR_storage_scratch1_7_wahrens6_SparseArrayProgrammingSuite_.saps_outputs_cache-SAPS_CHECK_SUITE0-SAPS_FRAMEWORK_storage_scratch1_7_wahrens6_SparseArrayProgrammingSuite_frameworks_saps_numpy.py-SAPS_LOG_PATH_storage_scratch1_7_wahrens6_SparseArrayProgrammingSuite_competition_run_13662472_task_30_results_chunk-30_diagnostics.log-SAPS_MANIFEST_PATH_storage_scratch1_7_wahrens6_SparseArrayProgrammingSuite_manifest.json-SAPS_REPO_ROOT_storage_scratch1_7_wahrens6_SparseArrayProgrammingSuite
+
+· Building 60c81bea <wma/more-tags> for virtualenv-py3.12-array-api-compat1.15.0-lark1.3.1-networkx3.6-numpy2.3-scipy1.17.1-sparse0.17.0-ssgetpy1.0rc2-REMOTE_STORAGE_BACKENDs3-REMOTE_STORAGE_BUCKETsparse-array-programming-suite-SAPS_CACHE_DIR_storage_scratch1_7_wahrens6_SparseArrayProgrammingSuite_.saps_outputs_cache-SAPS_CHECK_SUITE0-SAPS_FRAMEWORK_storage_scratch1_7_wahrens6_SparseArrayProgrammingSuite_frameworks_saps_numpy.py-SAPS_LOG_PATH_storage_scratch1_7_wahrens6_SparseArrayProgrammingSuite_competition_run_13662472_task_30_results_chunk-30_diagnostics.log-SAPS_MANIFEST_PATH_storage_scratch1_7_wahrens6_SparseArrayProgrammingSuite_manifest.json-SAPS_REPO_ROOT_storage_scratch1_7_wahrens6_SparseArrayProgrammingSuiteERROR:root:Error running /tmp/saps-competition-13662472-30/env/chunk-30/c6e6c30cd4da42ee650d557ff6858c92/bin/python -m pip wheel -w /tmp/saps-competition-13662472-30/env/chunk-30/c6e6c30cd4da42ee650d557ff6858c92/asv-build-cache/60c81bea06189c9ef7fc7dcc2aa63bdd05cb1982 /tmp/saps-competition-13662472-30/env/chunk-30/c6e6c30cd4da42ee650d557ff6858c92/project (exit status 1)
+STDOUT -------->
+Processing /tmp/saps-competition-13662472-30/env/chunk-30/c6e6c30cd4da42ee650d557ff6858c92/project
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+INFO: pip is looking at multiple versions of saps to determine which version is compatible with other requirements. This could take a while.
+STDERR -------->
+ERROR: Could not find a version that satisfies the requirement asv<0.7.0,>=0.6.5 (from saps) (from versions: none)
+
+[notice] A new release of pip is available: 25.3 -> 26.2.1
+[notice] To update, run: pip install --upgrade pip
+ERROR: No matching distribution found for asv<0.7.0,>=0.6.5
+
+· Error running /tmp/saps-competition-13662472-30/env/chunk-30/c6e6c30cd4da42ee650d557ff6858c92/bin/python -m pip wheel -w /tmp/saps-competition-13662472-30/env/chunk-30/c6e6c30cd4da42ee650d557ff6858c92/asv-build-cache/60c81bea06189c9ef7fc7dcc2aa63bdd05cb1982 /tmp/saps-competition-13662472-30/env/chunk-30/c6e6c30cd4da42ee650d557ff6858c92/project (exit status 1)
+  STDOUT -------->
+  Processing /tmp/saps-competition-13662472-30/env/chunk-30/c6e6c30cd4da42ee650d557ff6858c92/project
+    Installing build dependencies: started
+    Installing build dependencies: finished with status 'done'
+    Getting requirements to build wheel: started
+    Getting requirements to build wheel: finished with status 'done'
+    Preparing metadata (pyproject.toml): started
+    Preparing metadata (pyproject.toml): finished with status 'done'
+  INFO: pip is looking at multiple versions of saps to determine which version is compatible with other requirements. This could take a while.
+  STDERR -------->
+  ERROR: Could not find a version that satisfies the requirement asv<0.7.0,>=0.6.5 (from saps) (from versions: none)
+  
+  [notice] A new release of pip is available: 25.3 -> 26.2.1
+  [notice] To update, run: pip install --upgrade pip
+  ERROR: No matching distribution found for asv<0.7.0,>=0.6.5
+Traceback (most recent call last):
+  File "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/./bin/run_benchmark.py", line 908, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/./bin/run_benchmark.py", line 889, in main
+    failed = _run_asv_benchmarks(
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/./bin/run_benchmark.py", line 122, in _run_asv_benchmarks
+    env.install_project(conf, repo, commit_hash)
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/asv/environment.py", line 881, in install_project
+    self._build_project(repo, commit_hash, build_dir)
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/asv/environment.py", line 947, in _build_project
+    self._interpolate_and_run_commands(
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/asv/environment.py", line 833, in _interpolate_and_run_commands
+    self.run_executable(
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/asv/environment.py", line 1013, in run_executable
+    return util.check_output([exe] + args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/asv/util.py", line 642, in check_output
+    raise ProcessError(args, retcode, stdout, stderr)
+asv.util.ProcessError: Command '/tmp/saps-competition-13662472-30/env/chunk-30/c6e6c30cd4da42ee650d557ff6858c92/bin/python -m pip wheel -w /tmp/saps-competition-13662472-30/env/chunk-30/c6e6c30cd4da42ee650d557ff6858c92/asv-build-cache/60c81bea06189c9ef7fc7dcc2aa63bdd05cb1982 /tmp/saps-competition-13662472-30/env/chunk-30/c6e6c30cd4da42ee650d557ff6858c92/project' returned non-zero exit status 1
+combined 60 result files into /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/competition/run_13662472/results.json
+---------------------------------------
+Begin Slurm Epilog: Sep-28-2026 06:37:35
+Job ID:        13670715
+Array Job ID:  13662472_30
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-competition
+Resources:     cpu=24,mem=128G,node=1
+Rsrc Used:     cput=00:40:00,vmem=0,walltime=00:01:40,mem=975.50M,energy_used=0
+Partition:     cpu-small
+QOS:           inferno
+Nodes:         atl1-1-03-003-7-1
+---------------------------------------

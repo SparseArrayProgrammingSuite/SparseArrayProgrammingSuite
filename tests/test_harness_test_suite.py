@@ -33,7 +33,7 @@ def _test_dataset_slots(benchmark_metadata: dict[str, Any]) -> list[tuple[int, s
     benchmark_name = benchmark_metadata["name"]
     for generator in benchmark_metadata["generators"]:
         for dataset in generator["datasets"]:
-            if "test" in dataset.get("tags", []):
+            if "suite-test" in dataset.get("tags", []):
                 dataset_key = f"{benchmark_name}.{generator['name']}.{dataset['name']}"
                 slots.append((index, dataset_key))
             index += 1
@@ -79,7 +79,7 @@ def test_harness_test_suite_outputs_pass_for_all_test_datasets(tmp_path):
         "--config",
         str(config_path),
         "--tag",
-        "test",
+        "suite-test",
         "--metrics",
         "time",
         "--quick",

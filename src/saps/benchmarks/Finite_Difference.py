@@ -258,7 +258,7 @@ class _FiniteDifferenceBenchmarkMixin:
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return ["group-spatial"]
 
     @property
     def concepts(self) -> str:

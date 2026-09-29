@@ -105,15 +105,13 @@ Datasets represent one run of a benchmark. Generators group similar data-generat
 
 Tags can be applied to datasets, generators, or benchmarks. If a generator or benchmark is tagged, its datasets inherit that tag.
 
-Common suite tags include:
+Suites are listed by name in `suites`, and each one becomes a `suite-<name>` tag (for example, the `test` suite is selected with `--tag suite-test`). Common suites include:
 
 - `test`: datasets that run in CI and cover dense/sparse cases, different sizes, and code paths.
 - `standard`: canonical datasets in the suite.
 - `trace`: datasets whose operation behavior should be traced into `statistics.json`.
-- `dynamic`: datasets with random seeds or generated kernels.
-- `AI`: AI-generated datasets.
 
-Use ACM CCS XML to describe problem domains. Paste the XML into `concepts`, and SAPS generates lowercase hyphenated topic tags such as `applied-computing`, `physical-sciences-and-engineering`, or `aerospace`.
+Use ACM CCS XML to describe problem domains. Paste the XML into `concepts`, and SAPS generates lowercase hyphenated topic tags prefixed with `concept-`, such as `concept-applied-computing`, `concept-physical-sciences-and-engineering`, or `concept-aerospace`.
 
 Every benchmark, generator, and dataset provides `concepts`. Use `"<ccs2012></ccs2012>"` as a stub until you have a classification. You can use the [ACM CCS 2012 generator](https://dl.acm.org/ccs/ccs.cfm), copy its XML output, and paste it in as `concepts`:
 
@@ -135,20 +133,19 @@ Manual suite tags are written to `metadata.json` under `suites`. Topic tags gene
 
 These tags describe the general character of a problem, and are generated programatically by running --trace-statistics:
 
-- `high-dimensional`: 5 or more dimensions in a tensor.
-- `tensor`: 3 or more dimensions in a tensor.
-- `large-query`: 5 or more operands on one line.
-- `elementary-ops`: PEMDAS-only.
-- `transcendental-ops`: contains sin, cos, pow, exp, or related operations.
-- `shape-ops`: reshape, concat, transpose, squeeze, or similar operations.
-- `linalg-ops`: contains `xp.linalg` or solver-like operations. `dot` is okay.
-- `fancy-ops`: min, max, and, or, shift, or similar operations.
-- `index-ops`: contains indexing.
-- `nonzero-fill`: uses a fill value other than zero.
-- `iterative`: loops over a matrix or repeats until convergence.
-- `dense`: exclusively dense problems.
-- `hypersparse`: contains hypersparsity, such as `nnz << n` for a dimension.
-- `dynamic-sparsity`: sparse-sparse interactions may change the sparsity pattern.
+- `feature-high-dimensional`: 5 or more dimensions in a tensor.
+- `feature-tensor`: 3 or more dimensions in a tensor.
+- `feature-large-query`: 5 or more operands on one line.
+- `feature-elementary-ops`: PEMDAS-only.
+- `feature-transcendental-ops`: contains sin, cos, pow, exp, or related operations.
+- `feature-shape-ops`: reshape, concat, transpose, squeeze, or similar operations.
+- `feature-linalg-ops`: contains `xp.linalg` or solver-like operations. `dot` is okay.
+- `feature-fancy-ops`: min, max, and, or, shift, or similar operations.
+- `feature-index-ops`: contains indexing.
+- `feature-nonzero-fill`: uses a fill value other than zero.
+- `feature-dense`: exclusively dense problems.
+- `feature-hypersparse`: contains hypersparsity, such as `nnz << n` for a dimension.
+- `feature-dynamic-sparsity`: sparse-sparse interactions may change the sparsity pattern.
 
 ## Freshness
 
@@ -162,7 +159,7 @@ SAPS records freshness so generated artifacts can be checked against the code th
 Freshness is checked for:
 
 - `metadata.json`: benchmark, generator, and dataset metadata.
-- `statistics.json`: trace-derived tags for datasets selected by the `trace` suite.
+- `statistics.json`: trace-derived tags for datasets selected by the `suite-trace` tag.
 - `manifest.json`: cached dataset digests and freshness records.
 - Remote storage: every manifest record must point to an object that exists in the configured backend.
 
@@ -170,7 +167,7 @@ After changing benchmark code, generator code, metadata, dependency imports, or 
 
 ```bash
 poetry run ./bin/generate_metadata.py
-poetry run ./bin/run_benchmark.py --trace-statistics --tag trace --timeout 30 --show-stderr
+poetry run ./bin/run_benchmark.py --trace-statistics --tag suite-trace --timeout 30 --show-stderr
 poetry run ./bin/generate_metadata.py --statistics statistics.json
 poetry run ./bin/run_benchmark.py --cache-datasets
 ```
@@ -223,7 +220,7 @@ Dataset digests should be content hashes of serialized data. Freshness records b
 
 Tracing runs selected benchmark cases with `frameworks/saps_tagger.py`. The tagger records observed array operations and sparsity-relevant behavior, then writes those derived tags to `statistics.json`.
 
-A dataset is selected for tracing when the benchmark, generator, or dataset has the `trace` suite tag. Use `trace` for representative datasets that should describe the benchmark's operation mix. Avoid tracing huge datasets unless their scale is necessary for the behavior being observed.
+A dataset is selected for tracing when the benchmark, generator, or dataset is in the `trace` suite (tagged `suite-trace`). Use `trace` for representative datasets that should describe the benchmark's operation mix. Avoid tracing huge datasets unless their scale is necessary for the behavior being observed.
 
 Tracing should not change the semantics of a benchmark. It is a metadata pass over selected benchmark executions.
 
