@@ -2,7 +2,7 @@ import numpy as np
 import scipy.sparse as sps
 
 import sparse as sp
-from binsparse import BinsparseTensor, COORMatrix
+from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
 from saps.benchmark import (
@@ -14,19 +14,10 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.bellmanford import _adjacency_to_distance
-from saps.benchmarks.snap import select_source_vertices
-from saps.benchmarks.suitesparse import (
-    _GAP_KRON_SOURCES,
-    _GAP_ROAD_SOURCES,
-    _GAP_TWITTER_SOURCES,
-    _GAP_URAND_SOURCES,
-    _GAP_WEB_SOURCES,
-    SuiteSparseDataset,
-    fetch_suitesparse_matrix,
-)
+from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
 
-# Number of seeded sources sampled for graphs without a published source list.
-_NUM_SAMPLED_SOURCES = 64
+# Pivot bound for real-world inputs; fill stays within the pivots' neighborhoods.
+_DEFAULT_MAX_PIVOTS = 64
 
 
 class FloydWarshallDataset(SuiteSparseDataset):
@@ -39,8 +30,9 @@ class FloydWarshallDataset(SuiteSparseDataset):
         source,
         symmetrize=False,
         A=None,
-        sources=None,
+        max_pivots=None,
         expected=None,
+        ref_meta=None,
     ):
         super().__init__(
             name,
@@ -51,33 +43,20 @@ class FloydWarshallDataset(SuiteSparseDataset):
         )
         self.symmetrize = symmetrize
         self.A = A
-        if sources is None and A is not None:
-            sources = list(range(A.shape[0]))
-        self.sources = sources
+        self.max_pivots = max_pivots
         if expected is None and A is not None:
-            expected = floyd_warshall_reference(A)[sources, :]
+            expected = floyd_warshall_reference(A, max_pivots)
         self.expected = expected
+        self.ref_meta = ref_meta
 
 
-def initial_distances(n: int, sources) -> COORMatrix:
-    """Distance matrix with row i zero at sources[i] and infinite elsewhere."""
-    sources = np.asarray(sources, dtype=np.int64)
-    return COORMatrix(
-        (sources.size, n),
-        sources.size,
-        fill=True,
-        fill_value=np.inf,
-        indices_0=np.arange(sources.size, dtype=np.int64),
-        indices_1=sources,
-        values=np.zeros(sources.size, dtype=np.float64),
-    )
-
-
-def floyd_warshall_reference(A):
+def floyd_warshall_reference(A, max_pivots=None):
+    """Shortest paths whose intermediate vertices all lie in range(max_pivots)."""
     if isinstance(A, sp.SparseArray):
         A = A.todense()
     expected = A.copy()
-    for k in range(expected.shape[0]):
+    n = expected.shape[0]
+    for k in range(n if max_pivots is None else min(max_pivots, n)):
         expected = np.minimum(
             expected,
             np.expand_dims(expected[:, k], axis=1)
@@ -216,6 +195,56 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
                 ),
             ),
             FloydWarshallDataset(
+                name="three-node-shortcut-pivots-1",
+                pretty_name="three-node-shortcut-pivots-1",
+                description=(
+                    "Floyd-Warshall test case three-node-shortcut, pivoting only"
+                    " through vertex 0, so the 0->1->2 shortcut is not found."
+                ),
+                suites=["test"],
+                source="three-node-shortcut-pivots-1",
+                A=np.array(
+                    [
+                        [0.0, 1.0, 5.0],
+                        [np.inf, 0.0, 1.0],
+                        [np.inf, np.inf, 0.0],
+                    ]
+                ),
+                max_pivots=1,
+                expected=np.array(
+                    [
+                        [0.0, 1.0, 5.0],
+                        [np.inf, 0.0, 1.0],
+                        [np.inf, np.inf, 0.0],
+                    ]
+                ),
+            ),
+            FloydWarshallDataset(
+                name="three-node-shortcut-pivots-2",
+                pretty_name="three-node-shortcut-pivots-2",
+                description=(
+                    "Floyd-Warshall test case three-node-shortcut, pivoting through"
+                    " vertices 0 and 1."
+                ),
+                suites=["test"],
+                source="three-node-shortcut-pivots-2",
+                A=np.array(
+                    [
+                        [0.0, 1.0, 5.0],
+                        [np.inf, 0.0, 1.0],
+                        [np.inf, np.inf, 0.0],
+                    ]
+                ),
+                max_pivots=2,
+                expected=np.array(
+                    [
+                        [0.0, 1.0, 2.0],
+                        [np.inf, 0.0, 1.0],
+                        [np.inf, np.inf, 0.0],
+                    ]
+                ),
+            ),
+            FloydWarshallDataset(
                 name="two-components",
                 pretty_name="two-components",
                 description="Floyd-Warshall test case two-components.",
@@ -340,7 +369,7 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
                     ],
                     symmetric=True,
                 ),
-                sources=[0, 7, 21, 38, 21],
+                ref_meta={"large_symmetric": True},
             ),
         ]
 
@@ -348,11 +377,14 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
         inputs = (
             dataset.A.todense() if isinstance(dataset.A, sp.SparseArray) else dataset.A
         )
-        n = inputs.shape[0]
+        max_pivots = dataset.max_pivots
+        if max_pivots is None:
+            max_pivots = inputs.shape[0]
         return DataInstance(
-            inputs=[from_numpy(inputs), initial_distances(n, dataset.sources)],
-            meta={"sources": list(dataset.sources)},
+            inputs=[from_numpy(inputs)],
+            meta={"max_pivots": max_pivots},
             ref_outputs=[from_numpy(dataset.expected)],
+            ref_meta=dataset.ref_meta,
         )
 
 
@@ -505,7 +537,6 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 ),
                 suites=["standard"],
                 source="GAP/GAP-road",
-                sources=_GAP_ROAD_SOURCES,
                 symmetrize=False,
             ),
             FloydWarshallDataset(
@@ -517,7 +548,6 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 ),
                 suites=["standard"],
                 source="GAP/GAP-twitter",
-                sources=_GAP_TWITTER_SOURCES,
                 symmetrize=True,
             ),
             FloydWarshallDataset(
@@ -529,7 +559,6 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 ),
                 suites=["standard"],
                 source="GAP/GAP-web",
-                sources=_GAP_WEB_SOURCES,
                 symmetrize=True,
             ),
             FloydWarshallDataset(
@@ -543,7 +572,6 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 ),
                 suites=["standard"],
                 source="GAP/GAP-kron",
-                sources=_GAP_KRON_SOURCES,
                 symmetrize=False,
             ),
             FloydWarshallDataset(
@@ -556,7 +584,6 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 ),
                 suites=["standard"],
                 source="GAP/GAP-urand",
-                sources=_GAP_URAND_SOURCES,
                 symmetrize=False,
             ),
         ]
@@ -571,20 +598,18 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
         if n != m:
             raise ValueError(f"Floyd-Warshall requires a square matrix, got {(n, m)}")
 
-        adjacency = abs(to_scipy(raw.inputs[0]).tocoo())
+        # Every stored entry is a unit-weight edge, including explicit zeros.
+        adjacency = to_scipy(raw.inputs[0]).tocoo()
+        adjacency.data = np.ones_like(adjacency.data, dtype=np.float64)
         if dataset.symmetrize:
             adjacency = sps.coo_array(adjacency + adjacency.T)
-        adjacency = from_scipy(adjacency)
 
-        sources = dataset.sources
-        if sources is None:
-            sources = np.unique(
-                select_source_vertices(adjacency, _NUM_SAMPLED_SOURCES, seed=0)
-            ).tolist()
-
+        max_pivots = dataset.max_pivots
+        if max_pivots is None:
+            max_pivots = min(n, _DEFAULT_MAX_PIVOTS)
         return DataInstance(
-            inputs=[_adjacency_to_distance(adjacency), initial_distances(n, sources)],
-            meta={"sources": list(sources)},
+            inputs=[_adjacency_to_distance(from_scipy(adjacency))],
+            meta={"max_pivots": max_pivots},
         )
 
 
@@ -600,9 +625,10 @@ class FloydWarshallBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "Computes shortest paths from a list of source vertices to every vertex"
-            " in a weighted directed graph by repeated min-plus relaxation of a"
-            " source-by-vertex distance matrix."
+            "The Floyd-Warshall algorithm computes the shortest paths between every"
+            " pair of vertices in a weighted directed graph. The sweep is bounded to"
+            " the first max_pivots pivot vertices, so paths may only pass through"
+            " those vertices."
         )
 
     @property
@@ -681,20 +707,16 @@ class FloydWarshallBenchmark(Benchmark):
 
     def benchmark(self, xp, data, meta):
         """
-        Returns multi-source shortest paths, i.e. D[s, j] is the shortest path
-        from meta["sources"][s] to j
+        Returns the bounded all pair shortest path i.e. A[i,j] is the shortest
+        path from i to j whose intermediate vertices are all below max_pivots
         """
         G = data[0]
-        D = data[1]
         n, m = G.shape
         assert n == m
-        for _ in range(n):
-            D_new = xp.einsum("D[s, j] min= D[s, k] + G[k, j]", D=D, G=G)
-            stop = xp.all(D_new == D)
-            D = D_new
-            if stop:
-                break
-        return [D]
+        for k in range(min(meta["max_pivots"], n)):
+            G_k = xp.expand_dims(G[:, k], axis=1) + xp.expand_dims(G[k, :], axis=0)
+            G = xp.minimum(G, G_k)
+        return [G]
 
     def check(self, param):
         for item in self._output:
@@ -709,3 +731,12 @@ class FloydWarshallBenchmark(Benchmark):
             assert np.all(both_inf | (both_finite & (output == expected))), (
                 f"Floyd-Warshall output mismatch for {param.dataset.name}"
             )
+        if self._ref_meta and self._ref_meta.get("large_symmetric"):
+            assert output.shape[0] == output.shape[1]
+            assert np.all(np.diag(output) == 0.0)
+            assert np.all(output >= 0.0)
+            assert np.all(output == output.T)
+            rng = np.random.default_rng(0)
+            for _ in range(50):
+                i, j, k = rng.integers(0, output.shape[0], size=3)
+                assert output[i, j] <= output[i, k] + output[k, j]
