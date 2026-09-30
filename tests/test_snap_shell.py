@@ -411,3 +411,22 @@ def test_all_snap_sources_have_ten_seeded_cases():
             (g.name, seed) for g in graphs for seed in range(10)
         }
         assert all(d.metadata["seed"] == d.seed for d in datasets)
+
+
+def test_snap_with_suites_does_not_mutate_shared_graphs():
+    graph = SNAPGraphGenerator().datasets[0]
+    selected = graph.with_suites(["standard", "trace"])
+    assert selected.suites == ["standard", "trace"]
+    assert graph.suites == []
+    assert all(dataset.suites == [] for dataset in SNAPGraphGenerator().datasets)
+    selected.suites.append("test")
+    assert graph.with_suites(["standard", "trace"]).suites == ["standard", "trace"]
+
+
+def test_snap_source_trace_selection_is_seed_specific():
+    graph = SNAPGraphGenerator().datasets[0]
+    selected = SNAPSourceDataset(graph, 0, suites=["trace"])
+    other = SNAPSourceDataset(graph, 1)
+    assert selected.suites == ["trace"]
+    assert other.suites == []
+    assert graph.suites == []

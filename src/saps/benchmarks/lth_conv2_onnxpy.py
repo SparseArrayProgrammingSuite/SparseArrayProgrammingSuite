@@ -769,7 +769,7 @@ class LTHConv2Dataset(Dataset):
 
     @property
     def suites(self) -> list[str]:
-        return ["lth"]
+        return ["lth", "standard", "trace"]
 
     @property
     def concepts(self) -> str:

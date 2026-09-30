@@ -237,7 +237,7 @@ class MCLGenerator(Generator[MCLDataset]):
             MCLDataset("HB/bcsstk05"),
             MCLDataset("HB/nos1"),
             MCLDataset("HB/nos2"),
-            MCLDataset("HB/nos3"),
+            MCLDataset("HB/nos3", suites=["trace"]),
             MCLDataset("HB/dwt_59"),
             MCLDataset("GAP/GAP-road", suites=["standard"]),
             MCLDataset("GAP/GAP-twitter", suites=["standard"]),

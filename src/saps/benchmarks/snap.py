@@ -2,6 +2,7 @@
 
 # ruff: noqa: E501
 
+from copy import copy
 from typing import Any
 
 import numpy as np
@@ -156,6 +157,7 @@ class SNAPDataset(Dataset):
         static_edges: int | str | None = None,
         items: int | str | None = None,
         graphs: int | str | None = None,
+        suites: list[str] | None = None,
     ):
         self.groups = list(dict.fromkeys(groups))
         for category in self.groups:
@@ -171,6 +173,7 @@ class SNAPDataset(Dataset):
         self.static_edges = static_edges
         self.items = items
         self.graphs = graphs
+        self._suites = list(suites or [])
 
     @property
     def name(self) -> str:
@@ -190,12 +193,18 @@ class SNAPDataset(Dataset):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return self._suites
 
     @property
     def concepts(self) -> str:
         concepts = dict.fromkeys(_GROUP_CONCEPTS[group] for group in self.groups)
         return "<ccs2012>" + "".join(concepts) + "</ccs2012>"
+
+    def with_suites(self, suites: list[str]) -> "SNAPDataset":
+        """A copy of this shared graph listed under ``suites``."""
+        dataset = copy(self)
+        dataset._suites = list(suites)
+        return dataset
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -216,9 +225,12 @@ class SNAPDataset(Dataset):
 class SNAPSourceDataset(Dataset):
     """A shared SNAP graph paired with a reproducible source-selection seed."""
 
-    def __init__(self, graph: SNAPDataset, seed: int):
+    def __init__(
+        self, graph: SNAPDataset, seed: int, *, suites: list[str] | None = None
+    ):
         self.graph = graph
         self.seed = seed
+        self._suites = list(dict.fromkeys([*graph.suites, *(suites or [])]))
 
     @property
     def name(self) -> str:
@@ -234,7 +246,7 @@ class SNAPSourceDataset(Dataset):
 
     @property
     def suites(self) -> list[str]:
-        return self.graph.suites
+        return self._suites
 
     @property
     def concepts(self) -> str:
@@ -439,7 +451,7 @@ class SNAPGraphGenerator(Generator[SNAPDataset]):
 
     @property
     def datasets(self) -> list[SNAPDataset]:
-        return _GRAPHS
+        return list(_GRAPHS)
 
     def generate(self, dataset: SNAPDataset) -> DataInstance:
         raw = fetch_suitesparse_matrix(dataset.source_name)
