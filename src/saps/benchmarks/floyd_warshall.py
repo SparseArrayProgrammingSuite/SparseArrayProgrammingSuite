@@ -1,8 +1,9 @@
 import numpy as np
+import scipy.sparse as sps
 
 import sparse as sp
-from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy, to_scipy
+from binsparse import BinsparseTensor, COORMatrix
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
 from saps.benchmark import (
     Author,
@@ -12,7 +13,20 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
+from saps.benchmarks.bellmanford import _adjacency_to_distance
+from saps.benchmarks.snap import select_source_vertices
+from saps.benchmarks.suitesparse import (
+    _GAP_KRON_SOURCES,
+    _GAP_ROAD_SOURCES,
+    _GAP_TWITTER_SOURCES,
+    _GAP_URAND_SOURCES,
+    _GAP_WEB_SOURCES,
+    SuiteSparseDataset,
+    fetch_suitesparse_matrix,
+)
+
+# Number of seeded sources sampled for graphs without a published source list.
+_NUM_SAMPLED_SOURCES = 64
 
 
 class FloydWarshallDataset(SuiteSparseDataset):
@@ -25,8 +39,8 @@ class FloydWarshallDataset(SuiteSparseDataset):
         source,
         symmetrize=False,
         A=None,
+        sources=None,
         expected=None,
-        ref_meta=None,
     ):
         super().__init__(
             name,
@@ -37,10 +51,26 @@ class FloydWarshallDataset(SuiteSparseDataset):
         )
         self.symmetrize = symmetrize
         self.A = A
+        if sources is None and A is not None:
+            sources = list(range(A.shape[0]))
+        self.sources = sources
         if expected is None and A is not None:
-            expected = floyd_warshall_reference(A)
+            expected = floyd_warshall_reference(A)[sources, :]
         self.expected = expected
-        self.ref_meta = ref_meta
+
+
+def initial_distances(n: int, sources) -> COORMatrix:
+    """Distance matrix with row i zero at sources[i] and infinite elsewhere."""
+    sources = np.asarray(sources, dtype=np.int64)
+    return COORMatrix(
+        (sources.size, n),
+        sources.size,
+        fill=True,
+        fill_value=np.inf,
+        indices_0=np.arange(sources.size, dtype=np.int64),
+        indices_1=sources,
+        values=np.zeros(sources.size, dtype=np.float64),
+    )
 
 
 def floyd_warshall_reference(A):
@@ -310,7 +340,7 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
                     ],
                     symmetric=True,
                 ),
-                ref_meta={"large_symmetric": True},
+                sources=[0, 7, 21, 38, 21],
             ),
         ]
 
@@ -318,11 +348,11 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
         inputs = (
             dataset.A.todense() if isinstance(dataset.A, sp.SparseArray) else dataset.A
         )
+        n = inputs.shape[0]
         return DataInstance(
-            inputs=[from_numpy(inputs)],
-            meta={},
+            inputs=[from_numpy(inputs), initial_distances(n, dataset.sources)],
+            meta={"sources": list(dataset.sources)},
             ref_outputs=[from_numpy(dataset.expected)],
-            ref_meta=dataset.ref_meta,
         )
 
 
@@ -475,6 +505,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 ),
                 suites=["standard"],
                 source="GAP/GAP-road",
+                sources=_GAP_ROAD_SOURCES,
                 symmetrize=False,
             ),
             FloydWarshallDataset(
@@ -486,6 +517,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 ),
                 suites=["standard"],
                 source="GAP/GAP-twitter",
+                sources=_GAP_TWITTER_SOURCES,
                 symmetrize=True,
             ),
             FloydWarshallDataset(
@@ -497,6 +529,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 ),
                 suites=["standard"],
                 source="GAP/GAP-web",
+                sources=_GAP_WEB_SOURCES,
                 symmetrize=True,
             ),
             FloydWarshallDataset(
@@ -510,6 +543,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 ),
                 suites=["standard"],
                 source="GAP/GAP-kron",
+                sources=_GAP_KRON_SOURCES,
                 symmetrize=False,
             ),
             FloydWarshallDataset(
@@ -522,6 +556,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 ),
                 suites=["standard"],
                 source="GAP/GAP-urand",
+                sources=_GAP_URAND_SOURCES,
                 symmetrize=False,
             ),
         ]
@@ -536,17 +571,21 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
         if n != m:
             raise ValueError(f"Floyd-Warshall requires a square matrix, got {(n, m)}")
 
-        coo = to_scipy(raw.inputs[0]).tocoo()
-        G = np.full((n, n), np.inf, dtype=np.float64)
-        if raw.meta["nnz"] > 0:
-            G[coo.row, coo.col] = 1.0
-        np.fill_diagonal(G, 0.0)
-
+        adjacency = abs(to_scipy(raw.inputs[0]).tocoo())
         if dataset.symmetrize:
-            G = np.minimum(G, G.T)
+            adjacency = sps.coo_array(adjacency + adjacency.T)
+        adjacency = from_scipy(adjacency)
 
-        G_bin = from_numpy(G)
-        return DataInstance(inputs=[G_bin], meta={})
+        sources = dataset.sources
+        if sources is None:
+            sources = np.unique(
+                select_source_vertices(adjacency, _NUM_SAMPLED_SOURCES, seed=0)
+            ).tolist()
+
+        return DataInstance(
+            inputs=[_adjacency_to_distance(adjacency), initial_distances(n, sources)],
+            meta={"sources": list(sources)},
+        )
 
 
 class FloydWarshallBenchmark(Benchmark):
@@ -561,8 +600,9 @@ class FloydWarshallBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "The Floyd-Warshall algorithm computes the shortest paths between every "
-            "pair of vertices in a weighted directed graph."
+            "Computes shortest paths from a list of source vertices to every vertex"
+            " in a weighted directed graph by repeated min-plus relaxation of a"
+            " source-by-vertex distance matrix."
         )
 
     @property
@@ -641,16 +681,20 @@ class FloydWarshallBenchmark(Benchmark):
 
     def benchmark(self, xp, data, meta):
         """
-        Returns the all pair shortest path i.e. A[i,j] is the shortest
-        path from i to j
+        Returns multi-source shortest paths, i.e. D[s, j] is the shortest path
+        from meta["sources"][s] to j
         """
         G = data[0]
+        D = data[1]
         n, m = G.shape
         assert n == m
-        for k in range(n):
-            G_k = xp.expand_dims(G[:, k], axis=1) + xp.expand_dims(G[k, :], axis=0)
-            G = xp.minimum(G, G_k)
-        return [G]
+        for _ in range(n):
+            D_new = xp.einsum("D[s, j] min= D[s, k] + G[k, j]", D=D, G=G)
+            stop = xp.all(D_new == D)
+            D = D_new
+            if stop:
+                break
+        return [D]
 
     def check(self, param):
         for item in self._output:
@@ -665,12 +709,3 @@ class FloydWarshallBenchmark(Benchmark):
             assert np.all(both_inf | (both_finite & (output == expected))), (
                 f"Floyd-Warshall output mismatch for {param.dataset.name}"
             )
-        if self._ref_meta and self._ref_meta.get("large_symmetric"):
-            assert output.shape[0] == output.shape[1]
-            assert np.all(np.diag(output) == 0.0)
-            assert np.all(output >= 0.0)
-            assert np.all(output == output.T)
-            rng = np.random.default_rng(0)
-            for _ in range(50):
-                i, j, k = rng.integers(0, output.shape[0], size=3)
-                assert output[i, j] <= output[i, k] + output[k, j]
