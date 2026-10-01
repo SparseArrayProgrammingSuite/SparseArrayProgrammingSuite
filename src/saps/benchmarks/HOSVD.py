@@ -17,6 +17,16 @@ from saps.benchmark import (
 from saps.benchmarks.frostt import fetch_frostt_tensor, frostt_tensor_shape
 
 
+def _random_initial_factors(shape, ranks, seed=0):
+    """Build reproducible orthonormal factors without unfolding the input tensor."""
+    rng = np.random.default_rng(seed)
+    factors = []
+    for size, rank in zip(shape, ranks, strict=True):
+        factor, _ = np.linalg.qr(rng.standard_normal((size, rank)), mode="reduced")
+        factors.append(from_numpy(factor))
+    return factors
+
+
 class HOSVDDataset(Dataset):
     def __init__(
         self,
@@ -191,8 +201,9 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
 
         X_bin = from_numpy(X_dense)
         ranks_bin = from_numpy(np.array(ranks))
+        initial_factors = _random_initial_factors(dataset.shape, ranks)
         return DataInstance(
-            inputs=[X_bin, ranks_bin],
+            inputs=[X_bin, ranks_bin, *initial_factors],
             meta={"n": dataset.n, "max_iter": 50, "tolerance": 1e-8},
         )
 
@@ -364,8 +375,9 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
                 raise ValueError(f"unsupported HOSVD tensor order {dataset.n}")
 
         ranks_bin = from_numpy(np.array(ranks))
+        initial_factors = _random_initial_factors(dataset.shape, ranks)
         return DataInstance(
-            inputs=[X_bin, ranks_bin],
+            inputs=[X_bin, ranks_bin, *initial_factors],
             meta={"n": dataset.n, "max_iter": 50, "tolerance": 1e-8},
         )
 
@@ -487,11 +499,11 @@ class HOSVDFrosttGenerator(Generator[HOSVDFrosttDataset]):
     @property
     def motivation(self) -> str:
         return (
-            "Real sparse tensors from FROSTT exercise HOSVD's per-mode unfolding"
-            " against genuinely irregular sparsity patterns. The larger 4D and 5D"
-            " tensors can have mode unfoldings that are heavy to densify for SVD with"
-            " the current algorithm, so select datasets by name rather than running"
-            " this whole generator unfiltered."
+            "Real sparse tensors from FROSTT exercise Tucker decomposition against"
+            " irregular sparsity patterns. Random orthonormal factors avoid SVDs of"
+            " the original tensor unfoldings. Large tensors can still require costly"
+            " contractions and projected SVDs, so select datasets by name rather"
+            " than running this whole generator unfiltered."
         )
 
     @property
@@ -540,8 +552,9 @@ class HOSVDFrosttGenerator(Generator[HOSVDFrosttDataset]):
         assert len(raw.meta["shape"]) == dataset.n
         X_bin = raw.inputs[0]
         ranks_bin = from_numpy(np.array(dataset.ranks))
+        initial_factors = _random_initial_factors(raw.meta["shape"], dataset.ranks)
         return DataInstance(
-            inputs=[X_bin, ranks_bin],
+            inputs=[X_bin, ranks_bin, *initial_factors],
             meta={"n": dataset.n, "max_iter": 50, "tolerance": 1e-8},
         )
 
@@ -570,9 +583,8 @@ class HOSVDBenchmark(Benchmark):
             " decomposing high-order tensors into a core-tensor that can be projected"
             " onto factor matrices along each mode. A typical 3D tensor will have 3"
             " modes (row, column, and frontal) and thus 3 factor matrices. The"
-            " algorithm starts by finding the initial factor matrices by performing SVD"
-            " on matrix unfoldings along each mode. Certain columns in these factor"
-            " matrices are selected based on the ranks parameter. Then, the algorithm"
+            " algorithm starts from reproducible random orthonormal factor matrices"
+            " with column counts given by the ranks parameter. Then, HOOI"
             " iteratively updates each factor matrix by projecting the original tensor"
             " onto other factor matrices. The iteration continues until max iterations"
             " is reached or the change in factor matrices becomes insignificant. The"
@@ -627,9 +639,9 @@ class HOSVDBenchmark(Benchmark):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to construct the benchmark function. Generative"
-            " AI might have been used to construct tests. This statement is written by"
-            " hand."
+            "The original benchmark function was written without generative AI."
+            " A generative AI assistant changed the initialization to reproducible"
+            " random orthonormal factors and added regression tests."
         )
 
     @property
@@ -676,22 +688,12 @@ class HOSVD3DBenchmark(HOSVDBenchmark):
     n = 3
 
     def benchmark(self, xp, data: list, meta: dict):
-        initial_factors: list[Any]
-        X, ranks = data
+        X, ranks, *initial_factors = data
         max_iter = meta.get("max_iter", 50)
         tolerance = meta.get("tolerance", 1e-8)
 
         dimensions = X.shape
         num_modes = len(dimensions)
-
-        # initial HOSVD by performing SVD on matrix unfoldings along each mode
-        initial_factors = [None] * num_modes
-        for mode in range(num_modes):
-            perm = [mode] + list(range(mode)) + list(range(mode + 1, num_modes))
-            unfold = xp.reshape(xp.transpose(X, perm), (dimensions[mode], -1))
-
-            U, _S, _Vt = xp.linalg.svd(unfold, full_matrices=False)
-            initial_factors[mode] = U[:, : ranks[mode]]
 
         # iteration to update each factor matrix by projecting the original
         # tensor onto other factor matrices
@@ -778,22 +780,12 @@ class HOSVD4DBenchmark(HOSVDBenchmark):
     n = 4
 
     def benchmark(self, xp, data: list, meta: dict):
-        initial_factors: list[Any]
-        X, ranks = data
+        X, ranks, *initial_factors = data
         max_iter = meta.get("max_iter", 50)
         tolerance = meta.get("tolerance", 1e-8)
 
         dimensions = X.shape
         num_modes = len(dimensions)
-
-        # initial HOSVD by performing SVD on matrix unfoldings along each mode
-        initial_factors = [None] * num_modes
-        for mode in range(num_modes):
-            perm = [mode] + list(range(mode)) + list(range(mode + 1, num_modes))
-            unfold = xp.reshape(xp.transpose(X, perm), (dimensions[mode], -1))
-
-            U, _S, _Vt = xp.linalg.svd(unfold, full_matrices=False)
-            initial_factors[mode] = U[:, : ranks[mode]]
 
         # iteration to update each factor matrix by projecting the original
         # tensor onto other factor matrices
@@ -899,22 +891,12 @@ class HOSVD5DBenchmark(HOSVDBenchmark):
     n = 5
 
     def benchmark(self, xp, data: list, meta: dict):
-        initial_factors: list[Any]
-        X, ranks = data
+        X, ranks, *initial_factors = data
         max_iter = meta.get("max_iter", 50)
         tolerance = meta.get("tolerance", 1e-8)
 
         dimensions = X.shape
         num_modes = len(dimensions)
-
-        # initial HOSVD by performing SVD on matrix unfoldings along each mode
-        initial_factors = [None] * num_modes
-        for mode in range(num_modes):
-            perm = [mode] + list(range(mode)) + list(range(mode + 1, num_modes))
-            unfold = xp.reshape(xp.transpose(X, perm), (dimensions[mode], -1))
-
-            U, _S, _Vt = xp.linalg.svd(unfold, full_matrices=False)
-            initial_factors[mode] = U[:, : ranks[mode]]
 
         # iteration to update each factor matrix by projecting the original
         # tensor onto other factor matrices
