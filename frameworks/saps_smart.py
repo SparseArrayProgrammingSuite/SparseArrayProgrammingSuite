@@ -611,6 +611,18 @@ class SmartSparseKernels(Framework):
                 result = self._to_scipy_sparse(x1) @ self._to_scipy_sparse(x2)
                 result = sp.GCXS.from_scipy_sparse(result.tocsr())
                 return result if dtype is None else result.astype(dtype)
+            if x1.ndim == 2 and x2.ndim <= 2 and not (
+                isinstance(x1, sp.SparseArray) and isinstance(x2, sp.SparseArray)
+            ):
+                # A 2D sparse matrix times a dense matrix or vector (or the
+                # reverse): SciPy's sparse-dense kernels are far faster than
+                # pydata/sparse's general `@`, and both produce a dense result.
+                lhs, rhs = (
+                    self._to_scipy_sparse(x) if isinstance(x, sp.SparseArray) else x
+                    for x in (x1, x2)
+                )
+                result = np.asarray(lhs @ rhs)
+                return result if dtype is None else result.astype(dtype)
             result = x1 @ x2
             return result if dtype is None else result.astype(dtype)
         xp = self._array_namespace(x1, x2)

@@ -127,7 +127,7 @@ class OGBGCNTrainingDataset(Dataset):
         name: str,
         *,
         source_name: str,
-        hidden_dim: int = 256,
+        hidden_dim: int = 64,
         num_iterations: int = 10,
         learning_rate: float = 0.01,
         description: str,
