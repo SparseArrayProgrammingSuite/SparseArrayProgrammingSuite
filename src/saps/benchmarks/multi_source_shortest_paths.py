@@ -2,7 +2,7 @@ import numpy as np
 import scipy.sparse as sps
 
 import sparse as sp
-from binsparse import BinsparseTensor
+from binsparse import BinsparseTensor, COORMatrix
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
 from saps.benchmark import (
@@ -14,13 +14,27 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.bellmanford import _adjacency_to_distance
-from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
+from saps.benchmarks.snap import (
+    SNAPDataset,
+    SNAPGraphGenerator,
+    fetch_snap_graph,
+    select_source_vertices,
+)
+from saps.benchmarks.suitesparse import (
+    _GAP_KRON_SOURCES,
+    _GAP_ROAD_SOURCES,
+    _GAP_TWITTER_SOURCES,
+    _GAP_URAND_SOURCES,
+    _GAP_WEB_SOURCES,
+    SuiteSparseDataset,
+    fetch_suitesparse_matrix,
+)
 
-# Pivot bound for real-world inputs; fill stays within the pivots' neighborhoods.
-_DEFAULT_MAX_PIVOTS = 64
+# Number of seeded sources sampled for graphs without a published source list.
+_NUM_SAMPLED_SOURCES = 64
 
 
-class FloydWarshallDataset(SuiteSparseDataset):
+class MultiSourceShortestPathsDataset(SuiteSparseDataset):
     def __init__(
         self,
         name,
@@ -30,9 +44,8 @@ class FloydWarshallDataset(SuiteSparseDataset):
         source,
         symmetrize=False,
         A=None,
-        max_pivots=None,
+        sources=None,
         expected=None,
-        ref_meta=None,
     ):
         super().__init__(
             name,
@@ -43,20 +56,51 @@ class FloydWarshallDataset(SuiteSparseDataset):
         )
         self.symmetrize = symmetrize
         self.A = A
-        self.max_pivots = max_pivots
+        if sources is None and A is not None:
+            sources = list(range(A.shape[0]))
+        self.sources = sources
         if expected is None and A is not None:
-            expected = floyd_warshall_reference(A, max_pivots)
+            expected = all_pairs_reference(A)[sources, :]
         self.expected = expected
-        self.ref_meta = ref_meta
 
 
-def floyd_warshall_reference(A, max_pivots=None):
-    """Shortest paths whose intermediate vertices all lie in range(max_pivots)."""
+def initial_distances(n: int, sources) -> COORMatrix:
+    """Distance matrix with row i zero at sources[i] and infinite elsewhere."""
+    sources = np.asarray(sources, dtype=np.int64)
+    return COORMatrix(
+        (sources.size, n),
+        sources.size,
+        fill=True,
+        fill_value=np.inf,
+        indices_0=np.arange(sources.size, dtype=np.int64),
+        indices_1=sources,
+        values=np.zeros(sources.size, dtype=np.float64),
+    )
+
+
+def sample_sources(adjacency: BinsparseTensor) -> list[int]:
+    """Seeded, deduplicated sources for graphs without a published source list."""
+    return np.unique(
+        select_source_vertices(adjacency, _NUM_SAMPLED_SOURCES, seed=0)
+    ).tolist()
+
+
+def multi_source_instance(adjacency: BinsparseTensor, sources=None) -> DataInstance:
+    """Unweighted distance graph plus initial distances from each source."""
+    n = adjacency.shape[0]
+    if sources is None:
+        sources = sample_sources(adjacency)
+    return DataInstance(
+        inputs=[_adjacency_to_distance(adjacency), initial_distances(n, sources)],
+        meta={"sources": list(sources)},
+    )
+
+
+def all_pairs_reference(A):
     if isinstance(A, sp.SparseArray):
         A = A.todense()
     expected = A.copy()
-    n = expected.shape[0]
-    for k in range(n if max_pivots is None else min(max_pivots, n)):
+    for k in range(expected.shape[0]):
         expected = np.minimum(
             expected,
             np.expand_dims(expected[:, k], axis=1)
@@ -65,7 +109,7 @@ def floyd_warshall_reference(A, max_pivots=None):
     return expected
 
 
-def floyd_warshall_input_from_edges(
+def shortest_paths_input_from_edges(
     n: int, edges: list[tuple[int, int]], *, symmetric: bool = False
 ):
     rows = [*range(n)]
@@ -87,18 +131,18 @@ def floyd_warshall_input_from_edges(
     )
 
 
-class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
+class MultiSourceShortestPathsTestGenerator(Generator[MultiSourceShortestPathsDataset]):
     @property
     def name(self) -> str:
-        return "floyd_warshall_test_inputs"
+        return "multi_source_shortest_paths_test_inputs"
 
     @property
     def pretty_name(self) -> str:
-        return "Floyd-Warshall Test Input Generator"
+        return "Multi-Source Shortest Paths Test Input Generator"
 
     @property
     def description(self) -> str:
-        return "Small deterministic Floyd-Warshall examples."
+        return "Small deterministic Multi-Source Shortest Paths examples."
 
     @property
     def suites(self) -> list[str]:
@@ -132,30 +176,30 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
         return False
 
     @property
-    def datasets(self) -> list[FloydWarshallDataset]:
+    def datasets(self) -> list[MultiSourceShortestPathsDataset]:
         return [
-            FloydWarshallDataset(
+            MultiSourceShortestPathsDataset(
                 name="single-node",
                 pretty_name="single-node",
-                description="Floyd-Warshall test case single-node.",
+                description="Multi-Source Shortest Paths test case single-node.",
                 suites=["test"],
                 source="single-node",
                 A=np.array([[0.0]]),
                 expected=np.array([[0.0]]),
             ),
-            FloydWarshallDataset(
+            MultiSourceShortestPathsDataset(
                 name="two-node-directed",
                 pretty_name="two-node-directed",
-                description="Floyd-Warshall test case two-node-directed.",
+                description="Multi-Source Shortest Paths test case two-node-directed.",
                 suites=["test"],
                 source="two-node-directed",
                 A=np.array([[0.0, 1.0], [np.inf, 0.0]]),
                 expected=np.array([[0.0, 1.0], [np.inf, 0.0]]),
             ),
-            FloydWarshallDataset(
+            MultiSourceShortestPathsDataset(
                 name="three-node-chain",
                 pretty_name="three-node-chain",
-                description="Floyd-Warshall test case three-node-chain.",
+                description="Multi-Source Shortest Paths test case three-node-chain.",
                 suites=["test"],
                 source="three-node-chain",
                 A=np.array(
@@ -173,10 +217,10 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
                     ]
                 ),
             ),
-            FloydWarshallDataset(
+            MultiSourceShortestPathsDataset(
                 name="three-node-shortcut",
                 pretty_name="three-node-shortcut",
-                description="Floyd-Warshall test case three-node-shortcut.",
+                description="Multi-Source Shortest Paths test case three-node-shortcut.",
                 suites=["test"],
                 source="three-node-shortcut",
                 A=np.array(
@@ -194,60 +238,10 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
                     ]
                 ),
             ),
-            FloydWarshallDataset(
-                name="three-node-shortcut-pivots-1",
-                pretty_name="three-node-shortcut-pivots-1",
-                description=(
-                    "Floyd-Warshall test case three-node-shortcut, pivoting only"
-                    " through vertex 0, so the 0->1->2 shortcut is not found."
-                ),
-                suites=["test"],
-                source="three-node-shortcut-pivots-1",
-                A=np.array(
-                    [
-                        [0.0, 1.0, 5.0],
-                        [np.inf, 0.0, 1.0],
-                        [np.inf, np.inf, 0.0],
-                    ]
-                ),
-                max_pivots=1,
-                expected=np.array(
-                    [
-                        [0.0, 1.0, 5.0],
-                        [np.inf, 0.0, 1.0],
-                        [np.inf, np.inf, 0.0],
-                    ]
-                ),
-            ),
-            FloydWarshallDataset(
-                name="three-node-shortcut-pivots-2",
-                pretty_name="three-node-shortcut-pivots-2",
-                description=(
-                    "Floyd-Warshall test case three-node-shortcut, pivoting through"
-                    " vertices 0 and 1."
-                ),
-                suites=["test"],
-                source="three-node-shortcut-pivots-2",
-                A=np.array(
-                    [
-                        [0.0, 1.0, 5.0],
-                        [np.inf, 0.0, 1.0],
-                        [np.inf, np.inf, 0.0],
-                    ]
-                ),
-                max_pivots=2,
-                expected=np.array(
-                    [
-                        [0.0, 1.0, 2.0],
-                        [np.inf, 0.0, 1.0],
-                        [np.inf, np.inf, 0.0],
-                    ]
-                ),
-            ),
-            FloydWarshallDataset(
+            MultiSourceShortestPathsDataset(
                 name="two-components",
                 pretty_name="two-components",
-                description="Floyd-Warshall test case two-components.",
+                description="Multi-Source Shortest Paths test case two-components.",
                 suites=["test"],
                 source="two-components",
                 A=np.array(
@@ -267,13 +261,13 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
                     ]
                 ),
             ),
-            FloydWarshallDataset(
+            MultiSourceShortestPathsDataset(
                 name="large-symmetric",
                 pretty_name="large-symmetric",
-                description="Floyd-Warshall test case large-symmetric.",
+                description="Multi-Source Shortest Paths test case large-symmetric.",
                 suites=["test"],
                 source="large-symmetric",
-                A=floyd_warshall_input_from_edges(
+                A=shortest_paths_input_from_edges(
                     39,
                     [
                         (0, 1),
@@ -369,33 +363,30 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
                     ],
                     symmetric=True,
                 ),
-                ref_meta={"large_symmetric": True},
+                sources=[0, 7, 21, 38, 21],
             ),
         ]
 
-    def generate(self, dataset: FloydWarshallDataset):
+    def generate(self, dataset: MultiSourceShortestPathsDataset):
         inputs = (
             dataset.A.todense() if isinstance(dataset.A, sp.SparseArray) else dataset.A
         )
-        max_pivots = dataset.max_pivots
-        if max_pivots is None:
-            max_pivots = inputs.shape[0]
+        n = inputs.shape[0]
         return DataInstance(
-            inputs=[from_numpy(inputs)],
-            meta={"max_pivots": max_pivots},
+            inputs=[from_numpy(inputs), initial_distances(n, dataset.sources)],
+            meta={"sources": list(dataset.sources)},
             ref_outputs=[from_numpy(dataset.expected)],
-            ref_meta=dataset.ref_meta,
         )
 
 
-class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
+class MultiSourceShortestPathsGenerator(Generator[MultiSourceShortestPathsDataset]):
     @property
     def name(self) -> str:
-        return "floyd_warshall_inputs"
+        return "multi_source_shortest_paths_inputs"
 
     @property
     def pretty_name(self) -> str:
-        return "Floyd-Warshall Input Generator"
+        return "Multi-Source Shortest Paths Input Generator"
 
     @property
     def description(self) -> str:
@@ -462,73 +453,73 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
         return ""
 
     @property
-    def datasets(self) -> list[FloydWarshallDataset]:
+    def datasets(self) -> list[MultiSourceShortestPathsDataset]:
         return [
-            FloydWarshallDataset(
+            MultiSourceShortestPathsDataset(
                 name="HB/bcspwr01",
                 pretty_name="BCS Power Grid 01",
-                description="Sparse SuiteSparse graph input for Floyd-Warshall.",
+                description="Sparse SuiteSparse graph input for Multi-Source Shortest Paths.",
                 suites=[],
                 source="HB/bcspwr01",
                 symmetrize=True,
             ),
-            FloydWarshallDataset(
+            MultiSourceShortestPathsDataset(
                 name="HB/bcspwr02",
                 pretty_name="BCS Power Grid 02",
-                description="Sparse SuiteSparse graph input for Floyd-Warshall.",
+                description="Sparse SuiteSparse graph input for Multi-Source Shortest Paths.",
                 suites=[],
                 source="HB/bcspwr02",
                 symmetrize=True,
             ),
-            FloydWarshallDataset(
+            MultiSourceShortestPathsDataset(
                 name="HB/bcspwr03",
                 pretty_name="BCS Power Grid 03",
-                description="Sparse SuiteSparse graph input for Floyd-Warshall.",
+                description="Sparse SuiteSparse graph input for Multi-Source Shortest Paths.",
                 suites=[],
                 source="HB/bcspwr03",
                 symmetrize=True,
             ),
-            FloydWarshallDataset(
+            MultiSourceShortestPathsDataset(
                 name="DIMACS10/chesapeake",
                 pretty_name="Chesapeake",
-                description="Sparse road network input for Floyd-Warshall.",
+                description="Sparse road network input for Multi-Source Shortest Paths.",
                 suites=[],
                 source="DIMACS10/chesapeake",
                 symmetrize=True,
             ),
-            FloydWarshallDataset(
+            MultiSourceShortestPathsDataset(
                 name="HB/ash85",
                 pretty_name="ASH 85",
-                description="Sparse SuiteSparse graph input for Floyd-Warshall.",
+                description="Sparse SuiteSparse graph input for Multi-Source Shortest Paths.",
                 suites=[],
                 source="HB/ash85",
                 symmetrize=False,
             ),
-            FloydWarshallDataset(
+            MultiSourceShortestPathsDataset(
                 name="HB/arc130",
                 pretty_name="ARC 130",
-                description="Sparse SuiteSparse graph input for Floyd-Warshall.",
+                description="Sparse SuiteSparse graph input for Multi-Source Shortest Paths.",
                 suites=[],
                 source="HB/arc130",
                 symmetrize=False,
             ),
-            FloydWarshallDataset(
+            MultiSourceShortestPathsDataset(
                 name="HB/bcspwr04",
                 pretty_name="BCS Power Grid 04",
-                description="Sparse SuiteSparse graph input for Floyd-Warshall.",
+                description="Sparse SuiteSparse graph input for Multi-Source Shortest Paths.",
                 suites=[],
                 source="HB/bcspwr04",
                 symmetrize=True,
             ),
-            FloydWarshallDataset(
+            MultiSourceShortestPathsDataset(
                 name="HB/ash292",
                 pretty_name="ASH 292",
-                description="Sparse SuiteSparse graph input for Floyd-Warshall.",
+                description="Sparse SuiteSparse graph input for Multi-Source Shortest Paths.",
                 suites=["trace"],
                 source="HB/ash292",
                 symmetrize=False,
             ),
-            FloydWarshallDataset(
+            MultiSourceShortestPathsDataset(
                 name="GAP/GAP-road",
                 pretty_name="GAP Road",
                 description=(
@@ -537,9 +528,10 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 ),
                 suites=["standard"],
                 source="GAP/GAP-road",
+                sources=_GAP_ROAD_SOURCES,
                 symmetrize=False,
             ),
-            FloydWarshallDataset(
+            MultiSourceShortestPathsDataset(
                 name="GAP/GAP-twitter",
                 pretty_name="GAP Twitter",
                 description=(
@@ -548,9 +540,10 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 ),
                 suites=["standard"],
                 source="GAP/GAP-twitter",
+                sources=_GAP_TWITTER_SOURCES,
                 symmetrize=True,
             ),
-            FloydWarshallDataset(
+            MultiSourceShortestPathsDataset(
                 name="GAP/GAP-web",
                 pretty_name="GAP Web",
                 description=(
@@ -559,9 +552,10 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 ),
                 suites=["standard"],
                 source="GAP/GAP-web",
+                sources=_GAP_WEB_SOURCES,
                 symmetrize=True,
             ),
-            FloydWarshallDataset(
+            MultiSourceShortestPathsDataset(
                 name="GAP/GAP-kron",
                 pretty_name="GAP Kron",
                 description=(
@@ -572,9 +566,10 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 ),
                 suites=["standard"],
                 source="GAP/GAP-kron",
+                sources=_GAP_KRON_SOURCES,
                 symmetrize=False,
             ),
-            FloydWarshallDataset(
+            MultiSourceShortestPathsDataset(
                 name="GAP/GAP-urand",
                 pretty_name="GAP Urand",
                 description=(
@@ -584,6 +579,7 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
                 ),
                 suites=["standard"],
                 source="GAP/GAP-urand",
+                sources=_GAP_URAND_SOURCES,
                 symmetrize=False,
             ),
         ]
@@ -592,43 +588,93 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
     def cacheable(self) -> bool:
         return False
 
-    def generate(self, dataset: FloydWarshallDataset):
+    def generate(self, dataset: MultiSourceShortestPathsDataset):
         raw = fetch_suitesparse_matrix(dataset.source_name)
         n, m = raw.meta["shape"]
         if n != m:
-            raise ValueError(f"Floyd-Warshall requires a square matrix, got {(n, m)}")
+            raise ValueError(f"Multi-Source Shortest Paths requires a square matrix, got {(n, m)}")
 
-        # Every stored entry is a unit-weight edge, including explicit zeros.
-        adjacency = to_scipy(raw.inputs[0]).tocoo()
-        adjacency.data = np.ones_like(adjacency.data, dtype=np.float64)
+        adjacency = abs(to_scipy(raw.inputs[0]).tocoo())
         if dataset.symmetrize:
             adjacency = sps.coo_array(adjacency + adjacency.T)
+        return multi_source_instance(from_scipy(adjacency), dataset.sources)
 
-        max_pivots = dataset.max_pivots
-        if max_pivots is None:
-            max_pivots = min(n, _DEFAULT_MAX_PIVOTS)
-        return DataInstance(
-            inputs=[_adjacency_to_distance(from_scipy(adjacency))],
-            meta={"max_pivots": max_pivots},
+
+class MultiSourceShortestPathsSNAPGenerator(Generator[SNAPDataset]):
+    @property
+    def name(self) -> str:
+        return "multi_source_shortest_paths_snap_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Multi-Source Shortest Paths SNAP Input Generator"
+
+    @property
+    def description(self) -> str:
+        return (
+            "SNAP input generator for multi-source shortest paths, with"
+            f" {_NUM_SAMPLED_SOURCES} seeded sources sampled per graph and"
+            " deduplicated."
         )
 
+    @property
+    def suites(self) -> list[str]:
+        return []
 
-class FloydWarshallBenchmark(Benchmark):
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Generate unweighted SNAP graph inputs for multi-source shortest paths."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[SNAPDataset]:
+        return [
+            graph.with_suites(["standard"]) for graph in SNAPGraphGenerator().datasets
+        ]
+
+    def generate(self, dataset: SNAPDataset) -> DataInstance:
+        if dataset.name in self.dataset_names:
+            return multi_source_instance(fetch_snap_graph(dataset.name).inputs[0])
+        raise ValueError(f"Unsupported Multi-Source Shortest Paths dataset: {dataset.name}")
+
+
+class MultiSourceShortestPathsBenchmark(Benchmark):
     @property
     def name(self):
-        return "floyd_warshall"
+        return "multi_source_shortest_paths"
 
     @property
     def pretty_name(self):
-        return "Floyd-Warshall"
+        return "Multi-Source Shortest Paths"
 
     @property
     def description(self):
         return (
-            "The Floyd-Warshall algorithm computes the shortest paths between every"
-            " pair of vertices in a weighted directed graph. The sweep is bounded to"
-            " the first max_pivots pivot vertices, so paths may only pass through"
-            " those vertices."
+            "Computes shortest paths from a list of source vertices to every vertex"
+            " in a weighted directed graph by repeated min-plus relaxation of a"
+            " source-by-vertex distance matrix."
         )
 
     @property
@@ -703,20 +749,28 @@ class FloydWarshallBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [FloydWarshallTestGenerator(), FloydWarshallGenerator()]
+        return [
+            MultiSourceShortestPathsTestGenerator(),
+            MultiSourceShortestPathsGenerator(),
+            MultiSourceShortestPathsSNAPGenerator(),
+        ]
 
     def benchmark(self, xp, data, meta):
         """
-        Returns the bounded all pair shortest path i.e. A[i,j] is the shortest
-        path from i to j whose intermediate vertices are all below max_pivots
+        Returns multi-source shortest paths, i.e. D[s, j] is the shortest path
+        from meta["sources"][s] to j
         """
         G = data[0]
+        D = data[1]
         n, m = G.shape
         assert n == m
-        for k in range(min(meta["max_pivots"], n)):
-            G_k = xp.expand_dims(G[:, k], axis=1) + xp.expand_dims(G[k, :], axis=0)
-            G = xp.minimum(G, G_k)
-        return [G]
+        for _ in range(n):
+            D_new = xp.einsum("D[s, j] min= D[s, k] + G[k, j]", D=D, G=G)
+            stop = xp.all(D_new == D)
+            D = D_new
+            if stop:
+                break
+        return [D]
 
     def check(self, param):
         for item in self._output:
@@ -729,14 +783,5 @@ class FloydWarshallBenchmark(Benchmark):
             both_inf = np.isinf(output) & np.isinf(expected)
             both_finite = np.isfinite(output) & np.isfinite(expected)
             assert np.all(both_inf | (both_finite & (output == expected))), (
-                f"Floyd-Warshall output mismatch for {param.dataset.name}"
+                f"Multi-Source Shortest Paths output mismatch for {param.dataset.name}"
             )
-        if self._ref_meta and self._ref_meta.get("large_symmetric"):
-            assert output.shape[0] == output.shape[1]
-            assert np.all(np.diag(output) == 0.0)
-            assert np.all(output >= 0.0)
-            assert np.all(output == output.T)
-            rng = np.random.default_rng(0)
-            for _ in range(50):
-                i, j, k = rng.integers(0, output.shape[0], size=3)
-                assert output[i, j] <= output[i, k] + output[k, j]
