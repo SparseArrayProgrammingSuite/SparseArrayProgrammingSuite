@@ -144,7 +144,7 @@ class CPNFactorizeableGenerator(Generator[CPFactorizeableDataset]):
             CPFactorizeableDataset(
                 name="cp_factorizeable_5d_small",
                 pretty_name="Small 5D Factorizeable CP Tensor",
-                suites=[],
+                suites=["trace"],
                 shape=(10, 10, 10, 10, 10),
                 rank=5,
             ),

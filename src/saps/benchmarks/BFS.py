@@ -243,10 +243,6 @@ class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
 
 class BreadthFirstSearchSNAPGenerator(Generator[SNAPSourceDataset]):
     @property
-    def cacheable(self) -> bool:
-        return False
-
-    @property
     def name(self) -> str:
         return "bfs_snap_inputs"
 
@@ -286,9 +282,81 @@ class BreadthFirstSearchSNAPGenerator(Generator[SNAPSourceDataset]):
         return "Generate sparse graph inputs for breadth-first search."
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[SNAPSourceDataset]:
+        # Successful standard-suite Smart runs <= 30s in competition/run_13662472.
+        trace_seeds = {
+            "CollegeMsg": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "Oregon-1": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "Oregon-2": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "amazon0302": (0, 1, 2, 8),
+            "amazon0312": (3, 6, 7, 8, 9),
+            "amazon0505": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "amazon0601": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "as-735": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "as-caida": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "ca-AstroPh": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "ca-CondMat": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "ca-GrQc": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "ca-HepPh": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "ca-HepTh": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "cit-HepPh": (0, 5, 8, 9),
+            "cit-HepTh": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "cit-Patents": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "com-Amazon": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "com-DBLP": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "com-Youtube": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "email-Enron": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "email-Eu-core": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "email-Eu-core-temporal": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "email-EuAll": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "higgs-twitter": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "loc-Brightkite": (4, 9),
+            "loc-Gowalla": (0, 1, 2, 3, 4, 5, 6, 7, 8),
+            "p2p-Gnutella04": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "p2p-Gnutella05": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "p2p-Gnutella06": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "p2p-Gnutella08": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "p2p-Gnutella09": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "p2p-Gnutella24": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "p2p-Gnutella25": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "p2p-Gnutella30": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "p2p-Gnutella31": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "soc-Epinions1": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "soc-Slashdot0811": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "soc-Slashdot0902": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "soc-sign-Slashdot081106": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "soc-sign-Slashdot090216": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "soc-sign-Slashdot090221": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "soc-sign-bitcoin-alpha": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "soc-sign-bitcoin-otc": (2, 7),
+            "soc-sign-epinions": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "sx-askubuntu": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "sx-mathoverflow": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "sx-stackoverflow": (2, 3, 4, 5, 6, 7, 8, 9),
+            "sx-superuser": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "web-BerkStan": (0, 2, 5),
+            "web-Google": (0, 1, 2, 4, 5, 6, 7, 8, 9),
+            "web-NotreDame": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "web-Stanford": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "wiki-RfA": (0, 1, 2, 3, 4, 5, 6),
+            "wiki-Talk": (0, 1, 2, 3, 4),
+            "wiki-Vote": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            "wiki-talk-temporal": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+        }
         return [
-            SNAPSourceDataset(graph, seed)
+            SNAPSourceDataset(
+                graph,
+                seed,
+                suites=(
+                    ["standard", "trace"]
+                    if seed in trace_seeds.get(graph.name, ())
+                    else ["standard"]
+                ),
+            )
             for graph in SNAPGraphGenerator().datasets
             for seed in range(10)
         ]

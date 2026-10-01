@@ -24,11 +24,13 @@ class TransitiveClosureDataset(Dataset):
         pretty_name: str | None = None,
         description: str | None = None,
         suites: list[str] | None = None,
+        n_steps: int | None = None,
     ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Transitive closure input {name}."
         self._suites = suites or []
+        self.n_steps = n_steps
 
     @property
     def name(self) -> str:
@@ -176,10 +178,6 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
 
 class TransitiveClosureSNAPGenerator(Generator[SNAPDataset]):
     @property
-    def cacheable(self) -> bool:
-        return False
-
-    @property
     def name(self) -> str:
         return "transitive_closure_snap_inputs"
 
@@ -219,8 +217,14 @@ class TransitiveClosureSNAPGenerator(Generator[SNAPDataset]):
         return "Generate sparse directed graph inputs for transitive closure."
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[SNAPDataset]:
-        return SNAPGraphGenerator().datasets
+        return [
+            graph.with_suites(["standard"]) for graph in SNAPGraphGenerator().datasets
+        ]
 
     def generate(self, dataset: SNAPDataset) -> DataInstance:
         if dataset.name in self.dataset_names:
@@ -294,6 +298,7 @@ class TransitiveClosureGAPGenerator(Generator[TransitiveClosureDataset]):
                     " 58.3M edges."
                 ),
                 suites=["standard"],
+                n_steps=5,
             ),
             TransitiveClosureDataset(
                 name="GAP/GAP-twitter",
@@ -303,6 +308,7 @@ class TransitiveClosureGAPGenerator(Generator[TransitiveClosureDataset]):
                     " nodes and 1,468.4M edges."
                 ),
                 suites=["standard"],
+                n_steps=1,
             ),
             TransitiveClosureDataset(
                 name="GAP/GAP-web",
@@ -312,6 +318,7 @@ class TransitiveClosureGAPGenerator(Generator[TransitiveClosureDataset]):
                     " nodes and 1,949.4M edges."
                 ),
                 suites=["standard"],
+                n_steps=1,
             ),
             TransitiveClosureDataset(
                 name="GAP/GAP-kron",
@@ -322,6 +329,7 @@ class TransitiveClosureGAPGenerator(Generator[TransitiveClosureDataset]):
                     " (A=0.57, B=C=0.19, D=0.05). Has 134.2M nodes and 2,111.6M"
                     " edges."
                 ),
+                n_steps=1,
                 suites=["standard"],
             ),
             TransitiveClosureDataset(
@@ -333,13 +341,28 @@ class TransitiveClosureGAPGenerator(Generator[TransitiveClosureDataset]):
                     " 2,147.4M edges."
                 ),
                 suites=["standard"],
+                n_steps=2,
+            ),
+            TransitiveClosureDataset(
+                name="SNAP/email-Eu-core",
+                pretty_name="SNAP email-Eu-core",
+                description=(
+                    "The SNAP Eu-core e-mail network (1,005 nodes, 25,571 edges), a"
+                    " small stand-in for the GAP graphs when tracing, closed for"
+                    " only one squaring step."
+                ),
+                suites=["trace"],
+                n_steps=1,
             ),
         ]
 
     def generate(self, dataset: TransitiveClosureDataset) -> DataInstance:
-        if dataset.name.startswith("GAP/"):
+        if dataset.name.startswith(("GAP/", "SNAP/")):
             raw = fetch_suitesparse_matrix(dataset.name)
-            return DataInstance(inputs=[raw.inputs[0]], meta=raw.meta)
+            meta = raw.meta
+            if dataset.n_steps is not None:
+                meta = {**meta, "n_steps": dataset.n_steps}
+            return DataInstance(inputs=[raw.inputs[0]], meta=meta)
         raise ValueError(f"Unsupported transitive closure dataset: {dataset.name}")
 
 
@@ -443,8 +466,10 @@ class TransitiveClosureBenchmark(Benchmark):
         identity_matrix = xp.eye(n, dtype=bool)
         graph = xp.logical_or(identity_matrix, graph)
 
-        # do fixed-point iteration
-        max_iterations = n
+        # Fixed-point iteration. Each step squares the reachability relation,
+        # doubling the path lengths covered, so n_steps (when given) bounds the
+        # work at paths of length up to 2**n_steps.
+        max_iterations = meta.get("n_steps") or n
         for _iteration in range(max_iterations):
             nextGraph = xp.einsum(
                 "nextGraph[i,j] or= graph[i,k] & graph[k,j]", graph=graph

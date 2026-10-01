@@ -221,6 +221,15 @@ class FiniteDifferenceGenerator(
                 Nt=1000,
                 dt=0.01,
             ),
+            FiniteDifferenceDataset(
+                name=f"fd_trace_scale_{self.flux_name}",
+                pretty_name="Finite Difference Trace Problem",
+                suites=["trace"],
+                Nx=25000,
+                dx=0.1,
+                Nt=20,
+                dt=0.01,
+            )
         ]
 
     def generate(self, dataset: FiniteDifferenceDataset):
@@ -569,6 +578,17 @@ class FiniteDifference2DGenerator(
                 Nt=1000,
                 dt=0.01,
             ),
+            FiniteDifference2DDataset(
+                name=f"fd2d_trace_scale_{self.flux_name}",
+                pretty_name="2D Finite Difference Trace Problem",
+                suites=["trace"],
+                Nx=150,
+                dx=0.1,
+                Ny=150,
+                dy=0.1,
+                Nt=10,
+                dt=0.01,
+            )
         ]
 
     def generate(self, dataset: FiniteDifference2DDataset):
