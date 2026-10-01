@@ -20,13 +20,10 @@ from saps.benchmark import (
 )
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 
-
-max_degree = {
-    "GAP/GAP-kron": 1572838,
-    "GAP/GAP-road": 9,
-    "GAP/GAP-twitter": 2997469,
-    "GAP/GAP-urand": 68,
-    "GAP/GAP-web": 12869,
+# Most off-diagonal nonzeros stored in any row (largest out-degree in the
+# stored edge direction, excluding self-loops and explicit zeros), as printed
+# by scripts/measure_fill_in.py for Slurm run 13794825.
+_MAX_DEGREES: dict[str, int] = {
     "SNAP/CollegeMsg": 237,
     "SNAP/Oregon-1": 2389,
     "SNAP/Oregon-2": 2432,
@@ -261,6 +258,11 @@ class SNAPDataset(Dataset):
         return f"SNAP/{self.name}"
 
     @property
+    def max_degree(self) -> int:
+        """Most off-diagonal nonzeros in any row of the stored matrix."""
+        return _MAX_DEGREES[self.source_name]
+
+    @property
     def pretty_name(self) -> str:
         return self._pretty_name
 
@@ -288,6 +290,7 @@ class SNAPDataset(Dataset):
         return {
             **super().metadata,
             "source_name": self.source_name,
+            "max_degree": self.max_degree,
             "types": self.types,
             "nodes": self.nodes,
             "edges": self.edges,
@@ -532,7 +535,9 @@ class SNAPGraphGenerator(Generator[SNAPDataset]):
 
     def generate(self, dataset: SNAPDataset) -> DataInstance:
         raw = fetch_suitesparse_matrix(dataset.source_name)
-        return DataInstance(inputs=[raw.inputs[0]], meta={})
+        return DataInstance(
+            inputs=[raw.inputs[0]], meta={"max_degree": dataset.max_degree}
+        )
 
 
 class SNAPGraphBenchmark(ShellBenchmark):

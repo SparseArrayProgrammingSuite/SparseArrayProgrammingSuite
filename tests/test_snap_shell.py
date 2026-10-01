@@ -11,6 +11,7 @@ from binsparse.conversions import to_numpy, to_scipy, to_sparse
 
 from saps.benchmark import Generator
 from saps.benchmarks.snap import (
+    _MAX_DEGREES,
     SNAPGraphBenchmark,
     SNAPGraphGenerator,
     SNAPSourceDataset,
@@ -37,6 +38,12 @@ _CONSUMERS = [
     ("triangle_counting", "TriangleCountSNAPGenerator"),
     ("transitive_reduction", "TransitiveReductionSNAPGenerator"),
 ]
+
+
+def test_snap_max_degrees_cover_exactly_the_declared_graphs():
+    datasets = SNAPGraphGenerator().datasets
+    assert set(_MAX_DEGREES) == {d.source_name for d in datasets}
+    assert all(d.max_degree == _MAX_DEGREES[d.source_name] > 0 for d in datasets)
 
 
 def test_snap_shell_inventory_covers_consumers():
@@ -115,7 +122,7 @@ def test_snap_shell_preserves_suitesparse_matrix_and_discards_extras(
         to_scipy(problem.inputs[0]).toarray(),
         [[0, -2, 0, 0], [-2, 0, 0, 3], [0, 0, 0, 0], [0, 3, 0, 0]],
     )
-    assert problem.meta == {}
+    assert problem.meta == {"max_degree": _MAX_DEGREES[f"SNAP/{name}"]}
     assert problem.ref_outputs is None
     assert problem.ref_meta is None
     # Dropping the extras for graph benchmarks leaves the shared source intact.
@@ -173,7 +180,7 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
             select_source_vertices(fetch_snap_graph(slug).inputs[0], seed=0)[0]
         )
     else:
-        assert problem.meta == {}
+        assert problem.meta == {"max_degree": _MAX_DEGREES[f"SNAP/{slug}"]}
     if module_name == "bellmanford":
         expected = np.array([[0, 1, np.inf], [np.inf, 0, 1], [np.inf, np.inf, 0]])
         np.testing.assert_array_equal(to_sparse(problem.inputs[0]).todense(), expected)
@@ -226,7 +233,7 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
                 select_source_vertices(raw.inputs[0], seed=variant.seed)[0]
             )
     assert len(raw.inputs) == 1
-    assert raw.meta == {}
+    assert raw.meta == {"max_degree": _MAX_DEGREES[f"SNAP/{slug}"]}
     download.assert_called_once()
     assert download.call_args.args[0].startswith(f"suitesparse_matrix/SNAP/{slug}/")
     forbidden.assert_not_called()
@@ -282,6 +289,7 @@ def test_snap_catalog_metadata_and_group_concepts():
     for dataset in datasets:
         metadata = dataset.metadata
         assert metadata["source_name"] == f"SNAP/{dataset.name}"
+        assert metadata["max_degree"] == _MAX_DEGREES[dataset.source_name]
         assert metadata["types"] == dataset.types
         assert metadata["description"] == dataset.description
         assert metadata["nodes"] == dataset.nodes
