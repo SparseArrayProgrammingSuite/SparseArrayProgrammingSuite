@@ -1,0 +1,26 @@
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794893
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/web-Stanford: max_degree=255 squarings=2 (0.7s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/web-Stanford      2  max_degree=255  growth<=3.06e+04x  density<=99.9390%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/web-Stanford.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:51
+Job ID:        13794893
+Array Job ID:  13794825_67
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:10,vmem=0,walltime=00:00:10,mem=109956K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-004-1-1
+---------------------------------------
