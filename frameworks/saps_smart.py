@@ -85,26 +85,29 @@ class SmartSparseLinalg:
 
     @staticmethod
     def svd(A, full_matrices=False, k=None, **kwargs):
-        if not isinstance(A, sp.SparseArray):
-            U, S, Vt = np.linalg.svd(
-                np.asarray(A), full_matrices=full_matrices, **kwargs
-            )
+        # svds only finds k < min(A.shape) singular triplets, so anything but a
+        # truncated SVD of a sparse matrix (a full reduced SVD, full_matrices,
+        # or a matrix too thin to truncate) is computed densely instead.
+        sparse_ok = (
+            isinstance(A, sp.SparseArray)
+            and not full_matrices
+            and k is not None
+            and k < min(A.shape)
+        )
+        if not sparse_ok:
+            A = np.asarray(SmartSparseLinalg._dense(A))
+            if A.dtype.kind not in "fc":
+                A = A.astype(np.float64)
+            U, S, Vt = np.linalg.svd(A, full_matrices=full_matrices, **kwargs)
             if k is not None:
                 U = U[:, :k]
                 S = S[:k]
                 Vt = Vt[:k, :]
             return U, S, Vt
 
-        if full_matrices:
-            raise ValueError("Sparse SVD does not support full_matrices=True.")
-
         A = SmartSparseLinalg._scipy_sparse(A)
-        min_dim = min(A.shape)
-        if min_dim <= 1:
-            raise ValueError("Sparse SVD requires min(A.shape) > 1.")
-        if k is None:
-            k = min_dim - 1
-
+        if A.dtype.kind not in "fc":
+            A = A.astype(np.float64)
         U, S, Vt = spla.svds(A, k=k, **kwargs)
         order = np.argsort(S)[::-1]
         return (
@@ -467,7 +470,7 @@ class SmartSparseKernels(Framework):
             and condition.ndim == 2
             and not condition.fill_value
             and not isinstance(x, sp.SparseArray)
-            and x.shape == condition.shape
+            and getattr(x, "shape", None) == condition.shape
             and np.isscalar(y)
         ):
             coo = (
@@ -607,6 +610,18 @@ class SmartSparseKernels(Framework):
                 # very sparse 2D case -- SciPy's is.
                 result = self._to_scipy_sparse(x1) @ self._to_scipy_sparse(x2)
                 result = sp.GCXS.from_scipy_sparse(result.tocsr())
+                return result if dtype is None else result.astype(dtype)
+            if x1.ndim == 2 and x2.ndim <= 2 and not (
+                isinstance(x1, sp.SparseArray) and isinstance(x2, sp.SparseArray)
+            ):
+                # A 2D sparse matrix times a dense matrix or vector (or the
+                # reverse): SciPy's sparse-dense kernels are far faster than
+                # pydata/sparse's general `@`, and both produce a dense result.
+                lhs, rhs = (
+                    self._to_scipy_sparse(x) if isinstance(x, sp.SparseArray) else x
+                    for x in (x1, x2)
+                )
+                result = np.asarray(lhs @ rhs)
                 return result if dtype is None else result.astype(dtype)
             result = x1 @ x2
             return result if dtype is None else result.astype(dtype)

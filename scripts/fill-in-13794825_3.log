@@ -1,0 +1,26 @@
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794829
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  GAP/GAP-urand: max_degree=68 squarings=2 (207.2s)
+Fewest squarings whose density bound reaches 1%:
+  GAP/GAP-urand      2  max_degree=68  growth<=3.09e+05x  density<=7.6085%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/GAP/GAP-urand.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:30:14
+Job ID:        13794829
+Array Job ID:  13794825_3
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:03:33,vmem=0,walltime=00:03:33,mem=9070812K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-2-1
+---------------------------------------

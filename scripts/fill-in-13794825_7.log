@@ -1,0 +1,26 @@
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794833
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/Oregon-2: max_degree=2432 squarings=1 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/Oregon-2      1  max_degree=2432  growth<=844x  density<=46.7709%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/Oregon-2.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:48
+Job ID:        13794833
+Array Job ID:  13794825_7
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:07,vmem=0,walltime=00:00:07,mem=69596K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-3-2
+---------------------------------------

@@ -1,0 +1,60 @@
+{
+  "semantics": "Upper bounds for Boolean (I OR (A != 0)) raised to 2**squarings, from row degrees; original edge direction",
+  "target_density": 0.01,
+  "steps": [
+    {
+      "dataset": "SNAP/sx-stackoverflow",
+      "squarings": 1,
+      "stop_reason": "target",
+      "max_degree": 38147,
+      "density_bound": 0.09198394755453164,
+      "growth_factor_bound": 16616.76476461538
+    }
+  ],
+  "configuration": {
+    "datasets": [
+      "SNAP/sx-stackoverflow"
+    ],
+    "cache_dir": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache",
+    "manifest": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json",
+    "output": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/sx-stackoverflow.json",
+    "list_datasets": false,
+    "merge": null,
+    "target_density": 0.01
+  },
+  "matrices": [
+    {
+      "dataset": "SNAP/sx-stackoverflow",
+      "path": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache/suitesparse_matrix/SNAP/sx-stackoverflow/890334f5e7acb97427122d998987cc34124fc9d48d84fe1c4dfe6d0364404dcd.bsp.h5",
+      "digest": "890334f5e7acb97427122d998987cc34124fc9d48d84fe1c4dfe6d0364404dcd",
+      "status": "ok",
+      "n": 2601977,
+      "nnz": 37477661,
+      "max_degree": 38147,
+      "target_density": 0.01,
+      "squarings": 1,
+      "stop_reason": "target",
+      "stages": [
+        {
+          "squarings": 0,
+          "max_path_length": 1,
+          "row_nnz_bound": 38148,
+          "nnz_bound": 37477661,
+          "density_bound": 5.5356111046602245e-06,
+          "growth_factor_bound": 1.0,
+          "bool_csr64_bytes_bound": 358114773
+        },
+        {
+          "squarings": 1,
+          "max_path_length": 2,
+          "row_nnz_bound": 2601977,
+          "nnz_bound": 622757476765,
+          "density_bound": 0.09198394755453164,
+          "growth_factor_bound": 16616.76476461538,
+          "bool_csr64_bytes_bound": 5604838106709
+        }
+      ],
+      "seconds": 2.9901348501443863
+    }
+  ]
+}

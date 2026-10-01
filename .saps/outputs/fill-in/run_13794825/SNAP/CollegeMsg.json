@@ -1,0 +1,60 @@
+{
+  "semantics": "Upper bounds for Boolean (I OR (A != 0)) raised to 2**squarings, from row degrees; original edge direction",
+  "target_density": 0.01,
+  "steps": [
+    {
+      "dataset": "SNAP/CollegeMsg",
+      "squarings": 1,
+      "stop_reason": "target",
+      "max_degree": 237,
+      "density_bound": 0.47575689763271656,
+      "growth_factor_bound": 77.30006758278891
+    }
+  ],
+  "configuration": {
+    "datasets": [
+      "SNAP/CollegeMsg"
+    ],
+    "cache_dir": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache",
+    "manifest": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json",
+    "output": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/CollegeMsg.json",
+    "list_datasets": false,
+    "merge": null,
+    "target_density": 0.01
+  },
+  "matrices": [
+    {
+      "dataset": "SNAP/CollegeMsg",
+      "path": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache/suitesparse_matrix/SNAP/CollegeMsg/cc51fb9c53a7660f3c94d1123537f891865b39fb90047e1f462f8daff9ecef45.bsp.h5",
+      "digest": "cc51fb9c53a7660f3c94d1123537f891865b39fb90047e1f462f8daff9ecef45",
+      "status": "ok",
+      "n": 1899,
+      "nnz": 22195,
+      "max_degree": 237,
+      "target_density": 0.01,
+      "squarings": 1,
+      "stop_reason": "target",
+      "stages": [
+        {
+          "squarings": 0,
+          "max_path_length": 1,
+          "row_nnz_bound": 238,
+          "nnz_bound": 22195,
+          "density_bound": 0.0061546763477687465,
+          "growth_factor_bound": 1.0,
+          "bool_csr64_bytes_bound": 214955
+        },
+        {
+          "squarings": 1,
+          "max_path_length": 2,
+          "row_nnz_bound": 1899,
+          "nnz_bound": 1715675,
+          "density_bound": 0.47575689763271656,
+          "growth_factor_bound": 77.30006758278891,
+          "bool_csr64_bytes_bound": 15456275
+        }
+      ],
+      "seconds": 0.029861859045922756
+    }
+  ]
+}

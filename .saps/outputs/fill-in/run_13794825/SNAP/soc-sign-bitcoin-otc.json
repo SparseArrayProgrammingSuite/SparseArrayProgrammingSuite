@@ -1,0 +1,60 @@
+{
+  "semantics": "Upper bounds for Boolean (I OR (A != 0)) raised to 2**squarings, from row degrees; original edge direction",
+  "target_density": 0.01,
+  "steps": [
+    {
+      "dataset": "SNAP/soc-sign-bitcoin-otc",
+      "squarings": 1,
+      "stop_reason": "target",
+      "max_degree": 763,
+      "density_bound": 0.35369583227233575,
+      "growth_factor_bound": 294.9625298386902
+    }
+  ],
+  "configuration": {
+    "datasets": [
+      "SNAP/soc-sign-bitcoin-otc"
+    ],
+    "cache_dir": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache",
+    "manifest": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json",
+    "output": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/soc-sign-bitcoin-otc.json",
+    "list_datasets": false,
+    "merge": null,
+    "target_density": 0.01
+  },
+  "matrices": [
+    {
+      "dataset": "SNAP/soc-sign-bitcoin-otc",
+      "path": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache/suitesparse_matrix/SNAP/soc-sign-bitcoin-otc/14f2c9a0c88a8d476c05247817ec5ca619c216e314c660ed5de9b8dc06f4ecdf.bsp.h5",
+      "digest": "14f2c9a0c88a8d476c05247817ec5ca619c216e314c660ed5de9b8dc06f4ecdf",
+      "status": "ok",
+      "n": 5881,
+      "nnz": 41473,
+      "max_degree": 763,
+      "target_density": 0.01,
+      "squarings": 1,
+      "stop_reason": "target",
+      "stages": [
+        {
+          "squarings": 0,
+          "max_path_length": 1,
+          "row_nnz_bound": 764,
+          "nnz_bound": 41473,
+          "density_bound": 0.00119912123233336,
+          "growth_factor_bound": 1.0,
+          "bool_csr64_bytes_bound": 420313
+        },
+        {
+          "squarings": 1,
+          "max_path_length": 2,
+          "row_nnz_bound": 5881,
+          "nnz_bound": 12232981,
+          "density_bound": 0.35369583227233575,
+          "growth_factor_bound": 294.9625298386902,
+          "bool_csr64_bytes_bound": 110143885
+        }
+      ],
+      "seconds": 0.03083909023553133
+    }
+  ]
+}

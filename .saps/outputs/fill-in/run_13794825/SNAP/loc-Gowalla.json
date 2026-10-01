@@ -1,0 +1,60 @@
+{
+  "semantics": "Upper bounds for Boolean (I OR (A != 0)) raised to 2**squarings, from row degrees; original edge direction",
+  "target_density": 0.01,
+  "steps": [
+    {
+      "dataset": "SNAP/loc-Gowalla",
+      "squarings": 1,
+      "stop_reason": "target",
+      "max_degree": 14730,
+      "density_bound": 0.394316421588497,
+      "growth_factor_bound": 7266.461216023879
+    }
+  ],
+  "configuration": {
+    "datasets": [
+      "SNAP/loc-Gowalla"
+    ],
+    "cache_dir": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache",
+    "manifest": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json",
+    "output": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/loc-Gowalla.json",
+    "list_datasets": false,
+    "merge": null,
+    "target_density": 0.01
+  },
+  "matrices": [
+    {
+      "dataset": "SNAP/loc-Gowalla",
+      "path": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache/suitesparse_matrix/SNAP/loc-Gowalla/fa071a37c1d96f5474e90c32ac923c3a07a06194b42b9a502f1ded0695d03808.bsp.h5",
+      "digest": "fa071a37c1d96f5474e90c32ac923c3a07a06194b42b9a502f1ded0695d03808",
+      "status": "ok",
+      "n": 196591,
+      "nnz": 2097245,
+      "max_degree": 14730,
+      "target_density": 0.01,
+      "squarings": 1,
+      "stop_reason": "target",
+      "stages": [
+        {
+          "squarings": 0,
+          "max_path_length": 1,
+          "row_nnz_bound": 14731,
+          "nnz_bound": 2097245,
+          "density_bound": 5.42652619846036e-05,
+          "growth_factor_bound": 1.0,
+          "bool_csr64_bytes_bound": 20447941
+        },
+        {
+          "squarings": 1,
+          "max_path_length": 2,
+          "row_nnz_bound": 196591,
+          "nnz_bound": 15239549453,
+          "density_bound": 0.394316421588497,
+          "growth_factor_bound": 7266.461216023879,
+          "bool_csr64_bytes_bound": 137157517813
+        }
+      ],
+      "seconds": 0.7519841669127345
+    }
+  ]
+}

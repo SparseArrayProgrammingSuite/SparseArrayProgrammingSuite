@@ -1,0 +1,26 @@
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794862
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/p2p-Gnutella04: max_degree=100 squarings=1 (0.0s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/p2p-Gnutella04      1  max_degree=100  growth<=79.6x  density<=3.4222%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/p2p-Gnutella04.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794862
+Array Job ID:  13794825_36
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:06,vmem=0,walltime=00:00:06,mem=77612K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-28-2
+---------------------------------------

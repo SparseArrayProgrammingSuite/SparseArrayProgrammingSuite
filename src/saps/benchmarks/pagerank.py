@@ -195,10 +195,6 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
 
 class PageRankSNAPGenerator(Generator[SNAPDataset]):
     @property
-    def cacheable(self) -> bool:
-        return False
-
-    @property
     def name(self) -> str:
         return "pagerank_snap_inputs"
 
@@ -238,8 +234,28 @@ class PageRankSNAPGenerator(Generator[SNAPDataset]):
         return "Generate sparse graph inputs for PageRank."
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[SNAPDataset]:
-        return SNAPGraphGenerator().datasets
+        # Successful standard-suite Smart runs <= 30s in competition/run_13662472.
+        trace = (
+            "CollegeMsg",
+            "ca-GrQc",
+            "email-Eu-core",
+            "email-Eu-core-temporal",
+            "p2p-Gnutella08",
+            "soc-sign-bitcoin-alpha",
+            "wiki-RfA",
+            "wiki-Vote",
+        )
+        return [
+            graph.with_suites(
+                ["standard", "trace"] if graph.name in trace else ["standard"]
+            )
+            for graph in SNAPGraphGenerator().datasets
+        ]
 
     def generate(self, dataset: SNAPDataset) -> DataInstance:
         if dataset.name in self.dataset_names:
