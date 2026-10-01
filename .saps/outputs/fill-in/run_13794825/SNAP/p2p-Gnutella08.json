@@ -1,0 +1,60 @@
+{
+  "semantics": "Upper bounds for Boolean (I OR (A != 0)) raised to 2**squarings, from row degrees; original edge direction",
+  "target_density": 0.01,
+  "steps": [
+    {
+      "dataset": "SNAP/p2p-Gnutella08",
+      "squarings": 1,
+      "stop_reason": "target",
+      "max_degree": 48,
+      "density_bound": 0.025801181136722,
+      "growth_factor_bound": 37.83048969643253
+    }
+  ],
+  "configuration": {
+    "datasets": [
+      "SNAP/p2p-Gnutella08"
+    ],
+    "cache_dir": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache",
+    "manifest": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json",
+    "output": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/p2p-Gnutella08.json",
+    "list_datasets": false,
+    "merge": null,
+    "target_density": 0.01
+  },
+  "matrices": [
+    {
+      "dataset": "SNAP/p2p-Gnutella08",
+      "path": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache/suitesparse_matrix/SNAP/p2p-Gnutella08/89c11ff944b73e2abc36e2780494be6ede4a19531ac99d8cb60dbe80b9ffae6f.bsp.h5",
+      "digest": "89c11ff944b73e2abc36e2780494be6ede4a19531ac99d8cb60dbe80b9ffae6f",
+      "status": "ok",
+      "n": 6301,
+      "nnz": 27078,
+      "max_degree": 48,
+      "target_density": 0.01,
+      "squarings": 1,
+      "stop_reason": "target",
+      "stages": [
+        {
+          "squarings": 0,
+          "max_path_length": 1,
+          "row_nnz_bound": 49,
+          "nnz_bound": 27078,
+          "density_bound": 0.0006820208076543902,
+          "growth_factor_bound": 1.0,
+          "bool_csr64_bytes_bound": 294118
+        },
+        {
+          "squarings": 1,
+          "max_path_length": 2,
+          "row_nnz_bound": 2353,
+          "nnz_bound": 1024374,
+          "density_bound": 0.025801181136722,
+          "growth_factor_bound": 37.83048969643253,
+          "bool_csr64_bytes_bound": 9269782
+        }
+      ],
+      "seconds": 0.04917001724243164
+    }
+  ]
+}

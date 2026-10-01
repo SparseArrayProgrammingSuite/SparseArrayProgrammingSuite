@@ -1,0 +1,26 @@
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794890
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/web-BerkStan: max_degree=249 squarings=2 (5.3s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/web-BerkStan      2  max_degree=249  growth<=5.63e+04x  density<=99.3077%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/web-BerkStan.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:52
+Job ID:        13794890
+Array Job ID:  13794825_64
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:11,vmem=0,walltime=00:00:11,mem=168600K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-32-2
+---------------------------------------

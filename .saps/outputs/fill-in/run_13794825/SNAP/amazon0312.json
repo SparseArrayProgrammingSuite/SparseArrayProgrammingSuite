@@ -1,0 +1,69 @@
+{
+  "semantics": "Upper bounds for Boolean (I OR (A != 0)) raised to 2**squarings, from row degrees; original edge direction",
+  "target_density": 0.01,
+  "steps": [
+    {
+      "dataset": "SNAP/amazon0312",
+      "squarings": 2,
+      "stop_reason": "target",
+      "max_degree": 10,
+      "density_bound": 0.02214498960485379,
+      "growth_factor_bound": 987.4825485738373
+    }
+  ],
+  "configuration": {
+    "datasets": [
+      "SNAP/amazon0312"
+    ],
+    "cache_dir": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache",
+    "manifest": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json",
+    "output": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/amazon0312.json",
+    "list_datasets": false,
+    "merge": null,
+    "target_density": 0.01
+  },
+  "matrices": [
+    {
+      "dataset": "SNAP/amazon0312",
+      "path": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache/suitesparse_matrix/SNAP/amazon0312/cb059e101c82f110c01fec0b2ee574640064a53bd8fbbd7ff36b8bf17e3e820a.bsp.h5",
+      "digest": "cb059e101c82f110c01fec0b2ee574640064a53bd8fbbd7ff36b8bf17e3e820a",
+      "status": "ok",
+      "n": 400727,
+      "nnz": 3601167,
+      "max_degree": 10,
+      "target_density": 0.01,
+      "squarings": 2,
+      "stop_reason": "target",
+      "stages": [
+        {
+          "squarings": 0,
+          "max_path_length": 1,
+          "row_nnz_bound": 11,
+          "nnz_bound": 3601167,
+          "density_bound": 2.2425702243382923e-05,
+          "growth_factor_bound": 1.0,
+          "bool_csr64_bytes_bound": 35616327
+        },
+        {
+          "squarings": 1,
+          "max_path_length": 2,
+          "row_nnz_bound": 111,
+          "nnz_bound": 35605567,
+          "density_bound": 0.00022172807974437758,
+          "growth_factor_bound": 9.887230167331868,
+          "bool_csr64_bytes_bound": 323655927
+        },
+        {
+          "squarings": 2,
+          "max_path_length": 4,
+          "row_nnz_bound": 11111,
+          "nnz_bound": 3556089567,
+          "density_bound": 0.02214498960485379,
+          "growth_factor_bound": 987.4825485738373,
+          "bool_csr64_bytes_bound": 32008011927
+        }
+      ],
+      "seconds": 1.362949853995815
+    }
+  ]
+}

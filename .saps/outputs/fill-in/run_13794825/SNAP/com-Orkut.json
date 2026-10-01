@@ -1,0 +1,60 @@
+{
+  "semantics": "Upper bounds for Boolean (I OR (A != 0)) raised to 2**squarings, from row degrees; original edge direction",
+  "target_density": 0.01,
+  "steps": [
+    {
+      "dataset": "SNAP/com-Orkut",
+      "squarings": 1,
+      "stop_reason": "target",
+      "max_degree": 33313,
+      "density_bound": 0.5382058402535332,
+      "growth_factor_bound": 21397.195659559955
+    }
+  ],
+  "configuration": {
+    "datasets": [
+      "SNAP/com-Orkut"
+    ],
+    "cache_dir": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache",
+    "manifest": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json",
+    "output": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/com-Orkut.json",
+    "list_datasets": false,
+    "merge": null,
+    "target_density": 0.01
+  },
+  "matrices": [
+    {
+      "dataset": "SNAP/com-Orkut",
+      "path": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache/suitesparse_matrix/SNAP/com-Orkut/5a659fca52fe40f57ae39dbd2ae0a8834946231da8346733a691239ff0fc2de8.bsp.h5",
+      "digest": "5a659fca52fe40f57ae39dbd2ae0a8834946231da8346733a691239ff0fc2de8",
+      "status": "ok",
+      "n": 3072441,
+      "nnz": 237442607,
+      "max_degree": 33313,
+      "target_density": 0.01,
+      "squarings": 1,
+      "stop_reason": "target",
+      "stages": [
+        {
+          "squarings": 0,
+          "max_path_length": 1,
+          "row_nnz_bound": 33314,
+          "nnz_bound": 237442607,
+          "density_bound": 2.515310178103039e-05,
+          "growth_factor_bound": 1.0,
+          "bool_csr64_bytes_bound": 2161562999
+        },
+        {
+          "squarings": 1,
+          "max_path_length": 2,
+          "row_nnz_bound": 3072441,
+          "nnz_bound": 5080605919895,
+          "density_bound": 0.5382058402535332,
+          "growth_factor_bound": 21397.195659559955,
+          "bool_csr64_bytes_bound": 45725477858591
+        }
+      ],
+      "seconds": 13.723495936021209
+    }
+  ]
+}

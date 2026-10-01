@@ -1,0 +1,26 @@
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794825
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/wiki-topcats: max_degree=3907 squarings=1 (2.6s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/wiki-topcats      1  max_degree=3907  growth<=3.64e+03x  density<=3.4368%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/wiki-topcats.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:51
+Job ID:        13794825
+Array Job ID:  13794825_72
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:10,vmem=,walltime=00:00:10,mem=,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-2-1
+---------------------------------------

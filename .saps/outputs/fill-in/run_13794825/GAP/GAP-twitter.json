@@ -1,0 +1,60 @@
+{
+  "semantics": "Upper bounds for Boolean (I OR (A != 0)) raised to 2**squarings, from row degrees; original edge direction",
+  "target_density": 0.01,
+  "steps": [
+    {
+      "dataset": "GAP/GAP-twitter",
+      "squarings": 1,
+      "stop_reason": "target",
+      "max_degree": 2997469,
+      "density_bound": 0.295136688091787,
+      "growth_factor_bound": 731484.0757000806
+    }
+  ],
+  "configuration": {
+    "datasets": [
+      "GAP/GAP-twitter"
+    ],
+    "cache_dir": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache",
+    "manifest": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json",
+    "output": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/GAP/GAP-twitter.json",
+    "list_datasets": false,
+    "merge": null,
+    "target_density": 0.01
+  },
+  "matrices": [
+    {
+      "dataset": "GAP/GAP-twitter",
+      "path": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache/suitesparse_matrix/GAP/GAP-twitter/3c9857ada20977cc9d0ac7c5b0b2ffd3b38428b6aebd326f2a7c9b2ca48cec26.bsp.h5",
+      "digest": "3c9857ada20977cc9d0ac7c5b0b2ffd3b38428b6aebd326f2a7c9b2ca48cec26",
+      "status": "ok",
+      "n": 61578415,
+      "nnz": 1529943299,
+      "max_degree": 2997469,
+      "target_density": 0.01,
+      "squarings": 1,
+      "stop_reason": "target",
+      "stages": [
+        {
+          "squarings": 0,
+          "max_path_length": 1,
+          "row_nnz_bound": 2997470,
+          "nnz_bound": 1529943299,
+          "density_bound": 4.0347657303314617e-07,
+          "growth_factor_bound": 1.0,
+          "bool_csr64_bytes_bound": 14262117019
+        },
+        {
+          "squarings": 1,
+          "max_path_length": 2,
+          "row_nnz_bound": 61578415,
+          "nnz_bound": 1119129159942547,
+          "density_bound": 0.295136688091787,
+          "growth_factor_bound": 731484.0757000806,
+          "bool_csr64_bytes_bound": 10072162932110251
+        }
+      ],
+      "seconds": 138.89439633861184
+    }
+  ]
+}

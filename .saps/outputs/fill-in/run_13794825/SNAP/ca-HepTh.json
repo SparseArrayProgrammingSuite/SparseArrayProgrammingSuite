@@ -1,0 +1,60 @@
+{
+  "semantics": "Upper bounds for Boolean (I OR (A != 0)) raised to 2**squarings, from row degrees; original edge direction",
+  "target_density": 0.01,
+  "steps": [
+    {
+      "dataset": "SNAP/ca-HepTh",
+      "squarings": 1,
+      "stop_reason": "target",
+      "max_degree": 65,
+      "density_bound": 0.035244820392785293,
+      "growth_factor_bound": 55.615434385261146
+    }
+  ],
+  "configuration": {
+    "datasets": [
+      "SNAP/ca-HepTh"
+    ],
+    "cache_dir": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache",
+    "manifest": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json",
+    "output": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/ca-HepTh.json",
+    "list_datasets": false,
+    "merge": null,
+    "target_density": 0.01
+  },
+  "matrices": [
+    {
+      "dataset": "SNAP/ca-HepTh",
+      "path": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache/suitesparse_matrix/SNAP/ca-HepTh/4248aecdec237339611d593e177fda96e415a7c5f522fa0f448e24b15ff20793.bsp.h5",
+      "digest": "4248aecdec237339611d593e177fda96e415a7c5f522fa0f448e24b15ff20793",
+      "status": "ok",
+      "n": 9877,
+      "nnz": 61823,
+      "max_degree": 65,
+      "target_density": 0.01,
+      "squarings": 1,
+      "stop_reason": "target",
+      "stages": [
+        {
+          "squarings": 0,
+          "max_path_length": 1,
+          "row_nnz_bound": 66,
+          "nnz_bound": 61823,
+          "density_bound": 0.000633723727637119,
+          "growth_factor_bound": 1.0,
+          "bool_csr64_bytes_bound": 635431
+        },
+        {
+          "squarings": 1,
+          "max_path_length": 2,
+          "row_nnz_bound": 4291,
+          "nnz_bound": 3438313,
+          "density_bound": 0.035244820392785293,
+          "growth_factor_bound": 55.615434385261146,
+          "bool_csr64_bytes_bound": 31023841
+        }
+      ],
+      "seconds": 0.05838608928024769
+    }
+  ]
+}

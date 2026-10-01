@@ -286,7 +286,7 @@ class BetweennessCentralitySNAPGenerator(Generator[SNAPDataset]):
     @property
     def datasets(self) -> list[SNAPDataset]:
         # Successful standard-suite Smart runs <= 30s in competition/run_13662472.
-        trace = ("email-Eu-core-temporal",)
+        trace = []
         return [
             graph.with_suites(
                 ["standard", "trace"] if graph.name in trace else ["standard"]

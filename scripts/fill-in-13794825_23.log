@@ -1,0 +1,26 @@
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794849
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/com-Amazon: max_degree=549 squarings=2 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/com-Amazon      2  max_degree=549  growth<=5.13e+04x  density<=100.0000%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/com-Amazon.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794849
+Array Job ID:  13794825_23
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:06,vmem=0,walltime=00:00:06,mem=97996K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-17-1
+---------------------------------------

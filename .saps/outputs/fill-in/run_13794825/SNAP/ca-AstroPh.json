@@ -1,0 +1,60 @@
+{
+  "semantics": "Upper bounds for Boolean (I OR (A != 0)) raised to 2**squarings, from row degrees; original edge direction",
+  "target_density": 0.01,
+  "steps": [
+    {
+      "dataset": "SNAP/ca-AstroPh",
+      "squarings": 1,
+      "stop_reason": "target",
+      "max_degree": 504,
+      "density_bound": 0.40290158701892625,
+      "growth_factor_bound": 342.22043907518463
+    }
+  ],
+  "configuration": {
+    "datasets": [
+      "SNAP/ca-AstroPh"
+    ],
+    "cache_dir": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache",
+    "manifest": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json",
+    "output": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/ca-AstroPh.json",
+    "list_datasets": false,
+    "merge": null,
+    "target_density": 0.01
+  },
+  "matrices": [
+    {
+      "dataset": "SNAP/ca-AstroPh",
+      "path": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache/suitesparse_matrix/SNAP/ca-AstroPh/1b145493ce725381abab0b5e73bf082f6a745518a73fd398657d345397c66488.bsp.h5",
+      "digest": "1b145493ce725381abab0b5e73bf082f6a745518a73fd398657d345397c66488",
+      "status": "ok",
+      "n": 18772,
+      "nnz": 414872,
+      "max_degree": 504,
+      "target_density": 0.01,
+      "squarings": 1,
+      "stop_reason": "target",
+      "stages": [
+        {
+          "squarings": 0,
+          "max_path_length": 1,
+          "row_nnz_bound": 505,
+          "nnz_bound": 414872,
+          "density_bound": 0.0011773159665966362,
+          "growth_factor_bound": 1.0,
+          "bool_csr64_bytes_bound": 3884032
+        },
+        {
+          "squarings": 1,
+          "max_path_length": 2,
+          "row_nnz_bound": 18772,
+          "nnz_bound": 141977678,
+          "density_bound": 0.40290158701892625,
+          "growth_factor_bound": 342.22043907518463,
+          "bool_csr64_bytes_bound": 1277949286
+        }
+      ],
+      "seconds": 0.08635750133544207
+    }
+  ]
+}

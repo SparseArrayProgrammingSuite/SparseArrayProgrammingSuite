@@ -1,0 +1,60 @@
+{
+  "semantics": "Upper bounds for Boolean (I OR (A != 0)) raised to 2**squarings, from row degrees; original edge direction",
+  "target_density": 0.01,
+  "steps": [
+    {
+      "dataset": "SNAP/soc-sign-epinions",
+      "squarings": 1,
+      "stop_reason": "target",
+      "max_degree": 2070,
+      "density_bound": 0.06777763065423106,
+      "growth_factor_bound": 1211.0313563164502
+    }
+  ],
+  "configuration": {
+    "datasets": [
+      "SNAP/soc-sign-epinions"
+    ],
+    "cache_dir": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache",
+    "manifest": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json",
+    "output": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/soc-sign-epinions.json",
+    "list_datasets": false,
+    "merge": null,
+    "target_density": 0.01
+  },
+  "matrices": [
+    {
+      "dataset": "SNAP/soc-sign-epinions",
+      "path": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache/suitesparse_matrix/SNAP/soc-sign-epinions/8b92caf3c8c5529b17356dbb9892fa8e41f42e58b334bba8ccfb7fb8e87f9e68.bsp.h5",
+      "digest": "8b92caf3c8c5529b17356dbb9892fa8e41f42e58b334bba8ccfb7fb8e87f9e68",
+      "status": "ok",
+      "n": 131828,
+      "nnz": 972627,
+      "max_degree": 2070,
+      "target_density": 0.01,
+      "squarings": 1,
+      "stop_reason": "target",
+      "stages": [
+        {
+          "squarings": 0,
+          "max_path_length": 1,
+          "row_nnz_bound": 2071,
+          "nnz_bound": 972627,
+          "density_bound": 5.596686683686523e-05,
+          "growth_factor_bound": 1.0,
+          "bool_csr64_bytes_bound": 9808275
+        },
+        {
+          "squarings": 1,
+          "max_path_length": 2,
+          "row_nnz_bound": 131828,
+          "nnz_bound": 1177881795,
+          "density_bound": 0.06777763065423106,
+          "growth_factor_bound": 1211.0313563164502,
+          "bool_csr64_bytes_bound": 10601990787
+        }
+      ],
+      "seconds": 0.4354435885325074
+    }
+  ]
+}
