@@ -168,10 +168,6 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
 
 class ConnectedComponentsSNAPGenerator(Generator[SNAPDataset]):
     @property
-    def cacheable(self) -> bool:
-        return False
-
-    @property
     def name(self) -> str:
         return "connected_components_snap_inputs"
 
@@ -226,8 +222,56 @@ class ConnectedComponentsSNAPGenerator(Generator[SNAPDataset]):
         return "Generate sparse graph inputs for connected components."
 
     @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
     def datasets(self) -> list[SNAPDataset]:
-        return SNAPGraphGenerator().datasets
+        # Successful standard-suite Smart runs <= 30s in competition/run_13662472.
+        trace = (
+            "CollegeMsg",
+            "Oregon-1",
+            "Oregon-2",
+            "amazon0302",
+            "as-735",
+            "as-caida",
+            "ca-CondMat",
+            "ca-HepTh",
+            "com-DBLP",
+            "email-Eu-core-temporal",
+            "loc-Brightkite",
+            "loc-Gowalla",
+            "p2p-Gnutella04",
+            "p2p-Gnutella05",
+            "p2p-Gnutella06",
+            "p2p-Gnutella08",
+            "p2p-Gnutella09",
+            "p2p-Gnutella24",
+            "p2p-Gnutella25",
+            "p2p-Gnutella30",
+            "p2p-Gnutella31",
+            "soc-Epinions1",
+            "soc-Slashdot0811",
+            "soc-Slashdot0902",
+            "soc-sign-Slashdot081106",
+            "soc-sign-Slashdot090216",
+            "soc-sign-Slashdot090221",
+            "soc-sign-bitcoin-alpha",
+            "soc-sign-bitcoin-otc",
+            "soc-sign-epinions",
+            "sx-askubuntu",
+            "sx-mathoverflow",
+            "sx-superuser",
+            "web-NotreDame",
+            "wiki-RfA",
+            "wiki-Vote",
+        )
+        return [
+            graph.with_suites(
+                ["standard", "trace"] if graph.name in trace else ["standard"]
+            )
+            for graph in SNAPGraphGenerator().datasets
+        ]
 
     def generate(self, dataset: SNAPDataset) -> DataInstance:
         if dataset.name in self.dataset_names:

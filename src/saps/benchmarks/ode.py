@@ -940,7 +940,7 @@ class _OdeBenchmarkBase(Benchmark, ABC):
 
 class ForwardEuler(_OdeBenchmarkBase):
     step_multiplier = 0.01
-    slicot_trace_datasets = ("slicot_beam",)
+    slicot_trace_datasets = ("slicot_beam", "slicot_fom", "slicot_heat_cont")
 
     @property
     def name(self):
@@ -1019,7 +1019,13 @@ class BackwardEuler(_OdeBenchmarkBase):
 
 class RungeKutta(_OdeBenchmarkBase):
     step_multiplier = 1.0
-    slicot_trace_datasets = ("slicot_cdplayer", "slicot_random", "slicot_beam")
+    slicot_trace_datasets = (
+        "slicot_cdplayer",
+        "slicot_random",
+        "slicot_beam",
+        "slicot_fom",
+        "slicot_heat_cont",
+    )
 
     @property
     def name(self):
