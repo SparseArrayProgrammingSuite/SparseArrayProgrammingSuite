@@ -1,0 +1,1898 @@
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794826
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  GAP/GAP-kron: max_degree=1572838 squarings=1 (350.8s)
+Fewest squarings whose density bound reaches 1%:
+  GAP/GAP-kron      1  max_degree=1572838  growth<=3.83e+05x  density<=9.2551%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/GAP/GAP-kron.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:32:38
+Job ID:        13794826
+Array Job ID:  13794825_0
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:05:57,vmem=0,walltime=00:05:57,mem=8388600K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-2-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794827
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  GAP/GAP-road: max_degree=9 squarings=3 (5.9s)
+Fewest squarings whose density bound reaches 1%:
+  GAP/GAP-road      3  max_degree=9  growth<=3.8e+06x  density<=54.1286%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/GAP/GAP-road.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:52
+Job ID:        13794827
+Array Job ID:  13794825_1
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:11,vmem=0,walltime=00:00:11,mem=754332K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-2-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794836
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/amazon0505: max_degree=10 squarings=2 (0.7s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/amazon0505      2  max_degree=10  growth<=990x  density<=2.2163%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/amazon0505.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:49
+Job ID:        13794836
+Array Job ID:  13794825_10
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:08,vmem=0,walltime=00:00:08,mem=113292K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-6-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794837
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/amazon0601: max_degree=10 squarings=2 (1.2s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/amazon0601      2  max_degree=10  growth<=993x  density<=2.3130%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/amazon0601.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:48
+Job ID:        13794837
+Array Job ID:  13794825_11
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:07,vmem=0,walltime=00:00:07,mem=118680K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-8-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794838
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/as-735: max_degree=1458 squarings=1 (0.0s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/as-735      1  max_degree=1458  growth<=619x  density<=34.1897%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/as-735.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794838
+Array Job ID:  13794825_12
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:06,vmem=0,walltime=00:00:06,mem=70544K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-8-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794839
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/as-Skitter: max_degree=35455 squarings=1 (11.7s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/as-Skitter      1  max_degree=35455  growth<=2.21e+04x  density<=18.3663%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/as-Skitter.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:59
+Job ID:        13794839
+Array Job ID:  13794825_13
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:18,vmem=0,walltime=00:00:18,mem=327668K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-8-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794840
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/as-caida: max_degree=2628 squarings=1 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/as-caida      1  max_degree=2628  growth<=1.23e+03x  density<=17.2191%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/as-caida.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794840
+Array Job ID:  13794825_14
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:05,vmem=0,walltime=00:00:05,mem=58148K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-12-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794841
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/ca-AstroPh: max_degree=504 squarings=1 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/ca-AstroPh      1  max_degree=504  growth<=342x  density<=40.2902%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/ca-AstroPh.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794841
+Array Job ID:  13794825_15
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:05,vmem=0,walltime=00:00:05,mem=58380K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-12-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794842
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/ca-CondMat: max_degree=279 squarings=1 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/ca-CondMat      1  max_degree=279  growth<=247x  density<=9.6840%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/ca-CondMat.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794842
+Array Job ID:  13794825_16
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:05,vmem=0,walltime=00:00:05,mem=58208K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-12-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794843
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/ca-GrQc: max_degree=81 squarings=1 (0.0s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/ca-GrQc      1  max_degree=81  growth<=69.4x  density<=8.6418%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/ca-GrQc.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:48
+Job ID:        13794843
+Array Job ID:  13794825_17
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:07,vmem=0,walltime=00:00:07,mem=73860K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-15-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794844
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/ca-HepPh: max_degree=491 squarings=1 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/ca-HepPh      1  max_degree=491  growth<=216x  density<=37.2982%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/ca-HepPh.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:48
+Job ID:        13794844
+Array Job ID:  13794825_18
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:07,vmem=0,walltime=00:00:07,mem=74872K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-15-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794845
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/ca-HepTh: max_degree=65 squarings=1 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/ca-HepTh      1  max_degree=65  growth<=55.6x  density<=3.5245%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/ca-HepTh.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:48
+Job ID:        13794845
+Array Job ID:  13794825_19
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:07,vmem=0,walltime=00:00:07,mem=67532K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-15-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794828
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  GAP/GAP-twitter: max_degree=2997469 squarings=1 (138.9s)
+Fewest squarings whose density bound reaches 1%:
+  GAP/GAP-twitter      1  max_degree=2997469  growth<=7.31e+05x  density<=29.5137%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/GAP/GAP-twitter.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:29:05
+Job ID:        13794828
+Array Job ID:  13794825_2
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:02:24,vmem=0,walltime=00:02:24,mem=5079024K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-2-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794846
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/cit-HepPh: max_degree=411 squarings=1 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/cit-HepPh      1  max_degree=411  growth<=374x  density<=14.2904%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/cit-HepPh.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:48
+Job ID:        13794846
+Array Job ID:  13794825_20
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:07,vmem=0,walltime=00:00:07,mem=79524K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-16-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794847
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/cit-HepTh: max_degree=562 squarings=1 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/cit-HepTh      1  max_degree=562  growth<=497x  density<=24.5283%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/cit-HepTh.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:48
+Job ID:        13794847
+Array Job ID:  13794825_21
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:07,vmem=0,walltime=00:00:07,mem=81828K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-16-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794848
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/cit-Patents: max_degree=770 squarings=2 (3.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/cit-Patents      2  max_degree=770  growth<=3.89e+05x  density<=55.3503%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/cit-Patents.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:51
+Job ID:        13794848
+Array Job ID:  13794825_22
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:10,vmem=0,walltime=00:00:10,mem=278188K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-17-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794849
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/com-Amazon: max_degree=549 squarings=2 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/com-Amazon      2  max_degree=549  growth<=5.13e+04x  density<=100.0000%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/com-Amazon.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794849
+Array Job ID:  13794825_23
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:06,vmem=0,walltime=00:00:06,mem=97996K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-17-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794850
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/com-DBLP: max_degree=343 squarings=2 (1.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/com-DBLP      2  max_degree=343  growth<=4.16e+04x  density<=100.0000%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/com-DBLP.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:48
+Job ID:        13794850
+Array Job ID:  13794825_24
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:07,vmem=0,walltime=00:00:07,mem=102216K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-17-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794851
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/com-Friendster: max_degree=5214 squarings=2 (193.2s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/com-Friendster      2  max_degree=5214  growth<=1.17e+06x  density<=100.0000%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/com-Friendster.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:30:02
+Job ID:        13794851
+Array Job ID:  13794825_25
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:03:21,vmem=0,walltime=00:03:21,mem=8575172K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-20-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794852
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/com-LiveJournal: max_degree=14815 squarings=1 (38.5s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/com-LiveJournal      1  max_degree=14815  growth<=1.35e+04x  density<=6.1763%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/com-LiveJournal.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:27:25
+Job ID:        13794852
+Array Job ID:  13794825_26
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:44,vmem=0,walltime=00:00:44,mem=740120K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-21-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794853
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/com-Orkut: max_degree=33313 squarings=1 (13.7s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/com-Orkut      1  max_degree=33313  growth<=2.14e+04x  density<=53.8206%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/com-Orkut.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:27:01
+Job ID:        13794853
+Array Job ID:  13794825_27
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:20,vmem=0,walltime=00:00:20,mem=1157160K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-21-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794854
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/com-Youtube: max_degree=28754 squarings=1 (1.7s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/com-Youtube      1  max_degree=28754  growth<=1.69e+04x  density<=9.3492%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/com-Youtube.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:49
+Job ID:        13794854
+Array Job ID:  13794825_28
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:08,vmem=0,walltime=00:00:08,mem=157132K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-21-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794855
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/email-Enron: max_degree=1383 squarings=1 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/email-Enron      1  max_degree=1383  growth<=742x  density<=22.2868%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/email-Enron.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794855
+Array Job ID:  13794825_29
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:06,vmem=0,walltime=00:00:06,mem=62184K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-27-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794829
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  GAP/GAP-urand: max_degree=68 squarings=2 (207.2s)
+Fewest squarings whose density bound reaches 1%:
+  GAP/GAP-urand      2  max_degree=68  growth<=3.09e+05x  density<=7.6085%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/GAP/GAP-urand.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:30:14
+Job ID:        13794829
+Array Job ID:  13794825_3
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:03:33,vmem=0,walltime=00:03:33,mem=9070812K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-2-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794856
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/email-Eu-core: max_degree=333 squarings=0 (0.0s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/email-Eu-core      0  max_degree=333  growth<=1x  density<=2.5677%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/email-Eu-core.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794856
+Array Job ID:  13794825_30
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:06,vmem=0,walltime=00:00:06,mem=62268K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-27-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794857
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/email-Eu-core-temporal: max_degree=333 squarings=0 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/email-Eu-core-temporal      0  max_degree=333  growth<=1x  density<=2.5677%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/email-Eu-core-temporal.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794857
+Array Job ID:  13794825_31
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:06,vmem=0,walltime=00:00:06,mem=60884K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-27-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794858
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/email-EuAll: max_degree=929 squarings=2 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/email-EuAll      2  max_degree=929  growth<=8.73e+04x  density<=84.8889%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/email-EuAll.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794858
+Array Job ID:  13794825_32
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:06,vmem=0,walltime=00:00:06,mem=59740K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-28-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794859
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/higgs-twitter: max_degree=1259 squarings=1 (7.8s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/higgs-twitter      1  max_degree=1259  growth<=1.21e+03x  density<=8.9072%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/higgs-twitter.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:55
+Job ID:        13794859
+Array Job ID:  13794825_33
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:14,vmem=0,walltime=00:00:14,mem=244716K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-28-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794860
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/loc-Brightkite: max_degree=1134 squarings=1 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/loc-Brightkite      1  max_degree=1134  growth<=847x  density<=12.1525%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/loc-Brightkite.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794860
+Array Job ID:  13794825_34
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:06,vmem=0,walltime=00:00:06,mem=62132K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-28-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794861
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/loc-Gowalla: max_degree=14730 squarings=1 (0.8s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/loc-Gowalla      1  max_degree=14730  growth<=7.27e+03x  density<=39.4316%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/loc-Gowalla.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:48
+Job ID:        13794861
+Array Job ID:  13794825_35
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:07,vmem=0,walltime=00:00:07,mem=82144K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-28-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794862
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/p2p-Gnutella04: max_degree=100 squarings=1 (0.0s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/p2p-Gnutella04      1  max_degree=100  growth<=79.6x  density<=3.4222%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/p2p-Gnutella04.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794862
+Array Job ID:  13794825_36
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:06,vmem=0,walltime=00:00:06,mem=77612K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-28-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794863
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/p2p-Gnutella05: max_degree=65 squarings=1 (0.0s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/p2p-Gnutella05      1  max_degree=65  growth<=51.9x  density<=2.6967%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/p2p-Gnutella05.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794863
+Array Job ID:  13794825_37
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:06,vmem=0,walltime=00:00:06,mem=74712K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-28-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794864
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/p2p-Gnutella06: max_degree=113 squarings=1 (0.0s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/p2p-Gnutella06      1  max_degree=113  growth<=89.4x  density<=4.7356%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/p2p-Gnutella06.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794864
+Array Job ID:  13794825_38
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:06,vmem=0,walltime=00:00:06,mem=74348K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-28-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794865
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/p2p-Gnutella08: max_degree=48 squarings=1 (0.0s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/p2p-Gnutella08      1  max_degree=48  growth<=37.8x  density<=2.5801%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/p2p-Gnutella08.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794865
+Array Job ID:  13794825_39
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:06,vmem=0,walltime=00:00:06,mem=73776K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-30-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794830
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  GAP/GAP-web: max_degree=12869 squarings=2 (103.7s)
+Fewest squarings whose density bound reaches 1%:
+  GAP/GAP-web      2  max_degree=12869  growth<=1.11e+06x  density<=85.7086%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/GAP/GAP-web.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:28:31
+Job ID:        13794830
+Array Job ID:  13794825_4
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:01:50,vmem=0,walltime=00:01:50,mem=3205068K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-2-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794866
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/p2p-Gnutella09: max_degree=61 squarings=1 (0.0s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/p2p-Gnutella09      1  max_degree=61  growth<=47.5x  density<=2.4620%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/p2p-Gnutella09.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794866
+Array Job ID:  13794825_40
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:06,vmem=0,walltime=00:00:06,mem=73028K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-30-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794867
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/p2p-Gnutella24: max_degree=79 squarings=2 (0.3s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/p2p-Gnutella24      2  max_degree=79  growth<=2.18e+03x  density<=28.5493%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/p2p-Gnutella24.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:48
+Job ID:        13794867
+Array Job ID:  13794825_41
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:07,vmem=0,walltime=00:00:07,mem=71548K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-30-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794868
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/p2p-Gnutella25: max_degree=64 squarings=2 (0.0s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/p2p-Gnutella25      2  max_degree=64  growth<=1.82e+03x  density<=27.4242%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/p2p-Gnutella25.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:48
+Job ID:        13794868
+Array Job ID:  13794825_42
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:07,vmem=0,walltime=00:00:07,mem=58376K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-30-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794869
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/p2p-Gnutella30: max_degree=54 squarings=2 (0.0s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/p2p-Gnutella30      2  max_degree=54  growth<=2.85e+03x  density<=26.5055%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/p2p-Gnutella30.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:48
+Job ID:        13794869
+Array Job ID:  13794825_43
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:07,vmem=0,walltime=00:00:07,mem=58720K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-30-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794870
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/p2p-Gnutella31: max_degree=78 squarings=2 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/p2p-Gnutella31      2  max_degree=78  growth<=4.87e+03x  density<=26.1844%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/p2p-Gnutella31.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:48
+Job ID:        13794870
+Array Job ID:  13794825_44
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:07,vmem=0,walltime=00:00:07,mem=58324K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-30-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794871
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/roadNet-CA: max_degree=12 squarings=3 (3.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/roadNet-CA      3  max_degree=12  growth<=5.16e+05x  density<=99.6918%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/roadNet-CA.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:51
+Job ID:        13794871
+Array Job ID:  13794825_45
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:10,vmem=0,walltime=00:00:10,mem=159816K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-32-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794872
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/roadNet-PA: max_degree=9 squarings=3 (1.3s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/roadNet-PA      3  max_degree=9  growth<=2.84e+05x  density<=99.7408%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/roadNet-PA.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:49
+Job ID:        13794872
+Array Job ID:  13794825_46
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:08,vmem=0,walltime=00:00:08,mem=117916K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-32-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794873
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/roadNet-TX: max_degree=12 squarings=3 (1.0s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/roadNet-TX      3  max_degree=12  growth<=3.67e+05x  density<=99.0336%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/roadNet-TX.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:48
+Job ID:        13794873
+Array Job ID:  13794825_47
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:07,vmem=0,walltime=00:00:07,mem=132400K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-32-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794874
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/soc-Epinions1: max_degree=1801 squarings=1 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/soc-Epinions1      1  max_degree=1801  growth<=1.09e+03x  density<=11.0334%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/soc-Epinions1.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:48
+Job ID:        13794874
+Array Job ID:  13794825_48
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:06,vmem=0,walltime=00:00:06,mem=68904K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-32-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794875
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/soc-LiveJournal1: max_degree=20292 squarings=1 (37.3s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/soc-LiveJournal1      1  max_degree=20292  growth<=1.83e+04x  density<=5.7116%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/soc-LiveJournal1.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:27:25
+Job ID:        13794875
+Array Job ID:  13794825_49
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:44,vmem=0,walltime=00:00:44,mem=713732K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-32-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794831
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/CollegeMsg: max_degree=237 squarings=1 (0.0s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/CollegeMsg      1  max_degree=237  growth<=77.3x  density<=47.5757%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/CollegeMsg.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:48
+Job ID:        13794831
+Array Job ID:  13794825_5
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:07,vmem=0,walltime=00:00:07,mem=70372K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-3-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794876
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/soc-Pokec: max_degree=8763 squarings=1 (28.3s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/soc-Pokec      1  max_degree=8763  growth<=8.19e+03x  density<=9.9032%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/soc-Pokec.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:27:15
+Job ID:        13794876
+Array Job ID:  13794825_50
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:34,vmem=0,walltime=00:00:34,mem=499900K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-32-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794877
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/soc-Slashdot0811: max_degree=2507 squarings=1 (0.7s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/soc-Slashdot0811      1  max_degree=2507  growth<=1.31e+03x  density<=19.8094%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/soc-Slashdot0811.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:48
+Job ID:        13794877
+Array Job ID:  13794825_51
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:07,vmem=0,walltime=00:00:07,mem=60288K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-32-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794878
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/soc-Slashdot0902: max_degree=2510 squarings=1 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/soc-Slashdot0902      1  max_degree=2510  growth<=1.34e+03x  density<=18.8900%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/soc-Slashdot0902.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794878
+Array Job ID:  13794825_52
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:06,vmem=0,walltime=00:00:06,mem=61908K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-32-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794879
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/soc-sign-Slashdot081106: max_degree=426 squarings=1 (0.7s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/soc-sign-Slashdot081106      1  max_degree=426  growth<=358x  density<=3.5504%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/soc-sign-Slashdot081106.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:48
+Job ID:        13794879
+Array Job ID:  13794825_53
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:07,vmem=0,walltime=00:00:07,mem=60076K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-32-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794880
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/soc-sign-Slashdot090216: max_degree=428 squarings=1 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/soc-sign-Slashdot090216      1  max_degree=428  growth<=362x  density<=3.3929%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/soc-sign-Slashdot090216.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794880
+Array Job ID:  13794825_54
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:06,vmem=0,walltime=00:00:06,mem=58400K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-32-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794881
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/soc-sign-Slashdot090221: max_degree=428 squarings=1 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/soc-sign-Slashdot090221      1  max_degree=428  growth<=363x  density<=3.3942%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/soc-sign-Slashdot090221.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794881
+Array Job ID:  13794825_55
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:06,vmem=0,walltime=00:00:06,mem=58508K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-32-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794882
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/soc-sign-bitcoin-alpha: max_degree=490 squarings=1 (0.0s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/soc-sign-bitcoin-alpha      1  max_degree=490  growth<=197x  density<=38.4573%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/soc-sign-bitcoin-alpha.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794882
+Array Job ID:  13794825_56
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:06,vmem=0,walltime=00:00:06,mem=60476K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-32-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794883
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/soc-sign-bitcoin-otc: max_degree=763 squarings=1 (0.0s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/soc-sign-bitcoin-otc      1  max_degree=763  growth<=295x  density<=35.3696%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/soc-sign-bitcoin-otc.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794883
+Array Job ID:  13794825_57
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:06,vmem=0,walltime=00:00:06,mem=58444K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-32-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794884
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/soc-sign-epinions: max_degree=2070 squarings=1 (0.4s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/soc-sign-epinions      1  max_degree=2070  growth<=1.21e+03x  density<=6.7778%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/soc-sign-epinions.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794884
+Array Job ID:  13794825_58
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:06,vmem=0,walltime=00:00:06,mem=58496K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-32-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794885
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/sx-askubuntu: max_degree=4965 squarings=1 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/sx-askubuntu      1  max_degree=4965  growth<=2.05e+03x  density<=5.6827%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/sx-askubuntu.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794885
+Array Job ID:  13794825_59
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:06,vmem=0,walltime=00:00:06,mem=58488K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-32-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794832
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/Oregon-1: max_degree=2389 squarings=1 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/Oregon-1      1  max_degree=2389  growth<=978x  density<=43.1754%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/Oregon-1.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:48
+Job ID:        13794832
+Array Job ID:  13794825_6
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:07,vmem=0,walltime=00:00:07,mem=71244K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-3-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794886
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/sx-mathoverflow: max_degree=1848 squarings=1 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/sx-mathoverflow      1  max_degree=1848  growth<=446x  density<=18.2993%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/sx-mathoverflow.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:47
+Job ID:        13794886
+Array Job ID:  13794825_60
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:06,vmem=0,walltime=00:00:06,mem=57728K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-32-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794887
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/sx-stackoverflow: max_degree=38147 squarings=1 (3.0s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/sx-stackoverflow      1  max_degree=38147  growth<=1.66e+04x  density<=9.1984%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/sx-stackoverflow.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:50
+Job ID:        13794887
+Array Job ID:  13794825_61
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:09,vmem=0,walltime=00:00:09,mem=370736K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-32-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794888
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/sx-superuser: max_degree=14254 squarings=1 (0.6s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/sx-superuser      1  max_degree=14254  growth<=4.88e+03x  density<=13.5954%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/sx-superuser.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:48
+Job ID:        13794888
+Array Job ID:  13794825_62
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:06,vmem=0,walltime=00:00:06,mem=60828K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-32-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794889
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/twitter7: max_degree=2997469 squarings=1 (106.7s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/twitter7      1  max_degree=2997469  growth<=6.29e+05x  density<=54.7839%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/twitter7.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:28:34
+Job ID:        13794889
+Array Job ID:  13794825_63
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:01:53,vmem=0,walltime=00:01:53,mem=4549272K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-32-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794890
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/web-BerkStan: max_degree=249 squarings=2 (5.3s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/web-BerkStan      2  max_degree=249  growth<=5.63e+04x  density<=99.3077%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/web-BerkStan.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:52
+Job ID:        13794890
+Array Job ID:  13794825_64
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:11,vmem=0,walltime=00:00:11,mem=168600K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-32-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794891
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/web-Google: max_degree=456 squarings=2 (1.7s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/web-Google      2  max_degree=456  growth<=1.13e+05x  density<=80.6887%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/web-Google.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:49
+Job ID:        13794891
+Array Job ID:  13794825_65
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:08,vmem=0,walltime=00:00:08,mem=136332K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-32-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794892
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/web-NotreDame: max_degree=3444 squarings=1 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/web-NotreDame      1  max_degree=3444  growth<=2.47e+03x  density<=4.1791%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/web-NotreDame.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:50
+Job ID:        13794892
+Array Job ID:  13794825_66
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:09,vmem=0,walltime=00:00:09,mem=92996K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-004-1-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794893
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/web-Stanford: max_degree=255 squarings=2 (0.7s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/web-Stanford      2  max_degree=255  growth<=3.06e+04x  density<=99.9390%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/web-Stanford.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:51
+Job ID:        13794893
+Array Job ID:  13794825_67
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:10,vmem=0,walltime=00:00:10,mem=109956K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-004-1-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794894
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/wiki-RfA: max_degree=1101 squarings=1 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/wiki-RfA      1  max_degree=1101  growth<=272x  density<=41.9055%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/wiki-RfA.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:48
+Job ID:        13794894
+Array Job ID:  13794825_68
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:07,vmem=0,walltime=00:00:07,mem=83276K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-004-4-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794895
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/wiki-Talk: max_degree=100022 squarings=1 (1.7s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/wiki-Talk      1  max_degree=100022  growth<=9.25e+03x  density<=1.1960%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/wiki-Talk.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:50
+Job ID:        13794895
+Array Job ID:  13794825_69
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:09,vmem=0,walltime=00:00:09,mem=164224K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-004-4-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794833
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/Oregon-2: max_degree=2432 squarings=1 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/Oregon-2      1  max_degree=2432  growth<=844x  density<=46.7709%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/Oregon-2.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:48
+Job ID:        13794833
+Array Job ID:  13794825_7
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:07,vmem=0,walltime=00:00:07,mem=69596K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-3-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794896
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/wiki-Vote: max_degree=893 squarings=1 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/wiki-Vote      1  max_degree=893  growth<=209x  density<=34.0121%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/wiki-Vote.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:48
+Job ID:        13794896
+Array Job ID:  13794825_70
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:07,vmem=0,walltime=00:00:07,mem=71632K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-004-5-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794897
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/wiki-talk-temporal: max_degree=141883 squarings=1 (1.0s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/wiki-talk-temporal      1  max_degree=141883  growth<=1.26e+04x  density<=4.1514%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/wiki-talk-temporal.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:49
+Job ID:        13794897
+Array Job ID:  13794825_71
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:08,vmem=0,walltime=00:00:08,mem=112M,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-004-5-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794825
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/wiki-topcats: max_degree=3907 squarings=1 (2.6s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/wiki-topcats      1  max_degree=3907  growth<=3.64e+03x  density<=3.4368%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/wiki-topcats.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:51
+Job ID:        13794825
+Array Job ID:  13794825_72
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:10,vmem=,walltime=00:00:10,mem=,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-2-1
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794834
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/amazon0302: max_degree=5 squarings=3 (0.1s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/amazon0302      3  max_degree=5  growth<=4.44e+04x  density<=96.8075%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/amazon0302.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:48
+Job ID:        13794834
+Array Job ID:  13794825_8
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:07,vmem=0,walltime=00:00:07,mem=110816K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-5-2
+---------------------------------------
+---------------------------------------
+Begin Slurm Prolog: Oct-01-2026 17:26:42
+Job ID:    13794835
+User ID:   wahrens6
+Account:   gts-wahrens6
+Job name:  saps-fill-in
+Partition: cpu-medium
+QOS:       inferno
+---------------------------------------
+  SNAP/amazon0312: max_degree=10 squarings=2 (1.4s)
+Fewest squarings whose density bound reaches 1%:
+  SNAP/amazon0312      2  max_degree=10  growth<=987x  density<=2.2145%
+Saved /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/amazon0312.json
+---------------------------------------
+Begin Slurm Epilog: Oct-01-2026 17:26:49
+Job ID:        13794835
+Array Job ID:  13794825_9
+User ID:       wahrens6
+Account:       gts-wahrens6
+Job name:      saps-fill-in
+Resources:     cpu=1,mem=16G,node=1
+Rsrc Used:     cput=00:00:08,vmem=0,walltime=00:00:08,mem=108480K,energy_used=0
+Partition:     cpu-medium
+QOS:           inferno
+Nodes:         atl1-1-01-003-6-2
+---------------------------------------

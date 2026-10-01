@@ -1,0 +1,60 @@
+{
+  "semantics": "Upper bounds for Boolean (I OR (A != 0)) raised to 2**squarings, from row degrees; original edge direction",
+  "target_density": 0.01,
+  "steps": [
+    {
+      "dataset": "SNAP/soc-Pokec",
+      "squarings": 1,
+      "stop_reason": "target",
+      "max_degree": 8763,
+      "density_bound": 0.09903180423610845,
+      "growth_factor_bound": 8185.407085555716
+    }
+  ],
+  "configuration": {
+    "datasets": [
+      "SNAP/soc-Pokec"
+    ],
+    "cache_dir": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache",
+    "manifest": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json",
+    "output": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/soc-Pokec.json",
+    "list_datasets": false,
+    "merge": null,
+    "target_density": 0.01
+  },
+  "matrices": [
+    {
+      "dataset": "SNAP/soc-Pokec",
+      "path": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache/suitesparse_matrix/SNAP/soc-Pokec/40d767a96356bbf3a266fe39912a88ac48fc76a158ae4f1dc4e240c00c9a388d.bsp.h5",
+      "digest": "40d767a96356bbf3a266fe39912a88ac48fc76a158ae4f1dc4e240c00c9a388d",
+      "status": "ok",
+      "n": 1632803,
+      "nnz": 32255367,
+      "max_degree": 8763,
+      "target_density": 0.01,
+      "squarings": 1,
+      "stop_reason": "target",
+      "stages": [
+        {
+          "squarings": 0,
+          "max_path_length": 1,
+          "row_nnz_bound": 8764,
+          "nnz_bound": 32255367,
+          "density_bound": 1.2098580217331376e-05,
+          "growth_factor_bound": 1.0,
+          "bool_csr64_bytes_bound": 303360735
+        },
+        {
+          "squarings": 1,
+          "max_path_length": 2,
+          "row_nnz_bound": 1632803,
+          "nnz_bound": 264023309589,
+          "density_bound": 0.09903180423610845,
+          "growth_factor_bound": 8185.407085555716,
+          "bool_csr64_bytes_bound": 2376222848733
+        }
+      ],
+      "seconds": 28.324679672718048
+    }
+  ]
+}

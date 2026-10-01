@@ -1,0 +1,60 @@
+{
+  "semantics": "Upper bounds for Boolean (I OR (A != 0)) raised to 2**squarings, from row degrees; original edge direction",
+  "target_density": 0.01,
+  "steps": [
+    {
+      "dataset": "SNAP/soc-sign-Slashdot090216",
+      "squarings": 1,
+      "stop_reason": "target",
+      "max_degree": 428,
+      "density_bound": 0.033928502646904425,
+      "growth_factor_bound": 362.3949074324906
+    }
+  ],
+  "configuration": {
+    "datasets": [
+      "SNAP/soc-sign-Slashdot090216"
+    ],
+    "cache_dir": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache",
+    "manifest": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json",
+    "output": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/soc-sign-Slashdot090216.json",
+    "list_datasets": false,
+    "merge": null,
+    "target_density": 0.01
+  },
+  "matrices": [
+    {
+      "dataset": "SNAP/soc-sign-Slashdot090216",
+      "path": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache/suitesparse_matrix/SNAP/soc-sign-Slashdot090216/2e02cdf4a0d6a87010d899560744618008e91fd422ff0edf47b41852e4b33cc0.bsp.h5",
+      "digest": "2e02cdf4a0d6a87010d899560744618008e91fd422ff0edf47b41852e4b33cc0",
+      "status": "ok",
+      "n": 81871,
+      "nnz": 627542,
+      "max_degree": 428,
+      "target_density": 0.01,
+      "squarings": 1,
+      "stop_reason": "target",
+      "stages": [
+        {
+          "squarings": 0,
+          "max_path_length": 1,
+          "row_nnz_bound": 429,
+          "nnz_bound": 627542,
+          "density_bound": 9.362301166780292e-05,
+          "growth_factor_bound": 1.0,
+          "bool_csr64_bytes_bound": 6302854
+        },
+        {
+          "squarings": 1,
+          "max_path_length": 2,
+          "row_nnz_bound": 81871,
+          "nnz_bound": 227418025,
+          "density_bound": 0.033928502646904425,
+          "growth_factor_bound": 362.3949074324906,
+          "bool_csr64_bytes_bound": 2047417201
+        }
+      ],
+      "seconds": 0.07811266090720892
+    }
+  ]
+}

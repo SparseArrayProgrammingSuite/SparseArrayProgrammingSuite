@@ -1,0 +1,69 @@
+{
+  "semantics": "Upper bounds for Boolean (I OR (A != 0)) raised to 2**squarings, from row degrees; original edge direction",
+  "target_density": 0.01,
+  "steps": [
+    {
+      "dataset": "SNAP/cit-Patents",
+      "squarings": 2,
+      "stop_reason": "target",
+      "max_degree": 770,
+      "density_bound": 0.5535030090583339,
+      "growth_factor_bound": 388632.3589536465
+    }
+  ],
+  "configuration": {
+    "datasets": [
+      "SNAP/cit-Patents"
+    ],
+    "cache_dir": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache",
+    "manifest": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json",
+    "output": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/cit-Patents.json",
+    "list_datasets": false,
+    "merge": null,
+    "target_density": 0.01
+  },
+  "matrices": [
+    {
+      "dataset": "SNAP/cit-Patents",
+      "path": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache/suitesparse_matrix/SNAP/cit-Patents/cfbc132978ea2be5ada23c5e2b878b045c7a0bb6e70a92697afac79f23cc445b.bsp.h5",
+      "digest": "cfbc132978ea2be5ada23c5e2b878b045c7a0bb6e70a92697afac79f23cc445b",
+      "status": "ok",
+      "n": 3774768,
+      "nnz": 20293715,
+      "max_degree": 770,
+      "target_density": 0.01,
+      "squarings": 2,
+      "stop_reason": "target",
+      "stages": [
+        {
+          "squarings": 0,
+          "max_path_length": 1,
+          "row_nnz_bound": 771,
+          "nnz_bound": 20293715,
+          "density_bound": 1.4242329448545795e-06,
+          "growth_factor_bound": 1.0,
+          "bool_csr64_bytes_bound": 212841587
+        },
+        {
+          "squarings": 1,
+          "max_path_length": 2,
+          "row_nnz_bound": 593671,
+          "nnz_bound": 12739882905,
+          "density_bound": 0.0008940975541881152,
+          "growth_factor_bound": 627.7748014594666,
+          "bool_csr64_bytes_bound": 114689144297
+        },
+        {
+          "squarings": 2,
+          "max_path_length": 4,
+          "row_nnz_bound": 3774768,
+          "nnz_bound": 7886794332383,
+          "density_bound": 0.5535030090583339,
+          "growth_factor_bound": 388632.3589536465,
+          "bool_csr64_bytes_bound": 70981179189599
+        }
+      ],
+      "seconds": 3.076601299981121
+    }
+  ]
+}
