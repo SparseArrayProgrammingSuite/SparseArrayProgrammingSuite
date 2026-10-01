@@ -1,0 +1,60 @@
+{
+  "semantics": "Upper bounds for Boolean (I OR (A != 0)) raised to 2**squarings, from row degrees; original edge direction",
+  "target_density": 0.01,
+  "steps": [
+    {
+      "dataset": "SNAP/ca-CondMat",
+      "squarings": 1,
+      "stop_reason": "target",
+      "max_degree": 279,
+      "density_bound": 0.09684042769945025,
+      "growth_factor_bound": 246.76216483898463
+    }
+  ],
+  "configuration": {
+    "datasets": [
+      "SNAP/ca-CondMat"
+    ],
+    "cache_dir": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache",
+    "manifest": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json",
+    "output": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/ca-CondMat.json",
+    "list_datasets": false,
+    "merge": null,
+    "target_density": 0.01
+  },
+  "matrices": [
+    {
+      "dataset": "SNAP/ca-CondMat",
+      "path": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache/suitesparse_matrix/SNAP/ca-CondMat/5ea0b4301f49c8a617e17b8f84f2245ee62493018c7b709f2ed91352d4419aba.bsp.h5",
+      "digest": "5ea0b4301f49c8a617e17b8f84f2245ee62493018c7b709f2ed91352d4419aba",
+      "status": "ok",
+      "n": 23133,
+      "nnz": 210011,
+      "max_degree": 279,
+      "target_density": 0.01,
+      "squarings": 1,
+      "stop_reason": "target",
+      "stages": [
+        {
+          "squarings": 0,
+          "max_path_length": 1,
+          "row_nnz_bound": 280,
+          "nnz_bound": 210011,
+          "density_bound": 0.0003924443917998525,
+          "growth_factor_bound": 1.0,
+          "bool_csr64_bytes_bound": 2075171
+        },
+        {
+          "squarings": 1,
+          "max_path_length": 2,
+          "row_nnz_bound": 23133,
+          "nnz_bound": 51822769,
+          "density_bound": 0.09684042769945025,
+          "growth_factor_bound": 246.76216483898463,
+          "bool_csr64_bytes_bound": 466589993
+        }
+      ],
+      "seconds": 0.08253359608352184
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "semantics": "Upper bounds for Boolean (I OR (A != 0)) raised to 2**squarings, from row degrees; original edge direction",
+  "target_density": 0.01,
+  "steps": [
+    {
+      "dataset": "SNAP/email-Enron",
+      "squarings": 1,
+      "stop_reason": "target",
+      "max_degree": 1383,
+      "density_bound": 0.22286809975916386,
+      "growth_factor_bound": 742.0427669814073
+    }
+  ],
+  "configuration": {
+    "datasets": [
+      "SNAP/email-Enron"
+    ],
+    "cache_dir": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache",
+    "manifest": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json",
+    "output": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/email-Enron.json",
+    "list_datasets": false,
+    "merge": null,
+    "target_density": 0.01
+  },
+  "matrices": [
+    {
+      "dataset": "SNAP/email-Enron",
+      "path": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache/suitesparse_matrix/SNAP/email-Enron/c72b19ee8f09eb7ec29383b732bb2d955ad115ce375e9084d53ad31e4739d0eb.bsp.h5",
+      "digest": "c72b19ee8f09eb7ec29383b732bb2d955ad115ce375e9084d53ad31e4739d0eb",
+      "status": "ok",
+      "n": 36692,
+      "nnz": 404354,
+      "max_degree": 1383,
+      "target_density": 0.01,
+      "squarings": 1,
+      "stop_reason": "target",
+      "stages": [
+        {
+          "squarings": 0,
+          "max_path_length": 1,
+          "row_nnz_bound": 1384,
+          "nnz_bound": 404354,
+          "density_bound": 0.00030034400936994516,
+          "growth_factor_bound": 1.0,
+          "bool_csr64_bytes_bound": 3932730
+        },
+        {
+          "squarings": 1,
+          "max_path_length": 2,
+          "row_nnz_bound": 36692,
+          "nnz_bound": 300047961,
+          "density_bound": 0.22286809975916386,
+          "growth_factor_bound": 742.0427669814073,
+          "bool_csr64_bytes_bound": 2700725193
+        }
+      ],
+      "seconds": 0.09769761376082897
+    }
+  ]
+}

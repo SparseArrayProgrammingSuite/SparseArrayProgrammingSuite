@@ -1,0 +1,60 @@
+{
+  "semantics": "Upper bounds for Boolean (I OR (A != 0)) raised to 2**squarings, from row degrees; original edge direction",
+  "target_density": 0.01,
+  "steps": [
+    {
+      "dataset": "SNAP/as-caida",
+      "squarings": 1,
+      "stop_reason": "target",
+      "max_degree": 2628,
+      "density_bound": 0.17219123683191864,
+      "growth_factor_bound": 1227.3449736139162
+    }
+  ],
+  "configuration": {
+    "datasets": [
+      "SNAP/as-caida"
+    ],
+    "cache_dir": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache",
+    "manifest": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json",
+    "output": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/as-caida.json",
+    "list_datasets": false,
+    "merge": null,
+    "target_density": 0.01
+  },
+  "matrices": [
+    {
+      "dataset": "SNAP/as-caida",
+      "path": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache/suitesparse_matrix/SNAP/as-caida/c3bb3eacfc50469145c50f9440cbd9e94d0c75e661d76f7558b761bd619de9a0.bsp.h5",
+      "digest": "c3bb3eacfc50469145c50f9440cbd9e94d0c75e661d76f7558b761bd619de9a0",
+      "status": "ok",
+      "n": 31379,
+      "nnz": 138141,
+      "max_degree": 2628,
+      "target_density": 0.01,
+      "squarings": 1,
+      "stop_reason": "target",
+      "stages": [
+        {
+          "squarings": 0,
+          "max_path_length": 1,
+          "row_nnz_bound": 2629,
+          "nnz_bound": 138141,
+          "density_bound": 0.0001402957119096693,
+          "growth_factor_bound": 1.0,
+          "bool_csr64_bytes_bound": 1494309
+        },
+        {
+          "squarings": 1,
+          "max_path_length": 2,
+          "row_nnz_bound": 31379,
+          "nnz_bound": 169546662,
+          "density_bound": 0.17219123683191864,
+          "growth_factor_bound": 1227.3449736139162,
+          "bool_csr64_bytes_bound": 1526170998
+        }
+      ],
+      "seconds": 0.05595473758876324
+    }
+  ]
+}

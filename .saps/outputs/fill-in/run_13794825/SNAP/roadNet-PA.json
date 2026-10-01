@@ -1,0 +1,78 @@
+{
+  "semantics": "Upper bounds for Boolean (I OR (A != 0)) raised to 2**squarings, from row degrees; original edge direction",
+  "target_density": 0.01,
+  "steps": [
+    {
+      "dataset": "SNAP/roadNet-PA",
+      "squarings": 3,
+      "stop_reason": "target",
+      "max_degree": 9,
+      "density_bound": 0.9974076949659988,
+      "growth_factor_bound": 284335.827267771
+    }
+  ],
+  "configuration": {
+    "datasets": [
+      "SNAP/roadNet-PA"
+    ],
+    "cache_dir": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache",
+    "manifest": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/manifest.json",
+    "output": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/fill-in/run_13794825/SNAP/roadNet-PA.json",
+    "list_datasets": false,
+    "merge": null,
+    "target_density": 0.01
+  },
+  "matrices": [
+    {
+      "dataset": "SNAP/roadNet-PA",
+      "path": "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache/suitesparse_matrix/SNAP/roadNet-PA/f9abff5310cf93f3ac80b4fd95d7f18377561cab37cf4da3fafc33651df98161.bsp.h5",
+      "digest": "f9abff5310cf93f3ac80b4fd95d7f18377561cab37cf4da3fafc33651df98161",
+      "status": "ok",
+      "n": 1090920,
+      "nnz": 4174716,
+      "max_degree": 9,
+      "target_density": 0.01,
+      "squarings": 3,
+      "stop_reason": "target",
+      "stages": [
+        {
+          "squarings": 0,
+          "max_path_length": 1,
+          "row_nnz_bound": 10,
+          "nnz_bound": 4174716,
+          "density_bound": 3.507850925964029e-06,
+          "growth_factor_bound": 1.0,
+          "bool_csr64_bytes_bound": 46299812
+        },
+        {
+          "squarings": 1,
+          "max_path_length": 2,
+          "row_nnz_bound": 91,
+          "nnz_bound": 31928880,
+          "density_bound": 2.6828591758815297e-05,
+          "growth_factor_bound": 7.648156185953727,
+          "bool_csr64_bytes_bound": 296087288
+        },
+        {
+          "squarings": 2,
+          "max_path_length": 4,
+          "row_nnz_bound": 7381,
+          "nnz_bound": 2529803640,
+          "density_bound": 0.0021256952667154296,
+          "growth_factor_bound": 605.9822129217891,
+          "bool_csr64_bytes_bound": 22776960128
+        },
+        {
+          "squarings": 3,
+          "max_path_length": 8,
+          "row_nnz_bound": 1090920,
+          "nnz_bound": 1187021327468,
+          "density_bound": 0.9974076949659988,
+          "growth_factor_bound": 284335.827267771,
+          "bool_csr64_bytes_bound": 10683200674580
+        }
+      ],
+      "seconds": 1.3203680170699954
+    }
+  ]
+}
