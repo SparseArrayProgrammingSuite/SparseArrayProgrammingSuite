@@ -49,42 +49,40 @@ Runner outputs are written under `.saps/outputs/`, including ASV result files an
 
 ## Measuring Structural Fill-In
 
-Count how many Boolean squarings each prepared GAP and SNAP matrix takes to reach
-1% density:
+Bound how many Boolean squarings each prepared GAP and SNAP matrix can take before
+it reaches 1% density:
 
 ```bash
 poetry run python scripts/measure_fill_in.py --output .saps/outputs/fill-in.json
 ```
 
-The script squares `I OR (A != 0)` repeatedly, preserving edge direction; after
-`s` squarings it covers paths of up to `2**s` edges. It stops at the first
-squaring whose estimated density reaches `--target-density` (default 0.01), or
-once the counted rows stop changing (the transitive closure). It counts reachable
-vertices from uniformly sampled rows without constructing the squared matrices;
-use `--exact` to count every row. Small matrices use every row automatically.
+The script bounds the fill-in of `I OR (A != 0)` under repeated squaring,
+preserving edge direction; after `s` squarings it covers paths of up to `2**s`
+edges. It makes one streaming pass over each matrix to count every row's
+off-diagonal nonzeros, then derives the bounds from those degrees. It never forms
+a squared matrix or traverses the graph. With maximum degree `d`, at most
+`1 + d + ... + d**k` vertices lie within `k` edges of any vertex. A row with `k0`
+nonzeros therefore has at most `1 + k0 * (1 + d + ... + d**(h - 1))` nonzeros in
+the `h`-th power, capped at `n`. Summing these row bounds bounds the nonzero
+count, density, and growth factor relative to `I OR (A != 0)`.
+
+The JSON leads with `steps`, one entry per matrix. `squarings` is the fewest
+squarings whose density bound reaches `--target-density` (default 0.01), and every
+earlier squaring is guaranteed to stay below that density. These are worst-case
+bounds for the given degrees, so a matrix usually stays sparse longer than its
+step count. Power-law graphs give especially loose bounds, because a single
+high-degree row dominates `d`. When the bound stops growing below the target,
+`squarings` is null and `stop_reason` is `never`: the matrix provably never
+reaches that density. The same list is printed at the end of the run.
+
 `--datasets` takes matrix names such as `GAP/GAP-road` or whole SuiteSparse groups
 such as `SNAP`; the default is `GAP SNAP`, and `--list-datasets` prints the
-selection. Prepared inputs must be row-ordered COO Binsparse files in the shared
-cache. Use `--cache-dir PATH` and `--manifest PATH` to select another prepared
-cache. Missing datasets are reported without downloading them.
-
-The JSON leads with `steps`, one entry per matrix: `squarings` is the number of
-squarings at which the density first reaches the target. For a matrix whose
-closure stays below the target, it is instead the number of squarings to reach the
-closure, and `stop_reason` is `closure`. The same list is printed at the end of the
-run. The `matrices` entries record each squaring's estimated nonzero count, density,
-growth relative to the input, and simultaneous confidence bounds.
-
-`--seconds` (shared by all squarings of a matrix), `--max-edges`, and
-`--max-visited` bound traversal work. Incomplete rows contribute bounds, never
-false counts. The stopping decision uses those bounds on the sample estimate. When
-they leave it uncertain, `squarings` is null and `squarings_bounds` brackets it.
-By default a row stops counting at 4x the target row count (or at 1,000,000
-vertices, if larger), since such a row already counts toward the target in full.
-`--max-squarings` caps the number of squarings. A nonzero exit code indicates
-missing/error inputs or an undetermined step count. Reported CSR storage estimates
-assume one-byte Boolean values and 64-bit indices and exclude temporary
-workspaces. Low density can still correspond to very large storage requirements.
+selection. Prepared inputs must be row-ordered COO Binsparse files whose columns
+are sorted within each row, in the shared cache. Use `--cache-dir PATH` and
+`--manifest PATH` to select another prepared cache. Missing datasets are reported
+without downloading them, and missing or invalid inputs give a nonzero exit code.
+Reported CSR storage bounds assume one-byte Boolean values and 64-bit indices and
+exclude temporary workspaces.
 
 Run the measurement on Slurm with one array task per GAP and SNAP matrix:
 
@@ -92,15 +90,15 @@ Run the measurement on Slurm with one array task per GAP and SNAP matrix:
 sbatch scripts/measure-fill-in.slurm
 ```
 
-Each task requests one CPU, 16 GB of memory, and a two-hour wall time. It samples
-1,024 rows, with a 90-minute traversal budget plus time for input validation. The
-job uses the existing Poetry environment and prepared shared cache;
-`SAPS_CACHE_DIR` and `SAPS_MANIFEST_PATH` select alternate inputs. Task indices
-follow `scripts/measure_fill_in.py --list-datasets`; the array covers the 73 GAP
-and SNAP manifest entries, so update `--array` if that count changes. Results go
-to `.saps/outputs/fill-in/run_<array-job-id>/<group>/<name>.json`, and logs go to
+Each task requests one CPU, 16 GB of memory, and a one-hour wall time. The job
+uses the existing Poetry environment and prepared shared cache; `SAPS_CACHE_DIR`
+and `SAPS_MANIFEST_PATH` select alternate inputs. Task indices follow
+`scripts/measure_fill_in.py --list-datasets`; the array covers the 73 GAP and SNAP
+manifest entries, so update `--array` if that count changes. Results go to
+`.saps/outputs/fill-in/run_<array-job-id>/<group>/<name>.json`, and logs go to
 `fill-in-<array-job-id>_<task-index>.log` in the submission directory. Set
-`SAPS_FILL_IN_OUTPUT_DIR` to change the output directory.
+`SAPS_FILL_IN_OUTPUT_DIR` to change the output directory. Options after the script
+name, such as `--target-density 0.05`, are passed to every task.
 
 Combine the per-task results into one step list once the array finishes:
 
@@ -109,16 +107,6 @@ poetry run python scripts/measure_fill_in.py \
   --merge .saps/outputs/fill-in/run_<array-job-id>/*/*.json \
   --output .saps/outputs/fill-in/run_<array-job-id>.json
 ```
-
-Pass measurement options after the script name to override its defaults:
-
-```bash
-sbatch scripts/measure-fill-in.slurm --samples 4096 --target-density 0.05
-```
-
-An undetermined step count returns a nonzero task exit status and keeps the JSON
-bounds, as it does for local runs. Missing prepared inputs also produce a JSON
-report and a nonzero exit status.
 
 ## Competition Runs
 

@@ -4,7 +4,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=16G
-#SBATCH --time=02:00:00
+#SBATCH --time=01:00:00
 #SBATCH --array=0-72
 #SBATCH --output=fill-in-%A_%a.log
 
@@ -39,11 +39,9 @@ dataset_name="${dataset_names[$SLURM_ARRAY_TASK_ID]}"
 job_id="${SLURM_ARRAY_JOB_ID:-${SLURM_JOB_ID:-local}}"
 output_directory="${SAPS_FILL_IN_OUTPUT_DIR:-$repo_directory/.saps/outputs/fill-in/run_$job_id}"
 
-# Extra CLI arguments can override sampling and traversal budgets. Keep the
-# dataset and output fixed per task so array workers cannot overwrite each other.
+# Extra CLI arguments (such as --target-density) pass through. Keep the dataset
+# and output fixed per task so array workers cannot overwrite each other.
 poetry run python ./scripts/measure_fill_in.py \
-  --samples 1024 \
-  --seconds 5400 \
   "$@" \
   --datasets "$dataset_name" \
   --output "$output_directory/$dataset_name.json"
