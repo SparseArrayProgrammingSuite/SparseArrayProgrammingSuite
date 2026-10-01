@@ -47,6 +47,79 @@ poetry run ./bin/run_benchmark.py --re bfs --no-re toy
 
 Runner outputs are written under `.saps/outputs/`, including ASV result files and cached datasets.
 
+## Measuring Structural Fill-In
+
+Count how many Boolean squarings each prepared GAP and SNAP matrix takes to reach
+1% density:
+
+```bash
+poetry run python scripts/measure_fill_in.py --output .saps/outputs/fill-in.json
+```
+
+The script squares `I OR (A != 0)` repeatedly, preserving edge direction; after
+`s` squarings it covers paths of up to `2**s` edges. It stops at the first
+squaring whose estimated density reaches `--target-density` (default 0.01), or
+once the counted rows stop changing (the transitive closure). It counts reachable
+vertices from uniformly sampled rows without constructing the squared matrices;
+use `--exact` to count every row. Small matrices use every row automatically.
+`--datasets` takes matrix names such as `GAP/GAP-road` or whole SuiteSparse groups
+such as `SNAP`; the default is `GAP SNAP`, and `--list-datasets` prints the
+selection. Prepared inputs must be row-ordered COO Binsparse files in the shared
+cache. Use `--cache-dir PATH` and `--manifest PATH` to select another prepared
+cache. Missing datasets are reported without downloading them.
+
+The JSON leads with `steps`, one entry per matrix: `squarings` is the number of
+squarings at which the density first reaches the target. For a matrix whose
+closure stays below the target, it is instead the number of squarings to reach the
+closure, and `stop_reason` is `closure`. The same list is printed at the end of the
+run. The `matrices` entries record each squaring's estimated nonzero count, density,
+growth relative to the input, and simultaneous confidence bounds.
+
+`--seconds` (shared by all squarings of a matrix), `--max-edges`, and
+`--max-visited` bound traversal work. Incomplete rows contribute bounds, never
+false counts. The stopping decision uses those bounds on the sample estimate. When
+they leave it uncertain, `squarings` is null and `squarings_bounds` brackets it.
+By default a row stops counting at 4x the target row count (or at 1,000,000
+vertices, if larger), since such a row already counts toward the target in full.
+`--max-squarings` caps the number of squarings. A nonzero exit code indicates
+missing/error inputs or an undetermined step count. Reported CSR storage estimates
+assume one-byte Boolean values and 64-bit indices and exclude temporary
+workspaces. Low density can still correspond to very large storage requirements.
+
+Run the measurement on Slurm with one array task per GAP and SNAP matrix:
+
+```bash
+sbatch scripts/measure-fill-in.slurm
+```
+
+Each task requests one CPU, 16 GB of memory, and a two-hour wall time. It samples
+1,024 rows, with a 90-minute traversal budget plus time for input validation. The
+job uses the existing Poetry environment and prepared shared cache;
+`SAPS_CACHE_DIR` and `SAPS_MANIFEST_PATH` select alternate inputs. Task indices
+follow `scripts/measure_fill_in.py --list-datasets`; the array covers the 73 GAP
+and SNAP manifest entries, so update `--array` if that count changes. Results go
+to `.saps/outputs/fill-in/run_<array-job-id>/<group>/<name>.json`, and logs go to
+`fill-in-<array-job-id>_<task-index>.log` in the submission directory. Set
+`SAPS_FILL_IN_OUTPUT_DIR` to change the output directory.
+
+Combine the per-task results into one step list once the array finishes:
+
+```bash
+poetry run python scripts/measure_fill_in.py \
+  --merge .saps/outputs/fill-in/run_<array-job-id>/*/*.json \
+  --output .saps/outputs/fill-in/run_<array-job-id>.json
+```
+
+Pass measurement options after the script name to override its defaults:
+
+```bash
+sbatch scripts/measure-fill-in.slurm --samples 4096 --target-density 0.05
+```
+
+An undetermined step count returns a nonzero task exit status and keeps the JSON
+bounds, as it does for local runs. Missing prepared inputs also produce a JSON
+report and a nonzero exit status.
+
 ## Competition Runs
 
 Use `competition.config.json` to define the frameworks included in a competition
