@@ -13,14 +13,7 @@ from saps.benchmarks.gap import (
     fetch_gap_source_graph,
     gap_source_datasets,
 )
-from saps.benchmarks.suitesparse import (
-    _GAP_KRON_SOURCES,
-    _GAP_ROAD_SOURCES,
-    _GAP_TWITTER_SOURCES,
-    _GAP_URAND_SOURCES,
-    _GAP_WEB_SOURCES,
-    SuiteSparseMatrixGenerator,
-)
+from saps.benchmarks.suitesparse import SuiteSparseMatrixGenerator
 from saps.metadata import _benchmark_instances
 
 
@@ -38,13 +31,7 @@ def test_gap_shell_inventory():
         d.source_name for d in SuiteSparseMatrixGenerator().datasets
     }
     assert set(_MAX_DEGREES) == {d.source_name for d in datasets}
-    assert [d.sources for d in datasets] == [
-        _GAP_ROAD_SOURCES,
-        _GAP_TWITTER_SOURCES,
-        _GAP_WEB_SOURCES,
-        _GAP_KRON_SOURCES,
-        _GAP_URAND_SOURCES,
-    ]
+    assert datasets[0].sources[:3] == [4795720, 21003853, 417968]
     assert not generator.cacheable
     assert GAPGraphBenchmark().name == "gap_graph_shell"
     assert any(isinstance(b, GAPGraphBenchmark) for b in _benchmark_instances())
@@ -78,7 +65,7 @@ def test_gap_shell_returns_matrix_max_degree_and_sources(fetch):
     assert problem.meta == {"max_degree": 9, "sources": road.sources}
     # The shell hands out copies, so consumers cannot edit the shared sources.
     problem.meta["sources"].append(-1)
-    assert road.sources == _GAP_ROAD_SOURCES
+    assert -1 not in road.sources
 
 
 def test_gap_source_graph_attaches_one_published_source(fetch):
@@ -114,3 +101,19 @@ def test_gap_with_suites_does_not_mutate_shared_graphs():
         "standard",
         "trace",
     ]
+
+
+def test_gap_consumers_pick_up_sources_from_gap_datasets():
+    from saps.benchmarks.bellmanford import BellmanFordGAPGenerator
+    from saps.benchmarks.BFS import BreadthFirstSearchGAPGenerator
+    from saps.benchmarks.multi_source_shortest_paths import (
+        MultiSourceShortestPathsGenerator,
+    )
+
+    graphs = GAPGraphGenerator().datasets
+    expected = [(f"GAP/{g.name}_{src}", src) for g in graphs for src in g.sources]
+    for generator in (BreadthFirstSearchGAPGenerator(), BellmanFordGAPGenerator()):
+        assert [(d.name, d.src) for d in generator.datasets] == expected
+    by_name = {d.name: d for d in MultiSourceShortestPathsGenerator().datasets}
+    for graph in graphs:
+        assert by_name[graph.source_name].sources == graph.sources

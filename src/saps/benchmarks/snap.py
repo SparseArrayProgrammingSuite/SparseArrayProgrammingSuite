@@ -302,12 +302,18 @@ class SNAPDataset(Dataset):
         }
 
 
+# Sources listed for each SNAP graph, matching the 64 published per GAP graph.
+NUM_SNAP_SOURCES = 64
+
+
 class SNAPSourceDataset(Dataset):
-    """A shared SNAP graph paired with a reproducible source-selection seed."""
+    """A shared SNAP graph paired with one of its sources, chosen by seed."""
 
     def __init__(
         self, graph: SNAPDataset, seed: int, *, suites: list[str] | None = None
     ):
+        if not 0 <= seed < NUM_SNAP_SOURCES:
+            raise ValueError(f"Source seed must be below {NUM_SNAP_SOURCES}: {seed}")
         self.graph = graph
         self.seed = seed
         self._suites = list(dict.fromkeys([*graph.suites, *(suites or [])]))
@@ -536,7 +542,11 @@ class SNAPGraphGenerator(Generator[SNAPDataset]):
     def generate(self, dataset: SNAPDataset) -> DataInstance:
         raw = fetch_suitesparse_matrix(dataset.source_name)
         return DataInstance(
-            inputs=[raw.inputs[0]], meta={"max_degree": dataset.max_degree}
+            inputs=[raw.inputs[0]],
+            meta={
+                "max_degree": dataset.max_degree,
+                "sources": seeded_source_vertices(raw.inputs[0], NUM_SNAP_SOURCES),
+            },
         )
 
 
@@ -570,6 +580,25 @@ def select_source_vertices(
     """
     if count < 1:
         raise ValueError("Source vertex count must be positive.")
+    rows = _source_candidates(graph)
+    rng = np.random.default_rng(seed)
+    return rows[rng.integers(rows.size, size=count)].astype(np.int64, copy=False)
+
+
+def seeded_source_vertices(graph: BinsparseTensor, count: int) -> list[int]:
+    """Source k is ``select_source_vertices(graph, seed=k)[0]``, for k < count.
+
+    Finds the candidate edges once and makes one draw per seed.
+    """
+    rows = _source_candidates(graph)
+    return [
+        int(rows[np.random.default_rng(seed).integers(rows.size, size=1)[0]])
+        for seed in range(count)
+    ]
+
+
+def _source_candidates(graph: BinsparseTensor) -> np.ndarray:
+    """The start vertex of each nonzero edge, after coalescing duplicates."""
     edges = to_scipy(graph).tocoo(copy=True)
     if edges.shape[0] != edges.shape[1]:
         raise ValueError("Source selection requires a square adjacency matrix.")
@@ -579,8 +608,7 @@ def select_source_vertices(
         raise ValueError(
             "Cannot select source vertices from a graph without nonzero edges."
         )
-    rng = np.random.default_rng(seed)
-    return rows[rng.integers(rows.size, size=count)].astype(np.int64, copy=False)
+    return rows
 
 
 def with_source_vertex(raw: DataInstance, *, seed: int) -> DataInstance:
@@ -590,4 +618,9 @@ def with_source_vertex(raw: DataInstance, *, seed: int) -> DataInstance:
 
 
 def fetch_snap_source_graph(dataset: SNAPSourceDataset) -> DataInstance:
-    return with_source_vertex(fetch_snap_graph(dataset.graph.name), seed=dataset.seed)
+    """Read a SNAP graph with ``meta["src"]`` set to its source for the seed."""
+    raw = fetch_snap_graph(dataset.graph.name)
+    src = raw.meta["sources"][dataset.seed]
+    return DataInstance(
+        inputs=raw.inputs, meta={**raw.meta, "src": src, "seed": dataset.seed}
+    )

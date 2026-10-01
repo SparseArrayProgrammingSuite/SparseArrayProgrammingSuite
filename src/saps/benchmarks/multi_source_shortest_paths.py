@@ -14,24 +14,16 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.bellmanford import _adjacency_to_distance
+from saps.benchmarks.gap import GAPGraphGenerator
 from saps.benchmarks.snap import (
     SNAPDataset,
     SNAPGraphGenerator,
     fetch_snap_graph,
-    select_source_vertices,
 )
 from saps.benchmarks.suitesparse import (
-    _GAP_KRON_SOURCES,
-    _GAP_ROAD_SOURCES,
-    _GAP_TWITTER_SOURCES,
-    _GAP_URAND_SOURCES,
-    _GAP_WEB_SOURCES,
     SuiteSparseDataset,
     fetch_suitesparse_matrix,
 )
-
-# Number of seeded sources sampled for graphs without a published source list.
-_NUM_SAMPLED_SOURCES = 64
 
 
 class MultiSourceShortestPathsDataset(SuiteSparseDataset):
@@ -78,18 +70,9 @@ def initial_distances(n: int, sources) -> COORMatrix:
     )
 
 
-def sample_sources(adjacency: BinsparseTensor) -> list[int]:
-    """Seeded, deduplicated sources for graphs without a published source list."""
-    return np.unique(
-        select_source_vertices(adjacency, _NUM_SAMPLED_SOURCES, seed=0)
-    ).tolist()
-
-
-def multi_source_instance(adjacency: BinsparseTensor, sources=None) -> DataInstance:
+def multi_source_instance(adjacency: BinsparseTensor, sources) -> DataInstance:
     """Unweighted distance graph plus initial distances from each source."""
     n = adjacency.shape[0]
-    if sources is None:
-        sources = sample_sources(adjacency)
     return DataInstance(
         inputs=[_adjacency_to_distance(adjacency), initial_distances(n, sources)],
         meta={"sources": list(sources)},
@@ -454,6 +437,7 @@ class MultiSourceShortestPathsGenerator(Generator[MultiSourceShortestPathsDatase
 
     @property
     def datasets(self) -> list[MultiSourceShortestPathsDataset]:
+        gap = {graph.name: graph for graph in GAPGraphGenerator().datasets}
         return [
             MultiSourceShortestPathsDataset(
                 name="GAP/GAP-road",
@@ -464,7 +448,7 @@ class MultiSourceShortestPathsGenerator(Generator[MultiSourceShortestPathsDatase
                 ),
                 suites=["standard"],
                 source="GAP/GAP-road",
-                sources=_GAP_ROAD_SOURCES,
+                sources=gap["GAP-road"].sources,
                 symmetrize=False,
             ),
             MultiSourceShortestPathsDataset(
@@ -476,7 +460,7 @@ class MultiSourceShortestPathsGenerator(Generator[MultiSourceShortestPathsDatase
                 ),
                 suites=["standard"],
                 source="GAP/GAP-twitter",
-                sources=_GAP_TWITTER_SOURCES,
+                sources=gap["GAP-twitter"].sources,
                 symmetrize=True,
             ),
             MultiSourceShortestPathsDataset(
@@ -488,7 +472,7 @@ class MultiSourceShortestPathsGenerator(Generator[MultiSourceShortestPathsDatase
                 ),
                 suites=["standard"],
                 source="GAP/GAP-web",
-                sources=_GAP_WEB_SOURCES,
+                sources=gap["GAP-web"].sources,
                 symmetrize=True,
             ),
             MultiSourceShortestPathsDataset(
@@ -502,7 +486,7 @@ class MultiSourceShortestPathsGenerator(Generator[MultiSourceShortestPathsDatase
                 ),
                 suites=["standard"],
                 source="GAP/GAP-kron",
-                sources=_GAP_KRON_SOURCES,
+                sources=gap["GAP-kron"].sources,
                 symmetrize=False,
             ),
             MultiSourceShortestPathsDataset(
@@ -515,7 +499,7 @@ class MultiSourceShortestPathsGenerator(Generator[MultiSourceShortestPathsDatase
                 ),
                 suites=["standard"],
                 source="GAP/GAP-urand",
-                sources=_GAP_URAND_SOURCES,
+                sources=gap["GAP-urand"].sources,
                 symmetrize=False,
             ),
         ]
@@ -549,8 +533,7 @@ class MultiSourceShortestPathsSNAPGenerator(Generator[SNAPDataset]):
     def description(self) -> str:
         return (
             "SNAP input generator for multi-source shortest paths, with"
-            f" {_NUM_SAMPLED_SOURCES} seeded sources sampled per graph and"
-            " deduplicated."
+            " the SNAP shell's seeded sources for each graph, deduplicated."
         )
 
     @property
@@ -592,7 +575,9 @@ class MultiSourceShortestPathsSNAPGenerator(Generator[SNAPDataset]):
 
     def generate(self, dataset: SNAPDataset) -> DataInstance:
         if dataset.name in self.dataset_names:
-            return multi_source_instance(fetch_snap_graph(dataset.name).inputs[0])
+            raw = fetch_snap_graph(dataset.name)
+            sources = np.unique(raw.meta["sources"]).tolist()
+            return multi_source_instance(raw.inputs[0], sources)
         raise ValueError(f"Unsupported Multi-Source Shortest Paths dataset: {dataset.name}")
 
 
