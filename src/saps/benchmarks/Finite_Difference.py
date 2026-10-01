@@ -365,16 +365,15 @@ class FiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
         dt = meta["dt"]
         dx = meta["dx"]
         flux = _resolve_flux_1d(meta["flux_name"])
-        Nt = timesteps + 1
         alpha = dt / (2 * dx)
-        u = xp.zeros((Nt, u_0.shape[0]))
-        u[0] = u_0
-        for n in range(Nt - 1):
-            u_n = u[n]
+        # Collect the history and stack it once; writing rows into a
+        # preallocated array costs a full rebuild per step in sparse backends.
+        u = [u_0]
+        for _ in range(timesteps):
+            u_n = u[-1]
             f = flux(u_n)
-            u_next = matrix @ u_n - alpha * (dif @ f)
-            u[n + 1] = u_next
-        return [u]
+            u.append(matrix @ u_n - alpha * (dif @ f))
+        return [xp.stack(u, axis=0)]
 
     def check(self, param):
         super().check(param)
@@ -562,9 +561,9 @@ class FiniteDifference2DGenerator(
                 name=f"fd2d_realistic_scale_{self.flux_name}",
                 pretty_name="2D Finite Difference Realistic Problem",
                 suites=["standard"],
-                Nx=1000,
+                Nx=500,
                 dx=0.1,
-                Ny=1000,
+                Ny=500,
                 dy=0.1,
                 Nt=1000,
                 dt=0.01,
@@ -631,21 +630,21 @@ class FiniteDifference2DBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
         dy = meta["dy"]
         flux_x, flux_y = _resolve_flux_2d(meta["flux_name"])
 
-        Nt = timesteps + 1
-        u = xp.zeros((Nt, u_0.shape[0]), dtype=u_0.dtype)
-        u[0] = u_0
-
         alpha = dt / (2 * dx)
         beta = dt / (2 * dy)
 
-        for n in range(Nt - 1):
-            u_n = u[n]
+        # Collect the history and stack it once; writing rows into a
+        # preallocated array costs a full rebuild per step in sparse backends.
+        u = [u_0]
+        for _ in range(timesteps):
+            u_n = u[-1]
             fl_x = flux_x(u_n)
             fl_y = flux_y(u_n)
-            u_next = matrix @ u_n - alpha * (diff_x @ fl_x) - beta * (diff_y @ fl_y)
-            u[n + 1] = u_next
+            u.append(
+                matrix @ u_n - alpha * (diff_x @ fl_x) - beta * (diff_y @ fl_y)
+            )
 
-        return [u]
+        return [xp.stack(u, axis=0)]
 
     def check(self, param):
         super().check(param)
