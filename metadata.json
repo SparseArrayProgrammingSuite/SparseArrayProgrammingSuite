@@ -89379,7 +89379,7 @@
       "concepts": "\n            <ccs2012>\n            <concept>\n            <concept_id>10002950.10003705.10011686</concept_id>\n            <concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>\n            <concept_significance>500</concept_significance>\n            </concept>\n            <concept>\n            <concept_id>10010147.10010341.10010349.10010357</concept_id>\n            <concept_desc>Computing methodologies~Continuous simulation</concept_desc>\n            <concept_significance>500</concept_significance>\n            </concept>\n            <concept>\n            <concept_id>10002950.10003714.10003715.10003750</concept_id>\n            <concept_desc>Mathematics of computing~Discretization</concept_desc>\n            <concept_significance>500</concept_significance>\n            </concept>\n            </ccs2012>\n        ",
       "description": "The purpose of this is to analyze the importance of numerical methods for PDEs, and applications sparse array theory into these method, through the form of benchmarks. This paticular benchmark analyzes the use of the Lax\u2013Friedrichs method for solving nonlinear hyberbolic PDEs, with numerical stability and accuracy not seen in FTCS. This benchmark will run a simulation using both Lax\u2013Friedrichs and analyze core concepts such as numerical stability, conservation law consistency, etc.",
       "file": "src/saps/benchmarks/Finite_Difference.py",
-      "freshness": "d800e9f4b25ff1e9cd5bdb005d940582eec52ae7287b7385f5b75e4e53922216",
+      "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI might have been used to construct tests. This statement was written by hand.",
@@ -89394,7 +89394,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Finite Difference Test Problem: Nx = 100, dx = 0.1, dt = 0.01.",
               "file": "src/saps/benchmarks/Finite_Difference.py",
-              "freshness": "d800e9f4b25ff1e9cd5bdb005d940582eec52ae7287b7385f5b75e4e53922216",
+              "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
               "name": "fd_test_scale_burgers",
               "pretty_name": "Finite Difference Test Problem",
               "suites": [
@@ -89416,7 +89416,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Finite Difference Realistic Problem: Nx = 250000, dx = 0.1, dt = 0.01.",
               "file": "src/saps/benchmarks/Finite_Difference.py",
-              "freshness": "d800e9f4b25ff1e9cd5bdb005d940582eec52ae7287b7385f5b75e4e53922216",
+              "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
               "name": "fd_realistic_scale_burgers",
               "pretty_name": "Finite Difference Realistic Problem",
               "suites": [
@@ -89438,7 +89438,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Finite Difference Trace Problem: Nx = 25000, dx = 0.1, dt = 0.01.",
               "file": "src/saps/benchmarks/Finite_Difference.py",
-              "freshness": "d800e9f4b25ff1e9cd5bdb005d940582eec52ae7287b7385f5b75e4e53922216",
+              "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
               "name": "fd_trace_scale_burgers",
               "pretty_name": "Finite Difference Trace Problem",
               "suites": [
@@ -89458,7 +89458,7 @@
           ],
           "description": "The finite difference generator uses a finite difference grid of500 by 500 cells, matching roughly the scale of areal finite difference problem, Norris/torso3 from UF Matrix Collection, using the Burgers flux function.",
           "file": "src/saps/benchmarks/Finite_Difference.py",
-          "freshness": "d800e9f4b25ff1e9cd5bdb005d940582eec52ae7287b7385f5b75e4e53922216",
+          "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
           "motivation": "For linear advection, updates are done using a sparse matrix representation, to updates the spatial coordinates for time t.",
           "name": "finite_difference_inputs_burgers",
           "pretty_name": "Finite Difference Data Generator (Burgers flux)",
@@ -89489,7 +89489,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Finite Difference Test Problem: Nx = 100, dx = 0.1, dt = 0.01.",
               "file": "src/saps/benchmarks/Finite_Difference.py",
-              "freshness": "d800e9f4b25ff1e9cd5bdb005d940582eec52ae7287b7385f5b75e4e53922216",
+              "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
               "name": "fd_test_scale_buckley_leverett",
               "pretty_name": "Finite Difference Test Problem",
               "suites": [
@@ -89511,7 +89511,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Finite Difference Realistic Problem: Nx = 250000, dx = 0.1, dt = 0.01.",
               "file": "src/saps/benchmarks/Finite_Difference.py",
-              "freshness": "d800e9f4b25ff1e9cd5bdb005d940582eec52ae7287b7385f5b75e4e53922216",
+              "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
               "name": "fd_realistic_scale_buckley_leverett",
               "pretty_name": "Finite Difference Realistic Problem",
               "suites": [
@@ -89527,11 +89527,33 @@
                 "suite-standard"
               ],
               "topics": []
+            },
+            {
+              "asv_param": "finite_difference_inputs_buckley_leverett.fd_trace_scale_buckley_leverett",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Finite Difference Trace Problem: Nx = 25000, dx = 0.1, dt = 0.01.",
+              "file": "src/saps/benchmarks/Finite_Difference.py",
+              "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
+              "name": "fd_trace_scale_buckley_leverett",
+              "pretty_name": "Finite Difference Trace Problem",
+              "suites": [
+                "trace"
+              ],
+              "tags": [
+                "concept-computing-methodologies",
+                "concept-continuous-simulation",
+                "concept-discretization",
+                "concept-mathematical-software-performance",
+                "concept-mathematics-of-computing",
+                "suite-group-spatial",
+                "suite-trace"
+              ],
+              "topics": []
             }
           ],
           "description": "The finite difference generator uses a finite difference grid of500 by 500 cells, matching roughly the scale of areal finite difference problem, Norris/torso3 from UF Matrix Collection, using the Buckley-Leverett flux function.",
           "file": "src/saps/benchmarks/Finite_Difference.py",
-          "freshness": "d800e9f4b25ff1e9cd5bdb005d940582eec52ae7287b7385f5b75e4e53922216",
+          "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
           "motivation": "For linear advection, updates are done using a sparse matrix representation, to updates the spatial coordinates for time t.",
           "name": "finite_difference_inputs_buckley_leverett",
           "pretty_name": "Finite Difference Data Generator (Buckley-Leverett flux)",
@@ -89562,7 +89584,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Finite Difference Test Problem: Nx = 100, dx = 0.1, dt = 0.01.",
               "file": "src/saps/benchmarks/Finite_Difference.py",
-              "freshness": "d800e9f4b25ff1e9cd5bdb005d940582eec52ae7287b7385f5b75e4e53922216",
+              "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
               "name": "fd_test_scale_linear_advection",
               "pretty_name": "Finite Difference Test Problem",
               "suites": [
@@ -89584,7 +89606,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Finite Difference Realistic Problem: Nx = 250000, dx = 0.1, dt = 0.01.",
               "file": "src/saps/benchmarks/Finite_Difference.py",
-              "freshness": "d800e9f4b25ff1e9cd5bdb005d940582eec52ae7287b7385f5b75e4e53922216",
+              "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
               "name": "fd_realistic_scale_linear_advection",
               "pretty_name": "Finite Difference Realistic Problem",
               "suites": [
@@ -89600,11 +89622,33 @@
                 "suite-standard"
               ],
               "topics": []
+            },
+            {
+              "asv_param": "finite_difference_inputs_linear_advection.fd_trace_scale_linear_advection",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "Finite Difference Trace Problem: Nx = 25000, dx = 0.1, dt = 0.01.",
+              "file": "src/saps/benchmarks/Finite_Difference.py",
+              "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
+              "name": "fd_trace_scale_linear_advection",
+              "pretty_name": "Finite Difference Trace Problem",
+              "suites": [
+                "trace"
+              ],
+              "tags": [
+                "concept-computing-methodologies",
+                "concept-continuous-simulation",
+                "concept-discretization",
+                "concept-mathematical-software-performance",
+                "concept-mathematics-of-computing",
+                "suite-group-spatial",
+                "suite-trace"
+              ],
+              "topics": []
             }
           ],
           "description": "The finite difference generator uses a finite difference grid of500 by 500 cells, matching roughly the scale of areal finite difference problem, Norris/torso3 from UF Matrix Collection, using the Linear Advection flux function.",
           "file": "src/saps/benchmarks/Finite_Difference.py",
-          "freshness": "d800e9f4b25ff1e9cd5bdb005d940582eec52ae7287b7385f5b75e4e53922216",
+          "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
           "motivation": "For linear advection, updates are done using a sparse matrix representation, to updates the spatial coordinates for time t.",
           "name": "finite_difference_inputs_linear_advection",
           "pretty_name": "Finite Difference Data Generator (Linear Advection flux)",
@@ -89660,7 +89704,7 @@
       "concepts": "\n            <ccs2012>\n            <concept>\n            <concept_id>10002950.10003705.10011686</concept_id>\n            <concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>\n            <concept_significance>500</concept_significance>\n            </concept>\n            <concept>\n            <concept_id>10010147.10010341.10010349.10010357</concept_id>\n            <concept_desc>Computing methodologies~Continuous simulation</concept_desc>\n            <concept_significance>500</concept_significance>\n            </concept>\n            <concept>\n            <concept_id>10002950.10003714.10003715.10003750</concept_id>\n            <concept_desc>Mathematics of computing~Discretization</concept_desc>\n            <concept_significance>500</concept_significance>\n            </concept>\n            </ccs2012>\n        ",
       "description": "The purpose of this is to analyze the importance of numerical methods for PDEs, and applications sparse array theory into these method, through the form of benchmarks. This paticular benchmark analyzes the use of the Lax\u2013Friedrichs method for solving nonlinear hyberbolic PDEs, with numerical stability and accuracy not seen in FTCS. This benchmark will run a simulation using both Lax\u2013Friedrichs and analyze core concepts such as numerical stability, conservation law consistency, etc.",
       "file": "src/saps/benchmarks/Finite_Difference.py",
-      "freshness": "d800e9f4b25ff1e9cd5bdb005d940582eec52ae7287b7385f5b75e4e53922216",
+      "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to construct the benchmark function itself. Generative AI might have been used to construct tests. This statement was written by hand.",
@@ -89675,7 +89719,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "2D Finite Difference Test Problem: Nx = 100, dx = 0.1, Ny = 100, dy = 0.1, dt = 0.01.",
               "file": "src/saps/benchmarks/Finite_Difference.py",
-              "freshness": "d800e9f4b25ff1e9cd5bdb005d940582eec52ae7287b7385f5b75e4e53922216",
+              "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
               "name": "fd2d_test_scale_burgers",
               "pretty_name": "2D Finite Difference Test Problem",
               "suites": [
@@ -89697,7 +89741,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "2D Finite Difference Realistic Problem: Nx = 1000, dx = 0.1, Ny = 1000, dy = 0.1, dt = 0.01.",
               "file": "src/saps/benchmarks/Finite_Difference.py",
-              "freshness": "d800e9f4b25ff1e9cd5bdb005d940582eec52ae7287b7385f5b75e4e53922216",
+              "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
               "name": "fd2d_realistic_scale_burgers",
               "pretty_name": "2D Finite Difference Realistic Problem",
               "suites": [
@@ -89719,7 +89763,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "2D Finite Difference Trace Problem: Nx = 150, dx = 0.1, Ny = 150, dy = 0.1, dt = 0.01.",
               "file": "src/saps/benchmarks/Finite_Difference.py",
-              "freshness": "d800e9f4b25ff1e9cd5bdb005d940582eec52ae7287b7385f5b75e4e53922216",
+              "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
               "name": "fd2d_trace_scale_burgers",
               "pretty_name": "2D Finite Difference Trace Problem",
               "suites": [
@@ -89739,7 +89783,7 @@
           ],
           "description": "The finite difference generator uses a finite difference grid of500 by 500 cells, matching roughly the scale of areal finite difference problem, Norris/torso3 from UF Matrix Collection, using the Burgers flux function.",
           "file": "src/saps/benchmarks/Finite_Difference.py",
-          "freshness": "d800e9f4b25ff1e9cd5bdb005d940582eec52ae7287b7385f5b75e4e53922216",
+          "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
           "motivation": "For linear advection, updates are done using a sparse matrix representation, to updates the spatial coordinates for time t.",
           "name": "finite_difference_inputs_2d_burgers",
           "pretty_name": "Finite Difference Data Generator (Burgers flux)",
@@ -89770,7 +89814,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "2D Finite Difference Test Problem: Nx = 100, dx = 0.1, Ny = 100, dy = 0.1, dt = 0.01.",
               "file": "src/saps/benchmarks/Finite_Difference.py",
-              "freshness": "d800e9f4b25ff1e9cd5bdb005d940582eec52ae7287b7385f5b75e4e53922216",
+              "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
               "name": "fd2d_test_scale_buckley_leverett",
               "pretty_name": "2D Finite Difference Test Problem",
               "suites": [
@@ -89792,7 +89836,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "2D Finite Difference Realistic Problem: Nx = 1000, dx = 0.1, Ny = 1000, dy = 0.1, dt = 0.01.",
               "file": "src/saps/benchmarks/Finite_Difference.py",
-              "freshness": "d800e9f4b25ff1e9cd5bdb005d940582eec52ae7287b7385f5b75e4e53922216",
+              "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
               "name": "fd2d_realistic_scale_buckley_leverett",
               "pretty_name": "2D Finite Difference Realistic Problem",
               "suites": [
@@ -89808,11 +89852,33 @@
                 "suite-standard"
               ],
               "topics": []
+            },
+            {
+              "asv_param": "finite_difference_inputs_2d_buckley_leverett.fd2d_trace_scale_buckley_leverett",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "2D Finite Difference Trace Problem: Nx = 150, dx = 0.1, Ny = 150, dy = 0.1, dt = 0.01.",
+              "file": "src/saps/benchmarks/Finite_Difference.py",
+              "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
+              "name": "fd2d_trace_scale_buckley_leverett",
+              "pretty_name": "2D Finite Difference Trace Problem",
+              "suites": [
+                "trace"
+              ],
+              "tags": [
+                "concept-computing-methodologies",
+                "concept-continuous-simulation",
+                "concept-discretization",
+                "concept-mathematical-software-performance",
+                "concept-mathematics-of-computing",
+                "suite-group-spatial",
+                "suite-trace"
+              ],
+              "topics": []
             }
           ],
           "description": "The finite difference generator uses a finite difference grid of500 by 500 cells, matching roughly the scale of areal finite difference problem, Norris/torso3 from UF Matrix Collection, using the Buckley-Leverett flux function.",
           "file": "src/saps/benchmarks/Finite_Difference.py",
-          "freshness": "d800e9f4b25ff1e9cd5bdb005d940582eec52ae7287b7385f5b75e4e53922216",
+          "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
           "motivation": "For linear advection, updates are done using a sparse matrix representation, to updates the spatial coordinates for time t.",
           "name": "finite_difference_inputs_2d_buckley_leverett",
           "pretty_name": "Finite Difference Data Generator (Buckley-Leverett flux)",
@@ -89843,7 +89909,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "2D Finite Difference Test Problem: Nx = 100, dx = 0.1, Ny = 100, dy = 0.1, dt = 0.01.",
               "file": "src/saps/benchmarks/Finite_Difference.py",
-              "freshness": "d800e9f4b25ff1e9cd5bdb005d940582eec52ae7287b7385f5b75e4e53922216",
+              "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
               "name": "fd2d_test_scale_linear_advection",
               "pretty_name": "2D Finite Difference Test Problem",
               "suites": [
@@ -89865,7 +89931,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "2D Finite Difference Realistic Problem: Nx = 1000, dx = 0.1, Ny = 1000, dy = 0.1, dt = 0.01.",
               "file": "src/saps/benchmarks/Finite_Difference.py",
-              "freshness": "d800e9f4b25ff1e9cd5bdb005d940582eec52ae7287b7385f5b75e4e53922216",
+              "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
               "name": "fd2d_realistic_scale_linear_advection",
               "pretty_name": "2D Finite Difference Realistic Problem",
               "suites": [
@@ -89881,11 +89947,33 @@
                 "suite-standard"
               ],
               "topics": []
+            },
+            {
+              "asv_param": "finite_difference_inputs_2d_linear_advection.fd2d_trace_scale_linear_advection",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "2D Finite Difference Trace Problem: Nx = 150, dx = 0.1, Ny = 150, dy = 0.1, dt = 0.01.",
+              "file": "src/saps/benchmarks/Finite_Difference.py",
+              "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
+              "name": "fd2d_trace_scale_linear_advection",
+              "pretty_name": "2D Finite Difference Trace Problem",
+              "suites": [
+                "trace"
+              ],
+              "tags": [
+                "concept-computing-methodologies",
+                "concept-continuous-simulation",
+                "concept-discretization",
+                "concept-mathematical-software-performance",
+                "concept-mathematics-of-computing",
+                "suite-group-spatial",
+                "suite-trace"
+              ],
+              "topics": []
             }
           ],
           "description": "The finite difference generator uses a finite difference grid of500 by 500 cells, matching roughly the scale of areal finite difference problem, Norris/torso3 from UF Matrix Collection, using the Linear Advection flux function.",
           "file": "src/saps/benchmarks/Finite_Difference.py",
-          "freshness": "d800e9f4b25ff1e9cd5bdb005d940582eec52ae7287b7385f5b75e4e53922216",
+          "freshness": "75c37f25e3a75d26ccc50765e85e2c8d4a1f19dfd24c3d5467f9a9ce4ccc39ba",
           "motivation": "For linear advection, updates are done using a sparse matrix representation, to updates the spatial coordinates for time t.",
           "name": "finite_difference_inputs_2d_linear_advection",
           "pretty_name": "Finite Difference Data Generator (Linear Advection flux)",
@@ -115920,7 +116008,7 @@
       "concepts": "<ccs2012></ccs2012>",
       "description": "Computes Markov Clustering on a given sparse adjacency matrix. Handwritten code based on the implementation from GuyAllard on github",
       "file": "src/saps/benchmarks/mcl_benchmark.py",
-      "freshness": "136827982d92f48877f8a0b9ed393b7b39fd96fc6d3f1a10e02535747672a7a9",
+      "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used to debug code. This statement was written by hand.",
@@ -115936,7 +116024,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse adjacency matrix two_star_components.",
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "136827982d92f48877f8a0b9ed393b7b39fd96fc6d3f1a10e02535747672a7a9",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
               "name": "two_star_components",
               "pretty_name": "MCL two_star_components",
               "suites": [
@@ -115958,7 +116046,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse adjacency matrix three_block_pairs.",
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "136827982d92f48877f8a0b9ed393b7b39fd96fc6d3f1a10e02535747672a7a9",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
               "name": "three_block_pairs",
               "pretty_name": "MCL three_block_pairs",
               "suites": [
@@ -115980,7 +116068,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse adjacency matrix planted_clique.",
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "136827982d92f48877f8a0b9ed393b7b39fd96fc6d3f1a10e02535747672a7a9",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
               "name": "planted_clique",
               "pretty_name": "MCL planted_clique",
               "suites": [
@@ -116000,13 +116088,14 @@
           ],
           "description": "Small MCL examples with expected cluster counts.",
           "file": "src/saps/benchmarks/mcl_benchmark.py",
-          "freshness": "136827982d92f48877f8a0b9ed393b7b39fd96fc6d3f1a10e02535747672a7a9",
+          "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
           "motivation": "\"The Markov Clustering (MCL) algorithm relies heavily on repeated matrix operations, particularly matrix multiplication during the expansion step. Since the efficient execution of matrix-based kernels has been extensively studied in linear algebra, MCL serves as an effective benchmark for evaluating the performance of iterative numerical methods.\" The input is a sparse adjacency matrix. The algorithm uses sparse matrix multiplication and element-wise operations repeatedly, so it depends heavily on efficient sparse matrix functions.",
           "name": "mcl_test_inputs",
           "pretty_name": "MCL Test Data Generator",
           "references": [
             ". \"Graph Algorithms in the Language of Linear Algebra\", Society for Industrial and Applied Mathematics, 2011, URL: https://doi.org/10.1137/1.9780898719918, DOI: 10.1137/1.9780898719918.",
-            "Guy Allard. \"markov_clustering\", URL: https://github.com/GuyAllard/markov_clustering."
+            "Guy Allard. \"markov_clustering\", URL: https://github.com/GuyAllard/markov_clustering.",
+            "Ariful Azad, Georgios A. Pavlopoulos, Christos A. Ouzounis, Nikos C. Kyrpides, Aydin Bulu\u00e7. \"HipMCL: a high-performance parallel implementation of the Markov clustering algorithm for large-scale networks\", Nucleic Acids Research, Vol. 46, No. 6, 2018, URL: https://doi.org/10.1093/nar/gkx1313, DOI: 10.1093/nar/gkx1313."
           ],
           "suites": [
             "test"
@@ -116042,7 +116131,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse adjacency matrix JGD_Trefethen/Trefethen_200.",
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "136827982d92f48877f8a0b9ed393b7b39fd96fc6d3f1a10e02535747672a7a9",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
               "name": "JGD_Trefethen/Trefethen_200",
               "pretty_name": "MCL JGD_Trefethen/Trefethen_200",
               "suites": [],
@@ -116056,7 +116145,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse adjacency matrix Pothen/mesh3em5.",
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "136827982d92f48877f8a0b9ed393b7b39fd96fc6d3f1a10e02535747672a7a9",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
               "name": "Pothen/mesh3em5",
               "pretty_name": "MCL Pothen/mesh3em5",
               "suites": [],
@@ -116070,7 +116159,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse adjacency matrix Norris/fv1.",
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "136827982d92f48877f8a0b9ed393b7b39fd96fc6d3f1a10e02535747672a7a9",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
               "name": "Norris/fv1",
               "pretty_name": "MCL Norris/fv1",
               "suites": [],
@@ -116084,7 +116173,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse adjacency matrix HB/bcsstk05.",
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "136827982d92f48877f8a0b9ed393b7b39fd96fc6d3f1a10e02535747672a7a9",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
               "name": "HB/bcsstk05",
               "pretty_name": "MCL HB/bcsstk05",
               "suites": [],
@@ -116098,7 +116187,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse adjacency matrix HB/nos1.",
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "136827982d92f48877f8a0b9ed393b7b39fd96fc6d3f1a10e02535747672a7a9",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
               "name": "HB/nos1",
               "pretty_name": "MCL HB/nos1",
               "suites": [],
@@ -116112,7 +116201,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse adjacency matrix HB/nos2.",
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "136827982d92f48877f8a0b9ed393b7b39fd96fc6d3f1a10e02535747672a7a9",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
               "name": "HB/nos2",
               "pretty_name": "MCL HB/nos2",
               "suites": [],
@@ -116126,7 +116215,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse adjacency matrix HB/nos3.",
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "136827982d92f48877f8a0b9ed393b7b39fd96fc6d3f1a10e02535747672a7a9",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
               "name": "HB/nos3",
               "pretty_name": "MCL HB/nos3",
               "suites": [
@@ -116143,7 +116232,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse adjacency matrix HB/dwt_59.",
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "136827982d92f48877f8a0b9ed393b7b39fd96fc6d3f1a10e02535747672a7a9",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
               "name": "HB/dwt_59",
               "pretty_name": "MCL HB/dwt_59",
               "suites": [],
@@ -116153,11 +116242,1167 @@
               "topics": []
             },
             {
+              "asv_param": "mcl_inputs.SNAP/soc-Epinions1",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/soc-Epinions1.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/soc-Epinions1",
+              "pretty_name": "MCL SNAP/soc-Epinions1",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/soc-LiveJournal1",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/soc-LiveJournal1.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/soc-LiveJournal1",
+              "pretty_name": "MCL SNAP/soc-LiveJournal1",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/soc-Pokec",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/soc-Pokec.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/soc-Pokec",
+              "pretty_name": "MCL SNAP/soc-Pokec",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/soc-Slashdot0811",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/soc-Slashdot0811.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/soc-Slashdot0811",
+              "pretty_name": "MCL SNAP/soc-Slashdot0811",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/soc-Slashdot0902",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/soc-Slashdot0902.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/soc-Slashdot0902",
+              "pretty_name": "MCL SNAP/soc-Slashdot0902",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/wiki-Vote",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/wiki-Vote.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/wiki-Vote",
+              "pretty_name": "MCL SNAP/wiki-Vote",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/wiki-RfA",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/wiki-RfA.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/wiki-RfA",
+              "pretty_name": "MCL SNAP/wiki-RfA",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/soc-sign-bitcoin-otc",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/soc-sign-bitcoin-otc.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/soc-sign-bitcoin-otc",
+              "pretty_name": "MCL SNAP/soc-sign-bitcoin-otc",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/soc-sign-bitcoin-alpha",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/soc-sign-bitcoin-alpha.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/soc-sign-bitcoin-alpha",
+              "pretty_name": "MCL SNAP/soc-sign-bitcoin-alpha",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/com-LiveJournal",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/com-LiveJournal.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/com-LiveJournal",
+              "pretty_name": "MCL SNAP/com-LiveJournal",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/com-Friendster",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/com-Friendster.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/com-Friendster",
+              "pretty_name": "MCL SNAP/com-Friendster",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/com-Orkut",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/com-Orkut.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/com-Orkut",
+              "pretty_name": "MCL SNAP/com-Orkut",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/com-Youtube",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/com-Youtube.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/com-Youtube",
+              "pretty_name": "MCL SNAP/com-Youtube",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/com-DBLP",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/com-DBLP.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/com-DBLP",
+              "pretty_name": "MCL SNAP/com-DBLP",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/com-Amazon",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/com-Amazon.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/com-Amazon",
+              "pretty_name": "MCL SNAP/com-Amazon",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/email-Eu-core",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/email-Eu-core.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/email-Eu-core",
+              "pretty_name": "MCL SNAP/email-Eu-core",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/wiki-topcats",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/wiki-topcats.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/wiki-topcats",
+              "pretty_name": "MCL SNAP/wiki-topcats",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/email-EuAll",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/email-EuAll.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/email-EuAll",
+              "pretty_name": "MCL SNAP/email-EuAll",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/email-Enron",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/email-Enron.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/email-Enron",
+              "pretty_name": "MCL SNAP/email-Enron",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/wiki-Talk",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/wiki-Talk.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/wiki-Talk",
+              "pretty_name": "MCL SNAP/wiki-Talk",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/cit-HepPh",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/cit-HepPh.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/cit-HepPh",
+              "pretty_name": "MCL SNAP/cit-HepPh",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/cit-HepTh",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/cit-HepTh.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/cit-HepTh",
+              "pretty_name": "MCL SNAP/cit-HepTh",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/cit-Patents",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/cit-Patents.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/cit-Patents",
+              "pretty_name": "MCL SNAP/cit-Patents",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/ca-AstroPh",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/ca-AstroPh.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/ca-AstroPh",
+              "pretty_name": "MCL SNAP/ca-AstroPh",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/ca-CondMat",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/ca-CondMat.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/ca-CondMat",
+              "pretty_name": "MCL SNAP/ca-CondMat",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/ca-GrQc",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/ca-GrQc.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/ca-GrQc",
+              "pretty_name": "MCL SNAP/ca-GrQc",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/ca-HepPh",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/ca-HepPh.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/ca-HepPh",
+              "pretty_name": "MCL SNAP/ca-HepPh",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/ca-HepTh",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/ca-HepTh.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/ca-HepTh",
+              "pretty_name": "MCL SNAP/ca-HepTh",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/web-BerkStan",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/web-BerkStan.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/web-BerkStan",
+              "pretty_name": "MCL SNAP/web-BerkStan",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/web-Google",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/web-Google.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/web-Google",
+              "pretty_name": "MCL SNAP/web-Google",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/web-NotreDame",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/web-NotreDame.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/web-NotreDame",
+              "pretty_name": "MCL SNAP/web-NotreDame",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/web-Stanford",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/web-Stanford.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/web-Stanford",
+              "pretty_name": "MCL SNAP/web-Stanford",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/amazon0302",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/amazon0302.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/amazon0302",
+              "pretty_name": "MCL SNAP/amazon0302",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/amazon0312",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/amazon0312.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/amazon0312",
+              "pretty_name": "MCL SNAP/amazon0312",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/amazon0505",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/amazon0505.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/amazon0505",
+              "pretty_name": "MCL SNAP/amazon0505",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/amazon0601",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/amazon0601.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/amazon0601",
+              "pretty_name": "MCL SNAP/amazon0601",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/p2p-Gnutella04",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/p2p-Gnutella04.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/p2p-Gnutella04",
+              "pretty_name": "MCL SNAP/p2p-Gnutella04",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/p2p-Gnutella05",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/p2p-Gnutella05.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/p2p-Gnutella05",
+              "pretty_name": "MCL SNAP/p2p-Gnutella05",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/p2p-Gnutella06",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/p2p-Gnutella06.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/p2p-Gnutella06",
+              "pretty_name": "MCL SNAP/p2p-Gnutella06",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/p2p-Gnutella08",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/p2p-Gnutella08.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/p2p-Gnutella08",
+              "pretty_name": "MCL SNAP/p2p-Gnutella08",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/p2p-Gnutella09",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/p2p-Gnutella09.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/p2p-Gnutella09",
+              "pretty_name": "MCL SNAP/p2p-Gnutella09",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/p2p-Gnutella24",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/p2p-Gnutella24.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/p2p-Gnutella24",
+              "pretty_name": "MCL SNAP/p2p-Gnutella24",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/p2p-Gnutella25",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/p2p-Gnutella25.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/p2p-Gnutella25",
+              "pretty_name": "MCL SNAP/p2p-Gnutella25",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/p2p-Gnutella30",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/p2p-Gnutella30.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/p2p-Gnutella30",
+              "pretty_name": "MCL SNAP/p2p-Gnutella30",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/p2p-Gnutella31",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/p2p-Gnutella31.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/p2p-Gnutella31",
+              "pretty_name": "MCL SNAP/p2p-Gnutella31",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/roadNet-CA",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/roadNet-CA.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/roadNet-CA",
+              "pretty_name": "MCL SNAP/roadNet-CA",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/roadNet-PA",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/roadNet-PA.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/roadNet-PA",
+              "pretty_name": "MCL SNAP/roadNet-PA",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/roadNet-TX",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/roadNet-TX.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/roadNet-TX",
+              "pretty_name": "MCL SNAP/roadNet-TX",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/as-735",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/as-735.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/as-735",
+              "pretty_name": "MCL SNAP/as-735",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/as-Skitter",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/as-Skitter.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/as-Skitter",
+              "pretty_name": "MCL SNAP/as-Skitter",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/as-caida",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/as-caida.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/as-caida",
+              "pretty_name": "MCL SNAP/as-caida",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/Oregon-1",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/Oregon-1.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/Oregon-1",
+              "pretty_name": "MCL SNAP/Oregon-1",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/Oregon-2",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/Oregon-2.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/Oregon-2",
+              "pretty_name": "MCL SNAP/Oregon-2",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/soc-sign-epinions",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/soc-sign-epinions.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/soc-sign-epinions",
+              "pretty_name": "MCL SNAP/soc-sign-epinions",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/soc-sign-Slashdot081106",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/soc-sign-Slashdot081106.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/soc-sign-Slashdot081106",
+              "pretty_name": "MCL SNAP/soc-sign-Slashdot081106",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/soc-sign-Slashdot090216",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/soc-sign-Slashdot090216.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/soc-sign-Slashdot090216",
+              "pretty_name": "MCL SNAP/soc-sign-Slashdot090216",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/soc-sign-Slashdot090221",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/soc-sign-Slashdot090221.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/soc-sign-Slashdot090221",
+              "pretty_name": "MCL SNAP/soc-sign-Slashdot090221",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/loc-Gowalla",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/loc-Gowalla.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/loc-Gowalla",
+              "pretty_name": "MCL SNAP/loc-Gowalla",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/loc-Brightkite",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/loc-Brightkite.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/loc-Brightkite",
+              "pretty_name": "MCL SNAP/loc-Brightkite",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/sx-stackoverflow",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/sx-stackoverflow.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/sx-stackoverflow",
+              "pretty_name": "MCL SNAP/sx-stackoverflow",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/sx-mathoverflow",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/sx-mathoverflow.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/sx-mathoverflow",
+              "pretty_name": "MCL SNAP/sx-mathoverflow",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/sx-superuser",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/sx-superuser.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/sx-superuser",
+              "pretty_name": "MCL SNAP/sx-superuser",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/sx-askubuntu",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/sx-askubuntu.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/sx-askubuntu",
+              "pretty_name": "MCL SNAP/sx-askubuntu",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/wiki-talk-temporal",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/wiki-talk-temporal.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/wiki-talk-temporal",
+              "pretty_name": "MCL SNAP/wiki-talk-temporal",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/email-Eu-core-temporal",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/email-Eu-core-temporal.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/email-Eu-core-temporal",
+              "pretty_name": "MCL SNAP/email-Eu-core-temporal",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/CollegeMsg",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/CollegeMsg.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/CollegeMsg",
+              "pretty_name": "MCL SNAP/CollegeMsg",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/twitter7",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/twitter7.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/twitter7",
+              "pretty_name": "MCL SNAP/twitter7",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "mcl_inputs.SNAP/higgs-twitter",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "SuiteSparse adjacency matrix SNAP/higgs-twitter.",
+              "file": "src/saps/benchmarks/mcl_benchmark.py",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
+              "name": "SNAP/higgs-twitter",
+              "pretty_name": "MCL SNAP/higgs-twitter",
+              "suites": [
+                "standard"
+              ],
+              "tags": [
+                "suite-group-graphs-iterative",
+                "suite-standard"
+              ],
+              "topics": []
+            },
+            {
               "asv_param": "mcl_inputs.GAP/GAP-road",
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse adjacency matrix GAP/GAP-road.",
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "136827982d92f48877f8a0b9ed393b7b39fd96fc6d3f1a10e02535747672a7a9",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
               "name": "GAP/GAP-road",
               "pretty_name": "MCL GAP/GAP-road",
               "suites": [
@@ -116174,7 +117419,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse adjacency matrix GAP/GAP-twitter.",
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "136827982d92f48877f8a0b9ed393b7b39fd96fc6d3f1a10e02535747672a7a9",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
               "name": "GAP/GAP-twitter",
               "pretty_name": "MCL GAP/GAP-twitter",
               "suites": [
@@ -116191,7 +117436,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse adjacency matrix GAP/GAP-web.",
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "136827982d92f48877f8a0b9ed393b7b39fd96fc6d3f1a10e02535747672a7a9",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
               "name": "GAP/GAP-web",
               "pretty_name": "MCL GAP/GAP-web",
               "suites": [
@@ -116208,7 +117453,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse adjacency matrix GAP/GAP-kron.",
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "136827982d92f48877f8a0b9ed393b7b39fd96fc6d3f1a10e02535747672a7a9",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
               "name": "GAP/GAP-kron",
               "pretty_name": "MCL GAP/GAP-kron",
               "suites": [
@@ -116225,7 +117470,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SuiteSparse adjacency matrix GAP/GAP-urand.",
               "file": "src/saps/benchmarks/mcl_benchmark.py",
-              "freshness": "136827982d92f48877f8a0b9ed393b7b39fd96fc6d3f1a10e02535747672a7a9",
+              "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
               "name": "GAP/GAP-urand",
               "pretty_name": "MCL GAP/GAP-urand",
               "suites": [
@@ -116240,13 +117485,14 @@
           ],
           "description": "Data collected from SuiteSparse Matrix Collection consisting of sparse adjacency matrices used to evaluate graph clustering performance.",
           "file": "src/saps/benchmarks/mcl_benchmark.py",
-          "freshness": "136827982d92f48877f8a0b9ed393b7b39fd96fc6d3f1a10e02535747672a7a9",
+          "freshness": "3aea92c50d4052918a6ea112cda0c49e3782b59118cbc68a05bf67567c8ca02d",
           "motivation": "\"The Markov Clustering (MCL) algorithm relies heavily on repeated matrix operations, particularly matrix multiplication during the expansion step. Since the efficient execution of matrix-based kernels has been extensively studied in linear algebra, MCL serves as an effective benchmark for evaluating the performance of iterative numerical methods.\" The input is a sparse adjacency matrix. The algorithm uses sparse matrix multiplication and element-wise operations repeatedly, so it depends heavily on efficient sparse matrix functions.",
           "name": "mcl_inputs",
           "pretty_name": "MCL SuiteSparse Data Generator",
           "references": [
             ". \"Graph Algorithms in the Language of Linear Algebra\", Society for Industrial and Applied Mathematics, 2011, URL: https://doi.org/10.1137/1.9780898719918, DOI: 10.1137/1.9780898719918.",
-            "Guy Allard. \"markov_clustering\", URL: https://github.com/GuyAllard/markov_clustering."
+            "Guy Allard. \"markov_clustering\", URL: https://github.com/GuyAllard/markov_clustering.",
+            "Ariful Azad, Georgios A. Pavlopoulos, Christos A. Ouzounis, Nikos C. Kyrpides, Aydin Bulu\u00e7. \"HipMCL: a high-performance parallel implementation of the Markov clustering algorithm for large-scale networks\", Nucleic Acids Research, Vol. 46, No. 6, 2018, URL: https://doi.org/10.1093/nar/gkx1313, DOI: 10.1093/nar/gkx1313."
           ],
           "suites": [],
           "tags": [
@@ -116260,7 +117506,8 @@
       "pretty_name": "Markov Clustering Algorithm",
       "references": [
         ". \"Graph Algorithms in the Language of Linear Algebra\", Society for Industrial and Applied Mathematics, 2011, URL: https://doi.org/10.1137/1.9780898719918, DOI: 10.1137/1.9780898719918.",
-        "Guy Allard. \"markov_clustering\", URL: https://github.com/GuyAllard/markov_clustering."
+        "Guy Allard. \"markov_clustering\", URL: https://github.com/GuyAllard/markov_clustering.",
+        "Ariful Azad, Georgios A. Pavlopoulos, Christos A. Ouzounis, Nikos C. Kyrpides, Aydin Bulu\u00e7. \"HipMCL: a high-performance parallel implementation of the Markov clustering algorithm for large-scale networks\", Nucleic Acids Research, Vol. 46, No. 6, 2018, URL: https://doi.org/10.1093/nar/gkx1313, DOI: 10.1093/nar/gkx1313."
       ],
       "suites": [
         "group-graphs-iterative"
@@ -172981,7 +174228,7 @@
       "concepts": "\n<ccs2012>\n<concept>\n<concept_id>10002950.10003705</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003705.10011686</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003624.10003633.10010917</concept_id>\n<concept_desc>Mathematics of computing~Graph algorithms</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003624.10003633.10003640</concept_id>\n<concept_desc>Mathematics of computing~Paths and connectivity problems</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n</ccs2012>\n",
       "description": "Computes the transitive closure of a directed graph using fixed-point iteration. The algorithm initializes the adjacency matrix with the identity, then iteratively applies the closure operation using sparse matrix operations until convergence. This enables reachability queries.",
       "file": "src/saps/benchmarks/transitive_closure.py",
-      "freshness": "1dce1c955daaf2c691dd9c52b901fdc2af0739bbf26e3f10ce9a585625ea5875",
+      "freshness": "ec2bf7819a3a524fca7f5257bf32e23089862b7184ba1dde6fb33d404d8393f2",
       "generators": [
         {
           "ai_disclosure": "Generative AI was used to construct the generator and dataset structures. This statement was written by hand.",
@@ -175772,7 +177019,7 @@
           ],
           "description": "SNAP input generator for transitive closure benchmarks.",
           "file": "src/saps/benchmarks/transitive_closure.py",
-          "freshness": "1dce1c955daaf2c691dd9c52b901fdc2af0739bbf26e3f10ce9a585625ea5875",
+          "freshness": "ec2bf7819a3a524fca7f5257bf32e23089862b7184ba1dde6fb33d404d8393f2",
           "motivation": "Generate sparse directed graph inputs for transitive closure.",
           "name": "transitive_closure_snap_inputs",
           "pretty_name": "Transitive Closure SNAP Input Generator",
@@ -175799,7 +177046,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Transitive closure input dag.",
               "file": "src/saps/benchmarks/transitive_closure.py",
-              "freshness": "1dce1c955daaf2c691dd9c52b901fdc2af0739bbf26e3f10ce9a585625ea5875",
+              "freshness": "ec2bf7819a3a524fca7f5257bf32e23089862b7184ba1dde6fb33d404d8393f2",
               "name": "dag",
               "pretty_name": "dag",
               "suites": [
@@ -175821,7 +177068,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Transitive closure input strong-component-count.",
               "file": "src/saps/benchmarks/transitive_closure.py",
-              "freshness": "1dce1c955daaf2c691dd9c52b901fdc2af0739bbf26e3f10ce9a585625ea5875",
+              "freshness": "ec2bf7819a3a524fca7f5257bf32e23089862b7184ba1dde6fb33d404d8393f2",
               "name": "strong-component-count",
               "pretty_name": "strong-component-count",
               "suites": [
@@ -175843,7 +177090,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Transitive closure input cycle.",
               "file": "src/saps/benchmarks/transitive_closure.py",
-              "freshness": "1dce1c955daaf2c691dd9c52b901fdc2af0739bbf26e3f10ce9a585625ea5875",
+              "freshness": "ec2bf7819a3a524fca7f5257bf32e23089862b7184ba1dde6fb33d404d8393f2",
               "name": "cycle",
               "pretty_name": "cycle",
               "suites": [
@@ -175865,7 +177112,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Transitive closure input one-node.",
               "file": "src/saps/benchmarks/transitive_closure.py",
-              "freshness": "1dce1c955daaf2c691dd9c52b901fdc2af0739bbf26e3f10ce9a585625ea5875",
+              "freshness": "ec2bf7819a3a524fca7f5257bf32e23089862b7184ba1dde6fb33d404d8393f2",
               "name": "one-node",
               "pretty_name": "one-node",
               "suites": [
@@ -175887,7 +177134,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Transitive closure input toy.",
               "file": "src/saps/benchmarks/transitive_closure.py",
-              "freshness": "1dce1c955daaf2c691dd9c52b901fdc2af0739bbf26e3f10ce9a585625ea5875",
+              "freshness": "ec2bf7819a3a524fca7f5257bf32e23089862b7184ba1dde6fb33d404d8393f2",
               "name": "toy",
               "pretty_name": "toy",
               "suites": [
@@ -175907,7 +177154,7 @@
           ],
           "description": "Small deterministic transitive closure examples.",
           "file": "src/saps/benchmarks/transitive_closure.py",
-          "freshness": "1dce1c955daaf2c691dd9c52b901fdc2af0739bbf26e3f10ce9a585625ea5875",
+          "freshness": "ec2bf7819a3a524fca7f5257bf32e23089862b7184ba1dde6fb33d404d8393f2",
           "motivation": "Provide small reachability examples for correctness checks.",
           "name": "transitive_closure_test_inputs",
           "pretty_name": "Transitive Closure Test Input Generator",
@@ -175937,7 +177184,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Directed roads with weights in the US, with 23.9M nodes and 58.3M edges.",
               "file": "src/saps/benchmarks/transitive_closure.py",
-              "freshness": "1dce1c955daaf2c691dd9c52b901fdc2af0739bbf26e3f10ce9a585625ea5875",
+              "freshness": "ec2bf7819a3a524fca7f5257bf32e23089862b7184ba1dde6fb33d404d8393f2",
               "name": "GAP/GAP-road",
               "pretty_name": "GAP Road",
               "suites": [
@@ -175959,7 +177206,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Directed weighted social network topology of Twitter, with 61.6M nodes and 1,468.4M edges.",
               "file": "src/saps/benchmarks/transitive_closure.py",
-              "freshness": "1dce1c955daaf2c691dd9c52b901fdc2af0739bbf26e3f10ce9a585625ea5875",
+              "freshness": "ec2bf7819a3a524fca7f5257bf32e23089862b7184ba1dde6fb33d404d8393f2",
               "name": "GAP/GAP-twitter",
               "pretty_name": "GAP Twitter",
               "suites": [
@@ -175981,7 +177228,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "A web-crawl of the .sk domain, directed and weighted, with 50.6M nodes and 1,949.4M edges.",
               "file": "src/saps/benchmarks/transitive_closure.py",
-              "freshness": "1dce1c955daaf2c691dd9c52b901fdc2af0739bbf26e3f10ce9a585625ea5875",
+              "freshness": "ec2bf7819a3a524fca7f5257bf32e23089862b7184ba1dde6fb33d404d8393f2",
               "name": "GAP/GAP-web",
               "pretty_name": "GAP Web",
               "suites": [
@@ -176003,7 +177250,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Symmetric random undirected weighted graph generated by Kronecker synthetic graph generator with parameters (A=0.57, B=C=0.19, D=0.05). Has 134.2M nodes and 2,111.6M edges.",
               "file": "src/saps/benchmarks/transitive_closure.py",
-              "freshness": "1dce1c955daaf2c691dd9c52b901fdc2af0739bbf26e3f10ce9a585625ea5875",
+              "freshness": "ec2bf7819a3a524fca7f5257bf32e23089862b7184ba1dde6fb33d404d8393f2",
               "name": "GAP/GAP-kron",
               "pretty_name": "GAP Kron",
               "suites": [
@@ -176025,7 +177272,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Symmetric random undirected weighted graph generated by Erdos\u2013Reyni model (Uniform Random) with 134.2M nodes and 2,147.4M edges.",
               "file": "src/saps/benchmarks/transitive_closure.py",
-              "freshness": "1dce1c955daaf2c691dd9c52b901fdc2af0739bbf26e3f10ce9a585625ea5875",
+              "freshness": "ec2bf7819a3a524fca7f5257bf32e23089862b7184ba1dde6fb33d404d8393f2",
               "name": "GAP/GAP-urand",
               "pretty_name": "GAP Urand",
               "suites": [
@@ -176047,7 +177294,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "The SNAP Eu-core e-mail network (1,005 nodes, 25,571 edges), a small stand-in for the GAP graphs when tracing, closed for only one squaring step.",
               "file": "src/saps/benchmarks/transitive_closure.py",
-              "freshness": "1dce1c955daaf2c691dd9c52b901fdc2af0739bbf26e3f10ce9a585625ea5875",
+              "freshness": "ec2bf7819a3a524fca7f5257bf32e23089862b7184ba1dde6fb33d404d8393f2",
               "name": "SNAP/email-Eu-core",
               "pretty_name": "SNAP email-Eu-core",
               "suites": [
@@ -176067,7 +177314,7 @@
           ],
           "description": "Input GAP generator for transitive closure benchmarks.",
           "file": "src/saps/benchmarks/transitive_closure.py",
-          "freshness": "1dce1c955daaf2c691dd9c52b901fdc2af0739bbf26e3f10ce9a585625ea5875",
+          "freshness": "ec2bf7819a3a524fca7f5257bf32e23089862b7184ba1dde6fb33d404d8393f2",
           "motivation": "Generate GAP directed graph inputs for transitive closure.",
           "name": "transitive_closure_gap_inputs",
           "pretty_name": "Transitive Closure GAP Input Generator",

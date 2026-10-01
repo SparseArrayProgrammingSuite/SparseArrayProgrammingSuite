@@ -14,6 +14,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.snap import SNAPGraphGenerator
 from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
 
 
@@ -231,14 +232,10 @@ class MCLGenerator(Generator[MCLDataset]):
     @property
     def datasets(self) -> list[MCLDataset]:
         return [
-            MCLDataset("JGD_Trefethen/Trefethen_200"),
-            MCLDataset("Pothen/mesh3em5"),
-            MCLDataset("Norris/fv1"),
-            MCLDataset("HB/bcsstk05"),
-            MCLDataset("HB/nos1"),
-            MCLDataset("HB/nos2"),
-            MCLDataset("HB/nos3", suites=["trace"]),
-            MCLDataset("HB/dwt_59"),
+            *(
+                MCLDataset(graph.source_name, suites=["standard"])
+                for graph in SNAPGraphGenerator().datasets
+            ),
             MCLDataset("GAP/GAP-road", suites=["standard"]),
             MCLDataset("GAP/GAP-twitter", suites=["standard"]),
             MCLDataset("GAP/GAP-web", suites=["standard"]),
@@ -304,6 +301,25 @@ class MCLBenchmark(Benchmark):
                 authors=[Author("Guy Allard")],
                 url="https://github.com/GuyAllard/markov_clustering",
             ),
+            Ref(
+                title=(
+                    "HipMCL: a high-performance parallel implementation of the "
+                    "Markov clustering algorithm for large-scale networks"
+                ),
+                authors=[
+                    Author("Ariful Azad"),
+                    Author("Georgios A. Pavlopoulos"),
+                    Author("Christos A. Ouzounis"),
+                    Author("Nikos C. Kyrpides"),
+                    Author("Aydin Buluç"),
+                ],
+                journal="Nucleic Acids Research",
+                volume=46,
+                number=6,
+                year=2018,
+                url="https://doi.org/10.1093/nar/gkx1313",
+                doi="10.1093/nar/gkx1313",
+            ),
         ]
 
     @property
@@ -350,12 +366,15 @@ class MCLBenchmark(Benchmark):
 
         """
         array_api = xp
-        graph = data[0]
+        # MCL works with transition probabilities, whatever the input's dtype.
+        graph = array_api.astype(data[0], array_api.float64)
         expansion = meta.get("expansion", 2)
         inflation = meta.get("inflation", 2)
         loop_value = meta.get("loop_value", 1)
         iterations = meta.get("iterations", 100)
-        pruning_threshold = meta.get("pruning_threshold", 1e-5)
+        # HipMCL's prune limit. A pruned column-stochastic column keeps at most
+        # 1 / pruning_threshold entries, which bounds fill-in from expansion.
+        pruning_threshold = meta.get("pruning_threshold", 1e-4)
         pruning_frequency = meta.get("pruning_frequency", 1)
         convergence_check_frequency = meta.get("convergence_check_frequency", 1)
 
@@ -370,13 +389,14 @@ class MCLBenchmark(Benchmark):
             for _ in range(expansion - 1):
                 expanded_matrix = array_api.matmul(expanded_matrix, current_matrix)
 
-            inflated_matrix = expanded_matrix**inflation
-            current_matrix = _normalize(array_api, inflated_matrix)
-
+            # As in HipMCL, prune the expanded matrix before inflating it.
             if pruning_threshold > 0 and i % pruning_frequency == (
                 pruning_frequency - 1
             ):
-                current_matrix = _prune(array_api, current_matrix, pruning_threshold)
+                expanded_matrix = _prune(array_api, expanded_matrix, pruning_threshold)
+
+            inflated_matrix = expanded_matrix**inflation
+            current_matrix = _normalize(array_api, inflated_matrix)
 
             if i % convergence_check_frequency == (
                 convergence_check_frequency - 1
