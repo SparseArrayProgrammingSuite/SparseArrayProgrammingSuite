@@ -515,7 +515,7 @@ class CP_ALS(Benchmark):
 
     @property
     def suites(self):
-        return ["group-data-analytics"]
+        return ["standard-data-analytics"]
 
     @property
     def concepts(self) -> str:

@@ -393,7 +393,7 @@ class TicTacToeBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["group-logic"]
+        return ["standard-logic"]
 
     @property
     def concepts(self) -> str:

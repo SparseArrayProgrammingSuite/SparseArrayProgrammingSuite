@@ -420,7 +420,7 @@ class PageRankBenchmark(Benchmark):
 
     @property
     def suites(self):
-        return ["group-graphs-iterative"]
+        return ["standard-graphs-iterative"]
 
     @property
     def concepts(self) -> str:

@@ -619,7 +619,7 @@ class MultiSourceShortestPathsBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["group-graphs-iterative"]
+        return ["standard-graphs-iterative"]
 
     @property
     def concepts(self) -> str:
