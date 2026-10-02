@@ -3,9 +3,9 @@
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=24
 #SBATCH --exclusive
-#SBATCH --mem=128G
+#SBATCH --mem=160G
 #SBATCH --tmp=50G
-#SBATCH --time=04:00:00
+#SBATCH --time=08:00:00
 #SBATCH --array=0-127
 #SBATCH --output=competition-%A_%a.log
 #SBATCH --mail-type=END,FAIL
@@ -54,6 +54,7 @@ benchmark_args=(
   --saps-dir "$competition_run_directory"
   --env-dir "$task_scratch/env"
   --results-dir "$competition_run_directory/results"
+  --memory-limit 128G
   --remote-storage-backend "$REMOTE_STORAGE_BACKEND"
   --remote-storage-bucket "$REMOTE_STORAGE_BUCKET"
   --chunk-count "$task_count"
