@@ -40,6 +40,7 @@ _CONSUMERS = [
     ("four_clique_counting", "FourCliqueCountSNAPGenerator"),
     ("pagerank", "PageRankSNAPGenerator"),
     ("transitive_closure", "TransitiveClosureSNAPGenerator"),
+    ("floyd_warshall", "FloydWarshallSNAPGenerator"),
     ("triangle_counting", "TriangleCountSNAPGenerator"),
     ("transitive_reduction", "TransitiveReductionSNAPGenerator"),
     ("multi_source_shortest_paths", "MultiSourceShortestPathsSNAPGenerator"),
@@ -202,11 +203,14 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
     elif module_name == "mcl_benchmark":
         assert problem.meta == {}
     else:
-        assert problem.meta == {
+        expected_meta = {
             "max_degree": _MAX_DEGREES[f"SNAP/{slug}"],
             "sources": _seeded_sources(fetch_snap_graph(slug).inputs[0]),
         }
-    if module_name in {"bellmanford", "multi_source_shortest_paths"}:
+        if module_name in {"transitive_closure", "floyd_warshall"}:
+            expected_meta["max_squarings"] = 0
+        assert problem.meta == expected_meta
+    if module_name in {"bellmanford", "multi_source_shortest_paths", "floyd_warshall"}:
         expected = np.array([[0, 1, np.inf], [np.inf, 0, 1], [np.inf, np.inf, 0]])
         np.testing.assert_array_equal(to_sparse(problem.inputs[0]).todense(), expected)
         assert problem.inputs[0].fill_value == np.inf
@@ -277,10 +281,6 @@ def test_each_gap_graph_problem_has_an_explicit_snap_generator():
             continue
         problems.append(benchmark.name)
         snap = [g for g in generators if type(g).__name__.endswith("SNAPGenerator")]
-        if benchmark.name == "floyd_warshall":
-            # This problem has GAP and other SuiteSparse matrices, but no SNAP cases.
-            assert snap == []
-            continue
         assert len(snap) == 1, benchmark.name
         assert "SNAP" in snap[0].pretty_name
         assert snap[0].name.endswith("_snap_inputs")

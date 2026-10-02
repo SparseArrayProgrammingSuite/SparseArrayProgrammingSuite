@@ -14,7 +14,11 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.adjacency import zero_one_adjacency
+from saps.benchmarks.adjacency import (
+    DEFAULT_MAX_DENSITY,
+    squaring_count,
+    zero_one_adjacency,
+)
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
 from saps_framework.binsparse_utils import binsparse_equal
@@ -27,11 +31,13 @@ class TransitiveClosureDataset(Dataset):
         pretty_name: str | None = None,
         description: str | None = None,
         suites: list[str] | None = None,
+        max_density: float = DEFAULT_MAX_DENSITY,
     ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Transitive closure input {name}."
         self._suites = list(suites or [])
+        self.max_density = max_density
 
     @property
     def name(self) -> str:
@@ -134,7 +140,7 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
             )
             return DataInstance(
                 inputs=[from_numpy(A)],
-                meta={},
+                meta={"max_squarings": max(0, len(A) - 2).bit_length()},
                 ref_outputs=[from_numpy(expected)],
             )
 
@@ -154,7 +160,7 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
             )
             return DataInstance(
                 inputs=[from_numpy(A)],
-                meta={},
+                meta={"max_squarings": max(0, len(A) - 2).bit_length()},
                 ref_meta={"strong_component_count": 4},
             )
 
@@ -172,7 +178,8 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
 
         return DataInstance(
             inputs=[from_numpy(A)],
-            meta={},
+            # Correctness fixtures exercise full closure, including dense results.
+            meta={"max_squarings": max(0, len(A) - 2).bit_length()},
             ref_outputs=[from_numpy(expected)],
         )
 
@@ -299,7 +306,13 @@ class TransitiveClosureSNAPGenerator(Generator[TransitiveClosureDataset]):
     def generate(self, dataset: TransitiveClosureDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
         return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0])], meta=dict(raw.meta)
+            inputs=[zero_one_adjacency(raw.inputs[0])],
+            meta={
+                **raw.meta,
+                "max_squarings": squaring_count(
+                    raw.inputs[0].shape[0], raw.meta["max_degree"], dataset.max_density
+                ),
+            },
         )
 
 
@@ -373,7 +386,13 @@ class TransitiveClosureGAPGenerator(Generator[TransitiveClosureDataset]):
     def generate(self, dataset: TransitiveClosureDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.name)
         return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0])], meta=dict(raw.meta)
+            inputs=[zero_one_adjacency(raw.inputs[0])],
+            meta={
+                **raw.meta,
+                "max_squarings": squaring_count(
+                    raw.inputs[0].shape[0], raw.meta["max_degree"], dataset.max_density
+                ),
+            },
         )
 
 
@@ -389,10 +408,12 @@ class TransitiveClosureBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "Computes the transitive closure of a directed graph using fixed-point"
-            " iteration. The algorithm initializes the adjacency matrix with the"
-            " identity, then iteratively applies the closure operation using sparse"
-            " matrix operations until convergence. This enables reachability queries."
+            "Computes bounded-hop reachability by Boolean matrix squaring, starting"
+            " with the adjacency matrix and identity. A maximum-degree bound limits"
+            " the squaring count to keep output density at most 1% by default."
+            " Stops earlier at a fixed point; a density-limited result may be a"
+            " partial transitive closure. Inputs already above the bound receive"
+            " no squarings."
         )
 
     @property
@@ -477,9 +498,7 @@ class TransitiveClosureBenchmark(Benchmark):
         identity_matrix = xp.eye(n, dtype=bool)
         graph = xp.logical_or(identity_matrix, graph)
 
-        # do fixed-point iteration
-        max_iterations = n
-        for _iteration in range(max_iterations):
+        for _iteration in range(meta["max_squarings"]):
             nextGraph = xp.einsum(
                 "nextGraph[i,j] or= graph[i,k] & graph[k,j]", graph=graph
             )

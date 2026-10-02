@@ -14,9 +14,14 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.adjacency import distance_matrix
+from saps.benchmarks.adjacency import (
+    DEFAULT_MAX_DENSITY,
+    distance_matrix,
+    squaring_count,
+    zero_one_adjacency,
+)
 from saps.benchmarks.gap import fetch_gap_graph
-from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
+from saps.benchmarks.snap import fetch_snap_graph
 
 
 class FloydWarshallDataset(Dataset):
@@ -26,19 +31,19 @@ class FloydWarshallDataset(Dataset):
         pretty_name: str | None = None,
         description: str | None = None,
         suites: list[str] | None = None,
-        symmetrize: bool = False,
         A=None,
         expected=None,
         ref_meta: dict | None = None,
+        max_density: float = DEFAULT_MAX_DENSITY,
     ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Floyd-Warshall input {name}."
         self._suites = list(suites or [])
-        self.symmetrize = symmetrize
         self.A = A
         self.expected = expected
         self.ref_meta = ref_meta
+        self.max_density = max_density
 
     @property
     def name(self) -> str:
@@ -335,34 +340,33 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
             expected = floyd_warshall_reference(inputs)
         return DataInstance(
             inputs=[from_numpy(inputs)],
-            meta={},
+            # Correctness fixtures exercise full shortest paths, even when dense.
+            meta={"max_squarings": max(0, len(inputs) - 2).bit_length()},
             ref_outputs=[from_numpy(expected)],
             ref_meta=dataset.ref_meta,
         )
 
 
-class FloydWarshallSuiteSparseGenerator(Generator[FloydWarshallDataset]):
+class FloydWarshallSNAPGenerator(Generator[FloydWarshallDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
     @property
     def name(self) -> str:
-        return "floyd_warshall_inputs"
+        return "floyd_warshall_snap_inputs"
 
     @property
     def pretty_name(self) -> str:
-        return "Floyd-Warshall Input Generator"
+        return "Floyd-Warshall SNAP Input Generator"
 
     @property
     def description(self) -> str:
-        return (
-            "Data is collected from the SuiteSparse Matrix Collection and standard"
-            " benchmark graph datasets, with sparse adjacency matrices converted into"
-            " unweighted all-pairs shortest path inputs. This generator uses real-world"
-            " networks, including the Chesapeake road network and soc-tribes network"
-            " from the Network Repository."
-        )
+        return "SNAP graphs converted to unit-length shortest-path inputs for Floyd-Warshall."
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return ["standard"]
 
     @property
     def concepts(self) -> str:
@@ -370,75 +374,108 @@ class FloydWarshallSuiteSparseGenerator(Generator[FloydWarshallDataset]):
 
     @property
     def authors(self) -> list[Contributor]:
-        return [
-            Contributor("Aarav Joglekar", "ajoglekar32@gatech.edu"),
-            Contributor("Joel Mathew Cherian", "jcherian32@gatech.edu"),
-        ]
+        return []
 
     @property
-    def references(self):
-        return [
-            Ref(
-                title=("Graph Algorithms in the Language of Linear Algebra"),
-                authors=[
-                    Author("Kepner, Jeremy"),
-                    Author("Gilbert, John"),
-                ],
-                journal="Society for Industrial and Applied Mathematics (SIAM)",
-                year=2011,
-            ),
-            Ref(
-                title=(
-                    "The Network Data Repository with Interactive"
-                    " Graph Analytics and Visualization"
-                ),
-                authors=[
-                    Author("Ryan A. Rossi"),
-                    Author("Nesreen K. Ahmed"),
-                ],
-                journal="AAAI",
-                url="https://networkrepository.com",
-                year=2015,
-            ),
-        ]
+    def references(self) -> list[Ref]:
+        return []
 
     @property
     def ai_disclosure(self) -> str:
-        return (
-            "No generative AI was used to construct the benchmark function itself."
-            " Generative AI might have been used to construct tests. This statement was"
-            " written by hand."
-        )
+        return "Generative AI was used to construct this generator."
 
     @property
     def motivation(self) -> str:
-        return ""
+        return (
+            "Generate unit-length shortest-path inputs with the stored edge directions."
+        )
 
     @property
     def datasets(self) -> list[FloydWarshallDataset]:
         # fmt: off
         return [
-            FloydWarshallDataset("HB/bcspwr01", symmetrize=True, suites=[]),
-            FloydWarshallDataset("HB/bcspwr02", symmetrize=True, suites=[]),
-            FloydWarshallDataset("HB/bcspwr03", symmetrize=True, suites=[]),
-            FloydWarshallDataset("DIMACS10/chesapeake", symmetrize=True, suites=[]),
-            FloydWarshallDataset("HB/ash85", symmetrize=False, suites=[]),
-            FloydWarshallDataset("HB/arc130", symmetrize=False, suites=[]),
-            FloydWarshallDataset("HB/bcspwr04", symmetrize=True, suites=[]),
-            FloydWarshallDataset("HB/ash292", symmetrize=False, suites=[]),
+            FloydWarshallDataset("soc-Epinions1", suites=["standard"]),
+            FloydWarshallDataset("soc-LiveJournal1", suites=["standard"]),
+            FloydWarshallDataset("soc-Pokec", suites=["standard"]),
+            FloydWarshallDataset("soc-Slashdot0811", suites=["standard"]),
+            FloydWarshallDataset("soc-Slashdot0902", suites=["standard"]),
+            FloydWarshallDataset("wiki-Vote", suites=["standard"]),
+            FloydWarshallDataset("wiki-RfA", suites=["standard"]),
+            FloydWarshallDataset("soc-sign-bitcoin-otc", suites=["standard"]),
+            FloydWarshallDataset("soc-sign-bitcoin-alpha", suites=["standard"]),
+            FloydWarshallDataset("com-LiveJournal", suites=["standard"]),
+            FloydWarshallDataset("com-Friendster", suites=["standard"]),
+            FloydWarshallDataset("com-Orkut", suites=["standard"]),
+            FloydWarshallDataset("com-Youtube", suites=["standard"]),
+            FloydWarshallDataset("com-DBLP", suites=["standard"]),
+            FloydWarshallDataset("com-Amazon", suites=["standard"]),
+            FloydWarshallDataset("email-Eu-core", suites=["standard"]),
+            FloydWarshallDataset("wiki-topcats", suites=["standard"]),
+            FloydWarshallDataset("email-EuAll", suites=["standard"]),
+            FloydWarshallDataset("email-Enron", suites=["standard"]),
+            FloydWarshallDataset("wiki-Talk", suites=["standard"]),
+            FloydWarshallDataset("cit-HepPh", suites=["standard"]),
+            FloydWarshallDataset("cit-HepTh", suites=["standard"]),
+            FloydWarshallDataset("cit-Patents", suites=["standard"]),
+            FloydWarshallDataset("ca-AstroPh", suites=["standard"]),
+            FloydWarshallDataset("ca-CondMat", suites=["standard"]),
+            FloydWarshallDataset("ca-GrQc", suites=["standard"]),
+            FloydWarshallDataset("ca-HepPh", suites=["standard"]),
+            FloydWarshallDataset("ca-HepTh", suites=["standard"]),
+            FloydWarshallDataset("web-BerkStan", suites=["standard"]),
+            FloydWarshallDataset("web-Google", suites=["standard"]),
+            FloydWarshallDataset("web-NotreDame", suites=["standard"]),
+            FloydWarshallDataset("web-Stanford", suites=["standard"]),
+            FloydWarshallDataset("amazon0302", suites=["standard"]),
+            FloydWarshallDataset("amazon0312", suites=["standard"]),
+            FloydWarshallDataset("amazon0505", suites=["standard"]),
+            FloydWarshallDataset("amazon0601", suites=["standard"]),
+            FloydWarshallDataset("p2p-Gnutella04", suites=["standard"]),
+            FloydWarshallDataset("p2p-Gnutella05", suites=["standard"]),
+            FloydWarshallDataset("p2p-Gnutella06", suites=["standard"]),
+            FloydWarshallDataset("p2p-Gnutella08", suites=["standard"]),
+            FloydWarshallDataset("p2p-Gnutella09", suites=["standard"]),
+            FloydWarshallDataset("p2p-Gnutella24", suites=["standard"]),
+            FloydWarshallDataset("p2p-Gnutella25", suites=["standard"]),
+            FloydWarshallDataset("p2p-Gnutella30", suites=["standard"]),
+            FloydWarshallDataset("p2p-Gnutella31", suites=["standard"]),
+            FloydWarshallDataset("roadNet-CA", suites=["standard"]),
+            FloydWarshallDataset("roadNet-PA", suites=["standard"]),
+            FloydWarshallDataset("roadNet-TX", suites=["standard"]),
+            FloydWarshallDataset("as-735", suites=["standard"]),
+            FloydWarshallDataset("as-Skitter", suites=["standard"]),
+            FloydWarshallDataset("as-caida", suites=["standard"]),
+            FloydWarshallDataset("Oregon-1", suites=["standard"]),
+            FloydWarshallDataset("Oregon-2", suites=["standard"]),
+            FloydWarshallDataset("soc-sign-epinions", suites=["standard"]),
+            FloydWarshallDataset("soc-sign-Slashdot081106", suites=["standard"]),
+            FloydWarshallDataset("soc-sign-Slashdot090216", suites=["standard"]),
+            FloydWarshallDataset("soc-sign-Slashdot090221", suites=["standard"]),
+            FloydWarshallDataset("loc-Gowalla", suites=["standard"]),
+            FloydWarshallDataset("loc-Brightkite", suites=["standard"]),
+            FloydWarshallDataset("sx-stackoverflow", suites=["standard"]),
+            FloydWarshallDataset("sx-mathoverflow", suites=["standard"]),
+            FloydWarshallDataset("sx-superuser", suites=["standard"]),
+            FloydWarshallDataset("sx-askubuntu", suites=["standard"]),
+            FloydWarshallDataset("wiki-talk-temporal", suites=["standard"]),
+            FloydWarshallDataset("email-Eu-core-temporal", suites=["standard"]),
+            FloydWarshallDataset("CollegeMsg", suites=["standard"]),
+            FloydWarshallDataset("twitter7", suites=["standard"]),
+            FloydWarshallDataset("higgs-twitter", suites=["standard"]),
         ]
         # fmt: on
 
-    @property
-    def cacheable(self) -> bool:
-        return False
-
-    def generate(self, dataset: FloydWarshallDataset):
-        raw = fetch_suitesparse_matrix(dataset.name)
-        G = distance_matrix(
-            raw.inputs[0], keep_weights=False, symmetrize=dataset.symmetrize
+    def generate(self, dataset: FloydWarshallDataset) -> DataInstance:
+        raw = fetch_snap_graph(dataset.name)
+        return DataInstance(
+            inputs=[distance_matrix(zero_one_adjacency(raw.inputs[0]))],
+            meta={
+                **raw.meta,
+                "max_squarings": squaring_count(
+                    raw.inputs[0].shape[0], raw.meta["max_degree"], dataset.max_density
+                ),
+            },
         )
-        return DataInstance(inputs=[G], meta={})
 
 
 class FloydWarshallGAPGenerator(Generator[FloydWarshallDataset]):
@@ -516,11 +553,11 @@ class FloydWarshallGAPGenerator(Generator[FloydWarshallDataset]):
     def datasets(self) -> list[FloydWarshallDataset]:
         # fmt: off
         return [
-            FloydWarshallDataset("GAP/GAP-road", symmetrize=False, suites=["standard"]),
-            FloydWarshallDataset("GAP/GAP-twitter", symmetrize=True, suites=["standard"]),
-            FloydWarshallDataset("GAP/GAP-web", symmetrize=True, suites=["standard"]),
-            FloydWarshallDataset("GAP/GAP-kron", symmetrize=False, suites=["standard"]),
-            FloydWarshallDataset("GAP/GAP-urand", symmetrize=False, suites=["standard"]),
+            FloydWarshallDataset("GAP/GAP-road", suites=["standard"]),
+            FloydWarshallDataset("GAP/GAP-twitter", suites=["standard"]),
+            FloydWarshallDataset("GAP/GAP-web", suites=["standard"]),
+            FloydWarshallDataset("GAP/GAP-kron", suites=["standard"]),
+            FloydWarshallDataset("GAP/GAP-urand", suites=["standard"]),
         ]
         # fmt: on
         # fmt: on
@@ -532,10 +569,17 @@ class FloydWarshallGAPGenerator(Generator[FloydWarshallDataset]):
     def generate(self, dataset: FloydWarshallDataset):
         raw = fetch_gap_graph(dataset.name.removeprefix("GAP/"))
         # GAP graphs are weighted, so edges keep their lengths.
-        G = distance_matrix(
-            raw.inputs[0], keep_weights=True, symmetrize=dataset.symmetrize
+        G = distance_matrix(raw.inputs[0], keep_weights=True)
+        degree = raw.meta["max_degree"]
+        return DataInstance(
+            inputs=[G],
+            meta={
+                **raw.meta,
+                "max_squarings": squaring_count(
+                    G.shape[0], degree, dataset.max_density
+                ),
+            },
         )
-        return DataInstance(inputs=[G], meta={})
 
 
 class FloydWarshallBenchmark(Benchmark):
@@ -550,8 +594,11 @@ class FloydWarshallBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "The Floyd-Warshall algorithm computes the shortest paths between every "
-            "pair of vertices in a weighted directed graph."
+            "Computes bounded-hop all-pairs shortest paths by min-plus matrix"
+            " squaring. A maximum-degree bound limits the squaring count to keep"
+            " finite-entry density at most 1% by default. Stops earlier at a fixed"
+            " point; a density-limited result may omit longer paths. Inputs already"
+            " above the bound receive no squarings."
         )
 
     @property
@@ -628,21 +675,25 @@ class FloydWarshallBenchmark(Benchmark):
     def generators(self):
         return [
             FloydWarshallTestGenerator(),
-            FloydWarshallSuiteSparseGenerator(),
+            FloydWarshallSNAPGenerator(),
             FloydWarshallGAPGenerator(),
         ]
 
     def benchmark(self, xp, data, meta):
         """
-        Returns the all pair shortest path i.e. A[i,j] is the shortest
-        path from i to j
+        Return shortest paths using at most 2**max_squarings edges.
+
+        Inputs have a zero diagonal and no negative cycles. With a sufficient
+        squaring budget this computes all-pairs shortest paths.
         """
         G = data[0]
         n, m = G.shape
         assert n == m
-        for k in range(n):
-            G_k = xp.expand_dims(G[:, k], axis=1) + xp.expand_dims(G[k, :], axis=0)
-            G = xp.minimum(G, G_k)
+        for _iteration in range(meta["max_squarings"]):
+            next_G = xp.einsum("D[i,j] min= G[i,k] + G[k,j]", G=G)
+            if xp.all(xp.equal(G, next_G)):
+                break
+            G = next_G
         return [G]
 
     def check(self, param):

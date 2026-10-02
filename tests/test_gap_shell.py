@@ -135,35 +135,26 @@ def weighted_graph():
     )
 
 
-@pytest.mark.parametrize("symmetrize", [False, True])
-def test_floyd_warshall_gap_keeps_edge_weights(monkeypatch, weighted_graph, symmetrize):
+@pytest.mark.parametrize("name", ["road", "twitter", "web", "kron", "urand"])
+def test_floyd_warshall_gap_keeps_weights_and_direction(
+    monkeypatch, weighted_graph, name
+):
     from saps.benchmarks import floyd_warshall as fw
 
     load = Mock(return_value=weighted_graph)
     monkeypatch.setattr(fw, "fetch_gap_graph", load)
-    dataset = fw.FloydWarshallDataset("GAP/GAP-road", symmetrize=symmetrize)
+    dataset = next(
+        d
+        for d in fw.FloydWarshallGAPGenerator().datasets
+        if d.name == f"GAP/GAP-{name}"
+    )
     problem = fw.FloydWarshallGAPGenerator().generate(dataset)
     expected = np.array([[0, 7, np.inf], [np.inf, 0, -3], [np.inf, np.inf, 0]])
-    if symmetrize:
-        expected = np.minimum(expected, expected.T)
     G = to_sparse(problem.inputs[0])
     assert G.fill_value == np.inf
     assert G.nnz == np.isfinite(expected).sum()
     np.testing.assert_array_equal(G.todense(), expected)
-    load.assert_called_once_with("GAP-road")
-
-
-def test_floyd_warshall_suitesparse_uses_unit_lengths(monkeypatch, weighted_graph):
-    from saps.benchmarks import floyd_warshall as fw
-
-    monkeypatch.setattr(fw, "fetch_suitesparse_matrix", lambda _: weighted_graph)
-    dataset = fw.FloydWarshallDataset("HB/bcspwr01", symmetrize=True)
-    problem = fw.FloydWarshallSuiteSparseGenerator().generate(dataset)
-    G = to_sparse(problem.inputs[0])
-    assert G.fill_value == np.inf
-    np.testing.assert_array_equal(
-        G.todense(), [[0, 1, np.inf], [1, 0, 1], [np.inf, 1, 0]]
-    )
+    load.assert_called_once_with(f"GAP-{name}")
 
 
 @pytest.mark.parametrize("symmetrize", [False, True])

@@ -96,3 +96,14 @@ def test_gap_connectivity_inputs_are_zero_one(
     _check_first_input(
         monkeypatch, module, generator, "fetch_gap_graph", expected, dtype
     )
+
+
+def test_floyd_warshall_snap_uses_directed_unit_edges(monkeypatch):
+    _check_first_input(
+        monkeypatch,
+        "floyd_warshall",
+        "FloydWarshallSNAPGenerator",
+        "fetch_snap_graph",
+        [[0, 1, inf], [inf, 0, 1], [inf, inf, 0]],
+        np.float64,
+    )
