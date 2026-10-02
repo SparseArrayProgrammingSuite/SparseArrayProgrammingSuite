@@ -4,6 +4,9 @@ galley-jl-python is installed from https://github.com/finch-tensor/galley-jl-pyt
 and imported as ``galley_jl_python``. Every eager operation is planned by the
 Galley scheduler, which this module installs as Finch's global scheduler.
 
+Benchmark functions are compiled with ``gl.jit``, which defers tensors and
+computes them only at control flow, so galley fuses the operations in between.
+
 Only operations galley (or Finch.jl) can run natively are provided. Where
 galley's Python API has a gap that a native call fills, this module bridges it:
 ``_patch_tensor`` adds reflected operators, NumPy operands, and ``.T`` to
@@ -14,7 +17,10 @@ rather than fall back to a dense NumPy/SciPy implementation.
 """
 
 import builtins
+import inspect
 import operator
+import types
+import warnings
 
 import numpy as np
 import scipy.sparse as sps
@@ -139,6 +145,9 @@ def _patch_tensor():
     Tensor.astype = lambda self, dtype, copy=True: gl.astype(
         self, _jl_dtype(dtype), copy=copy
     )
+    # Under `gl.jit` tensors may be lazy; compute them where a value is needed.
+    todense = Tensor.todense
+    Tensor.todense = lambda self: todense(gl.compute(self))
     Tensor.item = lambda self: self.todense().item()
 
 
@@ -173,6 +182,33 @@ class GalleyFramework(Framework):
     def __init__(self, scheduler=None):
         self.scheduler = scheduler or gl.GalleyScheduler()
         gl.set_optimizer(self.scheduler)
+
+    def compile(self, func):
+        # The harness wraps the benchmark function in a closure
+        # `benchmark(meta, *data_args)`, and `gl.jit` does not support `*args`,
+        # so compile the wrapped function instead.
+        closure = inspect.getclosurevars(func).nonlocals
+        function = closure.get("function")
+        if function is None:
+            return func
+        bound_args: tuple = (closure.get("xp", self),)
+        if isinstance(function, types.MethodType):
+            bound_args = (function.__self__, *bound_args)
+            function = function.__func__
+        try:
+            jitted = gl.jit(function)
+        except (OSError, ValueError, NotImplementedError) as e:
+            warnings.warn(
+                f"gl.jit could not compile {function.__qualname__}, so it runs "
+                f"eagerly: {e}",
+                stacklevel=2,
+            )
+            return func
+
+        def compiled(meta, *data_args):
+            return jitted(*bound_args, meta, *data_args)
+
+        return compiled
 
     def from_binsparse(self, array):
         match array:
@@ -234,7 +270,7 @@ class GalleyFramework(Framework):
     def with_fill_value(self, array, value):
         # Relabel the background value in place of the stored one, like
         # pydata/sparse's fill_value assignment; stored entries are unchanged.
-        array = _to_tensor(array)
+        array = gl.compute(_to_tensor(array))
         # The fill value is a type parameter, so this returns a new tensor.
         body = jl.Finch.set_fill_value_b(
             jl.deepcopy(array._obj.body), jc.convert(array.dtype, value)

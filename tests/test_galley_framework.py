@@ -85,3 +85,69 @@ def test_unsupported_operations_raise(xp):
         A[0, 0] = 1.0
     with pytest.raises(AttributeError):
         _ = xp.concat
+
+
+def _harness_closure(xp, function):
+    # Mirrors how saps.benchmark wraps a benchmark function before `xp.compile`.
+    def benchmark(meta, *data_args):
+        return function(xp, meta, *data_args)
+
+    return benchmark
+
+
+def _scaled_sum(xp, meta, A):
+    B = A * meta["scale"]
+    return B + A
+
+
+def test_compile_fuses_straight_line_benchmark(xp, monkeypatch):
+    from galley_jl_python.fused import dataflow
+
+    computed = []
+    compute_tensor = dataflow.compute_tensor
+
+    def counting_compute(tensor):
+        if not tensor.is_computed():
+            computed.append(tensor)
+        return compute_tensor(tensor)
+
+    monkeypatch.setattr(dataflow, "compute_tensor", counting_compute)
+
+    def benchmark(xp, meta, A):
+        B = A * 2.0
+        C = B + A
+        return C  # noqa: RET504
+
+    compiled = xp.compile(_harness_closure(xp, benchmark))
+    A = xp.from_binsparse(from_scipy(MATRIX))
+    result = compiled({}, A)
+
+    np.testing.assert_allclose(_dense(xp.to_binsparse(result)), 3 * MATRIX.toarray())
+    assert len(computed) == 1
+
+
+class _Benchmark:
+    def benchmark(self, xp, meta, A):
+        total = xp.sum(A)
+        if float(total) > 0:
+            A = A + 1.0
+        return A
+
+
+def test_compile_bound_benchmark_with_branch_on_a_lazy_value(xp):
+    compiled = xp.compile(_harness_closure(xp, _Benchmark().benchmark))
+    A = xp.from_binsparse(from_scipy(MATRIX))
+
+    np.testing.assert_allclose(
+        _dense(xp.to_binsparse(compiled({}, A))), MATRIX.toarray() + 1.0
+    )
+
+
+def test_compile_falls_back_when_jit_cannot_parse(xp):
+    def benchmark(xp, meta, A):
+        return [A * 2.0 for _ in range(1)][0]
+
+    closure = _harness_closure(xp, benchmark)
+    with pytest.warns(UserWarning, match="runs eagerly"):
+        compiled = xp.compile(closure)
+    assert compiled is closure
