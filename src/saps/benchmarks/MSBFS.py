@@ -1,0 +1,800 @@
+# ruff: noqa: E501
+import numpy as np
+from scipy.sparse import coo_array
+
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, from_scipy
+
+from saps.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    Ref,
+)
+from saps.benchmarks.gap import fetch_gap_graph, gap_graph
+from saps.benchmarks.snap import (
+    fetch_snap_graph,
+    with_source_vertex,
+)
+from saps_framework.binsparse_utils import binsparse_equal
+
+
+class BreadthFirstSearchDataset(Dataset):
+    def __init__(
+        self,
+        name: str,
+        pretty_name: str | None = None,
+        description: str | None = None,
+        suites: list[str] | None = None,
+        A: np.ndarray | None = None,
+        src: int | None = None,
+        expected: np.ndarray | None = None,
+        source_seed: int | None = None,
+        source_name: str | None = None,
+    ):
+        self._name = name
+        self._pretty_name = pretty_name or name
+        self._description = description or f"Breadth-first search input {name}."
+        self._suites = list(suites or [])
+        self.A = A
+        self.src = src
+        self.source_seed = source_seed
+        self.source_name = source_name or name
+        self.expected = expected
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+
+class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
+    @property
+    def name(self) -> str:
+        return "bfs_test_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Breadth-First Search Test Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "Small deterministic BFS examples with reference outputs."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["test"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI might have been used to construct tests. This statement "
+            "was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Provide small BFS examples for benchmark correctness checks."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[BreadthFirstSearchDataset]:
+        return [
+            BreadthFirstSearchDataset(
+                "test_bfs_basic",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [0, 1, 1, 0, 0, 0],
+                        [0, 0, 1, 1, 0, 0],
+                        [0, 0, 0, 0, 1, 0],
+                        [0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 1],
+                        [0, 0, 0, 1, 0, 0],
+                    ],
+                    dtype=bool,
+                ),
+                src=0,
+                expected=np.array([1, 2, 2, 3, 3, 4], dtype=int),
+            ),
+            BreadthFirstSearchDataset(
+                "test_bfs_single_node",
+                suites=["test"],
+                A=np.array([[0]], dtype=bool),
+                src=0,
+                expected=np.array([1], dtype=int),
+            ),
+            BreadthFirstSearchDataset(
+                "test_bfs_disconnected",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [0, 1, 0, 0],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 1],
+                        [0, 0, 0, 0],
+                    ],
+                    dtype=bool,
+                ),
+                src=0,
+                expected=np.array([1, 2, 0, 0], dtype=int),
+            ),
+            BreadthFirstSearchDataset(
+                "test_bfs_undirected",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [0, 1, 0, 0],
+                        [1, 0, 1, 0],
+                        [0, 1, 0, 1],
+                        [0, 0, 1, 0],
+                    ],
+                    dtype=bool,
+                ),
+                src=0,
+                expected=np.array([1, 2, 3, 4], dtype=int),
+            ),
+            BreadthFirstSearchDataset(
+                "test_bfs_cycle",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [0, 1, 0, 0],
+                        [0, 0, 1, 0],
+                        [0, 0, 0, 1],
+                        [1, 0, 0, 0],
+                    ],
+                    dtype=bool,
+                ),
+                src=0,
+                expected=np.array([1, 2, 3, 4], dtype=int),
+            ),
+            BreadthFirstSearchDataset(
+                "test_bfs_snap_toy",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [0, 1, 0],
+                        [0, 0, 1],
+                        [0, 0, 0],
+                    ],
+                    dtype=bool,
+                ),
+                src=0,
+                expected=np.array([1, 2, 3], dtype=int),
+            ),
+            *[
+                BreadthFirstSearchDataset(
+                    name=f"test_bfs_snap_source_seed{seed}",
+                    suites=["test"],
+                    A=np.array(
+                        [[0, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1], [0, 0, 0, 0]],
+                        dtype=bool,
+                    ),
+                    source_seed=seed,
+                )
+                for seed in range(10)
+            ],
+        ]
+
+    def generate(self, dataset: BreadthFirstSearchDataset) -> DataInstance:
+        if dataset.source_seed is not None:
+            from scipy.sparse.csgraph import shortest_path
+
+            if dataset.A is None:
+                raise ValueError("Seeded BFS tests require an adjacency matrix.")
+            raw = with_source_vertex(
+                DataInstance(inputs=[from_scipy(coo_array(dataset.A))], meta={}),
+                seed=dataset.source_seed,
+            )
+            distances = shortest_path(
+                dataset.A, directed=True, unweighted=True, indices=raw.meta["src"]
+            )
+            levels = np.where(np.isfinite(distances), distances + 1, 0).astype(int)
+            raw.ref_outputs = [from_numpy(levels)]
+            return raw
+        if dataset.A is None or dataset.src is None or dataset.expected is None:
+            raise ValueError("BFS test datasets must define A, src, and expected.")
+        return DataInstance(
+            inputs=[from_numpy(dataset.A)],
+            meta={"src": dataset.src},
+            ref_outputs=[from_numpy(dataset.expected)],
+        )
+
+
+class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
+    @property
+    def name(self) -> str:
+        return "bfs_snap_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Breadth-First Search SNAP Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "SNAP input generator for breadth-first search benchmarks."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["standard"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Generate sparse graph inputs for breadth-first search."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[BreadthFirstSearchDataset]:
+        # Successful standard-suite Smart runs <= 30s in competition/run_13662472.
+        # fmt: off
+        return [
+            *[
+                BreadthFirstSearchDataset(f"soc-Epinions1_seed{seed}", source_name="soc-Epinions1", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"soc-LiveJournal1_seed{seed}", source_name="soc-LiveJournal1", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"soc-Pokec_seed{seed}", source_name="soc-Pokec", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"soc-Slashdot0811_seed{seed}", source_name="soc-Slashdot0811", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"soc-Slashdot0902_seed{seed}", source_name="soc-Slashdot0902", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"wiki-Vote_seed{seed}", source_name="wiki-Vote", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"wiki-RfA_seed{seed}", source_name="wiki-RfA", source_seed=seed, suites=["standard", "trace"] if seed in (0, 1, 2, 3, 4, 5, 6) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"soc-sign-bitcoin-otc_seed{seed}", source_name="soc-sign-bitcoin-otc", source_seed=seed, suites=["standard", "trace"] if seed in (2, 7) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"soc-sign-bitcoin-alpha_seed{seed}", source_name="soc-sign-bitcoin-alpha", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"com-LiveJournal_seed{seed}", source_name="com-LiveJournal", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"com-Friendster_seed{seed}", source_name="com-Friendster", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"com-Orkut_seed{seed}", source_name="com-Orkut", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"com-Youtube_seed{seed}", source_name="com-Youtube", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"com-DBLP_seed{seed}", source_name="com-DBLP", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"com-Amazon_seed{seed}", source_name="com-Amazon", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"email-Eu-core_seed{seed}", source_name="email-Eu-core", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"wiki-topcats_seed{seed}", source_name="wiki-topcats", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"email-EuAll_seed{seed}", source_name="email-EuAll", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"email-Enron_seed{seed}", source_name="email-Enron", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"wiki-Talk_seed{seed}", source_name="wiki-Talk", source_seed=seed, suites=["standard", "trace"] if seed in (0, 1, 2, 3, 4) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"cit-HepPh_seed{seed}", source_name="cit-HepPh", source_seed=seed, suites=["standard", "trace"] if seed in (0, 5, 8, 9) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"cit-HepTh_seed{seed}", source_name="cit-HepTh", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"cit-Patents_seed{seed}", source_name="cit-Patents", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"ca-AstroPh_seed{seed}", source_name="ca-AstroPh", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"ca-CondMat_seed{seed}", source_name="ca-CondMat", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"ca-GrQc_seed{seed}", source_name="ca-GrQc", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"ca-HepPh_seed{seed}", source_name="ca-HepPh", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"ca-HepTh_seed{seed}", source_name="ca-HepTh", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"web-BerkStan_seed{seed}", source_name="web-BerkStan", source_seed=seed, suites=["standard", "trace"] if seed in (0, 2, 5) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"web-Google_seed{seed}", source_name="web-Google", source_seed=seed, suites=["standard", "trace"] if seed in (0, 1, 2, 4, 5, 6, 7, 8, 9) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"web-NotreDame_seed{seed}", source_name="web-NotreDame", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"web-Stanford_seed{seed}", source_name="web-Stanford", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"amazon0302_seed{seed}", source_name="amazon0302", source_seed=seed, suites=["standard", "trace"] if seed in (0, 1, 2, 8) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"amazon0312_seed{seed}", source_name="amazon0312", source_seed=seed, suites=["standard", "trace"] if seed in (3, 6, 7, 8, 9) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"amazon0505_seed{seed}", source_name="amazon0505", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"amazon0601_seed{seed}", source_name="amazon0601", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"p2p-Gnutella04_seed{seed}", source_name="p2p-Gnutella04", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"p2p-Gnutella05_seed{seed}", source_name="p2p-Gnutella05", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"p2p-Gnutella06_seed{seed}", source_name="p2p-Gnutella06", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"p2p-Gnutella08_seed{seed}", source_name="p2p-Gnutella08", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"p2p-Gnutella09_seed{seed}", source_name="p2p-Gnutella09", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"p2p-Gnutella24_seed{seed}", source_name="p2p-Gnutella24", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"p2p-Gnutella25_seed{seed}", source_name="p2p-Gnutella25", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"p2p-Gnutella30_seed{seed}", source_name="p2p-Gnutella30", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"p2p-Gnutella31_seed{seed}", source_name="p2p-Gnutella31", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"roadNet-CA_seed{seed}", source_name="roadNet-CA", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"roadNet-PA_seed{seed}", source_name="roadNet-PA", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"roadNet-TX_seed{seed}", source_name="roadNet-TX", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"as-735_seed{seed}", source_name="as-735", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"as-Skitter_seed{seed}", source_name="as-Skitter", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"as-caida_seed{seed}", source_name="as-caida", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"Oregon-1_seed{seed}", source_name="Oregon-1", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"Oregon-2_seed{seed}", source_name="Oregon-2", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"soc-sign-epinions_seed{seed}", source_name="soc-sign-epinions", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"soc-sign-Slashdot081106_seed{seed}", source_name="soc-sign-Slashdot081106", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"soc-sign-Slashdot090216_seed{seed}", source_name="soc-sign-Slashdot090216", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"soc-sign-Slashdot090221_seed{seed}", source_name="soc-sign-Slashdot090221", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"loc-Gowalla_seed{seed}", source_name="loc-Gowalla", source_seed=seed, suites=["standard", "trace"] if seed in (0, 1, 2, 3, 4, 5, 6, 7, 8) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"loc-Brightkite_seed{seed}", source_name="loc-Brightkite", source_seed=seed, suites=["standard", "trace"] if seed in (4, 9) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"sx-stackoverflow_seed{seed}", source_name="sx-stackoverflow", source_seed=seed, suites=["standard", "trace"] if seed in (2, 3, 4, 5, 6, 7, 8, 9) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"sx-mathoverflow_seed{seed}", source_name="sx-mathoverflow", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"sx-superuser_seed{seed}", source_name="sx-superuser", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"sx-askubuntu_seed{seed}", source_name="sx-askubuntu", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"wiki-talk-temporal_seed{seed}", source_name="wiki-talk-temporal", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"email-Eu-core-temporal_seed{seed}", source_name="email-Eu-core-temporal", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"CollegeMsg_seed{seed}", source_name="CollegeMsg", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"twitter7_seed{seed}", source_name="twitter7", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BreadthFirstSearchDataset(f"higgs-twitter_seed{seed}", source_name="higgs-twitter", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+        ]
+        # fmt: on
+
+    def generate(self, dataset: BreadthFirstSearchDataset) -> DataInstance:
+        raw = fetch_snap_graph(dataset.source_name)
+        seed = dataset.source_seed
+        if seed is None or not 0 <= seed < len(raw.meta["sources"]):
+            raise ValueError(
+                f"Source seed is outside the graph's available sources: {seed}"
+            )
+        return DataInstance(
+            inputs=raw.inputs,
+            meta={**raw.meta, "src": raw.meta["sources"][seed], "seed": seed},
+        )
+
+
+class BreadthFirstSearchGAPGenerator(Generator[BreadthFirstSearchDataset]):
+    @property
+    def name(self) -> str:
+        return "bfs_gap_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Breadth-First Search GAP Input Generator"
+
+    @property
+    def description(self) -> str:
+        return "GAP Input generator for breadth-first search benchmarks."
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="The GAP Benchmark Suite",
+                authors=[
+                    Author("Scott Beamer"),
+                    Author("Krste Asanović"),
+                    Author("David Patterson"),
+                ],
+                url="https://arxiv.org/abs/1508.03619",
+                year=2015,
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Generate GAP graph inputs for breadth-first search."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[BreadthFirstSearchDataset]:
+        # fmt: off
+        return [
+            *[
+                BreadthFirstSearchDataset(f"GAP/GAP-road_{src}", source_name="GAP-road", src=src, suites=["standard"])
+                for src in gap_graph("GAP-road").sources
+            ],
+            *[
+                BreadthFirstSearchDataset(f"GAP/GAP-twitter_{src}", source_name="GAP-twitter", src=src, suites=["standard"])
+                for src in gap_graph("GAP-twitter").sources
+            ],
+            *[
+                BreadthFirstSearchDataset(f"GAP/GAP-web_{src}", source_name="GAP-web", src=src, suites=["standard"])
+                for src in gap_graph("GAP-web").sources
+            ],
+            *[
+                BreadthFirstSearchDataset(f"GAP/GAP-kron_{src}", source_name="GAP-kron", src=src, suites=["standard"])
+                for src in gap_graph("GAP-kron").sources
+            ],
+            *[
+                BreadthFirstSearchDataset(f"GAP/GAP-urand_{src}", source_name="GAP-urand", src=src, suites=["standard"])
+                for src in gap_graph("GAP-urand").sources
+            ],
+        ]
+        # fmt: on
+
+    def generate(self, dataset: BreadthFirstSearchDataset) -> DataInstance:
+        raw = fetch_gap_graph(dataset.source_name)
+        if dataset.src not in raw.meta["sources"]:
+            raise ValueError(
+                f"{dataset.src} is not a published source of {dataset.source_name}"
+            )
+        return DataInstance(inputs=raw.inputs, meta={**raw.meta, "src": dataset.src})
+
+
+class BreadthFirstSearchBenchmark(Benchmark):
+    @property
+    def name(self):
+        return "bfs"
+
+    @property
+    def pretty_name(self):
+        return "Breadth-First Search Algorithm"
+
+    @property
+    def description(self):
+        return (
+            "The Breadth-First Search algorithm is an important graph traversal"
+            " technique used to explore vertices by layers. It is a fundamental"
+            " building block for more complex graph algorithms, especially in areas"
+            " like parallel processing and high-performance computing."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return ["group-graphs-iterative"]
+
+    @property
+    def concepts(self) -> str:
+        return """
+<ccs2012>
+<concept>
+<concept_id>10002950.10003705</concept_id>
+<concept_desc>Mathematics of computing~Mathematical software</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10002950.10003705.10011686</concept_id>
+<concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10002950.10003624.10003633.10010917</concept_id>
+<concept_desc>Mathematics of computing~Graph algorithms</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10002950.10003624.10003633.10003640</concept_id>
+<concept_desc>Mathematics of computing~Paths and connectivity problems</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+</ccs2012>
+"""
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [
+            Contributor("Aarav Joglekar", "ajoglekar32@gatech.edu"),
+            Contributor("Joel Mathew Cherian", "jcherian32@gatech.edu"),
+        ]
+
+    @property
+    def references(self):
+        return [
+            Ref(
+                title=("Graph Algorithms in the Language of Linear Algebra"),
+                authors=[
+                    Author("Kepner, Jeremy"),
+                    Author("Gilbert, John"),
+                ],
+                journal="Society for Industrial and Applied Mathematics (SIAM)",
+                city="Philadelphia",
+                year=2011,
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self):
+        return (
+            "No generative AI was used to construct the benchmark function itself."
+            " Generative AI might have been used to construct tests. This statement was"
+            " written by hand."
+        )
+
+    @property
+    def motivation(self):
+        return (
+            "In standard BFS, algorithms on sparse graphs are faster because they"
+            " process fewer edges, and specialized algebraic methods use sparsity to"
+            " avoid unnecessary computations by focusing only on non-zero elements."
+            " Optimizing the use of sparse data structures and algorithms is key to"
+            " achieving high performance, as it reduces memory footprint and leads to"
+            " faster traversals."
+        )
+
+    @property
+    def generators(self):
+        return [
+            BreadthFirstSearchSNAPGenerator(),
+            BreadthFirstSearchTestGenerator(),
+            BreadthFirstSearchGAPGenerator(),
+        ]
+
+    def benchmark(self, xp, data: list, meta: dict):
+        edges = data[0]
+        src = meta["src"]
+
+        (n, m) = edges.shape
+        assert n == m
+        visited = xp.zeros((n,), dtype=bool)
+        frontier = xp.zeros((n,), dtype=bool)
+        frontier[src] = True
+        level = xp.zeros((n,), dtype=int)
+        level_idx = 1
+        frontier_count = 1
+        while frontier_count > 0:
+            level = xp.where(frontier, level_idx, level)
+            visited = xp.logical_or(visited, frontier)
+            frontier = xp.einsum(
+                "frontier[j] += edges[i,j] * frontier[i]",
+                edges=edges,
+                frontier=frontier,
+            )
+            frontier = xp.logical_and(frontier, xp.logical_not(visited))
+            frontier_count = xp.sum(frontier)
+
+            level_idx += 1
+
+        return [level]
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
+        if self._ref_outputs is None:
+            return
+        assert binsparse_equal(self._output[0], self._ref_outputs[0]), (
+            f"BFS output mismatch for {param.dataset.name}"
+        )
