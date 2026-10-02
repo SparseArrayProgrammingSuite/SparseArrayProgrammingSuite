@@ -577,4 +577,3 @@ def with_source_vertex(raw: DataInstance, *, seed: int) -> DataInstance:
     """Attach a seeded source without changing the shared shell metadata."""
     src = int(select_source_vertices(raw.inputs[0], seed=seed)[0])
     return DataInstance(inputs=raw.inputs, meta={**raw.meta, "src": src, "seed": seed})
-

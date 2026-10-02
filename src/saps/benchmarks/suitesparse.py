@@ -606,6 +606,7 @@ _MATRICES: list[SuiteSparseDataset] = [
 ]
 _MATRICES += [SuiteSparseDataset(f"LPnetlib/{name}") for name in _LPNETLIB_PROBLEMS]
 
+
 class SuiteSparseMatrixGenerator(Generator[SuiteSparseDataset]):
     """Downloads and caches raw SuiteSparse matrices, shared across every benchmark."""
 

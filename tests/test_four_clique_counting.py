@@ -3,7 +3,7 @@ import pytest
 import numpy as np
 from scipy import sparse
 
-from binsparse.conversions import from_scipy
+from binsparse.conversions import from_scipy, to_scipy
 
 from saps.benchmark import DataInstance
 from saps.benchmarks import four_clique_counting as four
@@ -33,7 +33,10 @@ def test_all_four_clique_sources_are_loadable(monkeypatch, generator):
     )
     for dataset in generator.datasets:
         problem = generator.generate(dataset)
-        assert problem.inputs == [adjacency]
+        assert len(problem.inputs) == 1
+        actual = to_scipy(problem.inputs[0])
+        assert actual.dtype == np.int64
+        np.testing.assert_array_equal(actual.toarray(), to_scipy(adjacency).toarray())
         assert problem.meta == metadata
         assert calls[-1] == (source, dataset.name)
     assert len(calls) == len(generator.datasets)

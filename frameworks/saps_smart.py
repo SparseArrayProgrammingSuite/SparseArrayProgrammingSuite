@@ -719,12 +719,13 @@ class SmartSparseKernels(Framework):
             if (
                 x1.ndim == 2
                 and x2.ndim <= 2
+                and (not isinstance(x2, sp.SparseArray) or x2.ndim == 2)
                 and not (
                     isinstance(x1, sp.SparseArray) and isinstance(x2, sp.SparseArray)
                 )
             ):
                 # A 2D sparse matrix times a dense matrix or vector (or the
-                # reverse): SciPy's sparse-dense kernels are far faster than
+                # reverse, with a 2D sparse operand): SciPy's kernels are faster than
                 # pydata/sparse's general `@`, and both produce a dense result.
                 lhs, rhs = (
                     self._to_scipy_sparse(x) if isinstance(x, sp.SparseArray) else x

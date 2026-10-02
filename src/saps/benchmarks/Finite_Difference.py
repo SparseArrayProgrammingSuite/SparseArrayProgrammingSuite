@@ -640,9 +640,7 @@ class FiniteDifference2DBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
             u_n = u[-1]
             fl_x = flux_x(u_n)
             fl_y = flux_y(u_n)
-            u.append(
-                matrix @ u_n - alpha * (diff_x @ fl_x) - beta * (diff_y @ fl_y)
-            )
+            u.append(matrix @ u_n - alpha * (diff_x @ fl_x) - beta * (diff_y @ fl_y))
 
         return [xp.stack(u, axis=0)]
 

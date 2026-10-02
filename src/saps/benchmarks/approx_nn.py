@@ -1110,7 +1110,7 @@ Nearest neighbor algorithms</concept_desc>
             candidates = candidates | matches
             required_projections -= 1
 
-       # Rerank candidates by cosine distance.
+        # Rerank candidates by cosine distance.
         dot = xp.matmul(query, xp.permute_dims(data, (1, 0)))
         query_norm = xp.sqrt(xp.sum(query**2, axis=-1))
         data_norm = xp.sqrt(xp.sum(data**2, axis=-1))
