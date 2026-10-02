@@ -1110,14 +1110,8 @@ Nearest neighbor algorithms</concept_desc>
             candidates = candidates | matches
             required_projections -= 1
 
-        # Put the candidate mask in the contraction so sparse backends can
-        # compute dot products only for candidate pairs.
-        dot = xp.einsum(
-            "Dot[q,n] += Candidates[q,n] * Q[q,f] * D[n,f]",
-            Candidates=candidates,
-            Q=query,
-            D=data,
-        )
+       # Rerank candidates by cosine distance.
+        dot = xp.matmul(query, xp.permute_dims(data, (1, 0)))
         query_norm = xp.sqrt(xp.sum(query**2, axis=-1))
         data_norm = xp.sqrt(xp.sum(data**2, axis=-1))
         # 1e-10 floor guards zero-norm rows against a nan from 0/0.
