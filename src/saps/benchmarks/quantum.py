@@ -157,7 +157,7 @@ class QuantumStateGenerator(Generator[QuantumDataset]):
                     ("X", 8),
                     ("H", 9),
                 ],
-                suites=["standard", "trace"],
+                suites=["standard", "trace", "train"],
             ),
             QuantumDataset(
                 "single_layer_tiny",

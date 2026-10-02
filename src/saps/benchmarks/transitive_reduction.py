@@ -275,7 +275,7 @@ class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
             TransitiveReductionDataset("sx-askubuntu", suites=["standard"]),
             TransitiveReductionDataset("wiki-talk-temporal", suites=["standard"]),
             TransitiveReductionDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
-            TransitiveReductionDataset("CollegeMsg", suites=["standard", "trace"]),
+            TransitiveReductionDataset("CollegeMsg", suites=["standard", "trace", "train"]),
             TransitiveReductionDataset("twitter7", suites=["standard"]),
             TransitiveReductionDataset("higgs-twitter", suites=["standard"]),
         ]

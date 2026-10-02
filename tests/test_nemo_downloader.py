@@ -165,7 +165,7 @@ def test_particle_sim_real_generator_uses_nemo(monkeypatch):
     }
     assert {dataset.name: dataset.suites for dataset in datasets} == {
         "nemo_plummer_128": ["standard", "trace"],
-        "nemo_plummer_1024": ["standard", "trace"],
+        "nemo_plummer_1024": ["standard", "trace", "train"],
         "nemo_dubinski_m31": ["standard"],
     }
     assert all(dataset.n_particles > 0 for dataset in datasets)

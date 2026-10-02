@@ -374,7 +374,7 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"cit-Patents_seed{seed}", source_name="cit-Patents", source_seed=seed, suites=["standard", "trace"])
+                BreadthFirstSearchDataset(f"cit-Patents_seed{seed}", source_name="cit-Patents", source_seed=seed, suites=["standard", "trace", "train"] if seed == 7 else ["standard", "trace"])
                 for seed in range(10)
             ],
             *[

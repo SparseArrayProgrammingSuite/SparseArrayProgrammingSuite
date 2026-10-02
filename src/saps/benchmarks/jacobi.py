@@ -259,7 +259,7 @@ class JacobiGenerator(Generator[JacobiDataset]):
             ),
             JacobiDataset(
                 "Bourchtein/atmosmodm",
-                suites=["standard", "trace"],
+                suites=["standard", "trace", "train"],
                 max_iter=1000,
                 rel_tol=1e-06,
                 rhs_index=1,

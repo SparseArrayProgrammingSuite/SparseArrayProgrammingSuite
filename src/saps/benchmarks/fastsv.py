@@ -280,7 +280,7 @@ class FastSVSNAPGenerator(Generator[FastSVDataset]):
             FastSVDataset("p2p-Gnutella31", suites=["standard", "trace"]),
             FastSVDataset("roadNet-CA", suites=["standard", "trace"]),
             FastSVDataset("roadNet-PA", suites=["standard", "trace"]),
-            FastSVDataset("roadNet-TX", suites=["standard", "trace"]),
+            FastSVDataset("roadNet-TX", suites=["standard", "trace", "train"]),
             FastSVDataset("as-735", suites=["standard", "trace"]),
             FastSVDataset("as-Skitter", suites=["standard"]),
             FastSVDataset("as-caida", suites=["standard", "trace"]),

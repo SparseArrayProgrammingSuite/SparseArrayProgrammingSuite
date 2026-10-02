@@ -598,6 +598,9 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
 
 
 class BrusselatorGenerator(Generator[BrusselatorDataset]):
+    def __init__(self, train: bool = False):
+        self.train = train
+
     @property
     def cacheable(self) -> bool:
         return False
@@ -657,7 +660,9 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
                 name="brusselator_4",
                 pretty_name="Brusselator 4x4",
                 description="2D Brusselator with 100x100 grid",
-                suites=["standard", "trace"],
+                suites=["standard", "trace", "train"]
+                if self.train
+                else ["standard", "trace"],
                 n=100,
                 a=3.4,
                 b=1.0,
@@ -688,8 +693,13 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
 
 
 class SLICOTGenerator(Generator[SLICOTDataset]):
-    def __init__(self, trace_datasets: tuple[str, ...] = ()):
+    def __init__(
+        self,
+        trace_datasets: tuple[str, ...] = (),
+        train_dataset: str | None = None,
+    ):
         self.trace_datasets = trace_datasets
+        self.train_dataset = train_dataset
 
     @property
     def name(self) -> str:
@@ -750,10 +760,22 @@ class SLICOTGenerator(Generator[SLICOTDataset]):
         datasets = [
             SLICOTDataset("eady.mat", suites=["standard", "trace"]),
             SLICOTDataset("CDplayer.mat", suites=["standard"], step=4e-5),
-            SLICOTDataset("fom.mat", suites=["standard", "trace"], step=0.001),
+            SLICOTDataset(
+                "fom.mat",
+                suites=["standard", "trace", "train"]
+                if self.train_dataset == "slicot_fom"
+                else ["standard", "trace"],
+                step=0.001,
+            ),
             SLICOTDataset("random.mat", suites=["standard"], step=5e-5),
             SLICOTDataset("pde.mat", suites=["standard", "trace"], step=0.001),
-            SLICOTDataset("heat-cont.mat", suites=["standard", "trace"], step=0.001),
+            SLICOTDataset(
+                "heat-cont.mat",
+                suites=["standard", "trace", "train"]
+                if self.train_dataset == "slicot_heat_cont"
+                else ["standard", "trace"],
+                step=0.001,
+            ),
             SLICOTDataset("Orr-Som.mat", suites=["standard", "trace"]),
             SLICOTDataset("iss.mat", suites=["standard", "trace"]),
             SLICOTDataset("build.mat", suites=["standard", "trace"]),
@@ -847,6 +869,8 @@ class SLICOTGenerator(Generator[SLICOTDataset]):
 class _OdeBenchmarkBase(Benchmark, ABC):
     step_multiplier = 1.0
     slicot_trace_datasets: tuple[str, ...] = ()
+    slicot_train_dataset: str | None = None
+    brusselator_train = False
 
     @property
     def suites(self):
@@ -858,8 +882,11 @@ class _OdeBenchmarkBase(Benchmark, ABC):
             RCGenerator(),
             RLCGenerator(),
             LotkaVolterraGenerator(),
-            BrusselatorGenerator(),
-            SLICOTGenerator(trace_datasets=self.slicot_trace_datasets),
+            BrusselatorGenerator(train=self.brusselator_train),
+            SLICOTGenerator(
+                trace_datasets=self.slicot_trace_datasets,
+                train_dataset=self.slicot_train_dataset,
+            ),
         ]
 
     @property
@@ -941,6 +968,7 @@ class _OdeBenchmarkBase(Benchmark, ABC):
 class ForwardEuler(_OdeBenchmarkBase):
     step_multiplier = 0.01
     slicot_trace_datasets = ("slicot_beam", "slicot_fom", "slicot_heat_cont")
+    slicot_train_dataset = "slicot_fom"
 
     @property
     def name(self):
@@ -977,6 +1005,7 @@ class ForwardEuler(_OdeBenchmarkBase):
 
 class BackwardEuler(_OdeBenchmarkBase):
     step_multiplier = 0.02
+    slicot_train_dataset = "slicot_heat_cont"
 
     @property
     def name(self):
@@ -1019,6 +1048,7 @@ class BackwardEuler(_OdeBenchmarkBase):
 
 class RungeKutta(_OdeBenchmarkBase):
     step_multiplier = 1.0
+    brusselator_train = True
     slicot_trace_datasets = (
         "slicot_cdplayer",
         "slicot_random",

@@ -285,7 +285,7 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
             ),
             PreconditionedCGDataset(
                 "Botonakis/FEM_3D_thermal2",
-                suites=["standard", "trace"],
+                suites=["standard", "trace", "train"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
@@ -1495,7 +1495,7 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
             ),
             PreconditionedCGDataset(
                 "Schenk_AFE/af_shell3",
-                suites=["standard", "trace"],
+                suites=["standard", "trace", "train"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,

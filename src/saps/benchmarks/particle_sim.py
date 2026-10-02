@@ -941,7 +941,7 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                     "and bucket width 0.2 to create a sparse gravity workload. "
                     "This cutoff is not a physically validated approximation."
                 ),
-                suites=["standard", "trace"],
+                suites=["standard", "trace", "train"],
                 tags=["physics", "simulation", "sparse", "astronomy", "n-body"],
                 source_path="plummer/tab1024.gz",
                 source_columns=("mass", "x", "y", "z", "vx", "vy", "vz"),

@@ -283,7 +283,7 @@ class PageRankSNAPGenerator(Generator[PageRankDataset]):
             PageRankDataset("amazon0601", suites=["standard"]),
             PageRankDataset("p2p-Gnutella04", suites=["standard"]),
             PageRankDataset("p2p-Gnutella05", suites=["standard", "trace"]),
-            PageRankDataset("p2p-Gnutella06", suites=["standard", "trace"]),
+            PageRankDataset("p2p-Gnutella06", suites=["standard", "trace", "train"]),
             PageRankDataset("p2p-Gnutella08", suites=["standard", "trace"]),
             PageRankDataset("p2p-Gnutella09", suites=["standard", "trace"]),
             PageRankDataset("p2p-Gnutella24", suites=["standard"]),

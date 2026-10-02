@@ -296,7 +296,7 @@ class ConnectedComponentsSNAPGenerator(Generator[ConnectedComponentsDataset]):
             ConnectedComponentsDataset("sx-mathoverflow", suites=["standard", "trace"]),
             ConnectedComponentsDataset("sx-superuser", suites=["standard", "trace"]),
             ConnectedComponentsDataset("sx-askubuntu", suites=["standard", "trace"]),
-            ConnectedComponentsDataset("wiki-talk-temporal", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("wiki-talk-temporal", suites=["standard", "trace", "train"]),
             ConnectedComponentsDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
             ConnectedComponentsDataset("CollegeMsg", suites=["standard", "trace"]),
             ConnectedComponentsDataset("twitter7", suites=["standard"]),

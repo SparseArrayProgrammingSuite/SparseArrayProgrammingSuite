@@ -300,7 +300,7 @@ class FourCliqueCountSNAPGenerator(Generator[FourCliqueCountDataset]):
             FourCliqueCountDataset("sx-askubuntu", suites=["standard"]),
             FourCliqueCountDataset("wiki-talk-temporal", suites=["standard"]),
             FourCliqueCountDataset("email-Eu-core-temporal", suites=["standard"]),
-            FourCliqueCountDataset("CollegeMsg", suites=["standard", "trace"]),
+            FourCliqueCountDataset("CollegeMsg", suites=["standard", "trace", "train"]),
             FourCliqueCountDataset("twitter7", suites=["standard"]),
             FourCliqueCountDataset("higgs-twitter", suites=["standard"]),
         ]

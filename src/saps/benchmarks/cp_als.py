@@ -403,7 +403,7 @@ class CPNFrosttGenerator(Generator[CPFrosttDataset]):
                 suites=suites,
             )
             for n, tensor_name, rank, max_iter, suites in [
-                (3, "matmul_2_2_2", 2, 20, ["trace"]),
+                (3, "matmul_2_2_2", 2, 20, ["trace", "train"]),
                 (3, "matmul_3_3_3", 2, 20, ["trace"]),
                 (3, "matmul_4_3_2", 2, 20, ["trace"]),
                 (3, "matmul_4_4_3", 2, 20, ["trace"]),
@@ -423,12 +423,12 @@ class CPNFrosttGenerator(Generator[CPFrosttDataset]):
                 (4, "toy", 2, 5, ["trace"]),
                 (4, "nips", 10, 5, ["trace"]),
                 (4, "uber_pickups", 10, 5, ["trace"]),
-                (4, "chicago_crime_comm", 10, 5, ["trace"]),
+                (4, "chicago_crime_comm", 10, 5, ["trace", "train"]),
                 (4, "enron", 10, 5, []),
                 (4, "flickr_4d", 10, 5, []),
                 (4, "delicious_4d", 10, 5, []),
                 (5, "lbnl_network", 10, 5, []),
-                (5, "chicago_crime_geo", 10, 5, ["trace"]),
+                (5, "chicago_crime_geo", 10, 5, ["trace", "train"]),
                 (5, "vast_2015_mc1_5d", 10, 5, []),
                 (5, "lanl2", 10, 5, []),
             ]

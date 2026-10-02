@@ -453,7 +453,7 @@ class FloydWarshallSNAPGenerator(Generator[FloydWarshallDataset]):
             FloydWarshallDataset("soc-sign-Slashdot090221", suites=["standard", "trace"]),
             FloydWarshallDataset("loc-Gowalla", suites=["standard", "trace"]),
             FloydWarshallDataset("loc-Brightkite", suites=["standard", "trace"]),
-            FloydWarshallDataset("sx-stackoverflow", suites=["standard", "trace"]),
+            FloydWarshallDataset("sx-stackoverflow", suites=["standard", "trace", "train"]),
             FloydWarshallDataset("sx-mathoverflow", suites=["standard", "trace"]),
             FloydWarshallDataset("sx-superuser", suites=["standard", "trace"]),
             FloydWarshallDataset("sx-askubuntu", suites=["standard", "trace"]),

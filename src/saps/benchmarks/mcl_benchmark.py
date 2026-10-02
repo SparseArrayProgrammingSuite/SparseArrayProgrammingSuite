@@ -271,7 +271,7 @@ class MCLSNAPGenerator(Generator[MCLDataset]):
             MCLDataset("SNAP/com-Youtube", suites=["standard"]),
             MCLDataset("SNAP/com-DBLP", suites=["standard"]),
             MCLDataset("SNAP/com-Amazon", suites=["standard"]),
-            MCLDataset("SNAP/email-Eu-core", suites=["standard", "trace"]),
+            MCLDataset("SNAP/email-Eu-core", suites=["standard", "trace", "train"]),
             MCLDataset("SNAP/wiki-topcats", suites=["standard"]),
             MCLDataset("SNAP/email-EuAll", suites=["standard"]),
             MCLDataset("SNAP/email-Enron", suites=["standard"]),

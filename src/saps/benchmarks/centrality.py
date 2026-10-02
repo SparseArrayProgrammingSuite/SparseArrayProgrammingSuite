@@ -354,7 +354,7 @@ class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralityDataset]
             BetweennessCentralityDataset("sx-superuser", suites=["standard"]),
             BetweennessCentralityDataset("sx-askubuntu", suites=["standard"]),
             BetweennessCentralityDataset("wiki-talk-temporal", suites=["standard"]),
-            BetweennessCentralityDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
+            BetweennessCentralityDataset("email-Eu-core-temporal", suites=["standard", "trace", "train"]),
             BetweennessCentralityDataset("CollegeMsg", suites=["standard"]),
             BetweennessCentralityDataset("twitter7", suites=["standard"]),
             BetweennessCentralityDataset("higgs-twitter", suites=["standard"]),

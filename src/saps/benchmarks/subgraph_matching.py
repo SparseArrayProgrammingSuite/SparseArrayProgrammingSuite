@@ -832,7 +832,7 @@ class GCareAIDSGenerator(GCareGenerator):
             GCareDataset("aids", "Tree_9/uf_Q_4_2"),
             GCareDataset("aids", "Tree_9/uf_Q_4_3"),
             GCareDataset("aids", "Tree_9/uf_Q_5_4", suites=["trace"]),
-            GCareDataset("aids", "Tree_9/uf_Q_3_2", suites=["trace"]),
+            GCareDataset("aids", "Tree_9/uf_Q_3_2", suites=["trace", "train"]),
             GCareDataset("aids", "Tree_9/uf_Q_3_3"),
             GCareDataset("aids", "Tree_9/uf_Q_5_5", suites=["trace"]),
             GCareDataset("aids", "Tree_9/uf_Q_5_7"),

@@ -569,7 +569,7 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
                 for seed in range(10)
             ],
             *[
-                BellmanFordDataset(f"amazon0601_seed{seed}", source_name="amazon0601", source_seed=seed, suites=["standard", "trace"])
+                BellmanFordDataset(f"amazon0601_seed{seed}", source_name="amazon0601", source_seed=seed, suites=["standard", "trace", "train"] if seed == 4 else ["standard", "trace"])
                 for seed in range(10)
             ],
             *[

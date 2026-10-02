@@ -531,7 +531,7 @@ class MultiSourceShortestPathsSNAPGenerator(Generator[MultiSourceShortestPathsDa
             MultiSourceShortestPathsDataset("wiki-Vote", suites=["standard"]),
             MultiSourceShortestPathsDataset("wiki-RfA", suites=["standard"]),
             MultiSourceShortestPathsDataset("soc-sign-bitcoin-otc", suites=["standard", "trace"]),
-            MultiSourceShortestPathsDataset("soc-sign-bitcoin-alpha", suites=["standard", "trace"]),
+            MultiSourceShortestPathsDataset("soc-sign-bitcoin-alpha", suites=["standard", "trace", "train"]),
             MultiSourceShortestPathsDataset("com-LiveJournal", suites=["standard"]),
             MultiSourceShortestPathsDataset("com-Friendster", suites=["standard"]),
             MultiSourceShortestPathsDataset("com-Orkut", suites=["standard"]),

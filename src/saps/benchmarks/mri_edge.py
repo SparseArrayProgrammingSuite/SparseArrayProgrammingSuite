@@ -235,7 +235,9 @@ class MaskedMRIGenerator(Generator[MaskedMRIDataset]):
     def datasets(self) -> list[MaskedMRIDataset]:
         return [
             MaskedMRIDataset("masked_mri_1", "yes", "Y157.JPG", suites=["trace"]),
-            MaskedMRIDataset("masked_mri_2", "yes", "Y6.jpg", suites=["trace"]),
+            MaskedMRIDataset(
+                "masked_mri_2", "yes", "Y6.jpg", suites=["trace", "train"]
+            ),
             MaskedMRIDataset("masked_mri_3", "yes", "Y194.jpg", suites=["trace"]),
             MaskedMRIDataset("masked_mri_4", "yes", "Y180.jpg", suites=["trace"]),
         ]

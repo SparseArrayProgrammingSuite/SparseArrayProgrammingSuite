@@ -358,7 +358,7 @@ class CCSDGenerator(Generator[CCSDDataset]):
                 name="ccsd_large",
                 pretty_name="CCSD Large",
                 description="no=16, nv=24.",
-                suites=["standard", "trace"],
+                suites=["standard", "trace", "train"],
                 no=16,
                 nv=24,
             ),

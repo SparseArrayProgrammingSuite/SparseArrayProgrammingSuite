@@ -1015,7 +1015,7 @@ class CGGenerator(Generator[CGDataset]):
             ),
             CGDataset(
                 "Schenk_AFE/af_shell3",
-                suites=["standard", "trace"],
+                suites=["standard", "trace", "train"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,

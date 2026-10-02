@@ -264,7 +264,7 @@ class TriangleCountSNAPGenerator(Generator[TriangleCountDataset]):
             TriangleCountDataset("ca-HepTh", suites=["standard", "trace"]),
             TriangleCountDataset("web-BerkStan", suites=["standard"]),
             TriangleCountDataset("web-Google", suites=["standard", "trace"]),
-            TriangleCountDataset("web-NotreDame", suites=["standard", "trace"]),
+            TriangleCountDataset("web-NotreDame", suites=["standard", "trace", "train"]),
             TriangleCountDataset("web-Stanford", suites=["standard", "trace"]),
             TriangleCountDataset("amazon0302", suites=["standard", "trace"]),
             TriangleCountDataset("amazon0312", suites=["standard", "trace"]),

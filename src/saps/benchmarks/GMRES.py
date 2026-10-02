@@ -979,7 +979,7 @@ class GMRESGenerator(Generator[GMRESDataset]):
             ),
             GMRESDataset(
                 "Nemeth/nemeth26",
-                suites=["standard", "trace"],
+                suites=["standard", "trace", "train"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),

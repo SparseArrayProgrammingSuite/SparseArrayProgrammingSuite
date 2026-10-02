@@ -485,7 +485,7 @@ class SlicotDAEGenerator(_DescriptorDAEGenerator):
                 source_name="MNA_3.mat",
                 pretty_name="SLICOT MNA example - 3",
                 description="SLICOT Modified Nodal Analysis model.",
-                suites=["standard", "trace"],
+                suites=["standard", "trace", "train"],
                 t_max=0.02,
                 step=0.01,
             ),

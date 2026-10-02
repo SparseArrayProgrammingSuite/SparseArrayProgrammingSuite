@@ -311,7 +311,7 @@ class MRISobelGenerator(Generator[MRISobelDataset]):
     def datasets(self) -> list[MRISobelDataset]:
         return [
             MRISobelDataset("mri_sobel_1", "yes", "Y157.JPG", suites=["trace"]),
-            MRISobelDataset("mri_sobel_2", "yes", "Y6.jpg", suites=["trace"]),
+            MRISobelDataset("mri_sobel_2", "yes", "Y6.jpg", suites=["trace", "train"]),
             MRISobelDataset("mri_sobel_3", "yes", "Y194.jpg", suites=["trace"]),
             MRISobelDataset("mri_sobel_4", "yes", "Y180.jpg", suites=["trace"]),
         ]
