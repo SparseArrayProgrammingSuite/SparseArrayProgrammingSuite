@@ -43,8 +43,10 @@ _CONSUMERS = [
     ("triangle_counting", "TriangleCountSNAPGenerator"),
     ("transitive_reduction", "TransitiveReductionSNAPGenerator"),
     ("multi_source_shortest_paths", "MultiSourceShortestPathsSNAPGenerator"),
+    ("MSBFS", "MultiSourceBreadthFirstSearchSNAPGenerator"),
     ("mcl_benchmark", "MCLSNAPGenerator"),
 ]
+_MULTI_SOURCE = {"multi_source_shortest_paths", "MSBFS"}
 
 
 def _seeded_sources(graph):
@@ -187,15 +189,13 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
     manifest = backend.manifest_path.read_bytes()
 
     problem = consumer.cached_generate(dataset)
-    assert len(problem.inputs) == (
-        2 if module_name == "multi_source_shortest_paths" else 1
-    )
+    assert len(problem.inputs) == (2 if module_name in _MULTI_SOURCE else 1)
     if getattr(dataset, "source_seed", None) is not None:
         assert problem.meta["seed"] == 0
         assert problem.meta["src"] == int(
             select_source_vertices(fetch_snap_graph(slug).inputs[0], seed=0)[0]
         )
-    elif module_name == "multi_source_shortest_paths":
+    elif module_name in _MULTI_SOURCE:
         assert problem.meta == {
             "sources": sorted(set(_seeded_sources(fetch_snap_graph(slug).inputs[0])))
         }
@@ -285,7 +285,7 @@ def test_each_gap_graph_problem_has_an_explicit_snap_generator():
         assert "SNAP" in snap[0].pretty_name
         assert snap[0].name.endswith("_snap_inputs")
         assert not snap[0].cacheable
-    assert len(problems) == 13
+    assert len(problems) == 14
 
 
 def test_snap_transitive_reduction_removes_redundant_edge(monkeypatch):
@@ -534,3 +534,25 @@ def test_multi_source_snap_problems_use_deduplicated_shell_sources(monkeypatch):
     problem = generator.generate(generator.datasets[0])
     assert problem.meta == {"sources": [0, 1, 2]}
     assert problem.inputs[1].shape == (3, 3)
+
+
+def test_msbfs_snap_problems_use_deduplicated_shell_sources_and_edge_pattern(
+    monkeypatch,
+):
+    from scipy.sparse import coo_array
+
+    from binsparse.conversions import from_scipy
+
+    from saps.benchmark import DataInstance
+    from saps.benchmarks import MSBFS
+
+    adjacency = from_scipy(coo_array([[0, 2, 0], [0, 0, -1], [1, 0, 0]]))
+    raw = DataInstance(inputs=[adjacency], meta={"sources": [2, 0, 2, 0, 1]})
+    monkeypatch.setattr(MSBFS, "fetch_snap_graph", lambda _: raw)
+    generator = MSBFS.MultiSourceBreadthFirstSearchSNAPGenerator()
+    problem = generator.generate(generator.datasets[0])
+    assert problem.meta == {"sources": [0, 1, 2]}
+    edges = to_sparse(problem.inputs[0]).todense()
+    assert edges.dtype == bool
+    np.testing.assert_array_equal(edges, [[0, 1, 0], [0, 0, 1], [1, 0, 0]])
+    np.testing.assert_array_equal(to_sparse(problem.inputs[1]).todense(), np.eye(3))

@@ -174,6 +174,28 @@ def test_multi_source_gap_conversion_uses_shell_sources(
     load.assert_called_once_with("GAP-road")
 
 
+def test_msbfs_gap_searches_from_every_published_source(monkeypatch, weighted_graph):
+    from saps.benchmarks import MSBFS
+
+    load = Mock(return_value=weighted_graph)
+    monkeypatch.setattr(MSBFS, "fetch_gap_graph", load)
+    generator = MSBFS.MultiSourceBreadthFirstSearchGAPGenerator()
+    assert [(d.name, d.source_name) for d in generator.datasets] == [
+        (f"GAP/{g.name}", g.name) for g in GAPGraphGenerator().datasets
+    ]
+    problem = generator.generate(generator.datasets[0])
+    edges = to_sparse(problem.inputs[0]).todense()
+    assert edges.dtype == bool
+    np.testing.assert_array_equal(edges, [[0, 1, 0], [0, 0, 1], [0, 0, 0]])
+    np.testing.assert_array_equal(
+        to_sparse(problem.inputs[1]).todense(),
+        [[0, 0, 1], [1, 0, 0], [0, 0, 1]],
+    )
+    assert problem.meta == {"sources": [2, 0, 2]}
+    assert weighted_graph.meta == {"sources": [2, 0, 2], "max_degree": 1}
+    load.assert_called_once_with("GAP-road")
+
+
 def test_bellman_ford_gap_preserves_weights_and_shared_metadata(
     monkeypatch, weighted_graph
 ):
