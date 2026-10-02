@@ -546,55 +546,108 @@ class SlicotDAEBDF(_DescriptorDAEBenchmark):
         start, stop = meta["span"]
         n, dt = meta["n"], meta["dt"]
         forcing = B @ xp.asarray(meta["input"], dtype=xp.float64)
-        # BDF2 core adapted from John Burkardt's MIT-licensed implementation:
-        # solve jac_yp y' = A y + forcing, using backward Euler for the first
-        # step and BDF2 afterwards, with LU factors precomputed by the generator.
-        if isinstance(n, bool) or not isinstance(n, Integral) or n < 1:
-            raise ValueError("n must be a positive integer.")
-        if not xp.all(xp.isfinite(xp.asarray((start, stop)))) or stop <= start:
-            raise ValueError("tspan must contain two finite, increasing times.")
-        n = int(n)
-        y0 = xp.reshape(xp.asarray(meta["y0"], dtype=xp.float64), (-1,))
+        tspan = (start, stop)
+        y0 = meta["y0"]
+        startup_factors = (L_start, U_start, rows_start, cols_start)
+        bdf2_factors = (L_bdf, U_bdf, rows_bdf, cols_bdf)
+        # Core adapted from John Burkardt's MIT-licensed BDF2 implementation.
+        # Keep its layout so the numerical changes remain easy to review.
+        # fmt: off
 
-        time = xp.linspace(start, stop, n + 1)
+        #*****************************************************************************80
+        #
+        ## bdf2() solves the descriptor system E y' = f(t, y).
+        #
+        #  Discussion:
+        #
+        #    The first step uses backward Euler.
+        #    Precomputed LU factors are supplied for the two implicit step matrices.
+        #
+        #  Licensing:
+        #
+        #    This code is distributed under the MIT license.
+        #
+        #  Modified:
+        #
+        #    29 May 2022
+        #
+        #  Author:
+        #
+        #    John Burkardt
+        #
+        #  Input:
+        #
+        #    function handle f: evaluates the right hand side of the ODE.
+        #
+        #    real tspan(2): the starting and ending times.
+        #
+        #    real y0(m): the initial conditions.
+        #
+        #    integer n: the number of steps.
+        #
+        #    matrix E: the descriptor mass matrix.
+        #
+        #    startup_factors, bdf2_factors: (L, U, row_order, column_order).
+        #
+        #  Output:
+        #
+        #    t: time points; y: Python list of n+1 solution vectors.
+        #
+        if isinstance(n, bool) or not isinstance(n, Integral) or n < 1:
+          raise ValueError("n must be a positive integer.")
+        if (len(tspan) != 2 or not xp.all(xp.isfinite(xp.asarray(tspan)))
+            or tspan[1] <= tspan[0]):
+          raise ValueError("tspan must contain two finite, increasing times.")
+        n = int(n)
+        y0 = xp.reshape(xp.asarray(y0, dtype=xp.float64), (-1,))
+
+        t = xp.linspace ( tspan[0], tspan[1], n + 1 )
         y = []
 
-        step = (stop - start) / float(n)
+        h = ( tspan[1] - tspan[0] ) / float ( n )
 
-        for i in range(n + 1):
-            if i == 0:
-                y.append(xp.asarray(y0, copy=True))
+        for i in range ( n + 1 ):
 
-            elif i == 1:
-                to = time[i - 1]
-                yo = y[i - 1]
-                th = time[i]
-                yh = xp.asarray(yo, copy=True)
+          if ( i == 0 ):
 
-                rhs = jac_yp @ (yh - yo) - (th - to) * (A @ yh + forcing)
-                correction = xp.linalg.solve(L_start, xp.take(rhs, rows_start, axis=0))
-                correction = xp.linalg.solve(U_start, correction)
-                yh = yh - xp.take(correction, cols_start, axis=0)
+            y.append ( xp.asarray ( y0, copy=True ) )
 
-                y.append(yh)
+          elif ( i == 1 ):
 
-            else:
-                y1 = y[i - 2]
-                y2 = y[i - 1]
-                y3 = xp.asarray(y[i - 1], copy=True)
+            to = t[i-1]
+            yo = y[i-1]
+            th = t[i]
+            yh = xp.asarray ( yo, copy=True )
 
-                rhs = jac_yp @ (3.0 * y3 - 4.0 * y2 + y1) - 2.0 * step * (
-                    A @ y3 + forcing
-                )
-                correction = xp.linalg.solve(L_bdf, xp.take(rhs, rows_bdf, axis=0))
-                correction = xp.linalg.solve(U_bdf, correction)
-                y3 = y3 - xp.take(correction, cols_bdf, axis=0)
+            rhs = jac_yp @ (yh - yo) - (th - to) * ( A @ yh + forcing )
+            L, U, row_order, column_order = startup_factors
+            correction = xp.linalg.solve ( L, xp.take(rhs, row_order, axis=0) )
+            correction = xp.linalg.solve ( U, correction )
+            yh = yh - xp.take(correction, column_order, axis=0)
 
-                y.append(y3)
+            y.append ( yh )
 
-            if i > 0 and not xp.all(xp.isfinite(y[i])):
-                raise RuntimeError("Descriptor step produced a non-finite solution.")
+          else:
 
+            y1 = y[i-2]
+            y2 = y[i-1]
+            t3 = t[i]  # noqa: F841
+            y3 = xp.asarray ( y[i-1], copy=True )
+
+            rhs = jac_yp @ (3.0 * y3 - 4.0 * y2 + y1) - 2.0 * h * ( A @ y3 + forcing )
+            L, U, row_order, column_order = bdf2_factors
+            correction = xp.linalg.solve ( L, xp.take(rhs, row_order, axis=0) )
+            correction = xp.linalg.solve ( U, correction )
+            y3 = y3 - xp.take(correction, column_order, axis=0)
+
+            y.append ( y3 )
+
+          if i > 0 and not xp.all(xp.isfinite(y[i])):
+            raise RuntimeError("Descriptor step produced a non-finite solution.")
+
+        time, y = t, y
+
+        # fmt: on
         # No initial derivative is supplied; row zero is a placeholder.
         yp = [xp.zeros_like(y[0]), (y[1] - y[0]) / dt]
         yp.extend(

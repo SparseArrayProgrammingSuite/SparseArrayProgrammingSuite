@@ -457,10 +457,17 @@ class CCSD(Benchmark):
     ):
 
         outer = xp.einsum("outer[a,b,i,j] += 0.5 * T1[a,i] * T1[b,j]", T1=T1)
+        # Fully antisymmetrize a 4D tensor in both index pairs (0,1) and (2,3).
+        #
+        # Here antisymmetry means swapping either pair flips the sign:
+        # T[a,b,i,j] = -T[b,a,i,j] and T[a,b,i,j] = -T[a,b,j,i].
+        # This helper applies the full ASAS combination
+        # T - T_ba - T_ji + T_baji without assuming canonical masking.
         outer_ba = xp.einsum("Tba[a,b,i,j] = T[b,a,i,j]", T=outer)
         outer_ji = xp.einsum("Tji[a,b,i,j] = T[a,b,j,i]", T=outer)
         outer_baji = xp.einsum("Tbaji[a,b,i,j] = T[b,a,j,i]", T=outer)
-        T21 = T2 + (outer - outer_ba - outer_ji + outer_baji)
+        asas_outer = outer - outer_ba - outer_ji + outer_baji
+        T21 = T2 + asas_outer
 
         # CTF initializes each intermediate via copy constructor (adds 1x integral)
         # plus explicit "+=" lines.  Fme: 1 copy + 1 "+=" = 2x Vme.
@@ -475,8 +482,11 @@ class CCSD(Benchmark):
             )
             + xp.einsum("Fae[a,e] += Vanef[a,n,e,f] * T1[f,n]", Vanef=Vanef, T1=T1)
         )
+        Fae_lhs = 2 * Vae
+        # Full 2D antisymmetrizer: F[a,e] - F[e,a].
         rest_Fae_T = xp.einsum("FT[i,j] = F[j,i]", F=rest_Fae)
-        Fae = 2 * Vae + (rest_Fae - rest_Fae_T)
+        as2d_Fae = rest_Fae - rest_Fae_T
+        Fae = Fae_lhs + as2d_Fae
 
         rest_Fmi = (
             xp.einsum("Fmi[m,i] += Fme[m,e] * T1[e,i]", Fme=Fme, T1=T1)
@@ -485,8 +495,11 @@ class CCSD(Benchmark):
             )
             + xp.einsum("Fmi[m,i] += Vmnfi[m,n,f,i] * T1[f,n]", Vmnfi=Vmnfi, T1=T1)
         )
+        Fmi_lhs = 2 * Vmi
+        # Full 2D antisymmetrizer: F[a,e] - F[e,a].
         rest_Fmi_T = xp.einsum("FT[i,j] = F[j,i]", F=rest_Fmi)
-        Fmi = 2 * Vmi + (rest_Fmi - rest_Fmi_T)
+        as2d_Fmi = rest_Fmi - rest_Fmi_T
+        Fmi = Fmi_lhs + as2d_Fmi
 
         R_Wmnei = xp.einsum(
             "Wmnei[m,n,e,i] += Vmnef[m,n,e,f] * T1[f,i]", Vmnef=Vmnef, T1=T1
@@ -499,8 +512,11 @@ class CCSD(Benchmark):
         S_Wmnij = xp.einsum(
             "Wmnij[m,n,i,j] += Vmnef[m,n,e,f] * T21[e,f,i,j]", Vmnef=Vmnef, T21=T21
         )
+        Wmnij_lhs = 2 * Vmnij
+        # Antisymmetrize T in dims 2,3: T - T[a,b,j,i].
         R_Wmnij_ji = xp.einsum("Tji[a,b,i,j] = T[a,b,j,i]", T=R_Wmnij)
-        Wmnij = 2 * Vmnij - (R_Wmnij - R_Wmnij_ji) + S_Wmnij
+        as23_Wmnij = R_Wmnij - R_Wmnij_ji
+        Wmnij = Wmnij_lhs - as23_Wmnij + S_Wmnij
 
         Wamei = (
             2 * Vamei
@@ -523,8 +539,11 @@ class CCSD(Benchmark):
         R2_Wamij = xp.einsum(
             "Wamij[a,m,i,j] += Vamef[a,m,e,f] * T2[e,f,i,j]", Vamef=Vamef, T2=T2
         )
+        Wamij_lhs = 2 * Vamij
+        # Antisymmetrize T in dims 2,3: T - T[a,b,j,i].
         R1_Wamij_ji = xp.einsum("Tji[a,b,i,j] = T[a,b,j,i]", T=R1_Wamij)
-        Wamij = 2 * Vamij + (R1_Wamij - R1_Wamij_ji) + R2_Wamij
+        as23_Wamij = R1_Wamij - R1_Wamij_ji
+        Wamij = Wamij_lhs + as23_Wamij + R2_Wamij
 
         T1_new = (
             2 * Vai
@@ -566,23 +585,35 @@ class CCSD(Benchmark):
             Wmnij=Wmnij,
             T21=T21,
         )
+        T2_new_acc = 2 * Vabij
+        # Antisymmetrize T in dims 2,3: T - T[a,b,j,i].
         R1_Z_ji = xp.einsum("Tji[a,b,i,j] = T[a,b,j,i]", T=R1_Z)
+        as_R1_Z = R1_Z - R1_Z_ji
+        T2_new_acc = T2_new_acc + as_R1_Z
+        # Fully antisymmetrize a 4D tensor in both index pairs (0,1) and (2,3).
+        #
+        # Here antisymmetry means swapping either pair flips the sign:
+        # T[a,b,i,j] = -T[b,a,i,j] and T[a,b,i,j] = -T[a,b,j,i].
+        # This helper applies the full ASAS combination
+        # T - T_ba - T_ji + T_baji without assuming canonical masking.
         R2_Z_ba = xp.einsum("Tba[a,b,i,j] = T[b,a,i,j]", T=R2_Z)
         R2_Z_ji = xp.einsum("Tji[a,b,i,j] = T[a,b,j,i]", T=R2_Z)
         R2_Z_baji = xp.einsum("Tbaji[a,b,i,j] = T[b,a,j,i]", T=R2_Z)
+        as_R2_Z = R2_Z - R2_Z_ba - R2_Z_ji + R2_Z_baji
+        T2_new_acc = T2_new_acc + as_R2_Z
+        # Antisymmetrize T in dims 0,1: T - T[b,a,i,j].
         R3_Z_ba = xp.einsum("Tba[a,b,i,j] = T[b,a,i,j]", T=R3_Z)
+        as_R3_Z = R3_Z - R3_Z_ba
+        T2_new_acc = T2_new_acc - as_R3_Z
+        # Antisymmetrize T in dims 0,1: T - T[b,a,i,j].
         R4_Z_ba = xp.einsum("Tba[a,b,i,j] = T[b,a,i,j]", T=R4_Z)
+        as_R4_Z = R4_Z - R4_Z_ba
+        T2_new_acc = T2_new_acc + as_R4_Z
+        # Antisymmetrize T in dims 2,3: T - T[a,b,j,i].
         R5_Z_ji = xp.einsum("Tji[a,b,i,j] = T[a,b,j,i]", T=R5_Z)
-        T2_new = (
-            2 * Vabij
-            + (R1_Z - R1_Z_ji)
-            + (R2_Z - R2_Z_ba - R2_Z_ji + R2_Z_baji)
-            - (R3_Z - R3_Z_ba)
-            + (R4_Z - R4_Z_ba)
-            - (R5_Z - R5_Z_ji)
-            + R6_Z
-            + R7_Z
-        )
+        as_R5_Z = R5_Z - R5_Z_ji
+        T2_new_acc = T2_new_acc - as_R5_Z
+        T2_new = T2_new_acc + R6_Z + R7_Z
 
         T1_final = T1_new / D1
         T2_final = 2 * T2_new / D2

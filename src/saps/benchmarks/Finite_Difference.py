@@ -364,21 +364,29 @@ class FiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
         dt = meta["dt"]
         dx = meta["dx"]
         flux_name = meta["flux_name"]
-        if flux_name not in ("burgers", "buckley_leverett", "linear_advection"):
-            raise NotImplementedError(f"Unknown flux_name: {flux_name!r}")
+        match flux_name:
+            case "burgers":
+                pass
+            case "buckley_leverett":
+                pass
+            case "linear_advection":
+                pass
+            case _:
+                raise NotImplementedError(f"Unknown flux_name: {flux_name!r}")
         Nt = timesteps + 1
         alpha = dt / (2 * dx)
         u = xp.zeros((Nt, u_0.shape[0]))
         u[0] = u_0
         for n in range(Nt - 1):
             u_n = u[n]
-            if flux_name == "burgers":
-                f = 0.5 * u_n * u_n
-            elif flux_name == "buckley_leverett":
-                sq = u_n * u_n
-                f = sq / (sq + 0.25 * (1 - u_n) * (1 - u_n))
-            else:
-                f = 1.0 * u_n
+            match flux_name:
+                case "burgers":
+                    f = 0.5 * u_n * u_n
+                case "buckley_leverett":
+                    sq = u_n * u_n
+                    f = sq / (sq + 0.25 * (1 - u_n) * (1 - u_n))
+                case "linear_advection":
+                    f = 1.0 * u_n
             u_next = matrix @ u_n - alpha * (dif @ f)
             u[n + 1] = u_next
         return u
@@ -636,8 +644,15 @@ class FiniteDifference2DBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
         dx = meta["dx"]
         dy = meta["dy"]
         flux_name = meta["flux_name"]
-        if flux_name not in ("burgers", "buckley_leverett", "linear_advection"):
-            raise NotImplementedError(f"Unknown flux_name: {flux_name!r}")
+        match flux_name:
+            case "burgers":
+                pass
+            case "buckley_leverett":
+                pass
+            case "linear_advection":
+                pass
+            case _:
+                raise NotImplementedError(f"Unknown flux_name: {flux_name!r}")
 
         Nt = timesteps + 1
         u = xp.zeros((Nt, u_0.shape[0]), dtype=u_0.dtype)
@@ -648,16 +663,18 @@ class FiniteDifference2DBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
 
         for n in range(Nt - 1):
             u_n = u[n]
-            if flux_name == "burgers":
-                fl_x = 0.5 * u_n * u_n
-                fl_y = (1 / 3) * u_n * u_n
-            elif flux_name == "buckley_leverett":
-                sq = u_n * u_n
-                fl_x = sq / (sq + 0.25 * (1 - u_n) * (1 - u_n))
-                fl_y = fl_x
-            else:
-                fl_x = _LINEAR_ADVECTION_CX * u_n
-                fl_y = _LINEAR_ADVECTION_CY * u_n
+            match flux_name:
+                case "burgers":
+                    fl_x = 0.5 * u_n * u_n
+                    fl_y = (1 / 3) * u_n * u_n
+                case "buckley_leverett":
+                    sq = u_n * u_n
+                    fl_x = sq / (sq + 0.25 * (1 - u_n) * (1 - u_n))
+                    sq = u_n * u_n
+                    fl_y = sq / (sq + 0.25 * (1 - u_n) * (1 - u_n))
+                case "linear_advection":
+                    fl_x = _LINEAR_ADVECTION_CX * u_n
+                    fl_y = _LINEAR_ADVECTION_CY * u_n
             u_next = matrix @ u_n - alpha * (diff_x @ fl_x) - beta * (diff_y @ fl_y)
             u[n + 1] = u_next
 

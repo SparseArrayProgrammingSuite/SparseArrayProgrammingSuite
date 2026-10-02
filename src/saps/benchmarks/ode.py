@@ -1026,49 +1026,65 @@ class _OdeBenchmarkBase(Benchmark, ABC):
 
 class ForwardEulerRC(_ForwardEuler, _RCProblem, _OdeBenchmarkBase):
     def benchmark(self, xp, meta):
+        # forward_euler: Integrate ``rhs(t, y)`` with the forward Euler method.
         y0 = meta["y0"]
         step = meta["step"]
+        # _time_grid(meta)
         span = meta["span"]
-        R, C = meta["R"], meta["C"]
-        inputs = []
+        grid_step = meta["step"]
         curr = span[0]
+        inputs = []
         while curr < span[1]:
             inputs.append(curr)
-            curr += step
+            curr += grid_step
         outputs = [None for _ in inputs]
         outputs[0] = y0
         for i in range(1, len(inputs)):
+            # rhs(inputs[i - 1], outputs[i - 1])
             t = inputs[i - 1]
             state = outputs[i - 1]
+            # _rc_derivatives: RC circuit derivatives.
+            R, C = meta["R"], meta["C"]
             tau = R * C
+            # _step_input(t): A simple 5V step input starting at t=0.
             Vs = 5.0 if t >= 0 else 0.0
-            dydt = [(Vs - state[0]) / tau]
-            outputs[i] = [outputs[i - 1][j] + dydt[j] * step for j in range(len(y0))]
+            dydt_vector = [(Vs - state[0]) / tau]
+            outputs[i] = [
+                outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
+            ]
         return (np.asarray(inputs), np.asarray(outputs))
 
 
 class ForwardEulerRLC(_ForwardEuler, _RLCProblem, _OdeBenchmarkBase):
     def benchmark(self, xp, meta):
+        # forward_euler: Integrate ``rhs(t, y)`` with the forward Euler method.
         y0 = meta["y0"]
         step = meta["step"]
+        # _time_grid(meta)
         span = meta["span"]
-        R, L, C = meta["R"], meta["L"], meta["C"]
-        inputs = []
+        grid_step = meta["step"]
         curr = span[0]
+        inputs = []
         while curr < span[1]:
             inputs.append(curr)
-            curr += step
+            curr += grid_step
         outputs = [None for _ in inputs]
         outputs[0] = y0
         for i in range(1, len(inputs)):
+            # rhs(inputs[i - 1], outputs[i - 1])
             t = inputs[i - 1]
             state = outputs[i - 1]
+            # _rlc_derivatives: RLC circuit derivatives.
+            R, L, C = meta["R"], meta["L"], meta["C"]
             Vc = state[0]
             dVc = state[1]
+            # _step_input(t): A simple 5V step input starting at t=0.
             Vs = 5.0 if t >= 0 else 0.0
             d2Vc = (Vs - Vc - R * C * dVc) / (L * C)
-            dydt = (dVc, d2Vc)
-            outputs[i] = [outputs[i - 1][j] + dydt[j] * step for j in range(len(y0))]
+            dydt_vector = (dVc, d2Vc)
+            outputs[i] = [
+                outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
+            ]
         return (np.asarray(inputs), np.asarray(outputs))
 
 
@@ -1076,131 +1092,181 @@ class ForwardEulerLotkaVolterra(
     _ForwardEuler, _LotkaVolterraProblem, _OdeBenchmarkBase
 ):
     def benchmark(self, xp, meta):
+        # forward_euler: Integrate ``rhs(t, y)`` with the forward Euler method.
         y0 = meta["y0"]
         step = meta["step"]
+        # _time_grid(meta)
         span = meta["span"]
-        a, b, c, d = meta["a"], meta["b"], meta["c"], meta["d"]
-        inputs = []
+        grid_step = meta["step"]
         curr = span[0]
+        inputs = []
         while curr < span[1]:
             inputs.append(curr)
-            curr += step
+            curr += grid_step
         outputs = [None for _ in inputs]
         outputs[0] = y0
         for i in range(1, len(inputs)):
+            # rhs(inputs[i - 1], outputs[i - 1])
+            t = inputs[i - 1]  # noqa: F841
             state = outputs[i - 1]
+            # _lotka_volterra_derivatives: Lotka-Volterra derivatives.
+            a, b, c, d = meta["a"], meta["b"], meta["c"], meta["d"]
             x, y = state
             dxdt = a * x - b * x * y
-            dydt_y = d * x * y - c * y
-            dydt = (dxdt, dydt_y)
-            outputs[i] = [outputs[i - 1][j] + dydt[j] * step for j in range(len(y0))]
+            dydt = d * x * y - c * y
+            dydt_vector = (dxdt, dydt)
+            outputs[i] = [
+                outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
+            ]
         return (np.asarray(inputs), np.asarray(outputs))
 
 
 class ForwardEulerBrusselator(_ForwardEuler, _BrusselatorProblem, _OdeBenchmarkBase):
     def benchmark(self, xp, meta, C, brusselator_cb):
+        # forward_euler: Integrate ``rhs(t, y)`` with the forward Euler method.
         y0 = meta["y0"]
         step = meta["step"]
+        # _time_grid(meta)
         span = meta["span"]
-        a = meta["a"]
-        inputs = []
+        grid_step = meta["step"]
         curr = span[0]
+        inputs = []
         while curr < span[1]:
             inputs.append(curr)
-            curr += step
+            curr += grid_step
         outputs = [None for _ in inputs]
         outputs[0] = y0
         for i in range(1, len(inputs)):
+            # rhs(inputs[i - 1], outputs[i - 1])
             t = inputs[i - 1]
-            state = outputs[i - 1]
-            u_arr = np.array(state, dtype=float)
+            u_vec = outputs[i - 1]
+            # _brusselator_derivatives: Brusselator derivatives with diffusion on 2D
+            # grid.
+            a = meta["a"]
+            u_arr = np.array(u_vec, dtype=float)
+
             lin = C @ u_arr
             lin[0::2] += a
+
             if t >= 1.1:
                 lin += np.array(brusselator_cb)
+
             u_vals = u_arr[0::2]
             v_vals = u_arr[1::2]
             uv2 = u_vals**2 * v_vals
-            non_lin = np.zeros(len(state), dtype=float)
+
+            non_lin = np.zeros(len(u_vec), dtype=float)
             non_lin[0::2] = uv2
             non_lin[1::2] = -uv2
-            dydt = (lin + non_lin).tolist()
-            outputs[i] = [outputs[i - 1][j] + dydt[j] * step for j in range(len(y0))]
+
+            dydt_vector = (lin + non_lin).tolist()
+            outputs[i] = [
+                outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
+            ]
         return (np.asarray(inputs), np.asarray(outputs))
 
 
 class ForwardEulerSLICOT(_ForwardEuler, _SLICOTProblem, _OdeBenchmarkBase):
     def benchmark(self, xp, meta, A, B):
+        # forward_euler: Integrate ``rhs(t, y)`` with the forward Euler method.
         y0 = meta["y0"]
         step = meta["step"]
+        # _time_grid(meta)
         span = meta["span"]
-        input_value = meta["input_value"]
-        inputs = []
+        grid_step = meta["step"]
         curr = span[0]
+        inputs = []
         while curr < span[1]:
             inputs.append(curr)
-            curr += step
+            curr += grid_step
         outputs = [None for _ in inputs]
         outputs[0] = y0
         for i in range(1, len(inputs)):
+            # rhs(inputs[i - 1], outputs[i - 1])
+            t = inputs[i - 1]  # noqa: F841
             state = outputs[i - 1]
+            # _linear_system_derivatives: Linear state-space derivatives for
+            # dx/dt = A x + B u.
+            input_value = meta["input_value"]
             state_array = np.asarray(state)
             input_dtype = np.result_type(B.dtype, type(input_value), float)
             input_array = np.full(B.shape[1], input_value, dtype=input_dtype)
-            dydt = (A @ state_array + B @ input_array).tolist()
-            outputs[i] = [outputs[i - 1][j] + dydt[j] * step for j in range(len(y0))]
+            dydt_vector = (A @ state_array + B @ input_array).tolist()
+            outputs[i] = [
+                outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
+            ]
         return (np.asarray(inputs), np.asarray(outputs))
 
 
 class BackwardEulerRC(_BackwardEuler, _RCProblem, _OdeBenchmarkBase):
     def benchmark(self, xp, meta):
+        # backward_euler: Integrate ``rhs(t, y)`` with backward Euler (ten
+        # fixed-point iterations).
         y0 = meta["y0"]
         step = meta["step"]
+        # _time_grid(meta)
         span = meta["span"]
-        R, C = meta["R"], meta["C"]
-        inputs = []
+        grid_step = meta["step"]
         curr = span[0]
+        inputs = []
         while curr < span[1]:
             inputs.append(curr)
-            curr += step
+            curr += grid_step
         outputs = [None for _ in inputs]
         outputs[0] = y0
         for i in range(1, len(inputs)):
-            t = inputs[i]
-            state = outputs[i - 1]
+            y_guess = outputs[i - 1]
             for _ in range(10):
+                # rhs(inputs[i], y_guess)
+                t = inputs[i]
+                state = y_guess
+                # _rc_derivatives: RC circuit derivatives.
+                R, C = meta["R"], meta["C"]
                 tau = R * C
+                # _step_input(t): A simple 5V step input starting at t=0.
                 Vs = 5.0 if t >= 0 else 0.0
-                dydt = [(Vs - state[0]) / tau]
-                state = [outputs[i - 1][j] + dydt[j] * step for j in range(len(y0))]
-            outputs[i] = state
+                dydt_vector = [(Vs - state[0]) / tau]
+                y_guess = [
+                    outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
+                ]
+            outputs[i] = y_guess
         return (np.asarray(inputs), np.asarray(outputs))
 
 
 class BackwardEulerRLC(_BackwardEuler, _RLCProblem, _OdeBenchmarkBase):
     def benchmark(self, xp, meta):
+        # backward_euler: Integrate ``rhs(t, y)`` with backward Euler (ten
+        # fixed-point iterations).
         y0 = meta["y0"]
         step = meta["step"]
+        # _time_grid(meta)
         span = meta["span"]
-        R, L, C = meta["R"], meta["L"], meta["C"]
-        inputs = []
+        grid_step = meta["step"]
         curr = span[0]
+        inputs = []
         while curr < span[1]:
             inputs.append(curr)
-            curr += step
+            curr += grid_step
         outputs = [None for _ in inputs]
         outputs[0] = y0
         for i in range(1, len(inputs)):
-            t = inputs[i]
-            state = outputs[i - 1]
+            y_guess = outputs[i - 1]
             for _ in range(10):
+                # rhs(inputs[i], y_guess)
+                t = inputs[i]
+                state = y_guess
+                # _rlc_derivatives: RLC circuit derivatives.
+                R, L, C = meta["R"], meta["L"], meta["C"]
                 Vc = state[0]
                 dVc = state[1]
+                # _step_input(t): A simple 5V step input starting at t=0.
                 Vs = 5.0 if t >= 0 else 0.0
                 d2Vc = (Vs - Vc - R * C * dVc) / (L * C)
-                dydt = (dVc, d2Vc)
-                state = [outputs[i - 1][j] + dydt[j] * step for j in range(len(y0))]
-            outputs[i] = state
+                dydt_vector = (dVc, d2Vc)
+                y_guess = [
+                    outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
+                ]
+            outputs[i] = y_guess
         return (np.asarray(inputs), np.asarray(outputs))
 
 
@@ -1208,119 +1274,181 @@ class BackwardEulerLotkaVolterra(
     _BackwardEuler, _LotkaVolterraProblem, _OdeBenchmarkBase
 ):
     def benchmark(self, xp, meta):
+        # backward_euler: Integrate ``rhs(t, y)`` with backward Euler (ten
+        # fixed-point iterations).
         y0 = meta["y0"]
         step = meta["step"]
+        # _time_grid(meta)
         span = meta["span"]
-        a, b, c, d = meta["a"], meta["b"], meta["c"], meta["d"]
-        inputs = []
+        grid_step = meta["step"]
         curr = span[0]
+        inputs = []
         while curr < span[1]:
             inputs.append(curr)
-            curr += step
+            curr += grid_step
         outputs = [None for _ in inputs]
         outputs[0] = y0
         for i in range(1, len(inputs)):
-            state = outputs[i - 1]
+            y_guess = outputs[i - 1]
             for _ in range(10):
+                # rhs(inputs[i], y_guess)
+                t = inputs[i]  # noqa: F841
+                state = y_guess
+                # _lotka_volterra_derivatives: Lotka-Volterra derivatives.
+                a, b, c, d = meta["a"], meta["b"], meta["c"], meta["d"]
                 x, y = state
                 dxdt = a * x - b * x * y
-                dydt_y = d * x * y - c * y
-                dydt = (dxdt, dydt_y)
-                state = [outputs[i - 1][j] + dydt[j] * step for j in range(len(y0))]
-            outputs[i] = state
+                dydt = d * x * y - c * y
+                dydt_vector = (dxdt, dydt)
+                y_guess = [
+                    outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
+                ]
+            outputs[i] = y_guess
         return (np.asarray(inputs), np.asarray(outputs))
 
 
 class BackwardEulerBrusselator(_BackwardEuler, _BrusselatorProblem, _OdeBenchmarkBase):
     def benchmark(self, xp, meta, C, brusselator_cb):
+        # backward_euler: Integrate ``rhs(t, y)`` with backward Euler (ten
+        # fixed-point iterations).
         y0 = meta["y0"]
         step = meta["step"]
+        # _time_grid(meta)
         span = meta["span"]
-        a = meta["a"]
-        inputs = []
+        grid_step = meta["step"]
         curr = span[0]
+        inputs = []
         while curr < span[1]:
             inputs.append(curr)
-            curr += step
+            curr += grid_step
         outputs = [None for _ in inputs]
         outputs[0] = y0
         for i in range(1, len(inputs)):
-            t = inputs[i]
-            state = outputs[i - 1]
+            y_guess = outputs[i - 1]
             for _ in range(10):
-                u_arr = np.array(state, dtype=float)
+                # rhs(inputs[i], y_guess)
+                t = inputs[i]
+                u_vec = y_guess
+                # _brusselator_derivatives: Brusselator derivatives with diffusion on 2D
+                # grid.
+                a = meta["a"]
+                u_arr = np.array(u_vec, dtype=float)
+
                 lin = C @ u_arr
                 lin[0::2] += a
+
                 if t >= 1.1:
                     lin += np.array(brusselator_cb)
+
                 u_vals = u_arr[0::2]
                 v_vals = u_arr[1::2]
                 uv2 = u_vals**2 * v_vals
-                non_lin = np.zeros(len(state), dtype=float)
+
+                non_lin = np.zeros(len(u_vec), dtype=float)
                 non_lin[0::2] = uv2
                 non_lin[1::2] = -uv2
-                dydt = (lin + non_lin).tolist()
-                state = [outputs[i - 1][j] + dydt[j] * step for j in range(len(y0))]
-            outputs[i] = state
+
+                dydt_vector = (lin + non_lin).tolist()
+                y_guess = [
+                    outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
+                ]
+            outputs[i] = y_guess
         return (np.asarray(inputs), np.asarray(outputs))
 
 
 class BackwardEulerSLICOT(_BackwardEuler, _SLICOTProblem, _OdeBenchmarkBase):
     def benchmark(self, xp, meta, A, B):
+        # backward_euler: Integrate ``rhs(t, y)`` with backward Euler (ten
+        # fixed-point iterations).
         y0 = meta["y0"]
         step = meta["step"]
+        # _time_grid(meta)
         span = meta["span"]
-        input_value = meta["input_value"]
-        inputs = []
+        grid_step = meta["step"]
         curr = span[0]
+        inputs = []
         while curr < span[1]:
             inputs.append(curr)
-            curr += step
+            curr += grid_step
         outputs = [None for _ in inputs]
         outputs[0] = y0
         for i in range(1, len(inputs)):
-            state = outputs[i - 1]
+            y_guess = outputs[i - 1]
             for _ in range(10):
+                # rhs(inputs[i], y_guess)
+                t = inputs[i]  # noqa: F841
+                state = y_guess
+                # _linear_system_derivatives: Linear state-space derivatives for
+                # dx/dt = A x + B u.
+                input_value = meta["input_value"]
                 state_array = np.asarray(state)
                 input_dtype = np.result_type(B.dtype, type(input_value), float)
                 input_array = np.full(B.shape[1], input_value, dtype=input_dtype)
-                dydt = (A @ state_array + B @ input_array).tolist()
-                state = [outputs[i - 1][j] + dydt[j] * step for j in range(len(y0))]
-            outputs[i] = state
+                dydt_vector = (A @ state_array + B @ input_array).tolist()
+                y_guess = [
+                    outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
+                ]
+            outputs[i] = y_guess
         return (np.asarray(inputs), np.asarray(outputs))
 
 
 class RungeKuttaRC(_RungeKutta, _RCProblem, _OdeBenchmarkBase):
     def benchmark(self, xp, meta):
+        # runge_kutta: Integrate ``rhs(t, y)`` with the classical fourth-order
+        # Runge-Kutta method.
         y0 = meta["y0"]
         step = meta["step"]
+        # _time_grid(meta)
         span = meta["span"]
-        R, C = meta["R"], meta["C"]
-        inputs = []
+        grid_step = meta["step"]
         curr = span[0]
+        inputs = []
         while curr < span[1]:
             inputs.append(curr)
-            curr += step
+            curr += grid_step
         outputs = [None for _ in inputs]
         outputs[0] = y0
         for i in range(1, len(inputs)):
             y_prev = outputs[i - 1]
-            # Stages k1..k4: k1 at (t, y_prev); k2, k3 at the midpoint from the
-            # previous stage; k4 at the full step from k3.
-            ks = []
-            for s in range(4):
-                if s == 0:
-                    t = inputs[i - 1]
-                    state = y_prev
-                else:
-                    offset = step if s == 3 else step / 2
-                    t = inputs[i - 1] + offset
-                    state = [y_prev[j] + offset * ks[s - 1][j] for j in range(len(y0))]
-                tau = R * C
-                Vs = 5.0 if t >= 0 else 0.0
-                dydt = [(Vs - state[0]) / tau]
-                ks.append(dydt)
-            k1, k2, k3, k4 = ks
+            # rhs(inputs[i - 1], y_prev)
+            t = inputs[i - 1]
+            state = y_prev
+            # _rc_derivatives: RC circuit derivatives.
+            R, C = meta["R"], meta["C"]
+            tau = R * C
+            # _step_input(t): A simple 5V step input starting at t=0.
+            Vs = 5.0 if t >= 0 else 0.0
+            k1 = [(Vs - state[0]) / tau]
+            k2_state = [y_prev[j] + (step / 2) * k1[j] for j in range(len(y0))]
+            # rhs(inputs[i - 1] + step / 2, k2_state)
+            t = inputs[i - 1] + step / 2
+            state = k2_state
+            # _rc_derivatives: RC circuit derivatives.
+            R, C = meta["R"], meta["C"]
+            tau = R * C
+            # _step_input(t): A simple 5V step input starting at t=0.
+            Vs = 5.0 if t >= 0 else 0.0
+            k2 = [(Vs - state[0]) / tau]
+            k3_state = [y_prev[j] + (step / 2) * k2[j] for j in range(len(y0))]
+            # rhs(inputs[i - 1] + step / 2, k3_state)
+            t = inputs[i - 1] + step / 2
+            state = k3_state
+            # _rc_derivatives: RC circuit derivatives.
+            R, C = meta["R"], meta["C"]
+            tau = R * C
+            # _step_input(t): A simple 5V step input starting at t=0.
+            Vs = 5.0 if t >= 0 else 0.0
+            k3 = [(Vs - state[0]) / tau]
+            k4_state = [y_prev[j] + step * k3[j] for j in range(len(y0))]
+            # rhs(inputs[i - 1] + step, k4_state)
+            t = inputs[i - 1] + step
+            state = k4_state
+            # _rc_derivatives: RC circuit derivatives.
+            R, C = meta["R"], meta["C"]
+            tau = R * C
+            # _step_input(t): A simple 5V step input starting at t=0.
+            Vs = 5.0 if t >= 0 else 0.0
+            k4 = [(Vs - state[0]) / tau]
             outputs[i] = [
                 y_prev[j] + (step / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j])
                 for j in range(len(y0))
@@ -1330,37 +1458,69 @@ class RungeKuttaRC(_RungeKutta, _RCProblem, _OdeBenchmarkBase):
 
 class RungeKuttaRLC(_RungeKutta, _RLCProblem, _OdeBenchmarkBase):
     def benchmark(self, xp, meta):
+        # runge_kutta: Integrate ``rhs(t, y)`` with the classical fourth-order
+        # Runge-Kutta method.
         y0 = meta["y0"]
         step = meta["step"]
+        # _time_grid(meta)
         span = meta["span"]
-        R, L, C = meta["R"], meta["L"], meta["C"]
-        inputs = []
+        grid_step = meta["step"]
         curr = span[0]
+        inputs = []
         while curr < span[1]:
             inputs.append(curr)
-            curr += step
+            curr += grid_step
         outputs = [None for _ in inputs]
         outputs[0] = y0
         for i in range(1, len(inputs)):
             y_prev = outputs[i - 1]
-            # Stages k1..k4: k1 at (t, y_prev); k2, k3 at the midpoint from the
-            # previous stage; k4 at the full step from k3.
-            ks = []
-            for s in range(4):
-                if s == 0:
-                    t = inputs[i - 1]
-                    state = y_prev
-                else:
-                    offset = step if s == 3 else step / 2
-                    t = inputs[i - 1] + offset
-                    state = [y_prev[j] + offset * ks[s - 1][j] for j in range(len(y0))]
-                Vc = state[0]
-                dVc = state[1]
-                Vs = 5.0 if t >= 0 else 0.0
-                d2Vc = (Vs - Vc - R * C * dVc) / (L * C)
-                dydt = (dVc, d2Vc)
-                ks.append(dydt)
-            k1, k2, k3, k4 = ks
+            # rhs(inputs[i - 1], y_prev)
+            t = inputs[i - 1]
+            state = y_prev
+            # _rlc_derivatives: RLC circuit derivatives.
+            R, L, C = meta["R"], meta["L"], meta["C"]
+            Vc = state[0]
+            dVc = state[1]
+            # _step_input(t): A simple 5V step input starting at t=0.
+            Vs = 5.0 if t >= 0 else 0.0
+            d2Vc = (Vs - Vc - R * C * dVc) / (L * C)
+            k1 = (dVc, d2Vc)
+            k2_state = [y_prev[j] + (step / 2) * k1[j] for j in range(len(y0))]
+            # rhs(inputs[i - 1] + step / 2, k2_state)
+            t = inputs[i - 1] + step / 2
+            state = k2_state
+            # _rlc_derivatives: RLC circuit derivatives.
+            R, L, C = meta["R"], meta["L"], meta["C"]
+            Vc = state[0]
+            dVc = state[1]
+            # _step_input(t): A simple 5V step input starting at t=0.
+            Vs = 5.0 if t >= 0 else 0.0
+            d2Vc = (Vs - Vc - R * C * dVc) / (L * C)
+            k2 = (dVc, d2Vc)
+            k3_state = [y_prev[j] + (step / 2) * k2[j] for j in range(len(y0))]
+            # rhs(inputs[i - 1] + step / 2, k3_state)
+            t = inputs[i - 1] + step / 2
+            state = k3_state
+            # _rlc_derivatives: RLC circuit derivatives.
+            R, L, C = meta["R"], meta["L"], meta["C"]
+            Vc = state[0]
+            dVc = state[1]
+            # _step_input(t): A simple 5V step input starting at t=0.
+            Vs = 5.0 if t >= 0 else 0.0
+            d2Vc = (Vs - Vc - R * C * dVc) / (L * C)
+            k3 = (dVc, d2Vc)
+            k4_state = [y_prev[j] + step * k3[j] for j in range(len(y0))]
+            # rhs(inputs[i - 1] + step, k4_state)
+            t = inputs[i - 1] + step
+            state = k4_state
+            # _rlc_derivatives: RLC circuit derivatives.
+            R, L, C = meta["R"], meta["L"], meta["C"]
+            Vc = state[0]
+            dVc = state[1]
+            # _step_input(t): A simple 5V step input starting at t=0.
+            Vs = 5.0 if t >= 0 else 0.0
+            d2Vc = (Vs - Vc - R * C * dVc) / (L * C)
+            k4 = (dVc, d2Vc)
             outputs[i] = [
                 y_prev[j] + (step / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j])
                 for j in range(len(y0))
@@ -1370,34 +1530,61 @@ class RungeKuttaRLC(_RungeKutta, _RLCProblem, _OdeBenchmarkBase):
 
 class RungeKuttaLotkaVolterra(_RungeKutta, _LotkaVolterraProblem, _OdeBenchmarkBase):
     def benchmark(self, xp, meta):
+        # runge_kutta: Integrate ``rhs(t, y)`` with the classical fourth-order
+        # Runge-Kutta method.
         y0 = meta["y0"]
         step = meta["step"]
+        # _time_grid(meta)
         span = meta["span"]
-        a, b, c, d = meta["a"], meta["b"], meta["c"], meta["d"]
-        inputs = []
+        grid_step = meta["step"]
         curr = span[0]
+        inputs = []
         while curr < span[1]:
             inputs.append(curr)
-            curr += step
+            curr += grid_step
         outputs = [None for _ in inputs]
         outputs[0] = y0
         for i in range(1, len(inputs)):
             y_prev = outputs[i - 1]
-            # Stages k1..k4: k1 at (t, y_prev); k2, k3 at the midpoint from the
-            # previous stage; k4 at the full step from k3.
-            ks = []
-            for s in range(4):
-                if s == 0:
-                    state = y_prev
-                else:
-                    offset = step if s == 3 else step / 2
-                    state = [y_prev[j] + offset * ks[s - 1][j] for j in range(len(y0))]
-                x, y = state
-                dxdt = a * x - b * x * y
-                dydt_y = d * x * y - c * y
-                dydt = (dxdt, dydt_y)
-                ks.append(dydt)
-            k1, k2, k3, k4 = ks
+            # rhs(inputs[i - 1], y_prev)
+            t = inputs[i - 1]  # noqa: F841
+            state = y_prev
+            # _lotka_volterra_derivatives: Lotka-Volterra derivatives.
+            a, b, c, d = meta["a"], meta["b"], meta["c"], meta["d"]
+            x, y = state
+            dxdt = a * x - b * x * y
+            dydt = d * x * y - c * y
+            k1 = (dxdt, dydt)
+            k2_state = [y_prev[j] + (step / 2) * k1[j] for j in range(len(y0))]
+            # rhs(inputs[i - 1] + step / 2, k2_state)
+            t = inputs[i - 1] + step / 2  # noqa: F841
+            state = k2_state
+            # _lotka_volterra_derivatives: Lotka-Volterra derivatives.
+            a, b, c, d = meta["a"], meta["b"], meta["c"], meta["d"]
+            x, y = state
+            dxdt = a * x - b * x * y
+            dydt = d * x * y - c * y
+            k2 = (dxdt, dydt)
+            k3_state = [y_prev[j] + (step / 2) * k2[j] for j in range(len(y0))]
+            # rhs(inputs[i - 1] + step / 2, k3_state)
+            t = inputs[i - 1] + step / 2  # noqa: F841
+            state = k3_state
+            # _lotka_volterra_derivatives: Lotka-Volterra derivatives.
+            a, b, c, d = meta["a"], meta["b"], meta["c"], meta["d"]
+            x, y = state
+            dxdt = a * x - b * x * y
+            dydt = d * x * y - c * y
+            k3 = (dxdt, dydt)
+            k4_state = [y_prev[j] + step * k3[j] for j in range(len(y0))]
+            # rhs(inputs[i - 1] + step, k4_state)
+            t = inputs[i - 1] + step  # noqa: F841
+            state = k4_state
+            # _lotka_volterra_derivatives: Lotka-Volterra derivatives.
+            a, b, c, d = meta["a"], meta["b"], meta["c"], meta["d"]
+            x, y = state
+            dxdt = a * x - b * x * y
+            dydt = d * x * y - c * y
+            k4 = (dxdt, dydt)
             outputs[i] = [
                 y_prev[j] + (step / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j])
                 for j in range(len(y0))
@@ -1407,44 +1594,117 @@ class RungeKuttaLotkaVolterra(_RungeKutta, _LotkaVolterraProblem, _OdeBenchmarkB
 
 class RungeKuttaBrusselator(_RungeKutta, _BrusselatorProblem, _OdeBenchmarkBase):
     def benchmark(self, xp, meta, C, brusselator_cb):
+        # runge_kutta: Integrate ``rhs(t, y)`` with the classical fourth-order
+        # Runge-Kutta method.
         y0 = meta["y0"]
         step = meta["step"]
+        # _time_grid(meta)
         span = meta["span"]
-        a = meta["a"]
-        inputs = []
+        grid_step = meta["step"]
         curr = span[0]
+        inputs = []
         while curr < span[1]:
             inputs.append(curr)
-            curr += step
+            curr += grid_step
         outputs = [None for _ in inputs]
         outputs[0] = y0
         for i in range(1, len(inputs)):
             y_prev = outputs[i - 1]
-            # Stages k1..k4: k1 at (t, y_prev); k2, k3 at the midpoint from the
-            # previous stage; k4 at the full step from k3.
-            ks = []
-            for s in range(4):
-                if s == 0:
-                    t = inputs[i - 1]
-                    state = y_prev
-                else:
-                    offset = step if s == 3 else step / 2
-                    t = inputs[i - 1] + offset
-                    state = [y_prev[j] + offset * ks[s - 1][j] for j in range(len(y0))]
-                u_arr = np.array(state, dtype=float)
-                lin = C @ u_arr
-                lin[0::2] += a
-                if t >= 1.1:
-                    lin += np.array(brusselator_cb)
-                u_vals = u_arr[0::2]
-                v_vals = u_arr[1::2]
-                uv2 = u_vals**2 * v_vals
-                non_lin = np.zeros(len(state), dtype=float)
-                non_lin[0::2] = uv2
-                non_lin[1::2] = -uv2
-                dydt = (lin + non_lin).tolist()
-                ks.append(dydt)
-            k1, k2, k3, k4 = ks
+            # rhs(inputs[i - 1], y_prev)
+            t = inputs[i - 1]
+            u_vec = y_prev
+            # _brusselator_derivatives: Brusselator derivatives with diffusion on 2D
+            # grid.
+            a = meta["a"]
+            u_arr = np.array(u_vec, dtype=float)
+
+            lin = C @ u_arr
+            lin[0::2] += a
+
+            if t >= 1.1:
+                lin += np.array(brusselator_cb)
+
+            u_vals = u_arr[0::2]
+            v_vals = u_arr[1::2]
+            uv2 = u_vals**2 * v_vals
+
+            non_lin = np.zeros(len(u_vec), dtype=float)
+            non_lin[0::2] = uv2
+            non_lin[1::2] = -uv2
+
+            k1 = (lin + non_lin).tolist()
+            k2_state = [y_prev[j] + (step / 2) * k1[j] for j in range(len(y0))]
+            # rhs(inputs[i - 1] + step / 2, k2_state)
+            t = inputs[i - 1] + step / 2
+            u_vec = k2_state
+            # _brusselator_derivatives: Brusselator derivatives with diffusion on 2D
+            # grid.
+            a = meta["a"]
+            u_arr = np.array(u_vec, dtype=float)
+
+            lin = C @ u_arr
+            lin[0::2] += a
+
+            if t >= 1.1:
+                lin += np.array(brusselator_cb)
+
+            u_vals = u_arr[0::2]
+            v_vals = u_arr[1::2]
+            uv2 = u_vals**2 * v_vals
+
+            non_lin = np.zeros(len(u_vec), dtype=float)
+            non_lin[0::2] = uv2
+            non_lin[1::2] = -uv2
+
+            k2 = (lin + non_lin).tolist()
+            k3_state = [y_prev[j] + (step / 2) * k2[j] for j in range(len(y0))]
+            # rhs(inputs[i - 1] + step / 2, k3_state)
+            t = inputs[i - 1] + step / 2
+            u_vec = k3_state
+            # _brusselator_derivatives: Brusselator derivatives with diffusion on 2D
+            # grid.
+            a = meta["a"]
+            u_arr = np.array(u_vec, dtype=float)
+
+            lin = C @ u_arr
+            lin[0::2] += a
+
+            if t >= 1.1:
+                lin += np.array(brusselator_cb)
+
+            u_vals = u_arr[0::2]
+            v_vals = u_arr[1::2]
+            uv2 = u_vals**2 * v_vals
+
+            non_lin = np.zeros(len(u_vec), dtype=float)
+            non_lin[0::2] = uv2
+            non_lin[1::2] = -uv2
+
+            k3 = (lin + non_lin).tolist()
+            k4_state = [y_prev[j] + step * k3[j] for j in range(len(y0))]
+            # rhs(inputs[i - 1] + step, k4_state)
+            t = inputs[i - 1] + step
+            u_vec = k4_state
+            # _brusselator_derivatives: Brusselator derivatives with diffusion on 2D
+            # grid.
+            a = meta["a"]
+            u_arr = np.array(u_vec, dtype=float)
+
+            lin = C @ u_arr
+            lin[0::2] += a
+
+            if t >= 1.1:
+                lin += np.array(brusselator_cb)
+
+            u_vals = u_arr[0::2]
+            v_vals = u_arr[1::2]
+            uv2 = u_vals**2 * v_vals
+
+            non_lin = np.zeros(len(u_vec), dtype=float)
+            non_lin[0::2] = uv2
+            non_lin[1::2] = -uv2
+
+            k4 = (lin + non_lin).tolist()
             outputs[i] = [
                 y_prev[j] + (step / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j])
                 for j in range(len(y0))
@@ -1454,34 +1714,65 @@ class RungeKuttaBrusselator(_RungeKutta, _BrusselatorProblem, _OdeBenchmarkBase)
 
 class RungeKuttaSLICOT(_RungeKutta, _SLICOTProblem, _OdeBenchmarkBase):
     def benchmark(self, xp, meta, A, B):
+        # runge_kutta: Integrate ``rhs(t, y)`` with the classical fourth-order
+        # Runge-Kutta method.
         y0 = meta["y0"]
         step = meta["step"]
+        # _time_grid(meta)
         span = meta["span"]
-        input_value = meta["input_value"]
-        inputs = []
+        grid_step = meta["step"]
         curr = span[0]
+        inputs = []
         while curr < span[1]:
             inputs.append(curr)
-            curr += step
+            curr += grid_step
         outputs = [None for _ in inputs]
         outputs[0] = y0
         for i in range(1, len(inputs)):
             y_prev = outputs[i - 1]
-            # Stages k1..k4: k1 at (t, y_prev); k2, k3 at the midpoint from the
-            # previous stage; k4 at the full step from k3.
-            ks = []
-            for s in range(4):
-                if s == 0:
-                    state = y_prev
-                else:
-                    offset = step if s == 3 else step / 2
-                    state = [y_prev[j] + offset * ks[s - 1][j] for j in range(len(y0))]
-                state_array = np.asarray(state)
-                input_dtype = np.result_type(B.dtype, type(input_value), float)
-                input_array = np.full(B.shape[1], input_value, dtype=input_dtype)
-                dydt = (A @ state_array + B @ input_array).tolist()
-                ks.append(dydt)
-            k1, k2, k3, k4 = ks
+            # rhs(inputs[i - 1], y_prev)
+            t = inputs[i - 1]  # noqa: F841
+            state = y_prev
+            # _linear_system_derivatives: Linear state-space derivatives for
+            # dx/dt = A x + B u.
+            input_value = meta["input_value"]
+            state_array = np.asarray(state)
+            input_dtype = np.result_type(B.dtype, type(input_value), float)
+            input_array = np.full(B.shape[1], input_value, dtype=input_dtype)
+            k1 = (A @ state_array + B @ input_array).tolist()
+            k2_state = [y_prev[j] + (step / 2) * k1[j] for j in range(len(y0))]
+            # rhs(inputs[i - 1] + step / 2, k2_state)
+            t = inputs[i - 1] + step / 2  # noqa: F841
+            state = k2_state
+            # _linear_system_derivatives: Linear state-space derivatives for
+            # dx/dt = A x + B u.
+            input_value = meta["input_value"]
+            state_array = np.asarray(state)
+            input_dtype = np.result_type(B.dtype, type(input_value), float)
+            input_array = np.full(B.shape[1], input_value, dtype=input_dtype)
+            k2 = (A @ state_array + B @ input_array).tolist()
+            k3_state = [y_prev[j] + (step / 2) * k2[j] for j in range(len(y0))]
+            # rhs(inputs[i - 1] + step / 2, k3_state)
+            t = inputs[i - 1] + step / 2  # noqa: F841
+            state = k3_state
+            # _linear_system_derivatives: Linear state-space derivatives for
+            # dx/dt = A x + B u.
+            input_value = meta["input_value"]
+            state_array = np.asarray(state)
+            input_dtype = np.result_type(B.dtype, type(input_value), float)
+            input_array = np.full(B.shape[1], input_value, dtype=input_dtype)
+            k3 = (A @ state_array + B @ input_array).tolist()
+            k4_state = [y_prev[j] + step * k3[j] for j in range(len(y0))]
+            # rhs(inputs[i - 1] + step, k4_state)
+            t = inputs[i - 1] + step  # noqa: F841
+            state = k4_state
+            # _linear_system_derivatives: Linear state-space derivatives for
+            # dx/dt = A x + B u.
+            input_value = meta["input_value"]
+            state_array = np.asarray(state)
+            input_dtype = np.result_type(B.dtype, type(input_value), float)
+            input_array = np.full(B.shape[1], input_value, dtype=input_dtype)
+            k4 = (A @ state_array + B @ input_array).tolist()
             outputs[i] = [
                 y_prev[j] + (step / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j])
                 for j in range(len(y0))
