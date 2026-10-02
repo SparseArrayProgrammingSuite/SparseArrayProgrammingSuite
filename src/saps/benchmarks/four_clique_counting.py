@@ -1,3 +1,5 @@
+# ruff: noqa: E501
+
 import numpy as np
 
 from binsparse import BinsparseTensor
@@ -12,11 +14,11 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.snap import SNAPDataset, SNAPGraphGenerator, fetch_snap_graph
-from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
+from saps.benchmarks.gap import fetch_gap_graph
+from saps.benchmarks.snap import fetch_snap_graph
 
 
-class GraphCountingDataset(Dataset):
+class FourCliqueCountDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -29,7 +31,7 @@ class GraphCountingDataset(Dataset):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Graph counting input {name}."
-        self._suites = suites or []
+        self._suites = list(suites or [])
         self.A = A
         self.expected = expected
 
@@ -54,7 +56,7 @@ class GraphCountingDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class FourCliqueCountTestGenerator(Generator[GraphCountingDataset]):
+class FourCliqueCountTestGenerator(Generator[FourCliqueCountDataset]):
     @property
     def name(self) -> str:
         return "four_clique_count_test_inputs"
@@ -99,9 +101,9 @@ class FourCliqueCountTestGenerator(Generator[GraphCountingDataset]):
         return False
 
     @property
-    def datasets(self) -> list[GraphCountingDataset]:
+    def datasets(self) -> list[FourCliqueCountDataset]:
         return [
-            GraphCountingDataset(
+            FourCliqueCountDataset(
                 "test_4clique_count_complete_k3",
                 suites=["test"],
                 A=np.array(
@@ -114,7 +116,7 @@ class FourCliqueCountTestGenerator(Generator[GraphCountingDataset]):
                 ),
                 expected=np.array(0),
             ),
-            GraphCountingDataset(
+            FourCliqueCountDataset(
                 "test_4clique_count_single_k4",
                 suites=["test"],
                 A=np.array(
@@ -128,7 +130,7 @@ class FourCliqueCountTestGenerator(Generator[GraphCountingDataset]):
                 ),
                 expected=np.array(1),
             ),
-            GraphCountingDataset(
+            FourCliqueCountDataset(
                 "test_4clique_count_overlapping",
                 suites=["test"],
                 A=np.array(
@@ -143,7 +145,7 @@ class FourCliqueCountTestGenerator(Generator[GraphCountingDataset]):
                 ),
                 expected=np.array(2),
             ),
-            GraphCountingDataset(
+            FourCliqueCountDataset(
                 "test_4clique_snap_toy",
                 suites=["test"],
                 A=np.array(
@@ -158,7 +160,7 @@ class FourCliqueCountTestGenerator(Generator[GraphCountingDataset]):
             ),
         ]
 
-    def generate(self, dataset: GraphCountingDataset) -> DataInstance:
+    def generate(self, dataset: FourCliqueCountDataset) -> DataInstance:
         if dataset.A is None or dataset.expected is None:
             raise ValueError("4-clique test datasets must define A and expected.")
         return DataInstance(
@@ -168,7 +170,7 @@ class FourCliqueCountTestGenerator(Generator[GraphCountingDataset]):
         )
 
 
-class FourCliqueCountSNAPGenerator(Generator[SNAPDataset]):
+class FourCliqueCountSNAPGenerator(Generator[FourCliqueCountDataset]):
     @property
     def name(self) -> str:
         return "four_clique_count_snap_inputs"
@@ -228,34 +230,87 @@ class FourCliqueCountSNAPGenerator(Generator[SNAPDataset]):
         return False
 
     @property
-    def datasets(self) -> list[SNAPDataset]:
+    def datasets(self) -> list[FourCliqueCountDataset]:
         # Successful standard-suite Smart runs <= 30s in competition/run_13662472.
-        trace = (
-            "ca-GrQc",
-            "ca-HepTh",
-            "p2p-Gnutella04",
-            "p2p-Gnutella05",
-            "p2p-Gnutella06",
-            "p2p-Gnutella08",
-            "p2p-Gnutella09",
-            "p2p-Gnutella24",
-            "p2p-Gnutella25",
-            "p2p-Gnutella30",
-        )
+        # fmt: off
         return [
-            graph.with_suites(
-                ["standard", "trace"] if graph.name in trace else ["standard"]
-            )
-            for graph in SNAPGraphGenerator().datasets
+            FourCliqueCountDataset("soc-Epinions1", suites=["standard"]),
+            FourCliqueCountDataset("soc-LiveJournal1", suites=["standard"]),
+            FourCliqueCountDataset("soc-Pokec", suites=["standard"]),
+            FourCliqueCountDataset("soc-Slashdot0811", suites=["standard"]),
+            FourCliqueCountDataset("soc-Slashdot0902", suites=["standard"]),
+            FourCliqueCountDataset("wiki-Vote", suites=["standard"]),
+            FourCliqueCountDataset("wiki-RfA", suites=["standard"]),
+            FourCliqueCountDataset("soc-sign-bitcoin-otc", suites=["standard"]),
+            FourCliqueCountDataset("soc-sign-bitcoin-alpha", suites=["standard"]),
+            FourCliqueCountDataset("com-LiveJournal", suites=["standard"]),
+            FourCliqueCountDataset("com-Friendster", suites=["standard"]),
+            FourCliqueCountDataset("com-Orkut", suites=["standard"]),
+            FourCliqueCountDataset("com-Youtube", suites=["standard"]),
+            FourCliqueCountDataset("com-DBLP", suites=["standard"]),
+            FourCliqueCountDataset("com-Amazon", suites=["standard"]),
+            FourCliqueCountDataset("email-Eu-core", suites=["standard"]),
+            FourCliqueCountDataset("wiki-topcats", suites=["standard"]),
+            FourCliqueCountDataset("email-EuAll", suites=["standard"]),
+            FourCliqueCountDataset("email-Enron", suites=["standard"]),
+            FourCliqueCountDataset("wiki-Talk", suites=["standard"]),
+            FourCliqueCountDataset("cit-HepPh", suites=["standard"]),
+            FourCliqueCountDataset("cit-HepTh", suites=["standard"]),
+            FourCliqueCountDataset("cit-Patents", suites=["standard"]),
+            FourCliqueCountDataset("ca-AstroPh", suites=["standard"]),
+            FourCliqueCountDataset("ca-CondMat", suites=["standard"]),
+            FourCliqueCountDataset("ca-GrQc", suites=["standard", "trace"]),
+            FourCliqueCountDataset("ca-HepPh", suites=["standard"]),
+            FourCliqueCountDataset("ca-HepTh", suites=["standard", "trace"]),
+            FourCliqueCountDataset("web-BerkStan", suites=["standard"]),
+            FourCliqueCountDataset("web-Google", suites=["standard"]),
+            FourCliqueCountDataset("web-NotreDame", suites=["standard"]),
+            FourCliqueCountDataset("web-Stanford", suites=["standard"]),
+            FourCliqueCountDataset("amazon0302", suites=["standard"]),
+            FourCliqueCountDataset("amazon0312", suites=["standard"]),
+            FourCliqueCountDataset("amazon0505", suites=["standard"]),
+            FourCliqueCountDataset("amazon0601", suites=["standard"]),
+            FourCliqueCountDataset("p2p-Gnutella04", suites=["standard", "trace"]),
+            FourCliqueCountDataset("p2p-Gnutella05", suites=["standard", "trace"]),
+            FourCliqueCountDataset("p2p-Gnutella06", suites=["standard", "trace"]),
+            FourCliqueCountDataset("p2p-Gnutella08", suites=["standard", "trace"]),
+            FourCliqueCountDataset("p2p-Gnutella09", suites=["standard", "trace"]),
+            FourCliqueCountDataset("p2p-Gnutella24", suites=["standard", "trace"]),
+            FourCliqueCountDataset("p2p-Gnutella25", suites=["standard", "trace"]),
+            FourCliqueCountDataset("p2p-Gnutella30", suites=["standard", "trace"]),
+            FourCliqueCountDataset("p2p-Gnutella31", suites=["standard"]),
+            FourCliqueCountDataset("roadNet-CA", suites=["standard"]),
+            FourCliqueCountDataset("roadNet-PA", suites=["standard"]),
+            FourCliqueCountDataset("roadNet-TX", suites=["standard"]),
+            FourCliqueCountDataset("as-735", suites=["standard"]),
+            FourCliqueCountDataset("as-Skitter", suites=["standard"]),
+            FourCliqueCountDataset("as-caida", suites=["standard"]),
+            FourCliqueCountDataset("Oregon-1", suites=["standard"]),
+            FourCliqueCountDataset("Oregon-2", suites=["standard"]),
+            FourCliqueCountDataset("soc-sign-epinions", suites=["standard"]),
+            FourCliqueCountDataset("soc-sign-Slashdot081106", suites=["standard"]),
+            FourCliqueCountDataset("soc-sign-Slashdot090216", suites=["standard"]),
+            FourCliqueCountDataset("soc-sign-Slashdot090221", suites=["standard"]),
+            FourCliqueCountDataset("loc-Gowalla", suites=["standard"]),
+            FourCliqueCountDataset("loc-Brightkite", suites=["standard"]),
+            FourCliqueCountDataset("sx-stackoverflow", suites=["standard"]),
+            FourCliqueCountDataset("sx-mathoverflow", suites=["standard"]),
+            FourCliqueCountDataset("sx-superuser", suites=["standard"]),
+            FourCliqueCountDataset("sx-askubuntu", suites=["standard"]),
+            FourCliqueCountDataset("wiki-talk-temporal", suites=["standard"]),
+            FourCliqueCountDataset("email-Eu-core-temporal", suites=["standard"]),
+            FourCliqueCountDataset("CollegeMsg", suites=["standard"]),
+            FourCliqueCountDataset("twitter7", suites=["standard"]),
+            FourCliqueCountDataset("higgs-twitter", suites=["standard"]),
         ]
+        # fmt: on
 
-    def generate(self, dataset: SNAPDataset) -> DataInstance:
-        if dataset.name in self.dataset_names:
-            return fetch_snap_graph(dataset.name)
-        raise ValueError(f"Unsupported 4-clique count dataset: {dataset.name}")
+    def generate(self, dataset: FourCliqueCountDataset) -> DataInstance:
+        raw = fetch_snap_graph(dataset.name)
+        return DataInstance(inputs=raw.inputs, meta=dict(raw.meta))
 
 
-class FourCliqueCountGAPGenerator(Generator[GraphCountingDataset]):
+class FourCliqueCountGAPGenerator(Generator[FourCliqueCountDataset]):
     @property
     def name(self) -> str:
         return "four_clique_count_gap_inputs"
@@ -313,63 +368,20 @@ class FourCliqueCountGAPGenerator(Generator[GraphCountingDataset]):
         return False
 
     @property
-    def datasets(self) -> list[GraphCountingDataset]:
+    def datasets(self) -> list[FourCliqueCountDataset]:
+        # fmt: off
         return [
-            GraphCountingDataset(
-                name="GAP/GAP-road",
-                pretty_name="GAP Road",
-                description=(
-                    "Directed roads with weights in the US, with 23.9M nodes and"
-                    " 58.3M edges."
-                ),
-                suites=["standard"],
-            ),
-            GraphCountingDataset(
-                name="GAP/GAP-twitter",
-                pretty_name="GAP Twitter",
-                description=(
-                    "Directed weighted social network topology of Twitter, with 61.6M"
-                    " nodes and 1,468.4M edges."
-                ),
-                suites=["standard"],
-            ),
-            GraphCountingDataset(
-                name="GAP/GAP-web",
-                pretty_name="GAP Web",
-                description=(
-                    "A web-crawl of the .sk domain, directed and weighted, with 50.6M"
-                    " nodes and 1,949.4M edges."
-                ),
-                suites=["standard"],
-            ),
-            GraphCountingDataset(
-                name="GAP/GAP-kron",
-                pretty_name="GAP Kron",
-                description=(
-                    "Symmetric random undirected weighted graph generated by"
-                    " Kronecker synthetic graph generator with parameters"
-                    " (A=0.57, B=C=0.19, D=0.05). Has 134.2M nodes and 2,111.6M"
-                    " edges."
-                ),
-                suites=["standard"],
-            ),
-            GraphCountingDataset(
-                name="GAP/GAP-urand",
-                pretty_name="GAP Urand",
-                description=(
-                    "Symmetric random undirected weighted graph generated by"
-                    " Erdos–Reyni model (Uniform Random) with 134.2M nodes and"
-                    " 2,147.4M edges."
-                ),
-                suites=["standard"],
-            ),
+            FourCliqueCountDataset("GAP-road", suites=["standard"]),
+            FourCliqueCountDataset("GAP-twitter", suites=["standard"]),
+            FourCliqueCountDataset("GAP-web", suites=["standard"]),
+            FourCliqueCountDataset("GAP-kron", suites=["standard"]),
+            FourCliqueCountDataset("GAP-urand", suites=["standard"]),
         ]
+        # fmt: on
 
-    def generate(self, dataset: GraphCountingDataset) -> DataInstance:
-        if dataset.name.startswith("GAP/"):
-            raw = fetch_suitesparse_matrix(dataset.name)
-            return DataInstance(inputs=[raw.inputs[0]], meta=raw.meta)
-        raise ValueError(f"Unsupported 4-clique count dataset: {dataset.name}")
+    def generate(self, dataset: FourCliqueCountDataset) -> DataInstance:
+        raw = fetch_gap_graph(dataset.name)
+        return DataInstance(inputs=raw.inputs, meta=dict(raw.meta))
 
 
 class FourCliqueCountBenchmark(Benchmark):

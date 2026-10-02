@@ -236,6 +236,15 @@ def print_steps(entries, target_density):
         print(f"  {entry['dataset']:<{width}}  {value:>5}  {detail}")
 
 
+def print_max_degrees(entries):
+    """Print a dictionary literal from matrix slug to maximum degree."""
+    print("max_degree = {")
+    for entry in entries:
+        if entry["max_degree"] is not None:
+            print(f"    {json.dumps(entry['dataset'])}: {entry['max_degree']},")
+    print("}")
+
+
 def write(document, path):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(document, indent=2, allow_nan=False, default=str) + "\n")
@@ -309,6 +318,7 @@ def main(argv=None):
         except (OSError, ValueError, KeyError) as error:
             parser.error(str(error))
         print_steps(document["steps"], document["target_density"])
+        print_max_degrees(document["steps"])
         return int(any(item["status"] != "ok" for item in document["matrices"]))
     manifest = json.loads(args.manifest.read_text())
     try:
@@ -367,6 +377,7 @@ def main(argv=None):
         document["steps"] = steps(document["matrices"])
         write(document, args.output)
     print_steps(document["steps"], args.target_density)
+    print_max_degrees(document["steps"])
     print(f"Saved {args.output}")
     return int(any(item["status"] != "ok" for item in document["matrices"]))
 

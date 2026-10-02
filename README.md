@@ -73,7 +73,8 @@ bounds for the given degrees, so a matrix usually stays sparse longer than its
 step count. Power-law graphs give especially loose bounds, because a single
 high-degree row dominates `d`. When the bound stops growing below the target,
 `squarings` is null and `stop_reason` is `never`: the matrix provably never
-reaches that density. The same list is printed at the end of the run.
+reaches that density. The same list is printed at the end of the run, followed
+by a dictionary mapping each measured matrix to its maximum off-diagonal degree.
 
 `--datasets` takes matrix names such as `GAP/GAP-road` or whole SuiteSparse groups
 such as `SNAP`; the default is `GAP SNAP`, and `--list-datasets` prints the

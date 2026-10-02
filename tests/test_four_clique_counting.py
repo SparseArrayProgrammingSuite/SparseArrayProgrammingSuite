@@ -3,7 +3,7 @@ import pytest
 import numpy as np
 from scipy import sparse
 
-from binsparse.conversions import from_numpy, from_scipy
+from binsparse.conversions import from_scipy
 
 from saps.benchmark import DataInstance
 from saps.benchmarks import four_clique_counting as four
@@ -15,7 +15,6 @@ from saps.benchmarks import four_clique_counting as four
 )
 def test_all_four_clique_sources_are_loadable(monkeypatch, generator):
     adjacency = from_scipy(sparse.coo_matrix(np.ones((4, 4)) - np.eye(4)))
-    extra_input = from_numpy(np.ones(4))
     calls = []
     metadata = {"source": "stub"}
 
@@ -25,10 +24,10 @@ def test_all_four_clique_sources_are_loadable(monkeypatch, generator):
 
     def load_gap(name):
         calls.append(("gap", name))
-        return DataInstance(inputs=[adjacency, extra_input], meta=metadata)
+        return DataInstance(inputs=[adjacency], meta=metadata)
 
     monkeypatch.setattr(four, "fetch_snap_graph", load_snap)
-    monkeypatch.setattr(four, "fetch_suitesparse_matrix", load_gap)
+    monkeypatch.setattr(four, "fetch_gap_graph", load_gap)
     source = (
         "gap" if isinstance(generator, four.FourCliqueCountGAPGenerator) else "snap"
     )

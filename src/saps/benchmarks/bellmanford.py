@@ -1,3 +1,4 @@
+# ruff: noqa: E501
 import numpy as np
 import scipy.sparse as sps
 
@@ -13,19 +14,10 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.gap import fetch_gap_graph, gap_graph
 from saps.benchmarks.snap import (
-    SNAPGraphGenerator,
-    SNAPSourceDataset,
-    fetch_snap_source_graph,
+    fetch_snap_graph,
     with_source_vertex,
-)
-from saps.benchmarks.suitesparse import (
-    _GAP_KRON_SOURCES,
-    _GAP_ROAD_SOURCES,
-    _GAP_TWITTER_SOURCES,
-    _GAP_URAND_SOURCES,
-    _GAP_WEB_SOURCES,
-    fetch_suitesparse_matrix,
 )
 
 
@@ -47,16 +39,16 @@ class BellmanFordDataset(Dataset):
         src: int = 0,
         expected: np.ndarray | None = None,
         source_seed: int | None = None,
+        source_name: str | None = None,
     ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Bellman-Ford input {name}."
-        self._suites = suites or []
+        self._suites = list(suites or [])
         self.A = A
         self.src = src
         self.source_seed = source_seed
-        if expected is None and A is not None:
-            expected = bellman_ford_reference(A, src)
+        self.source_name = source_name or name
         self.expected = expected
 
     @property
@@ -374,16 +366,19 @@ class BellmanFordTestGenerator(Generator[BellmanFordDataset]):
                     from_numpy(bellman_ford_reference(dataset.A, raw.meta["src"]))
                 ],
             )
-        if dataset.A is None or dataset.expected is None:
-            raise ValueError("Bellman-Ford test datasets must define A and expected.")
+        if dataset.A is None:
+            raise ValueError("Bellman-Ford test datasets must define A.")
+        expected = dataset.expected
+        if expected is None:
+            expected = bellman_ford_reference(dataset.A, dataset.src)
         return DataInstance(
             inputs=[from_numpy(dataset.A)],
             meta={"src": dataset.src},
-            ref_outputs=[from_numpy(dataset.expected)],
+            ref_outputs=[from_numpy(expected)],
         )
 
 
-class BellmanFordSNAPGenerator(Generator[SNAPSourceDataset]):
+class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
     @property
     def name(self) -> str:
         return "bellman_ford_snap_inputs"
@@ -428,85 +423,296 @@ class BellmanFordSNAPGenerator(Generator[SNAPSourceDataset]):
         return False
 
     @property
-    def datasets(self) -> list[SNAPSourceDataset]:
+    def datasets(self) -> list[BellmanFordDataset]:
         # Successful standard-suite Smart runs <= 30s in competition/run_13662472.
-        trace_seeds = {
-            "CollegeMsg": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "Oregon-1": (0, 3, 4, 5, 6, 7, 8, 9),
-            "Oregon-2": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "amazon0302": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "amazon0312": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "amazon0505": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "amazon0601": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "as-735": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "as-caida": (5,),
-            "ca-AstroPh": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "ca-CondMat": (0, 1, 2, 3, 9),
-            "ca-GrQc": (4, 7, 8, 9),
-            "ca-HepPh": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "ca-HepTh": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "cit-HepPh": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "cit-HepTh": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "cit-Patents": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "com-Amazon": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "com-DBLP": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "com-Youtube": (1, 6, 9),
-            "email-Enron": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "email-Eu-core": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "email-Eu-core-temporal": (1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "email-EuAll": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "loc-Brightkite": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "loc-Gowalla": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "p2p-Gnutella04": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "p2p-Gnutella05": (0, 1, 7),
-            "p2p-Gnutella06": (2, 5, 6, 7, 8, 9),
-            "p2p-Gnutella08": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "p2p-Gnutella09": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "p2p-Gnutella24": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "p2p-Gnutella25": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "p2p-Gnutella30": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "p2p-Gnutella31": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "soc-Epinions1": (1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "soc-Slashdot0811": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "soc-Slashdot0902": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "soc-sign-Slashdot081106": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "soc-sign-Slashdot090216": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "soc-sign-Slashdot090221": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "soc-sign-bitcoin-alpha": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "soc-sign-bitcoin-otc": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "soc-sign-epinions": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "sx-askubuntu": (0, 1, 2, 3, 4, 5, 6, 7),
-            "sx-mathoverflow": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "sx-superuser": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "web-BerkStan": (0, 2, 5),
-            "web-Google": (2,),
-            "web-NotreDame": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "wiki-RfA": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "wiki-Talk": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "wiki-Vote": (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-            "wiki-talk-temporal": (3, 8),
-        }
+        # fmt: off
         return [
-            SNAPSourceDataset(
-                graph,
-                seed,
-                suites=(
-                    ["standard", "trace"]
-                    if seed in trace_seeds.get(graph.name, ())
-                    else ["standard"]
-                ),
-            )
-            for graph in SNAPGraphGenerator().datasets
-            for seed in range(10)
+            *[
+                BellmanFordDataset(f"soc-Epinions1_seed{seed}", source_name="soc-Epinions1", source_seed=seed, suites=["standard", "trace"] if seed in (1, 2, 3, 4, 5, 6, 7, 8, 9) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"soc-LiveJournal1_seed{seed}", source_name="soc-LiveJournal1", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"soc-Pokec_seed{seed}", source_name="soc-Pokec", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"soc-Slashdot0811_seed{seed}", source_name="soc-Slashdot0811", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"soc-Slashdot0902_seed{seed}", source_name="soc-Slashdot0902", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"wiki-Vote_seed{seed}", source_name="wiki-Vote", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"wiki-RfA_seed{seed}", source_name="wiki-RfA", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"soc-sign-bitcoin-otc_seed{seed}", source_name="soc-sign-bitcoin-otc", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"soc-sign-bitcoin-alpha_seed{seed}", source_name="soc-sign-bitcoin-alpha", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"com-LiveJournal_seed{seed}", source_name="com-LiveJournal", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"com-Friendster_seed{seed}", source_name="com-Friendster", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"com-Orkut_seed{seed}", source_name="com-Orkut", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"com-Youtube_seed{seed}", source_name="com-Youtube", source_seed=seed, suites=["standard", "trace"] if seed in (1, 6, 9) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"com-DBLP_seed{seed}", source_name="com-DBLP", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"com-Amazon_seed{seed}", source_name="com-Amazon", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"email-Eu-core_seed{seed}", source_name="email-Eu-core", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"wiki-topcats_seed{seed}", source_name="wiki-topcats", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"email-EuAll_seed{seed}", source_name="email-EuAll", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"email-Enron_seed{seed}", source_name="email-Enron", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"wiki-Talk_seed{seed}", source_name="wiki-Talk", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"cit-HepPh_seed{seed}", source_name="cit-HepPh", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"cit-HepTh_seed{seed}", source_name="cit-HepTh", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"cit-Patents_seed{seed}", source_name="cit-Patents", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"ca-AstroPh_seed{seed}", source_name="ca-AstroPh", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"ca-CondMat_seed{seed}", source_name="ca-CondMat", source_seed=seed, suites=["standard", "trace"] if seed in (0, 1, 2, 3, 9) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"ca-GrQc_seed{seed}", source_name="ca-GrQc", source_seed=seed, suites=["standard", "trace"] if seed in (4, 7, 8, 9) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"ca-HepPh_seed{seed}", source_name="ca-HepPh", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"ca-HepTh_seed{seed}", source_name="ca-HepTh", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"web-BerkStan_seed{seed}", source_name="web-BerkStan", source_seed=seed, suites=["standard", "trace"] if seed in (0, 2, 5) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"web-Google_seed{seed}", source_name="web-Google", source_seed=seed, suites=["standard", "trace"] if seed in (2,) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"web-NotreDame_seed{seed}", source_name="web-NotreDame", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"web-Stanford_seed{seed}", source_name="web-Stanford", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"amazon0302_seed{seed}", source_name="amazon0302", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"amazon0312_seed{seed}", source_name="amazon0312", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"amazon0505_seed{seed}", source_name="amazon0505", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"amazon0601_seed{seed}", source_name="amazon0601", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"p2p-Gnutella04_seed{seed}", source_name="p2p-Gnutella04", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"p2p-Gnutella05_seed{seed}", source_name="p2p-Gnutella05", source_seed=seed, suites=["standard", "trace"] if seed in (0, 1, 7) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"p2p-Gnutella06_seed{seed}", source_name="p2p-Gnutella06", source_seed=seed, suites=["standard", "trace"] if seed in (2, 5, 6, 7, 8, 9) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"p2p-Gnutella08_seed{seed}", source_name="p2p-Gnutella08", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"p2p-Gnutella09_seed{seed}", source_name="p2p-Gnutella09", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"p2p-Gnutella24_seed{seed}", source_name="p2p-Gnutella24", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"p2p-Gnutella25_seed{seed}", source_name="p2p-Gnutella25", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"p2p-Gnutella30_seed{seed}", source_name="p2p-Gnutella30", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"p2p-Gnutella31_seed{seed}", source_name="p2p-Gnutella31", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"roadNet-CA_seed{seed}", source_name="roadNet-CA", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"roadNet-PA_seed{seed}", source_name="roadNet-PA", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"roadNet-TX_seed{seed}", source_name="roadNet-TX", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"as-735_seed{seed}", source_name="as-735", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"as-Skitter_seed{seed}", source_name="as-Skitter", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"as-caida_seed{seed}", source_name="as-caida", source_seed=seed, suites=["standard", "trace"] if seed in (5,) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"Oregon-1_seed{seed}", source_name="Oregon-1", source_seed=seed, suites=["standard", "trace"] if seed in (0, 3, 4, 5, 6, 7, 8, 9) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"Oregon-2_seed{seed}", source_name="Oregon-2", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"soc-sign-epinions_seed{seed}", source_name="soc-sign-epinions", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"soc-sign-Slashdot081106_seed{seed}", source_name="soc-sign-Slashdot081106", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"soc-sign-Slashdot090216_seed{seed}", source_name="soc-sign-Slashdot090216", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"soc-sign-Slashdot090221_seed{seed}", source_name="soc-sign-Slashdot090221", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"loc-Gowalla_seed{seed}", source_name="loc-Gowalla", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"loc-Brightkite_seed{seed}", source_name="loc-Brightkite", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"sx-stackoverflow_seed{seed}", source_name="sx-stackoverflow", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"sx-mathoverflow_seed{seed}", source_name="sx-mathoverflow", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"sx-superuser_seed{seed}", source_name="sx-superuser", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"sx-askubuntu_seed{seed}", source_name="sx-askubuntu", source_seed=seed, suites=["standard", "trace"] if seed in (0, 1, 2, 3, 4, 5, 6, 7) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"wiki-talk-temporal_seed{seed}", source_name="wiki-talk-temporal", source_seed=seed, suites=["standard", "trace"] if seed in (3, 8) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"email-Eu-core-temporal_seed{seed}", source_name="email-Eu-core-temporal", source_seed=seed, suites=["standard", "trace"] if seed in (1, 2, 3, 4, 5, 6, 7, 8, 9) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"CollegeMsg_seed{seed}", source_name="CollegeMsg", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"twitter7_seed{seed}", source_name="twitter7", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(f"higgs-twitter_seed{seed}", source_name="higgs-twitter", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
         ]
+        # fmt: on
 
-    def generate(self, dataset: SNAPSourceDataset) -> DataInstance:
-        if dataset.name in self.dataset_names:
-            raw = fetch_snap_source_graph(dataset)
-            return DataInstance(
-                inputs=[_adjacency_to_distance(raw.inputs[0])], meta=raw.meta
+    def generate(self, dataset: BellmanFordDataset) -> DataInstance:
+        raw = fetch_snap_graph(dataset.source_name)
+        seed = dataset.source_seed
+        if seed is None or not 0 <= seed < len(raw.meta["sources"]):
+            raise ValueError(
+                f"Source seed is outside the graph's available sources: {seed}"
             )
-        raise ValueError(f"Unsupported Bellman-Ford dataset: {dataset.name}")
+        return DataInstance(
+            inputs=[_adjacency_to_distance(raw.inputs[0])],
+            meta={**raw.meta, "src": raw.meta["sources"][seed], "seed": seed},
+        )
 
 
 class BellmanFordGAPGenerator(Generator[BellmanFordDataset]):
@@ -566,87 +772,41 @@ class BellmanFordGAPGenerator(Generator[BellmanFordDataset]):
 
     @property
     def datasets(self) -> list[BellmanFordDataset]:
-        return (
-            [
-                BellmanFordDataset(
-                    name=f"GAP/GAP-road_{src}",
-                    pretty_name="GAP Road",
-                    description=(
-                        "Directed roads with weights in the US, with 23.9M nodes and"
-                        " 58.3M edges."
-                    ),
-                    suites=["standard"],
-                    src=src,
-                )
-                for src in _GAP_ROAD_SOURCES
-            ]
-            + [
-                BellmanFordDataset(
-                    name=f"GAP/GAP-twitter_{src}",
-                    pretty_name="GAP Twitter",
-                    description=(
-                        "Directed weighted social network topology of Twitter, with"
-                        " 61.6M nodes and 1,468.4M edges."
-                    ),
-                    suites=["standard"],
-                    src=src,
-                )
-                for src in _GAP_TWITTER_SOURCES
-            ]
-            + [
-                BellmanFordDataset(
-                    name=f"GAP/GAP-web_{src}",
-                    pretty_name="GAP Web",
-                    description=(
-                        "A web-crawl of the .sk domain, directed and weighted, with"
-                        " 50.6M nodes and 1,949.4M edges."
-                    ),
-                    suites=["standard"],
-                    src=src,
-                )
-                for src in _GAP_WEB_SOURCES
-            ]
-            + [
-                BellmanFordDataset(
-                    name=f"GAP/GAP-kron_{src}",
-                    pretty_name="GAP Kron",
-                    description=(
-                        "Symmetric random undirected weighted graph generated by"
-                        " Kronecker synthetic graph generator with parameters"
-                        " (A=0.57, B=C=0.19, D=0.05). Has 134.2M nodes and 2,111.6M"
-                        " edges."
-                    ),
-                    suites=["standard"],
-                    src=src,
-                )
-                for src in _GAP_KRON_SOURCES
-            ]
-            + [
-                BellmanFordDataset(
-                    name=f"GAP/GAP-urand_{src}",
-                    pretty_name="GAP Urand",
-                    description=(
-                        "Symmetric random undirected weighted graph generated by"
-                        " Erdos–Reyni model (Uniform Random) with 134.2M nodes and"
-                        " 2,147.4M edges."
-                    ),
-                    suites=["standard"],
-                    src=src,
-                )
-                for src in _GAP_URAND_SOURCES
-            ]
-        )
+        # fmt: off
+        return [
+            *[
+                BellmanFordDataset(f"GAP/GAP-road_{src}", source_name="GAP-road", src=src, suites=["standard"])
+                for src in gap_graph("GAP-road").sources
+            ],
+            *[
+                BellmanFordDataset(f"GAP/GAP-twitter_{src}", source_name="GAP-twitter", src=src, suites=["standard"])
+                for src in gap_graph("GAP-twitter").sources
+            ],
+            *[
+                BellmanFordDataset(f"GAP/GAP-web_{src}", source_name="GAP-web", src=src, suites=["standard"])
+                for src in gap_graph("GAP-web").sources
+            ],
+            *[
+                BellmanFordDataset(f"GAP/GAP-kron_{src}", source_name="GAP-kron", src=src, suites=["standard"])
+                for src in gap_graph("GAP-kron").sources
+            ],
+            *[
+                BellmanFordDataset(f"GAP/GAP-urand_{src}", source_name="GAP-urand", src=src, suites=["standard"])
+                for src in gap_graph("GAP-urand").sources
+            ],
+        ]
+        # fmt: on
 
     def generate(self, dataset: BellmanFordDataset) -> DataInstance:
-        if dataset.name.startswith("GAP/"):
-            raw = fetch_suitesparse_matrix(dataset.name.rsplit("_", 1)[0])
-            meta = raw.meta
-            meta["src"] = dataset.src
-            return DataInstance(
-                inputs=[_adjacency_to_distance(raw.inputs[0], keep_weights=True)],
-                meta=meta,
+        raw = fetch_gap_graph(dataset.source_name)
+        if dataset.src not in raw.meta["sources"]:
+            raise ValueError(
+                f"{dataset.src} is not a published source of {dataset.source_name}"
             )
-        raise ValueError(f"Unsupported Bellman-Ford dataset: {dataset.name}")
+        return DataInstance(
+            inputs=[_adjacency_to_distance(raw.inputs[0], keep_weights=True)],
+            meta={**raw.meta, "src": dataset.src},
+        )
 
 
 def _adjacency_to_distance(

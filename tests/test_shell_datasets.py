@@ -5,6 +5,7 @@ import pytest
 
 from saps.benchmark import Generator
 from saps.benchmarks.frostt import fetch_frostt_tensor
+from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.model_counting import fetch_mccomp_instance
 from saps.benchmarks.ogb import fetch_ogb_nodeprop_dataset
 from saps.benchmarks.openml import fetch_openml_dataset
@@ -22,6 +23,7 @@ from saps.metadata import _benchmark_instances
     "fetch",
     [
         fetch_snap_graph,
+        fetch_gap_graph,
         fetch_frostt_tensor,
         fetch_mccomp_instance,
         fetch_ogb_nodeprop_dataset,

@@ -1,3 +1,4 @@
+import ast
 import importlib.util
 import json
 from pathlib import Path
@@ -215,6 +216,14 @@ def test_cli_writes_steps_and_reports_missing_matrices(fill_in, cache, tmp_path)
     ]
     assert result["matrices"][0]["stages"][-1]["nnz_bound"] == 7
     assert result["matrices"][1]["status"] == "missing"
+
+
+def test_cli_prints_max_degree_dictionary(fill_in, cache, tmp_path, capsys):
+    fill_in.main([*cache, "--output", str(tmp_path / "results.json")])
+    out = capsys.readouterr().out
+    literal = out[out.index("max_degree = {") + len("max_degree = ") :]
+    literal = literal[: literal.index("}") + 1]
+    assert ast.literal_eval(literal) == {"GAP/GAP-road": 1, "SNAP/ca-GrQc": 1}
 
 
 def test_merge_combines_per_task_results(fill_in, cache, tmp_path):

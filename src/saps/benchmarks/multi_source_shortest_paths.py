@@ -1,3 +1,4 @@
+# ruff: noqa: E501
 import numpy as np
 import scipy.sparse as sps
 
@@ -10,58 +11,55 @@ from saps.benchmark import (
     Benchmark,
     Contributor,
     DataInstance,
+    Dataset,
     Generator,
     Ref,
 )
 from saps.benchmarks.bellmanford import _adjacency_to_distance
-from saps.benchmarks.snap import (
-    SNAPDataset,
-    SNAPGraphGenerator,
-    fetch_snap_graph,
-    select_source_vertices,
-)
-from saps.benchmarks.suitesparse import (
-    _GAP_KRON_SOURCES,
-    _GAP_ROAD_SOURCES,
-    _GAP_TWITTER_SOURCES,
-    _GAP_URAND_SOURCES,
-    _GAP_WEB_SOURCES,
-    SuiteSparseDataset,
-    fetch_suitesparse_matrix,
-)
-
-# Number of seeded sources sampled for graphs without a published source list.
-_NUM_SAMPLED_SOURCES = 64
+from saps.benchmarks.gap import fetch_gap_graph
+from saps.benchmarks.snap import fetch_snap_graph
 
 
-class MultiSourceShortestPathsDataset(SuiteSparseDataset):
+class MultiSourceShortestPathsDataset(Dataset):
     def __init__(
         self,
-        name,
-        pretty_name,
-        description,
-        suites,
-        source,
-        symmetrize=False,
+        name: str,
+        pretty_name: str | None = None,
+        description: str | None = None,
+        suites: list[str] | None = None,
+        symmetrize: bool = False,
         A=None,
-        sources=None,
+        sources: list[int] | None = None,
         expected=None,
     ):
-        super().__init__(
-            name,
-            source_name=source,
-            pretty_name=pretty_name,
-            description=description,
-            suites=suites,
-        )
+        self._name = name
+        self._pretty_name = pretty_name or name
+        self._description = description or f"Multi-source shortest paths input {name}."
+        self._suites = list(suites or [])
         self.symmetrize = symmetrize
         self.A = A
-        if sources is None and A is not None:
-            sources = list(range(A.shape[0]))
         self.sources = sources
-        if expected is None and A is not None:
-            expected = all_pairs_reference(A)[sources, :]
         self.expected = expected
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
 
 def initial_distances(n: int, sources) -> COORMatrix:
@@ -78,18 +76,9 @@ def initial_distances(n: int, sources) -> COORMatrix:
     )
 
 
-def sample_sources(adjacency: BinsparseTensor) -> list[int]:
-    """Seeded, deduplicated sources for graphs without a published source list."""
-    return np.unique(
-        select_source_vertices(adjacency, _NUM_SAMPLED_SOURCES, seed=0)
-    ).tolist()
-
-
-def multi_source_instance(adjacency: BinsparseTensor, sources=None) -> DataInstance:
+def multi_source_instance(adjacency: BinsparseTensor, sources) -> DataInstance:
     """Unweighted distance graph plus initial distances from each source."""
     n = adjacency.shape[0]
-    if sources is None:
-        sources = sample_sources(adjacency)
     return DataInstance(
         inputs=[_adjacency_to_distance(adjacency), initial_distances(n, sources)],
         meta={"sources": list(sources)},
@@ -183,7 +172,6 @@ class MultiSourceShortestPathsTestGenerator(Generator[MultiSourceShortestPathsDa
                 pretty_name="single-node",
                 description="Multi-Source Shortest Paths test case single-node.",
                 suites=["test"],
-                source="single-node",
                 A=np.array([[0.0]]),
                 expected=np.array([[0.0]]),
             ),
@@ -192,7 +180,6 @@ class MultiSourceShortestPathsTestGenerator(Generator[MultiSourceShortestPathsDa
                 pretty_name="two-node-directed",
                 description="Multi-Source Shortest Paths test case two-node-directed.",
                 suites=["test"],
-                source="two-node-directed",
                 A=np.array([[0.0, 1.0], [np.inf, 0.0]]),
                 expected=np.array([[0.0, 1.0], [np.inf, 0.0]]),
             ),
@@ -201,7 +188,6 @@ class MultiSourceShortestPathsTestGenerator(Generator[MultiSourceShortestPathsDa
                 pretty_name="three-node-chain",
                 description="Multi-Source Shortest Paths test case three-node-chain.",
                 suites=["test"],
-                source="three-node-chain",
                 A=np.array(
                     [
                         [0.0, 1.0, np.inf],
@@ -222,7 +208,6 @@ class MultiSourceShortestPathsTestGenerator(Generator[MultiSourceShortestPathsDa
                 pretty_name="three-node-shortcut",
                 description="Multi-Source Shortest Paths test case three-node-shortcut.",
                 suites=["test"],
-                source="three-node-shortcut",
                 A=np.array(
                     [
                         [0.0, 1.0, 5.0],
@@ -243,7 +228,6 @@ class MultiSourceShortestPathsTestGenerator(Generator[MultiSourceShortestPathsDa
                 pretty_name="two-components",
                 description="Multi-Source Shortest Paths test case two-components.",
                 suites=["test"],
-                source="two-components",
                 A=np.array(
                     [
                         [0.0, 1.0, np.inf, np.inf],
@@ -266,7 +250,6 @@ class MultiSourceShortestPathsTestGenerator(Generator[MultiSourceShortestPathsDa
                 pretty_name="large-symmetric",
                 description="Multi-Source Shortest Paths test case large-symmetric.",
                 suites=["test"],
-                source="large-symmetric",
                 A=shortest_paths_input_from_edges(
                     39,
                     [
@@ -372,21 +355,25 @@ class MultiSourceShortestPathsTestGenerator(Generator[MultiSourceShortestPathsDa
             dataset.A.todense() if isinstance(dataset.A, sp.SparseArray) else dataset.A
         )
         n = inputs.shape[0]
+        sources = dataset.sources if dataset.sources is not None else list(range(n))
+        expected = dataset.expected
+        if expected is None:
+            expected = all_pairs_reference(inputs)[sources, :]
         return DataInstance(
-            inputs=[from_numpy(inputs), initial_distances(n, dataset.sources)],
-            meta={"sources": list(dataset.sources)},
-            ref_outputs=[from_numpy(dataset.expected)],
+            inputs=[from_numpy(inputs), initial_distances(n, sources)],
+            meta={"sources": list(sources)},
+            ref_outputs=[from_numpy(expected)],
         )
 
 
-class MultiSourceShortestPathsGenerator(Generator[MultiSourceShortestPathsDataset]):
+class MultiSourceShortestPathsGAPGenerator(Generator[MultiSourceShortestPathsDataset]):
     @property
     def name(self) -> str:
-        return "multi_source_shortest_paths_inputs"
+        return "multi_source_shortest_paths_gap_inputs"
 
     @property
     def pretty_name(self) -> str:
-        return "Multi-Source Shortest Paths Input Generator"
+        return "Multi-Source Shortest Paths GAP Input Generator"
 
     @property
     def description(self) -> str:
@@ -454,89 +441,35 @@ class MultiSourceShortestPathsGenerator(Generator[MultiSourceShortestPathsDatase
 
     @property
     def datasets(self) -> list[MultiSourceShortestPathsDataset]:
+        # fmt: off
         return [
-            MultiSourceShortestPathsDataset(
-                name="GAP/GAP-road",
-                pretty_name="GAP Road",
-                description=(
-                    "Directed roads with weights in the US, with 23.9M nodes and"
-                    " 58.3M edges."
-                ),
-                suites=["standard"],
-                source="GAP/GAP-road",
-                sources=_GAP_ROAD_SOURCES,
-                symmetrize=False,
-            ),
-            MultiSourceShortestPathsDataset(
-                name="GAP/GAP-twitter",
-                pretty_name="GAP Twitter",
-                description=(
-                    "Directed weighted social network topology of Twitter, with 61.6M"
-                    " nodes and 1,468.4M edges."
-                ),
-                suites=["standard"],
-                source="GAP/GAP-twitter",
-                sources=_GAP_TWITTER_SOURCES,
-                symmetrize=True,
-            ),
-            MultiSourceShortestPathsDataset(
-                name="GAP/GAP-web",
-                pretty_name="GAP Web",
-                description=(
-                    "A web-crawl of the .sk domain, directed and weighted, with 50.6M"
-                    " nodes and 1,949.4M edges."
-                ),
-                suites=["standard"],
-                source="GAP/GAP-web",
-                sources=_GAP_WEB_SOURCES,
-                symmetrize=True,
-            ),
-            MultiSourceShortestPathsDataset(
-                name="GAP/GAP-kron",
-                pretty_name="GAP Kron",
-                description=(
-                    "Symmetric random undirected weighted graph generated by"
-                    " Kronecker synthetic graph generator with parameters"
-                    " (A=0.57, B=C=0.19, D=0.05). Has 134.2M nodes and 2,111.6M"
-                    " edges."
-                ),
-                suites=["standard"],
-                source="GAP/GAP-kron",
-                sources=_GAP_KRON_SOURCES,
-                symmetrize=False,
-            ),
-            MultiSourceShortestPathsDataset(
-                name="GAP/GAP-urand",
-                pretty_name="GAP Urand",
-                description=(
-                    "Symmetric random undirected weighted graph generated by"
-                    " Erdos–Reyni model (Uniform Random) with 134.2M nodes and"
-                    " 2,147.4M edges."
-                ),
-                suites=["standard"],
-                source="GAP/GAP-urand",
-                sources=_GAP_URAND_SOURCES,
-                symmetrize=False,
-            ),
+            MultiSourceShortestPathsDataset("GAP/GAP-road", symmetrize=False, suites=["standard"]),
+            MultiSourceShortestPathsDataset("GAP/GAP-twitter", symmetrize=True, suites=["standard"]),
+            MultiSourceShortestPathsDataset("GAP/GAP-web", symmetrize=True, suites=["standard"]),
+            MultiSourceShortestPathsDataset("GAP/GAP-kron", symmetrize=False, suites=["standard"]),
+            MultiSourceShortestPathsDataset("GAP/GAP-urand", symmetrize=False, suites=["standard"]),
         ]
+        # fmt: on
 
     @property
     def cacheable(self) -> bool:
         return False
 
     def generate(self, dataset: MultiSourceShortestPathsDataset):
-        raw = fetch_suitesparse_matrix(dataset.source_name)
-        n, m = raw.meta["shape"]
+        raw = fetch_gap_graph(dataset.name.removeprefix("GAP/"))
+        n, m = raw.inputs[0].shape
         if n != m:
-            raise ValueError(f"Multi-Source Shortest Paths requires a square matrix, got {(n, m)}")
+            raise ValueError(
+                f"Multi-Source Shortest Paths requires a square matrix, got {(n, m)}"
+            )
 
         adjacency = abs(to_scipy(raw.inputs[0]).tocoo())
         if dataset.symmetrize:
             adjacency = sps.coo_array(adjacency + adjacency.T)
-        return multi_source_instance(from_scipy(adjacency), dataset.sources)
+        return multi_source_instance(from_scipy(adjacency), raw.meta["sources"])
 
 
-class MultiSourceShortestPathsSNAPGenerator(Generator[SNAPDataset]):
+class MultiSourceShortestPathsSNAPGenerator(Generator[MultiSourceShortestPathsDataset]):
     @property
     def name(self) -> str:
         return "multi_source_shortest_paths_snap_inputs"
@@ -549,8 +482,7 @@ class MultiSourceShortestPathsSNAPGenerator(Generator[SNAPDataset]):
     def description(self) -> str:
         return (
             "SNAP input generator for multi-source shortest paths, with"
-            f" {_NUM_SAMPLED_SOURCES} seeded sources sampled per graph and"
-            " deduplicated."
+            " the SNAP shell's seeded sources for each graph, deduplicated."
         )
 
     @property
@@ -585,15 +517,84 @@ class MultiSourceShortestPathsSNAPGenerator(Generator[SNAPDataset]):
         return False
 
     @property
-    def datasets(self) -> list[SNAPDataset]:
+    def datasets(self) -> list[MultiSourceShortestPathsDataset]:
+        # fmt: off
         return [
-            graph.with_suites(["standard"]) for graph in SNAPGraphGenerator().datasets
+            MultiSourceShortestPathsDataset("soc-Epinions1", suites=["standard"]),
+            MultiSourceShortestPathsDataset("soc-LiveJournal1", suites=["standard"]),
+            MultiSourceShortestPathsDataset("soc-Pokec", suites=["standard"]),
+            MultiSourceShortestPathsDataset("soc-Slashdot0811", suites=["standard"]),
+            MultiSourceShortestPathsDataset("soc-Slashdot0902", suites=["standard"]),
+            MultiSourceShortestPathsDataset("wiki-Vote", suites=["standard"]),
+            MultiSourceShortestPathsDataset("wiki-RfA", suites=["standard"]),
+            MultiSourceShortestPathsDataset("soc-sign-bitcoin-otc", suites=["standard"]),
+            MultiSourceShortestPathsDataset("soc-sign-bitcoin-alpha", suites=["standard"]),
+            MultiSourceShortestPathsDataset("com-LiveJournal", suites=["standard"]),
+            MultiSourceShortestPathsDataset("com-Friendster", suites=["standard"]),
+            MultiSourceShortestPathsDataset("com-Orkut", suites=["standard"]),
+            MultiSourceShortestPathsDataset("com-Youtube", suites=["standard"]),
+            MultiSourceShortestPathsDataset("com-DBLP", suites=["standard"]),
+            MultiSourceShortestPathsDataset("com-Amazon", suites=["standard"]),
+            MultiSourceShortestPathsDataset("email-Eu-core", suites=["standard"]),
+            MultiSourceShortestPathsDataset("wiki-topcats", suites=["standard"]),
+            MultiSourceShortestPathsDataset("email-EuAll", suites=["standard"]),
+            MultiSourceShortestPathsDataset("email-Enron", suites=["standard"]),
+            MultiSourceShortestPathsDataset("wiki-Talk", suites=["standard"]),
+            MultiSourceShortestPathsDataset("cit-HepPh", suites=["standard"]),
+            MultiSourceShortestPathsDataset("cit-HepTh", suites=["standard"]),
+            MultiSourceShortestPathsDataset("cit-Patents", suites=["standard"]),
+            MultiSourceShortestPathsDataset("ca-AstroPh", suites=["standard"]),
+            MultiSourceShortestPathsDataset("ca-CondMat", suites=["standard"]),
+            MultiSourceShortestPathsDataset("ca-GrQc", suites=["standard"]),
+            MultiSourceShortestPathsDataset("ca-HepPh", suites=["standard"]),
+            MultiSourceShortestPathsDataset("ca-HepTh", suites=["standard"]),
+            MultiSourceShortestPathsDataset("web-BerkStan", suites=["standard"]),
+            MultiSourceShortestPathsDataset("web-Google", suites=["standard"]),
+            MultiSourceShortestPathsDataset("web-NotreDame", suites=["standard"]),
+            MultiSourceShortestPathsDataset("web-Stanford", suites=["standard"]),
+            MultiSourceShortestPathsDataset("amazon0302", suites=["standard"]),
+            MultiSourceShortestPathsDataset("amazon0312", suites=["standard"]),
+            MultiSourceShortestPathsDataset("amazon0505", suites=["standard"]),
+            MultiSourceShortestPathsDataset("amazon0601", suites=["standard"]),
+            MultiSourceShortestPathsDataset("p2p-Gnutella04", suites=["standard"]),
+            MultiSourceShortestPathsDataset("p2p-Gnutella05", suites=["standard"]),
+            MultiSourceShortestPathsDataset("p2p-Gnutella06", suites=["standard"]),
+            MultiSourceShortestPathsDataset("p2p-Gnutella08", suites=["standard"]),
+            MultiSourceShortestPathsDataset("p2p-Gnutella09", suites=["standard"]),
+            MultiSourceShortestPathsDataset("p2p-Gnutella24", suites=["standard"]),
+            MultiSourceShortestPathsDataset("p2p-Gnutella25", suites=["standard"]),
+            MultiSourceShortestPathsDataset("p2p-Gnutella30", suites=["standard"]),
+            MultiSourceShortestPathsDataset("p2p-Gnutella31", suites=["standard"]),
+            MultiSourceShortestPathsDataset("roadNet-CA", suites=["standard"]),
+            MultiSourceShortestPathsDataset("roadNet-PA", suites=["standard"]),
+            MultiSourceShortestPathsDataset("roadNet-TX", suites=["standard"]),
+            MultiSourceShortestPathsDataset("as-735", suites=["standard"]),
+            MultiSourceShortestPathsDataset("as-Skitter", suites=["standard"]),
+            MultiSourceShortestPathsDataset("as-caida", suites=["standard"]),
+            MultiSourceShortestPathsDataset("Oregon-1", suites=["standard"]),
+            MultiSourceShortestPathsDataset("Oregon-2", suites=["standard"]),
+            MultiSourceShortestPathsDataset("soc-sign-epinions", suites=["standard"]),
+            MultiSourceShortestPathsDataset("soc-sign-Slashdot081106", suites=["standard"]),
+            MultiSourceShortestPathsDataset("soc-sign-Slashdot090216", suites=["standard"]),
+            MultiSourceShortestPathsDataset("soc-sign-Slashdot090221", suites=["standard"]),
+            MultiSourceShortestPathsDataset("loc-Gowalla", suites=["standard"]),
+            MultiSourceShortestPathsDataset("loc-Brightkite", suites=["standard"]),
+            MultiSourceShortestPathsDataset("sx-stackoverflow", suites=["standard"]),
+            MultiSourceShortestPathsDataset("sx-mathoverflow", suites=["standard"]),
+            MultiSourceShortestPathsDataset("sx-superuser", suites=["standard"]),
+            MultiSourceShortestPathsDataset("sx-askubuntu", suites=["standard"]),
+            MultiSourceShortestPathsDataset("wiki-talk-temporal", suites=["standard"]),
+            MultiSourceShortestPathsDataset("email-Eu-core-temporal", suites=["standard"]),
+            MultiSourceShortestPathsDataset("CollegeMsg", suites=["standard"]),
+            MultiSourceShortestPathsDataset("twitter7", suites=["standard"]),
+            MultiSourceShortestPathsDataset("higgs-twitter", suites=["standard"]),
         ]
+        # fmt: on
 
-    def generate(self, dataset: SNAPDataset) -> DataInstance:
-        if dataset.name in self.dataset_names:
-            return multi_source_instance(fetch_snap_graph(dataset.name).inputs[0])
-        raise ValueError(f"Unsupported Multi-Source Shortest Paths dataset: {dataset.name}")
+    def generate(self, dataset: MultiSourceShortestPathsDataset) -> DataInstance:
+        raw = fetch_snap_graph(dataset.name)
+        sources = np.unique(raw.meta["sources"]).tolist()
+        return multi_source_instance(raw.inputs[0], sources)
 
 
 class MultiSourceShortestPathsBenchmark(Benchmark):
@@ -687,7 +688,7 @@ class MultiSourceShortestPathsBenchmark(Benchmark):
     def generators(self):
         return [
             MultiSourceShortestPathsTestGenerator(),
-            MultiSourceShortestPathsGenerator(),
+            MultiSourceShortestPathsGAPGenerator(),
             MultiSourceShortestPathsSNAPGenerator(),
         ]
 

@@ -1,3 +1,5 @@
+# ruff: noqa: E501
+
 import numpy as np
 
 from binsparse import BinsparseTensor
@@ -12,8 +14,8 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.snap import SNAPDataset, SNAPGraphGenerator, fetch_snap_graph
-from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
+from saps.benchmarks.gap import fetch_gap_graph
+from saps.benchmarks.snap import fetch_snap_graph
 
 
 class ConnectedComponentsDataset(Dataset):
@@ -29,7 +31,7 @@ class ConnectedComponentsDataset(Dataset):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Connected components input {name}."
-        self._suites = suites or []
+        self._suites = list(suites or [])
         self.A = A
         self.ref_meta = ref_meta
 
@@ -166,7 +168,7 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
         )
 
 
-class ConnectedComponentsSNAPGenerator(Generator[SNAPDataset]):
+class ConnectedComponentsSNAPGenerator(Generator[ConnectedComponentsDataset]):
     @property
     def name(self) -> str:
         return "connected_components_snap_inputs"
@@ -226,57 +228,84 @@ class ConnectedComponentsSNAPGenerator(Generator[SNAPDataset]):
         return False
 
     @property
-    def datasets(self) -> list[SNAPDataset]:
+    def datasets(self) -> list[ConnectedComponentsDataset]:
         # Successful standard-suite Smart runs <= 30s in competition/run_13662472.
-        trace = (
-            "CollegeMsg",
-            "Oregon-1",
-            "Oregon-2",
-            "amazon0302",
-            "as-735",
-            "as-caida",
-            "ca-CondMat",
-            "ca-HepTh",
-            "com-DBLP",
-            "email-Eu-core-temporal",
-            "loc-Brightkite",
-            "loc-Gowalla",
-            "p2p-Gnutella04",
-            "p2p-Gnutella05",
-            "p2p-Gnutella06",
-            "p2p-Gnutella08",
-            "p2p-Gnutella09",
-            "p2p-Gnutella24",
-            "p2p-Gnutella25",
-            "p2p-Gnutella30",
-            "p2p-Gnutella31",
-            "soc-Epinions1",
-            "soc-Slashdot0811",
-            "soc-Slashdot0902",
-            "soc-sign-Slashdot081106",
-            "soc-sign-Slashdot090216",
-            "soc-sign-Slashdot090221",
-            "soc-sign-bitcoin-alpha",
-            "soc-sign-bitcoin-otc",
-            "soc-sign-epinions",
-            "sx-askubuntu",
-            "sx-mathoverflow",
-            "sx-superuser",
-            "web-NotreDame",
-            "wiki-RfA",
-            "wiki-Vote",
-        )
+        # fmt: off
         return [
-            graph.with_suites(
-                ["standard", "trace"] if graph.name in trace else ["standard"]
-            )
-            for graph in SNAPGraphGenerator().datasets
+            ConnectedComponentsDataset("soc-Epinions1", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("soc-LiveJournal1", suites=["standard"]),
+            ConnectedComponentsDataset("soc-Pokec", suites=["standard"]),
+            ConnectedComponentsDataset("soc-Slashdot0811", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("soc-Slashdot0902", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("wiki-Vote", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("wiki-RfA", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("soc-sign-bitcoin-otc", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("soc-sign-bitcoin-alpha", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("com-LiveJournal", suites=["standard"]),
+            ConnectedComponentsDataset("com-Friendster", suites=["standard"]),
+            ConnectedComponentsDataset("com-Orkut", suites=["standard"]),
+            ConnectedComponentsDataset("com-Youtube", suites=["standard"]),
+            ConnectedComponentsDataset("com-DBLP", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("com-Amazon", suites=["standard"]),
+            ConnectedComponentsDataset("email-Eu-core", suites=["standard"]),
+            ConnectedComponentsDataset("wiki-topcats", suites=["standard"]),
+            ConnectedComponentsDataset("email-EuAll", suites=["standard"]),
+            ConnectedComponentsDataset("email-Enron", suites=["standard"]),
+            ConnectedComponentsDataset("wiki-Talk", suites=["standard"]),
+            ConnectedComponentsDataset("cit-HepPh", suites=["standard"]),
+            ConnectedComponentsDataset("cit-HepTh", suites=["standard"]),
+            ConnectedComponentsDataset("cit-Patents", suites=["standard"]),
+            ConnectedComponentsDataset("ca-AstroPh", suites=["standard"]),
+            ConnectedComponentsDataset("ca-CondMat", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("ca-GrQc", suites=["standard"]),
+            ConnectedComponentsDataset("ca-HepPh", suites=["standard"]),
+            ConnectedComponentsDataset("ca-HepTh", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("web-BerkStan", suites=["standard"]),
+            ConnectedComponentsDataset("web-Google", suites=["standard"]),
+            ConnectedComponentsDataset("web-NotreDame", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("web-Stanford", suites=["standard"]),
+            ConnectedComponentsDataset("amazon0302", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("amazon0312", suites=["standard"]),
+            ConnectedComponentsDataset("amazon0505", suites=["standard"]),
+            ConnectedComponentsDataset("amazon0601", suites=["standard"]),
+            ConnectedComponentsDataset("p2p-Gnutella04", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("p2p-Gnutella05", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("p2p-Gnutella06", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("p2p-Gnutella08", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("p2p-Gnutella09", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("p2p-Gnutella24", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("p2p-Gnutella25", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("p2p-Gnutella30", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("p2p-Gnutella31", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("roadNet-CA", suites=["standard"]),
+            ConnectedComponentsDataset("roadNet-PA", suites=["standard"]),
+            ConnectedComponentsDataset("roadNet-TX", suites=["standard"]),
+            ConnectedComponentsDataset("as-735", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("as-Skitter", suites=["standard"]),
+            ConnectedComponentsDataset("as-caida", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("Oregon-1", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("Oregon-2", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("soc-sign-epinions", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("soc-sign-Slashdot081106", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("soc-sign-Slashdot090216", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("soc-sign-Slashdot090221", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("loc-Gowalla", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("loc-Brightkite", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("sx-stackoverflow", suites=["standard"]),
+            ConnectedComponentsDataset("sx-mathoverflow", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("sx-superuser", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("sx-askubuntu", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("wiki-talk-temporal", suites=["standard"]),
+            ConnectedComponentsDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("CollegeMsg", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("twitter7", suites=["standard"]),
+            ConnectedComponentsDataset("higgs-twitter", suites=["standard"]),
         ]
+        # fmt: on
 
-    def generate(self, dataset: SNAPDataset) -> DataInstance:
-        if dataset.name in self.dataset_names:
-            return fetch_snap_graph(dataset.name)
-        raise ValueError(f"Unsupported connected components dataset: {dataset.name}")
+    def generate(self, dataset: ConnectedComponentsDataset) -> DataInstance:
+        raw = fetch_snap_graph(dataset.name)
+        return DataInstance(inputs=raw.inputs, meta=dict(raw.meta))
 
 
 class ConnectedComponentsGAPGenerator(Generator[ConnectedComponentsDataset]):
@@ -336,62 +365,19 @@ class ConnectedComponentsGAPGenerator(Generator[ConnectedComponentsDataset]):
 
     @property
     def datasets(self) -> list[ConnectedComponentsDataset]:
+        # fmt: off
         return [
-            ConnectedComponentsDataset(
-                name="GAP/GAP-road",
-                pretty_name="GAP Road",
-                description=(
-                    "Directed roads with weights in the US, with 23.9M nodes and"
-                    " 58.3M edges."
-                ),
-                suites=["standard"],
-            ),
-            ConnectedComponentsDataset(
-                name="GAP/GAP-twitter",
-                pretty_name="GAP Twitter",
-                description=(
-                    "Directed weighted social network topology of Twitter, with 61.6M"
-                    " nodes and 1,468.4M edges."
-                ),
-                suites=["standard"],
-            ),
-            ConnectedComponentsDataset(
-                name="GAP/GAP-web",
-                pretty_name="GAP Web",
-                description=(
-                    "A web-crawl of the .sk domain, directed and weighted, with 50.6M"
-                    " nodes and 1,949.4M edges."
-                ),
-                suites=["standard"],
-            ),
-            ConnectedComponentsDataset(
-                name="GAP/GAP-kron",
-                pretty_name="GAP Kron",
-                description=(
-                    "Symmetric random undirected weighted graph generated by"
-                    " Kronecker synthetic graph generator with parameters"
-                    " (A=0.57, B=C=0.19, D=0.05). Has 134.2M nodes and 2,111.6M"
-                    " edges."
-                ),
-                suites=["standard"],
-            ),
-            ConnectedComponentsDataset(
-                name="GAP/GAP-urand",
-                pretty_name="GAP Urand",
-                description=(
-                    "Symmetric random undirected weighted graph generated by"
-                    " Erdos–Reyni model (Uniform Random) with 134.2M nodes and"
-                    " 2,147.4M edges."
-                ),
-                suites=["standard"],
-            ),
+            ConnectedComponentsDataset("GAP-road", suites=["standard"]),
+            ConnectedComponentsDataset("GAP-twitter", suites=["standard"]),
+            ConnectedComponentsDataset("GAP-web", suites=["standard"]),
+            ConnectedComponentsDataset("GAP-kron", suites=["standard"]),
+            ConnectedComponentsDataset("GAP-urand", suites=["standard"]),
         ]
+        # fmt: on
 
     def generate(self, dataset: ConnectedComponentsDataset) -> DataInstance:
-        if dataset.name.startswith("GAP/"):
-            raw = fetch_suitesparse_matrix(dataset.name)
-            return DataInstance(inputs=raw.inputs, meta=raw.meta)
-        raise ValueError(f"Unsupported connected components dataset: {dataset.name}")
+        raw = fetch_gap_graph(dataset.name)
+        return DataInstance(inputs=raw.inputs, meta=dict(raw.meta))
 
 
 class SimplyConnectedComponentsBenchmark(Benchmark):
