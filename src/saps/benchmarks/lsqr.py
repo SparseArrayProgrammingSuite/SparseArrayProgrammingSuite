@@ -328,7 +328,7 @@ class LSQRGenerator(Generator[LSQRDataset]):
             ),
             LSQRDataset(
                 "NYPA/Maragal_6",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=1000,
                 rel_tol=1e-06,
                 rhs_index=0,

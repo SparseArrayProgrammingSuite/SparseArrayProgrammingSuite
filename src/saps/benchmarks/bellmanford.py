@@ -425,7 +425,7 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
 
     @property
     def datasets(self) -> list[BellmanFordDataset]:
-        # Trace selects successful Smart runs < 30s in competition/run_13803684.
+        # Trace selects successful Smart runs < 60s in competition/run_13803684.
         # fmt: off
         return [
             *[
@@ -545,7 +545,7 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
                 for seed in range(10)
             ],
             *[
-                BellmanFordDataset(f"web-Google_seed{seed}", source_name="web-Google", source_seed=seed, suites=["standard", "trace"] if seed in (2,) else ["standard"])
+                BellmanFordDataset(f"web-Google_seed{seed}", source_name="web-Google", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
@@ -697,7 +697,7 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
                 for seed in range(10)
             ],
             *[
-                BellmanFordDataset(f"higgs-twitter_seed{seed}", source_name="higgs-twitter", source_seed=seed, suites=["standard"])
+                BellmanFordDataset(f"higgs-twitter_seed{seed}", source_name="higgs-twitter", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
         ]

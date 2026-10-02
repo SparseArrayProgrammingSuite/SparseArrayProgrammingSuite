@@ -632,7 +632,7 @@ class _SimHashApproxNNOpenMLGeneratorMixin(SimHashApproxNNGeneratorMixin):
                 k=5,
                 eps=0.3,
                 seed=50,
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_tables=64,
                 max_projections=32,
                 candidate_target=100,

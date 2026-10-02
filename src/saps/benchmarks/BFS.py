@@ -282,7 +282,7 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
 
     @property
     def datasets(self) -> list[BreadthFirstSearchDataset]:
-        # Trace selects successful Smart runs < 30s in competition/run_13803684.
+        # Trace selects successful Smart runs < 60s in competition/run_13803684.
         # fmt: off
         return [
             *[
@@ -410,7 +410,7 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"web-Stanford_seed{seed}", source_name="web-Stanford", source_seed=seed, suites=["standard"])
+                BreadthFirstSearchDataset(f"web-Stanford_seed{seed}", source_name="web-Stanford", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
@@ -482,7 +482,7 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"as-Skitter_seed{seed}", source_name="as-Skitter", source_seed=seed, suites=["standard"])
+                BreadthFirstSearchDataset(f"as-Skitter_seed{seed}", source_name="as-Skitter", source_seed=seed, suites=["standard", "trace"] if seed in (1, 4, 6, 9) else ["standard"])
                 for seed in range(10)
             ],
             *[
@@ -522,7 +522,7 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"sx-stackoverflow_seed{seed}", source_name="sx-stackoverflow", source_seed=seed, suites=["standard"])
+                BreadthFirstSearchDataset(f"sx-stackoverflow_seed{seed}", source_name="sx-stackoverflow", source_seed=seed, suites=["standard", "trace"] if seed in (1, 2, 3, 5, 6, 9) else ["standard"])
                 for seed in range(10)
             ],
             *[

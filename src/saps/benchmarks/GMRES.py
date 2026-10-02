@@ -293,7 +293,7 @@ class GMRESGenerator(Generator[GMRESDataset]):
             ),
             GMRESDataset(
                 "Andrianov/net50",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
@@ -955,31 +955,31 @@ class GMRESGenerator(Generator[GMRESDataset]):
             ),
             GMRESDataset(
                 "Nemeth/nemeth22",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
             GMRESDataset(
                 "Nemeth/nemeth23",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
             GMRESDataset(
                 "Nemeth/nemeth24",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
             GMRESDataset(
                 "Nemeth/nemeth25",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
             GMRESDataset(
                 "Nemeth/nemeth26",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
@@ -1429,9 +1429,7 @@ class GMRESGenerator(Generator[GMRESDataset]):
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            GMRESDataset(
-                "VLSI/ss1", suites=["standard"], max_iter=100, rel_tol=1e-06
-            ),
+            GMRESDataset("VLSI/ss1", suites=["standard"], max_iter=100, rel_tol=1e-06),
             GMRESDataset(
                 "Wang/swang1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),

@@ -242,7 +242,7 @@ class PageRankSNAPGenerator(Generator[PageRankDataset]):
 
     @property
     def datasets(self) -> list[PageRankDataset]:
-        # Trace selects successful Smart runs < 30s in competition/run_13803684.
+        # Trace selects successful Smart runs < 60s in competition/run_13803684.
         # fmt: off
         return [
             PageRankDataset("soc-Epinions1", suites=["standard"]),
@@ -282,10 +282,10 @@ class PageRankSNAPGenerator(Generator[PageRankDataset]):
             PageRankDataset("amazon0505", suites=["standard"]),
             PageRankDataset("amazon0601", suites=["standard"]),
             PageRankDataset("p2p-Gnutella04", suites=["standard"]),
-            PageRankDataset("p2p-Gnutella05", suites=["standard"]),
-            PageRankDataset("p2p-Gnutella06", suites=["standard"]),
+            PageRankDataset("p2p-Gnutella05", suites=["standard", "trace"]),
+            PageRankDataset("p2p-Gnutella06", suites=["standard", "trace"]),
             PageRankDataset("p2p-Gnutella08", suites=["standard", "trace"]),
-            PageRankDataset("p2p-Gnutella09", suites=["standard"]),
+            PageRankDataset("p2p-Gnutella09", suites=["standard", "trace"]),
             PageRankDataset("p2p-Gnutella24", suites=["standard"]),
             PageRankDataset("p2p-Gnutella25", suites=["standard"]),
             PageRankDataset("p2p-Gnutella30", suites=["standard"]),
@@ -293,7 +293,7 @@ class PageRankSNAPGenerator(Generator[PageRankDataset]):
             PageRankDataset("roadNet-CA", suites=["standard"]),
             PageRankDataset("roadNet-PA", suites=["standard"]),
             PageRankDataset("roadNet-TX", suites=["standard"]),
-            PageRankDataset("as-735", suites=["standard"]),
+            PageRankDataset("as-735", suites=["standard", "trace"]),
             PageRankDataset("as-Skitter", suites=["standard"]),
             PageRankDataset("as-caida", suites=["standard"]),
             PageRankDataset("Oregon-1", suites=["standard"]),

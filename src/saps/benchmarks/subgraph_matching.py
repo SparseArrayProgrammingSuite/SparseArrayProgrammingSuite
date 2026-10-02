@@ -1050,7 +1050,7 @@ class GCareAIDSGenerator(GCareGenerator):
             GCareDataset("aids", "Chain_3/uf_Q_3_9", suites=["trace"]),
             GCareDataset("aids", "Chain_3/uf_Q_4_20", suites=["trace"]),
             GCareDataset("aids", "Chain_3/uf_Q_4_18", suites=["trace"]),
-            GCareDataset("aids", "Chain_3/uf_Q_3_11", suites=[]),
+            GCareDataset("aids", "Chain_3/uf_Q_3_11", suites=["trace"]),
             GCareDataset("aids", "Chain_3/uf_Q_4_19", suites=["trace"]),
             GCareDataset("aids", "Chain_3/uf_Q_3_10", suites=["trace"]),
             GCareDataset("aids", "Chain_3/uf_Q_3_12", suites=["trace"]),

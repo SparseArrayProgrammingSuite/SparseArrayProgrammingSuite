@@ -404,7 +404,7 @@ class MultiSourceBreadthFirstSearchSNAPGenerator(
             MultiSourceBreadthFirstSearchDataset("soc-sign-Slashdot081106", suites=["standard", "trace"]),
             MultiSourceBreadthFirstSearchDataset("soc-sign-Slashdot090216", suites=["standard", "trace"]),
             MultiSourceBreadthFirstSearchDataset("soc-sign-Slashdot090221", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("loc-Gowalla", suites=["standard"]),
+            MultiSourceBreadthFirstSearchDataset("loc-Gowalla", suites=["standard", "trace"]),
             MultiSourceBreadthFirstSearchDataset("loc-Brightkite", suites=["standard", "trace"]),
             MultiSourceBreadthFirstSearchDataset("sx-stackoverflow", suites=["standard"]),
             MultiSourceBreadthFirstSearchDataset("sx-mathoverflow", suites=["standard", "trace"]),

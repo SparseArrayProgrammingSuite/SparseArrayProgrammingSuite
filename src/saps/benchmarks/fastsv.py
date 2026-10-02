@@ -230,7 +230,7 @@ class FastSVSNAPGenerator(Generator[FastSVDataset]):
 
     @property
     def datasets(self) -> list[FastSVDataset]:
-        # Trace selects successful Smart runs < 30s in competition/run_13803684.
+        # Trace selects successful Smart runs < 60s in competition/run_13803684.
         # fmt: off
         return [
             FastSVDataset("soc-Epinions1", suites=["standard", "trace"]),
@@ -278,9 +278,9 @@ class FastSVSNAPGenerator(Generator[FastSVDataset]):
             FastSVDataset("p2p-Gnutella25", suites=["standard", "trace"]),
             FastSVDataset("p2p-Gnutella30", suites=["standard", "trace"]),
             FastSVDataset("p2p-Gnutella31", suites=["standard", "trace"]),
-            FastSVDataset("roadNet-CA", suites=["standard"]),
+            FastSVDataset("roadNet-CA", suites=["standard", "trace"]),
             FastSVDataset("roadNet-PA", suites=["standard", "trace"]),
-            FastSVDataset("roadNet-TX", suites=["standard"]),
+            FastSVDataset("roadNet-TX", suites=["standard", "trace"]),
             FastSVDataset("as-735", suites=["standard", "trace"]),
             FastSVDataset("as-Skitter", suites=["standard"]),
             FastSVDataset("as-caida", suites=["standard", "trace"]),
@@ -300,7 +300,7 @@ class FastSVSNAPGenerator(Generator[FastSVDataset]):
             FastSVDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
             FastSVDataset("CollegeMsg", suites=["standard", "trace"]),
             FastSVDataset("twitter7", suites=["standard"]),
-            FastSVDataset("higgs-twitter", suites=["standard"]),
+            FastSVDataset("higgs-twitter", suites=["standard", "trace"]),
         ]
         # fmt: on
 

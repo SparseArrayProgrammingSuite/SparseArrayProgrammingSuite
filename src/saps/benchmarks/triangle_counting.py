@@ -231,14 +231,14 @@ class TriangleCountSNAPGenerator(Generator[TriangleCountDataset]):
 
     @property
     def datasets(self) -> list[TriangleCountDataset]:
-        # Trace selects successful Smart runs < 30s in competition/run_13803684.
+        # Trace selects successful Smart runs < 60s in competition/run_13803684.
         # fmt: off
         return [
             TriangleCountDataset("soc-Epinions1", suites=["standard", "trace"]),
             TriangleCountDataset("soc-LiveJournal1", suites=["standard"]),
             TriangleCountDataset("soc-Pokec", suites=["standard"]),
-            TriangleCountDataset("soc-Slashdot0811", suites=["standard"]),
-            TriangleCountDataset("soc-Slashdot0902", suites=["standard"]),
+            TriangleCountDataset("soc-Slashdot0811", suites=["standard", "trace"]),
+            TriangleCountDataset("soc-Slashdot0902", suites=["standard", "trace"]),
             TriangleCountDataset("wiki-Vote", suites=["standard", "trace"]),
             TriangleCountDataset("wiki-RfA", suites=["standard", "trace"]),
             TriangleCountDataset("soc-sign-bitcoin-otc", suites=["standard", "trace"]),
@@ -264,7 +264,7 @@ class TriangleCountSNAPGenerator(Generator[TriangleCountDataset]):
             TriangleCountDataset("ca-HepTh", suites=["standard", "trace"]),
             TriangleCountDataset("web-BerkStan", suites=["standard"]),
             TriangleCountDataset("web-Google", suites=["standard", "trace"]),
-            TriangleCountDataset("web-NotreDame", suites=["standard"]),
+            TriangleCountDataset("web-NotreDame", suites=["standard", "trace"]),
             TriangleCountDataset("web-Stanford", suites=["standard", "trace"]),
             TriangleCountDataset("amazon0302", suites=["standard", "trace"]),
             TriangleCountDataset("amazon0312", suites=["standard", "trace"]),
@@ -287,7 +287,7 @@ class TriangleCountSNAPGenerator(Generator[TriangleCountDataset]):
             TriangleCountDataset("as-caida", suites=["standard", "trace"]),
             TriangleCountDataset("Oregon-1", suites=["standard", "trace"]),
             TriangleCountDataset("Oregon-2", suites=["standard", "trace"]),
-            TriangleCountDataset("soc-sign-epinions", suites=["standard"]),
+            TriangleCountDataset("soc-sign-epinions", suites=["standard", "trace"]),
             TriangleCountDataset("soc-sign-Slashdot081106", suites=["standard", "trace"]),
             TriangleCountDataset("soc-sign-Slashdot090216", suites=["standard", "trace"]),
             TriangleCountDataset("soc-sign-Slashdot090221", suites=["standard", "trace"]),
@@ -295,7 +295,7 @@ class TriangleCountSNAPGenerator(Generator[TriangleCountDataset]):
             TriangleCountDataset("loc-Brightkite", suites=["standard", "trace"]),
             TriangleCountDataset("sx-stackoverflow", suites=["standard"]),
             TriangleCountDataset("sx-mathoverflow", suites=["standard", "trace"]),
-            TriangleCountDataset("sx-superuser", suites=["standard"]),
+            TriangleCountDataset("sx-superuser", suites=["standard", "trace"]),
             TriangleCountDataset("sx-askubuntu", suites=["standard", "trace"]),
             TriangleCountDataset("wiki-talk-temporal", suites=["standard"]),
             TriangleCountDataset("email-Eu-core-temporal", suites=["standard", "trace"]),

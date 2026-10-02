@@ -483,9 +483,7 @@ class OGBGCNGenerator(Generator[OGBGCNDataset]):
                 source_name=dataset.source_name,
                 hidden_dim=256,
                 description=dataset.description,
-                suites=["standard", "trace"]
-                if dataset.name in ("ogbn_arxiv", "ogbn_proteins")
-                else ["standard"],
+                suites=["standard", "trace"],
             )
             for dataset in OGBNodePropGenerator().datasets
         ]

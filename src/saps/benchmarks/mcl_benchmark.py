@@ -321,7 +321,7 @@ class MCLSNAPGenerator(Generator[MCLDataset]):
             MCLDataset("SNAP/sx-askubuntu", suites=["standard"]),
             MCLDataset("SNAP/wiki-talk-temporal", suites=["standard"]),
             MCLDataset("SNAP/email-Eu-core-temporal", suites=["standard", "trace"]),
-            MCLDataset("SNAP/CollegeMsg", suites=["standard"]),
+            MCLDataset("SNAP/CollegeMsg", suites=["standard", "trace"]),
             MCLDataset("SNAP/twitter7", suites=["standard"]),
             MCLDataset("SNAP/higgs-twitter", suites=["standard"]),
         ]
