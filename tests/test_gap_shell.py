@@ -56,7 +56,8 @@ def test_gap_metadata_reports_max_degree_and_sources():
 
 @pytest.fixture
 def fetch(monkeypatch):
-    adjacency, rhs = object(), object()
+    adjacency = from_scipy(coo_array([[0, 1, 0], [0, 0, 1], [0, 0, 0]]))
+    rhs = object()
     raw = DataInstance(inputs=[adjacency, rhs], meta={"shape": (3, 3), "nnz": 2})
     fetch = Mock(return_value=raw)
     monkeypatch.setattr(gap, "fetch_suitesparse_matrix", fetch)
@@ -135,18 +136,43 @@ def weighted_graph():
 
 
 @pytest.mark.parametrize("symmetrize", [False, True])
-def test_floyd_warshall_gap_conversion(monkeypatch, weighted_graph, symmetrize):
+def test_floyd_warshall_gap_keeps_edge_weights(monkeypatch, weighted_graph, symmetrize):
     from saps.benchmarks import floyd_warshall as fw
 
     load = Mock(return_value=weighted_graph)
     monkeypatch.setattr(fw, "fetch_gap_graph", load)
     dataset = fw.FloydWarshallDataset("GAP/GAP-road", symmetrize=symmetrize)
     problem = fw.FloydWarshallGAPGenerator().generate(dataset)
-    expected = np.array([[0, 1, np.inf], [np.inf, 0, 1], [np.inf, np.inf, 0]])
+    expected = np.array([[0, 7, np.inf], [np.inf, 0, -3], [np.inf, np.inf, 0]])
     if symmetrize:
         expected = np.minimum(expected, expected.T)
     np.testing.assert_array_equal(to_numpy(problem.inputs[0]), expected)
     load.assert_called_once_with("GAP-road")
+
+
+def test_floyd_warshall_gap_drops_zeros_and_keeps_shortest_parallel_edge(
+    monkeypatch,
+):
+    from binsparse import COORMatrix
+
+    from saps.benchmarks import floyd_warshall as fw
+
+    # Built directly, since from_scipy would sum the parallel 1->2 edges.
+    graph = COORMatrix(
+        (3, 3),
+        4,
+        indices_0=np.array([0, 1, 1, 2]),
+        indices_1=np.array([1, 2, 2, 0]),
+        values=np.array([2.5, 4.0, 1.5, 0.0]),
+    )
+    raw = DataInstance(inputs=[graph], meta={"sources": [0], "max_degree": 2})
+    monkeypatch.setattr(fw, "fetch_gap_graph", lambda _: raw)
+    dataset = fw.FloydWarshallDataset("GAP/GAP-road")
+    problem = fw.FloydWarshallGAPGenerator().generate(dataset)
+    np.testing.assert_array_equal(
+        to_numpy(problem.inputs[0]),
+        [[0, 2.5, np.inf], [np.inf, 0, 1.5], [np.inf, np.inf, 0]],
+    )
 
 
 @pytest.mark.parametrize("symmetrize", [False, True])

@@ -14,6 +14,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.adjacency import zero_one_adjacency
 from saps.benchmarks.gap import fetch_gap_graph, gap_graph
 from saps.benchmarks.snap import (
     fetch_snap_graph,
@@ -567,7 +568,7 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
                 f"Source seed is outside the graph's available sources: {seed}"
             )
         return DataInstance(
-            inputs=raw.inputs,
+            inputs=[zero_one_adjacency(raw.inputs[0])],
             meta={**raw.meta, "src": raw.meta["sources"][seed], "seed": seed},
         )
 
@@ -660,7 +661,10 @@ class BreadthFirstSearchGAPGenerator(Generator[BreadthFirstSearchDataset]):
             raise ValueError(
                 f"{dataset.src} is not a published source of {dataset.source_name}"
             )
-        return DataInstance(inputs=raw.inputs, meta={**raw.meta, "src": dataset.src})
+        return DataInstance(
+            inputs=[zero_one_adjacency(raw.inputs[0])],
+            meta={**raw.meta, "src": dataset.src},
+        )
 
 
 class BreadthFirstSearchBenchmark(Benchmark):

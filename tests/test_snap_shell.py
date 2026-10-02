@@ -505,11 +505,16 @@ def test_snap_generator_rejects_seeds_without_a_source(monkeypatch, seed):
 
 
 def test_snap_source_graph_picks_source_from_shell_sources(monkeypatch):
+    from scipy.sparse import coo_array
+
+    from binsparse.conversions import from_scipy
+
     from saps.benchmark import DataInstance
     from saps.benchmarks import BFS
 
     sources = list(range(100, 100 + NUM_SNAP_SOURCES))
-    raw = DataInstance(inputs=[object()], meta={"max_degree": 3, "sources": sources})
+    adjacency = from_scipy(coo_array([[0, 1], [0, 0]]))
+    raw = DataInstance(inputs=[adjacency], meta={"max_degree": 3, "sources": sources})
     monkeypatch.setattr(BFS, "fetch_snap_graph", lambda _: raw)
     dataset = BreadthFirstSearchDataset(
         "seed-seven", source_name="soc-Epinions1", source_seed=7

@@ -4,7 +4,7 @@ from scipy.sparse import coo_array
 from scipy.sparse.csgraph import shortest_path
 
 from binsparse import BinsparseTensor, COORMatrix
-from binsparse.conversions import from_numpy, from_scipy, to_scipy
+from binsparse.conversions import from_numpy, from_scipy
 
 from saps.benchmark import (
     Author,
@@ -15,6 +15,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.adjacency import zero_one_adjacency
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import (
     NUM_SNAP_SOURCES,
@@ -68,25 +69,6 @@ class MultiSourceBreadthFirstSearchDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-def edge_pattern(adjacency: BinsparseTensor) -> BinsparseTensor:
-    """Boolean adjacency with an edge wherever the input stores a nonzero.
-
-    Signed graphs (e.g. soc-sign-*) would otherwise let opposite-signed edges
-    into the same vertex cancel.
-    """
-    edges = to_scipy(adjacency).tocoo()
-    nonzero = edges.data != 0
-    pattern = coo_array(
-        (
-            np.ones(np.count_nonzero(nonzero), dtype=bool),
-            (edges.row[nonzero], edges.col[nonzero]),
-        ),
-        shape=edges.shape,
-    )
-    pattern.sum_duplicates()
-    return from_scipy(pattern)
-
-
 def initial_frontier(n: int, sources) -> COORMatrix:
     """Boolean frontier matrix with row i set only at sources[i]."""
     sources = np.asarray(sources, dtype=np.int64)
@@ -105,7 +87,7 @@ def multi_source_bfs_instance(adjacency: BinsparseTensor, sources) -> DataInstan
     """Boolean edge pattern plus a one-hot frontier row for each source."""
     n = adjacency.shape[0]
     return DataInstance(
-        inputs=[edge_pattern(adjacency), initial_frontier(n, sources)],
+        inputs=[zero_one_adjacency(adjacency), initial_frontier(n, sources)],
         meta={"sources": list(sources)},
     )
 
