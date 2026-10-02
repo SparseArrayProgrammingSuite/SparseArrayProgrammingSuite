@@ -230,8 +230,7 @@ class ConnectedComponentsSNAPGenerator(Generator[ConnectedComponentsDataset]):
 
     @property
     def datasets(self) -> list[ConnectedComponentsDataset]:
-        # Trace includes successes on any framework in competition/run_13803684
-        # alongside previously selected trace datasets.
+        # Trace selects successful Smart runs < 30s in competition/run_13803684.
         # fmt: off
         return [
             ConnectedComponentsDataset("soc-Epinions1", suites=["standard", "trace"]),
@@ -246,14 +245,14 @@ class ConnectedComponentsSNAPGenerator(Generator[ConnectedComponentsDataset]):
             ConnectedComponentsDataset("com-LiveJournal", suites=["standard"]),
             ConnectedComponentsDataset("com-Friendster", suites=["standard"]),
             ConnectedComponentsDataset("com-Orkut", suites=["standard"]),
-            ConnectedComponentsDataset("com-Youtube", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("com-Youtube", suites=["standard"]),
             ConnectedComponentsDataset("com-DBLP", suites=["standard", "trace"]),
-            ConnectedComponentsDataset("com-Amazon", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("com-Amazon", suites=["standard"]),
             ConnectedComponentsDataset("email-Eu-core", suites=["standard", "trace"]),
             ConnectedComponentsDataset("wiki-topcats", suites=["standard"]),
             ConnectedComponentsDataset("email-EuAll", suites=["standard", "trace"]),
             ConnectedComponentsDataset("email-Enron", suites=["standard", "trace"]),
-            ConnectedComponentsDataset("wiki-Talk", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("wiki-Talk", suites=["standard"]),
             ConnectedComponentsDataset("cit-HepPh", suites=["standard", "trace"]),
             ConnectedComponentsDataset("cit-HepTh", suites=["standard", "trace"]),
             ConnectedComponentsDataset("cit-Patents", suites=["standard"]),
@@ -267,9 +266,9 @@ class ConnectedComponentsSNAPGenerator(Generator[ConnectedComponentsDataset]):
             ConnectedComponentsDataset("web-NotreDame", suites=["standard", "trace"]),
             ConnectedComponentsDataset("web-Stanford", suites=["standard"]),
             ConnectedComponentsDataset("amazon0302", suites=["standard", "trace"]),
-            ConnectedComponentsDataset("amazon0312", suites=["standard", "trace"]),
-            ConnectedComponentsDataset("amazon0505", suites=["standard", "trace"]),
-            ConnectedComponentsDataset("amazon0601", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("amazon0312", suites=["standard"]),
+            ConnectedComponentsDataset("amazon0505", suites=["standard"]),
+            ConnectedComponentsDataset("amazon0601", suites=["standard"]),
             ConnectedComponentsDataset("p2p-Gnutella04", suites=["standard", "trace"]),
             ConnectedComponentsDataset("p2p-Gnutella05", suites=["standard", "trace"]),
             ConnectedComponentsDataset("p2p-Gnutella06", suites=["standard", "trace"]),
@@ -297,7 +296,7 @@ class ConnectedComponentsSNAPGenerator(Generator[ConnectedComponentsDataset]):
             ConnectedComponentsDataset("sx-mathoverflow", suites=["standard", "trace"]),
             ConnectedComponentsDataset("sx-superuser", suites=["standard", "trace"]),
             ConnectedComponentsDataset("sx-askubuntu", suites=["standard", "trace"]),
-            ConnectedComponentsDataset("wiki-talk-temporal", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("wiki-talk-temporal", suites=["standard"]),
             ConnectedComponentsDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
             ConnectedComponentsDataset("CollegeMsg", suites=["standard", "trace"]),
             ConnectedComponentsDataset("twitter7", suites=["standard"]),

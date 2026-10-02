@@ -134,7 +134,7 @@ def test_simhash_approx_nn_benchmark_uses_openml_and_netflix_shell_generators():
         assert {
             dataset.name: dataset.suites for dataset in openml_generator.datasets
         } == {
-            "mnist": ["standard", "trace"],
+            "mnist": ["standard"],
             "cifar10": ["standard"],
         }
         assert f"simhash_approx_nn_netflix_{kind}" in generator_names

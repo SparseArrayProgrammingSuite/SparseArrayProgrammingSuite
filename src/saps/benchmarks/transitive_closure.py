@@ -264,7 +264,7 @@ class TransitiveClosureSNAPGenerator(Generator[TransitiveClosureDataset]):
             TransitiveClosureDataset("web-Google", suites=["trace"]),
             TransitiveClosureDataset("web-NotreDame", suites=["trace"]),
             TransitiveClosureDataset("web-Stanford", suites=["trace"]),
-            TransitiveClosureDataset("amazon0302", suites=["trace"]),
+            TransitiveClosureDataset("amazon0302", suites=[]),
             TransitiveClosureDataset("amazon0312", suites=["trace"]),
             TransitiveClosureDataset("amazon0505", suites=["trace"]),
             TransitiveClosureDataset("amazon0601", suites=["trace"]),

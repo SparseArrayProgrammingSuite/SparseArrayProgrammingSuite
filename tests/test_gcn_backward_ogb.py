@@ -70,7 +70,7 @@ def test_ogb_gcn_backward_generator_includes_supported_workloads():
     assert set(datasets) == {"ogbn-arxiv", "ogbn-products", "ogbn-proteins"}
     assert datasets["ogbn-arxiv"].suites == ["standard", "trace"]
     assert datasets["ogbn-products"].suites == ["standard"]
-    assert datasets["ogbn-proteins"].suites == ["standard", "trace"]
+    assert datasets["ogbn-proteins"].suites == ["standard"]
     assert datasets["ogbn-products"].hidden_dim == 64
 
 

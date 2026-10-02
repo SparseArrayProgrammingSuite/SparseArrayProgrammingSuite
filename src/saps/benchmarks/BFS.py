@@ -282,8 +282,7 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
 
     @property
     def datasets(self) -> list[BreadthFirstSearchDataset]:
-        # Trace includes successes on any framework in competition/run_13803684
-        # alongside previously selected trace datasets.
+        # Trace selects successful Smart runs < 30s in competition/run_13803684.
         # fmt: off
         return [
             *[
@@ -295,7 +294,7 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"soc-Pokec_seed{seed}", source_name="soc-Pokec", source_seed=seed, suites=["standard", "trace"])
+                BreadthFirstSearchDataset(f"soc-Pokec_seed{seed}", source_name="soc-Pokec", source_seed=seed, suites=["standard"])
                 for seed in range(10)
             ],
             *[
@@ -399,7 +398,7 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"web-BerkStan_seed{seed}", source_name="web-BerkStan", source_seed=seed, suites=["standard", "trace"])
+                BreadthFirstSearchDataset(f"web-BerkStan_seed{seed}", source_name="web-BerkStan", source_seed=seed, suites=["standard", "trace"] if seed in (0, 2, 5) else ["standard"])
                 for seed in range(10)
             ],
             *[
@@ -411,7 +410,7 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"web-Stanford_seed{seed}", source_name="web-Stanford", source_seed=seed, suites=["standard", "trace"])
+                BreadthFirstSearchDataset(f"web-Stanford_seed{seed}", source_name="web-Stanford", source_seed=seed, suites=["standard"])
                 for seed in range(10)
             ],
             *[
@@ -467,15 +466,15 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"roadNet-CA_seed{seed}", source_name="roadNet-CA", source_seed=seed, suites=["standard", "trace"] if seed in (2, 3, 6, 7) else ["standard"])
+                BreadthFirstSearchDataset(f"roadNet-CA_seed{seed}", source_name="roadNet-CA", source_seed=seed, suites=["standard"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"roadNet-PA_seed{seed}", source_name="roadNet-PA", source_seed=seed, suites=["standard", "trace"])
+                BreadthFirstSearchDataset(f"roadNet-PA_seed{seed}", source_name="roadNet-PA", source_seed=seed, suites=["standard"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"roadNet-TX_seed{seed}", source_name="roadNet-TX", source_seed=seed, suites=["standard", "trace"] if seed in (0, 1, 2, 3, 4, 5, 7, 8, 9) else ["standard"])
+                BreadthFirstSearchDataset(f"roadNet-TX_seed{seed}", source_name="roadNet-TX", source_seed=seed, suites=["standard"])
                 for seed in range(10)
             ],
             *[
@@ -483,7 +482,7 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"as-Skitter_seed{seed}", source_name="as-Skitter", source_seed=seed, suites=["standard", "trace"])
+                BreadthFirstSearchDataset(f"as-Skitter_seed{seed}", source_name="as-Skitter", source_seed=seed, suites=["standard"])
                 for seed in range(10)
             ],
             *[
@@ -523,7 +522,7 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"sx-stackoverflow_seed{seed}", source_name="sx-stackoverflow", source_seed=seed, suites=["standard", "trace"])
+                BreadthFirstSearchDataset(f"sx-stackoverflow_seed{seed}", source_name="sx-stackoverflow", source_seed=seed, suites=["standard"])
                 for seed in range(10)
             ],
             *[

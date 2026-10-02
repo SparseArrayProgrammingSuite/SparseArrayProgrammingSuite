@@ -272,7 +272,7 @@ class LSQRGenerator(Generator[LSQRDataset]):
         return [
             LSQRDataset(
                 "ANSYS/Delor338K",
-                suites=["standard", "trace"],
+                suites=["standard"],
                 max_iter=1000,
                 rel_tol=1e-06,
             ),
@@ -328,7 +328,7 @@ class LSQRGenerator(Generator[LSQRDataset]):
             ),
             LSQRDataset(
                 "NYPA/Maragal_6",
-                suites=["standard", "trace"],
+                suites=["standard"],
                 max_iter=1000,
                 rel_tol=1e-06,
                 rhs_index=0,

@@ -232,8 +232,7 @@ class FourCliqueCountSNAPGenerator(Generator[FourCliqueCountDataset]):
 
     @property
     def datasets(self) -> list[FourCliqueCountDataset]:
-        # Trace includes successes on any framework in competition/run_13803684
-        # alongside previously selected trace datasets.
+        # Trace selects successful Smart runs < 30s in competition/run_13803684.
         # fmt: off
         return [
             FourCliqueCountDataset("soc-Epinions1", suites=["standard"]),
@@ -301,7 +300,7 @@ class FourCliqueCountSNAPGenerator(Generator[FourCliqueCountDataset]):
             FourCliqueCountDataset("sx-askubuntu", suites=["standard"]),
             FourCliqueCountDataset("wiki-talk-temporal", suites=["standard"]),
             FourCliqueCountDataset("email-Eu-core-temporal", suites=["standard"]),
-            FourCliqueCountDataset("CollegeMsg", suites=["standard", "trace"]),
+            FourCliqueCountDataset("CollegeMsg", suites=["standard"]),
             FourCliqueCountDataset("twitter7", suites=["standard"]),
             FourCliqueCountDataset("higgs-twitter", suites=["standard"]),
         ]

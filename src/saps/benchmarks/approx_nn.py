@@ -433,7 +433,7 @@ class _SimHashApproxNNTestGeneratorMixin(_SimHashApproxNNRandomGeneratorMixin):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -456,7 +456,7 @@ class _SimHashApproxNNTestGeneratorMixin(_SimHashApproxNNRandomGeneratorMixin):
                 description=(
                     "Test dense data and query matrices with random projection."
                 ),
-                suites=["test", "trace"],
+                suites=["test"],
                 n_samples=20,
                 n_features=10,
                 n_queries=4,
@@ -632,7 +632,7 @@ class _SimHashApproxNNOpenMLGeneratorMixin(SimHashApproxNNGeneratorMixin):
                 k=5,
                 eps=0.3,
                 seed=50,
-                suites=["standard", "trace"],
+                suites=["standard"],
                 max_tables=64,
                 max_projections=32,
                 candidate_target=100,

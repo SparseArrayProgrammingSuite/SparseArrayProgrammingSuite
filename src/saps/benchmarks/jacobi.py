@@ -278,7 +278,7 @@ class JacobiGenerator(Generator[JacobiDataset]):
             ),
             JacobiDataset(
                 "Freescale/circuit5M_dc",
-                suites=["standard", "trace"],
+                suites=["standard"],
                 max_iter=1000,
                 rel_tol=1e-06,
             ),
