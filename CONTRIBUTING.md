@@ -69,6 +69,7 @@ Benchmark functions should:
 - Use basic Python syntax, including `for`, `while`, and `if` when needed.
 - Avoid framework-specific shortcuts that only one implementation can support.
 - Avoid file I/O, threads, networking, global mutable state, recursion, and non-determinism.
+- Be self-contained: write helper logic inline in the benchmark body rather than calling module-level functions, `self` methods, nested functions, or lambdas. Source-level compilers only see the benchmark function's own source.
 - Convert input `BinsparseFormat` values to framework arrays during setup, not inside the measured function body.
 - Return framework arrays that SAPS can convert back to `BinsparseFormat`, as `return x` or `return x, y` rather than a list.
 

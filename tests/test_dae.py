@@ -10,7 +10,6 @@ from saps.benchmarks.dae import (
     DescriptorDAETestGenerator,
     SlicotDAEBDF,
     SlicotDAEGenerator,
-    bdf2,
 )
 
 
@@ -82,17 +81,20 @@ def test_descriptor_second_order_convergence():
 
 @pytest.mark.parametrize("n", [0, -1, 1.5, True])
 def test_invalid_step_count(n):
-    with pytest.raises(ValueError, match="positive integer"):
-        bdf2(
-            NumpyFramework(),
-            lambda t, y: -y,
-            (0.0, 1.0),
-            [1.0],
-            n,
+    problem = DescriptorDAETestGenerator().generate(
+        DescriptorDAEDataset(
+            "decay",
             E=np.eye(1),
-            startup_factors=(),
-            bdf2_factors=(),
+            A=-np.eye(1),
+            B=np.zeros((1, 1)),
+            y0=[1.0],
+            t_max=1.0,
+            step=0.5,
         )
+    )
+    data = [NumpyFramework().from_binsparse(value) for value in problem.inputs]
+    with pytest.raises(ValueError, match="positive integer"):
+        SlicotDAEBDF().benchmark(NumpyFramework(), {**problem.meta, "n": n}, *data)
 
 
 def test_slicot_datasets_exercise_bdf2():
@@ -178,23 +180,22 @@ def test_timed_solver_does_not_use_host_array_libraries():
     import inspect
     import textwrap
 
-    for function in (bdf2, SlicotDAEBDF.benchmark):
-        tree = ast.parse(textwrap.dedent(inspect.getsource(function)))
-        assert not any(
-            isinstance(node, ast.Subscript) and isinstance(node.ctx, ast.Store)
-            for node in ast.walk(tree)
-        )
-        names = {node.id for node in ast.walk(tree) if isinstance(node, ast.Name)}
-        assert not names.intersection(
-            {
-                "np",
-                "scipy_sparse",
-                "pydata_sparse",
-                "splu",
-                "spsolve_triangular",
-                "from_numpy",
-                "from_scipy",
-                "to_numpy",
-                "to_sparse",
-            }
-        )
+    tree = ast.parse(textwrap.dedent(inspect.getsource(SlicotDAEBDF.benchmark)))
+    assert not any(
+        isinstance(node, ast.Subscript) and isinstance(node.ctx, ast.Store)
+        for node in ast.walk(tree)
+    )
+    names = {node.id for node in ast.walk(tree) if isinstance(node, ast.Name)}
+    assert not names.intersection(
+        {
+            "np",
+            "scipy_sparse",
+            "pydata_sparse",
+            "splu",
+            "spsolve_triangular",
+            "from_numpy",
+            "from_scipy",
+            "to_numpy",
+            "to_sparse",
+        }
+    )

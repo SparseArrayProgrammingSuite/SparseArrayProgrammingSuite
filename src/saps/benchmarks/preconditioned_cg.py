@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import Any
 
 import numpy as np
@@ -1658,10 +1658,6 @@ class _PreconditionedCGBase(Benchmark, ABC):
         """
         )
 
-    @abstractmethod
-    def _solve_cg(self, xp, M, r):
-        raise NotImplementedError
-
     def check(self, param):
         for item in self._output:
             assert isinstance(item, BinsparseTensor), (
@@ -1688,6 +1684,20 @@ class _PreconditionedCGBase(Benchmark, ABC):
             f"Preconditioned CG residual too high for {param.dataset.name}"
         )
 
+
+class PreconditionedCGBenchmark(_PreconditionedCGBase):
+    @property
+    def name(self) -> str:
+        return "preconditioned_cg"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Preconditioned Conjugate Gradient (Block Jacobi)"
+
+    @property
+    def generators(self):
+        return [BlockJacobiCGGenerator()]
+
     def benchmark(self, xp, meta: dict[str, Any], A, b, x0, M):
         rel_tol = meta.get("rel_tol", 1e-6)
         abs_tol = meta.get("abs_tol", 1e-20)
@@ -1699,7 +1709,8 @@ class _PreconditionedCGBase(Benchmark, ABC):
 
         x = x0
         r = b - A @ x
-        z = self._solve_cg(xp, M, r)
+        y = xp.linalg.solve(M, r)
+        z = xp.linalg.solve(M.T, y)
         rho = xp.vecdot(r, z)
         p = z
         it = 0
@@ -1719,7 +1730,8 @@ class _PreconditionedCGBase(Benchmark, ABC):
                 if new_rr < tol_sq:
                     break
 
-                z = self._solve_cg(xp, M, r)
+                y = xp.linalg.solve(M, r)
+                z = xp.linalg.solve(M.T, y)
                 new_rho = xp.vecdot(r, z)
                 beta = new_rho / rho
                 p = z + beta * p
@@ -1729,36 +1741,7 @@ class _PreconditionedCGBase(Benchmark, ABC):
         return x
 
 
-class _BlockJacobiCGMixin:
-    @property
-    def generators(self):
-        return [BlockJacobiCGGenerator()]
-
-    def _solve_cg(self, xp, M, r):
-        y = xp.linalg.solve(M, r)
-        return xp.linalg.solve(M.T, y)
-
-
-class _JacobiCGMixin:
-    @property
-    def generators(self):
-        return [JacobiCGGenerator()]
-
-    def _solve_cg(self, xp, M, r):
-        return xp.replace(r / M, xp.nan, 0)
-
-
-class PreconditionedCGBenchmark(_BlockJacobiCGMixin, _PreconditionedCGBase):
-    @property
-    def name(self) -> str:
-        return "preconditioned_cg"
-
-    @property
-    def pretty_name(self) -> str:
-        return "Preconditioned Conjugate Gradient (Block Jacobi)"
-
-
-class JacobiPreconditionedCGBenchmark(_JacobiCGMixin, _PreconditionedCGBase):
+class JacobiPreconditionedCGBenchmark(_PreconditionedCGBase):
     @property
     def name(self) -> str:
         return "jacobi_preconditioned_cg"
@@ -1766,3 +1749,47 @@ class JacobiPreconditionedCGBenchmark(_JacobiCGMixin, _PreconditionedCGBase):
     @property
     def pretty_name(self) -> str:
         return "Preconditioned Conjugate Gradient (Jacobi)"
+
+    @property
+    def generators(self):
+        return [JacobiCGGenerator()]
+
+    def benchmark(self, xp, meta: dict[str, Any], A, b, x0, M):
+        rel_tol = meta.get("rel_tol", 1e-6)
+        abs_tol = meta.get("abs_tol", 1e-20)
+        max_iter = meta.get("max_iter", 100)
+
+        tolerance = max(rel_tol * xp.sqrt(xp.vecdot(b, b))[()], abs_tol)
+        # tol_sq used to avoid having to sqrt dot products when checking tolerance
+        tol_sq = tolerance * tolerance
+
+        x = x0
+        r = b - A @ x
+        z = xp.replace(r / M, xp.nan, 0)
+        rho = xp.vecdot(r, z)
+        p = z
+        it = 0
+        rr = xp.vecdot(r, r)[()]
+
+        if rr >= tol_sq:
+            while it < max_iter:
+                Ap = A @ p
+                alpha = rho / xp.vecdot(p, Ap)
+                x = x + alpha * p
+                r = r - alpha * Ap
+
+                new_rr = xp.vecdot(r, r)[()]
+
+                it += 1
+
+                if new_rr < tol_sq:
+                    break
+
+                z = xp.replace(r / M, xp.nan, 0)
+                new_rho = xp.vecdot(r, z)
+                beta = new_rho / rho
+                p = z + beta * p
+                rho = new_rho
+                rr = new_rr
+
+        return x

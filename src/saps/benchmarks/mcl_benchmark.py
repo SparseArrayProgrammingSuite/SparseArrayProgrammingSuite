@@ -17,26 +17,6 @@ from saps.benchmark import (
 from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
 
 
-def _normalize(array_api, matrix):
-    col_sums = array_api.sum(matrix, axis=0)
-    col_sums = array_api.maximum(col_sums, array_api.finfo(matrix.dtype).eps)
-    return matrix / col_sums
-
-
-def _sparse_allclose(array_api, matrix_a, matrix_b, rtol=1e-5, atol=1e-8):
-    return array_api.all(
-        array_api.abs(matrix_a - matrix_b) <= atol + rtol * array_api.abs(matrix_b)
-    )
-
-
-def _prune(array_api, matrix, threshold):
-    max_vals = array_api.max(matrix, axis=0)
-
-    mask = (matrix >= threshold) | ((matrix == max_vals) & (matrix > 0))
-
-    return matrix * mask
-
-
 class MCLDataset(SuiteSparseDataset):
     def __init__(
         self,
@@ -360,7 +340,11 @@ class MCLBenchmark(Benchmark):
 
         loops_matrix = array_api.eye(graph.shape[0], dtype=graph.dtype)
         current_matrix = graph + loop_value * loops_matrix
-        current_matrix = _normalize(array_api, current_matrix)
+        col_sums = array_api.sum(current_matrix, axis=0)
+        col_sums = array_api.maximum(
+            col_sums, array_api.finfo(current_matrix.dtype).eps
+        )
+        current_matrix = current_matrix / col_sums
 
         for i in range(iterations):
             previous_matrix = current_matrix
@@ -370,16 +354,27 @@ class MCLBenchmark(Benchmark):
                 expanded_matrix = array_api.matmul(expanded_matrix, current_matrix)
 
             inflated_matrix = expanded_matrix**inflation
-            current_matrix = _normalize(array_api, inflated_matrix)
+            col_sums = array_api.sum(inflated_matrix, axis=0)
+            col_sums = array_api.maximum(
+                col_sums, array_api.finfo(inflated_matrix.dtype).eps
+            )
+            current_matrix = inflated_matrix / col_sums
 
             if pruning_threshold > 0 and i % pruning_frequency == (
                 pruning_frequency - 1
             ):
-                current_matrix = _prune(array_api, current_matrix, pruning_threshold)
+                max_vals = array_api.max(current_matrix, axis=0)
+                mask = (current_matrix >= pruning_threshold) | (
+                    (current_matrix == max_vals) & (current_matrix > 0)
+                )
+                current_matrix = current_matrix * mask
 
             if i % convergence_check_frequency == (
                 convergence_check_frequency - 1
-            ) and _sparse_allclose(array_api, current_matrix, previous_matrix):
+            ) and array_api.all(
+                array_api.abs(current_matrix - previous_matrix)
+                <= 1e-8 + 1e-5 * array_api.abs(previous_matrix)
+            ):
                 break
 
         return current_matrix

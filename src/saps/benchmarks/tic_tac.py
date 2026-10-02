@@ -11,168 +11,6 @@ from saps.benchmark import (
     Ref,
 )
 
-
-def build_win_masks(xp):
-    return xp.asarray(
-        [
-            [[1, 1, 1], [0, 0, 0], [0, 0, 0]],
-            [[0, 0, 0], [1, 1, 1], [0, 0, 0]],
-            [[0, 0, 0], [0, 0, 0], [1, 1, 1]],
-            [[1, 0, 0], [1, 0, 0], [1, 0, 0]],
-            [[0, 1, 0], [0, 1, 0], [0, 1, 0]],
-            [[0, 0, 1], [0, 0, 1], [0, 0, 1]],
-            [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
-            [[0, 0, 1], [0, 1, 0], [1, 0, 0]],
-        ]
-    )
-
-
-def check_wins(xp, S, W):
-    W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
-    S_exp = xp.reshape(S, (S.shape[0], 1, 3, 3, 2))
-    scores = xp.sum(W_exp * S_exp, axis=(2, 3))
-    return xp.any(scores >= 3, axis=1)
-
-
-def check_full(xp, S):
-    return xp.all(xp.sum(S, axis=3) >= 1, axis=(1, 2))
-
-
-def is_terminal(xp, S, W):
-    N = S.shape[0]
-    winner = check_wins(xp, S, W)
-    x_wins = winner[:, 0]
-    o_wins = winner[:, 1]
-    full = check_full(xp, S)
-    terminal = x_wins | o_wins | full
-    value = xp.where(x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N)))
-    return terminal, value
-
-
-def whose_turn(xp, S):
-    count_X = xp.sum(S[:, :, :, 0], axis=(1, 2))
-    count_O = xp.sum(S[:, :, :, 1], axis=(1, 2))
-    return xp.where(count_X > count_O, xp.ones(S.shape[0]), xp.zeros(S.shape[0]))
-
-
-def generate_child(xp, S, W):
-    N = S.shape[0]
-    empty_flat = xp.reshape(1 - xp.sum(S, axis=3), (N, 9))
-    turn = whose_turn(xp, S)
-    pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
-    turn_exp = xp.reshape(turn, (N, 1, 1, 1))
-    ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
-    ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
-    delta = xp.concat([ch0, ch1], axis=4)
-    valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
-    children = (xp.reshape(S, (N, 1, 3, 3, 2)) + delta * valid_exp) * valid_exp
-    # Above line zeroes out boards
-    return xp.reshape(children, (N * 9, 3, 3, 2)), xp.reshape(empty_flat, (N * 9,))
-
-
-def backup(xp, S, val_children, valid, terminal, leaf_val):
-    N = S.shape[0]
-    turn = whose_turn(xp, S)
-    child_val = xp.where(valid > 0, val_children, xp.zeros(N * 9))
-    child_val_grid = xp.reshape(child_val, (N, 9))
-    valid_grid = xp.reshape(valid, (N, 9))
-    turn_exp = xp.reshape(turn, (N, 1))
-    sentinel = xp.where(
-        turn_exp > 0,
-        float("inf") * xp.ones((N, 9)),
-        float("-inf") * xp.ones((N, 9)),
-    )
-    child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
-    backed_max = xp.max(child_val_masked, axis=1)
-    backed_min = xp.min(child_val_masked, axis=1)
-    backed = xp.where(turn > 0, backed_min, backed_max)
-    return xp.where(terminal, leaf_val, backed)
-
-
-def minimax_depth2(xp, S_initial, W):
-    c1, v1 = generate_child(xp, S_initial, W)
-    c2, v2 = generate_child(xp, c1, W)
-    t0, val0 = is_terminal(xp, S_initial, W)
-    t1, val1 = is_terminal(xp, c1, W)
-    t2, val2 = is_terminal(xp, c2, W)
-    val2 = xp.where(t2, val2, xp.zeros(c2.shape[0]))
-    val1 = backup(xp, c1, val2, v2, t1, val1)
-    return backup(xp, S_initial, val1, v1, t0, val0)
-
-
-def minimax_depth3(xp, S_initial, W):
-    c1, v1 = generate_child(xp, S_initial, W)
-    c2, v2 = generate_child(xp, c1, W)
-    c3, v3 = generate_child(xp, c2, W)
-    t0, val0 = is_terminal(xp, S_initial, W)
-    t1, val1 = is_terminal(xp, c1, W)
-    t2, val2 = is_terminal(xp, c2, W)
-    t3, val3 = is_terminal(xp, c3, W)
-    val3 = xp.where(t3, val3, xp.zeros(c3.shape[0]))
-    val2 = backup(xp, c2, val3, v3, t2, val2)
-    val1 = backup(xp, c1, val2, v2, t1, val1)
-    return backup(xp, S_initial, val1, v1, t0, val0)
-
-
-def minimax_depth5(xp, S_initial, W):
-    c1, v1 = generate_child(xp, S_initial, W)
-    c2, v2 = generate_child(xp, c1, W)
-    c3, v3 = generate_child(xp, c2, W)
-    c4, v4 = generate_child(xp, c3, W)
-    c5, v5 = generate_child(xp, c4, W)
-    t0, val0 = is_terminal(xp, S_initial, W)
-    t1, val1 = is_terminal(xp, c1, W)
-    t2, val2 = is_terminal(xp, c2, W)
-    t3, val3 = is_terminal(xp, c3, W)
-    t4, val4 = is_terminal(xp, c4, W)
-    t5, val5 = is_terminal(xp, c5, W)
-    val5 = xp.where(t5, val5, xp.zeros(c5.shape[0]))
-    val4 = backup(xp, c4, val5, v5, t4, val4)
-    val3 = backup(xp, c3, val4, v4, t3, val3)
-    val2 = backup(xp, c2, val3, v3, t2, val2)
-    val1 = backup(xp, c1, val2, v2, t1, val1)
-    return backup(xp, S_initial, val1, v1, t0, val0)
-
-
-def minimax_depth6(xp, S_initial, W):
-    c1, v1 = generate_child(xp, S_initial, W)
-    val1 = minimax_depth5(xp, c1, W)
-    t0, val0 = is_terminal(xp, S_initial, W)
-    return backup(xp, S_initial, val1, v1, t0, val0)
-
-
-def minimax(xp, S_initial, W):
-    c1, v1 = generate_child(xp, S_initial, W)
-    c2, v2 = generate_child(xp, c1, W)
-    c3, v3 = generate_child(xp, c2, W)
-    c4, v4 = generate_child(xp, c3, W)
-    c5, v5 = generate_child(xp, c4, W)
-    c6, v6 = generate_child(xp, c5, W)
-    c7, v7 = generate_child(xp, c6, W)
-    c8, v8 = generate_child(xp, c7, W)
-    c9, v9 = generate_child(xp, c8, W)
-    t0, val0 = is_terminal(xp, S_initial, W)
-    t1, val1 = is_terminal(xp, c1, W)
-    t2, val2 = is_terminal(xp, c2, W)
-    t3, val3 = is_terminal(xp, c3, W)
-    t4, val4 = is_terminal(xp, c4, W)
-    t5, val5 = is_terminal(xp, c5, W)
-    t6, val6 = is_terminal(xp, c6, W)
-    t7, val7 = is_terminal(xp, c7, W)
-    t8, val8 = is_terminal(xp, c8, W)
-    t9, val9 = is_terminal(xp, c9, W)
-    val9 = xp.where(t9, val9, xp.zeros(c9.shape[0]))
-    val8 = backup(xp, c8, val9, v9, t8, val8)
-    val7 = backup(xp, c7, val8, v8, t7, val7)
-    val6 = backup(xp, c6, val7, v7, t6, val6)
-    val5 = backup(xp, c5, val6, v6, t5, val5)
-    val4 = backup(xp, c4, val5, v5, t4, val4)
-    val3 = backup(xp, c3, val4, v4, t3, val3)
-    val2 = backup(xp, c2, val3, v3, t2, val2)
-    val1 = backup(xp, c1, val2, v2, t1, val1)
-    return backup(xp, S_initial, val1, v1, t0, val0)
-
-
 # These are the testing boards, used np.
 BOARD_X_WINS_NEAR = np.array(
     [[[[1, 0], [1, 0], [0, 0]], [[0, 1], [0, 1], [0, 0]], [[1, 0], [0, 0], [0, 1]]]],
@@ -440,18 +278,1402 @@ class TicTacToeBenchmark(Benchmark):
 
     def benchmark(self, xp, meta: dict, S):
         depth = meta.get("depth", 9)
-        W = build_win_masks(xp)
+        W = xp.asarray(
+            [
+                [[1, 1, 1], [0, 0, 0], [0, 0, 0]],
+                [[0, 0, 0], [1, 1, 1], [0, 0, 0]],
+                [[0, 0, 0], [0, 0, 0], [1, 1, 1]],
+                [[1, 0, 0], [1, 0, 0], [1, 0, 0]],
+                [[0, 1, 0], [0, 1, 0], [0, 1, 0]],
+                [[0, 0, 1], [0, 0, 1], [0, 0, 1]],
+                [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+                [[0, 0, 1], [0, 1, 0], [1, 0, 0]],
+            ]
+        )
 
         if depth == 2:
-            result = minimax_depth2(xp, S, W)
+            N = S.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(S, axis=3), (N, 9))
+            count_X = xp.sum(S[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(S[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(S.shape[0]), xp.zeros(S.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (xp.reshape(S, (N, 1, 3, 3, 2)) + delta * valid_exp) * valid_exp
+            # Above line zeroes out boards
+            c1, v1 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = c1.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(c1, axis=3), (N, 9))
+            count_X = xp.sum(c1[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c1[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c1.shape[0]), xp.zeros(c1.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (xp.reshape(c1, (N, 1, 3, 3, 2)) + delta * valid_exp) * valid_exp
+            # Above line zeroes out boards
+            c2, v2 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = S.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(S, (S.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(S, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            t0, val0 = terminal, value
+            N = c1.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(c1, (c1.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(c1, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            t1, val1 = terminal, value
+            N = c2.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(c2, (c2.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(c2, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            t2, val2 = terminal, value
+            val2 = xp.where(t2, val2, xp.zeros(c2.shape[0]))
+            N = c1.shape[0]
+            count_X = xp.sum(c1[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c1[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c1.shape[0]), xp.zeros(c1.shape[0])
+            )
+            child_val = xp.where(v2 > 0, val2, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(v2, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            val1 = xp.where(t1, val1, backed)
+            N = S.shape[0]
+            count_X = xp.sum(S[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(S[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(S.shape[0]), xp.zeros(S.shape[0])
+            )
+            child_val = xp.where(v1 > 0, val1, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(v1, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            result = xp.where(t0, val0, backed)
         elif depth == 3:
-            result = minimax_depth3(xp, S, W)
+            N = S.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(S, axis=3), (N, 9))
+            count_X = xp.sum(S[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(S[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(S.shape[0]), xp.zeros(S.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (xp.reshape(S, (N, 1, 3, 3, 2)) + delta * valid_exp) * valid_exp
+            # Above line zeroes out boards
+            c1, v1 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = c1.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(c1, axis=3), (N, 9))
+            count_X = xp.sum(c1[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c1[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c1.shape[0]), xp.zeros(c1.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (xp.reshape(c1, (N, 1, 3, 3, 2)) + delta * valid_exp) * valid_exp
+            # Above line zeroes out boards
+            c2, v2 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = c2.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(c2, axis=3), (N, 9))
+            count_X = xp.sum(c2[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c2[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c2.shape[0]), xp.zeros(c2.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (xp.reshape(c2, (N, 1, 3, 3, 2)) + delta * valid_exp) * valid_exp
+            # Above line zeroes out boards
+            c3, v3 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = S.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(S, (S.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(S, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            t0, val0 = terminal, value
+            N = c1.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(c1, (c1.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(c1, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            t1, val1 = terminal, value
+            N = c2.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(c2, (c2.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(c2, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            t2, val2 = terminal, value
+            N = c3.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(c3, (c3.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(c3, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            t3, val3 = terminal, value
+            val3 = xp.where(t3, val3, xp.zeros(c3.shape[0]))
+            N = c2.shape[0]
+            count_X = xp.sum(c2[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c2[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c2.shape[0]), xp.zeros(c2.shape[0])
+            )
+            child_val = xp.where(v3 > 0, val3, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(v3, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            val2 = xp.where(t2, val2, backed)
+            N = c1.shape[0]
+            count_X = xp.sum(c1[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c1[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c1.shape[0]), xp.zeros(c1.shape[0])
+            )
+            child_val = xp.where(v2 > 0, val2, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(v2, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            val1 = xp.where(t1, val1, backed)
+            N = S.shape[0]
+            count_X = xp.sum(S[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(S[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(S.shape[0]), xp.zeros(S.shape[0])
+            )
+            child_val = xp.where(v1 > 0, val1, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(v1, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            result = xp.where(t0, val0, backed)
         elif depth == 5:
-            result = minimax_depth5(xp, S, W)
+            N = S.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(S, axis=3), (N, 9))
+            count_X = xp.sum(S[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(S[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(S.shape[0]), xp.zeros(S.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (xp.reshape(S, (N, 1, 3, 3, 2)) + delta * valid_exp) * valid_exp
+            # Above line zeroes out boards
+            c1, v1 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = c1.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(c1, axis=3), (N, 9))
+            count_X = xp.sum(c1[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c1[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c1.shape[0]), xp.zeros(c1.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (xp.reshape(c1, (N, 1, 3, 3, 2)) + delta * valid_exp) * valid_exp
+            # Above line zeroes out boards
+            c2, v2 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = c2.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(c2, axis=3), (N, 9))
+            count_X = xp.sum(c2[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c2[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c2.shape[0]), xp.zeros(c2.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (xp.reshape(c2, (N, 1, 3, 3, 2)) + delta * valid_exp) * valid_exp
+            # Above line zeroes out boards
+            c3, v3 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = c3.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(c3, axis=3), (N, 9))
+            count_X = xp.sum(c3[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c3[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c3.shape[0]), xp.zeros(c3.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (xp.reshape(c3, (N, 1, 3, 3, 2)) + delta * valid_exp) * valid_exp
+            # Above line zeroes out boards
+            c4, v4 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = c4.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(c4, axis=3), (N, 9))
+            count_X = xp.sum(c4[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c4[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c4.shape[0]), xp.zeros(c4.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (xp.reshape(c4, (N, 1, 3, 3, 2)) + delta * valid_exp) * valid_exp
+            # Above line zeroes out boards
+            c5, v5 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = S.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(S, (S.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(S, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            t0, val0 = terminal, value
+            N = c1.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(c1, (c1.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(c1, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            t1, val1 = terminal, value
+            N = c2.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(c2, (c2.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(c2, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            t2, val2 = terminal, value
+            N = c3.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(c3, (c3.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(c3, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            t3, val3 = terminal, value
+            N = c4.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(c4, (c4.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(c4, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            t4, val4 = terminal, value
+            N = c5.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(c5, (c5.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(c5, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            t5, val5 = terminal, value
+            val5 = xp.where(t5, val5, xp.zeros(c5.shape[0]))
+            N = c4.shape[0]
+            count_X = xp.sum(c4[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c4[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c4.shape[0]), xp.zeros(c4.shape[0])
+            )
+            child_val = xp.where(v5 > 0, val5, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(v5, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            val4 = xp.where(t4, val4, backed)
+            N = c3.shape[0]
+            count_X = xp.sum(c3[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c3[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c3.shape[0]), xp.zeros(c3.shape[0])
+            )
+            child_val = xp.where(v4 > 0, val4, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(v4, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            val3 = xp.where(t3, val3, backed)
+            N = c2.shape[0]
+            count_X = xp.sum(c2[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c2[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c2.shape[0]), xp.zeros(c2.shape[0])
+            )
+            child_val = xp.where(v3 > 0, val3, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(v3, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            val2 = xp.where(t2, val2, backed)
+            N = c1.shape[0]
+            count_X = xp.sum(c1[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c1[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c1.shape[0]), xp.zeros(c1.shape[0])
+            )
+            child_val = xp.where(v2 > 0, val2, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(v2, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            val1 = xp.where(t1, val1, backed)
+            N = S.shape[0]
+            count_X = xp.sum(S[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(S[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(S.shape[0]), xp.zeros(S.shape[0])
+            )
+            child_val = xp.where(v1 > 0, val1, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(v1, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            result = xp.where(t0, val0, backed)
         elif depth == 6:
-            result = minimax_depth6(xp, S, W)
+            N = S.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(S, axis=3), (N, 9))
+            count_X = xp.sum(S[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(S[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(S.shape[0]), xp.zeros(S.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (xp.reshape(S, (N, 1, 3, 3, 2)) + delta * valid_exp) * valid_exp
+            # Above line zeroes out boards
+            c1, v1 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = c1.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(c1, axis=3), (N, 9))
+            count_X = xp.sum(c1[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c1[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c1.shape[0]), xp.zeros(c1.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (xp.reshape(c1, (N, 1, 3, 3, 2)) + delta * valid_exp) * valid_exp
+            # Above line zeroes out boards
+            d5_c1, d5_v1 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = d5_c1.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(d5_c1, axis=3), (N, 9))
+            count_X = xp.sum(d5_c1[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(d5_c1[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(d5_c1.shape[0]), xp.zeros(d5_c1.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (
+                xp.reshape(d5_c1, (N, 1, 3, 3, 2)) + delta * valid_exp
+            ) * valid_exp
+            # Above line zeroes out boards
+            d5_c2, d5_v2 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = d5_c2.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(d5_c2, axis=3), (N, 9))
+            count_X = xp.sum(d5_c2[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(d5_c2[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(d5_c2.shape[0]), xp.zeros(d5_c2.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (
+                xp.reshape(d5_c2, (N, 1, 3, 3, 2)) + delta * valid_exp
+            ) * valid_exp
+            # Above line zeroes out boards
+            d5_c3, d5_v3 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = d5_c3.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(d5_c3, axis=3), (N, 9))
+            count_X = xp.sum(d5_c3[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(d5_c3[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(d5_c3.shape[0]), xp.zeros(d5_c3.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (
+                xp.reshape(d5_c3, (N, 1, 3, 3, 2)) + delta * valid_exp
+            ) * valid_exp
+            # Above line zeroes out boards
+            d5_c4, d5_v4 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = d5_c4.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(d5_c4, axis=3), (N, 9))
+            count_X = xp.sum(d5_c4[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(d5_c4[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(d5_c4.shape[0]), xp.zeros(d5_c4.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (
+                xp.reshape(d5_c4, (N, 1, 3, 3, 2)) + delta * valid_exp
+            ) * valid_exp
+            # Above line zeroes out boards
+            d5_c5, d5_v5 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = c1.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(c1, (c1.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(c1, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            d5_t0, d5_val0 = terminal, value
+            N = d5_c1.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(d5_c1, (d5_c1.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(d5_c1, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            d5_t1, d5_val1 = terminal, value
+            N = d5_c2.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(d5_c2, (d5_c2.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(d5_c2, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            d5_t2, d5_val2 = terminal, value
+            N = d5_c3.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(d5_c3, (d5_c3.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(d5_c3, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            d5_t3, d5_val3 = terminal, value
+            N = d5_c4.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(d5_c4, (d5_c4.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(d5_c4, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            d5_t4, d5_val4 = terminal, value
+            N = d5_c5.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(d5_c5, (d5_c5.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(d5_c5, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            d5_t5, d5_val5 = terminal, value
+            d5_val5 = xp.where(d5_t5, d5_val5, xp.zeros(d5_c5.shape[0]))
+            N = d5_c4.shape[0]
+            count_X = xp.sum(d5_c4[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(d5_c4[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(d5_c4.shape[0]), xp.zeros(d5_c4.shape[0])
+            )
+            child_val = xp.where(d5_v5 > 0, d5_val5, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(d5_v5, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            d5_val4 = xp.where(d5_t4, d5_val4, backed)
+            N = d5_c3.shape[0]
+            count_X = xp.sum(d5_c3[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(d5_c3[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(d5_c3.shape[0]), xp.zeros(d5_c3.shape[0])
+            )
+            child_val = xp.where(d5_v4 > 0, d5_val4, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(d5_v4, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            d5_val3 = xp.where(d5_t3, d5_val3, backed)
+            N = d5_c2.shape[0]
+            count_X = xp.sum(d5_c2[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(d5_c2[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(d5_c2.shape[0]), xp.zeros(d5_c2.shape[0])
+            )
+            child_val = xp.where(d5_v3 > 0, d5_val3, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(d5_v3, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            d5_val2 = xp.where(d5_t2, d5_val2, backed)
+            N = d5_c1.shape[0]
+            count_X = xp.sum(d5_c1[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(d5_c1[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(d5_c1.shape[0]), xp.zeros(d5_c1.shape[0])
+            )
+            child_val = xp.where(d5_v2 > 0, d5_val2, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(d5_v2, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            d5_val1 = xp.where(d5_t1, d5_val1, backed)
+            N = c1.shape[0]
+            count_X = xp.sum(c1[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c1[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c1.shape[0]), xp.zeros(c1.shape[0])
+            )
+            child_val = xp.where(d5_v1 > 0, d5_val1, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(d5_v1, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            val1 = xp.where(d5_t0, d5_val0, backed)
+            N = S.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(S, (S.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(S, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            t0, val0 = terminal, value
+            N = S.shape[0]
+            count_X = xp.sum(S[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(S[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(S.shape[0]), xp.zeros(S.shape[0])
+            )
+            child_val = xp.where(v1 > 0, val1, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(v1, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            result = xp.where(t0, val0, backed)
         else:
-            result = minimax(xp, S, W)
+            N = S.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(S, axis=3), (N, 9))
+            count_X = xp.sum(S[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(S[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(S.shape[0]), xp.zeros(S.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (xp.reshape(S, (N, 1, 3, 3, 2)) + delta * valid_exp) * valid_exp
+            # Above line zeroes out boards
+            c1, v1 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = c1.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(c1, axis=3), (N, 9))
+            count_X = xp.sum(c1[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c1[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c1.shape[0]), xp.zeros(c1.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (xp.reshape(c1, (N, 1, 3, 3, 2)) + delta * valid_exp) * valid_exp
+            # Above line zeroes out boards
+            c2, v2 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = c2.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(c2, axis=3), (N, 9))
+            count_X = xp.sum(c2[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c2[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c2.shape[0]), xp.zeros(c2.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (xp.reshape(c2, (N, 1, 3, 3, 2)) + delta * valid_exp) * valid_exp
+            # Above line zeroes out boards
+            c3, v3 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = c3.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(c3, axis=3), (N, 9))
+            count_X = xp.sum(c3[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c3[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c3.shape[0]), xp.zeros(c3.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (xp.reshape(c3, (N, 1, 3, 3, 2)) + delta * valid_exp) * valid_exp
+            # Above line zeroes out boards
+            c4, v4 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = c4.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(c4, axis=3), (N, 9))
+            count_X = xp.sum(c4[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c4[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c4.shape[0]), xp.zeros(c4.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (xp.reshape(c4, (N, 1, 3, 3, 2)) + delta * valid_exp) * valid_exp
+            # Above line zeroes out boards
+            c5, v5 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = c5.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(c5, axis=3), (N, 9))
+            count_X = xp.sum(c5[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c5[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c5.shape[0]), xp.zeros(c5.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (xp.reshape(c5, (N, 1, 3, 3, 2)) + delta * valid_exp) * valid_exp
+            # Above line zeroes out boards
+            c6, v6 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = c6.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(c6, axis=3), (N, 9))
+            count_X = xp.sum(c6[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c6[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c6.shape[0]), xp.zeros(c6.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (xp.reshape(c6, (N, 1, 3, 3, 2)) + delta * valid_exp) * valid_exp
+            # Above line zeroes out boards
+            c7, v7 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = c7.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(c7, axis=3), (N, 9))
+            count_X = xp.sum(c7[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c7[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c7.shape[0]), xp.zeros(c7.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (xp.reshape(c7, (N, 1, 3, 3, 2)) + delta * valid_exp) * valid_exp
+            # Above line zeroes out boards
+            c8, v8 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = c8.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(c8, axis=3), (N, 9))
+            count_X = xp.sum(c8[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c8[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c8.shape[0]), xp.zeros(c8.shape[0])
+            )
+            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (xp.reshape(c8, (N, 1, 3, 3, 2)) + delta * valid_exp) * valid_exp
+            # Above line zeroes out boards
+            c9, v9 = (
+                xp.reshape(children, (N * 9, 3, 3, 2)),
+                xp.reshape(empty_flat, (N * 9,)),
+            )
+            N = S.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(S, (S.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(S, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            t0, val0 = terminal, value
+            N = c1.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(c1, (c1.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(c1, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            t1, val1 = terminal, value
+            N = c2.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(c2, (c2.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(c2, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            t2, val2 = terminal, value
+            N = c3.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(c3, (c3.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(c3, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            t3, val3 = terminal, value
+            N = c4.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(c4, (c4.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(c4, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            t4, val4 = terminal, value
+            N = c5.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(c5, (c5.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(c5, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            t5, val5 = terminal, value
+            N = c6.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(c6, (c6.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(c6, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            t6, val6 = terminal, value
+            N = c7.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(c7, (c7.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(c7, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            t7, val7 = terminal, value
+            N = c8.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(c8, (c8.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(c8, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            t8, val8 = terminal, value
+            N = c9.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(c9, (c9.shape[0], 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(c9, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+            )
+            t9, val9 = terminal, value
+            val9 = xp.where(t9, val9, xp.zeros(c9.shape[0]))
+            N = c8.shape[0]
+            count_X = xp.sum(c8[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c8[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c8.shape[0]), xp.zeros(c8.shape[0])
+            )
+            child_val = xp.where(v9 > 0, val9, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(v9, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            val8 = xp.where(t8, val8, backed)
+            N = c7.shape[0]
+            count_X = xp.sum(c7[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c7[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c7.shape[0]), xp.zeros(c7.shape[0])
+            )
+            child_val = xp.where(v8 > 0, val8, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(v8, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            val7 = xp.where(t7, val7, backed)
+            N = c6.shape[0]
+            count_X = xp.sum(c6[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c6[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c6.shape[0]), xp.zeros(c6.shape[0])
+            )
+            child_val = xp.where(v7 > 0, val7, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(v7, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            val6 = xp.where(t6, val6, backed)
+            N = c5.shape[0]
+            count_X = xp.sum(c5[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c5[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c5.shape[0]), xp.zeros(c5.shape[0])
+            )
+            child_val = xp.where(v6 > 0, val6, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(v6, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            val5 = xp.where(t5, val5, backed)
+            N = c4.shape[0]
+            count_X = xp.sum(c4[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c4[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c4.shape[0]), xp.zeros(c4.shape[0])
+            )
+            child_val = xp.where(v5 > 0, val5, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(v5, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            val4 = xp.where(t4, val4, backed)
+            N = c3.shape[0]
+            count_X = xp.sum(c3[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c3[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c3.shape[0]), xp.zeros(c3.shape[0])
+            )
+            child_val = xp.where(v4 > 0, val4, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(v4, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            val3 = xp.where(t3, val3, backed)
+            N = c2.shape[0]
+            count_X = xp.sum(c2[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c2[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c2.shape[0]), xp.zeros(c2.shape[0])
+            )
+            child_val = xp.where(v3 > 0, val3, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(v3, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            val2 = xp.where(t2, val2, backed)
+            N = c1.shape[0]
+            count_X = xp.sum(c1[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(c1[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(c1.shape[0]), xp.zeros(c1.shape[0])
+            )
+            child_val = xp.where(v2 > 0, val2, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(v2, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            val1 = xp.where(t1, val1, backed)
+            N = S.shape[0]
+            count_X = xp.sum(S[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(S[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O, xp.ones(S.shape[0]), xp.zeros(S.shape[0])
+            )
+            child_val = xp.where(v1 > 0, val1, xp.zeros(N * 9))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(v1, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            sentinel = xp.where(
+                turn_exp > 0,
+                float("inf") * xp.ones((N, 9)),
+                float("-inf") * xp.ones((N, 9)),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            result = xp.where(t0, val0, backed)
 
         return result
 

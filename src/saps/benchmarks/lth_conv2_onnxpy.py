@@ -69,586 +69,6 @@ tensor_inputs = (
 )
 
 
-_ONNX_DTYPE_NAMES = {
-    1: "float32",
-    2: "uint8",
-    3: "int8",
-    4: "uint16",
-    5: "int16",
-    6: "int32",
-    7: "int64",
-    9: "bool",
-    10: "float16",
-    11: "float64",
-    12: "uint32",
-    13: "uint64",
-    16: "bfloat16",
-}
-
-
-def _onnxpy_dtype_name(value):
-    if value is None:
-        return None
-    if isinstance(value, str):
-        return {"double": "float64", "float": "float32", "bool_": "bool"}.get(
-            value, value
-        )
-    return _ONNX_DTYPE_NAMES[int(value)]
-
-
-def _onnxpy_dtype(xp, value):
-    name = _onnxpy_dtype_name(value)
-    if name is None:
-        return None
-    if hasattr(xp, name):
-        return getattr(xp, name)
-    raise TypeError(f"Array namespace does not define dtype {name!r}")
-
-
-def _onnxpy_asarray(value, dtype, xp):
-    resolved = _onnxpy_dtype(xp, dtype)
-    if resolved is None:
-        return xp.asarray(value)
-    return xp.asarray(value, dtype=resolved)
-
-
-def _onnxpy_to_python(value):
-    if isinstance(value, list | tuple):
-        return list(value)
-    if hasattr(value, "shape"):
-        if len(value.shape) == 0:
-            return int(value)
-        if len(value.shape) == 1:
-            return [int(value[i]) for i in range(value.shape[0])]
-    return value
-
-
-def _onnxpy_to_tuple(value):
-    py = _onnxpy_to_python(value)
-    if isinstance(py, list | tuple):
-        return tuple(int(item) for item in py)
-    return (int(py),)
-
-
-def _onnxpy_indices(shape):
-    shape_t = tuple(int(dim) for dim in shape)
-    if not shape_t:
-        yield ()
-        return
-    for i in range(shape_t[0]):
-        for rest in _onnxpy_indices(shape_t[1:]):
-            yield (i, *rest)
-
-
-def _onnxpy_device(array):
-    return getattr(array, "device", None)
-
-
-def _onnxpy_asarray_like(value, like, xp):
-    dtype = getattr(like, "dtype", None)
-    device = _onnxpy_device(like)
-    try:
-        return xp.asarray(value, dtype=dtype, device=device)
-    except TypeError:
-        return xp.asarray(value, dtype=dtype)
-
-
-def _onnxpy_zeros(shape, like, xp):
-    dtype = getattr(like, "dtype", None)
-    device = _onnxpy_device(like)
-    try:
-        return xp.zeros(tuple(int(dim) for dim in shape), dtype=dtype, device=device)
-    except TypeError:
-        return xp.zeros(tuple(int(dim) for dim in shape), dtype=dtype)
-
-
-def _onnxpy_ones(shape, like, xp):
-    dtype = getattr(like, "dtype", None)
-    device = _onnxpy_device(like)
-    try:
-        return xp.ones(tuple(int(dim) for dim in shape), dtype=dtype, device=device)
-    except TypeError:
-        return xp.ones(tuple(int(dim) for dim in shape), dtype=dtype)
-
-
-def _onnxpy_min_value(like, xp):
-    try:
-        if xp.isdtype(like.dtype, "integral"):
-            return _onnxpy_asarray_like(xp.iinfo(like.dtype).min, like, xp)
-    except (AttributeError, TypeError):
-        pass
-    return _onnxpy_asarray_like(float("-inf"), like, xp)
-
-
-def _onnxpy_stack_nested(values, xp):
-    if isinstance(values, list):
-        return xp.stack(
-            tuple(_onnxpy_stack_nested(value, xp) for value in values), axis=0
-        )
-    return values
-
-
-def _onnxpy_unfold(
-    x, kernel_shape, *, axes, strides, dilations, padding, fill_value=0, xp
-):
-    if hasattr(xp, "unfold"):
-        return xp.unfold(
-            x,
-            kernel_shape,
-            axes=axes,
-            strides=strides,
-            dilations=dilations,
-            padding=padding,
-            fill_value=fill_value,
-        )
-
-    rank = len(kernel_shape)
-    output_spatial = _onnxpy_output_spatial(
-        [x.shape[axis] for axis in axes],
-        kernel_shape,
-        strides,
-        dilations,
-        padding,
-        0,
-    )
-
-    def element(base_index, out_index, kernel_index):
-        input_index = list(base_index)
-        for i, axis in enumerate(axes):
-            source = int(out_index[i]) * int(strides[i])
-            source += int(kernel_index[i]) * int(dilations[i])
-            source -= int(padding[i][0])
-            if source < 0 or source >= int(x.shape[axis]):
-                return fill_value
-            input_index[axis] = source
-        return x[tuple(input_index)]
-
-    base_shape = tuple(
-        int(dim) for axis, dim in enumerate(x.shape) if axis not in set(axes)
-    )
-    original_axis_order = tuple(axis for axis in range(x.ndim) if axis not in set(axes))
-
-    def window(base_index, out_index, kernel_index_prefix=()):
-        if len(kernel_index_prefix) == rank:
-            full_base = [0] * x.ndim
-            for i, axis in enumerate(original_axis_order):
-                full_base[axis] = base_index[i]
-            return element(tuple(full_base), out_index, kernel_index_prefix)
-        axis = len(kernel_index_prefix)
-        return [
-            window(base_index, out_index, (*kernel_index_prefix, i))
-            for i in range(kernel_shape[axis])
-        ]
-
-    def output_at(base_index, out_index_prefix=()):
-        if len(out_index_prefix) == rank:
-            return window(base_index, out_index_prefix)
-        axis = len(out_index_prefix)
-        return [
-            output_at(base_index, (*out_index_prefix, i))
-            for i in range(output_spatial[axis])
-        ]
-
-    def base_output(base_index_prefix=()):
-        if len(base_index_prefix) == len(base_shape):
-            return output_at(base_index_prefix)
-        axis = len(base_index_prefix)
-        return [base_output((*base_index_prefix, i)) for i in range(base_shape[axis])]
-
-    nested = base_output()
-    result = _onnxpy_stack_nested(nested, xp)
-
-    current_axes = list(original_axis_order) + [*axes] + [*range(x.ndim, x.ndim + rank)]
-    desired_axes = [*range(x.ndim), *range(x.ndim, x.ndim + rank)]
-    perm = tuple(current_axes.index(axis) for axis in desired_axes)
-    return xp.permute_dims(result, perm)
-
-
-def _onnxpy_resolve_pads(
-    input_spatial, kernel_shape, strides, dilations, auto_pad, pads
-):
-    rank = len(kernel_shape)
-    mode = (auto_pad or "NOTSET").upper()
-    if mode == "NOTSET":
-        if pads is None:
-            return tuple((0, 0) for _ in range(rank))
-        flat = list(pads)
-        return tuple((int(flat[i]), int(flat[i + rank])) for i in range(rank))
-    if mode == "VALID":
-        return tuple((0, 0) for _ in range(rank))
-    pairs = []
-    for i in range(rank):
-        in_size = int(input_spatial[i])
-        s = int(strides[i])
-        d = int(dilations[i])
-        k = int(kernel_shape[i])
-        out_size = -(-in_size // s)
-        eff_k = (k - 1) * d + 1
-        total = max((out_size - 1) * s + eff_k - in_size, 0)
-        if mode == "SAME_UPPER":
-            pairs.append((total // 2, total - total // 2))
-        else:
-            pairs.append((total - total // 2, total // 2))
-    return tuple(pairs)
-
-
-def _onnxpy_output_spatial(
-    input_spatial, kernel_shape, strides, dilations, pad_pairs, ceil_mode
-):
-    rank = len(kernel_shape)
-    output = []
-    for i in range(rank):
-        in_size = int(input_spatial[i])
-        k = int(kernel_shape[i])
-        s = int(strides[i])
-        d = int(dilations[i])
-        pad_before, pad_after = pad_pairs[i]
-        effective_kernel = (k - 1) * d + 1
-        numerator = in_size + pad_before + pad_after - effective_kernel
-        if int(ceil_mode):
-            out_size = numerator // s + 1
-            if numerator % s:
-                out_size += 1
-        else:
-            out_size = numerator // s + 1
-        output.append(max(out_size, 0))
-    return tuple(output)
-
-
-def _onnxpy_pads_for_output(
-    input_spatial, kernel_shape, strides, dilations, pad_pairs, output_spatial
-):
-    expanded = []
-    for i, out_size in enumerate(output_spatial):
-        in_size = int(input_spatial[i])
-        k = int(kernel_shape[i])
-        s = int(strides[i])
-        d = int(dilations[i])
-        before, after = pad_pairs[i]
-        effective_kernel = (k - 1) * d + 1
-        needed = max((int(out_size) - 1) * s + effective_kernel - in_size, 0)
-        existing = before + after
-        expanded.append((before, after + max(needed - existing, 0)))
-    return tuple(expanded)
-
-
-def _onnxpy_spatial_in_bounds(index, spatial_shape):
-    return all(
-        0 <= int(i) < int(limit) for i, limit in zip(index, spatial_shape, strict=True)
-    )
-
-
-def _onnxpy_conv(
-    x,
-    w,
-    b=None,
-    *,
-    kernel_shape=None,
-    strides=None,
-    pads=None,
-    dilations=None,
-    group=1,
-    auto_pad="NOTSET",
-    xp,
-):
-    rank = x.ndim - 2
-    kernel = tuple(int(k) for k in (kernel_shape or w.shape[2:]))
-    strides_t = tuple(int(s) for s in (strides if strides is not None else [1] * rank))
-    dilations_t = tuple(
-        int(d) for d in (dilations if dilations is not None else [1] * rank)
-    )
-    group_i = int(group)
-    pad_pairs = _onnxpy_resolve_pads(
-        x.shape[2:], kernel, strides_t, dilations_t, auto_pad, pads
-    )
-    out_spatial = _onnxpy_output_spatial(
-        x.shape[2:], kernel, strides_t, dilations_t, pad_pairs, 0
-    )
-    pad_pairs = _onnxpy_pads_for_output(
-        x.shape[2:], kernel, strides_t, dilations_t, pad_pairs, out_spatial
-    )
-    c_per_group = x.shape[1] // group_i
-    m_out = w.shape[0]
-    m_per_group = m_out // group_i
-
-    kernel_size = 1
-    for size in kernel:
-        kernel_size *= int(size)
-
-    patches = _onnxpy_unfold(
-        x,
-        kernel,
-        axes=tuple(range(2, x.ndim)),
-        strides=strides_t,
-        dilations=dilations_t,
-        padding=pad_pairs,
-        fill_value=_onnxpy_zeros((), x, xp),
-        xp=xp,
-    )
-    spatial_axes = tuple(range(2, 2 + rank))
-    kernel_axes = tuple(range(2 + rank, 2 + 2 * rank))
-    groups = []
-    for group_index in range(group_i):
-        channel_start = group_index * c_per_group
-        channel_end = channel_start + c_per_group
-        output_start = group_index * m_per_group
-        output_end = output_start + m_per_group
-        group_patches = patches[:, channel_start:channel_end, ...]
-        group_weights = w[output_start:output_end, ...]
-        cols = xp.reshape(
-            xp.permute_dims(
-                group_patches,
-                (0, *spatial_axes, 1, *kernel_axes),
-            ),
-            (-1, c_per_group * kernel_size),
-        )
-        rows = xp.reshape(group_weights, (m_per_group, c_per_group * kernel_size))
-        group_out = cols @ xp.permute_dims(rows, (1, 0))
-        group_out = xp.reshape(group_out, (x.shape[0], *out_spatial, m_per_group))
-        groups.append(xp.permute_dims(group_out, (0, rank + 1, *range(1, rank + 1))))
-
-    out = groups[0] if len(groups) == 1 else xp.concat(tuple(groups), axis=1)
-    if b is not None:
-        out = out + xp.reshape(b, (1, m_out, *((1,) * rank)))
-    return out
-
-
-def _onnxpy_max_pool(
-    x,
-    *,
-    kernel_shape,
-    strides=None,
-    pads=None,
-    dilations=None,
-    ceil_mode=0,
-    auto_pad="NOTSET",
-    xp,
-):
-    rank = x.ndim - 2
-    kernel = tuple(int(k) for k in kernel_shape)
-    strides_t = tuple(int(s) for s in (strides if strides is not None else [1] * rank))
-    dilations_t = tuple(
-        int(d) for d in (dilations if dilations is not None else [1] * rank)
-    )
-    pad_pairs = _onnxpy_resolve_pads(
-        x.shape[2:], kernel, strides_t, dilations_t, auto_pad, pads
-    )
-    out_spatial = _onnxpy_output_spatial(
-        x.shape[2:], kernel, strides_t, dilations_t, pad_pairs, ceil_mode
-    )
-    pad_pairs = _onnxpy_pads_for_output(
-        x.shape[2:], kernel, strides_t, dilations_t, pad_pairs, out_spatial
-    )
-    patches = _onnxpy_unfold(
-        x,
-        kernel,
-        axes=tuple(range(2, x.ndim)),
-        strides=strides_t,
-        dilations=dilations_t,
-        padding=pad_pairs,
-        fill_value=_onnxpy_min_value(x, xp),
-        xp=xp,
-    )
-    return xp.max(patches, axis=tuple(range(2 + rank, 2 + 2 * rank)))
-
-
-def _onnxpy_avg_pool(
-    x,
-    *,
-    kernel_shape,
-    strides=None,
-    pads=None,
-    ceil_mode=0,
-    auto_pad="NOTSET",
-    count_include_pad=0,
-    xp,
-):
-    rank = x.ndim - 2
-    kernel = tuple(int(k) for k in kernel_shape)
-    strides_t = tuple(int(s) for s in (strides if strides is not None else [1] * rank))
-    dilations_t = (1,) * rank
-    pad_pairs = _onnxpy_resolve_pads(
-        x.shape[2:], kernel, strides_t, dilations_t, auto_pad, pads
-    )
-    out_spatial = _onnxpy_output_spatial(
-        x.shape[2:], kernel, strides_t, dilations_t, pad_pairs, ceil_mode
-    )
-    pad_pairs = _onnxpy_pads_for_output(
-        x.shape[2:], kernel, strides_t, dilations_t, pad_pairs, out_spatial
-    )
-    patches = _onnxpy_unfold(
-        x,
-        kernel,
-        axes=tuple(range(2, x.ndim)),
-        strides=strides_t,
-        dilations=dilations_t,
-        padding=pad_pairs,
-        fill_value=_onnxpy_zeros((), x, xp),
-        xp=xp,
-    )
-    kernel_axes = tuple(range(2 + rank, 2 + 2 * rank))
-    if int(count_include_pad):
-        return xp.mean(patches, axis=kernel_axes)
-
-    mask = _onnxpy_ones(x.shape, x, xp)
-    counts = xp.sum(
-        _onnxpy_unfold(
-            mask,
-            kernel,
-            axes=tuple(range(2, x.ndim)),
-            strides=strides_t,
-            dilations=dilations_t,
-            padding=pad_pairs,
-            fill_value=_onnxpy_zeros((), x, xp),
-            xp=xp,
-        ),
-        axis=kernel_axes,
-    )
-    counts = xp.maximum(counts, _onnxpy_asarray_like(1, counts, xp))
-    return xp.sum(patches, axis=kernel_axes) / counts
-
-
-def _onnxpy_global_avg_pool(x, *, xp):
-    return xp.mean(x, axis=tuple(range(2, x.ndim)), keepdims=True)
-
-
-def _onnxpy_softmax(x, *, axis=-1, xp):
-    a = int(axis)
-    if a < 0:
-        a += x.ndim
-    shifted = x - xp.max(x, axis=a, keepdims=True)
-    e = xp.exp(shifted)
-    return e / xp.sum(e, axis=a, keepdims=True)
-
-
-def _onnxpy_log_softmax(x, *, axis=-1, xp):
-    a = int(axis)
-    if a < 0:
-        a += x.ndim
-    shifted = x - xp.max(x, axis=a, keepdims=True)
-    return shifted - xp.log(xp.sum(xp.exp(shifted), axis=a, keepdims=True))
-
-
-def _onnxpy_flatten(x, *, axis=1, xp):
-    a = int(axis)
-    if a < 0:
-        a += x.ndim
-    if a == 0:
-        return xp.reshape(x, (1, -1))
-    leading = 1
-    for d in x.shape[:a]:
-        leading *= int(d)
-    return xp.reshape(x, (leading, -1))
-
-
-def _onnxpy_reshape(data, shape, *, allow_zero=0, xp):
-    shape_py = _onnxpy_to_python(shape)
-    if not isinstance(shape_py, list | tuple):
-        shape_py = [int(shape_py)]
-    target = []
-    in_shape = tuple(int(d) for d in data.shape)
-    for i, dim in enumerate(shape_py):
-        d = int(dim)
-        if d == 0 and not int(allow_zero):
-            target.append(in_shape[i])
-        else:
-            target.append(d)
-    return xp.reshape(data, tuple(target))
-
-
-def _onnxpy_transpose(x, *, perm=None, xp):
-    if perm is None:
-        perm = tuple(range(x.ndim - 1, -1, -1))
-    return xp.permute_dims(x, tuple(int(p) for p in perm))
-
-
-def _onnxpy_concat(values, *, axis=0, xp):
-    return xp.concat(tuple(values), axis=int(axis))
-
-
-def _onnxpy_gemm(a, b, c=None, *, alpha=1.0, beta=1.0, trans_a=0, trans_b=0, xp):
-    a2 = xp.permute_dims(a, (1, 0)) if int(trans_a) else a
-    b2 = xp.permute_dims(b, (1, 0)) if int(trans_b) else b
-    out = float(alpha) * (a2 @ b2)
-    if c is not None:
-        out = out + float(beta) * c
-    return out
-
-
-def _onnxpy_cast(x, *, to, xp):
-    dtype = _onnxpy_dtype(xp, to)
-    try:
-        return xp.astype(x, dtype, copy=False)
-    except TypeError:
-        return xp.astype(x, dtype)
-
-
-def model(
-    input,
-    layers_0_conv1_weight,
-    layers_0_conv1_bias,
-    layers_0_conv2_weight,
-    layers_0_conv2_bias,
-    fc1_weight,
-    fc1_bias,
-    fc2_weight,
-    fc2_bias,
-    fc3_weight,
-    fc3_bias,
-    val_4,
-    *,
-    xp=np,
-):
-    conv2d = _onnxpy_conv(
-        input,
-        layers_0_conv1_weight,
-        layers_0_conv1_bias,
-        kernel_shape=None,
-        strides=(1, 1),
-        pads=(1, 1, 1, 1),
-        dilations=(1, 1),
-        group=1,
-        auto_pad="NOTSET",
-        xp=xp,
-    )
-    relu = xp.maximum(conv2d, 0)
-    conv2d_1 = _onnxpy_conv(
-        relu,
-        layers_0_conv2_weight,
-        layers_0_conv2_bias,
-        kernel_shape=None,
-        strides=(1, 1),
-        pads=(1, 1, 1, 1),
-        dilations=(1, 1),
-        group=1,
-        auto_pad="NOTSET",
-        xp=xp,
-    )
-    relu_1 = xp.maximum(conv2d_1, 0)
-    max_pool2d = _onnxpy_max_pool(
-        relu_1,
-        kernel_shape=(2, 2),
-        strides=(2, 2),
-        pads=(0, 0, 0, 0),
-        dilations=(1, 1),
-        ceil_mode=0,
-        auto_pad="NOTSET",
-        xp=xp,
-    )
-    view = _onnxpy_reshape(max_pool2d, val_4, allow_zero=1, xp=xp)
-    linear = _onnxpy_gemm(
-        view, fc1_weight, fc1_bias, alpha=1.0, beta=1.0, trans_a=0, trans_b=1, xp=xp
-    )
-    relu_2 = xp.maximum(linear, 0)
-    linear_1 = _onnxpy_gemm(
-        relu_2, fc2_weight, fc2_bias, alpha=1.0, beta=1.0, trans_a=0, trans_b=1, xp=xp
-    )
-    relu_3 = xp.maximum(linear_1, 0)
-    return _onnxpy_gemm(
-        relu_3, fc3_weight, fc3_bias, alpha=1.0, beta=1.0, trans_a=0, trans_b=1, xp=xp
-    )
-
-
 def _references() -> list[Ref]:
     return [
         Ref(
@@ -999,21 +419,592 @@ class LTHConv2ONNXPYBenchmark(Benchmark):
         fc3_bias,
         val_4,
     ):
-        return model(
-            input,
-            layers_0_conv1_weight,
-            layers_0_conv1_bias,
-            layers_0_conv2_weight,
-            layers_0_conv2_bias,
-            fc1_weight,
-            fc1_bias,
-            fc2_weight,
-            fc2_bias,
-            fc3_weight,
-            fc3_bias,
-            val_4,
-            xp=xp,
+        # return model(input, ..., val_4, xp=xp)
+
+        # conv2d = _onnxpy_conv(...)
+        x_c1 = input
+        w_c1 = layers_0_conv1_weight
+        b_c1 = layers_0_conv1_bias
+        kernel_shape_c1 = None
+        strides_c1 = (1, 1)
+        pads_c1 = (1, 1, 1, 1)
+        dilations_c1 = (1, 1)
+        group_c1 = 1
+        auto_pad_c1 = "NOTSET"
+        rank_c1 = x_c1.ndim - 2
+        kernel_c1 = tuple(int(k) for k in (kernel_shape_c1 or w_c1.shape[2:]))
+        strides_t_c1 = tuple(
+            int(s) for s in (strides_c1 if strides_c1 is not None else [1] * rank_c1)
         )
+        dilations_t_c1 = tuple(
+            int(d)
+            for d in (dilations_c1 if dilations_c1 is not None else [1] * rank_c1)
+        )
+        group_i_c1 = int(group_c1)
+        ceil_mode_c1 = 0
+
+        # pad_pairs_c1 = _onnxpy_resolve_pads(...)
+        input_spatial_c1rp = x_c1.shape[2:]
+        rank_c1rp = len(kernel_c1)
+        mode_c1rp = (auto_pad_c1 or "NOTSET").upper()
+        if mode_c1rp == "NOTSET":
+            if pads_c1 is None:
+                pad_pairs_c1 = tuple((0, 0) for _ in range(rank_c1rp))
+            else:
+                flat_c1rp = list(pads_c1)
+                pad_pairs_c1 = tuple(
+                    (int(flat_c1rp[i]), int(flat_c1rp[i + rank_c1rp]))
+                    for i in range(rank_c1rp)
+                )
+        elif mode_c1rp == "VALID":
+            pad_pairs_c1 = tuple((0, 0) for _ in range(rank_c1rp))
+        else:
+            pairs_c1rp = []
+            for i_c1rp in range(rank_c1rp):
+                in_size_c1rp = int(input_spatial_c1rp[i_c1rp])
+                s_c1rp = int(strides_t_c1[i_c1rp])
+                d_c1rp = int(dilations_t_c1[i_c1rp])
+                k_c1rp = int(kernel_c1[i_c1rp])
+                out_size_c1rp = -(-in_size_c1rp // s_c1rp)
+                eff_k_c1rp = (k_c1rp - 1) * d_c1rp + 1
+                total_c1rp = max(
+                    (out_size_c1rp - 1) * s_c1rp + eff_k_c1rp - in_size_c1rp, 0
+                )
+                if mode_c1rp == "SAME_UPPER":
+                    pairs_c1rp.append((total_c1rp // 2, total_c1rp - total_c1rp // 2))
+                else:
+                    pairs_c1rp.append((total_c1rp - total_c1rp // 2, total_c1rp // 2))
+            pad_pairs_c1 = tuple(pairs_c1rp)
+
+        # out_spatial_c1 = _onnxpy_output_spatial(...)
+        input_spatial_c1os = x_c1.shape[2:]
+        rank_c1os = len(kernel_c1)
+        output_c1os = []
+        for i_c1os in range(rank_c1os):
+            in_size_c1os = int(input_spatial_c1os[i_c1os])
+            k_c1os = int(kernel_c1[i_c1os])
+            s_c1os = int(strides_t_c1[i_c1os])
+            d_c1os = int(dilations_t_c1[i_c1os])
+            pad_before_c1os, pad_after_c1os = pad_pairs_c1[i_c1os]
+            effective_kernel_c1os = (k_c1os - 1) * d_c1os + 1
+            numerator_c1os = (
+                in_size_c1os + pad_before_c1os + pad_after_c1os - effective_kernel_c1os
+            )
+            if int(ceil_mode_c1):
+                out_size_c1os = numerator_c1os // s_c1os + 1
+                if numerator_c1os % s_c1os:
+                    out_size_c1os += 1
+            else:
+                out_size_c1os = numerator_c1os // s_c1os + 1
+            output_c1os.append(max(out_size_c1os, 0))
+        out_spatial_c1 = tuple(output_c1os)
+
+        # pad_pairs_c1 = _onnxpy_pads_for_output(...)
+        input_spatial_c1po = x_c1.shape[2:]
+        expanded_c1po = []
+        for i_c1po, out_size_c1po in enumerate(out_spatial_c1):
+            in_size_c1po = int(input_spatial_c1po[i_c1po])
+            k_c1po = int(kernel_c1[i_c1po])
+            s_c1po = int(strides_t_c1[i_c1po])
+            d_c1po = int(dilations_t_c1[i_c1po])
+            before_c1po, after_c1po = pad_pairs_c1[i_c1po]
+            effective_kernel_c1po = (k_c1po - 1) * d_c1po + 1
+            needed_c1po = max(
+                (int(out_size_c1po) - 1) * s_c1po
+                + effective_kernel_c1po
+                - in_size_c1po,
+                0,
+            )
+            existing_c1po = before_c1po + after_c1po
+            expanded_c1po.append(
+                (before_c1po, after_c1po + max(needed_c1po - existing_c1po, 0))
+            )
+        pad_pairs_c1 = tuple(expanded_c1po)
+
+        c_per_group_c1 = x_c1.shape[1] // group_i_c1
+        m_out_c1 = w_c1.shape[0]
+        m_per_group_c1 = m_out_c1 // group_i_c1
+
+        kernel_size_c1 = 1
+        for size_c1 in kernel_c1:
+            kernel_size_c1 *= int(size_c1)
+
+        unfold_axes_c1 = tuple(range(2, x_c1.ndim))
+
+        # unfold_fill_value_c1 = _onnxpy_zeros(...)
+        shape_c1z: tuple[int, ...] = ()
+        dtype_c1z = getattr(x_c1, "dtype", None)
+        # device_c1z = _onnxpy_device(x_c1)
+        device_c1z = getattr(x_c1, "device", None)
+        try:
+            unfold_fill_value_c1 = xp.zeros(
+                tuple(int(dim) for dim in shape_c1z), dtype=dtype_c1z, device=device_c1z
+            )
+        except TypeError:
+            unfold_fill_value_c1 = xp.zeros(
+                tuple(int(dim) for dim in shape_c1z), dtype=dtype_c1z
+            )
+
+        # patches_c1 = _onnxpy_unfold(...)
+        if hasattr(xp, "unfold"):
+            patches_c1 = xp.unfold(
+                x_c1,
+                kernel_c1,
+                axes=unfold_axes_c1,
+                strides=strides_t_c1,
+                dilations=dilations_t_c1,
+                padding=pad_pairs_c1,
+                fill_value=unfold_fill_value_c1,
+            )
+        else:
+            # UNAVOIDABLE DEVIATION: the original pure-Python fallback of
+            # _onnxpy_unfold builds the windows with nested recursive functions
+            # (element/window/output_at/base_output and _onnxpy_stack_nested), which
+            # cannot be inlined without nested defs or recursion.
+            raise NotImplementedError(
+                "Array namespace does not provide unfold; the pure-Python unfold "
+                "fallback is not available in the inlined benchmark."
+            )
+
+        spatial_axes_c1 = tuple(range(2, 2 + rank_c1))
+        kernel_axes_c1 = tuple(range(2 + rank_c1, 2 + 2 * rank_c1))
+        groups_c1 = []
+        for group_index_c1 in range(group_i_c1):
+            channel_start_c1 = group_index_c1 * c_per_group_c1
+            channel_end_c1 = channel_start_c1 + c_per_group_c1
+            output_start_c1 = group_index_c1 * m_per_group_c1
+            output_end_c1 = output_start_c1 + m_per_group_c1
+            group_patches_c1 = patches_c1[:, channel_start_c1:channel_end_c1, ...]
+            group_weights_c1 = w_c1[output_start_c1:output_end_c1, ...]
+            cols_c1 = xp.reshape(
+                xp.permute_dims(
+                    group_patches_c1,
+                    (0, *spatial_axes_c1, 1, *kernel_axes_c1),
+                ),
+                (-1, c_per_group_c1 * kernel_size_c1),
+            )
+            rows_c1 = xp.reshape(
+                group_weights_c1, (m_per_group_c1, c_per_group_c1 * kernel_size_c1)
+            )
+            group_out_c1 = cols_c1 @ xp.permute_dims(rows_c1, (1, 0))
+            group_out_c1 = xp.reshape(
+                group_out_c1, (x_c1.shape[0], *out_spatial_c1, m_per_group_c1)
+            )
+            groups_c1.append(
+                xp.permute_dims(group_out_c1, (0, rank_c1 + 1, *range(1, rank_c1 + 1)))
+            )
+
+        out_c1 = (
+            groups_c1[0] if len(groups_c1) == 1 else xp.concat(tuple(groups_c1), axis=1)
+        )
+        if b_c1 is not None:
+            out_c1 = out_c1 + xp.reshape(b_c1, (1, m_out_c1, *((1,) * rank_c1)))
+        conv2d = out_c1
+
+        relu = xp.maximum(conv2d, 0)
+
+        # conv2d_1 = _onnxpy_conv(...)
+        x_c2 = relu
+        w_c2 = layers_0_conv2_weight
+        b_c2 = layers_0_conv2_bias
+        kernel_shape_c2 = None
+        strides_c2 = (1, 1)
+        pads_c2 = (1, 1, 1, 1)
+        dilations_c2 = (1, 1)
+        group_c2 = 1
+        auto_pad_c2 = "NOTSET"
+        rank_c2 = x_c2.ndim - 2
+        kernel_c2 = tuple(int(k) for k in (kernel_shape_c2 or w_c2.shape[2:]))
+        strides_t_c2 = tuple(
+            int(s) for s in (strides_c2 if strides_c2 is not None else [1] * rank_c2)
+        )
+        dilations_t_c2 = tuple(
+            int(d)
+            for d in (dilations_c2 if dilations_c2 is not None else [1] * rank_c2)
+        )
+        group_i_c2 = int(group_c2)
+        ceil_mode_c2 = 0
+
+        # pad_pairs_c2 = _onnxpy_resolve_pads(...)
+        input_spatial_c2rp = x_c2.shape[2:]
+        rank_c2rp = len(kernel_c2)
+        mode_c2rp = (auto_pad_c2 or "NOTSET").upper()
+        if mode_c2rp == "NOTSET":
+            if pads_c2 is None:
+                pad_pairs_c2 = tuple((0, 0) for _ in range(rank_c2rp))
+            else:
+                flat_c2rp = list(pads_c2)
+                pad_pairs_c2 = tuple(
+                    (int(flat_c2rp[i]), int(flat_c2rp[i + rank_c2rp]))
+                    for i in range(rank_c2rp)
+                )
+        elif mode_c2rp == "VALID":
+            pad_pairs_c2 = tuple((0, 0) for _ in range(rank_c2rp))
+        else:
+            pairs_c2rp = []
+            for i_c2rp in range(rank_c2rp):
+                in_size_c2rp = int(input_spatial_c2rp[i_c2rp])
+                s_c2rp = int(strides_t_c2[i_c2rp])
+                d_c2rp = int(dilations_t_c2[i_c2rp])
+                k_c2rp = int(kernel_c2[i_c2rp])
+                out_size_c2rp = -(-in_size_c2rp // s_c2rp)
+                eff_k_c2rp = (k_c2rp - 1) * d_c2rp + 1
+                total_c2rp = max(
+                    (out_size_c2rp - 1) * s_c2rp + eff_k_c2rp - in_size_c2rp, 0
+                )
+                if mode_c2rp == "SAME_UPPER":
+                    pairs_c2rp.append((total_c2rp // 2, total_c2rp - total_c2rp // 2))
+                else:
+                    pairs_c2rp.append((total_c2rp - total_c2rp // 2, total_c2rp // 2))
+            pad_pairs_c2 = tuple(pairs_c2rp)
+
+        # out_spatial_c2 = _onnxpy_output_spatial(...)
+        input_spatial_c2os = x_c2.shape[2:]
+        rank_c2os = len(kernel_c2)
+        output_c2os = []
+        for i_c2os in range(rank_c2os):
+            in_size_c2os = int(input_spatial_c2os[i_c2os])
+            k_c2os = int(kernel_c2[i_c2os])
+            s_c2os = int(strides_t_c2[i_c2os])
+            d_c2os = int(dilations_t_c2[i_c2os])
+            pad_before_c2os, pad_after_c2os = pad_pairs_c2[i_c2os]
+            effective_kernel_c2os = (k_c2os - 1) * d_c2os + 1
+            numerator_c2os = (
+                in_size_c2os + pad_before_c2os + pad_after_c2os - effective_kernel_c2os
+            )
+            if int(ceil_mode_c2):
+                out_size_c2os = numerator_c2os // s_c2os + 1
+                if numerator_c2os % s_c2os:
+                    out_size_c2os += 1
+            else:
+                out_size_c2os = numerator_c2os // s_c2os + 1
+            output_c2os.append(max(out_size_c2os, 0))
+        out_spatial_c2 = tuple(output_c2os)
+
+        # pad_pairs_c2 = _onnxpy_pads_for_output(...)
+        input_spatial_c2po = x_c2.shape[2:]
+        expanded_c2po = []
+        for i_c2po, out_size_c2po in enumerate(out_spatial_c2):
+            in_size_c2po = int(input_spatial_c2po[i_c2po])
+            k_c2po = int(kernel_c2[i_c2po])
+            s_c2po = int(strides_t_c2[i_c2po])
+            d_c2po = int(dilations_t_c2[i_c2po])
+            before_c2po, after_c2po = pad_pairs_c2[i_c2po]
+            effective_kernel_c2po = (k_c2po - 1) * d_c2po + 1
+            needed_c2po = max(
+                (int(out_size_c2po) - 1) * s_c2po
+                + effective_kernel_c2po
+                - in_size_c2po,
+                0,
+            )
+            existing_c2po = before_c2po + after_c2po
+            expanded_c2po.append(
+                (before_c2po, after_c2po + max(needed_c2po - existing_c2po, 0))
+            )
+        pad_pairs_c2 = tuple(expanded_c2po)
+
+        c_per_group_c2 = x_c2.shape[1] // group_i_c2
+        m_out_c2 = w_c2.shape[0]
+        m_per_group_c2 = m_out_c2 // group_i_c2
+
+        kernel_size_c2 = 1
+        for size_c2 in kernel_c2:
+            kernel_size_c2 *= int(size_c2)
+
+        unfold_axes_c2 = tuple(range(2, x_c2.ndim))
+
+        # unfold_fill_value_c2 = _onnxpy_zeros(...)
+        shape_c2z: tuple[int, ...] = ()
+        dtype_c2z = getattr(x_c2, "dtype", None)
+        # device_c2z = _onnxpy_device(x_c2)
+        device_c2z = getattr(x_c2, "device", None)
+        try:
+            unfold_fill_value_c2 = xp.zeros(
+                tuple(int(dim) for dim in shape_c2z), dtype=dtype_c2z, device=device_c2z
+            )
+        except TypeError:
+            unfold_fill_value_c2 = xp.zeros(
+                tuple(int(dim) for dim in shape_c2z), dtype=dtype_c2z
+            )
+
+        # patches_c2 = _onnxpy_unfold(...)
+        if hasattr(xp, "unfold"):
+            patches_c2 = xp.unfold(
+                x_c2,
+                kernel_c2,
+                axes=unfold_axes_c2,
+                strides=strides_t_c2,
+                dilations=dilations_t_c2,
+                padding=pad_pairs_c2,
+                fill_value=unfold_fill_value_c2,
+            )
+        else:
+            # UNAVOIDABLE DEVIATION: the original pure-Python fallback of
+            # _onnxpy_unfold builds the windows with nested recursive functions
+            # (element/window/output_at/base_output and _onnxpy_stack_nested), which
+            # cannot be inlined without nested defs or recursion.
+            raise NotImplementedError(
+                "Array namespace does not provide unfold; the pure-Python unfold "
+                "fallback is not available in the inlined benchmark."
+            )
+
+        spatial_axes_c2 = tuple(range(2, 2 + rank_c2))
+        kernel_axes_c2 = tuple(range(2 + rank_c2, 2 + 2 * rank_c2))
+        groups_c2 = []
+        for group_index_c2 in range(group_i_c2):
+            channel_start_c2 = group_index_c2 * c_per_group_c2
+            channel_end_c2 = channel_start_c2 + c_per_group_c2
+            output_start_c2 = group_index_c2 * m_per_group_c2
+            output_end_c2 = output_start_c2 + m_per_group_c2
+            group_patches_c2 = patches_c2[:, channel_start_c2:channel_end_c2, ...]
+            group_weights_c2 = w_c2[output_start_c2:output_end_c2, ...]
+            cols_c2 = xp.reshape(
+                xp.permute_dims(
+                    group_patches_c2,
+                    (0, *spatial_axes_c2, 1, *kernel_axes_c2),
+                ),
+                (-1, c_per_group_c2 * kernel_size_c2),
+            )
+            rows_c2 = xp.reshape(
+                group_weights_c2, (m_per_group_c2, c_per_group_c2 * kernel_size_c2)
+            )
+            group_out_c2 = cols_c2 @ xp.permute_dims(rows_c2, (1, 0))
+            group_out_c2 = xp.reshape(
+                group_out_c2, (x_c2.shape[0], *out_spatial_c2, m_per_group_c2)
+            )
+            groups_c2.append(
+                xp.permute_dims(group_out_c2, (0, rank_c2 + 1, *range(1, rank_c2 + 1)))
+            )
+
+        out_c2 = (
+            groups_c2[0] if len(groups_c2) == 1 else xp.concat(tuple(groups_c2), axis=1)
+        )
+        if b_c2 is not None:
+            out_c2 = out_c2 + xp.reshape(b_c2, (1, m_out_c2, *((1,) * rank_c2)))
+        conv2d_1 = out_c2
+
+        relu_1 = xp.maximum(conv2d_1, 0)
+
+        # max_pool2d = _onnxpy_max_pool(...)
+        x_mp = relu_1
+        kernel_shape_mp = (2, 2)
+        strides_mp = (2, 2)
+        pads_mp = (0, 0, 0, 0)
+        dilations_mp = (1, 1)
+        ceil_mode_mp = 0
+        auto_pad_mp = "NOTSET"
+        rank_mp = x_mp.ndim - 2
+        kernel_mp = tuple(int(k) for k in kernel_shape_mp)
+        strides_t_mp = tuple(
+            int(s) for s in (strides_mp if strides_mp is not None else [1] * rank_mp)
+        )
+        dilations_t_mp = tuple(
+            int(d)
+            for d in (dilations_mp if dilations_mp is not None else [1] * rank_mp)
+        )
+
+        # pad_pairs_mp = _onnxpy_resolve_pads(...)
+        input_spatial_mprp = x_mp.shape[2:]
+        rank_mprp = len(kernel_mp)
+        mode_mprp = (auto_pad_mp or "NOTSET").upper()
+        if mode_mprp == "NOTSET":
+            if pads_mp is None:
+                pad_pairs_mp = tuple((0, 0) for _ in range(rank_mprp))
+            else:
+                flat_mprp = list(pads_mp)
+                pad_pairs_mp = tuple(
+                    (int(flat_mprp[i]), int(flat_mprp[i + rank_mprp]))
+                    for i in range(rank_mprp)
+                )
+        elif mode_mprp == "VALID":
+            pad_pairs_mp = tuple((0, 0) for _ in range(rank_mprp))
+        else:
+            pairs_mprp = []
+            for i_mprp in range(rank_mprp):
+                in_size_mprp = int(input_spatial_mprp[i_mprp])
+                s_mprp = int(strides_t_mp[i_mprp])
+                d_mprp = int(dilations_t_mp[i_mprp])
+                k_mprp = int(kernel_mp[i_mprp])
+                out_size_mprp = -(-in_size_mprp // s_mprp)
+                eff_k_mprp = (k_mprp - 1) * d_mprp + 1
+                total_mprp = max(
+                    (out_size_mprp - 1) * s_mprp + eff_k_mprp - in_size_mprp, 0
+                )
+                if mode_mprp == "SAME_UPPER":
+                    pairs_mprp.append((total_mprp // 2, total_mprp - total_mprp // 2))
+                else:
+                    pairs_mprp.append((total_mprp - total_mprp // 2, total_mprp // 2))
+            pad_pairs_mp = tuple(pairs_mprp)
+
+        # out_spatial_mp = _onnxpy_output_spatial(...)
+        input_spatial_mpos = x_mp.shape[2:]
+        rank_mpos = len(kernel_mp)
+        output_mpos = []
+        for i_mpos in range(rank_mpos):
+            in_size_mpos = int(input_spatial_mpos[i_mpos])
+            k_mpos = int(kernel_mp[i_mpos])
+            s_mpos = int(strides_t_mp[i_mpos])
+            d_mpos = int(dilations_t_mp[i_mpos])
+            pad_before_mpos, pad_after_mpos = pad_pairs_mp[i_mpos]
+            effective_kernel_mpos = (k_mpos - 1) * d_mpos + 1
+            numerator_mpos = (
+                in_size_mpos + pad_before_mpos + pad_after_mpos - effective_kernel_mpos
+            )
+            if int(ceil_mode_mp):
+                out_size_mpos = numerator_mpos // s_mpos + 1
+                if numerator_mpos % s_mpos:
+                    out_size_mpos += 1
+            else:
+                out_size_mpos = numerator_mpos // s_mpos + 1
+            output_mpos.append(max(out_size_mpos, 0))
+        out_spatial_mp = tuple(output_mpos)
+
+        # pad_pairs_mp = _onnxpy_pads_for_output(...)
+        input_spatial_mppo = x_mp.shape[2:]
+        expanded_mppo = []
+        for i_mppo, out_size_mppo in enumerate(out_spatial_mp):
+            in_size_mppo = int(input_spatial_mppo[i_mppo])
+            k_mppo = int(kernel_mp[i_mppo])
+            s_mppo = int(strides_t_mp[i_mppo])
+            d_mppo = int(dilations_t_mp[i_mppo])
+            before_mppo, after_mppo = pad_pairs_mp[i_mppo]
+            effective_kernel_mppo = (k_mppo - 1) * d_mppo + 1
+            needed_mppo = max(
+                (int(out_size_mppo) - 1) * s_mppo
+                + effective_kernel_mppo
+                - in_size_mppo,
+                0,
+            )
+            existing_mppo = before_mppo + after_mppo
+            expanded_mppo.append(
+                (before_mppo, after_mppo + max(needed_mppo - existing_mppo, 0))
+            )
+        pad_pairs_mp = tuple(expanded_mppo)
+
+        unfold_axes_mp = tuple(range(2, x_mp.ndim))
+
+        # unfold_fill_value_mp = _onnxpy_min_value(...)
+        min_value_done_mpmv = False
+        try:
+            if xp.isdtype(x_mp.dtype, "integral"):
+                value_mpmv = xp.iinfo(x_mp.dtype).min
+
+                # unfold_fill_value_mp = _onnxpy_asarray_like(...)
+                dtype_mpmvi = getattr(x_mp, "dtype", None)
+                # device_mpmvi = _onnxpy_device(x_mp)
+                device_mpmvi = getattr(x_mp, "device", None)
+                try:
+                    unfold_fill_value_mp = xp.asarray(
+                        value_mpmv, dtype=dtype_mpmvi, device=device_mpmvi
+                    )
+                except TypeError:
+                    unfold_fill_value_mp = xp.asarray(value_mpmv, dtype=dtype_mpmvi)
+                min_value_done_mpmv = True
+        except (AttributeError, TypeError):
+            pass
+        if not min_value_done_mpmv:
+            # unfold_fill_value_mp = _onnxpy_asarray_like(...)
+            dtype_mpmvf = getattr(x_mp, "dtype", None)
+            # device_mpmvf = _onnxpy_device(x_mp)
+            device_mpmvf = getattr(x_mp, "device", None)
+            try:
+                unfold_fill_value_mp = xp.asarray(
+                    float("-inf"), dtype=dtype_mpmvf, device=device_mpmvf
+                )
+            except TypeError:
+                unfold_fill_value_mp = xp.asarray(float("-inf"), dtype=dtype_mpmvf)
+
+        # patches_mp = _onnxpy_unfold(...)
+        if hasattr(xp, "unfold"):
+            patches_mp = xp.unfold(
+                x_mp,
+                kernel_mp,
+                axes=unfold_axes_mp,
+                strides=strides_t_mp,
+                dilations=dilations_t_mp,
+                padding=pad_pairs_mp,
+                fill_value=unfold_fill_value_mp,
+            )
+        else:
+            # UNAVOIDABLE DEVIATION: the original pure-Python fallback of
+            # _onnxpy_unfold builds the windows with nested recursive functions
+            # (element/window/output_at/base_output and _onnxpy_stack_nested), which
+            # cannot be inlined without nested defs or recursion.
+            raise NotImplementedError(
+                "Array namespace does not provide unfold; the pure-Python unfold "
+                "fallback is not available in the inlined benchmark."
+            )
+
+        max_pool2d = xp.max(patches_mp, axis=tuple(range(2 + rank_mp, 2 + 2 * rank_mp)))
+
+        # view = _onnxpy_reshape(...)
+        allow_zero_rs = 1
+        # shape_py_rs = _onnxpy_to_python(val_4)
+        shape_py_rs: Any
+        if isinstance(val_4, list | tuple):
+            shape_py_rs = list(val_4)
+        else:
+            to_python_done_rs = False
+            if hasattr(val_4, "shape"):
+                if len(val_4.shape) == 0:
+                    shape_py_rs = int(val_4)
+                    to_python_done_rs = True
+                elif len(val_4.shape) == 1:
+                    shape_py_rs = [int(val_4[i]) for i in range(val_4.shape[0])]
+                    to_python_done_rs = True
+            if not to_python_done_rs:
+                shape_py_rs = val_4
+        if not isinstance(shape_py_rs, list | tuple):
+            shape_py_rs = [int(shape_py_rs)]
+        target_rs = []
+        in_shape_rs = tuple(int(d) for d in max_pool2d.shape)
+        for i_rs, dim_rs in enumerate(shape_py_rs):
+            d_rs = int(dim_rs)
+            if d_rs == 0 and not int(allow_zero_rs):
+                target_rs.append(in_shape_rs[i_rs])
+            else:
+                target_rs.append(d_rs)
+        view = xp.reshape(max_pool2d, tuple(target_rs))
+
+        # linear = _onnxpy_gemm(...)
+        alpha_g1 = 1.0
+        beta_g1 = 1.0
+        trans_a_g1 = 0
+        trans_b_g1 = 1
+        a2_g1 = xp.permute_dims(view, (1, 0)) if int(trans_a_g1) else view
+        b2_g1 = xp.permute_dims(fc1_weight, (1, 0)) if int(trans_b_g1) else fc1_weight
+        out_g1 = float(alpha_g1) * (a2_g1 @ b2_g1)
+        if fc1_bias is not None:
+            out_g1 = out_g1 + float(beta_g1) * fc1_bias
+        linear = out_g1
+
+        relu_2 = xp.maximum(linear, 0)
+
+        # linear_1 = _onnxpy_gemm(...)
+        alpha_g2 = 1.0
+        beta_g2 = 1.0
+        trans_a_g2 = 0
+        trans_b_g2 = 1
+        a2_g2 = xp.permute_dims(relu_2, (1, 0)) if int(trans_a_g2) else relu_2
+        b2_g2 = xp.permute_dims(fc2_weight, (1, 0)) if int(trans_b_g2) else fc2_weight
+        out_g2 = float(alpha_g2) * (a2_g2 @ b2_g2)
+        if fc2_bias is not None:
+            out_g2 = out_g2 + float(beta_g2) * fc2_bias
+        linear_1 = out_g2
+
+        relu_3 = xp.maximum(linear_1, 0)
+
+        # return _onnxpy_gemm(...)
+        alpha_g3 = 1.0
+        beta_g3 = 1.0
+        trans_a_g3 = 0
+        trans_b_g3 = 1
+        a2_g3 = xp.permute_dims(relu_3, (1, 0)) if int(trans_a_g3) else relu_3
+        b2_g3 = xp.permute_dims(fc3_weight, (1, 0)) if int(trans_b_g3) else fc3_weight
+        out_g3 = float(alpha_g3) * (a2_g3 @ b2_g3)
+        if fc3_bias is not None:
+            out_g3 = out_g3 + float(beta_g3) * fc3_bias
+        return out_g3
 
     def check(self, param):
         actual = to_numpy(self._output[0])
