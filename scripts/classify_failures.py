@@ -102,17 +102,11 @@ def iter_rows(doc: dict):
                 for result in dataset["results"]:
                     status = result["status"]
                     row = {
-                        "benchmark": benchmark["name"],
-                        "generator": generator["name"],
-                        "dataset": dataset["name"],
                         "framework": frameworks[result["framework"]],
-                        "metric": result.get("metric"),
                         "status": status,
-                        "errcode": None,
-                        "stderr": "",
+                        "class": status,
                     }
                     if status != "failed":
-                        row["class"] = status
                         yield row
                         continue
                     run = diagnostics[result["diagnostics"]]
@@ -124,8 +118,6 @@ def iter_rows(doc: dict):
                         run, dataset["name"], generator["name"], "errcode"
                     )
                     row["class"] = classify_failure(stderr, errcode)
-                    row["errcode"] = errcode
-                    row["stderr"] = stderr
                     yield row
 
 
@@ -189,13 +181,6 @@ def main() -> int:
         type=Path,
         help="competition/run_*/results.json (default: highest numbered run)",
     )
-    parser.add_argument("--by-framework", action="store_true")
-    parser.add_argument(
-        "--samples",
-        type=int,
-        default=0,
-        help="print N stderr samples per failure class",
-    )
     parser.add_argument(
         "--plot",
         nargs="?",
@@ -210,25 +195,14 @@ def main() -> int:
     doc = json.loads(path.read_text(encoding="utf-8"))
     overall: Counter[str] = Counter()
     by_framework: dict[str, Counter[str]] = defaultdict(Counter)
-    samples: dict[str, list[str]] = defaultdict(list)
     for row in iter_rows(doc):
         if row["status"] != "failed":
             overall[row["status"]] += 1
             continue
         overall[row["class"]] += 1
         by_framework[row["framework"]][row["class"]] += 1
-        if args.samples and len(samples[row["class"]]) < args.samples:
-            samples[row["class"]].append(row["stderr"][:400])
     print(f"results: {path}")
     print("counts:", dict(overall))
-    if args.by_framework:
-        for name, counts in sorted(by_framework.items()):
-            print(name, dict(counts))
-    for class_name, texts in samples.items():
-        print(f"\n## {class_name}")
-        for text in texts:
-            print("---")
-            print(text)
     if args.plot is not None:
         output_dir = Path(args.plot) if args.plot else path.parent / "plots"
         for plot_path in plot_pies(overall, by_framework, output_dir):
