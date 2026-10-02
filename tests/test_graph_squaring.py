@@ -89,16 +89,6 @@ def test_zero_budget_does_not_contract():
     )
 
 
-def test_missing_degree_uses_safe_bound(monkeypatch):
-    raw = DataInstance(inputs=[from_scipy(coo_array((1000, 1000)))], meta={})
-    monkeypatch.setattr(fw, "fetch_suitesparse_matrix", lambda _: raw)
-    generator = fw.FloydWarshallSuiteSparseGenerator()
-    problem = generator.generate(fw.FloydWarshallDataset("graph"))
-    assert problem.meta == {"max_squarings": 0}
-    full = generator.generate(fw.FloydWarshallDataset("graph", max_density=1.0))
-    assert full.meta == {"max_squarings": 10}
-
-
 @pytest.mark.parametrize("source", ["gap", "snap"])
 def test_closure_generators_attach_plan(monkeypatch, source):
     raw = DataInstance(
@@ -111,7 +101,7 @@ def test_closure_generators_attach_plan(monkeypatch, source):
     assert problem.meta == {**raw.meta, "max_squarings": 1}
 
 
-@pytest.mark.parametrize("source", ["gap", "suitesparse", "snap"])
+@pytest.mark.parametrize("source", ["gap", "snap"])
 def test_distance_generators_attach_plan(monkeypatch, source):
     raw = DataInstance(
         inputs=[from_scipy(coo_array((1000, 1000)))],
@@ -119,10 +109,6 @@ def test_distance_generators_attach_plan(monkeypatch, source):
     )
     fetch, generator_class = {
         "gap": ("fetch_gap_graph", fw.FloydWarshallGAPGenerator),
-        "suitesparse": (
-            "fetch_suitesparse_matrix",
-            fw.FloydWarshallSuiteSparseGenerator,
-        ),
         "snap": ("fetch_snap_graph", fw.FloydWarshallSNAPGenerator),
     }[source]
     monkeypatch.setattr(fw, fetch, lambda _: raw)

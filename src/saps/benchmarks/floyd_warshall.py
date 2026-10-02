@@ -22,7 +22,6 @@ from saps.benchmarks.adjacency import (
 )
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
-from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 
 
 class FloydWarshallDataset(Dataset):
@@ -479,113 +478,6 @@ class FloydWarshallSNAPGenerator(Generator[FloydWarshallDataset]):
         )
 
 
-class FloydWarshallSuiteSparseGenerator(Generator[FloydWarshallDataset]):
-    @property
-    def name(self) -> str:
-        return "floyd_warshall_inputs"
-
-    @property
-    def pretty_name(self) -> str:
-        return "Floyd-Warshall Input Generator"
-
-    @property
-    def description(self) -> str:
-        return (
-            "Data is collected from the SuiteSparse Matrix Collection and standard"
-            " benchmark graph datasets, with sparse adjacency matrices converted into"
-            " unweighted all-pairs shortest path inputs. This generator uses real-world"
-            " networks, including the Chesapeake road network and soc-tribes network"
-            " from the Network Repository."
-        )
-
-    @property
-    def suites(self) -> list[str]:
-        return []
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
-    @property
-    def authors(self) -> list[Contributor]:
-        return [
-            Contributor("Aarav Joglekar", "ajoglekar32@gatech.edu"),
-            Contributor("Joel Mathew Cherian", "jcherian32@gatech.edu"),
-        ]
-
-    @property
-    def references(self):
-        return [
-            Ref(
-                title=("Graph Algorithms in the Language of Linear Algebra"),
-                authors=[
-                    Author("Kepner, Jeremy"),
-                    Author("Gilbert, John"),
-                ],
-                journal="Society for Industrial and Applied Mathematics (SIAM)",
-                year=2011,
-            ),
-            Ref(
-                title=(
-                    "The Network Data Repository with Interactive"
-                    " Graph Analytics and Visualization"
-                ),
-                authors=[
-                    Author("Ryan A. Rossi"),
-                    Author("Nesreen K. Ahmed"),
-                ],
-                journal="AAAI",
-                url="https://networkrepository.com",
-                year=2015,
-            ),
-        ]
-
-    @property
-    def ai_disclosure(self) -> str:
-        return (
-            "No generative AI was used to construct the benchmark function itself."
-            " Generative AI might have been used to construct tests. This statement was"
-            " written by hand."
-        )
-
-    @property
-    def motivation(self) -> str:
-        return ""
-
-    @property
-    def datasets(self) -> list[FloydWarshallDataset]:
-        # fmt: off
-        return [
-            FloydWarshallDataset("HB/bcspwr01", suites=[]),
-            FloydWarshallDataset("HB/bcspwr02", suites=[]),
-            FloydWarshallDataset("HB/bcspwr03", suites=[]),
-            FloydWarshallDataset("DIMACS10/chesapeake", suites=[]),
-            FloydWarshallDataset("HB/ash85", suites=[]),
-            FloydWarshallDataset("HB/arc130", suites=[]),
-            FloydWarshallDataset("HB/bcspwr04", suites=[]),
-            FloydWarshallDataset("HB/ash292", suites=[]),
-        ]
-        # fmt: on
-
-    @property
-    def cacheable(self) -> bool:
-        return False
-
-    def generate(self, dataset: FloydWarshallDataset):
-        raw = fetch_suitesparse_matrix(dataset.name)
-        G = distance_matrix(raw.inputs[0], keep_weights=False)
-        degree = raw.meta.get("max_degree", G.shape[0] - 1)
-        return DataInstance(
-            inputs=[G],
-            meta={
-                **raw.meta,
-                "max_squarings": squaring_count(
-                    G.shape[0], degree, dataset.max_density
-                ),
-            },
-        )
-
-
 class FloydWarshallGAPGenerator(Generator[FloydWarshallDataset]):
     @property
     def name(self) -> str:
@@ -784,7 +676,6 @@ class FloydWarshallBenchmark(Benchmark):
         return [
             FloydWarshallTestGenerator(),
             FloydWarshallSNAPGenerator(),
-            FloydWarshallSuiteSparseGenerator(),
             FloydWarshallGAPGenerator(),
         ]
 

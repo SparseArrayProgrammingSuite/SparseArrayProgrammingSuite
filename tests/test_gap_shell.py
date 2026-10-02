@@ -157,19 +157,6 @@ def test_floyd_warshall_gap_keeps_weights_and_direction(
     load.assert_called_once_with(f"GAP-{name}")
 
 
-def test_floyd_warshall_suitesparse_uses_unit_lengths(monkeypatch, weighted_graph):
-    from saps.benchmarks import floyd_warshall as fw
-
-    monkeypatch.setattr(fw, "fetch_suitesparse_matrix", lambda _: weighted_graph)
-    dataset = fw.FloydWarshallDataset("HB/bcspwr01")
-    problem = fw.FloydWarshallSuiteSparseGenerator().generate(dataset)
-    G = to_sparse(problem.inputs[0])
-    assert G.fill_value == np.inf
-    np.testing.assert_array_equal(
-        G.todense(), [[0, 1, np.inf], [np.inf, 0, 1], [np.inf, np.inf, 0]]
-    )
-
-
 @pytest.mark.parametrize("symmetrize", [False, True])
 def test_multi_source_gap_conversion_uses_shell_sources(
     monkeypatch, weighted_graph, symmetrize
