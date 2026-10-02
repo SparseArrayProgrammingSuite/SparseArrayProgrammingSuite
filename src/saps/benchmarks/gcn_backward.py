@@ -641,7 +641,9 @@ class OGBGCNTrainingGenerator(Generator[OGBGCNTrainingDataset]):
                 dataset.name,
                 source_name=dataset.source_name,
                 description=dataset.description,
-                suites=["standard"],
+                suites=["standard", "trace"]
+                if dataset.name in ("ogbn_arxiv", "ogbn_proteins")
+                else ["standard"],
             )
             for dataset in OGBNodePropGenerator().datasets
         ]

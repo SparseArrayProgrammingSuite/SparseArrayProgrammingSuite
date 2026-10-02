@@ -215,7 +215,7 @@ class FiniteDifferenceGenerator(
             FiniteDifferenceDataset(
                 name=f"fd_realistic_scale_{self.flux_name}",
                 pretty_name="Finite Difference Realistic Problem",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 Nx=250000,
                 dx=0.1,
                 Nt=1000,
@@ -560,7 +560,7 @@ class FiniteDifference2DGenerator(
             FiniteDifference2DDataset(
                 name=f"fd2d_realistic_scale_{self.flux_name}",
                 pretty_name="2D Finite Difference Realistic Problem",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 Nx=500,
                 dx=0.1,
                 Ny=500,

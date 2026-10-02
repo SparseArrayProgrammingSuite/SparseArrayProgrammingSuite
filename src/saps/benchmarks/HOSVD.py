@@ -412,7 +412,7 @@ class HOSVDFrosttDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-def _hosvd_frostt_dataset(tensor_name, ranks):
+def _hosvd_frostt_dataset(tensor_name, ranks, suites):
     shape = frostt_tensor_shape(tensor_name)
     assert len(ranks) == len(shape), (
         f"HOSVD ranks {ranks} do not match shape {shape} for "
@@ -428,6 +428,7 @@ def _hosvd_frostt_dataset(tensor_name, ranks):
         tensor_name=tensor_name,
         n=n,
         ranks=ranks,
+        suites=suites,
     )
 
 
@@ -509,37 +510,37 @@ class HOSVDFrosttGenerator(Generator[HOSVDFrosttDataset]):
     @property
     def datasets(self) -> list[HOSVDFrosttDataset]:
         datasets = [
-            _hosvd_frostt_dataset(tensor_name, ranks)
-            for tensor_name, ranks in [
-                ("matmul_2_2_2", (2, 2, 2)),
-                ("matmul_3_3_3", (2, 2, 2)),
-                ("matmul_4_3_2", (2, 2, 2)),
-                ("matmul_4_4_3", (2, 2, 2)),
-                ("matmul_4_4_4", (2, 2, 2)),
-                ("matmul_5_5_5", (2, 2, 2)),
-                ("matmul_6_3_3", (2, 2, 2)),
-                ("nell_2", (5, 5, 5)),
-                ("vast_2015_mc1_3d", (5, 5, 2)),
-                ("nell_1", (5, 5, 5)),
-                ("flickr_3d", (5, 5, 5)),
-                ("delicious_3d", (5, 5, 5)),
-                ("amazon_reviews", (5, 5, 5)),
-                ("patents", (5, 5, 5)),
-                ("reddit_2015", (5, 5, 5)),
-                ("fb_m", (5, 5, 5)),
-                ("darpa", (5, 5, 5)),
-                ("toy", (2, 2, 2, 2)),
-                ("nips", (5, 5, 5, 5)),
-                ("uber_pickups", (5, 5, 5, 5)),
-                ("chicago_crime_comm", (5, 5, 5, 5)),
-                ("enron", (5, 5, 5, 5)),
-                ("flickr_4d", (5, 5, 5, 5)),
-                ("delicious_4d", (5, 5, 5, 5)),
-                ("lbnl_network", (5, 5, 5, 5, 5)),
-                ("chicago_crime_geo", (5, 5, 5, 5, 5)),
+            _hosvd_frostt_dataset(tensor_name, ranks, suites)
+            for (tensor_name, ranks, suites) in [
+                ("matmul_2_2_2", (2, 2, 2), ["trace"]),
+                ("matmul_3_3_3", (2, 2, 2), ["trace"]),
+                ("matmul_4_3_2", (2, 2, 2), ["trace"]),
+                ("matmul_4_4_3", (2, 2, 2), ["trace"]),
+                ("matmul_4_4_4", (2, 2, 2), ["trace"]),
+                ("matmul_5_5_5", (2, 2, 2), ["trace"]),
+                ("matmul_6_3_3", (2, 2, 2), ["trace"]),
+                ("nell_2", (5, 5, 5), []),
+                ("vast_2015_mc1_3d", (5, 5, 2), []),
+                ("nell_1", (5, 5, 5), []),
+                ("flickr_3d", (5, 5, 5), []),
+                ("delicious_3d", (5, 5, 5), []),
+                ("amazon_reviews", (5, 5, 5), []),
+                ("patents", (5, 5, 5), []),
+                ("reddit_2015", (5, 5, 5), []),
+                ("fb_m", (5, 5, 5), []),
+                ("darpa", (5, 5, 5), []),
+                ("toy", (2, 2, 2, 2), ["trace"]),
+                ("nips", (5, 5, 5, 5), []),
+                ("uber_pickups", (5, 5, 5, 5), []),
+                ("chicago_crime_comm", (5, 5, 5, 5), []),
+                ("enron", (5, 5, 5, 5), []),
+                ("flickr_4d", (5, 5, 5, 5), []),
+                ("delicious_4d", (5, 5, 5, 5), []),
+                ("lbnl_network", (5, 5, 5, 5, 5), []),
+                ("chicago_crime_geo", (5, 5, 5, 5, 5), []),
                 # vast_2015_mc1_5d's 3rd mode has only 2 entries, so its rank is capped.
-                ("vast_2015_mc1_5d", (5, 5, 2, 5, 5)),
-                ("lanl2", (5, 5, 5, 5, 5)),
+                ("vast_2015_mc1_5d", (5, 5, 2, 5, 5), []),
+                ("lanl2", (5, 5, 5, 5, 5), []),
             ]
         ]
 

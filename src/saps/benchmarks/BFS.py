@@ -282,7 +282,8 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
 
     @property
     def datasets(self) -> list[BreadthFirstSearchDataset]:
-        # Successful standard-suite Smart runs <= 30s in competition/run_13662472.
+        # Trace includes successes on any framework in competition/run_13803684
+        # alongside previously selected trace datasets.
         # fmt: off
         return [
             *[
@@ -294,7 +295,7 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"soc-Pokec_seed{seed}", source_name="soc-Pokec", source_seed=seed, suites=["standard"])
+                BreadthFirstSearchDataset(f"soc-Pokec_seed{seed}", source_name="soc-Pokec", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
@@ -310,11 +311,11 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"wiki-RfA_seed{seed}", source_name="wiki-RfA", source_seed=seed, suites=["standard", "trace"] if seed in (0, 1, 2, 3, 4, 5, 6) else ["standard"])
+                BreadthFirstSearchDataset(f"wiki-RfA_seed{seed}", source_name="wiki-RfA", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"soc-sign-bitcoin-otc_seed{seed}", source_name="soc-sign-bitcoin-otc", source_seed=seed, suites=["standard", "trace"] if seed in (2, 7) else ["standard"])
+                BreadthFirstSearchDataset(f"soc-sign-bitcoin-otc_seed{seed}", source_name="soc-sign-bitcoin-otc", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
@@ -362,11 +363,11 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"wiki-Talk_seed{seed}", source_name="wiki-Talk", source_seed=seed, suites=["standard", "trace"] if seed in (0, 1, 2, 3, 4) else ["standard"])
+                BreadthFirstSearchDataset(f"wiki-Talk_seed{seed}", source_name="wiki-Talk", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"cit-HepPh_seed{seed}", source_name="cit-HepPh", source_seed=seed, suites=["standard", "trace"] if seed in (0, 5, 8, 9) else ["standard"])
+                BreadthFirstSearchDataset(f"cit-HepPh_seed{seed}", source_name="cit-HepPh", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
@@ -398,11 +399,11 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"web-BerkStan_seed{seed}", source_name="web-BerkStan", source_seed=seed, suites=["standard", "trace"] if seed in (0, 2, 5) else ["standard"])
+                BreadthFirstSearchDataset(f"web-BerkStan_seed{seed}", source_name="web-BerkStan", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"web-Google_seed{seed}", source_name="web-Google", source_seed=seed, suites=["standard", "trace"] if seed in (0, 1, 2, 4, 5, 6, 7, 8, 9) else ["standard"])
+                BreadthFirstSearchDataset(f"web-Google_seed{seed}", source_name="web-Google", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
@@ -414,11 +415,11 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"amazon0302_seed{seed}", source_name="amazon0302", source_seed=seed, suites=["standard", "trace"] if seed in (0, 1, 2, 8) else ["standard"])
+                BreadthFirstSearchDataset(f"amazon0302_seed{seed}", source_name="amazon0302", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"amazon0312_seed{seed}", source_name="amazon0312", source_seed=seed, suites=["standard", "trace"] if seed in (3, 6, 7, 8, 9) else ["standard"])
+                BreadthFirstSearchDataset(f"amazon0312_seed{seed}", source_name="amazon0312", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
@@ -466,15 +467,15 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"roadNet-CA_seed{seed}", source_name="roadNet-CA", source_seed=seed, suites=["standard"])
+                BreadthFirstSearchDataset(f"roadNet-CA_seed{seed}", source_name="roadNet-CA", source_seed=seed, suites=["standard", "trace"] if seed in (2, 3, 6, 7) else ["standard"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"roadNet-PA_seed{seed}", source_name="roadNet-PA", source_seed=seed, suites=["standard"])
+                BreadthFirstSearchDataset(f"roadNet-PA_seed{seed}", source_name="roadNet-PA", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"roadNet-TX_seed{seed}", source_name="roadNet-TX", source_seed=seed, suites=["standard"])
+                BreadthFirstSearchDataset(f"roadNet-TX_seed{seed}", source_name="roadNet-TX", source_seed=seed, suites=["standard", "trace"] if seed in (0, 1, 2, 3, 4, 5, 7, 8, 9) else ["standard"])
                 for seed in range(10)
             ],
             *[
@@ -482,7 +483,7 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"as-Skitter_seed{seed}", source_name="as-Skitter", source_seed=seed, suites=["standard"])
+                BreadthFirstSearchDataset(f"as-Skitter_seed{seed}", source_name="as-Skitter", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
@@ -514,15 +515,15 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"loc-Gowalla_seed{seed}", source_name="loc-Gowalla", source_seed=seed, suites=["standard", "trace"] if seed in (0, 1, 2, 3, 4, 5, 6, 7, 8) else ["standard"])
+                BreadthFirstSearchDataset(f"loc-Gowalla_seed{seed}", source_name="loc-Gowalla", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"loc-Brightkite_seed{seed}", source_name="loc-Brightkite", source_seed=seed, suites=["standard", "trace"] if seed in (4, 9) else ["standard"])
+                BreadthFirstSearchDataset(f"loc-Brightkite_seed{seed}", source_name="loc-Brightkite", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(f"sx-stackoverflow_seed{seed}", source_name="sx-stackoverflow", source_seed=seed, suites=["standard", "trace"] if seed in (2, 3, 4, 5, 6, 7, 8, 9) else ["standard"])
+                BreadthFirstSearchDataset(f"sx-stackoverflow_seed{seed}", source_name="sx-stackoverflow", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[

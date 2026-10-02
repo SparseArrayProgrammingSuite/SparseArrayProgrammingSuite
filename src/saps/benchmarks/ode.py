@@ -749,15 +749,15 @@ class SLICOTGenerator(Generator[SLICOTDataset]):
         # Validated over t_max=0.1 at the 0.05 absolute-error tolerance.
         datasets = [
             SLICOTDataset("eady.mat", suites=["standard", "trace"]),
-            SLICOTDataset("CDplayer.mat", suites=["standard"], step=4e-5),
-            SLICOTDataset("fom.mat", suites=["standard"], step=0.001),
-            SLICOTDataset("random.mat", suites=["standard"], step=5e-5),
+            SLICOTDataset("CDplayer.mat", suites=["standard", "trace"], step=4e-5),
+            SLICOTDataset("fom.mat", suites=["standard", "trace"], step=0.001),
+            SLICOTDataset("random.mat", suites=["standard", "trace"], step=5e-5),
             SLICOTDataset("pde.mat", suites=["standard", "trace"], step=0.001),
-            SLICOTDataset("heat-cont.mat", suites=["standard"], step=0.001),
+            SLICOTDataset("heat-cont.mat", suites=["standard", "trace"], step=0.001),
             SLICOTDataset("Orr-Som.mat", suites=["standard", "trace"]),
             SLICOTDataset("iss.mat", suites=["standard", "trace"]),
             SLICOTDataset("build.mat", suites=["standard", "trace"]),
-            SLICOTDataset("beam.mat", suites=["standard"], step=0.001),
+            SLICOTDataset("beam.mat", suites=["standard", "trace"], step=0.001),
         ]
         for dataset in datasets:
             if dataset.name in self.trace_datasets and "trace" not in dataset.suites:

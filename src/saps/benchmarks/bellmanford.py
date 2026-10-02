@@ -425,11 +425,12 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
 
     @property
     def datasets(self) -> list[BellmanFordDataset]:
-        # Successful standard-suite Smart runs <= 30s in competition/run_13662472.
+        # Trace includes successes on any framework in competition/run_13803684
+        # alongside previously selected trace datasets.
         # fmt: off
         return [
             *[
-                BellmanFordDataset(f"soc-Epinions1_seed{seed}", source_name="soc-Epinions1", source_seed=seed, suites=["standard", "trace"] if seed in (1, 2, 3, 4, 5, 6, 7, 8, 9) else ["standard"])
+                BellmanFordDataset(f"soc-Epinions1_seed{seed}", source_name="soc-Epinions1", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
@@ -477,7 +478,7 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
                 for seed in range(10)
             ],
             *[
-                BellmanFordDataset(f"com-Youtube_seed{seed}", source_name="com-Youtube", source_seed=seed, suites=["standard", "trace"] if seed in (1, 6, 9) else ["standard"])
+                BellmanFordDataset(f"com-Youtube_seed{seed}", source_name="com-Youtube", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
@@ -525,11 +526,11 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
                 for seed in range(10)
             ],
             *[
-                BellmanFordDataset(f"ca-CondMat_seed{seed}", source_name="ca-CondMat", source_seed=seed, suites=["standard", "trace"] if seed in (0, 1, 2, 3, 9) else ["standard"])
+                BellmanFordDataset(f"ca-CondMat_seed{seed}", source_name="ca-CondMat", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BellmanFordDataset(f"ca-GrQc_seed{seed}", source_name="ca-GrQc", source_seed=seed, suites=["standard", "trace"] if seed in (4, 7, 8, 9) else ["standard"])
+                BellmanFordDataset(f"ca-GrQc_seed{seed}", source_name="ca-GrQc", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
@@ -545,7 +546,7 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
                 for seed in range(10)
             ],
             *[
-                BellmanFordDataset(f"web-Google_seed{seed}", source_name="web-Google", source_seed=seed, suites=["standard", "trace"] if seed in (2,) else ["standard"])
+                BellmanFordDataset(f"web-Google_seed{seed}", source_name="web-Google", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
@@ -577,11 +578,11 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
                 for seed in range(10)
             ],
             *[
-                BellmanFordDataset(f"p2p-Gnutella05_seed{seed}", source_name="p2p-Gnutella05", source_seed=seed, suites=["standard", "trace"] if seed in (0, 1, 7) else ["standard"])
+                BellmanFordDataset(f"p2p-Gnutella05_seed{seed}", source_name="p2p-Gnutella05", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BellmanFordDataset(f"p2p-Gnutella06_seed{seed}", source_name="p2p-Gnutella06", source_seed=seed, suites=["standard", "trace"] if seed in (2, 5, 6, 7, 8, 9) else ["standard"])
+                BellmanFordDataset(f"p2p-Gnutella06_seed{seed}", source_name="p2p-Gnutella06", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
@@ -629,11 +630,11 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
                 for seed in range(10)
             ],
             *[
-                BellmanFordDataset(f"as-caida_seed{seed}", source_name="as-caida", source_seed=seed, suites=["standard", "trace"] if seed in (5,) else ["standard"])
+                BellmanFordDataset(f"as-caida_seed{seed}", source_name="as-caida", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BellmanFordDataset(f"Oregon-1_seed{seed}", source_name="Oregon-1", source_seed=seed, suites=["standard", "trace"] if seed in (0, 3, 4, 5, 6, 7, 8, 9) else ["standard"])
+                BellmanFordDataset(f"Oregon-1_seed{seed}", source_name="Oregon-1", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
@@ -677,15 +678,15 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
                 for seed in range(10)
             ],
             *[
-                BellmanFordDataset(f"sx-askubuntu_seed{seed}", source_name="sx-askubuntu", source_seed=seed, suites=["standard", "trace"] if seed in (0, 1, 2, 3, 4, 5, 6, 7) else ["standard"])
+                BellmanFordDataset(f"sx-askubuntu_seed{seed}", source_name="sx-askubuntu", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BellmanFordDataset(f"wiki-talk-temporal_seed{seed}", source_name="wiki-talk-temporal", source_seed=seed, suites=["standard", "trace"] if seed in (3, 8) else ["standard"])
+                BellmanFordDataset(f"wiki-talk-temporal_seed{seed}", source_name="wiki-talk-temporal", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BellmanFordDataset(f"email-Eu-core-temporal_seed{seed}", source_name="email-Eu-core-temporal", source_seed=seed, suites=["standard", "trace"] if seed in (1, 2, 3, 4, 5, 6, 7, 8, 9) else ["standard"])
+                BellmanFordDataset(f"email-Eu-core-temporal_seed{seed}", source_name="email-Eu-core-temporal", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
@@ -697,7 +698,7 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
                 for seed in range(10)
             ],
             *[
-                BellmanFordDataset(f"higgs-twitter_seed{seed}", source_name="higgs-twitter", source_seed=seed, suites=["standard"])
+                BellmanFordDataset(f"higgs-twitter_seed{seed}", source_name="higgs-twitter", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
         ]

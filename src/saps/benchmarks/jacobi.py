@@ -259,13 +259,16 @@ class JacobiGenerator(Generator[JacobiDataset]):
             ),
             JacobiDataset(
                 "Bourchtein/atmosmodm",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=1000,
                 rel_tol=1e-06,
                 rhs_index=1,
             ),
             JacobiDataset(
-                "Cunningham/qa8fk", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Cunningham/qa8fk",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
                 "FEMLAB/problem1",
@@ -275,7 +278,7 @@ class JacobiGenerator(Generator[JacobiDataset]):
             ),
             JacobiDataset(
                 "Freescale/circuit5M_dc",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=1000,
                 rel_tol=1e-06,
             ),

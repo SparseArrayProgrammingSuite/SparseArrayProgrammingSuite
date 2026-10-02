@@ -271,7 +271,10 @@ class LSQRGenerator(Generator[LSQRDataset]):
     def datasets(self) -> list[LSQRDataset]:
         return [
             LSQRDataset(
-                "ANSYS/Delor338K", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "ANSYS/Delor338K",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             LSQRDataset(
                 "HB/ash219", suites=["standard", "trace"], max_iter=1000, rel_tol=1e-06
@@ -325,7 +328,7 @@ class LSQRGenerator(Generator[LSQRDataset]):
             ),
             LSQRDataset(
                 "NYPA/Maragal_6",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=1000,
                 rel_tol=1e-06,
                 rhs_index=0,
