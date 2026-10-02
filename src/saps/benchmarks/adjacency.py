@@ -37,9 +37,12 @@ def distance_matrix(
     shorter direction.
     """
     try:
-        A = sparse.COO.from_scipy_sparse(to_scipy(adjacency))
+        edges = to_scipy(adjacency).tocoo()
     except TypeError:
-        A = sparse.COO.from_numpy(to_numpy(adjacency))
+        edges = coo_array(to_numpy(adjacency))
+    # The constructor sums repeated entries. COO.from_scipy_sparse would not,
+    # since binsparse marks its scipy matrices canonical even when they repeat.
+    A = sparse.COO(np.stack([edges.row, edges.col]), edges.data, shape=edges.shape)
     G = sparse.where(A != 0, A if keep_weights else 1.0, np.inf)
     G = sparse.where(sparse.eye(A.shape[0], dtype=bool), 0.0, G)
     if symmetrize:
