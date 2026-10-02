@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.sparse as sps
 
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_scipy
@@ -14,6 +15,24 @@ from saps.benchmark import (
 )
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 from saps_framework.binsparse_utils import assert_coo_allclose
+
+
+def sampled_product(S, A: np.ndarray, B: np.ndarray):
+    """Return S * (A @ B) as a COO array, computed only at the nonzeros of S.
+
+    This costs O(nnz(S) * r) for embedding width r and never forms the dense
+    n**2 product, which for the larger graphs would not fit in memory.
+    """
+    S = sps.coo_array(S)
+    S.sum_duplicates()
+    values = np.empty(S.nnz, dtype=np.result_type(S.dtype, A.dtype, B.dtype))
+    # Chunked so the gathered rows of A and columns of B stay small.
+    chunk = 1 << 14
+    for start in range(0, S.nnz, chunk):
+        rows = S.row[start : start + chunk]
+        cols = S.col[start : start + chunk]
+        values[start : start + chunk] = np.einsum("ij,ji->i", A[rows], B[:, cols])
+    return sps.coo_array((S.data * values, (S.row, S.col)), shape=S.shape)
 
 
 class SDDMMSuiteSparseDataset(Dataset):
@@ -176,14 +195,10 @@ class SDDMMSuiteSparseGenerator(Generator):
         gen = np.random.Generator(np.random.PCG64(42))
         A = gen.random((sample_matrix.shape[0], dataset.middle_dim))
         B = gen.random((dataset.middle_dim, sample_matrix.shape[1]))
-        ref_outputs = None
-        if "test" in dataset.suites:
-            ref = sample_matrix.multiply(np.matmul(A, B)).tocoo()
-            ref_outputs = [from_scipy(ref)]
         return DataInstance(
             [S_bin, from_numpy(A), from_numpy(B)],
             meta={"dataset": dataset.name},
-            ref_outputs=ref_outputs,
+            ref_outputs=[from_scipy(sampled_product(sample_matrix, A, B))],
         )
 
 
@@ -322,8 +337,6 @@ class UniformRandomSDDMMGenerator(Generator):
         ]
 
     def generate(self, dataset: UniformRandomSDDMMDataset) -> DataInstance:
-        import scipy.sparse as sps
-
         rng = np.random.default_rng(dataset.seed)
         S = sps.random_array(
             (dataset.dim, dataset.dim),
@@ -333,10 +346,6 @@ class UniformRandomSDDMMGenerator(Generator):
         )
         A = rng.random((dataset.dim, dataset.middle_dim))
         B = rng.random((dataset.middle_dim, dataset.dim))
-        ref_outputs = None
-        if "test" in dataset.suites:
-            ref = S.multiply(np.matmul(A, B)).tocoo()
-            ref_outputs = [from_scipy(ref)]
         return DataInstance(
             [
                 from_scipy(S),
@@ -344,7 +353,7 @@ class UniformRandomSDDMMGenerator(Generator):
                 from_numpy(B),
             ],
             meta={"dataset": dataset.name},
-            ref_outputs=ref_outputs,
+            ref_outputs=[from_scipy(sampled_product(S, A, B))],
         )
 
 
@@ -442,6 +451,5 @@ class SDDMMBenchmark(Benchmark):
             assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
-        if self._ref_outputs is None:
-            return
+        assert self._ref_outputs is not None, "No reference output"
         assert_coo_allclose(self._ref_outputs[0], self._output[0])
