@@ -478,7 +478,7 @@ class PageRankBenchmark(Benchmark):
 
         A = data[0]
         out_degree = xp.sum(A, axis=0)
-        M = xp.array(A, dtype=float)
+        M = xp.asarray(A, dtype=float)
         N = A.shape[0]
 
         zero_deg = xp.equal(out_degree, 0)

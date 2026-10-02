@@ -445,7 +445,7 @@ class SimplyConnectedComponentsBenchmark(Benchmark):
         assert m == n
 
         # create identity matrix with edges
-        graph = xp.array(edges, dtype=bool)
+        graph = xp.asarray(edges, dtype=bool)
         graph = xp.logical_or(graph, graph.T)
         identity_matrix = xp.eye(n, dtype=bool)
         graph = xp.logical_or(identity_matrix, graph)

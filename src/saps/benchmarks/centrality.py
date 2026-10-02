@@ -528,10 +528,12 @@ class BetweennessCentralityBenchmark(Benchmark):
         for v in range(n):
             number_of_paths = xp.zeros((n,), dtype=float)
             self_dist = xp.zeros((n,), dtype=float)
-            self_dist = self_dist + xp.array([1.0 if i == v else 0.0 for i in range(n)])
+            self_dist = self_dist + xp.asarray(
+                [1.0 if i == v else 0.0 for i in range(n)]
+            )
             number_of_paths = number_of_paths + self_dist
 
-            neighbors = xp.array(G[v], dtype=float)
+            neighbors = xp.asarray(G[v], dtype=float)
             layer_traversal = []
             depth = 0
 
