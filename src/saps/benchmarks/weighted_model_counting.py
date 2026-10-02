@@ -19,7 +19,6 @@ from saps.downloaders.mccomp import (
     MCCOMP_REPOSITORY_URL,
     MCCOMP_TRACKS,
     download_mccomp_instance,
-    list_mccomp_instances,
     mccomp_source_url,
     normalize_mccomp_source_path,
     parse_dimacs,
@@ -453,8 +452,36 @@ class MCCompPWMCGenerator(Generator[WMCCompDataset]):
     @property
     def datasets(self) -> list[WMCCompDataset]:
         return [
-            WMCCompDataset(source_path, suites=["standard", "trace"])
-            for source_path in list_mccomp_instances("Track4_PWMC")
+            WMCCompDataset(
+                "Track4_PWMC/random_pwmc_1.cnf", suites=["standard", "trace", "train"]
+            ),
+            WMCCompDataset(
+                "Track4_PWMC/random_pwmc_2.cnf", suites=["standard", "trace"]
+            ),
+            WMCCompDataset(
+                "Track4_PWMC/random_pwmc_3.cnf", suites=["standard", "trace"]
+            ),
+            WMCCompDataset(
+                "Track4_PWMC/random_pwmc_4.cnf", suites=["standard", "trace"]
+            ),
+            WMCCompDataset(
+                "Track4_PWMC/random_pwmc_5.cnf", suites=["standard", "trace"]
+            ),
+            WMCCompDataset(
+                "Track4_PWMC/random_pwmc_6.cnf", suites=["standard", "trace"]
+            ),
+            WMCCompDataset(
+                "Track4_PWMC/random_pwmc_7.cnf", suites=["standard", "trace"]
+            ),
+            WMCCompDataset(
+                "Track4_PWMC/random_pwmc_8.cnf", suites=["standard", "trace"]
+            ),
+            WMCCompDataset(
+                "Track4_PWMC/random_pwmc_9.cnf", suites=["standard", "trace"]
+            ),
+            WMCCompDataset(
+                "Track4_PWMC/random_pwmc_10.cnf", suites=["standard", "trace"]
+            ),
         ]
 
     def generate(self, dataset: WMCCompDataset):

@@ -14,7 +14,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.ogb import OGBNodePropGenerator, fetch_ogb_nodeprop_dataset
+from saps.benchmarks.ogb import fetch_ogb_nodeprop_dataset
 from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
 
 
@@ -479,13 +479,35 @@ class OGBGCNGenerator(Generator[OGBGCNDataset]):
     def datasets(self) -> list[OGBGCNDataset]:
         return [
             OGBGCNDataset(
-                dataset.name,
-                source_name=dataset.source_name,
+                "ogbn_arxiv",
+                source_name="ogbn-arxiv",
                 hidden_dim=256,
-                description=dataset.description,
+                description=(
+                    "Citation network of arXiv Computer Science papers for "
+                    "node-property prediction."
+                ),
                 suites=["standard", "trace"],
-            )
-            for dataset in OGBNodePropGenerator().datasets
+            ),
+            OGBGCNDataset(
+                "ogbn_products",
+                source_name="ogbn-products",
+                hidden_dim=256,
+                description=(
+                    "Amazon product co-purchasing network for large-scale "
+                    "node-property prediction."
+                ),
+                suites=["standard", "trace", "train"],
+            ),
+            OGBGCNDataset(
+                "ogbn_proteins",
+                source_name="ogbn-proteins",
+                hidden_dim=256,
+                description=(
+                    "Protein-protein association network with species labels and "
+                    "averaged edge-feature node inputs."
+                ),
+                suites=["standard", "trace"],
+            ),
         ]
 
     def generate(self, dataset: OGBGCNDataset) -> DataInstance:

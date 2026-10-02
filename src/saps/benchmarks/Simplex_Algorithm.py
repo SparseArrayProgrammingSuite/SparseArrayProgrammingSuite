@@ -720,7 +720,11 @@ class LPNetlibGenerator(Generator[LPNetlibDataset]):
         return [
             LPNetlibDataset(
                 name,
-                suites=["standard", "trace"] if name in _LPNETLIB_TRACTABLE else [],
+                suites=["standard", "trace", "train"]
+                if name == "lp_recipe"
+                else ["standard", "trace"]
+                if name in _LPNETLIB_TRACTABLE
+                else [],
                 expected_status=(
                     _STATUS_INFEASIBLE if name.startswith("lpi_") else _STATUS_OPTIMAL
                 ),

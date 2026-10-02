@@ -304,7 +304,48 @@ class MCCompGenerator(Generator[MCCompDataset]):
 
     @property
     def datasets(self) -> list[MCCompDataset]:
-        return [MCCompDataset(source_path) for source_path in list_mccomp_instances()]
+        return [
+            MCCompDataset("Track1_MC/random_mc_1.cnf", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_2.cnf", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_3.cnf", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_4.cnf", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_5.cnf", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_6.cnf", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_7.cnf", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_8.cnf", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_9.cnf", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_10.cnf", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_1.cnf", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_2.cnf", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_3.cnf", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_4.cnf", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_5.cnf", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_6.cnf", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_7.cnf", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_8.cnf", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_9.cnf", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_10.cnf", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_1.cnf", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_2.cnf", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_3.cnf", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_4.cnf", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_5.cnf", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_6.cnf", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_7.cnf", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_8.cnf", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_9.cnf", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_10.cnf", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_1.cnf", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_2.cnf", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_3.cnf", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_4.cnf", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_5.cnf", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_6.cnf", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_7.cnf", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_8.cnf", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_9.cnf", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_10.cnf", suites=[]),
+        ]
 
     def generate(self, dataset: MCCompDataset):
         source_path = normalize_mccomp_source_path(dataset.source_path)
@@ -370,8 +411,18 @@ class MCCompMCGenerator(Generator[MCCompDataset]):
     @property
     def datasets(self) -> list[MCCompDataset]:
         return [
-            MCCompDataset(source_path, suites=["standard", "trace"])
-            for source_path in list_mccomp_instances("Track1_MC")
+            MCCompDataset("Track1_MC/random_mc_1.cnf", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_2.cnf", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_3.cnf", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_4.cnf", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_5.cnf", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_6.cnf", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_7.cnf", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_8.cnf", suites=["standard", "trace"]),
+            MCCompDataset(
+                "Track1_MC/random_mc_9.cnf", suites=["standard", "trace", "train"]
+            ),
+            MCCompDataset("Track1_MC/random_mc_10.cnf", suites=["standard", "trace"]),
         ]
 
     def generate(self, dataset: MCCompDataset):

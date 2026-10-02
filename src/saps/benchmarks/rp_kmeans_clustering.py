@@ -16,7 +16,7 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.netflixprize import fetch_netflixprize_matrix
-from saps.benchmarks.openml import OpenMLDatasetGenerator, fetch_openml_features
+from saps.benchmarks.openml import fetch_openml_features
 
 
 class RPKMeansRandomDataset(Dataset):
@@ -306,8 +306,18 @@ class RPKMeansOpenMLGenerator(Generator[RPKMeansDataset]):
     @property
     def datasets(self) -> list[RPKMeansDataset]:
         return [
-            RPKMeansDataset(dataset.name, k=10, eps=0.3, suites=["standard", "trace"])
-            for dataset in OpenMLDatasetGenerator().datasets
+            RPKMeansDataset(
+                "mnist",
+                k=10,
+                eps=0.3,
+                suites=["standard", "trace"],
+            ),
+            RPKMeansDataset(
+                "cifar10",
+                k=10,
+                eps=0.3,
+                suites=["standard", "trace", "train"],
+            ),
         ]
 
     def generate(self, dataset: RPKMeansDataset) -> DataInstance:
