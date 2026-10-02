@@ -196,19 +196,6 @@ class QuantumStateGenerator(Generator[QuantumDataset]):
         )
 
 
-def apply_single_qubit_gate(xp, state, gate, qubit, nqubits):
-    left = 1 << qubit
-    right = 1 << (nqubits - qubit - 1)
-    start_resh = xp.reshape(state, (left, 2, right))
-    # gate[new, old] convention => einsum "ijk,lj->ilk"
-    new_resh = xp.einsum(
-        "new_resh[i, j, k] += start_resh[i, l, k] * gate[j, l]",
-        start_resh=start_resh,
-        gate=gate,
-    )
-    return xp.reshape(new_resh, state.shape)
-
-
 class QGates:
     H = 1 / np.sqrt(2) * np.array([[1, 1], [1, -1]], dtype=np.complex128)
     X = np.array([[0, 1], [1, 0]], dtype=np.complex128)
@@ -620,7 +607,16 @@ class QuantumStatevectorBenchmark(Benchmark):
                 gate = T
             else:
                 raise ValueError(f"Unknown quantum gate: {gate_name}")
-            state = apply_single_qubit_gate(xp, state, gate, qubit, nqubits)
+            left = 1 << qubit
+            right = 1 << (nqubits - qubit - 1)
+            start_resh = xp.reshape(state, (left, 2, right))
+            # gate[new, old] convention => einsum "ijk,lj->ilk"
+            new_resh = xp.einsum(
+                "new_resh[i, j, k] += start_resh[i, l, k] * gate[j, l]",
+                start_resh=start_resh,
+                gate=gate,
+            )
+            state = xp.reshape(new_resh, state.shape)
 
         return state
 
