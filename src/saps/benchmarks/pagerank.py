@@ -1,3 +1,5 @@
+# ruff: noqa: E501
+
 import numpy as np
 
 from binsparse import BinsparseTensor
@@ -12,8 +14,8 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.snap import SNAPDataset, SNAPGraphGenerator, fetch_snap_graph
-from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
+from saps.benchmarks.gap import fetch_gap_graph
+from saps.benchmarks.snap import fetch_snap_graph
 
 
 class PageRankDataset(Dataset):
@@ -30,7 +32,7 @@ class PageRankDataset(Dataset):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"PageRank input {name}."
-        self._suites = suites or []
+        self._suites = list(suites or [])
         self.A = A
         self.expected = expected
         self.ref_meta = ref_meta
@@ -193,7 +195,7 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
         )
 
 
-class PageRankSNAPGenerator(Generator[SNAPDataset]):
+class PageRankSNAPGenerator(Generator[PageRankDataset]):
     @property
     def name(self) -> str:
         return "pagerank_snap_inputs"
@@ -238,29 +240,84 @@ class PageRankSNAPGenerator(Generator[SNAPDataset]):
         return False
 
     @property
-    def datasets(self) -> list[SNAPDataset]:
+    def datasets(self) -> list[PageRankDataset]:
         # Successful standard-suite Smart runs <= 30s in competition/run_13662472.
-        trace = (
-            "CollegeMsg",
-            "ca-GrQc",
-            "email-Eu-core",
-            "email-Eu-core-temporal",
-            "p2p-Gnutella08",
-            "soc-sign-bitcoin-alpha",
-            "wiki-RfA",
-            "wiki-Vote",
-        )
+        # fmt: off
         return [
-            graph.with_suites(
-                ["standard", "trace"] if graph.name in trace else ["standard"]
-            )
-            for graph in SNAPGraphGenerator().datasets
+            PageRankDataset("soc-Epinions1", suites=["standard"]),
+            PageRankDataset("soc-LiveJournal1", suites=["standard"]),
+            PageRankDataset("soc-Pokec", suites=["standard"]),
+            PageRankDataset("soc-Slashdot0811", suites=["standard"]),
+            PageRankDataset("soc-Slashdot0902", suites=["standard"]),
+            PageRankDataset("wiki-Vote", suites=["standard", "trace"]),
+            PageRankDataset("wiki-RfA", suites=["standard", "trace"]),
+            PageRankDataset("soc-sign-bitcoin-otc", suites=["standard"]),
+            PageRankDataset("soc-sign-bitcoin-alpha", suites=["standard", "trace"]),
+            PageRankDataset("com-LiveJournal", suites=["standard"]),
+            PageRankDataset("com-Friendster", suites=["standard"]),
+            PageRankDataset("com-Orkut", suites=["standard"]),
+            PageRankDataset("com-Youtube", suites=["standard"]),
+            PageRankDataset("com-DBLP", suites=["standard"]),
+            PageRankDataset("com-Amazon", suites=["standard"]),
+            PageRankDataset("email-Eu-core", suites=["standard", "trace"]),
+            PageRankDataset("wiki-topcats", suites=["standard"]),
+            PageRankDataset("email-EuAll", suites=["standard"]),
+            PageRankDataset("email-Enron", suites=["standard"]),
+            PageRankDataset("wiki-Talk", suites=["standard"]),
+            PageRankDataset("cit-HepPh", suites=["standard"]),
+            PageRankDataset("cit-HepTh", suites=["standard"]),
+            PageRankDataset("cit-Patents", suites=["standard"]),
+            PageRankDataset("ca-AstroPh", suites=["standard"]),
+            PageRankDataset("ca-CondMat", suites=["standard"]),
+            PageRankDataset("ca-GrQc", suites=["standard", "trace"]),
+            PageRankDataset("ca-HepPh", suites=["standard"]),
+            PageRankDataset("ca-HepTh", suites=["standard"]),
+            PageRankDataset("web-BerkStan", suites=["standard"]),
+            PageRankDataset("web-Google", suites=["standard"]),
+            PageRankDataset("web-NotreDame", suites=["standard"]),
+            PageRankDataset("web-Stanford", suites=["standard"]),
+            PageRankDataset("amazon0302", suites=["standard"]),
+            PageRankDataset("amazon0312", suites=["standard"]),
+            PageRankDataset("amazon0505", suites=["standard"]),
+            PageRankDataset("amazon0601", suites=["standard"]),
+            PageRankDataset("p2p-Gnutella04", suites=["standard"]),
+            PageRankDataset("p2p-Gnutella05", suites=["standard"]),
+            PageRankDataset("p2p-Gnutella06", suites=["standard"]),
+            PageRankDataset("p2p-Gnutella08", suites=["standard", "trace"]),
+            PageRankDataset("p2p-Gnutella09", suites=["standard"]),
+            PageRankDataset("p2p-Gnutella24", suites=["standard"]),
+            PageRankDataset("p2p-Gnutella25", suites=["standard"]),
+            PageRankDataset("p2p-Gnutella30", suites=["standard"]),
+            PageRankDataset("p2p-Gnutella31", suites=["standard"]),
+            PageRankDataset("roadNet-CA", suites=["standard"]),
+            PageRankDataset("roadNet-PA", suites=["standard"]),
+            PageRankDataset("roadNet-TX", suites=["standard"]),
+            PageRankDataset("as-735", suites=["standard"]),
+            PageRankDataset("as-Skitter", suites=["standard"]),
+            PageRankDataset("as-caida", suites=["standard"]),
+            PageRankDataset("Oregon-1", suites=["standard"]),
+            PageRankDataset("Oregon-2", suites=["standard"]),
+            PageRankDataset("soc-sign-epinions", suites=["standard"]),
+            PageRankDataset("soc-sign-Slashdot081106", suites=["standard"]),
+            PageRankDataset("soc-sign-Slashdot090216", suites=["standard"]),
+            PageRankDataset("soc-sign-Slashdot090221", suites=["standard"]),
+            PageRankDataset("loc-Gowalla", suites=["standard"]),
+            PageRankDataset("loc-Brightkite", suites=["standard"]),
+            PageRankDataset("sx-stackoverflow", suites=["standard"]),
+            PageRankDataset("sx-mathoverflow", suites=["standard"]),
+            PageRankDataset("sx-superuser", suites=["standard"]),
+            PageRankDataset("sx-askubuntu", suites=["standard"]),
+            PageRankDataset("wiki-talk-temporal", suites=["standard"]),
+            PageRankDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
+            PageRankDataset("CollegeMsg", suites=["standard", "trace"]),
+            PageRankDataset("twitter7", suites=["standard"]),
+            PageRankDataset("higgs-twitter", suites=["standard"]),
         ]
+        # fmt: on
 
-    def generate(self, dataset: SNAPDataset) -> DataInstance:
-        if dataset.name in self.dataset_names:
-            return fetch_snap_graph(dataset.name)
-        raise ValueError(f"Unsupported PageRank dataset: {dataset.name}")
+    def generate(self, dataset: PageRankDataset) -> DataInstance:
+        raw = fetch_snap_graph(dataset.name)
+        return DataInstance(inputs=raw.inputs, meta=dict(raw.meta))
 
 
 class PageRankGAPGenerator(Generator[PageRankDataset]):
@@ -320,62 +377,19 @@ class PageRankGAPGenerator(Generator[PageRankDataset]):
 
     @property
     def datasets(self) -> list[PageRankDataset]:
+        # fmt: off
         return [
-            PageRankDataset(
-                name="GAP/GAP-road",
-                pretty_name="GAP Road",
-                description=(
-                    "Directed roads with weights in the US, with 23.9M nodes and"
-                    " 58.3M edges."
-                ),
-                suites=["standard"],
-            ),
-            PageRankDataset(
-                name="GAP/GAP-twitter",
-                pretty_name="GAP Twitter",
-                description=(
-                    "Directed weighted social network topology of Twitter, with 61.6M"
-                    " nodes and 1,468.4M edges."
-                ),
-                suites=["standard"],
-            ),
-            PageRankDataset(
-                name="GAP/GAP-web",
-                pretty_name="GAP Web",
-                description=(
-                    "A web-crawl of the .sk domain, directed and weighted, with 50.6M"
-                    " nodes and 1,949.4M edges."
-                ),
-                suites=["standard"],
-            ),
-            PageRankDataset(
-                name="GAP/GAP-kron",
-                pretty_name="GAP Kron",
-                description=(
-                    "Symmetric random undirected weighted graph generated by"
-                    " Kronecker synthetic graph generator with parameters"
-                    " (A=0.57, B=C=0.19, D=0.05). Has 134.2M nodes and 2,111.6M"
-                    " edges."
-                ),
-                suites=["standard"],
-            ),
-            PageRankDataset(
-                name="GAP/GAP-urand",
-                pretty_name="GAP Urand",
-                description=(
-                    "Symmetric random undirected weighted graph generated by"
-                    " Erdos–Reyni model (Uniform Random) with 134.2M nodes and"
-                    " 2,147.4M edges."
-                ),
-                suites=["standard"],
-            ),
+            PageRankDataset("GAP-road", suites=["standard"]),
+            PageRankDataset("GAP-twitter", suites=["standard"]),
+            PageRankDataset("GAP-web", suites=["standard"]),
+            PageRankDataset("GAP-kron", suites=["standard"]),
+            PageRankDataset("GAP-urand", suites=["standard"]),
         ]
+        # fmt: on
 
     def generate(self, dataset: PageRankDataset) -> DataInstance:
-        if dataset.name.startswith("GAP/"):
-            raw = fetch_suitesparse_matrix(dataset.name)
-            return DataInstance(inputs=[raw.inputs[0]], meta=raw.meta)
-        raise ValueError(f"Unsupported PageRank dataset: {dataset.name}")
+        raw = fetch_gap_graph(dataset.name)
+        return DataInstance(inputs=raw.inputs, meta=dict(raw.meta))
 
 
 class PageRankBenchmark(Benchmark):

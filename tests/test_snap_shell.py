@@ -10,14 +10,16 @@ import numpy as np
 from binsparse.conversions import to_numpy, to_scipy, to_sparse
 
 from saps.benchmark import Generator
+from saps.benchmarks.BFS import (
+    BreadthFirstSearchDataset,
+    BreadthFirstSearchSNAPGenerator,
+)
 from saps.benchmarks.snap import (
     _MAX_DEGREES,
     NUM_SNAP_SOURCES,
     SNAPGraphBenchmark,
     SNAPGraphGenerator,
-    SNAPSourceDataset,
     fetch_snap_graph,
-    fetch_snap_source_graph,
     seeded_source_vertices,
     select_source_vertices,
 )
@@ -40,6 +42,8 @@ _CONSUMERS = [
     ("transitive_closure", "TransitiveClosureSNAPGenerator"),
     ("triangle_counting", "TriangleCountSNAPGenerator"),
     ("transitive_reduction", "TransitiveReductionSNAPGenerator"),
+    ("multi_source_shortest_paths", "MultiSourceShortestPathsSNAPGenerator"),
+    ("mcl_benchmark", "MCLSNAPGenerator"),
 ]
 
 
@@ -86,15 +90,13 @@ def test_snap_shell_inventory_covers_consumers():
                     type(consumer).__name__.endswith("SNAPGenerator")
                     or consumer.name == "snap_graph"
                 ):
-                    graph = (
-                        dataset.graph
-                        if isinstance(dataset, SNAPSourceDataset)
-                        else dataset
+                    name = getattr(dataset, "source_name", dataset.name).removeprefix(
+                        "SNAP/"
                     )
-                    assert graph.name in declared
+                    assert name in declared
                     if consumer.name != generator.name:
                         assert not consumer.cacheable
-                        consumed.add(graph.name)
+                        consumed.add(name)
     assert consumed <= declared
     assert consumed == declared
 
@@ -159,9 +161,7 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
     consumer = getattr(module, class_name)()
     dataset = consumer.datasets[0]
     shell = SuiteSparseMatrixGenerator()
-    slug = (
-        dataset.graph.name if isinstance(dataset, SNAPSourceDataset) else dataset.name
-    )
+    slug = getattr(dataset, "source_name", dataset.name).removeprefix("SNAP/")
     source = next(d for d in shell.datasets if d.source_name == f"SNAP/{slug}")
     path = backend.cache_dir / "suitesparse" / "SNAP" / slug / f"{slug}.mtx"
     path.parent.mkdir(parents=True)
@@ -187,18 +187,26 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
     manifest = backend.manifest_path.read_bytes()
 
     problem = consumer.cached_generate(dataset)
-    assert len(problem.inputs) == 1
-    if isinstance(dataset, SNAPSourceDataset):
+    assert len(problem.inputs) == (
+        2 if module_name == "multi_source_shortest_paths" else 1
+    )
+    if getattr(dataset, "source_seed", None) is not None:
         assert problem.meta["seed"] == 0
         assert problem.meta["src"] == int(
             select_source_vertices(fetch_snap_graph(slug).inputs[0], seed=0)[0]
         )
+    elif module_name == "multi_source_shortest_paths":
+        assert problem.meta == {
+            "sources": sorted(set(_seeded_sources(fetch_snap_graph(slug).inputs[0])))
+        }
+    elif module_name == "mcl_benchmark":
+        assert problem.meta == {}
     else:
         assert problem.meta == {
             "max_degree": _MAX_DEGREES[f"SNAP/{slug}"],
             "sources": _seeded_sources(fetch_snap_graph(slug).inputs[0]),
         }
-    if module_name == "bellmanford":
+    if module_name in {"bellmanford", "multi_source_shortest_paths"}:
         expected = np.array([[0, 1, np.inf], [np.inf, 0, 1], [np.inf, np.inf, 0]])
         np.testing.assert_array_equal(to_sparse(problem.inputs[0]).todense(), expected)
         assert problem.inputs[0].fill_value == np.inf
@@ -216,9 +224,9 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
     # Subsequent users read the local shared shell object, not per-consumer caches.
     raw = fetch_snap_graph(slug)
     assert to_scipy(raw.inputs[0]).toarray()[2, 2] == 1
-    if isinstance(dataset, SNAPSourceDataset):
-        seeded = [d for d in consumer.datasets if d.graph.name == slug]
-        assert [d.seed for d in seeded] == list(range(10))
+    if getattr(dataset, "source_seed", None) is not None:
+        seeded = [d for d in consumer.datasets if d.source_name == slug]
+        assert [d.source_seed for d in seeded] == list(range(10))
         from scipy.sparse.csgraph import shortest_path
 
         from frameworks.saps_numpy import NumpyFramework
@@ -247,7 +255,7 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
             )[0]
             np.testing.assert_array_equal(output, expected_output)
             assert actual.meta["src"] == int(
-                select_source_vertices(raw.inputs[0], seed=variant.seed)[0]
+                select_source_vertices(raw.inputs[0], seed=variant.source_seed)[0]
             )
     assert len(raw.inputs) == 1
     assert raw.meta == {
@@ -269,11 +277,15 @@ def test_each_gap_graph_problem_has_an_explicit_snap_generator():
             continue
         problems.append(benchmark.name)
         snap = [g for g in generators if type(g).__name__.endswith("SNAPGenerator")]
+        if benchmark.name == "floyd_warshall":
+            # This problem has GAP and other SuiteSparse matrices, but no SNAP cases.
+            assert snap == []
+            continue
         assert len(snap) == 1, benchmark.name
         assert "SNAP" in snap[0].pretty_name
         assert snap[0].name.endswith("_snap_inputs")
         assert not snap[0].cacheable
-    assert len(problems) == 10
+    assert len(problems) == 13
 
 
 def test_snap_transitive_reduction_removes_redundant_edge(monkeypatch):
@@ -435,10 +447,10 @@ def test_all_snap_sources_have_ten_seeded_cases():
     for generator in (BreadthFirstSearchSNAPGenerator(), BellmanFordSNAPGenerator()):
         datasets = generator.datasets
         assert len(datasets) == len({d.name for d in datasets}) == len(graphs) * 10
-        assert {(d.graph.name, d.seed) for d in datasets} == {
+        assert {(d.source_name, d.source_seed) for d in datasets} == {
             (g.name, seed) for g in graphs for seed in range(10)
         }
-        assert all(d.metadata["seed"] == d.seed for d in datasets)
+        assert all("standard" in d.suites for d in datasets)
 
 
 def test_snap_with_suites_does_not_mutate_shared_graphs():
@@ -453,8 +465,10 @@ def test_snap_with_suites_does_not_mutate_shared_graphs():
 
 def test_snap_source_trace_selection_is_seed_specific():
     graph = SNAPGraphGenerator().datasets[0]
-    selected = SNAPSourceDataset(graph, 0, suites=["trace"])
-    other = SNAPSourceDataset(graph, 1)
+    selected = BreadthFirstSearchDataset(
+        "selected", source_name=graph.name, source_seed=0, suites=["trace"]
+    )
+    other = BreadthFirstSearchDataset("other", source_name=graph.name, source_seed=1)
     assert selected.suites == ["trace"]
     assert other.suites == []
     assert graph.suites == []
@@ -475,20 +489,32 @@ def test_seeded_sources_match_one_selection_per_seed(seed):
 
 
 @pytest.mark.parametrize("seed", [-1, NUM_SNAP_SOURCES])
-def test_snap_source_dataset_rejects_seeds_without_a_source(seed):
+def test_snap_generator_rejects_seeds_without_a_source(monkeypatch, seed):
+    from saps.benchmark import DataInstance
+    from saps.benchmarks import BFS
+
+    raw = DataInstance(
+        inputs=[object()], meta={"sources": list(range(NUM_SNAP_SOURCES))}
+    )
+    monkeypatch.setattr(BFS, "fetch_snap_graph", lambda _: raw)
+    dataset = BreadthFirstSearchDataset(
+        "invalid", source_name="soc-Epinions1", source_seed=seed
+    )
     with pytest.raises(ValueError, match="Source seed"):
-        SNAPSourceDataset(SNAPGraphGenerator().datasets[0], seed)
+        BreadthFirstSearchSNAPGenerator().generate(dataset)
 
 
 def test_snap_source_graph_picks_source_from_shell_sources(monkeypatch):
     from saps.benchmark import DataInstance
-    from saps.benchmarks import snap
+    from saps.benchmarks import BFS
 
     sources = list(range(100, 100 + NUM_SNAP_SOURCES))
     raw = DataInstance(inputs=[object()], meta={"max_degree": 3, "sources": sources})
-    monkeypatch.setattr(snap, "fetch_snap_graph", lambda _: raw)
-    graph = SNAPGraphGenerator().datasets[0]
-    problem = fetch_snap_source_graph(SNAPSourceDataset(graph, 7))
+    monkeypatch.setattr(BFS, "fetch_snap_graph", lambda _: raw)
+    dataset = BreadthFirstSearchDataset(
+        "seed-seven", source_name="soc-Epinions1", source_seed=7
+    )
+    problem = BreadthFirstSearchSNAPGenerator().generate(dataset)
     assert problem.meta == {**raw.meta, "src": 107, "seed": 7}
     assert raw.meta == {"max_degree": 3, "sources": sources}
 

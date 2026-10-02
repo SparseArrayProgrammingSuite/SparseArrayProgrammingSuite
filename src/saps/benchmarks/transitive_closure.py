@@ -1,3 +1,5 @@
+# ruff: noqa: E501
+
 import numpy as np
 
 from binsparse import BinsparseTensor
@@ -12,8 +14,8 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.snap import SNAPDataset, SNAPGraphGenerator, fetch_snap_graph
-from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
+from saps.benchmarks.gap import fetch_gap_graph
+from saps.benchmarks.snap import fetch_snap_graph
 from saps_framework.binsparse_utils import binsparse_equal
 
 
@@ -28,7 +30,7 @@ class TransitiveClosureDataset(Dataset):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Transitive closure input {name}."
-        self._suites = suites or []
+        self._suites = list(suites or [])
 
     @property
     def name(self) -> str:
@@ -174,7 +176,7 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
         )
 
 
-class TransitiveClosureSNAPGenerator(Generator[SNAPDataset]):
+class TransitiveClosureSNAPGenerator(Generator[TransitiveClosureDataset]):
     @property
     def cacheable(self) -> bool:
         return False
@@ -219,13 +221,83 @@ class TransitiveClosureSNAPGenerator(Generator[SNAPDataset]):
         return "Generate sparse directed graph inputs for transitive closure."
 
     @property
-    def datasets(self) -> list[SNAPDataset]:
-        return SNAPGraphGenerator().datasets
+    def datasets(self) -> list[TransitiveClosureDataset]:
+        # fmt: off
+        return [
+            TransitiveClosureDataset("soc-Epinions1", suites=[]),
+            TransitiveClosureDataset("soc-LiveJournal1", suites=[]),
+            TransitiveClosureDataset("soc-Pokec", suites=[]),
+            TransitiveClosureDataset("soc-Slashdot0811", suites=[]),
+            TransitiveClosureDataset("soc-Slashdot0902", suites=[]),
+            TransitiveClosureDataset("wiki-Vote", suites=[]),
+            TransitiveClosureDataset("wiki-RfA", suites=[]),
+            TransitiveClosureDataset("soc-sign-bitcoin-otc", suites=[]),
+            TransitiveClosureDataset("soc-sign-bitcoin-alpha", suites=[]),
+            TransitiveClosureDataset("com-LiveJournal", suites=[]),
+            TransitiveClosureDataset("com-Friendster", suites=[]),
+            TransitiveClosureDataset("com-Orkut", suites=[]),
+            TransitiveClosureDataset("com-Youtube", suites=[]),
+            TransitiveClosureDataset("com-DBLP", suites=[]),
+            TransitiveClosureDataset("com-Amazon", suites=[]),
+            TransitiveClosureDataset("email-Eu-core", suites=[]),
+            TransitiveClosureDataset("wiki-topcats", suites=[]),
+            TransitiveClosureDataset("email-EuAll", suites=[]),
+            TransitiveClosureDataset("email-Enron", suites=[]),
+            TransitiveClosureDataset("wiki-Talk", suites=[]),
+            TransitiveClosureDataset("cit-HepPh", suites=[]),
+            TransitiveClosureDataset("cit-HepTh", suites=[]),
+            TransitiveClosureDataset("cit-Patents", suites=[]),
+            TransitiveClosureDataset("ca-AstroPh", suites=[]),
+            TransitiveClosureDataset("ca-CondMat", suites=[]),
+            TransitiveClosureDataset("ca-GrQc", suites=[]),
+            TransitiveClosureDataset("ca-HepPh", suites=[]),
+            TransitiveClosureDataset("ca-HepTh", suites=[]),
+            TransitiveClosureDataset("web-BerkStan", suites=[]),
+            TransitiveClosureDataset("web-Google", suites=[]),
+            TransitiveClosureDataset("web-NotreDame", suites=[]),
+            TransitiveClosureDataset("web-Stanford", suites=[]),
+            TransitiveClosureDataset("amazon0302", suites=[]),
+            TransitiveClosureDataset("amazon0312", suites=[]),
+            TransitiveClosureDataset("amazon0505", suites=[]),
+            TransitiveClosureDataset("amazon0601", suites=[]),
+            TransitiveClosureDataset("p2p-Gnutella04", suites=[]),
+            TransitiveClosureDataset("p2p-Gnutella05", suites=[]),
+            TransitiveClosureDataset("p2p-Gnutella06", suites=[]),
+            TransitiveClosureDataset("p2p-Gnutella08", suites=[]),
+            TransitiveClosureDataset("p2p-Gnutella09", suites=[]),
+            TransitiveClosureDataset("p2p-Gnutella24", suites=[]),
+            TransitiveClosureDataset("p2p-Gnutella25", suites=[]),
+            TransitiveClosureDataset("p2p-Gnutella30", suites=[]),
+            TransitiveClosureDataset("p2p-Gnutella31", suites=[]),
+            TransitiveClosureDataset("roadNet-CA", suites=[]),
+            TransitiveClosureDataset("roadNet-PA", suites=[]),
+            TransitiveClosureDataset("roadNet-TX", suites=[]),
+            TransitiveClosureDataset("as-735", suites=[]),
+            TransitiveClosureDataset("as-Skitter", suites=[]),
+            TransitiveClosureDataset("as-caida", suites=[]),
+            TransitiveClosureDataset("Oregon-1", suites=[]),
+            TransitiveClosureDataset("Oregon-2", suites=[]),
+            TransitiveClosureDataset("soc-sign-epinions", suites=[]),
+            TransitiveClosureDataset("soc-sign-Slashdot081106", suites=[]),
+            TransitiveClosureDataset("soc-sign-Slashdot090216", suites=[]),
+            TransitiveClosureDataset("soc-sign-Slashdot090221", suites=[]),
+            TransitiveClosureDataset("loc-Gowalla", suites=[]),
+            TransitiveClosureDataset("loc-Brightkite", suites=[]),
+            TransitiveClosureDataset("sx-stackoverflow", suites=[]),
+            TransitiveClosureDataset("sx-mathoverflow", suites=[]),
+            TransitiveClosureDataset("sx-superuser", suites=[]),
+            TransitiveClosureDataset("sx-askubuntu", suites=[]),
+            TransitiveClosureDataset("wiki-talk-temporal", suites=[]),
+            TransitiveClosureDataset("email-Eu-core-temporal", suites=[]),
+            TransitiveClosureDataset("CollegeMsg", suites=[]),
+            TransitiveClosureDataset("twitter7", suites=[]),
+            TransitiveClosureDataset("higgs-twitter", suites=[]),
+        ]
+        # fmt: on
 
-    def generate(self, dataset: SNAPDataset) -> DataInstance:
-        if dataset.name in self.dataset_names:
-            return fetch_snap_graph(dataset.name)
-        raise ValueError(f"Unsupported transitive closure dataset: {dataset.name}")
+    def generate(self, dataset: TransitiveClosureDataset) -> DataInstance:
+        raw = fetch_snap_graph(dataset.name)
+        return DataInstance(inputs=raw.inputs, meta=dict(raw.meta))
 
 
 class TransitiveClosureGAPGenerator(Generator[TransitiveClosureDataset]):
@@ -285,62 +357,19 @@ class TransitiveClosureGAPGenerator(Generator[TransitiveClosureDataset]):
 
     @property
     def datasets(self) -> list[TransitiveClosureDataset]:
+        # fmt: off
         return [
-            TransitiveClosureDataset(
-                name="GAP/GAP-road",
-                pretty_name="GAP Road",
-                description=(
-                    "Directed roads with weights in the US, with 23.9M nodes and"
-                    " 58.3M edges."
-                ),
-                suites=["standard"],
-            ),
-            TransitiveClosureDataset(
-                name="GAP/GAP-twitter",
-                pretty_name="GAP Twitter",
-                description=(
-                    "Directed weighted social network topology of Twitter, with 61.6M"
-                    " nodes and 1,468.4M edges."
-                ),
-                suites=["standard"],
-            ),
-            TransitiveClosureDataset(
-                name="GAP/GAP-web",
-                pretty_name="GAP Web",
-                description=(
-                    "A web-crawl of the .sk domain, directed and weighted, with 50.6M"
-                    " nodes and 1,949.4M edges."
-                ),
-                suites=["standard"],
-            ),
-            TransitiveClosureDataset(
-                name="GAP/GAP-kron",
-                pretty_name="GAP Kron",
-                description=(
-                    "Symmetric random undirected weighted graph generated by"
-                    " Kronecker synthetic graph generator with parameters"
-                    " (A=0.57, B=C=0.19, D=0.05). Has 134.2M nodes and 2,111.6M"
-                    " edges."
-                ),
-                suites=["standard"],
-            ),
-            TransitiveClosureDataset(
-                name="GAP/GAP-urand",
-                pretty_name="GAP Urand",
-                description=(
-                    "Symmetric random undirected weighted graph generated by"
-                    " Erdos–Reyni model (Uniform Random) with 134.2M nodes and"
-                    " 2,147.4M edges."
-                ),
-                suites=["standard"],
-            ),
+            TransitiveClosureDataset("GAP-road", suites=["standard"]),
+            TransitiveClosureDataset("GAP-twitter", suites=["standard"]),
+            TransitiveClosureDataset("GAP-web", suites=["standard"]),
+            TransitiveClosureDataset("GAP-kron", suites=["standard"]),
+            TransitiveClosureDataset("GAP-urand", suites=["standard"]),
         ]
+        # fmt: on
 
     def generate(self, dataset: TransitiveClosureDataset) -> DataInstance:
-        if dataset.name.startswith("GAP/"):
-            raw = fetch_suitesparse_matrix(dataset.name)
-            return DataInstance(inputs=[raw.inputs[0]], meta=raw.meta)
-        raise ValueError(f"Unsupported transitive closure dataset: {dataset.name}")
+        raw = fetch_gap_graph(dataset.name)
+        return DataInstance(inputs=raw.inputs, meta=dict(raw.meta))
 
 
 class TransitiveClosureBenchmark(Benchmark):

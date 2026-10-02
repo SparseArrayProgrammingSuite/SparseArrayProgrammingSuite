@@ -1,3 +1,4 @@
+# ruff: noqa: E501
 from typing import Any
 
 import numpy as np
@@ -11,11 +12,12 @@ from saps.benchmark import (
     Benchmark,
     Contributor,
     DataInstance,
+    Dataset,
     Generator,
     Ref,
 )
-from saps.benchmarks.snap import SNAPGraphGenerator
-from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
+from saps.benchmarks.gap import fetch_gap_graph
+from saps.benchmarks.snap import fetch_snap_graph
 
 
 def _normalize(array_api, matrix):
@@ -38,22 +40,42 @@ def _prune(array_api, matrix, threshold):
     return matrix * mask
 
 
-class MCLDataset(SuiteSparseDataset):
+class MCLDataset(Dataset):
     def __init__(
         self,
-        source_name: str,
+        name: str,
+        pretty_name: str | None = None,
+        description: str | None = None,
         suites: list[str] | None = None,
         A: Any | None = None,
         expected_count: int | None = None,
     ):
-        super().__init__(
-            source_name,
-            pretty_name=f"MCL {source_name}",
-            description=f"SuiteSparse adjacency matrix {source_name}.",
-            suites=suites,
-        )
+        self._name = name
+        self._pretty_name = pretty_name or name
+        self._description = description or f"MCL input {name}."
+        self._suites = list(suites or [])
         self.A = A
         self.expected_count = expected_count
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
 
 class MCLTestGenerator(Generator[MCLDataset]):
@@ -185,14 +207,14 @@ class MCLTestGenerator(Generator[MCLDataset]):
         )
 
 
-class MCLGenerator(Generator[MCLDataset]):
+class MCLSNAPGenerator(Generator[MCLDataset]):
     @property
     def name(self) -> str:
-        return "mcl_inputs"
+        return "mcl_snap_inputs"
 
     @property
     def pretty_name(self) -> str:
-        return "MCL SuiteSparse Data Generator"
+        return "MCL SNAP Input Generator"
 
     @property
     def description(self) -> str:
@@ -231,21 +253,144 @@ class MCLGenerator(Generator[MCLDataset]):
 
     @property
     def datasets(self) -> list[MCLDataset]:
+        # fmt: off
         return [
-            *(
-                MCLDataset(graph.source_name, suites=["standard"])
-                for graph in SNAPGraphGenerator().datasets
-            ),
+            MCLDataset("SNAP/soc-Epinions1", suites=["standard"]),
+            MCLDataset("SNAP/soc-LiveJournal1", suites=["standard"]),
+            MCLDataset("SNAP/soc-Pokec", suites=["standard"]),
+            MCLDataset("SNAP/soc-Slashdot0811", suites=["standard"]),
+            MCLDataset("SNAP/soc-Slashdot0902", suites=["standard"]),
+            MCLDataset("SNAP/wiki-Vote", suites=["standard"]),
+            MCLDataset("SNAP/wiki-RfA", suites=["standard"]),
+            MCLDataset("SNAP/soc-sign-bitcoin-otc", suites=["standard"]),
+            MCLDataset("SNAP/soc-sign-bitcoin-alpha", suites=["standard"]),
+            MCLDataset("SNAP/com-LiveJournal", suites=["standard"]),
+            MCLDataset("SNAP/com-Friendster", suites=["standard"]),
+            MCLDataset("SNAP/com-Orkut", suites=["standard"]),
+            MCLDataset("SNAP/com-Youtube", suites=["standard"]),
+            MCLDataset("SNAP/com-DBLP", suites=["standard"]),
+            MCLDataset("SNAP/com-Amazon", suites=["standard"]),
+            MCLDataset("SNAP/email-Eu-core", suites=["standard"]),
+            MCLDataset("SNAP/wiki-topcats", suites=["standard"]),
+            MCLDataset("SNAP/email-EuAll", suites=["standard"]),
+            MCLDataset("SNAP/email-Enron", suites=["standard"]),
+            MCLDataset("SNAP/wiki-Talk", suites=["standard"]),
+            MCLDataset("SNAP/cit-HepPh", suites=["standard"]),
+            MCLDataset("SNAP/cit-HepTh", suites=["standard"]),
+            MCLDataset("SNAP/cit-Patents", suites=["standard"]),
+            MCLDataset("SNAP/ca-AstroPh", suites=["standard"]),
+            MCLDataset("SNAP/ca-CondMat", suites=["standard"]),
+            MCLDataset("SNAP/ca-GrQc", suites=["standard"]),
+            MCLDataset("SNAP/ca-HepPh", suites=["standard"]),
+            MCLDataset("SNAP/ca-HepTh", suites=["standard"]),
+            MCLDataset("SNAP/web-BerkStan", suites=["standard"]),
+            MCLDataset("SNAP/web-Google", suites=["standard"]),
+            MCLDataset("SNAP/web-NotreDame", suites=["standard"]),
+            MCLDataset("SNAP/web-Stanford", suites=["standard"]),
+            MCLDataset("SNAP/amazon0302", suites=["standard"]),
+            MCLDataset("SNAP/amazon0312", suites=["standard"]),
+            MCLDataset("SNAP/amazon0505", suites=["standard"]),
+            MCLDataset("SNAP/amazon0601", suites=["standard"]),
+            MCLDataset("SNAP/p2p-Gnutella04", suites=["standard"]),
+            MCLDataset("SNAP/p2p-Gnutella05", suites=["standard"]),
+            MCLDataset("SNAP/p2p-Gnutella06", suites=["standard"]),
+            MCLDataset("SNAP/p2p-Gnutella08", suites=["standard"]),
+            MCLDataset("SNAP/p2p-Gnutella09", suites=["standard"]),
+            MCLDataset("SNAP/p2p-Gnutella24", suites=["standard"]),
+            MCLDataset("SNAP/p2p-Gnutella25", suites=["standard"]),
+            MCLDataset("SNAP/p2p-Gnutella30", suites=["standard"]),
+            MCLDataset("SNAP/p2p-Gnutella31", suites=["standard"]),
+            MCLDataset("SNAP/roadNet-CA", suites=["standard"]),
+            MCLDataset("SNAP/roadNet-PA", suites=["standard"]),
+            MCLDataset("SNAP/roadNet-TX", suites=["standard"]),
+            MCLDataset("SNAP/as-735", suites=["standard"]),
+            MCLDataset("SNAP/as-Skitter", suites=["standard"]),
+            MCLDataset("SNAP/as-caida", suites=["standard"]),
+            MCLDataset("SNAP/Oregon-1", suites=["standard"]),
+            MCLDataset("SNAP/Oregon-2", suites=["standard"]),
+            MCLDataset("SNAP/soc-sign-epinions", suites=["standard"]),
+            MCLDataset("SNAP/soc-sign-Slashdot081106", suites=["standard"]),
+            MCLDataset("SNAP/soc-sign-Slashdot090216", suites=["standard"]),
+            MCLDataset("SNAP/soc-sign-Slashdot090221", suites=["standard"]),
+            MCLDataset("SNAP/loc-Gowalla", suites=["standard"]),
+            MCLDataset("SNAP/loc-Brightkite", suites=["standard"]),
+            MCLDataset("SNAP/sx-stackoverflow", suites=["standard"]),
+            MCLDataset("SNAP/sx-mathoverflow", suites=["standard"]),
+            MCLDataset("SNAP/sx-superuser", suites=["standard"]),
+            MCLDataset("SNAP/sx-askubuntu", suites=["standard"]),
+            MCLDataset("SNAP/wiki-talk-temporal", suites=["standard"]),
+            MCLDataset("SNAP/email-Eu-core-temporal", suites=["standard"]),
+            MCLDataset("SNAP/CollegeMsg", suites=["standard"]),
+            MCLDataset("SNAP/twitter7", suites=["standard"]),
+            MCLDataset("SNAP/higgs-twitter", suites=["standard"]),
+        ]
+        # fmt: on
+
+    def generate(self, dataset: MCLDataset) -> DataInstance:
+        raw = fetch_snap_graph(dataset.name.removeprefix("SNAP/"))
+        return DataInstance(inputs=raw.inputs, meta={})
+
+
+class MCLGAPGenerator(Generator[MCLDataset]):
+    @property
+    def name(self) -> str:
+        return "mcl_gap_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "MCL GAP Input Generator"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Data collected from SuiteSparse Matrix Collection consisting of "
+            "sparse adjacency matrices used to evaluate graph clustering performance."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return MCLBenchmark().authors
+
+    @property
+    def references(self) -> list[Ref]:
+        return MCLBenchmark().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return MCLBenchmark().ai_disclosure
+
+    @property
+    def motivation(self) -> str:
+        return MCLBenchmark().motivation
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[MCLDataset]:
+        # fmt: off
+        return [
             MCLDataset("GAP/GAP-road", suites=["standard"]),
             MCLDataset("GAP/GAP-twitter", suites=["standard"]),
             MCLDataset("GAP/GAP-web", suites=["standard"]),
             MCLDataset("GAP/GAP-kron", suites=["standard"]),
             MCLDataset("GAP/GAP-urand", suites=["standard"]),
         ]
+        # fmt: on
+        # fmt: on
 
-    def generate(self, dataset: MCLDataset):
-        raw = fetch_suitesparse_matrix(dataset.source_name)
-        return DataInstance(inputs=[raw.inputs[0]], meta={})
+    def generate(self, dataset: MCLDataset) -> DataInstance:
+        raw = fetch_gap_graph(dataset.name.removeprefix("GAP/"))
+        return DataInstance(inputs=raw.inputs, meta={})
 
 
 class MCLBenchmark(Benchmark):
@@ -339,7 +484,7 @@ class MCLBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [MCLTestGenerator(), MCLGenerator()]
+        return [MCLTestGenerator(), MCLSNAPGenerator(), MCLGAPGenerator()]
 
     def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
         """

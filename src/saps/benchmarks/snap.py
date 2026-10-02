@@ -306,48 +306,6 @@ class SNAPDataset(Dataset):
 NUM_SNAP_SOURCES = 64
 
 
-class SNAPSourceDataset(Dataset):
-    """A shared SNAP graph paired with one of its sources, chosen by seed."""
-
-    def __init__(
-        self, graph: SNAPDataset, seed: int, *, suites: list[str] | None = None
-    ):
-        if not 0 <= seed < NUM_SNAP_SOURCES:
-            raise ValueError(f"Source seed must be below {NUM_SNAP_SOURCES}: {seed}")
-        self.graph = graph
-        self.seed = seed
-        self._suites = list(dict.fromkeys([*graph.suites, *(suites or [])]))
-
-    @property
-    def name(self) -> str:
-        return f"{self.graph.name}_seed{self.seed}"
-
-    @property
-    def pretty_name(self) -> str:
-        return f"{self.graph.pretty_name} (source seed {self.seed})"
-
-    @property
-    def description(self) -> str:
-        return self.graph.description
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return self.graph.concepts
-
-    @property
-    def metadata(self) -> dict[str, Any]:
-        return {
-            **self.graph.metadata,
-            **super().metadata,
-            "graph": self.graph.name,
-            "seed": self.seed,
-        }
-
-
 # SNAP sources available in the SuiteSparse Matrix Collection.
 # Entries without SuiteSparse matrices retain their metadata as comments.
 # One explicit entry per source. Additional group memberships and metadata
@@ -556,16 +514,20 @@ class SNAPGraphBenchmark(ShellBenchmark):
         return SNAPGraphGenerator()
 
 
-def fetch_snap_graph(name: str) -> DataInstance:
-    """Read a declared SuiteSparse SNAP matrix from prepared storage."""
-    generator = SNAPGraphGenerator()
-    dataset = next((d for d in generator.datasets if d.name == name), None)
+def snap_graph(name: str) -> SNAPDataset:
+    """The declared SNAP shell dataset called ``name``."""
+    dataset = next((d for d in _GRAPHS if d.name == name), None)
     if dataset is None:
         raise ValueError(
             f"Dataset {name!r} is not listed in SNAPGraphGenerator.datasets. "
             "Add it to the shell dataset list before using it."
         )
-    return generator.cached_generate(dataset)
+    return dataset
+
+
+def fetch_snap_graph(name: str) -> DataInstance:
+    """Read a declared SuiteSparse SNAP matrix from prepared storage."""
+    return SNAPGraphGenerator().cached_generate(snap_graph(name))
 
 
 def select_source_vertices(
@@ -616,11 +578,3 @@ def with_source_vertex(raw: DataInstance, *, seed: int) -> DataInstance:
     src = int(select_source_vertices(raw.inputs[0], seed=seed)[0])
     return DataInstance(inputs=raw.inputs, meta={**raw.meta, "src": src, "seed": seed})
 
-
-def fetch_snap_source_graph(dataset: SNAPSourceDataset) -> DataInstance:
-    """Read a SNAP graph with ``meta["src"]`` set to its source for the seed."""
-    raw = fetch_snap_graph(dataset.graph.name)
-    src = raw.meta["sources"][dataset.seed]
-    return DataInstance(
-        inputs=raw.inputs, meta={**raw.meta, "src": src, "seed": dataset.seed}
-    )

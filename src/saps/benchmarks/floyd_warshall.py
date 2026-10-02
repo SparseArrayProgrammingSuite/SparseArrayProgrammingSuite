@@ -1,3 +1,4 @@
+# ruff: noqa: E501
 import numpy as np
 
 import sparse as sp
@@ -9,38 +10,54 @@ from saps.benchmark import (
     Benchmark,
     Contributor,
     DataInstance,
+    Dataset,
     Generator,
     Ref,
 )
-from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
+from saps.benchmarks.gap import fetch_gap_graph
+from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 
 
-class FloydWarshallDataset(SuiteSparseDataset):
+class FloydWarshallDataset(Dataset):
     def __init__(
         self,
-        name,
-        pretty_name,
-        description,
-        suites,
-        source,
-        symmetrize=False,
+        name: str,
+        pretty_name: str | None = None,
+        description: str | None = None,
+        suites: list[str] | None = None,
+        symmetrize: bool = False,
         A=None,
         expected=None,
-        ref_meta=None,
+        ref_meta: dict | None = None,
     ):
-        super().__init__(
-            name,
-            source_name=source,
-            pretty_name=pretty_name,
-            description=description,
-            suites=suites,
-        )
+        self._name = name
+        self._pretty_name = pretty_name or name
+        self._description = description or f"Floyd-Warshall input {name}."
+        self._suites = list(suites or [])
         self.symmetrize = symmetrize
         self.A = A
-        if expected is None and A is not None:
-            expected = floyd_warshall_reference(A)
         self.expected = expected
         self.ref_meta = ref_meta
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
 
 def floyd_warshall_reference(A):
@@ -130,7 +147,6 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
                 pretty_name="single-node",
                 description="Floyd-Warshall test case single-node.",
                 suites=["test"],
-                source="single-node",
                 A=np.array([[0.0]]),
                 expected=np.array([[0.0]]),
             ),
@@ -139,7 +155,6 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
                 pretty_name="two-node-directed",
                 description="Floyd-Warshall test case two-node-directed.",
                 suites=["test"],
-                source="two-node-directed",
                 A=np.array([[0.0, 1.0], [np.inf, 0.0]]),
                 expected=np.array([[0.0, 1.0], [np.inf, 0.0]]),
             ),
@@ -148,7 +163,6 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
                 pretty_name="three-node-chain",
                 description="Floyd-Warshall test case three-node-chain.",
                 suites=["test"],
-                source="three-node-chain",
                 A=np.array(
                     [
                         [0.0, 1.0, np.inf],
@@ -169,7 +183,6 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
                 pretty_name="three-node-shortcut",
                 description="Floyd-Warshall test case three-node-shortcut.",
                 suites=["test"],
-                source="three-node-shortcut",
                 A=np.array(
                     [
                         [0.0, 1.0, 5.0],
@@ -190,7 +203,6 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
                 pretty_name="two-components",
                 description="Floyd-Warshall test case two-components.",
                 suites=["test"],
-                source="two-components",
                 A=np.array(
                     [
                         [0.0, 1.0, np.inf, np.inf],
@@ -213,7 +225,6 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
                 pretty_name="large-symmetric",
                 description="Floyd-Warshall test case large-symmetric.",
                 suites=["test"],
-                source="large-symmetric",
                 A=floyd_warshall_input_from_edges(
                     39,
                     [
@@ -318,15 +329,18 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
         inputs = (
             dataset.A.todense() if isinstance(dataset.A, sp.SparseArray) else dataset.A
         )
+        expected = dataset.expected
+        if expected is None:
+            expected = floyd_warshall_reference(inputs)
         return DataInstance(
             inputs=[from_numpy(inputs)],
             meta={},
-            ref_outputs=[from_numpy(dataset.expected)],
+            ref_outputs=[from_numpy(expected)],
             ref_meta=dataset.ref_meta,
         )
 
 
-class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
+class FloydWarshallSuiteSparseGenerator(Generator[FloydWarshallDataset]):
     @property
     def name(self) -> str:
         return "floyd_warshall_inputs"
@@ -401,144 +415,141 @@ class FloydWarshallGenerator(Generator[FloydWarshallDataset]):
 
     @property
     def datasets(self) -> list[FloydWarshallDataset]:
+        # fmt: off
         return [
-            FloydWarshallDataset(
-                name="HB/bcspwr01",
-                pretty_name="BCS Power Grid 01",
-                description="Sparse SuiteSparse graph input for Floyd-Warshall.",
-                suites=[],
-                source="HB/bcspwr01",
-                symmetrize=True,
-            ),
-            FloydWarshallDataset(
-                name="HB/bcspwr02",
-                pretty_name="BCS Power Grid 02",
-                description="Sparse SuiteSparse graph input for Floyd-Warshall.",
-                suites=[],
-                source="HB/bcspwr02",
-                symmetrize=True,
-            ),
-            FloydWarshallDataset(
-                name="HB/bcspwr03",
-                pretty_name="BCS Power Grid 03",
-                description="Sparse SuiteSparse graph input for Floyd-Warshall.",
-                suites=[],
-                source="HB/bcspwr03",
-                symmetrize=True,
-            ),
-            FloydWarshallDataset(
-                name="DIMACS10/chesapeake",
-                pretty_name="Chesapeake",
-                description="Sparse road network input for Floyd-Warshall.",
-                suites=[],
-                source="DIMACS10/chesapeake",
-                symmetrize=True,
-            ),
-            FloydWarshallDataset(
-                name="HB/ash85",
-                pretty_name="ASH 85",
-                description="Sparse SuiteSparse graph input for Floyd-Warshall.",
-                suites=[],
-                source="HB/ash85",
-                symmetrize=False,
-            ),
-            FloydWarshallDataset(
-                name="HB/arc130",
-                pretty_name="ARC 130",
-                description="Sparse SuiteSparse graph input for Floyd-Warshall.",
-                suites=[],
-                source="HB/arc130",
-                symmetrize=False,
-            ),
-            FloydWarshallDataset(
-                name="HB/bcspwr04",
-                pretty_name="BCS Power Grid 04",
-                description="Sparse SuiteSparse graph input for Floyd-Warshall.",
-                suites=[],
-                source="HB/bcspwr04",
-                symmetrize=True,
-            ),
-            FloydWarshallDataset(
-                name="HB/ash292",
-                pretty_name="ASH 292",
-                description="Sparse SuiteSparse graph input for Floyd-Warshall.",
-                suites=[],
-                source="HB/ash292",
-                symmetrize=False,
-            ),
-            FloydWarshallDataset(
-                name="GAP/GAP-road",
-                pretty_name="GAP Road",
-                description=(
-                    "Directed roads with weights in the US, with 23.9M nodes and"
-                    " 58.3M edges."
-                ),
-                suites=["standard"],
-                source="GAP/GAP-road",
-                symmetrize=False,
-            ),
-            FloydWarshallDataset(
-                name="GAP/GAP-twitter",
-                pretty_name="GAP Twitter",
-                description=(
-                    "Directed weighted social network topology of Twitter, with 61.6M"
-                    " nodes and 1,468.4M edges."
-                ),
-                suites=["standard"],
-                source="GAP/GAP-twitter",
-                symmetrize=True,
-            ),
-            FloydWarshallDataset(
-                name="GAP/GAP-web",
-                pretty_name="GAP Web",
-                description=(
-                    "A web-crawl of the .sk domain, directed and weighted, with 50.6M"
-                    " nodes and 1,949.4M edges."
-                ),
-                suites=["standard"],
-                source="GAP/GAP-web",
-                symmetrize=True,
-            ),
-            FloydWarshallDataset(
-                name="GAP/GAP-kron",
-                pretty_name="GAP Kron",
-                description=(
-                    "Symmetric random undirected weighted graph generated by"
-                    " Kronecker synthetic graph generator with parameters"
-                    " (A=0.57, B=C=0.19, D=0.05). Has 134.2M nodes and 2,111.6M"
-                    " edges."
-                ),
-                suites=["standard"],
-                source="GAP/GAP-kron",
-                symmetrize=False,
-            ),
-            FloydWarshallDataset(
-                name="GAP/GAP-urand",
-                pretty_name="GAP Urand",
-                description=(
-                    "Symmetric random undirected weighted graph generated by"
-                    " Erdos–Reyni model (Uniform Random) with 134.2M nodes and"
-                    " 2,147.4M edges."
-                ),
-                suites=["standard"],
-                source="GAP/GAP-urand",
-                symmetrize=False,
-            ),
+            FloydWarshallDataset("HB/bcspwr01", symmetrize=True, suites=[]),
+            FloydWarshallDataset("HB/bcspwr02", symmetrize=True, suites=[]),
+            FloydWarshallDataset("HB/bcspwr03", symmetrize=True, suites=[]),
+            FloydWarshallDataset("DIMACS10/chesapeake", symmetrize=True, suites=[]),
+            FloydWarshallDataset("HB/ash85", symmetrize=False, suites=[]),
+            FloydWarshallDataset("HB/arc130", symmetrize=False, suites=[]),
+            FloydWarshallDataset("HB/bcspwr04", symmetrize=True, suites=[]),
+            FloydWarshallDataset("HB/ash292", symmetrize=False, suites=[]),
         ]
+        # fmt: on
 
     @property
     def cacheable(self) -> bool:
         return False
 
     def generate(self, dataset: FloydWarshallDataset):
-        raw = fetch_suitesparse_matrix(dataset.source_name)
-        n, m = raw.meta["shape"]
+        raw = fetch_suitesparse_matrix(dataset.name)
+        n, m = raw.inputs[0].shape
         if n != m:
             raise ValueError(f"Floyd-Warshall requires a square matrix, got {(n, m)}")
 
         coo = to_scipy(raw.inputs[0]).tocoo()
         G = np.full((n, n), np.inf, dtype=np.float64)
-        if raw.meta["nnz"] > 0:
+        if coo.nnz > 0:
+            G[coo.row, coo.col] = 1.0
+        np.fill_diagonal(G, 0.0)
+
+        if dataset.symmetrize:
+            G = np.minimum(G, G.T)
+
+        G_bin = from_numpy(G)
+        return DataInstance(inputs=[G_bin], meta={})
+
+
+class FloydWarshallGAPGenerator(Generator[FloydWarshallDataset]):
+    @property
+    def name(self) -> str:
+        return "floyd_warshall_gap_inputs"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Floyd-Warshall GAP Input Generator"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Data is collected from the SuiteSparse Matrix Collection and standard"
+            " benchmark graph datasets, with sparse adjacency matrices converted into"
+            " unweighted all-pairs shortest path inputs. This generator uses real-world"
+            " networks, including the Chesapeake road network and soc-tribes network"
+            " from the Network Repository."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [
+            Contributor("Aarav Joglekar", "ajoglekar32@gatech.edu"),
+            Contributor("Joel Mathew Cherian", "jcherian32@gatech.edu"),
+        ]
+
+    @property
+    def references(self):
+        return [
+            Ref(
+                title=("Graph Algorithms in the Language of Linear Algebra"),
+                authors=[
+                    Author("Kepner, Jeremy"),
+                    Author("Gilbert, John"),
+                ],
+                journal="Society for Industrial and Applied Mathematics (SIAM)",
+                year=2011,
+            ),
+            Ref(
+                title=(
+                    "The Network Data Repository with Interactive"
+                    " Graph Analytics and Visualization"
+                ),
+                authors=[
+                    Author("Ryan A. Rossi"),
+                    Author("Nesreen K. Ahmed"),
+                ],
+                journal="AAAI",
+                url="https://networkrepository.com",
+                year=2015,
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to construct the benchmark function itself."
+            " Generative AI might have been used to construct tests. This statement was"
+            " written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return ""
+
+    @property
+    def datasets(self) -> list[FloydWarshallDataset]:
+        # fmt: off
+        return [
+            FloydWarshallDataset("GAP/GAP-road", symmetrize=False, suites=["standard"]),
+            FloydWarshallDataset("GAP/GAP-twitter", symmetrize=True, suites=["standard"]),
+            FloydWarshallDataset("GAP/GAP-web", symmetrize=True, suites=["standard"]),
+            FloydWarshallDataset("GAP/GAP-kron", symmetrize=False, suites=["standard"]),
+            FloydWarshallDataset("GAP/GAP-urand", symmetrize=False, suites=["standard"]),
+        ]
+        # fmt: on
+        # fmt: on
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    def generate(self, dataset: FloydWarshallDataset):
+        raw = fetch_gap_graph(dataset.name.removeprefix("GAP/"))
+        n, m = raw.inputs[0].shape
+        if n != m:
+            raise ValueError(f"Floyd-Warshall requires a square matrix, got {(n, m)}")
+
+        coo = to_scipy(raw.inputs[0]).tocoo()
+        G = np.full((n, n), np.inf, dtype=np.float64)
+        if coo.nnz > 0:
             G[coo.row, coo.col] = 1.0
         np.fill_diagonal(G, 0.0)
 
@@ -637,7 +648,11 @@ class FloydWarshallBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [FloydWarshallTestGenerator(), FloydWarshallGenerator()]
+        return [
+            FloydWarshallTestGenerator(),
+            FloydWarshallSuiteSparseGenerator(),
+            FloydWarshallGAPGenerator(),
+        ]
 
     def benchmark(self, xp, data, meta):
         """

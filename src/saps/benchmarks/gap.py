@@ -92,46 +92,6 @@ class GAPDataset(Dataset):
         }
 
 
-class GAPSourceDataset(Dataset):
-    """A shared GAP graph paired with one of its published source vertices."""
-
-    def __init__(self, graph: GAPDataset, src: int, *, suites: list[str] | None = None):
-        if src not in graph.sources:
-            raise ValueError(f"{src} is not a published source of {graph.name}")
-        self.graph = graph
-        self.src = src
-        self._suites = list(dict.fromkeys([*graph.suites, *(suites or [])]))
-
-    @property
-    def name(self) -> str:
-        return f"{self.graph.name}_{self.src}"
-
-    @property
-    def pretty_name(self) -> str:
-        return f"{self.graph.pretty_name} (source {self.src})"
-
-    @property
-    def description(self) -> str:
-        return self.graph.description
-
-    @property
-    def suites(self) -> list[str]:
-        return self._suites
-
-    @property
-    def concepts(self) -> str:
-        return self.graph.concepts
-
-    @property
-    def metadata(self) -> dict[str, Any]:
-        return {
-            **self.graph.metadata,
-            **super().metadata,
-            "graph": self.graph.name,
-            "src": self.src,
-        }
-
-
 _GRAPHS = [
     GAPDataset(
         "GAP-road",
@@ -569,24 +529,17 @@ class GAPGraphBenchmark(ShellBenchmark):
         return GAPGraphGenerator()
 
 
-def fetch_gap_graph(name: str) -> DataInstance:
-    """Read a declared SuiteSparse GAP matrix from prepared storage."""
-    generator = GAPGraphGenerator()
-    dataset = next((d for d in generator.datasets if d.name == name), None)
+def gap_graph(name: str) -> GAPDataset:
+    """The declared GAP shell dataset called ``name``."""
+    dataset = next((d for d in _GRAPHS if d.name == name), None)
     if dataset is None:
         raise ValueError(
             f"Dataset {name!r} is not listed in GAPGraphGenerator.datasets. "
             "Add it to the shell dataset list before using it."
         )
-    return generator.cached_generate(dataset)
+    return dataset
 
 
-def gap_source_datasets(graph: GAPDataset) -> list[GAPSourceDataset]:
-    """One dataset per published source vertex of ``graph``."""
-    return [GAPSourceDataset(graph, src) for src in graph.sources]
-
-
-def fetch_gap_source_graph(dataset: GAPSourceDataset) -> DataInstance:
-    """Read a GAP graph with ``meta["src"]`` set to the dataset's source vertex."""
-    raw = fetch_gap_graph(dataset.graph.name)
-    return DataInstance(inputs=raw.inputs, meta={**raw.meta, "src": dataset.src})
+def fetch_gap_graph(name: str) -> DataInstance:
+    """Read a declared SuiteSparse GAP matrix from prepared storage."""
+    return GAPGraphGenerator().cached_generate(gap_graph(name))
