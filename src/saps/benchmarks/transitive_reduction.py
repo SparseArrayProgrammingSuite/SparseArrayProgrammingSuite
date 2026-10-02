@@ -1,7 +1,7 @@
 # ruff: noqa: E501
 import numpy as np
 
-from binsparse import COORMatrix
+from binsparse import BinsparseTensor, COORMatrix
 from binsparse.conversions import from_numpy, to_numpy, to_scipy
 
 from saps.benchmark import (
@@ -13,6 +13,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.adjacency import zero_one_adjacency
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
 
@@ -142,6 +143,25 @@ class TransitiveReductionTestGenerator(Generator[TransitiveReductionDataset]):
         )
 
 
+def _unweighted_distances(adjacency: BinsparseTensor) -> COORMatrix:
+    """Distance 1 along each edge of the 0-1 adjacency, infinite elsewhere.
+
+    Self-loops are dropped, since a vertex is never its own transitive edge.
+    """
+    edges = to_scipy(zero_one_adjacency(adjacency)).tocoo()
+    keep = edges.row != edges.col
+    values = np.ones(np.count_nonzero(keep), dtype=float)
+    return COORMatrix(
+        edges.shape,
+        values.size,
+        fill=True,
+        fill_value=np.inf,
+        indices_0=edges.row[keep],
+        indices_1=edges.col[keep],
+        values=values,
+    )
+
+
 class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
     @property
     def cacheable(self) -> bool:
@@ -263,20 +283,9 @@ class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
 
     def generate(self, dataset: TransitiveReductionDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
-        edges = to_scipy(raw.inputs[0]).tocoo(copy=True)
-        edges.sum_duplicates()
-        keep = (edges.row != edges.col) & (edges.data != 0)
-        values = np.ones(np.count_nonzero(keep), dtype=float)
-        distances = COORMatrix(
-            edges.shape,
-            values.size,
-            fill=True,
-            fill_value=np.inf,
-            indices_0=edges.row[keep],
-            indices_1=edges.col[keep],
-            values=values,
+        return DataInstance(
+            inputs=[_unweighted_distances(raw.inputs[0])], meta=dict(raw.meta)
         )
-        return DataInstance(inputs=[distances], meta=dict(raw.meta))
 
 
 class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
@@ -389,7 +398,9 @@ class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
 
     def generate(self, dataset: TransitiveReductionDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.name.removeprefix("GAP/"))
-        return DataInstance(inputs=raw.inputs, meta=dict(raw.meta))
+        return DataInstance(
+            inputs=[_unweighted_distances(raw.inputs[0])], meta=dict(raw.meta)
+        )
 
 
 class TransitiveReductionBenchmark(Benchmark):
