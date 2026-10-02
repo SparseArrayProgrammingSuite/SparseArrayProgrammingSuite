@@ -510,7 +510,7 @@ class WeightedModelCounting(Benchmark):
 
     @property
     def suites(self):
-        return ["group-logic"]
+        return ["standard-logic"]
 
     @property
     def concepts(self) -> str:

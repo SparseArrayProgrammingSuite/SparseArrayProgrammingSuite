@@ -368,7 +368,7 @@ class MRISobelEdgeBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["group-spatial"]
+        return ["standard-spatial"]
 
     @property
     def concepts(self) -> str:

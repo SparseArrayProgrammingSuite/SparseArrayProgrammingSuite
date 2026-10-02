@@ -796,7 +796,7 @@ class LinearProgrammingBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["group-solvers"]
+        return ["standard-solvers"]
 
     @property
     def concepts(self) -> str:

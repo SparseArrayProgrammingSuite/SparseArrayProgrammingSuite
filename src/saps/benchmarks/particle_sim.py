@@ -1012,7 +1012,7 @@ class ParticleSimBenchmark(Benchmark):
 
     @property
     def suites(self):
-        return ["group-spatial"]
+        return ["standard-spatial"]
 
     @property
     def concepts(self) -> str:

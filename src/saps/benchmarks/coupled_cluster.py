@@ -390,7 +390,7 @@ class CCSD(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["group-quantum"]
+        return ["standard-quantum"]
 
     @property
     def concepts(self) -> str:

@@ -646,7 +646,7 @@ class HOSVDBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["group-data-analytics"]
+        return ["standard-data-analytics"]
 
     @property
     def concepts(self) -> str:
