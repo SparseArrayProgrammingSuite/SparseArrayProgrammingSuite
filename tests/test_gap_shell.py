@@ -5,7 +5,7 @@ import pytest
 import numpy as np
 from scipy.sparse import coo_array
 
-from binsparse.conversions import from_scipy, to_numpy, to_sparse
+from binsparse.conversions import from_scipy, to_sparse
 
 from saps.benchmark import DataInstance
 from saps.benchmarks import gap
@@ -146,32 +146,23 @@ def test_floyd_warshall_gap_keeps_edge_weights(monkeypatch, weighted_graph, symm
     expected = np.array([[0, 7, np.inf], [np.inf, 0, -3], [np.inf, np.inf, 0]])
     if symmetrize:
         expected = np.minimum(expected, expected.T)
-    np.testing.assert_array_equal(to_numpy(problem.inputs[0]), expected)
+    G = to_sparse(problem.inputs[0])
+    assert G.fill_value == np.inf
+    assert G.nnz == np.isfinite(expected).sum()
+    np.testing.assert_array_equal(G.todense(), expected)
     load.assert_called_once_with("GAP-road")
 
 
-def test_floyd_warshall_gap_drops_zeros_and_keeps_shortest_parallel_edge(
-    monkeypatch,
-):
-    from binsparse import COORMatrix
-
+def test_floyd_warshall_suitesparse_uses_unit_lengths(monkeypatch, weighted_graph):
     from saps.benchmarks import floyd_warshall as fw
 
-    # Built directly, since from_scipy would sum the parallel 1->2 edges.
-    graph = COORMatrix(
-        (3, 3),
-        4,
-        indices_0=np.array([0, 1, 1, 2]),
-        indices_1=np.array([1, 2, 2, 0]),
-        values=np.array([2.5, 4.0, 1.5, 0.0]),
-    )
-    raw = DataInstance(inputs=[graph], meta={"sources": [0], "max_degree": 2})
-    monkeypatch.setattr(fw, "fetch_gap_graph", lambda _: raw)
-    dataset = fw.FloydWarshallDataset("GAP/GAP-road")
-    problem = fw.FloydWarshallGAPGenerator().generate(dataset)
+    monkeypatch.setattr(fw, "fetch_suitesparse_matrix", lambda _: weighted_graph)
+    dataset = fw.FloydWarshallDataset("HB/bcspwr01", symmetrize=True)
+    problem = fw.FloydWarshallSuiteSparseGenerator().generate(dataset)
+    G = to_sparse(problem.inputs[0])
+    assert G.fill_value == np.inf
     np.testing.assert_array_equal(
-        to_numpy(problem.inputs[0]),
-        [[0, 2.5, np.inf], [np.inf, 0, 1.5], [np.inf, np.inf, 0]],
+        G.todense(), [[0, 1, np.inf], [1, 0, 1], [np.inf, 1, 0]]
     )
 
 

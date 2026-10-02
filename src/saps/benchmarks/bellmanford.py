@@ -2,8 +2,8 @@
 import numpy as np
 import scipy.sparse as sps
 
-from binsparse import BinsparseTensor, COORMatrix
-from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_sparse
 
 from saps.benchmark import (
     Author,
@@ -14,6 +14,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.adjacency import distance_matrix
 from saps.benchmarks.gap import fetch_gap_graph, gap_graph
 from saps.benchmarks.snap import (
     fetch_snap_graph,
@@ -360,7 +361,7 @@ class BellmanFordTestGenerator(Generator[BellmanFordDataset]):
                 seed=dataset.source_seed,
             )
             return DataInstance(
-                inputs=[_adjacency_to_distance(raw.inputs[0])],
+                inputs=[distance_matrix(raw.inputs[0])],
                 meta=raw.meta,
                 ref_outputs=[
                     from_numpy(bellman_ford_reference(dataset.A, raw.meta["src"]))
@@ -710,7 +711,7 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
                 f"Source seed is outside the graph's available sources: {seed}"
             )
         return DataInstance(
-            inputs=[_adjacency_to_distance(raw.inputs[0])],
+            inputs=[distance_matrix(raw.inputs[0])],
             meta={**raw.meta, "src": raw.meta["sources"][seed], "seed": seed},
         )
 
@@ -804,34 +805,9 @@ class BellmanFordGAPGenerator(Generator[BellmanFordDataset]):
                 f"{dataset.src} is not a published source of {dataset.source_name}"
             )
         return DataInstance(
-            inputs=[_adjacency_to_distance(raw.inputs[0], keep_weights=True)],
+            inputs=[distance_matrix(raw.inputs[0], keep_weights=True)],
             meta={**raw.meta, "src": dataset.src},
         )
-
-
-def _adjacency_to_distance(
-    adjacency: BinsparseTensor, keep_weights=False
-) -> BinsparseTensor:
-    try:
-        edges = to_scipy(adjacency).tocoo(copy=True)
-    except TypeError:
-        edges = sps.coo_array(to_numpy(adjacency))
-    edges.sum_duplicates()
-    nonzero = (edges.row != edges.col) & (edges.data != 0)
-    weights = edges.data[nonzero].astype(float)
-    if not keep_weights:
-        weights.fill(1.0)
-    diagonal = np.arange(min(edges.shape))
-    values = np.concatenate((weights, np.zeros(diagonal.size)))
-    return COORMatrix(
-        edges.shape,
-        values.size,
-        fill=True,
-        fill_value=np.inf,
-        indices_0=np.concatenate((edges.row[nonzero], diagonal)),
-        indices_1=np.concatenate((edges.col[nonzero], diagonal)),
-        values=values,
-    )
 
 
 class BellmanFordBenchmark(Benchmark):

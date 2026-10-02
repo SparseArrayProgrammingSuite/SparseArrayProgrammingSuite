@@ -3,7 +3,7 @@ import numpy as np
 
 import sparse as sp
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy, to_scipy
+from binsparse.conversions import from_numpy, to_numpy
 
 from saps.benchmark import (
     Author,
@@ -14,6 +14,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.adjacency import distance_matrix
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 
@@ -434,21 +435,10 @@ class FloydWarshallSuiteSparseGenerator(Generator[FloydWarshallDataset]):
 
     def generate(self, dataset: FloydWarshallDataset):
         raw = fetch_suitesparse_matrix(dataset.name)
-        n, m = raw.inputs[0].shape
-        if n != m:
-            raise ValueError(f"Floyd-Warshall requires a square matrix, got {(n, m)}")
-
-        coo = to_scipy(raw.inputs[0]).tocoo()
-        G = np.full((n, n), np.inf, dtype=np.float64)
-        if coo.nnz > 0:
-            G[coo.row, coo.col] = 1.0
-        np.fill_diagonal(G, 0.0)
-
-        if dataset.symmetrize:
-            G = np.minimum(G, G.T)
-
-        G_bin = from_numpy(G)
-        return DataInstance(inputs=[G_bin], meta={})
+        G = distance_matrix(
+            raw.inputs[0], keep_weights=False, symmetrize=dataset.symmetrize
+        )
+        return DataInstance(inputs=[G], meta={})
 
 
 class FloydWarshallGAPGenerator(Generator[FloydWarshallDataset]):
@@ -463,11 +453,9 @@ class FloydWarshallGAPGenerator(Generator[FloydWarshallDataset]):
     @property
     def description(self) -> str:
         return (
-            "Data is collected from the SuiteSparse Matrix Collection and standard"
-            " benchmark graph datasets, with sparse adjacency matrices converted into"
-            " unweighted all-pairs shortest path inputs. This generator uses real-world"
-            " networks, including the Chesapeake road network and soc-tribes network"
-            " from the Network Repository."
+            "GAP benchmark graphs from the SuiteSparse Matrix Collection, converted"
+            " into weighted all-pairs shortest path inputs that keep each graph's"
+            " edge weights."
         )
 
     @property
@@ -543,21 +531,11 @@ class FloydWarshallGAPGenerator(Generator[FloydWarshallDataset]):
 
     def generate(self, dataset: FloydWarshallDataset):
         raw = fetch_gap_graph(dataset.name.removeprefix("GAP/"))
-        n, m = raw.inputs[0].shape
-        if n != m:
-            raise ValueError(f"Floyd-Warshall requires a square matrix, got {(n, m)}")
-
-        coo = to_scipy(raw.inputs[0]).tocoo()
-        G = np.full((n, n), np.inf, dtype=np.float64)
-        if coo.nnz > 0:
-            G[coo.row, coo.col] = 1.0
-        np.fill_diagonal(G, 0.0)
-
-        if dataset.symmetrize:
-            G = np.minimum(G, G.T)
-
-        G_bin = from_numpy(G)
-        return DataInstance(inputs=[G_bin], meta={})
+        # GAP graphs are weighted, so edges keep their lengths.
+        G = distance_matrix(
+            raw.inputs[0], keep_weights=True, symmetrize=dataset.symmetrize
+        )
+        return DataInstance(inputs=[G], meta={})
 
 
 class FloydWarshallBenchmark(Benchmark):

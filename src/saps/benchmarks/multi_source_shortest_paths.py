@@ -1,10 +1,9 @@
 # ruff: noqa: E501
 import numpy as np
-import scipy.sparse as sps
 
 import sparse as sp
 from binsparse import BinsparseTensor, COORMatrix
-from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
+from binsparse.conversions import from_numpy, to_numpy
 
 from saps.benchmark import (
     Author,
@@ -15,7 +14,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.bellmanford import _adjacency_to_distance
+from saps.benchmarks.adjacency import distance_matrix
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
 
@@ -76,11 +75,16 @@ def initial_distances(n: int, sources) -> COORMatrix:
     )
 
 
-def multi_source_instance(adjacency: BinsparseTensor, sources) -> DataInstance:
+def multi_source_instance(
+    adjacency: BinsparseTensor, sources, *, symmetrize: bool = False
+) -> DataInstance:
     """Unweighted distance graph plus initial distances from each source."""
     n = adjacency.shape[0]
     return DataInstance(
-        inputs=[_adjacency_to_distance(adjacency), initial_distances(n, sources)],
+        inputs=[
+            distance_matrix(adjacency, symmetrize=symmetrize),
+            initial_distances(n, sources),
+        ],
         meta={"sources": list(sources)},
     )
 
@@ -463,10 +467,9 @@ class MultiSourceShortestPathsGAPGenerator(Generator[MultiSourceShortestPathsDat
                 f"Multi-Source Shortest Paths requires a square matrix, got {(n, m)}"
             )
 
-        adjacency = abs(to_scipy(raw.inputs[0]).tocoo())
-        if dataset.symmetrize:
-            adjacency = sps.coo_array(adjacency + adjacency.T)
-        return multi_source_instance(from_scipy(adjacency), raw.meta["sources"])
+        return multi_source_instance(
+            raw.inputs[0], raw.meta["sources"], symmetrize=dataset.symmetrize
+        )
 
 
 class MultiSourceShortestPathsSNAPGenerator(Generator[MultiSourceShortestPathsDataset]):
