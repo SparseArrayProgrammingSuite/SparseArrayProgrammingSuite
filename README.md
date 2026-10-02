@@ -166,7 +166,7 @@ with `sbatch --mail-user=you@example.com scripts/run-competition.slurm`.
 
 The competition config selects the standard datasets and uses one timing round
 per benchmark, with ASV's normal repeated measurements. The wrapper submits a
-256-task array by default, with a 90-minute time limit per task. Each task runs a
+128-task array by default, with an eight-hour time limit per task. Each task runs a
 deterministic set of the selected datasets. All competition outputs live in the
 run directory:
 
