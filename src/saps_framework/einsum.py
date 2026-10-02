@@ -1,5 +1,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from string import ascii_letters
+
+import numpy as np
 
 from lark import Lark, Tree
 
@@ -197,7 +200,12 @@ class Einsum:
         loops = sorted(loops)
         arg = self.arg.run(xp, loops, kwargs)
         axis = tuple(i for i in range(len(loops)) if loops[i] not in self.idxs)
-        if self.op is not None:
+        if self.op == "|":
+            if arg.dtype.kind == "b":
+                val = xp.any(arg, axis=axis)
+            else:
+                val = xp.bitwise_or.reduce(arg, axis=axis)
+        elif self.op is not None:
             op = getattr(xp, reduction_ops.get(self.op))
             val = op(arg, axis=axis)
         else:
@@ -208,6 +216,86 @@ class Einsum:
         if len(axis) == 0:
             return val
         return xp.permute_dims(val, axis)
+
+    def native_contraction(self):
+        """Return native subscripts and product leaves, or NotImplemented."""
+        if self.op not in {"+", "add", "sum", "|", "or"}:
+            return NotImplemented
+
+        operands = []
+        indices = []
+        bitwise = False
+
+        def collect(expr):
+            nonlocal bitwise
+            if isinstance(expr, Access):
+                operands.append(expr)
+                indices.append(expr.idxs)
+                return True
+            if isinstance(expr, Literal):
+                operands.append(expr)
+                indices.append([])
+                return True
+            if isinstance(expr, Call) and len(expr.args) == 2:
+                if expr.func in {"&", "bitwise_and", "and", "logical_and"}:
+                    bitwise = True
+                elif expr.func not in {"*", "mul", "multiply"}:
+                    return False
+                return all(collect(arg) for arg in expr.args)
+            return False
+
+        if not collect(self.arg):
+            return NotImplemented
+        loops = sorted(self.arg.get_loops())
+        if len(loops) > len(ascii_letters):
+            return NotImplemented
+        assert set(self.idxs).issubset(loops)
+        labels = dict(zip(loops, ascii_letters, strict=False))
+        terms = ["".join(labels[idx] for idx in term) for term in indices]
+        output = "".join(labels[idx] for idx in self.idxs)
+        return ",".join(terms) + "->" + output, operands, bitwise
+
+    def run_native(self, xp, kwargs):
+        """Use a native sum/product contraction when it has the same semantics."""
+        contraction = self.native_contraction()
+        if contraction is NotImplemented:
+            return NotImplemented
+        equation, leaves, bitwise = contraction
+        operands = [
+            xp.asarray(kwargs[leaf.tns] if isinstance(leaf, Access) else leaf.value)
+            for leaf in leaves
+        ]
+        indices = [leaf.idxs if isinstance(leaf, Access) else [] for leaf in leaves]
+        boolean = all(operand.dtype.kind == "b" for operand in operands)
+        logical_reduction = self.op in {"|", "or"}
+        if (bitwise or logical_reduction) and not boolean:
+            return NotImplemented
+        # PyData/Sparse's einsum requires zero fill values. Preserve the general
+        # evaluator for complemented/shifted sparse arrays.
+        if any(getattr(operand, "fill_value", 0) != 0 for operand in operands):
+            return NotImplemented
+
+        # The interpreter broadcasts size-one dimensions with the same label;
+        # PyData/Sparse's native implementation requires identical dimensions.
+        sizes = {}
+        for operand, term in zip(operands, indices, strict=True):
+            for idx, size in zip(term, operand.shape, strict=True):
+                if sizes.setdefault(idx, size) != size:
+                    return NotImplemented
+
+        dtype = np.result_type(*(operand.dtype for operand in operands))
+        if not logical_reduction:
+            sum_dtype = np.zeros((), dtype=dtype).sum().dtype
+            # Widening before a narrow integer product changes its overflow
+            # semantics. Boolean products, however, must widen to count matches.
+            if len(operands) > 1 and dtype.kind in "iu" and sum_dtype != dtype:
+                return NotImplemented
+            dtype = sum_dtype
+        # Some sparse einsum implementations widen boolean scalar reductions.
+        result = xp.einsum(equation, *operands, dtype=dtype)
+        if logical_reduction:
+            result = result.astype(bool)
+        return result
 
 
 lark_parser = Lark("""
@@ -410,3 +498,12 @@ def einsum(xp, prgm, **kwargs):
     """
     prgm = parse_einsum(prgm)
     return prgm.run(xp, kwargs)
+
+
+def native_einsum(xp, prgm, **kwargs):
+    """Try the backend's native einsum, retaining the extended syntax fallback."""
+    parsed = parse_einsum(prgm)
+    result = parsed.run_native(xp, kwargs)
+    if result is NotImplemented:
+        return parsed.run(xp, kwargs)
+    return result

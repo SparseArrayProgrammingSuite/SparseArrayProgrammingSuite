@@ -20,10 +20,10 @@ from binsparse.conversions import from_numpy, from_sparse, to_numpy, to_scipy, t
 
 from saps_framework import (
     Framework,
-    einsum,
     normalize_unfold_args,
     unfold_output_shape,
 )
+from saps_framework.einsum import native_einsum
 
 
 class PyDataSparseLinalg:
@@ -399,11 +399,11 @@ class PyDataSparseFramework(Framework):
     def einsum(self, prgm, **kwargs):
         if all(not isinstance(value, sp.SparseArray) for value in kwargs.values()):
             xp = self._array_namespace(*kwargs.values())
-            return einsum(xp, prgm, **kwargs)
+            return native_einsum(xp, prgm, **kwargs)
         kwargs = {
             key: self._sparse_compatible_arg(value) for key, value in kwargs.items()
         }
-        return einsum(sp, prgm, **kwargs)
+        return native_einsum(sp, prgm, **kwargs)
 
     def unfold(
         self,
