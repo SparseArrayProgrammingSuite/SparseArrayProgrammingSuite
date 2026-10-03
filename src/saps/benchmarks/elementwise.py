@@ -114,13 +114,10 @@ class DenseElementwiseGenerator(Generator):
         gen = np.random.Generator(np.random.PCG64(42))
         A = gen.random((dataset.dim1, dataset.dim2))
         B = gen.random((dataset.dim1, dataset.dim2))
-        ref_outputs = None
-        if "test" in dataset.suites:
-            ref_outputs = [from_numpy(np.multiply(A, B))]
         return DataInstance(
             [from_numpy(A), from_numpy(B)],
             meta={"dataset": dataset.name},
-            ref_outputs=ref_outputs,
+            ref_outputs=[from_numpy(np.multiply(A, B))],
         )
 
 
@@ -312,18 +309,13 @@ class SuiteSparseElementwiseGenerator(Generator):
         A_coo = base_coo
         B_coo = _matrix_with_overlap(base_coo, rng, dataset.overlap)
 
-        ref_outputs = None
-        if "test" in dataset.suites:
-            output_coo = A_coo.multiply(B_coo).tocoo()
-            ref_outputs = [from_scipy(output_coo)]
-
         return DataInstance(
             [
                 from_scipy(A_coo),
                 from_scipy(B_coo),
             ],
             meta={"dataset": dataset.name},
-            ref_outputs=ref_outputs,
+            ref_outputs=[from_scipy(A_coo.multiply(B_coo).tocoo())],
         )
 
 
@@ -470,17 +462,13 @@ class UniformRandomElementwiseGenerator(Generator):
             rng=rng,
         )
         B = _matrix_with_overlap(A, rng, dataset.overlap)
-        ref_outputs = None
-        if "test" in dataset.suites:
-            output_coo = A.multiply(B).tocoo()
-            ref_outputs = [from_scipy(output_coo)]
         return DataInstance(
             [
                 from_scipy(A),
                 from_scipy(B),
             ],
             meta={"dataset": dataset.name},
-            ref_outputs=ref_outputs,
+            ref_outputs=[from_scipy(A.multiply(B).tocoo())],
         )
 
 
@@ -558,6 +546,5 @@ class ElementwiseBenchmark(Benchmark):
             assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
-        if self._ref_outputs is None:
-            return
+        assert self._ref_outputs is not None, "No reference output"
         assert_coo_allclose(self._ref_outputs[0], self._output[0])

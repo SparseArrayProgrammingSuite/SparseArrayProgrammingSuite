@@ -120,13 +120,10 @@ class DenseMatVecGenerator(Generator):
         gen = np.random.Generator(np.random.PCG64(42))
         A = gen.random((dataset.dim1, dataset.dim2))
         b = gen.random((dataset.dim2,))
-        ref_outputs = None
-        if "test" in dataset.suites:
-            ref_outputs = [from_numpy(np.matmul(A, b))]
         return DataInstance(
             [from_numpy(A), from_numpy(b)],
             meta={"dataset": dataset.name},
-            ref_outputs=ref_outputs,
+            ref_outputs=[from_numpy(np.matmul(A, b))],
         )
 
 
@@ -325,15 +322,10 @@ class SuiteSparseMatVecGenerator(Generator):
         gen = np.random.Generator(np.random.PCG64(42))
         b = gen.random((A_coo.shape[1],))
 
-        ref_outputs = None
-        if "test" in dataset.suites:
-            output = A_coo @ b
-            ref_outputs = [from_numpy(output)]
-
         return DataInstance(
             [A_bin, from_numpy(b)],
             meta={"dataset": dataset.name},
-            ref_outputs=ref_outputs,
+            ref_outputs=[from_numpy(A_coo @ b)],
         )
 
 
@@ -458,17 +450,13 @@ class UniformRandomMatVecGenerator(Generator):
         )
         gen = np.random.Generator(np.random.PCG64(42))
         b = gen.random((dataset.dim,))
-        ref_outputs = None
-        if "test" in dataset.suites:
-            output = A @ b
-            ref_outputs = [from_numpy(output)]
         return DataInstance(
             [
                 from_scipy(A),
                 from_numpy(b),
             ],
             meta={"dataset": dataset.name},
-            ref_outputs=ref_outputs,
+            ref_outputs=[from_numpy(A @ b)],
         )
 
 
@@ -568,6 +556,5 @@ class MatrixVectorBenchmark(Benchmark):
             assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
-        if self._ref_outputs is None:
-            return
+        assert self._ref_outputs is not None, "No reference output"
         assert_coo_allclose(self._ref_outputs[0], self._output[0])
