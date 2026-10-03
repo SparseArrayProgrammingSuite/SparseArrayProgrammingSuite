@@ -39,7 +39,7 @@ class CGDataset(SuiteSparseDataset):
         name = source_name
         if rhs_index is not None:
             name = f"{source_name}_rhs{rhs_index}"
-            pretty_name = f"{source_name} (RHS {rhs_index})"
+            pretty_name = f"{source_name} (Right-Hand Side {rhs_index})"
         super().__init__(
             name,
             source_name=source_name,
@@ -186,7 +186,7 @@ class CGTestGenerator(Generator[CGDataset]):
         )
 
 
-class CGGenerator(Generator[CGDataset]):
+class CGSuiteSparseGenerator(Generator[CGDataset]):
     @property
     def name(self) -> str:
         return "cg_suitesparse"
@@ -1162,7 +1162,7 @@ class CGBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [CGTestGenerator(), CGGenerator()]
+        return [CGTestGenerator(), CGSuiteSparseGenerator()]
 
     def check(self, param):
         for item in self._output:

@@ -40,7 +40,7 @@ class LSQRDataset(SuiteSparseDataset):
         name = source_name
         if rhs_index is not None:
             name = f"{source_name}_rhs{rhs_index}"
-            pretty_name = f"{source_name} (RHS {rhs_index})"
+            pretty_name = f"{source_name} (Right-Hand Side {rhs_index})"
         super().__init__(
             name,
             source_name=source_name,
@@ -72,7 +72,7 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "LSQR Test"
+        return "Least Squares QR Test"
 
     @property
     def description(self) -> str:
@@ -233,14 +233,14 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
         )
 
 
-class LSQRGenerator(Generator[LSQRDataset]):
+class LSQRSuiteSparseGenerator(Generator[LSQRDataset]):
     @property
     def name(self) -> str:
         return "lsqr_suitesparse"
 
     @property
     def pretty_name(self) -> str:
-        return "LSQR SuiteSparse"
+        return "Least Squares QR SuiteSparse"
 
     @property
     def description(self) -> str:
@@ -370,7 +370,7 @@ class LSQRBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "LSQR"
+        return "Least Squares QR"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -456,7 +456,7 @@ class LSQRBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [LSQRTestGenerator(), LSQRGenerator()]
+        return [LSQRTestGenerator(), LSQRSuiteSparseGenerator()]
 
     def check(self, param):
         for item in self._output:

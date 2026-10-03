@@ -137,8 +137,8 @@ def test_cp_frostt_setup_reads_sparse_values_and_builds_float_factors(
     monkeypatch.setattr(
         cp_als, "to_numpy", Mock(side_effect=AssertionError("densification"))
     )
-    dataset = cp_als.CPFrosttDataset("example", "Example", "example", order, rank=2)
-    generator = cp_als.CPNFrosttGenerator()
+    dataset = cp_als.CPALSFROSTTDataset("example", "Example", "example", order, rank=2)
+    generator = cp_als.CPALSFROSTTGenerator()
 
     problem = generator.generate(dataset)
     repeated = generator.generate(dataset)

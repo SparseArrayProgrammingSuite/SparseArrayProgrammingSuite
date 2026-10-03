@@ -25,7 +25,7 @@ from saps.benchmarks.snap import (
 from saps_framework.binsparse_utils import binsparse_equal
 
 
-class MultiSourceBreadthFirstSearchDataset(Dataset):
+class MSBFSDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -98,9 +98,7 @@ def reference_levels(A, sources) -> np.ndarray:
     return np.where(np.isfinite(distances), distances + 1, 0).astype(int)
 
 
-class MultiSourceBreadthFirstSearchTestGenerator(
-    Generator[MultiSourceBreadthFirstSearchDataset]
-):
+class MSBFSTestGenerator(Generator[MSBFSDataset]):
     @property
     def name(self) -> str:
         return "msbfs_test"
@@ -144,9 +142,9 @@ class MultiSourceBreadthFirstSearchTestGenerator(
         return False
 
     @property
-    def datasets(self) -> list[MultiSourceBreadthFirstSearchDataset]:
+    def datasets(self) -> list[MSBFSDataset]:
         return [
-            MultiSourceBreadthFirstSearchDataset(
+            MSBFSDataset(
                 "basic",
                 pretty_name="Basic",
                 suites=["test"],
@@ -171,7 +169,7 @@ class MultiSourceBreadthFirstSearchTestGenerator(
                     dtype=int,
                 ),
             ),
-            MultiSourceBreadthFirstSearchDataset(
+            MSBFSDataset(
                 "single_node",
                 pretty_name="Single Node",
                 suites=["test"],
@@ -179,7 +177,7 @@ class MultiSourceBreadthFirstSearchTestGenerator(
                 sources=[0],
                 expected=np.array([[1]], dtype=int),
             ),
-            MultiSourceBreadthFirstSearchDataset(
+            MSBFSDataset(
                 "disconnected",
                 pretty_name="Disconnected",
                 suites=["test"],
@@ -195,7 +193,7 @@ class MultiSourceBreadthFirstSearchTestGenerator(
                 sources=[0, 2],
                 expected=np.array([[1, 2, 0, 0], [0, 0, 1, 2]], dtype=int),
             ),
-            MultiSourceBreadthFirstSearchDataset(
+            MSBFSDataset(
                 "undirected",
                 pretty_name="Undirected",
                 suites=["test"],
@@ -213,7 +211,7 @@ class MultiSourceBreadthFirstSearchTestGenerator(
                     [[1, 2, 3, 4], [4, 3, 2, 1], [2, 1, 2, 3]], dtype=int
                 ),
             ),
-            MultiSourceBreadthFirstSearchDataset(
+            MSBFSDataset(
                 "cycle_all_sources",
                 pretty_name="Cycle All Sources",
                 suites=["test"],
@@ -232,7 +230,7 @@ class MultiSourceBreadthFirstSearchTestGenerator(
                     dtype=int,
                 ),
             ),
-            MultiSourceBreadthFirstSearchDataset(
+            MSBFSDataset(
                 "repeated_source",
                 pretty_name="Repeated Source",
                 suites=["test"],
@@ -247,7 +245,7 @@ class MultiSourceBreadthFirstSearchTestGenerator(
                 sources=[1, 1, 0],
                 expected=np.array([[0, 1, 2], [0, 1, 2], [1, 2, 3]], dtype=int),
             ),
-            MultiSourceBreadthFirstSearchDataset(
+            MSBFSDataset(
                 "signed_edges",
                 pretty_name="Signed Edges",
                 description=(
@@ -268,7 +266,7 @@ class MultiSourceBreadthFirstSearchTestGenerator(
                 expected=np.array([[1, 2, 2, 3]], dtype=int),
             ),
             # Sources are picked as the SNAP generator picks them.
-            MultiSourceBreadthFirstSearchDataset(
+            MSBFSDataset(
                 "snap_sources",
                 pretty_name="SNAP Sources",
                 suites=["test"],
@@ -288,7 +286,7 @@ class MultiSourceBreadthFirstSearchTestGenerator(
             ),
         ]
 
-    def generate(self, dataset: MultiSourceBreadthFirstSearchDataset) -> DataInstance:
+    def generate(self, dataset: MSBFSDataset) -> DataInstance:
         if dataset.A is None:
             raise ValueError("Multi-source BFS test datasets must define A.")
         adjacency = from_scipy(coo_array(dataset.A))
@@ -305,9 +303,7 @@ class MultiSourceBreadthFirstSearchTestGenerator(
         return problem
 
 
-class MultiSourceBreadthFirstSearchSNAPGenerator(
-    Generator[MultiSourceBreadthFirstSearchDataset]
-):
+class MSBFSSNAPGenerator(Generator[MSBFSDataset]):
     @property
     def name(self) -> str:
         return "msbfs_snap"
@@ -352,89 +348,87 @@ class MultiSourceBreadthFirstSearchSNAPGenerator(
         return False
 
     @property
-    def datasets(self) -> list[MultiSourceBreadthFirstSearchDataset]:
+    def datasets(self) -> list[MSBFSDataset]:
         # fmt: off
         return [
-            MultiSourceBreadthFirstSearchDataset("soc-Epinions1", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("soc-LiveJournal1", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("soc-Pokec", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("soc-Slashdot0811", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("soc-Slashdot0902", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("wiki-Vote", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("wiki-RfA", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("soc-sign-bitcoin-otc", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("soc-sign-bitcoin-alpha", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("com-LiveJournal", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("com-Friendster", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("com-Orkut", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("com-Youtube", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("com-DBLP", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("com-Amazon", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("email-Eu-core", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("wiki-topcats", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("email-EuAll", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("email-Enron", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("wiki-Talk", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("cit-HepPh", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("cit-HepTh", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("cit-Patents", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("ca-AstroPh", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("ca-CondMat", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("ca-GrQc", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("ca-HepPh", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("ca-HepTh", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("web-BerkStan", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("web-Google", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("web-NotreDame", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("web-Stanford", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("amazon0302", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("amazon0312", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("amazon0505", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("amazon0601", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("p2p-Gnutella04", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("p2p-Gnutella05", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("p2p-Gnutella06", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("p2p-Gnutella08", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("p2p-Gnutella09", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("p2p-Gnutella24", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("p2p-Gnutella25", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("p2p-Gnutella30", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("p2p-Gnutella31", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("roadNet-CA", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("roadNet-PA", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("roadNet-TX", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("as-735", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("as-Skitter", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("as-caida", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("Oregon-1", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("Oregon-2", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("soc-sign-epinions", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("soc-sign-Slashdot081106", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("soc-sign-Slashdot090216", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("soc-sign-Slashdot090221", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("loc-Gowalla", suites=["standard", "trace", "train"]),
-            MultiSourceBreadthFirstSearchDataset("loc-Brightkite", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("sx-stackoverflow", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("sx-mathoverflow", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("sx-superuser", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("sx-askubuntu", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("wiki-talk-temporal", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("CollegeMsg", suites=["standard", "trace"]),
-            MultiSourceBreadthFirstSearchDataset("twitter7", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("higgs-twitter", suites=["standard"]),
+            MSBFSDataset("soc-Epinions1", suites=["standard", "trace"]),
+            MSBFSDataset("soc-LiveJournal1", suites=["standard"]),
+            MSBFSDataset("soc-Pokec", suites=["standard"]),
+            MSBFSDataset("soc-Slashdot0811", suites=["standard", "trace"]),
+            MSBFSDataset("soc-Slashdot0902", suites=["standard", "trace"]),
+            MSBFSDataset("wiki-Vote", suites=["standard", "trace"]),
+            MSBFSDataset("wiki-RfA", suites=["standard", "trace"]),
+            MSBFSDataset("soc-sign-bitcoin-otc", suites=["standard", "trace"]),
+            MSBFSDataset("soc-sign-bitcoin-alpha", suites=["standard", "trace"]),
+            MSBFSDataset("com-LiveJournal", suites=["standard"]),
+            MSBFSDataset("com-Friendster", suites=["standard"]),
+            MSBFSDataset("com-Orkut", suites=["standard"]),
+            MSBFSDataset("com-Youtube", suites=["standard"]),
+            MSBFSDataset("com-DBLP", suites=["standard"]),
+            MSBFSDataset("com-Amazon", suites=["standard"]),
+            MSBFSDataset("email-Eu-core", suites=["standard", "trace"]),
+            MSBFSDataset("wiki-topcats", suites=["standard"]),
+            MSBFSDataset("email-EuAll", suites=["standard", "trace"]),
+            MSBFSDataset("email-Enron", suites=["standard", "trace"]),
+            MSBFSDataset("wiki-Talk", suites=["standard"]),
+            MSBFSDataset("cit-HepPh", suites=["standard", "trace"]),
+            MSBFSDataset("cit-HepTh", suites=["standard", "trace"]),
+            MSBFSDataset("cit-Patents", suites=["standard"]),
+            MSBFSDataset("ca-AstroPh", suites=["standard", "trace"]),
+            MSBFSDataset("ca-CondMat", suites=["standard", "trace"]),
+            MSBFSDataset("ca-GrQc", suites=["standard", "trace"]),
+            MSBFSDataset("ca-HepPh", suites=["standard", "trace"]),
+            MSBFSDataset("ca-HepTh", suites=["standard", "trace"]),
+            MSBFSDataset("web-BerkStan", suites=["standard"]),
+            MSBFSDataset("web-Google", suites=["standard"]),
+            MSBFSDataset("web-NotreDame", suites=["standard"]),
+            MSBFSDataset("web-Stanford", suites=["standard"]),
+            MSBFSDataset("amazon0302", suites=["standard"]),
+            MSBFSDataset("amazon0312", suites=["standard"]),
+            MSBFSDataset("amazon0505", suites=["standard"]),
+            MSBFSDataset("amazon0601", suites=["standard"]),
+            MSBFSDataset("p2p-Gnutella04", suites=["standard", "trace"]),
+            MSBFSDataset("p2p-Gnutella05", suites=["standard", "trace"]),
+            MSBFSDataset("p2p-Gnutella06", suites=["standard", "trace"]),
+            MSBFSDataset("p2p-Gnutella08", suites=["standard", "trace"]),
+            MSBFSDataset("p2p-Gnutella09", suites=["standard", "trace"]),
+            MSBFSDataset("p2p-Gnutella24", suites=["standard", "trace"]),
+            MSBFSDataset("p2p-Gnutella25", suites=["standard", "trace"]),
+            MSBFSDataset("p2p-Gnutella30", suites=["standard", "trace"]),
+            MSBFSDataset("p2p-Gnutella31", suites=["standard", "trace"]),
+            MSBFSDataset("roadNet-CA", suites=["standard"]),
+            MSBFSDataset("roadNet-PA", suites=["standard"]),
+            MSBFSDataset("roadNet-TX", suites=["standard"]),
+            MSBFSDataset("as-735", suites=["standard", "trace"]),
+            MSBFSDataset("as-Skitter", suites=["standard"]),
+            MSBFSDataset("as-caida", suites=["standard", "trace"]),
+            MSBFSDataset("Oregon-1", suites=["standard", "trace"]),
+            MSBFSDataset("Oregon-2", suites=["standard", "trace"]),
+            MSBFSDataset("soc-sign-epinions", suites=["standard", "trace"]),
+            MSBFSDataset("soc-sign-Slashdot081106", suites=["standard", "trace"]),
+            MSBFSDataset("soc-sign-Slashdot090216", suites=["standard", "trace"]),
+            MSBFSDataset("soc-sign-Slashdot090221", suites=["standard", "trace"]),
+            MSBFSDataset("loc-Gowalla", suites=["standard", "trace", "train"]),
+            MSBFSDataset("loc-Brightkite", suites=["standard", "trace"]),
+            MSBFSDataset("sx-stackoverflow", suites=["standard"]),
+            MSBFSDataset("sx-mathoverflow", suites=["standard", "trace"]),
+            MSBFSDataset("sx-superuser", suites=["standard", "trace"]),
+            MSBFSDataset("sx-askubuntu", suites=["standard", "trace"]),
+            MSBFSDataset("wiki-talk-temporal", suites=["standard"]),
+            MSBFSDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
+            MSBFSDataset("CollegeMsg", suites=["standard", "trace"]),
+            MSBFSDataset("twitter7", suites=["standard"]),
+            MSBFSDataset("higgs-twitter", suites=["standard"]),
         ]
         # fmt: on
 
-    def generate(self, dataset: MultiSourceBreadthFirstSearchDataset) -> DataInstance:
+    def generate(self, dataset: MSBFSDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.source_name)
         sources = np.unique(raw.meta["sources"]).tolist()
         return multi_source_bfs_instance(raw.inputs[0], sources)
 
 
-class MultiSourceBreadthFirstSearchGAPGenerator(
-    Generator[MultiSourceBreadthFirstSearchDataset]
-):
+class MSBFSGAPGenerator(Generator[MSBFSDataset]):
     @property
     def name(self) -> str:
         return "msbfs_gap"
@@ -490,23 +484,23 @@ class MultiSourceBreadthFirstSearchGAPGenerator(
         return False
 
     @property
-    def datasets(self) -> list[MultiSourceBreadthFirstSearchDataset]:
+    def datasets(self) -> list[MSBFSDataset]:
         # fmt: off
         return [
-            MultiSourceBreadthFirstSearchDataset("GAP-road", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("GAP-twitter", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("GAP-web", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("GAP-kron", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("GAP-urand", suites=["standard"]),
+            MSBFSDataset("GAP-road", suites=["standard"]),
+            MSBFSDataset("GAP-twitter", suites=["standard"]),
+            MSBFSDataset("GAP-web", suites=["standard"]),
+            MSBFSDataset("GAP-kron", suites=["standard"]),
+            MSBFSDataset("GAP-urand", suites=["standard"]),
         ]
         # fmt: on
 
-    def generate(self, dataset: MultiSourceBreadthFirstSearchDataset) -> DataInstance:
+    def generate(self, dataset: MSBFSDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.source_name)
         return multi_source_bfs_instance(raw.inputs[0], raw.meta["sources"])
 
 
-class MultiSourceBreadthFirstSearchBenchmark(Benchmark):
+class MSBFSBenchmark(Benchmark):
     @property
     def name(self):
         return "msbfs"
@@ -619,9 +613,9 @@ class MultiSourceBreadthFirstSearchBenchmark(Benchmark):
     @property
     def generators(self):
         return [
-            MultiSourceBreadthFirstSearchSNAPGenerator(),
-            MultiSourceBreadthFirstSearchTestGenerator(),
-            MultiSourceBreadthFirstSearchGAPGenerator(),
+            MSBFSSNAPGenerator(),
+            MSBFSTestGenerator(),
+            MSBFSGAPGenerator(),
         ]
 
     def benchmark(self, xp, data: list, meta: dict):

@@ -75,7 +75,7 @@ def test_benchmark_runs_with_toy_ewap_data():
     bins, meta = load_toy_ewap_dataset(num_steps=5)
     meta["parameters"] = _toy_parameters()
     data = [xp.from_binsparse(b) for b in bins]
-    result = ps.ParticleSimBenchmark().benchmark(xp, data, meta)
+    result = ps.ParticleSimulationBenchmark().benchmark(xp, data, meta)
     assert len(result) == 6  # x, y, z, vx, vy, vz
     for arr in result:
         assert arr.shape == (meta["n_particles"],)
@@ -99,7 +99,7 @@ def test_ewap_particle_sim_generator_uses_downloader(monkeypatch):
 
     monkeypatch.setattr(ps, "download_ewap_dataset", fake_download)
 
-    generator = ps.EWAPParticleSimGenerator()
+    generator = ps.ParticleSimulationEWAPGenerator()
     datasets = generator.datasets
 
     assert generator.cacheable is False

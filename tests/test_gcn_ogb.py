@@ -9,11 +9,11 @@ from binsparse.conversions import to_numpy, to_scipy
 from saps.benchmark import Param
 from saps.benchmarks.gcn import (
     GCNBenchmark,
-    OGBGCNDataset,
-    OGBGCNGenerator,
+    GCNOGBDataset,
+    GCNOGBGenerator,
     gcn_reference_np,
 )
-from saps.benchmarks.ogb import OGBNodePropGenerator, fetch_ogb_nodeprop_dataset
+from saps.benchmarks.ogb import OGBGraphGenerator, fetch_ogb_nodeprop_dataset
 from saps.downloaders.ogb import OGBNodePropData, normalized_undirected_adjacency
 
 
@@ -39,7 +39,7 @@ def test_ogb_gcn_generator_derives_dimensions_from_real_features(monkeypatch):
         num_outputs=2,
         metadata={"dataset_name": "ogbn-arxiv", "split_sizes": {"train": 1}},
     )
-    generator = OGBGCNGenerator()
+    generator = GCNOGBGenerator()
     dataset = generator.datasets[0]
     dataset.hidden_dim = 5
     monkeypatch.setattr(
@@ -57,7 +57,7 @@ def test_ogb_gcn_generator_derives_dimensions_from_real_features(monkeypatch):
 
 
 def test_ogb_gcn_dataset_uses_shared_source_descriptor():
-    dataset = OGBGCNGenerator().datasets[0]
+    dataset = GCNOGBGenerator().datasets[0]
 
     assert (dataset.source_name, dataset.hidden_dim) == ("ogbn-arxiv", 256)
     assert "feature_dim" not in dataset.metadata
@@ -65,7 +65,7 @@ def test_ogb_gcn_dataset_uses_shared_source_descriptor():
 
 
 def test_ogb_gcn_generator_includes_supported_homogeneous_ogb_workloads():
-    datasets = {dataset.source_name: dataset for dataset in OGBGCNGenerator().datasets}
+    datasets = {dataset.source_name: dataset for dataset in GCNOGBGenerator().datasets}
 
     assert set(datasets) == {"ogbn-arxiv", "ogbn-products", "ogbn-proteins"}
     assert datasets["ogbn-arxiv"].suites == ["standard", "trace"]
@@ -74,7 +74,7 @@ def test_ogb_gcn_generator_includes_supported_homogeneous_ogb_workloads():
 
 
 def test_ogb_gcn_proteins_uses_task_count_for_output_width(monkeypatch):
-    generator = OGBGCNGenerator()
+    generator = GCNOGBGenerator()
     dataset = next(
         dataset
         for dataset in generator.datasets
@@ -136,12 +136,12 @@ def test_ogb_generator_runs_through_gcn_with_sparse_framework(monkeypatch):
         num_outputs=2,
         metadata={"dataset_name": "fake-ogb"},
     )
-    dataset = OGBGCNDataset(
+    dataset = GCNOGBDataset(
         "fake-ogb",
         hidden_dim=3,
         description="Tiny integration graph.",
     )
-    generator = OGBGCNGenerator()
+    generator = GCNOGBGenerator()
     monkeypatch.setattr(
         "saps.benchmarks.gcn.fetch_ogb_nodeprop_dataset", lambda _: graph
     )
@@ -186,7 +186,7 @@ def test_ogb_shell_generator_round_trips_prepared_nodeprop_data(monkeypatch):
     monkeypatch.setattr(
         "saps.benchmarks.ogb.load_ogb_nodeprop_dataset", lambda _: graph
     )
-    generator = OGBNodePropGenerator()
+    generator = OGBGraphGenerator()
     dataset = generator.datasets[0]
 
     raw = generator.generate(dataset)
@@ -233,7 +233,7 @@ def test_fetch_ogb_nodeprop_dataset_uses_shared_cache(monkeypatch):
         "saps.benchmarks.ogb.load_ogb_nodeprop_dataset",
         lambda _: raw,
     )
-    shell_generator = OGBNodePropGenerator()
+    shell_generator = OGBGraphGenerator()
     instance = shell_generator.generate(
         next(
             dataset
@@ -246,11 +246,11 @@ def test_fetch_ogb_nodeprop_dataset_uses_shared_cache(monkeypatch):
         calls.append((self.name, dataset.source_name))
         return instance
 
-    monkeypatch.setattr(OGBNodePropGenerator, "cached_generate", fake_cached_generate)
+    monkeypatch.setattr(OGBGraphGenerator, "cached_generate", fake_cached_generate)
 
     graph = fetch_ogb_nodeprop_dataset("ogbn-arxiv")
 
-    assert calls == [("ogb_nodeprop", "ogbn-arxiv")]
+    assert calls == [("ogb_graph", "ogbn-arxiv")]
     assert graph.name == "ogbn-arxiv"
     assert graph.num_raw_edges == 1
     np.testing.assert_array_equal(graph.features, raw.features)

@@ -367,7 +367,7 @@ def _reference_solution(A, b, c, lo, hi):
 # Generator classes.
 
 
-class LinearProgrammingDataset(Dataset):
+class LPSimplexTestDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -413,14 +413,14 @@ class LinearProgrammingDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
+class LPSimplexTestGenerator(Generator[LPSimplexTestDataset]):
     @property
     def name(self) -> str:
         return "lp_simplex_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Revised Simplex Method Test"
+        return "Linear Programming Simplex Test"
 
     @property
     def description(self) -> str:
@@ -461,7 +461,7 @@ class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
         return False
 
     @property
-    def datasets(self) -> list[LinearProgrammingDataset]:
+    def datasets(self) -> list[LPSimplexTestDataset]:
         # 1. Bounded LP with a unique optimum.
         #    maximize 3x + 5y  <=>  minimize -3x - 5y
         #    s.t. x <= 4, 2y <= 12, 3x + 2y <= 18, x, y >= 0
@@ -506,7 +506,7 @@ class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
         )
 
         return [
-            LinearProgrammingDataset(
+            LPSimplexTestDataset(
                 "bounded_unique_optimum",
                 pretty_name="Bounded Unique Optimum",
                 suites=["test"],
@@ -516,7 +516,7 @@ class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
                 expected_x=np.array([2.0, 6.0, 2.0, 0.0, 0.0]),
                 expected_status=_STATUS_OPTIMAL,
             ),
-            LinearProgrammingDataset(
+            LPSimplexTestDataset(
                 "infeasible",
                 pretty_name="Infeasible",
                 suites=["test"],
@@ -526,7 +526,7 @@ class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
                 expected_x=np.zeros(A2.shape[1]),
                 expected_status=_STATUS_INFEASIBLE,
             ),
-            LinearProgrammingDataset(
+            LPSimplexTestDataset(
                 "unbounded",
                 pretty_name="Unbounded",
                 suites=["test"],
@@ -536,7 +536,7 @@ class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
                 expected_x=np.zeros(A3.shape[1]),
                 expected_status=_STATUS_UNBOUNDED,
             ),
-            LinearProgrammingDataset(
+            LPSimplexTestDataset(
                 "degenerate_tie",
                 pretty_name="Degenerate Tie",
                 suites=["test"],
@@ -546,7 +546,7 @@ class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
                 expected_x=np.array([4.0, 4.0, 0.0, 0.0, 0.0]),
                 expected_status=_STATUS_OPTIMAL,
             ),
-            LinearProgrammingDataset(
+            LPSimplexTestDataset(
                 "singleton",
                 pretty_name="Singleton",
                 suites=["test"],
@@ -558,7 +558,7 @@ class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
             ),
         ]
 
-    def generate(self, dataset: LinearProgrammingDataset) -> DataInstance:
+    def generate(self, dataset: LPSimplexTestDataset) -> DataInstance:
         if (
             dataset.A is None
             or dataset.b is None
@@ -614,7 +614,7 @@ _LPNETLIB_TRACTABLE = [
 ]
 
 
-class LPNetlibDataset(SuiteSparseDataset):
+class LPSimplexLPnetlibDataset(SuiteSparseDataset):
     def __init__(
         self,
         source_name: str,
@@ -635,14 +635,14 @@ class LPNetlibDataset(SuiteSparseDataset):
         self.expected_status = expected_status
 
 
-class LPNetlibGenerator(Generator[LPNetlibDataset]):
+class LPSimplexLPnetlibGenerator(Generator[LPSimplexLPnetlibDataset]):
     @property
     def name(self) -> str:
         return "lp_simplex_lpnetlib"
 
     @property
     def pretty_name(self) -> str:
-        return "Revised Simplex Method LPnetlib"
+        return "Linear Programming Simplex LPnetlib"
 
     @property
     def description(self) -> str:
@@ -720,9 +720,9 @@ class LPNetlibGenerator(Generator[LPNetlibDataset]):
         return False
 
     @property
-    def datasets(self) -> list[LPNetlibDataset]:
+    def datasets(self) -> list[LPSimplexLPnetlibDataset]:
         return [
-            LPNetlibDataset(
+            LPSimplexLPnetlibDataset(
                 name,
                 suites=["standard", "trace", "train"]
                 if name == "lp_recipe"
@@ -736,7 +736,7 @@ class LPNetlibGenerator(Generator[LPNetlibDataset]):
             for name in _LPNETLIB_PROBLEMS
         ]
 
-    def generate(self, dataset: LPNetlibDataset) -> DataInstance:
+    def generate(self, dataset: LPSimplexLPnetlibDataset) -> DataInstance:
         raw = fetch_suitesparse_matrix(dataset.source_name)
         A_bin, b_bin, c_bin, lo_bin, hi_bin = raw.inputs
         try:
@@ -783,14 +783,14 @@ class LPNetlibGenerator(Generator[LPNetlibDataset]):
         )
 
 
-class LinearProgrammingBenchmark(Benchmark):
+class LPSimplexBenchmark(Benchmark):
     @property
     def name(self):
         return "lp_simplex"
 
     @property
     def pretty_name(self):
-        return "Revised Simplex Method"
+        return "Linear Programming Simplex"
 
     @property
     def description(self):
@@ -913,8 +913,8 @@ class LinearProgrammingBenchmark(Benchmark):
     @property
     def generators(self):
         return [
-            LinearProgrammingTestGenerator(),
-            LPNetlibGenerator(),
+            LPSimplexTestGenerator(),
+            LPSimplexLPnetlibGenerator(),
         ]
 
     def benchmark(self, xp, data: list, meta: dict):

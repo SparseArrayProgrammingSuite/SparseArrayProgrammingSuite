@@ -71,7 +71,7 @@ def generate_1d_sobel_matrices(Nx, Ny):
     return dx_bin, sy_bin, sx_bin, dy_bin
 
 
-class MRISobelDataset(Dataset):
+class MRISobelEdgeDetectionDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -141,14 +141,14 @@ def expected_sobel_edge(image, threshold):
     return magnitude > threshold
 
 
-class MRISobelTestGenerator(Generator[MRISobelDataset]):
+class MRISobelEdgeDetectionTestGenerator(Generator[MRISobelEdgeDetectionDataset]):
     @property
     def name(self) -> str:
-        return "mri_sobel_edge_test"
+        return "mri_sobel_edge_detection_test"
 
     @property
     def pretty_name(self) -> str:
-        return "MRI Sobel Edge Detection Test"
+        return "Magnetic Resonance Imaging Sobel Edge Detection Test"
 
     @property
     def description(self) -> str:
@@ -164,15 +164,15 @@ class MRISobelTestGenerator(Generator[MRISobelDataset]):
 
     @property
     def authors(self) -> list[Contributor]:
-        return MRISobelEdgeBenchmark().authors
+        return MRISobelEdgeDetectionBenchmark().authors
 
     @property
     def references(self) -> list[Ref]:
-        return MRISobelEdgeBenchmark().references
+        return MRISobelEdgeDetectionBenchmark().references
 
     @property
     def ai_disclosure(self) -> str:
-        return MRISobelEdgeBenchmark().ai_disclosure
+        return MRISobelEdgeDetectionBenchmark().ai_disclosure
 
     @property
     def motivation(self) -> str:
@@ -183,9 +183,9 @@ class MRISobelTestGenerator(Generator[MRISobelDataset]):
         return False
 
     @property
-    def datasets(self) -> list[MRISobelDataset]:
+    def datasets(self) -> list[MRISobelEdgeDetectionDataset]:
         return [
-            MRISobelDataset(
+            MRISobelEdgeDetectionDataset(
                 "zero_image",
                 "local",
                 "zero_image",
@@ -193,7 +193,7 @@ class MRISobelTestGenerator(Generator[MRISobelDataset]):
                 threshold_val=10.0,
                 image=np.zeros((5, 5), dtype=np.float32),
             ),
-            MRISobelDataset(
+            MRISobelEdgeDetectionDataset(
                 "vertical_edge",
                 "local",
                 "vertical_edge",
@@ -210,7 +210,7 @@ class MRISobelTestGenerator(Generator[MRISobelDataset]):
                     dtype=np.float32,
                 ),
             ),
-            MRISobelDataset(
+            MRISobelEdgeDetectionDataset(
                 "horizontal_edge",
                 "local",
                 "horizontal_edge",
@@ -227,7 +227,7 @@ class MRISobelTestGenerator(Generator[MRISobelDataset]):
                     dtype=np.float32,
                 ),
             ),
-            MRISobelDataset(
+            MRISobelEdgeDetectionDataset(
                 "zero_3x4",
                 "local",
                 "zero_3x4",
@@ -242,8 +242,8 @@ class MRISobelTestGenerator(Generator[MRISobelDataset]):
             ),
         ]
 
-    def generate(self, dataset: MRISobelDataset) -> DataInstance:
-        problem = MRISobelGenerator().generate(dataset)
+    def generate(self, dataset: MRISobelEdgeDetectionDataset) -> DataInstance:
+        problem = MRISobelEdgeDetectionKaggleGenerator().generate(dataset)
         expected = expected_sobel_edge(dataset.image, dataset.threshold_val)
         return DataInstance(
             inputs=problem.inputs,
@@ -253,14 +253,14 @@ class MRISobelTestGenerator(Generator[MRISobelDataset]):
         )
 
 
-class MRISobelGenerator(Generator[MRISobelDataset]):
+class MRISobelEdgeDetectionKaggleGenerator(Generator[MRISobelEdgeDetectionDataset]):
     @property
     def name(self) -> str:
-        return "mri_sobel_edge_kaggle"
+        return "mri_sobel_edge_detection_kaggle"
 
     @property
     def pretty_name(self) -> str:
-        return "MRI Sobel Edge Detection Kaggle"
+        return "Magnetic Resonance Imaging Sobel Edge Detection Kaggle"
 
     @property
     def description(self) -> str:
@@ -299,30 +299,38 @@ class MRISobelGenerator(Generator[MRISobelDataset]):
 
     @property
     def authors(self) -> list[Contributor]:
-        return MRISobelEdgeBenchmark().authors
+        return MRISobelEdgeDetectionBenchmark().authors
 
     @property
     def references(self) -> list[Ref]:
-        return MRISobelEdgeBenchmark().references
+        return MRISobelEdgeDetectionBenchmark().references
 
     @property
     def ai_disclosure(self) -> str:
-        return MRISobelEdgeBenchmark().ai_disclosure
+        return MRISobelEdgeDetectionBenchmark().ai_disclosure
 
     @property
     def motivation(self) -> str:
-        return MRISobelEdgeBenchmark().motivation
+        return MRISobelEdgeDetectionBenchmark().motivation
 
     @property
-    def datasets(self) -> list[MRISobelDataset]:
+    def datasets(self) -> list[MRISobelEdgeDetectionDataset]:
         return [
-            MRISobelDataset("yes/Y157", "yes", "Y157.JPG", suites=["trace"]),
-            MRISobelDataset("yes/Y6", "yes", "Y6.jpg", suites=["trace", "train"]),
-            MRISobelDataset("yes/Y194", "yes", "Y194.jpg", suites=["trace"]),
-            MRISobelDataset("yes/Y180", "yes", "Y180.jpg", suites=["trace"]),
+            MRISobelEdgeDetectionDataset(
+                "yes/Y157", "yes", "Y157.JPG", suites=["trace"]
+            ),
+            MRISobelEdgeDetectionDataset(
+                "yes/Y6", "yes", "Y6.jpg", suites=["trace", "train"]
+            ),
+            MRISobelEdgeDetectionDataset(
+                "yes/Y194", "yes", "Y194.jpg", suites=["trace"]
+            ),
+            MRISobelEdgeDetectionDataset(
+                "yes/Y180", "yes", "Y180.jpg", suites=["trace"]
+            ),
         ]
 
-    def generate(self, dataset: MRISobelDataset) -> DataInstance:
+    def generate(self, dataset: MRISobelEdgeDetectionDataset) -> DataInstance:
         if dataset.image is None:
             from PIL import Image
 
@@ -351,14 +359,14 @@ class MRISobelGenerator(Generator[MRISobelDataset]):
         )
 
 
-class MRISobelEdgeBenchmark(Benchmark):
+class MRISobelEdgeDetectionBenchmark(Benchmark):
     @property
     def name(self) -> str:
-        return "mri_sobel_edge"
+        return "mri_sobel_edge_detection"
 
     @property
     def pretty_name(self) -> str:
-        return "MRI Sobel Edge Detection"
+        return "Magnetic Resonance Imaging Sobel Edge Detection"
 
     @property
     def description(self) -> str:
@@ -426,7 +434,10 @@ class MRISobelEdgeBenchmark(Benchmark):
 
     @property
     def generators(self) -> list[Generator[Any]]:
-        return [MRISobelTestGenerator(), MRISobelGenerator()]
+        return [
+            MRISobelEdgeDetectionTestGenerator(),
+            MRISobelEdgeDetectionKaggleGenerator(),
+        ]
 
     def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
         image, D_x, S_y, S_x, D_y, threshold = data

@@ -11,7 +11,7 @@ from saps.benchmarks import four_clique_counting as four
 
 @pytest.mark.parametrize(
     "generator",
-    [four.FourCliqueCountSNAPGenerator(), four.FourCliqueCountGAPGenerator()],
+    [four.FourCliqueCountingSNAPGenerator(), four.FourCliqueCountingGAPGenerator()],
 )
 def test_all_four_clique_sources_are_loadable(monkeypatch, generator):
     adjacency = from_scipy(sparse.coo_matrix(np.ones((4, 4)) - np.eye(4)))
@@ -29,7 +29,7 @@ def test_all_four_clique_sources_are_loadable(monkeypatch, generator):
     monkeypatch.setattr(four, "fetch_snap_graph", load_snap)
     monkeypatch.setattr(four, "fetch_gap_graph", load_gap)
     source = (
-        "gap" if isinstance(generator, four.FourCliqueCountGAPGenerator) else "snap"
+        "gap" if isinstance(generator, four.FourCliqueCountingGAPGenerator) else "snap"
     )
     for dataset in generator.datasets:
         problem = generator.generate(dataset)
@@ -45,11 +45,11 @@ def test_all_four_clique_sources_are_loadable(monkeypatch, generator):
 def test_four_clique_parameters_include_full_snap_catalog_and_standard_gap():
     from saps.benchmarks.snap import SNAPGraphGenerator
 
-    parameters = four.FourCliqueCountBenchmark().params
+    parameters = four.FourCliqueCountingBenchmark().params
     snap = [
         p
         for p in parameters
-        if isinstance(p.generator, four.FourCliqueCountSNAPGenerator)
+        if isinstance(p.generator, four.FourCliqueCountingSNAPGenerator)
     ]
     assert {p.dataset.name for p in snap} == {
         d.name for d in SNAPGraphGenerator().datasets
@@ -57,7 +57,7 @@ def test_four_clique_parameters_include_full_snap_catalog_and_standard_gap():
     gap = [
         p
         for p in parameters
-        if isinstance(p.generator, four.FourCliqueCountGAPGenerator)
+        if isinstance(p.generator, four.FourCliqueCountingGAPGenerator)
     ]
     assert len(gap) == 5
     assert all("standard" in p.dataset.suites for p in gap)

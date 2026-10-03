@@ -105,12 +105,12 @@ def test_invalid_rhs_selection_raises(monkeypatch, raw_system, rhs_count, rhs_in
 @pytest.mark.parametrize(
     "generator",
     [
-        cg.CGGenerator(),
-        jacobi.JacobiGenerator(),
-        GMRES.GMRESGenerator(),
-        lsqr.LSQRGenerator(),
-        preconditioned_cg.BlockJacobiCGGenerator(),
-        preconditioned_cg.JacobiCGGenerator(),
+        cg.CGSuiteSparseGenerator(),
+        jacobi.JacobiSuiteSparseGenerator(),
+        GMRES.GMRESSuiteSparseGenerator(),
+        lsqr.LSQRSuiteSparseGenerator(),
+        preconditioned_cg.BlockJacobiPCGSuiteSparseGenerator(),
+        preconditioned_cg.JacobiPCGSuiteSparseGenerator(),
     ],
     ids=lambda g: g.name,
 )

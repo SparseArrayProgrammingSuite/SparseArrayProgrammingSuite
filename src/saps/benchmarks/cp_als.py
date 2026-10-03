@@ -15,7 +15,7 @@ from saps.benchmark import (
 from saps.benchmarks.frostt import fetch_frostt_tensor
 
 
-class CPFactorizeableDataset(Dataset):
+class CPALSFactorizableDataset(Dataset):
     def __init__(self, name, pretty_name, suites, shape, rank, max_iter=100):
         self._name = name
         self._pretty_name = pretty_name
@@ -46,7 +46,7 @@ class CPFactorizeableDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class CPNFactorizeableGenerator(Generator[CPFactorizeableDataset]):
+class CPALSFactorizableGenerator(Generator[CPALSFactorizableDataset]):
     def __init__(self, n: int | None = None):
         self.n = n
 
@@ -56,7 +56,7 @@ class CPNFactorizeableGenerator(Generator[CPFactorizeableDataset]):
 
     @property
     def pretty_name(self):
-        return "CP-ALS Factorizable"
+        return "Canonical Polyadic Alternating Least Squares Factorizable"
 
     @property
     def description(self):
@@ -103,7 +103,7 @@ class CPNFactorizeableGenerator(Generator[CPFactorizeableDataset]):
     @property
     def datasets(self):
         datasets = [
-            CPFactorizeableDataset(
+            CPALSFactorizableDataset(
                 name="tiny_3d",
                 pretty_name="Tiny 3D",
                 suites=["test"],
@@ -111,14 +111,14 @@ class CPNFactorizeableGenerator(Generator[CPFactorizeableDataset]):
                 rank=2,
                 max_iter=20,
             ),
-            CPFactorizeableDataset(
+            CPALSFactorizableDataset(
                 name="small_3d",
                 pretty_name="Small 3D",
                 suites=[],
                 shape=(20, 20, 20),
                 rank=3,
             ),
-            CPFactorizeableDataset(
+            CPALSFactorizableDataset(
                 name="tiny_4d",
                 pretty_name="Tiny 4D",
                 suites=["test"],
@@ -126,14 +126,14 @@ class CPNFactorizeableGenerator(Generator[CPFactorizeableDataset]):
                 rank=1,
                 max_iter=20,
             ),
-            CPFactorizeableDataset(
+            CPALSFactorizableDataset(
                 name="small_4d",
                 pretty_name="Small 4D",
                 suites=[],
                 shape=(20, 20, 20, 20),
                 rank=4,
             ),
-            CPFactorizeableDataset(
+            CPALSFactorizableDataset(
                 name="tiny_5d",
                 pretty_name="Tiny 5D",
                 suites=["test"],
@@ -141,7 +141,7 @@ class CPNFactorizeableGenerator(Generator[CPFactorizeableDataset]):
                 rank=2,
                 max_iter=20,
             ),
-            CPFactorizeableDataset(
+            CPALSFactorizableDataset(
                 name="small_5d",
                 pretty_name="Small 5D",
                 suites=[],
@@ -154,7 +154,7 @@ class CPNFactorizeableGenerator(Generator[CPFactorizeableDataset]):
             dataset for dataset in datasets if self.n is None or dataset.n == self.n
         ]
 
-    def generate(self, dataset: CPFactorizeableDataset):
+    def generate(self, dataset: CPALSFactorizableDataset):
         rank = dataset.rank
         rng = np.random.default_rng(42)
 
@@ -283,7 +283,7 @@ class CPNFactorizeableGenerator(Generator[CPFactorizeableDataset]):
                 raise ValueError(f"unsupported CP tensor order {dataset.n}")
 
 
-class CPFrosttDataset(Dataset):
+class CPALSFROSTTDataset(Dataset):
     def __init__(
         self, name, pretty_name, tensor_name, n, rank, max_iter=20, suites=None
     ):
@@ -316,7 +316,7 @@ class CPFrosttDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class CPNFrosttGenerator(Generator[CPFrosttDataset]):
+class CPALSFROSTTGenerator(Generator[CPALSFROSTTDataset]):
     def __init__(self, n: int | None = None):
         self.n = n
 
@@ -330,7 +330,7 @@ class CPNFrosttGenerator(Generator[CPFrosttDataset]):
 
     @property
     def pretty_name(self):
-        return "CP-ALS FROSTT"
+        return "Canonical Polyadic Alternating Least Squares FROSTT"
 
     @property
     def description(self):
@@ -393,7 +393,7 @@ class CPNFrosttGenerator(Generator[CPFrosttDataset]):
     @property
     def datasets(self):
         datasets = [
-            CPFrosttDataset(
+            CPALSFROSTTDataset(
                 name=tensor_name,
                 pretty_name=tensor_name,
                 tensor_name=tensor_name,
@@ -438,7 +438,7 @@ class CPNFrosttGenerator(Generator[CPFrosttDataset]):
             dataset for dataset in datasets if self.n is None or dataset.n == self.n
         ]
 
-    def generate(self, dataset: CPFrosttDataset):
+    def generate(self, dataset: CPALSFROSTTDataset):
         raw = fetch_frostt_tensor(dataset.tensor_name)
         X = raw.inputs[0]
         rank = dataset.rank
@@ -486,7 +486,7 @@ class CPNFrosttGenerator(Generator[CPFrosttDataset]):
                 raise ValueError(f"unsupported CP tensor order {dataset.n}")
 
 
-class CP_ALS(Benchmark):
+class CPALSBenchmark(Benchmark):
     """Shared metadata and generators for the dimension-specific benchmarks."""
 
     n: int
@@ -497,10 +497,7 @@ class CP_ALS(Benchmark):
 
     @property
     def pretty_name(self):
-        return (
-            f"{self.n}D CANDECOMP/PARAFAC (CP) Decomposition "
-            "via Alternating Least Squares"
-        )
+        return f"Canonical Polyadic Alternating Least Squares {self.n}D"
 
     @property
     def description(self):
@@ -606,8 +603,8 @@ class CP_ALS(Benchmark):
     @property
     def generators(self):
         return [
-            CPNFactorizeableGenerator(self.n),
-            CPNFrosttGenerator(self.n),
+            CPALSFactorizableGenerator(self.n),
+            CPALSFROSTTGenerator(self.n),
         ]
 
     """
@@ -628,7 +625,7 @@ class CP_ALS(Benchmark):
     """
 
 
-class CP_ALS_3D(CP_ALS):
+class CPALS3DBenchmark(CPALSBenchmark):
     n = 3
 
     def benchmark(self, xp, data, meta):
@@ -731,7 +728,7 @@ class CP_ALS_3D(CP_ALS):
         )
 
 
-class CP_ALS_4D(CP_ALS):
+class CPALS4DBenchmark(CPALSBenchmark):
     n = 4
 
     def benchmark(self, xp, data, meta):
@@ -864,7 +861,7 @@ class CP_ALS_4D(CP_ALS):
         )
 
 
-class CP_ALS_5D(CP_ALS):
+class CPALS5DBenchmark(CPALSBenchmark):
     n = 5
 
     def benchmark(self, xp, data, meta):

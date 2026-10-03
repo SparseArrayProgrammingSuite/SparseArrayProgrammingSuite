@@ -12100,11 +12100,11 @@
               ]
             }
           ],
-          "name": "block_jacobi_preconditioned_cg_suitesparse",
+          "name": "block_jacobi_pcg_suitesparse",
           "statistics": []
         }
       ],
-      "name": "block_jacobi_preconditioned_cg",
+      "name": "block_jacobi_pcg",
       "statistics": []
     },
     {
@@ -20322,11 +20322,51 @@
               ]
             }
           ],
-          "name": "jacobi_preconditioned_cg_suitesparse",
+          "name": "jacobi_pcg_suitesparse",
           "statistics": []
         }
       ],
-      "name": "jacobi_preconditioned_cg",
+      "name": "jacobi_pcg",
+      "statistics": []
+    },
+    {
+      "generators": [
+        {
+          "datasets": [
+            {
+              "file": "src/saps/benchmarks/rp_kmeans_clustering.py",
+              "freshness": "be12699c2b70fad387d27c544913ad9128b63e655aa75b9e7114aa744eb00a0a",
+              "name": "cifar10",
+              "statistics": [
+                "feature-dense",
+                "feature-fancy-ops",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-shape-ops",
+                "feature-tensor",
+                "feature-transcendental-ops"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/rp_kmeans_clustering.py",
+              "freshness": "be12699c2b70fad387d27c544913ad9128b63e655aa75b9e7114aa744eb00a0a",
+              "name": "mnist",
+              "statistics": [
+                "feature-dense",
+                "feature-fancy-ops",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-shape-ops",
+                "feature-tensor",
+                "feature-transcendental-ops"
+              ]
+            }
+          ],
+          "name": "jl_kmeans_openml",
+          "statistics": []
+        }
+      ],
+      "name": "jl_kmeans",
       "statistics": []
     },
     {
@@ -20997,11 +21037,11 @@
               ]
             }
           ],
-          "name": "mri_masked_edge_kaggle",
+          "name": "mri_masked_edge_detection_kaggle",
           "statistics": []
         }
       ],
-      "name": "mri_masked_edge",
+      "name": "mri_masked_edge_detection",
       "statistics": []
     },
     {
@@ -21049,11 +21089,11 @@
               ]
             }
           ],
-          "name": "mri_sobel_edge_kaggle",
+          "name": "mri_sobel_edge_detection_kaggle",
           "statistics": []
         }
       ],
-      "name": "mri_sobel_edge",
+      "name": "mri_sobel_edge_detection",
       "statistics": []
     },
     {
@@ -21204,7 +21244,7 @@
               ]
             }
           ],
-          "name": "particle_sim_ewap",
+          "name": "particle_simulation_ewap",
           "statistics": []
         },
         {
@@ -21240,73 +21280,11 @@
               ]
             }
           ],
-          "name": "particle_sim_nemo",
+          "name": "particle_simulation_nemo",
           "statistics": []
         }
       ],
-      "name": "particle_sim",
-      "statistics": []
-    },
-    {
-      "generators": [
-        {
-          "datasets": [
-            {
-              "file": "src/saps/benchmarks/rp_kmeans_clustering.py",
-              "freshness": "be12699c2b70fad387d27c544913ad9128b63e655aa75b9e7114aa744eb00a0a",
-              "name": "cifar10",
-              "statistics": [
-                "feature-dense",
-                "feature-fancy-ops",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-shape-ops",
-                "feature-tensor",
-                "feature-transcendental-ops"
-              ]
-            },
-            {
-              "file": "src/saps/benchmarks/rp_kmeans_clustering.py",
-              "freshness": "be12699c2b70fad387d27c544913ad9128b63e655aa75b9e7114aa744eb00a0a",
-              "name": "mnist",
-              "statistics": [
-                "feature-dense",
-                "feature-fancy-ops",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-shape-ops",
-                "feature-tensor",
-                "feature-transcendental-ops"
-              ]
-            }
-          ],
-          "name": "rp_kmeans_clustering_openml",
-          "statistics": []
-        }
-      ],
-      "name": "rp_kmeans_clustering",
-      "statistics": []
-    },
-    {
-      "generators": [
-        {
-          "datasets": [
-            {
-              "file": "src/saps/benchmarks/quantum.py",
-              "freshness": "826b9341c4e112d597fe8c31db5e2a5a7767997947f98a678fd3d3ac672ff63b",
-              "name": "single_layer_small",
-              "statistics": [
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor"
-              ]
-            }
-          ],
-          "name": "rqc_statevector_synthetic",
-          "statistics": []
-        }
-      ],
-      "name": "rqc_statevector",
+      "name": "particle_simulation",
       "statistics": []
     },
     {
@@ -21419,7 +21397,29 @@
           "statistics": []
         }
       ],
-      "name": "runge_kutta",
+      "name": "rk4",
+      "statistics": []
+    },
+    {
+      "generators": [
+        {
+          "datasets": [
+            {
+              "file": "src/saps/benchmarks/quantum.py",
+              "freshness": "826b9341c4e112d597fe8c31db5e2a5a7767997947f98a678fd3d3ac672ff63b",
+              "name": "single_layer_small",
+              "statistics": [
+                "feature-dense",
+                "feature-shape-ops",
+                "feature-tensor"
+              ]
+            }
+          ],
+          "name": "rqc_statevector_synthetic",
+          "statistics": []
+        }
+      ],
+      "name": "rqc_statevector",
       "statistics": []
     },
     {
@@ -21443,7 +21443,7 @@
               ]
             }
           ],
-          "name": "simhash_approx_nn_openml_dense",
+          "name": "simhash_ann_openml_dense",
           "statistics": []
         },
         {
@@ -21465,7 +21465,7 @@
               ]
             }
           ],
-          "name": "simhash_approx_nn_openml_sparse",
+          "name": "simhash_ann_openml_sparse",
           "statistics": []
         },
         {
@@ -21487,7 +21487,7 @@
               ]
             }
           ],
-          "name": "simhash_approx_nn_test_dense",
+          "name": "simhash_ann_test_dense",
           "statistics": []
         },
         {
@@ -21509,11 +21509,11 @@
               ]
             }
           ],
-          "name": "simhash_approx_nn_test_sparse",
+          "name": "simhash_ann_test_sparse",
           "statistics": []
         }
       ],
-      "name": "simhash_approx_nn",
+      "name": "simhash_ann",
       "statistics": []
     },
     {

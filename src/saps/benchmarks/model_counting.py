@@ -52,7 +52,7 @@ def clauses_to_einsum(clauses):
     return f"s[] += {full_str}"
 
 
-class MCDataset(Dataset):
+class ModelCountingTestDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -90,7 +90,7 @@ class MCDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class MCGenerator(Generator[MCDataset]):
+class ModelCountingTestGenerator(Generator[ModelCountingTestDataset]):
     @property
     def name(self) -> str:
         return "model_counting_test"
@@ -136,11 +136,11 @@ class MCGenerator(Generator[MCDataset]):
         return False
 
     @property
-    def datasets(self) -> list[MCDataset]:
+    def datasets(self) -> list[ModelCountingTestDataset]:
         return [
-            MCDataset(
+            ModelCountingTestDataset(
                 name="standard_sat",
-                pretty_name="Standard SAT",
+                pretty_name="Standard Satisfiable",
                 description="3 variables, 2 clauses",
                 suites=["test"],
                 cnf_text="""
@@ -150,7 +150,7 @@ class MCGenerator(Generator[MCDataset]):
                 """,
                 expected=5,
             ),
-            MCDataset(
+            ModelCountingTestDataset(
                 name="contradiction",
                 pretty_name="Contradiction",
                 description="V1 and not V1",
@@ -163,7 +163,7 @@ class MCGenerator(Generator[MCDataset]):
                 """,
                 expected=0,
             ),
-            MCDataset(
+            ModelCountingTestDataset(
                 name="single_solution",
                 pretty_name="Single Solution",
                 description="Forces all 3 variables to be true",
@@ -177,7 +177,7 @@ class MCGenerator(Generator[MCDataset]):
                 """,
                 expected=1,
             ),
-            MCDataset(
+            ModelCountingTestDataset(
                 name="empty_formula",
                 pretty_name="Empty Formula",
                 description="No clauses, 2 variables",
@@ -190,7 +190,7 @@ class MCGenerator(Generator[MCDataset]):
             ),
         ]
 
-    def generate(self, dataset: MCDataset):
+    def generate(self, dataset: ModelCountingTestDataset):
         num_vars, clauses = parse_dimacs(dataset.cnf_text)
         expr = clauses_to_einsum(clauses)
 
@@ -253,14 +253,14 @@ class MCCompDataset(Dataset):
         return data
 
 
-class MCCompGenerator(Generator[MCCompDataset]):
+class MCCompInstanceGenerator(Generator[MCCompDataset]):
     @property
     def name(self) -> str:
         return "mccomp_instance"
 
     @property
     def pretty_name(self) -> str:
-        return "Model Counting Competition Instances"
+        return "MCComp Instances"
 
     @property
     def description(self) -> str:
@@ -363,13 +363,13 @@ class MCCompGenerator(Generator[MCCompDataset]):
         )
 
 
-class MCCompBenchmark(ShellBenchmark):
+class MCCompInstanceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return MCCompGenerator()
+        return MCCompInstanceGenerator()
 
 
-class MCCompMCGenerator(Generator[MCCompDataset]):
+class ModelCountingMCCompGenerator(Generator[MCCompDataset]):
     @property
     def name(self) -> str:
         return "model_counting_mccomp"
@@ -396,7 +396,7 @@ class MCCompMCGenerator(Generator[MCCompDataset]):
 
     @property
     def references(self) -> list[Ref]:
-        return MCCompGenerator().references
+        return MCCompInstanceGenerator().references
 
     @property
     def ai_disclosure(self) -> str:
@@ -444,7 +444,7 @@ class MCCompMCGenerator(Generator[MCCompDataset]):
                 "num_vars": num_vars,
                 "expected_result": int(exact_value),
                 "default_total": 2**num_vars,
-                "source_generator": MCCompGenerator().name,
+                "source_generator": MCCompInstanceGenerator().name,
                 "source_path": dataset.source_path,
                 "source_problem_type": parse_mccomp_problem_type(cnf_text),
                 "source_num_clauses": len(clauses),
@@ -467,7 +467,7 @@ def fetch_mccomp_instance(source_name: str) -> DataInstance:
         raise ValueError(message)
 
     source_path = matches[0]
-    raw_generator = MCCompGenerator()
+    raw_generator = MCCompInstanceGenerator()
     raw_dataset = next(
         dataset
         for dataset in raw_generator.datasets
@@ -492,7 +492,7 @@ def parse_mccomp_exact(cnf_text: str) -> tuple[str | None, str | None]:
     return None, None
 
 
-class ModelCounting(Benchmark):
+class ModelCountingBenchmark(Benchmark):
     @property
     def name(self):
         return "model_counting"
@@ -553,7 +553,7 @@ class ModelCounting(Benchmark):
 
     @property
     def generators(self) -> list[Generator[Any]]:
-        return [MCGenerator(), MCCompMCGenerator()]
+        return [ModelCountingTestGenerator(), ModelCountingMCCompGenerator()]
 
     def benchmark(self, xp, data: list[Any], meta: dict[str, Any]) -> list[Any]:
         expr = meta["expr"]

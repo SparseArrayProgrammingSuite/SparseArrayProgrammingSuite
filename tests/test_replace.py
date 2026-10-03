@@ -16,7 +16,7 @@ from frameworks.saps_scipy import SciPyFramework
 from frameworks.saps_smart import SmartSparseFramework, SmartSparseKernels
 from frameworks.saps_sparse import PyDataSparseFramework
 from saps.benchmarks.jacobi import JacobiBenchmark
-from saps.benchmarks.preconditioned_cg import JacobiPreconditionedCGBenchmark
+from saps.benchmarks.preconditioned_cg import JacobiPCGBenchmark
 
 
 @pytest.fixture(
@@ -172,5 +172,5 @@ def test_jacobi_preconditioning_replaces_nan(xp):
     matrix = xp.from_binsparse(from_sparse(sp.asarray([0.0, 2.0, 3.0])))
     residual = xp.from_binsparse(from_sparse(sp.asarray([0.0, 4.0, 0.0])))
     with np.errstate(invalid="ignore", divide="ignore"):
-        result = JacobiPreconditionedCGBenchmark()._solve_cg(xp, matrix, residual)
+        result = JacobiPCGBenchmark()._solve_cg(xp, matrix, residual)
     np.testing.assert_array_equal(dense(result), [0, 2, 0])

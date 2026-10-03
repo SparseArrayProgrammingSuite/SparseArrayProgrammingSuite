@@ -6,8 +6,8 @@ import scipy.sparse
 from binsparse.conversions import to_scipy
 
 from saps.benchmarks.netflixprize import (
-    NetflixPrizeBenchmark,
-    NetflixPrizeGenerator,
+    NetflixPrizeRatingsGenerator,
+    NetflixPrizeRatingsShellBenchmark,
     _load_netflixprize_matrix,
     _validate_netflixprize_matrix,
     fetch_netflixprize_matrix,
@@ -37,14 +37,14 @@ def test_netflixprize_shell_generator_caches_prepared_matrix(monkeypatch):
     monkeypatch.setattr(
         "saps.benchmarks.netflixprize._validate_netflixprize_matrix", lambda _: None
     )
-    generator = NetflixPrizeGenerator()
+    generator = NetflixPrizeRatingsGenerator()
     dataset = generator.datasets[0]
 
     instance = generator.generate(dataset)
 
     assert generator.cacheable
     assert dataset.suites == []
-    assert NetflixPrizeBenchmark().generator.name == "netflix_prize_ratings"
+    assert NetflixPrizeRatingsShellBenchmark().generator.name == "netflix_prize_ratings"
     np.testing.assert_array_equal(
         to_scipy(instance.inputs[0]).toarray(), source.toarray()
     )
@@ -60,7 +60,7 @@ def test_fetch_netflixprize_matrix_uses_shared_cache(monkeypatch):
 
     def fake_cached_generate(self, dataset):
         calls.append((self.name, dataset.name))
-        return NetflixPrizeGenerator().generate(dataset)
+        return NetflixPrizeRatingsGenerator().generate(dataset)
 
     monkeypatch.setattr(
         "saps.benchmarks.netflixprize._load_netflixprize_matrix", lambda: source
@@ -68,7 +68,9 @@ def test_fetch_netflixprize_matrix_uses_shared_cache(monkeypatch):
     monkeypatch.setattr(
         "saps.benchmarks.netflixprize._validate_netflixprize_matrix", lambda _: None
     )
-    monkeypatch.setattr(NetflixPrizeGenerator, "cached_generate", fake_cached_generate)
+    monkeypatch.setattr(
+        NetflixPrizeRatingsGenerator, "cached_generate", fake_cached_generate
+    )
 
     matrix, meta = fetch_netflixprize_matrix()
 

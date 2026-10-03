@@ -11,14 +11,14 @@ from binsparse.conversions import to_numpy, to_scipy, to_sparse
 
 from saps.benchmark import Generator
 from saps.benchmarks.BFS import (
-    BreadthFirstSearchDataset,
-    BreadthFirstSearchSNAPGenerator,
+    BFSDataset,
+    BFSSNAPGenerator,
 )
 from saps.benchmarks.snap import (
     _MAX_DEGREES,
     NUM_SNAP_SOURCES,
-    SNAPGraphBenchmark,
     SNAPGraphGenerator,
+    SNAPGraphShellBenchmark,
     fetch_snap_graph,
     seeded_source_vertices,
     select_source_vertices,
@@ -32,19 +32,19 @@ from saps.metadata import _benchmark_instances
 from saps.storage import LocalStorageBackend
 
 _CONSUMERS = [
-    ("BFS", "BreadthFirstSearchSNAPGenerator"),
+    ("BFS", "BFSSNAPGenerator"),
     ("bellmanford", "BellmanFordSNAPGenerator"),
     ("centrality", "BetweennessCentralitySNAPGenerator"),
     ("connected_components", "ConnectedComponentsSNAPGenerator"),
     ("fastsv", "FastSVSNAPGenerator"),
-    ("four_clique_counting", "FourCliqueCountSNAPGenerator"),
+    ("four_clique_counting", "FourCliqueCountingSNAPGenerator"),
     ("pagerank", "PageRankSNAPGenerator"),
     ("transitive_closure", "TransitiveClosureSNAPGenerator"),
     ("floyd_warshall", "FloydWarshallSNAPGenerator"),
-    ("triangle_counting", "TriangleCountSNAPGenerator"),
+    ("triangle_counting", "TriangleCountingSNAPGenerator"),
     ("transitive_reduction", "TransitiveReductionSNAPGenerator"),
     ("multi_source_shortest_paths", "MultiSourceShortestPathsSNAPGenerator"),
-    ("MSBFS", "MultiSourceBreadthFirstSearchSNAPGenerator"),
+    ("MSBFS", "MSBFSSNAPGenerator"),
     ("mcl_benchmark", "MCLSNAPGenerator"),
 ]
 _MULTI_SOURCE = {"multi_source_shortest_paths", "MSBFS"}
@@ -83,7 +83,7 @@ def test_snap_shell_inventory_covers_consumers():
         }
         & declared
     )
-    assert SNAPGraphBenchmark().name == "snap_graph_shell"
+    assert SNAPGraphShellBenchmark().name == "snap_graph_shell"
     assert not generator.cacheable
     consumed = set()
     for benchmark in _benchmark_instances():
@@ -237,7 +237,7 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
 
         xp = NumpyFramework()
         benchmark = (
-            module.BreadthFirstSearchBenchmark()
+            module.BFSBenchmark()
             if module_name == "BFS"
             else module.BellmanFordBenchmark()
         )
@@ -408,7 +408,7 @@ def test_source_selection_rejects_invalid_inputs(shape, values, count, message):
 @pytest.mark.parametrize(
     ("module_name", "test_class", "benchmark_class"),
     [
-        ("BFS", "BreadthFirstSearchTestGenerator", "BreadthFirstSearchBenchmark"),
+        ("BFS", "BFSTestGenerator", "BFSBenchmark"),
         ("bellmanford", "BellmanFordTestGenerator", "BellmanFordBenchmark"),
     ],
 )
@@ -441,10 +441,10 @@ def test_seeded_source_test_suite_problems(
 
 def test_all_snap_sources_have_ten_seeded_cases():
     from saps.benchmarks.bellmanford import BellmanFordSNAPGenerator
-    from saps.benchmarks.BFS import BreadthFirstSearchSNAPGenerator
+    from saps.benchmarks.BFS import BFSSNAPGenerator
 
     graphs = SNAPGraphGenerator().datasets
-    for generator in (BreadthFirstSearchSNAPGenerator(), BellmanFordSNAPGenerator()):
+    for generator in (BFSSNAPGenerator(), BellmanFordSNAPGenerator()):
         datasets = generator.datasets
         assert len(datasets) == len({d.name for d in datasets}) == len(graphs) * 10
         assert {(d.source_name, d.source_seed) for d in datasets} == {
@@ -465,10 +465,10 @@ def test_snap_with_suites_does_not_mutate_shared_graphs():
 
 def test_snap_source_trace_selection_is_seed_specific():
     graph = SNAPGraphGenerator().datasets[0]
-    selected = BreadthFirstSearchDataset(
+    selected = BFSDataset(
         "selected", source_name=graph.name, source_seed=0, suites=["trace"]
     )
-    other = BreadthFirstSearchDataset("other", source_name=graph.name, source_seed=1)
+    other = BFSDataset("other", source_name=graph.name, source_seed=1)
     assert selected.suites == ["trace"]
     assert other.suites == []
     assert graph.suites == []
@@ -497,11 +497,9 @@ def test_snap_generator_rejects_seeds_without_a_source(monkeypatch, seed):
         inputs=[object()], meta={"sources": list(range(NUM_SNAP_SOURCES))}
     )
     monkeypatch.setattr(BFS, "fetch_snap_graph", lambda _: raw)
-    dataset = BreadthFirstSearchDataset(
-        "invalid", source_name="soc-Epinions1", source_seed=seed
-    )
+    dataset = BFSDataset("invalid", source_name="soc-Epinions1", source_seed=seed)
     with pytest.raises(ValueError, match="Source seed"):
-        BreadthFirstSearchSNAPGenerator().generate(dataset)
+        BFSSNAPGenerator().generate(dataset)
 
 
 def test_snap_source_graph_picks_source_from_shell_sources(monkeypatch):
@@ -516,10 +514,8 @@ def test_snap_source_graph_picks_source_from_shell_sources(monkeypatch):
     adjacency = from_scipy(coo_array([[0, 1], [0, 0]]))
     raw = DataInstance(inputs=[adjacency], meta={"max_degree": 3, "sources": sources})
     monkeypatch.setattr(BFS, "fetch_snap_graph", lambda _: raw)
-    dataset = BreadthFirstSearchDataset(
-        "seed-seven", source_name="soc-Epinions1", source_seed=7
-    )
-    problem = BreadthFirstSearchSNAPGenerator().generate(dataset)
+    dataset = BFSDataset("seed-seven", source_name="soc-Epinions1", source_seed=7)
+    problem = BFSSNAPGenerator().generate(dataset)
     assert problem.meta == {**raw.meta, "src": 107, "seed": 7}
     assert raw.meta == {"max_degree": 3, "sources": sources}
 
@@ -554,7 +550,7 @@ def test_msbfs_snap_problems_use_deduplicated_shell_sources_and_edge_pattern(
     adjacency = from_scipy(coo_array([[0, 2, 0], [0, 0, -1], [1, 0, 0]]))
     raw = DataInstance(inputs=[adjacency], meta={"sources": [2, 0, 2, 0, 1]})
     monkeypatch.setattr(MSBFS, "fetch_snap_graph", lambda _: raw)
-    generator = MSBFS.MultiSourceBreadthFirstSearchSNAPGenerator()
+    generator = MSBFS.MSBFSSNAPGenerator()
     problem = generator.generate(generator.datasets[0])
     assert problem.meta == {"sources": [0, 1, 2]}
     edges = to_sparse(problem.inputs[0]).todense()

@@ -41,7 +41,7 @@ def _generate_cg_data(source, A=None, rhs_index=None):
     return (A_bin, b, x0)
 
 
-class PreconditionedCGDataset(SuiteSparseDataset):
+class PCGDataset(SuiteSparseDataset):
     def __init__(
         self,
         source_name: str,
@@ -57,7 +57,7 @@ class PreconditionedCGDataset(SuiteSparseDataset):
         name = source_name
         if rhs_index is not None:
             name = f"{source_name}_rhs{rhs_index}"
-            pretty_name = f"{source_name} (RHS {rhs_index})"
+            pretty_name = f"{source_name} (Right-Hand Side {rhs_index})"
         super().__init__(
             name,
             source_name=source_name,
@@ -74,10 +74,10 @@ class PreconditionedCGDataset(SuiteSparseDataset):
         return {"max_iter": self.max_iter, "rel_tol": self.rel_tol}
 
 
-class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
+class BlockJacobiPCGSuiteSparseGenerator(Generator[PCGDataset]):
     @property
     def name(self) -> str:
-        return "block_jacobi_preconditioned_cg_suitesparse"
+        return "block_jacobi_pcg_suitesparse"
 
     @property
     def pretty_name(self) -> str:
@@ -101,467 +101,467 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
 
     @property
     def authors(self) -> list[Contributor]:
-        return PreconditionedCGBenchmark().authors
+        return BlockJacobiPCGBenchmark().authors
 
     @property
     def references(self) -> list[Ref]:
-        return PreconditionedCGBenchmark().references
+        return BlockJacobiPCGBenchmark().references
 
     @property
     def ai_disclosure(self) -> str:
-        return PreconditionedCGBenchmark().ai_disclosure
+        return BlockJacobiPCGBenchmark().ai_disclosure
 
     @property
     def motivation(self) -> str:
-        return PreconditionedCGBenchmark().motivation
+        return BlockJacobiPCGBenchmark().motivation
 
     @property
     def cacheable(self) -> bool:
         return False
 
     @property
-    def datasets(self) -> list[PreconditionedCGDataset]:
+    def datasets(self) -> list[PCGDataset]:
         return [
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Andrews/Andrews",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Andrianov/net100",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Andrianov/net125",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Andrianov/net150",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Andrianov/net25",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Andrianov/net50",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Andrianov/net75",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Bai/dw256B", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Bai/dwb512", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Bai/mhd3200b",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Bai/mhd4800b",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Bai/mhdb416", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Bindel/ted_B",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Bindel/ted_B_unscaled",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Boeing/bcsstk34",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Boeing/bcsstm39",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Boeing/crystm01",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Boeing/crystm02",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Boeing/crystm03",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Botonakis/FEM_3D_thermal1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Botonakis/FEM_3D_thermal2",
                 suites=["standard", "trace", "train"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Botonakis/thermomech_TC",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Botonakis/thermomech_dM",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Brunetiere/thermal",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Cunningham/qa8fm",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "FEMLAB/poisson2D",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "FEMLAB/problem1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "FIDAP/ex29", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "FIDAP/ex37", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "FIDAP/ex5", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "FIDAP/ex7", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Freescale/circuit5M_dc",
                 suites=["standard"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "GHS_psdef/jnlbrng1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "GHS_psdef/minsurfo",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "GHS_psdef/obstclae",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "GHS_psdef/wathen100",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "GHS_psdef/wathen120",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Grund/poli",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Guettel/TEM27623",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstk01", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstk02", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstk03", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstk04", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstk05", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstk08", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstk22", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm02", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm05", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm06", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm07", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm08", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm09", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm11", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm12", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm19", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm20", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm21", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm22", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm23", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm24", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm25", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm26", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/fs_541_1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/gr_30_30", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/lund_a", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/lund_b", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/nos1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/nos4", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/nos6", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/nos7", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Hamm/add32",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Lourakis/bundle1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "MathWorks/Muu",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "MathWorks/tomography",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "MaxPlanck/shallow_water1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "MaxPlanck/shallow_water2",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Mulvey/finan512",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Nasa/nasa2146",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Norris/fv1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Norris/fv2", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Oberwolfach/LF10",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Oberwolfach/LFAT5",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "PARSEC/Si2", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Pothen/bodyy4",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Pothen/mesh1e1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Pothen/mesh1em1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Pothen/mesh1em6",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Pothen/mesh2e1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Pothen/mesh2em5",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Pothen/mesh3e1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Pothen/mesh3em5",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Sandia/ASIC_100ks",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Sandia/ASIC_320ks",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Um/2cubes_sphere",
                 suites=["standard", "trace"],
                 max_iter=100,
@@ -570,7 +570,7 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
             ),
         ]
 
-    def generate(self, dataset: PreconditionedCGDataset) -> DataInstance:
+    def generate(self, dataset: PCGDataset) -> DataInstance:
         import scipy.sparse as sp
 
         A_bin, b, x0 = _generate_cg_data(
@@ -602,10 +602,10 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
         )
 
 
-class BlockJacobiCGTestGenerator(BlockJacobiCGGenerator):
+class BlockJacobiPCGTestGenerator(BlockJacobiPCGSuiteSparseGenerator):
     @property
     def name(self) -> str:
-        return "block_jacobi_preconditioned_cg_test"
+        return "block_jacobi_pcg_test"
 
     @property
     def pretty_name(self) -> str:
@@ -616,23 +616,23 @@ class BlockJacobiCGTestGenerator(BlockJacobiCGGenerator):
         return "Small inlined symmetric positive definite systems."
 
     @property
-    def datasets(self) -> list[PreconditionedCGDataset]:
+    def datasets(self) -> list[PCGDataset]:
         return [
-            PreconditionedCGDataset(
+            PCGDataset(
                 "3x3_tridiagonal",
                 pretty_name="3x3 Tridiagonal",
                 suites=["test"],
                 A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]),
                 ref_meta={"check_residual": True},
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "3x3_dense",
                 pretty_name="3x3 Dense",
                 suites=["test"],
                 A=np.array([[7.0, 2.0, 1.0], [2.0, 6.0, -1.0], [1.0, -1.0, 5.0]]),
                 ref_meta={"check_residual": True},
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "4x4_tridiagonal",
                 pretty_name="4x4 Tridiagonal",
                 suites=["test"],
@@ -646,14 +646,14 @@ class BlockJacobiCGTestGenerator(BlockJacobiCGGenerator):
                 ),
                 ref_meta={"check_residual": True},
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "3x3_indefinite_sparse",
                 pretty_name="3x3 Indefinite Sparse",
                 suites=["test"],
                 A=np.array([[12.0, 2.0, -1.0], [2.0, 10.0, 3.0], [-1.0, 3.0, 9.0]]),
                 ref_meta={"check_residual": True},
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "3x3_scaled_tridiagonal",
                 pretty_name="3x3 Scaled Tridiagonal",
                 suites=["test"],
@@ -662,7 +662,7 @@ class BlockJacobiCGTestGenerator(BlockJacobiCGGenerator):
                 ),
                 ref_meta={"check_residual": True},
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "5x5_sparse",
                 pretty_name="5x5 Sparse",
                 suites=["test"],
@@ -680,10 +680,10 @@ class BlockJacobiCGTestGenerator(BlockJacobiCGGenerator):
         ]
 
 
-class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
+class JacobiPCGSuiteSparseGenerator(Generator[PCGDataset]):
     @property
     def name(self) -> str:
-        return "jacobi_preconditioned_cg_suitesparse"
+        return "jacobi_pcg_suitesparse"
 
     @property
     def pretty_name(self) -> str:
@@ -707,829 +707,829 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
 
     @property
     def authors(self) -> list[Contributor]:
-        return PreconditionedCGBenchmark().authors
+        return BlockJacobiPCGBenchmark().authors
 
     @property
     def references(self) -> list[Ref]:
-        return PreconditionedCGBenchmark().references
+        return BlockJacobiPCGBenchmark().references
 
     @property
     def ai_disclosure(self) -> str:
-        return PreconditionedCGBenchmark().ai_disclosure
+        return BlockJacobiPCGBenchmark().ai_disclosure
 
     @property
     def motivation(self) -> str:
-        return PreconditionedCGBenchmark().motivation
+        return BlockJacobiPCGBenchmark().motivation
 
     @property
     def cacheable(self) -> bool:
         return False
 
     @property
-    def datasets(self) -> list[PreconditionedCGDataset]:
+    def datasets(self) -> list[PCGDataset]:
         return [
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Andrews/Andrews",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Andrianov/ins2",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Andrianov/net100",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Andrianov/net125",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Andrianov/net150",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Andrianov/net25",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Andrianov/net50",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Andrianov/net75",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Bai/bfwb398", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Bai/bfwb62", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Bai/bfwb782", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Bai/dw256B", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Bai/dwb512", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Bai/mhd3200b",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Bai/mhd4800b",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Bai/mhdb416", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Bindel/ted_B",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Bindel/ted_B_unscaled",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Boeing/bcsstk34",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Boeing/bcsstm39",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Boeing/crystm01",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Boeing/crystm02",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Boeing/crystm03",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Boeing/msc00726",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Botonakis/FEM_3D_thermal1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Botonakis/FEM_3D_thermal2",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Botonakis/thermomech_TC",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Botonakis/thermomech_dM",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Bourchtein/atmosmodd",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=1,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Bourchtein/atmosmodj",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=1,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Bourchtein/atmosmodl",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=1,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Bourchtein/atmosmodm",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=1,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Brunetiere/thermal",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Cunningham/qa8fm",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "FEMLAB/poisson2D",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "FEMLAB/problem1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "FIDAP/ex29", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "FIDAP/ex37", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "FIDAP/ex5", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "FIDAP/ex7", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Freescale/circuit5M_dc",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "GHS_psdef/jnlbrng1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "GHS_psdef/minsurfo",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "GHS_psdef/obstclae",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "GHS_psdef/wathen100",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "GHS_psdef/wathen120",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Grund/poli",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Guettel/TEM27623",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcspwr01", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcspwr02", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstk01", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstk02", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstk04", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstk08", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstk22", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm02", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm05", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm06", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm07", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm08", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm09", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm11", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm19", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm20", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm21", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm22", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm23", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm24", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm25", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/bcsstm26", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/can_144", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/can_24", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/can_61", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/can_62", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/can_73", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/can_96", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/dwt_59", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/dwt_66", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/dwt_72", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/fs_541_1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/gr_30_30", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/jpwh_991", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/lap_25", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/lund_a", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/lund_b", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/nos4", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/nos6", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/nos7", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/orani678",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=1,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/orani678",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=10,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/orani678",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=11,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/orani678",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=12,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/orani678",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=14,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/orani678",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=15,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/orani678",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=16,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/orani678",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=17,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/orani678",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=18,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/orani678",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=19,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/orani678",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=2,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/orani678",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=3,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/orani678",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=4,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/orani678",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=5,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/orani678",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=6,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/orani678",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=62,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/orani678",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=7,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/orani678",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=8,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "HB/watt_1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Hamm/add32",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Lourakis/bundle1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "MathWorks/Muu",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "MathWorks/tomography",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "MaxPlanck/shallow_water1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "MaxPlanck/shallow_water2",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Mulvey/finan512",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Nasa/nasa2146",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Nemeth/nemeth02",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Nemeth/nemeth03",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Nemeth/nemeth04",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Nemeth/nemeth05",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Nemeth/nemeth06",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Nemeth/nemeth07",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Nemeth/nemeth08",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Nemeth/nemeth09",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Nemeth/nemeth10",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Nemeth/nemeth11",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Nemeth/nemeth12",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Nemeth/nemeth13",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Nemeth/nemeth16",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Nemeth/nemeth17",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Norris/fv1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Norris/fv2", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Oberwolfach/LF10",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Oberwolfach/LFAT5",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "PARSEC/Si2", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Pothen/bodyy4",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Pothen/mesh1e1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Pothen/mesh1em1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Pothen/mesh1em6",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Pothen/mesh2e1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Pothen/mesh2em5",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Pothen/mesh3e1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Pothen/mesh3em5",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Pothen/sphere2",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Sandia/ASIC_100ks",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Sandia/ASIC_320ks",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Sandia/ASIC_680ks",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Schenk_AFE/af_shell3",
                 suites=["standard", "trace", "train"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Schenk_AFE/af_shell4",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Schenk_AFE/af_shell7",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Schenk_AFE/af_shell8",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "Um/2cubes_sphere",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "VDOL/hangGlider_1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "VDOL/tumorAntiAngiogenesis_1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "VDOL/tumorAntiAngiogenesis_2",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "VLSI/ss1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
         ]
 
-    def generate(self, dataset: PreconditionedCGDataset) -> DataInstance:
+    def generate(self, dataset: PCGDataset) -> DataInstance:
         A_bin, b, x0 = _generate_cg_data(
             dataset.source_name,
             dataset.A,
@@ -1546,10 +1546,10 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
         )
 
 
-class JacobiCGTestGenerator(JacobiCGGenerator):
+class JacobiPCGTestGenerator(JacobiPCGSuiteSparseGenerator):
     @property
     def name(self) -> str:
-        return "jacobi_preconditioned_cg_test"
+        return "jacobi_pcg_test"
 
     @property
     def pretty_name(self) -> str:
@@ -1560,23 +1560,23 @@ class JacobiCGTestGenerator(JacobiCGGenerator):
         return "Small inlined symmetric positive definite systems."
 
     @property
-    def datasets(self) -> list[PreconditionedCGDataset]:
+    def datasets(self) -> list[PCGDataset]:
         return [
-            PreconditionedCGDataset(
+            PCGDataset(
                 "3x3_tridiagonal",
                 pretty_name="3x3 Tridiagonal",
                 suites=["test"],
                 A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]),
                 ref_meta={"check_residual": True},
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "3x3_dense",
                 pretty_name="3x3 Dense",
                 suites=["test"],
                 A=np.array([[7.0, 2.0, 1.0], [2.0, 6.0, -1.0], [1.0, -1.0, 5.0]]),
                 ref_meta={"check_residual": True},
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "4x4_tridiagonal",
                 pretty_name="4x4 Tridiagonal",
                 suites=["test"],
@@ -1590,14 +1590,14 @@ class JacobiCGTestGenerator(JacobiCGGenerator):
                 ),
                 ref_meta={"check_residual": True},
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "3x3_indefinite_sparse",
                 pretty_name="3x3 Indefinite Sparse",
                 suites=["test"],
                 A=np.array([[12.0, 2.0, -1.0], [2.0, 10.0, 3.0], [-1.0, 3.0, 9.0]]),
                 ref_meta={"check_residual": True},
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "3x3_scaled_tridiagonal",
                 pretty_name="3x3 Scaled Tridiagonal",
                 suites=["test"],
@@ -1606,7 +1606,7 @@ class JacobiCGTestGenerator(JacobiCGGenerator):
                 ),
                 ref_meta={"check_residual": True},
             ),
-            PreconditionedCGDataset(
+            PCGDataset(
                 "5x5_sparse",
                 pretty_name="5x5 Sparse",
                 suites=["test"],
@@ -1624,7 +1624,7 @@ class JacobiCGTestGenerator(JacobiCGGenerator):
         ]
 
 
-class _PreconditionedCGBase(Benchmark, ABC):
+class _PCGBenchmarkBase(Benchmark, ABC):
     @property
     def authors(self) -> list[Contributor]:
         return [Contributor("Benjamin Berol", "bberol3@gatech.edu")]
@@ -1784,39 +1784,39 @@ class _PreconditionedCGBase(Benchmark, ABC):
         return [x_solution]
 
 
-class _BlockJacobiCGMixin:
+class _BlockJacobiPCGMixin:
     @property
     def generators(self):
-        return [BlockJacobiCGTestGenerator(), BlockJacobiCGGenerator()]
+        return [BlockJacobiPCGTestGenerator(), BlockJacobiPCGSuiteSparseGenerator()]
 
     def _solve_cg(self, xp, M, r):
         y = xp.linalg.solve(M, r)
         return xp.linalg.solve(M.T, y)
 
 
-class _JacobiCGMixin:
+class _JacobiPCGMixin:
     @property
     def generators(self):
-        return [JacobiCGTestGenerator(), JacobiCGGenerator()]
+        return [JacobiPCGTestGenerator(), JacobiPCGSuiteSparseGenerator()]
 
     def _solve_cg(self, xp, M, r):
         return xp.replace(r / M, xp.nan, 0)
 
 
-class PreconditionedCGBenchmark(_BlockJacobiCGMixin, _PreconditionedCGBase):
+class BlockJacobiPCGBenchmark(_BlockJacobiPCGMixin, _PCGBenchmarkBase):
     @property
     def name(self) -> str:
-        return "block_jacobi_preconditioned_cg"
+        return "block_jacobi_pcg"
 
     @property
     def pretty_name(self) -> str:
         return "Block Jacobi Preconditioned Conjugate Gradient"
 
 
-class JacobiPreconditionedCGBenchmark(_JacobiCGMixin, _PreconditionedCGBase):
+class JacobiPCGBenchmark(_JacobiPCGMixin, _PCGBenchmarkBase):
     @property
     def name(self) -> str:
-        return "jacobi_preconditioned_cg"
+        return "jacobi_pcg"
 
     @property
     def pretty_name(self) -> str:

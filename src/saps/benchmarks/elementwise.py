@@ -16,7 +16,7 @@ from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 from saps_framework.binsparse_utils import assert_coo_allclose
 
 
-class DenseElementwiseDataset(Dataset):
+class ElementwiseMultiplicationDenseDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -56,7 +56,7 @@ class DenseElementwiseDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class DenseElementwiseGenerator(Generator):
+class ElementwiseMultiplicationDenseGenerator(Generator):
     @property
     def name(self) -> str:
         return "elementwise_multiplication_dense"
@@ -99,18 +99,18 @@ class DenseElementwiseGenerator(Generator):
     @property
     def datasets(self) -> list[Dataset]:
         return [
-            DenseElementwiseDataset(
+            ElementwiseMultiplicationDenseDataset(
                 "small", 10, 10, pretty_name="Small", suites=["dense", "test"]
             ),
-            DenseElementwiseDataset(
+            ElementwiseMultiplicationDenseDataset(
                 "medium", 100, 100, pretty_name="Medium", suites=["dense", "test"]
             ),
-            DenseElementwiseDataset(
+            ElementwiseMultiplicationDenseDataset(
                 "large", 1000, 1000, pretty_name="Large", suites=["dense"]
             ),
         ]
 
-    def generate(self, dataset: DenseElementwiseDataset) -> DataInstance:
+    def generate(self, dataset: ElementwiseMultiplicationDenseDataset) -> DataInstance:
         gen = np.random.Generator(np.random.PCG64(42))
         A = gen.random((dataset.dim1, dataset.dim2))
         B = gen.random((dataset.dim1, dataset.dim2))
@@ -160,7 +160,7 @@ _ELEMENTWISE_MATRICES: list[tuple[str, bool]] = [
 ]
 
 
-class SuiteSparseElementwiseDataset(Dataset):
+class ElementwiseMultiplicationSuiteSparseDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -202,7 +202,7 @@ class SuiteSparseElementwiseDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class SuiteSparseElementwiseGenerator(Generator):
+class ElementwiseMultiplicationSuiteSparseGenerator(Generator):
     @property
     def name(self) -> str:
         return "elementwise_multiplication_suitesparse"
@@ -287,7 +287,7 @@ class SuiteSparseElementwiseGenerator(Generator):
     @property
     def datasets(self) -> list[Dataset]:
         return [
-            SuiteSparseElementwiseDataset(
+            ElementwiseMultiplicationSuiteSparseDataset(
                 f"{matrix}_overlap{int(overlap * 100)}",
                 matrix,
                 pretty_name=f"{matrix} (Overlap {int(overlap * 100)}%)",
@@ -305,7 +305,9 @@ class SuiteSparseElementwiseGenerator(Generator):
             for overlap in _ELEMENTWISE_OVERLAPS
         ]
 
-    def generate(self, dataset: SuiteSparseElementwiseDataset) -> DataInstance:
+    def generate(
+        self, dataset: ElementwiseMultiplicationSuiteSparseDataset
+    ) -> DataInstance:
         base_coo = to_scipy(fetch_suitesparse_matrix(dataset.matrix).inputs[0]).tocoo()
 
         rng = np.random.default_rng(dataset.seed)
@@ -332,7 +334,7 @@ class SuiteSparseElementwiseGenerator(Generator):
 _ELEMENTWISE_UNIFORM_DENSITY = 0.01
 
 
-class UniformRandomElementwiseDataset(Dataset):
+class ElementwiseMultiplicationUniformRandomDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -376,7 +378,7 @@ class UniformRandomElementwiseDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class UniformRandomElementwiseGenerator(Generator):
+class ElementwiseMultiplicationUniformRandomGenerator(Generator):
     @property
     def name(self) -> str:
         return "elementwise_multiplication_uniform_random"
@@ -446,7 +448,7 @@ class UniformRandomElementwiseGenerator(Generator):
     @property
     def datasets(self) -> list[Dataset]:
         return [
-            UniformRandomElementwiseDataset(
+            ElementwiseMultiplicationUniformRandomDataset(
                 # No dots in the name: the framework parses params as
                 # "generator.dataset" by splitting on ".".
                 f"overlap{int(overlap * 100)}",
@@ -459,7 +461,9 @@ class UniformRandomElementwiseGenerator(Generator):
             for overlap in _ELEMENTWISE_OVERLAPS
         ]
 
-    def generate(self, dataset: UniformRandomElementwiseDataset) -> DataInstance:
+    def generate(
+        self, dataset: ElementwiseMultiplicationUniformRandomDataset
+    ) -> DataInstance:
         import scipy.sparse as sps
 
         rng = np.random.default_rng(dataset.seed)
@@ -484,7 +488,7 @@ class UniformRandomElementwiseGenerator(Generator):
         )
 
 
-class ElementwiseBenchmark(Benchmark):
+class ElementwiseMultiplicationBenchmark(Benchmark):
     @property
     def name(self) -> str:
         return "elementwise_multiplication"
@@ -544,9 +548,9 @@ class ElementwiseBenchmark(Benchmark):
     @property
     def generators(self) -> list[Generator]:
         return [
-            DenseElementwiseGenerator(),
-            SuiteSparseElementwiseGenerator(),
-            UniformRandomElementwiseGenerator(),
+            ElementwiseMultiplicationDenseGenerator(),
+            ElementwiseMultiplicationSuiteSparseGenerator(),
+            ElementwiseMultiplicationUniformRandomGenerator(),
         ]
 
     def benchmark(self, xp, data: list, meta: dict):

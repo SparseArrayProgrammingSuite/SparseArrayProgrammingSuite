@@ -31,16 +31,16 @@ inf = np.inf
 
 # (module, generator, expected first input, expected dtype)
 _SNAP_CONSUMERS = [
-    ("BFS", "BreadthFirstSearchSNAPGenerator", _PATTERN, bool),
-    ("MSBFS", "MultiSourceBreadthFirstSearchSNAPGenerator", _PATTERN, bool),
+    ("BFS", "BFSSNAPGenerator", _PATTERN, bool),
+    ("MSBFS", "MSBFSSNAPGenerator", _PATTERN, bool),
     ("centrality", "BetweennessCentralitySNAPGenerator", _PATTERN, np.float64),
     ("connected_components", "ConnectedComponentsSNAPGenerator", _PATTERN, bool),
     ("fastsv", "FastSVSNAPGenerator", _PATTERN, bool),
-    ("four_clique_counting", "FourCliqueCountSNAPGenerator", _PATTERN, np.int64),
+    ("four_clique_counting", "FourCliqueCountingSNAPGenerator", _PATTERN, np.int64),
     ("mcl_benchmark", "MCLSNAPGenerator", _PATTERN, np.float32),
     ("pagerank", "PageRankSNAPGenerator", _PATTERN, np.float64),
     ("transitive_closure", "TransitiveClosureSNAPGenerator", _PATTERN, bool),
-    ("triangle_counting", "TriangleCountSNAPGenerator", _PATTERN, np.int64),
+    ("triangle_counting", "TriangleCountingSNAPGenerator", _PATTERN, np.int64),
     (
         "transitive_reduction",
         "TransitiveReductionSNAPGenerator",

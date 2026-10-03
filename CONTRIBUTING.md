@@ -74,6 +74,42 @@ Concrete generators must be reachable from a benchmark so metadata, freshness ch
 
 Each shell generator's `datasets` list is its complete, manually maintained inventory. Fetch functions must look up the requested dataset in that list and raise an error if it is absent; they must never construct an unlisted dataset on demand. Add new source datasets to the shell list before referencing them from another benchmark, then regenerate metadata and prepare the cache. SuiteSparse shell datasets store each matrix with all its RHS vectors once; select RHS columns in uncached benchmark generators.
 
+## Style Guide
+
+These conventions keep benchmark code, metadata, and filenames predictable.
+
+### Code
+
+- Prefer repetitive literals over helpers or clever enumeration. Write each dataset's name and pretty name where the dataset is constructed. A dataset class may derive them from its own fields (for example `source_name` and `source_seed`) when every instance follows the same pattern.
+- Renames do not need to stay backward compatible. Update every reference instead of keeping aliases or old-name shims.
+
+### Abbreviations
+
+Use an acronym in a name only when the field uses it on its own as the method's name: `bfs`, `msbfs`, `cg`, `pcg`, `gmres`, `lsqr`, `ccsd`, `cp_als`, `hosvd`, `dae_bdf`, `gcn`, `lp`, `lth`, `mcl`, `mri`, `rqc`, `sddmm`, `ann`, `jl`, `rk4`. Spell everything else out (`connected_components`, `particle_simulation`, `matrix_multiplication`), and never truncate words. Proper names stay as written: `pagerank`, `fastsv`, `simhash`, and data collections such as SNAP, GAP, FROSTT, OGB, SuiteSparse, and OpenML.
+
+### Names
+
+- Benchmark: the method in snake_case, such as `bellman_ford`, `jacobi_pcg`, or `cp_als_3d`.
+- Generator: `<benchmark>_<source>`, such as `bfs_test`, `bfs_snap`, or `cg_suitesparse`. A generator shared by several benchmarks uses their family prefix (`ode_rc`, `cp_als_frostt`, `hosvd_dense`).
+- Shell generator: `<collection>_<kind>`, such as `snap_graph` or `suitesparse_matrix`; its benchmark is `<generator>_shell`. Don't use the bare collection name: prepared datasets are cached under `<cache>/<generator>/`, and downloaders keep raw files under `<cache>/<collection>/`.
+- Dataset from a collection: the collection's own ID (`soc-Epinions1`, `HB/ash219`, `GAP-road`, `ogbn-arxiv`, `Track1_MC/random_mc_1`). Variants add a suffix: `_seed3`, `_src4795720`, `_rhs1`.
+- Synthetic or test dataset: a short snake_case description with no `test_` or benchmark prefix (`two_node_cycle`, `3x3_tridiagonal`).
+- Dataset names must not contain `.`, which separates the generator and dataset in ASV parameters.
+
+### Pretty Names
+
+Pretty names spell out the acronyms in the name: `bfs` is "Breadth-First Search" and `jacobi_pcg` is "Jacobi Preconditioned Conjugate Gradient". Collection names stay as written.
+
+- Benchmark: the method, with no "Algorithm" or "Benchmark" suffix.
+- Generator: the benchmark's pretty name followed by the source ("Breadth-First Search SNAP", "Conjugate Gradient Test"), with no "Generator" or "Inputs" suffix.
+- Dataset: a label for the instance alone. Collection datasets use their ID with any variant in parentheses ("soc-Epinions1 (Seed 3)", "HB/orani678 (Right-Hand Side 1)"). Synthetic datasets use title case ("Two Node Cycle").
+
+### Classes And Files
+
+- A class is its CamelCase name plus a suffix, with acronyms capitalized: `bfs` becomes `BFSBenchmark`, `bfs_snap` becomes `BFSSNAPGenerator`, and `snap_graph_shell` becomes `SNAPGraphShellBenchmark`.
+- A dataset class is named for its benchmark (`BFSDataset`), adding the source when a module has several (`MatrixMultiplicationDenseDataset`). Collection datasets are named for the collection (`SNAPDataset`, `SuiteSparseDataset`).
+- A module is named for its benchmark (`src/saps/benchmarks/bfs.py`). A module with several benchmarks takes their family name (`cp_als.py`, `ode.py`, `pcg.py`), and a shell module takes its generator's name (`snap_graph.py`).
+
 ## Correctness Tests
 
 Every benchmark needs correctness evidence. Acceptable approaches include:

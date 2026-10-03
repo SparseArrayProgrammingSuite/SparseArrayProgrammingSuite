@@ -16,7 +16,7 @@ from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 from saps_framework.binsparse_utils import assert_coo_allclose
 
 
-class DenseMatVecDataset(Dataset):
+class MatrixVectorMultiplicationDenseDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -54,7 +54,7 @@ class DenseMatVecDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class DenseMatVecGenerator(Generator):
+class MatrixVectorMultiplicationDenseGenerator(Generator):
     @property
     def name(self) -> str:
         return "matrix_vector_multiplication_dense"
@@ -97,17 +97,17 @@ class DenseMatVecGenerator(Generator):
     @property
     def datasets(self) -> list[Dataset]:
         return [
-            DenseMatVecDataset(
+            MatrixVectorMultiplicationDenseDataset(
                 "small", 10, 10, pretty_name="Small", suites=["dense", "test"]
             ),
-            DenseMatVecDataset(
+            MatrixVectorMultiplicationDenseDataset(
                 "medium", 100, 100, pretty_name="Medium", suites=["dense", "test"]
             ),
-            DenseMatVecDataset(
+            MatrixVectorMultiplicationDenseDataset(
                 "large", 1000, 1000, pretty_name="Large", suites=["dense"]
             ),
             # Non-square A, which the SuiteSparse suite does not cover.
-            DenseMatVecDataset(
+            MatrixVectorMultiplicationDenseDataset(
                 "rectangular",
                 100,
                 150,
@@ -116,7 +116,7 @@ class DenseMatVecGenerator(Generator):
             ),
         ]
 
-    def generate(self, dataset: DenseMatVecDataset) -> DataInstance:
+    def generate(self, dataset: MatrixVectorMultiplicationDenseDataset) -> DataInstance:
         gen = np.random.Generator(np.random.PCG64(42))
         A = gen.random((dataset.dim1, dataset.dim2))
         b = gen.random((dataset.dim2,))
@@ -130,7 +130,7 @@ class DenseMatVecGenerator(Generator):
         )
 
 
-class SuiteSparseMatVecDataset(Dataset):
+class MatrixVectorMultiplicationSuiteSparseDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -202,7 +202,7 @@ _SPMV_MATRICES: list[tuple[str, str, bool]] = [
 ]
 
 
-class SuiteSparseMatVecGenerator(Generator):
+class MatrixVectorMultiplicationSuiteSparseGenerator(Generator):
     @property
     def name(self) -> str:
         return "matrix_vector_multiplication_suitesparse"
@@ -305,7 +305,7 @@ class SuiteSparseMatVecGenerator(Generator):
     @property
     def datasets(self) -> list[Dataset]:
         return [
-            SuiteSparseMatVecDataset(
+            MatrixVectorMultiplicationSuiteSparseDataset(
                 name,
                 name,
                 suites=["sparse", "test"] if in_test_suite else ["sparse"],
@@ -317,7 +317,9 @@ class SuiteSparseMatVecGenerator(Generator):
             for name, kind, in_test_suite in _SPMV_MATRICES
         ]
 
-    def generate(self, dataset: SuiteSparseMatVecDataset) -> DataInstance:
+    def generate(
+        self, dataset: MatrixVectorMultiplicationSuiteSparseDataset
+    ) -> DataInstance:
         raw = fetch_suitesparse_matrix(dataset.matrix)
         A_bin = raw.inputs[0]
         A_coo = to_scipy(A_bin).tocoo()
@@ -342,7 +344,7 @@ class SuiteSparseMatVecGenerator(Generator):
 UNIFORM_SPARSE_DENSITIES = [0.00001, 0.0001, 0.001, 0.01, 0.1]
 
 
-class UniformRandomMatVecDataset(Dataset):
+class MatrixVectorMultiplicationUniformRandomDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -384,7 +386,7 @@ class UniformRandomMatVecDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class UniformRandomMatVecGenerator(Generator):
+class MatrixVectorMultiplicationUniformRandomGenerator(Generator):
     @property
     def name(self) -> str:
         return "matrix_vector_multiplication_uniform_random"
@@ -434,7 +436,7 @@ class UniformRandomMatVecGenerator(Generator):
     @property
     def datasets(self) -> list[Dataset]:
         return [
-            UniformRandomMatVecDataset(
+            MatrixVectorMultiplicationUniformRandomDataset(
                 # No dots in the name: the framework parses params as
                 # "generator.dataset" by splitting on ".".
                 f"density_{density:.0e}",
@@ -446,7 +448,9 @@ class UniformRandomMatVecGenerator(Generator):
             for density in UNIFORM_SPARSE_DENSITIES
         ]
 
-    def generate(self, dataset: UniformRandomMatVecDataset) -> DataInstance:
+    def generate(
+        self, dataset: MatrixVectorMultiplicationUniformRandomDataset
+    ) -> DataInstance:
         import scipy.sparse as sps
 
         rng = np.random.default_rng(dataset.seed)
@@ -472,7 +476,7 @@ class UniformRandomMatVecGenerator(Generator):
         )
 
 
-class MatrixVectorBenchmark(Benchmark):
+class MatrixVectorMultiplicationBenchmark(Benchmark):
     @property
     def name(self) -> str:
         return "matrix_vector_multiplication"
@@ -553,9 +557,9 @@ class MatrixVectorBenchmark(Benchmark):
     @property
     def generators(self) -> list[Generator]:
         return [
-            DenseMatVecGenerator(),
-            SuiteSparseMatVecGenerator(),
-            UniformRandomMatVecGenerator(),
+            MatrixVectorMultiplicationDenseGenerator(),
+            MatrixVectorMultiplicationSuiteSparseGenerator(),
+            MatrixVectorMultiplicationUniformRandomGenerator(),
         ]
 
     def benchmark(self, xp, data: list, meta: dict):

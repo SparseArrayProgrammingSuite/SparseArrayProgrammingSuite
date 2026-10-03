@@ -7,7 +7,7 @@ from binsparse.conversions import from_numpy, to_numpy
 from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
 
 
-class QuantumDataset(Dataset):
+class RQCStatevectorDataset(Dataset):
     def __init__(
         self,
         source_name: str,
@@ -56,7 +56,7 @@ class QuantumDataset(Dataset):
         return data
 
 
-class QuantumStateGenerator(Generator[QuantumDataset]):
+class RQCStatevectorSyntheticGenerator(Generator[RQCStatevectorDataset]):
     @property
     def name(self) -> str:
         return "rqc_statevector_synthetic"
@@ -79,24 +79,24 @@ class QuantumStateGenerator(Generator[QuantumDataset]):
 
     @property
     def authors(self) -> list[Contributor]:
-        return QuantumStatevectorBenchmark().authors
+        return RQCStatevectorBenchmark().authors
 
     @property
     def references(self) -> list[Ref]:
-        return QuantumStatevectorBenchmark().references
+        return RQCStatevectorBenchmark().references
 
     @property
     def ai_disclosure(self) -> str:
-        return QuantumStatevectorBenchmark().ai_disclosure
+        return RQCStatevectorBenchmark().ai_disclosure
 
     @property
     def motivation(self) -> str:
-        return QuantumStatevectorBenchmark().motivation
+        return RQCStatevectorBenchmark().motivation
 
     @property
-    def datasets(self) -> list[QuantumDataset]:
+    def datasets(self) -> list[RQCStatevectorDataset]:
         return [
-            # QuantumDataset(
+            # RQCStatevectorDataset(
             #    "single_layer_large",
             #    40,
             #    "Large instance of 40 qubits, 1 layer",
@@ -143,7 +143,7 @@ class QuantumStateGenerator(Generator[QuantumDataset]):
             #        ("Z", 39),
             #    ],
             # ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "single_layer_small",
                 10,
                 "Small instance of 10 qubits, 1 layer",
@@ -162,7 +162,7 @@ class QuantumStateGenerator(Generator[QuantumDataset]):
                 pretty_name="Single Layer Small",
                 suites=["standard", "trace", "train"],
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "single_layer_tiny",
                 5,
                 "Tiny instance of 5 qubits, 1 layer",
@@ -179,7 +179,7 @@ class QuantumStateGenerator(Generator[QuantumDataset]):
             ),
         ]
 
-    def generate(self, dataset: QuantumDataset) -> DataInstance:
+    def generate(self, dataset: RQCStatevectorDataset) -> DataInstance:
         nqubits = dataset.nqubits
         dim = 1 << nqubits
         state = np.zeros(dim, dtype=np.complex128)
@@ -236,7 +236,7 @@ def _expected_zero_state_after_gate(nqubits, gate_np, qubit):
     return expected
 
 
-class QuantumTestGenerator(Generator[QuantumDataset]):
+class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
     @property
     def cacheable(self) -> bool:
         return False
@@ -263,24 +263,24 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
 
     @property
     def authors(self) -> list[Contributor]:
-        return QuantumStatevectorBenchmark().authors
+        return RQCStatevectorBenchmark().authors
 
     @property
     def references(self) -> list[Ref]:
-        return QuantumStatevectorBenchmark().references
+        return RQCStatevectorBenchmark().references
 
     @property
     def ai_disclosure(self) -> str:
-        return QuantumStatevectorBenchmark().ai_disclosure
+        return RQCStatevectorBenchmark().ai_disclosure
 
     @property
     def motivation(self) -> str:
-        return QuantumStatevectorBenchmark().motivation
+        return RQCStatevectorBenchmark().motivation
 
     @property
-    def datasets(self) -> list[QuantumDataset]:
+    def datasets(self) -> list[RQCStatevectorDataset]:
         return [
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "basic",
                 10,
                 "RQC statevector sanity check.",
@@ -300,7 +300,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 suites=["test"],
                 ref_meta={"check_norm": True, "norm_atol": 1e-4},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "gate_h_q0",
                 4,
                 "H on qubit 0.",
@@ -310,7 +310,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 expected=_expected_zero_state_after_gate(4, QGates.H, 0),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "gate_h_q1",
                 4,
                 "H on qubit 1.",
@@ -320,7 +320,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 expected=_expected_zero_state_after_gate(4, QGates.H, 1),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "gate_h_q2",
                 4,
                 "H on qubit 2.",
@@ -330,7 +330,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 expected=_expected_zero_state_after_gate(4, QGates.H, 2),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "gate_h_q3",
                 4,
                 "H on qubit 3.",
@@ -340,7 +340,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 expected=_expected_zero_state_after_gate(4, QGates.H, 3),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "gate_x_q0",
                 4,
                 "X on qubit 0.",
@@ -350,7 +350,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 expected=_expected_zero_state_after_gate(4, QGates.X, 0),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "gate_x_q1",
                 4,
                 "X on qubit 1.",
@@ -360,7 +360,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 expected=_expected_zero_state_after_gate(4, QGates.X, 1),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "gate_x_q2",
                 4,
                 "X on qubit 2.",
@@ -370,7 +370,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 expected=_expected_zero_state_after_gate(4, QGates.X, 2),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "gate_x_q3",
                 4,
                 "X on qubit 3.",
@@ -380,7 +380,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 expected=_expected_zero_state_after_gate(4, QGates.X, 3),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "gate_y_q0",
                 4,
                 "Y on qubit 0.",
@@ -390,7 +390,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 expected=_expected_zero_state_after_gate(4, QGates.Y, 0),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "gate_y_q1",
                 4,
                 "Y on qubit 1.",
@@ -400,7 +400,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 expected=_expected_zero_state_after_gate(4, QGates.Y, 1),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "gate_y_q2",
                 4,
                 "Y on qubit 2.",
@@ -410,7 +410,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 expected=_expected_zero_state_after_gate(4, QGates.Y, 2),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "gate_y_q3",
                 4,
                 "Y on qubit 3.",
@@ -420,7 +420,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 expected=_expected_zero_state_after_gate(4, QGates.Y, 3),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "gate_z_q0",
                 4,
                 "Z on qubit 0.",
@@ -430,7 +430,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 expected=_expected_zero_state_after_gate(4, QGates.Z, 0),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "gate_z_q1",
                 4,
                 "Z on qubit 1.",
@@ -440,7 +440,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 expected=_expected_zero_state_after_gate(4, QGates.Z, 1),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "gate_z_q2",
                 4,
                 "Z on qubit 2.",
@@ -450,7 +450,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 expected=_expected_zero_state_after_gate(4, QGates.Z, 2),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "gate_z_q3",
                 4,
                 "Z on qubit 3.",
@@ -460,7 +460,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 expected=_expected_zero_state_after_gate(4, QGates.Z, 3),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "gate_s_q0",
                 4,
                 "S on qubit 0.",
@@ -470,7 +470,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 expected=_expected_zero_state_after_gate(4, QGates.S, 0),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "gate_s_q1",
                 4,
                 "S on qubit 1.",
@@ -480,7 +480,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 expected=_expected_zero_state_after_gate(4, QGates.S, 1),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "gate_s_q2",
                 4,
                 "S on qubit 2.",
@@ -490,7 +490,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 expected=_expected_zero_state_after_gate(4, QGates.S, 2),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "gate_s_q3",
                 4,
                 "S on qubit 3.",
@@ -500,7 +500,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 expected=_expected_zero_state_after_gate(4, QGates.S, 3),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "gate_t_q0",
                 4,
                 "T on qubit 0.",
@@ -510,7 +510,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 expected=_expected_zero_state_after_gate(4, QGates.T, 0),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "gate_t_q1",
                 4,
                 "T on qubit 1.",
@@ -520,7 +520,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 expected=_expected_zero_state_after_gate(4, QGates.T, 1),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "gate_t_q2",
                 4,
                 "T on qubit 2.",
@@ -530,7 +530,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 expected=_expected_zero_state_after_gate(4, QGates.T, 2),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "gate_t_q3",
                 4,
                 "T on qubit 3.",
@@ -540,7 +540,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                 expected=_expected_zero_state_after_gate(4, QGates.T, 3),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
-            QuantumDataset(
+            RQCStatevectorDataset(
                 "h_twice",
                 5,
                 "Applying H twice returns to the original state.",
@@ -552,7 +552,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
             ),
         ]
 
-    def generate(self, dataset: QuantumDataset) -> DataInstance:
+    def generate(self, dataset: RQCStatevectorDataset) -> DataInstance:
         ref_outputs = None
         if dataset.expected is not None:
             ref_outputs = [from_numpy(dataset.expected)]
@@ -575,7 +575,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
         )
 
 
-class QuantumStatevectorBenchmark(Benchmark):
+class RQCStatevectorBenchmark(Benchmark):
     @property
     def name(self) -> str:
         return "rqc_statevector"
@@ -630,7 +630,7 @@ class QuantumStatevectorBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [QuantumTestGenerator(), QuantumStateGenerator()]
+        return [RQCStatevectorTestGenerator(), RQCStatevectorSyntheticGenerator()]
 
     def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
         nqubits = meta["nqubits"]

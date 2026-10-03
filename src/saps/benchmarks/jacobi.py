@@ -39,7 +39,7 @@ class JacobiDataset(SuiteSparseDataset):
         name = source_name
         if rhs_index is not None:
             name = f"{source_name}_rhs{rhs_index}"
-            pretty_name = f"{source_name} (RHS {rhs_index})"
+            pretty_name = f"{source_name} (Right-Hand Side {rhs_index})"
         super().__init__(
             name,
             source_name=source_name,
@@ -64,7 +64,7 @@ class JacobiTestGenerator(Generator[JacobiDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Jacobi Method Test"
+        return "Jacobi Test"
 
     @property
     def description(self) -> str:
@@ -152,14 +152,14 @@ class JacobiTestGenerator(Generator[JacobiDataset]):
         )
 
 
-class JacobiGenerator(Generator[JacobiDataset]):
+class JacobiSuiteSparseGenerator(Generator[JacobiDataset]):
     @property
     def name(self) -> str:
         return "jacobi_suitesparse"
 
     @property
     def pretty_name(self) -> str:
-        return "Jacobi Method SuiteSparse"
+        return "Jacobi SuiteSparse"
 
     @property
     def description(self) -> str:
@@ -717,7 +717,7 @@ class JacobiBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "Jacobi Method"
+        return "Jacobi"
 
     @property
     def description(self) -> str:
@@ -792,7 +792,7 @@ class JacobiBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [JacobiTestGenerator(), JacobiGenerator()]
+        return [JacobiTestGenerator(), JacobiSuiteSparseGenerator()]
 
     def check(self, param):
         for item in self._output:

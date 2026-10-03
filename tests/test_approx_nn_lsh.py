@@ -10,7 +10,7 @@ from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_pytorch import PytorchFramework
 from frameworks.saps_scipy import SciPyFramework
 from frameworks.saps_sparse import PyDataSparseFramework
-from saps.benchmarks.approx_nn import SimHashApproxNearestNeighbor
+from saps.benchmarks.approx_nn import SimHashANNBenchmark
 
 
 @pytest.fixture(
@@ -39,7 +39,7 @@ def run_lsh(request):
                 else from_numpy(array)
             )
             arrays.append(xp.from_binsparse(tensor))
-        outputs = SimHashApproxNearestNeighbor().benchmark(xp, arrays, meta)
+        outputs = SimHashANNBenchmark().benchmark(xp, arrays, meta)
         return [
             NumpyFramework().from_binsparse(xp.to_binsparse(output))
             for output in outputs

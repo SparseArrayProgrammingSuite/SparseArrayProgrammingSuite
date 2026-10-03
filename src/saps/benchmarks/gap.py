@@ -518,7 +518,7 @@ class GAPGraphGenerator(Generator[GAPDataset]):
         )
 
 
-class GAPGraphBenchmark(ShellBenchmark):
+class GAPGraphShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
         return GAPGraphGenerator()

@@ -16,7 +16,7 @@ from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 from saps_framework.binsparse_utils import assert_coo_allclose
 
 
-class DenseMatmulDataset(Dataset):
+class MatrixMultiplicationDenseDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -56,7 +56,7 @@ class DenseMatmulDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class DenseMatmulGenerator(Generator):
+class MatrixMultiplicationDenseGenerator(Generator):
     @property
     def name(self) -> str:
         return "matrix_multiplication_dense"
@@ -99,18 +99,18 @@ class DenseMatmulGenerator(Generator):
     @property
     def datasets(self) -> list[Dataset]:
         return [
-            DenseMatmulDataset(
+            MatrixMultiplicationDenseDataset(
                 "small", 10, 10, 10, pretty_name="Small", suites=["dense", "test"]
             ),
-            DenseMatmulDataset(
+            MatrixMultiplicationDenseDataset(
                 "medium", 100, 100, 100, pretty_name="Medium", suites=["dense", "test"]
             ),
-            DenseMatmulDataset(
+            MatrixMultiplicationDenseDataset(
                 "large", 1000, 1000, 1000, pretty_name="Large", suites=["dense"]
             ),
         ]
 
-    def generate(self, dataset: DenseMatmulDataset) -> DataInstance:
+    def generate(self, dataset: MatrixMultiplicationDenseDataset) -> DataInstance:
         gen = np.random.Generator(np.random.PCG64(42))
         A = gen.random((dataset.dim1, dataset.dim2))
         B = gen.random((dataset.dim2, dataset.dim3))
@@ -124,7 +124,7 @@ class DenseMatmulGenerator(Generator):
         )
 
 
-class SuiteSparseMatmulDataset(Dataset):
+class MatrixMultiplicationSuiteSparseDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -185,7 +185,7 @@ _MATMUL_MATRICES: list[tuple[str, str, bool]] = [
 ]
 
 
-class SuiteSparseMatmulGenerator(Generator):
+class MatrixMultiplicationSuiteSparseGenerator(Generator):
     @property
     def name(self) -> str:
         return "matrix_multiplication_suitesparse"
@@ -283,7 +283,7 @@ class SuiteSparseMatmulGenerator(Generator):
     @property
     def datasets(self) -> list[Dataset]:
         return [
-            SuiteSparseMatmulDataset(
+            MatrixMultiplicationSuiteSparseDataset(
                 name,
                 name,
                 name,
@@ -296,7 +296,7 @@ class SuiteSparseMatmulGenerator(Generator):
             for name, application, in_test_suite in _MATMUL_MATRICES
         ]
 
-    def generate(self, dataset: SuiteSparseMatmulDataset) -> DataInstance:
+    def generate(self, dataset: MatrixMultiplicationSuiteSparseDataset) -> DataInstance:
         A_bin = fetch_suitesparse_matrix(dataset.matrix_1).inputs[0]
         B_bin = fetch_suitesparse_matrix(dataset.matrix_2).inputs[0]
         A_coo = to_scipy(A_bin).tocoo()
@@ -323,7 +323,7 @@ UNIFORM_SPARSE_DENSITIES = [0.00001, 0.0001, 0.001, 0.01, 0.1]
 TEST_SUITE_MAX_DENSITY = 0.001
 
 
-class UniformRandomMatmulDataset(Dataset):
+class MatrixMultiplicationUniformRandomDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -365,7 +365,7 @@ class UniformRandomMatmulDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class UniformRandomMatmulGenerator(Generator):
+class MatrixMultiplicationUniformRandomGenerator(Generator):
     @property
     def name(self) -> str:
         return "matrix_multiplication_uniform_random"
@@ -415,7 +415,7 @@ class UniformRandomMatmulGenerator(Generator):
     @property
     def datasets(self) -> list[Dataset]:
         return [
-            UniformRandomMatmulDataset(
+            MatrixMultiplicationUniformRandomDataset(
                 # No dots in the name: the framework parses params as
                 # "generator.dataset" by splitting on ".".
                 f"density_{density:.0e}",
@@ -429,7 +429,9 @@ class UniformRandomMatmulGenerator(Generator):
             for density in UNIFORM_SPARSE_DENSITIES
         ]
 
-    def generate(self, dataset: UniformRandomMatmulDataset) -> DataInstance:
+    def generate(
+        self, dataset: MatrixMultiplicationUniformRandomDataset
+    ) -> DataInstance:
         import scipy.sparse as sps
 
         rng = np.random.default_rng(dataset.seed)
@@ -537,9 +539,9 @@ class MatrixMultiplicationBenchmark(Benchmark):
     @property
     def generators(self) -> list[Generator]:
         return [
-            DenseMatmulGenerator(),
-            SuiteSparseMatmulGenerator(),
-            UniformRandomMatmulGenerator(),
+            MatrixMultiplicationDenseGenerator(),
+            MatrixMultiplicationSuiteSparseGenerator(),
+            MatrixMultiplicationUniformRandomGenerator(),
         ]
 
     def benchmark(self, xp, data: list, meta: dict):

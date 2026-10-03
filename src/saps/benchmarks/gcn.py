@@ -65,7 +65,7 @@ class GCNDataset(SuiteSparseDataset):
         return data
 
 
-class OGBGCNDataset(Dataset):
+class GCNOGBDataset(Dataset):
     """A full-graph GCN inference dataset sourced from OGB."""
 
     def __init__(
@@ -204,7 +204,7 @@ class GCNTestGenerator(Generator[GCNDataset]):
             ),
             GCNDataset(
                 "relu_activation",
-                pretty_name="ReLU Activation",
+                pretty_name="Rectified Linear Unit Activation",
                 suites=["test"],
                 adjacency=np.array([[0, 1], [1, 0]], dtype=np.float32),
                 features=np.array([[1.0], [-1.0]], dtype=np.float32),
@@ -241,7 +241,7 @@ class GCNTestGenerator(Generator[GCNDataset]):
         )
 
 
-class GCNGenerator(Generator[GCNDataset]):
+class GCNSuiteSparseGenerator(Generator[GCNDataset]):
     @property
     def name(self) -> str:
         return "gcn_suitesparse"
@@ -420,7 +420,7 @@ class GCNGenerator(Generator[GCNDataset]):
         )
 
 
-class OGBGCNGenerator(Generator[OGBGCNDataset]):
+class GCNOGBGenerator(Generator[GCNOGBDataset]):
     @property
     def name(self) -> str:
         return "gcn_ogb"
@@ -471,9 +471,9 @@ class OGBGCNGenerator(Generator[OGBGCNDataset]):
         return False
 
     @property
-    def datasets(self) -> list[OGBGCNDataset]:
+    def datasets(self) -> list[GCNOGBDataset]:
         return [
-            OGBGCNDataset(
+            GCNOGBDataset(
                 "ogbn-arxiv",
                 hidden_dim=256,
                 description=(
@@ -482,7 +482,7 @@ class OGBGCNGenerator(Generator[OGBGCNDataset]):
                 ),
                 suites=["standard", "trace"],
             ),
-            OGBGCNDataset(
+            GCNOGBDataset(
                 "ogbn-products",
                 hidden_dim=256,
                 description=(
@@ -491,7 +491,7 @@ class OGBGCNGenerator(Generator[OGBGCNDataset]):
                 ),
                 suites=["standard", "trace", "train"],
             ),
-            OGBGCNDataset(
+            GCNOGBDataset(
                 "ogbn-proteins",
                 hidden_dim=256,
                 description=(
@@ -502,7 +502,7 @@ class OGBGCNGenerator(Generator[OGBGCNDataset]):
             ),
         ]
 
-    def generate(self, dataset: OGBGCNDataset) -> DataInstance:
+    def generate(self, dataset: GCNOGBDataset) -> DataInstance:
         graph = fetch_ogb_nodeprop_dataset(dataset.source_name)
         feature_dim = graph.num_features
         out_dim = graph.num_outputs
@@ -536,7 +536,7 @@ class GCNBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "Graph Convolutional Network Inference"
+        return "Graph Convolutional Network"
 
     @property
     def description(self) -> str:
@@ -645,7 +645,7 @@ class GCNBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [GCNTestGenerator(), GCNGenerator(), OGBGCNGenerator()]
+        return [GCNTestGenerator(), GCNSuiteSparseGenerator(), GCNOGBGenerator()]
 
     def check(self, param):
         for item in self._output:

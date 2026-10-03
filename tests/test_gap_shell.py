@@ -10,13 +10,13 @@ from binsparse.conversions import from_scipy, to_sparse
 from saps.benchmark import DataInstance
 from saps.benchmarks import gap
 from saps.benchmarks.BFS import (
-    BreadthFirstSearchDataset,
-    BreadthFirstSearchGAPGenerator,
+    BFSDataset,
+    BFSGAPGenerator,
 )
 from saps.benchmarks.gap import (
     _MAX_DEGREES,
-    GAPGraphBenchmark,
     GAPGraphGenerator,
+    GAPGraphShellBenchmark,
     fetch_gap_graph,
 )
 from saps.benchmarks.suitesparse import SuiteSparseMatrixGenerator
@@ -39,8 +39,8 @@ def test_gap_shell_inventory():
     assert set(_MAX_DEGREES) == {d.source_name for d in datasets}
     assert datasets[0].sources[:3] == [4795720, 21003853, 417968]
     assert not generator.cacheable
-    assert GAPGraphBenchmark().name == "gap_graph_shell"
-    assert any(isinstance(b, GAPGraphBenchmark) for b in _benchmark_instances())
+    assert GAPGraphShellBenchmark().name == "gap_graph_shell"
+    assert any(isinstance(b, GAPGraphShellBenchmark) for b in _benchmark_instances())
 
 
 def test_gap_metadata_reports_max_degree_and_sources():
@@ -77,7 +77,7 @@ def test_gap_shell_returns_matrix_max_degree_and_sources(fetch):
 
 def test_gap_source_graph_attaches_one_published_source(fetch):
     road = GAPGraphGenerator().datasets[0]
-    generator = BreadthFirstSearchGAPGenerator()
+    generator = BFSGAPGenerator()
     datasets = [d for d in generator.datasets if d.source_name == road.name]
     assert [d.src for d in datasets] == road.sources
     assert len({d.name for d in datasets}) == len(datasets)
@@ -94,9 +94,9 @@ def test_gap_source_graph_attaches_one_published_source(fetch):
 
 
 def test_gap_generator_rejects_unpublished_source(fetch):
-    dataset = BreadthFirstSearchDataset("invalid", source_name="GAP-road", src=-1)
+    dataset = BFSDataset("invalid", source_name="GAP-road", src=-1)
     with pytest.raises(ValueError, match="not a published source"):
-        BreadthFirstSearchGAPGenerator().generate(dataset)
+        BFSGAPGenerator().generate(dataset)
 
 
 def test_gap_with_suites_does_not_mutate_shared_graphs():
@@ -104,7 +104,7 @@ def test_gap_with_suites_does_not_mutate_shared_graphs():
     selected = graph.with_suites(["standard"])
     assert selected.suites == ["standard"]
     assert graph.suites == []
-    dataset = BreadthFirstSearchDataset(
+    dataset = BFSDataset(
         "road", source_name=selected.name, src=selected.sources[0], suites=["trace"]
     )
     assert dataset.suites == ["trace"]
@@ -113,14 +113,14 @@ def test_gap_with_suites_does_not_mutate_shared_graphs():
 
 def test_gap_consumers_preserve_published_source_cases():
     from saps.benchmarks.bellmanford import BellmanFordGAPGenerator
-    from saps.benchmarks.BFS import BreadthFirstSearchGAPGenerator
+    from saps.benchmarks.BFS import BFSGAPGenerator
     from saps.benchmarks.multi_source_shortest_paths import (
         MultiSourceShortestPathsGAPGenerator,
     )
 
     graphs = GAPGraphGenerator().datasets
     expected = [(f"{g.name}_src{src}", src) for g in graphs for src in g.sources]
-    for generator in (BreadthFirstSearchGAPGenerator(), BellmanFordGAPGenerator()):
+    for generator in (BFSGAPGenerator(), BellmanFordGAPGenerator()):
         assert [(d.name, d.src) for d in generator.datasets] == expected
     by_name = {d.name: d for d in MultiSourceShortestPathsGAPGenerator().datasets}
     for graph in graphs:
@@ -183,7 +183,7 @@ def test_msbfs_gap_searches_from_every_published_source(monkeypatch, weighted_gr
 
     load = Mock(return_value=weighted_graph)
     monkeypatch.setattr(MSBFS, "fetch_gap_graph", load)
-    generator = MSBFS.MultiSourceBreadthFirstSearchGAPGenerator()
+    generator = MSBFS.MSBFSGAPGenerator()
     assert [(d.name, d.source_name) for d in generator.datasets] == [
         (g.name, g.name) for g in GAPGraphGenerator().datasets
     ]

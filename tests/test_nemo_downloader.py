@@ -155,7 +155,7 @@ def test_particle_sim_real_generator_uses_nemo(monkeypatch):
 
     monkeypatch.setattr(ps, "download_nemo_dataset", fake_download)
 
-    generator = ps.ParticleSimGenerator()
+    generator = ps.ParticleSimulationNEMOGenerator()
     datasets = generator.datasets
 
     assert {dataset.name for dataset in datasets} == {
@@ -219,7 +219,7 @@ def test_particle_sim_benchmark_runs_newtonian_gravity_with_particle_masses():
         },
     }
 
-    result = ps.ParticleSimBenchmark().benchmark(xp, data, meta)
+    result = ps.ParticleSimulationBenchmark().benchmark(xp, data, meta)
 
     assert len(result) == 6
     assert result[3][0] > 0.0

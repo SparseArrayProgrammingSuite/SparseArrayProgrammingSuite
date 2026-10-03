@@ -6,8 +6,8 @@ import numpy as np
 
 from saps.benchmarks.approx_nn import (
     _RANDOM_COLLISION_PROBABILITY,
-    SimHashApproxNNDenseGenerator,
-    SimHashApproxNNRandomDataset,
+    SimHashANNRandomDataset,
+    SimHashANNRandomDenseGenerator,
     _collision_probability,
     _tune_lsh,
 )
@@ -98,8 +98,8 @@ def test_tune_lsh_reports_the_reference_similarity_probability_estimate():
 
 
 def test_generate_tuning_depends_only_on_shape_not_data_values():
-    generator = SimHashApproxNNDenseGenerator()
-    dataset = SimHashApproxNNRandomDataset(
+    generator = SimHashANNRandomDenseGenerator()
+    dataset = SimHashANNRandomDataset(
         "custom",
         "Custom",
         "Custom",

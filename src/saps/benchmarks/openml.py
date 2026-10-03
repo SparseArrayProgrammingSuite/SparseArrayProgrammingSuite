@@ -317,7 +317,7 @@ def _fetch_openml(data_id: int):
             _openml.urlopen = original_urlopen
 
 
-class OpenMLDatasetBenchmark(ShellBenchmark):
+class OpenMLDatasetShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
         return OpenMLDatasetGenerator()

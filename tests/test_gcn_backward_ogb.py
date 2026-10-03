@@ -3,8 +3,8 @@ import numpy as np
 from binsparse.conversions import to_numpy
 
 from saps.benchmarks.gcn_backward import (
-    OGBGCNTrainingDataset,
-    OGBGCNTrainingGenerator,
+    GCNBackwardOGBDataset,
+    GCNBackwardOGBGenerator,
     _targets_from_ogb_labels,
 )
 from saps.downloaders.ogb import OGBNodePropData, normalized_undirected_adjacency
@@ -33,8 +33,8 @@ def test_ogb_gcn_backward_generator_derives_dimensions_and_targets(monkeypatch):
     monkeypatch.setattr(
         "saps.benchmarks.gcn_backward.fetch_ogb_nodeprop_dataset", lambda _: graph
     )
-    generator = OGBGCNTrainingGenerator()
-    dataset = OGBGCNTrainingDataset(
+    generator = GCNBackwardOGBGenerator()
+    dataset = GCNBackwardOGBDataset(
         "fake-ogb",
         hidden_dim=5,
         num_iterations=3,
@@ -63,7 +63,7 @@ def test_ogb_gcn_backward_generator_derives_dimensions_and_targets(monkeypatch):
 
 def test_ogb_gcn_backward_generator_includes_supported_workloads():
     datasets = {
-        dataset.source_name: dataset for dataset in OGBGCNTrainingGenerator().datasets
+        dataset.source_name: dataset for dataset in GCNBackwardOGBGenerator().datasets
     }
 
     assert set(datasets) == {"ogbn-arxiv", "ogbn-products", "ogbn-proteins"}
