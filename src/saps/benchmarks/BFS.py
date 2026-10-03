@@ -82,7 +82,7 @@ class BFSTestGenerator(Generator[BFSDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Breadth-First Search Test"
+        return "Breadth-First Search (BFS) Test"
 
     @property
     def description(self) -> str:
@@ -258,7 +258,7 @@ class BFSSNAPGenerator(Generator[BFSDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Breadth-First Search SNAP"
+        return "Breadth-First Search (BFS) SNAP"
 
     @property
     def description(self) -> str:
@@ -595,7 +595,7 @@ class BFSGAPGenerator(Generator[BFSDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Breadth-First Search GAP"
+        return "Breadth-First Search (BFS) GAP"
 
     @property
     def description(self) -> str:
@@ -689,7 +689,7 @@ class BFSBenchmark(Benchmark):
 
     @property
     def pretty_name(self):
-        return "Breadth-First Search"
+        return "Breadth-First Search (BFS)"
 
     @property
     def description(self):

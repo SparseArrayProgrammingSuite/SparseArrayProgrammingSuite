@@ -783,7 +783,7 @@ class LTHConv2ONNXGenerator(Generator[LTHConv2Dataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Lottery Ticket Hypothesis Conv-2 ONNX"
+        return "Lottery Ticket Hypothesis (LTH) Conv-2 ONNX"
 
     @property
     def description(self) -> str:
@@ -897,7 +897,7 @@ class LTHConv2Benchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "Lottery Ticket Hypothesis Conv-2"
+        return "Lottery Ticket Hypothesis (LTH) Conv-2"
 
     @property
     def description(self) -> str:

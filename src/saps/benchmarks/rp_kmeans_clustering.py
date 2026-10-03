@@ -79,7 +79,7 @@ class JLKMeansTestGenerator(Generator[JLKMeansTestDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Johnson-Lindenstrauss k-Means Test"
+        return "Johnson-Lindenstrauss (JL) k-Means Test"
 
     @property
     def description(self) -> str:
@@ -243,7 +243,7 @@ class JLKMeansOpenMLGenerator(Generator[JLKMeansDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Johnson-Lindenstrauss k-Means OpenML"
+        return "Johnson-Lindenstrauss (JL) k-Means OpenML"
 
     @property
     def description(self) -> str:
@@ -363,7 +363,7 @@ class JLKMeansNetflixPrizeGenerator(Generator[JLKMeansDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Johnson-Lindenstrauss k-Means Netflix Prize"
+        return "Johnson-Lindenstrauss (JL) k-Means Netflix Prize"
 
     @property
     def description(self) -> str:
@@ -453,7 +453,7 @@ class JLKMeansBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "Johnson-Lindenstrauss k-Means"
+        return "Johnson-Lindenstrauss (JL) k-Means"
 
     @property
     def authors(self) -> list[Contributor]:

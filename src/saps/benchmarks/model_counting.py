@@ -140,7 +140,7 @@ class ModelCountingTestGenerator(Generator[ModelCountingTestDataset]):
         return [
             ModelCountingTestDataset(
                 name="standard_sat",
-                pretty_name="Standard Satisfiable",
+                pretty_name="Standard Satisfiable (SAT)",
                 description="3 variables, 2 clauses",
                 suites=["test"],
                 cnf_text="""

@@ -63,7 +63,7 @@ class RQCStatevectorSyntheticGenerator(Generator[RQCStatevectorDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Random Quantum Circuit Statevector Synthetic"
+        return "Random Quantum Circuit (RQC) Statevector Synthetic"
 
     @property
     def description(self) -> str:
@@ -247,7 +247,7 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Random Quantum Circuit Statevector Test"
+        return "Random Quantum Circuit (RQC) Statevector Test"
 
     @property
     def description(self) -> str:
@@ -582,7 +582,7 @@ class RQCStatevectorBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "Random Quantum Circuit Statevector"
+        return "Random Quantum Circuit (RQC) Statevector"
 
     @property
     def description(self) -> str:

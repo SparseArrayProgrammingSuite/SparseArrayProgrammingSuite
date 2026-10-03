@@ -39,7 +39,7 @@ class GMRESDataset(SuiteSparseDataset):
         name = source_name
         if rhs_index is not None:
             name = f"{source_name}_rhs{rhs_index}"
-            pretty_name = f"{source_name} (Right-Hand Side {rhs_index})"
+            pretty_name = f"{source_name} (Right-Hand Side (RHS) {rhs_index})"
         super().__init__(
             name,
             source_name=source_name,
@@ -82,7 +82,7 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Generalized Minimal Residual Test"
+        return "Generalized Minimal Residual (GMRES) Test"
 
     @property
     def description(self) -> str:
@@ -213,7 +213,7 @@ class GMRESSuiteSparseGenerator(Generator[GMRESDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Generalized Minimal Residual SuiteSparse"
+        return "Generalized Minimal Residual (GMRES) SuiteSparse"
 
     @property
     def description(self) -> str:
@@ -1466,7 +1466,7 @@ class GMRESBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "Generalized Minimal Residual"
+        return "Generalized Minimal Residual (GMRES)"
 
     @property
     def authors(self) -> list[Contributor]:

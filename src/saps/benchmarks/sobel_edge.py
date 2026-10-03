@@ -148,7 +148,7 @@ class MRISobelEdgeDetectionTestGenerator(Generator[MRISobelEdgeDetectionDataset]
 
     @property
     def pretty_name(self) -> str:
-        return "Magnetic Resonance Imaging Sobel Edge Detection Test"
+        return "Magnetic Resonance Imaging (MRI) Sobel Edge Detection Test"
 
     @property
     def description(self) -> str:
@@ -260,7 +260,7 @@ class MRISobelEdgeDetectionKaggleGenerator(Generator[MRISobelEdgeDetectionDatase
 
     @property
     def pretty_name(self) -> str:
-        return "Magnetic Resonance Imaging Sobel Edge Detection Kaggle"
+        return "Magnetic Resonance Imaging (MRI) Sobel Edge Detection Kaggle"
 
     @property
     def description(self) -> str:
@@ -366,7 +366,7 @@ class MRISobelEdgeDetectionBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "Magnetic Resonance Imaging Sobel Edge Detection"
+        return "Magnetic Resonance Imaging (MRI) Sobel Edge Detection"
 
     @property
     def description(self) -> str:

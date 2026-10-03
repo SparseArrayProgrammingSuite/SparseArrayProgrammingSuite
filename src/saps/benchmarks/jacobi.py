@@ -39,7 +39,7 @@ class JacobiDataset(SuiteSparseDataset):
         name = source_name
         if rhs_index is not None:
             name = f"{source_name}_rhs{rhs_index}"
-            pretty_name = f"{source_name} (Right-Hand Side {rhs_index})"
+            pretty_name = f"{source_name} (Right-Hand Side (RHS) {rhs_index})"
         super().__init__(
             name,
             source_name=source_name,

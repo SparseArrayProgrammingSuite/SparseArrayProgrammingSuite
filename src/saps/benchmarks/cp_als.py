@@ -56,7 +56,7 @@ class CPALSFactorizableGenerator(Generator[CPALSFactorizableDataset]):
 
     @property
     def pretty_name(self):
-        return "Canonical Polyadic Alternating Least Squares Factorizable"
+        return "Canonical Polyadic Alternating Least Squares (CP-ALS) Factorizable"
 
     @property
     def description(self):
@@ -330,7 +330,7 @@ class CPALSFROSTTGenerator(Generator[CPALSFROSTTDataset]):
 
     @property
     def pretty_name(self):
-        return "Canonical Polyadic Alternating Least Squares FROSTT"
+        return "Canonical Polyadic Alternating Least Squares (CP-ALS) FROSTT"
 
     @property
     def description(self):
@@ -497,7 +497,7 @@ class CPALSBenchmark(Benchmark):
 
     @property
     def pretty_name(self):
-        return f"Canonical Polyadic Alternating Least Squares {self.n}D"
+        return f"Canonical Polyadic Alternating Least Squares (CP-ALS) {self.n}D"
 
     @property
     def description(self):

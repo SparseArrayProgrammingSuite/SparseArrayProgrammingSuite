@@ -88,7 +88,7 @@ class MRIMaskedEdgeDetectionTestGenerator(Generator[MRIMaskedEdgeDetectionDatase
 
     @property
     def pretty_name(self) -> str:
-        return "Magnetic Resonance Imaging Masked Edge Detection Test"
+        return "Magnetic Resonance Imaging (MRI) Masked Edge Detection Test"
 
     @property
     def description(self) -> str:
@@ -140,7 +140,7 @@ class MRIMaskedEdgeDetectionTestGenerator(Generator[MRIMaskedEdgeDetectionDatase
                 "basic_roi",
                 "local",
                 "basic_roi",
-                pretty_name="Basic Region of Interest",
+                pretty_name="Basic Region of Interest (ROI)",
                 t1_val=75.0,
                 t2_val=125.0,
                 image=np.array(
@@ -169,7 +169,7 @@ class MRIMaskedEdgeDetectionTestGenerator(Generator[MRIMaskedEdgeDetectionDatase
                 "default_roi",
                 "local",
                 "default_roi",
-                pretty_name="Default Region of Interest",
+                pretty_name="Default Region of Interest (ROI)",
                 t1_val=10.0,
                 t2_val=20.0,
                 image=np.arange(36, dtype=np.float32).reshape(6, 6),
@@ -201,7 +201,7 @@ class MRIMaskedEdgeDetectionKaggleGenerator(Generator[MRIMaskedEdgeDetectionData
 
     @property
     def pretty_name(self) -> str:
-        return "Magnetic Resonance Imaging Masked Edge Detection Kaggle"
+        return "Magnetic Resonance Imaging (MRI) Masked Edge Detection Kaggle"
 
     @property
     def description(self) -> str:
@@ -294,7 +294,7 @@ class MRIMaskedEdgeDetectionBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "Magnetic Resonance Imaging Masked Edge Detection"
+        return "Magnetic Resonance Imaging (MRI) Masked Edge Detection"
 
     @property
     def description(self) -> str:

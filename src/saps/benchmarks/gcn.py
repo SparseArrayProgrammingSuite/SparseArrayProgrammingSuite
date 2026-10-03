@@ -128,7 +128,7 @@ class GCNTestGenerator(Generator[GCNDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Graph Convolutional Network Test"
+        return "Graph Convolutional Network (GCN) Test"
 
     @property
     def description(self) -> str:
@@ -204,7 +204,7 @@ class GCNTestGenerator(Generator[GCNDataset]):
             ),
             GCNDataset(
                 "relu_activation",
-                pretty_name="Rectified Linear Unit Activation",
+                pretty_name="Rectified Linear Unit (ReLU) Activation",
                 suites=["test"],
                 adjacency=np.array([[0, 1], [1, 0]], dtype=np.float32),
                 features=np.array([[1.0], [-1.0]], dtype=np.float32),
@@ -248,7 +248,7 @@ class GCNSuiteSparseGenerator(Generator[GCNDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Graph Convolutional Network SuiteSparse"
+        return "Graph Convolutional Network (GCN) SuiteSparse"
 
     @property
     def description(self) -> str:
@@ -427,7 +427,7 @@ class GCNOGBGenerator(Generator[GCNOGBDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Graph Convolutional Network OGB"
+        return "Graph Convolutional Network (GCN) OGB"
 
     @property
     def description(self) -> str:
@@ -536,7 +536,7 @@ class GCNBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "Graph Convolutional Network"
+        return "Graph Convolutional Network (GCN)"
 
     @property
     def description(self) -> str:

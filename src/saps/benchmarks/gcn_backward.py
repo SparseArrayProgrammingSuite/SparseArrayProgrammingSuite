@@ -181,7 +181,7 @@ class GCNBackwardTestGenerator(Generator[GCNBackwardDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Graph Convolutional Network Backward Test"
+        return "Graph Convolutional Network (GCN) Backward Test"
 
     @property
     def description(self) -> str:
@@ -395,7 +395,7 @@ class GCNBackwardSuiteSparseGenerator(Generator[GCNBackwardDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Graph Convolutional Network Backward SuiteSparse"
+        return "Graph Convolutional Network (GCN) Backward SuiteSparse"
 
     @property
     def description(self) -> str:
@@ -587,7 +587,7 @@ class GCNBackwardOGBGenerator(Generator[GCNBackwardOGBDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Graph Convolutional Network Backward OGB"
+        return "Graph Convolutional Network (GCN) Backward OGB"
 
     @property
     def description(self) -> str:
@@ -699,7 +699,7 @@ class GCNBackwardBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "Graph Convolutional Network Backward"
+        return "Graph Convolutional Network (GCN) Backward"
 
     @property
     def description(self) -> str:

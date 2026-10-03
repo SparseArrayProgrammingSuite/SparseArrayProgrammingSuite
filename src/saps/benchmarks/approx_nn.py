@@ -627,7 +627,7 @@ class SimHashANNTestDenseGenerator(
 
     @property
     def pretty_name(self) -> str:
-        return "SimHash Approximate Nearest Neighbor Test (Dense Projection)"
+        return "SimHash Approximate Nearest Neighbor (ANN) Test (Dense Projection)"
 
     @property
     def datasets(self) -> list[SimHashANNRandomDataset]:
@@ -664,7 +664,7 @@ class SimHashANNTestSparseGenerator(
 
     @property
     def pretty_name(self) -> str:
-        return "SimHash Approximate Nearest Neighbor Test (Sparse Projection)"
+        return "SimHash Approximate Nearest Neighbor (ANN) Test (Sparse Projection)"
 
     @property
     def datasets(self) -> list[SimHashANNRandomDataset]:
@@ -701,7 +701,7 @@ class SimHashANNRandomDenseGenerator(
 
     @property
     def pretty_name(self) -> str:
-        return "SimHash Approximate Nearest Neighbor Random (Dense Projection)"
+        return "SimHash Approximate Nearest Neighbor (ANN) Random (Dense Projection)"
 
     @property
     def datasets(self) -> list[SimHashANNRandomDataset]:
@@ -775,7 +775,7 @@ class SimHashANNRandomSparseGenerator(
 
     @property
     def pretty_name(self) -> str:
-        return "SimHash Approximate Nearest Neighbor Random (Sparse Projection)"
+        return "SimHash Approximate Nearest Neighbor (ANN) Random (Sparse Projection)"
 
     @property
     def datasets(self) -> list[SimHashANNRandomDataset]:
@@ -849,7 +849,7 @@ class SimHashANNOpenMLDenseGenerator(
 
     @property
     def pretty_name(self) -> str:
-        return "SimHash Approximate Nearest Neighbor OpenML (Dense Projection)"
+        return "SimHash Approximate Nearest Neighbor (ANN) OpenML (Dense Projection)"
 
     @property
     def datasets(self) -> list[SimHashANNDataset]:
@@ -892,7 +892,7 @@ class SimHashANNOpenMLSparseGenerator(
 
     @property
     def pretty_name(self) -> str:
-        return "SimHash Approximate Nearest Neighbor OpenML (Sparse Projection)"
+        return "SimHash Approximate Nearest Neighbor (ANN) OpenML (Sparse Projection)"
 
     @property
     def datasets(self) -> list[SimHashANNDataset]:
@@ -935,7 +935,10 @@ class SimHashANNNetflixPrizeDenseGenerator(
 
     @property
     def pretty_name(self) -> str:
-        return "SimHash Approximate Nearest Neighbor Netflix Prize (Dense Projection)"
+        return (
+            "SimHash Approximate Nearest Neighbor (ANN) Netflix Prize (Dense"
+            " Projection)"
+        )
 
     @property
     def datasets(self) -> list[SimHashANNDataset]:
@@ -966,7 +969,10 @@ class SimHashANNNetflixPrizeSparseGenerator(
 
     @property
     def pretty_name(self) -> str:
-        return "SimHash Approximate Nearest Neighbor Netflix Prize (Sparse Projection)"
+        return (
+            "SimHash Approximate Nearest Neighbor (ANN) Netflix Prize (Sparse"
+            " Projection)"
+        )
 
     @property
     def datasets(self) -> list[SimHashANNDataset]:
@@ -993,7 +999,7 @@ class SimHashANNBenchmark(Benchmark):
 
     @property
     def pretty_name(self):
-        return "SimHash Approximate Nearest Neighbor"
+        return "SimHash Approximate Nearest Neighbor (ANN)"
 
     @property
     def description(self):

@@ -420,7 +420,7 @@ class LPSimplexTestGenerator(Generator[LPSimplexTestDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Linear Programming Simplex Test"
+        return "Linear Programming (LP) Simplex Test"
 
     @property
     def description(self) -> str:
@@ -642,7 +642,7 @@ class LPSimplexLPnetlibGenerator(Generator[LPSimplexLPnetlibDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Linear Programming Simplex LPnetlib"
+        return "Linear Programming (LP) Simplex LPnetlib"
 
     @property
     def description(self) -> str:
@@ -790,7 +790,7 @@ class LPSimplexBenchmark(Benchmark):
 
     @property
     def pretty_name(self):
-        return "Linear Programming Simplex"
+        return "Linear Programming (LP) Simplex"
 
     @property
     def description(self):

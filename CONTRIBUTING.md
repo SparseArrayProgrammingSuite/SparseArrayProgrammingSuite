@@ -85,7 +85,7 @@ These conventions keep benchmark code, metadata, and filenames predictable.
 
 ### Abbreviations
 
-Use an acronym in a name only when the field uses it on its own as the method's name: `bfs`, `msbfs`, `cg`, `pcg`, `gmres`, `lsqr`, `ccsd`, `cp_als`, `hosvd`, `dae_bdf`, `gcn`, `lp`, `lth`, `mcl`, `mri`, `rqc`, `sddmm`, `ann`, `jl`, `rk4`. Spell everything else out (`connected_components`, `particle_simulation`, `matrix_multiplication`), and never truncate words. Proper names stay as written: `pagerank`, `fastsv`, `simhash`, and data collections such as SNAP, GAP, FROSTT, OGB, SuiteSparse, and OpenML.
+Use an acronym in a name only when the field uses it on its own as the method's name: `bfs`, `msbfs`, `mssp`, `cg`, `pcg`, `gmres`, `lsqr`, `ccsd`, `cp_als`, `hosvd`, `dae_bdf`, `gcn`, `lp`, `lth`, `mcl`, `mri`, `rqc`, `sddmm`, `ann`, `jl`, `rk4`. Spell everything else out (`connected_components`, `particle_simulation`, `matrix_multiplication`), and never truncate words. Proper names stay as written: `pagerank`, `fastsv`, `simhash`, and data collections such as SNAP, GAP, FROSTT, OGB, SuiteSparse, and OpenML.
 
 ### Names
 
@@ -98,11 +98,11 @@ Use an acronym in a name only when the field uses it on its own as the method's 
 
 ### Pretty Names
 
-Pretty names spell out the acronyms in the name: `bfs` is "Breadth-First Search" and `jacobi_pcg` is "Jacobi Preconditioned Conjugate Gradient". Collection names stay as written.
+Pretty names spell out each acronym in the name and follow it with the acronym in parentheses: `bfs` is "Breadth-First Search (BFS)" and `jacobi_pcg` is "Jacobi Preconditioned Conjugate Gradient (PCG)". Collection names stay as written.
 
 - Benchmark: the method, with no "Algorithm" or "Benchmark" suffix.
-- Generator: the benchmark's pretty name followed by the source ("Breadth-First Search SNAP", "Conjugate Gradient Test"), with no "Generator" or "Inputs" suffix.
-- Dataset: a label for the instance alone. Collection datasets use their ID with any variant in parentheses ("soc-Epinions1 (Seed 3)", "HB/orani678 (Right-Hand Side 1)"). Synthetic datasets use title case ("Two Node Cycle").
+- Generator: the benchmark's pretty name followed by the source ("Breadth-First Search (BFS) SNAP", "Conjugate Gradient (CG) Test"), with no "Generator" or "Inputs" suffix.
+- Dataset: a label for the instance alone. Collection datasets use their ID with any variant in parentheses ("soc-Epinions1 (Seed 3)", "HB/orani678 (Right-Hand Side (RHS) 1)"). Synthetic datasets use title case ("Two Node Cycle").
 
 ### Classes And Files
 

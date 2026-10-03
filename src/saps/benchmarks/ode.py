@@ -396,7 +396,7 @@ class ODERCGenerator(Generator[ODERCDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Ordinary Differential Equation Resistor-Capacitor Circuit"
+        return "Ordinary Differential Equation (ODE) Resistor-Capacitor (RC) Circuit"
 
     @property
     def description(self) -> str:
@@ -465,7 +465,10 @@ class ODERLCGenerator(Generator[ODERLCDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Ordinary Differential Equation Resistor-Inductor-Capacitor Circuit"
+        return (
+            "Ordinary Differential Equation (ODE) Resistor-Inductor-Capacitor (RLC)"
+            " Circuit"
+        )
 
     @property
     def description(self) -> str:
@@ -536,7 +539,7 @@ class ODELotkaVolterraGenerator(Generator[ODELotkaVolterraDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Ordinary Differential Equation Lotka-Volterra"
+        return "Ordinary Differential Equation (ODE) Lotka-Volterra"
 
     @property
     def description(self) -> str:
@@ -612,7 +615,7 @@ class ODEBrusselatorGenerator(Generator[ODEBrusselatorDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Ordinary Differential Equation Brusselator"
+        return "Ordinary Differential Equation (ODE) Brusselator"
 
     @property
     def description(self) -> str:
@@ -708,7 +711,7 @@ class ODESLICOTGenerator(Generator[ODESLICOTDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Ordinary Differential Equation SLICOT"
+        return "Ordinary Differential Equation (ODE) SLICOT"
 
     @property
     def description(self) -> str:
@@ -1064,7 +1067,7 @@ class RK4Benchmark(_ODEBenchmarkBase):
 
     @property
     def pretty_name(self):
-        return "Fourth-Order Runge-Kutta"
+        return "Fourth-Order Runge-Kutta (RK4)"
 
     @property
     def description(self):

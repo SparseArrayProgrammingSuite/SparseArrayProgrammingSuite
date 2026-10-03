@@ -83,7 +83,7 @@ class SDDMMSuiteSparseGenerator(Generator):
 
     @property
     def pretty_name(self) -> str:
-        return "Sampled Dense-Dense Matrix Multiplication SuiteSparse"
+        return "Sampled Dense-Dense Matrix Multiplication (SDDMM) SuiteSparse"
 
     @property
     def description(self) -> str:
@@ -245,7 +245,7 @@ class SDDMMUniformRandomGenerator(Generator):
 
     @property
     def pretty_name(self) -> str:
-        return "Sampled Dense-Dense Matrix Multiplication Uniform Random"
+        return "Sampled Dense-Dense Matrix Multiplication (SDDMM) Uniform Random"
 
     @property
     def description(self) -> str:
@@ -356,7 +356,7 @@ class SDDMMBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "Sampled Dense-Dense Matrix Multiplication"
+        return "Sampled Dense-Dense Matrix Multiplication (SDDMM)"
 
     @property
     def motivation(self) -> str:

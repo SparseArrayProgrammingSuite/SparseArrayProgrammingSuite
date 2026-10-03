@@ -81,7 +81,7 @@ class BlockJacobiPCGSuiteSparseGenerator(Generator[PCGDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Block Jacobi Preconditioned Conjugate Gradient SuiteSparse"
+        return "Block Jacobi Preconditioned Conjugate Gradient (PCG) SuiteSparse"
 
     @property
     def description(self) -> str:
@@ -609,7 +609,7 @@ class BlockJacobiPCGTestGenerator(BlockJacobiPCGSuiteSparseGenerator):
 
     @property
     def pretty_name(self) -> str:
-        return "Block Jacobi Preconditioned Conjugate Gradient Test"
+        return "Block Jacobi Preconditioned Conjugate Gradient (PCG) Test"
 
     @property
     def description(self) -> str:
@@ -687,7 +687,7 @@ class JacobiPCGSuiteSparseGenerator(Generator[PCGDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Jacobi Preconditioned Conjugate Gradient SuiteSparse"
+        return "Jacobi Preconditioned Conjugate Gradient (PCG) SuiteSparse"
 
     @property
     def description(self) -> str:
@@ -1553,7 +1553,7 @@ class JacobiPCGTestGenerator(JacobiPCGSuiteSparseGenerator):
 
     @property
     def pretty_name(self) -> str:
-        return "Jacobi Preconditioned Conjugate Gradient Test"
+        return "Jacobi Preconditioned Conjugate Gradient (PCG) Test"
 
     @property
     def description(self) -> str:
@@ -1810,7 +1810,7 @@ class BlockJacobiPCGBenchmark(_BlockJacobiPCGMixin, _PCGBenchmarkBase):
 
     @property
     def pretty_name(self) -> str:
-        return "Block Jacobi Preconditioned Conjugate Gradient"
+        return "Block Jacobi Preconditioned Conjugate Gradient (PCG)"
 
 
 class JacobiPCGBenchmark(_JacobiPCGMixin, _PCGBenchmarkBase):
@@ -1820,4 +1820,4 @@ class JacobiPCGBenchmark(_JacobiPCGMixin, _PCGBenchmarkBase):
 
     @property
     def pretty_name(self) -> str:
-        return "Jacobi Preconditioned Conjugate Gradient"
+        return "Jacobi Preconditioned Conjugate Gradient (PCG)"

@@ -356,7 +356,10 @@ class DAEBDFTestGenerator(_DescriptorDAEGenerator):
 
     @property
     def pretty_name(self) -> str:
-        return "Differential-Algebraic Equation Backward Differentiation Formula Test"
+        return (
+            "Differential-Algebraic Equation (DAE) Backward Differentiation Formula"
+            " (BDF) Test"
+        )
 
     @property
     def description(self) -> str:
@@ -405,7 +408,10 @@ class DAEBDFSLICOTGenerator(_DescriptorDAEGenerator):
 
     @property
     def pretty_name(self) -> str:
-        return "Differential-Algebraic Equation Backward Differentiation Formula SLICOT"
+        return (
+            "Differential-Algebraic Equation (DAE) Backward Differentiation Formula"
+            " (BDF) SLICOT"
+        )
 
     @property
     def description(self) -> str:
@@ -612,7 +618,10 @@ class DAEBDFBenchmark(_DescriptorDAEBenchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "Differential-Algebraic Equation Backward Differentiation Formula"
+        return (
+            "Differential-Algebraic Equation (DAE) Backward Differentiation Formula"
+            " (BDF)"
+        )
 
     @property
     def description(self) -> str:

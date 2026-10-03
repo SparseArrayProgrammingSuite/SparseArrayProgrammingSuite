@@ -105,7 +105,7 @@ class MSBFSTestGenerator(Generator[MSBFSDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Multi-Source Breadth-First Search Test"
+        return "Multi-Source Breadth-First Search (MS-BFS) Test"
 
     @property
     def description(self) -> str:
@@ -310,7 +310,7 @@ class MSBFSSNAPGenerator(Generator[MSBFSDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Multi-Source Breadth-First Search SNAP"
+        return "Multi-Source Breadth-First Search (MS-BFS) SNAP"
 
     @property
     def description(self) -> str:
@@ -435,7 +435,7 @@ class MSBFSGAPGenerator(Generator[MSBFSDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Multi-Source Breadth-First Search GAP"
+        return "Multi-Source Breadth-First Search (MS-BFS) GAP"
 
     @property
     def description(self) -> str:
@@ -507,7 +507,7 @@ class MSBFSBenchmark(Benchmark):
 
     @property
     def pretty_name(self):
-        return "Multi-Source Breadth-First Search"
+        return "Multi-Source Breadth-First Search (MS-BFS)"
 
     @property
     def description(self):

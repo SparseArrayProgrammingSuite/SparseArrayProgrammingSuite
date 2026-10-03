@@ -91,7 +91,7 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Higher-Order Singular Value Decomposition Dense"
+        return "Higher-Order Singular Value Decomposition (HOSVD) Dense"
 
     @property
     def description(self) -> str:
@@ -222,7 +222,7 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Higher-Order Singular Value Decomposition Sparse"
+        return "Higher-Order Singular Value Decomposition (HOSVD) Sparse"
 
     @property
     def description(self) -> str:
@@ -446,7 +446,7 @@ class HOSVDFROSTTGenerator(Generator[HOSVDFROSTTDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Higher-Order Singular Value Decomposition FROSTT"
+        return "Higher-Order Singular Value Decomposition (HOSVD) FROSTT"
 
     @property
     def description(self) -> str:
@@ -571,7 +571,7 @@ class HOSVDBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return f"Higher-Order Singular Value Decomposition {self.n}D"
+        return f"Higher-Order Singular Value Decomposition (HOSVD) {self.n}D"
 
     @property
     def authors(self) -> list[Contributor]:

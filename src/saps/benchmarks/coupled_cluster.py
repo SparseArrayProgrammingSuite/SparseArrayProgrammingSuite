@@ -244,7 +244,7 @@ class CCSDSyntheticGenerator(Generator[CCSDDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Coupled Cluster Singles and Doubles Synthetic"
+        return "Coupled Cluster Singles and Doubles (CCSD) Synthetic"
 
     @property
     def description(self) -> str:
@@ -379,7 +379,7 @@ class CCSDBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "Coupled Cluster Singles and Doubles"
+        return "Coupled Cluster Singles and Doubles (CCSD)"
 
     @property
     def description(self) -> str:
