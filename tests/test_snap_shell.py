@@ -43,7 +43,7 @@ _CONSUMERS = [
     ("floyd_warshall", "FloydWarshallSNAPGenerator"),
     ("triangle_counting", "TriangleCountingSNAPGenerator"),
     ("transitive_reduction", "TransitiveReductionSNAPGenerator"),
-    ("multi_source_shortest_paths", "MultiSourceShortestPathsSNAPGenerator"),
+    ("multi_source_shortest_paths", "MSSPSNAPGenerator"),
     ("MSBFS", "MSBFSSNAPGenerator"),
     ("mcl_benchmark", "MCLSNAPGenerator"),
 ]
@@ -531,7 +531,7 @@ def test_multi_source_snap_problems_use_deduplicated_shell_sources(monkeypatch):
     adjacency = from_scipy(coo_array([[0, 1, 0], [0, 0, 1], [1, 0, 0]]))
     raw = DataInstance(inputs=[adjacency], meta={"sources": [2, 0, 2, 0, 1]})
     monkeypatch.setattr(mssp, "fetch_snap_graph", lambda _: raw)
-    generator = mssp.MultiSourceShortestPathsSNAPGenerator()
+    generator = mssp.MSSPSNAPGenerator()
     problem = generator.generate(generator.datasets[0])
     assert problem.meta == {"sources": [0, 1, 2]}
     assert problem.inputs[1].shape == (3, 3)

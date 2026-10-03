@@ -115,14 +115,14 @@ def test_gap_consumers_preserve_published_source_cases():
     from saps.benchmarks.bellmanford import BellmanFordGAPGenerator
     from saps.benchmarks.BFS import BFSGAPGenerator
     from saps.benchmarks.multi_source_shortest_paths import (
-        MultiSourceShortestPathsGAPGenerator,
+        MSSPGAPGenerator,
     )
 
     graphs = GAPGraphGenerator().datasets
     expected = [(f"{g.name}_src{src}", src) for g in graphs for src in g.sources]
     for generator in (BFSGAPGenerator(), BellmanFordGAPGenerator()):
         assert [(d.name, d.src) for d in generator.datasets] == expected
-    by_name = {d.name: d for d in MultiSourceShortestPathsGAPGenerator().datasets}
+    by_name = {d.name: d for d in MSSPGAPGenerator().datasets}
     for graph in graphs:
         assert by_name[graph.name].sources is None
 
@@ -163,8 +163,8 @@ def test_multi_source_gap_conversion_uses_shell_sources(
 
     load = Mock(return_value=weighted_graph)
     monkeypatch.setattr(mssp, "fetch_gap_graph", load)
-    dataset = mssp.MultiSourceShortestPathsDataset("GAP-road", symmetrize=symmetrize)
-    problem = mssp.MultiSourceShortestPathsGAPGenerator().generate(dataset)
+    dataset = mssp.MSSPDataset("GAP-road", symmetrize=symmetrize)
+    problem = mssp.MSSPGAPGenerator().generate(dataset)
     expected = np.array([[0, 1, np.inf], [np.inf, 0, 1], [np.inf, np.inf, 0]])
     if symmetrize:
         expected = np.minimum(expected, expected.T)
