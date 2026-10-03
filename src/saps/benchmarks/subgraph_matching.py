@@ -75,7 +75,7 @@ class GCareDataset(Dataset):
 
     @property
     def pretty_name(self) -> str:
-        return f"{self._subset_name}, Query {self._query_name}"
+        return f"{self._subset_name}/{self._query_name}"
 
     @property
     def description(self) -> str:
@@ -91,8 +91,9 @@ class GCareDataset(Dataset):
 
 
 class SubgraphMatchingTestDataset(Dataset):
-    def __init__(self, name, expr, matrix_names, gt, suites=None):
+    def __init__(self, name, expr, matrix_names, gt, pretty_name, suites=None):
         self._name = name
+        self._pretty_name = pretty_name
         self.expr = expr
         self.matrix_names = matrix_names
         self.gt = gt
@@ -104,7 +105,7 @@ class SubgraphMatchingTestDataset(Dataset):
 
     @property
     def pretty_name(self) -> str:
-        return f"Subgraph Matching {self._name}"
+        return self._pretty_name
 
     @property
     def description(self) -> str:
@@ -126,11 +127,11 @@ class SubgraphMatchingTestGenerator(Generator[SubgraphMatchingTestDataset]):
 
     @property
     def name(self) -> str:
-        return "subgraph_matching_test_inputs"
+        return "subgraph_matching_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Subgraph Matching Test Inputs"
+        return "Subgraph Matching Test"
 
     @property
     def description(self) -> str:
@@ -168,6 +169,7 @@ class SubgraphMatchingTestGenerator(Generator[SubgraphMatchingTestDataset]):
                 "S[] += E0[i,j]",
                 ["E0"],
                 3,
+                "All Edges",
                 suites=["test"],
             ),
             SubgraphMatchingTestDataset(
@@ -175,6 +177,7 @@ class SubgraphMatchingTestGenerator(Generator[SubgraphMatchingTestDataset]):
                 "S[] += VA[v]",
                 ["VA"],
                 2,
+                "Label A Count",
                 suites=["test"],
             ),
             SubgraphMatchingTestDataset(
@@ -182,6 +185,7 @@ class SubgraphMatchingTestGenerator(Generator[SubgraphMatchingTestDataset]):
                 "S[] += VA[u] * E0[u,v] * VB[v]",
                 ["VA", "E0", "VB"],
                 2,
+                "A to B",
                 suites=["test"],
             ),
             SubgraphMatchingTestDataset(
@@ -189,6 +193,7 @@ class SubgraphMatchingTestGenerator(Generator[SubgraphMatchingTestDataset]):
                 "S[] += VB[u] * E0[u,v] * VA[v]",
                 ["VB", "E0", "VA"],
                 0,
+                "B to A",
                 suites=["test"],
             ),
         ]
@@ -236,11 +241,11 @@ class SubgraphMatchingTestGenerator(Generator[SubgraphMatchingTestDataset]):
 class GCareGraphGenerator(Generator[GCareGraphDataset]):
     @property
     def name(self) -> str:
-        return "subgraph_gcare_graph"
+        return "gcare_graph"
 
     @property
     def pretty_name(self) -> str:
-        return "Subgraph G-CARE Graph Generator"
+        return "G-CARE Graphs"
 
     @property
     def description(self) -> str:
@@ -303,25 +308,25 @@ class GCareGraphGenerator(Generator[GCareGraphDataset]):
         return [
             GCareGraphDataset(
                 name="human",
-                pretty_name="G-CARE Human Subset (Small)",
+                pretty_name="human",
                 description=("G-CARE Human Subset (Small)"),
                 suites=[],
             ),
             GCareGraphDataset(
                 name="aids",
-                pretty_name="G-CARE AIDS Subset (Medium)",
+                pretty_name="aids",
                 description=("G-CARE AIDS Subset (Medium)"),
                 suites=[],
             ),
             GCareGraphDataset(
                 name="lubm80",
-                pretty_name="G-CARE LUBM80 Subset (Large)",
+                pretty_name="lubm80",
                 description=("G-CARE LUBM80 Subset (Large)"),
                 suites=[],
             ),
             GCareGraphDataset(
                 name="yago",
-                pretty_name="G-CARE YAGO Subset (Huge)",
+                pretty_name="yago",
                 description=("G-CARE YAGO Subset (Huge)"),
                 suites=[],
             ),
@@ -475,11 +480,11 @@ class GCareGenerator(Generator[GCareDataset]):
 class GCareHumanGenerator(GCareGenerator):
     @property
     def name(self) -> str:
-        return "subgraph_gcare_human"
+        return "subgraph_matching_gcare_human"
 
     @property
     def pretty_name(self) -> str:
-        return "Subgraph G-CARE Generator (Human)"
+        return "Subgraph Matching G-CARE Human"
 
     @property
     def datasets(self):
@@ -539,11 +544,11 @@ class GCareHumanGenerator(GCareGenerator):
 class GCareAIDSGenerator(GCareGenerator):
     @property
     def name(self) -> str:
-        return "subgraph_gcare_aids"
+        return "subgraph_matching_gcare_aids"
 
     @property
     def pretty_name(self) -> str:
-        return "Subgraph G-CARE Generator (AIDS)"
+        return "Subgraph Matching G-CARE AIDS"
 
     @property
     def datasets(self):
@@ -1334,11 +1339,11 @@ class GCareAIDSGenerator(GCareGenerator):
 class GCareLUBM80Generator(GCareGenerator):
     @property
     def name(self) -> str:
-        return "subgraph_gcare_lubm80"
+        return "subgraph_matching_gcare_lubm80"
 
     @property
     def pretty_name(self) -> str:
-        return "Subgraph G-CARE Generator (LUBM80)"
+        return "Subgraph Matching G-CARE LUBM80"
 
     @property
     def datasets(self):
@@ -1355,11 +1360,11 @@ class GCareLUBM80Generator(GCareGenerator):
 class GCareYAGOGenerator(GCareGenerator):
     @property
     def name(self) -> str:
-        return "subgraph_gcare_yago"
+        return "subgraph_matching_gcare_yago"
 
     @property
     def pretty_name(self) -> str:
-        return "Subgraph G-CARE Generator (YAGO)"
+        return "Subgraph Matching G-CARE YAGO"
 
     @property
     def datasets(self):
@@ -2740,7 +2745,7 @@ class SubgraphMatching(Benchmark):
 
     @property
     def pretty_name(self):
-        return "Subgraph Matching Algorithm using einsum"
+        return "Subgraph Matching"
 
     @property
     def description(self):

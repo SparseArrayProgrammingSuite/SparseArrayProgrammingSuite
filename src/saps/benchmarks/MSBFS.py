@@ -103,11 +103,11 @@ class MultiSourceBreadthFirstSearchTestGenerator(
 ):
     @property
     def name(self) -> str:
-        return "msbfs_test_inputs"
+        return "msbfs_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Multi-Source Breadth-First Search Test Input Generator"
+        return "Multi-Source Breadth-First Search Test"
 
     @property
     def description(self) -> str:
@@ -147,7 +147,8 @@ class MultiSourceBreadthFirstSearchTestGenerator(
     def datasets(self) -> list[MultiSourceBreadthFirstSearchDataset]:
         return [
             MultiSourceBreadthFirstSearchDataset(
-                "test_msbfs_basic",
+                "basic",
+                pretty_name="Basic",
                 suites=["test"],
                 A=np.array(
                     [
@@ -171,14 +172,16 @@ class MultiSourceBreadthFirstSearchTestGenerator(
                 ),
             ),
             MultiSourceBreadthFirstSearchDataset(
-                "test_msbfs_single_node",
+                "single_node",
+                pretty_name="Single Node",
                 suites=["test"],
                 A=np.array([[0]], dtype=bool),
                 sources=[0],
                 expected=np.array([[1]], dtype=int),
             ),
             MultiSourceBreadthFirstSearchDataset(
-                "test_msbfs_disconnected",
+                "disconnected",
+                pretty_name="Disconnected",
                 suites=["test"],
                 A=np.array(
                     [
@@ -193,7 +196,8 @@ class MultiSourceBreadthFirstSearchTestGenerator(
                 expected=np.array([[1, 2, 0, 0], [0, 0, 1, 2]], dtype=int),
             ),
             MultiSourceBreadthFirstSearchDataset(
-                "test_msbfs_undirected",
+                "undirected",
+                pretty_name="Undirected",
                 suites=["test"],
                 A=np.array(
                     [
@@ -210,7 +214,8 @@ class MultiSourceBreadthFirstSearchTestGenerator(
                 ),
             ),
             MultiSourceBreadthFirstSearchDataset(
-                "test_msbfs_cycle_all_sources",
+                "cycle_all_sources",
+                pretty_name="Cycle All Sources",
                 suites=["test"],
                 A=np.array(
                     [
@@ -228,7 +233,8 @@ class MultiSourceBreadthFirstSearchTestGenerator(
                 ),
             ),
             MultiSourceBreadthFirstSearchDataset(
-                "test_msbfs_repeated_source",
+                "repeated_source",
+                pretty_name="Repeated Source",
                 suites=["test"],
                 A=np.array(
                     [
@@ -242,7 +248,8 @@ class MultiSourceBreadthFirstSearchTestGenerator(
                 expected=np.array([[0, 1, 2], [0, 1, 2], [1, 2, 3]], dtype=int),
             ),
             MultiSourceBreadthFirstSearchDataset(
-                "test_msbfs_signed_edges",
+                "signed_edges",
+                pretty_name="Signed Edges",
                 description=(
                     "Opposite-signed edges into vertex 3 must not cancel when"
                     " 1 and 2 share a frontier."
@@ -262,7 +269,8 @@ class MultiSourceBreadthFirstSearchTestGenerator(
             ),
             # Sources are picked as the SNAP generator picks them.
             MultiSourceBreadthFirstSearchDataset(
-                "test_msbfs_snap_sources",
+                "snap_sources",
+                pretty_name="SNAP Sources",
                 suites=["test"],
                 A=np.array(
                     [
@@ -302,11 +310,11 @@ class MultiSourceBreadthFirstSearchSNAPGenerator(
 ):
     @property
     def name(self) -> str:
-        return "msbfs_snap_inputs"
+        return "msbfs_snap"
 
     @property
     def pretty_name(self) -> str:
-        return "Multi-Source Breadth-First Search SNAP Input Generator"
+        return "Multi-Source Breadth-First Search SNAP"
 
     @property
     def description(self) -> str:
@@ -429,11 +437,11 @@ class MultiSourceBreadthFirstSearchGAPGenerator(
 ):
     @property
     def name(self) -> str:
-        return "msbfs_gap_inputs"
+        return "msbfs_gap"
 
     @property
     def pretty_name(self) -> str:
-        return "Multi-Source Breadth-First Search GAP Input Generator"
+        return "Multi-Source Breadth-First Search GAP"
 
     @property
     def description(self) -> str:
@@ -485,11 +493,11 @@ class MultiSourceBreadthFirstSearchGAPGenerator(
     def datasets(self) -> list[MultiSourceBreadthFirstSearchDataset]:
         # fmt: off
         return [
-            MultiSourceBreadthFirstSearchDataset("GAP/GAP-road", source_name="GAP-road", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("GAP/GAP-twitter", source_name="GAP-twitter", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("GAP/GAP-web", source_name="GAP-web", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("GAP/GAP-kron", source_name="GAP-kron", suites=["standard"]),
-            MultiSourceBreadthFirstSearchDataset("GAP/GAP-urand", source_name="GAP-urand", suites=["standard"]),
+            MultiSourceBreadthFirstSearchDataset("GAP-road", suites=["standard"]),
+            MultiSourceBreadthFirstSearchDataset("GAP-twitter", suites=["standard"]),
+            MultiSourceBreadthFirstSearchDataset("GAP-web", suites=["standard"]),
+            MultiSourceBreadthFirstSearchDataset("GAP-kron", suites=["standard"]),
+            MultiSourceBreadthFirstSearchDataset("GAP-urand", suites=["standard"]),
         ]
         # fmt: on
 

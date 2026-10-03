@@ -73,7 +73,7 @@ class OGBNodePropGenerator(Generator[OGBNodePropDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Open Graph Benchmark Node Property Datasets"
+        return "OGB Node Property Graphs"
 
     @property
     def description(self) -> str:
@@ -138,27 +138,21 @@ class OGBNodePropGenerator(Generator[OGBNodePropDataset]):
     def datasets(self) -> list[OGBNodePropDataset]:
         return [
             OGBNodePropDataset(
-                "ogbn_arxiv",
-                source_name="ogbn-arxiv",
-                pretty_name="ogbn-arxiv",
+                "ogbn-arxiv",
                 description=(
                     "Citation network of arXiv Computer Science papers for "
                     "node-property prediction."
                 ),
             ),
             OGBNodePropDataset(
-                "ogbn_products",
-                source_name="ogbn-products",
-                pretty_name="ogbn-products",
+                "ogbn-products",
                 description=(
                     "Amazon product co-purchasing network for large-scale "
                     "node-property prediction."
                 ),
             ),
             OGBNodePropDataset(
-                "ogbn_proteins",
-                source_name="ogbn-proteins",
-                pretty_name="ogbn-proteins",
+                "ogbn-proteins",
                 description=(
                     "Protein-protein association network with species labels and "
                     "averaged edge-feature node inputs."

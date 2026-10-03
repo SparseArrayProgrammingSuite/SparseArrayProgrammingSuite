@@ -32,7 +32,7 @@ class TransitiveReductionDataset(Dataset):
         self.edges = edges
         self.expected_edges = expected_edges
         self._suites = list(suites or [])
-        self._pretty_name = pretty_name or f"Transitive Reduction {name}"
+        self._pretty_name = pretty_name or name
         self._description = (
             description
             or "Small overlap graph with expected transitive reduction output."
@@ -66,11 +66,11 @@ class TransitiveReductionTestGenerator(Generator[TransitiveReductionDataset]):
 
     @property
     def name(self) -> str:
-        return "transitive_reduction_test_inputs"
+        return "transitive_reduction_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Transitive Reduction Test Inputs"
+        return "Transitive Reduction Test"
 
     @property
     def description(self) -> str:
@@ -105,24 +105,28 @@ class TransitiveReductionTestGenerator(Generator[TransitiveReductionDataset]):
         return [
             TransitiveReductionDataset(
                 "remove_long_direct_edge",
+                pretty_name="Remove Long Direct Edge",
                 edges=[(0, 1, 10.0), (1, 2, 10.0), (0, 2, 30.0)],
                 expected_edges=[(0, 1, 10.0), (1, 2, 10.0)],
                 suites=["test"],
             ),
             TransitiveReductionDataset(
                 "keep_short_direct_edge",
+                pretty_name="Keep Short Direct Edge",
                 edges=[(0, 1, 10.0), (1, 2, 10.0), (0, 2, 15.0)],
                 expected_edges=[(0, 1, 10.0), (1, 2, 10.0), (0, 2, 15.0)],
                 suites=["test"],
             ),
             TransitiveReductionDataset(
                 "keep_when_indirect_is_long",
+                pretty_name="Keep When Indirect Is Long",
                 edges=[(0, 1, 40.0), (1, 2, 40.0), (0, 2, 30.0)],
                 expected_edges=[(0, 1, 40.0), (1, 2, 40.0), (0, 2, 30.0)],
                 suites=["test"],
             ),
             TransitiveReductionDataset(
                 "remove_equal_direct_edge",
+                pretty_name="Remove Equal Direct Edge",
                 edges=[(0, 1, 10.0), (1, 2, 10.0), (0, 2, 20.0)],
                 expected_edges=[(0, 1, 10.0), (1, 2, 10.0)],
                 suites=["test"],
@@ -169,11 +173,11 @@ class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
 
     @property
     def name(self) -> str:
-        return "transitive_reduction_snap_inputs"
+        return "transitive_reduction_snap"
 
     @property
     def pretty_name(self) -> str:
-        return "Transitive Reduction SNAP Input Generator"
+        return "Transitive Reduction SNAP"
 
     @property
     def description(self) -> str:
@@ -291,11 +295,11 @@ class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
 class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
     @property
     def name(self) -> str:
-        return "transitive_reduction_gap_inputs"
+        return "transitive_reduction_gap"
 
     @property
     def pretty_name(self) -> str:
-        return "Transitive Reduction GAP Input Generator"
+        return "Transitive Reduction GAP"
 
     @property
     def description(self) -> str:
@@ -347,8 +351,7 @@ class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
     def datasets(self) -> list[TransitiveReductionDataset]:
         return [
             TransitiveReductionDataset(
-                name="GAP/GAP-road",
-                pretty_name="GAP Road",
+                name="GAP-road",
                 description=(
                     "Directed roads with weights in the US, with 23.9M nodes and"
                     " 58.3M edges."
@@ -356,8 +359,7 @@ class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
                 suites=["standard"],
             ),
             TransitiveReductionDataset(
-                name="GAP/GAP-twitter",
-                pretty_name="GAP Twitter",
+                name="GAP-twitter",
                 description=(
                     "Directed weighted social network topology of Twitter, with 61.6M"
                     " nodes and 1,468.4M edges."
@@ -365,8 +367,7 @@ class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
                 suites=["standard"],
             ),
             TransitiveReductionDataset(
-                name="GAP/GAP-web",
-                pretty_name="GAP Web",
+                name="GAP-web",
                 description=(
                     "A web-crawl of the .sk domain, directed and weighted, with 50.6M"
                     " nodes and 1,949.4M edges."
@@ -374,8 +375,7 @@ class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
                 suites=["standard"],
             ),
             TransitiveReductionDataset(
-                name="GAP/GAP-kron",
-                pretty_name="GAP Kron",
+                name="GAP-kron",
                 description=(
                     "Symmetric random undirected weighted graph generated by"
                     " Kronecker synthetic graph generator with parameters"
@@ -385,8 +385,7 @@ class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
                 suites=["standard"],
             ),
             TransitiveReductionDataset(
-                name="GAP/GAP-urand",
-                pretty_name="GAP Urand",
+                name="GAP-urand",
                 description=(
                     "Symmetric random undirected weighted graph generated by"
                     " Erdos–Reyni model (Uniform Random) with 134.2M nodes and"
@@ -397,7 +396,7 @@ class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
         ]
 
     def generate(self, dataset: TransitiveReductionDataset) -> DataInstance:
-        raw = fetch_gap_graph(dataset.name.removeprefix("GAP/"))
+        raw = fetch_gap_graph(dataset.name)
         return DataInstance(
             inputs=[_unweighted_distances(raw.inputs[0])], meta=dict(raw.meta)
         )
@@ -410,7 +409,7 @@ class TransitiveReductionBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "diBELLA Transitive Reduction Algorithm"
+        return "Transitive Reduction"
 
     @property
     def description(self) -> str:

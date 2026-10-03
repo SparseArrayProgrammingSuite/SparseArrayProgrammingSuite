@@ -60,11 +60,11 @@ class ConnectedComponentsDataset(Dataset):
 class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
     @property
     def name(self) -> str:
-        return "connected_components_test_inputs"
+        return "connected_components_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Connected Components Test Input Generator"
+        return "Connected Components Test"
 
     @property
     def description(self) -> str:
@@ -105,13 +105,15 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
     def datasets(self) -> list[ConnectedComponentsDataset]:
         return [
             ConnectedComponentsDataset(
-                "test_cc_fully_connected",
+                "fully_connected",
+                pretty_name="Fully Connected",
                 suites=["test"],
                 A=np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]], dtype=bool),
                 ref_meta={"component_count": 1},
             ),
             ConnectedComponentsDataset(
-                "test_cc_two_disconnected_components",
+                "two_disconnected_components",
+                pretty_name="Two Disconnected Components",
                 suites=["test"],
                 A=np.array(
                     [
@@ -125,13 +127,15 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
                 ref_meta={"same": [[0, 1], [2, 3]], "different": [[0, 2]]},
             ),
             ConnectedComponentsDataset(
-                "test_cc_isolated_nodes",
+                "isolated_nodes",
+                pretty_name="Isolated Nodes",
                 suites=["test"],
                 A=np.zeros((4, 4), dtype=bool),
                 ref_meta={"component_count": 4},
             ),
             ConnectedComponentsDataset(
-                "test_cc_directed_star_pointing_inward",
+                "directed_star_pointing_inward",
+                pretty_name="Directed Star Pointing Inward",
                 suites=["test"],
                 A=np.array(
                     [
@@ -145,13 +149,15 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
                 ref_meta={"component_count": 1},
             ),
             ConnectedComponentsDataset(
-                "test_cc_single_node",
+                "single_node",
+                pretty_name="Single Node",
                 suites=["test"],
                 A=np.zeros((1, 1), dtype=bool),
                 ref_meta={"shape": [1]},
             ),
             ConnectedComponentsDataset(
-                "test_cc_snap_toy",
+                "snap_toy",
+                pretty_name="SNAP Toy",
                 suites=["test"],
                 A=np.array([[0, 1, 0], [0, 0, 1], [0, 0, 0]], dtype=bool),
                 ref_meta={"component_count": 1},
@@ -172,11 +178,11 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
 class ConnectedComponentsSNAPGenerator(Generator[ConnectedComponentsDataset]):
     @property
     def name(self) -> str:
-        return "connected_components_snap_inputs"
+        return "connected_components_snap"
 
     @property
     def pretty_name(self) -> str:
-        return "Connected Components SNAP Input Generator"
+        return "Connected Components SNAP"
 
     @property
     def description(self) -> str:
@@ -314,11 +320,11 @@ class ConnectedComponentsSNAPGenerator(Generator[ConnectedComponentsDataset]):
 class ConnectedComponentsGAPGenerator(Generator[ConnectedComponentsDataset]):
     @property
     def name(self) -> str:
-        return "connected_components_gap_inputs"
+        return "connected_components_gap"
 
     @property
     def pretty_name(self) -> str:
-        return "Connected Components GAP Input Generator"
+        return "Connected Components GAP"
 
     @property
     def description(self) -> str:
@@ -388,11 +394,11 @@ class ConnectedComponentsGAPGenerator(Generator[ConnectedComponentsDataset]):
 class SimplyConnectedComponentsBenchmark(Benchmark):
     @property
     def name(self):
-        return "simply_connected_components"
+        return "connected_components"
 
     @property
     def pretty_name(self):
-        return "Simply Connected Components"
+        return "Connected Components"
 
     @property
     def description(self):

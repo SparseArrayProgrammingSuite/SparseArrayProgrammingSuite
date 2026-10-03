@@ -137,8 +137,7 @@ def test_ogb_generator_runs_through_gcn_with_sparse_framework(monkeypatch):
         metadata={"dataset_name": "fake-ogb"},
     )
     dataset = OGBGCNDataset(
-        "fake_ogb",
-        source_name="fake-ogb",
+        "fake-ogb",
         hidden_dim=3,
         description="Tiny integration graph.",
     )

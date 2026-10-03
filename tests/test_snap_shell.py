@@ -283,7 +283,7 @@ def test_each_gap_graph_problem_has_an_explicit_snap_generator():
         snap = [g for g in generators if type(g).__name__.endswith("SNAPGenerator")]
         assert len(snap) == 1, benchmark.name
         assert "SNAP" in snap[0].pretty_name
-        assert snap[0].name.endswith("_snap_inputs")
+        assert snap[0].name.endswith("_snap")
         assert not snap[0].cacheable
     assert len(problems) == 14
 

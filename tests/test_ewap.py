@@ -104,8 +104,8 @@ def test_ewap_particle_sim_generator_uses_downloader(monkeypatch):
 
     assert generator.cacheable is False
     assert [dataset.name for dataset in datasets] == [
-        "ewap_seq_eth",
-        "ewap_seq_hotel",
+        "seq_eth",
+        "seq_hotel",
     ]
     assert all(dataset.suites == ["standard", "trace"] for dataset in datasets)
     assert all(

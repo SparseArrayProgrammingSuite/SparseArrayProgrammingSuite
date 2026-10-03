@@ -21,9 +21,11 @@ class MaskedMRIDataset(Dataset):
         roi: np.ndarray | None = None,
         suites: list[str] | None = None,
         ref_meta: dict[str, Any] | None = None,
+        pretty_name: str | None = None,
     ):
         self._suites = suites or []
         self.source_name = name
+        self._pretty_name = pretty_name or name
         self.category = category
         self.filename = filename
         self.t1_val = t1_val
@@ -38,7 +40,7 @@ class MaskedMRIDataset(Dataset):
 
     @property
     def pretty_name(self) -> str:
-        return f"Masked MRI Edge {self.source_name}"
+        return self._pretty_name
 
     @property
     def description(self) -> str:
@@ -82,11 +84,11 @@ def default_masked_mri_roi(image):
 class MaskedMRITestGenerator(Generator[MaskedMRIDataset]):
     @property
     def name(self) -> str:
-        return "masked_mri_test_inputs"
+        return "mri_masked_edge_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Masked MRI Edge Test Data Generator"
+        return "MRI Masked Edge Detection Test"
 
     @property
     def description(self) -> str:
@@ -124,9 +126,10 @@ class MaskedMRITestGenerator(Generator[MaskedMRIDataset]):
     def datasets(self) -> list[MaskedMRIDataset]:
         return [
             MaskedMRIDataset(
-                "test_masked_mri_zero_image",
+                "zero_image",
                 "local",
-                "test_masked_mri_zero_image",
+                "zero_image",
+                pretty_name="Zero Image",
                 t1_val=50.0,
                 t2_val=100.0,
                 image=np.zeros((5, 5), dtype=np.float32),
@@ -134,9 +137,10 @@ class MaskedMRITestGenerator(Generator[MaskedMRIDataset]):
                 suites=["test"],
             ),
             MaskedMRIDataset(
-                "test_masked_mri_basic_roi",
+                "basic_roi",
                 "local",
-                "test_masked_mri_basic_roi",
+                "basic_roi",
+                pretty_name="Basic ROI",
                 t1_val=75.0,
                 t2_val=125.0,
                 image=np.array(
@@ -162,9 +166,10 @@ class MaskedMRITestGenerator(Generator[MaskedMRIDataset]):
                 suites=["test"],
             ),
             MaskedMRIDataset(
-                "test_masked_mri_generator_builds_default_roi",
+                "default_roi",
                 "local",
-                "test_masked_mri_generator_builds_default_roi",
+                "default_roi",
+                pretty_name="Default ROI",
                 t1_val=10.0,
                 t2_val=20.0,
                 image=np.arange(36, dtype=np.float32).reshape(6, 6),
@@ -192,11 +197,11 @@ class MaskedMRITestGenerator(Generator[MaskedMRIDataset]):
 class MaskedMRIGenerator(Generator[MaskedMRIDataset]):
     @property
     def name(self) -> str:
-        return "masked_mri_inputs"
+        return "mri_masked_edge_kaggle"
 
     @property
     def pretty_name(self) -> str:
-        return "Masked MRI Edge Data Generator"
+        return "MRI Masked Edge Detection Kaggle"
 
     @property
     def description(self) -> str:
@@ -234,12 +239,10 @@ class MaskedMRIGenerator(Generator[MaskedMRIDataset]):
     @property
     def datasets(self) -> list[MaskedMRIDataset]:
         return [
-            MaskedMRIDataset("masked_mri_1", "yes", "Y157.JPG", suites=["trace"]),
-            MaskedMRIDataset(
-                "masked_mri_2", "yes", "Y6.jpg", suites=["trace", "train"]
-            ),
-            MaskedMRIDataset("masked_mri_3", "yes", "Y194.jpg", suites=["trace"]),
-            MaskedMRIDataset("masked_mri_4", "yes", "Y180.jpg", suites=["trace"]),
+            MaskedMRIDataset("yes/Y157", "yes", "Y157.JPG", suites=["trace"]),
+            MaskedMRIDataset("yes/Y6", "yes", "Y6.jpg", suites=["trace", "train"]),
+            MaskedMRIDataset("yes/Y194", "yes", "Y194.jpg", suites=["trace"]),
+            MaskedMRIDataset("yes/Y180", "yes", "Y180.jpg", suites=["trace"]),
         ]
 
     def generate(self, dataset: MaskedMRIDataset) -> DataInstance:
@@ -279,11 +282,11 @@ class MaskedMRIGenerator(Generator[MaskedMRIDataset]):
 class MaskedMRIEdgeBenchmark(Benchmark):
     @property
     def name(self) -> str:
-        return "masked_mri_edge"
+        return "mri_masked_edge"
 
     @property
     def pretty_name(self) -> str:
-        return "MRI Edge Detection"
+        return "MRI Masked Edge Detection"
 
     @property
     def description(self) -> str:

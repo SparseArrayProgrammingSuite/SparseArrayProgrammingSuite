@@ -70,7 +70,7 @@ def test_slicot_generator_loads_a_and_b_and_ignores_c_d(monkeypatch):
         to_numpy(instance.inputs[1]), np.array([[0.0], [1.0]])
     )
     assert instance.meta["source_name"] == "build.mat"
-    assert instance.meta["problem_name"] == "slicot_ode"
+    assert instance.meta["problem_name"] == "ode_slicot"
     assert instance.meta["assumed_E"] == "identity"
     assert instance.meta["assumed_B"] is None
     assert instance.meta["A_storage"] == "dense"
@@ -165,7 +165,7 @@ def test_slicot_forward_euler_runs_linear_system():
     benchmark = ForwardEuler()
     data = [np.array([[0.0]]), np.array([[2.0]])]
     meta = {
-        "problem_name": "slicot_ode",
+        "problem_name": "ode_slicot",
         "span": (0.0, 0.3),
         "y0": [0.0],
         "step": 0.1,
@@ -181,7 +181,7 @@ def test_slicot_forward_euler_runs_linear_system():
 def test_runge_kutta_includes_slicot_generator():
     generator_names = [generator.name for generator in RungeKutta().generators]
 
-    assert "slicot_ode" in generator_names
+    assert "ode_slicot" in generator_names
 
 
 @pytest.mark.parametrize(
@@ -210,7 +210,7 @@ def test_slicot_setup_uses_method_timestep_with_old_cached_data(
 
     assert benchmark._input is problem.inputs
     assert benchmark._meta["step"] == expected_step
-    assert benchmark._meta["problem_name"] == "slicot_ode"
+    assert benchmark._meta["problem_name"] == "ode_slicot"
     assert "problem_name" not in problem.meta
     assert problem.meta["step"] == 0.02
     assert dataset.metadata["step"] == 0.01
@@ -225,7 +225,7 @@ def test_slicot_check_preserves_complex_reference(drop_imaginary):
     benchmark._input = [from_numpy(item) for item in data]
     benchmark._ref_meta = None
     benchmark._meta = {
-        "problem_name": "slicot_ode",
+        "problem_name": "ode_slicot",
         "span": (0.0, 1.0),
         "y0": [0.0],
         "step": 0.01,
@@ -249,7 +249,7 @@ def test_slicot_check_still_rejects_unstable_steps():
     benchmark._input = [from_numpy(item) for item in data]
     benchmark._ref_meta = None
     benchmark._meta = {
-        "problem_name": "slicot_ode",
+        "problem_name": "ode_slicot",
         "span": (0.0, 0.1),
         "y0": [0.0],
         "step": 0.01,
@@ -268,7 +268,7 @@ def test_slicot_check_reports_reference_failure(monkeypatch):
     benchmark._input = [from_numpy(np.eye(1)), from_numpy(np.ones((1, 1)))]
     benchmark._ref_meta = None
     benchmark._meta = {
-        "problem_name": "slicot_ode",
+        "problem_name": "ode_slicot",
         "span": (0.0, 0.1),
         "y0": [0.0],
         "step": 0.01,

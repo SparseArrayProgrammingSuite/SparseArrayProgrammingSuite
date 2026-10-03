@@ -93,11 +93,11 @@ class MCDataset(Dataset):
 class MCGenerator(Generator[MCDataset]):
     @property
     def name(self) -> str:
-        return "mc_generator"
+        return "model_counting_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Model Counting Generator"
+        return "Model Counting Test"
 
     @property
     def description(self) -> str:
@@ -139,8 +139,8 @@ class MCGenerator(Generator[MCDataset]):
     def datasets(self) -> list[MCDataset]:
         return [
             MCDataset(
-                name="test_1",
-                pretty_name="Test 1: Standard SAT",
+                name="standard_sat",
+                pretty_name="Standard SAT",
                 description="3 variables, 2 clauses",
                 suites=["test"],
                 cnf_text="""
@@ -151,8 +151,8 @@ class MCGenerator(Generator[MCDataset]):
                 expected=5,
             ),
             MCDataset(
-                name="test_2",
-                pretty_name="Test 2: Contradiction",
+                name="contradiction",
+                pretty_name="Contradiction",
                 description="V1 and not V1",
                 suites=["test"],
                 cnf_text="""
@@ -164,8 +164,8 @@ class MCGenerator(Generator[MCDataset]):
                 expected=0,
             ),
             MCDataset(
-                name="test_3",
-                pretty_name="Test 3: Single Solution",
+                name="single_solution",
+                pretty_name="Single Solution",
                 description="Forces all 3 variables to be true",
                 suites=["test"],
                 cnf_text="""
@@ -178,8 +178,8 @@ class MCGenerator(Generator[MCDataset]):
                 expected=1,
             ),
             MCDataset(
-                name="test_4",
-                pretty_name="Test 4: Empty Formula",
+                name="empty_formula",
+                pretty_name="Empty Formula",
                 description="No clauses, 2 variables",
                 suites=["test"],
                 cnf_text="""
@@ -213,18 +213,19 @@ class MCGenerator(Generator[MCDataset]):
 
 
 class MCCompDataset(Dataset):
-    def __init__(self, source_path: str, *, suites: list[str] | None = None):
-        self.source_path = source_path
-        self.track = source_path.split("/", 1)[0]
+    def __init__(self, name: str, *, suites: list[str] | None = None):
+        self._name = name
+        self.source_path = f"{name}.cnf"
+        self.track = name.split("/", 1)[0]
         self._suites = suites or []
 
     @property
     def name(self) -> str:
-        return self.source_path.removesuffix(".cnf").replace("/", "_").lower()
+        return self._name
 
     @property
     def pretty_name(self) -> str:
-        return f"MCComp {self.source_path.removesuffix('.cnf')}"
+        return self._name
 
     @property
     def description(self) -> str:
@@ -255,11 +256,11 @@ class MCCompDataset(Dataset):
 class MCCompGenerator(Generator[MCCompDataset]):
     @property
     def name(self) -> str:
-        return "mccomp"
+        return "mccomp_instance"
 
     @property
     def pretty_name(self) -> str:
-        return "Model Counting Competition Test Instances"
+        return "Model Counting Competition Instances"
 
     @property
     def description(self) -> str:
@@ -305,46 +306,46 @@ class MCCompGenerator(Generator[MCCompDataset]):
     @property
     def datasets(self) -> list[MCCompDataset]:
         return [
-            MCCompDataset("Track1_MC/random_mc_1.cnf", suites=[]),
-            MCCompDataset("Track1_MC/random_mc_2.cnf", suites=[]),
-            MCCompDataset("Track1_MC/random_mc_3.cnf", suites=[]),
-            MCCompDataset("Track1_MC/random_mc_4.cnf", suites=[]),
-            MCCompDataset("Track1_MC/random_mc_5.cnf", suites=[]),
-            MCCompDataset("Track1_MC/random_mc_6.cnf", suites=[]),
-            MCCompDataset("Track1_MC/random_mc_7.cnf", suites=[]),
-            MCCompDataset("Track1_MC/random_mc_8.cnf", suites=[]),
-            MCCompDataset("Track1_MC/random_mc_9.cnf", suites=[]),
-            MCCompDataset("Track1_MC/random_mc_10.cnf", suites=[]),
-            MCCompDataset("Track3_PMC/random_pmc_1.cnf", suites=[]),
-            MCCompDataset("Track3_PMC/random_pmc_2.cnf", suites=[]),
-            MCCompDataset("Track3_PMC/random_pmc_3.cnf", suites=[]),
-            MCCompDataset("Track3_PMC/random_pmc_4.cnf", suites=[]),
-            MCCompDataset("Track3_PMC/random_pmc_5.cnf", suites=[]),
-            MCCompDataset("Track3_PMC/random_pmc_6.cnf", suites=[]),
-            MCCompDataset("Track3_PMC/random_pmc_7.cnf", suites=[]),
-            MCCompDataset("Track3_PMC/random_pmc_8.cnf", suites=[]),
-            MCCompDataset("Track3_PMC/random_pmc_9.cnf", suites=[]),
-            MCCompDataset("Track3_PMC/random_pmc_10.cnf", suites=[]),
-            MCCompDataset("Track4_PWMC/random_pwmc_1.cnf", suites=[]),
-            MCCompDataset("Track4_PWMC/random_pwmc_2.cnf", suites=[]),
-            MCCompDataset("Track4_PWMC/random_pwmc_3.cnf", suites=[]),
-            MCCompDataset("Track4_PWMC/random_pwmc_4.cnf", suites=[]),
-            MCCompDataset("Track4_PWMC/random_pwmc_5.cnf", suites=[]),
-            MCCompDataset("Track4_PWMC/random_pwmc_6.cnf", suites=[]),
-            MCCompDataset("Track4_PWMC/random_pwmc_7.cnf", suites=[]),
-            MCCompDataset("Track4_PWMC/random_pwmc_8.cnf", suites=[]),
-            MCCompDataset("Track4_PWMC/random_pwmc_9.cnf", suites=[]),
-            MCCompDataset("Track4_PWMC/random_pwmc_10.cnf", suites=[]),
-            MCCompDataset("Track5B_AMC/random_amc_1.cnf", suites=[]),
-            MCCompDataset("Track5B_AMC/random_amc_2.cnf", suites=[]),
-            MCCompDataset("Track5B_AMC/random_amc_3.cnf", suites=[]),
-            MCCompDataset("Track5B_AMC/random_amc_4.cnf", suites=[]),
-            MCCompDataset("Track5B_AMC/random_amc_5.cnf", suites=[]),
-            MCCompDataset("Track5B_AMC/random_amc_6.cnf", suites=[]),
-            MCCompDataset("Track5B_AMC/random_amc_7.cnf", suites=[]),
-            MCCompDataset("Track5B_AMC/random_amc_8.cnf", suites=[]),
-            MCCompDataset("Track5B_AMC/random_amc_9.cnf", suites=[]),
-            MCCompDataset("Track5B_AMC/random_amc_10.cnf", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_1", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_2", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_3", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_4", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_5", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_6", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_7", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_8", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_9", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_10", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_1", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_2", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_3", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_4", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_5", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_6", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_7", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_8", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_9", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_10", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_1", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_2", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_3", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_4", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_5", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_6", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_7", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_8", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_9", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_10", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_1", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_2", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_3", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_4", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_5", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_6", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_7", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_8", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_9", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_10", suites=[]),
         ]
 
     def generate(self, dataset: MCCompDataset):
@@ -371,11 +372,11 @@ class MCCompBenchmark(ShellBenchmark):
 class MCCompMCGenerator(Generator[MCCompDataset]):
     @property
     def name(self) -> str:
-        return "mccomp_mc"
+        return "model_counting_mccomp"
 
     @property
     def pretty_name(self) -> str:
-        return "Model Counting Competition Track1 Generator"
+        return "Model Counting MCComp"
 
     @property
     def description(self) -> str:
@@ -411,18 +412,18 @@ class MCCompMCGenerator(Generator[MCCompDataset]):
     @property
     def datasets(self) -> list[MCCompDataset]:
         return [
-            MCCompDataset("Track1_MC/random_mc_1.cnf", suites=["standard", "trace"]),
-            MCCompDataset("Track1_MC/random_mc_2.cnf", suites=["standard", "trace"]),
-            MCCompDataset("Track1_MC/random_mc_3.cnf", suites=["standard", "trace"]),
-            MCCompDataset("Track1_MC/random_mc_4.cnf", suites=["standard", "trace"]),
-            MCCompDataset("Track1_MC/random_mc_5.cnf", suites=["standard", "trace"]),
-            MCCompDataset("Track1_MC/random_mc_6.cnf", suites=["standard", "trace"]),
-            MCCompDataset("Track1_MC/random_mc_7.cnf", suites=["standard", "trace"]),
-            MCCompDataset("Track1_MC/random_mc_8.cnf", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_1", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_2", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_3", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_4", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_5", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_6", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_7", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_8", suites=["standard", "trace"]),
             MCCompDataset(
-                "Track1_MC/random_mc_9.cnf", suites=["standard", "trace", "train"]
+                "Track1_MC/random_mc_9", suites=["standard", "trace", "train"]
             ),
-            MCCompDataset("Track1_MC/random_mc_10.cnf", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_10", suites=["standard", "trace"]),
         ]
 
     def generate(self, dataset: MCCompDataset):
@@ -493,16 +494,12 @@ def parse_mccomp_exact(cnf_text: str) -> tuple[str | None, str | None]:
 
 class ModelCounting(Benchmark):
     @property
-    def tag(self):
+    def name(self):
         return "model_counting"
 
     @property
-    def name(self):
-        return "Model Counting using einsum"
-
-    @property
     def pretty_name(self):
-        return "Model Counting using einsum"
+        return "Model Counting"
 
     @property
     def description(self):

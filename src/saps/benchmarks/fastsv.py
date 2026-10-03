@@ -58,11 +58,11 @@ class FastSVDataset(Dataset):
 class FastSVTestGenerator(Generator[FastSVDataset]):
     @property
     def name(self) -> str:
-        return "fastsv_test_inputs"
+        return "fastsv_test"
 
     @property
     def pretty_name(self) -> str:
-        return "FastSV Test Input Generator"
+        return "FastSV Test"
 
     @property
     def description(self) -> str:
@@ -102,21 +102,29 @@ class FastSVTestGenerator(Generator[FastSVDataset]):
     @property
     def datasets(self) -> list[FastSVDataset]:
         return [
-            FastSVDataset("no-edges", suites=["test"]),
-            FastSVDataset("single-component", suites=["test"]),
-            FastSVDataset("two-components", suites=["test"]),
-            FastSVDataset("chain", suites=["test"]),
-            FastSVDataset("star", suites=["test"]),
-            FastSVDataset("isolated-and-connected", suites=["test"]),
+            FastSVDataset("no_edges", pretty_name="No Edges", suites=["test"]),
+            FastSVDataset(
+                "single_component", pretty_name="Single Component", suites=["test"]
+            ),
+            FastSVDataset(
+                "two_components", pretty_name="Two Components", suites=["test"]
+            ),
+            FastSVDataset("chain", pretty_name="Chain", suites=["test"]),
+            FastSVDataset("star", pretty_name="Star", suites=["test"]),
+            FastSVDataset(
+                "isolated_and_connected",
+                pretty_name="Isolated And Connected",
+                suites=["test"],
+            ),
         ]
 
     def generate(self, dataset: FastSVDataset) -> DataInstance:
         A: np.ndarray[Any, Any]
         expected: np.ndarray[Any, Any]
-        if dataset.name == "no-edges":
+        if dataset.name == "no_edges":
             A = np.zeros((5, 5), dtype=bool)
             expected = np.arange(5)
-        elif dataset.name == "single-component":
+        elif dataset.name == "single_component":
             A = np.array(
                 [
                     [0, 1, 1, 1],
@@ -127,7 +135,7 @@ class FastSVTestGenerator(Generator[FastSVDataset]):
                 dtype=bool,
             )
             expected = np.array([0, 0, 0, 0])
-        elif dataset.name == "two-components":
+        elif dataset.name == "two_components":
             A = np.array(
                 [
                     [0, 1, 0, 0],
@@ -162,7 +170,7 @@ class FastSVTestGenerator(Generator[FastSVDataset]):
                 dtype=bool,
             )
             expected = np.array([0, 0, 0, 0, 0])
-        elif dataset.name == "isolated-and-connected":
+        elif dataset.name == "isolated_and_connected":
             A = np.array(
                 [
                     [0, 1, 0, 0, 0],
@@ -187,11 +195,11 @@ class FastSVTestGenerator(Generator[FastSVDataset]):
 class FastSVSNAPGenerator(Generator[FastSVDataset]):
     @property
     def name(self) -> str:
-        return "fastsv_snap_inputs"
+        return "fastsv_snap"
 
     @property
     def pretty_name(self) -> str:
-        return "FastSV SNAP Input Generator"
+        return "FastSV SNAP"
 
     @property
     def description(self) -> str:
@@ -314,11 +322,11 @@ class FastSVSNAPGenerator(Generator[FastSVDataset]):
 class FastSVGAPGenerator(Generator[FastSVDataset]):
     @property
     def name(self) -> str:
-        return "fastsv_gap_inputs"
+        return "fastsv_gap"
 
     @property
     def pretty_name(self) -> str:
-        return "FastSV GAP Input Generator"
+        return "FastSV GAP"
 
     @property
     def description(self) -> str:
@@ -392,7 +400,7 @@ class FastSVBenchmark(Benchmark):
 
     @property
     def pretty_name(self):
-        return "FastSV Algorithm"
+        return "FastSV"
 
     @property
     def description(self):

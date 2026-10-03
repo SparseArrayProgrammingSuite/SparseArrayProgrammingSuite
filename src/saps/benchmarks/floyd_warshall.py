@@ -104,11 +104,11 @@ def floyd_warshall_input_from_edges(
 class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
     @property
     def name(self) -> str:
-        return "floyd_warshall_test_inputs"
+        return "floyd_warshall_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Floyd-Warshall Test Input Generator"
+        return "Floyd-Warshall Test"
 
     @property
     def description(self) -> str:
@@ -149,24 +149,24 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
     def datasets(self) -> list[FloydWarshallDataset]:
         return [
             FloydWarshallDataset(
-                name="single-node",
-                pretty_name="single-node",
+                name="single_node",
+                pretty_name="Single Node",
                 description="Floyd-Warshall test case single-node.",
                 suites=["test"],
                 A=np.array([[0.0]]),
                 expected=np.array([[0.0]]),
             ),
             FloydWarshallDataset(
-                name="two-node-directed",
-                pretty_name="two-node-directed",
+                name="two_node_directed",
+                pretty_name="Two Node Directed",
                 description="Floyd-Warshall test case two-node-directed.",
                 suites=["test"],
                 A=np.array([[0.0, 1.0], [np.inf, 0.0]]),
                 expected=np.array([[0.0, 1.0], [np.inf, 0.0]]),
             ),
             FloydWarshallDataset(
-                name="three-node-chain",
-                pretty_name="three-node-chain",
+                name="three_node_chain",
+                pretty_name="Three Node Chain",
                 description="Floyd-Warshall test case three-node-chain.",
                 suites=["test"],
                 A=np.array(
@@ -185,8 +185,8 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
                 ),
             ),
             FloydWarshallDataset(
-                name="three-node-shortcut",
-                pretty_name="three-node-shortcut",
+                name="three_node_shortcut",
+                pretty_name="Three Node Shortcut",
                 description="Floyd-Warshall test case three-node-shortcut.",
                 suites=["test"],
                 A=np.array(
@@ -205,8 +205,8 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
                 ),
             ),
             FloydWarshallDataset(
-                name="two-components",
-                pretty_name="two-components",
+                name="two_components",
+                pretty_name="Two Components",
                 description="Floyd-Warshall test case two-components.",
                 suites=["test"],
                 A=np.array(
@@ -227,8 +227,8 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
                 ),
             ),
             FloydWarshallDataset(
-                name="large-symmetric",
-                pretty_name="large-symmetric",
+                name="large_symmetric",
+                pretty_name="Large Symmetric",
                 description="Floyd-Warshall test case large-symmetric.",
                 suites=["test"],
                 A=floyd_warshall_input_from_edges(
@@ -354,11 +354,11 @@ class FloydWarshallSNAPGenerator(Generator[FloydWarshallDataset]):
 
     @property
     def name(self) -> str:
-        return "floyd_warshall_snap_inputs"
+        return "floyd_warshall_snap"
 
     @property
     def pretty_name(self) -> str:
-        return "Floyd-Warshall SNAP Input Generator"
+        return "Floyd-Warshall SNAP"
 
     @property
     def description(self) -> str:
@@ -481,11 +481,11 @@ class FloydWarshallSNAPGenerator(Generator[FloydWarshallDataset]):
 class FloydWarshallGAPGenerator(Generator[FloydWarshallDataset]):
     @property
     def name(self) -> str:
-        return "floyd_warshall_gap_inputs"
+        return "floyd_warshall_gap"
 
     @property
     def pretty_name(self) -> str:
-        return "Floyd-Warshall GAP Input Generator"
+        return "Floyd-Warshall GAP"
 
     @property
     def description(self) -> str:
@@ -553,11 +553,11 @@ class FloydWarshallGAPGenerator(Generator[FloydWarshallDataset]):
     def datasets(self) -> list[FloydWarshallDataset]:
         # fmt: off
         return [
-            FloydWarshallDataset("GAP/GAP-road", suites=["standard"]),
-            FloydWarshallDataset("GAP/GAP-twitter", suites=["standard"]),
-            FloydWarshallDataset("GAP/GAP-web", suites=["standard"]),
-            FloydWarshallDataset("GAP/GAP-kron", suites=["standard"]),
-            FloydWarshallDataset("GAP/GAP-urand", suites=["standard"]),
+            FloydWarshallDataset("GAP-road", suites=["standard"]),
+            FloydWarshallDataset("GAP-twitter", suites=["standard"]),
+            FloydWarshallDataset("GAP-web", suites=["standard"]),
+            FloydWarshallDataset("GAP-kron", suites=["standard"]),
+            FloydWarshallDataset("GAP-urand", suites=["standard"]),
         ]
         # fmt: on
         # fmt: on
@@ -567,7 +567,7 @@ class FloydWarshallGAPGenerator(Generator[FloydWarshallDataset]):
         return False
 
     def generate(self, dataset: FloydWarshallDataset):
-        raw = fetch_gap_graph(dataset.name.removeprefix("GAP/"))
+        raw = fetch_gap_graph(dataset.name)
         # GAP graphs are weighted, so edges keep their lengths.
         G = distance_matrix(raw.inputs[0], keep_weights=True)
         degree = raw.meta["max_degree"]

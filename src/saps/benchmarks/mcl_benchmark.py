@@ -86,11 +86,11 @@ class MCLTestGenerator(Generator[MCLDataset]):
 
     @property
     def name(self) -> str:
-        return "mcl_test_inputs"
+        return "mcl_test"
 
     @property
     def pretty_name(self) -> str:
-        return "MCL Test Data Generator"
+        return "Markov Clustering Test"
 
     @property
     def description(self) -> str:
@@ -151,6 +151,7 @@ class MCLTestGenerator(Generator[MCLDataset]):
         return [
             MCLDataset(
                 "two_star_components",
+                pretty_name="Two Star Components",
                 suites=["test"],
                 A=np.array(
                     [
@@ -169,6 +170,7 @@ class MCLTestGenerator(Generator[MCLDataset]):
             ),
             MCLDataset(
                 "three_block_pairs",
+                pretty_name="Three Block Pairs",
                 suites=["test"],
                 A=np.array(
                     [
@@ -185,6 +187,7 @@ class MCLTestGenerator(Generator[MCLDataset]):
             ),
             MCLDataset(
                 "planted_clique",
+                pretty_name="Planted Clique",
                 suites=["test"],
                 A=planted_clique,
                 expected_count=7,
@@ -211,11 +214,11 @@ class MCLTestGenerator(Generator[MCLDataset]):
 class MCLSNAPGenerator(Generator[MCLDataset]):
     @property
     def name(self) -> str:
-        return "mcl_snap_inputs"
+        return "mcl_snap"
 
     @property
     def pretty_name(self) -> str:
-        return "MCL SNAP Input Generator"
+        return "Markov Clustering SNAP"
 
     @property
     def description(self) -> str:
@@ -256,79 +259,79 @@ class MCLSNAPGenerator(Generator[MCLDataset]):
     def datasets(self) -> list[MCLDataset]:
         # fmt: off
         return [
-            MCLDataset("SNAP/soc-Epinions1", suites=["standard"]),
-            MCLDataset("SNAP/soc-LiveJournal1", suites=["standard"]),
-            MCLDataset("SNAP/soc-Pokec", suites=["standard"]),
-            MCLDataset("SNAP/soc-Slashdot0811", suites=["standard"]),
-            MCLDataset("SNAP/soc-Slashdot0902", suites=["standard"]),
-            MCLDataset("SNAP/wiki-Vote", suites=["standard"]),
-            MCLDataset("SNAP/wiki-RfA", suites=["standard"]),
-            MCLDataset("SNAP/soc-sign-bitcoin-otc", suites=["standard"]),
-            MCLDataset("SNAP/soc-sign-bitcoin-alpha", suites=["standard"]),
-            MCLDataset("SNAP/com-LiveJournal", suites=["standard"]),
-            MCLDataset("SNAP/com-Friendster", suites=["standard"]),
-            MCLDataset("SNAP/com-Orkut", suites=["standard"]),
-            MCLDataset("SNAP/com-Youtube", suites=["standard"]),
-            MCLDataset("SNAP/com-DBLP", suites=["standard"]),
-            MCLDataset("SNAP/com-Amazon", suites=["standard"]),
-            MCLDataset("SNAP/email-Eu-core", suites=["standard", "trace", "train"]),
-            MCLDataset("SNAP/wiki-topcats", suites=["standard"]),
-            MCLDataset("SNAP/email-EuAll", suites=["standard"]),
-            MCLDataset("SNAP/email-Enron", suites=["standard"]),
-            MCLDataset("SNAP/wiki-Talk", suites=["standard"]),
-            MCLDataset("SNAP/cit-HepPh", suites=["standard"]),
-            MCLDataset("SNAP/cit-HepTh", suites=["standard"]),
-            MCLDataset("SNAP/cit-Patents", suites=["standard"]),
-            MCLDataset("SNAP/ca-AstroPh", suites=["standard"]),
-            MCLDataset("SNAP/ca-CondMat", suites=["standard"]),
-            MCLDataset("SNAP/ca-GrQc", suites=["standard"]),
-            MCLDataset("SNAP/ca-HepPh", suites=["standard"]),
-            MCLDataset("SNAP/ca-HepTh", suites=["standard"]),
-            MCLDataset("SNAP/web-BerkStan", suites=["standard"]),
-            MCLDataset("SNAP/web-Google", suites=["standard"]),
-            MCLDataset("SNAP/web-NotreDame", suites=["standard"]),
-            MCLDataset("SNAP/web-Stanford", suites=["standard"]),
-            MCLDataset("SNAP/amazon0302", suites=["standard"]),
-            MCLDataset("SNAP/amazon0312", suites=["standard"]),
-            MCLDataset("SNAP/amazon0505", suites=["standard"]),
-            MCLDataset("SNAP/amazon0601", suites=["standard"]),
-            MCLDataset("SNAP/p2p-Gnutella04", suites=["standard"]),
-            MCLDataset("SNAP/p2p-Gnutella05", suites=["standard"]),
-            MCLDataset("SNAP/p2p-Gnutella06", suites=["standard"]),
-            MCLDataset("SNAP/p2p-Gnutella08", suites=["standard"]),
-            MCLDataset("SNAP/p2p-Gnutella09", suites=["standard"]),
-            MCLDataset("SNAP/p2p-Gnutella24", suites=["standard"]),
-            MCLDataset("SNAP/p2p-Gnutella25", suites=["standard"]),
-            MCLDataset("SNAP/p2p-Gnutella30", suites=["standard"]),
-            MCLDataset("SNAP/p2p-Gnutella31", suites=["standard"]),
-            MCLDataset("SNAP/roadNet-CA", suites=["standard"]),
-            MCLDataset("SNAP/roadNet-PA", suites=["standard"]),
-            MCLDataset("SNAP/roadNet-TX", suites=["standard"]),
-            MCLDataset("SNAP/as-735", suites=["standard"]),
-            MCLDataset("SNAP/as-Skitter", suites=["standard"]),
-            MCLDataset("SNAP/as-caida", suites=["standard"]),
-            MCLDataset("SNAP/Oregon-1", suites=["standard"]),
-            MCLDataset("SNAP/Oregon-2", suites=["standard"]),
-            MCLDataset("SNAP/soc-sign-epinions", suites=["standard"]),
-            MCLDataset("SNAP/soc-sign-Slashdot081106", suites=["standard"]),
-            MCLDataset("SNAP/soc-sign-Slashdot090216", suites=["standard"]),
-            MCLDataset("SNAP/soc-sign-Slashdot090221", suites=["standard"]),
-            MCLDataset("SNAP/loc-Gowalla", suites=["standard"]),
-            MCLDataset("SNAP/loc-Brightkite", suites=["standard"]),
-            MCLDataset("SNAP/sx-stackoverflow", suites=["standard"]),
-            MCLDataset("SNAP/sx-mathoverflow", suites=["standard"]),
-            MCLDataset("SNAP/sx-superuser", suites=["standard"]),
-            MCLDataset("SNAP/sx-askubuntu", suites=["standard"]),
-            MCLDataset("SNAP/wiki-talk-temporal", suites=["standard"]),
-            MCLDataset("SNAP/email-Eu-core-temporal", suites=["standard", "trace"]),
-            MCLDataset("SNAP/CollegeMsg", suites=["standard", "trace"]),
-            MCLDataset("SNAP/twitter7", suites=["standard"]),
-            MCLDataset("SNAP/higgs-twitter", suites=["standard"]),
+            MCLDataset("soc-Epinions1", suites=["standard"]),
+            MCLDataset("soc-LiveJournal1", suites=["standard"]),
+            MCLDataset("soc-Pokec", suites=["standard"]),
+            MCLDataset("soc-Slashdot0811", suites=["standard"]),
+            MCLDataset("soc-Slashdot0902", suites=["standard"]),
+            MCLDataset("wiki-Vote", suites=["standard"]),
+            MCLDataset("wiki-RfA", suites=["standard"]),
+            MCLDataset("soc-sign-bitcoin-otc", suites=["standard"]),
+            MCLDataset("soc-sign-bitcoin-alpha", suites=["standard"]),
+            MCLDataset("com-LiveJournal", suites=["standard"]),
+            MCLDataset("com-Friendster", suites=["standard"]),
+            MCLDataset("com-Orkut", suites=["standard"]),
+            MCLDataset("com-Youtube", suites=["standard"]),
+            MCLDataset("com-DBLP", suites=["standard"]),
+            MCLDataset("com-Amazon", suites=["standard"]),
+            MCLDataset("email-Eu-core", suites=["standard", "trace", "train"]),
+            MCLDataset("wiki-topcats", suites=["standard"]),
+            MCLDataset("email-EuAll", suites=["standard"]),
+            MCLDataset("email-Enron", suites=["standard"]),
+            MCLDataset("wiki-Talk", suites=["standard"]),
+            MCLDataset("cit-HepPh", suites=["standard"]),
+            MCLDataset("cit-HepTh", suites=["standard"]),
+            MCLDataset("cit-Patents", suites=["standard"]),
+            MCLDataset("ca-AstroPh", suites=["standard"]),
+            MCLDataset("ca-CondMat", suites=["standard"]),
+            MCLDataset("ca-GrQc", suites=["standard"]),
+            MCLDataset("ca-HepPh", suites=["standard"]),
+            MCLDataset("ca-HepTh", suites=["standard"]),
+            MCLDataset("web-BerkStan", suites=["standard"]),
+            MCLDataset("web-Google", suites=["standard"]),
+            MCLDataset("web-NotreDame", suites=["standard"]),
+            MCLDataset("web-Stanford", suites=["standard"]),
+            MCLDataset("amazon0302", suites=["standard"]),
+            MCLDataset("amazon0312", suites=["standard"]),
+            MCLDataset("amazon0505", suites=["standard"]),
+            MCLDataset("amazon0601", suites=["standard"]),
+            MCLDataset("p2p-Gnutella04", suites=["standard"]),
+            MCLDataset("p2p-Gnutella05", suites=["standard"]),
+            MCLDataset("p2p-Gnutella06", suites=["standard"]),
+            MCLDataset("p2p-Gnutella08", suites=["standard"]),
+            MCLDataset("p2p-Gnutella09", suites=["standard"]),
+            MCLDataset("p2p-Gnutella24", suites=["standard"]),
+            MCLDataset("p2p-Gnutella25", suites=["standard"]),
+            MCLDataset("p2p-Gnutella30", suites=["standard"]),
+            MCLDataset("p2p-Gnutella31", suites=["standard"]),
+            MCLDataset("roadNet-CA", suites=["standard"]),
+            MCLDataset("roadNet-PA", suites=["standard"]),
+            MCLDataset("roadNet-TX", suites=["standard"]),
+            MCLDataset("as-735", suites=["standard"]),
+            MCLDataset("as-Skitter", suites=["standard"]),
+            MCLDataset("as-caida", suites=["standard"]),
+            MCLDataset("Oregon-1", suites=["standard"]),
+            MCLDataset("Oregon-2", suites=["standard"]),
+            MCLDataset("soc-sign-epinions", suites=["standard"]),
+            MCLDataset("soc-sign-Slashdot081106", suites=["standard"]),
+            MCLDataset("soc-sign-Slashdot090216", suites=["standard"]),
+            MCLDataset("soc-sign-Slashdot090221", suites=["standard"]),
+            MCLDataset("loc-Gowalla", suites=["standard"]),
+            MCLDataset("loc-Brightkite", suites=["standard"]),
+            MCLDataset("sx-stackoverflow", suites=["standard"]),
+            MCLDataset("sx-mathoverflow", suites=["standard"]),
+            MCLDataset("sx-superuser", suites=["standard"]),
+            MCLDataset("sx-askubuntu", suites=["standard"]),
+            MCLDataset("wiki-talk-temporal", suites=["standard"]),
+            MCLDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
+            MCLDataset("CollegeMsg", suites=["standard", "trace"]),
+            MCLDataset("twitter7", suites=["standard"]),
+            MCLDataset("higgs-twitter", suites=["standard"]),
         ]
         # fmt: on
 
     def generate(self, dataset: MCLDataset) -> DataInstance:
-        raw = fetch_snap_graph(dataset.name.removeprefix("SNAP/"))
+        raw = fetch_snap_graph(dataset.name)
         return DataInstance(
             inputs=[zero_one_adjacency(raw.inputs[0], np.float32)], meta={}
         )
@@ -337,11 +340,11 @@ class MCLSNAPGenerator(Generator[MCLDataset]):
 class MCLGAPGenerator(Generator[MCLDataset]):
     @property
     def name(self) -> str:
-        return "mcl_gap_inputs"
+        return "mcl_gap"
 
     @property
     def pretty_name(self) -> str:
-        return "MCL GAP Input Generator"
+        return "Markov Clustering GAP"
 
     @property
     def description(self) -> str:
@@ -382,17 +385,17 @@ class MCLGAPGenerator(Generator[MCLDataset]):
     def datasets(self) -> list[MCLDataset]:
         # fmt: off
         return [
-            MCLDataset("GAP/GAP-road", suites=["standard"]),
-            MCLDataset("GAP/GAP-twitter", suites=["standard"]),
-            MCLDataset("GAP/GAP-web", suites=["standard"]),
-            MCLDataset("GAP/GAP-kron", suites=["standard"]),
-            MCLDataset("GAP/GAP-urand", suites=["standard"]),
+            MCLDataset("GAP-road", suites=["standard"]),
+            MCLDataset("GAP-twitter", suites=["standard"]),
+            MCLDataset("GAP-web", suites=["standard"]),
+            MCLDataset("GAP-kron", suites=["standard"]),
+            MCLDataset("GAP-urand", suites=["standard"]),
         ]
         # fmt: on
         # fmt: on
 
     def generate(self, dataset: MCLDataset) -> DataInstance:
-        raw = fetch_gap_graph(dataset.name.removeprefix("GAP/"))
+        raw = fetch_gap_graph(dataset.name)
         return DataInstance(
             inputs=[zero_one_adjacency(raw.inputs[0], np.float32)], meta={}
         )
@@ -405,7 +408,7 @@ class MCLBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "Markov Clustering Algorithm"
+        return "Markov Clustering"
 
     @property
     def authors(self) -> list[Contributor]:

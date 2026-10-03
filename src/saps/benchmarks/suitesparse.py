@@ -21,12 +21,6 @@ from saps.downloaders.suitesparse import (
 )
 
 
-def suite_sparse_rhs_dataset_name(source_name: str, rhs_index: int | None) -> str:
-    if rhs_index is None:
-        return source_name
-    return f"{source_name}__rhs{rhs_index}"
-
-
 class SuiteSparseDataset(Dataset):
     """Base Dataset for benchmarks backed by a SuiteSparse Matrix Collection matrix."""
 
@@ -616,7 +610,7 @@ class SuiteSparseMatrixGenerator(Generator[SuiteSparseDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "SuiteSparse Matrix Collection"
+        return "SuiteSparse Matrices"
 
     @property
     def description(self) -> str:

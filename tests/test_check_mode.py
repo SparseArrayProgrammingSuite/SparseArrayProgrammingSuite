@@ -21,7 +21,7 @@ def test_teardown_checks_require_mode_and_dataset_suite(
     else:
         monkeypatch.setenv("SAPS_CHECK_SUITE", mode)
     benchmark = BreadthFirstSearchBenchmark()
-    param = next(p for p in benchmark.params if p.dataset.name == "test_bfs_basic")
+    param = next(p for p in benchmark.params if p.dataset.name == "basic")
     param.dataset._suites = ["test"] if dataset_is_test else ["standard"]
     monkeypatch.setattr(
         type(param.generator),
@@ -44,7 +44,7 @@ def test_teardown_checks_require_mode_and_dataset_suite(
 def test_test_mode_still_rejects_incorrect_output(monkeypatch):
     monkeypatch.setenv("SAPS_CHECK_SUITE", "1")
     benchmark = BreadthFirstSearchBenchmark()
-    param = next(p for p in benchmark.params if p.dataset.name == "test_bfs_basic")
+    param = next(p for p in benchmark.params if p.dataset.name == "basic")
     benchmark.setup(param, use_cache=False, xp=NumpyFramework())
     benchmark.run(param)
     benchmark._output = [from_numpy(np.zeros(6, dtype=int))]
