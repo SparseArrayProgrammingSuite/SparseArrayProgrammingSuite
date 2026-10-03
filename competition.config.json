@@ -98,6 +98,7 @@
       },
       "env_nobuild": {
         "SAPS_FRAMEWORK": "frameworks/saps_pytorch.py",
+        "SAPS_DEVICE": "gpu",
         "SAPS_REPO_ROOT": "."
       }
     }
