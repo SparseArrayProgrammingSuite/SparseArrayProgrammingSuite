@@ -464,6 +464,16 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--device",
+        choices=["cpu", "gpu"],
+        default=None,
+        help=(
+            "Only run framework environments for this device. An environment's "
+            "device is its SAPS_DEVICE env_nobuild value (default: cpu). "
+            "Runs every environment when omitted."
+        ),
+    )
+    parser.add_argument(
         "--chunk-count",
         type=int,
         default=1,
@@ -671,6 +681,15 @@ def main() -> int:
         environments = [ExistingEnvironment(conf, "same", {}, {})]
     else:
         environments = list(get_environments(conf, None))
+        if args.device is not None:
+            environments = [
+                env
+                for env in environments
+                if env.env_vars.get("SAPS_DEVICE", "cpu") == args.device
+            ]
+            if not environments:
+                log.warning(f"No framework environments for --device {args.device}")
+                return 0
     if not environments:
         raise RuntimeError("No ASV environments available")
 
