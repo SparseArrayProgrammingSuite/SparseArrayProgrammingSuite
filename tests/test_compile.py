@@ -81,13 +81,13 @@ def test_pytorch_einsum_compiles_tensor_operations():
 
 
 def test_pytorch_compiled_simhash_matches_eager():
-    from saps.benchmarks.approx_nn import SimHashApproxNearestNeighbor
+    from saps.benchmarks.simhash_ann import SimHashANNBenchmark
 
-    benchmark = SimHashApproxNearestNeighbor()
+    benchmark = SimHashANNBenchmark()
     param = next(
         param
         for param in benchmark.params
-        if str(param) == "simhash_approx_nn_random_dense.small"
+        if str(param) == "simhash_ann_random_dense.small"
     )
     xp = PytorchFramework()
     benchmark.setup(param, xp=xp, use_cache=False)

@@ -686,7 +686,7 @@ class SuiteSparseMatrixGenerator(Generator[SuiteSparseDataset]):
         return DataInstance(inputs=inputs, meta=meta)
 
 
-class SuiteSparseMatrixBenchmark(ShellBenchmark):
+class SuiteSparseMatrixShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
         return SuiteSparseMatrixGenerator()

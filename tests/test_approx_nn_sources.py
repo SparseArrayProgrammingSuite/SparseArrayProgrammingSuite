@@ -6,28 +6,28 @@ import scipy.sparse
 from binsparse.conversions import from_numpy, to_numpy, to_scipy
 
 from saps.benchmark import DataInstance
-from saps.benchmarks.approx_nn import (
-    SimHashApproxNearestNeighbor,
-    SimHashApproxNNDenseGenerator,
-    SimHashApproxNNDenseNetflixGenerator,
-    SimHashApproxNNDenseOpenMLGenerator,
-    SimHashApproxNNRandomDataset,
-    SimHashApproxNNSparseGenerator,
-    SimHashApproxNNSparseNetflixGenerator,
-    SimHashApproxNNSparseOpenMLGenerator,
-)
 from saps.benchmarks.openml import OpenMLDatasetGenerator
+from saps.benchmarks.simhash_ann import (
+    SimHashANNBenchmark,
+    SimHashANNNetflixPrizeDenseGenerator,
+    SimHashANNNetflixPrizeSparseGenerator,
+    SimHashANNOpenMLDenseGenerator,
+    SimHashANNOpenMLSparseGenerator,
+    SimHashANNRandomDataset,
+    SimHashANNRandomDenseGenerator,
+    SimHashANNRandomSparseGenerator,
+)
 
 
 @pytest.mark.parametrize(
     "generator_cls",
-    [SimHashApproxNNDenseOpenMLGenerator, SimHashApproxNNSparseOpenMLGenerator],
+    [SimHashANNOpenMLDenseGenerator, SimHashANNOpenMLSparseGenerator],
 )
 @pytest.mark.parametrize(
     "source_name,data_id,openml_name,task_id",
     [("mnist", 554, "mnist_784", 3573), ("cifar10", 40927, "CIFAR_10", 167124)],
 )
-def test_simhash_approx_nn_openml_generator_uses_cached_task_split(
+def test_simhash_ann_openml_generator_uses_cached_task_split(
     monkeypatch, generator_cls, source_name, data_id, openml_name, task_id
 ):
     features = np.arange(48, dtype=np.float32).reshape(12, 4)
@@ -80,11 +80,9 @@ def test_simhash_approx_nn_openml_generator_uses_cached_task_split(
 
 @pytest.mark.parametrize(
     "generator_cls",
-    [SimHashApproxNNDenseNetflixGenerator, SimHashApproxNNSparseNetflixGenerator],
+    [SimHashANNNetflixPrizeDenseGenerator, SimHashANNNetflixPrizeSparseGenerator],
 )
-def test_simhash_approx_nn_netflix_generator_uses_shared_shell(
-    monkeypatch, generator_cls
-):
+def test_simhash_ann_netflix_generator_uses_shared_shell(monkeypatch, generator_cls):
     source = scipy.sparse.csr_matrix(np.arange(30, dtype=np.float32).reshape(6, 5))
 
     def fake_fetch_netflixprize_matrix():
@@ -95,7 +93,7 @@ def test_simhash_approx_nn_netflix_generator_uses_shared_shell(
         }
 
     monkeypatch.setattr(
-        "saps.benchmarks.approx_nn.fetch_netflixprize_matrix",
+        "saps.benchmarks.simhash_ann.fetch_netflixprize_matrix",
         fake_fetch_netflixprize_matrix,
     )
     generator = generator_cls()
@@ -118,14 +116,14 @@ def test_simhash_approx_nn_netflix_generator_uses_shared_shell(
     assert instance.meta["source_num_ratings"] == source.nnz
 
 
-def test_simhash_approx_nn_benchmark_uses_openml_and_netflix_shell_generators():
-    generators = SimHashApproxNearestNeighbor().generators
+def test_simhash_ann_benchmark_uses_openml_and_netflix_shell_generators():
+    generators = SimHashANNBenchmark().generators
     generator_names = {generator.name for generator in generators}
     for kind in ("dense", "sparse"):
         openml_generator = next(
             generator
             for generator in generators
-            if generator.name == f"simhash_approx_nn_openml_{kind}"
+            if generator.name == f"simhash_ann_openml_{kind}"
         )
         assert [dataset.name for dataset in openml_generator.datasets] == [
             "mnist",
@@ -139,14 +137,14 @@ def test_simhash_approx_nn_benchmark_uses_openml_and_netflix_shell_generators():
             else ["standard", "trace"],
             "cifar10": ["standard"],
         }
-        assert f"simhash_approx_nn_netflix_prize_{kind}" in generator_names
-        assert f"simhash_approx_nn_random_{kind}" in generator_names
-        assert f"simhash_approx_nn_test_{kind}" in generator_names
+        assert f"simhash_ann_netflix_prize_{kind}" in generator_names
+        assert f"simhash_ann_random_{kind}" in generator_names
+        assert f"simhash_ann_test_{kind}" in generator_names
     assert len(generator_names) == len(generators) == 8
 
 
 def test_simhash_projection_variants_share_random_inputs_and_are_reproducible():
-    dataset = SimHashApproxNNRandomDataset(
+    dataset = SimHashANNRandomDataset(
         "custom",
         "Custom",
         "Custom",
@@ -162,8 +160,8 @@ def test_simhash_projection_variants_share_random_inputs_and_are_reproducible():
         candidate_target=4,
         target_probability=0.9,
     )
-    dense_generator = SimHashApproxNNDenseGenerator()
-    sparse_generator = SimHashApproxNNSparseGenerator()
+    dense_generator = SimHashANNRandomDenseGenerator()
+    sparse_generator = SimHashANNRandomSparseGenerator()
     dense = dense_generator.generate(dataset)
     sparse = sparse_generator.generate(dataset)
     for i in (0, 1):
@@ -198,7 +196,7 @@ def test_simhash_projection_variants_share_random_inputs_and_are_reproducible():
 
 
 def test_sparse_projection_has_paper_density_and_standard_gaussian_values():
-    projection = SimHashApproxNNSparseGenerator().projection(512, 256, 42)
+    projection = SimHashANNRandomSparseGenerator().projection(512, 256, 42)
     projection = to_scipy(projection)
     assert projection.nnz / (512 * 256) == pytest.approx(1 / np.sqrt(512), abs=0.003)
     assert abs(projection.data.mean()) < 0.1

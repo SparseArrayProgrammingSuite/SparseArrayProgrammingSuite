@@ -20,7 +20,7 @@ from saps.benchmarks.netflixprize import fetch_netflixprize_matrix
 from saps.benchmarks.openml import fetch_openml_train_test_features
 
 
-class SimHashApproxNNRandomDataset(Dataset):
+class SimHashANNRandomDataset(Dataset):
     def __init__(
         self,
         name,
@@ -145,7 +145,7 @@ def _tune_lsh(dataset, n_features: int, n_samples: int):
     return n_projections, n_tables, probability
 
 
-class SimHashApproxNNGeneratorMixin(ABC):
+class SimHashANNGeneratorMixin(ABC):
     projection_kind: str
     projection_description: str
     tuning_description = (
@@ -212,7 +212,7 @@ class SimHashApproxNNGeneratorMixin(ABC):
         )
 
 
-class _DenseProjectionMixin(SimHashApproxNNGeneratorMixin):
+class _DenseProjectionMixin(SimHashANNGeneratorMixin):
     projection_kind = "dense"
     projection_description = (
         "Projection coefficients are independent N(0, 1) variables, so each "
@@ -230,7 +230,7 @@ class _DenseProjectionMixin(SimHashApproxNNGeneratorMixin):
         return from_numpy(rng.standard_normal((n_features, target_dim)))
 
 
-class _SparseProjectionMixin(SimHashApproxNNGeneratorMixin):
+class _SparseProjectionMixin(SimHashANNGeneratorMixin):
     projection_kind = "sparse"
     projection_description = (
         "Projection coefficients are r_i = z_i * g_i, with independent "
@@ -263,7 +263,7 @@ class _SparseProjectionMixin(SimHashApproxNNGeneratorMixin):
         return _rla_projection(n_features, target_dim, seed)
 
 
-class _SimHashApproxNNRandomGeneratorMixin(SimHashApproxNNGeneratorMixin):
+class _SimHashANNRandomGeneratorMixin(SimHashANNGeneratorMixin):
     @property
     def description(self) -> str:
         return (
@@ -340,14 +340,14 @@ class _SimHashApproxNNRandomGeneratorMixin(SimHashApproxNNGeneratorMixin):
             "neighbor search and near-duplicate detection."
         )
 
-    def generate(self, dataset: SimHashApproxNNRandomDataset):
+    def generate(self, dataset: SimHashANNRandomDataset):
         rng = np.random.default_rng(dataset.seed)
         data = rng.standard_normal((dataset.n_samples, dataset.n_features))
         query = rng.standard_normal((dataset.n_queries, dataset.n_features))
         return self._instance(dataset, data, query)
 
 
-class _SimHashApproxNNTestGeneratorMixin(_SimHashApproxNNRandomGeneratorMixin):
+class _SimHashANNTestGeneratorMixin(_SimHashANNRandomGeneratorMixin):
     @property
     def description(self) -> str:
         return (
@@ -371,7 +371,7 @@ class _SimHashApproxNNTestGeneratorMixin(_SimHashApproxNNRandomGeneratorMixin):
     def cacheable(self) -> bool:
         return False
 
-    def generate(self, dataset: SimHashApproxNNRandomDataset):
+    def generate(self, dataset: SimHashANNRandomDataset):
         problem = super().generate(dataset)
         return DataInstance(
             inputs=problem.inputs,
@@ -380,7 +380,7 @@ class _SimHashApproxNNTestGeneratorMixin(_SimHashApproxNNRandomGeneratorMixin):
         )
 
 
-class SimHashApproxNNDataset(Dataset):
+class SimHashANNDataset(Dataset):
     def __init__(
         self,
         source_name: str,
@@ -454,7 +454,7 @@ def _rla_projection(n_features: int, target_dim: int, seed: int):
     return from_scipy(projection)
 
 
-class _SimHashApproxNNOpenMLGeneratorMixin(SimHashApproxNNGeneratorMixin):
+class _SimHashANNOpenMLGeneratorMixin(SimHashANNGeneratorMixin):
     @property
     def description(self) -> str:
         return (
@@ -519,7 +519,7 @@ class _SimHashApproxNNOpenMLGeneratorMixin(SimHashApproxNNGeneratorMixin):
     def cacheable(self) -> bool:
         return False
 
-    def generate(self, dataset: SimHashApproxNNDataset) -> DataInstance:
+    def generate(self, dataset: SimHashANNDataset) -> DataInstance:
         train, test, source_meta = fetch_openml_train_test_features(dataset.name)
 
         n_features = train.shape[1]
@@ -545,7 +545,7 @@ class _SimHashApproxNNOpenMLGeneratorMixin(SimHashApproxNNGeneratorMixin):
         )
 
 
-class _SimHashApproxNNNetflixGeneratorMixin(SimHashApproxNNGeneratorMixin):
+class _SimHashANNNetflixPrizeGeneratorMixin(SimHashANNGeneratorMixin):
     @property
     def description(self) -> str:
         return (
@@ -598,7 +598,7 @@ class _SimHashApproxNNNetflixGeneratorMixin(SimHashApproxNNGeneratorMixin):
     def cacheable(self) -> bool:
         return False
 
-    def generate(self, dataset: SimHashApproxNNDataset) -> DataInstance:
+    def generate(self, dataset: SimHashANNDataset) -> DataInstance:
         data, source_meta = fetch_netflixprize_matrix()
 
         return self._instance(
@@ -616,23 +616,23 @@ class _SimHashApproxNNNetflixGeneratorMixin(SimHashApproxNNGeneratorMixin):
         )
 
 
-class SimHashApproxNNDenseTestGenerator(
+class SimHashANNTestDenseGenerator(
     _DenseProjectionMixin,
-    _SimHashApproxNNTestGeneratorMixin,
-    Generator[SimHashApproxNNRandomDataset],
+    _SimHashANNTestGeneratorMixin,
+    Generator[SimHashANNRandomDataset],
 ):
     @property
     def name(self) -> str:
-        return "simhash_approx_nn_test_dense"
+        return "simhash_ann_test_dense"
 
     @property
     def pretty_name(self) -> str:
-        return "SimHash Approximate Nearest Neighbor Test (Dense Projection)"
+        return "SimHash Approximate Nearest Neighbor (ANN) Test (Dense Projection)"
 
     @property
-    def datasets(self) -> list[SimHashApproxNNRandomDataset]:
+    def datasets(self) -> list[SimHashANNRandomDataset]:
         return [
-            SimHashApproxNNRandomDataset(
+            SimHashANNRandomDataset(
                 name="preserves_similarity",
                 pretty_name="Preserves Similarity",
                 description=(
@@ -653,23 +653,23 @@ class SimHashApproxNNDenseTestGenerator(
         ]
 
 
-class SimHashApproxNNSparseTestGenerator(
+class SimHashANNTestSparseGenerator(
     _SparseProjectionMixin,
-    _SimHashApproxNNTestGeneratorMixin,
-    Generator[SimHashApproxNNRandomDataset],
+    _SimHashANNTestGeneratorMixin,
+    Generator[SimHashANNRandomDataset],
 ):
     @property
     def name(self) -> str:
-        return "simhash_approx_nn_test_sparse"
+        return "simhash_ann_test_sparse"
 
     @property
     def pretty_name(self) -> str:
-        return "SimHash Approximate Nearest Neighbor Test (Sparse Projection)"
+        return "SimHash Approximate Nearest Neighbor (ANN) Test (Sparse Projection)"
 
     @property
-    def datasets(self) -> list[SimHashApproxNNRandomDataset]:
+    def datasets(self) -> list[SimHashANNRandomDataset]:
         return [
-            SimHashApproxNNRandomDataset(
+            SimHashANNRandomDataset(
                 name="preserves_similarity",
                 pretty_name="Preserves Similarity",
                 description=(
@@ -690,23 +690,23 @@ class SimHashApproxNNSparseTestGenerator(
         ]
 
 
-class SimHashApproxNNDenseGenerator(
+class SimHashANNRandomDenseGenerator(
     _DenseProjectionMixin,
-    _SimHashApproxNNRandomGeneratorMixin,
-    Generator[SimHashApproxNNRandomDataset],
+    _SimHashANNRandomGeneratorMixin,
+    Generator[SimHashANNRandomDataset],
 ):
     @property
     def name(self) -> str:
-        return "simhash_approx_nn_random_dense"
+        return "simhash_ann_random_dense"
 
     @property
     def pretty_name(self) -> str:
-        return "SimHash Approximate Nearest Neighbor Random (Dense Projection)"
+        return "SimHash Approximate Nearest Neighbor (ANN) Random (Dense Projection)"
 
     @property
-    def datasets(self) -> list[SimHashApproxNNRandomDataset]:
+    def datasets(self) -> list[SimHashANNRandomDataset]:
         return [
-            SimHashApproxNNRandomDataset(
+            SimHashANNRandomDataset(
                 name="small",
                 pretty_name="Small",
                 description=(
@@ -724,7 +724,7 @@ class SimHashApproxNNDenseGenerator(
                 candidate_target=100,
                 target_probability=0.9,
             ),
-            SimHashApproxNNRandomDataset(
+            SimHashANNRandomDataset(
                 name="medium",
                 pretty_name="Medium",
                 description=(
@@ -743,7 +743,7 @@ class SimHashApproxNNDenseGenerator(
                 candidate_target=100,
                 target_probability=0.9,
             ),
-            SimHashApproxNNRandomDataset(
+            SimHashANNRandomDataset(
                 name="large",
                 pretty_name="Large",
                 description=(
@@ -764,23 +764,23 @@ class SimHashApproxNNDenseGenerator(
         ]
 
 
-class SimHashApproxNNSparseGenerator(
+class SimHashANNRandomSparseGenerator(
     _SparseProjectionMixin,
-    _SimHashApproxNNRandomGeneratorMixin,
-    Generator[SimHashApproxNNRandomDataset],
+    _SimHashANNRandomGeneratorMixin,
+    Generator[SimHashANNRandomDataset],
 ):
     @property
     def name(self) -> str:
-        return "simhash_approx_nn_random_sparse"
+        return "simhash_ann_random_sparse"
 
     @property
     def pretty_name(self) -> str:
-        return "SimHash Approximate Nearest Neighbor Random (Sparse Projection)"
+        return "SimHash Approximate Nearest Neighbor (ANN) Random (Sparse Projection)"
 
     @property
-    def datasets(self) -> list[SimHashApproxNNRandomDataset]:
+    def datasets(self) -> list[SimHashANNRandomDataset]:
         return [
-            SimHashApproxNNRandomDataset(
+            SimHashANNRandomDataset(
                 name="small",
                 pretty_name="Small",
                 description=(
@@ -798,7 +798,7 @@ class SimHashApproxNNSparseGenerator(
                 candidate_target=100,
                 target_probability=0.9,
             ),
-            SimHashApproxNNRandomDataset(
+            SimHashANNRandomDataset(
                 name="medium",
                 pretty_name="Medium",
                 description=(
@@ -817,7 +817,7 @@ class SimHashApproxNNSparseGenerator(
                 candidate_target=100,
                 target_probability=0.9,
             ),
-            SimHashApproxNNRandomDataset(
+            SimHashANNRandomDataset(
                 name="large",
                 pretty_name="Large",
                 description=(
@@ -838,23 +838,23 @@ class SimHashApproxNNSparseGenerator(
         ]
 
 
-class SimHashApproxNNDenseOpenMLGenerator(
+class SimHashANNOpenMLDenseGenerator(
     _DenseProjectionMixin,
-    _SimHashApproxNNOpenMLGeneratorMixin,
-    Generator[SimHashApproxNNDataset],
+    _SimHashANNOpenMLGeneratorMixin,
+    Generator[SimHashANNDataset],
 ):
     @property
     def name(self) -> str:
-        return "simhash_approx_nn_openml_dense"
+        return "simhash_ann_openml_dense"
 
     @property
     def pretty_name(self) -> str:
-        return "SimHash Approximate Nearest Neighbor OpenML (Dense Projection)"
+        return "SimHash Approximate Nearest Neighbor (ANN) OpenML (Dense Projection)"
 
     @property
-    def datasets(self) -> list[SimHashApproxNNDataset]:
+    def datasets(self) -> list[SimHashANNDataset]:
         return [
-            SimHashApproxNNDataset(
+            SimHashANNDataset(
                 "mnist",
                 k=5,
                 eps=0.3,
@@ -866,7 +866,7 @@ class SimHashApproxNNDenseOpenMLGenerator(
                 candidate_target=100,
                 target_probability=0.9,
             ),
-            SimHashApproxNNDataset(
+            SimHashANNDataset(
                 "cifar10",
                 k=5,
                 eps=0.3,
@@ -881,23 +881,23 @@ class SimHashApproxNNDenseOpenMLGenerator(
         ]
 
 
-class SimHashApproxNNSparseOpenMLGenerator(
+class SimHashANNOpenMLSparseGenerator(
     _SparseProjectionMixin,
-    _SimHashApproxNNOpenMLGeneratorMixin,
-    Generator[SimHashApproxNNDataset],
+    _SimHashANNOpenMLGeneratorMixin,
+    Generator[SimHashANNDataset],
 ):
     @property
     def name(self) -> str:
-        return "simhash_approx_nn_openml_sparse"
+        return "simhash_ann_openml_sparse"
 
     @property
     def pretty_name(self) -> str:
-        return "SimHash Approximate Nearest Neighbor OpenML (Sparse Projection)"
+        return "SimHash Approximate Nearest Neighbor (ANN) OpenML (Sparse Projection)"
 
     @property
-    def datasets(self) -> list[SimHashApproxNNDataset]:
+    def datasets(self) -> list[SimHashANNDataset]:
         return [
-            SimHashApproxNNDataset(
+            SimHashANNDataset(
                 "mnist",
                 k=5,
                 eps=0.3,
@@ -909,7 +909,7 @@ class SimHashApproxNNSparseOpenMLGenerator(
                 candidate_target=100,
                 target_probability=0.9,
             ),
-            SimHashApproxNNDataset(
+            SimHashANNDataset(
                 "cifar10",
                 k=5,
                 eps=0.3,
@@ -924,23 +924,26 @@ class SimHashApproxNNSparseOpenMLGenerator(
         ]
 
 
-class SimHashApproxNNDenseNetflixGenerator(
+class SimHashANNNetflixPrizeDenseGenerator(
     _DenseProjectionMixin,
-    _SimHashApproxNNNetflixGeneratorMixin,
-    Generator[SimHashApproxNNDataset],
+    _SimHashANNNetflixPrizeGeneratorMixin,
+    Generator[SimHashANNDataset],
 ):
     @property
     def name(self) -> str:
-        return "simhash_approx_nn_netflix_prize_dense"
+        return "simhash_ann_netflix_prize_dense"
 
     @property
     def pretty_name(self) -> str:
-        return "SimHash Approximate Nearest Neighbor Netflix Prize (Dense Projection)"
+        return (
+            "SimHash Approximate Nearest Neighbor (ANN) Netflix Prize (Dense"
+            " Projection)"
+        )
 
     @property
-    def datasets(self) -> list[SimHashApproxNNDataset]:
+    def datasets(self) -> list[SimHashANNDataset]:
         return [
-            SimHashApproxNNDataset(
+            SimHashANNDataset(
                 "netflix",
                 k=5,
                 eps=0.3,
@@ -955,23 +958,26 @@ class SimHashApproxNNDenseNetflixGenerator(
         ]
 
 
-class SimHashApproxNNSparseNetflixGenerator(
+class SimHashANNNetflixPrizeSparseGenerator(
     _SparseProjectionMixin,
-    _SimHashApproxNNNetflixGeneratorMixin,
-    Generator[SimHashApproxNNDataset],
+    _SimHashANNNetflixPrizeGeneratorMixin,
+    Generator[SimHashANNDataset],
 ):
     @property
     def name(self) -> str:
-        return "simhash_approx_nn_netflix_prize_sparse"
+        return "simhash_ann_netflix_prize_sparse"
 
     @property
     def pretty_name(self) -> str:
-        return "SimHash Approximate Nearest Neighbor Netflix Prize (Sparse Projection)"
+        return (
+            "SimHash Approximate Nearest Neighbor (ANN) Netflix Prize (Sparse"
+            " Projection)"
+        )
 
     @property
-    def datasets(self) -> list[SimHashApproxNNDataset]:
+    def datasets(self) -> list[SimHashANNDataset]:
         return [
-            SimHashApproxNNDataset(
+            SimHashANNDataset(
                 "netflix",
                 k=5,
                 eps=0.3,
@@ -986,14 +992,14 @@ class SimHashApproxNNSparseNetflixGenerator(
         ]
 
 
-class SimHashApproxNearestNeighbor(Benchmark):
+class SimHashANNBenchmark(Benchmark):
     @property
     def name(self):
-        return "simhash_approx_nn"
+        return "simhash_ann"
 
     @property
     def pretty_name(self):
-        return "SimHash Approximate Nearest Neighbor"
+        return "SimHash Approximate Nearest Neighbor (ANN)"
 
     @property
     def description(self):
@@ -1150,14 +1156,14 @@ Nearest neighbor algorithms</concept_desc>
     @property
     def generators(self):
         return [
-            SimHashApproxNNDenseTestGenerator(),
-            SimHashApproxNNSparseTestGenerator(),
-            SimHashApproxNNDenseGenerator(),
-            SimHashApproxNNSparseGenerator(),
-            SimHashApproxNNDenseOpenMLGenerator(),
-            SimHashApproxNNSparseOpenMLGenerator(),
-            SimHashApproxNNDenseNetflixGenerator(),
-            SimHashApproxNNSparseNetflixGenerator(),
+            SimHashANNTestDenseGenerator(),
+            SimHashANNTestSparseGenerator(),
+            SimHashANNRandomDenseGenerator(),
+            SimHashANNRandomSparseGenerator(),
+            SimHashANNOpenMLDenseGenerator(),
+            SimHashANNOpenMLSparseGenerator(),
+            SimHashANNNetflixPrizeDenseGenerator(),
+            SimHashANNNetflixPrizeSparseGenerator(),
         ]
 
     def benchmark(self, xp, data, meta):

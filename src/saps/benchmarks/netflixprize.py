@@ -51,7 +51,7 @@ class NetflixPrizeDataset(Dataset):
         return data
 
 
-class NetflixPrizeGenerator(Generator[NetflixPrizeDataset]):
+class NetflixPrizeRatingsGenerator(Generator[NetflixPrizeDataset]):
     """Downloads and caches the prepared Netflix Prize ratings matrix."""
 
     @property
@@ -175,15 +175,15 @@ def _validate_netflixprize_matrix(matrix) -> None:
         )
 
 
-class NetflixPrizeBenchmark(ShellBenchmark):
+class NetflixPrizeRatingsShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return NetflixPrizeGenerator()
+        return NetflixPrizeRatingsGenerator()
 
 
 def fetch_netflixprize_dataset() -> DataInstance:
     """Fetch (and cache) the prepared Netflix Prize ratings matrix."""
-    raw_generator = NetflixPrizeGenerator()
+    raw_generator = NetflixPrizeRatingsGenerator()
     return raw_generator.cached_generate(raw_generator.datasets[0])
 
 

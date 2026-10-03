@@ -208,7 +208,7 @@ BOARD_BATCH_NEAR = np.concatenate(
 )
 
 
-class TicTacToeDataset(Dataset):
+class TicTacToeMinimaxDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -246,7 +246,7 @@ class TicTacToeDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class TicTacToeGenerator(Generator[TicTacToeDataset]):
+class TicTacToeMinimaxBoardsGenerator(Generator[TicTacToeMinimaxDataset]):
     @property
     def cacheable(self) -> bool:
         return False
@@ -257,7 +257,7 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Tic-Tac-Toe Minimax Board"
+        return "Tic-Tac-Toe Minimax Boards"
 
     @property
     def description(self) -> str:
@@ -298,9 +298,9 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
         )
 
     @property
-    def datasets(self) -> list[TicTacToeDataset]:
+    def datasets(self) -> list[TicTacToeMinimaxDataset]:
         return [
-            TicTacToeDataset(
+            TicTacToeMinimaxDataset(
                 "x_wins_near",
                 BOARD_X_WINS_NEAR,
                 depth=2,
@@ -308,7 +308,7 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
                 suites=["test"],
                 pretty_name="X Wins Near",
             ),
-            TicTacToeDataset(
+            TicTacToeMinimaxDataset(
                 "o_wins_near",
                 BOARD_O_WINS_NEAR,
                 depth=2,
@@ -316,7 +316,7 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
                 suites=["test"],
                 pretty_name="O Wins Near",
             ),
-            TicTacToeDataset(
+            TicTacToeMinimaxDataset(
                 "draw_near",
                 BOARD_DRAW_NEAR,
                 depth=2,
@@ -324,7 +324,7 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
                 suites=["test"],
                 pretty_name="Draw Near",
             ),
-            TicTacToeDataset(
+            TicTacToeMinimaxDataset(
                 "batch_near",
                 BOARD_BATCH_NEAR,
                 depth=2,
@@ -332,7 +332,7 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
                 suites=["test"],
                 pretty_name="Batch Near",
             ),
-            TicTacToeDataset(
+            TicTacToeMinimaxDataset(
                 "x_wins_mid",
                 BOARD_X_WINS_MID,
                 depth=3,
@@ -340,7 +340,7 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
                 suites=["test"],
                 pretty_name="X Wins Mid",
             ),
-            TicTacToeDataset(
+            TicTacToeMinimaxDataset(
                 "o_wins_mid",
                 BOARD_O_WINS_MID,
                 depth=3,
@@ -348,7 +348,7 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
                 suites=["test"],
                 pretty_name="O Wins Mid",
             ),
-            TicTacToeDataset(
+            TicTacToeMinimaxDataset(
                 "x_wins_early",
                 BOARD_X_WINS_EARLY,
                 depth=5,
@@ -356,7 +356,7 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
                 suites=["test"],
                 pretty_name="X Wins Early",
             ),
-            TicTacToeDataset(
+            TicTacToeMinimaxDataset(
                 "draw_early",
                 BOARD_DRAW_EARLY,
                 depth=6,
@@ -364,7 +364,7 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
                 suites=["test", "standard", "trace", "train"],
                 pretty_name="Draw Early",
             ),
-            TicTacToeDataset(
+            TicTacToeMinimaxDataset(
                 "empty_board",
                 BOARD_EMPTY,
                 depth=9,
@@ -373,7 +373,7 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
             ),
         ]
 
-    def generate(self, dataset: TicTacToeDataset):
+    def generate(self, dataset: TicTacToeMinimaxDataset):
         S_bin = from_numpy(dataset.board)
         ref_outputs = None
         if dataset.expected is not None:
@@ -383,7 +383,7 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
         )
 
 
-class TicTacToeBenchmark(Benchmark):
+class TicTacToeMinimaxBenchmark(Benchmark):
     @property
     def name(self) -> str:
         return "tictactoe_minimax"
@@ -448,7 +448,7 @@ class TicTacToeBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [TicTacToeGenerator()]
+        return [TicTacToeMinimaxBoardsGenerator()]
 
     def benchmark(self, xp, data: list, meta: dict):
         depth = meta.get("depth", 9)

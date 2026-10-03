@@ -776,14 +776,14 @@ class LTHConv2Dataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class LTHConv2ONNXPYGenerator(Generator[LTHConv2Dataset]):
+class LTHConv2ONNXGenerator(Generator[LTHConv2Dataset]):
     @property
     def name(self) -> str:
         return "lth_conv2_onnx"
 
     @property
     def pretty_name(self) -> str:
-        return "Lottery Ticket Conv-2 ONNX"
+        return "Lottery Ticket Hypothesis (LTH) Conv-2 ONNX"
 
     @property
     def description(self) -> str:
@@ -890,14 +890,14 @@ class LTHConv2ONNXPYGenerator(Generator[LTHConv2Dataset]):
         )
 
 
-class LTHConv2ONNXPYBenchmark(Benchmark):
+class LTHConv2Benchmark(Benchmark):
     @property
     def name(self) -> str:
         return "lth_conv2"
 
     @property
     def pretty_name(self) -> str:
-        return "Lottery Ticket Conv-2 Inference"
+        return "Lottery Ticket Hypothesis (LTH) Conv-2"
 
     @property
     def description(self) -> str:
@@ -955,7 +955,7 @@ class LTHConv2ONNXPYBenchmark(Benchmark):
 
     @property
     def generators(self) -> list[Generator[Any]]:
-        return [LTHConv2ONNXPYGenerator()]
+        return [LTHConv2ONNXGenerator()]
 
     def setup(self, param, *, use_cache: bool = True, xp=None):
         import onnx

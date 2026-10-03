@@ -10,9 +10,9 @@ from binsparse.conversions import to_numpy
 
 from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_smart import SmartSparseFramework
-from saps.benchmarks.particle_sim import (
-    ParticleSimBenchmark,
-    ParticleSimTestGenerator,
+from saps.benchmarks.particle_simulation import (
+    ParticleSimulationBenchmark,
+    ParticleSimulationTestGenerator,
     reference_particle_sim,
 )
 from saps.framework import load_framework
@@ -51,7 +51,7 @@ def test_bucket_interaction_region(framework, positions, interacts):
         "dt": 0.125,
         "gravitational_constant": 1.0,
     }
-    result = ParticleSimBenchmark().benchmark(
+    result = ParticleSimulationBenchmark().benchmark(
         xp,
         [xp.asarray(a.copy()) for a in data],
         {"size": 1.0, "steps": 1, "parameters": parameters},
@@ -93,7 +93,7 @@ def test_bucket_simulation_matches_scalar_reference(framework):
         *[a.copy() for a in data[:6]], 1.0, 5, parameters, data[6]
     )
     xp = framework()
-    result = ParticleSimBenchmark().benchmark(
+    result = ParticleSimulationBenchmark().benchmark(
         xp,
         [xp.asarray(a.copy()) for a in data],
         {"size": 1.0, "steps": 5, "parameters": parameters},
@@ -105,11 +105,11 @@ def test_bucket_simulation_matches_scalar_reference(framework):
     "framework", [NumpyFramework, SmartSparseFramework, tagger_framework]
 )
 def test_repulsive_test_datasets_match_updated_reference(framework):
-    generator = ParticleSimTestGenerator()
+    generator = ParticleSimulationTestGenerator()
     for dataset in generator.datasets:
         problem = generator.generate(dataset)
         xp = framework()
-        result = ParticleSimBenchmark().benchmark(
+        result = ParticleSimulationBenchmark().benchmark(
             xp,
             [xp.from_binsparse(a) for a in problem.inputs],
             problem.meta,

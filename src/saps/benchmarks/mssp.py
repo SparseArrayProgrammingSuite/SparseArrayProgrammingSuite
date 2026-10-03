@@ -19,7 +19,7 @@ from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
 
 
-class MultiSourceShortestPathsDataset(Dataset):
+class MSSPDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -124,14 +124,14 @@ def shortest_paths_input_from_edges(
     )
 
 
-class MultiSourceShortestPathsTestGenerator(Generator[MultiSourceShortestPathsDataset]):
+class MSSPTestGenerator(Generator[MSSPDataset]):
     @property
     def name(self) -> str:
-        return "multi_source_shortest_paths_test"
+        return "mssp_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Multi-Source Shortest Paths Test"
+        return "Multi-Source Shortest Paths (MSSP) Test"
 
     @property
     def description(self) -> str:
@@ -169,9 +169,9 @@ class MultiSourceShortestPathsTestGenerator(Generator[MultiSourceShortestPathsDa
         return False
 
     @property
-    def datasets(self) -> list[MultiSourceShortestPathsDataset]:
+    def datasets(self) -> list[MSSPDataset]:
         return [
-            MultiSourceShortestPathsDataset(
+            MSSPDataset(
                 name="single_node",
                 pretty_name="Single Node",
                 description="Multi-Source Shortest Paths test case single-node.",
@@ -179,7 +179,7 @@ class MultiSourceShortestPathsTestGenerator(Generator[MultiSourceShortestPathsDa
                 A=np.array([[0.0]]),
                 expected=np.array([[0.0]]),
             ),
-            MultiSourceShortestPathsDataset(
+            MSSPDataset(
                 name="two_node_directed",
                 pretty_name="Two Node Directed",
                 description="Multi-Source Shortest Paths test case two-node-directed.",
@@ -187,7 +187,7 @@ class MultiSourceShortestPathsTestGenerator(Generator[MultiSourceShortestPathsDa
                 A=np.array([[0.0, 1.0], [np.inf, 0.0]]),
                 expected=np.array([[0.0, 1.0], [np.inf, 0.0]]),
             ),
-            MultiSourceShortestPathsDataset(
+            MSSPDataset(
                 name="three_node_chain",
                 pretty_name="Three Node Chain",
                 description="Multi-Source Shortest Paths test case three-node-chain.",
@@ -207,7 +207,7 @@ class MultiSourceShortestPathsTestGenerator(Generator[MultiSourceShortestPathsDa
                     ]
                 ),
             ),
-            MultiSourceShortestPathsDataset(
+            MSSPDataset(
                 name="three_node_shortcut",
                 pretty_name="Three Node Shortcut",
                 description="Multi-Source Shortest Paths test case three-node-shortcut.",
@@ -227,7 +227,7 @@ class MultiSourceShortestPathsTestGenerator(Generator[MultiSourceShortestPathsDa
                     ]
                 ),
             ),
-            MultiSourceShortestPathsDataset(
+            MSSPDataset(
                 name="two_components",
                 pretty_name="Two Components",
                 description="Multi-Source Shortest Paths test case two-components.",
@@ -249,7 +249,7 @@ class MultiSourceShortestPathsTestGenerator(Generator[MultiSourceShortestPathsDa
                     ]
                 ),
             ),
-            MultiSourceShortestPathsDataset(
+            MSSPDataset(
                 name="large_symmetric",
                 pretty_name="Large Symmetric",
                 description="Multi-Source Shortest Paths test case large-symmetric.",
@@ -354,7 +354,7 @@ class MultiSourceShortestPathsTestGenerator(Generator[MultiSourceShortestPathsDa
             ),
         ]
 
-    def generate(self, dataset: MultiSourceShortestPathsDataset):
+    def generate(self, dataset: MSSPDataset):
         inputs = (
             dataset.A.todense() if isinstance(dataset.A, sp.SparseArray) else dataset.A
         )
@@ -370,14 +370,14 @@ class MultiSourceShortestPathsTestGenerator(Generator[MultiSourceShortestPathsDa
         )
 
 
-class MultiSourceShortestPathsGAPGenerator(Generator[MultiSourceShortestPathsDataset]):
+class MSSPGAPGenerator(Generator[MSSPDataset]):
     @property
     def name(self) -> str:
-        return "multi_source_shortest_paths_gap"
+        return "mssp_gap"
 
     @property
     def pretty_name(self) -> str:
-        return "Multi-Source Shortest Paths GAP"
+        return "Multi-Source Shortest Paths (MSSP) GAP"
 
     @property
     def description(self) -> str:
@@ -444,14 +444,14 @@ class MultiSourceShortestPathsGAPGenerator(Generator[MultiSourceShortestPathsDat
         return ""
 
     @property
-    def datasets(self) -> list[MultiSourceShortestPathsDataset]:
+    def datasets(self) -> list[MSSPDataset]:
         # fmt: off
         return [
-            MultiSourceShortestPathsDataset("GAP-road", symmetrize=False, suites=["standard"]),
-            MultiSourceShortestPathsDataset("GAP-twitter", symmetrize=True, suites=["standard"]),
-            MultiSourceShortestPathsDataset("GAP-web", symmetrize=True, suites=["standard"]),
-            MultiSourceShortestPathsDataset("GAP-kron", symmetrize=False, suites=["standard"]),
-            MultiSourceShortestPathsDataset("GAP-urand", symmetrize=False, suites=["standard"]),
+            MSSPDataset("GAP-road", symmetrize=False, suites=["standard"]),
+            MSSPDataset("GAP-twitter", symmetrize=True, suites=["standard"]),
+            MSSPDataset("GAP-web", symmetrize=True, suites=["standard"]),
+            MSSPDataset("GAP-kron", symmetrize=False, suites=["standard"]),
+            MSSPDataset("GAP-urand", symmetrize=False, suites=["standard"]),
         ]
         # fmt: on
 
@@ -459,7 +459,7 @@ class MultiSourceShortestPathsGAPGenerator(Generator[MultiSourceShortestPathsDat
     def cacheable(self) -> bool:
         return False
 
-    def generate(self, dataset: MultiSourceShortestPathsDataset):
+    def generate(self, dataset: MSSPDataset):
         raw = fetch_gap_graph(dataset.name)
         n, m = raw.inputs[0].shape
         if n != m:
@@ -472,14 +472,14 @@ class MultiSourceShortestPathsGAPGenerator(Generator[MultiSourceShortestPathsDat
         )
 
 
-class MultiSourceShortestPathsSNAPGenerator(Generator[MultiSourceShortestPathsDataset]):
+class MSSPSNAPGenerator(Generator[MSSPDataset]):
     @property
     def name(self) -> str:
-        return "multi_source_shortest_paths_snap"
+        return "mssp_snap"
 
     @property
     def pretty_name(self) -> str:
-        return "Multi-Source Shortest Paths SNAP"
+        return "Multi-Source Shortest Paths (MSSP) SNAP"
 
     @property
     def description(self) -> str:
@@ -520,94 +520,94 @@ class MultiSourceShortestPathsSNAPGenerator(Generator[MultiSourceShortestPathsDa
         return False
 
     @property
-    def datasets(self) -> list[MultiSourceShortestPathsDataset]:
+    def datasets(self) -> list[MSSPDataset]:
         # fmt: off
         return [
-            MultiSourceShortestPathsDataset("soc-Epinions1", suites=["standard"]),
-            MultiSourceShortestPathsDataset("soc-LiveJournal1", suites=["standard"]),
-            MultiSourceShortestPathsDataset("soc-Pokec", suites=["standard"]),
-            MultiSourceShortestPathsDataset("soc-Slashdot0811", suites=["standard"]),
-            MultiSourceShortestPathsDataset("soc-Slashdot0902", suites=["standard"]),
-            MultiSourceShortestPathsDataset("wiki-Vote", suites=["standard"]),
-            MultiSourceShortestPathsDataset("wiki-RfA", suites=["standard"]),
-            MultiSourceShortestPathsDataset("soc-sign-bitcoin-otc", suites=["standard", "trace"]),
-            MultiSourceShortestPathsDataset("soc-sign-bitcoin-alpha", suites=["standard", "trace", "train"]),
-            MultiSourceShortestPathsDataset("com-LiveJournal", suites=["standard"]),
-            MultiSourceShortestPathsDataset("com-Friendster", suites=["standard"]),
-            MultiSourceShortestPathsDataset("com-Orkut", suites=["standard"]),
-            MultiSourceShortestPathsDataset("com-Youtube", suites=["standard"]),
-            MultiSourceShortestPathsDataset("com-DBLP", suites=["standard"]),
-            MultiSourceShortestPathsDataset("com-Amazon", suites=["standard"]),
-            MultiSourceShortestPathsDataset("email-Eu-core", suites=["standard", "trace"]),
-            MultiSourceShortestPathsDataset("wiki-topcats", suites=["standard"]),
-            MultiSourceShortestPathsDataset("email-EuAll", suites=["standard"]),
-            MultiSourceShortestPathsDataset("email-Enron", suites=["standard"]),
-            MultiSourceShortestPathsDataset("wiki-Talk", suites=["standard"]),
-            MultiSourceShortestPathsDataset("cit-HepPh", suites=["standard"]),
-            MultiSourceShortestPathsDataset("cit-HepTh", suites=["standard"]),
-            MultiSourceShortestPathsDataset("cit-Patents", suites=["standard"]),
-            MultiSourceShortestPathsDataset("ca-AstroPh", suites=["standard"]),
-            MultiSourceShortestPathsDataset("ca-CondMat", suites=["standard"]),
-            MultiSourceShortestPathsDataset("ca-GrQc", suites=["standard"]),
-            MultiSourceShortestPathsDataset("ca-HepPh", suites=["standard"]),
-            MultiSourceShortestPathsDataset("ca-HepTh", suites=["standard"]),
-            MultiSourceShortestPathsDataset("web-BerkStan", suites=["standard"]),
-            MultiSourceShortestPathsDataset("web-Google", suites=["standard"]),
-            MultiSourceShortestPathsDataset("web-NotreDame", suites=["standard"]),
-            MultiSourceShortestPathsDataset("web-Stanford", suites=["standard"]),
-            MultiSourceShortestPathsDataset("amazon0302", suites=["standard"]),
-            MultiSourceShortestPathsDataset("amazon0312", suites=["standard"]),
-            MultiSourceShortestPathsDataset("amazon0505", suites=["standard"]),
-            MultiSourceShortestPathsDataset("amazon0601", suites=["standard"]),
-            MultiSourceShortestPathsDataset("p2p-Gnutella04", suites=["standard"]),
-            MultiSourceShortestPathsDataset("p2p-Gnutella05", suites=["standard"]),
-            MultiSourceShortestPathsDataset("p2p-Gnutella06", suites=["standard"]),
-            MultiSourceShortestPathsDataset("p2p-Gnutella08", suites=["standard"]),
-            MultiSourceShortestPathsDataset("p2p-Gnutella09", suites=["standard"]),
-            MultiSourceShortestPathsDataset("p2p-Gnutella24", suites=["standard"]),
-            MultiSourceShortestPathsDataset("p2p-Gnutella25", suites=["standard"]),
-            MultiSourceShortestPathsDataset("p2p-Gnutella30", suites=["standard"]),
-            MultiSourceShortestPathsDataset("p2p-Gnutella31", suites=["standard"]),
-            MultiSourceShortestPathsDataset("roadNet-CA", suites=["standard"]),
-            MultiSourceShortestPathsDataset("roadNet-PA", suites=["standard"]),
-            MultiSourceShortestPathsDataset("roadNet-TX", suites=["standard"]),
-            MultiSourceShortestPathsDataset("as-735", suites=["standard"]),
-            MultiSourceShortestPathsDataset("as-Skitter", suites=["standard"]),
-            MultiSourceShortestPathsDataset("as-caida", suites=["standard"]),
-            MultiSourceShortestPathsDataset("Oregon-1", suites=["standard"]),
-            MultiSourceShortestPathsDataset("Oregon-2", suites=["standard"]),
-            MultiSourceShortestPathsDataset("soc-sign-epinions", suites=["standard"]),
-            MultiSourceShortestPathsDataset("soc-sign-Slashdot081106", suites=["standard"]),
-            MultiSourceShortestPathsDataset("soc-sign-Slashdot090216", suites=["standard"]),
-            MultiSourceShortestPathsDataset("soc-sign-Slashdot090221", suites=["standard"]),
-            MultiSourceShortestPathsDataset("loc-Gowalla", suites=["standard"]),
-            MultiSourceShortestPathsDataset("loc-Brightkite", suites=["standard"]),
-            MultiSourceShortestPathsDataset("sx-stackoverflow", suites=["standard"]),
-            MultiSourceShortestPathsDataset("sx-mathoverflow", suites=["standard"]),
-            MultiSourceShortestPathsDataset("sx-superuser", suites=["standard"]),
-            MultiSourceShortestPathsDataset("sx-askubuntu", suites=["standard"]),
-            MultiSourceShortestPathsDataset("wiki-talk-temporal", suites=["standard"]),
-            MultiSourceShortestPathsDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
-            MultiSourceShortestPathsDataset("CollegeMsg", suites=["standard", "trace"]),
-            MultiSourceShortestPathsDataset("twitter7", suites=["standard"]),
-            MultiSourceShortestPathsDataset("higgs-twitter", suites=["standard"]),
+            MSSPDataset("soc-Epinions1", suites=["standard"]),
+            MSSPDataset("soc-LiveJournal1", suites=["standard"]),
+            MSSPDataset("soc-Pokec", suites=["standard"]),
+            MSSPDataset("soc-Slashdot0811", suites=["standard"]),
+            MSSPDataset("soc-Slashdot0902", suites=["standard"]),
+            MSSPDataset("wiki-Vote", suites=["standard"]),
+            MSSPDataset("wiki-RfA", suites=["standard"]),
+            MSSPDataset("soc-sign-bitcoin-otc", suites=["standard", "trace"]),
+            MSSPDataset("soc-sign-bitcoin-alpha", suites=["standard", "trace", "train"]),
+            MSSPDataset("com-LiveJournal", suites=["standard"]),
+            MSSPDataset("com-Friendster", suites=["standard"]),
+            MSSPDataset("com-Orkut", suites=["standard"]),
+            MSSPDataset("com-Youtube", suites=["standard"]),
+            MSSPDataset("com-DBLP", suites=["standard"]),
+            MSSPDataset("com-Amazon", suites=["standard"]),
+            MSSPDataset("email-Eu-core", suites=["standard", "trace"]),
+            MSSPDataset("wiki-topcats", suites=["standard"]),
+            MSSPDataset("email-EuAll", suites=["standard"]),
+            MSSPDataset("email-Enron", suites=["standard"]),
+            MSSPDataset("wiki-Talk", suites=["standard"]),
+            MSSPDataset("cit-HepPh", suites=["standard"]),
+            MSSPDataset("cit-HepTh", suites=["standard"]),
+            MSSPDataset("cit-Patents", suites=["standard"]),
+            MSSPDataset("ca-AstroPh", suites=["standard"]),
+            MSSPDataset("ca-CondMat", suites=["standard"]),
+            MSSPDataset("ca-GrQc", suites=["standard"]),
+            MSSPDataset("ca-HepPh", suites=["standard"]),
+            MSSPDataset("ca-HepTh", suites=["standard"]),
+            MSSPDataset("web-BerkStan", suites=["standard"]),
+            MSSPDataset("web-Google", suites=["standard"]),
+            MSSPDataset("web-NotreDame", suites=["standard"]),
+            MSSPDataset("web-Stanford", suites=["standard"]),
+            MSSPDataset("amazon0302", suites=["standard"]),
+            MSSPDataset("amazon0312", suites=["standard"]),
+            MSSPDataset("amazon0505", suites=["standard"]),
+            MSSPDataset("amazon0601", suites=["standard"]),
+            MSSPDataset("p2p-Gnutella04", suites=["standard"]),
+            MSSPDataset("p2p-Gnutella05", suites=["standard"]),
+            MSSPDataset("p2p-Gnutella06", suites=["standard"]),
+            MSSPDataset("p2p-Gnutella08", suites=["standard"]),
+            MSSPDataset("p2p-Gnutella09", suites=["standard"]),
+            MSSPDataset("p2p-Gnutella24", suites=["standard"]),
+            MSSPDataset("p2p-Gnutella25", suites=["standard"]),
+            MSSPDataset("p2p-Gnutella30", suites=["standard"]),
+            MSSPDataset("p2p-Gnutella31", suites=["standard"]),
+            MSSPDataset("roadNet-CA", suites=["standard"]),
+            MSSPDataset("roadNet-PA", suites=["standard"]),
+            MSSPDataset("roadNet-TX", suites=["standard"]),
+            MSSPDataset("as-735", suites=["standard"]),
+            MSSPDataset("as-Skitter", suites=["standard"]),
+            MSSPDataset("as-caida", suites=["standard"]),
+            MSSPDataset("Oregon-1", suites=["standard"]),
+            MSSPDataset("Oregon-2", suites=["standard"]),
+            MSSPDataset("soc-sign-epinions", suites=["standard"]),
+            MSSPDataset("soc-sign-Slashdot081106", suites=["standard"]),
+            MSSPDataset("soc-sign-Slashdot090216", suites=["standard"]),
+            MSSPDataset("soc-sign-Slashdot090221", suites=["standard"]),
+            MSSPDataset("loc-Gowalla", suites=["standard"]),
+            MSSPDataset("loc-Brightkite", suites=["standard"]),
+            MSSPDataset("sx-stackoverflow", suites=["standard"]),
+            MSSPDataset("sx-mathoverflow", suites=["standard"]),
+            MSSPDataset("sx-superuser", suites=["standard"]),
+            MSSPDataset("sx-askubuntu", suites=["standard"]),
+            MSSPDataset("wiki-talk-temporal", suites=["standard"]),
+            MSSPDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
+            MSSPDataset("CollegeMsg", suites=["standard", "trace"]),
+            MSSPDataset("twitter7", suites=["standard"]),
+            MSSPDataset("higgs-twitter", suites=["standard"]),
         ]
         # fmt: on
 
-    def generate(self, dataset: MultiSourceShortestPathsDataset) -> DataInstance:
+    def generate(self, dataset: MSSPDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
         sources = np.unique(raw.meta["sources"]).tolist()
         return multi_source_instance(raw.inputs[0], sources)
 
 
-class MultiSourceShortestPathsBenchmark(Benchmark):
+class MSSPBenchmark(Benchmark):
     @property
     def name(self):
-        return "multi_source_shortest_paths"
+        return "mssp"
 
     @property
     def pretty_name(self):
-        return "Multi-Source Shortest Paths"
+        return "Multi-Source Shortest Paths (MSSP)"
 
     @property
     def description(self):
@@ -690,9 +690,9 @@ class MultiSourceShortestPathsBenchmark(Benchmark):
     @property
     def generators(self):
         return [
-            MultiSourceShortestPathsTestGenerator(),
-            MultiSourceShortestPathsGAPGenerator(),
-            MultiSourceShortestPathsSNAPGenerator(),
+            MSSPTestGenerator(),
+            MSSPGAPGenerator(),
+            MSSPSNAPGenerator(),
         ]
 
     def benchmark(self, xp, data, meta):

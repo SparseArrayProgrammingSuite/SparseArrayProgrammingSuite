@@ -10,7 +10,7 @@ from saps.benchmarks.model_counting import fetch_mccomp_instance
 from saps.benchmarks.ogb import fetch_ogb_nodeprop_dataset
 from saps.benchmarks.openml import fetch_openml_dataset
 from saps.benchmarks.snap import SNAPGraphGenerator, fetch_snap_graph
-from saps.benchmarks.subgraph_matching import GCareHumanGenerator
+from saps.benchmarks.subgraph_matching import SubgraphMatchingGCAREHumanGenerator
 from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     SuiteSparseMatrixGenerator,
@@ -46,7 +46,9 @@ def test_gcare_rejects_unlisted_shell_dataset_before_storage(monkeypatch):
     monkeypatch.setattr(Generator, "cached_generate", cached_generate)
 
     with pytest.raises(ValueError, match="unlisted-dataset"):
-        GCareHumanGenerator().generate(SimpleNamespace(subset_name="unlisted-dataset"))
+        SubgraphMatchingGCAREHumanGenerator().generate(
+            SimpleNamespace(subset_name="unlisted-dataset")
+        )
 
     cached_generate.assert_not_called()
 

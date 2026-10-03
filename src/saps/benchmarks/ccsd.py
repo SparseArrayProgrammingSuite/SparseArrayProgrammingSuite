@@ -233,7 +233,7 @@ class CCSDDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class CCSDGenerator(Generator[CCSDDataset]):
+class CCSDSyntheticGenerator(Generator[CCSDDataset]):
     @property
     def cacheable(self) -> bool:
         return False
@@ -244,7 +244,7 @@ class CCSDGenerator(Generator[CCSDDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "CCSD Synthetic"
+        return "Coupled Cluster Singles and Doubles (CCSD) Synthetic"
 
     @property
     def description(self) -> str:
@@ -372,7 +372,7 @@ class CCSDGenerator(Generator[CCSDDataset]):
         )
 
 
-class CCSD(Benchmark):
+class CCSDBenchmark(Benchmark):
     @property
     def name(self) -> str:
         return "ccsd"
@@ -460,7 +460,7 @@ class CCSD(Benchmark):
 
     @property
     def generators(self):
-        return [CCSDGenerator()]
+        return [CCSDSyntheticGenerator()]
 
     def benchmark(self, xp, data, meta):
         (
