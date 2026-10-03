@@ -1,3 +1,4 @@
+# ruff: noqa: E501
 from typing import Any
 
 import numpy as np
@@ -14,8 +15,9 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.snap import SNAPDataset, SNAPGraphGenerator, fetch_snap_graph
-from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
+from saps.benchmarks.adjacency import zero_one_adjacency
+from saps.benchmarks.gap import fetch_gap_graph
+from saps.benchmarks.snap import fetch_snap_graph
 from saps_framework.binsparse_utils import binsparse_equal
 
 
@@ -30,7 +32,7 @@ class FastSVDataset(Dataset):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"FastSV input {name}."
-        self._suites = suites or []
+        self._suites = list(suites or [])
 
     @property
     def name(self) -> str:
@@ -56,11 +58,11 @@ class FastSVDataset(Dataset):
 class FastSVTestGenerator(Generator[FastSVDataset]):
     @property
     def name(self) -> str:
-        return "fastsv_test_inputs"
+        return "fastsv_test"
 
     @property
     def pretty_name(self) -> str:
-        return "FastSV Test Input Generator"
+        return "FastSV Test"
 
     @property
     def description(self) -> str:
@@ -100,21 +102,29 @@ class FastSVTestGenerator(Generator[FastSVDataset]):
     @property
     def datasets(self) -> list[FastSVDataset]:
         return [
-            FastSVDataset("no-edges", suites=["test"]),
-            FastSVDataset("single-component", suites=["test"]),
-            FastSVDataset("two-components", suites=["test"]),
-            FastSVDataset("chain", suites=["test"]),
-            FastSVDataset("star", suites=["test"]),
-            FastSVDataset("isolated-and-connected", suites=["test"]),
+            FastSVDataset("no_edges", pretty_name="No Edges", suites=["test"]),
+            FastSVDataset(
+                "single_component", pretty_name="Single Component", suites=["test"]
+            ),
+            FastSVDataset(
+                "two_components", pretty_name="Two Components", suites=["test"]
+            ),
+            FastSVDataset("chain", pretty_name="Chain", suites=["test"]),
+            FastSVDataset("star", pretty_name="Star", suites=["test"]),
+            FastSVDataset(
+                "isolated_and_connected",
+                pretty_name="Isolated And Connected",
+                suites=["test"],
+            ),
         ]
 
     def generate(self, dataset: FastSVDataset) -> DataInstance:
         A: np.ndarray[Any, Any]
         expected: np.ndarray[Any, Any]
-        if dataset.name == "no-edges":
+        if dataset.name == "no_edges":
             A = np.zeros((5, 5), dtype=bool)
             expected = np.arange(5)
-        elif dataset.name == "single-component":
+        elif dataset.name == "single_component":
             A = np.array(
                 [
                     [0, 1, 1, 1],
@@ -125,7 +135,7 @@ class FastSVTestGenerator(Generator[FastSVDataset]):
                 dtype=bool,
             )
             expected = np.array([0, 0, 0, 0])
-        elif dataset.name == "two-components":
+        elif dataset.name == "two_components":
             A = np.array(
                 [
                     [0, 1, 0, 0],
@@ -160,7 +170,7 @@ class FastSVTestGenerator(Generator[FastSVDataset]):
                 dtype=bool,
             )
             expected = np.array([0, 0, 0, 0, 0])
-        elif dataset.name == "isolated-and-connected":
+        elif dataset.name == "isolated_and_connected":
             A = np.array(
                 [
                     [0, 1, 0, 0, 0],
@@ -182,18 +192,14 @@ class FastSVTestGenerator(Generator[FastSVDataset]):
         )
 
 
-class FastSVSNAPGenerator(Generator[SNAPDataset]):
-    @property
-    def cacheable(self) -> bool:
-        return False
-
+class FastSVSNAPGenerator(Generator[FastSVDataset]):
     @property
     def name(self) -> str:
-        return "fastsv_snap_inputs"
+        return "fastsv_snap"
 
     @property
     def pretty_name(self) -> str:
-        return "FastSV SNAP Input Generator"
+        return "FastSV SNAP"
 
     @property
     def description(self) -> str:
@@ -227,23 +233,100 @@ class FastSVSNAPGenerator(Generator[SNAPDataset]):
         return "Generate sparse graph inputs for FastSV."
 
     @property
-    def datasets(self) -> list[SNAPDataset]:
-        return SNAPGraphGenerator().datasets
+    def cacheable(self) -> bool:
+        return False
 
-    def generate(self, dataset: SNAPDataset) -> DataInstance:
-        if dataset.name in self.dataset_names:
-            return fetch_snap_graph(dataset.name)
-        raise ValueError(f"Unsupported FastSV dataset: {dataset.name}")
+    @property
+    def datasets(self) -> list[FastSVDataset]:
+        # Trace selects successful Smart runs < 60s in competition/run_13803684.
+        # fmt: off
+        return [
+            FastSVDataset("soc-Epinions1", suites=["standard", "trace"]),
+            FastSVDataset("soc-LiveJournal1", suites=["standard"]),
+            FastSVDataset("soc-Pokec", suites=["standard"]),
+            FastSVDataset("soc-Slashdot0811", suites=["standard", "trace"]),
+            FastSVDataset("soc-Slashdot0902", suites=["standard", "trace"]),
+            FastSVDataset("wiki-Vote", suites=["standard", "trace"]),
+            FastSVDataset("wiki-RfA", suites=["standard", "trace"]),
+            FastSVDataset("soc-sign-bitcoin-otc", suites=["standard", "trace"]),
+            FastSVDataset("soc-sign-bitcoin-alpha", suites=["standard", "trace"]),
+            FastSVDataset("com-LiveJournal", suites=["standard"]),
+            FastSVDataset("com-Friendster", suites=["standard"]),
+            FastSVDataset("com-Orkut", suites=["standard"]),
+            FastSVDataset("com-Youtube", suites=["standard", "trace"]),
+            FastSVDataset("com-DBLP", suites=["standard", "trace"]),
+            FastSVDataset("com-Amazon", suites=["standard", "trace"]),
+            FastSVDataset("email-Eu-core", suites=["standard", "trace"]),
+            FastSVDataset("wiki-topcats", suites=["standard"]),
+            FastSVDataset("email-EuAll", suites=["standard", "trace"]),
+            FastSVDataset("email-Enron", suites=["standard", "trace"]),
+            FastSVDataset("wiki-Talk", suites=["standard", "trace"]),
+            FastSVDataset("cit-HepPh", suites=["standard", "trace"]),
+            FastSVDataset("cit-HepTh", suites=["standard", "trace"]),
+            FastSVDataset("cit-Patents", suites=["standard"]),
+            FastSVDataset("ca-AstroPh", suites=["standard", "trace"]),
+            FastSVDataset("ca-CondMat", suites=["standard", "trace"]),
+            FastSVDataset("ca-GrQc", suites=["standard", "trace"]),
+            FastSVDataset("ca-HepPh", suites=["standard", "trace"]),
+            FastSVDataset("ca-HepTh", suites=["standard", "trace"]),
+            FastSVDataset("web-BerkStan", suites=["standard"]),
+            FastSVDataset("web-Google", suites=["standard", "trace"]),
+            FastSVDataset("web-NotreDame", suites=["standard", "trace"]),
+            FastSVDataset("web-Stanford", suites=["standard", "trace"]),
+            FastSVDataset("amazon0302", suites=["standard", "trace"]),
+            FastSVDataset("amazon0312", suites=["standard", "trace"]),
+            FastSVDataset("amazon0505", suites=["standard", "trace"]),
+            FastSVDataset("amazon0601", suites=["standard", "trace"]),
+            FastSVDataset("p2p-Gnutella04", suites=["standard", "trace"]),
+            FastSVDataset("p2p-Gnutella05", suites=["standard", "trace"]),
+            FastSVDataset("p2p-Gnutella06", suites=["standard", "trace"]),
+            FastSVDataset("p2p-Gnutella08", suites=["standard", "trace"]),
+            FastSVDataset("p2p-Gnutella09", suites=["standard", "trace"]),
+            FastSVDataset("p2p-Gnutella24", suites=["standard", "trace"]),
+            FastSVDataset("p2p-Gnutella25", suites=["standard", "trace"]),
+            FastSVDataset("p2p-Gnutella30", suites=["standard", "trace"]),
+            FastSVDataset("p2p-Gnutella31", suites=["standard", "trace"]),
+            FastSVDataset("roadNet-CA", suites=["standard", "trace"]),
+            FastSVDataset("roadNet-PA", suites=["standard", "trace"]),
+            FastSVDataset("roadNet-TX", suites=["standard", "trace", "train"]),
+            FastSVDataset("as-735", suites=["standard", "trace"]),
+            FastSVDataset("as-Skitter", suites=["standard"]),
+            FastSVDataset("as-caida", suites=["standard", "trace"]),
+            FastSVDataset("Oregon-1", suites=["standard", "trace"]),
+            FastSVDataset("Oregon-2", suites=["standard", "trace"]),
+            FastSVDataset("soc-sign-epinions", suites=["standard", "trace"]),
+            FastSVDataset("soc-sign-Slashdot081106", suites=["standard", "trace"]),
+            FastSVDataset("soc-sign-Slashdot090216", suites=["standard", "trace"]),
+            FastSVDataset("soc-sign-Slashdot090221", suites=["standard", "trace"]),
+            FastSVDataset("loc-Gowalla", suites=["standard", "trace"]),
+            FastSVDataset("loc-Brightkite", suites=["standard", "trace"]),
+            FastSVDataset("sx-stackoverflow", suites=["standard"]),
+            FastSVDataset("sx-mathoverflow", suites=["standard", "trace"]),
+            FastSVDataset("sx-superuser", suites=["standard", "trace"]),
+            FastSVDataset("sx-askubuntu", suites=["standard", "trace"]),
+            FastSVDataset("wiki-talk-temporal", suites=["standard", "trace"]),
+            FastSVDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
+            FastSVDataset("CollegeMsg", suites=["standard", "trace"]),
+            FastSVDataset("twitter7", suites=["standard"]),
+            FastSVDataset("higgs-twitter", suites=["standard", "trace"]),
+        ]
+        # fmt: on
+
+    def generate(self, dataset: FastSVDataset) -> DataInstance:
+        raw = fetch_snap_graph(dataset.name)
+        return DataInstance(
+            inputs=[zero_one_adjacency(raw.inputs[0])], meta=dict(raw.meta)
+        )
 
 
 class FastSVGAPGenerator(Generator[FastSVDataset]):
     @property
     def name(self) -> str:
-        return "fastsv_gap_inputs"
+        return "fastsv_gap"
 
     @property
     def pretty_name(self) -> str:
-        return "FastSV GAP Input Generator"
+        return "FastSV GAP"
 
     @property
     def description(self) -> str:
@@ -293,62 +376,21 @@ class FastSVGAPGenerator(Generator[FastSVDataset]):
 
     @property
     def datasets(self) -> list[FastSVDataset]:
+        # fmt: off
         return [
-            FastSVDataset(
-                name="GAP/GAP-road",
-                pretty_name="GAP Road",
-                description=(
-                    "Directed roads with weights in the US, with 23.9M nodes and"
-                    " 58.3M edges."
-                ),
-                suites=["standard"],
-            ),
-            FastSVDataset(
-                name="GAP/GAP-twitter",
-                pretty_name="GAP Twitter",
-                description=(
-                    "Directed weighted social network topology of Twitter, with 61.6M"
-                    " nodes and 1,468.4M edges."
-                ),
-                suites=["standard"],
-            ),
-            FastSVDataset(
-                name="GAP/GAP-web",
-                pretty_name="GAP Web",
-                description=(
-                    "A web-crawl of the .sk domain, directed and weighted, with 50.6M"
-                    " nodes and 1,949.4M edges."
-                ),
-                suites=["standard"],
-            ),
-            FastSVDataset(
-                name="GAP/GAP-kron",
-                pretty_name="GAP Kron",
-                description=(
-                    "Symmetric random undirected weighted graph generated by"
-                    " Kronecker synthetic graph generator with parameters"
-                    " (A=0.57, B=C=0.19, D=0.05). Has 134.2M nodes and 2,111.6M"
-                    " edges."
-                ),
-                suites=["standard"],
-            ),
-            FastSVDataset(
-                name="GAP/GAP-urand",
-                pretty_name="GAP Urand",
-                description=(
-                    "Symmetric random undirected weighted graph generated by"
-                    " Erdos–Reyni model (Uniform Random) with 134.2M nodes and"
-                    " 2,147.4M edges."
-                ),
-                suites=["standard"],
-            ),
+            FastSVDataset("GAP-road", suites=["standard"]),
+            FastSVDataset("GAP-twitter", suites=["standard"]),
+            FastSVDataset("GAP-web", suites=["standard"]),
+            FastSVDataset("GAP-kron", suites=["standard"]),
+            FastSVDataset("GAP-urand", suites=["standard"]),
         ]
+        # fmt: on
 
     def generate(self, dataset: FastSVDataset) -> DataInstance:
-        if dataset.name.startswith("GAP/"):
-            raw = fetch_suitesparse_matrix(dataset.name)
-            return DataInstance(inputs=[raw.inputs[0]], meta=raw.meta)
-        raise ValueError(f"Unsupported FastSV dataset: {dataset.name}")
+        raw = fetch_gap_graph(dataset.name)
+        return DataInstance(
+            inputs=[zero_one_adjacency(raw.inputs[0])], meta=dict(raw.meta)
+        )
 
 
 class FastSVBenchmark(Benchmark):
@@ -358,7 +400,7 @@ class FastSVBenchmark(Benchmark):
 
     @property
     def pretty_name(self):
-        return "FastSV Algorithm"
+        return "FastSV"
 
     @property
     def description(self):
@@ -372,7 +414,7 @@ class FastSVBenchmark(Benchmark):
 
     @property
     def suites(self):
-        return ["group-graphs-iterative"]
+        return ["standard-graphs-iterative"]
 
     @property
     def concepts(self) -> str:

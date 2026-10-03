@@ -11,7 +11,8 @@ from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to
 from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_sparse import PyDataSparseFramework
 from saps.benchmark import DataInstance
-from saps.benchmarks import bellmanford, cp_als
+from saps.benchmarks import adjacency, bellman_ford, cp_als
+from saps.benchmarks.adjacency import distance_matrix
 from saps.storage import LocalStorageBackend
 
 
@@ -25,7 +26,7 @@ def test_bellman_ford_distance_conversion_preserves_edges(format, keep_weights):
         else from_scipy(getattr(sps, f"{format}_array")(adjacency))
     )
 
-    distances = bellmanford._adjacency_to_distance(raw, keep_weights)
+    distances = distance_matrix(raw, keep_weights=keep_weights)
 
     expected = np.full((4, 4), np.inf)
     np.fill_diagonal(expected, 0)
@@ -44,10 +45,10 @@ def test_bellman_ford_runs_with_infinity_filled_sparse_input(framework):
     raw = from_scipy(
         sps.coo_array([[0, 2, 10, 0], [0, 0, 3, 0], [0, 0, 0, 0], [0, 0, 0, 0]])
     )
-    distances = bellmanford._adjacency_to_distance(raw, keep_weights=True)
+    distances = distance_matrix(raw, keep_weights=True)
     xp = framework()
 
-    result = bellmanford.BellmanFordBenchmark().benchmark(
+    result = bellman_ford.BellmanFordBenchmark().benchmark(
         xp, {"src": 0}, xp.from_binsparse(distances)
     )
 
@@ -67,17 +68,18 @@ def test_bellman_ford_large_graph_setup_and_cache_stay_sparse(monkeypatch, tmp_p
         assert not isinstance(shape, tuple) or len(shape) != 2
         return numpy_full(shape, *args, **kwargs)
 
-    monkeypatch.setattr(bellmanford.np, "full", forbid_dense_matrix)
+    monkeypatch.setattr(adjacency.np, "full", forbid_dense_matrix)
     monkeypatch.setattr(
-        bellmanford, "to_numpy", Mock(side_effect=AssertionError("densification"))
+        adjacency, "to_numpy", Mock(side_effect=AssertionError("densification"))
     )
+    generator = bellman_ford.BellmanFordGAPGenerator()
+    dataset = generator.datasets[0]
     monkeypatch.setattr(
-        bellmanford,
-        "fetch_suitesparse_matrix",
-        lambda _: DataInstance(inputs=[raw], meta={}),
+        bellman_ford,
+        "fetch_gap_graph",
+        lambda _: DataInstance(inputs=[raw], meta={"sources": [dataset.src]}),
     )
-    generator = bellmanford.BellmanFordGAPGenerator()
-    problem = generator.generate(generator.datasets[0])
+    problem = generator.generate(dataset)
     distances = problem.inputs[0]
 
     assert distances.shape == (size, size)
@@ -103,7 +105,7 @@ def test_bellman_ford_coalesces_duplicates_and_ignores_zero_edges():
         indices_1=np.array([1, 1, 2, 2]),
     )
 
-    result = bellmanford._adjacency_to_distance(raw, keep_weights=True)
+    result = distance_matrix(raw, keep_weights=True)
 
     np.testing.assert_array_equal(
         to_sparse(result).todense(),
@@ -135,8 +137,8 @@ def test_cp_frostt_setup_reads_sparse_values_and_builds_float_factors(
     monkeypatch.setattr(
         cp_als, "to_numpy", Mock(side_effect=AssertionError("densification"))
     )
-    dataset = cp_als.CPFrosttDataset("example", "Example", "example", order, rank=2)
-    generator = cp_als.CPNFrosttGenerator()
+    dataset = cp_als.CPALSFROSTTDataset("example", "Example", "example", order, rank=2)
+    generator = cp_als.CPALSFROSTTGenerator()
 
     problem = generator.generate(dataset)
     repeated = generator.generate(dataset)

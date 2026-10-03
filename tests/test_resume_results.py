@@ -168,14 +168,14 @@ def test_competition_selects_standard_simhash_datasets_without_machine_prompts(
     import json
     import sys
 
-    from saps.benchmarks.approx_nn import SimHashApproxNNSparseGenerator
+    from saps.benchmarks.simhash_ann import SimHashANNRandomSparseGenerator
 
     root = Path(runner.__file__).resolve().parents[1]
     monkeypatch.chdir(root)
     monkeypatch.setenv("SAPS_CACHE_DIR", cache_override)
     expected_cache = str(root / (cache_override or ".saps/outputs/cache"))
     metadata = json.loads((root / "metadata.json").read_text())["benchmarks"]
-    benchmark = next(item for item in metadata if item["name"] == "simhash_approx_nn")
+    benchmark = next(item for item in metadata if item["name"] == "simhash_ann")
     params = [
         dataset["asv_param"]
         for generator in benchmark["generators"]
@@ -200,8 +200,8 @@ def test_competition_selects_standard_simhash_datasets_without_machine_prompts(
                     "SAPS_REPO_ROOT", include["env_nobuild"]["SAPS_REPO_ROOT"]
                 )
                 worker.chdir(tmp_path)
-                for dataset in SimHashApproxNNSparseGenerator().datasets:
-                    assert dataset.file == "src/saps/benchmarks/approx_nn.py"
+                for dataset in SimHashANNRandomSparseGenerator().datasets:
+                    assert dataset.file == "src/saps/benchmarks/simhash_ann.py"
         return [object()]
 
     monkeypatch.setattr(runner, "get_environments", get_environments)
@@ -227,7 +227,7 @@ def test_competition_selects_standard_simhash_datasets_without_machine_prompts(
             "--config",
             str(root / "competition.config.json"),
             "--re",
-            "^simhash_approx_nn$",
+            "^simhash_ann$",
             "--saps-dir",
             str(tmp_path),
             "--env-dir",
@@ -250,12 +250,12 @@ def test_competition_selects_standard_simhash_datasets_without_machine_prompts(
     assert (
         actual
         == [
-            "simhash_approx_nn_openml_dense.mnist",
-            "simhash_approx_nn_openml_dense.cifar10",
-            "simhash_approx_nn_openml_sparse.mnist",
-            "simhash_approx_nn_openml_sparse.cifar10",
-            "simhash_approx_nn_netflix_dense.netflix",
-            "simhash_approx_nn_netflix_sparse.netflix",
+            "simhash_ann_openml_dense.mnist",
+            "simhash_ann_openml_dense.cifar10",
+            "simhash_ann_openml_sparse.mnist",
+            "simhash_ann_openml_sparse.cifar10",
+            "simhash_ann_netflix_prize_dense.netflix",
+            "simhash_ann_netflix_prize_sparse.netflix",
         ][chunk_index::5]
     )
     assert kwargs["machine_params"].machine == "run_12345-task-0"

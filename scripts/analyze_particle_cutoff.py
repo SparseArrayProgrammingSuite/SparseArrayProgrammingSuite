@@ -18,7 +18,7 @@ import numpy as np
 
 from binsparse.conversions import to_numpy
 
-from saps.benchmarks.particle_sim import ParticleSimGenerator
+from saps.benchmarks.particle_simulation import ParticleSimulationNEMOGenerator
 
 
 def acceleration_curve(position, mass, softening, gravitational_constant, radii):
@@ -124,7 +124,7 @@ def main():
     args = parser.parse_args()
     # A grid avoids assuming that vector force error is monotone in radius.
     radii = np.round(np.arange(0.05, 30.0001, 0.05), 2)
-    generator = ParticleSimGenerator()
+    generator = ParticleSimulationNEMOGenerator()
     result = {
         "target": 0.02,
         "metric": "norm(F_cutoff - F_full) / norm(F_full), over all particles",
@@ -132,7 +132,7 @@ def main():
         "datasets": {},
     }
     for dataset in generator.datasets:
-        if not dataset.name.startswith("nemo_plummer_"):
+        if not dataset.name.startswith("plummer_"):
             continue
         instance = generator.generate(dataset)
         arrays = [to_numpy(value) for value in instance.inputs]

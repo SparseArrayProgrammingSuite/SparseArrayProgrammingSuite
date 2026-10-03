@@ -1,6 +1,7 @@
 import operator
 import types
 from itertools import product
+from math import prod
 
 import numpy as np
 import scipy.sparse as sps
@@ -22,10 +23,13 @@ from binsparse.conversions import from_numpy, from_sparse, to_numpy, to_scipy, t
 
 from saps_framework import (
     Framework,
-    einsum,
     normalize_unfold_args,
     unfold_output_shape,
 )
+from saps_framework.einsum import Access, native_einsum, parse_einsum
+
+_EINSUM_BLOCK_SIZE = 65_536
+_EINSUM_DENSE_BYTES = 64 * 1024**2
 
 
 class SmartSparseLinalg:
@@ -85,26 +89,29 @@ class SmartSparseLinalg:
 
     @staticmethod
     def svd(A, full_matrices=False, k=None, **kwargs):
-        if not isinstance(A, sp.SparseArray):
-            U, S, Vt = np.linalg.svd(
-                np.asarray(A), full_matrices=full_matrices, **kwargs
-            )
+        # svds only finds k < min(A.shape) singular triplets, so anything but a
+        # truncated SVD of a sparse matrix (a full reduced SVD, full_matrices,
+        # or a matrix too thin to truncate) is computed densely instead.
+        sparse_ok = (
+            isinstance(A, sp.SparseArray)
+            and not full_matrices
+            and k is not None
+            and k < min(A.shape)
+        )
+        if not sparse_ok:
+            A = np.asarray(SmartSparseLinalg._dense(A))
+            if A.dtype.kind not in "fc":
+                A = A.astype(np.float64)
+            U, S, Vt = np.linalg.svd(A, full_matrices=full_matrices, **kwargs)
             if k is not None:
                 U = U[:, :k]
                 S = S[:k]
                 Vt = Vt[:k, :]
             return U, S, Vt
 
-        if full_matrices:
-            raise ValueError("Sparse SVD does not support full_matrices=True.")
-
         A = SmartSparseLinalg._scipy_sparse(A)
-        min_dim = min(A.shape)
-        if min_dim <= 1:
-            raise ValueError("Sparse SVD requires min(A.shape) > 1.")
-        if k is None:
-            k = min_dim - 1
-
+        if A.dtype.kind not in "fc":
+            A = A.astype(np.float64)
         U, S, Vt = spla.svds(A, k=k, **kwargs)
         order = np.argsort(S)[::-1]
         return (
@@ -467,7 +474,7 @@ class SmartSparseKernels(Framework):
             and condition.ndim == 2
             and not condition.fill_value
             and not isinstance(x, sp.SparseArray)
-            and x.shape == condition.shape
+            and getattr(x, "shape", None) == condition.shape
             and np.isscalar(y)
         ):
             coo = (
@@ -493,11 +500,112 @@ class SmartSparseKernels(Framework):
     def einsum(self, prgm, **kwargs):
         if all(not isinstance(value, sp.SparseArray) for value in kwargs.values()):
             xp = self._array_namespace(*kwargs.values())
-            return einsum(xp, prgm, **kwargs)
+            return native_einsum(xp, prgm, **kwargs)
+        parsed = parse_einsum(prgm)
+        result = self._blocked_einsum(parsed, kwargs)
+        if result is not NotImplemented:
+            return result
         kwargs = {
             key: self._sparse_compatible_arg(value) for key, value in kwargs.items()
         }
-        return einsum(sp, prgm, **kwargs)
+        result = parsed.run_native(sp, kwargs)
+        return parsed.run(sp, kwargs) if result is NotImplemented else result
+
+    def _blocked_einsum(self, parsed, kwargs):
+        """Contract zero-fill sparse entries in bounded batches.
+
+        A sparse operand must cover all reduced indices. Other indices enumerate
+        output slices (for example, CP rank). Small factors and outputs may be
+        dense; large factors/outputs and general expressions use the fallback.
+        """
+        contraction = parsed.native_contraction()
+        if contraction is NotImplemented:
+            return NotImplemented
+        _, leaves, bitwise = contraction
+        operands = [
+            kwargs[leaf.tns] if isinstance(leaf, Access) else np.asarray(leaf.value)
+            for leaf in leaves
+        ]
+        operands = [
+            operand if isinstance(operand, sp.SparseArray) else np.asarray(operand)
+            for operand in operands
+        ]
+        indices = [leaf.idxs if isinstance(leaf, Access) else [] for leaf in leaves]
+        if any(not self._fill_value_is_zero(operand) for operand in operands):
+            return NotImplemented
+        boolean = all(operand.dtype.kind == "b" for operand in operands)
+        logical = parsed.op in {"|", "or"}
+        if (bitwise or logical) and not boolean:
+            return NotImplemented
+        sizes = {}
+        for operand, term in zip(operands, indices, strict=True):
+            for idx, size in zip(term, operand.shape, strict=True):
+                if sizes.setdefault(idx, size) != size:
+                    return NotImplemented
+        reduced = set(sizes) - set(parsed.idxs)
+        candidates = [
+            i
+            for i, operand in enumerate(operands)
+            if isinstance(operand, sp.SparseArray)
+            and reduced.issubset(indices[i])
+            and len(indices[i]) == len(set(indices[i]))
+        ]
+        if not candidates or len(parsed.idxs) != len(set(parsed.idxs)):
+            return NotImplemented
+        anchor_index = min(candidates, key=lambda i: operands[i].nnz)
+        dtype = np.result_type(*(operand.dtype for operand in operands))
+        output_dtype = (
+            np.dtype(bool) if logical else np.zeros((), dtype=dtype).sum().dtype
+        )
+        shape = tuple(sizes[idx] for idx in parsed.idxs)
+        dense_bytes = prod(shape) * output_dtype.itemsize
+        for i, operand in enumerate(operands):
+            if i != anchor_index and isinstance(operand, sp.SparseArray):
+                dense_bytes += prod(operand.shape) * operand.dtype.itemsize
+        if dense_bytes > _EINSUM_DENSE_BYTES:
+            return NotImplemented
+
+        anchor = operands[anchor_index].asformat("coo")
+        factors = [
+            (term, self._dense(operand))
+            for i, (operand, term) in enumerate(zip(operands, indices, strict=True))
+            if i != anchor_index
+        ]
+        # Skipping implicit zeros is only valid when 0 * factor stays zero.
+        if any(
+            not np.isfinite(factor.flat[start : start + _EINSUM_BLOCK_SIZE]).all()
+            for _, factor in factors
+            for start in range(0, factor.size, _EINSUM_BLOCK_SIZE)
+        ):
+            return NotImplemented
+        anchor_indices = indices[anchor_index]
+        free = [idx for idx in parsed.idxs if idx not in anchor_indices]
+        scatter = any(idx in anchor_indices for idx in parsed.idxs)
+        result = np.zeros(shape, dtype=output_dtype)
+        if anchor.nnz == 0:
+            return result
+        for free_coords in np.ndindex(*(sizes[idx] for idx in free)):
+            positions = dict(zip(free, free_coords, strict=True))
+            for start in range(0, anchor.nnz, _EINSUM_BLOCK_SIZE):
+                block = slice(start, start + _EINSUM_BLOCK_SIZE)
+                positions.update(
+                    (idx, anchor.coords[axis, block])
+                    for axis, idx in enumerate(anchor_indices)
+                )
+                values = anchor.data[block].astype(dtype, copy=True)
+                for term, factor in factors:
+                    values *= factor[tuple(positions[idx] for idx in term)]
+                target = tuple(positions[idx] for idx in parsed.idxs)
+                if scatter:
+                    if logical:
+                        np.logical_or.at(result, target, values)
+                    else:
+                        np.add.at(result, target, values)
+                elif logical:
+                    result[target] |= values.any()
+                else:
+                    result[target] += values.sum(dtype=output_dtype)
+        return result
 
     def unfold(
         self,
@@ -607,6 +715,23 @@ class SmartSparseKernels(Framework):
                 # very sparse 2D case -- SciPy's is.
                 result = self._to_scipy_sparse(x1) @ self._to_scipy_sparse(x2)
                 result = sp.GCXS.from_scipy_sparse(result.tocsr())
+                return result if dtype is None else result.astype(dtype)
+            if (
+                x1.ndim == 2
+                and x2.ndim <= 2
+                and (not isinstance(x2, sp.SparseArray) or x2.ndim == 2)
+                and not (
+                    isinstance(x1, sp.SparseArray) and isinstance(x2, sp.SparseArray)
+                )
+            ):
+                # A 2D sparse matrix times a dense matrix or vector (or the
+                # reverse, with a 2D sparse operand): SciPy's kernels are faster than
+                # pydata/sparse's general `@`, and both produce a dense result.
+                lhs, rhs = (
+                    self._to_scipy_sparse(x) if isinstance(x, sp.SparseArray) else x
+                    for x in (x1, x2)
+                )
+                result = np.asarray(lhs @ rhs)
                 return result if dtype is None else result.astype(dtype)
             result = x1 @ x2
             return result if dtype is None else result.astype(dtype)

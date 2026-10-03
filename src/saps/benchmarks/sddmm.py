@@ -75,7 +75,7 @@ _SDDMM_GRAPHS: list[tuple[str, bool]] = [
 class SDDMMSuiteSparseGenerator(Generator):
     @property
     def name(self) -> str:
-        return "suitesparse_sddmm_generator"
+        return "sddmm_suitesparse"
 
     @property
     def cacheable(self) -> bool:
@@ -83,7 +83,7 @@ class SDDMMSuiteSparseGenerator(Generator):
 
     @property
     def pretty_name(self) -> str:
-        return "SuiteSparse SDDMM Generator"
+        return "Sampled Dense-Dense Matrix Multiplication (SDDMM) SuiteSparse"
 
     @property
     def description(self) -> str:
@@ -157,7 +157,7 @@ class SDDMMSuiteSparseGenerator(Generator):
     def datasets(self) -> list[Dataset]:
         return [
             SDDMMSuiteSparseDataset(
-                f"{matrix.split('/')[-1]}-{SDDMM_EMBEDDING_WIDTH}",
+                matrix,
                 SDDMM_EMBEDDING_WIDTH,
                 matrix,
                 suites=["sparse", "test"] if in_test_suite else ["sparse"],
@@ -194,7 +194,7 @@ class SDDMMSuiteSparseGenerator(Generator):
 _SDDMM_NONZEROS_PER_ROW = [21, 43, 65, 85, 107, 128, 149]
 
 
-class UniformRandomSDDMMDataset(Dataset):
+class SDDMMUniformRandomDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -238,14 +238,14 @@ class UniformRandomSDDMMDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class UniformRandomSDDMMGenerator(Generator):
+class SDDMMUniformRandomGenerator(Generator):
     @property
     def name(self) -> str:
-        return "uniform_random_sddmm_generator"
+        return "sddmm_uniform_random"
 
     @property
     def pretty_name(self) -> str:
-        return "Uniform Random SDDMM Generator"
+        return "Sampled Dense-Dense Matrix Multiplication (SDDMM) Uniform Random"
 
     @property
     def description(self) -> str:
@@ -307,10 +307,11 @@ class UniformRandomSDDMMGenerator(Generator):
         # dim**2 regardless of how sparse the sampling matrix is.
         dim = 5000
         return [
-            UniformRandomSDDMMDataset(
+            SDDMMUniformRandomDataset(
                 # No dots in the name: the framework parses params as
                 # "generator.dataset" by splitting on ".".
-                f"uniform-{nonzeros_per_row}-per-row",
+                f"{nonzeros_per_row}_nonzeros_per_row",
+                pretty_name=f"{nonzeros_per_row} Nonzeros per Row",
                 dim=dim,
                 middle_dim=SDDMM_EMBEDDING_WIDTH,
                 density=nonzeros_per_row / dim,
@@ -321,7 +322,7 @@ class UniformRandomSDDMMGenerator(Generator):
             for nonzeros_per_row in _SDDMM_NONZEROS_PER_ROW
         ]
 
-    def generate(self, dataset: UniformRandomSDDMMDataset) -> DataInstance:
+    def generate(self, dataset: SDDMMUniformRandomDataset) -> DataInstance:
         import scipy.sparse as sps
 
         rng = np.random.default_rng(dataset.seed)
@@ -355,7 +356,7 @@ class SDDMMBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "Sampled Dense-Dense Matrix Multiplication"
+        return "Sampled Dense-Dense Matrix Multiplication (SDDMM)"
 
     @property
     def motivation(self) -> str:
@@ -429,7 +430,7 @@ class SDDMMBenchmark(Benchmark):
 
     @property
     def generators(self) -> list[Generator]:
-        return [SDDMMSuiteSparseGenerator(), UniformRandomSDDMMGenerator()]
+        return [SDDMMSuiteSparseGenerator(), SDDMMUniformRandomGenerator()]
 
     def benchmark(self, xp, meta: dict, S, A, B):
         return xp.multiply(S, A @ B)

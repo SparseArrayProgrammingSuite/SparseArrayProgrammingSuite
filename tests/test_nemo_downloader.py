@@ -7,7 +7,7 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
 
-import saps.benchmarks.particle_sim as ps
+import saps.benchmarks.particle_simulation as ps
 from frameworks.saps_numpy import NumpyFramework
 from saps.downloaders.nemo import download_nemo_dataset, parse_nemo_snapshot
 
@@ -155,18 +155,18 @@ def test_particle_sim_real_generator_uses_nemo(monkeypatch):
 
     monkeypatch.setattr(ps, "download_nemo_dataset", fake_download)
 
-    generator = ps.ParticleSimGenerator()
+    generator = ps.ParticleSimulationNEMOGenerator()
     datasets = generator.datasets
 
     assert {dataset.name for dataset in datasets} == {
-        "nemo_plummer_128",
-        "nemo_plummer_1024",
-        "nemo_dubinski_m31",
+        "plummer_128",
+        "plummer_1024",
+        "dubinski_m31",
     }
     assert {dataset.name: dataset.suites for dataset in datasets} == {
-        "nemo_plummer_128": ["standard", "trace"],
-        "nemo_plummer_1024": ["standard", "trace"],
-        "nemo_dubinski_m31": ["standard"],
+        "plummer_128": ["standard", "trace"],
+        "plummer_1024": ["standard", "trace", "train"],
+        "dubinski_m31": ["standard"],
     }
     assert all(dataset.n_particles > 0 for dataset in datasets)
     for dataset in datasets:
@@ -179,9 +179,9 @@ def test_particle_sim_real_generator_uses_nemo(monkeypatch):
         assert "particle_mass" not in dataset.parameters
         assert "mass" not in dataset.parameters
     assert {dataset.name: dataset.parameters["cutoff"] for dataset in datasets} == {
-        "nemo_plummer_128": 0.2,
-        "nemo_plummer_1024": 0.2,
-        "nemo_dubinski_m31": 0.1,
+        "plummer_128": 0.2,
+        "plummer_1024": 0.2,
+        "dubinski_m31": 0.1,
     }
     assert all("mass" in dataset.source_columns for dataset in datasets)
 
@@ -219,7 +219,7 @@ def test_particle_sim_benchmark_runs_newtonian_gravity_with_particle_masses():
         },
     }
 
-    result = ps.ParticleSimBenchmark().benchmark(xp, meta, *data)
+    result = ps.ParticleSimulationBenchmark().benchmark(xp, meta, *data)
 
     assert len(result) == 6
     assert result[3][0] > 0.0
