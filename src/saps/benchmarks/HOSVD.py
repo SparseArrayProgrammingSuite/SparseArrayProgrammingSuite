@@ -17,6 +17,16 @@ from saps.benchmark import (
 from saps.benchmarks.frostt import fetch_frostt_tensor, frostt_tensor_shape
 
 
+def _random_initial_factors(shape, ranks, seed=0):
+    """Build reproducible orthonormal factors without unfolding the input tensor."""
+    rng = np.random.default_rng(seed)
+    factors = []
+    for size, rank in zip(shape, ranks, strict=True):
+        factor, _ = np.linalg.qr(rng.standard_normal((size, rank)), mode="reduced")
+        factors.append(from_numpy(factor))
+    return factors
+
+
 class HOSVDDataset(Dataset):
     def __init__(
         self,
@@ -77,11 +87,11 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
 
     @property
     def name(self) -> str:
-        return "hosvd_dense_inputs"
+        return "hosvd_dense"
 
     @property
     def pretty_name(self) -> str:
-        return "Dense Low-Rank HOSVD Input Generator"
+        return "HOSVD Dense"
 
     @property
     def description(self) -> str:
@@ -119,24 +129,24 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
     def datasets(self) -> list[HOSVDDataset]:
         datasets = [
             HOSVDDataset(
-                "small_dense_hosvd",
-                "Small Dense HOSVD Tensor",
+                "small_3d",
+                "Small 3D",
                 "Dense low-rank 3D tensor using random factor matrices.",
                 ["test"],
                 (10, 10, 10),
                 (3, 3, 3),
             ),
             HOSVDDataset(
-                "small_dense_4d",
-                "Small dense 4d HOSVD Tensor",
+                "small_4d",
+                "Small 4D",
                 "Dense low-rank 4D tensor using random factor matrices.",
                 ["test"],
                 (10, 10, 10, 10),
                 (3, 3, 3, 3),
             ),
             HOSVDDataset(
-                "small_dense_5d",
-                "Small dense 5d HOSVD Tensor",
+                "small_5d",
+                "Small 5D",
                 "Dense low-rank 5D tensor using random factor matrices.",
                 ["test"],
                 (10, 10, 10, 10, 10),
@@ -191,8 +201,9 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
 
         X_bin = from_numpy(X_dense)
         ranks_bin = from_numpy(np.array(ranks))
+        initial_factors = _random_initial_factors(dataset.shape, ranks)
         return DataInstance(
-            inputs=[X_bin, ranks_bin],
+            inputs=[X_bin, ranks_bin, *initial_factors],
             meta={"n": dataset.n, "max_iter": 50, "tolerance": 1e-8},
         )
 
@@ -207,11 +218,11 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
 
     @property
     def name(self) -> str:
-        return "hosvd_sparse_inputs"
+        return "hosvd_sparse"
 
     @property
     def pretty_name(self) -> str:
-        return "Sparse Low-Rank HOSVD Input Generator"
+        return "HOSVD Sparse"
 
     @property
     def description(self) -> str:
@@ -249,24 +260,24 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
     def datasets(self) -> list[HOSVDDataset]:
         datasets = [
             HOSVDDataset(
-                "small_sparse",
-                "Small sparse HOSVD Tensor",
+                "small_3d",
+                "Small 3D",
                 "Sparse low-rank 3D tensor using random factor matrices.",
                 [],
                 (20, 20, 20),
                 (3, 3, 3),
             ),
             HOSVDDataset(
-                "small_sparse_4d",
-                "Small sparse 4d HOSVD Tensor",
+                "small_4d",
+                "Small 4D",
                 "Sparse low-rank 4D tensor using random factor matrices.",
                 [],
                 (20, 20, 20, 20),
                 (3, 3, 3, 3),
             ),
             HOSVDDataset(
-                "small_sparse_5d",
-                "Small sparse 5d HOSVD Tensor",
+                "small_5d",
+                "Small 5D",
                 "Sparse low-rank 5D tensor using random factor matrices.",
                 [],
                 (10, 10, 10, 10, 10),
@@ -364,8 +375,9 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
                 raise ValueError(f"unsupported HOSVD tensor order {dataset.n}")
 
         ranks_bin = from_numpy(np.array(ranks))
+        initial_factors = _random_initial_factors(dataset.shape, ranks)
         return DataInstance(
-            inputs=[X_bin, ranks_bin],
+            inputs=[X_bin, ranks_bin, *initial_factors],
             meta={"n": dataset.n, "max_iter": 50, "tolerance": 1e-8},
         )
 
@@ -400,7 +412,7 @@ class HOSVDFrosttDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-def _hosvd_frostt_dataset(tensor_name, ranks):
+def _hosvd_frostt_dataset(tensor_name, ranks, suites):
     shape = frostt_tensor_shape(tensor_name)
     assert len(ranks) == len(shape), (
         f"HOSVD ranks {ranks} do not match shape {shape} for "
@@ -411,11 +423,12 @@ def _hosvd_frostt_dataset(tensor_name, ranks):
     )
     n = len(shape)
     return HOSVDFrosttDataset(
-        name=f"hosvd_frostt_{tensor_name}",
-        pretty_name=f"HOSVD FROSTT {tensor_name}",
+        name=tensor_name,
+        pretty_name=tensor_name,
         tensor_name=tensor_name,
         n=n,
         ranks=ranks,
+        suites=suites,
     )
 
 
@@ -429,11 +442,11 @@ class HOSVDFrosttGenerator(Generator[HOSVDFrosttDataset]):
 
     @property
     def name(self) -> str:
-        return "hosvd_frostt_inputs"
+        return "hosvd_frostt"
 
     @property
     def pretty_name(self) -> str:
-        return "FROSTT Sparse Tensor Generator for HOSVD"
+        return "HOSVD FROSTT"
 
     @property
     def description(self) -> str:
@@ -487,47 +500,47 @@ class HOSVDFrosttGenerator(Generator[HOSVDFrosttDataset]):
     @property
     def motivation(self) -> str:
         return (
-            "Real sparse tensors from FROSTT exercise HOSVD's per-mode unfolding"
-            " against genuinely irregular sparsity patterns. The larger 4D and 5D"
-            " tensors can have mode unfoldings that are heavy to densify for SVD with"
-            " the current algorithm, so select datasets by name rather than running"
-            " this whole generator unfiltered."
+            "Real sparse tensors from FROSTT exercise Tucker decomposition against"
+            " irregular sparsity patterns. Random orthonormal factors avoid SVDs of"
+            " the original tensor unfoldings. Large tensors can still require costly"
+            " contractions and projected SVDs, so select datasets by name rather"
+            " than running this whole generator unfiltered."
         )
 
     @property
     def datasets(self) -> list[HOSVDFrosttDataset]:
         datasets = [
-            _hosvd_frostt_dataset(tensor_name, ranks)
-            for tensor_name, ranks in [
-                ("matmul_2_2_2", (2, 2, 2)),
-                ("matmul_3_3_3", (2, 2, 2)),
-                ("matmul_4_3_2", (2, 2, 2)),
-                ("matmul_4_4_3", (2, 2, 2)),
-                ("matmul_4_4_4", (2, 2, 2)),
-                ("matmul_5_5_5", (2, 2, 2)),
-                ("matmul_6_3_3", (2, 2, 2)),
-                ("nell_2", (5, 5, 5)),
-                ("vast_2015_mc1_3d", (5, 5, 2)),
-                ("nell_1", (5, 5, 5)),
-                ("flickr_3d", (5, 5, 5)),
-                ("delicious_3d", (5, 5, 5)),
-                ("amazon_reviews", (5, 5, 5)),
-                ("patents", (5, 5, 5)),
-                ("reddit_2015", (5, 5, 5)),
-                ("fb_m", (5, 5, 5)),
-                ("darpa", (5, 5, 5)),
-                ("toy", (2, 2, 2, 2)),
-                ("nips", (5, 5, 5, 5)),
-                ("uber_pickups", (5, 5, 5, 5)),
-                ("chicago_crime_comm", (5, 5, 5, 5)),
-                ("enron", (5, 5, 5, 5)),
-                ("flickr_4d", (5, 5, 5, 5)),
-                ("delicious_4d", (5, 5, 5, 5)),
-                ("lbnl_network", (5, 5, 5, 5, 5)),
-                ("chicago_crime_geo", (5, 5, 5, 5, 5)),
+            _hosvd_frostt_dataset(tensor_name, ranks, suites)
+            for (tensor_name, ranks, suites) in [
+                ("matmul_2_2_2", (2, 2, 2), ["trace"]),
+                ("matmul_3_3_3", (2, 2, 2), ["trace"]),
+                ("matmul_4_3_2", (2, 2, 2), ["trace"]),
+                ("matmul_4_4_3", (2, 2, 2), ["trace"]),
+                ("matmul_4_4_4", (2, 2, 2), ["trace"]),
+                ("matmul_5_5_5", (2, 2, 2), ["trace", "train"]),
+                ("matmul_6_3_3", (2, 2, 2), ["trace"]),
+                ("nell_2", (5, 5, 5), []),
+                ("vast_2015_mc1_3d", (5, 5, 2), []),
+                ("nell_1", (5, 5, 5), []),
+                ("flickr_3d", (5, 5, 5), []),
+                ("delicious_3d", (5, 5, 5), []),
+                ("amazon_reviews", (5, 5, 5), []),
+                ("patents", (5, 5, 5), []),
+                ("reddit_2015", (5, 5, 5), []),
+                ("fb_m", (5, 5, 5), []),
+                ("darpa", (5, 5, 5), []),
+                ("toy", (2, 2, 2, 2), ["trace", "train"]),
+                ("nips", (5, 5, 5, 5), []),
+                ("uber_pickups", (5, 5, 5, 5), []),
+                ("chicago_crime_comm", (5, 5, 5, 5), []),
+                ("enron", (5, 5, 5, 5), []),
+                ("flickr_4d", (5, 5, 5, 5), []),
+                ("delicious_4d", (5, 5, 5, 5), []),
+                ("lbnl_network", (5, 5, 5, 5, 5), []),
+                ("chicago_crime_geo", (5, 5, 5, 5, 5), []),
                 # vast_2015_mc1_5d's 3rd mode has only 2 entries, so its rank is capped.
-                ("vast_2015_mc1_5d", (5, 5, 2, 5, 5)),
-                ("lanl2", (5, 5, 5, 5, 5)),
+                ("vast_2015_mc1_5d", (5, 5, 2, 5, 5), []),
+                ("lanl2", (5, 5, 5, 5, 5), []),
             ]
         ]
 
@@ -540,8 +553,9 @@ class HOSVDFrosttGenerator(Generator[HOSVDFrosttDataset]):
         assert len(raw.meta["shape"]) == dataset.n
         X_bin = raw.inputs[0]
         ranks_bin = from_numpy(np.array(dataset.ranks))
+        initial_factors = _random_initial_factors(raw.meta["shape"], dataset.ranks)
         return DataInstance(
-            inputs=[X_bin, ranks_bin],
+            inputs=[X_bin, ranks_bin, *initial_factors],
             meta={"n": dataset.n, "max_iter": 50, "tolerance": 1e-8},
         )
 
@@ -570,9 +584,8 @@ class HOSVDBenchmark(Benchmark):
             " decomposing high-order tensors into a core-tensor that can be projected"
             " onto factor matrices along each mode. A typical 3D tensor will have 3"
             " modes (row, column, and frontal) and thus 3 factor matrices. The"
-            " algorithm starts by finding the initial factor matrices by performing SVD"
-            " on matrix unfoldings along each mode. Certain columns in these factor"
-            " matrices are selected based on the ranks parameter. Then, the algorithm"
+            " algorithm starts from reproducible random orthonormal factor matrices"
+            " with column counts given by the ranks parameter. Then, HOOI"
             " iteratively updates each factor matrix by projecting the original tensor"
             " onto other factor matrices. The iteration continues until max iterations"
             " is reached or the change in factor matrices becomes insignificant. The"
@@ -627,14 +640,14 @@ class HOSVDBenchmark(Benchmark):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to construct the benchmark function. Generative"
-            " AI might have been used to construct tests. This statement is written by"
-            " hand."
+            "The original benchmark function was written without generative AI."
+            " A generative AI assistant changed the initialization to reproducible"
+            " random orthonormal factors and added regression tests."
         )
 
     @property
     def suites(self) -> list[str]:
-        return ["group-data-analytics"]
+        return ["standard-data-analytics"]
 
     @property
     def concepts(self) -> str:
@@ -676,22 +689,12 @@ class HOSVD3DBenchmark(HOSVDBenchmark):
     n = 3
 
     def benchmark(self, xp, data: list, meta: dict):
-        initial_factors: list[Any]
-        X, ranks = data
+        X, ranks, *initial_factors = data
         max_iter = meta.get("max_iter", 50)
         tolerance = meta.get("tolerance", 1e-8)
 
         dimensions = X.shape
         num_modes = len(dimensions)
-
-        # initial HOSVD by performing SVD on matrix unfoldings along each mode
-        initial_factors = [None] * num_modes
-        for mode in range(num_modes):
-            perm = [mode] + list(range(mode)) + list(range(mode + 1, num_modes))
-            unfold = xp.reshape(xp.transpose(X, perm), (dimensions[mode], -1))
-
-            U, _S, _Vt = xp.linalg.svd(unfold, full_matrices=False)
-            initial_factors[mode] = U[:, : ranks[mode]]
 
         # iteration to update each factor matrix by projecting the original
         # tensor onto other factor matrices
@@ -778,22 +781,12 @@ class HOSVD4DBenchmark(HOSVDBenchmark):
     n = 4
 
     def benchmark(self, xp, data: list, meta: dict):
-        initial_factors: list[Any]
-        X, ranks = data
+        X, ranks, *initial_factors = data
         max_iter = meta.get("max_iter", 50)
         tolerance = meta.get("tolerance", 1e-8)
 
         dimensions = X.shape
         num_modes = len(dimensions)
-
-        # initial HOSVD by performing SVD on matrix unfoldings along each mode
-        initial_factors = [None] * num_modes
-        for mode in range(num_modes):
-            perm = [mode] + list(range(mode)) + list(range(mode + 1, num_modes))
-            unfold = xp.reshape(xp.transpose(X, perm), (dimensions[mode], -1))
-
-            U, _S, _Vt = xp.linalg.svd(unfold, full_matrices=False)
-            initial_factors[mode] = U[:, : ranks[mode]]
 
         # iteration to update each factor matrix by projecting the original
         # tensor onto other factor matrices
@@ -899,22 +892,12 @@ class HOSVD5DBenchmark(HOSVDBenchmark):
     n = 5
 
     def benchmark(self, xp, data: list, meta: dict):
-        initial_factors: list[Any]
-        X, ranks = data
+        X, ranks, *initial_factors = data
         max_iter = meta.get("max_iter", 50)
         tolerance = meta.get("tolerance", 1e-8)
 
         dimensions = X.shape
         num_modes = len(dimensions)
-
-        # initial HOSVD by performing SVD on matrix unfoldings along each mode
-        initial_factors = [None] * num_modes
-        for mode in range(num_modes):
-            perm = [mode] + list(range(mode)) + list(range(mode + 1, num_modes))
-            unfold = xp.reshape(xp.transpose(X, perm), (dimensions[mode], -1))
-
-            U, _S, _Vt = xp.linalg.svd(unfold, full_matrices=False)
-            initial_factors[mode] = U[:, : ranks[mode]]
 
         # iteration to update each factor matrix by projecting the original
         # tensor onto other factor matrices

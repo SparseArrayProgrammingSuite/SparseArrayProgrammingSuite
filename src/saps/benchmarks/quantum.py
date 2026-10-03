@@ -17,9 +17,11 @@ class QuantumDataset(Dataset):
         suites: list[str] | None = None,
         expected: np.ndarray | None = None,
         ref_meta: dict[str, Any] | None = None,
+        pretty_name: str | None = None,
     ):
         self._suites = suites or []
         self.source_name = source_name
+        self._pretty_name = pretty_name or source_name
         self.nqubits = nqubits
         self.dataset_description = description
         self.gate_sequence = gate_sequence
@@ -32,7 +34,7 @@ class QuantumDataset(Dataset):
 
     @property
     def pretty_name(self) -> str:
-        return f"Quantum {self.source_name}"
+        return self._pretty_name
 
     @property
     def description(self) -> str:
@@ -57,11 +59,11 @@ class QuantumDataset(Dataset):
 class QuantumStateGenerator(Generator[QuantumDataset]):
     @property
     def name(self) -> str:
-        return "quantum_state_inputs"
+        return "rqc_statevector_synthetic"
 
     @property
     def pretty_name(self) -> str:
-        return "Quantum Statevector Data Generator"
+        return "Random Quantum Circuit Statevector Synthetic"
 
     @property
     def description(self) -> str:
@@ -157,7 +159,8 @@ class QuantumStateGenerator(Generator[QuantumDataset]):
                     ("X", 8),
                     ("H", 9),
                 ],
-                suites=["standard", "trace"],
+                pretty_name="Single Layer Small",
+                suites=["standard", "trace", "train"],
             ),
             QuantumDataset(
                 "single_layer_tiny",
@@ -170,6 +173,7 @@ class QuantumStateGenerator(Generator[QuantumDataset]):
                     ("Y", 3),
                     ("Y", 4),
                 ],
+                pretty_name="Single Layer Tiny",
                 suites=["test"],
                 ref_meta={"check_norm": True, "norm_atol": 1e-4},
             ),
@@ -239,11 +243,11 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
 
     @property
     def name(self) -> str:
-        return "quantum_test_inputs"
+        return "rqc_statevector_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Quantum Test Inputs"
+        return "Random Quantum Circuit Statevector Test"
 
     @property
     def description(self) -> str:
@@ -277,7 +281,7 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
     def datasets(self) -> list[QuantumDataset]:
         return [
             QuantumDataset(
-                "statevector_basic",
+                "basic",
                 10,
                 "RQC statevector sanity check.",
                 [
@@ -292,230 +296,256 @@ class QuantumTestGenerator(Generator[QuantumDataset]):
                     ("X", 8),
                     ("H", 9),
                 ],
+                pretty_name="Basic",
                 suites=["test"],
                 ref_meta={"check_norm": True, "norm_atol": 1e-4},
             ),
             QuantumDataset(
-                "gate_H_q0",
+                "gate_h_q0",
                 4,
                 "H on qubit 0.",
                 [("H", 0)],
+                pretty_name="H Gate (Qubit 0)",
                 suites=["test"],
                 expected=_expected_zero_state_after_gate(4, QGates.H, 0),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             QuantumDataset(
-                "gate_H_q1",
+                "gate_h_q1",
                 4,
                 "H on qubit 1.",
                 [("H", 1)],
+                pretty_name="H Gate (Qubit 1)",
                 suites=["test"],
                 expected=_expected_zero_state_after_gate(4, QGates.H, 1),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             QuantumDataset(
-                "gate_H_q2",
+                "gate_h_q2",
                 4,
                 "H on qubit 2.",
                 [("H", 2)],
+                pretty_name="H Gate (Qubit 2)",
                 suites=["test"],
                 expected=_expected_zero_state_after_gate(4, QGates.H, 2),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             QuantumDataset(
-                "gate_H_q3",
+                "gate_h_q3",
                 4,
                 "H on qubit 3.",
                 [("H", 3)],
+                pretty_name="H Gate (Qubit 3)",
                 suites=["test"],
                 expected=_expected_zero_state_after_gate(4, QGates.H, 3),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             QuantumDataset(
-                "gate_X_q0",
+                "gate_x_q0",
                 4,
                 "X on qubit 0.",
                 [("X", 0)],
+                pretty_name="X Gate (Qubit 0)",
                 suites=["test"],
                 expected=_expected_zero_state_after_gate(4, QGates.X, 0),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             QuantumDataset(
-                "gate_X_q1",
+                "gate_x_q1",
                 4,
                 "X on qubit 1.",
                 [("X", 1)],
+                pretty_name="X Gate (Qubit 1)",
                 suites=["test"],
                 expected=_expected_zero_state_after_gate(4, QGates.X, 1),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             QuantumDataset(
-                "gate_X_q2",
+                "gate_x_q2",
                 4,
                 "X on qubit 2.",
                 [("X", 2)],
+                pretty_name="X Gate (Qubit 2)",
                 suites=["test"],
                 expected=_expected_zero_state_after_gate(4, QGates.X, 2),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             QuantumDataset(
-                "gate_X_q3",
+                "gate_x_q3",
                 4,
                 "X on qubit 3.",
                 [("X", 3)],
+                pretty_name="X Gate (Qubit 3)",
                 suites=["test"],
                 expected=_expected_zero_state_after_gate(4, QGates.X, 3),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             QuantumDataset(
-                "gate_Y_q0",
+                "gate_y_q0",
                 4,
                 "Y on qubit 0.",
                 [("Y", 0)],
+                pretty_name="Y Gate (Qubit 0)",
                 suites=["test"],
                 expected=_expected_zero_state_after_gate(4, QGates.Y, 0),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             QuantumDataset(
-                "gate_Y_q1",
+                "gate_y_q1",
                 4,
                 "Y on qubit 1.",
                 [("Y", 1)],
+                pretty_name="Y Gate (Qubit 1)",
                 suites=["test"],
                 expected=_expected_zero_state_after_gate(4, QGates.Y, 1),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             QuantumDataset(
-                "gate_Y_q2",
+                "gate_y_q2",
                 4,
                 "Y on qubit 2.",
                 [("Y", 2)],
+                pretty_name="Y Gate (Qubit 2)",
                 suites=["test"],
                 expected=_expected_zero_state_after_gate(4, QGates.Y, 2),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             QuantumDataset(
-                "gate_Y_q3",
+                "gate_y_q3",
                 4,
                 "Y on qubit 3.",
                 [("Y", 3)],
+                pretty_name="Y Gate (Qubit 3)",
                 suites=["test"],
                 expected=_expected_zero_state_after_gate(4, QGates.Y, 3),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             QuantumDataset(
-                "gate_Z_q0",
+                "gate_z_q0",
                 4,
                 "Z on qubit 0.",
                 [("Z", 0)],
+                pretty_name="Z Gate (Qubit 0)",
                 suites=["test"],
                 expected=_expected_zero_state_after_gate(4, QGates.Z, 0),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             QuantumDataset(
-                "gate_Z_q1",
+                "gate_z_q1",
                 4,
                 "Z on qubit 1.",
                 [("Z", 1)],
+                pretty_name="Z Gate (Qubit 1)",
                 suites=["test"],
                 expected=_expected_zero_state_after_gate(4, QGates.Z, 1),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             QuantumDataset(
-                "gate_Z_q2",
+                "gate_z_q2",
                 4,
                 "Z on qubit 2.",
                 [("Z", 2)],
+                pretty_name="Z Gate (Qubit 2)",
                 suites=["test"],
                 expected=_expected_zero_state_after_gate(4, QGates.Z, 2),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             QuantumDataset(
-                "gate_Z_q3",
+                "gate_z_q3",
                 4,
                 "Z on qubit 3.",
                 [("Z", 3)],
+                pretty_name="Z Gate (Qubit 3)",
                 suites=["test"],
                 expected=_expected_zero_state_after_gate(4, QGates.Z, 3),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             QuantumDataset(
-                "gate_S_q0",
+                "gate_s_q0",
                 4,
                 "S on qubit 0.",
                 [("S", 0)],
+                pretty_name="S Gate (Qubit 0)",
                 suites=["test"],
                 expected=_expected_zero_state_after_gate(4, QGates.S, 0),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             QuantumDataset(
-                "gate_S_q1",
+                "gate_s_q1",
                 4,
                 "S on qubit 1.",
                 [("S", 1)],
+                pretty_name="S Gate (Qubit 1)",
                 suites=["test"],
                 expected=_expected_zero_state_after_gate(4, QGates.S, 1),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             QuantumDataset(
-                "gate_S_q2",
+                "gate_s_q2",
                 4,
                 "S on qubit 2.",
                 [("S", 2)],
+                pretty_name="S Gate (Qubit 2)",
                 suites=["test"],
                 expected=_expected_zero_state_after_gate(4, QGates.S, 2),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             QuantumDataset(
-                "gate_S_q3",
+                "gate_s_q3",
                 4,
                 "S on qubit 3.",
                 [("S", 3)],
+                pretty_name="S Gate (Qubit 3)",
                 suites=["test"],
                 expected=_expected_zero_state_after_gate(4, QGates.S, 3),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             QuantumDataset(
-                "gate_T_q0",
+                "gate_t_q0",
                 4,
                 "T on qubit 0.",
                 [("T", 0)],
+                pretty_name="T Gate (Qubit 0)",
                 suites=["test"],
                 expected=_expected_zero_state_after_gate(4, QGates.T, 0),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             QuantumDataset(
-                "gate_T_q1",
+                "gate_t_q1",
                 4,
                 "T on qubit 1.",
                 [("T", 1)],
+                pretty_name="T Gate (Qubit 1)",
                 suites=["test"],
                 expected=_expected_zero_state_after_gate(4, QGates.T, 1),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             QuantumDataset(
-                "gate_T_q2",
+                "gate_t_q2",
                 4,
                 "T on qubit 2.",
                 [("T", 2)],
+                pretty_name="T Gate (Qubit 2)",
                 suites=["test"],
                 expected=_expected_zero_state_after_gate(4, QGates.T, 2),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             QuantumDataset(
-                "gate_T_q3",
+                "gate_t_q3",
                 4,
                 "T on qubit 3.",
                 [("T", 3)],
+                pretty_name="T Gate (Qubit 3)",
                 suites=["test"],
                 expected=_expected_zero_state_after_gate(4, QGates.T, 3),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             QuantumDataset(
-                "h_twice_returns_to_original",
+                "h_twice",
                 5,
                 "Applying H twice returns to the original state.",
                 [("H", 2), ("H", 2)],
+                pretty_name="H Twice",
                 suites=["test"],
                 expected=_zero_state(5),
                 ref_meta={"atol": 1e-13, "rtol": 1e-13},
@@ -552,7 +582,7 @@ class QuantumStatevectorBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "Quantum Circuit Statevector"
+        return "Random Quantum Circuit Statevector"
 
     @property
     def description(self) -> str:
@@ -563,7 +593,7 @@ class QuantumStatevectorBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["group-quantum"]
+        return ["standard-quantum"]
 
     @property
     def concepts(self) -> str:

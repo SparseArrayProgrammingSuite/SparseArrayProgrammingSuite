@@ -18,7 +18,6 @@ from saps.benchmark import (
 from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     fetch_suitesparse_linear_system,
-    suite_sparse_rhs_dataset_name,
 )
 from saps_framework.binsparse_utils import binsparse_equal
 
@@ -28,6 +27,7 @@ class CGDataset(SuiteSparseDataset):
         self,
         source_name: str,
         *,
+        pretty_name: str | None = None,
         suites: list[str] | None = None,
         A: np.ndarray | None = None,
         b: np.ndarray | None = None,
@@ -36,11 +36,14 @@ class CGDataset(SuiteSparseDataset):
         max_iter: int = 100,
         rel_tol: float = 1e-6,
     ):
-        dataset_name = suite_sparse_rhs_dataset_name(source_name, rhs_index)
+        name = source_name
+        if rhs_index is not None:
+            name = f"{source_name}_rhs{rhs_index}"
+            pretty_name = f"{source_name} (RHS {rhs_index})"
         super().__init__(
-            dataset_name,
+            name,
             source_name=source_name,
-            pretty_name=f"CG {source_name}",
+            pretty_name=pretty_name,
             suites=suites,
             rhs_index=rhs_index,
         )
@@ -57,11 +60,11 @@ class CGDataset(SuiteSparseDataset):
 class CGTestGenerator(Generator[CGDataset]):
     @property
     def name(self) -> str:
-        return "cg_test_inputs"
+        return "cg_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Conjugate Gradient Test Data Generator"
+        return "Conjugate Gradient Test"
 
     @property
     def description(self) -> str:
@@ -102,21 +105,24 @@ class CGTestGenerator(Generator[CGDataset]):
     def datasets(self) -> list[CGDataset]:
         return [
             CGDataset(
-                "test_3x3_tridiagonal",
+                "3x3_tridiagonal",
+                pretty_name="3x3 Tridiagonal",
                 suites=["test"],
                 A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]),
                 b=np.array([4.0, 8.0, 16.0]),
                 x=np.zeros((3,)),
             ),
             CGDataset(
-                "test_3x3_dense",
+                "3x3_dense",
+                pretty_name="3x3 Dense",
                 suites=["test"],
                 A=np.array([[7.0, 2.0, 1.0], [2.0, 6.0, -1.0], [1.0, -1.0, 5.0]]),
                 b=np.array([13.0, -3.0, 8.0]),
                 x=np.zeros((3,)),
             ),
             CGDataset(
-                "test_4x4_tridiagonal",
+                "4x4_tridiagonal",
+                pretty_name="4x4 Tridiagonal",
                 suites=["test"],
                 A=np.array(
                     [
@@ -130,14 +136,16 @@ class CGTestGenerator(Generator[CGDataset]):
                 x=np.zeros((4,)),
             ),
             CGDataset(
-                "test_3x3_indefinite_sparse",
+                "3x3_indefinite_sparse",
+                pretty_name="3x3 Indefinite Sparse",
                 suites=["test"],
                 A=np.array([[12.0, 2.0, -1.0], [2.0, 10.0, 3.0], [-1.0, 3.0, 9.0]]),
                 b=np.array([40.0, 10.0, -18.0]),
                 x=np.zeros((3,)),
             ),
             CGDataset(
-                "test_3x3_scaled_tridiagonal",
+                "3x3_scaled_tridiagonal",
+                pretty_name="3x3 Scaled Tridiagonal",
                 suites=["test"],
                 A=np.array(
                     [[120.0, -2.0, 0.0], [-2.0, 120.0, -2.0], [0.0, -2.0, 120.0]]
@@ -146,7 +154,8 @@ class CGTestGenerator(Generator[CGDataset]):
                 x=np.zeros((3,)),
             ),
             CGDataset(
-                "test_5x5_sparse",
+                "5x5_sparse",
+                pretty_name="5x5 Sparse",
                 suites=["test"],
                 A=np.array(
                     [
@@ -180,11 +189,11 @@ class CGTestGenerator(Generator[CGDataset]):
 class CGGenerator(Generator[CGDataset]):
     @property
     def name(self) -> str:
-        return "cg_inputs"
+        return "cg_suitesparse"
 
     @property
     def pretty_name(self) -> str:
-        return "Conjugate Gradient SuiteSparse Data Generator"
+        return "Conjugate Gradient SuiteSparse"
 
     @property
     def description(self) -> str:
@@ -1015,28 +1024,28 @@ class CGGenerator(Generator[CGDataset]):
             ),
             CGDataset(
                 "Schenk_AFE/af_shell3",
-                suites=["standard"],
+                suites=["standard", "trace", "train"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             CGDataset(
                 "Schenk_AFE/af_shell4",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             CGDataset(
                 "Schenk_AFE/af_shell7",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             CGDataset(
                 "Schenk_AFE/af_shell8",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
@@ -1080,16 +1089,12 @@ class CGGenerator(Generator[CGDataset]):
 
 class CGBenchmark(Benchmark):
     @property
-    def tag(self) -> str:
-        return "cg_solver"
-
-    @property
     def name(self) -> str:
-        return "cg_solver"
+        return "cg"
 
     @property
     def pretty_name(self) -> str:
-        return "Conjugate Gradient Iterative Solver"
+        return "Conjugate Gradient"
 
     @property
     def description(self) -> str:
@@ -1097,7 +1102,7 @@ class CGBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["group-solvers"]
+        return ["standard-solvers"]
 
     @property
     def concepts(self) -> str:

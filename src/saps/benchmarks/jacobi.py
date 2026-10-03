@@ -18,7 +18,6 @@ from saps.benchmark import (
 from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     fetch_suitesparse_linear_system,
-    suite_sparse_rhs_dataset_name,
 )
 from saps_framework.binsparse_utils import binsparse_equal
 
@@ -28,6 +27,7 @@ class JacobiDataset(SuiteSparseDataset):
         self,
         source_name: str,
         *,
+        pretty_name: str | None = None,
         suites: list[str] | None = None,
         A: np.ndarray | None = None,
         b: np.ndarray | None = None,
@@ -36,11 +36,14 @@ class JacobiDataset(SuiteSparseDataset):
         max_iter: int = 1000,
         rel_tol: float = 1e-6,
     ):
-        dataset_name = suite_sparse_rhs_dataset_name(source_name, rhs_index)
+        name = source_name
+        if rhs_index is not None:
+            name = f"{source_name}_rhs{rhs_index}"
+            pretty_name = f"{source_name} (RHS {rhs_index})"
         super().__init__(
-            dataset_name,
+            name,
             source_name=source_name,
-            pretty_name=f"Jacobi {source_name}",
+            pretty_name=pretty_name,
             suites=suites,
             rhs_index=rhs_index,
         )
@@ -57,11 +60,11 @@ class JacobiDataset(SuiteSparseDataset):
 class JacobiTestGenerator(Generator[JacobiDataset]):
     @property
     def name(self) -> str:
-        return "jacobi_test_inputs"
+        return "jacobi_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Jacobi Test Data Generator"
+        return "Jacobi Method Test"
 
     @property
     def description(self) -> str:
@@ -102,14 +105,16 @@ class JacobiTestGenerator(Generator[JacobiDataset]):
     def datasets(self) -> list[JacobiDataset]:
         return [
             JacobiDataset(
-                "test_3x3",
+                "3x3",
+                pretty_name="3x3",
                 suites=["test"],
                 A=np.array([[4.0, 1.0, 0.0], [1.0, 5.0, 2.0], [0.0, 2.0, 6.0]]),
                 b=np.array([5.0, 8.0, 8.0]),
                 x=np.zeros((3,)),
             ),
             JacobiDataset(
-                "test_4x4",
+                "4x4",
+                pretty_name="4x4",
                 suites=["test"],
                 A=np.array(
                     [
@@ -123,7 +128,8 @@ class JacobiTestGenerator(Generator[JacobiDataset]):
                 x=np.zeros((4,)),
             ),
             JacobiDataset(
-                "test_3x3_dominant",
+                "3x3_dominant",
+                pretty_name="3x3 Dominant",
                 suites=["test"],
                 A=np.array([[20.0, 3.0, 1.0], [2.0, 15.0, 4.0], [1.0, 2.0, 18.0]]),
                 b=np.array([24.0, 21.0, 21.0]),
@@ -149,11 +155,11 @@ class JacobiTestGenerator(Generator[JacobiDataset]):
 class JacobiGenerator(Generator[JacobiDataset]):
     @property
     def name(self) -> str:
-        return "jacobi_inputs"
+        return "jacobi_suitesparse"
 
     @property
     def pretty_name(self) -> str:
-        return "Jacobi SuiteSparse Data Generator"
+        return "Jacobi Method SuiteSparse"
 
     @property
     def description(self) -> str:
@@ -259,13 +265,16 @@ class JacobiGenerator(Generator[JacobiDataset]):
             ),
             JacobiDataset(
                 "Bourchtein/atmosmodm",
-                suites=["standard"],
+                suites=["standard", "trace", "train"],
                 max_iter=1000,
                 rel_tol=1e-06,
                 rhs_index=1,
             ),
             JacobiDataset(
-                "Cunningham/qa8fk", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Cunningham/qa8fk",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
                 "FEMLAB/problem1",
@@ -703,16 +712,12 @@ class JacobiGenerator(Generator[JacobiDataset]):
 
 class JacobiBenchmark(Benchmark):
     @property
-    def tag(self) -> str:
-        return "jacobi_solver"
-
-    @property
     def name(self) -> str:
-        return "jacobi_solver"
+        return "jacobi"
 
     @property
     def pretty_name(self) -> str:
-        return "Jacobi Iterative Solver"
+        return "Jacobi Method"
 
     @property
     def description(self) -> str:
@@ -720,7 +725,7 @@ class JacobiBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["group-solvers"]
+        return ["standard-solvers"]
 
     @property
     def concepts(self) -> str:

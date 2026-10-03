@@ -56,11 +56,11 @@ class NetflixPrizeGenerator(Generator[NetflixPrizeDataset]):
 
     @property
     def name(self) -> str:
-        return "netflixprize"
+        return "netflix_prize_ratings"
 
     @property
     def pretty_name(self) -> str:
-        return "Netflix Prize Dataset"
+        return "Netflix Prize Ratings"
 
     @property
     def description(self) -> str:

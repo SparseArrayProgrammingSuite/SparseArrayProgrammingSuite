@@ -75,7 +75,7 @@ class GCareDataset(Dataset):
 
     @property
     def pretty_name(self) -> str:
-        return f"{self._subset_name}, Query {self._query_name}"
+        return f"{self._subset_name}/{self._query_name}"
 
     @property
     def description(self) -> str:
@@ -91,8 +91,9 @@ class GCareDataset(Dataset):
 
 
 class SubgraphMatchingTestDataset(Dataset):
-    def __init__(self, name, expr, matrix_names, gt, suites=None):
+    def __init__(self, name, expr, matrix_names, gt, pretty_name, suites=None):
         self._name = name
+        self._pretty_name = pretty_name
         self.expr = expr
         self.matrix_names = matrix_names
         self.gt = gt
@@ -104,7 +105,7 @@ class SubgraphMatchingTestDataset(Dataset):
 
     @property
     def pretty_name(self) -> str:
-        return f"Subgraph Matching {self._name}"
+        return self._pretty_name
 
     @property
     def description(self) -> str:
@@ -126,11 +127,11 @@ class SubgraphMatchingTestGenerator(Generator[SubgraphMatchingTestDataset]):
 
     @property
     def name(self) -> str:
-        return "subgraph_matching_test_inputs"
+        return "subgraph_matching_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Subgraph Matching Test Inputs"
+        return "Subgraph Matching Test"
 
     @property
     def description(self) -> str:
@@ -168,6 +169,7 @@ class SubgraphMatchingTestGenerator(Generator[SubgraphMatchingTestDataset]):
                 "S[] += E0[i,j]",
                 ["E0"],
                 3,
+                "All Edges",
                 suites=["test"],
             ),
             SubgraphMatchingTestDataset(
@@ -175,6 +177,7 @@ class SubgraphMatchingTestGenerator(Generator[SubgraphMatchingTestDataset]):
                 "S[] += VA[v]",
                 ["VA"],
                 2,
+                "Label A Count",
                 suites=["test"],
             ),
             SubgraphMatchingTestDataset(
@@ -182,6 +185,7 @@ class SubgraphMatchingTestGenerator(Generator[SubgraphMatchingTestDataset]):
                 "S[] += VA[u] * E0[u,v] * VB[v]",
                 ["VA", "E0", "VB"],
                 2,
+                "A to B",
                 suites=["test"],
             ),
             SubgraphMatchingTestDataset(
@@ -189,6 +193,7 @@ class SubgraphMatchingTestGenerator(Generator[SubgraphMatchingTestDataset]):
                 "S[] += VB[u] * E0[u,v] * VA[v]",
                 ["VB", "E0", "VA"],
                 0,
+                "B to A",
                 suites=["test"],
             ),
         ]
@@ -236,11 +241,11 @@ class SubgraphMatchingTestGenerator(Generator[SubgraphMatchingTestDataset]):
 class GCareGraphGenerator(Generator[GCareGraphDataset]):
     @property
     def name(self) -> str:
-        return "subgraph_gcare_graph"
+        return "gcare_graph"
 
     @property
     def pretty_name(self) -> str:
-        return "Subgraph G-CARE Graph Generator"
+        return "G-CARE Graphs"
 
     @property
     def description(self) -> str:
@@ -303,25 +308,25 @@ class GCareGraphGenerator(Generator[GCareGraphDataset]):
         return [
             GCareGraphDataset(
                 name="human",
-                pretty_name="G-CARE Human Subset (Small)",
+                pretty_name="human",
                 description=("G-CARE Human Subset (Small)"),
                 suites=[],
             ),
             GCareGraphDataset(
                 name="aids",
-                pretty_name="G-CARE AIDS Subset (Medium)",
+                pretty_name="aids",
                 description=("G-CARE AIDS Subset (Medium)"),
                 suites=[],
             ),
             GCareGraphDataset(
                 name="lubm80",
-                pretty_name="G-CARE LUBM80 Subset (Large)",
+                pretty_name="lubm80",
                 description=("G-CARE LUBM80 Subset (Large)"),
                 suites=[],
             ),
             GCareGraphDataset(
                 name="yago",
-                pretty_name="G-CARE YAGO Subset (Huge)",
+                pretty_name="yago",
                 description=("G-CARE YAGO Subset (Huge)"),
                 suites=[],
             ),
@@ -475,11 +480,11 @@ class GCareGenerator(Generator[GCareDataset]):
 class GCareHumanGenerator(GCareGenerator):
     @property
     def name(self) -> str:
-        return "subgraph_gcare_human"
+        return "subgraph_matching_gcare_human"
 
     @property
     def pretty_name(self) -> str:
-        return "Subgraph G-CARE Generator (Human)"
+        return "Subgraph Matching G-CARE Human"
 
     @property
     def datasets(self):
@@ -539,11 +544,11 @@ class GCareHumanGenerator(GCareGenerator):
 class GCareAIDSGenerator(GCareGenerator):
     @property
     def name(self) -> str:
-        return "subgraph_gcare_aids"
+        return "subgraph_matching_gcare_aids"
 
     @property
     def pretty_name(self) -> str:
-        return "Subgraph G-CARE Generator (AIDS)"
+        return "Subgraph Matching G-CARE AIDS"
 
     @property
     def datasets(self):
@@ -642,8 +647,8 @@ class GCareAIDSGenerator(GCareGenerator):
             GCareDataset("aids", "Chain_6/uf_Q_4_9"),
             GCareDataset("aids", "Chain_6/uf_Q_5_10"),
             GCareDataset("aids", "Chain_6/uf_Q_5_11"),
-            GCareDataset("aids", "Star_12/uf_Q_4_1"),
-            GCareDataset("aids", "Star_12/uf_Q_4_2"),
+            GCareDataset("aids", "Star_12/uf_Q_4_1", suites=["trace"]),
+            GCareDataset("aids", "Star_12/uf_Q_4_2", suites=["trace"]),
             GCareDataset("aids", "Chain_9/uf_Q_2_1"),
             GCareDataset("aids", "Chain_9/uf_Q_4_7"),
             GCareDataset("aids", "Chain_9/uf_Q_4_6"),
@@ -688,55 +693,55 @@ class GCareAIDSGenerator(GCareGenerator):
             GCareDataset("aids", "Chain_9/uf_Q_4_9"),
             GCareDataset("aids", "Chain_9/uf_Q_5_10"),
             GCareDataset("aids", "Chain_9/uf_Q_5_11"),
-            GCareDataset("aids", "Tree_6/uf_Q_2_1"),
-            GCareDataset("aids", "Tree_6/uf_Q_5_20"),
-            GCareDataset("aids", "Tree_6/uf_Q_2_2"),
-            GCareDataset("aids", "Tree_6/uf_Q_4_4"),
-            GCareDataset("aids", "Tree_6/uf_Q_4_5"),
-            GCareDataset("aids", "Tree_6/uf_Q_2_3"),
-            GCareDataset("aids", "Tree_6/uf_Q_4_1"),
-            GCareDataset("aids", "Tree_6/uf_Q_2_6"),
-            GCareDataset("aids", "Tree_6/uf_Q_2_4"),
-            GCareDataset("aids", "Tree_6/uf_Q_5_19"),
-            GCareDataset("aids", "Tree_6/uf_Q_4_2"),
-            GCareDataset("aids", "Tree_6/uf_Q_4_3"),
-            GCareDataset("aids", "Tree_6/uf_Q_5_18"),
-            GCareDataset("aids", "Tree_6/uf_Q_2_5"),
-            GCareDataset("aids", "Tree_6/uf_Q_5_4"),
-            GCareDataset("aids", "Tree_6/uf_Q_3_2"),
-            GCareDataset("aids", "Tree_6/uf_Q_3_3"),
-            GCareDataset("aids", "Tree_6/uf_Q_1_1"),
+            GCareDataset("aids", "Tree_6/uf_Q_2_1", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_5_20", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_2_2", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_4_4", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_4_5", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_2_3", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_4_1", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_2_6", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_2_4", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_5_19", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_4_2", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_4_3", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_5_18", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_2_5", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_5_4", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_3_2", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_3_3", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_1_1", suites=["trace"]),
             GCareDataset("aids", "Tree_6/uf_Q_5_5"),
-            GCareDataset("aids", "Tree_6/uf_Q_5_7"),
-            GCareDataset("aids", "Tree_6/uf_Q_1_3"),
-            GCareDataset("aids", "Tree_6/uf_Q_3_1"),
-            GCareDataset("aids", "Tree_6/uf_Q_1_2"),
-            GCareDataset("aids", "Tree_6/uf_Q_5_6"),
-            GCareDataset("aids", "Tree_6/uf_Q_5_2"),
-            GCareDataset("aids", "Tree_6/uf_Q_3_4"),
-            GCareDataset("aids", "Tree_6/uf_Q_3_5"),
-            GCareDataset("aids", "Tree_6/uf_Q_5_3"),
+            GCareDataset("aids", "Tree_6/uf_Q_5_7", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_1_3", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_3_1", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_1_2", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_5_6", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_5_2", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_3_4", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_3_5", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_5_3", suites=["trace"]),
             GCareDataset("aids", "Tree_6/uf_Q_5_1"),
-            GCareDataset("aids", "Tree_6/uf_Q_3_7"),
-            GCareDataset("aids", "Tree_6/uf_Q_3_6"),
-            GCareDataset("aids", "Tree_6/uf_Q_1_4"),
-            GCareDataset("aids", "Tree_6/uf_Q_3_14"),
-            GCareDataset("aids", "Tree_6/uf_Q_3_8"),
+            GCareDataset("aids", "Tree_6/uf_Q_3_7", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_3_6", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_1_4", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_3_14", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_3_8", suites=["trace"]),
             GCareDataset("aids", "Tree_6/uf_Q_3_9"),
-            GCareDataset("aids", "Tree_6/uf_Q_3_11"),
-            GCareDataset("aids", "Tree_6/uf_Q_3_10"),
-            GCareDataset("aids", "Tree_6/uf_Q_5_8"),
-            GCareDataset("aids", "Tree_6/uf_Q_3_12"),
-            GCareDataset("aids", "Tree_6/uf_Q_3_13"),
+            GCareDataset("aids", "Tree_6/uf_Q_3_11", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_3_10", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_5_8", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_3_12", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_3_13", suites=["trace"]),
             GCareDataset("aids", "Tree_6/uf_Q_5_9"),
-            GCareDataset("aids", "Tree_6/uf_Q_5_15"),
+            GCareDataset("aids", "Tree_6/uf_Q_5_15", suites=["trace"]),
             GCareDataset("aids", "Tree_6/uf_Q_5_14"),
             GCareDataset("aids", "Tree_6/uf_Q_5_16"),
             GCareDataset("aids", "Tree_6/uf_Q_5_17"),
-            GCareDataset("aids", "Tree_6/uf_Q_5_13"),
+            GCareDataset("aids", "Tree_6/uf_Q_5_13", suites=["trace"]),
             GCareDataset("aids", "Tree_6/uf_Q_5_12"),
-            GCareDataset("aids", "Tree_6/uf_Q_5_10"),
-            GCareDataset("aids", "Tree_6/uf_Q_5_11"),
+            GCareDataset("aids", "Tree_6/uf_Q_5_10", suites=["trace"]),
+            GCareDataset("aids", "Tree_6/uf_Q_5_11", suites=["trace"]),
             GCareDataset("aids", "Cycle_6/uf_Q_2_1"),
             GCareDataset("aids", "Cycle_6/uf_Q_2_2"),
             GCareDataset("aids", "Cycle_6/uf_Q_2_4"),
@@ -787,8 +792,8 @@ class GCareAIDSGenerator(GCareGenerator):
             GCareDataset("aids", "Flower_6/uf_Q_3_10"),
             GCareDataset("aids", "Flower_6/uf_Q_3_12"),
             GCareDataset("aids", "Flower_6/uf_Q_3_13"),
-            GCareDataset("aids", "Graph_9/uf_Q_0_2"),
-            GCareDataset("aids", "Graph_9/uf_Q_0_1"),
+            GCareDataset("aids", "Graph_9/uf_Q_0_2", suites=["trace"]),
+            GCareDataset("aids", "Graph_9/uf_Q_0_1", suites=["trace"]),
             GCareDataset("aids", "Graph_9/uf_Q_1_3"),
             GCareDataset("aids", "Tree_12/uf_Q_4_7"),
             GCareDataset("aids", "Tree_12/uf_Q_4_6"),
@@ -831,14 +836,14 @@ class GCareAIDSGenerator(GCareGenerator):
             GCareDataset("aids", "Tree_9/uf_Q_4_1"),
             GCareDataset("aids", "Tree_9/uf_Q_4_2"),
             GCareDataset("aids", "Tree_9/uf_Q_4_3"),
-            GCareDataset("aids", "Tree_9/uf_Q_5_4"),
-            GCareDataset("aids", "Tree_9/uf_Q_3_2"),
+            GCareDataset("aids", "Tree_9/uf_Q_5_4", suites=["trace"]),
+            GCareDataset("aids", "Tree_9/uf_Q_3_2", suites=["trace", "train"]),
             GCareDataset("aids", "Tree_9/uf_Q_3_3"),
-            GCareDataset("aids", "Tree_9/uf_Q_5_5"),
+            GCareDataset("aids", "Tree_9/uf_Q_5_5", suites=["trace"]),
             GCareDataset("aids", "Tree_9/uf_Q_5_7"),
             GCareDataset("aids", "Tree_9/uf_Q_4_14"),
             GCareDataset("aids", "Tree_9/uf_Q_3_1"),
-            GCareDataset("aids", "Tree_9/uf_Q_4_15"),
+            GCareDataset("aids", "Tree_9/uf_Q_4_15", suites=["trace"]),
             GCareDataset("aids", "Tree_9/uf_Q_5_6"),
             GCareDataset("aids", "Tree_9/uf_Q_5_2"),
             GCareDataset("aids", "Tree_9/uf_Q_4_11"),
@@ -853,7 +858,7 @@ class GCareAIDSGenerator(GCareGenerator):
             GCareDataset("aids", "Tree_9/uf_Q_4_13"),
             GCareDataset("aids", "Tree_9/uf_Q_3_8"),
             GCareDataset("aids", "Tree_9/uf_Q_3_9"),
-            GCareDataset("aids", "Tree_9/uf_Q_3_10"),
+            GCareDataset("aids", "Tree_9/uf_Q_3_10", suites=["trace"]),
             GCareDataset("aids", "Tree_9/uf_Q_5_8"),
             GCareDataset("aids", "Tree_9/uf_Q_5_9"),
             GCareDataset("aids", "Tree_9/uf_Q_4_8"),
@@ -903,55 +908,55 @@ class GCareAIDSGenerator(GCareGenerator):
             GCareDataset("aids", "Graph_6/uf_Q_4_2"),
             GCareDataset("aids", "Graph_6/uf_Q_4_3"),
             GCareDataset("aids", "Graph_6/uf_Q_5_4"),
-            GCareDataset("aids", "Graph_6/uf_Q_3_2"),
+            GCareDataset("aids", "Graph_6/uf_Q_3_2", suites=["trace"]),
             GCareDataset("aids", "Graph_6/uf_Q_3_1"),
-            GCareDataset("aids", "Graph_6/uf_Q_1_7"),
+            GCareDataset("aids", "Graph_6/uf_Q_1_7", suites=["trace"]),
             GCareDataset("aids", "Graph_6/uf_Q_5_3"),
-            GCareDataset("aids", "Graph_6/uf_Q_5_1"),
+            GCareDataset("aids", "Graph_6/uf_Q_5_1", suites=["trace"]),
             GCareDataset("aids", "Graph_6/uf_Q_3_8"),
             GCareDataset("aids", "Graph_6/uf_Q_4_18"),
             GCareDataset("aids", "Graph_6/uf_Q_5_14"),
-            GCareDataset("aids", "Graph_6/uf_Q_5_10"),
+            GCareDataset("aids", "Graph_6/uf_Q_5_10", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_2_1", suites=["trace"]),
-            GCareDataset("aids", "Star_3/uf_Q_4_7"),
-            GCareDataset("aids", "Star_3/uf_Q_4_6"),
+            GCareDataset("aids", "Star_3/uf_Q_4_7", suites=["trace"]),
+            GCareDataset("aids", "Star_3/uf_Q_4_6", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_2_2", suites=["trace"]),
-            GCareDataset("aids", "Star_3/uf_Q_4_4"),
-            GCareDataset("aids", "Star_3/uf_Q_4_5"),
+            GCareDataset("aids", "Star_3/uf_Q_4_4", suites=["trace"]),
+            GCareDataset("aids", "Star_3/uf_Q_4_5", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_0_1", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_2_3", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_2_7", suites=["trace"]),
-            GCareDataset("aids", "Star_3/uf_Q_4_1"),
+            GCareDataset("aids", "Star_3/uf_Q_4_1", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_2_12", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_2_6", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_2_4", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_2_10", suites=["trace"]),
-            GCareDataset("aids", "Star_3/uf_Q_4_2"),
-            GCareDataset("aids", "Star_3/uf_Q_4_3"),
+            GCareDataset("aids", "Star_3/uf_Q_4_2", suites=["trace"]),
+            GCareDataset("aids", "Star_3/uf_Q_4_3", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_2_11", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_2_5", suites=["trace"]),
-            GCareDataset("aids", "Star_3/uf_Q_4_17"),
+            GCareDataset("aids", "Star_3/uf_Q_4_17", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_3_2", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_3_3", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_1_1", suites=["trace"]),
-            GCareDataset("aids", "Star_3/uf_Q_4_16"),
-            GCareDataset("aids", "Star_3/uf_Q_4_14"),
+            GCareDataset("aids", "Star_3/uf_Q_4_16", suites=["trace"]),
+            GCareDataset("aids", "Star_3/uf_Q_4_14", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_1_3", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_3_1", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_1_2", suites=["trace"]),
-            GCareDataset("aids", "Star_3/uf_Q_4_15"),
-            GCareDataset("aids", "Star_3/uf_Q_4_11"),
+            GCareDataset("aids", "Star_3/uf_Q_4_15", suites=["trace"]),
+            GCareDataset("aids", "Star_3/uf_Q_4_11", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_1_6", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_3_4", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_3_5", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_1_7", suites=["trace"]),
-            GCareDataset("aids", "Star_3/uf_Q_4_10"),
-            GCareDataset("aids", "Star_3/uf_Q_4_12"),
+            GCareDataset("aids", "Star_3/uf_Q_4_10", suites=["trace"]),
+            GCareDataset("aids", "Star_3/uf_Q_4_12", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_1_5", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_3_7", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_3_6", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_1_4", suites=["trace"]),
-            GCareDataset("aids", "Star_3/uf_Q_4_13"),
+            GCareDataset("aids", "Star_3/uf_Q_4_13", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_3_17", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_1_9", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_1_8", suites=["trace"]),
@@ -959,18 +964,18 @@ class GCareAIDSGenerator(GCareGenerator):
             GCareDataset("aids", "Star_3/uf_Q_3_14", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_3_8", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_3_9", suites=["trace"]),
-            GCareDataset("aids", "Star_3/uf_Q_4_20"),
-            GCareDataset("aids", "Star_3/uf_Q_3_15"),
-            GCareDataset("aids", "Star_3/uf_Q_4_18"),
+            GCareDataset("aids", "Star_3/uf_Q_4_20", suites=["trace"]),
+            GCareDataset("aids", "Star_3/uf_Q_3_15", suites=["trace"]),
+            GCareDataset("aids", "Star_3/uf_Q_4_18", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_3_11", suites=["trace"]),
-            GCareDataset("aids", "Star_3/uf_Q_4_19"),
+            GCareDataset("aids", "Star_3/uf_Q_4_19", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_3_10", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_3_12", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_3_13", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_2_8", suites=["trace"]),
             GCareDataset("aids", "Star_3/uf_Q_2_9", suites=["trace"]),
-            GCareDataset("aids", "Star_3/uf_Q_4_8"),
-            GCareDataset("aids", "Star_3/uf_Q_4_9"),
+            GCareDataset("aids", "Star_3/uf_Q_4_8", suites=["trace"]),
+            GCareDataset("aids", "Star_3/uf_Q_4_9", suites=["trace"]),
             GCareDataset("aids", "Petal_12/uf_Q_2_1"),
             GCareDataset("aids", "Petal_12/uf_Q_4_1"),
             GCareDataset("aids", "Petal_12/uf_Q_5_19"),
@@ -1003,71 +1008,71 @@ class GCareAIDSGenerator(GCareGenerator):
             GCareDataset("aids", "Flower_12/uf_Q_5_8"),
             GCareDataset("aids", "Flower_12/uf_Q_5_9"),
             GCareDataset("aids", "Chain_3/uf_Q_2_1", suites=["trace"]),
-            GCareDataset("aids", "Chain_3/uf_Q_4_7"),
+            GCareDataset("aids", "Chain_3/uf_Q_4_7", suites=["trace"]),
             GCareDataset("aids", "Chain_3/uf_Q_2_15", suites=["trace"]),
             GCareDataset("aids", "Chain_3/uf_Q_2_14", suites=["trace"]),
-            GCareDataset("aids", "Chain_3/uf_Q_4_6"),
+            GCareDataset("aids", "Chain_3/uf_Q_4_6", suites=["trace"]),
             GCareDataset("aids", "Chain_3/uf_Q_0_2", suites=["trace"]),
-            GCareDataset("aids", "Chain_3/uf_Q_2_2"),
-            GCareDataset("aids", "Chain_3/uf_Q_4_4"),
-            GCareDataset("aids", "Chain_3/uf_Q_4_5"),
-            GCareDataset("aids", "Chain_3/uf_Q_2_3"),
-            GCareDataset("aids", "Chain_3/uf_Q_2_7"),
+            GCareDataset("aids", "Chain_3/uf_Q_2_2", suites=["trace"]),
+            GCareDataset("aids", "Chain_3/uf_Q_4_4", suites=["trace"]),
+            GCareDataset("aids", "Chain_3/uf_Q_4_5", suites=["trace"]),
+            GCareDataset("aids", "Chain_3/uf_Q_2_3", suites=["trace"]),
+            GCareDataset("aids", "Chain_3/uf_Q_2_7", suites=["trace"]),
             GCareDataset("aids", "Chain_3/uf_Q_2_13", suites=["trace"]),
-            GCareDataset("aids", "Chain_3/uf_Q_4_1"),
-            GCareDataset("aids", "Chain_3/uf_Q_2_12"),
-            GCareDataset("aids", "Chain_3/uf_Q_2_6"),
-            GCareDataset("aids", "Chain_3/uf_Q_2_4"),
+            GCareDataset("aids", "Chain_3/uf_Q_4_1", suites=["trace"]),
+            GCareDataset("aids", "Chain_3/uf_Q_2_12", suites=["trace"]),
+            GCareDataset("aids", "Chain_3/uf_Q_2_6", suites=["trace"]),
+            GCareDataset("aids", "Chain_3/uf_Q_2_4", suites=["trace"]),
             GCareDataset("aids", "Chain_3/uf_Q_2_10", suites=["trace"]),
-            GCareDataset("aids", "Chain_3/uf_Q_4_2"),
-            GCareDataset("aids", "Chain_3/uf_Q_4_3"),
-            GCareDataset("aids", "Chain_3/uf_Q_2_11"),
-            GCareDataset("aids", "Chain_3/uf_Q_2_5"),
-            GCareDataset("aids", "Chain_3/uf_Q_4_17"),
-            GCareDataset("aids", "Chain_3/uf_Q_3_2"),
-            GCareDataset("aids", "Chain_3/uf_Q_3_3"),
+            GCareDataset("aids", "Chain_3/uf_Q_4_2", suites=["trace"]),
+            GCareDataset("aids", "Chain_3/uf_Q_4_3", suites=["trace"]),
+            GCareDataset("aids", "Chain_3/uf_Q_2_11", suites=["trace"]),
+            GCareDataset("aids", "Chain_3/uf_Q_2_5", suites=["trace"]),
+            GCareDataset("aids", "Chain_3/uf_Q_4_17", suites=["trace"]),
+            GCareDataset("aids", "Chain_3/uf_Q_3_2", suites=["trace"]),
+            GCareDataset("aids", "Chain_3/uf_Q_3_3", suites=["trace"]),
             GCareDataset("aids", "Chain_3/uf_Q_1_1", suites=["trace"]),
-            GCareDataset("aids", "Chain_3/uf_Q_4_16"),
-            GCareDataset("aids", "Chain_3/uf_Q_4_14"),
+            GCareDataset("aids", "Chain_3/uf_Q_4_16", suites=["trace"]),
+            GCareDataset("aids", "Chain_3/uf_Q_4_14", suites=["trace"]),
             GCareDataset("aids", "Chain_3/uf_Q_1_3", suites=["trace"]),
-            GCareDataset("aids", "Chain_3/uf_Q_3_1"),
+            GCareDataset("aids", "Chain_3/uf_Q_3_1", suites=["trace"]),
             GCareDataset("aids", "Chain_3/uf_Q_1_2", suites=["trace"]),
-            GCareDataset("aids", "Chain_3/uf_Q_4_15"),
-            GCareDataset("aids", "Chain_3/uf_Q_5_2"),
-            GCareDataset("aids", "Chain_3/uf_Q_4_11"),
-            GCareDataset("aids", "Chain_3/uf_Q_3_4"),
+            GCareDataset("aids", "Chain_3/uf_Q_4_15", suites=["trace"]),
+            GCareDataset("aids", "Chain_3/uf_Q_5_2", suites=["trace"]),
+            GCareDataset("aids", "Chain_3/uf_Q_4_11", suites=["trace"]),
+            GCareDataset("aids", "Chain_3/uf_Q_3_4", suites=["trace"]),
             GCareDataset("aids", "Chain_3/uf_Q_3_5", suites=["trace"]),
-            GCareDataset("aids", "Chain_3/uf_Q_4_10"),
-            GCareDataset("aids", "Chain_3/uf_Q_5_3"),
-            GCareDataset("aids", "Chain_3/uf_Q_5_1"),
-            GCareDataset("aids", "Chain_3/uf_Q_4_12"),
+            GCareDataset("aids", "Chain_3/uf_Q_4_10", suites=["trace"]),
+            GCareDataset("aids", "Chain_3/uf_Q_5_3", suites=["trace"]),
+            GCareDataset("aids", "Chain_3/uf_Q_5_1", suites=["trace"]),
+            GCareDataset("aids", "Chain_3/uf_Q_4_12", suites=["trace"]),
             GCareDataset("aids", "Chain_3/uf_Q_1_5", suites=["trace"]),
             GCareDataset("aids", "Chain_3/uf_Q_3_7", suites=["trace"]),
-            GCareDataset("aids", "Chain_3/uf_Q_3_6"),
+            GCareDataset("aids", "Chain_3/uf_Q_3_6", suites=["trace"]),
             GCareDataset("aids", "Chain_3/uf_Q_1_4", suites=["trace"]),
-            GCareDataset("aids", "Chain_3/uf_Q_4_13"),
+            GCareDataset("aids", "Chain_3/uf_Q_4_13", suites=["trace"]),
             GCareDataset("aids", "Chain_3/uf_Q_3_8", suites=["trace"]),
             GCareDataset("aids", "Chain_3/uf_Q_3_9", suites=["trace"]),
-            GCareDataset("aids", "Chain_3/uf_Q_4_20"),
-            GCareDataset("aids", "Chain_3/uf_Q_4_18"),
-            GCareDataset("aids", "Chain_3/uf_Q_3_11"),
+            GCareDataset("aids", "Chain_3/uf_Q_4_20", suites=["trace"]),
+            GCareDataset("aids", "Chain_3/uf_Q_4_18", suites=["trace"]),
+            GCareDataset("aids", "Chain_3/uf_Q_3_11", suites=["trace"]),
             GCareDataset("aids", "Chain_3/uf_Q_4_19", suites=["trace"]),
-            GCareDataset("aids", "Chain_3/uf_Q_3_10"),
+            GCareDataset("aids", "Chain_3/uf_Q_3_10", suites=["trace"]),
             GCareDataset("aids", "Chain_3/uf_Q_3_12", suites=["trace"]),
-            GCareDataset("aids", "Chain_3/uf_Q_2_8"),
+            GCareDataset("aids", "Chain_3/uf_Q_2_8", suites=["trace"]),
             GCareDataset("aids", "Chain_3/uf_Q_2_9", suites=["trace"]),
-            GCareDataset("aids", "Chain_3/uf_Q_4_8"),
-            GCareDataset("aids", "Chain_3/uf_Q_4_9"),
+            GCareDataset("aids", "Chain_3/uf_Q_4_8", suites=["trace"]),
+            GCareDataset("aids", "Chain_3/uf_Q_4_9", suites=["trace"]),
             GCareDataset("aids", "Graph_3/uf_Q_2_1", suites=["trace"]),
             GCareDataset("aids", "Graph_3/uf_Q_0_3", suites=["trace"]),
-            GCareDataset("aids", "Graph_3/uf_Q_4_6"),
+            GCareDataset("aids", "Graph_3/uf_Q_4_6", suites=["trace"]),
             GCareDataset("aids", "Graph_3/uf_Q_0_1", suites=["trace"]),
-            GCareDataset("aids", "Graph_3/uf_Q_4_1"),
+            GCareDataset("aids", "Graph_3/uf_Q_4_1", suites=["trace"]),
             GCareDataset("aids", "Graph_3/uf_Q_2_12", suites=["trace"]),
             GCareDataset("aids", "Graph_3/uf_Q_2_10", suites=["trace"]),
             GCareDataset("aids", "Graph_3/uf_Q_2_11", suites=["trace"]),
             GCareDataset("aids", "Graph_3/uf_Q_2_5", suites=["trace"]),
-            GCareDataset("aids", "Graph_3/uf_Q_4_17"),
+            GCareDataset("aids", "Graph_3/uf_Q_4_17", suites=["trace"]),
             GCareDataset("aids", "Graph_3/uf_Q_3_2", suites=["trace"]),
             GCareDataset("aids", "Graph_3/uf_Q_3_3", suites=["trace"]),
             GCareDataset("aids", "Graph_3/uf_Q_1_1", suites=["trace"]),
@@ -1081,8 +1086,8 @@ class GCareAIDSGenerator(GCareGenerator):
             GCareDataset("aids", "Graph_3/uf_Q_3_4", suites=["trace"]),
             GCareDataset("aids", "Graph_3/uf_Q_3_5", suites=["trace"]),
             GCareDataset("aids", "Graph_3/uf_Q_1_7", suites=["trace"]),
-            GCareDataset("aids", "Graph_3/uf_Q_4_10"),
-            GCareDataset("aids", "Graph_3/uf_Q_5_1"),
+            GCareDataset("aids", "Graph_3/uf_Q_4_10", suites=["trace"]),
+            GCareDataset("aids", "Graph_3/uf_Q_5_1", suites=["trace"]),
             GCareDataset("aids", "Graph_3/uf_Q_1_5", suites=["trace"]),
             GCareDataset("aids", "Graph_3/uf_Q_3_7", suites=["trace"]),
             GCareDataset("aids", "Graph_3/uf_Q_1_12", suites=["trace"]),
@@ -1100,7 +1105,7 @@ class GCareAIDSGenerator(GCareGenerator):
             GCareDataset("aids", "Graph_3/uf_Q_3_13", suites=["trace"]),
             GCareDataset("aids", "Graph_3/uf_Q_2_8", suites=["trace"]),
             GCareDataset("aids", "Graph_3/uf_Q_2_9", suites=["trace"]),
-            GCareDataset("aids", "Graph_3/uf_Q_4_9"),
+            GCareDataset("aids", "Graph_3/uf_Q_4_9", suites=["trace"]),
             GCareDataset("aids", "Petal_6/uf_Q_2_1"),
             GCareDataset("aids", "Petal_6/uf_Q_4_7"),
             GCareDataset("aids", "Petal_6/uf_Q_4_6"),
@@ -1219,133 +1224,133 @@ class GCareAIDSGenerator(GCareGenerator):
             GCareDataset("aids", "Petal_9/uf_Q_4_8"),
             GCareDataset("aids", "Petal_9/uf_Q_4_9"),
             GCareDataset("aids", "Tree_3/uf_Q_2_1", suites=["trace"]),
-            GCareDataset("aids", "Tree_3/uf_Q_4_7"),
-            GCareDataset("aids", "Tree_3/uf_Q_4_6"),
+            GCareDataset("aids", "Tree_3/uf_Q_4_7", suites=["trace"]),
+            GCareDataset("aids", "Tree_3/uf_Q_4_6", suites=["trace"]),
             GCareDataset("aids", "Tree_3/uf_Q_2_2", suites=["trace"]),
-            GCareDataset("aids", "Tree_3/uf_Q_4_4"),
-            GCareDataset("aids", "Tree_3/uf_Q_4_5"),
+            GCareDataset("aids", "Tree_3/uf_Q_4_4", suites=["trace"]),
+            GCareDataset("aids", "Tree_3/uf_Q_4_5", suites=["trace"]),
             GCareDataset("aids", "Tree_3/uf_Q_0_1", suites=["trace"]),
             GCareDataset("aids", "Tree_3/uf_Q_2_3", suites=["trace"]),
             GCareDataset("aids", "Tree_3/uf_Q_2_7", suites=["trace"]),
-            GCareDataset("aids", "Tree_3/uf_Q_4_1"),
+            GCareDataset("aids", "Tree_3/uf_Q_4_1", suites=["trace"]),
             GCareDataset("aids", "Tree_3/uf_Q_2_6", suites=["trace"]),
-            GCareDataset("aids", "Tree_3/uf_Q_2_4"),
-            GCareDataset("aids", "Tree_3/uf_Q_4_2"),
-            GCareDataset("aids", "Tree_3/uf_Q_4_3"),
+            GCareDataset("aids", "Tree_3/uf_Q_2_4", suites=["trace"]),
+            GCareDataset("aids", "Tree_3/uf_Q_4_2", suites=["trace"]),
+            GCareDataset("aids", "Tree_3/uf_Q_4_3", suites=["trace"]),
             GCareDataset("aids", "Tree_3/uf_Q_2_5", suites=["trace"]),
-            GCareDataset("aids", "Tree_3/uf_Q_4_17"),
-            GCareDataset("aids", "Tree_3/uf_Q_3_2"),
+            GCareDataset("aids", "Tree_3/uf_Q_4_17", suites=["trace"]),
+            GCareDataset("aids", "Tree_3/uf_Q_3_2", suites=["trace"]),
             GCareDataset("aids", "Tree_3/uf_Q_3_3", suites=["trace"]),
             GCareDataset("aids", "Tree_3/uf_Q_1_1", suites=["trace"]),
-            GCareDataset("aids", "Tree_3/uf_Q_4_16"),
-            GCareDataset("aids", "Tree_3/uf_Q_4_14"),
+            GCareDataset("aids", "Tree_3/uf_Q_4_16", suites=["trace"]),
+            GCareDataset("aids", "Tree_3/uf_Q_4_14", suites=["trace"]),
             GCareDataset("aids", "Tree_3/uf_Q_1_3", suites=["trace"]),
-            GCareDataset("aids", "Tree_3/uf_Q_3_1"),
+            GCareDataset("aids", "Tree_3/uf_Q_3_1", suites=["trace"]),
             GCareDataset("aids", "Tree_3/uf_Q_1_2", suites=["trace"]),
-            GCareDataset("aids", "Tree_3/uf_Q_4_15"),
-            GCareDataset("aids", "Tree_3/uf_Q_4_11"),
+            GCareDataset("aids", "Tree_3/uf_Q_4_15", suites=["trace"]),
+            GCareDataset("aids", "Tree_3/uf_Q_4_11", suites=["trace"]),
             GCareDataset("aids", "Tree_3/uf_Q_1_6", suites=["trace"]),
             GCareDataset("aids", "Tree_3/uf_Q_3_4", suites=["trace"]),
             GCareDataset("aids", "Tree_3/uf_Q_3_5", suites=["trace"]),
-            GCareDataset("aids", "Tree_3/uf_Q_4_10"),
-            GCareDataset("aids", "Tree_3/uf_Q_5_1"),
-            GCareDataset("aids", "Tree_3/uf_Q_4_12"),
+            GCareDataset("aids", "Tree_3/uf_Q_4_10", suites=["trace"]),
+            GCareDataset("aids", "Tree_3/uf_Q_5_1", suites=["trace"]),
+            GCareDataset("aids", "Tree_3/uf_Q_4_12", suites=["trace"]),
             GCareDataset("aids", "Tree_3/uf_Q_1_5", suites=["trace"]),
             GCareDataset("aids", "Tree_3/uf_Q_3_7", suites=["trace"]),
             GCareDataset("aids", "Tree_3/uf_Q_3_6", suites=["trace"]),
             GCareDataset("aids", "Tree_3/uf_Q_1_4", suites=["trace"]),
-            GCareDataset("aids", "Tree_3/uf_Q_4_13"),
+            GCareDataset("aids", "Tree_3/uf_Q_4_13", suites=["trace"]),
             GCareDataset("aids", "Tree_3/uf_Q_3_8", suites=["trace"]),
-            GCareDataset("aids", "Tree_3/uf_Q_3_9"),
-            GCareDataset("aids", "Tree_3/uf_Q_4_20"),
-            GCareDataset("aids", "Tree_3/uf_Q_4_18"),
-            GCareDataset("aids", "Tree_3/uf_Q_3_11"),
-            GCareDataset("aids", "Tree_3/uf_Q_4_19"),
+            GCareDataset("aids", "Tree_3/uf_Q_3_9", suites=["trace"]),
+            GCareDataset("aids", "Tree_3/uf_Q_4_20", suites=["trace"]),
+            GCareDataset("aids", "Tree_3/uf_Q_4_18", suites=["trace"]),
+            GCareDataset("aids", "Tree_3/uf_Q_3_11", suites=["trace"]),
+            GCareDataset("aids", "Tree_3/uf_Q_4_19", suites=["trace"]),
             GCareDataset("aids", "Tree_3/uf_Q_3_10", suites=["trace"]),
             GCareDataset("aids", "Tree_3/uf_Q_2_8", suites=["trace"]),
             GCareDataset("aids", "Tree_3/uf_Q_2_9", suites=["trace"]),
-            GCareDataset("aids", "Tree_3/uf_Q_4_8"),
-            GCareDataset("aids", "Tree_3/uf_Q_4_9"),
-            GCareDataset("aids", "Star_6/uf_Q_2_1"),
-            GCareDataset("aids", "Star_6/uf_Q_4_7"),
-            GCareDataset("aids", "Star_6/uf_Q_5_20"),
-            GCareDataset("aids", "Star_6/uf_Q_4_6"),
-            GCareDataset("aids", "Star_6/uf_Q_2_2"),
-            GCareDataset("aids", "Star_6/uf_Q_4_4"),
-            GCareDataset("aids", "Star_6/uf_Q_4_5"),
-            GCareDataset("aids", "Star_6/uf_Q_2_3"),
-            GCareDataset("aids", "Star_6/uf_Q_2_7"),
-            GCareDataset("aids", "Star_6/uf_Q_4_1"),
-            GCareDataset("aids", "Star_6/uf_Q_2_6"),
-            GCareDataset("aids", "Star_6/uf_Q_2_4"),
-            GCareDataset("aids", "Star_6/uf_Q_5_19"),
-            GCareDataset("aids", "Star_6/uf_Q_4_2"),
-            GCareDataset("aids", "Star_6/uf_Q_4_3"),
-            GCareDataset("aids", "Star_6/uf_Q_5_18"),
-            GCareDataset("aids", "Star_6/uf_Q_2_5"),
-            GCareDataset("aids", "Star_6/uf_Q_5_4"),
-            GCareDataset("aids", "Star_6/uf_Q_3_2"),
-            GCareDataset("aids", "Star_6/uf_Q_3_3"),
-            GCareDataset("aids", "Star_6/uf_Q_1_1"),
-            GCareDataset("aids", "Star_6/uf_Q_5_5"),
-            GCareDataset("aids", "Star_6/uf_Q_5_7"),
-            GCareDataset("aids", "Star_6/uf_Q_3_1"),
-            GCareDataset("aids", "Star_6/uf_Q_5_6"),
-            GCareDataset("aids", "Star_6/uf_Q_5_2"),
-            GCareDataset("aids", "Star_6/uf_Q_3_4"),
-            GCareDataset("aids", "Star_6/uf_Q_5_3"),
-            GCareDataset("aids", "Star_6/uf_Q_5_1"),
-            GCareDataset("aids", "Star_6/uf_Q_5_8"),
-            GCareDataset("aids", "Star_6/uf_Q_5_9"),
-            GCareDataset("aids", "Star_6/uf_Q_5_15"),
-            GCareDataset("aids", "Star_6/uf_Q_5_14"),
-            GCareDataset("aids", "Star_6/uf_Q_5_16"),
-            GCareDataset("aids", "Star_6/uf_Q_5_17"),
-            GCareDataset("aids", "Star_6/uf_Q_4_8"),
-            GCareDataset("aids", "Star_6/uf_Q_5_13"),
-            GCareDataset("aids", "Star_6/uf_Q_5_12"),
-            GCareDataset("aids", "Star_6/uf_Q_5_10"),
-            GCareDataset("aids", "Star_6/uf_Q_5_11"),
-            GCareDataset("aids", "Star_9/uf_Q_5_4"),
-            GCareDataset("aids", "Star_9/uf_Q_3_2"),
-            GCareDataset("aids", "Star_9/uf_Q_3_3"),
-            GCareDataset("aids", "Star_9/uf_Q_5_5"),
-            GCareDataset("aids", "Star_9/uf_Q_5_7"),
-            GCareDataset("aids", "Star_9/uf_Q_3_1"),
-            GCareDataset("aids", "Star_9/uf_Q_5_6"),
-            GCareDataset("aids", "Star_9/uf_Q_5_2"),
-            GCareDataset("aids", "Star_9/uf_Q_3_4"),
-            GCareDataset("aids", "Star_9/uf_Q_3_5"),
-            GCareDataset("aids", "Star_9/uf_Q_5_3"),
-            GCareDataset("aids", "Star_9/uf_Q_5_1"),
-            GCareDataset("aids", "Star_9/uf_Q_3_7"),
-            GCareDataset("aids", "Star_9/uf_Q_3_6"),
-            GCareDataset("aids", "Star_9/uf_Q_3_8"),
-            GCareDataset("aids", "Star_9/uf_Q_3_9"),
-            GCareDataset("aids", "Star_9/uf_Q_3_11"),
-            GCareDataset("aids", "Star_9/uf_Q_3_10"),
-            GCareDataset("aids", "Star_9/uf_Q_5_8"),
-            GCareDataset("aids", "Star_9/uf_Q_5_9"),
-            GCareDataset("aids", "Star_9/uf_Q_5_10"),
-            GCareDataset("aids", "Star_9/uf_Q_5_11"),
+            GCareDataset("aids", "Tree_3/uf_Q_4_8", suites=["trace"]),
+            GCareDataset("aids", "Tree_3/uf_Q_4_9", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_2_1", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_4_7", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_5_20", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_4_6", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_2_2", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_4_4", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_4_5", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_2_3", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_2_7", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_4_1", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_2_6", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_2_4", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_5_19", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_4_2", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_4_3", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_5_18", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_2_5", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_5_4", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_3_2", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_3_3", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_1_1", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_5_5", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_5_7", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_3_1", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_5_6", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_5_2", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_3_4", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_5_3", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_5_1", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_5_8", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_5_9", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_5_15", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_5_14", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_5_16", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_5_17", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_4_8", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_5_13", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_5_12", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_5_10", suites=["trace"]),
+            GCareDataset("aids", "Star_6/uf_Q_5_11", suites=["trace"]),
+            GCareDataset("aids", "Star_9/uf_Q_5_4", suites=["trace"]),
+            GCareDataset("aids", "Star_9/uf_Q_3_2", suites=["trace"]),
+            GCareDataset("aids", "Star_9/uf_Q_3_3", suites=["trace"]),
+            GCareDataset("aids", "Star_9/uf_Q_5_5", suites=["trace"]),
+            GCareDataset("aids", "Star_9/uf_Q_5_7", suites=["trace"]),
+            GCareDataset("aids", "Star_9/uf_Q_3_1", suites=["trace"]),
+            GCareDataset("aids", "Star_9/uf_Q_5_6", suites=["trace"]),
+            GCareDataset("aids", "Star_9/uf_Q_5_2", suites=["trace"]),
+            GCareDataset("aids", "Star_9/uf_Q_3_4", suites=["trace"]),
+            GCareDataset("aids", "Star_9/uf_Q_3_5", suites=["trace"]),
+            GCareDataset("aids", "Star_9/uf_Q_5_3", suites=["trace"]),
+            GCareDataset("aids", "Star_9/uf_Q_5_1", suites=["trace"]),
+            GCareDataset("aids", "Star_9/uf_Q_3_7", suites=["trace"]),
+            GCareDataset("aids", "Star_9/uf_Q_3_6", suites=["trace"]),
+            GCareDataset("aids", "Star_9/uf_Q_3_8", suites=["trace"]),
+            GCareDataset("aids", "Star_9/uf_Q_3_9", suites=["trace"]),
+            GCareDataset("aids", "Star_9/uf_Q_3_11", suites=["trace"]),
+            GCareDataset("aids", "Star_9/uf_Q_3_10", suites=["trace"]),
+            GCareDataset("aids", "Star_9/uf_Q_5_8", suites=["trace"]),
+            GCareDataset("aids", "Star_9/uf_Q_5_9", suites=["trace"]),
+            GCareDataset("aids", "Star_9/uf_Q_5_10", suites=["trace"]),
+            GCareDataset("aids", "Star_9/uf_Q_5_11", suites=["trace"]),
         ]
 
 
 class GCareLUBM80Generator(GCareGenerator):
     @property
     def name(self) -> str:
-        return "subgraph_gcare_lubm80"
+        return "subgraph_matching_gcare_lubm80"
 
     @property
     def pretty_name(self) -> str:
-        return "Subgraph G-CARE Generator (LUBM80)"
+        return "Subgraph Matching G-CARE LUBM80"
 
     @property
     def datasets(self):
         return [
             GCareDataset("lubm80", "lubm80_Q9"),
             GCareDataset("lubm80", "lubm80_Q8"),
-            GCareDataset("lubm80", "lubm80_Q4"),
+            GCareDataset("lubm80", "lubm80_Q4", suites=["trace"]),
             GCareDataset("lubm80", "lubm80_Q7"),
             GCareDataset("lubm80", "lubm80_Q2"),
             GCareDataset("lubm80", "lubm80_Q12"),
@@ -1355,11 +1360,11 @@ class GCareLUBM80Generator(GCareGenerator):
 class GCareYAGOGenerator(GCareGenerator):
     @property
     def name(self) -> str:
-        return "subgraph_gcare_yago"
+        return "subgraph_matching_gcare_yago"
 
     @property
     def pretty_name(self) -> str:
-        return "Subgraph G-CARE Generator (YAGO)"
+        return "Subgraph Matching G-CARE YAGO"
 
     @property
     def datasets(self):
@@ -2740,7 +2745,7 @@ class SubgraphMatching(Benchmark):
 
     @property
     def pretty_name(self):
-        return "Subgraph Matching Algorithm using einsum"
+        return "Subgraph Matching"
 
     @property
     def description(self):
@@ -2748,7 +2753,7 @@ class SubgraphMatching(Benchmark):
 
     @property
     def suites(self):
-        return ["group-graphs-query"]
+        return ["standard-graphs-query"]
 
     @property
     def concepts(self) -> str:

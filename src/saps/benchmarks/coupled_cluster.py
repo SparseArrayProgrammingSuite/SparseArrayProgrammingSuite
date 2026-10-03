@@ -240,11 +240,11 @@ class CCSDGenerator(Generator[CCSDDataset]):
 
     @property
     def name(self) -> str:
-        return "ccsd_inputs"
+        return "ccsd_synthetic"
 
     @property
     def pretty_name(self) -> str:
-        return "CCSD Input Generator"
+        return "CCSD Synthetic"
 
     @property
     def description(self) -> str:
@@ -338,8 +338,8 @@ class CCSDGenerator(Generator[CCSDDataset]):
     def datasets(self) -> list[CCSDDataset]:
         return [
             CCSDDataset(
-                name="ccsd_small",
-                pretty_name="CCSD Small",
+                name="small",
+                pretty_name="Small",
                 description="no=4, nv=6 — matches the C++ CTF reference.",
                 suites=["standard", "test", "trace"],
                 no=4,
@@ -347,18 +347,18 @@ class CCSDGenerator(Generator[CCSDDataset]):
                 ref_outputs=[from_numpy(np.array(380638.269079))],
             ),
             CCSDDataset(
-                name="ccsd_medium",
-                pretty_name="CCSD Medium",
+                name="medium",
+                pretty_name="Medium",
                 description="no=8, nv=12.",
                 suites=["standard", "trace"],
                 no=8,
                 nv=12,
             ),
             CCSDDataset(
-                name="ccsd_large",
-                pretty_name="CCSD Large",
+                name="large",
+                pretty_name="Large",
                 description="no=16, nv=24.",
-                suites=["standard", "trace"],
+                suites=["standard", "trace", "train"],
                 no=16,
                 nv=24,
             ),
@@ -390,7 +390,7 @@ class CCSD(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["group-quantum"]
+        return ["standard-quantum"]
 
     @property
     def concepts(self) -> str:

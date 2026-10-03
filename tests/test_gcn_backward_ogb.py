@@ -35,8 +35,7 @@ def test_ogb_gcn_backward_generator_derives_dimensions_and_targets(monkeypatch):
     )
     generator = OGBGCNTrainingGenerator()
     dataset = OGBGCNTrainingDataset(
-        "fake_ogb",
-        source_name="fake-ogb",
+        "fake-ogb",
         hidden_dim=5,
         num_iterations=3,
         learning_rate=0.2,
@@ -68,10 +67,10 @@ def test_ogb_gcn_backward_generator_includes_supported_workloads():
     }
 
     assert set(datasets) == {"ogbn-arxiv", "ogbn-products", "ogbn-proteins"}
-    assert datasets["ogbn-arxiv"].suites == ["standard"]
+    assert datasets["ogbn-arxiv"].suites == ["standard", "trace", "train"]
     assert datasets["ogbn-products"].suites == ["standard"]
     assert datasets["ogbn-proteins"].suites == ["standard"]
-    assert datasets["ogbn-products"].hidden_dim == 256
+    assert datasets["ogbn-products"].hidden_dim == 64
 
 
 def test_ogb_gcn_backward_multitask_targets_replace_nan():

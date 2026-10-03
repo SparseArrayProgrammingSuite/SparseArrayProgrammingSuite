@@ -1,3 +1,5 @@
+# ruff: noqa: E501
+
 import numpy as np
 
 from binsparse import BinsparseTensor
@@ -12,11 +14,12 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.snap import SNAPDataset, SNAPGraphGenerator, fetch_snap_graph
-from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
+from saps.benchmarks.adjacency import zero_one_adjacency
+from saps.benchmarks.gap import fetch_gap_graph
+from saps.benchmarks.snap import fetch_snap_graph
 
 
-class GraphCountingDataset(Dataset):
+class TriangleCountDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -29,7 +32,7 @@ class GraphCountingDataset(Dataset):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Graph counting input {name}."
-        self._suites = suites or []
+        self._suites = list(suites or [])
         self.A = A
         self.expected = expected
 
@@ -54,14 +57,14 @@ class GraphCountingDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
+class TriangleCountTestGenerator(Generator[TriangleCountDataset]):
     @property
     def name(self) -> str:
-        return "triangle_count_test_inputs"
+        return "triangle_counting_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Triangle Count Test Input Generator"
+        return "Triangle Counting Test"
 
     @property
     def description(self) -> str:
@@ -99,10 +102,11 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
         return False
 
     @property
-    def datasets(self) -> list[GraphCountingDataset]:
+    def datasets(self) -> list[TriangleCountDataset]:
         return [
-            GraphCountingDataset(
-                "test_triangle_count_single_triangle",
+            TriangleCountDataset(
+                "single_triangle",
+                pretty_name="Single Triangle",
                 suites=["test"],
                 A=np.array(
                     [
@@ -114,8 +118,9 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
                 ),
                 expected=np.array(1),
             ),
-            GraphCountingDataset(
-                "test_triangle_count_path",
+            TriangleCountDataset(
+                "path",
+                pretty_name="Path",
                 suites=["test"],
                 A=np.array(
                     [
@@ -128,8 +133,9 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
                 ),
                 expected=np.array(0),
             ),
-            GraphCountingDataset(
-                "test_triangle_count_4_clique",
+            TriangleCountDataset(
+                "four_clique",
+                pretty_name="4-Clique",
                 suites=["test"],
                 A=np.array(
                     [
@@ -142,8 +148,9 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
                 ),
                 expected=np.array(4),
             ),
-            GraphCountingDataset(
-                "test_triangle_snap_toy",
+            TriangleCountDataset(
+                "snap_toy",
+                pretty_name="SNAP Toy",
                 suites=["test"],
                 A=np.array(
                     [
@@ -157,7 +164,7 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
             ),
         ]
 
-    def generate(self, dataset: GraphCountingDataset) -> DataInstance:
+    def generate(self, dataset: TriangleCountDataset) -> DataInstance:
         if dataset.A is None or dataset.expected is None:
             raise ValueError("Triangle-count test datasets must define A and expected.")
         return DataInstance(
@@ -167,18 +174,14 @@ class TriangleCountTestGenerator(Generator[GraphCountingDataset]):
         )
 
 
-class TriangleCountSNAPGenerator(Generator[SNAPDataset]):
-    @property
-    def cacheable(self) -> bool:
-        return False
-
+class TriangleCountSNAPGenerator(Generator[TriangleCountDataset]):
     @property
     def name(self) -> str:
-        return "triangle_count_snap_inputs"
+        return "triangle_counting_snap"
 
     @property
     def pretty_name(self) -> str:
-        return "Triangle Count SNAP Input Generator"
+        return "Triangle Counting SNAP"
 
     @property
     def description(self) -> str:
@@ -227,23 +230,100 @@ class TriangleCountSNAPGenerator(Generator[SNAPDataset]):
         return "Generate sparse graph inputs for triangle counting."
 
     @property
-    def datasets(self) -> list[SNAPDataset]:
-        return SNAPGraphGenerator().datasets
+    def cacheable(self) -> bool:
+        return False
 
-    def generate(self, dataset: SNAPDataset) -> DataInstance:
-        if dataset.name in self.dataset_names:
-            return fetch_snap_graph(dataset.name)
-        raise ValueError(f"Unsupported triangle count dataset: {dataset.name}")
+    @property
+    def datasets(self) -> list[TriangleCountDataset]:
+        # Trace selects successful Smart runs < 60s in competition/run_13803684.
+        # fmt: off
+        return [
+            TriangleCountDataset("soc-Epinions1", suites=["standard", "trace"]),
+            TriangleCountDataset("soc-LiveJournal1", suites=["standard"]),
+            TriangleCountDataset("soc-Pokec", suites=["standard"]),
+            TriangleCountDataset("soc-Slashdot0811", suites=["standard", "trace"]),
+            TriangleCountDataset("soc-Slashdot0902", suites=["standard", "trace"]),
+            TriangleCountDataset("wiki-Vote", suites=["standard", "trace"]),
+            TriangleCountDataset("wiki-RfA", suites=["standard", "trace"]),
+            TriangleCountDataset("soc-sign-bitcoin-otc", suites=["standard", "trace"]),
+            TriangleCountDataset("soc-sign-bitcoin-alpha", suites=["standard", "trace"]),
+            TriangleCountDataset("com-LiveJournal", suites=["standard"]),
+            TriangleCountDataset("com-Friendster", suites=["standard"]),
+            TriangleCountDataset("com-Orkut", suites=["standard"]),
+            TriangleCountDataset("com-Youtube", suites=["standard"]),
+            TriangleCountDataset("com-DBLP", suites=["standard", "trace"]),
+            TriangleCountDataset("com-Amazon", suites=["standard", "trace"]),
+            TriangleCountDataset("email-Eu-core", suites=["standard", "trace"]),
+            TriangleCountDataset("wiki-topcats", suites=["standard"]),
+            TriangleCountDataset("email-EuAll", suites=["standard", "trace"]),
+            TriangleCountDataset("email-Enron", suites=["standard", "trace"]),
+            TriangleCountDataset("wiki-Talk", suites=["standard"]),
+            TriangleCountDataset("cit-HepPh", suites=["standard", "trace"]),
+            TriangleCountDataset("cit-HepTh", suites=["standard", "trace"]),
+            TriangleCountDataset("cit-Patents", suites=["standard"]),
+            TriangleCountDataset("ca-AstroPh", suites=["standard", "trace"]),
+            TriangleCountDataset("ca-CondMat", suites=["standard", "trace"]),
+            TriangleCountDataset("ca-GrQc", suites=["standard", "trace"]),
+            TriangleCountDataset("ca-HepPh", suites=["standard", "trace"]),
+            TriangleCountDataset("ca-HepTh", suites=["standard", "trace"]),
+            TriangleCountDataset("web-BerkStan", suites=["standard"]),
+            TriangleCountDataset("web-Google", suites=["standard", "trace"]),
+            TriangleCountDataset("web-NotreDame", suites=["standard", "trace", "train"]),
+            TriangleCountDataset("web-Stanford", suites=["standard", "trace"]),
+            TriangleCountDataset("amazon0302", suites=["standard", "trace"]),
+            TriangleCountDataset("amazon0312", suites=["standard", "trace"]),
+            TriangleCountDataset("amazon0505", suites=["standard", "trace"]),
+            TriangleCountDataset("amazon0601", suites=["standard", "trace"]),
+            TriangleCountDataset("p2p-Gnutella04", suites=["standard", "trace"]),
+            TriangleCountDataset("p2p-Gnutella05", suites=["standard", "trace"]),
+            TriangleCountDataset("p2p-Gnutella06", suites=["standard", "trace"]),
+            TriangleCountDataset("p2p-Gnutella08", suites=["standard", "trace"]),
+            TriangleCountDataset("p2p-Gnutella09", suites=["standard", "trace"]),
+            TriangleCountDataset("p2p-Gnutella24", suites=["standard", "trace"]),
+            TriangleCountDataset("p2p-Gnutella25", suites=["standard", "trace"]),
+            TriangleCountDataset("p2p-Gnutella30", suites=["standard", "trace"]),
+            TriangleCountDataset("p2p-Gnutella31", suites=["standard", "trace"]),
+            TriangleCountDataset("roadNet-CA", suites=["standard", "trace"]),
+            TriangleCountDataset("roadNet-PA", suites=["standard", "trace"]),
+            TriangleCountDataset("roadNet-TX", suites=["standard", "trace"]),
+            TriangleCountDataset("as-735", suites=["standard", "trace"]),
+            TriangleCountDataset("as-Skitter", suites=["standard"]),
+            TriangleCountDataset("as-caida", suites=["standard", "trace"]),
+            TriangleCountDataset("Oregon-1", suites=["standard", "trace"]),
+            TriangleCountDataset("Oregon-2", suites=["standard", "trace"]),
+            TriangleCountDataset("soc-sign-epinions", suites=["standard", "trace"]),
+            TriangleCountDataset("soc-sign-Slashdot081106", suites=["standard", "trace"]),
+            TriangleCountDataset("soc-sign-Slashdot090216", suites=["standard", "trace"]),
+            TriangleCountDataset("soc-sign-Slashdot090221", suites=["standard", "trace"]),
+            TriangleCountDataset("loc-Gowalla", suites=["standard"]),
+            TriangleCountDataset("loc-Brightkite", suites=["standard", "trace"]),
+            TriangleCountDataset("sx-stackoverflow", suites=["standard"]),
+            TriangleCountDataset("sx-mathoverflow", suites=["standard", "trace"]),
+            TriangleCountDataset("sx-superuser", suites=["standard", "trace"]),
+            TriangleCountDataset("sx-askubuntu", suites=["standard", "trace"]),
+            TriangleCountDataset("wiki-talk-temporal", suites=["standard"]),
+            TriangleCountDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
+            TriangleCountDataset("CollegeMsg", suites=["standard", "trace"]),
+            TriangleCountDataset("twitter7", suites=["standard"]),
+            TriangleCountDataset("higgs-twitter", suites=["standard"]),
+        ]
+        # fmt: on
+
+    def generate(self, dataset: TriangleCountDataset) -> DataInstance:
+        raw = fetch_snap_graph(dataset.name)
+        return DataInstance(
+            inputs=[zero_one_adjacency(raw.inputs[0], np.int64)], meta=dict(raw.meta)
+        )
 
 
-class TriangleCountGAPGenerator(Generator[GraphCountingDataset]):
+class TriangleCountGAPGenerator(Generator[TriangleCountDataset]):
     @property
     def name(self) -> str:
-        return "triangle_count_gap_inputs"
+        return "triangle_counting_gap"
 
     @property
     def pretty_name(self) -> str:
-        return "Triangle Count GAP Input Generator"
+        return "Triangle Counting GAP"
 
     @property
     def description(self) -> str:
@@ -292,69 +372,28 @@ class TriangleCountGAPGenerator(Generator[GraphCountingDataset]):
         return False
 
     @property
-    def datasets(self) -> list[GraphCountingDataset]:
+    def datasets(self) -> list[TriangleCountDataset]:
+        # fmt: off
         return [
-            GraphCountingDataset(
-                name="GAP/GAP-road",
-                pretty_name="GAP Road",
-                description=(
-                    "Directed roads with weights in the US, with 23.9M nodes and"
-                    " 58.3M edges."
-                ),
-                suites=["standard"],
-            ),
-            GraphCountingDataset(
-                name="GAP/GAP-twitter",
-                pretty_name="GAP Twitter",
-                description=(
-                    "Directed weighted social network topology of Twitter, with 61.6M"
-                    " nodes and 1,468.4M edges."
-                ),
-                suites=["standard"],
-            ),
-            GraphCountingDataset(
-                name="GAP/GAP-web",
-                pretty_name="GAP Web",
-                description=(
-                    "A web-crawl of the .sk domain, directed and weighted, with 50.6M"
-                    " nodes and 1,949.4M edges."
-                ),
-                suites=["standard"],
-            ),
-            GraphCountingDataset(
-                name="GAP/GAP-kron",
-                pretty_name="GAP Kron",
-                description=(
-                    "Symmetric random undirected weighted graph generated by"
-                    " Kronecker synthetic graph generator with parameters"
-                    " (A=0.57, B=C=0.19, D=0.05). Has 134.2M nodes and 2,111.6M"
-                    " edges."
-                ),
-                suites=["standard"],
-            ),
-            GraphCountingDataset(
-                name="GAP/GAP-urand",
-                pretty_name="GAP Urand",
-                description=(
-                    "Symmetric random undirected weighted graph generated by"
-                    " Erdos–Reyni model (Uniform Random) with 134.2M nodes and"
-                    " 2,147.4M edges."
-                ),
-                suites=["standard"],
-            ),
+            TriangleCountDataset("GAP-road", suites=["standard"]),
+            TriangleCountDataset("GAP-twitter", suites=["standard"]),
+            TriangleCountDataset("GAP-web", suites=["standard"]),
+            TriangleCountDataset("GAP-kron", suites=["standard"]),
+            TriangleCountDataset("GAP-urand", suites=["standard"]),
         ]
+        # fmt: on
 
-    def generate(self, dataset: GraphCountingDataset) -> DataInstance:
-        if dataset.name.startswith("GAP/"):
-            raw = fetch_suitesparse_matrix(dataset.name)
-            return DataInstance(inputs=[raw.inputs[0]], meta=raw.meta)
-        raise ValueError(f"Unsupported triangle count dataset: {dataset.name}")
+    def generate(self, dataset: TriangleCountDataset) -> DataInstance:
+        raw = fetch_gap_graph(dataset.name)
+        return DataInstance(
+            inputs=[zero_one_adjacency(raw.inputs[0], np.int64)], meta=dict(raw.meta)
+        )
 
 
 class TriangleCountBenchmark(Benchmark):
     @property
     def name(self) -> str:
-        return "triangle_count"
+        return "triangle_counting"
 
     @property
     def pretty_name(self) -> str:
@@ -393,7 +432,7 @@ class TriangleCountBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["group-graphs-query"]
+        return ["standard-graphs-query"]
 
     @property
     def concepts(self) -> str:

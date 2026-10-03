@@ -329,7 +329,7 @@ class FrosttTensorGenerator(Generator[FrosttDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "FROSTT Sparse Tensor Collection"
+        return "FROSTT Tensors"
 
     @property
     def description(self) -> str:

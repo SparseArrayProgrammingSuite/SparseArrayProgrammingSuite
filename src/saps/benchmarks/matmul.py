@@ -59,11 +59,11 @@ class DenseMatmulDataset(Dataset):
 class DenseMatmulGenerator(Generator):
     @property
     def name(self) -> str:
-        return "dense_matmul_generator"
+        return "matrix_multiplication_dense"
 
     @property
     def pretty_name(self) -> str:
-        return "Dense Matmul Generator"
+        return "Matrix Multiplication Dense"
 
     @property
     def description(self) -> str:
@@ -99,9 +99,15 @@ class DenseMatmulGenerator(Generator):
     @property
     def datasets(self) -> list[Dataset]:
         return [
-            DenseMatmulDataset("small", 10, 10, 10, suites=["dense", "test"]),
-            DenseMatmulDataset("medium", 100, 100, 100, suites=["dense", "test"]),
-            DenseMatmulDataset("large", 1000, 1000, 1000, suites=["dense"]),
+            DenseMatmulDataset(
+                "small", 10, 10, 10, pretty_name="Small", suites=["dense", "test"]
+            ),
+            DenseMatmulDataset(
+                "medium", 100, 100, 100, pretty_name="Medium", suites=["dense", "test"]
+            ),
+            DenseMatmulDataset(
+                "large", 1000, 1000, 1000, pretty_name="Large", suites=["dense"]
+            ),
         ]
 
     def generate(self, dataset: DenseMatmulDataset) -> DataInstance:
@@ -182,7 +188,7 @@ _MATMUL_MATRICES: list[tuple[str, str, bool]] = [
 class SuiteSparseMatmulGenerator(Generator):
     @property
     def name(self) -> str:
-        return "suitesparse_matmul_generator"
+        return "matrix_multiplication_suitesparse"
 
     @property
     def cacheable(self) -> bool:
@@ -190,7 +196,7 @@ class SuiteSparseMatmulGenerator(Generator):
 
     @property
     def pretty_name(self) -> str:
-        return "Suite Sparse Matmul Generator"
+        return "Matrix Multiplication SuiteSparse"
 
     @property
     def description(self) -> str:
@@ -278,7 +284,7 @@ class SuiteSparseMatmulGenerator(Generator):
     def datasets(self) -> list[Dataset]:
         return [
             SuiteSparseMatmulDataset(
-                name.split("/")[-1],
+                name,
                 name,
                 name,
                 suites=["sparse", "test"] if in_test_suite else ["sparse"],
@@ -362,11 +368,11 @@ class UniformRandomMatmulDataset(Dataset):
 class UniformRandomMatmulGenerator(Generator):
     @property
     def name(self) -> str:
-        return "uniform_random_matmul_generator"
+        return "matrix_multiplication_uniform_random"
 
     @property
     def pretty_name(self) -> str:
-        return "Uniform Random Sparse Matmul Generator"
+        return "Matrix Multiplication Uniform Random"
 
     @property
     def description(self) -> str:
@@ -412,7 +418,8 @@ class UniformRandomMatmulGenerator(Generator):
             UniformRandomMatmulDataset(
                 # No dots in the name: the framework parses params as
                 # "generator.dataset" by splitting on ".".
-                f"uniform-{density:.0e}",
+                f"density_{density:.0e}",
+                pretty_name=f"Density {density:.0e}",
                 dim=5000,
                 density=density,
                 suites=["sparse", "test"]

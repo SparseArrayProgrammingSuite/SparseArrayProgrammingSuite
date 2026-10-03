@@ -112,7 +112,7 @@ def concepts(self) -> str:
     """
 ```
 
-Manual suite tags are written to `metadata.json` under `suites`. Topic tags generated from ACM CCS XML are written under `topics`. Generated `tags` combine suites, topics, inherited parent tags, and any fresh trace-derived statistics tags folded in during metadata generation.
+Manual suite tags are written to `metadata.json` under `suites`. Topic tags generated from ACM CCS XML are written under `topics`. Generated `tags` combine suites, topics, inherited parent tags, and any fresh trace-derived statistics tags folded in during metadata generation. Statistics tags always describe the whole benchmark: a fresh trace of any one of its datasets tags the benchmark, and therefore every generator and dataset under it.
 
 ## Problem Quality Tags
 

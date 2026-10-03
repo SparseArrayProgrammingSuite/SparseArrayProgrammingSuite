@@ -59,11 +59,11 @@ class DenseElementwiseDataset(Dataset):
 class DenseElementwiseGenerator(Generator):
     @property
     def name(self) -> str:
-        return "dense_elementwise_generator"
+        return "elementwise_multiplication_dense"
 
     @property
     def pretty_name(self) -> str:
-        return "Dense Elementwise Generator"
+        return "Elementwise Multiplication Dense"
 
     @property
     def description(self) -> str:
@@ -99,9 +99,15 @@ class DenseElementwiseGenerator(Generator):
     @property
     def datasets(self) -> list[Dataset]:
         return [
-            DenseElementwiseDataset("small", 10, 10, suites=["dense", "test"]),
-            DenseElementwiseDataset("medium", 100, 100, suites=["dense", "test"]),
-            DenseElementwiseDataset("large", 1000, 1000, suites=["dense"]),
+            DenseElementwiseDataset(
+                "small", 10, 10, pretty_name="Small", suites=["dense", "test"]
+            ),
+            DenseElementwiseDataset(
+                "medium", 100, 100, pretty_name="Medium", suites=["dense", "test"]
+            ),
+            DenseElementwiseDataset(
+                "large", 1000, 1000, pretty_name="Large", suites=["dense"]
+            ),
         ]
 
     def generate(self, dataset: DenseElementwiseDataset) -> DataInstance:
@@ -199,7 +205,7 @@ class SuiteSparseElementwiseDataset(Dataset):
 class SuiteSparseElementwiseGenerator(Generator):
     @property
     def name(self) -> str:
-        return "suitesparse_elementwise_generator"
+        return "elementwise_multiplication_suitesparse"
 
     @property
     def cacheable(self) -> bool:
@@ -207,7 +213,7 @@ class SuiteSparseElementwiseGenerator(Generator):
 
     @property
     def pretty_name(self) -> str:
-        return "Suite Sparse Elementwise Generator"
+        return "Elementwise Multiplication SuiteSparse"
 
     @property
     def description(self) -> str:
@@ -282,8 +288,9 @@ class SuiteSparseElementwiseGenerator(Generator):
     def datasets(self) -> list[Dataset]:
         return [
             SuiteSparseElementwiseDataset(
-                f"{matrix.split('/')[-1]}-overlap-{int(overlap * 100)}",
+                f"{matrix}_overlap{int(overlap * 100)}",
                 matrix,
+                pretty_name=f"{matrix} (Overlap {int(overlap * 100)}%)",
                 overlap=overlap,
                 suites=["sparse", "test"]
                 if in_test_suite and overlap in (1.0, 0.5)
@@ -372,11 +379,11 @@ class UniformRandomElementwiseDataset(Dataset):
 class UniformRandomElementwiseGenerator(Generator):
     @property
     def name(self) -> str:
-        return "uniform_random_elementwise_generator"
+        return "elementwise_multiplication_uniform_random"
 
     @property
     def pretty_name(self) -> str:
-        return "Uniform Random Sparse Elementwise Generator"
+        return "Elementwise Multiplication Uniform Random"
 
     @property
     def description(self) -> str:
@@ -442,7 +449,8 @@ class UniformRandomElementwiseGenerator(Generator):
             UniformRandomElementwiseDataset(
                 # No dots in the name: the framework parses params as
                 # "generator.dataset" by splitting on ".".
-                f"uniform-overlap-{int(overlap * 100)}",
+                f"overlap{int(overlap * 100)}",
+                pretty_name=f"Overlap {int(overlap * 100)}%",
                 dim=5000,
                 density=_ELEMENTWISE_UNIFORM_DENSITY,
                 overlap=overlap,

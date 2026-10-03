@@ -753,11 +753,11 @@ def _model_path() -> Path:
 class LTHConv2Dataset(Dataset):
     @property
     def name(self) -> str:
-        return "conv2_pruned"
+        return "pruned"
 
     @property
     def pretty_name(self) -> str:
-        return "Lottery Ticket Conv-2 Pruned Model"
+        return "Pruned"
 
     @property
     def description(self) -> str:
@@ -769,7 +769,7 @@ class LTHConv2Dataset(Dataset):
 
     @property
     def suites(self) -> list[str]:
-        return ["lth"]
+        return ["lth", "standard"]
 
     @property
     def concepts(self) -> str:
@@ -779,11 +779,11 @@ class LTHConv2Dataset(Dataset):
 class LTHConv2ONNXPYGenerator(Generator[LTHConv2Dataset]):
     @property
     def name(self) -> str:
-        return "lth_conv2_onnxpy_inputs"
+        return "lth_conv2_onnx"
 
     @property
     def pretty_name(self) -> str:
-        return "Lottery Ticket Conv-2 ONNXPY Inputs"
+        return "Lottery Ticket Conv-2 ONNX"
 
     @property
     def description(self) -> str:
@@ -893,11 +893,11 @@ class LTHConv2ONNXPYGenerator(Generator[LTHConv2Dataset]):
 class LTHConv2ONNXPYBenchmark(Benchmark):
     @property
     def name(self) -> str:
-        return "lth_conv2_onnxpy"
+        return "lth_conv2"
 
     @property
     def pretty_name(self) -> str:
-        return "Lottery Ticket Conv-2 via ONNXPY"
+        return "Lottery Ticket Conv-2 Inference"
 
     @property
     def description(self) -> str:
@@ -917,7 +917,7 @@ class LTHConv2ONNXPYBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["lth", "group-machine-learning"]
+        return ["lth", "standard-machine-learning"]
 
     @property
     def concepts(self) -> str:

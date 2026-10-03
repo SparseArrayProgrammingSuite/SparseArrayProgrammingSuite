@@ -69,8 +69,8 @@ def test_ogb_gcn_generator_includes_supported_homogeneous_ogb_workloads():
 
     assert set(datasets) == {"ogbn-arxiv", "ogbn-products", "ogbn-proteins"}
     assert datasets["ogbn-arxiv"].suites == ["standard", "trace"]
-    assert datasets["ogbn-products"].suites == ["standard"]
-    assert datasets["ogbn-proteins"].suites == ["standard"]
+    assert datasets["ogbn-products"].suites == ["standard", "trace", "train"]
+    assert datasets["ogbn-proteins"].suites == ["standard", "trace"]
 
 
 def test_ogb_gcn_proteins_uses_task_count_for_output_width(monkeypatch):
@@ -137,8 +137,7 @@ def test_ogb_generator_runs_through_gcn_with_sparse_framework(monkeypatch):
         metadata={"dataset_name": "fake-ogb"},
     )
     dataset = OGBGCNDataset(
-        "fake_ogb",
-        source_name="fake-ogb",
+        "fake-ogb",
         hidden_dim=3,
         description="Tiny integration graph.",
     )

@@ -216,9 +216,11 @@ class TicTacToeDataset(Dataset):
         depth: int,
         expected: np.ndarray | float | None = None,
         suites: list[str] | None = None,
+        pretty_name: str | None = None,
     ):
         self._suites = suites or []
         self._name = name
+        self._pretty_name = pretty_name or name
         self.board = board
         self.depth = depth
         self.expected = expected
@@ -229,7 +231,7 @@ class TicTacToeDataset(Dataset):
 
     @property
     def pretty_name(self) -> str:
-        return f"TicTacToe {self._name}"
+        return self._pretty_name
 
     @property
     def description(self) -> str:
@@ -251,11 +253,11 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
 
     @property
     def name(self) -> str:
-        return "tictactoe_boards"
+        return "tictactoe_minimax_boards"
 
     @property
     def pretty_name(self) -> str:
-        return "Fixed Boards for testing."
+        return "Tic-Tac-Toe Minimax Board"
 
     @property
     def description(self) -> str:
@@ -304,6 +306,7 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
                 depth=2,
                 expected=1.0,
                 suites=["test"],
+                pretty_name="X Wins Near",
             ),
             TicTacToeDataset(
                 "o_wins_near",
@@ -311,6 +314,7 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
                 depth=2,
                 expected=-1.0,
                 suites=["test"],
+                pretty_name="O Wins Near",
             ),
             TicTacToeDataset(
                 "draw_near",
@@ -318,6 +322,7 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
                 depth=2,
                 expected=0.0,
                 suites=["test"],
+                pretty_name="Draw Near",
             ),
             TicTacToeDataset(
                 "batch_near",
@@ -325,6 +330,7 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
                 depth=2,
                 expected=np.array([1.0, -1.0, 0.0]),
                 suites=["test"],
+                pretty_name="Batch Near",
             ),
             TicTacToeDataset(
                 "x_wins_mid",
@@ -332,6 +338,7 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
                 depth=3,
                 expected=1.0,
                 suites=["test"],
+                pretty_name="X Wins Mid",
             ),
             TicTacToeDataset(
                 "o_wins_mid",
@@ -339,6 +346,7 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
                 depth=3,
                 expected=-1.0,
                 suites=["test"],
+                pretty_name="O Wins Mid",
             ),
             TicTacToeDataset(
                 "x_wins_early",
@@ -346,15 +354,23 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
                 depth=5,
                 expected=1.0,
                 suites=["test"],
+                pretty_name="X Wins Early",
             ),
             TicTacToeDataset(
                 "draw_early",
                 BOARD_DRAW_EARLY,
                 depth=6,
                 expected=0.0,
-                suites=["test", "standard", "trace"],
+                suites=["test", "standard", "trace", "train"],
+                pretty_name="Draw Early",
             ),
-            TicTacToeDataset("empty_board", BOARD_EMPTY, depth=9, suites=["stress"]),
+            TicTacToeDataset(
+                "empty_board",
+                BOARD_EMPTY,
+                depth=9,
+                suites=["stress"],
+                pretty_name="Empty Board",
+            ),
         ]
 
     def generate(self, dataset: TicTacToeDataset):
@@ -369,16 +385,12 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
 
 class TicTacToeBenchmark(Benchmark):
     @property
-    def tag(self) -> str:
-        return "tictactoe_minimax"
-
-    @property
     def name(self) -> str:
         return "tictactoe_minimax"
 
     @property
     def pretty_name(self) -> str:
-        return "Tensorized Minimax Tic-Tac-Toe"
+        return "Tic-Tac-Toe Minimax"
 
     @property
     def description(self) -> str:
@@ -393,7 +405,7 @@ class TicTacToeBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["group-logic"]
+        return ["standard-logic"]
 
     @property
     def concepts(self) -> str:

@@ -19,7 +19,6 @@ from saps.downloaders.mccomp import (
     MCCOMP_REPOSITORY_URL,
     MCCOMP_TRACKS,
     download_mccomp_instance,
-    list_mccomp_instances,
     mccomp_source_url,
     normalize_mccomp_source_path,
     parse_dimacs,
@@ -142,18 +141,19 @@ class WMCDataset(Dataset):
 
 
 class WMCCompDataset(Dataset):
-    def __init__(self, source_path: str, *, suites: list[str] | None = None):
-        self.source_path = source_path
-        self.track = source_path.split("/", 1)[0]
+    def __init__(self, name: str, *, suites: list[str] | None = None):
+        self._name = name
+        self.source_path = f"{name}.cnf"
+        self.track = name.split("/", 1)[0]
         self._suites = suites or []
 
     @property
     def name(self) -> str:
-        return self.source_path.removesuffix(".cnf").replace("/", "_").lower()
+        return self._name
 
     @property
     def pretty_name(self) -> str:
-        return f"MCComp {self.source_path.removesuffix('.cnf')}"
+        return self._name
 
     @property
     def description(self) -> str:
@@ -186,11 +186,11 @@ class WMCCompDataset(Dataset):
 class WMCGenerator(Generator[WMCDataset]):
     @property
     def name(self) -> str:
-        return "wmc_generator"
+        return "weighted_model_counting_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Weighted Model Counting Generator"
+        return "Weighted Model Counting Test"
 
     @property
     def description(self) -> str:
@@ -231,8 +231,8 @@ class WMCGenerator(Generator[WMCDataset]):
     def datasets(self) -> list[WMCDataset]:
         return [
             WMCDataset(
-                name="test_1",
-                pretty_name="Test 1: Satisfiable",
+                name="satisfiable",
+                pretty_name="Satisfiable",
                 description="(V1 or V2) and (not V1 or V2)",
                 suites=["test"],
                 cnf_text=textwrap.dedent(
@@ -250,8 +250,8 @@ class WMCGenerator(Generator[WMCDataset]):
                 expected=0.8,
             ),
             WMCDataset(
-                name="test_2",
-                pretty_name="Test 2: Unsatisfiable",
+                name="unsatisfiable",
+                pretty_name="Unsatisfiable",
                 description="V1 and not V1",
                 suites=["test"],
                 cnf_text=textwrap.dedent(
@@ -267,8 +267,8 @@ class WMCGenerator(Generator[WMCDataset]):
                 expected=0.0,
             ),
             WMCDataset(
-                name="test_3",
-                pretty_name="Test 3: No Clauses",
+                name="no_clauses",
+                pretty_name="No Clauses",
                 description="p cnf 2 0",
                 suites=["test"],
                 cnf_text=textwrap.dedent(
@@ -284,8 +284,8 @@ class WMCGenerator(Generator[WMCDataset]):
                 expected=1.0,
             ),
             WMCDataset(
-                name="test_4",
-                pretty_name="Test 4: Default Weights",
+                name="default_weights",
+                pretty_name="Default Weights",
                 description="V1 or V2 (default weights)",
                 suites=["test"],
                 cnf_text=textwrap.dedent(
@@ -298,8 +298,8 @@ class WMCGenerator(Generator[WMCDataset]):
                 expected=0.75,
             ),
             WMCDataset(
-                name="test_5",
-                pretty_name="Test 5: 3-Var Formula",
+                name="three_var_formula",
+                pretty_name="3-Var Formula",
                 description="(V1 or V2) and (not V2 or V3)",
                 suites=["test"],
                 cnf_text=textwrap.dedent(
@@ -319,8 +319,8 @@ class WMCGenerator(Generator[WMCDataset]):
                 expected=0.62,
             ),
             WMCDataset(
-                name="test_6",
-                pretty_name="Test 6: 20-Var Formula",
+                name="twenty_var_formula",
+                pretty_name="20-Var Formula",
                 description="""
                     (V1 or not V2 or V3) and (not V1 or V4 or V5) and
                     (V2 or not V5 or V6) and (not V3 or V7 or not V8)
@@ -405,11 +405,11 @@ class WMCGenerator(Generator[WMCDataset]):
 class MCCompPWMCGenerator(Generator[WMCCompDataset]):
     @property
     def name(self) -> str:
-        return "mccomp_pwmc"
+        return "weighted_model_counting_mccomp"
 
     @property
     def pretty_name(self) -> str:
-        return "Model Counting Competition Track4 Generator"
+        return "Weighted Model Counting MCComp"
 
     @property
     def description(self) -> str:
@@ -453,8 +453,18 @@ class MCCompPWMCGenerator(Generator[WMCCompDataset]):
     @property
     def datasets(self) -> list[WMCCompDataset]:
         return [
-            WMCCompDataset(source_path, suites=["standard", "trace"])
-            for source_path in list_mccomp_instances("Track4_PWMC")
+            WMCCompDataset(
+                "Track4_PWMC/random_pwmc_1", suites=["standard", "trace", "train"]
+            ),
+            WMCCompDataset("Track4_PWMC/random_pwmc_2", suites=["standard", "trace"]),
+            WMCCompDataset("Track4_PWMC/random_pwmc_3", suites=["standard", "trace"]),
+            WMCCompDataset("Track4_PWMC/random_pwmc_4", suites=["standard", "trace"]),
+            WMCCompDataset("Track4_PWMC/random_pwmc_5", suites=["standard", "trace"]),
+            WMCCompDataset("Track4_PWMC/random_pwmc_6", suites=["standard", "trace"]),
+            WMCCompDataset("Track4_PWMC/random_pwmc_7", suites=["standard", "trace"]),
+            WMCCompDataset("Track4_PWMC/random_pwmc_8", suites=["standard", "trace"]),
+            WMCCompDataset("Track4_PWMC/random_pwmc_9", suites=["standard", "trace"]),
+            WMCCompDataset("Track4_PWMC/random_pwmc_10", suites=["standard", "trace"]),
         ]
 
     def generate(self, dataset: WMCCompDataset):
@@ -493,16 +503,12 @@ class MCCompPWMCGenerator(Generator[WMCCompDataset]):
 
 class WeightedModelCounting(Benchmark):
     @property
-    def tag(self):
+    def name(self):
         return "weighted_model_counting"
 
     @property
-    def name(self):
-        return "Weighted Model Counting using einsum"
-
-    @property
     def pretty_name(self):
-        return "Weighted Model Counting using einsum"
+        return "Weighted Model Counting"
 
     @property
     def description(self):
@@ -510,7 +516,7 @@ class WeightedModelCounting(Benchmark):
 
     @property
     def suites(self):
-        return ["group-logic"]
+        return ["standard-logic"]
 
     @property
     def concepts(self) -> str:

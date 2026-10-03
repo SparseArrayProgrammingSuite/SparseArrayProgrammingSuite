@@ -352,11 +352,11 @@ class _DescriptorDAEGenerator(Generator[DescriptorDAEDataset]):
 class DescriptorDAETestGenerator(_DescriptorDAEGenerator):
     @property
     def name(self) -> str:
-        return "dae_test_inputs"
+        return "dae_bdf_test"
 
     @property
     def pretty_name(self) -> str:
-        return "DAE Test Data Generator"
+        return "DAE BDF Test"
 
     @property
     def description(self) -> str:
@@ -378,8 +378,8 @@ class DescriptorDAETestGenerator(_DescriptorDAEGenerator):
     def datasets(self) -> list[DescriptorDAEDataset]:
         return [
             DescriptorDAEDataset(
-                "test_slicot_descriptor_2",
-                pretty_name="Tiny Descriptor DAE",
+                "tiny_descriptor",
+                pretty_name="Tiny Descriptor",
                 description="Two-variable index-1 descriptor system.",
                 suites=["test"],
                 E=np.array([[1.0, 0.0], [0.0, 0.0]]),
@@ -401,11 +401,11 @@ class DescriptorDAETestGenerator(_DescriptorDAEGenerator):
 class SlicotDAEGenerator(_DescriptorDAEGenerator):
     @property
     def name(self) -> str:
-        return "slicot_dae_inputs"
+        return "dae_bdf_slicot"
 
     @property
     def pretty_name(self) -> str:
-        return "SLICOT DAE Data Generator"
+        return "DAE BDF SLICOT"
 
     @property
     def description(self) -> str:
@@ -438,7 +438,6 @@ class SlicotDAEGenerator(_DescriptorDAEGenerator):
             DescriptorDAEDataset(
                 "tline",
                 source_name="tline.mat",
-                pretty_name="SLICOT Transmission line model",
                 description="SLICOT example of a transmission line model.",
                 suites=["standard", "trace"],
                 t_max=0.02,
@@ -447,7 +446,6 @@ class SlicotDAEGenerator(_DescriptorDAEGenerator):
             DescriptorDAEDataset(
                 "peec",
                 source_name="peec.mat",
-                pretty_name="SLICOT PEEC model",
                 description="SLICOT partial element equivalent circuit model.",
                 suites=["standard", "trace"],
                 t_max=0.02,
@@ -456,7 +454,6 @@ class SlicotDAEGenerator(_DescriptorDAEGenerator):
             DescriptorDAEDataset(
                 "heat-disc",
                 source_name="heat-disc.mat",
-                pretty_name="SLICOT Heat equation (discrete case)",
                 description="SLICOT discretization of the previous equation.",
                 suites=["standard", "trace"],
                 t_max=0.02,
@@ -465,7 +462,6 @@ class SlicotDAEGenerator(_DescriptorDAEGenerator):
             DescriptorDAEDataset(
                 "MNA_1",
                 source_name="MNA_1.mat",
-                pretty_name="SLICOT MNA example - 1",
                 description="SLICOT Modified Nodal Analysis model.",
                 suites=["standard", "trace"],
                 t_max=0.02,
@@ -474,7 +470,6 @@ class SlicotDAEGenerator(_DescriptorDAEGenerator):
             DescriptorDAEDataset(
                 "MNA_2",
                 source_name="MNA_2.mat",
-                pretty_name="SLICOT MNA example - 2",
                 description="SLICOT Modified Nodal Analysis model.",
                 suites=["standard", "trace"],
                 t_max=0.02,
@@ -483,16 +478,14 @@ class SlicotDAEGenerator(_DescriptorDAEGenerator):
             DescriptorDAEDataset(
                 "MNA_3",
                 source_name="MNA_3.mat",
-                pretty_name="SLICOT MNA example - 3",
                 description="SLICOT Modified Nodal Analysis model.",
-                suites=["standard", "trace"],
+                suites=["standard", "trace", "train"],
                 t_max=0.02,
                 step=0.01,
             ),
             DescriptorDAEDataset(
                 "MNA_4",
                 source_name="MNA_4.mat",
-                pretty_name="SLICOT MNA example - 4",
                 description="SLICOT Modified Nodal Analysis model.",
                 suites=["standard", "trace"],
                 t_max=0.02,
@@ -501,7 +494,6 @@ class SlicotDAEGenerator(_DescriptorDAEGenerator):
             DescriptorDAEDataset(
                 "MNA_5",
                 source_name="MNA_5.mat",
-                pretty_name="SLICOT MNA example - 5",
                 description="SLICOT Modified Nodal Analysis model.",
                 suites=["standard", "trace"],
                 t_max=0.02,
@@ -513,7 +505,7 @@ class SlicotDAEGenerator(_DescriptorDAEGenerator):
 class _DescriptorDAEBenchmark(Benchmark):
     @property
     def suites(self) -> list[str]:
-        return ["group-timestepping"]
+        return ["standard-timestepping"]
 
     @property
     def concepts(self) -> str:
@@ -616,11 +608,11 @@ class _DescriptorDAEBenchmark(Benchmark):
 class SlicotDAEBDF(_DescriptorDAEBenchmark):
     @property
     def name(self) -> str:
-        return "slicot_dae_bdf"
+        return "dae_bdf"
 
     @property
     def pretty_name(self) -> str:
-        return "SLICOT DAE BDF"
+        return "DAE BDF"
 
     @property
     def description(self) -> str:

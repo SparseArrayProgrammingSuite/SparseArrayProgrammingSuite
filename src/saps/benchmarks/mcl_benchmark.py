@@ -1,3 +1,4 @@
+# ruff: noqa: E501
 from typing import Any
 
 import numpy as np
@@ -11,10 +12,13 @@ from saps.benchmark import (
     Benchmark,
     Contributor,
     DataInstance,
+    Dataset,
     Generator,
     Ref,
 )
-from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
+from saps.benchmarks.adjacency import zero_one_adjacency
+from saps.benchmarks.gap import fetch_gap_graph
+from saps.benchmarks.snap import fetch_snap_graph
 
 
 def _normalize(array_api, matrix):
@@ -37,22 +41,42 @@ def _prune(array_api, matrix, threshold):
     return matrix * mask
 
 
-class MCLDataset(SuiteSparseDataset):
+class MCLDataset(Dataset):
     def __init__(
         self,
-        source_name: str,
+        name: str,
+        pretty_name: str | None = None,
+        description: str | None = None,
         suites: list[str] | None = None,
         A: Any | None = None,
         expected_count: int | None = None,
     ):
-        super().__init__(
-            source_name,
-            pretty_name=f"MCL {source_name}",
-            description=f"SuiteSparse adjacency matrix {source_name}.",
-            suites=suites,
-        )
+        self._name = name
+        self._pretty_name = pretty_name or name
+        self._description = description or f"MCL input {name}."
+        self._suites = list(suites or [])
         self.A = A
         self.expected_count = expected_count
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
 
 
 class MCLTestGenerator(Generator[MCLDataset]):
@@ -62,11 +86,11 @@ class MCLTestGenerator(Generator[MCLDataset]):
 
     @property
     def name(self) -> str:
-        return "mcl_test_inputs"
+        return "mcl_test"
 
     @property
     def pretty_name(self) -> str:
-        return "MCL Test Data Generator"
+        return "Markov Clustering Test"
 
     @property
     def description(self) -> str:
@@ -127,6 +151,7 @@ class MCLTestGenerator(Generator[MCLDataset]):
         return [
             MCLDataset(
                 "two_star_components",
+                pretty_name="Two Star Components",
                 suites=["test"],
                 A=np.array(
                     [
@@ -145,6 +170,7 @@ class MCLTestGenerator(Generator[MCLDataset]):
             ),
             MCLDataset(
                 "three_block_pairs",
+                pretty_name="Three Block Pairs",
                 suites=["test"],
                 A=np.array(
                     [
@@ -161,6 +187,7 @@ class MCLTestGenerator(Generator[MCLDataset]):
             ),
             MCLDataset(
                 "planted_clique",
+                pretty_name="Planted Clique",
                 suites=["test"],
                 A=planted_clique,
                 expected_count=7,
@@ -184,14 +211,14 @@ class MCLTestGenerator(Generator[MCLDataset]):
         )
 
 
-class MCLGenerator(Generator[MCLDataset]):
+class MCLSNAPGenerator(Generator[MCLDataset]):
     @property
     def name(self) -> str:
-        return "mcl_inputs"
+        return "mcl_snap"
 
     @property
     def pretty_name(self) -> str:
-        return "MCL SuiteSparse Data Generator"
+        return "Markov Clustering SNAP"
 
     @property
     def description(self) -> str:
@@ -230,25 +257,148 @@ class MCLGenerator(Generator[MCLDataset]):
 
     @property
     def datasets(self) -> list[MCLDataset]:
+        # fmt: off
         return [
-            MCLDataset("JGD_Trefethen/Trefethen_200"),
-            MCLDataset("Pothen/mesh3em5"),
-            MCLDataset("Norris/fv1"),
-            MCLDataset("HB/bcsstk05"),
-            MCLDataset("HB/nos1"),
-            MCLDataset("HB/nos2"),
-            MCLDataset("HB/nos3"),
-            MCLDataset("HB/dwt_59"),
-            MCLDataset("GAP/GAP-road", suites=["standard"]),
-            MCLDataset("GAP/GAP-twitter", suites=["standard"]),
-            MCLDataset("GAP/GAP-web", suites=["standard"]),
-            MCLDataset("GAP/GAP-kron", suites=["standard"]),
-            MCLDataset("GAP/GAP-urand", suites=["standard"]),
+            MCLDataset("soc-Epinions1", suites=["standard"]),
+            MCLDataset("soc-LiveJournal1", suites=["standard"]),
+            MCLDataset("soc-Pokec", suites=["standard"]),
+            MCLDataset("soc-Slashdot0811", suites=["standard"]),
+            MCLDataset("soc-Slashdot0902", suites=["standard"]),
+            MCLDataset("wiki-Vote", suites=["standard"]),
+            MCLDataset("wiki-RfA", suites=["standard"]),
+            MCLDataset("soc-sign-bitcoin-otc", suites=["standard"]),
+            MCLDataset("soc-sign-bitcoin-alpha", suites=["standard"]),
+            MCLDataset("com-LiveJournal", suites=["standard"]),
+            MCLDataset("com-Friendster", suites=["standard"]),
+            MCLDataset("com-Orkut", suites=["standard"]),
+            MCLDataset("com-Youtube", suites=["standard"]),
+            MCLDataset("com-DBLP", suites=["standard"]),
+            MCLDataset("com-Amazon", suites=["standard"]),
+            MCLDataset("email-Eu-core", suites=["standard", "trace", "train"]),
+            MCLDataset("wiki-topcats", suites=["standard"]),
+            MCLDataset("email-EuAll", suites=["standard"]),
+            MCLDataset("email-Enron", suites=["standard"]),
+            MCLDataset("wiki-Talk", suites=["standard"]),
+            MCLDataset("cit-HepPh", suites=["standard"]),
+            MCLDataset("cit-HepTh", suites=["standard"]),
+            MCLDataset("cit-Patents", suites=["standard"]),
+            MCLDataset("ca-AstroPh", suites=["standard"]),
+            MCLDataset("ca-CondMat", suites=["standard"]),
+            MCLDataset("ca-GrQc", suites=["standard"]),
+            MCLDataset("ca-HepPh", suites=["standard"]),
+            MCLDataset("ca-HepTh", suites=["standard"]),
+            MCLDataset("web-BerkStan", suites=["standard"]),
+            MCLDataset("web-Google", suites=["standard"]),
+            MCLDataset("web-NotreDame", suites=["standard"]),
+            MCLDataset("web-Stanford", suites=["standard"]),
+            MCLDataset("amazon0302", suites=["standard"]),
+            MCLDataset("amazon0312", suites=["standard"]),
+            MCLDataset("amazon0505", suites=["standard"]),
+            MCLDataset("amazon0601", suites=["standard"]),
+            MCLDataset("p2p-Gnutella04", suites=["standard"]),
+            MCLDataset("p2p-Gnutella05", suites=["standard"]),
+            MCLDataset("p2p-Gnutella06", suites=["standard"]),
+            MCLDataset("p2p-Gnutella08", suites=["standard"]),
+            MCLDataset("p2p-Gnutella09", suites=["standard"]),
+            MCLDataset("p2p-Gnutella24", suites=["standard"]),
+            MCLDataset("p2p-Gnutella25", suites=["standard"]),
+            MCLDataset("p2p-Gnutella30", suites=["standard"]),
+            MCLDataset("p2p-Gnutella31", suites=["standard"]),
+            MCLDataset("roadNet-CA", suites=["standard"]),
+            MCLDataset("roadNet-PA", suites=["standard"]),
+            MCLDataset("roadNet-TX", suites=["standard"]),
+            MCLDataset("as-735", suites=["standard"]),
+            MCLDataset("as-Skitter", suites=["standard"]),
+            MCLDataset("as-caida", suites=["standard"]),
+            MCLDataset("Oregon-1", suites=["standard"]),
+            MCLDataset("Oregon-2", suites=["standard"]),
+            MCLDataset("soc-sign-epinions", suites=["standard"]),
+            MCLDataset("soc-sign-Slashdot081106", suites=["standard"]),
+            MCLDataset("soc-sign-Slashdot090216", suites=["standard"]),
+            MCLDataset("soc-sign-Slashdot090221", suites=["standard"]),
+            MCLDataset("loc-Gowalla", suites=["standard"]),
+            MCLDataset("loc-Brightkite", suites=["standard"]),
+            MCLDataset("sx-stackoverflow", suites=["standard"]),
+            MCLDataset("sx-mathoverflow", suites=["standard"]),
+            MCLDataset("sx-superuser", suites=["standard"]),
+            MCLDataset("sx-askubuntu", suites=["standard"]),
+            MCLDataset("wiki-talk-temporal", suites=["standard"]),
+            MCLDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
+            MCLDataset("CollegeMsg", suites=["standard", "trace"]),
+            MCLDataset("twitter7", suites=["standard"]),
+            MCLDataset("higgs-twitter", suites=["standard"]),
         ]
+        # fmt: on
 
-    def generate(self, dataset: MCLDataset):
-        raw = fetch_suitesparse_matrix(dataset.source_name)
-        return DataInstance(inputs=[raw.inputs[0]], meta={})
+    def generate(self, dataset: MCLDataset) -> DataInstance:
+        raw = fetch_snap_graph(dataset.name)
+        return DataInstance(
+            inputs=[zero_one_adjacency(raw.inputs[0], np.float32)], meta={}
+        )
+
+
+class MCLGAPGenerator(Generator[MCLDataset]):
+    @property
+    def name(self) -> str:
+        return "mcl_gap"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Markov Clustering GAP"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Data collected from SuiteSparse Matrix Collection consisting of "
+            "sparse adjacency matrices used to evaluate graph clustering performance."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return MCLBenchmark().authors
+
+    @property
+    def references(self) -> list[Ref]:
+        return MCLBenchmark().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return MCLBenchmark().ai_disclosure
+
+    @property
+    def motivation(self) -> str:
+        return MCLBenchmark().motivation
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[MCLDataset]:
+        # fmt: off
+        return [
+            MCLDataset("GAP-road", suites=["standard"]),
+            MCLDataset("GAP-twitter", suites=["standard"]),
+            MCLDataset("GAP-web", suites=["standard"]),
+            MCLDataset("GAP-kron", suites=["standard"]),
+            MCLDataset("GAP-urand", suites=["standard"]),
+        ]
+        # fmt: on
+        # fmt: on
+
+    def generate(self, dataset: MCLDataset) -> DataInstance:
+        raw = fetch_gap_graph(dataset.name)
+        return DataInstance(
+            inputs=[zero_one_adjacency(raw.inputs[0], np.float32)], meta={}
+        )
 
 
 class MCLBenchmark(Benchmark):
@@ -258,7 +408,7 @@ class MCLBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "Markov Clustering Algorithm"
+        return "Markov Clustering"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -304,6 +454,25 @@ class MCLBenchmark(Benchmark):
                 authors=[Author("Guy Allard")],
                 url="https://github.com/GuyAllard/markov_clustering",
             ),
+            Ref(
+                title=(
+                    "HipMCL: a high-performance parallel implementation of the "
+                    "Markov clustering algorithm for large-scale networks"
+                ),
+                authors=[
+                    Author("Ariful Azad"),
+                    Author("Georgios A. Pavlopoulos"),
+                    Author("Christos A. Ouzounis"),
+                    Author("Nikos C. Kyrpides"),
+                    Author("Aydin Buluç"),
+                ],
+                journal="Nucleic Acids Research",
+                volume=46,
+                number=6,
+                year=2018,
+                url="https://doi.org/10.1093/nar/gkx1313",
+                doi="10.1093/nar/gkx1313",
+            ),
         ]
 
     @property
@@ -315,7 +484,7 @@ class MCLBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["group-graphs-iterative"]
+        return ["standard-graphs-iterative"]
 
     @property
     def concepts(self) -> str:
@@ -323,7 +492,7 @@ class MCLBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [MCLTestGenerator(), MCLGenerator()]
+        return [MCLTestGenerator(), MCLSNAPGenerator(), MCLGAPGenerator()]
 
     def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
         """
@@ -350,12 +519,15 @@ class MCLBenchmark(Benchmark):
 
         """
         array_api = xp
-        graph = data[0]
+        # MCL works with transition probabilities, whatever the input's dtype.
+        graph = array_api.astype(data[0], array_api.float64)
         expansion = meta.get("expansion", 2)
         inflation = meta.get("inflation", 2)
         loop_value = meta.get("loop_value", 1)
         iterations = meta.get("iterations", 100)
-        pruning_threshold = meta.get("pruning_threshold", 1e-5)
+        # HipMCL's prune limit. A pruned column-stochastic column keeps at most
+        # 1 / pruning_threshold entries, which bounds fill-in from expansion.
+        pruning_threshold = meta.get("pruning_threshold", 1e-4)
         pruning_frequency = meta.get("pruning_frequency", 1)
         convergence_check_frequency = meta.get("convergence_check_frequency", 1)
 
@@ -370,13 +542,14 @@ class MCLBenchmark(Benchmark):
             for _ in range(expansion - 1):
                 expanded_matrix = array_api.matmul(expanded_matrix, current_matrix)
 
-            inflated_matrix = expanded_matrix**inflation
-            current_matrix = _normalize(array_api, inflated_matrix)
-
+            # As in HipMCL, prune the expanded matrix before inflating it.
             if pruning_threshold > 0 and i % pruning_frequency == (
                 pruning_frequency - 1
             ):
-                current_matrix = _prune(array_api, current_matrix, pruning_threshold)
+                expanded_matrix = _prune(array_api, expanded_matrix, pruning_threshold)
+
+            inflated_matrix = expanded_matrix**inflation
+            current_matrix = _normalize(array_api, inflated_matrix)
 
             if i % convergence_check_frequency == (
                 convergence_check_frequency - 1

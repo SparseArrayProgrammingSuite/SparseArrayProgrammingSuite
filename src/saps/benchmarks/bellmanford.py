@@ -1,8 +1,9 @@
+# ruff: noqa: E501
 import numpy as np
 import scipy.sparse as sps
 
-from binsparse import BinsparseTensor, COORMatrix
-from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_sparse
 
 from saps.benchmark import (
     Author,
@@ -13,19 +14,11 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.adjacency import distance_matrix
+from saps.benchmarks.gap import fetch_gap_graph, gap_graph
 from saps.benchmarks.snap import (
-    SNAPGraphGenerator,
-    SNAPSourceDataset,
-    fetch_snap_source_graph,
+    fetch_snap_graph,
     with_source_vertex,
-)
-from saps.benchmarks.suitesparse import (
-    _GAP_KRON_SOURCES,
-    _GAP_ROAD_SOURCES,
-    _GAP_TWITTER_SOURCES,
-    _GAP_URAND_SOURCES,
-    _GAP_WEB_SOURCES,
-    fetch_suitesparse_matrix,
 )
 
 
@@ -39,7 +32,7 @@ def _from_binsparse(array):
 class BellmanFordDataset(Dataset):
     def __init__(
         self,
-        name: str,
+        name: str | None = None,
         pretty_name: str | None = None,
         description: str | None = None,
         suites: list[str] | None = None,
@@ -47,16 +40,24 @@ class BellmanFordDataset(Dataset):
         src: int = 0,
         expected: np.ndarray | None = None,
         source_seed: int | None = None,
+        source_name: str | None = None,
     ):
+        if source_name is not None and source_seed is not None:
+            name = f"{source_name}_seed{source_seed}"
+            pretty_name = f"{source_name} (Seed {source_seed})"
+        elif source_name is not None:
+            name = f"{source_name}_src{src}"
+            pretty_name = f"{source_name} (Source {src})"
+        if name is None:
+            raise ValueError("Datasets without a source_name need a name.")
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Bellman-Ford input {name}."
-        self._suites = suites or []
+        self._suites = list(suites or [])
         self.A = A
         self.src = src
         self.source_seed = source_seed
-        if expected is None and A is not None:
-            expected = bellman_ford_reference(A, src)
+        self.source_name = source_name or name
         self.expected = expected
 
     @property
@@ -105,11 +106,11 @@ def bellman_ford_matrix(n, edges, *, symmetric=False):
 class BellmanFordTestGenerator(Generator[BellmanFordDataset]):
     @property
     def name(self) -> str:
-        return "bellman_ford_test_inputs"
+        return "bellman_ford_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Bellman-Ford Test Input Generator"
+        return "Bellman-Ford Test"
 
     @property
     def description(self) -> str:
@@ -315,31 +316,36 @@ class BellmanFordTestGenerator(Generator[BellmanFordDataset]):
         )
         return [
             BellmanFordDataset(
-                name="test_bellman_ford_tribes_src_0",
+                name="tribes_src0",
+                pretty_name="Tribes (Source 0)",
                 suites=["test"],
                 A=tribes,
                 src=0,
             ),
             BellmanFordDataset(
-                name="test_bellman_ford_chesapeake_src_0",
+                name="chesapeake_src0",
+                pretty_name="Chesapeake (Source 0)",
                 suites=["test"],
                 A=chesapeake,
                 src=0,
             ),
             BellmanFordDataset(
-                name="test_bellman_ford_chesapeake_src_10",
+                name="chesapeake_src10",
+                pretty_name="Chesapeake (Source 10)",
                 suites=["test"],
                 A=chesapeake,
                 src=10,
             ),
             BellmanFordDataset(
-                name="test_bellman_ford_chesapeake_src_38",
+                name="chesapeake_src38",
+                pretty_name="Chesapeake (Source 38)",
                 suites=["test"],
                 A=chesapeake,
                 src=38,
             ),
             BellmanFordDataset(
-                name="test_bellman_ford_snap_toy",
+                name="snap_toy",
+                pretty_name="SNAP Toy",
                 suites=["test"],
                 A=bellman_ford_matrix(3, [(0, 1), (1, 2)]),
                 src=0,
@@ -347,7 +353,8 @@ class BellmanFordTestGenerator(Generator[BellmanFordDataset]):
             ),
             *[
                 BellmanFordDataset(
-                    name=f"test_bellmanford_snap_source_seed{seed}",
+                    name=f"random_source_seed{seed}",
+                    pretty_name=f"Random Source (Seed {seed})",
                     suites=["test"],
                     A=bellman_ford_matrix(4, [(1, 2), (2, 3)]),
                     source_seed=seed,
@@ -368,33 +375,32 @@ class BellmanFordTestGenerator(Generator[BellmanFordDataset]):
                 seed=dataset.source_seed,
             )
             return DataInstance(
-                inputs=[_adjacency_to_distance(raw.inputs[0])],
+                inputs=[distance_matrix(raw.inputs[0])],
                 meta=raw.meta,
                 ref_outputs=[
                     from_numpy(bellman_ford_reference(dataset.A, raw.meta["src"]))
                 ],
             )
-        if dataset.A is None or dataset.expected is None:
-            raise ValueError("Bellman-Ford test datasets must define A and expected.")
+        if dataset.A is None:
+            raise ValueError("Bellman-Ford test datasets must define A.")
+        expected = dataset.expected
+        if expected is None:
+            expected = bellman_ford_reference(dataset.A, dataset.src)
         return DataInstance(
             inputs=[from_numpy(dataset.A)],
             meta={"src": dataset.src},
-            ref_outputs=[from_numpy(dataset.expected)],
+            ref_outputs=[from_numpy(expected)],
         )
 
 
-class BellmanFordSNAPGenerator(Generator[SNAPSourceDataset]):
-    @property
-    def cacheable(self) -> bool:
-        return False
-
+class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
     @property
     def name(self) -> str:
-        return "bellman_ford_snap_inputs"
+        return "bellman_ford_snap"
 
     @property
     def pretty_name(self) -> str:
-        return "Bellman-Ford SNAP Input Generator"
+        return "Bellman-Ford SNAP"
 
     @property
     def description(self) -> str:
@@ -428,30 +434,310 @@ class BellmanFordSNAPGenerator(Generator[SNAPSourceDataset]):
         return "Generate weighted graph inputs for Bellman-Ford."
 
     @property
-    def datasets(self) -> list[SNAPSourceDataset]:
-        return [
-            SNAPSourceDataset(graph, seed)
-            for graph in SNAPGraphGenerator().datasets
-            for seed in range(10)
-        ]
+    def cacheable(self) -> bool:
+        return False
 
-    def generate(self, dataset: SNAPSourceDataset) -> DataInstance:
-        if dataset.name in self.dataset_names:
-            raw = fetch_snap_source_graph(dataset)
-            return DataInstance(
-                inputs=[_adjacency_to_distance(raw.inputs[0])], meta=raw.meta
+    @property
+    def datasets(self) -> list[BellmanFordDataset]:
+        # Trace selects successful Smart runs < 60s in competition/run_13803684.
+        # fmt: off
+        return [
+            *[
+                BellmanFordDataset(source_name="soc-Epinions1", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="soc-LiveJournal1", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="soc-Pokec", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="soc-Slashdot0811", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="soc-Slashdot0902", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="wiki-Vote", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="wiki-RfA", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="soc-sign-bitcoin-otc", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="soc-sign-bitcoin-alpha", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="com-LiveJournal", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="com-Friendster", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="com-Orkut", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="com-Youtube", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="com-DBLP", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="com-Amazon", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="email-Eu-core", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="wiki-topcats", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="email-EuAll", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="email-Enron", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="wiki-Talk", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="cit-HepPh", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="cit-HepTh", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="cit-Patents", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="ca-AstroPh", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="ca-CondMat", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="ca-GrQc", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="ca-HepPh", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="ca-HepTh", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="web-BerkStan", source_seed=seed, suites=["standard", "trace"] if seed in (0, 2, 5) else ["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="web-Google", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="web-NotreDame", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="web-Stanford", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="amazon0302", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="amazon0312", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="amazon0505", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="amazon0601", source_seed=seed, suites=["standard", "trace", "train"] if seed == 4 else ["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="p2p-Gnutella04", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="p2p-Gnutella05", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="p2p-Gnutella06", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="p2p-Gnutella08", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="p2p-Gnutella09", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="p2p-Gnutella24", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="p2p-Gnutella25", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="p2p-Gnutella30", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="p2p-Gnutella31", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="roadNet-CA", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="roadNet-PA", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="roadNet-TX", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="as-735", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="as-Skitter", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="as-caida", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="Oregon-1", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="Oregon-2", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="soc-sign-epinions", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="soc-sign-Slashdot081106", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="soc-sign-Slashdot090216", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="soc-sign-Slashdot090221", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="loc-Gowalla", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="loc-Brightkite", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="sx-stackoverflow", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="sx-mathoverflow", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="sx-superuser", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="sx-askubuntu", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="wiki-talk-temporal", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="email-Eu-core-temporal", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="CollegeMsg", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="twitter7", source_seed=seed, suites=["standard"])
+                for seed in range(10)
+            ],
+            *[
+                BellmanFordDataset(source_name="higgs-twitter", source_seed=seed, suites=["standard", "trace"])
+                for seed in range(10)
+            ],
+        ]
+        # fmt: on
+
+    def generate(self, dataset: BellmanFordDataset) -> DataInstance:
+        raw = fetch_snap_graph(dataset.source_name)
+        seed = dataset.source_seed
+        if seed is None or not 0 <= seed < len(raw.meta["sources"]):
+            raise ValueError(
+                f"Source seed is outside the graph's available sources: {seed}"
             )
-        raise ValueError(f"Unsupported Bellman-Ford dataset: {dataset.name}")
+        return DataInstance(
+            inputs=[distance_matrix(raw.inputs[0])],
+            meta={**raw.meta, "src": raw.meta["sources"][seed], "seed": seed},
+        )
 
 
 class BellmanFordGAPGenerator(Generator[BellmanFordDataset]):
     @property
     def name(self) -> str:
-        return "bellman_ford_gap_inputs"
+        return "bellman_ford_gap"
 
     @property
     def pretty_name(self) -> str:
-        return "Bellman-Ford GAP Input Generator"
+        return "Bellman-Ford GAP"
 
     @property
     def description(self) -> str:
@@ -501,112 +787,41 @@ class BellmanFordGAPGenerator(Generator[BellmanFordDataset]):
 
     @property
     def datasets(self) -> list[BellmanFordDataset]:
-        return (
-            [
-                BellmanFordDataset(
-                    name=f"GAP/GAP-road_{src}",
-                    pretty_name="GAP Road",
-                    description=(
-                        "Directed roads with weights in the US, with 23.9M nodes and"
-                        " 58.3M edges."
-                    ),
-                    suites=["standard"],
-                    src=src,
-                )
-                for src in _GAP_ROAD_SOURCES
-            ]
-            + [
-                BellmanFordDataset(
-                    name=f"GAP/GAP-twitter_{src}",
-                    pretty_name="GAP Twitter",
-                    description=(
-                        "Directed weighted social network topology of Twitter, with"
-                        " 61.6M nodes and 1,468.4M edges."
-                    ),
-                    suites=["standard"],
-                    src=src,
-                )
-                for src in _GAP_TWITTER_SOURCES
-            ]
-            + [
-                BellmanFordDataset(
-                    name=f"GAP/GAP-web_{src}",
-                    pretty_name="GAP Web",
-                    description=(
-                        "A web-crawl of the .sk domain, directed and weighted, with"
-                        " 50.6M nodes and 1,949.4M edges."
-                    ),
-                    suites=["standard"],
-                    src=src,
-                )
-                for src in _GAP_WEB_SOURCES
-            ]
-            + [
-                BellmanFordDataset(
-                    name=f"GAP/GAP-kron_{src}",
-                    pretty_name="GAP Kron",
-                    description=(
-                        "Symmetric random undirected weighted graph generated by"
-                        " Kronecker synthetic graph generator with parameters"
-                        " (A=0.57, B=C=0.19, D=0.05). Has 134.2M nodes and 2,111.6M"
-                        " edges."
-                    ),
-                    suites=["standard"],
-                    src=src,
-                )
-                for src in _GAP_KRON_SOURCES
-            ]
-            + [
-                BellmanFordDataset(
-                    name=f"GAP/GAP-urand_{src}",
-                    pretty_name="GAP Urand",
-                    description=(
-                        "Symmetric random undirected weighted graph generated by"
-                        " Erdos–Reyni model (Uniform Random) with 134.2M nodes and"
-                        " 2,147.4M edges."
-                    ),
-                    suites=["standard"],
-                    src=src,
-                )
-                for src in _GAP_URAND_SOURCES
-            ]
-        )
+        # fmt: off
+        return [
+            *[
+                BellmanFordDataset(source_name="GAP-road", src=src, suites=["standard"])
+                for src in gap_graph("GAP-road").sources
+            ],
+            *[
+                BellmanFordDataset(source_name="GAP-twitter", src=src, suites=["standard"])
+                for src in gap_graph("GAP-twitter").sources
+            ],
+            *[
+                BellmanFordDataset(source_name="GAP-web", src=src, suites=["standard"])
+                for src in gap_graph("GAP-web").sources
+            ],
+            *[
+                BellmanFordDataset(source_name="GAP-kron", src=src, suites=["standard"])
+                for src in gap_graph("GAP-kron").sources
+            ],
+            *[
+                BellmanFordDataset(source_name="GAP-urand", src=src, suites=["standard"])
+                for src in gap_graph("GAP-urand").sources
+            ],
+        ]
+        # fmt: on
 
     def generate(self, dataset: BellmanFordDataset) -> DataInstance:
-        if dataset.name.startswith("GAP/"):
-            raw = fetch_suitesparse_matrix(dataset.name.rsplit("_", 1)[0])
-            meta = raw.meta
-            meta["src"] = dataset.src
-            return DataInstance(
-                inputs=[_adjacency_to_distance(raw.inputs[0], keep_weights=True)],
-                meta=meta,
+        raw = fetch_gap_graph(dataset.source_name)
+        if dataset.src not in raw.meta["sources"]:
+            raise ValueError(
+                f"{dataset.src} is not a published source of {dataset.source_name}"
             )
-        raise ValueError(f"Unsupported Bellman-Ford dataset: {dataset.name}")
-
-
-def _adjacency_to_distance(
-    adjacency: BinsparseTensor, keep_weights=False
-) -> BinsparseTensor:
-    try:
-        edges = to_scipy(adjacency).tocoo(copy=True)
-    except TypeError:
-        edges = sps.coo_array(to_numpy(adjacency))
-    edges.sum_duplicates()
-    nonzero = (edges.row != edges.col) & (edges.data != 0)
-    weights = edges.data[nonzero].astype(float)
-    if not keep_weights:
-        weights.fill(1.0)
-    diagonal = np.arange(min(edges.shape))
-    values = np.concatenate((weights, np.zeros(diagonal.size)))
-    return COORMatrix(
-        edges.shape,
-        values.size,
-        fill=True,
-        fill_value=np.inf,
-        indices_0=np.concatenate((edges.row[nonzero], diagonal)),
-        indices_1=np.concatenate((edges.col[nonzero], diagonal)),
-        values=values,
-    )
+        return DataInstance(
+            inputs=[distance_matrix(raw.inputs[0], keep_weights=True)],
+            meta={**raw.meta, "src": dataset.src},
+        )
 
 
 class BellmanFordBenchmark(Benchmark):
@@ -616,7 +831,7 @@ class BellmanFordBenchmark(Benchmark):
 
     @property
     def pretty_name(self):
-        return "Bellman Ford Algorithm"
+        return "Bellman-Ford"
 
     @property
     def description(self):
@@ -630,7 +845,7 @@ class BellmanFordBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["group-graphs-iterative"]
+        return ["standard-graphs-iterative"]
 
     @property
     def concepts(self) -> str:

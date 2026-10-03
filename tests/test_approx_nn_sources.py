@@ -134,12 +134,14 @@ def test_simhash_approx_nn_benchmark_uses_openml_and_netflix_shell_generators():
         assert {
             dataset.name: dataset.suites for dataset in openml_generator.datasets
         } == {
-            "mnist": ["standard", "trace"],
+            "mnist": ["standard", "trace", "train"]
+            if kind == "sparse"
+            else ["standard", "trace"],
             "cifar10": ["standard"],
         }
-        assert f"simhash_approx_nn_netflix_{kind}" in generator_names
-        assert f"simhash_projection_inputs_{kind}" in generator_names
-        assert f"simhash_projection_test_inputs_{kind}" in generator_names
+        assert f"simhash_approx_nn_netflix_prize_{kind}" in generator_names
+        assert f"simhash_approx_nn_random_{kind}" in generator_names
+        assert f"simhash_approx_nn_test_{kind}" in generator_names
     assert len(generator_names) == len(generators) == 8
 
 

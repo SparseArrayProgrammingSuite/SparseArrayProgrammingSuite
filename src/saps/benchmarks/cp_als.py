@@ -52,11 +52,11 @@ class CPNFactorizeableGenerator(Generator[CPFactorizeableDataset]):
 
     @property
     def name(self):
-        return "cp_factorizable"
+        return "cp_als_factorizable"
 
     @property
     def pretty_name(self):
-        return "Factorizable Tensor for CP Decomposition"
+        return "CP-ALS Factorizable"
 
     @property
     def description(self):
@@ -104,46 +104,46 @@ class CPNFactorizeableGenerator(Generator[CPFactorizeableDataset]):
     def datasets(self):
         datasets = [
             CPFactorizeableDataset(
-                name="cp_factorizeable_3d_tiny",
-                pretty_name="Tiny Factorizeable CP Tensor",
+                name="tiny_3d",
+                pretty_name="Tiny 3D",
                 suites=["test"],
                 shape=(6, 6, 6),
                 rank=2,
                 max_iter=20,
             ),
             CPFactorizeableDataset(
-                name="cp_factorizeable_3d_small",
-                pretty_name="Small Factorizeable CP Tensor",
+                name="small_3d",
+                pretty_name="Small 3D",
                 suites=[],
                 shape=(20, 20, 20),
                 rank=3,
             ),
             CPFactorizeableDataset(
-                name="cp_factorizeable_4d_tiny",
-                pretty_name="Tiny 4D Factorizeable CP Tensor",
+                name="tiny_4d",
+                pretty_name="Tiny 4D",
                 suites=["test"],
                 shape=(5, 5, 5, 5),
                 rank=1,
                 max_iter=20,
             ),
             CPFactorizeableDataset(
-                name="cp_factorizeable_4d_small",
-                pretty_name="Small 4D Factorizeable CP Tensor",
+                name="small_4d",
+                pretty_name="Small 4D",
                 suites=[],
                 shape=(20, 20, 20, 20),
                 rank=4,
             ),
             CPFactorizeableDataset(
-                name="cp_factorizeable_5d_tiny",
-                pretty_name="Tiny 5D Factorizeable CP Tensor",
+                name="tiny_5d",
+                pretty_name="Tiny 5D",
                 suites=["test"],
                 shape=(4, 4, 4, 4, 4),
                 rank=2,
                 max_iter=20,
             ),
             CPFactorizeableDataset(
-                name="cp_factorizeable_5d_small",
-                pretty_name="Small 5D Factorizeable CP Tensor",
+                name="small_5d",
+                pretty_name="Small 5D",
                 suites=[],
                 shape=(10, 10, 10, 10, 10),
                 rank=5,
@@ -326,11 +326,11 @@ class CPNFrosttGenerator(Generator[CPFrosttDataset]):
 
     @property
     def name(self):
-        return "cp_frostt_inputs"
+        return "cp_als_frostt"
 
     @property
     def pretty_name(self):
-        return "FROSTT Sparse Tensor Generator for CP-ALS"
+        return "CP-ALS FROSTT"
 
     @property
     def description(self):
@@ -394,8 +394,8 @@ class CPNFrosttGenerator(Generator[CPFrosttDataset]):
     def datasets(self):
         datasets = [
             CPFrosttDataset(
-                name=f"cp{n}_frostt_{tensor_name}",
-                pretty_name=f"CP{n} FROSTT {tensor_name}",
+                name=tensor_name,
+                pretty_name=tensor_name,
                 tensor_name=tensor_name,
                 n=n,
                 rank=rank,
@@ -403,7 +403,7 @@ class CPNFrosttGenerator(Generator[CPFrosttDataset]):
                 suites=suites,
             )
             for n, tensor_name, rank, max_iter, suites in [
-                (3, "matmul_2_2_2", 2, 20, ["trace"]),
+                (3, "matmul_2_2_2", 2, 20, ["trace", "train"]),
                 (3, "matmul_3_3_3", 2, 20, ["trace"]),
                 (3, "matmul_4_3_2", 2, 20, ["trace"]),
                 (3, "matmul_4_4_3", 2, 20, ["trace"]),
@@ -421,14 +421,14 @@ class CPNFrosttGenerator(Generator[CPFrosttDataset]):
                 (3, "fb_m", 10, 5, []),
                 (3, "darpa", 10, 5, []),
                 (4, "toy", 2, 5, ["trace"]),
-                (4, "nips", 10, 5, []),
-                (4, "uber_pickups", 10, 5, []),
-                (4, "chicago_crime_comm", 10, 5, []),
+                (4, "nips", 10, 5, ["trace"]),
+                (4, "uber_pickups", 10, 5, ["trace"]),
+                (4, "chicago_crime_comm", 10, 5, ["trace", "train"]),
                 (4, "enron", 10, 5, []),
                 (4, "flickr_4d", 10, 5, []),
                 (4, "delicious_4d", 10, 5, []),
                 (5, "lbnl_network", 10, 5, []),
-                (5, "chicago_crime_geo", 10, 5, []),
+                (5, "chicago_crime_geo", 10, 5, ["trace", "train"]),
                 (5, "vast_2015_mc1_5d", 10, 5, []),
                 (5, "lanl2", 10, 5, []),
             ]
@@ -515,7 +515,7 @@ class CP_ALS(Benchmark):
 
     @property
     def suites(self):
-        return ["group-data-analytics"]
+        return ["standard-data-analytics"]
 
     @property
     def concepts(self) -> str:

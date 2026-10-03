@@ -17,7 +17,6 @@ from saps.benchmark import (
 from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     fetch_suitesparse_linear_system,
-    suite_sparse_rhs_dataset_name,
 )
 
 
@@ -26,6 +25,7 @@ class GMRESDataset(SuiteSparseDataset):
         self,
         source_name: str,
         *,
+        pretty_name: str | None = None,
         suites: list[str] | None = None,
         A: Any | None = None,
         b: np.ndarray | None = None,
@@ -36,11 +36,14 @@ class GMRESDataset(SuiteSparseDataset):
         rel_tol: float = 1e-6,
         restart: int = 50,
     ):
-        dataset_name = suite_sparse_rhs_dataset_name(source_name, rhs_index)
+        name = source_name
+        if rhs_index is not None:
+            name = f"{source_name}_rhs{rhs_index}"
+            pretty_name = f"{source_name} (RHS {rhs_index})"
         super().__init__(
-            dataset_name,
+            name,
             source_name=source_name,
-            pretty_name=f"GMRES {source_name}",
+            pretty_name=pretty_name,
             suites=suites,
             rhs_index=rhs_index,
         )
@@ -75,11 +78,11 @@ def gmres_random_system(seed):
 class GMRESTestGenerator(Generator[GMRESDataset]):
     @property
     def name(self) -> str:
-        return "gmres_test_inputs"
+        return "gmres_test"
 
     @property
     def pretty_name(self) -> str:
-        return "GMRES Test Data Generator"
+        return "GMRES Test"
 
     @property
     def description(self) -> str:
@@ -119,7 +122,8 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
         random_123 = gmres_random_system(123)
         return [
             GMRESDataset(
-                "test_gmres_random_42",
+                "random_seed42",
+                pretty_name="Random (Seed 42)",
                 suites=["test"],
                 A=random_42[0],
                 b=random_42[1],
@@ -130,7 +134,8 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
                 ref_meta={"residual_tol": 1e-5},
             ),
             GMRESDataset(
-                "test_gmres_random_123",
+                "random_seed123",
+                pretty_name="Random (Seed 123)",
                 suites=["test"],
                 A=random_123[0],
                 b=random_123[1],
@@ -141,7 +146,8 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
                 ref_meta={"residual_tol": 1e-5},
             ),
             GMRESDataset(
-                "test_gmres_diagonal",
+                "diagonal",
+                pretty_name="Diagonal",
                 suites=["test"],
                 A=np.array([[2.0, 0.0], [0.0, 3.0]]),
                 b=np.array([4.0, 9.0]),
@@ -152,7 +158,8 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
                 ref_meta={"residual_tol": 1e-6},
             ),
             GMRESDataset(
-                "test_gmres_3x3",
+                "3x3",
+                pretty_name="3x3",
                 suites=["test"],
                 A=np.array([[10.0, 2.0, 1.0], [1.0, 20.0, 1.0], [1.0, 2.0, 10.0]]),
                 b=np.array([13.0, 22.0, 13.0]),
@@ -163,7 +170,8 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
                 ref_meta={"residual_tol": 1e-6},
             ),
             GMRESDataset(
-                "test_gmres_4x4",
+                "4x4",
+                pretty_name="4x4",
                 suites=["test"],
                 A=np.array(
                     [
@@ -201,11 +209,11 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
 class GMRESGenerator(Generator[GMRESDataset]):
     @property
     def name(self) -> str:
-        return "gmres_inputs"
+        return "gmres_suitesparse"
 
     @property
     def pretty_name(self) -> str:
-        return "GMRES SuiteSparse Data Generator"
+        return "GMRES SuiteSparse"
 
     @property
     def description(self) -> str:
@@ -293,7 +301,7 @@ class GMRESGenerator(Generator[GMRESDataset]):
             ),
             GMRESDataset(
                 "Andrianov/net50",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
@@ -979,7 +987,7 @@ class GMRESGenerator(Generator[GMRESDataset]):
             ),
             GMRESDataset(
                 "Nemeth/nemeth26",
-                suites=["standard", "trace"],
+                suites=["standard", "trace", "train"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
@@ -1107,7 +1115,10 @@ class GMRESGenerator(Generator[GMRESDataset]):
                 rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Sandia/ASIC_680k", suites=["standard"], max_iter=100, rel_tol=1e-06
+                "Sandia/ASIC_680k",
+                suites=["standard"],
+                max_iter=100,
+                rel_tol=1e-06,
             ),
             GMRESDataset(
                 "Sandia/ASIC_680ks",
@@ -1455,7 +1466,7 @@ class GMRESBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "GMRES Iterative Solver"
+        return "GMRES"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -1513,7 +1524,7 @@ class GMRESBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["group-solvers"]
+        return ["standard-solvers"]
 
     @property
     def concepts(self) -> str:

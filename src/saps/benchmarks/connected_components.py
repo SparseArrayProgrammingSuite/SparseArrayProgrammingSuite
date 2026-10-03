@@ -1,3 +1,5 @@
+# ruff: noqa: E501
+
 import numpy as np
 
 from binsparse import BinsparseTensor
@@ -12,8 +14,9 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.snap import SNAPDataset, SNAPGraphGenerator, fetch_snap_graph
-from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
+from saps.benchmarks.adjacency import zero_one_adjacency
+from saps.benchmarks.gap import fetch_gap_graph
+from saps.benchmarks.snap import fetch_snap_graph
 
 
 class ConnectedComponentsDataset(Dataset):
@@ -29,7 +32,7 @@ class ConnectedComponentsDataset(Dataset):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Connected components input {name}."
-        self._suites = suites or []
+        self._suites = list(suites or [])
         self.A = A
         self.ref_meta = ref_meta
 
@@ -57,11 +60,11 @@ class ConnectedComponentsDataset(Dataset):
 class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
     @property
     def name(self) -> str:
-        return "connected_components_test_inputs"
+        return "connected_components_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Connected Components Test Input Generator"
+        return "Connected Components Test"
 
     @property
     def description(self) -> str:
@@ -102,13 +105,15 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
     def datasets(self) -> list[ConnectedComponentsDataset]:
         return [
             ConnectedComponentsDataset(
-                "test_cc_fully_connected",
+                "fully_connected",
+                pretty_name="Fully Connected",
                 suites=["test"],
                 A=np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]], dtype=bool),
                 ref_meta={"component_count": 1},
             ),
             ConnectedComponentsDataset(
-                "test_cc_two_disconnected_components",
+                "two_disconnected_components",
+                pretty_name="Two Disconnected Components",
                 suites=["test"],
                 A=np.array(
                     [
@@ -122,13 +127,15 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
                 ref_meta={"same": [[0, 1], [2, 3]], "different": [[0, 2]]},
             ),
             ConnectedComponentsDataset(
-                "test_cc_isolated_nodes",
+                "isolated_nodes",
+                pretty_name="Isolated Nodes",
                 suites=["test"],
                 A=np.zeros((4, 4), dtype=bool),
                 ref_meta={"component_count": 4},
             ),
             ConnectedComponentsDataset(
-                "test_cc_directed_star_pointing_inward",
+                "directed_star_pointing_inward",
+                pretty_name="Directed Star Pointing Inward",
                 suites=["test"],
                 A=np.array(
                     [
@@ -142,13 +149,15 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
                 ref_meta={"component_count": 1},
             ),
             ConnectedComponentsDataset(
-                "test_cc_single_node",
+                "single_node",
+                pretty_name="Single Node",
                 suites=["test"],
                 A=np.zeros((1, 1), dtype=bool),
                 ref_meta={"shape": [1]},
             ),
             ConnectedComponentsDataset(
-                "test_cc_snap_toy",
+                "snap_toy",
+                pretty_name="SNAP Toy",
                 suites=["test"],
                 A=np.array([[0, 1, 0], [0, 0, 1], [0, 0, 0]], dtype=bool),
                 ref_meta={"component_count": 1},
@@ -166,18 +175,14 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
         )
 
 
-class ConnectedComponentsSNAPGenerator(Generator[SNAPDataset]):
-    @property
-    def cacheable(self) -> bool:
-        return False
-
+class ConnectedComponentsSNAPGenerator(Generator[ConnectedComponentsDataset]):
     @property
     def name(self) -> str:
-        return "connected_components_snap_inputs"
+        return "connected_components_snap"
 
     @property
     def pretty_name(self) -> str:
-        return "Connected Components SNAP Input Generator"
+        return "Connected Components SNAP"
 
     @property
     def description(self) -> str:
@@ -226,23 +231,100 @@ class ConnectedComponentsSNAPGenerator(Generator[SNAPDataset]):
         return "Generate sparse graph inputs for connected components."
 
     @property
-    def datasets(self) -> list[SNAPDataset]:
-        return SNAPGraphGenerator().datasets
+    def cacheable(self) -> bool:
+        return False
 
-    def generate(self, dataset: SNAPDataset) -> DataInstance:
-        if dataset.name in self.dataset_names:
-            return fetch_snap_graph(dataset.name)
-        raise ValueError(f"Unsupported connected components dataset: {dataset.name}")
+    @property
+    def datasets(self) -> list[ConnectedComponentsDataset]:
+        # Trace selects successful Smart runs < 60s in competition/run_13803684.
+        # fmt: off
+        return [
+            ConnectedComponentsDataset("soc-Epinions1", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("soc-LiveJournal1", suites=["standard"]),
+            ConnectedComponentsDataset("soc-Pokec", suites=["standard"]),
+            ConnectedComponentsDataset("soc-Slashdot0811", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("soc-Slashdot0902", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("wiki-Vote", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("wiki-RfA", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("soc-sign-bitcoin-otc", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("soc-sign-bitcoin-alpha", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("com-LiveJournal", suites=["standard"]),
+            ConnectedComponentsDataset("com-Friendster", suites=["standard"]),
+            ConnectedComponentsDataset("com-Orkut", suites=["standard"]),
+            ConnectedComponentsDataset("com-Youtube", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("com-DBLP", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("com-Amazon", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("email-Eu-core", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("wiki-topcats", suites=["standard"]),
+            ConnectedComponentsDataset("email-EuAll", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("email-Enron", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("wiki-Talk", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("cit-HepPh", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("cit-HepTh", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("cit-Patents", suites=["standard"]),
+            ConnectedComponentsDataset("ca-AstroPh", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("ca-CondMat", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("ca-GrQc", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("ca-HepPh", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("ca-HepTh", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("web-BerkStan", suites=["standard"]),
+            ConnectedComponentsDataset("web-Google", suites=["standard"]),
+            ConnectedComponentsDataset("web-NotreDame", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("web-Stanford", suites=["standard"]),
+            ConnectedComponentsDataset("amazon0302", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("amazon0312", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("amazon0505", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("amazon0601", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("p2p-Gnutella04", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("p2p-Gnutella05", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("p2p-Gnutella06", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("p2p-Gnutella08", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("p2p-Gnutella09", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("p2p-Gnutella24", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("p2p-Gnutella25", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("p2p-Gnutella30", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("p2p-Gnutella31", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("roadNet-CA", suites=["standard"]),
+            ConnectedComponentsDataset("roadNet-PA", suites=["standard"]),
+            ConnectedComponentsDataset("roadNet-TX", suites=["standard"]),
+            ConnectedComponentsDataset("as-735", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("as-Skitter", suites=["standard"]),
+            ConnectedComponentsDataset("as-caida", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("Oregon-1", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("Oregon-2", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("soc-sign-epinions", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("soc-sign-Slashdot081106", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("soc-sign-Slashdot090216", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("soc-sign-Slashdot090221", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("loc-Gowalla", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("loc-Brightkite", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("sx-stackoverflow", suites=["standard"]),
+            ConnectedComponentsDataset("sx-mathoverflow", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("sx-superuser", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("sx-askubuntu", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("wiki-talk-temporal", suites=["standard", "trace", "train"]),
+            ConnectedComponentsDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("CollegeMsg", suites=["standard", "trace"]),
+            ConnectedComponentsDataset("twitter7", suites=["standard"]),
+            ConnectedComponentsDataset("higgs-twitter", suites=["standard"]),
+        ]
+        # fmt: on
+
+    def generate(self, dataset: ConnectedComponentsDataset) -> DataInstance:
+        raw = fetch_snap_graph(dataset.name)
+        return DataInstance(
+            inputs=[zero_one_adjacency(raw.inputs[0])], meta=dict(raw.meta)
+        )
 
 
 class ConnectedComponentsGAPGenerator(Generator[ConnectedComponentsDataset]):
     @property
     def name(self) -> str:
-        return "connected_components_gap_inputs"
+        return "connected_components_gap"
 
     @property
     def pretty_name(self) -> str:
-        return "Connected Components GAP Input Generator"
+        return "Connected Components GAP"
 
     @property
     def description(self) -> str:
@@ -292,72 +374,31 @@ class ConnectedComponentsGAPGenerator(Generator[ConnectedComponentsDataset]):
 
     @property
     def datasets(self) -> list[ConnectedComponentsDataset]:
+        # fmt: off
         return [
-            ConnectedComponentsDataset(
-                name="GAP/GAP-road",
-                pretty_name="GAP Road",
-                description=(
-                    "Directed roads with weights in the US, with 23.9M nodes and"
-                    " 58.3M edges."
-                ),
-                suites=["standard"],
-            ),
-            ConnectedComponentsDataset(
-                name="GAP/GAP-twitter",
-                pretty_name="GAP Twitter",
-                description=(
-                    "Directed weighted social network topology of Twitter, with 61.6M"
-                    " nodes and 1,468.4M edges."
-                ),
-                suites=["standard"],
-            ),
-            ConnectedComponentsDataset(
-                name="GAP/GAP-web",
-                pretty_name="GAP Web",
-                description=(
-                    "A web-crawl of the .sk domain, directed and weighted, with 50.6M"
-                    " nodes and 1,949.4M edges."
-                ),
-                suites=["standard"],
-            ),
-            ConnectedComponentsDataset(
-                name="GAP/GAP-kron",
-                pretty_name="GAP Kron",
-                description=(
-                    "Symmetric random undirected weighted graph generated by"
-                    " Kronecker synthetic graph generator with parameters"
-                    " (A=0.57, B=C=0.19, D=0.05). Has 134.2M nodes and 2,111.6M"
-                    " edges."
-                ),
-                suites=["standard"],
-            ),
-            ConnectedComponentsDataset(
-                name="GAP/GAP-urand",
-                pretty_name="GAP Urand",
-                description=(
-                    "Symmetric random undirected weighted graph generated by"
-                    " Erdos–Reyni model (Uniform Random) with 134.2M nodes and"
-                    " 2,147.4M edges."
-                ),
-                suites=["standard"],
-            ),
+            ConnectedComponentsDataset("GAP-road", suites=["standard"]),
+            ConnectedComponentsDataset("GAP-twitter", suites=["standard"]),
+            ConnectedComponentsDataset("GAP-web", suites=["standard"]),
+            ConnectedComponentsDataset("GAP-kron", suites=["standard"]),
+            ConnectedComponentsDataset("GAP-urand", suites=["standard"]),
         ]
+        # fmt: on
 
     def generate(self, dataset: ConnectedComponentsDataset) -> DataInstance:
-        if dataset.name.startswith("GAP/"):
-            raw = fetch_suitesparse_matrix(dataset.name)
-            return DataInstance(inputs=raw.inputs, meta=raw.meta)
-        raise ValueError(f"Unsupported connected components dataset: {dataset.name}")
+        raw = fetch_gap_graph(dataset.name)
+        return DataInstance(
+            inputs=[zero_one_adjacency(raw.inputs[0])], meta=dict(raw.meta)
+        )
 
 
 class SimplyConnectedComponentsBenchmark(Benchmark):
     @property
     def name(self):
-        return "simply_connected_components"
+        return "connected_components"
 
     @property
     def pretty_name(self):
-        return "Simply Connected Components"
+        return "Connected Components"
 
     @property
     def description(self):
@@ -368,7 +409,7 @@ class SimplyConnectedComponentsBenchmark(Benchmark):
 
     @property
     def suites(self):
-        return ["group-graphs-iterative"]
+        return ["standard-graphs-iterative"]
 
     @property
     def concepts(self) -> str:
@@ -445,7 +486,7 @@ class SimplyConnectedComponentsBenchmark(Benchmark):
         assert m == n
 
         # create identity matrix with edges
-        graph = xp.array(edges, dtype=bool)
+        graph = xp.asarray(edges, dtype=bool)
         graph = xp.logical_or(graph, graph.T)
         identity_matrix = xp.eye(n, dtype=bool)
         graph = xp.logical_or(identity_matrix, graph)

@@ -129,11 +129,6 @@ class _FiniteDifferenceGeneratorMixin:
     flux_name: str
 
     @property
-    def pretty_name(self) -> str:
-        flux = _FLUX_PRETTY_NAMES[self.flux_name]
-        return f"Finite Difference Data Generator ({flux} flux)"
-
-    @property
     def description(self) -> str:
         return (
             "The finite difference generator uses a finite difference grid of"
@@ -190,39 +185,7 @@ class _FiniteDifferenceGeneratorMixin:
         )
 
 
-class FiniteDifferenceGenerator(
-    _FiniteDifferenceGeneratorMixin, Generator[FiniteDifferenceDataset]
-):
-    def __init__(self, flux_name):
-        self.flux_name = flux_name
-
-    @property
-    def name(self) -> str:
-        return f"finite_difference_inputs_{self.flux_name}"
-
-    @property
-    def datasets(self) -> list[FiniteDifferenceDataset]:
-        return [
-            FiniteDifferenceDataset(
-                name=f"fd_test_scale_{self.flux_name}",
-                pretty_name="Finite Difference Test Problem",
-                suites=["test"],
-                Nx=100,
-                dx=0.1,
-                Nt=100,
-                dt=0.01,
-            ),
-            FiniteDifferenceDataset(
-                name=f"fd_realistic_scale_{self.flux_name}",
-                pretty_name="Finite Difference Realistic Problem",
-                suites=["standard"],
-                Nx=250000,
-                dx=0.1,
-                Nt=1000,
-                dt=0.01,
-            ),
-        ]
-
+class _FiniteDifference1DGeneratorMixin(_FiniteDifferenceGeneratorMixin):
     def generate(self, dataset: FiniteDifferenceDataset):
         # Produce a gentle, sparse initial condition (small amplitudes)
         density = 0.05
@@ -253,12 +216,123 @@ class FiniteDifferenceGenerator(
         return DataInstance(inputs=data, meta=meta)
 
 
+class FiniteDifferenceBurgersGenerator(
+    _FiniteDifference1DGeneratorMixin, Generator[FiniteDifferenceDataset]
+):
+    flux_name = "burgers"
+
+    @property
+    def name(self) -> str:
+        return "finite_difference_1d_burgers"
+
+    @property
+    def pretty_name(self) -> str:
+        return "1D Finite Difference Burgers"
+
+    @property
+    def datasets(self) -> list[FiniteDifferenceDataset]:
+        return [
+            FiniteDifferenceDataset(
+                name="small_scale",
+                pretty_name="Small Scale",
+                suites=["test"],
+                Nx=100,
+                dx=0.1,
+                Nt=100,
+                dt=0.01,
+            ),
+            FiniteDifferenceDataset(
+                name="realistic_scale",
+                pretty_name="Realistic Scale",
+                suites=["standard", "trace"],
+                Nx=250000,
+                dx=0.1,
+                Nt=1000,
+                dt=0.01,
+            ),
+        ]
+
+
+class FiniteDifferenceBuckleyLeverettGenerator(
+    _FiniteDifference1DGeneratorMixin, Generator[FiniteDifferenceDataset]
+):
+    flux_name = "buckley_leverett"
+
+    @property
+    def name(self) -> str:
+        return "finite_difference_1d_buckley_leverett"
+
+    @property
+    def pretty_name(self) -> str:
+        return "1D Finite Difference Buckley-Leverett"
+
+    @property
+    def datasets(self) -> list[FiniteDifferenceDataset]:
+        return [
+            FiniteDifferenceDataset(
+                name="small_scale",
+                pretty_name="Small Scale",
+                suites=["test"],
+                Nx=100,
+                dx=0.1,
+                Nt=100,
+                dt=0.01,
+            ),
+            FiniteDifferenceDataset(
+                name="realistic_scale",
+                pretty_name="Realistic Scale",
+                suites=["standard", "trace", "train"],
+                Nx=250000,
+                dx=0.1,
+                Nt=1000,
+                dt=0.01,
+            ),
+        ]
+
+
+class FiniteDifferenceLinearAdvectionGenerator(
+    _FiniteDifference1DGeneratorMixin, Generator[FiniteDifferenceDataset]
+):
+    flux_name = "linear_advection"
+
+    @property
+    def name(self) -> str:
+        return "finite_difference_1d_linear_advection"
+
+    @property
+    def pretty_name(self) -> str:
+        return "1D Finite Difference Linear Advection"
+
+    @property
+    def datasets(self) -> list[FiniteDifferenceDataset]:
+        return [
+            FiniteDifferenceDataset(
+                name="small_scale",
+                pretty_name="Small Scale",
+                suites=["test"],
+                Nx=100,
+                dx=0.1,
+                Nt=100,
+                dt=0.01,
+            ),
+            FiniteDifferenceDataset(
+                name="realistic_scale",
+                pretty_name="Realistic Scale",
+                suites=["standard", "trace"],
+                Nx=250000,
+                dx=0.1,
+                Nt=1000,
+                dt=0.01,
+            ),
+        ]
+
+
 class _FiniteDifferenceBenchmarkMixin:
     """Metadata shared by the 1D and 2D finite-difference benchmarks."""
 
     @property
     def suites(self) -> list[str]:
-        return ["group-spatial"]
+        return ["standard-spatial"]
 
     @property
     def concepts(self) -> str:
@@ -345,7 +419,7 @@ class _FiniteDifferenceBenchmarkMixin:
 class FiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
     @property
     def name(self) -> str:
-        return "finite_difference"
+        return "finite_difference_1d"
 
     @property
     def pretty_name(self) -> str:
@@ -354,9 +428,9 @@ class FiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
     @property
     def generators(self):
         return [
-            FiniteDifferenceGenerator(flux_name="burgers"),
-            FiniteDifferenceGenerator(flux_name="buckley_leverett"),
-            FiniteDifferenceGenerator(flux_name="linear_advection"),
+            FiniteDifferenceBurgersGenerator(),
+            FiniteDifferenceBuckleyLeverettGenerator(),
+            FiniteDifferenceLinearAdvectionGenerator(),
         ]
 
     def benchmark(self, xp, data: list, meta: dict):
@@ -365,16 +439,15 @@ class FiniteDifferenceBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
         dt = meta["dt"]
         dx = meta["dx"]
         flux = _resolve_flux_1d(meta["flux_name"])
-        Nt = timesteps + 1
         alpha = dt / (2 * dx)
-        u = xp.zeros((Nt, u_0.shape[0]))
-        u[0] = u_0
-        for n in range(Nt - 1):
-            u_n = u[n]
+        # Collect the history and stack it once; writing rows into a
+        # preallocated array costs a full rebuild per step in sparse backends.
+        u = [u_0]
+        for _ in range(timesteps):
+            u_n = u[-1]
             f = flux(u_n)
-            u_next = matrix @ u_n - alpha * (dif @ f)
-            u[n + 1] = u_next
-        return [u]
+            u.append(matrix @ u_n - alpha * (dif @ f))
+        return [xp.stack(u, axis=0)]
 
     def check(self, param):
         super().check(param)
@@ -534,43 +607,7 @@ class FiniteDifference2DDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class FiniteDifference2DGenerator(
-    _FiniteDifferenceGeneratorMixin, Generator[FiniteDifference2DDataset]
-):
-    def __init__(self, flux_name):
-        self.flux_name = flux_name
-
-    @property
-    def name(self) -> str:
-        return f"finite_difference_inputs_2d_{self.flux_name}"
-
-    @property
-    def datasets(self) -> list[FiniteDifference2DDataset]:
-        return [
-            FiniteDifference2DDataset(
-                name=f"fd2d_test_scale_{self.flux_name}",
-                pretty_name="2D Finite Difference Test Problem",
-                suites=["test"],
-                Nx=100,
-                dx=0.1,
-                Ny=100,
-                dy=0.1,
-                Nt=100,
-                dt=0.01,
-            ),
-            FiniteDifference2DDataset(
-                name=f"fd2d_realistic_scale_{self.flux_name}",
-                pretty_name="2D Finite Difference Realistic Problem",
-                suites=["standard"],
-                Nx=1000,
-                dx=0.1,
-                Ny=1000,
-                dy=0.1,
-                Nt=1000,
-                dt=0.01,
-            ),
-        ]
-
+class _FiniteDifference2DGeneratorMixin(_FiniteDifferenceGeneratorMixin):
     def generate(self, dataset: FiniteDifference2DDataset):
         # Produce a gentle, sparse initial condition (small amplitudes)
         density = 0.05
@@ -606,6 +643,129 @@ class FiniteDifference2DGenerator(
         )
 
 
+class FiniteDifference2DBurgersGenerator(
+    _FiniteDifference2DGeneratorMixin, Generator[FiniteDifference2DDataset]
+):
+    flux_name = "burgers"
+
+    @property
+    def name(self) -> str:
+        return "finite_difference_2d_burgers"
+
+    @property
+    def pretty_name(self) -> str:
+        return "2D Finite Difference Burgers"
+
+    @property
+    def datasets(self) -> list[FiniteDifference2DDataset]:
+        return [
+            FiniteDifference2DDataset(
+                name="small_scale",
+                pretty_name="Small Scale",
+                suites=["test"],
+                Nx=100,
+                dx=0.1,
+                Ny=100,
+                dy=0.1,
+                Nt=100,
+                dt=0.01,
+            ),
+            FiniteDifference2DDataset(
+                name="realistic_scale",
+                pretty_name="Realistic Scale",
+                suites=["standard", "trace"],
+                Nx=500,
+                dx=0.1,
+                Ny=500,
+                dy=0.1,
+                Nt=1000,
+                dt=0.01,
+            ),
+        ]
+
+
+class FiniteDifference2DBuckleyLeverettGenerator(
+    _FiniteDifference2DGeneratorMixin, Generator[FiniteDifference2DDataset]
+):
+    flux_name = "buckley_leverett"
+
+    @property
+    def name(self) -> str:
+        return "finite_difference_2d_buckley_leverett"
+
+    @property
+    def pretty_name(self) -> str:
+        return "2D Finite Difference Buckley-Leverett"
+
+    @property
+    def datasets(self) -> list[FiniteDifference2DDataset]:
+        return [
+            FiniteDifference2DDataset(
+                name="small_scale",
+                pretty_name="Small Scale",
+                suites=["test"],
+                Nx=100,
+                dx=0.1,
+                Ny=100,
+                dy=0.1,
+                Nt=100,
+                dt=0.01,
+            ),
+            FiniteDifference2DDataset(
+                name="realistic_scale",
+                pretty_name="Realistic Scale",
+                suites=["standard", "trace", "train"],
+                Nx=500,
+                dx=0.1,
+                Ny=500,
+                dy=0.1,
+                Nt=1000,
+                dt=0.01,
+            ),
+        ]
+
+
+class FiniteDifference2DLinearAdvectionGenerator(
+    _FiniteDifference2DGeneratorMixin, Generator[FiniteDifference2DDataset]
+):
+    flux_name = "linear_advection"
+
+    @property
+    def name(self) -> str:
+        return "finite_difference_2d_linear_advection"
+
+    @property
+    def pretty_name(self) -> str:
+        return "2D Finite Difference Linear Advection"
+
+    @property
+    def datasets(self) -> list[FiniteDifference2DDataset]:
+        return [
+            FiniteDifference2DDataset(
+                name="small_scale",
+                pretty_name="Small Scale",
+                suites=["test"],
+                Nx=100,
+                dx=0.1,
+                Ny=100,
+                dy=0.1,
+                Nt=100,
+                dt=0.01,
+            ),
+            FiniteDifference2DDataset(
+                name="realistic_scale",
+                pretty_name="Realistic Scale",
+                suites=["standard", "trace"],
+                Nx=500,
+                dx=0.1,
+                Ny=500,
+                dy=0.1,
+                Nt=1000,
+                dt=0.01,
+            ),
+        ]
+
+
 class FiniteDifference2DBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
     @property
     def name(self) -> str:
@@ -618,9 +778,9 @@ class FiniteDifference2DBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
     @property
     def generators(self):
         return [
-            FiniteDifference2DGenerator(flux_name="burgers"),
-            FiniteDifference2DGenerator(flux_name="buckley_leverett"),
-            FiniteDifference2DGenerator(flux_name="linear_advection"),
+            FiniteDifference2DBurgersGenerator(),
+            FiniteDifference2DBuckleyLeverettGenerator(),
+            FiniteDifference2DLinearAdvectionGenerator(),
         ]
 
     def benchmark(self, xp, data: list, meta: dict):
@@ -631,21 +791,19 @@ class FiniteDifference2DBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
         dy = meta["dy"]
         flux_x, flux_y = _resolve_flux_2d(meta["flux_name"])
 
-        Nt = timesteps + 1
-        u = xp.zeros((Nt, u_0.shape[0]), dtype=u_0.dtype)
-        u[0] = u_0
-
         alpha = dt / (2 * dx)
         beta = dt / (2 * dy)
 
-        for n in range(Nt - 1):
-            u_n = u[n]
+        # Collect the history and stack it once; writing rows into a
+        # preallocated array costs a full rebuild per step in sparse backends.
+        u = [u_0]
+        for _ in range(timesteps):
+            u_n = u[-1]
             fl_x = flux_x(u_n)
             fl_y = flux_y(u_n)
-            u_next = matrix @ u_n - alpha * (diff_x @ fl_x) - beta * (diff_y @ fl_y)
-            u[n + 1] = u_next
+            u.append(matrix @ u_n - alpha * (diff_x @ fl_x) - beta * (diff_y @ fl_y))
 
-        return [u]
+        return [xp.stack(u, axis=0)]
 
     def check(self, param):
         super().check(param)

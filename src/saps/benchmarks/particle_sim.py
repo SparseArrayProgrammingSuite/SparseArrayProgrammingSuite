@@ -285,11 +285,11 @@ def _mass_values(particle_mass, n_particles):
 class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
     @property
     def name(self):
-        return "particle_sim_test_inputs"
+        return "particle_sim_test"
 
     @property
     def pretty_name(self):
-        return "Particle Simulation Test Input Generator"
+        return "Particle Simulation Test"
 
     @property
     def description(self):
@@ -340,7 +340,8 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
     def datasets(self):
         return [
             ParticleSimDataset(
-                "test_particle_sim_two_particles_within_cutoff",
+                "two_particles_within_cutoff",
+                pretty_name="Two Particles Within Cutoff",
                 suites=["test"],
                 parameters={
                     "force_model": "cs267_repulsive",
@@ -363,7 +364,8 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
                 ),
             ),
             ParticleSimDataset(
-                "test_particle_sim_wall_bounce",
+                "wall_bounce",
+                pretty_name="Wall Bounce",
                 suites=["test"],
                 parameters={
                     "force_model": "cs267_repulsive",
@@ -386,7 +388,8 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
                 ),
             ),
             ParticleSimDataset(
-                "test_particle_sim_random_10",
+                "random_n10",
+                pretty_name="Random (N=10)",
                 suites=["test"],
                 parameters={
                     "force_model": "cs267_repulsive",
@@ -399,7 +402,8 @@ class ParticleSimTestGenerator(Generator[ParticleSimDataset]):
                 values=generate_particle_test_data(10, 2, 10, 0.01),
             ),
             ParticleSimDataset(
-                "test_particle_sim_random_50",
+                "random_n50",
+                pretty_name="Random (N=50)",
                 suites=["test"],
                 parameters={
                     "force_model": "cs267_repulsive",
@@ -498,11 +502,11 @@ class SyntheticBerkeleyCS267ParticleGenerator(Generator[SyntheticParticleSimData
 
     @property
     def name(self) -> str:
-        return "synthetic_berkeley_cs267_particle"
+        return "particle_sim_cs267"
 
     @property
     def pretty_name(self) -> str:
-        return "Synthetic Berkeley CS267 Particle Generator"
+        return "Particle Simulation CS267"
 
     @property
     def description(self) -> str:
@@ -567,7 +571,7 @@ class SyntheticBerkeleyCS267ParticleGenerator(Generator[SyntheticParticleSimData
     def datasets(self) -> list[SyntheticParticleSimDataset]:
         return [
             SyntheticParticleSimDataset(
-                name="cs267_hw2_n1000_seed1",
+                name="hw2_n1000_seed1",
                 n_particles=1000,
                 num_steps=1000,
                 seed=1,
@@ -581,7 +585,7 @@ class SyntheticBerkeleyCS267ParticleGenerator(Generator[SyntheticParticleSimData
                     "dt": 0.0005,
                     "gravitational_constant": 1.0,
                 },
-                pretty_name="CS267 HW2 Initial Conditions (N=1000)",
+                pretty_name="HW2 Initial Conditions (N=1000, Seed 1)",
                 description=(
                     "CS267 homework-style particle initialization extended to a "
                     "shuffled near-cubic grid with random velocities in [-1, 1]. "
@@ -687,11 +691,11 @@ class EWAPParticleSimGenerator(Generator[EWAPParticleSimDataset]):
 
     @property
     def name(self) -> str:
-        return "ewap_particle_sim"
+        return "particle_sim_ewap"
 
     @property
     def pretty_name(self) -> str:
-        return "ETH EWAP Particle Simulation Generator"
+        return "Particle Simulation EWAP"
 
     @property
     def description(self) -> str:
@@ -750,7 +754,7 @@ class EWAPParticleSimGenerator(Generator[EWAPParticleSimDataset]):
     def datasets(self) -> list[EWAPParticleSimDataset]:
         return [
             EWAPParticleSimDataset(
-                name="ewap_seq_eth",
+                name="seq_eth",
                 scene="seq_eth",
                 num_steps=50,
                 parameters={
@@ -761,7 +765,7 @@ class EWAPParticleSimGenerator(Generator[EWAPParticleSimDataset]):
                     "dt": 0.0005,
                     "gravitational_constant": 1.0,
                 },
-                pretty_name="ETH EWAP ETH Scene",
+                pretty_name="seq_eth",
                 description=(
                     "ETH EWAP seq_eth pedestrian trajectories loaded in dataset "
                     "coordinates with z and vz preserved from the source column. "
@@ -771,7 +775,7 @@ class EWAPParticleSimGenerator(Generator[EWAPParticleSimDataset]):
                 suites=["standard", "trace"],
             ),
             EWAPParticleSimDataset(
-                name="ewap_seq_hotel",
+                name="seq_hotel",
                 scene="seq_hotel",
                 num_steps=50,
                 parameters={
@@ -782,7 +786,7 @@ class EWAPParticleSimGenerator(Generator[EWAPParticleSimDataset]):
                     "dt": 0.0005,
                     "gravitational_constant": 1.0,
                 },
-                pretty_name="ETH EWAP Hotel Scene",
+                pretty_name="seq_hotel",
                 description=(
                     "ETH EWAP seq_hotel pedestrian trajectories loaded in dataset "
                     "coordinates with z and vz preserved from the source column. "
@@ -809,11 +813,11 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
 
     @property
     def name(self) -> str:
-        return "particle_sim"
+        return "particle_sim_nemo"
 
     @property
     def pretty_name(self) -> str:
-        return "Particle Simulation Real Dataset Generator"
+        return "Particle Simulation NEMO"
 
     @property
     def description(self) -> str:
@@ -897,7 +901,7 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
     def datasets(self) -> list[ParticleSimDataset]:
         return [
             ParticleSimDataset(
-                name="nemo_plummer_128",
+                name="plummer_128",
                 n_particles=128,
                 num_steps=50,
                 parameters={
@@ -908,7 +912,7 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                     "softening": 0.05,
                     "gravitational_constant": 1.0,
                 },
-                pretty_name="NEMO Plummer (N=128)",
+                pretty_name="Plummer (N=128)",
                 description=(
                     "NEMO Plummer-model equilibrium snapshot generated with mkplummer,"
                     " using mass, position, and velocity columns. The dataset uses "
@@ -922,7 +926,7 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                 source_columns=("mass", "x", "y", "z", "vx", "vy", "vz"),
             ),
             ParticleSimDataset(
-                name="nemo_plummer_1024",
+                name="plummer_1024",
                 n_particles=1024,
                 num_steps=50,
                 parameters={
@@ -933,7 +937,7 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                     "softening": 0.05,
                     "gravitational_constant": 1.0,
                 },
-                pretty_name="NEMO Plummer (N=1024)",
+                pretty_name="Plummer (N=1024)",
                 description=(
                     "NEMO Plummer-model equilibrium snapshot generated with mkplummer,"
                     " using mass, position, and velocity columns. The dataset uses "
@@ -941,13 +945,13 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                     "and bucket width 0.2 to create a sparse gravity workload. "
                     "This cutoff is not a physically validated approximation."
                 ),
-                suites=["standard", "trace"],
+                suites=["standard", "trace", "train"],
                 tags=["physics", "simulation", "sparse", "astronomy", "n-body"],
                 source_path="plummer/tab1024.gz",
                 source_columns=("mass", "x", "y", "z", "vx", "vy", "vz"),
             ),
             ParticleSimDataset(
-                name="nemo_dubinski_m31",
+                name="dubinski_m31",
                 n_particles=81920,
                 num_steps=10,
                 parameters={
@@ -958,7 +962,7 @@ class ParticleSimGenerator(Generator[ParticleSimDataset]):
                     "softening": 0.05,
                     "gravitational_constant": 1.0,
                 },
-                pretty_name="NEMO Dubinski MW/M31",
+                pretty_name="Dubinski MW/M31",
                 description=(
                     "Dubinski Milky Way/Andromeda collision initial conditions from the"
                     " NEMO archive, stored as mass and six phase-space coordinates. "
@@ -1012,7 +1016,7 @@ class ParticleSimBenchmark(Benchmark):
 
     @property
     def suites(self):
-        return ["group-spatial"]
+        return ["standard-spatial"]
 
     @property
     def concepts(self) -> str:

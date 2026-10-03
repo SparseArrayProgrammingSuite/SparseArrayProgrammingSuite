@@ -21,11 +21,11 @@ def test_ode_discovery_exposes_one_benchmark_per_method():
         "runge_kutta",
     }
     expected_generators = {
-        "rc": 1,
-        "rlc": 1,
-        "lotka_volterra": 1,
-        "brusselator": 2,
-        "slicot_ode": 10,
+        "ode_rc": 1,
+        "ode_rlc": 1,
+        "ode_lotka_volterra": 1,
+        "ode_brusselator": 2,
+        "ode_slicot": 10,
     }
     dataset_inventories = []
     for benchmark in benchmarks:
@@ -55,7 +55,7 @@ def test_ode_discovery_exposes_one_benchmark_per_method():
 def test_ode_methods_integrate_exponential_decay(benchmark_cls, expected):
     data = [np.array([[-1.0]]), np.zeros((1, 1))]
     meta = {
-        "problem_name": "slicot_ode",
+        "problem_name": "ode_slicot",
         "span": (0.0, 0.2),
         "y0": [1.0],
         "step": 0.1,
@@ -79,4 +79,4 @@ def test_ode_setup_preserves_non_slicot_timestep(benchmark_cls):
     benchmark.setup(Param(generator, dataset), use_cache=False, xp=NumpyFramework())
 
     assert benchmark._meta["step"] == dataset.step
-    assert benchmark._meta["problem_name"] == "rc"
+    assert benchmark._meta["problem_name"] == "ode_rc"

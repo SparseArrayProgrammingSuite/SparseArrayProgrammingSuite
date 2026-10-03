@@ -159,14 +159,14 @@ def test_particle_sim_real_generator_uses_nemo(monkeypatch):
     datasets = generator.datasets
 
     assert {dataset.name for dataset in datasets} == {
-        "nemo_plummer_128",
-        "nemo_plummer_1024",
-        "nemo_dubinski_m31",
+        "plummer_128",
+        "plummer_1024",
+        "dubinski_m31",
     }
     assert {dataset.name: dataset.suites for dataset in datasets} == {
-        "nemo_plummer_128": ["standard", "trace"],
-        "nemo_plummer_1024": ["standard", "trace"],
-        "nemo_dubinski_m31": ["standard"],
+        "plummer_128": ["standard", "trace"],
+        "plummer_1024": ["standard", "trace", "train"],
+        "dubinski_m31": ["standard"],
     }
     assert all(dataset.n_particles > 0 for dataset in datasets)
     for dataset in datasets:
@@ -179,9 +179,9 @@ def test_particle_sim_real_generator_uses_nemo(monkeypatch):
         assert "particle_mass" not in dataset.parameters
         assert "mass" not in dataset.parameters
     assert {dataset.name: dataset.parameters["cutoff"] for dataset in datasets} == {
-        "nemo_plummer_128": 0.2,
-        "nemo_plummer_1024": 0.2,
-        "nemo_dubinski_m31": 0.1,
+        "plummer_128": 0.2,
+        "plummer_1024": 0.2,
+        "dubinski_m31": 0.1,
     }
     assert all("mass" in dataset.source_columns for dataset in datasets)
 

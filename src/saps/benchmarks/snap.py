@@ -2,6 +2,7 @@
 
 # ruff: noqa: E501
 
+from copy import copy
 from typing import Any
 
 import numpy as np
@@ -18,6 +19,80 @@ from saps.benchmark import (
     ShellBenchmark,
 )
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
+
+# Most off-diagonal nonzeros stored in any row (largest out-degree in the
+# stored edge direction, excluding self-loops and explicit zeros), as printed
+# by scripts/measure_fill_in.py for Slurm run 13794825.
+_MAX_DEGREES: dict[str, int] = {
+    "SNAP/CollegeMsg": 237,
+    "SNAP/Oregon-1": 2389,
+    "SNAP/Oregon-2": 2432,
+    "SNAP/amazon0302": 5,
+    "SNAP/amazon0312": 10,
+    "SNAP/amazon0505": 10,
+    "SNAP/amazon0601": 10,
+    "SNAP/as-735": 1458,
+    "SNAP/as-Skitter": 35455,
+    "SNAP/as-caida": 2628,
+    "SNAP/ca-AstroPh": 504,
+    "SNAP/ca-CondMat": 279,
+    "SNAP/ca-GrQc": 81,
+    "SNAP/ca-HepPh": 491,
+    "SNAP/ca-HepTh": 65,
+    "SNAP/cit-HepPh": 411,
+    "SNAP/cit-HepTh": 562,
+    "SNAP/cit-Patents": 770,
+    "SNAP/com-Amazon": 549,
+    "SNAP/com-DBLP": 343,
+    "SNAP/com-Friendster": 5214,
+    "SNAP/com-LiveJournal": 14815,
+    "SNAP/com-Orkut": 33313,
+    "SNAP/com-Youtube": 28754,
+    "SNAP/email-Enron": 1383,
+    "SNAP/email-Eu-core-temporal": 333,
+    "SNAP/email-Eu-core": 333,
+    "SNAP/email-EuAll": 929,
+    "SNAP/higgs-twitter": 1259,
+    "SNAP/loc-Brightkite": 1134,
+    "SNAP/loc-Gowalla": 14730,
+    "SNAP/p2p-Gnutella04": 100,
+    "SNAP/p2p-Gnutella05": 65,
+    "SNAP/p2p-Gnutella06": 113,
+    "SNAP/p2p-Gnutella08": 48,
+    "SNAP/p2p-Gnutella09": 61,
+    "SNAP/p2p-Gnutella24": 79,
+    "SNAP/p2p-Gnutella25": 64,
+    "SNAP/p2p-Gnutella30": 54,
+    "SNAP/p2p-Gnutella31": 78,
+    "SNAP/roadNet-CA": 12,
+    "SNAP/roadNet-PA": 9,
+    "SNAP/roadNet-TX": 12,
+    "SNAP/soc-Epinions1": 1801,
+    "SNAP/soc-LiveJournal1": 20292,
+    "SNAP/soc-Pokec": 8763,
+    "SNAP/soc-Slashdot0811": 2507,
+    "SNAP/soc-Slashdot0902": 2510,
+    "SNAP/soc-sign-Slashdot081106": 426,
+    "SNAP/soc-sign-Slashdot090216": 428,
+    "SNAP/soc-sign-Slashdot090221": 428,
+    "SNAP/soc-sign-bitcoin-alpha": 490,
+    "SNAP/soc-sign-bitcoin-otc": 763,
+    "SNAP/soc-sign-epinions": 2070,
+    "SNAP/sx-askubuntu": 4965,
+    "SNAP/sx-mathoverflow": 1848,
+    "SNAP/sx-stackoverflow": 38147,
+    "SNAP/sx-superuser": 14254,
+    "SNAP/twitter7": 2997469,
+    "SNAP/web-BerkStan": 249,
+    "SNAP/web-Google": 456,
+    "SNAP/web-NotreDame": 3444,
+    "SNAP/web-Stanford": 255,
+    "SNAP/wiki-RfA": 1101,
+    "SNAP/wiki-Talk": 100022,
+    "SNAP/wiki-Vote": 893,
+    "SNAP/wiki-talk-temporal": 141883,
+    "SNAP/wiki-topcats": 3907,
+}
 
 # Domain classifications selected from ACM CCS 2012:
 # https://dl.acm.org/pb-assets/dl_ccs/acm_ccs2012-1626988337597.xml
@@ -156,6 +231,7 @@ class SNAPDataset(Dataset):
         static_edges: int | str | None = None,
         items: int | str | None = None,
         graphs: int | str | None = None,
+        suites: list[str] | None = None,
     ):
         self.groups = list(dict.fromkeys(groups))
         for category in self.groups:
@@ -171,6 +247,7 @@ class SNAPDataset(Dataset):
         self.static_edges = static_edges
         self.items = items
         self.graphs = graphs
+        self._suites = list(suites or [])
 
     @property
     def name(self) -> str:
@@ -179,6 +256,11 @@ class SNAPDataset(Dataset):
     @property
     def source_name(self) -> str:
         return f"SNAP/{self.name}"
+
+    @property
+    def max_degree(self) -> int:
+        """Most off-diagonal nonzeros in any row of the stored matrix."""
+        return _MAX_DEGREES[self.source_name]
 
     @property
     def pretty_name(self) -> str:
@@ -190,18 +272,25 @@ class SNAPDataset(Dataset):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return self._suites
 
     @property
     def concepts(self) -> str:
         concepts = dict.fromkeys(_GROUP_CONCEPTS[group] for group in self.groups)
         return "<ccs2012>" + "".join(concepts) + "</ccs2012>"
 
+    def with_suites(self, suites: list[str]) -> "SNAPDataset":
+        """A copy of this shared graph listed under ``suites``."""
+        dataset = copy(self)
+        dataset._suites = list(suites)
+        return dataset
+
     @property
     def metadata(self) -> dict[str, Any]:
         return {
             **super().metadata,
             "source_name": self.source_name,
+            "max_degree": self.max_degree,
             "types": self.types,
             "nodes": self.nodes,
             "edges": self.edges,
@@ -213,41 +302,8 @@ class SNAPDataset(Dataset):
         }
 
 
-class SNAPSourceDataset(Dataset):
-    """A shared SNAP graph paired with a reproducible source-selection seed."""
-
-    def __init__(self, graph: SNAPDataset, seed: int):
-        self.graph = graph
-        self.seed = seed
-
-    @property
-    def name(self) -> str:
-        return f"{self.graph.name}_seed{self.seed}"
-
-    @property
-    def pretty_name(self) -> str:
-        return f"{self.graph.pretty_name} (source seed {self.seed})"
-
-    @property
-    def description(self) -> str:
-        return self.graph.description
-
-    @property
-    def suites(self) -> list[str]:
-        return self.graph.suites
-
-    @property
-    def concepts(self) -> str:
-        return self.graph.concepts
-
-    @property
-    def metadata(self) -> dict[str, Any]:
-        return {
-            **self.graph.metadata,
-            **super().metadata,
-            "graph": self.graph.name,
-            "seed": self.seed,
-        }
+# Sources listed for each SNAP graph, matching the 64 published per GAP graph.
+NUM_SNAP_SOURCES = 64
 
 
 # SNAP sources available in the SuiteSparse Matrix Collection.
@@ -407,7 +463,7 @@ class SNAPGraphGenerator(Generator[SNAPDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Stanford Network Analysis Project Graphs"
+        return "SNAP Graphs"
 
     @property
     def description(self) -> str:
@@ -439,11 +495,17 @@ class SNAPGraphGenerator(Generator[SNAPDataset]):
 
     @property
     def datasets(self) -> list[SNAPDataset]:
-        return _GRAPHS
+        return list(_GRAPHS)
 
     def generate(self, dataset: SNAPDataset) -> DataInstance:
         raw = fetch_suitesparse_matrix(dataset.source_name)
-        return DataInstance(inputs=[raw.inputs[0]], meta={})
+        return DataInstance(
+            inputs=[raw.inputs[0]],
+            meta={
+                "max_degree": dataset.max_degree,
+                "sources": seeded_source_vertices(raw.inputs[0], NUM_SNAP_SOURCES),
+            },
+        )
 
 
 class SNAPGraphBenchmark(ShellBenchmark):
@@ -452,16 +514,20 @@ class SNAPGraphBenchmark(ShellBenchmark):
         return SNAPGraphGenerator()
 
 
-def fetch_snap_graph(name: str) -> DataInstance:
-    """Read a declared SuiteSparse SNAP matrix from prepared storage."""
-    generator = SNAPGraphGenerator()
-    dataset = next((d for d in generator.datasets if d.name == name), None)
+def snap_graph(name: str) -> SNAPDataset:
+    """The declared SNAP shell dataset called ``name``."""
+    dataset = next((d for d in _GRAPHS if d.name == name), None)
     if dataset is None:
         raise ValueError(
             f"Dataset {name!r} is not listed in SNAPGraphGenerator.datasets. "
             "Add it to the shell dataset list before using it."
         )
-    return generator.cached_generate(dataset)
+    return dataset
+
+
+def fetch_snap_graph(name: str) -> DataInstance:
+    """Read a declared SuiteSparse SNAP matrix from prepared storage."""
+    return SNAPGraphGenerator().cached_generate(snap_graph(name))
 
 
 def select_source_vertices(
@@ -476,6 +542,25 @@ def select_source_vertices(
     """
     if count < 1:
         raise ValueError("Source vertex count must be positive.")
+    rows = _source_candidates(graph)
+    rng = np.random.default_rng(seed)
+    return rows[rng.integers(rows.size, size=count)].astype(np.int64, copy=False)
+
+
+def seeded_source_vertices(graph: BinsparseTensor, count: int) -> list[int]:
+    """Source k is ``select_source_vertices(graph, seed=k)[0]``, for k < count.
+
+    Finds the candidate edges once and makes one draw per seed.
+    """
+    rows = _source_candidates(graph)
+    return [
+        int(rows[np.random.default_rng(seed).integers(rows.size, size=1)[0]])
+        for seed in range(count)
+    ]
+
+
+def _source_candidates(graph: BinsparseTensor) -> np.ndarray:
+    """The start vertex of each nonzero edge, after coalescing duplicates."""
     edges = to_scipy(graph).tocoo(copy=True)
     if edges.shape[0] != edges.shape[1]:
         raise ValueError("Source selection requires a square adjacency matrix.")
@@ -485,15 +570,10 @@ def select_source_vertices(
         raise ValueError(
             "Cannot select source vertices from a graph without nonzero edges."
         )
-    rng = np.random.default_rng(seed)
-    return rows[rng.integers(rows.size, size=count)].astype(np.int64, copy=False)
+    return rows
 
 
 def with_source_vertex(raw: DataInstance, *, seed: int) -> DataInstance:
     """Attach a seeded source without changing the shared shell metadata."""
     src = int(select_source_vertices(raw.inputs[0], seed=seed)[0])
     return DataInstance(inputs=raw.inputs, meta={**raw.meta, "src": src, "seed": seed})
-
-
-def fetch_snap_source_graph(dataset: SNAPSourceDataset) -> DataInstance:
-    return with_source_vertex(fetch_snap_graph(dataset.graph.name), seed=dataset.seed)

@@ -11,7 +11,8 @@ from binsparse import (
 )
 from binsparse.conversions import from_numpy, to_numpy, to_scipy, to_sparse
 
-from saps_framework import Framework, einsum, normalize_unfold_args
+from saps_framework import Framework, normalize_unfold_args
+from saps_framework.einsum import native_einsum
 
 
 class NumpyFramework(Framework):
@@ -47,7 +48,7 @@ class NumpyFramework(Framework):
         return array
 
     def einsum(self, prgm, **kwargs):
-        return einsum(np, prgm, **kwargs)
+        return native_einsum(np, prgm, **kwargs)
 
     def unfold(
         self,

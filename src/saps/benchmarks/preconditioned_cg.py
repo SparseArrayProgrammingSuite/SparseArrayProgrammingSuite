@@ -19,7 +19,6 @@ from saps.benchmark import (
 from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     fetch_suitesparse_linear_system,
-    suite_sparse_rhs_dataset_name,
 )
 from saps.downloaders.suitesparse import random_rhs_for_matrix
 
@@ -47,6 +46,7 @@ class PreconditionedCGDataset(SuiteSparseDataset):
         self,
         source_name: str,
         *,
+        pretty_name: str | None = None,
         A=None,
         suites: list[str] | None = None,
         ref_meta: dict[str, Any] | None = None,
@@ -54,11 +54,14 @@ class PreconditionedCGDataset(SuiteSparseDataset):
         max_iter: int = 100,
         rel_tol: float = 1e-6,
     ):
-        dataset_name = suite_sparse_rhs_dataset_name(source_name, rhs_index)
+        name = source_name
+        if rhs_index is not None:
+            name = f"{source_name}_rhs{rhs_index}"
+            pretty_name = f"{source_name} (RHS {rhs_index})"
         super().__init__(
-            dataset_name,
+            name,
             source_name=source_name,
-            pretty_name=f"Preconditioned CG {source_name}",
+            pretty_name=pretty_name,
             suites=suites,
             rhs_index=rhs_index,
         )
@@ -74,11 +77,11 @@ class PreconditionedCGDataset(SuiteSparseDataset):
 class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
     @property
     def name(self) -> str:
-        return "block_jacobi_cg_inputs"
+        return "block_jacobi_preconditioned_cg_suitesparse"
 
     @property
     def pretty_name(self) -> str:
-        return "Block Jacobi CG SuiteSparse Data Generator"
+        return "Block Jacobi Preconditioned Conjugate Gradient SuiteSparse"
 
     @property
     def description(self) -> str:
@@ -119,59 +122,6 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
     @property
     def datasets(self) -> list[PreconditionedCGDataset]:
         return [
-            PreconditionedCGDataset(
-                "test_A0",
-                suites=["test"],
-                A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]),
-                ref_meta={"check_residual": True},
-            ),
-            PreconditionedCGDataset(
-                "test_A1",
-                suites=["test"],
-                A=np.array([[7.0, 2.0, 1.0], [2.0, 6.0, -1.0], [1.0, -1.0, 5.0]]),
-                ref_meta={"check_residual": True},
-            ),
-            PreconditionedCGDataset(
-                "test_A2",
-                suites=["test"],
-                A=np.array(
-                    [
-                        [8.0, -1.0, 0.0, 0.0],
-                        [-1.0, 8.0, -1.0, 0.0],
-                        [0.0, -1.0, 8.0, -1.0],
-                        [0.0, 0.0, -1.0, 8.0],
-                    ]
-                ),
-                ref_meta={"check_residual": True},
-            ),
-            PreconditionedCGDataset(
-                "test_A3",
-                suites=["test"],
-                A=np.array([[12.0, 2.0, -1.0], [2.0, 10.0, 3.0], [-1.0, 3.0, 9.0]]),
-                ref_meta={"check_residual": True},
-            ),
-            PreconditionedCGDataset(
-                "test_A4",
-                suites=["test"],
-                A=np.array(
-                    [[120.0, -2.0, 0.0], [-2.0, 120.0, -2.0], [0.0, -2.0, 120.0]]
-                ),
-                ref_meta={"check_residual": True},
-            ),
-            PreconditionedCGDataset(
-                "test_A5",
-                suites=["test"],
-                A=np.array(
-                    [
-                        [15.0, -2.0, 0.0, 0.0, -1.0],
-                        [-2.0, 14.0, -3.0, 0.0, 0.0],
-                        [0.0, -3.0, 16.0, -2.0, 0.0],
-                        [0.0, 0.0, -2.0, 15.0, -3.0],
-                        [-1.0, 0.0, 0.0, -3.0, 17.0],
-                    ]
-                ),
-                ref_meta={"check_residual": True},
-            ),
             PreconditionedCGDataset(
                 "Andrews/Andrews",
                 suites=["standard", "trace"],
@@ -285,7 +235,7 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
             ),
             PreconditionedCGDataset(
                 "Botonakis/FEM_3D_thermal2",
-                suites=["standard", "trace"],
+                suites=["standard", "trace", "train"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
@@ -652,14 +602,92 @@ class BlockJacobiCGGenerator(Generator[PreconditionedCGDataset]):
         )
 
 
-class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
+class BlockJacobiCGTestGenerator(BlockJacobiCGGenerator):
     @property
     def name(self) -> str:
-        return "jacobi_cg_inputs"
+        return "block_jacobi_preconditioned_cg_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Jacobi CG SuiteSparse Data Generator"
+        return "Block Jacobi Preconditioned Conjugate Gradient Test"
+
+    @property
+    def description(self) -> str:
+        return "Small inlined symmetric positive definite systems."
+
+    @property
+    def datasets(self) -> list[PreconditionedCGDataset]:
+        return [
+            PreconditionedCGDataset(
+                "3x3_tridiagonal",
+                pretty_name="3x3 Tridiagonal",
+                suites=["test"],
+                A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]),
+                ref_meta={"check_residual": True},
+            ),
+            PreconditionedCGDataset(
+                "3x3_dense",
+                pretty_name="3x3 Dense",
+                suites=["test"],
+                A=np.array([[7.0, 2.0, 1.0], [2.0, 6.0, -1.0], [1.0, -1.0, 5.0]]),
+                ref_meta={"check_residual": True},
+            ),
+            PreconditionedCGDataset(
+                "4x4_tridiagonal",
+                pretty_name="4x4 Tridiagonal",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [8.0, -1.0, 0.0, 0.0],
+                        [-1.0, 8.0, -1.0, 0.0],
+                        [0.0, -1.0, 8.0, -1.0],
+                        [0.0, 0.0, -1.0, 8.0],
+                    ]
+                ),
+                ref_meta={"check_residual": True},
+            ),
+            PreconditionedCGDataset(
+                "3x3_indefinite_sparse",
+                pretty_name="3x3 Indefinite Sparse",
+                suites=["test"],
+                A=np.array([[12.0, 2.0, -1.0], [2.0, 10.0, 3.0], [-1.0, 3.0, 9.0]]),
+                ref_meta={"check_residual": True},
+            ),
+            PreconditionedCGDataset(
+                "3x3_scaled_tridiagonal",
+                pretty_name="3x3 Scaled Tridiagonal",
+                suites=["test"],
+                A=np.array(
+                    [[120.0, -2.0, 0.0], [-2.0, 120.0, -2.0], [0.0, -2.0, 120.0]]
+                ),
+                ref_meta={"check_residual": True},
+            ),
+            PreconditionedCGDataset(
+                "5x5_sparse",
+                pretty_name="5x5 Sparse",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [15.0, -2.0, 0.0, 0.0, -1.0],
+                        [-2.0, 14.0, -3.0, 0.0, 0.0],
+                        [0.0, -3.0, 16.0, -2.0, 0.0],
+                        [0.0, 0.0, -2.0, 15.0, -3.0],
+                        [-1.0, 0.0, 0.0, -3.0, 17.0],
+                    ]
+                ),
+                ref_meta={"check_residual": True},
+            ),
+        ]
+
+
+class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
+    @property
+    def name(self) -> str:
+        return "jacobi_preconditioned_cg_suitesparse"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Jacobi Preconditioned Conjugate Gradient SuiteSparse"
 
     @property
     def description(self) -> str:
@@ -700,59 +728,6 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
     @property
     def datasets(self) -> list[PreconditionedCGDataset]:
         return [
-            PreconditionedCGDataset(
-                "test_A0",
-                suites=["test"],
-                A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]),
-                ref_meta={"check_residual": True},
-            ),
-            PreconditionedCGDataset(
-                "test_A1",
-                suites=["test"],
-                A=np.array([[7.0, 2.0, 1.0], [2.0, 6.0, -1.0], [1.0, -1.0, 5.0]]),
-                ref_meta={"check_residual": True},
-            ),
-            PreconditionedCGDataset(
-                "test_A2",
-                suites=["test"],
-                A=np.array(
-                    [
-                        [8.0, -1.0, 0.0, 0.0],
-                        [-1.0, 8.0, -1.0, 0.0],
-                        [0.0, -1.0, 8.0, -1.0],
-                        [0.0, 0.0, -1.0, 8.0],
-                    ]
-                ),
-                ref_meta={"check_residual": True},
-            ),
-            PreconditionedCGDataset(
-                "test_A3",
-                suites=["test"],
-                A=np.array([[12.0, 2.0, -1.0], [2.0, 10.0, 3.0], [-1.0, 3.0, 9.0]]),
-                ref_meta={"check_residual": True},
-            ),
-            PreconditionedCGDataset(
-                "test_A4",
-                suites=["test"],
-                A=np.array(
-                    [[120.0, -2.0, 0.0], [-2.0, 120.0, -2.0], [0.0, -2.0, 120.0]]
-                ),
-                ref_meta={"check_residual": True},
-            ),
-            PreconditionedCGDataset(
-                "test_A5",
-                suites=["test"],
-                A=np.array(
-                    [
-                        [15.0, -2.0, 0.0, 0.0, -1.0],
-                        [-2.0, 14.0, -3.0, 0.0, 0.0],
-                        [0.0, -3.0, 16.0, -2.0, 0.0],
-                        [0.0, 0.0, -2.0, 15.0, -3.0],
-                        [-1.0, 0.0, 0.0, -3.0, 17.0],
-                    ]
-                ),
-                ref_meta={"check_residual": True},
-            ),
             PreconditionedCGDataset(
                 "Andrews/Andrews",
                 suites=["standard", "trace"],
@@ -970,7 +945,7 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
             ),
             PreconditionedCGDataset(
                 "Freescale/circuit5M_dc",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
@@ -1495,28 +1470,28 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
             ),
             PreconditionedCGDataset(
                 "Schenk_AFE/af_shell3",
-                suites=["standard"],
+                suites=["standard", "trace", "train"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             PreconditionedCGDataset(
                 "Schenk_AFE/af_shell4",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             PreconditionedCGDataset(
                 "Schenk_AFE/af_shell7",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             PreconditionedCGDataset(
                 "Schenk_AFE/af_shell8",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
@@ -1569,6 +1544,84 @@ class JacobiCGGenerator(Generator[PreconditionedCGDataset]):
             meta=dataset.benchmark_meta(),
             ref_meta=dataset.ref_meta,
         )
+
+
+class JacobiCGTestGenerator(JacobiCGGenerator):
+    @property
+    def name(self) -> str:
+        return "jacobi_preconditioned_cg_test"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Jacobi Preconditioned Conjugate Gradient Test"
+
+    @property
+    def description(self) -> str:
+        return "Small inlined symmetric positive definite systems."
+
+    @property
+    def datasets(self) -> list[PreconditionedCGDataset]:
+        return [
+            PreconditionedCGDataset(
+                "3x3_tridiagonal",
+                pretty_name="3x3 Tridiagonal",
+                suites=["test"],
+                A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]),
+                ref_meta={"check_residual": True},
+            ),
+            PreconditionedCGDataset(
+                "3x3_dense",
+                pretty_name="3x3 Dense",
+                suites=["test"],
+                A=np.array([[7.0, 2.0, 1.0], [2.0, 6.0, -1.0], [1.0, -1.0, 5.0]]),
+                ref_meta={"check_residual": True},
+            ),
+            PreconditionedCGDataset(
+                "4x4_tridiagonal",
+                pretty_name="4x4 Tridiagonal",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [8.0, -1.0, 0.0, 0.0],
+                        [-1.0, 8.0, -1.0, 0.0],
+                        [0.0, -1.0, 8.0, -1.0],
+                        [0.0, 0.0, -1.0, 8.0],
+                    ]
+                ),
+                ref_meta={"check_residual": True},
+            ),
+            PreconditionedCGDataset(
+                "3x3_indefinite_sparse",
+                pretty_name="3x3 Indefinite Sparse",
+                suites=["test"],
+                A=np.array([[12.0, 2.0, -1.0], [2.0, 10.0, 3.0], [-1.0, 3.0, 9.0]]),
+                ref_meta={"check_residual": True},
+            ),
+            PreconditionedCGDataset(
+                "3x3_scaled_tridiagonal",
+                pretty_name="3x3 Scaled Tridiagonal",
+                suites=["test"],
+                A=np.array(
+                    [[120.0, -2.0, 0.0], [-2.0, 120.0, -2.0], [0.0, -2.0, 120.0]]
+                ),
+                ref_meta={"check_residual": True},
+            ),
+            PreconditionedCGDataset(
+                "5x5_sparse",
+                pretty_name="5x5 Sparse",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [15.0, -2.0, 0.0, 0.0, -1.0],
+                        [-2.0, 14.0, -3.0, 0.0, 0.0],
+                        [0.0, -3.0, 16.0, -2.0, 0.0],
+                        [0.0, 0.0, -2.0, 15.0, -3.0],
+                        [-1.0, 0.0, 0.0, -3.0, 17.0],
+                    ]
+                ),
+                ref_meta={"check_residual": True},
+            ),
+        ]
 
 
 class _PreconditionedCGBase(Benchmark, ABC):
@@ -1630,7 +1683,7 @@ class _PreconditionedCGBase(Benchmark, ABC):
 
     @property
     def suites(self) -> list[str]:
-        return ["group-solvers"]
+        return ["standard-solvers"]
 
     @property
     def concepts(self) -> str:
@@ -1734,7 +1787,7 @@ class _PreconditionedCGBase(Benchmark, ABC):
 class _BlockJacobiCGMixin:
     @property
     def generators(self):
-        return [BlockJacobiCGGenerator()]
+        return [BlockJacobiCGTestGenerator(), BlockJacobiCGGenerator()]
 
     def _solve_cg(self, xp, M, r):
         y = xp.linalg.solve(M, r)
@@ -1744,7 +1797,7 @@ class _BlockJacobiCGMixin:
 class _JacobiCGMixin:
     @property
     def generators(self):
-        return [JacobiCGGenerator()]
+        return [JacobiCGTestGenerator(), JacobiCGGenerator()]
 
     def _solve_cg(self, xp, M, r):
         return xp.replace(r / M, xp.nan, 0)
@@ -1753,11 +1806,11 @@ class _JacobiCGMixin:
 class PreconditionedCGBenchmark(_BlockJacobiCGMixin, _PreconditionedCGBase):
     @property
     def name(self) -> str:
-        return "preconditioned_cg"
+        return "block_jacobi_preconditioned_cg"
 
     @property
     def pretty_name(self) -> str:
-        return "Preconditioned Conjugate Gradient (Block Jacobi)"
+        return "Block Jacobi Preconditioned Conjugate Gradient"
 
 
 class JacobiPreconditionedCGBenchmark(_JacobiCGMixin, _PreconditionedCGBase):
@@ -1767,4 +1820,4 @@ class JacobiPreconditionedCGBenchmark(_JacobiCGMixin, _PreconditionedCGBase):
 
     @property
     def pretty_name(self) -> str:
-        return "Preconditioned Conjugate Gradient (Jacobi)"
+        return "Jacobi Preconditioned Conjugate Gradient"

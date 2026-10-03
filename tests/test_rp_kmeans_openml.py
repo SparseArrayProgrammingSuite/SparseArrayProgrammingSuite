@@ -170,16 +170,19 @@ def test_rp_kmeans_openml_generator_derives_inputs_from_cached_source(monkeypatc
 def test_rp_kmeans_benchmark_uses_one_openml_generator_for_standard_datasets():
     generators = RPKMeansBenchmark().generators
     openml_generator = next(
-        generator for generator in generators if generator.name == "rp_kmeans_openml"
+        generator
+        for generator in generators
+        if generator.name == "rp_kmeans_clustering_openml"
     )
 
     assert [dataset.name for dataset in openml_generator.datasets] == [
         "mnist",
         "cifar10",
     ]
-    assert all(
-        dataset.suites == ["standard", "trace"] for dataset in openml_generator.datasets
-    )
+    assert {dataset.name: dataset.suites for dataset in openml_generator.datasets} == {
+        "mnist": ["standard", "trace"],
+        "cifar10": ["standard", "trace", "train"],
+    }
     assert "rp_kmeans_mnist" not in {generator.name for generator in generators}
     assert "rp_kmeans_cifar10" not in {generator.name for generator in generators}
 

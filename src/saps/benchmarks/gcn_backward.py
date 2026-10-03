@@ -14,7 +14,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.ogb import OGBNodePropGenerator, fetch_ogb_nodeprop_dataset
+from saps.benchmarks.ogb import fetch_ogb_nodeprop_dataset
 from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
 
 
@@ -77,6 +77,7 @@ class GCNTrainingDataset(SuiteSparseDataset):
         num_iterations: int = 10,
         learning_rate: float = 0.01,
         suites: list[str] | None = None,
+        pretty_name: str | None = None,
         adjacency: np.ndarray | None = None,
         features: np.ndarray | None = None,
         weights1: np.ndarray | None = None,
@@ -89,7 +90,7 @@ class GCNTrainingDataset(SuiteSparseDataset):
         super().__init__(
             name,
             source_name=source_name or name,
-            pretty_name=f"GCN {name}",
+            pretty_name=pretty_name,
             description=description,
             suites=suites,
         )
@@ -124,16 +125,14 @@ class OGBGCNTrainingDataset(Dataset):
 
     def __init__(
         self,
-        name: str,
-        *,
         source_name: str,
-        hidden_dim: int = 256,
+        *,
+        hidden_dim: int = 64,
         num_iterations: int = 10,
         learning_rate: float = 0.01,
         description: str,
         suites: list[str] | None = None,
     ):
-        self._name = name
         self.source_name = source_name
         self.hidden_dim = hidden_dim
         self.num_iterations = num_iterations
@@ -143,11 +142,11 @@ class OGBGCNTrainingDataset(Dataset):
 
     @property
     def name(self) -> str:
-        return self._name
+        return self.source_name
 
     @property
     def pretty_name(self) -> str:
-        return f"GCN Backward {self.source_name}"
+        return self.source_name
 
     @property
     def description(self) -> str:
@@ -178,11 +177,11 @@ class OGBGCNTrainingDataset(Dataset):
 class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
     @property
     def name(self) -> str:
-        return "gcn_backward_test_inputs"
+        return "gcn_backward_test"
 
     @property
     def pretty_name(self) -> str:
-        return "GCN Backward Test Input Generator"
+        return "Graph Convolutional Network Training Test"
 
     @property
     def description(self) -> str:
@@ -250,7 +249,8 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
         degree_weights2 = rng.standard_normal((4, 1), dtype=np.float32) * 0.5
         return [
             GCNTrainingDataset(
-                "test_gcn_backward_2node",
+                "two_node",
+                pretty_name="Two Node",
                 suites=["test"],
                 adjacency=np.array([[0, 1], [1, 0]], dtype=np.float32),
                 features=np.array([[1.0], [2.0]], dtype=np.float32),
@@ -267,7 +267,8 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
                 },
             ),
             GCNTrainingDataset(
-                "test_gcn_backward_multidim",
+                "multidimensional",
+                pretty_name="Multidimensional",
                 suites=["test"],
                 adjacency=np.array(
                     [
@@ -310,7 +311,8 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
                 },
             ),
             GCNTrainingDataset(
-                "test_gcn_backward_degree_loss",
+                "degree_loss",
+                pretty_name="Degree Loss",
                 suites=["test"],
                 adjacency=degree_train_adj,
                 features=np.ones((7, 1), dtype=np.float32),
@@ -327,7 +329,8 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
                 },
             ),
             GCNTrainingDataset(
-                "test_gcn_backward_degree_test_graph_loss",
+                "degree_test_graph_loss",
+                pretty_name="Degree Test Graph Loss",
                 suites=["test"],
                 adjacency=degree_test_adj,
                 features=np.ones((6, 1), dtype=np.float32),
@@ -388,11 +391,11 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
 class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
     @property
     def name(self) -> str:
-        return "gcn_weights"
+        return "gcn_backward_suitesparse"
 
     @property
     def pretty_name(self) -> str:
-        return "Graph Convolutional Network Weights"
+        return "Graph Convolutional Network Training SuiteSparse"
 
     @property
     def description(self) -> str:
@@ -472,57 +475,50 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
     def datasets(self) -> list[GCNTrainingDataset]:
         return [
             GCNTrainingDataset(
-                "dg_gcn_social_1",
-                "Small social network graph.",
                 "Newman/karate",
+                "Small social network graph.",
                 feature_dim=16,
                 hidden_dim=8,
                 out_dim=1,
             ),
             GCNTrainingDataset(
-                "dg_gcn_social_2",
-                "Medium social network graph.",
                 "Newman/dolphins",
+                "Medium social network graph.",
                 feature_dim=16,
                 hidden_dim=8,
                 out_dim=1,
             ),
             GCNTrainingDataset(
-                "dg_gcn_social_3",
-                "Larger social network graph.",
                 "SNAP/ca-GrQc",
+                "Larger social network graph.",
                 feature_dim=8,
                 hidden_dim=16,
                 out_dim=1,
             ),
             GCNTrainingDataset(
-                "dg_gcn_road_1",
-                "Small road network graph.",
                 "DIMACS10/chesapeake",
+                "Small road network graph.",
                 feature_dim=8,
                 hidden_dim=4,
                 out_dim=1,
             ),
             GCNTrainingDataset(
-                "dg_gcn_molecular_1",
-                "Small molecular graph. - Email network.",
                 "Arenas/email",
+                "Small molecular graph. - Email network.",
                 feature_dim=4,
                 hidden_dim=8,
                 out_dim=1,
             ),
             GCNTrainingDataset(
-                "dg_gcn_molecular_2",
-                "Medium molecular graph - PDDB protein structure.",
                 "Muite/Chebyshev3",
+                "Medium molecular graph - PDDB protein structure.",
                 feature_dim=6,
                 hidden_dim=12,
                 out_dim=1,
             ),
             GCNTrainingDataset(
-                "dg_gcn_citation_1",
-                "Large citation network graph (AIDS-like size).",
                 "SNAP/ca-HepPh",
+                "Large citation network graph (AIDS-like size).",
                 feature_dim=16,
                 hidden_dim=32,
                 out_dim=1,
@@ -587,11 +583,11 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
 class OGBGCNTrainingGenerator(Generator[OGBGCNTrainingDataset]):
     @property
     def name(self) -> str:
-        return "gcn_backward_ogb_inputs"
+        return "gcn_backward_ogb"
 
     @property
     def pretty_name(self) -> str:
-        return "Open Graph Benchmark GCN Backward Inputs"
+        return "Graph Convolutional Network Training OGB"
 
     @property
     def description(self) -> str:
@@ -638,12 +634,29 @@ class OGBGCNTrainingGenerator(Generator[OGBGCNTrainingDataset]):
     def datasets(self) -> list[OGBGCNTrainingDataset]:
         return [
             OGBGCNTrainingDataset(
-                dataset.name,
-                source_name=dataset.source_name,
-                description=dataset.description,
+                "ogbn-arxiv",
+                description=(
+                    "Citation network of arXiv Computer Science papers for "
+                    "node-property prediction."
+                ),
+                suites=["standard", "trace", "train"],
+            ),
+            OGBGCNTrainingDataset(
+                "ogbn-products",
+                description=(
+                    "Amazon product co-purchasing network for large-scale "
+                    "node-property prediction."
+                ),
                 suites=["standard"],
-            )
-            for dataset in OGBNodePropGenerator().datasets
+            ),
+            OGBGCNTrainingDataset(
+                "ogbn-proteins",
+                description=(
+                    "Protein-protein association network with species labels and "
+                    "averaged edge-feature node inputs."
+                ),
+                suites=["standard"],
+            ),
         ]
 
     def generate(self, dataset: OGBGCNTrainingDataset) -> DataInstance:
@@ -686,7 +699,7 @@ class GCNBackwardBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "Graph Convolutional Network Inference"
+        return "Graph Convolutional Network Training"
 
     @property
     def description(self) -> str:
@@ -720,7 +733,7 @@ Each iteration:
 
     @property
     def suites(self) -> list[str]:
-        return ["group-machine-learning"]
+        return ["standard-machine-learning"]
 
     @property
     def concepts(self) -> str:

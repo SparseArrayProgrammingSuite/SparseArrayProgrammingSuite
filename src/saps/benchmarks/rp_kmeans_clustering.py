@@ -16,7 +16,7 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.netflixprize import fetch_netflixprize_matrix
-from saps.benchmarks.openml import OpenMLDatasetGenerator, fetch_openml_features
+from saps.benchmarks.openml import fetch_openml_features
 
 
 class RPKMeansRandomDataset(Dataset):
@@ -30,9 +30,11 @@ class RPKMeansRandomDataset(Dataset):
         max_iter=100,
         suites: list[str] | None = None,
         ref_meta: dict[str, Any] | None = None,
+        pretty_name: str | None = None,
     ):
         self._suites = suites or []
         self.source_name = source_name
+        self._pretty_name = pretty_name or source_name
         self.points = points
         self.k = k
         self.eps = eps
@@ -46,7 +48,7 @@ class RPKMeansRandomDataset(Dataset):
 
     @property
     def pretty_name(self) -> str:
-        return f"RP k-means {self.source_name}"
+        return self._pretty_name
 
     @property
     def description(self) -> str:
@@ -73,11 +75,11 @@ class RPKMeansRandomDataset(Dataset):
 class RPKMeansGenerator(Generator[RPKMeansRandomDataset]):
     @property
     def name(self) -> str:
-        return "rp_kmeans_inputs"
+        return "rp_kmeans_clustering_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Random Projection k-means Data Generator"
+        return "Random Projection k-Means Clustering Test"
 
     @property
     def description(self) -> str:
@@ -132,6 +134,7 @@ class RPKMeansGenerator(Generator[RPKMeansRandomDataset]):
                 c=0.5,
                 max_iter=5,
                 suites=["test"],
+                pretty_name="Three Clusters",
                 ref_meta={
                     "same": [(0, 1), (2, 3), (4, 5)],
                     "cluster_count": 3,
@@ -154,6 +157,7 @@ class RPKMeansGenerator(Generator[RPKMeansRandomDataset]):
                 c=1,
                 max_iter=5,
                 suites=["test"],
+                pretty_name="Two Clusters",
                 ref_meta={
                     "same": [(0, 1), (1, 2), (2, 3)],
                     "different": [(0, 4)],
@@ -192,8 +196,10 @@ class RPKMeansDataset(Dataset):
         c=1,
         max_iter=100,
         suites: list[str] | None = None,
+        pretty_name: str | None = None,
     ):
         self._source_name = source_name
+        self._pretty_name = pretty_name or source_name
         self.k = k
         self.eps = eps
         self.c = c
@@ -206,7 +212,7 @@ class RPKMeansDataset(Dataset):
 
     @property
     def pretty_name(self) -> str:
-        return f"RP k-means {self._source_name}"
+        return self._pretty_name
 
     @property
     def description(self) -> str:
@@ -233,11 +239,11 @@ class RPKMeansDataset(Dataset):
 class RPKMeansOpenMLGenerator(Generator[RPKMeansDataset]):
     @property
     def name(self) -> str:
-        return "rp_kmeans_openml"
+        return "rp_kmeans_clustering_openml"
 
     @property
     def pretty_name(self) -> str:
-        return "RP k-means OpenML Generator"
+        return "Random Projection k-Means Clustering OpenML"
 
     @property
     def description(self) -> str:
@@ -306,8 +312,20 @@ class RPKMeansOpenMLGenerator(Generator[RPKMeansDataset]):
     @property
     def datasets(self) -> list[RPKMeansDataset]:
         return [
-            RPKMeansDataset(dataset.name, k=10, eps=0.3, suites=["standard", "trace"])
-            for dataset in OpenMLDatasetGenerator().datasets
+            RPKMeansDataset(
+                "mnist",
+                k=10,
+                eps=0.3,
+                suites=["standard", "trace"],
+                pretty_name="MNIST",
+            ),
+            RPKMeansDataset(
+                "cifar10",
+                k=10,
+                eps=0.3,
+                suites=["standard", "trace", "train"],
+                pretty_name="CIFAR-10",
+            ),
         ]
 
     def generate(self, dataset: RPKMeansDataset) -> DataInstance:
@@ -341,11 +359,11 @@ class RPKMeansOpenMLGenerator(Generator[RPKMeansDataset]):
 class RPKMeansNetflixGenerator(Generator[RPKMeansDataset]):
     @property
     def name(self) -> str:
-        return "rp_kmeans_netflix"
+        return "rp_kmeans_clustering_netflix_prize"
 
     @property
     def pretty_name(self) -> str:
-        return "RP k-means Netflix Generator"
+        return "Random Projection k-Means Clustering Netflix Prize"
 
     @property
     def description(self) -> str:
@@ -393,6 +411,7 @@ class RPKMeansNetflixGenerator(Generator[RPKMeansDataset]):
                 k=10,
                 eps=0.3,
                 suites=["standard"],
+                pretty_name="Netflix Prize",
             ),
         ]
 
@@ -434,7 +453,7 @@ class RPKMeansBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "Random Projections for k-means Clustering"
+        return "Random Projection k-Means Clustering"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -475,7 +494,7 @@ class RPKMeansBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["group-machine-learning"]
+        return ["standard-machine-learning"]
 
     @property
     def concepts(self) -> str:
