@@ -3,11 +3,13 @@ import numpy as np
 from binsparse.conversions import to_numpy
 
 from frameworks.saps_numpy import NumpyFramework
-from saps.benchmarks.spmv import MatrixVectorBenchmark
+from saps.benchmarks.matrix_vector_multiplication import (
+    MatrixVectorMultiplicationBenchmark,
+)
 
 
 def test_run_passes_inputs_as_explicit_arguments():
-    benchmark = MatrixVectorBenchmark()
+    benchmark = MatrixVectorMultiplicationBenchmark()
     param = next(p for p in benchmark.params if p.dataset.name == "small")
     benchmark.setup(param, xp=NumpyFramework(), use_cache=False)
     benchmark.run(param)

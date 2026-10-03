@@ -5,7 +5,7 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy
 
-import saps.benchmarks.particle_sim as ps
+import saps.benchmarks.particle_simulation as ps
 from frameworks.saps_numpy import NumpyFramework
 from saps.downloaders.ewap import load_toy_ewap_dataset
 
@@ -75,7 +75,7 @@ def test_benchmark_runs_with_toy_ewap_data():
     bins, meta = load_toy_ewap_dataset(num_steps=5)
     meta["parameters"] = _toy_parameters()
     data = [xp.from_binsparse(b) for b in bins]
-    result = ps.ParticleSimBenchmark().benchmark(xp, meta, *data)
+    result = ps.ParticleSimulationBenchmark().benchmark(xp, meta, *data)
     assert len(result) == 6  # x, y, z, vx, vy, vz
     for arr in result:
         assert arr.shape == (meta["n_particles"],)
@@ -99,13 +99,13 @@ def test_ewap_particle_sim_generator_uses_downloader(monkeypatch):
 
     monkeypatch.setattr(ps, "download_ewap_dataset", fake_download)
 
-    generator = ps.EWAPParticleSimGenerator()
+    generator = ps.ParticleSimulationEWAPGenerator()
     datasets = generator.datasets
 
     assert generator.cacheable is False
     assert [dataset.name for dataset in datasets] == [
-        "ewap_seq_eth",
-        "ewap_seq_hotel",
+        "seq_eth",
+        "seq_hotel",
     ]
     assert all(dataset.suites == ["standard", "trace"] for dataset in datasets)
     assert all(

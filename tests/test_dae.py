@@ -5,21 +5,19 @@ import scipy.sparse as sp
 
 from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_sparse import PyDataSparseFramework
-from saps.benchmarks.dae import (
-    DescriptorDAEDataset,
-    DescriptorDAETestGenerator,
-    SlicotDAEBDF,
-    SlicotDAEGenerator,
+from saps.benchmarks.dae_bdf import (
+    DAEBDFBenchmark,
+    DAEBDFDataset,
+    DAEBDFSLICOTGenerator,
+    DAEBDFTestGenerator,
 )
 
 
 @pytest.mark.parametrize("framework", [NumpyFramework, PyDataSparseFramework])
 def test_descriptor_benchmark(framework):
-    benchmark = SlicotDAEBDF()
+    benchmark = DAEBDFBenchmark()
     param = next(
-        p
-        for p in benchmark.params
-        if isinstance(p.generator, DescriptorDAETestGenerator)
+        p for p in benchmark.params if isinstance(p.generator, DAEBDFTestGenerator)
     )
     benchmark.setup(param, use_cache=False, xp=framework())
     benchmark.run(param)
@@ -31,9 +29,9 @@ def test_singular_mass_with_inconsistent_initial_state(sparse):
     E = np.diag([2.0, 0.0])
     A = np.diag([-2.0, -1.0])
     B = np.array([[2.0], [3.0]])
-    generator = DescriptorDAETestGenerator()
+    generator = DAEBDFTestGenerator()
     problem = generator.generate(
-        DescriptorDAEDataset(
+        DAEBDFDataset(
             "singular",
             E=sp.csr_matrix(E) if sparse else E,
             A=sp.csr_matrix(A) if sparse else A,
@@ -48,7 +46,7 @@ def test_singular_mass_with_inconsistent_initial_state(sparse):
     data = [xp.from_binsparse(value) for value in problem.inputs]
     time, y, yp = [
         np.asarray(value.todense() if hasattr(value, "todense") else value)
-        for value in SlicotDAEBDF().benchmark(xp, problem.meta, *data)
+        for value in DAEBDFBenchmark().benchmark(xp, problem.meta, *data)
     ]
     assert time[-1] == 1.0
     np.testing.assert_allclose(y[1:, 1], 3.0)
@@ -61,8 +59,8 @@ def test_singular_mass_with_inconsistent_initial_state(sparse):
 def test_descriptor_second_order_convergence():
     errors = []
     for n in [20, 40, 80]:
-        problem = DescriptorDAETestGenerator().generate(
-            DescriptorDAEDataset(
+        problem = DAEBDFTestGenerator().generate(
+            DAEBDFDataset(
                 "decay",
                 E=np.eye(1),
                 A=-np.eye(1),
@@ -73,7 +71,7 @@ def test_descriptor_second_order_convergence():
             )
         )
         data = [NumpyFramework().from_binsparse(value) for value in problem.inputs]
-        _, y, _ = SlicotDAEBDF().benchmark(NumpyFramework(), problem.meta, *data)
+        _, y, _ = DAEBDFBenchmark().benchmark(NumpyFramework(), problem.meta, *data)
         errors.append(abs(y[-1, 0] - np.exp(-1)))
     assert errors[0] / errors[1] > 3.8
     assert errors[1] / errors[2] > 3.8
@@ -81,8 +79,8 @@ def test_descriptor_second_order_convergence():
 
 @pytest.mark.parametrize("n", [0, -1, 1.5, True])
 def test_invalid_step_count(n):
-    problem = DescriptorDAETestGenerator().generate(
-        DescriptorDAEDataset(
+    problem = DAEBDFTestGenerator().generate(
+        DAEBDFDataset(
             "decay",
             E=np.eye(1),
             A=-np.eye(1),
@@ -94,15 +92,15 @@ def test_invalid_step_count(n):
     )
     data = [NumpyFramework().from_binsparse(value) for value in problem.inputs]
     with pytest.raises(ValueError, match="positive integer"):
-        SlicotDAEBDF().benchmark(NumpyFramework(), {**problem.meta, "n": n}, *data)
+        DAEBDFBenchmark().benchmark(NumpyFramework(), {**problem.meta, "n": n}, *data)
 
 
 def test_slicot_datasets_exercise_bdf2():
-    assert all(d.t_max > d.step for d in SlicotDAEGenerator().datasets)
+    assert all(d.t_max > d.step for d in DAEBDFSLICOTGenerator().datasets)
 
 
 def test_slicot_dae_generator_uses_explicit_descriptor_problems():
-    datasets = SlicotDAEGenerator().datasets
+    datasets = DAEBDFSLICOTGenerator().datasets
 
     assert [dataset.source_name for dataset in datasets] == [
         "tline.mat",
@@ -114,7 +112,15 @@ def test_slicot_dae_generator_uses_explicit_descriptor_problems():
         "MNA_4.mat",
         "MNA_5.mat",
     ]
-    assert all(dataset.suites == ["standard", "trace"] for dataset in datasets)
+    assert all(
+        dataset.suites
+        == (
+            ["standard", "trace", "train"]
+            if dataset.name == "MNA_3"
+            else ["standard", "trace"]
+        )
+        for dataset in datasets
+    )
 
 
 def test_lu_permutations():
@@ -128,8 +134,8 @@ def test_lu_permutations():
         ]
     )
     rhs = np.array([1.0, 2.0, 3.0, 4.0])
-    problem = DescriptorDAETestGenerator().generate(
-        DescriptorDAEDataset(
+    problem = DAEBDFTestGenerator().generate(
+        DAEBDFDataset(
             "permuted",
             E=matrix,
             A=sp.csc_matrix(matrix.shape),
@@ -147,18 +153,16 @@ def test_lu_permutations():
         np.testing.assert_array_equal(np.sort(cols), np.arange(4))
         permuted = (coefficient * matrix).toarray()[rows][:, np.argsort(cols)]
         np.testing.assert_allclose(permuted, L @ U)
-    _, y, _ = SlicotDAEBDF().benchmark(NumpyFramework(), problem.meta, *data)
+    _, y, _ = DAEBDFBenchmark().benchmark(NumpyFramework(), problem.meta, *data)
     np.testing.assert_allclose(matrix @ y[1], rhs, atol=1e-12)
 
 
 def test_factorization_only_in_generator(monkeypatch):
-    import saps.benchmarks.dae as dae
+    import saps.benchmarks.dae_bdf as dae
 
-    benchmark = SlicotDAEBDF()
+    benchmark = DAEBDFBenchmark()
     param = next(
-        p
-        for p in benchmark.params
-        if isinstance(p.generator, DescriptorDAETestGenerator)
+        p for p in benchmark.params if isinstance(p.generator, DAEBDFTestGenerator)
     )
     calls = []
     original = dae.splu
@@ -180,7 +184,7 @@ def test_timed_solver_does_not_use_host_array_libraries():
     import inspect
     import textwrap
 
-    tree = ast.parse(textwrap.dedent(inspect.getsource(SlicotDAEBDF.benchmark)))
+    tree = ast.parse(textwrap.dedent(inspect.getsource(DAEBDFBenchmark.benchmark)))
     assert not any(
         isinstance(node, ast.Subscript) and isinstance(node.ctx, ast.Store)
         for node in ast.walk(tree)

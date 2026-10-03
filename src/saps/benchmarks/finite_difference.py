@@ -1,0 +1,884 @@
+import numpy as np
+
+import sparse as pydata_sparse
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, from_sparse, to_numpy, to_sparse
+
+from saps.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    Ref,
+)
+
+
+def _from_binsparse(array):
+    try:
+        return to_numpy(array)
+    except TypeError:
+        return to_sparse(array).todense()
+
+
+def _to_binsparse(array):
+    if isinstance(array, BinsparseTensor):
+        return array
+    if isinstance(array, pydata_sparse.SparseArray):
+        return from_sparse(array.asformat("coo"))
+    return from_numpy(np.asarray(array))
+
+
+def _lax_freidrichs_matrix_no_flux_1d(Nx):
+    matrix = pydata_sparse.DOK((Nx, Nx), dtype=float)
+    for i in range(1, Nx):
+        matrix[i, i - 1] = 0.5
+    for i in range(Nx - 1):
+        matrix[i, i + 1] = 0.5
+
+    # periodic BC
+    matrix[0, -1] = 0.5
+    matrix[-1, 0] = 0.5
+
+    return matrix
+
+
+def _difference_matrix_1d(Nx):
+    matrix = pydata_sparse.DOK((Nx, Nx), dtype=float)
+    for i in range(1, Nx):
+        matrix[i, i - 1] = -1
+    for i in range(Nx - 1):
+        matrix[i, i + 1] = 1
+
+    # periodic BC
+    matrix[0, -1] = -1
+    matrix[-1, 0] = 1
+    return matrix
+
+
+#: Flux functions, keyed by name. Functions can't be serialized in
+#: benchmark metadata, so the generator stores this keyword instead and
+#: both the generator and the benchmark look the function up by name.
+_FLUX_PRETTY_NAMES = {
+    "burgers": "Burgers",
+    "buckley_leverett": "Buckley-Leverett",
+    "linear_advection": "Linear Advection",
+}
+
+
+def _burgers_flux(u):
+    return 0.5 * u * u
+
+
+def _buckley_leverett_flux(u):
+    sq = u * u
+    return sq / (sq + 0.25 * (1 - u) * (1 - u))
+
+
+def _linear_advection_flux_1d(u):
+    return 1.0 * u
+
+
+def _resolve_flux_1d(flux_name):
+    match flux_name:
+        case "burgers":
+            return _burgers_flux
+        case "buckley_leverett":
+            return _buckley_leverett_flux
+        case "linear_advection":
+            return _linear_advection_flux_1d
+        case _:
+            raise NotImplementedError(f"Unknown flux_name: {flux_name!r}")
+
+
+class FiniteDifference1DDataset(Dataset):
+    def __init__(self, name, pretty_name, suites, Nx, dx, Nt, dt):
+        self._name = name
+        self._pretty_name = pretty_name
+        self._suites = suites
+        self.Nx = Nx
+        self.dx = dx
+        self.Nt = Nt
+        self.dt = dt
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return f"{self.pretty_name}: Nx = {self.Nx}, dx = {self.dx}, dt = {self.dt}."
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+
+class _FiniteDifferenceGeneratorMixin:
+    """Metadata shared by the 1D and 2D finite-difference generators."""
+
+    flux_name: str
+
+    @property
+    def description(self) -> str:
+        return (
+            "The finite difference generator uses a finite difference grid of"
+            "500 by 500 cells, matching roughly the scale of a"
+            "real finite difference problem, Norris/torso3 from UF Matrix Collection,"
+            f" using the {_FLUX_PRETTY_NAMES[self.flux_name]} flux function."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Vilohith Gokarakonda", "vgokarakonda3@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="The university of Florida sparse matrix collection",
+                authors=[
+                    Author("Timothy A. Davis"),
+                    Author("Yifan Hu"),
+                ],
+                journal="ACM Transactions on Mathematical Software",
+                publisher="Association for Computing Machinery (ACM)",
+                volume="38",
+                number="1",
+                pages="1-25",
+                year=2011,
+                url="https://doi.org/10.1145/2049662.2049663",
+                doi="10.1145/2049662.2049663",
+            )
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to construct the benchmark function itself."
+            " Generative AI might have been used to construct tests. This statement was"
+            " written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return (
+            "For linear advection, updates are done using a sparse matrix"
+            " representation, to updates the spatial coordinates for time t."
+        )
+
+
+class _FiniteDifference1DGeneratorMixin(_FiniteDifferenceGeneratorMixin):
+    def generate(self, dataset: FiniteDifference1DDataset):
+        # Produce a gentle, sparse initial condition (small amplitudes)
+        density = 0.05
+        u_0 = np.zeros(dataset.Nx, dtype=float)
+        k = max(1, int(dataset.Nx * density))
+        rng = np.random.default_rng(0)
+        idx = rng.choice(dataset.Nx, size=k, replace=False)
+        # small random amplitudes to avoid nonlinear overflow
+        u_0[idx] = rng.random(k) * 0.5
+        # a modest central pulse (order 1), previously was 10 which caused instability
+        u_0[dataset.Nx // 2] = max(u_0[dataset.Nx // 2], 1.0)
+
+        difference = _difference_matrix_1d(dataset.Nx)
+        matrix = _lax_freidrichs_matrix_no_flux_1d(dataset.Nx)
+
+        data = [
+            _to_binsparse(u_0),
+            _to_binsparse(matrix),
+            _to_binsparse(difference),
+        ]
+
+        meta = {
+            "timesteps": dataset.Nt,
+            "dt": dataset.dt,
+            "dx": dataset.dx,
+            "flux_name": self.flux_name,
+        }
+        return DataInstance(inputs=data, meta=meta)
+
+
+class FiniteDifference1DBurgersGenerator(
+    _FiniteDifference1DGeneratorMixin, Generator[FiniteDifference1DDataset]
+):
+    flux_name = "burgers"
+
+    @property
+    def name(self) -> str:
+        return "finite_difference_1d_burgers"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Finite Difference 1D Burgers"
+
+    @property
+    def datasets(self) -> list[FiniteDifference1DDataset]:
+        return [
+            FiniteDifference1DDataset(
+                name="small_scale",
+                pretty_name="Small Scale",
+                suites=["test"],
+                Nx=100,
+                dx=0.1,
+                Nt=100,
+                dt=0.01,
+            ),
+            FiniteDifference1DDataset(
+                name="realistic_scale",
+                pretty_name="Realistic Scale",
+                suites=["standard", "trace"],
+                Nx=250000,
+                dx=0.1,
+                Nt=1000,
+                dt=0.01,
+            ),
+        ]
+
+
+class FiniteDifference1DBuckleyLeverettGenerator(
+    _FiniteDifference1DGeneratorMixin, Generator[FiniteDifference1DDataset]
+):
+    flux_name = "buckley_leverett"
+
+    @property
+    def name(self) -> str:
+        return "finite_difference_1d_buckley_leverett"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Finite Difference 1D Buckley-Leverett"
+
+    @property
+    def datasets(self) -> list[FiniteDifference1DDataset]:
+        return [
+            FiniteDifference1DDataset(
+                name="small_scale",
+                pretty_name="Small Scale",
+                suites=["test"],
+                Nx=100,
+                dx=0.1,
+                Nt=100,
+                dt=0.01,
+            ),
+            FiniteDifference1DDataset(
+                name="realistic_scale",
+                pretty_name="Realistic Scale",
+                suites=["standard", "trace", "train"],
+                Nx=250000,
+                dx=0.1,
+                Nt=1000,
+                dt=0.01,
+            ),
+        ]
+
+
+class FiniteDifference1DLinearAdvectionGenerator(
+    _FiniteDifference1DGeneratorMixin, Generator[FiniteDifference1DDataset]
+):
+    flux_name = "linear_advection"
+
+    @property
+    def name(self) -> str:
+        return "finite_difference_1d_linear_advection"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Finite Difference 1D Linear Advection"
+
+    @property
+    def datasets(self) -> list[FiniteDifference1DDataset]:
+        return [
+            FiniteDifference1DDataset(
+                name="small_scale",
+                pretty_name="Small Scale",
+                suites=["test"],
+                Nx=100,
+                dx=0.1,
+                Nt=100,
+                dt=0.01,
+            ),
+            FiniteDifference1DDataset(
+                name="realistic_scale",
+                pretty_name="Realistic Scale",
+                suites=["standard", "trace"],
+                Nx=250000,
+                dx=0.1,
+                Nt=1000,
+                dt=0.01,
+            ),
+        ]
+
+
+class _FiniteDifferenceBenchmarkMixin:
+    """Metadata shared by the 1D and 2D finite-difference benchmarks."""
+
+    @property
+    def suites(self) -> list[str]:
+        return ["standard-spatial"]
+
+    @property
+    def concepts(self) -> str:
+        return (
+            """
+            <ccs2012>
+            <concept>
+            <concept_id>10002950.10003705.10011686</concept_id>
+            <concept_desc>Mathematics of computing~"""
+            "Mathematical software performance"
+            """</concept_desc>
+            <concept_significance>500</concept_significance>
+            </concept>
+            <concept>
+            <concept_id>10010147.10010341.10010349.10010357</concept_id>
+            <concept_desc>Computing methodologies~Continuous simulation</concept_desc>
+            <concept_significance>500</concept_significance>
+            </concept>
+            <concept>
+            <concept_id>10002950.10003714.10003715.10003750</concept_id>
+            <concept_desc>Mathematics of computing~Discretization</concept_desc>
+            <concept_significance>500</concept_significance>
+            </concept>
+            </ccs2012>
+        """
+        )
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Vilohith Gokarakonda", "vgokarakonda3@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title=(
+                    "Synthesizing Sound and Precise Abstract Transformers"
+                    " for Nonlinear Hyperbolic PDE Solvers."
+                ),
+                authors=[
+                    Author("Jacob Laurel"),
+                    Author("Ignacio Laguna"),
+                    Author("Jan Hückelheim"),
+                ],
+                journal="Proceedings of the ACM on Programming Languages",
+                publisher="Association for Computing Machinery (ACM)",
+                volume="9",
+                number="OOPSLA2",
+                pages="1063-1091",
+                year=2025,
+                url="https://doi.org/10.1145/3763088",
+                doi="10.1145/3763088",
+            )
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to construct the benchmark function itself."
+            " Generative AI might have been used to construct tests. This statement was"
+            " written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return (
+            "Updates are done using a matrix representation, to updates"
+            " the spatial coordinates for time t."
+        )
+
+    @property
+    def description(self) -> str:
+        return (
+            "The purpose of this is to analyze the importance of numerical methods for"
+            " PDEs, and applications sparse array theory into these method, through the"
+            " form of benchmarks. This paticular benchmark analyzes the use of the"
+            " Lax–Friedrichs method for solving nonlinear hyberbolic PDEs, with"
+            " numerical stability and accuracy not seen in FTCS. This benchmark will"
+            " run a simulation using both Lax–Friedrichs and analyze core concepts such"
+            " as numerical stability, conservation law consistency, etc."
+        )
+
+
+class FiniteDifference1DBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
+    @property
+    def name(self) -> str:
+        return "finite_difference_1d"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Finite Difference 1D"
+
+    @property
+    def generators(self):
+        return [
+            FiniteDifference1DBurgersGenerator(),
+            FiniteDifference1DBuckleyLeverettGenerator(),
+            FiniteDifference1DLinearAdvectionGenerator(),
+        ]
+
+    def benchmark(self, xp, meta: dict, u_0, matrix, dif):
+        timesteps = meta["timesteps"]
+        dt = meta["dt"]
+        dx = meta["dx"]
+        flux_name = meta["flux_name"]
+        match flux_name:
+            case "burgers":
+                pass
+            case "buckley_leverett":
+                pass
+            case "linear_advection":
+                pass
+            case _:
+                raise NotImplementedError(f"Unknown flux_name: {flux_name!r}")
+        alpha = dt / (2 * dx)
+        # Stack the history once to avoid rebuilding sparse arrays each step.
+        u = [u_0]
+        for _ in range(timesteps):
+            u_n = u[-1]
+            match flux_name:
+                case "burgers":
+                    f = 0.5 * u_n * u_n
+                case "buckley_leverett":
+                    sq = u_n * u_n
+                    f = sq / (sq + 0.25 * (1 - u_n) * (1 - u_n))
+                case "linear_advection":
+                    f = 1.0 * u_n
+            u_next = matrix @ u_n - alpha * (dif @ f)
+            u.append(u_next)
+        return xp.stack(u, axis=0)
+
+    def check(self, param):
+        super().check(param)
+        result = _from_binsparse(self._output[0])
+        u0 = _from_binsparse(self._input[0])
+        dt = self._meta["dt"]
+        dx = self._meta["dx"]
+        flux_fn = _resolve_flux_1d(self._meta["flux_name"])
+
+        assert np.allclose(result[0], u0, rtol=1e-12, atol=1e-12)
+
+        time_derivative = np.diff(result, axis=0) / dt
+        for timestep in range(time_derivative.shape[0]):
+            u_n = result[timestep]
+            flux = flux_fn(u_n)
+
+            neighbor_average = np.zeros_like(u_n)
+            neighbor_average[1:] += 0.5 * u_n[:-1]
+            neighbor_average[:-1] += 0.5 * u_n[1:]
+            neighbor_average[0] += 0.5 * u_n[-1]
+            neighbor_average[-1] += 0.5 * u_n[0]
+
+            flux_difference = np.zeros_like(u_n)
+            flux_difference[1:] -= flux[:-1]
+            flux_difference[:-1] += flux[1:]
+            flux_difference[0] -= flux[-1]
+            flux_difference[-1] += flux[0]
+
+            flux_derivative = flux_difference / (2 * dx)
+            smoothing_derivative = (neighbor_average - u_n) / dt
+            assert np.allclose(
+                time_derivative[timestep],
+                smoothing_derivative - flux_derivative,
+                rtol=1e-12,
+                atol=1e-12,
+            ), f"{param.dataset.name} has an inconsistent discrete derivative"
+
+
+# This matrix formula assume Dirichlet BC instead of Periodic BC.
+def _lax_freidrichs_matrix_no_flux_2D(number_spatial_x, number_spatial_y):
+    N = number_spatial_x * number_spatial_y
+    matrix = pydata_sparse.DOK((N, N), dtype=float)
+    for i in range(N):
+        x = i % number_spatial_x
+        y = i // number_spatial_x
+        if x > 0:
+            matrix[i, i - 1] = 0.25
+        if x < number_spatial_x - 1:
+            matrix[i, i + 1] = 0.25
+
+        if y > 0:
+            matrix[i, i - number_spatial_x] = 0.25
+        if y < number_spatial_y - 1:
+            matrix[i, i + number_spatial_x] = 0.25
+
+    return matrix
+
+
+def _difference_matrix_x_direction(number_spatial_x, number_spatial_y):
+    N = number_spatial_x * number_spatial_y
+    dif_x_matrix = pydata_sparse.DOK((N, N), dtype=float)
+    for i in range(N):
+        x = i % number_spatial_x
+        if x > 0:
+            dif_x_matrix[i, i - 1] = -1
+        if x < number_spatial_x - 1:
+            dif_x_matrix[i, i + 1] = +1
+
+    return dif_x_matrix
+
+
+def _difference_matrix_y_direction(number_spatial_x, number_spatial_y):
+    N = number_spatial_x * number_spatial_y
+    dif_y_matrix = pydata_sparse.DOK((N, N), dtype=float)
+    for i in range(N):
+        y = i // number_spatial_x
+        if y > 0:
+            dif_y_matrix[i, i - number_spatial_x] = -1
+        if y < number_spatial_y - 1:
+            dif_y_matrix[i, i + number_spatial_x] = +1
+
+    return dif_y_matrix
+
+
+_LINEAR_ADVECTION_CX = 0.9
+_LINEAR_ADVECTION_CY = 0.9
+
+
+def _burgers_flux_y(u):
+    return (1 / 3) * u * u
+
+
+def _linear_advection_flux_x(u):
+    return _LINEAR_ADVECTION_CX * u
+
+
+def _linear_advection_flux_y(u):
+    return _LINEAR_ADVECTION_CY * u
+
+
+def _resolve_flux_2d(flux_name):
+    match flux_name:
+        case "burgers":
+            return _burgers_flux, _burgers_flux_y
+        case "buckley_leverett":
+            return _buckley_leverett_flux, _buckley_leverett_flux
+        case "linear_advection":
+            return _linear_advection_flux_x, _linear_advection_flux_y
+        case _:
+            raise NotImplementedError(f"Unknown flux_name: {flux_name!r}")
+
+
+class FiniteDifference2DDataset(Dataset):
+    def __init__(
+        self,
+        name,
+        pretty_name,
+        suites,
+        Nx,
+        dx,
+        Ny,
+        dy,
+        Nt,
+        dt,
+    ):
+        self._name = name
+        self._pretty_name = pretty_name
+        self._suites = suites
+        self.Nx = Nx
+        self.dx = dx
+        self.Ny = Ny
+        self.dy = dy
+        self.Nt = Nt
+        self.dt = dt
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return (
+            f"{self.pretty_name}: Nx = {self.Nx}, dx = {self.dx}, "
+            f"Ny = {self.Ny}, dy = {self.dy}, dt = {self.dt}."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+
+class _FiniteDifference2DGeneratorMixin(_FiniteDifferenceGeneratorMixin):
+    def generate(self, dataset: FiniteDifference2DDataset):
+        # Produce a gentle, sparse initial condition (small amplitudes)
+        density = 0.05
+        u_0 = np.zeros(dataset.Nx * dataset.Ny, dtype=float)
+        k = max(1, int(dataset.Nx * dataset.Ny * density))
+        rng = np.random.default_rng(0)
+        idx = rng.choice(dataset.Nx * dataset.Ny, size=k, replace=False)
+        # small random amplitudes to avoid nonlinear overflow
+        u_0[idx] = rng.random(k) * 0.5
+        # a modest central pulse, previously was 10 which caused instability
+        center = (dataset.Ny // 2) * dataset.Nx + (dataset.Nx // 2)
+        u_0[center] = max(u_0[center], 1.0)
+
+        inputs = [
+            u_0,
+            _lax_freidrichs_matrix_no_flux_2D(dataset.Nx, dataset.Ny),
+            _difference_matrix_x_direction(dataset.Nx, dataset.Ny),
+            _difference_matrix_y_direction(dataset.Nx, dataset.Ny),
+        ]
+
+        data = [_to_binsparse(item) for item in inputs]
+
+        meta = {
+            "timesteps": dataset.Nt,
+            "dt": dataset.dt,
+            "dx": dataset.dx,
+            "dy": dataset.dy,
+            "flux_name": self.flux_name,
+        }
+        return DataInstance(
+            inputs=data,
+            meta=meta,
+        )
+
+
+class FiniteDifference2DBurgersGenerator(
+    _FiniteDifference2DGeneratorMixin, Generator[FiniteDifference2DDataset]
+):
+    flux_name = "burgers"
+
+    @property
+    def name(self) -> str:
+        return "finite_difference_2d_burgers"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Finite Difference 2D Burgers"
+
+    @property
+    def datasets(self) -> list[FiniteDifference2DDataset]:
+        return [
+            FiniteDifference2DDataset(
+                name="small_scale",
+                pretty_name="Small Scale",
+                suites=["test"],
+                Nx=100,
+                dx=0.1,
+                Ny=100,
+                dy=0.1,
+                Nt=100,
+                dt=0.01,
+            ),
+            FiniteDifference2DDataset(
+                name="realistic_scale",
+                pretty_name="Realistic Scale",
+                suites=["standard", "trace"],
+                Nx=500,
+                dx=0.1,
+                Ny=500,
+                dy=0.1,
+                Nt=1000,
+                dt=0.01,
+            ),
+        ]
+
+
+class FiniteDifference2DBuckleyLeverettGenerator(
+    _FiniteDifference2DGeneratorMixin, Generator[FiniteDifference2DDataset]
+):
+    flux_name = "buckley_leverett"
+
+    @property
+    def name(self) -> str:
+        return "finite_difference_2d_buckley_leverett"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Finite Difference 2D Buckley-Leverett"
+
+    @property
+    def datasets(self) -> list[FiniteDifference2DDataset]:
+        return [
+            FiniteDifference2DDataset(
+                name="small_scale",
+                pretty_name="Small Scale",
+                suites=["test"],
+                Nx=100,
+                dx=0.1,
+                Ny=100,
+                dy=0.1,
+                Nt=100,
+                dt=0.01,
+            ),
+            FiniteDifference2DDataset(
+                name="realistic_scale",
+                pretty_name="Realistic Scale",
+                suites=["standard", "trace", "train"],
+                Nx=500,
+                dx=0.1,
+                Ny=500,
+                dy=0.1,
+                Nt=1000,
+                dt=0.01,
+            ),
+        ]
+
+
+class FiniteDifference2DLinearAdvectionGenerator(
+    _FiniteDifference2DGeneratorMixin, Generator[FiniteDifference2DDataset]
+):
+    flux_name = "linear_advection"
+
+    @property
+    def name(self) -> str:
+        return "finite_difference_2d_linear_advection"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Finite Difference 2D Linear Advection"
+
+    @property
+    def datasets(self) -> list[FiniteDifference2DDataset]:
+        return [
+            FiniteDifference2DDataset(
+                name="small_scale",
+                pretty_name="Small Scale",
+                suites=["test"],
+                Nx=100,
+                dx=0.1,
+                Ny=100,
+                dy=0.1,
+                Nt=100,
+                dt=0.01,
+            ),
+            FiniteDifference2DDataset(
+                name="realistic_scale",
+                pretty_name="Realistic Scale",
+                suites=["standard", "trace"],
+                Nx=500,
+                dx=0.1,
+                Ny=500,
+                dy=0.1,
+                Nt=1000,
+                dt=0.01,
+            ),
+        ]
+
+
+class FiniteDifference2DBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
+    @property
+    def name(self) -> str:
+        return "finite_difference_2d"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Finite Difference 2D"
+
+    @property
+    def generators(self):
+        return [
+            FiniteDifference2DBurgersGenerator(),
+            FiniteDifference2DBuckleyLeverettGenerator(),
+            FiniteDifference2DLinearAdvectionGenerator(),
+        ]
+
+    def benchmark(self, xp, meta: dict, u_0, matrix, diff_x, diff_y):
+        timesteps = meta["timesteps"]
+        dt = meta["dt"]
+        dx = meta["dx"]
+        dy = meta["dy"]
+        flux_name = meta["flux_name"]
+        match flux_name:
+            case "burgers":
+                pass
+            case "buckley_leverett":
+                pass
+            case "linear_advection":
+                pass
+            case _:
+                raise NotImplementedError(f"Unknown flux_name: {flux_name!r}")
+
+        alpha = dt / (2 * dx)
+        beta = dt / (2 * dy)
+
+        # Stack the history once to avoid rebuilding sparse arrays each step.
+        u = [u_0]
+        for _ in range(timesteps):
+            u_n = u[-1]
+            match flux_name:
+                case "burgers":
+                    fl_x = 0.5 * u_n * u_n
+                    fl_y = (1 / 3) * u_n * u_n
+                case "buckley_leverett":
+                    sq = u_n * u_n
+                    fl_x = sq / (sq + 0.25 * (1 - u_n) * (1 - u_n))
+                    sq = u_n * u_n
+                    fl_y = sq / (sq + 0.25 * (1 - u_n) * (1 - u_n))
+                case "linear_advection":
+                    fl_x = _LINEAR_ADVECTION_CX * u_n
+                    fl_y = _LINEAR_ADVECTION_CY * u_n
+            u_next = matrix @ u_n - alpha * (diff_x @ fl_x) - beta * (diff_y @ fl_y)
+            u.append(u_next)
+
+        return xp.stack(u, axis=0)
+
+    def check(self, param):
+        super().check(param)
+        result = _from_binsparse(self._output[0])
+        u0 = _from_binsparse(self._input[0])
+        dt = self._meta["dt"]
+        dx = self._meta["dx"]
+        dy = self._meta["dy"]
+        Nx = param.dataset.Nx
+        Ny = param.dataset.Ny
+        flux_x_fn, flux_y_fn = _resolve_flux_2d(self._meta["flux_name"])
+
+        assert np.allclose(result[0], u0, rtol=1e-12, atol=1e-12)
+
+        time_derivative = np.diff(result, axis=0) / dt
+        for timestep in range(time_derivative.shape[0]):
+            u_n = result[timestep]
+            u_grid = u_n.reshape(Ny, Nx)
+            flux_x = flux_x_fn(u_n).reshape(Ny, Nx)
+            flux_y = flux_y_fn(u_n).reshape(Ny, Nx)
+
+            neighbor_average = np.zeros_like(u_grid)
+            neighbor_average[:, 1:] += 0.25 * u_grid[:, :-1]
+            neighbor_average[:, :-1] += 0.25 * u_grid[:, 1:]
+            neighbor_average[1:, :] += 0.25 * u_grid[:-1, :]
+            neighbor_average[:-1, :] += 0.25 * u_grid[1:, :]
+
+            flux_difference_x = np.zeros_like(u_grid)
+            flux_difference_x[:, 1:] -= flux_x[:, :-1]
+            flux_difference_x[:, :-1] += flux_x[:, 1:]
+
+            flux_difference_y = np.zeros_like(u_grid)
+            flux_difference_y[1:, :] -= flux_y[:-1, :]
+            flux_difference_y[:-1, :] += flux_y[1:, :]
+
+            flux_derivative = flux_difference_x / (2 * dx) + flux_difference_y / (
+                2 * dy
+            )
+            smoothing_derivative = (neighbor_average - u_grid) / dt
+            assert np.allclose(
+                time_derivative[timestep],
+                (smoothing_derivative - flux_derivative).ravel(),
+                rtol=1e-12,
+                atol=1e-12,
+            ), f"{param.dataset.name} has an inconsistent discrete derivative"

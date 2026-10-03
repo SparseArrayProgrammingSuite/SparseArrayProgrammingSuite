@@ -7,7 +7,7 @@ import numpy as np
 from binsparse.conversions import from_numpy
 
 from frameworks.saps_numpy import NumpyFramework
-from saps.benchmarks.BFS import BreadthFirstSearchBenchmark
+from saps.benchmarks.bfs import BFSBenchmark
 
 
 @pytest.mark.parametrize("mode", [None, "0", "1"])
@@ -20,8 +20,8 @@ def test_teardown_checks_require_mode_and_dataset_suite(
         monkeypatch.delenv("SAPS_CHECK_SUITE", raising=False)
     else:
         monkeypatch.setenv("SAPS_CHECK_SUITE", mode)
-    benchmark = BreadthFirstSearchBenchmark()
-    param = next(p for p in benchmark.params if p.dataset.name == "test_bfs_basic")
+    benchmark = BFSBenchmark()
+    param = next(p for p in benchmark.params if p.dataset.name == "basic")
     param.dataset._suites = ["test"] if dataset_is_test else ["standard"]
     monkeypatch.setattr(
         type(param.generator),
@@ -43,8 +43,8 @@ def test_teardown_checks_require_mode_and_dataset_suite(
 
 def test_test_mode_still_rejects_incorrect_output(monkeypatch):
     monkeypatch.setenv("SAPS_CHECK_SUITE", "1")
-    benchmark = BreadthFirstSearchBenchmark()
-    param = next(p for p in benchmark.params if p.dataset.name == "test_bfs_basic")
+    benchmark = BFSBenchmark()
+    param = next(p for p in benchmark.params if p.dataset.name == "basic")
     benchmark.setup(param, use_cache=False, xp=NumpyFramework())
     benchmark.run(param)
     benchmark._output = [from_numpy(np.zeros(6, dtype=int))]

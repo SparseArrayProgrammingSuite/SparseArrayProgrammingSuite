@@ -65,6 +65,16 @@ def test_matmul_densifies_nonzero_fill(xp):
     np.testing.assert_array_equal(result, (np.eye(2) - 1.0) @ np.ones((2, 3)))
 
 
+def test_dense_matrix_times_sparse_vector(xp):
+    matrix = np.arange(6.0).reshape(2, 3)
+    vector = sp.COO([[0, 2]], [2.0, 3.0], shape=(3,))
+
+    result = xp.matmul(xp.asarray(matrix), xp.wrap(vector))
+
+    assert result.shape == (2,)
+    np.testing.assert_array_equal(result, matrix @ np.array([2.0, 0.0, 3.0]))
+
+
 @pytest.mark.parametrize("name", ["concat", "stack"])
 def test_concat_mixed_members(xp, name):
     dense = np.arange(4.0).reshape(2, 2)

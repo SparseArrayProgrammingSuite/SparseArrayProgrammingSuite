@@ -16,13 +16,13 @@ def test_ode_discovery_exposes_one_benchmark_per_method_and_problem():
         if issubclass(cls, Benchmark) and not inspect.isabstract(cls)
     ]
     expected_datasets = {
-        "rc": 1,
-        "rlc": 1,
-        "lotka_volterra": 1,
-        "brusselator": 2,
-        "slicot_ode": 10,
+        "ode_rc": 1,
+        "ode_rlc": 1,
+        "ode_lotka_volterra": 1,
+        "ode_brusselator": 2,
+        "ode_slicot": 10,
     }
-    methods = ("forward_euler", "backward_euler", "runge_kutta")
+    methods = ("forward_euler", "backward_euler", "rk4")
     assert {benchmark.name for benchmark in benchmarks} == {
         f"{method}_{problem}" for method in methods for problem in expected_datasets
     }
@@ -39,15 +39,15 @@ def test_ode_discovery_exposes_one_benchmark_per_method_and_problem():
 @pytest.mark.parametrize(
     ("benchmark_cls", "expected"),
     [
-        (ode.ForwardEulerSLICOT, 0.9),
-        (ode.BackwardEulerSLICOT, 1 / 1.1),
-        (ode.RungeKuttaSLICOT, 0.9048375),
+        (ode.ForwardEulerODESLICOTBenchmark, 0.9),
+        (ode.BackwardEulerODESLICOTBenchmark, 1 / 1.1),
+        (ode.RK4ODESLICOTBenchmark, 0.9048375),
     ],
 )
 def test_ode_methods_integrate_exponential_decay(benchmark_cls, expected):
     data = [np.array([[-1.0]]), np.zeros((1, 1))]
     meta = {
-        "problem_name": "slicot_ode",
+        "problem_name": "ode_slicot",
         "span": (0.0, 0.2),
         "y0": [1.0],
         "step": 0.1,
@@ -61,14 +61,19 @@ def test_ode_methods_integrate_exponential_decay(benchmark_cls, expected):
 
 
 @pytest.mark.parametrize(
-    "benchmark_cls", [ode.ForwardEulerRC, ode.BackwardEulerRC, ode.RungeKuttaRC]
+    "benchmark_cls",
+    [
+        ode.ForwardEulerODERCBenchmark,
+        ode.BackwardEulerODERCBenchmark,
+        ode.RK4ODERCBenchmark,
+    ],
 )
 def test_ode_setup_preserves_non_slicot_timestep(benchmark_cls):
-    generator = ode.RCGenerator()
+    generator = ode.ODERCGenerator()
     dataset = generator.datasets[0]
     benchmark = benchmark_cls()
 
     benchmark.setup(Param(generator, dataset), use_cache=False, xp=NumpyFramework())
 
     assert benchmark._meta["step"] == dataset.step
-    assert benchmark._meta["problem_name"] == "rc"
+    assert benchmark._meta["problem_name"] == "ode_rc"

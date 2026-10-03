@@ -66,20 +66,30 @@ def _statistics_tags(
     return tags
 
 
-def _record_tags(
-    record: dict[str, Any],
-    statistics_records: dict[tuple[str, ...], list[dict[str, Any]]],
-    key: tuple[str, ...],
-    inherited: Iterable[str] = (),
-    *,
-    freshness: str | None = None,
-) -> list[str]:
+def _benchmark_statistics_tags(
+    records: dict[tuple[str, ...], list[dict[str, Any]]],
+    benchmark: dict[str, Any],
+) -> set[str]:
+    benchmark_key = (benchmark["name"],)
+    tags = _statistics_tags(records, benchmark_key)
+    for generator in benchmark["generators"]:
+        generator_key = (*benchmark_key, generator["name"])
+        tags |= _statistics_tags(records, generator_key)
+        for dataset in generator["datasets"]:
+            tags |= _statistics_tags(
+                records,
+                (*generator_key, dataset["name"]),
+                freshness=dataset["freshness"],
+            )
+    return tags
+
+
+def _record_tags(record: dict[str, Any], inherited: Iterable[str] = ()) -> list[str]:
     return sorted(
         {
             *inherited,
             *(f"{SUITE_TAG_PREFIX}{suite}" for suite in record.get("suites", [])),
             *record.get("topics", []),
-            *_statistics_tags(statistics_records, key, freshness=freshness),
         }
     )
 
@@ -100,26 +110,19 @@ def metadata_document(statistics_paths: Iterable[Path] = ()) -> dict[str, Any]:
         source_generators = {
             generator.name: generator for generator in benchmark.generators
         }
-        record["tags"] = _record_tags(record, statistics, (benchmark_name,))
+        # Statistics tags describe the benchmark as a whole, so every fresh
+        # trace of any of its datasets tags the benchmark and all its children.
+        record["tags"] = _record_tags(
+            record, _benchmark_statistics_tags(statistics, record)
+        )
 
         for generator in record["generators"]:
             generator_name = generator["name"]
             generator["cacheable"] = source_generators[generator_name].cacheable
-            generator["tags"] = _record_tags(
-                generator,
-                statistics,
-                (benchmark_name, generator_name),
-                record["tags"],
-            )
+            generator["tags"] = _record_tags(generator, record["tags"])
             for dataset in generator["datasets"]:
                 dataset["asv_param"] = f"{generator_name}.{dataset['name']}"
-                dataset["tags"] = _record_tags(
-                    dataset,
-                    statistics,
-                    (benchmark_name, generator_name, dataset["name"]),
-                    generator["tags"],
-                    freshness=dataset["freshness"],
-                )
+                dataset["tags"] = _record_tags(dataset, generator["tags"])
 
         records.setdefault(_record_key(record), record)
 

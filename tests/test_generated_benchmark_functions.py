@@ -7,10 +7,12 @@ import numpy as np
 from binsparse.conversions import to_numpy
 
 from frameworks.saps_numpy import NumpyFramework
-from saps.benchmarks.model_counting import ModelCounting
-from saps.benchmarks.spmv import MatrixVectorBenchmark
-from saps.benchmarks.subgraph_matching import SubgraphMatching
-from saps.benchmarks.weighted_model_counting import WeightedModelCounting
+from saps.benchmarks.matrix_vector_multiplication import (
+    MatrixVectorMultiplicationBenchmark,
+)
+from saps.benchmarks.model_counting import ModelCountingBenchmark
+from saps.benchmarks.subgraph_matching import SubgraphMatchingBenchmark
+from saps.benchmarks.weighted_model_counting import WeightedModelCountingBenchmark
 from saps.codegen import (
     constant_function_source,
     define_function,
@@ -32,7 +34,7 @@ def _generated(benchmark, dataset_name):
 
 
 def test_default_generator_passes_benchmark_method_through():
-    benchmark = MatrixVectorBenchmark()
+    benchmark = MatrixVectorMultiplicationBenchmark()
     param = _param(benchmark, "small")
     problem = param.generator.generate(param.dataset)
     function = param.generator.generate_benchmark_function(
@@ -44,9 +46,9 @@ def test_default_generator_passes_benchmark_method_through():
 @pytest.mark.parametrize(
     ("benchmark_cls", "dataset_name", "expected_params"),
     [
-        (SubgraphMatching, "a_to_b", ["VA", "E0", "VB"]),
-        (WeightedModelCounting, "test_1", ["B", "W1", "W2"]),
-        (ModelCounting, "test_1", ["B"]),
+        (SubgraphMatchingBenchmark, "a_to_b", ["VA", "E0", "VB"]),
+        (WeightedModelCountingBenchmark, "satisfiable", ["B", "W1", "W2"]),
+        (ModelCountingBenchmark, "standard_sat", ["B"]),
     ],
 )
 def test_generator_builds_fixed_arity_function(
@@ -66,10 +68,10 @@ def test_generator_builds_fixed_arity_function(
 @pytest.mark.parametrize(
     ("benchmark_cls", "dataset_name"),
     [
-        (SubgraphMatching, "a_to_b"),
-        (WeightedModelCounting, "test_1"),
-        (WeightedModelCounting, "test_3"),  # no clauses: constant total
-        (ModelCounting, "test_1"),
+        (SubgraphMatchingBenchmark, "a_to_b"),
+        (WeightedModelCountingBenchmark, "satisfiable"),
+        (WeightedModelCountingBenchmark, "no_clauses"),  # no clauses: constant total
+        (ModelCountingBenchmark, "standard_sat"),
     ],
 )
 def test_generated_function_runs_through_setup(benchmark_cls, dataset_name):

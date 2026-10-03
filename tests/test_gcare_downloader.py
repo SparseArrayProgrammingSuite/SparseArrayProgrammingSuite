@@ -13,9 +13,9 @@ from binsparse.conversions import to_sparse
 from saps.benchmark import DataInstance, Generator
 from saps.benchmarks import subgraph_matching
 from saps.benchmarks.subgraph_matching import (
-    GCareDataset,
-    GCareGraphGenerator,
-    GCareHumanGenerator,
+    GCAREGraphGenerator,
+    SubgraphMatchingGCAREDataset,
+    SubgraphMatchingGCAREHumanGenerator,
 )
 from saps.downloaders import gcare
 from saps.storage import LocalStorageBackend
@@ -42,7 +42,7 @@ def test_gcare_cached_graph_contains_everything_for_query_setup(monkeypatch, tmp
         tmp_path / "remote", tmp_path / "manifest.json", cache
     )
     monkeypatch.setattr(Generator, "backend", property(lambda _: backend))
-    raw_generator = GCareGraphGenerator()
+    raw_generator = GCAREGraphGenerator()
     dataset = raw_generator.datasets[0]
     assert backend.upload_dataset(raw_generator, dataset)
     download.assert_called_once_with(root)
@@ -50,7 +50,7 @@ def test_gcare_cached_graph_contains_everything_for_query_setup(monkeypatch, tmp
     shutil.rmtree(root)
     download.side_effect = AssertionError("download")
     monkeypatch.setattr(
-        GCareGraphGenerator,
+        GCAREGraphGenerator,
         "generate",
         Mock(side_effect=AssertionError("regeneration")),
     )
@@ -63,7 +63,7 @@ def test_gcare_cached_graph_contains_everything_for_query_setup(monkeypatch, tmp
     monkeypatch.setattr(
         gcare, "_parse_query", Mock(side_effect=AssertionError("parse"))
     )
-    query_generator = GCareHumanGenerator()
+    query_generator = SubgraphMatchingGCAREHumanGenerator()
     problem = query_generator.generate(query_generator.datasets[0])
 
     assert problem.meta["gt"] == 1
@@ -75,7 +75,9 @@ def test_gcare_cached_graph_contains_everything_for_query_setup(monkeypatch, tmp
     np.testing.assert_array_equal(to_sparse(matrices["P0"]).todense(), [1, 0, 0])
     np.testing.assert_array_equal(to_sparse(matrices["C"]).todense(), [1, 0, 1])
     assert to_sparse(matrices["E2"])[0, 2] == 1
-    missing = query_generator.generate(GCareDataset("human", "Star_3/missing_label"))
+    missing = query_generator.generate(
+        SubgraphMatchingGCAREDataset("human", "Star_3/missing_label")
+    )
     matrices = dict(zip(missing.meta["matrix_names"], missing.inputs, strict=True))
     assert not np.any(to_sparse(matrices["V99"]).todense())
     assert not np.any(to_sparse(matrices["E99"]).todense())
@@ -89,7 +91,7 @@ def test_gcare_shell_passes_loader_metadata_through_without_file_io(
     monkeypatch.setattr(
         subgraph_matching, "load_gcare_graph", Mock(return_value=([], metadata))
     )
-    generator = GCareGraphGenerator()
+    generator = GCAREGraphGenerator()
     generator._backend = SimpleNamespace(cache_dir=tmp_path / "cache")
     for name in ("rglob", "open", "read_text"):
         monkeypatch.setattr(Path, name, Mock(side_effect=AssertionError("file I/O")))
@@ -113,12 +115,14 @@ def test_gcare_incomplete_cache_fails_without_downloading(
     download = Mock(side_effect=AssertionError("download"))
     monkeypatch.setattr(subgraph_matching, "load_gcare_graph", download)
     monkeypatch.setattr(
-        GCareGraphGenerator,
+        GCAREGraphGenerator,
         "cached_generate",
         Mock(return_value=DataInstance(inputs=[], meta=metadata)),
     )
 
     with pytest.raises(exception, match=message):
-        GCareHumanGenerator().generate(GCareDataset("human", "missing"))
+        SubgraphMatchingGCAREHumanGenerator().generate(
+            SubgraphMatchingGCAREDataset("human", "missing")
+        )
 
     download.assert_not_called()

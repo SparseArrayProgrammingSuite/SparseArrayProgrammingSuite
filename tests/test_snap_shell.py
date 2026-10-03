@@ -10,11 +10,17 @@ import numpy as np
 from binsparse.conversions import to_numpy, to_scipy, to_sparse
 
 from saps.benchmark import Generator
+from saps.benchmarks.bfs import (
+    BFSDataset,
+    BFSSNAPGenerator,
+)
 from saps.benchmarks.snap import (
-    SNAPGraphBenchmark,
+    _MAX_DEGREES,
+    NUM_SNAP_SOURCES,
     SNAPGraphGenerator,
-    SNAPSourceDataset,
+    SNAPGraphShellBenchmark,
     fetch_snap_graph,
+    seeded_source_vertices,
     select_source_vertices,
 )
 from saps.benchmarks.suitesparse import (
@@ -26,17 +32,36 @@ from saps.metadata import _benchmark_instances
 from saps.storage import LocalStorageBackend
 
 _CONSUMERS = [
-    ("BFS", "BreadthFirstSearchSNAPGenerator"),
-    ("bellmanford", "BellmanFordSNAPGenerator"),
-    ("centrality", "BetweennessCentralitySNAPGenerator"),
+    ("bfs", "BFSSNAPGenerator"),
+    ("bellman_ford", "BellmanFordSNAPGenerator"),
+    ("betweenness_centrality", "BetweennessCentralitySNAPGenerator"),
     ("connected_components", "ConnectedComponentsSNAPGenerator"),
     ("fastsv", "FastSVSNAPGenerator"),
-    ("four_clique_counting", "FourCliqueCountSNAPGenerator"),
+    ("four_clique_counting", "FourCliqueCountingSNAPGenerator"),
     ("pagerank", "PageRankSNAPGenerator"),
     ("transitive_closure", "TransitiveClosureSNAPGenerator"),
-    ("triangle_counting", "TriangleCountSNAPGenerator"),
+    ("floyd_warshall", "FloydWarshallSNAPGenerator"),
+    ("triangle_counting", "TriangleCountingSNAPGenerator"),
     ("transitive_reduction", "TransitiveReductionSNAPGenerator"),
+    ("mssp", "MSSPSNAPGenerator"),
+    ("msbfs", "MSBFSSNAPGenerator"),
+    ("mcl", "MCLSNAPGenerator"),
 ]
+_MULTI_SOURCE = {"mssp", "msbfs"}
+
+
+def _seeded_sources(graph):
+    """Source k of a SNAP shell graph: the first draw of seed k."""
+    return [
+        int(select_source_vertices(graph, seed=seed)[0])
+        for seed in range(NUM_SNAP_SOURCES)
+    ]
+
+
+def test_snap_max_degrees_cover_exactly_the_declared_graphs():
+    datasets = SNAPGraphGenerator().datasets
+    assert set(_MAX_DEGREES) == {d.source_name for d in datasets}
+    assert all(d.max_degree == _MAX_DEGREES[d.source_name] > 0 for d in datasets)
 
 
 def test_snap_shell_inventory_covers_consumers():
@@ -58,7 +83,7 @@ def test_snap_shell_inventory_covers_consumers():
         }
         & declared
     )
-    assert SNAPGraphBenchmark().name == "snap_graph_shell"
+    assert SNAPGraphShellBenchmark().name == "snap_graph_shell"
     assert not generator.cacheable
     consumed = set()
     for benchmark in _benchmark_instances():
@@ -68,15 +93,13 @@ def test_snap_shell_inventory_covers_consumers():
                     type(consumer).__name__.endswith("SNAPGenerator")
                     or consumer.name == "snap_graph"
                 ):
-                    graph = (
-                        dataset.graph
-                        if isinstance(dataset, SNAPSourceDataset)
-                        else dataset
+                    name = getattr(dataset, "source_name", dataset.name).removeprefix(
+                        "SNAP/"
                     )
-                    assert graph.name in declared
+                    assert name in declared
                     if consumer.name != generator.name:
                         assert not consumer.cacheable
-                        consumed.add(graph.name)
+                        consumed.add(name)
     assert consumed <= declared
     assert consumed == declared
 
@@ -115,7 +138,10 @@ def test_snap_shell_preserves_suitesparse_matrix_and_discards_extras(
         to_scipy(problem.inputs[0]).toarray(),
         [[0, -2, 0, 0], [-2, 0, 0, 3], [0, 0, 0, 0], [0, 3, 0, 0]],
     )
-    assert problem.meta == {}
+    assert problem.meta == {
+        "max_degree": _MAX_DEGREES[f"SNAP/{name}"],
+        "sources": _seeded_sources(problem.inputs[0]),
+    }
     assert problem.ref_outputs is None
     assert problem.ref_meta is None
     # Dropping the extras for graph benchmarks leaves the shared source intact.
@@ -138,9 +164,7 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
     consumer = getattr(module, class_name)()
     dataset = consumer.datasets[0]
     shell = SuiteSparseMatrixGenerator()
-    slug = (
-        dataset.graph.name if isinstance(dataset, SNAPSourceDataset) else dataset.name
-    )
+    slug = getattr(dataset, "source_name", dataset.name).removeprefix("SNAP/")
     source = next(d for d in shell.datasets if d.source_name == f"SNAP/{slug}")
     path = backend.cache_dir / "suitesparse" / "SNAP" / slug / f"{slug}.mtx"
     path.parent.mkdir(parents=True)
@@ -166,15 +190,27 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
     manifest = backend.manifest_path.read_bytes()
 
     problem = consumer.cached_generate(dataset)
-    assert len(problem.inputs) == 1
-    if isinstance(dataset, SNAPSourceDataset):
+    assert len(problem.inputs) == (2 if module_name in _MULTI_SOURCE else 1)
+    if getattr(dataset, "source_seed", None) is not None:
         assert problem.meta["seed"] == 0
         assert problem.meta["src"] == int(
             select_source_vertices(fetch_snap_graph(slug).inputs[0], seed=0)[0]
         )
-    else:
+    elif module_name in _MULTI_SOURCE:
+        assert problem.meta == {
+            "sources": sorted(set(_seeded_sources(fetch_snap_graph(slug).inputs[0])))
+        }
+    elif module_name == "mcl":
         assert problem.meta == {}
-    if module_name == "bellmanford":
+    else:
+        expected_meta = {
+            "max_degree": _MAX_DEGREES[f"SNAP/{slug}"],
+            "sources": _seeded_sources(fetch_snap_graph(slug).inputs[0]),
+        }
+        if module_name in {"transitive_closure", "floyd_warshall"}:
+            expected_meta["max_squarings"] = 0
+        assert problem.meta == expected_meta
+    if module_name in {"bellman_ford", "mssp", "floyd_warshall"}:
         expected = np.array([[0, 1, np.inf], [np.inf, 0, 1], [np.inf, np.inf, 0]])
         np.testing.assert_array_equal(to_sparse(problem.inputs[0]).todense(), expected)
         assert problem.inputs[0].fill_value == np.inf
@@ -192,17 +228,17 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
     # Subsequent users read the local shared shell object, not per-consumer caches.
     raw = fetch_snap_graph(slug)
     assert to_scipy(raw.inputs[0]).toarray()[2, 2] == 1
-    if isinstance(dataset, SNAPSourceDataset):
-        seeded = [d for d in consumer.datasets if d.graph.name == slug]
-        assert [d.seed for d in seeded] == list(range(10))
+    if getattr(dataset, "source_seed", None) is not None:
+        seeded = [d for d in consumer.datasets if d.source_name == slug]
+        assert [d.source_seed for d in seeded] == list(range(10))
         from scipy.sparse.csgraph import shortest_path
 
         from frameworks.saps_numpy import NumpyFramework
 
         xp = NumpyFramework()
         benchmark = (
-            module.BreadthFirstSearchBenchmark()
-            if module_name == "BFS"
+            module.BFSBenchmark()
+            if module_name == "bfs"
             else module.BellmanFordBenchmark()
         )
         for variant in seeded:
@@ -215,7 +251,7 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
             )
             expected_output = (
                 np.where(np.isfinite(distances), distances + 1, 0)
-                if module_name == "BFS"
+                if module_name == "bfs"
                 else distances
             )
             output = benchmark.benchmark(
@@ -223,10 +259,13 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
             )
             np.testing.assert_array_equal(output, expected_output)
             assert actual.meta["src"] == int(
-                select_source_vertices(raw.inputs[0], seed=variant.seed)[0]
+                select_source_vertices(raw.inputs[0], seed=variant.source_seed)[0]
             )
     assert len(raw.inputs) == 1
-    assert raw.meta == {}
+    assert raw.meta == {
+        "max_degree": _MAX_DEGREES[f"SNAP/{slug}"],
+        "sources": _seeded_sources(raw.inputs[0]),
+    }
     download.assert_called_once()
     assert download.call_args.args[0].startswith(f"suitesparse_matrix/SNAP/{slug}/")
     forbidden.assert_not_called()
@@ -244,9 +283,9 @@ def test_each_gap_graph_problem_has_an_explicit_snap_generator():
         snap = [g for g in generators if type(g).__name__.endswith("SNAPGenerator")]
         assert len(snap) == 1, benchmark.name
         assert "SNAP" in snap[0].pretty_name
-        assert snap[0].name.endswith("_snap_inputs")
+        assert snap[0].name.endswith("_snap")
         assert not snap[0].cacheable
-    assert len(problems) == 10
+    assert len(problems) == 14
 
 
 def test_snap_transitive_reduction_removes_redundant_edge(monkeypatch):
@@ -282,6 +321,7 @@ def test_snap_catalog_metadata_and_group_concepts():
     for dataset in datasets:
         metadata = dataset.metadata
         assert metadata["source_name"] == f"SNAP/{dataset.name}"
+        assert metadata["max_degree"] == _MAX_DEGREES[dataset.source_name]
         assert metadata["types"] == dataset.types
         assert metadata["description"] == dataset.description
         assert metadata["nodes"] == dataset.nodes
@@ -368,8 +408,8 @@ def test_source_selection_rejects_invalid_inputs(shape, values, count, message):
 @pytest.mark.parametrize(
     ("module_name", "test_class", "benchmark_class"),
     [
-        ("BFS", "BreadthFirstSearchTestGenerator", "BreadthFirstSearchBenchmark"),
-        ("bellmanford", "BellmanFordTestGenerator", "BellmanFordBenchmark"),
+        ("bfs", "BFSTestGenerator", "BFSBenchmark"),
+        ("bellman_ford", "BellmanFordTestGenerator", "BellmanFordBenchmark"),
     ],
 )
 @pytest.mark.parametrize("seed", range(10))
@@ -392,7 +432,7 @@ def test_seeded_source_test_suite_problems(
     )
     expected = (
         {1: [0, 1, 2, 3], 2: [0, 0, 1, 2]}
-        if module_name == "BFS"
+        if module_name == "bfs"
         else {1: [np.inf, 0, 1, 2], 2: [np.inf, np.inf, 0, 1]}
     )[src]
     np.testing.assert_array_equal(result, expected)
@@ -400,14 +440,120 @@ def test_seeded_source_test_suite_problems(
 
 
 def test_all_snap_sources_have_ten_seeded_cases():
-    from saps.benchmarks.bellmanford import BellmanFordSNAPGenerator
-    from saps.benchmarks.BFS import BreadthFirstSearchSNAPGenerator
+    from saps.benchmarks.bellman_ford import BellmanFordSNAPGenerator
+    from saps.benchmarks.bfs import BFSSNAPGenerator
 
     graphs = SNAPGraphGenerator().datasets
-    for generator in (BreadthFirstSearchSNAPGenerator(), BellmanFordSNAPGenerator()):
+    for generator in (BFSSNAPGenerator(), BellmanFordSNAPGenerator()):
         datasets = generator.datasets
         assert len(datasets) == len({d.name for d in datasets}) == len(graphs) * 10
-        assert {(d.graph.name, d.seed) for d in datasets} == {
+        assert {(d.source_name, d.source_seed) for d in datasets} == {
             (g.name, seed) for g in graphs for seed in range(10)
         }
-        assert all(d.metadata["seed"] == d.seed for d in datasets)
+        assert all("standard" in d.suites for d in datasets)
+
+
+def test_snap_with_suites_does_not_mutate_shared_graphs():
+    graph = SNAPGraphGenerator().datasets[0]
+    selected = graph.with_suites(["standard", "trace"])
+    assert selected.suites == ["standard", "trace"]
+    assert graph.suites == []
+    assert all(dataset.suites == [] for dataset in SNAPGraphGenerator().datasets)
+    selected.suites.append("test")
+    assert graph.with_suites(["standard", "trace"]).suites == ["standard", "trace"]
+
+
+def test_snap_source_trace_selection_is_seed_specific():
+    graph = SNAPGraphGenerator().datasets[0]
+    selected = BFSDataset(
+        "selected", source_name=graph.name, source_seed=0, suites=["trace"]
+    )
+    other = BFSDataset("other", source_name=graph.name, source_seed=1)
+    assert selected.suites == ["trace"]
+    assert other.suites == []
+    assert graph.suites == []
+
+
+@pytest.mark.parametrize("seed", range(5))
+def test_seeded_sources_match_one_selection_per_seed(seed):
+    from scipy.sparse import random as sparse_random
+
+    from binsparse.conversions import from_scipy
+
+    graph = from_scipy(
+        sparse_random(50, 50, density=0.05, format="coo", random_state=seed)
+    )
+    assert seeded_source_vertices(graph, 20) == [
+        int(select_source_vertices(graph, seed=k)[0]) for k in range(20)
+    ]
+
+
+@pytest.mark.parametrize("seed", [-1, NUM_SNAP_SOURCES])
+def test_snap_generator_rejects_seeds_without_a_source(monkeypatch, seed):
+    from saps.benchmark import DataInstance
+    from saps.benchmarks import bfs
+
+    raw = DataInstance(
+        inputs=[object()], meta={"sources": list(range(NUM_SNAP_SOURCES))}
+    )
+    monkeypatch.setattr(bfs, "fetch_snap_graph", lambda _: raw)
+    dataset = BFSDataset("invalid", source_name="soc-Epinions1", source_seed=seed)
+    with pytest.raises(ValueError, match="Source seed"):
+        BFSSNAPGenerator().generate(dataset)
+
+
+def test_snap_source_graph_picks_source_from_shell_sources(monkeypatch):
+    from scipy.sparse import coo_array
+
+    from binsparse.conversions import from_scipy
+
+    from saps.benchmark import DataInstance
+    from saps.benchmarks import bfs
+
+    sources = list(range(100, 100 + NUM_SNAP_SOURCES))
+    adjacency = from_scipy(coo_array([[0, 1], [0, 0]]))
+    raw = DataInstance(inputs=[adjacency], meta={"max_degree": 3, "sources": sources})
+    monkeypatch.setattr(bfs, "fetch_snap_graph", lambda _: raw)
+    dataset = BFSDataset("seed-seven", source_name="soc-Epinions1", source_seed=7)
+    problem = BFSSNAPGenerator().generate(dataset)
+    assert problem.meta == {**raw.meta, "src": 107, "seed": 7}
+    assert raw.meta == {"max_degree": 3, "sources": sources}
+
+
+def test_multi_source_snap_problems_use_deduplicated_shell_sources(monkeypatch):
+    from scipy.sparse import coo_array
+
+    from binsparse.conversions import from_scipy
+
+    from saps.benchmark import DataInstance
+    from saps.benchmarks import mssp
+
+    adjacency = from_scipy(coo_array([[0, 1, 0], [0, 0, 1], [1, 0, 0]]))
+    raw = DataInstance(inputs=[adjacency], meta={"sources": [2, 0, 2, 0, 1]})
+    monkeypatch.setattr(mssp, "fetch_snap_graph", lambda _: raw)
+    generator = mssp.MSSPSNAPGenerator()
+    problem = generator.generate(generator.datasets[0])
+    assert problem.meta == {"sources": [0, 1, 2]}
+    assert problem.inputs[1].shape == (3, 3)
+
+
+def test_msbfs_snap_problems_use_deduplicated_shell_sources_and_edge_pattern(
+    monkeypatch,
+):
+    from scipy.sparse import coo_array
+
+    from binsparse.conversions import from_scipy
+
+    from saps.benchmark import DataInstance
+    from saps.benchmarks import msbfs
+
+    adjacency = from_scipy(coo_array([[0, 2, 0], [0, 0, -1], [1, 0, 0]]))
+    raw = DataInstance(inputs=[adjacency], meta={"sources": [2, 0, 2, 0, 1]})
+    monkeypatch.setattr(msbfs, "fetch_snap_graph", lambda _: raw)
+    generator = msbfs.MSBFSSNAPGenerator()
+    problem = generator.generate(generator.datasets[0])
+    assert problem.meta == {"sources": [0, 1, 2]}
+    edges = to_sparse(problem.inputs[0]).todense()
+    assert edges.dtype == bool
+    np.testing.assert_array_equal(edges, [[0, 1, 0], [0, 0, 1], [1, 0, 0]])
+    np.testing.assert_array_equal(to_sparse(problem.inputs[1]).todense(), np.eye(3))

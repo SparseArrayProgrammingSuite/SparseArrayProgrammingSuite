@@ -1,0 +1,1020 @@
+from typing import Any
+
+import numpy as np
+
+from binsparse import BinsparseTensor, CustomTensor, ElementLevel, SparseLevel
+from binsparse.conversions import from_numpy, to_numpy
+
+from saps.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    Ref,
+)
+from saps.benchmarks.frostt import fetch_frostt_tensor, frostt_tensor_shape
+
+
+def _random_initial_factors(shape, ranks, seed=0):
+    """Build reproducible orthonormal factors without unfolding the input tensor."""
+    rng = np.random.default_rng(seed)
+    factors = []
+    for size, rank in zip(shape, ranks, strict=True):
+        factor, _ = np.linalg.qr(rng.standard_normal((size, rank)), mode="reduced")
+        factors.append(from_numpy(factor))
+    return factors
+
+
+class HOSVDDataset(Dataset):
+    def __init__(
+        self,
+        name: str,
+        pretty_name: str,
+        description: str,
+        suites: list[str],
+        shape: tuple[int, ...],
+        ranks: tuple[int, ...],
+        seed: int = 42,
+    ):
+        self._name = name
+        self._pretty_name = pretty_name
+        self._description = description
+        self._suites = suites
+        self.shape = shape
+        self.n = len(shape)
+        self.ranks = ranks
+        self.seed = seed
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        data = super().metadata
+        data["shape"] = self.shape
+        data["n"] = self.n
+        data["ranks"] = self.ranks
+        data["seed"] = self.seed
+        return data
+
+
+class HOSVDDenseGenerator(Generator[HOSVDDataset]):
+    def __init__(self, n: int | None = None):
+        self.n = n
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def name(self) -> str:
+        return "hosvd_dense"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Higher-Order Singular Value Decomposition (HOSVD) Dense"
+
+    @property
+    def description(self) -> str:
+        return "Generates dense low-rank tensors using random factor matrices."
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Aadharsh Rajkumar", "arajkumar34@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return HOSVD3DBenchmark().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return HOSVD3DBenchmark().ai_disclosure
+
+    @property
+    def motivation(self) -> str:
+        return (
+            "The data for this benchmark was created by randomly generating "
+            "factor matrices that were both sparse and dense. These factor "
+            "matrices were used to construct a factorizable matrix."
+        )
+
+    @property
+    def datasets(self) -> list[HOSVDDataset]:
+        datasets = [
+            HOSVDDataset(
+                "small_3d",
+                "Small 3D",
+                "Dense low-rank 3D tensor using random factor matrices.",
+                ["test"],
+                (10, 10, 10),
+                (3, 3, 3),
+            ),
+            HOSVDDataset(
+                "small_4d",
+                "Small 4D",
+                "Dense low-rank 4D tensor using random factor matrices.",
+                ["test"],
+                (10, 10, 10, 10),
+                (3, 3, 3, 3),
+            ),
+            HOSVDDataset(
+                "small_5d",
+                "Small 5D",
+                "Dense low-rank 5D tensor using random factor matrices.",
+                ["test"],
+                (10, 10, 10, 10, 10),
+                (3, 3, 3, 3, 3),
+            ),
+        ]
+
+        return [
+            dataset for dataset in datasets if self.n is None or dataset.n == self.n
+        ]
+
+    def generate(self, dataset: HOSVDDataset):
+        ranks = dataset.ranks
+        rng = np.random.default_rng(dataset.seed)
+
+        match dataset.n:
+            case 3:
+                dim1, dim2, dim3 = dataset.shape
+
+                G = rng.random(ranks).astype(np.float64)
+                A = rng.random((dim1, ranks[0])).astype(np.float64)
+                B = rng.random((dim2, ranks[1])).astype(np.float64)
+                C = rng.random((dim3, ranks[2])).astype(np.float64)
+
+                X_dense = np.einsum("pqr,ip,jq,kr->ijk", G, A, B, C)
+
+            case 4:
+                dim1, dim2, dim3, dim4 = dataset.shape
+
+                G = rng.random(ranks).astype(np.float64)
+                A = rng.random((dim1, ranks[0])).astype(np.float64)
+                B = rng.random((dim2, ranks[1])).astype(np.float64)
+                C = rng.random((dim3, ranks[2])).astype(np.float64)
+                D = rng.random((dim4, ranks[3])).astype(np.float64)
+
+                X_dense = np.einsum("pqrs,ip,jq,kr,ls->ijkl", G, A, B, C, D)
+
+            case 5:
+                dim1, dim2, dim3, dim4, dim5 = dataset.shape
+
+                G = rng.random(ranks).astype(np.float64)
+                A = rng.random((dim1, ranks[0])).astype(np.float64)
+                B = rng.random((dim2, ranks[1])).astype(np.float64)
+                C = rng.random((dim3, ranks[2])).astype(np.float64)
+                D = rng.random((dim4, ranks[3])).astype(np.float64)
+                E = rng.random((dim5, ranks[4])).astype(np.float64)
+
+                X_dense = np.einsum("pqrst,ip,jq,kr,ls,mt->ijklm", G, A, B, C, D, E)
+
+            case _:
+                raise ValueError(f"unsupported HOSVD tensor order {dataset.n}")
+
+        X_bin = from_numpy(X_dense)
+        ranks_bin = from_numpy(np.array(ranks))
+        initial_factors = _random_initial_factors(dataset.shape, ranks)
+        return DataInstance(
+            inputs=[X_bin, ranks_bin, *initial_factors],
+            meta={"n": dataset.n, "max_iter": 50, "tolerance": 1e-8},
+        )
+
+
+class HOSVDSparseGenerator(Generator[HOSVDDataset]):
+    def __init__(self, n: int | None = None):
+        self.n = n
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def name(self) -> str:
+        return "hosvd_sparse"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Higher-Order Singular Value Decomposition (HOSVD) Sparse"
+
+    @property
+    def description(self) -> str:
+        return "Generates sparse low-rank tensors using random factor matrices."
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Aadharsh Rajkumar", "arajkumar34@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return HOSVD3DBenchmark().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return HOSVD3DBenchmark().ai_disclosure
+
+    @property
+    def motivation(self) -> str:
+        return (
+            "The data for this benchmark was created by randomly generating "
+            "factor matrices that were both sparse and dense. These factor "
+            "matrices were used to construct a factorizable matrix."
+        )
+
+    @property
+    def datasets(self) -> list[HOSVDDataset]:
+        datasets = [
+            HOSVDDataset(
+                "small_3d",
+                "Small 3D",
+                "Sparse low-rank 3D tensor using random factor matrices.",
+                [],
+                (20, 20, 20),
+                (3, 3, 3),
+            ),
+            HOSVDDataset(
+                "small_4d",
+                "Small 4D",
+                "Sparse low-rank 4D tensor using random factor matrices.",
+                [],
+                (20, 20, 20, 20),
+                (3, 3, 3, 3),
+            ),
+            HOSVDDataset(
+                "small_5d",
+                "Small 5D",
+                "Sparse low-rank 5D tensor using random factor matrices.",
+                [],
+                (10, 10, 10, 10, 10),
+                (3, 3, 3, 3, 3),
+            ),
+        ]
+
+        return [
+            dataset for dataset in datasets if self.n is None or dataset.n == self.n
+        ]
+
+    def generate(self, dataset: HOSVDDataset):
+        ranks = dataset.ranks
+        rng = np.random.default_rng(dataset.seed)
+
+        def get_sparse_factor(rows, cols, density=0.2):
+            nnz = int(rows * cols * density)
+            if nnz < 1:
+                nnz = 1
+            indices = rng.choice(rows * cols, nnz, replace=False)
+            mat = np.zeros(rows * cols)
+            mat[indices] = rng.random(nnz)
+            return mat.reshape((rows, cols)).astype(np.float64)
+
+        match dataset.n:
+            case 3:
+                dim1, dim2, dim3 = dataset.shape
+
+                G = get_sparse_factor(
+                    ranks[0], ranks[1] * ranks[2], density=0.5
+                ).reshape(ranks)
+                A = get_sparse_factor(dim1, ranks[0], density=0.2)
+                B = get_sparse_factor(dim2, ranks[1], density=0.2)
+                C = get_sparse_factor(dim3, ranks[2], density=0.2)
+
+                X_dense = np.einsum("pqr,ip,jq,kr->ijk", G, A, B, C)
+
+                indices = np.nonzero(X_dense)
+                values = X_dense[indices]
+
+                X_bin = CustomTensor(
+                    (dim1, dim2, dim3),
+                    len(values),
+                    level=SparseLevel(3, ElementLevel(values), indices),
+                )
+
+            case 4:
+                dim1, dim2, dim3, dim4 = dataset.shape
+
+                G = get_sparse_factor(
+                    ranks[0], ranks[1] * ranks[2] * ranks[3], density=0.5
+                ).reshape(ranks)
+                A = get_sparse_factor(dim1, ranks[0], density=0.2)
+                B = get_sparse_factor(dim2, ranks[1], density=0.2)
+                C = get_sparse_factor(dim3, ranks[2], density=0.2)
+                D = get_sparse_factor(dim4, ranks[3], density=0.2)
+
+                X_dense = np.einsum("pqrs,ip,jq,kr,ls->ijkl", G, A, B, C, D)
+
+                indices = np.nonzero(X_dense)
+                values = X_dense[indices]
+
+                X_bin = CustomTensor(
+                    (dim1, dim2, dim3, dim4),
+                    len(values),
+                    level=SparseLevel(4, ElementLevel(values), indices),
+                )
+
+            case 5:
+                dim1, dim2, dim3, dim4, dim5 = dataset.shape
+
+                G = get_sparse_factor(
+                    ranks[0],
+                    ranks[1] * ranks[2] * ranks[3] * ranks[4],
+                    density=0.5,
+                ).reshape(ranks)
+                A = get_sparse_factor(dim1, ranks[0], density=0.2)
+                B = get_sparse_factor(dim2, ranks[1], density=0.2)
+                C = get_sparse_factor(dim3, ranks[2], density=0.2)
+                D = get_sparse_factor(dim4, ranks[3], density=0.2)
+                E = get_sparse_factor(dim5, ranks[4], density=0.2)
+
+                X_dense = np.einsum("pqrst,ip,jq,kr,ls,mt->ijklm", G, A, B, C, D, E)
+
+                indices = np.nonzero(X_dense)
+                values = X_dense[indices]
+
+                X_bin = CustomTensor(
+                    (dim1, dim2, dim3, dim4, dim5),
+                    len(values),
+                    level=SparseLevel(5, ElementLevel(values), indices),
+                )
+
+            case _:
+                raise ValueError(f"unsupported HOSVD tensor order {dataset.n}")
+
+        ranks_bin = from_numpy(np.array(ranks))
+        initial_factors = _random_initial_factors(dataset.shape, ranks)
+        return DataInstance(
+            inputs=[X_bin, ranks_bin, *initial_factors],
+            meta={"n": dataset.n, "max_iter": 50, "tolerance": 1e-8},
+        )
+
+
+class HOSVDFROSTTDataset(Dataset):
+    def __init__(self, name, pretty_name, tensor_name, n, ranks, suites=None):
+        self._name = name
+        self._pretty_name = pretty_name
+        self.tensor_name = tensor_name
+        self.n = n
+        self.ranks = ranks
+        self._suites = suites or []
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._pretty_name
+
+    @property
+    def description(self) -> str:
+        return f"FROSTT tensor {self.tensor_name}, n = {self.n}, ranks = {self.ranks}."
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+
+def _hosvd_frostt_dataset(tensor_name, ranks, suites):
+    shape = frostt_tensor_shape(tensor_name)
+    assert len(ranks) == len(shape), (
+        f"HOSVD ranks {ranks} do not match shape {shape} for "
+        f"FROSTT tensor {tensor_name}"
+    )
+    assert all(r <= s for r, s in zip(ranks, shape, strict=True)), (
+        f"HOSVD ranks {ranks} exceed shape {shape} for FROSTT tensor {tensor_name}"
+    )
+    n = len(shape)
+    return HOSVDFROSTTDataset(
+        name=tensor_name,
+        pretty_name=tensor_name,
+        tensor_name=tensor_name,
+        n=n,
+        ranks=ranks,
+        suites=suites,
+    )
+
+
+class HOSVDFROSTTGenerator(Generator[HOSVDFROSTTDataset]):
+    def __init__(self, n: int | None = None):
+        self.n = n
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def name(self) -> str:
+        return "hosvd_frostt"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Higher-Order Singular Value Decomposition (HOSVD) FROSTT"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Real sparse tensors downloaded from FROSTT (frostt.io), decomposed"
+            " directly from sparse (COO) inputs."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return ["standard"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title=(
+                    "FROSTT: The Formidable Repository of Open Sparse Tensors and Tools"
+                ),
+                authors=[
+                    Author("Shaden Smith"),
+                    Author("Jee W. Choi"),
+                    Author("Jiajia Li"),
+                    Author("Richard Vuduc"),
+                    Author("Jongsoo Park"),
+                    Author("Xing Liu"),
+                    Author("George Karypis"),
+                ],
+                url="http://frostt.io/",
+                year=2017,
+            )
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "No generative AI was used to write the HOSVD algorithm itself, which"
+            " predates this generator. This generator and its FROSTT data-fetching"
+            " were written by a generative AI assistant (Claude) at the user's"
+            " direction."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return (
+            "Real sparse tensors from FROSTT exercise Tucker decomposition against"
+            " irregular sparsity patterns. Random orthonormal factors avoid SVDs of"
+            " the original tensor unfoldings. Large tensors can still require costly"
+            " contractions and projected SVDs, so select datasets by name rather"
+            " than running this whole generator unfiltered."
+        )
+
+    @property
+    def datasets(self) -> list[HOSVDFROSTTDataset]:
+        datasets = [
+            _hosvd_frostt_dataset(tensor_name, ranks, suites)
+            for (tensor_name, ranks, suites) in [
+                ("matmul_2_2_2", (2, 2, 2), ["trace"]),
+                ("matmul_3_3_3", (2, 2, 2), ["trace"]),
+                ("matmul_4_3_2", (2, 2, 2), ["trace"]),
+                ("matmul_4_4_3", (2, 2, 2), ["trace"]),
+                ("matmul_4_4_4", (2, 2, 2), ["trace"]),
+                ("matmul_5_5_5", (2, 2, 2), ["trace", "train"]),
+                ("matmul_6_3_3", (2, 2, 2), ["trace"]),
+                ("nell_2", (5, 5, 5), []),
+                ("vast_2015_mc1_3d", (5, 5, 2), []),
+                ("nell_1", (5, 5, 5), []),
+                ("flickr_3d", (5, 5, 5), []),
+                ("delicious_3d", (5, 5, 5), []),
+                ("amazon_reviews", (5, 5, 5), []),
+                ("patents", (5, 5, 5), []),
+                ("reddit_2015", (5, 5, 5), []),
+                ("fb_m", (5, 5, 5), []),
+                ("darpa", (5, 5, 5), []),
+                ("toy", (2, 2, 2, 2), ["trace", "train"]),
+                ("nips", (5, 5, 5, 5), []),
+                ("uber_pickups", (5, 5, 5, 5), []),
+                ("chicago_crime_comm", (5, 5, 5, 5), []),
+                ("enron", (5, 5, 5, 5), []),
+                ("flickr_4d", (5, 5, 5, 5), []),
+                ("delicious_4d", (5, 5, 5, 5), []),
+                ("lbnl_network", (5, 5, 5, 5, 5), []),
+                ("chicago_crime_geo", (5, 5, 5, 5, 5), []),
+                # vast_2015_mc1_5d's 3rd mode has only 2 entries, so its rank is capped.
+                ("vast_2015_mc1_5d", (5, 5, 2, 5, 5), []),
+                ("lanl2", (5, 5, 5, 5, 5), []),
+            ]
+        ]
+
+        return [
+            dataset for dataset in datasets if self.n is None or dataset.n == self.n
+        ]
+
+    def generate(self, dataset: HOSVDFROSTTDataset):
+        raw = fetch_frostt_tensor(dataset.tensor_name)
+        assert len(raw.meta["shape"]) == dataset.n
+        X_bin = raw.inputs[0]
+        ranks_bin = from_numpy(np.array(dataset.ranks))
+        initial_factors = _random_initial_factors(raw.meta["shape"], dataset.ranks)
+        return DataInstance(
+            inputs=[X_bin, ranks_bin, *initial_factors],
+            meta={"n": dataset.n, "max_iter": 50, "tolerance": 1e-8},
+        )
+
+
+class HOSVDBenchmark(Benchmark):
+    """Shared metadata and generators for the dimension-specific benchmarks."""
+
+    n: int
+
+    @property
+    def name(self) -> str:
+        return f"hosvd_{self.n}d"
+
+    @property
+    def pretty_name(self) -> str:
+        return f"Higher-Order Singular Value Decomposition (HOSVD) {self.n}D"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Aadharsh Rajkumar", "arajkumar34@gatech.edu")]
+
+    @property
+    def description(self) -> str:
+        return (
+            "This code implements the Tucker Decomposition or HOSVD algorithm for"
+            " decomposing high-order tensors into a core-tensor that can be projected"
+            " onto factor matrices along each mode. A typical 3D tensor will have 3"
+            " modes (row, column, and frontal) and thus 3 factor matrices. The"
+            " algorithm starts from reproducible random orthonormal factor matrices"
+            " with column counts given by the ranks parameter. Then, HOOI"
+            " iteratively updates each factor matrix by projecting the original tensor"
+            " onto other factor matrices. The iteration continues until max iterations"
+            " is reached or the change in factor matrices becomes insignificant. The"
+            " resulting factor matrices and the core tensor are returned by the"
+            " benchmark function."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return (
+            "Tensor decomposition are essential for efficiently analyzing"
+            " multi-dimensional data and can cut out noise during preprocessing. Tensor"
+            " decomposition has applications in signal processing, computer vision,"
+            " numerical linear algebra, and many other fields. HOSVD or Tucker"
+            " Decomposition is one of the most widely used methods for tensor"
+            " decomposition on high-level tensors, which are tensors with 3 or more"
+            " dimensions."
+        )
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="Tensor Decompositions and Applications",
+                authors=[Author("Tamara G. Kolda"), Author("Brett W. Bader")],
+                journal="SIAM Review",
+                publisher="Society for Industrial & Applied Mathematics (SIAM)",
+                volume="51",
+                number="3",
+                pages="455-500",
+                year=2009,
+                url="https://doi.org/10.1137/07070111x",
+                doi="10.1137/07070111x",
+            ),
+            Ref(
+                title=(
+                    "Harnessing Tensor Decomposition for High-Dimensional "
+                    "Machine Learning"
+                ),
+                authors=[
+                    Author("Evgeni Rustik"),
+                    Author("Emiliya Viktoriia"),
+                    Author("Aliona Tatyana"),
+                ],
+                publisher="Institute of Electrical and Electronics Engineers (IEEE)",
+                year=2025,
+                url="https://doi.org/10.36227/techrxiv.174417403.38431928/v1",
+                doi="10.36227/techrxiv.174417403.38431928/v1",
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "The original benchmark function was written without generative AI."
+            " A generative AI assistant changed the initialization to reproducible"
+            " random orthonormal factors and added regression tests."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return ["standard-data-analytics"]
+
+    @property
+    def concepts(self) -> str:
+        return """
+        <ccs2012>
+<concept>
+<concept_id>10002950.10003705.10011686</concept_id>
+<concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10002950.10003714.10003715</concept_id>
+<concept_desc>Mathematics of computing~Numerical analysis</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10002950.10003714.10003715</concept_id>
+<concept_desc>Mathematics of computing~Numerical analysis</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10010147.10010257.10010293.10010309</concept_id>
+<concept_desc>Computing methodologies~Factorization methods</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+</ccs2012>
+"""
+
+    @property
+    def generators(self):
+        return [
+            HOSVDDenseGenerator(self.n),
+            HOSVDSparseGenerator(self.n),
+            HOSVDFROSTTGenerator(self.n),
+        ]
+
+
+class HOSVD3DBenchmark(HOSVDBenchmark):
+    n = 3
+
+    def benchmark(self, xp, meta: dict, X, ranks, factor0, factor1, factor2):
+        initial_factors = [factor0, factor1, factor2]
+        max_iter = meta.get("max_iter", 50)
+        tolerance = meta.get("tolerance", 1e-8)
+
+        dimensions = X.shape
+        num_modes = len(dimensions)
+
+        # iteration to update each factor matrix by projecting the original
+        # tensor onto other factor matrices
+        for _iteration in range(max_iter):
+            prev_factors = initial_factors[:]
+            for mode in range(num_modes):
+                initial_factors[mode] = initial_factors[mode]
+
+                if mode == 0:
+                    update = xp.einsum(
+                        "Y[i, r1, r2] += X[i, j, k] * B[j, r1] * C[k, r2]",
+                        X=X,
+                        B=initial_factors[1],
+                        C=initial_factors[2],
+                    )
+                elif mode == 1:
+                    update = xp.einsum(
+                        "Y[r0, j, r2] += X[i, j, k] * A[i, r0] * C[k, r2]",
+                        X=X,
+                        A=initial_factors[0],
+                        C=initial_factors[2],
+                    )
+                elif mode == 2:
+                    update = xp.einsum(
+                        "Y[r0, r1, k] += X[i, j, k] * A[i, r0] * B[j, r1]",
+                        X=X,
+                        A=initial_factors[0],
+                        B=initial_factors[1],
+                    )
+
+                perm = [mode] + list(range(mode)) + list(range(mode + 1, num_modes))
+                unfold_update = xp.reshape(
+                    xp.transpose(update, perm), (dimensions[mode], -1)
+                )
+
+                U, _S, _Vt = xp.linalg.svd(unfold_update, full_matrices=False)
+                initial_factors[mode] = U[:, : ranks[mode]]
+
+            # stop iterations when solutions stop changing significantly
+            change = (
+                xp.linalg.norm(initial_factors[0] - prev_factors[0])
+                + xp.linalg.norm(initial_factors[1] - prev_factors[1])
+                + xp.linalg.norm(initial_factors[2] - prev_factors[2])
+            )
+            if change[()] < tolerance:
+                break
+
+        core_tensor = xp.einsum(
+            "G[p, q, r] += X[i, j, k] * A[i, p] * B[j, q] * C[k, r]",
+            X=X,
+            A=initial_factors[0],
+            B=initial_factors[1],
+            C=initial_factors[2],
+        )
+        return (
+            core_tensor,
+            initial_factors[0],
+            initial_factors[1],
+            initial_factors[2],
+        )
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
+
+        X = to_numpy(self._input[0])
+        rank1, rank2, rank3 = to_numpy(self._input[1])
+        core, A, B, C = [to_numpy(output) for output in self._output]
+        dim1, dim2, dim3 = X.shape
+
+        assert core.shape == (rank1, rank2, rank3)
+        assert A.shape == (dim1, rank1)
+        assert B.shape == (dim2, rank2)
+        assert C.shape == (dim3, rank3)
+
+        X_rec = np.einsum("pqr,ip,jq,kr->ijk", core, A, B, C)
+        error = np.linalg.norm(X - X_rec) / np.linalg.norm(X)
+        assert error < 1e-5, f"HOSVD3 reconstruction error too high: {error:.6f}"
+
+
+class HOSVD4DBenchmark(HOSVDBenchmark):
+    n = 4
+
+    def benchmark(self, xp, meta: dict, X, ranks, factor0, factor1, factor2, factor3):
+        initial_factors = [factor0, factor1, factor2, factor3]
+        max_iter = meta.get("max_iter", 50)
+        tolerance = meta.get("tolerance", 1e-8)
+
+        dimensions = X.shape
+        num_modes = len(dimensions)
+
+        # iteration to update each factor matrix by projecting the original
+        # tensor onto other factor matrices
+        for _iteration in range(max_iter):
+            prev_factors = initial_factors[:]
+            for mode in range(num_modes):
+                initial_factors[mode] = initial_factors[mode]
+
+                if mode == 0:
+                    update = xp.einsum(
+                        "Y[i, r1, r2, r3] += X[i, j, k, l] * B[j, r1] "
+                        "* C[k, r2] * D[l, r3]",
+                        X=X,
+                        B=initial_factors[1],
+                        C=initial_factors[2],
+                        D=initial_factors[3],
+                    )
+                elif mode == 1:
+                    update = xp.einsum(
+                        "Y[r0, j, r2, r3] += X[i, j, k, l]"
+                        " * A[i, r0]* C[k, r2] * D[l, r3]",
+                        X=X,
+                        A=initial_factors[0],
+                        C=initial_factors[2],
+                        D=initial_factors[3],
+                    )
+                elif mode == 2:
+                    update = xp.einsum(
+                        "Y[r0, r1, k, r3] += X[i, j, k, l]"
+                        " * A[i, r0]* B[j, r1] * D[l, r3]",
+                        X=X,
+                        A=initial_factors[0],
+                        B=initial_factors[1],
+                        D=initial_factors[3],
+                    )
+                elif mode == 3:
+                    update = xp.einsum(
+                        "Y[r0, r1, r2, l] += X[i, j, k, l]"
+                        " * A[i, r0]* B[j, r1] * C[k, r2]",
+                        X=X,
+                        A=initial_factors[0],
+                        B=initial_factors[1],
+                        C=initial_factors[2],
+                    )
+
+                perm = [mode] + list(range(mode)) + list(range(mode + 1, num_modes))
+                unfold_update = xp.reshape(
+                    xp.transpose(update, perm), (dimensions[mode], -1)
+                )
+
+                U, _S, _Vt = xp.linalg.svd(unfold_update, full_matrices=False)
+                initial_factors[mode] = U[:, : ranks[mode]]
+
+            # stop iterations when solutions stop changing significantly
+            change = (
+                xp.linalg.norm(initial_factors[0] - prev_factors[0])
+                + xp.linalg.norm(initial_factors[1] - prev_factors[1])
+                + xp.linalg.norm(initial_factors[2] - prev_factors[2])
+                + xp.linalg.norm(initial_factors[3] - prev_factors[3])
+            )
+            if change[()] < tolerance:
+                break
+
+        core_tensor = xp.einsum(
+            "G[p, q, r, s] += X[i, j, k, l] * A[i, p]* B[j, q] * C[k, r] * D[l, s]",
+            X=X,
+            A=initial_factors[0],
+            B=initial_factors[1],
+            C=initial_factors[2],
+            D=initial_factors[3],
+        )
+        return (
+            core_tensor,
+            initial_factors[0],
+            initial_factors[1],
+            initial_factors[2],
+            initial_factors[3],
+        )
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
+
+        X = to_numpy(self._input[0])
+        rank1, rank2, rank3, rank4 = to_numpy(self._input[1])
+        core, A, B, C, D = [to_numpy(output) for output in self._output]
+        dim1, dim2, dim3, dim4 = X.shape
+
+        assert core.shape == (rank1, rank2, rank3, rank4)
+        assert A.shape == (dim1, rank1)
+        assert B.shape == (dim2, rank2)
+        assert C.shape == (dim3, rank3)
+        assert D.shape == (dim4, rank4)
+
+        X_rec = np.einsum("pqrs,ip,jq,kr,ls->ijkl", core, A, B, C, D)
+        error = np.linalg.norm(X - X_rec) / np.linalg.norm(X)
+        assert error < 1e-5, f"HOSVD4 reconstruction error too high: {error:.6f}"
+
+
+class HOSVD5DBenchmark(HOSVDBenchmark):
+    n = 5
+
+    def benchmark(
+        self, xp, meta: dict, X, ranks, factor0, factor1, factor2, factor3, factor4
+    ):
+        initial_factors = [factor0, factor1, factor2, factor3, factor4]
+        max_iter = meta.get("max_iter", 50)
+        tolerance = meta.get("tolerance", 1e-8)
+
+        dimensions = X.shape
+        num_modes = len(dimensions)
+
+        # iteration to update each factor matrix by projecting the original
+        # tensor onto other factor matrices
+        for _iteration in range(max_iter):
+            prev_factors = initial_factors[:]
+            for mode in range(num_modes):
+                initial_factors[mode] = initial_factors[mode]
+
+                if mode == 0:
+                    update = xp.einsum(
+                        "Y[i, r1, r2, r3, r4] += X[i, j, k, l, m] * B[j, r1]"
+                        "* C[k, r2] * D[l, r3] * E[m, r4]",
+                        X=X,
+                        B=initial_factors[1],
+                        C=initial_factors[2],
+                        D=initial_factors[3],
+                        E=initial_factors[4],
+                    )
+                elif mode == 1:
+                    update = xp.einsum(
+                        "Y[r0, j, r2, r3, r4] += X[i, j, k, l, m] * A[i, r0]"
+                        "* C[k, r2] * D[l, r3] * E[m, r4]",
+                        X=X,
+                        A=initial_factors[0],
+                        C=initial_factors[2],
+                        D=initial_factors[3],
+                        E=initial_factors[4],
+                    )
+                elif mode == 2:
+                    update = xp.einsum(
+                        "Y[r0, r1, k, r3, r4] += X[i, j, k, l, m] * A[i, r0]"
+                        "* B[j, r1] * D[l, r3] * E[m, r4]",
+                        X=X,
+                        A=initial_factors[0],
+                        B=initial_factors[1],
+                        D=initial_factors[3],
+                        E=initial_factors[4],
+                    )
+                elif mode == 3:
+                    update = xp.einsum(
+                        "Y[r0, r1, r2, l, r4] += X[i, j, k, l, m] * A[i, r0]"
+                        "* B[j, r1] * C[k, r2] * E[m, r4]",
+                        X=X,
+                        A=initial_factors[0],
+                        B=initial_factors[1],
+                        C=initial_factors[2],
+                        E=initial_factors[4],
+                    )
+                elif mode == 4:
+                    update = xp.einsum(
+                        "Y[r0, r1, r2, r3, m] += X[i, j, k, l, m] * A[i, r0]"
+                        "* B[j, r1] * C[k, r2] * D[l, r3]",
+                        X=X,
+                        A=initial_factors[0],
+                        B=initial_factors[1],
+                        C=initial_factors[2],
+                        D=initial_factors[3],
+                    )
+
+                perm = [mode] + list(range(mode)) + list(range(mode + 1, num_modes))
+                unfold_update = xp.reshape(
+                    xp.transpose(update, perm), (dimensions[mode], -1)
+                )
+
+                U, _S, _Vt = xp.linalg.svd(unfold_update, full_matrices=False)
+                initial_factors[mode] = U[:, : ranks[mode]]
+
+            # stop iterations when solutions stop changing significantly
+            change = (
+                xp.linalg.norm(initial_factors[0] - prev_factors[0])
+                + xp.linalg.norm(initial_factors[1] - prev_factors[1])
+                + xp.linalg.norm(initial_factors[2] - prev_factors[2])
+                + xp.linalg.norm(initial_factors[3] - prev_factors[3])
+                + xp.linalg.norm(initial_factors[4] - prev_factors[4])
+            )
+            if change[()] < tolerance:
+                break
+
+        core_tensor = xp.einsum(
+            "G[p, q, r, s, t] += X[i, j, k, l, m] * A[i, p]"
+            "* B[j, q] * C[k, r] * D[l, s] * E[m, t]",
+            X=X,
+            A=initial_factors[0],
+            B=initial_factors[1],
+            C=initial_factors[2],
+            D=initial_factors[3],
+            E=initial_factors[4],
+        )
+        return (
+            core_tensor,
+            initial_factors[0],
+            initial_factors[1],
+            initial_factors[2],
+            initial_factors[3],
+            initial_factors[4],
+        )
+
+    def check(self, param):
+        for item in self._output:
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
+
+        X = to_numpy(self._input[0])
+        rank1, rank2, rank3, rank4, rank5 = to_numpy(self._input[1])
+        core, A, B, C, D, E = [to_numpy(output) for output in self._output]
+        dim1, dim2, dim3, dim4, dim5 = X.shape
+
+        assert core.shape == (rank1, rank2, rank3, rank4, rank5)
+        assert A.shape == (dim1, rank1)
+        assert B.shape == (dim2, rank2)
+        assert C.shape == (dim3, rank3)
+        assert D.shape == (dim4, rank4)
+        assert E.shape == (dim5, rank5)
+
+        X_rec = np.einsum("pqrst,ip,jq,kr,ls,mt->ijklm", core, A, B, C, D, E)
+        error = np.linalg.norm(X - X_rec) / np.linalg.norm(X)
+        assert error < 1e-5, f"HOSVD5 reconstruction error too high: {error:.6f}"

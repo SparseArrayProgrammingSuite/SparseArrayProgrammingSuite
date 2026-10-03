@@ -3,9 +3,9 @@
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=24
 #SBATCH --exclusive
-#SBATCH --mem=128G
+#SBATCH --mem=160G
 #SBATCH --tmp=50G
-#SBATCH --time=04:00:00
+#SBATCH --time=08:00:00
 #SBATCH --array=0-127
 #SBATCH --output=competition-%A_%a.log
 #SBATCH --mail-type=END,FAIL
@@ -29,7 +29,9 @@ competition_config="${SAPS_COMPETITION_CONFIG:-$repo_directory/competition.confi
 
 job_id="${SLURM_ARRAY_JOB_ID:-${SLURM_JOB_ID:-local}}"
 task_index="${SLURM_ARRAY_TASK_ID:-0}"
-task_count="${SLURM_ARRAY_TASK_COUNT:-1}"
+# A partial rerun (e.g. --array=19-23) must keep the original chunk count, so
+# SAPS_CHUNK_COUNT overrides the size of the submitted array.
+task_count="${SAPS_CHUNK_COUNT:-${SLURM_ARRAY_TASK_COUNT:-1}}"
 competition_directory="$repo_directory/competition"
 competition_run_root="$competition_directory/run_$job_id"
 if (( $# > 0 )); then
@@ -52,6 +54,7 @@ benchmark_args=(
   --saps-dir "$competition_run_directory"
   --env-dir "$task_scratch/env"
   --results-dir "$competition_run_directory/results"
+  --memory-limit 128G
   --remote-storage-backend "$REMOTE_STORAGE_BACKEND"
   --remote-storage-bucket "$REMOTE_STORAGE_BUCKET"
   --chunk-count "$task_count"
