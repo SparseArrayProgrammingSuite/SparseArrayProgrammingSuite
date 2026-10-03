@@ -135,7 +135,7 @@ poetry run ./bin/run_benchmark.py \
 On Slurm, submit a competition with the launcher. It submits two arrays that
 share one run directory: `scripts/competition-cpu.slurm` runs the CPU frameworks
 on CPU nodes and `scripts/competition-gpu.slurm` runs the GPU frameworks on GPU
-nodes (`--gres=gpu:V100:1`). A final job combines both arrays' results. Both wrappers
+nodes (a whole V100 node, `--gres=gpu:V100:2 --exclusive`). A final job combines both arrays' results. Both wrappers
 source the shared body in `scripts/competition.sh`.
 
 ```bash

@@ -285,3 +285,37 @@ def test_submit_competition_shares_run_between_cpu_and_gpu_arrays(
     job_ids = ":".join(str(100 + i) for i in range(len(arrays)))
     assert f"--dependency=afterany:{job_ids}" in combine
     assert str(run_directory) in combine[combine.index("--wrap") + 1]
+
+
+def test_submit_competition_cancels_earlier_arrays_when_a_submission_fails(tmp_path):
+    scripts = tmp_path / "repo" / "scripts"
+    scripts.mkdir(parents=True)
+    shutil.copy(ROOT / "scripts/submit-competition.sh", scripts)
+    config = tmp_path / "competition.config.json"
+    config.write_text(
+        json.dumps({"include": [{"env_nobuild": {"SAPS_DEVICE": "gpu"}}]})
+    )
+    cancelled = tmp_path / "cancelled"
+    # The CPU array submits as job 100; the GPU array is rejected.
+    shell_env = tmp_path / "shell-env"
+    shell_env.write_text(
+        'sbatch() { if [[ -e "$SAPS_TEST_SUBMITTED" ]]; then return 1; fi; '
+        'touch "$SAPS_TEST_SUBMITTED"; echo 100; }\n'
+        'scancel() { echo "$@" >> "$SAPS_TEST_CANCELLED"; }\n'
+    )
+    env = {
+        **os.environ,
+        "BASH_ENV": str(shell_env),
+        "SAPS_TEST_SUBMITTED": str(tmp_path / "submitted"),
+        "SAPS_TEST_CANCELLED": str(cancelled),
+        "SAPS_COMPETITION_CONFIG": str(config),
+    }
+    result = subprocess.run(
+        ["bash", str(scripts / "submit-competition.sh")],
+        cwd=tmp_path,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode != 0
+    assert cancelled.read_text().split() == ["100"]

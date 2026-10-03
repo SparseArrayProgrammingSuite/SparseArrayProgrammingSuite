@@ -70,9 +70,23 @@ print(
 EOF
 )
 
+# If a later submission fails, cancel the earlier ones instead of leaving half
+# a run queued without its combine job.
+submitted=()
+cancel_submitted() {
+  local status=$?
+  if ((status != 0)) && ((${#submitted[@]} > 0)); then
+    echo "submission failed; cancelling ${submitted[*]}" >&2
+    scancel "${submitted[@]}" || true
+  fi
+}
+trap cancel_submitted EXIT
+
+# Command substitutions do not inherit set -e in bash, so fail explicitly.
 submit_job() {
   local job_id
-  job_id=$(sbatch --parsable "$@")
+  job_id=$(sbatch --parsable "$@") || return 1
+  [[ -n "$job_id" ]] || return 1
   echo "${job_id%%;*}"
 }
 
@@ -93,9 +107,11 @@ submit_array() {
 
 if [[ -n "$run_directory" ]]; then
   cpu_job_id=$(submit_array cpu --resume "$run_directory")
+  submitted+=("$cpu_job_id")
 else
   # A new run is named after the CPU array; the GPU array joins it.
   cpu_job_id=$(submit_array cpu)
+  submitted+=("$cpu_job_id")
   run_directory="$repo_directory/competition/run_$cpu_job_id"
   mkdir -p "$run_directory"
 fi
@@ -104,6 +120,7 @@ gpu_job_id=""
 combine_after="afterany:$cpu_job_id"
 if $uses_gpu; then
   gpu_job_id=$(submit_array gpu --resume "$run_directory")
+  submitted+=("$gpu_job_id")
   combine_after="$combine_after:$gpu_job_id"
 fi
 

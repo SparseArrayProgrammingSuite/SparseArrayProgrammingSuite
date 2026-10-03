@@ -4,8 +4,11 @@
 # scripts/submit-competition.sh.
 #SBATCH --job-name=saps-competition-gpu
 #SBATCH --nodes=1
+# Take a whole V100 node (2 GPUs, 24 cores) so no other job shares it while
+# timing, like the CPU array. Phoenix allows at most 12 CPUs per V100, so 24
+# CPUs need both GPUs; frameworks only use the first one.
 #SBATCH --cpus-per-task=24
-#SBATCH --gres=gpu:V100:1
+#SBATCH --gres=gpu:V100:2
 #SBATCH --exclusive
 #SBATCH --mem=160G
 #SBATCH --tmp=50G
