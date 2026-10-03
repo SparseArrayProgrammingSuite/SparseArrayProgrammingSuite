@@ -5,7 +5,7 @@
 #SBATCH --job-name=saps-competition-gpu
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=24
-#SBATCH --gres=gpu:RTX_6000:1
+#SBATCH --gres=gpu:V100:1
 #SBATCH --exclusive
 #SBATCH --mem=160G
 #SBATCH --tmp=50G
