@@ -39,9 +39,9 @@ def test_ode_discovery_exposes_one_benchmark_per_method_and_problem():
 @pytest.mark.parametrize(
     ("benchmark_cls", "expected"),
     [
-        (ode.ForwardEulerSLICOT, 0.9),
-        (ode.BackwardEulerSLICOT, 1 / 1.1),
-        (ode.RungeKuttaSLICOT, 0.9048375),
+        (ode.ForwardEulerODESLICOTBenchmark, 0.9),
+        (ode.BackwardEulerODESLICOTBenchmark, 1 / 1.1),
+        (ode.RK4ODESLICOTBenchmark, 0.9048375),
     ],
 )
 def test_ode_methods_integrate_exponential_decay(benchmark_cls, expected):
@@ -61,7 +61,12 @@ def test_ode_methods_integrate_exponential_decay(benchmark_cls, expected):
 
 
 @pytest.mark.parametrize(
-    "benchmark_cls", [ode.ForwardEulerRC, ode.BackwardEulerRC, ode.RungeKuttaRC]
+    "benchmark_cls",
+    [
+        ode.ForwardEulerODERCBenchmark,
+        ode.BackwardEulerODERCBenchmark,
+        ode.RK4ODERCBenchmark,
+    ],
 )
 def test_ode_setup_preserves_non_slicot_timestep(benchmark_cls):
     generator = ode.ODERCGenerator()

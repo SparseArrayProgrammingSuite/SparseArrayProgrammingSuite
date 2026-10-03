@@ -13,11 +13,11 @@ from frameworks.saps_numpy import NumpyFramework
 from saps.benchmark import DataInstance, Param
 from saps.benchmarks import ode
 from saps.benchmarks.ode import (
-    BackwardEulerSLICOT,
-    ForwardEulerSLICOT,
+    BackwardEulerODESLICOTBenchmark,
+    ForwardEulerODESLICOTBenchmark,
     ODESLICOTDataset,
     ODESLICOTGenerator,
-    RungeKuttaSLICOT,
+    RK4ODESLICOTBenchmark,
 )
 
 
@@ -162,7 +162,7 @@ def test_slicot_generator_rejects_explicit_e(monkeypatch):
 
 
 def test_slicot_forward_euler_runs_linear_system():
-    benchmark = ForwardEulerSLICOT()
+    benchmark = ForwardEulerODESLICOTBenchmark()
     data = [np.array([[0.0]]), np.array([[2.0]])]
     meta = {
         "problem_name": "ode_slicot",
@@ -178,8 +178,10 @@ def test_slicot_forward_euler_runs_linear_system():
     np.testing.assert_allclose(states[:, 0], np.array([0.0, 0.6, 1.2]))
 
 
-def test_runge_kutta_slicot_uses_only_slicot_generator():
-    generator_names = [generator.name for generator in RungeKuttaSLICOT().generators]
+def test_rk4_slicot_uses_only_slicot_generator():
+    generator_names = [
+        generator.name for generator in RK4ODESLICOTBenchmark().generators
+    ]
 
     assert generator_names == ["ode_slicot"]
 
@@ -187,9 +189,9 @@ def test_runge_kutta_slicot_uses_only_slicot_generator():
 @pytest.mark.parametrize(
     ("benchmark_cls", "expected_step"),
     [
-        (ForwardEulerSLICOT, 0.0001),
-        (BackwardEulerSLICOT, 0.0002),
-        (RungeKuttaSLICOT, 0.01),
+        (ForwardEulerODESLICOTBenchmark, 0.0001),
+        (BackwardEulerODESLICOTBenchmark, 0.0002),
+        (RK4ODESLICOTBenchmark, 0.01),
     ],
 )
 def test_slicot_setup_uses_method_timestep_with_old_cached_data(
@@ -224,7 +226,7 @@ def test_slicot_setup_uses_method_timestep_with_old_cached_data(
 
 @pytest.mark.parametrize("drop_imaginary", [False, True])
 def test_slicot_check_preserves_complex_reference(drop_imaginary):
-    benchmark = RungeKuttaSLICOT()
+    benchmark = RK4ODESLICOTBenchmark()
     data = [np.array([[-1.0 + 2.0j]]), np.array([[1.0]])]
     benchmark._input = [from_numpy(item) for item in data]
     benchmark._ref_meta = None
@@ -248,7 +250,7 @@ def test_slicot_check_preserves_complex_reference(drop_imaginary):
 
 
 def test_slicot_check_still_rejects_unstable_steps():
-    benchmark = ForwardEulerSLICOT()
+    benchmark = ForwardEulerODESLICOTBenchmark()
     data = [np.array([[-1000.0]]), np.array([[1.0]])]
     benchmark._input = [from_numpy(item) for item in data]
     benchmark._ref_meta = None
@@ -268,7 +270,7 @@ def test_slicot_check_still_rejects_unstable_steps():
 
 
 def test_slicot_check_reports_reference_failure(monkeypatch):
-    benchmark = RungeKuttaSLICOT()
+    benchmark = RK4ODESLICOTBenchmark()
     benchmark._input = [from_numpy(np.eye(1)), from_numpy(np.ones((1, 1)))]
     benchmark._ref_meta = None
     benchmark._meta = {

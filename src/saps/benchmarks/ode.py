@@ -900,7 +900,7 @@ def backward_euler(meta, rhs):
     return (np.asarray(inputs), np.asarray(outputs))
 
 
-def runge_kutta(meta, rhs):
+def rk4(meta, rhs):
     """Integrate ``rhs(t, y)`` with the classical fourth-order Runge-Kutta method."""
     y0 = meta["y0"]
     step = meta["step"]
@@ -948,10 +948,10 @@ class _BackwardEuler:
     slicot_train_dataset: str | None = "heat-cont"
 
 
-class _RungeKutta:
+class _RK4:
     brusselator_train = True
     solver_name = "rk4"
-    solver_pretty_name = "Runge-Kutta (RK4)"
+    solver_pretty_name = "Fourth-Order Runge-Kutta (RK4)"
     solver_description = (
         "Integrates ODE initial-value problems with the classical "
         "fourth-order Runge-Kutta method."
@@ -970,22 +970,22 @@ class _RungeKutta:
 # inputs as explicit arguments after ``meta``.
 
 
-class _RCProblem:
+class _ODERCProblem:
     generator_cls: type[Generator] = ODERCGenerator
     derivatives = staticmethod(_rc_derivatives)
 
 
-class _RLCProblem:
+class _ODERLCProblem:
     generator_cls: type[Generator] = ODERLCGenerator
     derivatives = staticmethod(_rlc_derivatives)
 
 
-class _LotkaVolterraProblem:
+class _ODELotkaVolterraProblem:
     generator_cls: type[Generator] = ODELotkaVolterraGenerator
     derivatives = staticmethod(_lotka_volterra_derivatives)
 
 
-class _BrusselatorProblem:
+class _ODEBrusselatorProblem:
     generator_cls: type[Generator] = ODEBrusselatorGenerator
     derivatives = staticmethod(_brusselator_derivatives)
     brusselator_train: bool
@@ -994,7 +994,7 @@ class _BrusselatorProblem:
         return ODEBrusselatorGenerator(train=self.brusselator_train)
 
 
-class _SLICOTProblem:
+class _ODESLICOTProblem:
     generator_cls: type[Generator] = ODESLICOTGenerator
     derivatives = staticmethod(_linear_system_derivatives)
     slicot_trace_datasets: tuple[str, ...]
@@ -1007,7 +1007,7 @@ class _SLICOTProblem:
         )
 
 
-class _OdeBenchmarkBase(Benchmark, ABC):
+class _ODEBenchmarkBase(Benchmark, ABC):
     """One ODE solver applied to one problem.
 
     Concrete classes combine a solver mixin and a problem mixin and define
@@ -1038,7 +1038,7 @@ class _OdeBenchmarkBase(Benchmark, ABC):
 
     @property
     def pretty_name(self):
-        return f"{self.solver_pretty_name} ({self._generator.pretty_name})"
+        return f"{self.solver_pretty_name} {self._generator.pretty_name}"
 
     @property
     def description(self):
@@ -1130,49 +1130,53 @@ class _OdeBenchmarkBase(Benchmark, ABC):
 # One benchmark per (solver, problem) pair.
 
 
-class ForwardEulerRC(_ForwardEuler, _RCProblem, _OdeBenchmarkBase):
+class ForwardEulerODERCBenchmark(_ForwardEuler, _ODERCProblem, _ODEBenchmarkBase):
     def benchmark(self, xp, meta):
         return forward_euler(meta, lambda t, y: _rc_derivatives(t, y, meta))
 
 
-class ForwardEulerRLC(_ForwardEuler, _RLCProblem, _OdeBenchmarkBase):
+class ForwardEulerODERLCBenchmark(_ForwardEuler, _ODERLCProblem, _ODEBenchmarkBase):
     def benchmark(self, xp, meta):
         return forward_euler(meta, lambda t, y: _rlc_derivatives(t, y, meta))
 
 
-class ForwardEulerLotkaVolterra(
-    _ForwardEuler, _LotkaVolterraProblem, _OdeBenchmarkBase
+class ForwardEulerODELotkaVolterraBenchmark(
+    _ForwardEuler, _ODELotkaVolterraProblem, _ODEBenchmarkBase
 ):
     def benchmark(self, xp, meta):
         return forward_euler(meta, lambda t, y: _lotka_volterra_derivatives(t, y, meta))
 
 
-class ForwardEulerBrusselator(_ForwardEuler, _BrusselatorProblem, _OdeBenchmarkBase):
+class ForwardEulerODEBrusselatorBenchmark(
+    _ForwardEuler, _ODEBrusselatorProblem, _ODEBenchmarkBase
+):
     def benchmark(self, xp, meta, C, brusselator_cb):
         return forward_euler(
             meta, lambda t, y: _brusselator_derivatives(t, y, meta, C, brusselator_cb)
         )
 
 
-class ForwardEulerSLICOT(_ForwardEuler, _SLICOTProblem, _OdeBenchmarkBase):
+class ForwardEulerODESLICOTBenchmark(
+    _ForwardEuler, _ODESLICOTProblem, _ODEBenchmarkBase
+):
     def benchmark(self, xp, meta, A, B):
         return forward_euler(
             meta, lambda t, y: _linear_system_derivatives(t, y, meta, A, B)
         )
 
 
-class BackwardEulerRC(_BackwardEuler, _RCProblem, _OdeBenchmarkBase):
+class BackwardEulerODERCBenchmark(_BackwardEuler, _ODERCProblem, _ODEBenchmarkBase):
     def benchmark(self, xp, meta):
         return backward_euler(meta, lambda t, y: _rc_derivatives(t, y, meta))
 
 
-class BackwardEulerRLC(_BackwardEuler, _RLCProblem, _OdeBenchmarkBase):
+class BackwardEulerODERLCBenchmark(_BackwardEuler, _ODERLCProblem, _ODEBenchmarkBase):
     def benchmark(self, xp, meta):
         return backward_euler(meta, lambda t, y: _rlc_derivatives(t, y, meta))
 
 
-class BackwardEulerLotkaVolterra(
-    _BackwardEuler, _LotkaVolterraProblem, _OdeBenchmarkBase
+class BackwardEulerODELotkaVolterraBenchmark(
+    _BackwardEuler, _ODELotkaVolterraProblem, _ODEBenchmarkBase
 ):
     def benchmark(self, xp, meta):
         return backward_euler(
@@ -1180,44 +1184,46 @@ class BackwardEulerLotkaVolterra(
         )
 
 
-class BackwardEulerBrusselator(_BackwardEuler, _BrusselatorProblem, _OdeBenchmarkBase):
+class BackwardEulerODEBrusselatorBenchmark(
+    _BackwardEuler, _ODEBrusselatorProblem, _ODEBenchmarkBase
+):
     def benchmark(self, xp, meta, C, brusselator_cb):
         return backward_euler(
             meta, lambda t, y: _brusselator_derivatives(t, y, meta, C, brusselator_cb)
         )
 
 
-class BackwardEulerSLICOT(_BackwardEuler, _SLICOTProblem, _OdeBenchmarkBase):
+class BackwardEulerODESLICOTBenchmark(
+    _BackwardEuler, _ODESLICOTProblem, _ODEBenchmarkBase
+):
     def benchmark(self, xp, meta, A, B):
         return backward_euler(
             meta, lambda t, y: _linear_system_derivatives(t, y, meta, A, B)
         )
 
 
-class RungeKuttaRC(_RungeKutta, _RCProblem, _OdeBenchmarkBase):
+class RK4ODERCBenchmark(_RK4, _ODERCProblem, _ODEBenchmarkBase):
     def benchmark(self, xp, meta):
-        return runge_kutta(meta, lambda t, y: _rc_derivatives(t, y, meta))
+        return rk4(meta, lambda t, y: _rc_derivatives(t, y, meta))
 
 
-class RungeKuttaRLC(_RungeKutta, _RLCProblem, _OdeBenchmarkBase):
+class RK4ODERLCBenchmark(_RK4, _ODERLCProblem, _ODEBenchmarkBase):
     def benchmark(self, xp, meta):
-        return runge_kutta(meta, lambda t, y: _rlc_derivatives(t, y, meta))
+        return rk4(meta, lambda t, y: _rlc_derivatives(t, y, meta))
 
 
-class RungeKuttaLotkaVolterra(_RungeKutta, _LotkaVolterraProblem, _OdeBenchmarkBase):
+class RK4ODELotkaVolterraBenchmark(_RK4, _ODELotkaVolterraProblem, _ODEBenchmarkBase):
     def benchmark(self, xp, meta):
-        return runge_kutta(meta, lambda t, y: _lotka_volterra_derivatives(t, y, meta))
+        return rk4(meta, lambda t, y: _lotka_volterra_derivatives(t, y, meta))
 
 
-class RungeKuttaBrusselator(_RungeKutta, _BrusselatorProblem, _OdeBenchmarkBase):
+class RK4ODEBrusselatorBenchmark(_RK4, _ODEBrusselatorProblem, _ODEBenchmarkBase):
     def benchmark(self, xp, meta, C, brusselator_cb):
-        return runge_kutta(
+        return rk4(
             meta, lambda t, y: _brusselator_derivatives(t, y, meta, C, brusselator_cb)
         )
 
 
-class RungeKuttaSLICOT(_RungeKutta, _SLICOTProblem, _OdeBenchmarkBase):
+class RK4ODESLICOTBenchmark(_RK4, _ODESLICOTProblem, _ODEBenchmarkBase):
     def benchmark(self, xp, meta, A, B):
-        return runge_kutta(
-            meta, lambda t, y: _linear_system_derivatives(t, y, meta, A, B)
-        )
+        return rk4(meta, lambda t, y: _linear_system_derivatives(t, y, meta, A, B))
