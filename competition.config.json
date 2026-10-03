@@ -82,9 +82,7 @@
         "SAPS_FRAMEWORK": "frameworks/saps_smart.py",
         "SAPS_REPO_ROOT": "."
       }
-    }
-  ],
-  "// disabled frameworks (move back into include to re-enable)": [
+    },
     {
       "python": "3.12",
       "req": {
