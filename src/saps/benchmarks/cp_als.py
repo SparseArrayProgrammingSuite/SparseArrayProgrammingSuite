@@ -628,8 +628,7 @@ class CPALSBenchmark(Benchmark):
 class CPALS3DBenchmark(CPALSBenchmark):
     n = 3
 
-    def benchmark(self, xp, data, meta):
-        X, A, B, C = data
+    def benchmark(self, xp, meta, X, A, B, C):
         max_iter = meta["max_iter"]
 
         for _iteration in range(max_iter):
@@ -696,7 +695,7 @@ class CPALS3DBenchmark(CPALSBenchmark):
         B = xp.divide(B, B_norms_safe)
         C = xp.divide(C, C_norms_safe)
 
-        return [A, B, C, lambda_vals]
+        return A, B, C, lambda_vals
 
     def check(self, param):
         for item in self._output:
@@ -731,8 +730,7 @@ class CPALS3DBenchmark(CPALSBenchmark):
 class CPALS4DBenchmark(CPALSBenchmark):
     n = 4
 
-    def benchmark(self, xp, data, meta):
-        X, A, B, C, D = data
+    def benchmark(self, xp, meta, X, A, B, C, D):
         max_iter = meta["max_iter"]
 
         for _iteration in range(max_iter):
@@ -828,7 +826,7 @@ class CPALS4DBenchmark(CPALSBenchmark):
         C = xp.divide(C, C_norms_safe)
         D = xp.divide(D, D_norms_safe)
 
-        return [A, B, C, D, lambda_vals]
+        return A, B, C, D, lambda_vals
 
     def check(self, param):
         for item in self._output:
@@ -864,8 +862,7 @@ class CPALS4DBenchmark(CPALSBenchmark):
 class CPALS5DBenchmark(CPALSBenchmark):
     n = 5
 
-    def benchmark(self, xp, data, meta):
-        X, A, B, C, D, E = data
+    def benchmark(self, xp, meta, X, A, B, C, D, E):
         max_iter = meta["max_iter"]
 
         for _iteration in range(max_iter):
@@ -992,7 +989,7 @@ class CPALS5DBenchmark(CPALSBenchmark):
         D = xp.divide(D, D_norms_safe)
         E = xp.divide(E, E_norms_safe)
 
-        return [A, B, C, D, E, lambda_vals]
+        return A, B, C, D, E, lambda_vals
 
     def check(self, param):
         for item in self._output:

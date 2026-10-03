@@ -516,8 +516,7 @@ class FourCliqueCountingBenchmark(Benchmark):
             FourCliqueCountingGAPGenerator(),
         ]
 
-    def benchmark(self, xp, data: list, meta: dict):
-        A = data[0]
+    def benchmark(self, xp, meta: dict, A):
         cliq_4 = (
             xp.einsum(
                 "S[] += A[i,j] * A[i,k] * A[i,l] * A[j,k] * A[j,l] * A[k,l]",
@@ -525,7 +524,7 @@ class FourCliqueCountingBenchmark(Benchmark):
             )
             / 24
         )
-        return [xp.asarray(cliq_4)]
+        return xp.asarray(cliq_4)
 
     def check(self, param):
         for item in self._output:

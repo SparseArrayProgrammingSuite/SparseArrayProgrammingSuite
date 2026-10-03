@@ -1166,8 +1166,7 @@ Nearest neighbor algorithms</concept_desc>
             SimHashANNNetflixPrizeSparseGenerator(),
         ]
 
-    def benchmark(self, xp, data, meta):
-        data, query, P = data
+    def benchmark(self, xp, meta, data, query, P):
         k = meta["k"]
         n_projections = meta["n_projections"]
         n_tables = meta["n_tables"]
@@ -1282,7 +1281,7 @@ Nearest neighbor algorithms</concept_desc>
         sorted_indices = xp.argsort(distances, axis=1)
         nearest_indices = xp.take(sorted_indices, xp.arange(k), axis=1)
         nearest_distances = xp.take_along_axis(distances, nearest_indices, axis=1)
-        return [nearest_indices, nearest_distances]
+        return nearest_indices, nearest_distances
 
     def check(self, param):
         for item in self._output:

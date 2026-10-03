@@ -695,13 +695,11 @@ class MSSPBenchmark(Benchmark):
             MSSPSNAPGenerator(),
         ]
 
-    def benchmark(self, xp, data, meta):
+    def benchmark(self, xp, meta, G, D):
         """
         Returns multi-source shortest paths, i.e. D[s, j] is the shortest path
         from meta["sources"][s] to j
         """
-        G = data[0]
-        D = data[1]
         n, m = G.shape
         assert n == m
         for _ in range(n):
@@ -710,7 +708,7 @@ class MSSPBenchmark(Benchmark):
             D = D_new
             if stop:
                 break
-        return [D]
+        return D
 
     def check(self, param):
         for item in self._output:

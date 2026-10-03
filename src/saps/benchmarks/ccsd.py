@@ -462,29 +462,31 @@ class CCSDBenchmark(Benchmark):
     def generators(self):
         return [CCSDSyntheticGenerator()]
 
-    def benchmark(self, xp, data, meta):
-        (
-            Vme,  # (no, nv)
-            Vae,  # (nv, nv)
-            Vmi,  # (no, no)
-            Vai,  # (nv, no)
-            Vmnef,  # (no, no, nv, nv)
-            Vabef,  # (nv, nv, nv, nv)
-            Vabij,  # (nv, nv, no, no)
-            Vabei,  # (nv, nv, nv, no)
-            Vmnij,  # (no, no, no, no)
-            Vmnei,  # (no, no, nv, no)
-            Vamei,  # (nv, no, nv, no)
-            Vamij,  # (nv, no, no, no)
-            Vanef,  # (nv, no, nv, nv)
-            Vmnfi,  # (no, no, nv, no)
-            Vamef,  # (nv, no, nv, nv)
-            Vaeim,  # (nv, nv, no, no)
-            T1,  # (nv, no)
-            T2,  # (nv, nv, no, no)
-            D1,
-            D2,
-        ) = data
+    def benchmark(
+        self,
+        xp,
+        meta,
+        Vme,
+        Vae,
+        Vmi,
+        Vai,
+        Vmnef,
+        Vabef,
+        Vabij,
+        Vabei,
+        Vmnij,
+        Vmnei,
+        Vamei,
+        Vamij,
+        Vanef,
+        Vmnfi,
+        Vamef,
+        Vaeim,
+        T1,
+        T2,
+        D1,
+        D2,
+    ):
 
         outer = xp.einsum("outer[a,b,i,j] += 0.5 * T1[a,i] * T1[b,j]", T1=T1)
         T21 = T2 + _asas_full(xp, outer)

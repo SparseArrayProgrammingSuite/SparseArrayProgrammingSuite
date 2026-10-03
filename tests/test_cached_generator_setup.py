@@ -49,8 +49,8 @@ def test_bellman_ford_runs_with_infinity_filled_sparse_input(framework):
     xp = framework()
 
     result = bellman_ford.BellmanFordBenchmark().benchmark(
-        xp, [xp.from_binsparse(distances)], {"src": 0}
-    )[0]
+        xp, {"src": 0}, xp.from_binsparse(distances)
+    )
 
     if hasattr(result, "todense"):
         result = result.todense()

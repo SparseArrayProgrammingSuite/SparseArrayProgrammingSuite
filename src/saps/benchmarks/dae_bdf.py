@@ -627,11 +627,24 @@ class DAEBDFBenchmark(_DescriptorDAEBenchmark):
     def description(self) -> str:
         return "Fixed-step BDF2 for SLICOT DAEs with LU factors from the generator."
 
-    def benchmark(self, xp, data, meta):
-        E, A, B, jac_y, jac_yp = data[:5]
-        L_start, U_start, rows_start, cols_start, L_bdf, U_bdf, rows_bdf, cols_bdf = (
-            data[5:]
-        )
+    def benchmark(
+        self,
+        xp,
+        meta,
+        E,
+        A,
+        B,
+        jac_y,
+        jac_yp,
+        L_start,
+        U_start,
+        rows_start,
+        cols_start,
+        L_bdf,
+        U_bdf,
+        rows_bdf,
+        cols_bdf,
+    ):
         start, stop = meta["span"]
         n, dt = meta["n"], meta["dt"]
         forcing = B @ xp.asarray(meta["input"], dtype=xp.float64)
@@ -650,4 +663,4 @@ class DAEBDFBenchmark(_DescriptorDAEBenchmark):
         yp.extend(
             (3 * y[i] - 4 * y[i - 1] + y[i - 2]) / (2 * dt) for i in range(2, len(y))
         )
-        return [time, xp.stack(y, axis=0), xp.stack(yp, axis=0)]
+        return time, xp.stack(y, axis=0), xp.stack(yp, axis=0)

@@ -632,9 +632,8 @@ class RQCStatevectorBenchmark(Benchmark):
     def generators(self):
         return [RQCStatevectorTestGenerator(), RQCStatevectorSyntheticGenerator()]
 
-    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
+    def benchmark(self, xp, meta: dict[str, Any], state, H, X, Y, Z, S, T):
         nqubits = meta["nqubits"]
-        state, H, X, Y, Z, S, T = data
 
         for gate_name, qubit in meta["gate_sequence"]:
             if gate_name == "H":
@@ -653,7 +652,7 @@ class RQCStatevectorBenchmark(Benchmark):
                 raise ValueError(f"Unknown quantum gate: {gate_name}")
             state = apply_single_qubit_gate(xp, state, gate, qubit, nqubits)
 
-        return [state]
+        return state
 
     def check(self, param):
         super().check(param)

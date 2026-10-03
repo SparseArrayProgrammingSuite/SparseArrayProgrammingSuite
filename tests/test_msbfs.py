@@ -30,8 +30,8 @@ def test_msbfs_test_problems(framework, dataset):
     problem = MSBFSTestGenerator().generate(dataset)
     xp = framework()
     output = MSBFSBenchmark().benchmark(
-        xp, [xp.from_binsparse(x) for x in problem.inputs], problem.meta
-    )[0]
+        xp, problem.meta, *(xp.from_binsparse(x) for x in problem.inputs)
+    )
     np.testing.assert_array_equal(
         NumpyFramework().from_binsparse(xp.to_binsparse(output)),
         to_numpy(problem.ref_outputs[0]),

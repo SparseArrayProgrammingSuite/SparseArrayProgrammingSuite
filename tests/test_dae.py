@@ -47,7 +47,7 @@ def test_singular_mass_with_inconsistent_initial_state(sparse):
     data = [xp.from_binsparse(value) for value in problem.inputs]
     time, y, yp = [
         np.asarray(value.todense() if hasattr(value, "todense") else value)
-        for value in DAEBDFBenchmark().benchmark(xp, data, problem.meta)
+        for value in DAEBDFBenchmark().benchmark(xp, problem.meta, *data)
     ]
     assert time[-1] == 1.0
     np.testing.assert_allclose(y[1:, 1], 3.0)
@@ -72,7 +72,7 @@ def test_descriptor_second_order_convergence():
             )
         )
         data = [NumpyFramework().from_binsparse(value) for value in problem.inputs]
-        _, y, _ = DAEBDFBenchmark().benchmark(NumpyFramework(), data, problem.meta)
+        _, y, _ = DAEBDFBenchmark().benchmark(NumpyFramework(), problem.meta, *data)
         errors.append(abs(y[-1, 0] - np.exp(-1)))
     assert errors[0] / errors[1] > 3.8
     assert errors[1] / errors[2] > 3.8
@@ -151,7 +151,7 @@ def test_lu_permutations():
         np.testing.assert_array_equal(np.sort(cols), np.arange(4))
         permuted = (coefficient * matrix).toarray()[rows][:, np.argsort(cols)]
         np.testing.assert_allclose(permuted, L @ U)
-    _, y, _ = DAEBDFBenchmark().benchmark(NumpyFramework(), data, problem.meta)
+    _, y, _ = DAEBDFBenchmark().benchmark(NumpyFramework(), problem.meta, *data)
     np.testing.assert_allclose(matrix @ y[1], rhs, atol=1e-12)
 
 
