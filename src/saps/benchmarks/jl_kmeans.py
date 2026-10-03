@@ -19,7 +19,7 @@ from saps.benchmarks.netflixprize import fetch_netflixprize_matrix
 from saps.benchmarks.openml import fetch_openml_features
 
 
-class RPKMeansRandomDataset(Dataset):
+class JLKMeansTestDataset(Dataset):
     def __init__(
         self,
         source_name: str,
@@ -72,14 +72,14 @@ class RPKMeansRandomDataset(Dataset):
         return data
 
 
-class RPKMeansGenerator(Generator[RPKMeansRandomDataset]):
+class JLKMeansTestGenerator(Generator[JLKMeansTestDataset]):
     @property
     def name(self) -> str:
-        return "rp_kmeans_clustering_test"
+        return "jl_kmeans_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Random Projection k-Means Clustering Test"
+        return "Johnson-Lindenstrauss (JL) k-Means Test"
 
     @property
     def description(self) -> str:
@@ -95,28 +95,28 @@ class RPKMeansGenerator(Generator[RPKMeansRandomDataset]):
 
     @property
     def authors(self) -> list[Contributor]:
-        return RPKMeansBenchmark().authors
+        return JLKMeansBenchmark().authors
 
     @property
     def references(self) -> list[Ref]:
-        return RPKMeansBenchmark().references
+        return JLKMeansBenchmark().references
 
     @property
     def ai_disclosure(self) -> str:
-        return RPKMeansBenchmark().ai_disclosure
+        return JLKMeansBenchmark().ai_disclosure
 
     @property
     def motivation(self) -> str:
-        return RPKMeansBenchmark().motivation
+        return JLKMeansBenchmark().motivation
 
     @property
     def cacheable(self) -> bool:
         return False
 
     @property
-    def datasets(self) -> list[RPKMeansRandomDataset]:
+    def datasets(self) -> list[JLKMeansTestDataset]:
         return [
-            RPKMeansRandomDataset(
+            JLKMeansTestDataset(
                 "three_clusters",
                 np.array(
                     [
@@ -140,7 +140,7 @@ class RPKMeansGenerator(Generator[RPKMeansRandomDataset]):
                     "cluster_count": 3,
                 },
             ),
-            RPKMeansRandomDataset(
+            JLKMeansTestDataset(
                 "two_clusters",
                 np.array(
                     [
@@ -165,7 +165,7 @@ class RPKMeansGenerator(Generator[RPKMeansRandomDataset]):
             ),
         ]
 
-    def generate(self, dataset: RPKMeansRandomDataset) -> DataInstance:
+    def generate(self, dataset: JLKMeansTestDataset) -> DataInstance:
         A_bin = from_numpy(dataset.points)
         _, d = dataset.points.shape
         t = int(dataset.c * math.ceil(dataset.k / dataset.eps**2))
@@ -187,7 +187,7 @@ class RPKMeansGenerator(Generator[RPKMeansRandomDataset]):
         )
 
 
-class RPKMeansDataset(Dataset):
+class JLKMeansDataset(Dataset):
     def __init__(
         self,
         source_name: str,
@@ -236,14 +236,14 @@ class RPKMeansDataset(Dataset):
         return data
 
 
-class RPKMeansOpenMLGenerator(Generator[RPKMeansDataset]):
+class JLKMeansOpenMLGenerator(Generator[JLKMeansDataset]):
     @property
     def name(self) -> str:
-        return "rp_kmeans_clustering_openml"
+        return "jl_kmeans_openml"
 
     @property
     def pretty_name(self) -> str:
-        return "Random Projection k-Means Clustering OpenML"
+        return "Johnson-Lindenstrauss (JL) k-Means OpenML"
 
     @property
     def description(self) -> str:
@@ -310,16 +310,16 @@ class RPKMeansOpenMLGenerator(Generator[RPKMeansDataset]):
         return False
 
     @property
-    def datasets(self) -> list[RPKMeansDataset]:
+    def datasets(self) -> list[JLKMeansDataset]:
         return [
-            RPKMeansDataset(
+            JLKMeansDataset(
                 "mnist",
                 k=10,
                 eps=0.3,
                 suites=["standard", "trace"],
                 pretty_name="MNIST",
             ),
-            RPKMeansDataset(
+            JLKMeansDataset(
                 "cifar10",
                 k=10,
                 eps=0.3,
@@ -328,7 +328,7 @@ class RPKMeansOpenMLGenerator(Generator[RPKMeansDataset]):
             ),
         ]
 
-    def generate(self, dataset: RPKMeansDataset) -> DataInstance:
+    def generate(self, dataset: JLKMeansDataset) -> DataInstance:
         features, source_meta = fetch_openml_features(dataset.name)
         training = features
 
@@ -356,14 +356,14 @@ class RPKMeansOpenMLGenerator(Generator[RPKMeansDataset]):
         )
 
 
-class RPKMeansNetflixGenerator(Generator[RPKMeansDataset]):
+class JLKMeansNetflixPrizeGenerator(Generator[JLKMeansDataset]):
     @property
     def name(self) -> str:
-        return "rp_kmeans_clustering_netflix_prize"
+        return "jl_kmeans_netflix_prize"
 
     @property
     def pretty_name(self) -> str:
-        return "Random Projection k-Means Clustering Netflix Prize"
+        return "Johnson-Lindenstrauss (JL) k-Means Netflix Prize"
 
     @property
     def description(self) -> str:
@@ -404,9 +404,9 @@ class RPKMeansNetflixGenerator(Generator[RPKMeansDataset]):
         )
 
     @property
-    def datasets(self) -> list[RPKMeansDataset]:
+    def datasets(self) -> list[JLKMeansDataset]:
         return [
-            RPKMeansDataset(
+            JLKMeansDataset(
                 "netflix",
                 k=10,
                 eps=0.3,
@@ -419,7 +419,7 @@ class RPKMeansNetflixGenerator(Generator[RPKMeansDataset]):
     def cacheable(self) -> bool:
         return False
 
-    def generate(self, dataset: RPKMeansDataset) -> DataInstance:
+    def generate(self, dataset: JLKMeansDataset) -> DataInstance:
         data, source_meta = fetch_netflixprize_matrix()
 
         training = from_scipy(data.tocoo())
@@ -446,14 +446,14 @@ class RPKMeansNetflixGenerator(Generator[RPKMeansDataset]):
         )
 
 
-class RPKMeansBenchmark(Benchmark):
+class JLKMeansBenchmark(Benchmark):
     @property
     def name(self) -> str:
-        return "rp_kmeans_clustering"
+        return "jl_kmeans"
 
     @property
     def pretty_name(self) -> str:
-        return "Random Projection k-Means Clustering"
+        return "Johnson-Lindenstrauss (JL) k-Means"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -538,9 +538,9 @@ Dimensionality reduction</concept_desc>
     @property
     def generators(self):
         return [
-            RPKMeansGenerator(),
-            RPKMeansOpenMLGenerator(),
-            RPKMeansNetflixGenerator(),
+            JLKMeansTestGenerator(),
+            JLKMeansOpenMLGenerator(),
+            JLKMeansNetflixPrizeGenerator(),
         ]
 
     def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):

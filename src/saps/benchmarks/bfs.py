@@ -23,7 +23,7 @@ from saps.benchmarks.snap import (
 from saps_framework.binsparse_utils import binsparse_equal
 
 
-class BreadthFirstSearchDataset(Dataset):
+class BFSDataset(Dataset):
     def __init__(
         self,
         name: str | None = None,
@@ -75,14 +75,14 @@ class BreadthFirstSearchDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
+class BFSTestGenerator(Generator[BFSDataset]):
     @property
     def name(self) -> str:
         return "bfs_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Breadth-First Search Test"
+        return "Breadth-First Search (BFS) Test"
 
     @property
     def description(self) -> str:
@@ -120,9 +120,9 @@ class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
         return False
 
     @property
-    def datasets(self) -> list[BreadthFirstSearchDataset]:
+    def datasets(self) -> list[BFSDataset]:
         return [
-            BreadthFirstSearchDataset(
+            BFSDataset(
                 "basic",
                 pretty_name="Basic",
                 suites=["test"],
@@ -140,7 +140,7 @@ class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
                 src=0,
                 expected=np.array([1, 2, 2, 3, 3, 4], dtype=int),
             ),
-            BreadthFirstSearchDataset(
+            BFSDataset(
                 "single_node",
                 pretty_name="Single Node",
                 suites=["test"],
@@ -148,7 +148,7 @@ class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
                 src=0,
                 expected=np.array([1], dtype=int),
             ),
-            BreadthFirstSearchDataset(
+            BFSDataset(
                 "disconnected",
                 pretty_name="Disconnected",
                 suites=["test"],
@@ -164,7 +164,7 @@ class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
                 src=0,
                 expected=np.array([1, 2, 0, 0], dtype=int),
             ),
-            BreadthFirstSearchDataset(
+            BFSDataset(
                 "undirected",
                 pretty_name="Undirected",
                 suites=["test"],
@@ -180,7 +180,7 @@ class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
                 src=0,
                 expected=np.array([1, 2, 3, 4], dtype=int),
             ),
-            BreadthFirstSearchDataset(
+            BFSDataset(
                 "cycle",
                 pretty_name="Cycle",
                 suites=["test"],
@@ -196,7 +196,7 @@ class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
                 src=0,
                 expected=np.array([1, 2, 3, 4], dtype=int),
             ),
-            BreadthFirstSearchDataset(
+            BFSDataset(
                 "snap_toy",
                 pretty_name="SNAP Toy",
                 suites=["test"],
@@ -212,7 +212,7 @@ class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
                 expected=np.array([1, 2, 3], dtype=int),
             ),
             *[
-                BreadthFirstSearchDataset(
+                BFSDataset(
                     name=f"random_source_seed{seed}",
                     pretty_name=f"Random Source (Seed {seed})",
                     suites=["test"],
@@ -226,7 +226,7 @@ class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
             ],
         ]
 
-    def generate(self, dataset: BreadthFirstSearchDataset) -> DataInstance:
+    def generate(self, dataset: BFSDataset) -> DataInstance:
         if dataset.source_seed is not None:
             from scipy.sparse.csgraph import shortest_path
 
@@ -251,14 +251,14 @@ class BreadthFirstSearchTestGenerator(Generator[BreadthFirstSearchDataset]):
         )
 
 
-class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
+class BFSSNAPGenerator(Generator[BFSDataset]):
     @property
     def name(self) -> str:
         return "bfs_snap"
 
     @property
     def pretty_name(self) -> str:
-        return "Breadth-First Search SNAP"
+        return "Breadth-First Search (BFS) SNAP"
 
     @property
     def description(self) -> str:
@@ -296,286 +296,286 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
         return False
 
     @property
-    def datasets(self) -> list[BreadthFirstSearchDataset]:
+    def datasets(self) -> list[BFSDataset]:
         # Trace selects successful Smart runs < 60s in competition/run_13803684.
         # fmt: off
         return [
             *[
-                BreadthFirstSearchDataset(source_name="soc-Epinions1", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="soc-Epinions1", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="soc-LiveJournal1", source_seed=seed, suites=["standard"])
+                BFSDataset(source_name="soc-LiveJournal1", source_seed=seed, suites=["standard"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="soc-Pokec", source_seed=seed, suites=["standard"])
+                BFSDataset(source_name="soc-Pokec", source_seed=seed, suites=["standard"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="soc-Slashdot0811", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="soc-Slashdot0811", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="soc-Slashdot0902", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="soc-Slashdot0902", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="wiki-Vote", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="wiki-Vote", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="wiki-RfA", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="wiki-RfA", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="soc-sign-bitcoin-otc", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="soc-sign-bitcoin-otc", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="soc-sign-bitcoin-alpha", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="soc-sign-bitcoin-alpha", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="com-LiveJournal", source_seed=seed, suites=["standard"])
+                BFSDataset(source_name="com-LiveJournal", source_seed=seed, suites=["standard"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="com-Friendster", source_seed=seed, suites=["standard"])
+                BFSDataset(source_name="com-Friendster", source_seed=seed, suites=["standard"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="com-Orkut", source_seed=seed, suites=["standard"])
+                BFSDataset(source_name="com-Orkut", source_seed=seed, suites=["standard"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="com-Youtube", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="com-Youtube", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="com-DBLP", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="com-DBLP", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="com-Amazon", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="com-Amazon", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="email-Eu-core", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="email-Eu-core", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="wiki-topcats", source_seed=seed, suites=["standard"])
+                BFSDataset(source_name="wiki-topcats", source_seed=seed, suites=["standard"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="email-EuAll", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="email-EuAll", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="email-Enron", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="email-Enron", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="wiki-Talk", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="wiki-Talk", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="cit-HepPh", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="cit-HepPh", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="cit-HepTh", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="cit-HepTh", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="cit-Patents", source_seed=seed, suites=["standard", "trace", "train"] if seed == 7 else ["standard", "trace"])
+                BFSDataset(source_name="cit-Patents", source_seed=seed, suites=["standard", "trace", "train"] if seed == 7 else ["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="ca-AstroPh", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="ca-AstroPh", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="ca-CondMat", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="ca-CondMat", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="ca-GrQc", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="ca-GrQc", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="ca-HepPh", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="ca-HepPh", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="ca-HepTh", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="ca-HepTh", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="web-BerkStan", source_seed=seed, suites=["standard", "trace"] if seed in (0, 2, 5) else ["standard"])
+                BFSDataset(source_name="web-BerkStan", source_seed=seed, suites=["standard", "trace"] if seed in (0, 2, 5) else ["standard"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="web-Google", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="web-Google", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="web-NotreDame", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="web-NotreDame", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="web-Stanford", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="web-Stanford", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="amazon0302", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="amazon0302", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="amazon0312", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="amazon0312", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="amazon0505", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="amazon0505", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="amazon0601", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="amazon0601", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="p2p-Gnutella04", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="p2p-Gnutella04", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="p2p-Gnutella05", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="p2p-Gnutella05", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="p2p-Gnutella06", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="p2p-Gnutella06", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="p2p-Gnutella08", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="p2p-Gnutella08", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="p2p-Gnutella09", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="p2p-Gnutella09", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="p2p-Gnutella24", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="p2p-Gnutella24", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="p2p-Gnutella25", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="p2p-Gnutella25", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="p2p-Gnutella30", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="p2p-Gnutella30", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="p2p-Gnutella31", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="p2p-Gnutella31", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="roadNet-CA", source_seed=seed, suites=["standard"])
+                BFSDataset(source_name="roadNet-CA", source_seed=seed, suites=["standard"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="roadNet-PA", source_seed=seed, suites=["standard"])
+                BFSDataset(source_name="roadNet-PA", source_seed=seed, suites=["standard"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="roadNet-TX", source_seed=seed, suites=["standard"])
+                BFSDataset(source_name="roadNet-TX", source_seed=seed, suites=["standard"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="as-735", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="as-735", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="as-Skitter", source_seed=seed, suites=["standard", "trace"] if seed in (1, 4, 6, 9) else ["standard"])
+                BFSDataset(source_name="as-Skitter", source_seed=seed, suites=["standard", "trace"] if seed in (1, 4, 6, 9) else ["standard"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="as-caida", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="as-caida", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="Oregon-1", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="Oregon-1", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="Oregon-2", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="Oregon-2", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="soc-sign-epinions", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="soc-sign-epinions", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="soc-sign-Slashdot081106", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="soc-sign-Slashdot081106", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="soc-sign-Slashdot090216", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="soc-sign-Slashdot090216", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="soc-sign-Slashdot090221", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="soc-sign-Slashdot090221", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="loc-Gowalla", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="loc-Gowalla", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="loc-Brightkite", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="loc-Brightkite", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="sx-stackoverflow", source_seed=seed, suites=["standard", "trace"] if seed in (1, 2, 3, 5, 6, 9) else ["standard"])
+                BFSDataset(source_name="sx-stackoverflow", source_seed=seed, suites=["standard", "trace"] if seed in (1, 2, 3, 5, 6, 9) else ["standard"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="sx-mathoverflow", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="sx-mathoverflow", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="sx-superuser", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="sx-superuser", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="sx-askubuntu", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="sx-askubuntu", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="wiki-talk-temporal", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="wiki-talk-temporal", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="email-Eu-core-temporal", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="email-Eu-core-temporal", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="CollegeMsg", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="CollegeMsg", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="twitter7", source_seed=seed, suites=["standard"])
+                BFSDataset(source_name="twitter7", source_seed=seed, suites=["standard"])
                 for seed in range(10)
             ],
             *[
-                BreadthFirstSearchDataset(source_name="higgs-twitter", source_seed=seed, suites=["standard", "trace"])
+                BFSDataset(source_name="higgs-twitter", source_seed=seed, suites=["standard", "trace"])
                 for seed in range(10)
             ],
         ]
         # fmt: on
 
-    def generate(self, dataset: BreadthFirstSearchDataset) -> DataInstance:
+    def generate(self, dataset: BFSDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.source_name)
         seed = dataset.source_seed
         if seed is None or not 0 <= seed < len(raw.meta["sources"]):
@@ -588,14 +588,14 @@ class BreadthFirstSearchSNAPGenerator(Generator[BreadthFirstSearchDataset]):
         )
 
 
-class BreadthFirstSearchGAPGenerator(Generator[BreadthFirstSearchDataset]):
+class BFSGAPGenerator(Generator[BFSDataset]):
     @property
     def name(self) -> str:
         return "bfs_gap"
 
     @property
     def pretty_name(self) -> str:
-        return "Breadth-First Search GAP"
+        return "Breadth-First Search (BFS) GAP"
 
     @property
     def description(self) -> str:
@@ -644,33 +644,33 @@ class BreadthFirstSearchGAPGenerator(Generator[BreadthFirstSearchDataset]):
         return False
 
     @property
-    def datasets(self) -> list[BreadthFirstSearchDataset]:
+    def datasets(self) -> list[BFSDataset]:
         # fmt: off
         return [
             *[
-                BreadthFirstSearchDataset(source_name="GAP-road", src=src, suites=["standard"])
+                BFSDataset(source_name="GAP-road", src=src, suites=["standard"])
                 for src in gap_graph("GAP-road").sources
             ],
             *[
-                BreadthFirstSearchDataset(source_name="GAP-twitter", src=src, suites=["standard"])
+                BFSDataset(source_name="GAP-twitter", src=src, suites=["standard"])
                 for src in gap_graph("GAP-twitter").sources
             ],
             *[
-                BreadthFirstSearchDataset(source_name="GAP-web", src=src, suites=["standard"])
+                BFSDataset(source_name="GAP-web", src=src, suites=["standard"])
                 for src in gap_graph("GAP-web").sources
             ],
             *[
-                BreadthFirstSearchDataset(source_name="GAP-kron", src=src, suites=["standard"])
+                BFSDataset(source_name="GAP-kron", src=src, suites=["standard"])
                 for src in gap_graph("GAP-kron").sources
             ],
             *[
-                BreadthFirstSearchDataset(source_name="GAP-urand", src=src, suites=["standard"])
+                BFSDataset(source_name="GAP-urand", src=src, suites=["standard"])
                 for src in gap_graph("GAP-urand").sources
             ],
         ]
         # fmt: on
 
-    def generate(self, dataset: BreadthFirstSearchDataset) -> DataInstance:
+    def generate(self, dataset: BFSDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.source_name)
         if dataset.src not in raw.meta["sources"]:
             raise ValueError(
@@ -682,14 +682,14 @@ class BreadthFirstSearchGAPGenerator(Generator[BreadthFirstSearchDataset]):
         )
 
 
-class BreadthFirstSearchBenchmark(Benchmark):
+class BFSBenchmark(Benchmark):
     @property
     def name(self):
         return "bfs"
 
     @property
     def pretty_name(self):
-        return "Breadth-First Search"
+        return "Breadth-First Search (BFS)"
 
     @property
     def description(self):
@@ -775,9 +775,9 @@ class BreadthFirstSearchBenchmark(Benchmark):
     @property
     def generators(self):
         return [
-            BreadthFirstSearchSNAPGenerator(),
-            BreadthFirstSearchTestGenerator(),
-            BreadthFirstSearchGAPGenerator(),
+            BFSSNAPGenerator(),
+            BFSTestGenerator(),
+            BFSGAPGenerator(),
         ]
 
     def benchmark(self, xp, data: list, meta: dict):

@@ -107,7 +107,9 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
     @property
     def datasets(self) -> list[TransitiveClosureDataset]:
         return [
-            TransitiveClosureDataset("dag", pretty_name="DAG", suites=["test"]),
+            TransitiveClosureDataset(
+                "dag", pretty_name="Directed Acyclic Graph (DAG)", suites=["test"]
+            ),
             TransitiveClosureDataset(
                 "strong_component_count",
                 pretty_name="Strong Component Count",

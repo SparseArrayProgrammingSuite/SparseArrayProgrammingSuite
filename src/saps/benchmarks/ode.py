@@ -161,7 +161,7 @@ def _resolve_derivatives(problem_name):
 # ---------------------------------------------------------------------------
 
 
-class RCDataset(Dataset):
+class ODERCDataset(Dataset):
     def __init__(
         self, name, pretty_name, description, suites, R, C, t_max, V_C_initial, step
     ):
@@ -196,7 +196,7 @@ class RCDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class RLCDataset(Dataset):
+class ODERLCDataset(Dataset):
     def __init__(
         self, name, pretty_name, description, suites, R, L, C, t_max, y0, step
     ):
@@ -232,7 +232,7 @@ class RLCDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class LotkaVolterraDataset(Dataset):
+class ODELotkaVolterraDataset(Dataset):
     def __init__(
         self, name, pretty_name, description, suites, a, b, c, d, t_max, y0, step
     ):
@@ -269,7 +269,7 @@ class LotkaVolterraDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class BrusselatorDataset(Dataset):
+class ODEBrusselatorDataset(Dataset):
     def __init__(
         self, name, pretty_name, description, suites, n, a, b, alpha, t_max, step
     ):
@@ -316,7 +316,7 @@ class BrusselatorDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class SLICOTDataset(Dataset):
+class ODESLICOTDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -385,7 +385,7 @@ _AI_DISCLOSURE = (
 )
 
 
-class RCGenerator(Generator[RCDataset]):
+class ODERCGenerator(Generator[ODERCDataset]):
     @property
     def cacheable(self) -> bool:
         return False
@@ -396,7 +396,7 @@ class RCGenerator(Generator[RCDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "ODE RC Circuit"
+        return "Ordinary Differential Equation (ODE) Resistor-Capacitor (RC) Circuit"
 
     @property
     def description(self) -> str:
@@ -427,9 +427,9 @@ class RCGenerator(Generator[RCDataset]):
         return ""
 
     @property
-    def datasets(self) -> list[RCDataset]:
+    def datasets(self) -> list[ODERCDataset]:
         return [
-            RCDataset(
+            ODERCDataset(
                 name="small",
                 pretty_name="Small",
                 description="Small RC circuit",
@@ -442,7 +442,7 @@ class RCGenerator(Generator[RCDataset]):
             ),
         ]
 
-    def generate(self, dataset: RCDataset):
+    def generate(self, dataset: ODERCDataset):
         meta = {
             "problem_name": self.name,
             "span": (0, dataset.t_max),
@@ -454,7 +454,7 @@ class RCGenerator(Generator[RCDataset]):
         return DataInstance(inputs=[], meta=meta)
 
 
-class RLCGenerator(Generator[RLCDataset]):
+class ODERLCGenerator(Generator[ODERLCDataset]):
     @property
     def cacheable(self) -> bool:
         return False
@@ -465,7 +465,10 @@ class RLCGenerator(Generator[RLCDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "ODE RLC Circuit"
+        return (
+            "Ordinary Differential Equation (ODE) Resistor-Inductor-Capacitor (RLC)"
+            " Circuit"
+        )
 
     @property
     def description(self) -> str:
@@ -496,9 +499,9 @@ class RLCGenerator(Generator[RLCDataset]):
         return ""
 
     @property
-    def datasets(self) -> list[RLCDataset]:
+    def datasets(self) -> list[ODERLCDataset]:
         return [
-            RLCDataset(
+            ODERLCDataset(
                 name="small",
                 pretty_name="Small",
                 description="Small RLC circuit",
@@ -512,7 +515,7 @@ class RLCGenerator(Generator[RLCDataset]):
             ),
         ]
 
-    def generate(self, dataset: RLCDataset):
+    def generate(self, dataset: ODERLCDataset):
         meta = {
             "problem_name": self.name,
             "span": (0, dataset.t_max),
@@ -525,7 +528,7 @@ class RLCGenerator(Generator[RLCDataset]):
         return DataInstance(inputs=[], meta=meta, ref_meta={"check_components": [0]})
 
 
-class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
+class ODELotkaVolterraGenerator(Generator[ODELotkaVolterraDataset]):
     @property
     def cacheable(self) -> bool:
         return False
@@ -536,7 +539,7 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "ODE Lotka-Volterra"
+        return "Ordinary Differential Equation (ODE) Lotka-Volterra"
 
     @property
     def description(self) -> str:
@@ -567,9 +570,9 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
         return ""
 
     @property
-    def datasets(self) -> list[LotkaVolterraDataset]:
+    def datasets(self) -> list[ODELotkaVolterraDataset]:
         return [
-            LotkaVolterraDataset(
+            ODELotkaVolterraDataset(
                 name="small",
                 pretty_name="Small",
                 description="Small Lotka-Volterra system",
@@ -584,7 +587,7 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
             ),
         ]
 
-    def generate(self, dataset: LotkaVolterraDataset):
+    def generate(self, dataset: ODELotkaVolterraDataset):
         meta = {
             "problem_name": self.name,
             "span": (0, dataset.t_max),
@@ -598,7 +601,7 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
         return DataInstance(inputs=[], meta=meta, ref_meta={"error_tolerance": 10.0})
 
 
-class BrusselatorGenerator(Generator[BrusselatorDataset]):
+class ODEBrusselatorGenerator(Generator[ODEBrusselatorDataset]):
     def __init__(self, train: bool = False):
         self.train = train
 
@@ -612,7 +615,7 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "ODE Brusselator"
+        return "Ordinary Differential Equation (ODE) Brusselator"
 
     @property
     def description(self) -> str:
@@ -643,9 +646,9 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
         return ""
 
     @property
-    def datasets(self) -> list[BrusselatorDataset]:
+    def datasets(self) -> list[ODEBrusselatorDataset]:
         return [
-            BrusselatorDataset(
+            ODEBrusselatorDataset(
                 name="2x2",
                 pretty_name="2x2 Grid",
                 description="Tiny 2D Brusselator correctness test",
@@ -657,7 +660,7 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
                 t_max=0.1,
                 step=0.01,
             ),
-            BrusselatorDataset(
+            ODEBrusselatorDataset(
                 name="100x100",
                 pretty_name="100x100 Grid",
                 description="2D Brusselator with 100x100 grid",
@@ -673,7 +676,7 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
             ),
         ]
 
-    def generate(self, dataset: BrusselatorDataset):
+    def generate(self, dataset: ODEBrusselatorDataset):
         meta = {
             "problem_name": self.name,
             "span": (0, dataset.t_max),
@@ -693,7 +696,7 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
         )
 
 
-class SLICOTGenerator(Generator[SLICOTDataset]):
+class ODESLICOTGenerator(Generator[ODESLICOTDataset]):
     def __init__(
         self,
         trace_datasets: tuple[str, ...] = (),
@@ -708,7 +711,7 @@ class SLICOTGenerator(Generator[SLICOTDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "ODE SLICOT"
+        return "Ordinary Differential Equation (ODE) SLICOT"
 
     @property
     def description(self) -> str:
@@ -755,46 +758,46 @@ class SLICOTGenerator(Generator[SLICOTDataset]):
         )
 
     @property
-    def datasets(self) -> list[SLICOTDataset]:
+    def datasets(self) -> list[ODESLICOTDataset]:
         # Base timesteps, scaled by each method's step_multiplier at setup.
         # Validated over t_max=0.1 at the 0.05 absolute-error tolerance.
         datasets = [
-            SLICOTDataset("eady", suites=["standard", "trace"]),
-            SLICOTDataset("CDplayer", suites=["standard"], step=4e-5),
-            SLICOTDataset(
+            ODESLICOTDataset("eady", suites=["standard", "trace"]),
+            ODESLICOTDataset("CDplayer", suites=["standard"], step=4e-5),
+            ODESLICOTDataset(
                 "fom",
                 suites=["standard", "trace", "train"]
                 if self.train_dataset == "fom"
                 else ["standard", "trace"],
                 step=0.001,
             ),
-            SLICOTDataset("random", suites=["standard"], step=5e-5),
-            SLICOTDataset("pde", suites=["standard", "trace"], step=0.001),
-            SLICOTDataset(
+            ODESLICOTDataset("random", suites=["standard"], step=5e-5),
+            ODESLICOTDataset("pde", suites=["standard", "trace"], step=0.001),
+            ODESLICOTDataset(
                 "heat-cont",
                 suites=["standard", "trace", "train"]
                 if self.train_dataset == "heat-cont"
                 else ["standard", "trace"],
                 step=0.001,
             ),
-            SLICOTDataset("Orr-Som", suites=["standard", "trace"]),
-            SLICOTDataset("iss", suites=["standard", "trace"]),
-            SLICOTDataset("build", suites=["standard", "trace"]),
-            SLICOTDataset("beam", suites=["standard", "trace"], step=0.001),
+            ODESLICOTDataset("Orr-Som", suites=["standard", "trace"]),
+            ODESLICOTDataset("iss", suites=["standard", "trace"]),
+            ODESLICOTDataset("build", suites=["standard", "trace"]),
+            ODESLICOTDataset("beam", suites=["standard", "trace"], step=0.001),
         ]
         for dataset in datasets:
             if dataset.name in self.trace_datasets and "trace" not in dataset.suites:
                 dataset.suites.append("trace")
         return datasets
 
-    def generate(self, dataset: SLICOTDataset):
+    def generate(self, dataset: ODESLICOTDataset):
         from scipy import sparse as scipy_sparse
 
         variables, source_meta = load_slicot_problem(dataset.source_name)
         if "E" in variables:
             raise ValueError(
                 f"SLICOT {dataset.source_name} has an explicit E matrix; "
-                "SLICOTGenerator only supports identity-E systems"
+                "ODESLICOTGenerator only supports identity-E systems"
             )
         if "A" not in variables:
             raise ValueError(f"SLICOT {dataset.source_name} must define A")
@@ -867,7 +870,7 @@ class SLICOTGenerator(Generator[SLICOTDataset]):
 # ---------------------------------------------------------------------------
 
 
-class _OdeBenchmarkBase(Benchmark, ABC):
+class _ODEBenchmarkBase(Benchmark, ABC):
     step_multiplier = 1.0
     slicot_trace_datasets: tuple[str, ...] = ()
     slicot_train_dataset: str | None = None
@@ -880,11 +883,11 @@ class _OdeBenchmarkBase(Benchmark, ABC):
     @property
     def generators(self):
         return [
-            RCGenerator(),
-            RLCGenerator(),
-            LotkaVolterraGenerator(),
-            BrusselatorGenerator(train=self.brusselator_train),
-            SLICOTGenerator(
+            ODERCGenerator(),
+            ODERLCGenerator(),
+            ODELotkaVolterraGenerator(),
+            ODEBrusselatorGenerator(train=self.brusselator_train),
+            ODESLICOTGenerator(
                 trace_datasets=self.slicot_trace_datasets,
                 train_dataset=self.slicot_train_dataset,
             ),
@@ -902,7 +905,7 @@ class _OdeBenchmarkBase(Benchmark, ABC):
         # Older cached inputs do not identify their problem. Use the selected
         # generator and preserve the cached matrices without modifying its metadata.
         self._meta = {"problem_name": param.generator.name, **self._meta}
-        if isinstance(param.dataset, SLICOTDataset):
+        if isinstance(param.dataset, ODESLICOTDataset):
             # Apply current method settings even when the cached timestep is stale.
             self._meta["step"] = param.dataset.step * self.step_multiplier
 
@@ -966,7 +969,7 @@ class _OdeBenchmarkBase(Benchmark, ABC):
         )
 
 
-class ForwardEuler(_OdeBenchmarkBase):
+class ForwardEulerBenchmark(_ODEBenchmarkBase):
     step_multiplier = 0.01
     slicot_trace_datasets = ("beam", "fom", "heat-cont")
     slicot_train_dataset = "fom"
@@ -1004,7 +1007,7 @@ class ForwardEuler(_OdeBenchmarkBase):
         return (np.asarray(inputs), np.asarray(outputs))
 
 
-class BackwardEuler(_OdeBenchmarkBase):
+class BackwardEulerBenchmark(_ODEBenchmarkBase):
     step_multiplier = 0.02
     slicot_train_dataset = "heat-cont"
 
@@ -1047,7 +1050,7 @@ class BackwardEuler(_OdeBenchmarkBase):
         return (np.asarray(inputs), np.asarray(outputs))
 
 
-class RungeKutta(_OdeBenchmarkBase):
+class RK4Benchmark(_ODEBenchmarkBase):
     step_multiplier = 1.0
     brusselator_train = True
     slicot_trace_datasets = (
@@ -1060,11 +1063,11 @@ class RungeKutta(_OdeBenchmarkBase):
 
     @property
     def name(self):
-        return "runge_kutta"
+        return "rk4"
 
     @property
     def pretty_name(self):
-        return "Runge-Kutta (RK4)"
+        return "Fourth-Order Runge-Kutta (RK4)"
 
     @property
     def description(self):

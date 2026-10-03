@@ -6,18 +6,18 @@ from binsparse.conversions import to_numpy
 
 from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_sparse import PyDataSparseFramework
-from saps.benchmarks.MSBFS import (
-    MultiSourceBreadthFirstSearchBenchmark,
-    MultiSourceBreadthFirstSearchTestGenerator,
+from saps.benchmarks.msbfs import (
+    MSBFSBenchmark,
+    MSBFSTestGenerator,
     reference_levels,
 )
 
-_DATASETS = MultiSourceBreadthFirstSearchTestGenerator().datasets
+_DATASETS = MSBFSTestGenerator().datasets
 
 
 @pytest.mark.parametrize("dataset", _DATASETS, ids=lambda d: d.name)
 def test_msbfs_test_expectations_match_scipy_reference(dataset):
-    problem = MultiSourceBreadthFirstSearchTestGenerator().generate(dataset)
+    problem = MSBFSTestGenerator().generate(dataset)
     sources = problem.meta["sources"]
     expected = to_numpy(problem.ref_outputs[0])
     assert expected.shape == (len(sources), dataset.A.shape[0])
@@ -27,9 +27,9 @@ def test_msbfs_test_expectations_match_scipy_reference(dataset):
 @pytest.mark.parametrize("framework", [NumpyFramework, PyDataSparseFramework])
 @pytest.mark.parametrize("dataset", _DATASETS, ids=lambda d: d.name)
 def test_msbfs_test_problems(framework, dataset):
-    problem = MultiSourceBreadthFirstSearchTestGenerator().generate(dataset)
+    problem = MSBFSTestGenerator().generate(dataset)
     xp = framework()
-    output = MultiSourceBreadthFirstSearchBenchmark().benchmark(
+    output = MSBFSBenchmark().benchmark(
         xp, [xp.from_binsparse(x) for x in problem.inputs], problem.meta
     )[0]
     np.testing.assert_array_equal(

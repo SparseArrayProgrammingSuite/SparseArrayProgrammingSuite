@@ -124,7 +124,7 @@ def bdf2 ( xp, f, tspan, y0, n, E, startup_factors, bdf2_factors ):
 # fmt: on
 
 
-class DescriptorDAEDataset(Dataset):
+class DAEBDFDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -208,8 +208,8 @@ class DescriptorDAEDataset(Dataset):
         return metadata
 
 
-class _DescriptorDAEGenerator(Generator[DescriptorDAEDataset]):
-    def generate(self, dataset: DescriptorDAEDataset) -> DataInstance:
+class _DescriptorDAEGenerator(Generator[DAEBDFDataset]):
+    def generate(self, dataset: DAEBDFDataset) -> DataInstance:
         source_meta = None
         if dataset.source_name is not None:
             variables, source_meta = slicot.load_slicot_problem(dataset.source_name)
@@ -349,14 +349,17 @@ class _DescriptorDAEGenerator(Generator[DescriptorDAEDataset]):
         )
 
 
-class DescriptorDAETestGenerator(_DescriptorDAEGenerator):
+class DAEBDFTestGenerator(_DescriptorDAEGenerator):
     @property
     def name(self) -> str:
         return "dae_bdf_test"
 
     @property
     def pretty_name(self) -> str:
-        return "DAE BDF Test"
+        return (
+            "Differential-Algebraic Equation (DAE) Backward Differentiation Formula"
+            " (BDF) Test"
+        )
 
     @property
     def description(self) -> str:
@@ -375,9 +378,9 @@ class DescriptorDAETestGenerator(_DescriptorDAEGenerator):
         return "Uses a small singular-mass descriptor system to verify DAE steps."
 
     @property
-    def datasets(self) -> list[DescriptorDAEDataset]:
+    def datasets(self) -> list[DAEBDFDataset]:
         return [
-            DescriptorDAEDataset(
+            DAEBDFDataset(
                 "tiny_descriptor",
                 pretty_name="Tiny Descriptor",
                 description="Two-variable index-1 descriptor system.",
@@ -398,14 +401,17 @@ class DescriptorDAETestGenerator(_DescriptorDAEGenerator):
         ]
 
 
-class SlicotDAEGenerator(_DescriptorDAEGenerator):
+class DAEBDFSLICOTGenerator(_DescriptorDAEGenerator):
     @property
     def name(self) -> str:
         return "dae_bdf_slicot"
 
     @property
     def pretty_name(self) -> str:
-        return "DAE BDF SLICOT"
+        return (
+            "Differential-Algebraic Equation (DAE) Backward Differentiation Formula"
+            " (BDF) SLICOT"
+        )
 
     @property
     def description(self) -> str:
@@ -433,9 +439,9 @@ class SlicotDAEGenerator(_DescriptorDAEGenerator):
         )
 
     @property
-    def datasets(self) -> list[DescriptorDAEDataset]:
+    def datasets(self) -> list[DAEBDFDataset]:
         return [
-            DescriptorDAEDataset(
+            DAEBDFDataset(
                 "tline",
                 source_name="tline.mat",
                 description="SLICOT example of a transmission line model.",
@@ -443,7 +449,7 @@ class SlicotDAEGenerator(_DescriptorDAEGenerator):
                 t_max=0.02,
                 step=0.01,
             ),
-            DescriptorDAEDataset(
+            DAEBDFDataset(
                 "peec",
                 source_name="peec.mat",
                 description="SLICOT partial element equivalent circuit model.",
@@ -451,7 +457,7 @@ class SlicotDAEGenerator(_DescriptorDAEGenerator):
                 t_max=0.02,
                 step=0.01,
             ),
-            DescriptorDAEDataset(
+            DAEBDFDataset(
                 "heat-disc",
                 source_name="heat-disc.mat",
                 description="SLICOT discretization of the previous equation.",
@@ -459,7 +465,7 @@ class SlicotDAEGenerator(_DescriptorDAEGenerator):
                 t_max=0.02,
                 step=0.01,
             ),
-            DescriptorDAEDataset(
+            DAEBDFDataset(
                 "MNA_1",
                 source_name="MNA_1.mat",
                 description="SLICOT Modified Nodal Analysis model.",
@@ -467,7 +473,7 @@ class SlicotDAEGenerator(_DescriptorDAEGenerator):
                 t_max=0.02,
                 step=0.01,
             ),
-            DescriptorDAEDataset(
+            DAEBDFDataset(
                 "MNA_2",
                 source_name="MNA_2.mat",
                 description="SLICOT Modified Nodal Analysis model.",
@@ -475,7 +481,7 @@ class SlicotDAEGenerator(_DescriptorDAEGenerator):
                 t_max=0.02,
                 step=0.01,
             ),
-            DescriptorDAEDataset(
+            DAEBDFDataset(
                 "MNA_3",
                 source_name="MNA_3.mat",
                 description="SLICOT Modified Nodal Analysis model.",
@@ -483,7 +489,7 @@ class SlicotDAEGenerator(_DescriptorDAEGenerator):
                 t_max=0.02,
                 step=0.01,
             ),
-            DescriptorDAEDataset(
+            DAEBDFDataset(
                 "MNA_4",
                 source_name="MNA_4.mat",
                 description="SLICOT Modified Nodal Analysis model.",
@@ -491,7 +497,7 @@ class SlicotDAEGenerator(_DescriptorDAEGenerator):
                 t_max=0.02,
                 step=0.01,
             ),
-            DescriptorDAEDataset(
+            DAEBDFDataset(
                 "MNA_5",
                 source_name="MNA_5.mat",
                 description="SLICOT Modified Nodal Analysis model.",
@@ -536,7 +542,7 @@ class _DescriptorDAEBenchmark(Benchmark):
     @property
     def references(self) -> list[Ref]:
         return [
-            *SlicotDAEGenerator().references,
+            *DAEBDFSLICOTGenerator().references,
             Ref(
                 title="BDF2: Backward Differentiation Formula of Order 2",
                 authors=[Author("John Burkardt")],
@@ -556,8 +562,8 @@ class _DescriptorDAEBenchmark(Benchmark):
         return "Solves descriptor-form DAEs using explicit residual Jacobians."
 
     @property
-    def generators(self) -> list[Generator[DescriptorDAEDataset]]:
-        return [DescriptorDAETestGenerator(), SlicotDAEGenerator()]
+    def generators(self) -> list[Generator[DAEBDFDataset]]:
+        return [DAEBDFTestGenerator(), DAEBDFSLICOTGenerator()]
 
     def check(self, param):
         for item in self._output:
@@ -605,14 +611,17 @@ class _DescriptorDAEBenchmark(Benchmark):
             )
 
 
-class SlicotDAEBDF(_DescriptorDAEBenchmark):
+class DAEBDFBenchmark(_DescriptorDAEBenchmark):
     @property
     def name(self) -> str:
         return "dae_bdf"
 
     @property
     def pretty_name(self) -> str:
-        return "DAE BDF"
+        return (
+            "Differential-Algebraic Equation (DAE) Backward Differentiation Formula"
+            " (BDF)"
+        )
 
     @property
     def description(self) -> str:

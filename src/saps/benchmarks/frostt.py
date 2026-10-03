@@ -12,7 +12,7 @@ from saps.benchmark import (
 from saps.downloaders.frostt import load_frostt_tensor
 
 
-class FrosttDataset(Dataset):
+class FROSTTDataset(Dataset):
     """Base Dataset for benchmarks backed by a FROSTT sparse tensor."""
 
     def __init__(
@@ -79,8 +79,8 @@ _MATMUL_SIZES = [
 # `.tns.gz` name) containing a macOS AppleDouble sidecar file alongside the
 # real tab-delimited `.tns` data; `_extract_tns_source`/`_detect_separator` in
 # the downloader handle both quirks.
-_TENSORS: list[FrosttDataset] = [
-    FrosttDataset(
+_TENSORS: list[FROSTTDataset] = [
+    FROSTTDataset(
         f"matmul_{m}_{k}_{n}",
         path=f"matrix-multiplication/matmul_{m}-{k}-{n}.tns.gz",
         order=3,
@@ -92,7 +92,7 @@ _TENSORS: list[FrosttDataset] = [
     )
     for m, k, n in _MATMUL_SIZES
 ] + [
-    FrosttDataset(
+    FROSTTDataset(
         "nell_2",
         path="nell/nell-2.tns.gz",
         order=3,
@@ -102,7 +102,7 @@ _TENSORS: list[FrosttDataset] = [
             " Never-Ending Language Learning project."
         ),
     ),
-    FrosttDataset(
+    FROSTTDataset(
         "chicago_crime_comm",
         path="chicago-crime/comm/chicago-crime-comm.tns.gz",
         order=4,
@@ -112,7 +112,7 @@ _TENSORS: list[FrosttDataset] = [
             " crime-type, non-zeros are counts."
         ),
     ),
-    FrosttDataset(
+    FROSTTDataset(
         "lbnl_network",
         path="lbnl-network/lbnl-network.tns.gz",
         order=5,
@@ -123,14 +123,14 @@ _TENSORS: list[FrosttDataset] = [
             " lengths."
         ),
     ),
-    FrosttDataset(
+    FROSTTDataset(
         "toy",
         path="toy/toy.tns.gz",
         order=4,
         shape=(3, 3, 2, 2),
         description="Tiny toy tensor for smoke-testing the FROSTT pipeline.",
     ),
-    FrosttDataset(
+    FROSTTDataset(
         "nips",
         path="nips/nips.tns.gz",
         order=4,
@@ -140,7 +140,7 @@ _TENSORS: list[FrosttDataset] = [
             " from 17 years of NIPS papers."
         ),
     ),
-    FrosttDataset(
+    FROSTTDataset(
         "uber_pickups",
         path="uber-pickups/uber.tns.gz",
         order=4,
@@ -150,7 +150,7 @@ _TENSORS: list[FrosttDataset] = [
             " longitude, non-zeros are pickup counts."
         ),
     ),
-    FrosttDataset(
+    FROSTTDataset(
         "chicago_crime_geo",
         path="chicago-crime/geo/chicago-crime-geo.tns.gz",
         order=5,
@@ -162,7 +162,7 @@ _TENSORS: list[FrosttDataset] = [
             " community areas."
         ),
     ),
-    FrosttDataset(
+    FROSTTDataset(
         "vast_2015_mc1_3d",
         path="vast-2015-mc1/vast-2015-mc1-3d.tns.gz",
         order=3,
@@ -172,7 +172,7 @@ _TENSORS: list[FrosttDataset] = [
             " action, from a simulated theme-park sensor/movement log."
         ),
     ),
-    FrosttDataset(
+    FROSTTDataset(
         "nell_1",
         path="nell/nell-1.tns.gz",
         order=3,
@@ -183,7 +183,7 @@ _TENSORS: list[FrosttDataset] = [
             " nell_2)."
         ),
     ),
-    FrosttDataset(
+    FROSTTDataset(
         "vast_2015_mc1_5d",
         path="vast-2015-mc1/vast-2015-mc1-5d.tns.gz",
         order=5,
@@ -193,7 +193,7 @@ _TENSORS: list[FrosttDataset] = [
             " action x x-location x y-location."
         ),
     ),
-    FrosttDataset(
+    FROSTTDataset(
         "enron",
         path="enron/enron.tns.gz",
         order=4,
@@ -203,7 +203,7 @@ _TENSORS: list[FrosttDataset] = [
             " are word counts."
         ),
     ),
-    FrosttDataset(
+    FROSTTDataset(
         "flickr_3d",
         path="flickr/flickr-3d.tns.gz",
         order=3,
@@ -213,7 +213,7 @@ _TENSORS: list[FrosttDataset] = [
             " user x image x tag."
         ),
     ),
-    FrosttDataset(
+    FROSTTDataset(
         "flickr_4d",
         path="flickr/flickr-4d.tns.gz",
         order=4,
@@ -223,7 +223,7 @@ _TENSORS: list[FrosttDataset] = [
             " x tag x date."
         ),
     ),
-    FrosttDataset(
+    FROSTTDataset(
         "delicious_3d",
         path="delicious/delicious-3d.tns.gz",
         order=3,
@@ -233,7 +233,7 @@ _TENSORS: list[FrosttDataset] = [
             " webpage x tag."
         ),
     ),
-    FrosttDataset(
+    FROSTTDataset(
         "delicious_4d",
         path="delicious/delicious-4d.tns.gz",
         order=4,
@@ -246,7 +246,7 @@ _TENSORS: list[FrosttDataset] = [
     ),
     # The remaining 3 are the largest tensors in the FROSTT catalog.
     # Their shape/nnz below are from FROSTT's own documentation.
-    FrosttDataset(
+    FROSTTDataset(
         "amazon_reviews",
         path="amazon/amazon-reviews.tns.gz",
         order=3,
@@ -256,7 +256,7 @@ _TENSORS: list[FrosttDataset] = [
             " after stopword removal and stemming."
         ),
     ),
-    FrosttDataset(
+    FROSTTDataset(
         "patents",
         path="patents/patents.tns.gz",
         order=3,
@@ -267,7 +267,7 @@ _TENSORS: list[FrosttDataset] = [
             " symmetric."
         ),
     ),
-    FrosttDataset(
+    FROSTTDataset(
         "reddit_2015",
         path="reddit-2015/reddit-2015.tns.gz",
         order=3,
@@ -279,7 +279,7 @@ _TENSORS: list[FrosttDataset] = [
             " excluded."
         ),
     ),
-    FrosttDataset(
+    FROSTTDataset(
         "fb_m",
         path="fb-m/fb-m.tns.gz",
         url="https://frostt-tensors.s3.us-east-2.amazonaws.com/FB-M/fb-m.tns.gz",
@@ -290,7 +290,7 @@ _TENSORS: list[FrosttDataset] = [
             " non-zeros are binary."
         ),
     ),
-    FrosttDataset(
+    FROSTTDataset(
         "darpa",
         path="darpa/1998darpa.tns.gz",
         url=(
@@ -304,7 +304,7 @@ _TENSORS: list[FrosttDataset] = [
             " time, values are packet counts."
         ),
     ),
-    FrosttDataset(
+    FROSTTDataset(
         "lanl2",
         path="lanl2/lanl2.tns.gz",
         url="https://frostt-tensors.s3.us-east-2.amazonaws.com/LANL2/lanl2.tns.gz",
@@ -320,7 +320,7 @@ _TENSORS: list[FrosttDataset] = [
 ]
 
 
-class FrosttTensorGenerator(Generator[FrosttDataset]):
+class FROSTTTensorGenerator(Generator[FROSTTDataset]):
     """Downloads and caches raw FROSTT tensors, shared across every benchmark."""
 
     @property
@@ -390,10 +390,10 @@ class FrosttTensorGenerator(Generator[FrosttDataset]):
         )
 
     @property
-    def datasets(self) -> list[FrosttDataset]:
+    def datasets(self) -> list[FROSTTDataset]:
         return _TENSORS
 
-    def generate(self, dataset: FrosttDataset) -> DataInstance:
+    def generate(self, dataset: FROSTTDataset) -> DataInstance:
         indices, values, meta = load_frostt_tensor(
             dataset.path, url=dataset.url, expected_shape=dataset.shape
         )
@@ -405,19 +405,19 @@ class FrosttTensorGenerator(Generator[FrosttDataset]):
         return DataInstance(inputs=[tensor_bin], meta=meta)
 
 
-class FrosttTensorBenchmark(ShellBenchmark):
+class FROSTTTensorShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return FrosttTensorGenerator()
+        return FROSTTTensorGenerator()
 
 
 def fetch_frostt_tensor(name: str) -> DataInstance:
-    """Fetch (and cache) the raw tensor via the shared `FrosttTensorGenerator`."""
-    raw_generator = FrosttTensorGenerator()
+    """Fetch (and cache) the raw tensor via the shared `FROSTTTensorGenerator`."""
+    raw_generator = FROSTTTensorGenerator()
     raw_dataset = next((d for d in raw_generator.datasets if d.name == name), None)
     if raw_dataset is None:
         raise ValueError(
-            f"Dataset {name!r} is not listed in FrosttTensorGenerator.datasets."
+            f"Dataset {name!r} is not listed in FROSTTTensorGenerator.datasets."
         )
     return raw_generator.cached_generate(raw_dataset)
 

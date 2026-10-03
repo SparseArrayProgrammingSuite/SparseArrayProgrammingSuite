@@ -10,7 +10,7 @@ from scipy import sparse
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
 from saps.benchmark import DataInstance
-from saps.benchmarks import GMRES, cg, jacobi, lsqr, preconditioned_cg, suitesparse
+from saps.benchmarks import cg, gmres, jacobi, lsqr, pcg, suitesparse
 from saps.storage import LocalStorageBackend
 
 
@@ -105,12 +105,12 @@ def test_invalid_rhs_selection_raises(monkeypatch, raw_system, rhs_count, rhs_in
 @pytest.mark.parametrize(
     "generator",
     [
-        cg.CGGenerator(),
-        jacobi.JacobiGenerator(),
-        GMRES.GMRESGenerator(),
-        lsqr.LSQRGenerator(),
-        preconditioned_cg.BlockJacobiCGGenerator(),
-        preconditioned_cg.JacobiCGGenerator(),
+        cg.CGSuiteSparseGenerator(),
+        jacobi.JacobiSuiteSparseGenerator(),
+        gmres.GMRESSuiteSparseGenerator(),
+        lsqr.LSQRSuiteSparseGenerator(),
+        pcg.BlockJacobiPCGSuiteSparseGenerator(),
+        pcg.JacobiPCGSuiteSparseGenerator(),
     ],
     ids=lambda g: g.name,
 )

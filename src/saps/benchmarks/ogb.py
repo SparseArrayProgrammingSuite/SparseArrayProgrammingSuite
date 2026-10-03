@@ -19,7 +19,7 @@ from saps.benchmark import (
 from saps.downloaders.ogb import OGBNodePropData, load_ogb_nodeprop_dataset
 
 
-class OGBNodePropDataset(Dataset):
+class OGBDataset(Dataset):
     """Base Dataset for benchmarks backed by a homogeneous OGB node dataset."""
 
     def __init__(
@@ -64,16 +64,16 @@ class OGBNodePropDataset(Dataset):
         return data
 
 
-class OGBNodePropGenerator(Generator[OGBNodePropDataset]):
+class OGBGraphGenerator(Generator[OGBDataset]):
     """Downloads and caches OGB node-property data, shared across benchmarks."""
 
     @property
     def name(self) -> str:
-        return "ogb_nodeprop"
+        return "ogb_graph"
 
     @property
     def pretty_name(self) -> str:
-        return "OGB Node Property Graphs"
+        return "OGB Graphs"
 
     @property
     def description(self) -> str:
@@ -135,23 +135,23 @@ class OGBNodePropGenerator(Generator[OGBNodePropDataset]):
         )
 
     @property
-    def datasets(self) -> list[OGBNodePropDataset]:
+    def datasets(self) -> list[OGBDataset]:
         return [
-            OGBNodePropDataset(
+            OGBDataset(
                 "ogbn-arxiv",
                 description=(
                     "Citation network of arXiv Computer Science papers for "
                     "node-property prediction."
                 ),
             ),
-            OGBNodePropDataset(
+            OGBDataset(
                 "ogbn-products",
                 description=(
                     "Amazon product co-purchasing network for large-scale "
                     "node-property prediction."
                 ),
             ),
-            OGBNodePropDataset(
+            OGBDataset(
                 "ogbn-proteins",
                 description=(
                     "Protein-protein association network with species labels and "
@@ -160,7 +160,7 @@ class OGBNodePropGenerator(Generator[OGBNodePropDataset]):
             ),
         ]
 
-    def generate(self, dataset: OGBNodePropDataset) -> DataInstance:
+    def generate(self, dataset: OGBDataset) -> DataInstance:
         graph = load_ogb_nodeprop_dataset(dataset.source_name)
         split_names = list(graph.split_indices)
         meta = {
@@ -182,15 +182,15 @@ class OGBNodePropGenerator(Generator[OGBNodePropDataset]):
         )
 
 
-class OGBNodePropBenchmark(ShellBenchmark):
+class OGBGraphShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return OGBNodePropGenerator()
+        return OGBGraphGenerator()
 
 
 def fetch_ogb_nodeprop_dataset(source_name: str) -> OGBNodePropData:
     """Fetch (and cache) a prepared OGB node-property dataset via the shared shell."""
-    raw_generator = OGBNodePropGenerator()
+    raw_generator = OGBGraphGenerator()
     raw_dataset = next(
         (
             dataset
@@ -201,7 +201,7 @@ def fetch_ogb_nodeprop_dataset(source_name: str) -> OGBNodePropData:
     )
     if raw_dataset is None:
         raise ValueError(
-            f"Dataset {source_name!r} is not listed in OGBNodePropGenerator.datasets."
+            f"Dataset {source_name!r} is not listed in OGBGraphGenerator.datasets."
         )
     raw = raw_generator.cached_generate(raw_dataset)
     split_names = raw.meta.get("split_names") or ["train", "valid", "test"]

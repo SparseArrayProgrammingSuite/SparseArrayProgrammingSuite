@@ -508,7 +508,7 @@ class SNAPGraphGenerator(Generator[SNAPDataset]):
         )
 
 
-class SNAPGraphBenchmark(ShellBenchmark):
+class SNAPGraphShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
         return SNAPGraphGenerator()

@@ -90,7 +90,7 @@ class MCLTestGenerator(Generator[MCLDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Markov Clustering Test"
+        return "Markov Clustering (MCL) Test"
 
     @property
     def description(self) -> str:
@@ -218,7 +218,7 @@ class MCLSNAPGenerator(Generator[MCLDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Markov Clustering SNAP"
+        return "Markov Clustering (MCL) SNAP"
 
     @property
     def description(self) -> str:
@@ -344,7 +344,7 @@ class MCLGAPGenerator(Generator[MCLDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Markov Clustering GAP"
+        return "Markov Clustering (MCL) GAP"
 
     @property
     def description(self) -> str:
@@ -408,7 +408,7 @@ class MCLBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "Markov Clustering"
+        return "Markov Clustering (MCL)"
 
     @property
     def authors(self) -> list[Contributor]:

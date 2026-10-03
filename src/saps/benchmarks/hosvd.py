@@ -91,7 +91,7 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "HOSVD Dense"
+        return "Higher-Order Singular Value Decomposition (HOSVD) Dense"
 
     @property
     def description(self) -> str:
@@ -222,7 +222,7 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "HOSVD Sparse"
+        return "Higher-Order Singular Value Decomposition (HOSVD) Sparse"
 
     @property
     def description(self) -> str:
@@ -382,7 +382,7 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
         )
 
 
-class HOSVDFrosttDataset(Dataset):
+class HOSVDFROSTTDataset(Dataset):
     def __init__(self, name, pretty_name, tensor_name, n, ranks, suites=None):
         self._name = name
         self._pretty_name = pretty_name
@@ -422,7 +422,7 @@ def _hosvd_frostt_dataset(tensor_name, ranks, suites):
         f"HOSVD ranks {ranks} exceed shape {shape} for FROSTT tensor {tensor_name}"
     )
     n = len(shape)
-    return HOSVDFrosttDataset(
+    return HOSVDFROSTTDataset(
         name=tensor_name,
         pretty_name=tensor_name,
         tensor_name=tensor_name,
@@ -432,7 +432,7 @@ def _hosvd_frostt_dataset(tensor_name, ranks, suites):
     )
 
 
-class HOSVDFrosttGenerator(Generator[HOSVDFrosttDataset]):
+class HOSVDFROSTTGenerator(Generator[HOSVDFROSTTDataset]):
     def __init__(self, n: int | None = None):
         self.n = n
 
@@ -446,7 +446,7 @@ class HOSVDFrosttGenerator(Generator[HOSVDFrosttDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "HOSVD FROSTT"
+        return "Higher-Order Singular Value Decomposition (HOSVD) FROSTT"
 
     @property
     def description(self) -> str:
@@ -508,7 +508,7 @@ class HOSVDFrosttGenerator(Generator[HOSVDFrosttDataset]):
         )
 
     @property
-    def datasets(self) -> list[HOSVDFrosttDataset]:
+    def datasets(self) -> list[HOSVDFROSTTDataset]:
         datasets = [
             _hosvd_frostt_dataset(tensor_name, ranks, suites)
             for (tensor_name, ranks, suites) in [
@@ -548,7 +548,7 @@ class HOSVDFrosttGenerator(Generator[HOSVDFrosttDataset]):
             dataset for dataset in datasets if self.n is None or dataset.n == self.n
         ]
 
-    def generate(self, dataset: HOSVDFrosttDataset):
+    def generate(self, dataset: HOSVDFROSTTDataset):
         raw = fetch_frostt_tensor(dataset.tensor_name)
         assert len(raw.meta["shape"]) == dataset.n
         X_bin = raw.inputs[0]
@@ -571,7 +571,7 @@ class HOSVDBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return f"{self.n}D High-Order SVD (Tucker Decomposition)"
+        return f"Higher-Order Singular Value Decomposition (HOSVD) {self.n}D"
 
     @property
     def authors(self) -> list[Contributor]:
@@ -681,7 +681,7 @@ class HOSVDBenchmark(Benchmark):
         return [
             HOSVDDenseGenerator(self.n),
             HOSVDSparseGenerator(self.n),
-            HOSVDFrosttGenerator(self.n),
+            HOSVDFROSTTGenerator(self.n),
         ]
 
 

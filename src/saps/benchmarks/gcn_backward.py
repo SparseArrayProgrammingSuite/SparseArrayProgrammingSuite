@@ -64,7 +64,7 @@ def _targets_from_ogb_labels(labels: np.ndarray, num_outputs: int) -> np.ndarray
     return targets
 
 
-class GCNTrainingDataset(SuiteSparseDataset):
+class GCNBackwardDataset(SuiteSparseDataset):
     def __init__(
         self,
         name: str,
@@ -120,7 +120,7 @@ class GCNTrainingDataset(SuiteSparseDataset):
         return data
 
 
-class OGBGCNTrainingDataset(Dataset):
+class GCNBackwardOGBDataset(Dataset):
     """A full-graph GCN training dataset sourced from OGB."""
 
     def __init__(
@@ -174,14 +174,14 @@ class OGBGCNTrainingDataset(Dataset):
         return data
 
 
-class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
+class GCNBackwardTestGenerator(Generator[GCNBackwardDataset]):
     @property
     def name(self) -> str:
         return "gcn_backward_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Graph Convolutional Network Training Test"
+        return "Graph Convolutional Network (GCN) Backward Test"
 
     @property
     def description(self) -> str:
@@ -216,7 +216,7 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
         return False
 
     @property
-    def datasets(self) -> list[GCNTrainingDataset]:
+    def datasets(self) -> list[GCNBackwardDataset]:
         rng = np.random.default_rng(42)
         degree_train_adj = np.array(
             [
@@ -248,7 +248,7 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
         degree_weights1 = rng.standard_normal((1, 4), dtype=np.float32) * 0.5
         degree_weights2 = rng.standard_normal((4, 1), dtype=np.float32) * 0.5
         return [
-            GCNTrainingDataset(
+            GCNBackwardDataset(
                 "two_node",
                 pretty_name="Two Node",
                 suites=["test"],
@@ -266,7 +266,7 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
                     "output_shapes": [(1,), (1, 1), (1,), (1, 1), (1,)],
                 },
             ),
-            GCNTrainingDataset(
+            GCNBackwardDataset(
                 "multidimensional",
                 pretty_name="Multidimensional",
                 suites=["test"],
@@ -310,7 +310,7 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
                     "output_shapes": [(1,), (2, 3), (3,), (3, 2), (2,)],
                 },
             ),
-            GCNTrainingDataset(
+            GCNBackwardDataset(
                 "degree_loss",
                 pretty_name="Degree Loss",
                 suites=["test"],
@@ -328,7 +328,7 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
                     "output_shapes": [(1,), (1, 4), (4,), (4, 1), (1,)],
                 },
             ),
-            GCNTrainingDataset(
+            GCNBackwardDataset(
                 "degree_test_graph_loss",
                 pretty_name="Degree Test Graph Loss",
                 suites=["test"],
@@ -348,7 +348,7 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
             ),
         ]
 
-    def generate(self, dataset: GCNTrainingDataset):
+    def generate(self, dataset: GCNBackwardDataset):
         required = (
             dataset.adjacency,
             dataset.features,
@@ -388,14 +388,14 @@ class GCNTrainingTestGenerator(Generator[GCNTrainingDataset]):
         )
 
 
-class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
+class GCNBackwardSuiteSparseGenerator(Generator[GCNBackwardDataset]):
     @property
     def name(self) -> str:
         return "gcn_backward_suitesparse"
 
     @property
     def pretty_name(self) -> str:
-        return "Graph Convolutional Network Training SuiteSparse"
+        return "Graph Convolutional Network (GCN) Backward SuiteSparse"
 
     @property
     def description(self) -> str:
@@ -472,51 +472,51 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
         )
 
     @property
-    def datasets(self) -> list[GCNTrainingDataset]:
+    def datasets(self) -> list[GCNBackwardDataset]:
         return [
-            GCNTrainingDataset(
+            GCNBackwardDataset(
                 "Newman/karate",
                 "Small social network graph.",
                 feature_dim=16,
                 hidden_dim=8,
                 out_dim=1,
             ),
-            GCNTrainingDataset(
+            GCNBackwardDataset(
                 "Newman/dolphins",
                 "Medium social network graph.",
                 feature_dim=16,
                 hidden_dim=8,
                 out_dim=1,
             ),
-            GCNTrainingDataset(
+            GCNBackwardDataset(
                 "SNAP/ca-GrQc",
                 "Larger social network graph.",
                 feature_dim=8,
                 hidden_dim=16,
                 out_dim=1,
             ),
-            GCNTrainingDataset(
+            GCNBackwardDataset(
                 "DIMACS10/chesapeake",
                 "Small road network graph.",
                 feature_dim=8,
                 hidden_dim=4,
                 out_dim=1,
             ),
-            GCNTrainingDataset(
+            GCNBackwardDataset(
                 "Arenas/email",
                 "Small molecular graph. - Email network.",
                 feature_dim=4,
                 hidden_dim=8,
                 out_dim=1,
             ),
-            GCNTrainingDataset(
+            GCNBackwardDataset(
                 "Muite/Chebyshev3",
                 "Medium molecular graph - PDDB protein structure.",
                 feature_dim=6,
                 hidden_dim=12,
                 out_dim=1,
             ),
-            GCNTrainingDataset(
+            GCNBackwardDataset(
                 "SNAP/ca-HepPh",
                 "Large citation network graph (AIDS-like size).",
                 feature_dim=16,
@@ -529,7 +529,7 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
     def cacheable(self) -> bool:
         return False
 
-    def generate(self, dataset: GCNTrainingDataset):
+    def generate(self, dataset: GCNBackwardDataset):
         feature_dim = dataset.feature_dim
         hidden_dim = dataset.hidden_dim
         out_dim = dataset.out_dim
@@ -580,14 +580,14 @@ class GCNTrainingGenerator(Generator[GCNTrainingDataset]):
         )
 
 
-class OGBGCNTrainingGenerator(Generator[OGBGCNTrainingDataset]):
+class GCNBackwardOGBGenerator(Generator[GCNBackwardOGBDataset]):
     @property
     def name(self) -> str:
         return "gcn_backward_ogb"
 
     @property
     def pretty_name(self) -> str:
-        return "Graph Convolutional Network Training OGB"
+        return "Graph Convolutional Network (GCN) Backward OGB"
 
     @property
     def description(self) -> str:
@@ -631,9 +631,9 @@ class OGBGCNTrainingGenerator(Generator[OGBGCNTrainingDataset]):
         return False
 
     @property
-    def datasets(self) -> list[OGBGCNTrainingDataset]:
+    def datasets(self) -> list[GCNBackwardOGBDataset]:
         return [
-            OGBGCNTrainingDataset(
+            GCNBackwardOGBDataset(
                 "ogbn-arxiv",
                 description=(
                     "Citation network of arXiv Computer Science papers for "
@@ -641,7 +641,7 @@ class OGBGCNTrainingGenerator(Generator[OGBGCNTrainingDataset]):
                 ),
                 suites=["standard", "trace", "train"],
             ),
-            OGBGCNTrainingDataset(
+            GCNBackwardOGBDataset(
                 "ogbn-products",
                 description=(
                     "Amazon product co-purchasing network for large-scale "
@@ -649,7 +649,7 @@ class OGBGCNTrainingGenerator(Generator[OGBGCNTrainingDataset]):
                 ),
                 suites=["standard"],
             ),
-            OGBGCNTrainingDataset(
+            GCNBackwardOGBDataset(
                 "ogbn-proteins",
                 description=(
                     "Protein-protein association network with species labels and "
@@ -659,7 +659,7 @@ class OGBGCNTrainingGenerator(Generator[OGBGCNTrainingDataset]):
             ),
         ]
 
-    def generate(self, dataset: OGBGCNTrainingDataset) -> DataInstance:
+    def generate(self, dataset: GCNBackwardOGBDataset) -> DataInstance:
         graph = fetch_ogb_nodeprop_dataset(dataset.source_name)
         feature_dim = graph.num_features
         out_dim = graph.num_outputs
@@ -699,7 +699,7 @@ class GCNBackwardBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "Graph Convolutional Network Training"
+        return "Graph Convolutional Network (GCN) Backward"
 
     @property
     def description(self) -> str:
@@ -817,9 +817,9 @@ Each iteration:
     @property
     def generators(self):
         return [
-            GCNTrainingTestGenerator(),
-            GCNTrainingGenerator(),
-            OGBGCNTrainingGenerator(),
+            GCNBackwardTestGenerator(),
+            GCNBackwardSuiteSparseGenerator(),
+            GCNBackwardOGBGenerator(),
         ]
 
     def check(self, param):

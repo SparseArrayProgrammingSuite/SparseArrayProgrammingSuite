@@ -18,7 +18,7 @@ def test_ode_discovery_exposes_one_benchmark_per_method():
     assert {benchmark.name for benchmark in benchmarks} == {
         "forward_euler",
         "backward_euler",
-        "runge_kutta",
+        "rk4",
     }
     expected_generators = {
         "ode_rc": 1,
@@ -47,9 +47,9 @@ def test_ode_discovery_exposes_one_benchmark_per_method():
 @pytest.mark.parametrize(
     ("benchmark_cls", "expected"),
     [
-        (ode.ForwardEuler, 0.9),
-        (ode.BackwardEuler, 1 / 1.1),
-        (ode.RungeKutta, 0.9048375),
+        (ode.ForwardEulerBenchmark, 0.9),
+        (ode.BackwardEulerBenchmark, 1 / 1.1),
+        (ode.RK4Benchmark, 0.9048375),
     ],
 )
 def test_ode_methods_integrate_exponential_decay(benchmark_cls, expected):
@@ -69,10 +69,11 @@ def test_ode_methods_integrate_exponential_decay(benchmark_cls, expected):
 
 
 @pytest.mark.parametrize(
-    "benchmark_cls", [ode.ForwardEuler, ode.BackwardEuler, ode.RungeKutta]
+    "benchmark_cls",
+    [ode.ForwardEulerBenchmark, ode.BackwardEulerBenchmark, ode.RK4Benchmark],
 )
 def test_ode_setup_preserves_non_slicot_timestep(benchmark_cls):
-    generator = ode.RCGenerator()
+    generator = ode.ODERCGenerator()
     dataset = generator.datasets[0]
     benchmark = benchmark_cls()
 

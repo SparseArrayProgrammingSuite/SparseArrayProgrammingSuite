@@ -391,7 +391,7 @@ class ConnectedComponentsGAPGenerator(Generator[ConnectedComponentsDataset]):
         )
 
 
-class SimplyConnectedComponentsBenchmark(Benchmark):
+class ConnectedComponentsBenchmark(Benchmark):
     @property
     def name(self):
         return "connected_components"

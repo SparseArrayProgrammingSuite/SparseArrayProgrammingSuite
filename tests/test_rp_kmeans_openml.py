@@ -10,17 +10,17 @@ import scipy.sparse
 from binsparse.conversions import from_numpy, to_numpy
 
 from saps.benchmark import DataInstance
+from saps.benchmarks.jl_kmeans import (
+    JLKMeansBenchmark,
+    JLKMeansDataset,
+    JLKMeansNetflixPrizeGenerator,
+    JLKMeansOpenMLGenerator,
+)
 from saps.benchmarks.openml import (
-    OpenMLDatasetBenchmark,
     OpenMLDatasetGenerator,
+    OpenMLDatasetShellBenchmark,
     _fetch_openml,
     fetch_openml_features,
-)
-from saps.benchmarks.rp_kmeans_clustering import (
-    RPKMeansBenchmark,
-    RPKMeansDataset,
-    RPKMeansNetflixGenerator,
-    RPKMeansOpenMLGenerator,
 )
 
 
@@ -43,7 +43,7 @@ def test_openml_shell_generator_scales_features_and_records_shape(monkeypatch):
 
     assert generator.cacheable
     assert dataset.suites == []
-    assert OpenMLDatasetBenchmark().generator.name == "openml_dataset"
+    assert OpenMLDatasetShellBenchmark().generator.name == "openml_dataset"
     np.testing.assert_allclose(
         to_numpy(instance.inputs[0]),
         np.array([[0.0, 1.0], [128.0 / 255.0, 64.0 / 255.0]], dtype=np.float32),
@@ -148,11 +148,11 @@ def test_rp_kmeans_openml_generator_derives_inputs_from_cached_source(monkeypatc
         }
 
     monkeypatch.setattr(
-        "saps.benchmarks.rp_kmeans_clustering.fetch_openml_features",
+        "saps.benchmarks.jl_kmeans.fetch_openml_features",
         fake_fetch_openml_features,
     )
-    generator = RPKMeansOpenMLGenerator()
-    dataset = RPKMeansDataset("mnist", k=2, eps=0.3, c=0.5, max_iter=5)
+    generator = JLKMeansOpenMLGenerator()
+    dataset = JLKMeansDataset("mnist", k=2, eps=0.3, c=0.5, max_iter=5)
 
     instance = generator.generate(dataset)
 
@@ -168,11 +168,9 @@ def test_rp_kmeans_openml_generator_derives_inputs_from_cached_source(monkeypatc
 
 
 def test_rp_kmeans_benchmark_uses_one_openml_generator_for_standard_datasets():
-    generators = RPKMeansBenchmark().generators
+    generators = JLKMeansBenchmark().generators
     openml_generator = next(
-        generator
-        for generator in generators
-        if generator.name == "rp_kmeans_clustering_openml"
+        generator for generator in generators if generator.name == "jl_kmeans_openml"
     )
 
     assert [dataset.name for dataset in openml_generator.datasets] == [
@@ -198,10 +196,10 @@ def test_rp_kmeans_netflix_generator_uses_shared_shell(monkeypatch):
         }
 
     monkeypatch.setattr(
-        "saps.benchmarks.rp_kmeans_clustering.fetch_netflixprize_matrix",
+        "saps.benchmarks.jl_kmeans.fetch_netflixprize_matrix",
         fake_fetch_netflixprize_matrix,
     )
-    generator = RPKMeansNetflixGenerator()
+    generator = JLKMeansNetflixPrizeGenerator()
     dataset = generator.datasets[0]
 
     instance = generator.generate(dataset)

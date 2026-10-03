@@ -19,7 +19,7 @@ from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
 
 
-class FourCliqueCountDataset(Dataset):
+class FourCliqueCountingDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -57,7 +57,7 @@ class FourCliqueCountDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class FourCliqueCountTestGenerator(Generator[FourCliqueCountDataset]):
+class FourCliqueCountingTestGenerator(Generator[FourCliqueCountingDataset]):
     @property
     def name(self) -> str:
         return "four_clique_counting_test"
@@ -102,9 +102,9 @@ class FourCliqueCountTestGenerator(Generator[FourCliqueCountDataset]):
         return False
 
     @property
-    def datasets(self) -> list[FourCliqueCountDataset]:
+    def datasets(self) -> list[FourCliqueCountingDataset]:
         return [
-            FourCliqueCountDataset(
+            FourCliqueCountingDataset(
                 "complete_k3",
                 pretty_name="Complete K3",
                 suites=["test"],
@@ -118,7 +118,7 @@ class FourCliqueCountTestGenerator(Generator[FourCliqueCountDataset]):
                 ),
                 expected=np.array(0),
             ),
-            FourCliqueCountDataset(
+            FourCliqueCountingDataset(
                 "single_k4",
                 pretty_name="Single K4",
                 suites=["test"],
@@ -133,7 +133,7 @@ class FourCliqueCountTestGenerator(Generator[FourCliqueCountDataset]):
                 ),
                 expected=np.array(1),
             ),
-            FourCliqueCountDataset(
+            FourCliqueCountingDataset(
                 "overlapping",
                 pretty_name="Overlapping",
                 suites=["test"],
@@ -149,7 +149,7 @@ class FourCliqueCountTestGenerator(Generator[FourCliqueCountDataset]):
                 ),
                 expected=np.array(2),
             ),
-            FourCliqueCountDataset(
+            FourCliqueCountingDataset(
                 "snap_toy",
                 pretty_name="SNAP Toy",
                 suites=["test"],
@@ -165,7 +165,7 @@ class FourCliqueCountTestGenerator(Generator[FourCliqueCountDataset]):
             ),
         ]
 
-    def generate(self, dataset: FourCliqueCountDataset) -> DataInstance:
+    def generate(self, dataset: FourCliqueCountingDataset) -> DataInstance:
         if dataset.A is None or dataset.expected is None:
             raise ValueError("4-clique test datasets must define A and expected.")
         return DataInstance(
@@ -175,7 +175,7 @@ class FourCliqueCountTestGenerator(Generator[FourCliqueCountDataset]):
         )
 
 
-class FourCliqueCountSNAPGenerator(Generator[FourCliqueCountDataset]):
+class FourCliqueCountingSNAPGenerator(Generator[FourCliqueCountingDataset]):
     @property
     def name(self) -> str:
         return "four_clique_counting_snap"
@@ -235,89 +235,89 @@ class FourCliqueCountSNAPGenerator(Generator[FourCliqueCountDataset]):
         return False
 
     @property
-    def datasets(self) -> list[FourCliqueCountDataset]:
+    def datasets(self) -> list[FourCliqueCountingDataset]:
         # Trace selects successful Smart runs < 60s in competition/run_13803684.
         # fmt: off
         return [
-            FourCliqueCountDataset("soc-Epinions1", suites=["standard"]),
-            FourCliqueCountDataset("soc-LiveJournal1", suites=["standard"]),
-            FourCliqueCountDataset("soc-Pokec", suites=["standard"]),
-            FourCliqueCountDataset("soc-Slashdot0811", suites=["standard"]),
-            FourCliqueCountDataset("soc-Slashdot0902", suites=["standard"]),
-            FourCliqueCountDataset("wiki-Vote", suites=["standard"]),
-            FourCliqueCountDataset("wiki-RfA", suites=["standard"]),
-            FourCliqueCountDataset("soc-sign-bitcoin-otc", suites=["standard"]),
-            FourCliqueCountDataset("soc-sign-bitcoin-alpha", suites=["standard"]),
-            FourCliqueCountDataset("com-LiveJournal", suites=["standard"]),
-            FourCliqueCountDataset("com-Friendster", suites=["standard"]),
-            FourCliqueCountDataset("com-Orkut", suites=["standard"]),
-            FourCliqueCountDataset("com-Youtube", suites=["standard"]),
-            FourCliqueCountDataset("com-DBLP", suites=["standard"]),
-            FourCliqueCountDataset("com-Amazon", suites=["standard"]),
-            FourCliqueCountDataset("email-Eu-core", suites=["standard"]),
-            FourCliqueCountDataset("wiki-topcats", suites=["standard"]),
-            FourCliqueCountDataset("email-EuAll", suites=["standard"]),
-            FourCliqueCountDataset("email-Enron", suites=["standard"]),
-            FourCliqueCountDataset("wiki-Talk", suites=["standard"]),
-            FourCliqueCountDataset("cit-HepPh", suites=["standard"]),
-            FourCliqueCountDataset("cit-HepTh", suites=["standard"]),
-            FourCliqueCountDataset("cit-Patents", suites=["standard"]),
-            FourCliqueCountDataset("ca-AstroPh", suites=["standard"]),
-            FourCliqueCountDataset("ca-CondMat", suites=["standard"]),
-            FourCliqueCountDataset("ca-GrQc", suites=["standard", "trace"]),
-            FourCliqueCountDataset("ca-HepPh", suites=["standard"]),
-            FourCliqueCountDataset("ca-HepTh", suites=["standard", "trace"]),
-            FourCliqueCountDataset("web-BerkStan", suites=["standard"]),
-            FourCliqueCountDataset("web-Google", suites=["standard"]),
-            FourCliqueCountDataset("web-NotreDame", suites=["standard"]),
-            FourCliqueCountDataset("web-Stanford", suites=["standard"]),
-            FourCliqueCountDataset("amazon0302", suites=["standard"]),
-            FourCliqueCountDataset("amazon0312", suites=["standard"]),
-            FourCliqueCountDataset("amazon0505", suites=["standard"]),
-            FourCliqueCountDataset("amazon0601", suites=["standard"]),
-            FourCliqueCountDataset("p2p-Gnutella04", suites=["standard", "trace"]),
-            FourCliqueCountDataset("p2p-Gnutella05", suites=["standard", "trace"]),
-            FourCliqueCountDataset("p2p-Gnutella06", suites=["standard", "trace"]),
-            FourCliqueCountDataset("p2p-Gnutella08", suites=["standard", "trace"]),
-            FourCliqueCountDataset("p2p-Gnutella09", suites=["standard", "trace"]),
-            FourCliqueCountDataset("p2p-Gnutella24", suites=["standard", "trace"]),
-            FourCliqueCountDataset("p2p-Gnutella25", suites=["standard", "trace"]),
-            FourCliqueCountDataset("p2p-Gnutella30", suites=["standard", "trace"]),
-            FourCliqueCountDataset("p2p-Gnutella31", suites=["standard"]),
-            FourCliqueCountDataset("roadNet-CA", suites=["standard"]),
-            FourCliqueCountDataset("roadNet-PA", suites=["standard"]),
-            FourCliqueCountDataset("roadNet-TX", suites=["standard"]),
-            FourCliqueCountDataset("as-735", suites=["standard"]),
-            FourCliqueCountDataset("as-Skitter", suites=["standard"]),
-            FourCliqueCountDataset("as-caida", suites=["standard"]),
-            FourCliqueCountDataset("Oregon-1", suites=["standard"]),
-            FourCliqueCountDataset("Oregon-2", suites=["standard"]),
-            FourCliqueCountDataset("soc-sign-epinions", suites=["standard"]),
-            FourCliqueCountDataset("soc-sign-Slashdot081106", suites=["standard"]),
-            FourCliqueCountDataset("soc-sign-Slashdot090216", suites=["standard"]),
-            FourCliqueCountDataset("soc-sign-Slashdot090221", suites=["standard"]),
-            FourCliqueCountDataset("loc-Gowalla", suites=["standard"]),
-            FourCliqueCountDataset("loc-Brightkite", suites=["standard"]),
-            FourCliqueCountDataset("sx-stackoverflow", suites=["standard"]),
-            FourCliqueCountDataset("sx-mathoverflow", suites=["standard"]),
-            FourCliqueCountDataset("sx-superuser", suites=["standard"]),
-            FourCliqueCountDataset("sx-askubuntu", suites=["standard"]),
-            FourCliqueCountDataset("wiki-talk-temporal", suites=["standard"]),
-            FourCliqueCountDataset("email-Eu-core-temporal", suites=["standard"]),
-            FourCliqueCountDataset("CollegeMsg", suites=["standard", "trace", "train"]),
-            FourCliqueCountDataset("twitter7", suites=["standard"]),
-            FourCliqueCountDataset("higgs-twitter", suites=["standard"]),
+            FourCliqueCountingDataset("soc-Epinions1", suites=["standard"]),
+            FourCliqueCountingDataset("soc-LiveJournal1", suites=["standard"]),
+            FourCliqueCountingDataset("soc-Pokec", suites=["standard"]),
+            FourCliqueCountingDataset("soc-Slashdot0811", suites=["standard"]),
+            FourCliqueCountingDataset("soc-Slashdot0902", suites=["standard"]),
+            FourCliqueCountingDataset("wiki-Vote", suites=["standard"]),
+            FourCliqueCountingDataset("wiki-RfA", suites=["standard"]),
+            FourCliqueCountingDataset("soc-sign-bitcoin-otc", suites=["standard"]),
+            FourCliqueCountingDataset("soc-sign-bitcoin-alpha", suites=["standard"]),
+            FourCliqueCountingDataset("com-LiveJournal", suites=["standard"]),
+            FourCliqueCountingDataset("com-Friendster", suites=["standard"]),
+            FourCliqueCountingDataset("com-Orkut", suites=["standard"]),
+            FourCliqueCountingDataset("com-Youtube", suites=["standard"]),
+            FourCliqueCountingDataset("com-DBLP", suites=["standard"]),
+            FourCliqueCountingDataset("com-Amazon", suites=["standard"]),
+            FourCliqueCountingDataset("email-Eu-core", suites=["standard"]),
+            FourCliqueCountingDataset("wiki-topcats", suites=["standard"]),
+            FourCliqueCountingDataset("email-EuAll", suites=["standard"]),
+            FourCliqueCountingDataset("email-Enron", suites=["standard"]),
+            FourCliqueCountingDataset("wiki-Talk", suites=["standard"]),
+            FourCliqueCountingDataset("cit-HepPh", suites=["standard"]),
+            FourCliqueCountingDataset("cit-HepTh", suites=["standard"]),
+            FourCliqueCountingDataset("cit-Patents", suites=["standard"]),
+            FourCliqueCountingDataset("ca-AstroPh", suites=["standard"]),
+            FourCliqueCountingDataset("ca-CondMat", suites=["standard"]),
+            FourCliqueCountingDataset("ca-GrQc", suites=["standard", "trace"]),
+            FourCliqueCountingDataset("ca-HepPh", suites=["standard"]),
+            FourCliqueCountingDataset("ca-HepTh", suites=["standard", "trace"]),
+            FourCliqueCountingDataset("web-BerkStan", suites=["standard"]),
+            FourCliqueCountingDataset("web-Google", suites=["standard"]),
+            FourCliqueCountingDataset("web-NotreDame", suites=["standard"]),
+            FourCliqueCountingDataset("web-Stanford", suites=["standard"]),
+            FourCliqueCountingDataset("amazon0302", suites=["standard"]),
+            FourCliqueCountingDataset("amazon0312", suites=["standard"]),
+            FourCliqueCountingDataset("amazon0505", suites=["standard"]),
+            FourCliqueCountingDataset("amazon0601", suites=["standard"]),
+            FourCliqueCountingDataset("p2p-Gnutella04", suites=["standard", "trace"]),
+            FourCliqueCountingDataset("p2p-Gnutella05", suites=["standard", "trace"]),
+            FourCliqueCountingDataset("p2p-Gnutella06", suites=["standard", "trace"]),
+            FourCliqueCountingDataset("p2p-Gnutella08", suites=["standard", "trace"]),
+            FourCliqueCountingDataset("p2p-Gnutella09", suites=["standard", "trace"]),
+            FourCliqueCountingDataset("p2p-Gnutella24", suites=["standard", "trace"]),
+            FourCliqueCountingDataset("p2p-Gnutella25", suites=["standard", "trace"]),
+            FourCliqueCountingDataset("p2p-Gnutella30", suites=["standard", "trace"]),
+            FourCliqueCountingDataset("p2p-Gnutella31", suites=["standard"]),
+            FourCliqueCountingDataset("roadNet-CA", suites=["standard"]),
+            FourCliqueCountingDataset("roadNet-PA", suites=["standard"]),
+            FourCliqueCountingDataset("roadNet-TX", suites=["standard"]),
+            FourCliqueCountingDataset("as-735", suites=["standard"]),
+            FourCliqueCountingDataset("as-Skitter", suites=["standard"]),
+            FourCliqueCountingDataset("as-caida", suites=["standard"]),
+            FourCliqueCountingDataset("Oregon-1", suites=["standard"]),
+            FourCliqueCountingDataset("Oregon-2", suites=["standard"]),
+            FourCliqueCountingDataset("soc-sign-epinions", suites=["standard"]),
+            FourCliqueCountingDataset("soc-sign-Slashdot081106", suites=["standard"]),
+            FourCliqueCountingDataset("soc-sign-Slashdot090216", suites=["standard"]),
+            FourCliqueCountingDataset("soc-sign-Slashdot090221", suites=["standard"]),
+            FourCliqueCountingDataset("loc-Gowalla", suites=["standard"]),
+            FourCliqueCountingDataset("loc-Brightkite", suites=["standard"]),
+            FourCliqueCountingDataset("sx-stackoverflow", suites=["standard"]),
+            FourCliqueCountingDataset("sx-mathoverflow", suites=["standard"]),
+            FourCliqueCountingDataset("sx-superuser", suites=["standard"]),
+            FourCliqueCountingDataset("sx-askubuntu", suites=["standard"]),
+            FourCliqueCountingDataset("wiki-talk-temporal", suites=["standard"]),
+            FourCliqueCountingDataset("email-Eu-core-temporal", suites=["standard"]),
+            FourCliqueCountingDataset("CollegeMsg", suites=["standard", "trace", "train"]),
+            FourCliqueCountingDataset("twitter7", suites=["standard"]),
+            FourCliqueCountingDataset("higgs-twitter", suites=["standard"]),
         ]
         # fmt: on
 
-    def generate(self, dataset: FourCliqueCountDataset) -> DataInstance:
+    def generate(self, dataset: FourCliqueCountingDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
         return DataInstance(
             inputs=[zero_one_adjacency(raw.inputs[0], np.int64)], meta=dict(raw.meta)
         )
 
 
-class FourCliqueCountGAPGenerator(Generator[FourCliqueCountDataset]):
+class FourCliqueCountingGAPGenerator(Generator[FourCliqueCountingDataset]):
     @property
     def name(self) -> str:
         return "four_clique_counting_gap"
@@ -375,25 +375,25 @@ class FourCliqueCountGAPGenerator(Generator[FourCliqueCountDataset]):
         return False
 
     @property
-    def datasets(self) -> list[FourCliqueCountDataset]:
+    def datasets(self) -> list[FourCliqueCountingDataset]:
         # fmt: off
         return [
-            FourCliqueCountDataset("GAP-road", suites=["standard"]),
-            FourCliqueCountDataset("GAP-twitter", suites=["standard"]),
-            FourCliqueCountDataset("GAP-web", suites=["standard"]),
-            FourCliqueCountDataset("GAP-kron", suites=["standard"]),
-            FourCliqueCountDataset("GAP-urand", suites=["standard"]),
+            FourCliqueCountingDataset("GAP-road", suites=["standard"]),
+            FourCliqueCountingDataset("GAP-twitter", suites=["standard"]),
+            FourCliqueCountingDataset("GAP-web", suites=["standard"]),
+            FourCliqueCountingDataset("GAP-kron", suites=["standard"]),
+            FourCliqueCountingDataset("GAP-urand", suites=["standard"]),
         ]
         # fmt: on
 
-    def generate(self, dataset: FourCliqueCountDataset) -> DataInstance:
+    def generate(self, dataset: FourCliqueCountingDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.name)
         return DataInstance(
             inputs=[zero_one_adjacency(raw.inputs[0], np.int64)], meta=dict(raw.meta)
         )
 
 
-class FourCliqueCountBenchmark(Benchmark):
+class FourCliqueCountingBenchmark(Benchmark):
     @property
     def name(self) -> str:
         return "four_clique_counting"
@@ -511,9 +511,9 @@ class FourCliqueCountBenchmark(Benchmark):
     @property
     def generators(self) -> list[Generator]:
         return [
-            FourCliqueCountTestGenerator(),
-            FourCliqueCountSNAPGenerator(),
-            FourCliqueCountGAPGenerator(),
+            FourCliqueCountingTestGenerator(),
+            FourCliqueCountingSNAPGenerator(),
+            FourCliqueCountingGAPGenerator(),
         ]
 
     def benchmark(self, xp, data: list, meta: dict):

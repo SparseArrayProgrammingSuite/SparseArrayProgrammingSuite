@@ -16,22 +16,24 @@ from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 from saps_framework.binsparse_utils import assert_coo_allclose
 
 
-class DenseMatVecDataset(Dataset):
+class MatrixMultiplicationDenseDataset(Dataset):
     def __init__(
         self,
         name: str,
         dim1: int,
         dim2: int,
+        dim3: int,
         suites: list[str] | None = None,
         pretty_name: str | None = None,
         description: str | None = None,
     ):
         self._name = name
         self._pretty_name = pretty_name or name
-        self._description = description or f"Dense MatVec Input {self._pretty_name}."
+        self._description = description or f"Dense Matmul Input {self._pretty_name}."
         self._suites = suites or ["dense", "test"]
         self.dim1 = dim1
         self.dim2 = dim2
+        self.dim3 = dim3
 
     @property
     def name(self) -> str:
@@ -54,18 +56,18 @@ class DenseMatVecDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class DenseMatVecGenerator(Generator):
+class MatrixMultiplicationDenseGenerator(Generator):
     @property
     def name(self) -> str:
-        return "matrix_vector_multiplication_dense"
+        return "matrix_multiplication_dense"
 
     @property
     def pretty_name(self) -> str:
-        return "Matrix-Vector Multiplication Dense"
+        return "Matrix Multiplication Dense"
 
     @property
     def description(self) -> str:
-        return "Dense input generator for matrix-vector multiplication."
+        return "Dense input generator for matrix multiplication."
 
     @property
     def suites(self) -> list[str]:
@@ -92,58 +94,52 @@ class DenseMatVecGenerator(Generator):
 
     @property
     def motivation(self) -> str:
-        return "Generate dense matrices for matrix-vector multiplication."
+        return "Generate dense matrices for matrix multiplication."
 
     @property
     def datasets(self) -> list[Dataset]:
         return [
-            DenseMatVecDataset(
-                "small", 10, 10, pretty_name="Small", suites=["dense", "test"]
+            MatrixMultiplicationDenseDataset(
+                "small", 10, 10, 10, pretty_name="Small", suites=["dense", "test"]
             ),
-            DenseMatVecDataset(
-                "medium", 100, 100, pretty_name="Medium", suites=["dense", "test"]
+            MatrixMultiplicationDenseDataset(
+                "medium", 100, 100, 100, pretty_name="Medium", suites=["dense", "test"]
             ),
-            DenseMatVecDataset(
-                "large", 1000, 1000, pretty_name="Large", suites=["dense"]
-            ),
-            # Non-square A, which the SuiteSparse suite does not cover.
-            DenseMatVecDataset(
-                "rectangular",
-                100,
-                150,
-                pretty_name="Rectangular",
-                suites=["dense", "test"],
+            MatrixMultiplicationDenseDataset(
+                "large", 1000, 1000, 1000, pretty_name="Large", suites=["dense"]
             ),
         ]
 
-    def generate(self, dataset: DenseMatVecDataset) -> DataInstance:
+    def generate(self, dataset: MatrixMultiplicationDenseDataset) -> DataInstance:
         gen = np.random.Generator(np.random.PCG64(42))
         A = gen.random((dataset.dim1, dataset.dim2))
-        b = gen.random((dataset.dim2,))
+        B = gen.random((dataset.dim2, dataset.dim3))
         ref_outputs = None
         if "test" in dataset.suites:
-            ref_outputs = [from_numpy(np.matmul(A, b))]
+            ref_outputs = [from_numpy(np.matmul(A, B))]
         return DataInstance(
-            [from_numpy(A), from_numpy(b)],
+            [from_numpy(A), from_numpy(B)],
             meta={"dataset": dataset.name},
             ref_outputs=ref_outputs,
         )
 
 
-class SuiteSparseMatVecDataset(Dataset):
+class MatrixMultiplicationSuiteSparseDataset(Dataset):
     def __init__(
         self,
         name: str,
-        matrix: str,
+        matrix_1: str,
+        matrix_2: str,
         suites: list[str] | None = None,
         pretty_name: str | None = None,
         description: str | None = None,
     ):
-        self.matrix = matrix
+        self.matrix_1 = matrix_1
+        self.matrix_2 = matrix_2
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = (
-            description or f"Suite Sparse MatVec Input {self._pretty_name}."
+            description or f"Suite Sparse Matmul Input {self._pretty_name}."
         )
         self._suites = suites or ["sparse", "test"]
 
@@ -168,44 +164,31 @@ class SuiteSparseMatVecDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-# The SpMV benchmark suite of Vuduc's autotuning study: 26 of its 28 matrices,
-# omitting `bai` and `vavasis3`, which SuiteSparse does not carry under those
-# names.
-# (matrix name, SuiteSparse kind, include in the correctness test suite)
-_SPMV_MATRICES: list[tuple[str, str, bool]] = [
-    ("HB/gemat11", "power network problem sequence", False),
-    ("Grund/bayer02", "chemical process simulation problem", False),
-    ("Grund/bayer10", "chemical process simulation problem", False),
-    ("HB/orani678", "economic problem", False),
-    ("Zitney/rdist1", "chemical process simulation problem", False),
-    ("Hamm/memplus", "circuit simulation problem", False),
-    ("Wang/wang4", "semiconductor device problem", False),
-    ("Brethour/coater2", "computational fluid dynamics problem", False),
-    ("ATandT/onetone2", "frequency-domain circuit simulation problem", False),
-    ("Mallya/lhr10", "chemical process simulation problem", False),
-    ("Cote/vibrobox", "acoustics problem", False),
-    ("Goodwin/goodwin", "computational fluid dynamics problem", False),
-    ("Nasa/pwt", "duplicate structural problem", False),
-    ("Mulvey/finan512", "economic problem", False),
-    ("Boeing/crystk02", "materials problem", False),
-    ("Goodwin/rim", "computational fluid dynamics problem", False),
-    ("Simon/olafu", "structural problem", False),
-    ("FIDAP/ex11", "computational fluid dynamics problem", False),
-    ("Simon/raefsky4", "structural problem", False),
-    ("Boeing/bcsstk35", "structural problem", False),
-    ("Simon/raefsky3", "computational fluid dynamics problem", False),
-    ("Simon/venkat01", "computational fluid dynamics problem sequence", False),
-    ("Boeing/crystk03", "materials problem", False),
-    ("Boeing/ct20stif", "structural problem", False),
-    ("Nasa/nasasrb", "structural problem", False),
-    ("Rothberg/3dtube", "computational fluid dynamics problem", False),
+# Buluc and Gilbert motivate SpGEMM by two application classes: graph
+# algorithms, where A*A gives two-hop neighbourhoods (triangle counting,
+# multi-source BFS), and algebraic multigrid, where SpGEMM forms the Galerkin
+# coarse-grid operator. Both benchmark A*A, so the suite covers both classes.
+# No SuiteSparse matrix joins the test suite: tests must not download data.
+# (matrix name, application class, include in the correctness test suite)
+_MATMUL_MATRICES: list[tuple[str, str, bool]] = [
+    ("Arenas/email", "graph algorithms", False),
+    ("SNAP/email-Eu-core", "graph algorithms", False),
+    ("SNAP/ca-GrQc", "graph algorithms", False),
+    ("HB/bcsstk09", "algebraic multigrid", False),
+    ("Muite/Chebyshev3", "algebraic multigrid", False),
+    ("SNAP/CollegeMsg", "graph algorithms", False),
+    ("SNAP/wiki-Vote", "graph algorithms", False),
+    ("SNAP/ca-HepPh", "graph algorithms", False),
+    ("MathWorks/Muu", "algebraic multigrid", False),
+    ("Norris/fv2", "algebraic multigrid", False),
+    ("UTEP/Dubcova1", "algebraic multigrid", False),
 ]
 
 
-class SuiteSparseMatVecGenerator(Generator):
+class MatrixMultiplicationSuiteSparseGenerator(Generator):
     @property
     def name(self) -> str:
-        return "matrix_vector_multiplication_suitesparse"
+        return "matrix_multiplication_suitesparse"
 
     @property
     def cacheable(self) -> bool:
@@ -213,14 +196,14 @@ class SuiteSparseMatVecGenerator(Generator):
 
     @property
     def pretty_name(self) -> str:
-        return "Matrix-Vector Multiplication SuiteSparse"
+        return "Matrix Multiplication SuiteSparse"
 
     @property
     def description(self) -> str:
         return (
-            "Sparse input generator for sparse matrix-vector multiplication,"
+            "Sparse input generator for sparse matrix-matrix multiplication,"
             " drawing real matrices from the SuiteSparse Matrix Collection"
-            " across a range of application domains."
+            " across the application classes that motivate SpGEMM."
         )
 
     @property
@@ -265,73 +248,67 @@ class SuiteSparseMatVecGenerator(Generator):
                 url="https://dl.acm.org/doi/pdf/10.1145/2049662.2049663",
             ),
             Ref(
-                title="Automatic Performance Tuning of Sparse Matrix Kernels",
-                authors=[Author("R. Vuduc")],
-                institution="University of California, Berkeley",
-                year=2003,
-                url="https://bebop.cs.berkeley.edu/pubs/vuduc2003-dissertation.pdf",
-            ),
-            Ref(
-                title="Evaluation Criteria for Sparse Matrix Storage Formats",
-                authors=[Author("D. Langr"), Author("P. Tvrdik")],
-                journal="IEEE Trans. Parallel Distrib. Syst.",
-                volume=27,
-                number=2,
-                pages="428-440",
-                year=2016,
-                doi="10.1109/TPDS.2015.2401575",
+                title=(
+                    "Parallel Sparse Matrix-Matrix Multiplication and Indexing: "
+                    "Implementation and Experiments"
+                ),
+                authors=[Author("A. Buluç"), Author("J. R. Gilbert")],
+                journal="SIAM Journal on Scientific Computing",
+                volume=34,
+                number=4,
+                pages="170-191",
+                year=2012,
+                doi="10.1137/110848244",
             ),
         ]
 
     @property
     def ai_disclosure(self) -> str:
         return (
-            "Generative AI was not used to write the benchmark function. "
-            "Generative AI might be used for dataset collecting and parsing. "
-            "This statement was written by hand."
+            "No generative AI was used to write the benchmark function itself. "
+            "Generative AI was used to debug code. This statement was written by hand."
         )
 
     @property
     def motivation(self) -> str:
         return (
-            "Generate real sparse matrices for matrix-vector multiplication, "
-            "using the benchmark suite of Vuduc's SpMV autotuning study: 26 of "
-            "its 28 matrices, spanning fluid dynamics, structural, materials, "
-            "chemical process, economic, circuit and semiconductor problems. "
-            "`bai` and `vavasis3` are omitted because SuiteSparse does not "
-            "carry them under those names."
+            "Generate real sparse matrices for squaring (A*A), the operation "
+            "both classes of SpGEMM application reduce to: graph algorithms, "
+            "where A*A gives two-hop neighbourhoods, and algebraic multigrid, "
+            "where SpGEMM forms the coarse-grid operator. Buluc and Gilbert "
+            "motivate those two classes; the matrices themselves are selected "
+            "here rather than taken from that work."
         )
 
     @property
     def datasets(self) -> list[Dataset]:
         return [
-            SuiteSparseMatVecDataset(
+            MatrixMultiplicationSuiteSparseDataset(
+                name,
                 name,
                 name,
                 suites=["sparse", "test"] if in_test_suite else ["sparse"],
                 description=(
-                    f"SuiteSparse matrix {name}, included to represent the "
-                    f"'{kind}' domain in the matrix-vector suite."
+                    f"SuiteSparse matrix {name}, squared to represent "
+                    f"{application} in the matrix-matrix suite."
                 ),
             )
-            for name, kind, in_test_suite in _SPMV_MATRICES
+            for name, application, in_test_suite in _MATMUL_MATRICES
         ]
 
-    def generate(self, dataset: SuiteSparseMatVecDataset) -> DataInstance:
-        raw = fetch_suitesparse_matrix(dataset.matrix)
-        A_bin = raw.inputs[0]
+    def generate(self, dataset: MatrixMultiplicationSuiteSparseDataset) -> DataInstance:
+        A_bin = fetch_suitesparse_matrix(dataset.matrix_1).inputs[0]
+        B_bin = fetch_suitesparse_matrix(dataset.matrix_2).inputs[0]
         A_coo = to_scipy(A_bin).tocoo()
-
-        gen = np.random.Generator(np.random.PCG64(42))
-        b = gen.random((A_coo.shape[1],))
+        B_coo = to_scipy(B_bin).tocoo()
 
         ref_outputs = None
         if "test" in dataset.suites:
-            output = A_coo @ b
-            ref_outputs = [from_numpy(output)]
+            output_coo = (A_coo @ B_coo).tocoo()
+            ref_outputs = [from_scipy(output_coo)]
 
         return DataInstance(
-            [A_bin, from_numpy(b)],
+            [A_bin, B_bin],
             meta={"dataset": dataset.name},
             ref_outputs=ref_outputs,
         )
@@ -341,8 +318,12 @@ class SuiteSparseMatVecGenerator(Generator):
 # spanning very sparse to moderately dense.
 UNIFORM_SPARSE_DENSITIES = [0.00001, 0.0001, 0.001, 0.01, 0.1]
 
+# Above this density the product is effectively fully dense, and building the
+# reference output overruns the test suite's per-benchmark timeout.
+TEST_SUITE_MAX_DENSITY = 0.001
 
-class UniformRandomMatVecDataset(Dataset):
+
+class MatrixMultiplicationUniformRandomDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -384,14 +365,14 @@ class UniformRandomMatVecDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class UniformRandomMatVecGenerator(Generator):
+class MatrixMultiplicationUniformRandomGenerator(Generator):
     @property
     def name(self) -> str:
-        return "matrix_vector_multiplication_uniform_random"
+        return "matrix_multiplication_uniform_random"
 
     @property
     def pretty_name(self) -> str:
-        return "Matrix-Vector Multiplication Uniform Random"
+        return "Matrix Multiplication Uniform Random"
 
     @property
     def description(self) -> str:
@@ -419,34 +400,38 @@ class UniformRandomMatVecGenerator(Generator):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "Generative AI was not used to write the benchmark function. "
-            "This statement was written by hand."
+            "Generative AI was not used to write the benchmark function itself. "
+            "Generative AI might be used for dataset collecting and parsing. "
+            "This statement was written manually."
         )
 
     @property
     def motivation(self) -> str:
         return (
-            "Generate uniform random sparse matrices for matrix-vector "
-            "multiplication over a range of densities. The density values are "
-            "just a synthetic sweep."
+            "Generate pairs of uniform random sparse matrices for SpGEMM over a "
+            "range of densities. The density values are a synthetic sweep."
         )
 
     @property
     def datasets(self) -> list[Dataset]:
         return [
-            UniformRandomMatVecDataset(
+            MatrixMultiplicationUniformRandomDataset(
                 # No dots in the name: the framework parses params as
                 # "generator.dataset" by splitting on ".".
                 f"density_{density:.0e}",
                 pretty_name=f"Density {density:.0e}",
                 dim=5000,
                 density=density,
-                suites=["sparse", "test"],
+                suites=["sparse", "test"]
+                if density <= TEST_SUITE_MAX_DENSITY
+                else ["sparse"],
             )
             for density in UNIFORM_SPARSE_DENSITIES
         ]
 
-    def generate(self, dataset: UniformRandomMatVecDataset) -> DataInstance:
+    def generate(
+        self, dataset: MatrixMultiplicationUniformRandomDataset
+    ) -> DataInstance:
         import scipy.sparse as sps
 
         rng = np.random.default_rng(dataset.seed)
@@ -456,41 +441,42 @@ class UniformRandomMatVecGenerator(Generator):
             format="coo",
             rng=rng,
         )
-        gen = np.random.Generator(np.random.PCG64(42))
-        b = gen.random((dataset.dim,))
+        B = sps.random_array(
+            (dataset.dim, dataset.dim),
+            density=dataset.density,
+            format="coo",
+            rng=rng,
+        )
         ref_outputs = None
         if "test" in dataset.suites:
-            output = A @ b
-            ref_outputs = [from_numpy(output)]
+            output_coo = (A @ B).tocoo()
+            ref_outputs = [from_scipy(output_coo)]
         return DataInstance(
-            [
-                from_scipy(A),
-                from_numpy(b),
-            ],
+            [from_scipy(A), from_scipy(B)],
             meta={"dataset": dataset.name},
             ref_outputs=ref_outputs,
         )
 
 
-class MatrixVectorBenchmark(Benchmark):
+class MatrixMultiplicationBenchmark(Benchmark):
     @property
     def name(self) -> str:
-        return "matrix_vector_multiplication"
+        return "matrix_multiplication"
 
     @property
     def pretty_name(self) -> str:
-        return "Matrix-Vector Multiplication"
+        return "Matrix Multiplication"
 
     @property
     def motivation(self) -> str:
         return (
-            "Matrix-vector multiplication is the key operator in linear algebra"
+            "Matrix multiplication is the key operator in linear algebra"
             "and it is widely used in almost every sparse array application. "
         )
 
     @property
     def description(self) -> str:
-        return "The multiplication of a matrix and a vector.C_i = \\sum_j A_ij B_j"
+        return "The multiplication of two matrices.C_ik = \\sum_k A_ij B_jk"
 
     @property
     def suites(self) -> list[str]:
@@ -546,22 +532,22 @@ class MatrixVectorBenchmark(Benchmark):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "Generative AI was not used to write the benchmark function. "
-            "This statement was written manually."
+            "No generative AI was used to write the benchmark function itself. "
+            "Generative AI was used to debug code. This statement was written by hand."
         )
 
     @property
     def generators(self) -> list[Generator]:
         return [
-            DenseMatVecGenerator(),
-            SuiteSparseMatVecGenerator(),
-            UniformRandomMatVecGenerator(),
+            MatrixMultiplicationDenseGenerator(),
+            MatrixMultiplicationSuiteSparseGenerator(),
+            MatrixMultiplicationUniformRandomGenerator(),
         ]
 
     def benchmark(self, xp, data: list, meta: dict):
         A = data[0]
-        b = data[1]
-        return [xp.matmul(A, b)]
+        B = data[1]
+        return [xp.matmul(A, B)]
 
     def check(self, param):
         for item in self._output:

@@ -9,7 +9,7 @@ from binsparse.conversions import from_numpy, to_numpy
 from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
 
 
-class MaskedMRIDataset(Dataset):
+class MRIMaskedEdgeDetectionDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -81,14 +81,14 @@ def default_masked_mri_roi(image):
     return expected_roi
 
 
-class MaskedMRITestGenerator(Generator[MaskedMRIDataset]):
+class MRIMaskedEdgeDetectionTestGenerator(Generator[MRIMaskedEdgeDetectionDataset]):
     @property
     def name(self) -> str:
-        return "mri_masked_edge_test"
+        return "mri_masked_edge_detection_test"
 
     @property
     def pretty_name(self) -> str:
-        return "MRI Masked Edge Detection Test"
+        return "Magnetic Resonance Imaging (MRI) Masked Edge Detection Test"
 
     @property
     def description(self) -> str:
@@ -104,15 +104,15 @@ class MaskedMRITestGenerator(Generator[MaskedMRIDataset]):
 
     @property
     def authors(self) -> list[Contributor]:
-        return MaskedMRIEdgeBenchmark().authors
+        return MRIMaskedEdgeDetectionBenchmark().authors
 
     @property
     def references(self) -> list[Ref]:
-        return MaskedMRIEdgeBenchmark().references
+        return MRIMaskedEdgeDetectionBenchmark().references
 
     @property
     def ai_disclosure(self) -> str:
-        return MaskedMRIEdgeBenchmark().ai_disclosure
+        return MRIMaskedEdgeDetectionBenchmark().ai_disclosure
 
     @property
     def motivation(self) -> str:
@@ -123,9 +123,9 @@ class MaskedMRITestGenerator(Generator[MaskedMRIDataset]):
         return False
 
     @property
-    def datasets(self) -> list[MaskedMRIDataset]:
+    def datasets(self) -> list[MRIMaskedEdgeDetectionDataset]:
         return [
-            MaskedMRIDataset(
+            MRIMaskedEdgeDetectionDataset(
                 "zero_image",
                 "local",
                 "zero_image",
@@ -136,11 +136,11 @@ class MaskedMRITestGenerator(Generator[MaskedMRIDataset]):
                 roi=np.ones((5, 5), dtype=bool),
                 suites=["test"],
             ),
-            MaskedMRIDataset(
+            MRIMaskedEdgeDetectionDataset(
                 "basic_roi",
                 "local",
                 "basic_roi",
-                pretty_name="Basic ROI",
+                pretty_name="Basic Region of Interest (ROI)",
                 t1_val=75.0,
                 t2_val=125.0,
                 image=np.array(
@@ -165,11 +165,11 @@ class MaskedMRITestGenerator(Generator[MaskedMRIDataset]):
                 ),
                 suites=["test"],
             ),
-            MaskedMRIDataset(
+            MRIMaskedEdgeDetectionDataset(
                 "default_roi",
                 "local",
                 "default_roi",
-                pretty_name="Default ROI",
+                pretty_name="Default Region of Interest (ROI)",
                 t1_val=10.0,
                 t2_val=20.0,
                 image=np.arange(36, dtype=np.float32).reshape(6, 6),
@@ -178,8 +178,8 @@ class MaskedMRITestGenerator(Generator[MaskedMRIDataset]):
             ),
         ]
 
-    def generate(self, dataset: MaskedMRIDataset) -> DataInstance:
-        problem = MaskedMRIGenerator().generate(dataset)
+    def generate(self, dataset: MRIMaskedEdgeDetectionDataset) -> DataInstance:
+        problem = MRIMaskedEdgeDetectionKaggleGenerator().generate(dataset)
         roi = dataset.roi
         if roi is None:
             roi = default_masked_mri_roi(dataset.image)
@@ -194,14 +194,14 @@ class MaskedMRITestGenerator(Generator[MaskedMRIDataset]):
         )
 
 
-class MaskedMRIGenerator(Generator[MaskedMRIDataset]):
+class MRIMaskedEdgeDetectionKaggleGenerator(Generator[MRIMaskedEdgeDetectionDataset]):
     @property
     def name(self) -> str:
-        return "mri_masked_edge_kaggle"
+        return "mri_masked_edge_detection_kaggle"
 
     @property
     def pretty_name(self) -> str:
-        return "MRI Masked Edge Detection Kaggle"
+        return "Magnetic Resonance Imaging (MRI) Masked Edge Detection Kaggle"
 
     @property
     def description(self) -> str:
@@ -222,30 +222,38 @@ class MaskedMRIGenerator(Generator[MaskedMRIDataset]):
 
     @property
     def authors(self) -> list[Contributor]:
-        return MaskedMRIEdgeBenchmark().authors
+        return MRIMaskedEdgeDetectionBenchmark().authors
 
     @property
     def references(self) -> list[Ref]:
-        return MaskedMRIEdgeBenchmark().references
+        return MRIMaskedEdgeDetectionBenchmark().references
 
     @property
     def ai_disclosure(self) -> str:
-        return MaskedMRIEdgeBenchmark().ai_disclosure
+        return MRIMaskedEdgeDetectionBenchmark().ai_disclosure
 
     @property
     def motivation(self) -> str:
-        return MaskedMRIEdgeBenchmark().motivation
+        return MRIMaskedEdgeDetectionBenchmark().motivation
 
     @property
-    def datasets(self) -> list[MaskedMRIDataset]:
+    def datasets(self) -> list[MRIMaskedEdgeDetectionDataset]:
         return [
-            MaskedMRIDataset("yes/Y157", "yes", "Y157.JPG", suites=["trace"]),
-            MaskedMRIDataset("yes/Y6", "yes", "Y6.jpg", suites=["trace", "train"]),
-            MaskedMRIDataset("yes/Y194", "yes", "Y194.jpg", suites=["trace"]),
-            MaskedMRIDataset("yes/Y180", "yes", "Y180.jpg", suites=["trace"]),
+            MRIMaskedEdgeDetectionDataset(
+                "yes/Y157", "yes", "Y157.JPG", suites=["trace"]
+            ),
+            MRIMaskedEdgeDetectionDataset(
+                "yes/Y6", "yes", "Y6.jpg", suites=["trace", "train"]
+            ),
+            MRIMaskedEdgeDetectionDataset(
+                "yes/Y194", "yes", "Y194.jpg", suites=["trace"]
+            ),
+            MRIMaskedEdgeDetectionDataset(
+                "yes/Y180", "yes", "Y180.jpg", suites=["trace"]
+            ),
         ]
 
-    def generate(self, dataset: MaskedMRIDataset) -> DataInstance:
+    def generate(self, dataset: MRIMaskedEdgeDetectionDataset) -> DataInstance:
         if dataset.image is None:
             from PIL import Image
 
@@ -279,14 +287,14 @@ class MaskedMRIGenerator(Generator[MaskedMRIDataset]):
         return DataInstance(inputs=[image_bin, roi_bin, t1_bin, t2_bin], meta={})
 
 
-class MaskedMRIEdgeBenchmark(Benchmark):
+class MRIMaskedEdgeDetectionBenchmark(Benchmark):
     @property
     def name(self) -> str:
-        return "mri_masked_edge"
+        return "mri_masked_edge_detection"
 
     @property
     def pretty_name(self) -> str:
-        return "MRI Masked Edge Detection"
+        return "Magnetic Resonance Imaging (MRI) Masked Edge Detection"
 
     @property
     def description(self) -> str:
@@ -369,7 +377,10 @@ class MaskedMRIEdgeBenchmark(Benchmark):
 
     @property
     def generators(self) -> list[Generator[Any]]:
-        return [MaskedMRITestGenerator(), MaskedMRIGenerator()]
+        return [
+            MRIMaskedEdgeDetectionTestGenerator(),
+            MRIMaskedEdgeDetectionKaggleGenerator(),
+        ]
 
     def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
         img, roi, t1, t2 = data
