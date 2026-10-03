@@ -1,7 +1,5 @@
 from typing import Any
 
-import scipy.sparse.linalg as scipy_spla
-
 from saps.benchmark import Author, Benchmark, Contributor, Ref
 from saps.benchmarks.cg import CGBenchmark, CGGenerator, CGTestGenerator
 
@@ -35,7 +33,7 @@ class SciPyCGBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return ["experimental", "external"]
 
     @property
     def concepts(self) -> str:
@@ -76,6 +74,10 @@ class SciPyCGBenchmark(Benchmark):
         CGBenchmark.check(self, param)
 
     def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
+        # imported here so that loading the suite doesn't pull in scipy for
+        # other benchmark environments
+        import scipy.sparse.linalg as scipy_spla
+
         A, b, x = data
         # scipy stops on norm(b - A @ x) <= max(rtol*norm(b), atol), matching the
         # max(rel_tol*norm(b), abs_tol) test the array-programming CG applies.
