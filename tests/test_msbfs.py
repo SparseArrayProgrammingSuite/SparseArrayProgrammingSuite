@@ -6,7 +6,7 @@ from binsparse.conversions import to_numpy
 
 from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_sparse import PyDataSparseFramework
-from saps.benchmarks.MSBFS import (
+from saps.benchmarks.msbfs import (
     MSBFSBenchmark,
     MSBFSTestGenerator,
     reference_levels,

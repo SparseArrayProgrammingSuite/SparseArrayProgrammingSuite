@@ -10,7 +10,7 @@ from binsparse.conversions import to_numpy
 
 from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_smart import SmartSparseFramework
-from saps.benchmarks.particle_sim import (
+from saps.benchmarks.particle_simulation import (
     ParticleSimulationBenchmark,
     ParticleSimulationTestGenerator,
     reference_particle_sim,

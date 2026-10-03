@@ -9,7 +9,7 @@ from binsparse.conversions import from_scipy, to_sparse
 
 from saps.benchmark import DataInstance
 from saps.benchmarks import gap
-from saps.benchmarks.BFS import (
+from saps.benchmarks.bfs import (
     BFSDataset,
     BFSGAPGenerator,
 )
@@ -112,9 +112,9 @@ def test_gap_with_suites_does_not_mutate_shared_graphs():
 
 
 def test_gap_consumers_preserve_published_source_cases():
-    from saps.benchmarks.bellmanford import BellmanFordGAPGenerator
-    from saps.benchmarks.BFS import BFSGAPGenerator
-    from saps.benchmarks.multi_source_shortest_paths import (
+    from saps.benchmarks.bellman_ford import BellmanFordGAPGenerator
+    from saps.benchmarks.bfs import BFSGAPGenerator
+    from saps.benchmarks.mssp import (
         MSSPGAPGenerator,
     )
 
@@ -159,7 +159,7 @@ def test_floyd_warshall_gap_keeps_weights_and_direction(
 def test_multi_source_gap_conversion_uses_shell_sources(
     monkeypatch, weighted_graph, symmetrize
 ):
-    from saps.benchmarks import multi_source_shortest_paths as mssp
+    from saps.benchmarks import mssp
 
     load = Mock(return_value=weighted_graph)
     monkeypatch.setattr(mssp, "fetch_gap_graph", load)
@@ -179,11 +179,11 @@ def test_multi_source_gap_conversion_uses_shell_sources(
 
 
 def test_msbfs_gap_searches_from_every_published_source(monkeypatch, weighted_graph):
-    from saps.benchmarks import MSBFS
+    from saps.benchmarks import msbfs
 
     load = Mock(return_value=weighted_graph)
-    monkeypatch.setattr(MSBFS, "fetch_gap_graph", load)
-    generator = MSBFS.MSBFSGAPGenerator()
+    monkeypatch.setattr(msbfs, "fetch_gap_graph", load)
+    generator = msbfs.MSBFSGAPGenerator()
     assert [(d.name, d.source_name) for d in generator.datasets] == [
         (g.name, g.name) for g in GAPGraphGenerator().datasets
     ]
@@ -203,7 +203,7 @@ def test_msbfs_gap_searches_from_every_published_source(monkeypatch, weighted_gr
 def test_bellman_ford_gap_preserves_weights_and_shared_metadata(
     monkeypatch, weighted_graph
 ):
-    from saps.benchmarks import bellmanford as bf
+    from saps.benchmarks import bellman_ford as bf
 
     load = Mock(return_value=weighted_graph)
     monkeypatch.setattr(bf, "fetch_gap_graph", load)

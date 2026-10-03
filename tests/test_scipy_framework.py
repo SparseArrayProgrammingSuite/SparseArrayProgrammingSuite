@@ -7,7 +7,7 @@ from binsparse.conversions import from_scipy, to_numpy
 
 from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_scipy import SciPyFramework
-from saps.benchmarks.BFS import BFSBenchmark
+from saps.benchmarks.bfs import BFSBenchmark
 
 
 @pytest.mark.parametrize(

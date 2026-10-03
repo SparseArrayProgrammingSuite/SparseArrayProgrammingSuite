@@ -7,7 +7,7 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
 
-import saps.benchmarks.particle_sim as ps
+import saps.benchmarks.particle_simulation as ps
 from frameworks.saps_numpy import NumpyFramework
 from saps.downloaders.nemo import download_nemo_dataset, parse_nemo_snapshot
 

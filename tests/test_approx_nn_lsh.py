@@ -10,7 +10,7 @@ from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_pytorch import PytorchFramework
 from frameworks.saps_scipy import SciPyFramework
 from frameworks.saps_sparse import PyDataSparseFramework
-from saps.benchmarks.approx_nn import SimHashANNBenchmark
+from saps.benchmarks.simhash_ann import SimHashANNBenchmark
 
 
 @pytest.fixture(

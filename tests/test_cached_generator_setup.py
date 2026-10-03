@@ -11,7 +11,7 @@ from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to
 from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_sparse import PyDataSparseFramework
 from saps.benchmark import DataInstance
-from saps.benchmarks import adjacency, bellmanford, cp_als
+from saps.benchmarks import adjacency, bellman_ford, cp_als
 from saps.benchmarks.adjacency import distance_matrix
 from saps.storage import LocalStorageBackend
 
@@ -48,7 +48,7 @@ def test_bellman_ford_runs_with_infinity_filled_sparse_input(framework):
     distances = distance_matrix(raw, keep_weights=True)
     xp = framework()
 
-    result = bellmanford.BellmanFordBenchmark().benchmark(
+    result = bellman_ford.BellmanFordBenchmark().benchmark(
         xp, [xp.from_binsparse(distances)], {"src": 0}
     )[0]
 
@@ -72,10 +72,10 @@ def test_bellman_ford_large_graph_setup_and_cache_stay_sparse(monkeypatch, tmp_p
     monkeypatch.setattr(
         adjacency, "to_numpy", Mock(side_effect=AssertionError("densification"))
     )
-    generator = bellmanford.BellmanFordGAPGenerator()
+    generator = bellman_ford.BellmanFordGAPGenerator()
     dataset = generator.datasets[0]
     monkeypatch.setattr(
-        bellmanford,
+        bellman_ford,
         "fetch_gap_graph",
         lambda _: DataInstance(inputs=[raw], meta={"sources": [dataset.src]}),
     )

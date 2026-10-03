@@ -81,7 +81,7 @@ def test_pytorch_einsum_compiles_tensor_operations():
 
 
 def test_pytorch_compiled_simhash_matches_eager():
-    from saps.benchmarks.approx_nn import SimHashANNBenchmark
+    from saps.benchmarks.simhash_ann import SimHashANNBenchmark
 
     benchmark = SimHashANNBenchmark()
     param = next(

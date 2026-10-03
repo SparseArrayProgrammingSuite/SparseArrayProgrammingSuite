@@ -7,7 +7,7 @@ import numpy as np
 from binsparse.conversions import from_numpy
 
 from frameworks.saps_numpy import NumpyFramework
-from saps.benchmarks.BFS import BFSBenchmark
+from saps.benchmarks.bfs import BFSBenchmark
 
 
 @pytest.mark.parametrize("mode", [None, "0", "1"])

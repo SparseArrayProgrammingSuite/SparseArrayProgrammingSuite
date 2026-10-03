@@ -18,7 +18,7 @@ import numpy as np
 
 from binsparse.conversions import to_numpy
 
-from saps.benchmarks.particle_sim import ParticleSimulationNEMOGenerator
+from saps.benchmarks.particle_simulation import ParticleSimulationNEMOGenerator
 
 
 def acceleration_curve(position, mass, softening, gravitational_constant, radii):

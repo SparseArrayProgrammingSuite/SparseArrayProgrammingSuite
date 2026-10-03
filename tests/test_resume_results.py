@@ -168,7 +168,7 @@ def test_competition_selects_standard_simhash_datasets_without_machine_prompts(
     import json
     import sys
 
-    from saps.benchmarks.approx_nn import SimHashANNRandomSparseGenerator
+    from saps.benchmarks.simhash_ann import SimHashANNRandomSparseGenerator
 
     root = Path(runner.__file__).resolve().parents[1]
     monkeypatch.chdir(root)
@@ -201,7 +201,7 @@ def test_competition_selects_standard_simhash_datasets_without_machine_prompts(
                 )
                 worker.chdir(tmp_path)
                 for dataset in SimHashANNRandomSparseGenerator().datasets:
-                    assert dataset.file == "src/saps/benchmarks/approx_nn.py"
+                    assert dataset.file == "src/saps/benchmarks/simhash_ann.py"
         return [object()]
 
     monkeypatch.setattr(runner, "get_environments", get_environments)

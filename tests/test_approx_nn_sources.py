@@ -6,7 +6,8 @@ import scipy.sparse
 from binsparse.conversions import from_numpy, to_numpy, to_scipy
 
 from saps.benchmark import DataInstance
-from saps.benchmarks.approx_nn import (
+from saps.benchmarks.openml import OpenMLDatasetGenerator
+from saps.benchmarks.simhash_ann import (
     SimHashANNBenchmark,
     SimHashANNNetflixPrizeDenseGenerator,
     SimHashANNNetflixPrizeSparseGenerator,
@@ -16,7 +17,6 @@ from saps.benchmarks.approx_nn import (
     SimHashANNRandomDenseGenerator,
     SimHashANNRandomSparseGenerator,
 )
-from saps.benchmarks.openml import OpenMLDatasetGenerator
 
 
 @pytest.mark.parametrize(
@@ -93,7 +93,7 @@ def test_simhash_ann_netflix_generator_uses_shared_shell(monkeypatch, generator_
         }
 
     monkeypatch.setattr(
-        "saps.benchmarks.approx_nn.fetch_netflixprize_matrix",
+        "saps.benchmarks.simhash_ann.fetch_netflixprize_matrix",
         fake_fetch_netflixprize_matrix,
     )
     generator = generator_cls()

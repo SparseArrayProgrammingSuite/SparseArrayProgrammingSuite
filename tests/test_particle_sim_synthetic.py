@@ -6,7 +6,7 @@ import numpy as np
 
 from binsparse.conversions import to_numpy
 
-from saps.benchmarks.particle_sim import (
+from saps.benchmarks.particle_simulation import (
     ParticleSimulationBenchmark,
     ParticleSimulationCS267Generator,
     particle_density_box_size,

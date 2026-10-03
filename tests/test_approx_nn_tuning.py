@@ -4,7 +4,7 @@ import pytest
 
 import numpy as np
 
-from saps.benchmarks.approx_nn import (
+from saps.benchmarks.simhash_ann import (
     _RANDOM_COLLISION_PROBABILITY,
     SimHashANNRandomDataset,
     SimHashANNRandomDenseGenerator,

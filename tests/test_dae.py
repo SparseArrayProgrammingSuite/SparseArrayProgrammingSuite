@@ -5,7 +5,7 @@ import scipy.sparse as sp
 
 from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_sparse import PyDataSparseFramework
-from saps.benchmarks.dae import (
+from saps.benchmarks.dae_bdf import (
     DAEBDFBenchmark,
     DAEBDFDataset,
     DAEBDFSLICOTGenerator,
@@ -156,7 +156,7 @@ def test_lu_permutations():
 
 
 def test_factorization_only_in_generator(monkeypatch):
-    import saps.benchmarks.dae as dae
+    import saps.benchmarks.dae_bdf as dae
 
     benchmark = DAEBDFBenchmark()
     param = next(

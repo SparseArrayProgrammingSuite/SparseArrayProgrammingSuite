@@ -5,7 +5,7 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy
 
-import saps.benchmarks.particle_sim as ps
+import saps.benchmarks.particle_simulation as ps
 from frameworks.saps_numpy import NumpyFramework
 from saps.downloaders.ewap import load_toy_ewap_dataset
 

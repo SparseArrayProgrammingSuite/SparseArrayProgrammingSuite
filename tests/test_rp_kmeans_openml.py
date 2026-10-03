@@ -10,17 +10,17 @@ import scipy.sparse
 from binsparse.conversions import from_numpy, to_numpy
 
 from saps.benchmark import DataInstance
+from saps.benchmarks.jl_kmeans import (
+    JLKMeansBenchmark,
+    JLKMeansDataset,
+    JLKMeansNetflixPrizeGenerator,
+    JLKMeansOpenMLGenerator,
+)
 from saps.benchmarks.openml import (
     OpenMLDatasetGenerator,
     OpenMLDatasetShellBenchmark,
     _fetch_openml,
     fetch_openml_features,
-)
-from saps.benchmarks.rp_kmeans_clustering import (
-    JLKMeansBenchmark,
-    JLKMeansDataset,
-    JLKMeansNetflixPrizeGenerator,
-    JLKMeansOpenMLGenerator,
 )
 
 
@@ -148,7 +148,7 @@ def test_rp_kmeans_openml_generator_derives_inputs_from_cached_source(monkeypatc
         }
 
     monkeypatch.setattr(
-        "saps.benchmarks.rp_kmeans_clustering.fetch_openml_features",
+        "saps.benchmarks.jl_kmeans.fetch_openml_features",
         fake_fetch_openml_features,
     )
     generator = JLKMeansOpenMLGenerator()
@@ -196,7 +196,7 @@ def test_rp_kmeans_netflix_generator_uses_shared_shell(monkeypatch):
         }
 
     monkeypatch.setattr(
-        "saps.benchmarks.rp_kmeans_clustering.fetch_netflixprize_matrix",
+        "saps.benchmarks.jl_kmeans.fetch_netflixprize_matrix",
         fake_fetch_netflixprize_matrix,
     )
     generator = JLKMeansNetflixPrizeGenerator()
