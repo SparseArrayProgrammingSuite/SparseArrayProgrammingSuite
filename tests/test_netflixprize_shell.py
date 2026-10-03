@@ -44,7 +44,7 @@ def test_netflixprize_shell_generator_caches_prepared_matrix(monkeypatch):
 
     assert generator.cacheable
     assert dataset.suites == []
-    assert NetflixPrizeBenchmark().generator.name == "netflixprize"
+    assert NetflixPrizeBenchmark().generator.name == "netflix_prize_ratings"
     np.testing.assert_array_equal(
         to_scipy(instance.inputs[0]).toarray(), source.toarray()
     )
@@ -72,7 +72,7 @@ def test_fetch_netflixprize_matrix_uses_shared_cache(monkeypatch):
 
     matrix, meta = fetch_netflixprize_matrix()
 
-    assert calls == [("netflixprize", "netflix")]
+    assert calls == [("netflix_prize_ratings", "netflix")]
     np.testing.assert_array_equal(matrix.toarray(), source.toarray())
     assert meta["num_users"] == 2
 

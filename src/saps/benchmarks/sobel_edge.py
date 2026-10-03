@@ -81,9 +81,11 @@ class MRISobelDataset(Dataset):
         image: np.ndarray | None = None,
         ref_meta: dict[str, Any] | None = None,
         suites: list[str] | None = None,
+        pretty_name: str | None = None,
     ):
         self._suites = suites or []
         self.source_name = name
+        self._pretty_name = pretty_name or name
         self.category = category
         self.filename = filename
         self.threshold_val = threshold_val
@@ -96,7 +98,7 @@ class MRISobelDataset(Dataset):
 
     @property
     def pretty_name(self) -> str:
-        return f"MRI Sobel Edge {self.source_name}"
+        return self._pretty_name
 
     @property
     def description(self) -> str:
@@ -142,11 +144,11 @@ def expected_sobel_edge(image, threshold):
 class MRISobelTestGenerator(Generator[MRISobelDataset]):
     @property
     def name(self) -> str:
-        return "mri_sobel_test_inputs"
+        return "mri_sobel_edge_test"
 
     @property
     def pretty_name(self) -> str:
-        return "MRI Sobel Edge Test Input Generator"
+        return "MRI Sobel Edge Detection Test"
 
     @property
     def description(self) -> str:
@@ -184,16 +186,18 @@ class MRISobelTestGenerator(Generator[MRISobelDataset]):
     def datasets(self) -> list[MRISobelDataset]:
         return [
             MRISobelDataset(
-                "test_sobel_zero_image",
+                "zero_image",
                 "local",
-                "test_sobel_zero_image",
+                "zero_image",
+                pretty_name="Zero Image",
                 threshold_val=10.0,
                 image=np.zeros((5, 5), dtype=np.float32),
             ),
             MRISobelDataset(
-                "test_sobel_vertical_edge",
+                "vertical_edge",
                 "local",
-                "test_sobel_vertical_edge",
+                "vertical_edge",
+                pretty_name="Vertical Edge",
                 threshold_val=50.0,
                 image=np.array(
                     [
@@ -207,9 +211,10 @@ class MRISobelTestGenerator(Generator[MRISobelDataset]):
                 ),
             ),
             MRISobelDataset(
-                "test_sobel_horizontal_edge",
+                "horizontal_edge",
                 "local",
-                "test_sobel_horizontal_edge",
+                "horizontal_edge",
+                pretty_name="Horizontal Edge",
                 threshold_val=50.0,
                 image=np.array(
                     [
@@ -223,9 +228,10 @@ class MRISobelTestGenerator(Generator[MRISobelDataset]):
                 ),
             ),
             MRISobelDataset(
-                "test_sobel_generator_metadata",
+                "zero_3x4",
                 "local",
-                "test_sobel_generator_metadata",
+                "zero_3x4",
+                pretty_name="Zero 3x4",
                 threshold_val=7.0,
                 image=np.zeros((3, 4), dtype=np.float32),
                 ref_meta={
@@ -250,11 +256,11 @@ class MRISobelTestGenerator(Generator[MRISobelDataset]):
 class MRISobelGenerator(Generator[MRISobelDataset]):
     @property
     def name(self) -> str:
-        return "mri_sobel_inputs"
+        return "mri_sobel_edge_kaggle"
 
     @property
     def pretty_name(self) -> str:
-        return "MRI Sobel Edge Data Generator"
+        return "MRI Sobel Edge Detection Kaggle"
 
     @property
     def description(self) -> str:
@@ -310,10 +316,10 @@ class MRISobelGenerator(Generator[MRISobelDataset]):
     @property
     def datasets(self) -> list[MRISobelDataset]:
         return [
-            MRISobelDataset("mri_sobel_1", "yes", "Y157.JPG", suites=["trace"]),
-            MRISobelDataset("mri_sobel_2", "yes", "Y6.jpg", suites=["trace", "train"]),
-            MRISobelDataset("mri_sobel_3", "yes", "Y194.jpg", suites=["trace"]),
-            MRISobelDataset("mri_sobel_4", "yes", "Y180.jpg", suites=["trace"]),
+            MRISobelDataset("yes/Y157", "yes", "Y157.JPG", suites=["trace"]),
+            MRISobelDataset("yes/Y6", "yes", "Y6.jpg", suites=["trace", "train"]),
+            MRISobelDataset("yes/Y194", "yes", "Y194.jpg", suites=["trace"]),
+            MRISobelDataset("yes/Y180", "yes", "Y180.jpg", suites=["trace"]),
         ]
 
     def generate(self, dataset: MRISobelDataset) -> DataInstance:
@@ -352,7 +358,7 @@ class MRISobelEdgeBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "Sobel Operator Edge Detection"
+        return "MRI Sobel Edge Detection"
 
     @property
     def description(self) -> str:

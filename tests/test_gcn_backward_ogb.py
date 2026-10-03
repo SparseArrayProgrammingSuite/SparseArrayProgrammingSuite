@@ -35,8 +35,7 @@ def test_ogb_gcn_backward_generator_derives_dimensions_and_targets(monkeypatch):
     )
     generator = OGBGCNTrainingGenerator()
     dataset = OGBGCNTrainingDataset(
-        "fake_ogb",
-        source_name="fake-ogb",
+        "fake-ogb",
         hidden_dim=5,
         num_iterations=3,
         learning_rate=0.2,

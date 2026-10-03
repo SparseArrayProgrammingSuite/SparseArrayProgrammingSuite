@@ -57,11 +57,11 @@ class DenseMatVecDataset(Dataset):
 class DenseMatVecGenerator(Generator):
     @property
     def name(self) -> str:
-        return "dense_matvec_generator"
+        return "matrix_vector_multiplication_dense"
 
     @property
     def pretty_name(self) -> str:
-        return "Dense MatVec Generator"
+        return "Matrix-Vector Multiplication Dense"
 
     @property
     def description(self) -> str:
@@ -97,11 +97,23 @@ class DenseMatVecGenerator(Generator):
     @property
     def datasets(self) -> list[Dataset]:
         return [
-            DenseMatVecDataset("small", 10, 10, suites=["dense", "test"]),
-            DenseMatVecDataset("medium", 100, 100, suites=["dense", "test"]),
-            DenseMatVecDataset("large", 1000, 1000, suites=["dense"]),
+            DenseMatVecDataset(
+                "small", 10, 10, pretty_name="Small", suites=["dense", "test"]
+            ),
+            DenseMatVecDataset(
+                "medium", 100, 100, pretty_name="Medium", suites=["dense", "test"]
+            ),
+            DenseMatVecDataset(
+                "large", 1000, 1000, pretty_name="Large", suites=["dense"]
+            ),
             # Non-square A, which the SuiteSparse suite does not cover.
-            DenseMatVecDataset("rectangular", 100, 150, suites=["dense", "test"]),
+            DenseMatVecDataset(
+                "rectangular",
+                100,
+                150,
+                pretty_name="Rectangular",
+                suites=["dense", "test"],
+            ),
         ]
 
     def generate(self, dataset: DenseMatVecDataset) -> DataInstance:
@@ -193,7 +205,7 @@ _SPMV_MATRICES: list[tuple[str, str, bool]] = [
 class SuiteSparseMatVecGenerator(Generator):
     @property
     def name(self) -> str:
-        return "suitesparse_matvec_generator"
+        return "matrix_vector_multiplication_suitesparse"
 
     @property
     def cacheable(self) -> bool:
@@ -201,7 +213,7 @@ class SuiteSparseMatVecGenerator(Generator):
 
     @property
     def pretty_name(self) -> str:
-        return "Suite Sparse MatVec Generator"
+        return "Matrix-Vector Multiplication SuiteSparse"
 
     @property
     def description(self) -> str:
@@ -294,7 +306,7 @@ class SuiteSparseMatVecGenerator(Generator):
     def datasets(self) -> list[Dataset]:
         return [
             SuiteSparseMatVecDataset(
-                name.split("/")[-1],
+                name,
                 name,
                 suites=["sparse", "test"] if in_test_suite else ["sparse"],
                 description=(
@@ -375,11 +387,11 @@ class UniformRandomMatVecDataset(Dataset):
 class UniformRandomMatVecGenerator(Generator):
     @property
     def name(self) -> str:
-        return "uniform_random_matvec_generator"
+        return "matrix_vector_multiplication_uniform_random"
 
     @property
     def pretty_name(self) -> str:
-        return "Uniform Random Sparse MatVec Generator"
+        return "Matrix-Vector Multiplication Uniform Random"
 
     @property
     def description(self) -> str:
@@ -425,7 +437,8 @@ class UniformRandomMatVecGenerator(Generator):
             UniformRandomMatVecDataset(
                 # No dots in the name: the framework parses params as
                 # "generator.dataset" by splitting on ".".
-                f"uniform-{density:.0e}",
+                f"density_{density:.0e}",
+                pretty_name=f"Density {density:.0e}",
                 dim=5000,
                 density=density,
                 suites=["sparse", "test"],
@@ -466,7 +479,7 @@ class MatrixVectorBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "Matrix Vector Multiplication"
+        return "Matrix-Vector Multiplication"
 
     @property
     def motivation(self) -> str:

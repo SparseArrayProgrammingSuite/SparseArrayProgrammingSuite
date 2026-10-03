@@ -233,7 +233,7 @@ the downloader or reading source files.
 Older G-CARE caches need a one-time refresh from the repository root:
 
 ```bash
-poetry run ./bin/run_benchmark.py --cache-datasets --re '^subgraph_gcare_graph$'
+poetry run ./bin/run_benchmark.py --cache-datasets --re '^gcare_graph$'
 ```
 
 Run this in the dataset-upload environment with its configured storage backend.

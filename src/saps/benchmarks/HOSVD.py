@@ -87,11 +87,11 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
 
     @property
     def name(self) -> str:
-        return "hosvd_dense_inputs"
+        return "hosvd_dense"
 
     @property
     def pretty_name(self) -> str:
-        return "Dense Low-Rank HOSVD Input Generator"
+        return "HOSVD Dense"
 
     @property
     def description(self) -> str:
@@ -129,24 +129,24 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
     def datasets(self) -> list[HOSVDDataset]:
         datasets = [
             HOSVDDataset(
-                "small_dense_hosvd",
-                "Small Dense HOSVD Tensor",
+                "small_3d",
+                "Small 3D",
                 "Dense low-rank 3D tensor using random factor matrices.",
                 ["test"],
                 (10, 10, 10),
                 (3, 3, 3),
             ),
             HOSVDDataset(
-                "small_dense_4d",
-                "Small dense 4d HOSVD Tensor",
+                "small_4d",
+                "Small 4D",
                 "Dense low-rank 4D tensor using random factor matrices.",
                 ["test"],
                 (10, 10, 10, 10),
                 (3, 3, 3, 3),
             ),
             HOSVDDataset(
-                "small_dense_5d",
-                "Small dense 5d HOSVD Tensor",
+                "small_5d",
+                "Small 5D",
                 "Dense low-rank 5D tensor using random factor matrices.",
                 ["test"],
                 (10, 10, 10, 10, 10),
@@ -218,11 +218,11 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
 
     @property
     def name(self) -> str:
-        return "hosvd_sparse_inputs"
+        return "hosvd_sparse"
 
     @property
     def pretty_name(self) -> str:
-        return "Sparse Low-Rank HOSVD Input Generator"
+        return "HOSVD Sparse"
 
     @property
     def description(self) -> str:
@@ -260,24 +260,24 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
     def datasets(self) -> list[HOSVDDataset]:
         datasets = [
             HOSVDDataset(
-                "small_sparse",
-                "Small sparse HOSVD Tensor",
+                "small_3d",
+                "Small 3D",
                 "Sparse low-rank 3D tensor using random factor matrices.",
                 [],
                 (20, 20, 20),
                 (3, 3, 3),
             ),
             HOSVDDataset(
-                "small_sparse_4d",
-                "Small sparse 4d HOSVD Tensor",
+                "small_4d",
+                "Small 4D",
                 "Sparse low-rank 4D tensor using random factor matrices.",
                 [],
                 (20, 20, 20, 20),
                 (3, 3, 3, 3),
             ),
             HOSVDDataset(
-                "small_sparse_5d",
-                "Small sparse 5d HOSVD Tensor",
+                "small_5d",
+                "Small 5D",
                 "Sparse low-rank 5D tensor using random factor matrices.",
                 [],
                 (10, 10, 10, 10, 10),
@@ -423,8 +423,8 @@ def _hosvd_frostt_dataset(tensor_name, ranks, suites):
     )
     n = len(shape)
     return HOSVDFrosttDataset(
-        name=f"hosvd_frostt_{tensor_name}",
-        pretty_name=f"HOSVD FROSTT {tensor_name}",
+        name=tensor_name,
+        pretty_name=tensor_name,
         tensor_name=tensor_name,
         n=n,
         ranks=ranks,
@@ -442,11 +442,11 @@ class HOSVDFrosttGenerator(Generator[HOSVDFrosttDataset]):
 
     @property
     def name(self) -> str:
-        return "hosvd_frostt_inputs"
+        return "hosvd_frostt"
 
     @property
     def pretty_name(self) -> str:
-        return "FROSTT Sparse Tensor Generator for HOSVD"
+        return "HOSVD FROSTT"
 
     @property
     def description(self) -> str:

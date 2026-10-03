@@ -416,11 +416,11 @@ class LinearProgrammingDataset(Dataset):
 class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
     @property
     def name(self) -> str:
-        return "lp_test_inputs"
+        return "lp_simplex_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Linear Programming Test Input Generator"
+        return "Revised Simplex Method Test"
 
     @property
     def description(self) -> str:
@@ -507,7 +507,8 @@ class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
 
         return [
             LinearProgrammingDataset(
-                "test_lp_bounded_unique_optimum",
+                "bounded_unique_optimum",
+                pretty_name="Bounded Unique Optimum",
                 suites=["test"],
                 A=A1,
                 b=b1,
@@ -516,7 +517,8 @@ class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
                 expected_status=_STATUS_OPTIMAL,
             ),
             LinearProgrammingDataset(
-                "test_lp_infeasible",
+                "infeasible",
+                pretty_name="Infeasible",
                 suites=["test"],
                 A=A2,
                 b=b2,
@@ -525,7 +527,8 @@ class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
                 expected_status=_STATUS_INFEASIBLE,
             ),
             LinearProgrammingDataset(
-                "test_lp_unbounded",
+                "unbounded",
+                pretty_name="Unbounded",
                 suites=["test"],
                 A=A3,
                 b=b3,
@@ -534,7 +537,8 @@ class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
                 expected_status=_STATUS_UNBOUNDED,
             ),
             LinearProgrammingDataset(
-                "test_lp_degenerate_tie",
+                "degenerate_tie",
+                pretty_name="Degenerate Tie",
                 suites=["test"],
                 A=A4,
                 b=b4,
@@ -543,7 +547,8 @@ class LinearProgrammingTestGenerator(Generator[LinearProgrammingDataset]):
                 expected_status=_STATUS_OPTIMAL,
             ),
             LinearProgrammingDataset(
-                "test_lp_singleton",
+                "singleton",
+                pretty_name="Singleton",
                 suites=["test"],
                 A=A5,
                 b=b5,
@@ -620,7 +625,6 @@ class LPNetlibDataset(SuiteSparseDataset):
         super().__init__(
             source_name,
             source_name=f"LPnetlib/{source_name}",
-            pretty_name=f"LPnetlib {source_name}",
             description=(
                 f"Netlib linear program {source_name} from the SuiteSparse LPnetlib"
                 " group, converted to standard form."
@@ -634,11 +638,11 @@ class LPNetlibDataset(SuiteSparseDataset):
 class LPNetlibGenerator(Generator[LPNetlibDataset]):
     @property
     def name(self) -> str:
-        return "lpnetlib_inputs"
+        return "lp_simplex_lpnetlib"
 
     @property
     def pretty_name(self) -> str:
-        return "LPnetlib Linear Program Generator"
+        return "Revised Simplex Method LPnetlib"
 
     @property
     def description(self) -> str:
@@ -786,7 +790,7 @@ class LinearProgrammingBenchmark(Benchmark):
 
     @property
     def pretty_name(self):
-        return "Revised Simplex Method for Linear Programming"
+        return "Revised Simplex Method"
 
     @property
     def description(self):

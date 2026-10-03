@@ -70,11 +70,11 @@ def pagerank_networkx_reference(A: np.ndarray) -> np.ndarray:
 class PageRankTestGenerator(Generator[PageRankDataset]):
     @property
     def name(self) -> str:
-        return "pagerank_test_inputs"
+        return "pagerank_test"
 
     @property
     def pretty_name(self) -> str:
-        return "PageRank Test Input Generator"
+        return "PageRank Test"
 
     @property
     def description(self) -> str:
@@ -115,25 +115,29 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
     def datasets(self) -> list[PageRankDataset]:
         return [
             PageRankDataset(
-                name="test_pagerank_two_node_cycle",
+                name="two_node_cycle",
+                pretty_name="Two Node Cycle",
                 suites=["test"],
                 A=np.array([[0, 1], [1, 0]], dtype=float),
                 expected=np.array([0.5, 0.5], dtype=float),
             ),
             PageRankDataset(
-                name="test_pagerank_three_node_chain",
+                name="three_node_chain",
+                pretty_name="Three Node Chain",
                 suites=["test"],
                 A=np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0]], dtype=float),
                 ref_meta={"rank_order": [0, 1, 2]},
             ),
             PageRankDataset(
-                name="test_pagerank_two_node_sink",
+                name="two_node_sink",
+                pretty_name="Two Node Sink",
                 suites=["test"],
                 A=np.array([[0, 0], [1, 0]], dtype=float),
                 ref_meta={"rank_order": [0, 1]},
             ),
             PageRankDataset(
-                name="test_pagerank_against_networkx",
+                name="networkx",
+                pretty_name="NetworkX Comparison",
                 suites=["test"],
                 A=np.array(
                     [
@@ -159,7 +163,8 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
                 ),
             ),
             PageRankDataset(
-                name="test_pagerank_snap_toy",
+                name="snap_toy",
+                pretty_name="SNAP Toy",
                 suites=["test"],
                 A=np.array(
                     [
@@ -199,11 +204,11 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
 class PageRankSNAPGenerator(Generator[PageRankDataset]):
     @property
     def name(self) -> str:
-        return "pagerank_snap_inputs"
+        return "pagerank_snap"
 
     @property
     def pretty_name(self) -> str:
-        return "PageRank SNAP Input Generator"
+        return "PageRank SNAP"
 
     @property
     def description(self) -> str:
@@ -326,11 +331,11 @@ class PageRankSNAPGenerator(Generator[PageRankDataset]):
 class PageRankGAPGenerator(Generator[PageRankDataset]):
     @property
     def name(self) -> str:
-        return "pagerank_gap_inputs"
+        return "pagerank_gap"
 
     @property
     def pretty_name(self) -> str:
-        return "PageRank GAP Input Generator"
+        return "PageRank GAP"
 
     @property
     def description(self) -> str:
@@ -404,7 +409,7 @@ class PageRankBenchmark(Benchmark):
 
     @property
     def pretty_name(self):
-        return "Google Page Rank Algorithm"
+        return "PageRank"
 
     @property
     def description(self):

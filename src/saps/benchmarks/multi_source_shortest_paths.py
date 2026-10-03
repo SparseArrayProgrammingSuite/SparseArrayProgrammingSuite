@@ -127,11 +127,11 @@ def shortest_paths_input_from_edges(
 class MultiSourceShortestPathsTestGenerator(Generator[MultiSourceShortestPathsDataset]):
     @property
     def name(self) -> str:
-        return "multi_source_shortest_paths_test_inputs"
+        return "multi_source_shortest_paths_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Multi-Source Shortest Paths Test Input Generator"
+        return "Multi-Source Shortest Paths Test"
 
     @property
     def description(self) -> str:
@@ -172,24 +172,24 @@ class MultiSourceShortestPathsTestGenerator(Generator[MultiSourceShortestPathsDa
     def datasets(self) -> list[MultiSourceShortestPathsDataset]:
         return [
             MultiSourceShortestPathsDataset(
-                name="single-node",
-                pretty_name="single-node",
+                name="single_node",
+                pretty_name="Single Node",
                 description="Multi-Source Shortest Paths test case single-node.",
                 suites=["test"],
                 A=np.array([[0.0]]),
                 expected=np.array([[0.0]]),
             ),
             MultiSourceShortestPathsDataset(
-                name="two-node-directed",
-                pretty_name="two-node-directed",
+                name="two_node_directed",
+                pretty_name="Two Node Directed",
                 description="Multi-Source Shortest Paths test case two-node-directed.",
                 suites=["test"],
                 A=np.array([[0.0, 1.0], [np.inf, 0.0]]),
                 expected=np.array([[0.0, 1.0], [np.inf, 0.0]]),
             ),
             MultiSourceShortestPathsDataset(
-                name="three-node-chain",
-                pretty_name="three-node-chain",
+                name="three_node_chain",
+                pretty_name="Three Node Chain",
                 description="Multi-Source Shortest Paths test case three-node-chain.",
                 suites=["test"],
                 A=np.array(
@@ -208,8 +208,8 @@ class MultiSourceShortestPathsTestGenerator(Generator[MultiSourceShortestPathsDa
                 ),
             ),
             MultiSourceShortestPathsDataset(
-                name="three-node-shortcut",
-                pretty_name="three-node-shortcut",
+                name="three_node_shortcut",
+                pretty_name="Three Node Shortcut",
                 description="Multi-Source Shortest Paths test case three-node-shortcut.",
                 suites=["test"],
                 A=np.array(
@@ -228,8 +228,8 @@ class MultiSourceShortestPathsTestGenerator(Generator[MultiSourceShortestPathsDa
                 ),
             ),
             MultiSourceShortestPathsDataset(
-                name="two-components",
-                pretty_name="two-components",
+                name="two_components",
+                pretty_name="Two Components",
                 description="Multi-Source Shortest Paths test case two-components.",
                 suites=["test"],
                 A=np.array(
@@ -250,8 +250,8 @@ class MultiSourceShortestPathsTestGenerator(Generator[MultiSourceShortestPathsDa
                 ),
             ),
             MultiSourceShortestPathsDataset(
-                name="large-symmetric",
-                pretty_name="large-symmetric",
+                name="large_symmetric",
+                pretty_name="Large Symmetric",
                 description="Multi-Source Shortest Paths test case large-symmetric.",
                 suites=["test"],
                 A=shortest_paths_input_from_edges(
@@ -373,11 +373,11 @@ class MultiSourceShortestPathsTestGenerator(Generator[MultiSourceShortestPathsDa
 class MultiSourceShortestPathsGAPGenerator(Generator[MultiSourceShortestPathsDataset]):
     @property
     def name(self) -> str:
-        return "multi_source_shortest_paths_gap_inputs"
+        return "multi_source_shortest_paths_gap"
 
     @property
     def pretty_name(self) -> str:
-        return "Multi-Source Shortest Paths GAP Input Generator"
+        return "Multi-Source Shortest Paths GAP"
 
     @property
     def description(self) -> str:
@@ -447,11 +447,11 @@ class MultiSourceShortestPathsGAPGenerator(Generator[MultiSourceShortestPathsDat
     def datasets(self) -> list[MultiSourceShortestPathsDataset]:
         # fmt: off
         return [
-            MultiSourceShortestPathsDataset("GAP/GAP-road", symmetrize=False, suites=["standard"]),
-            MultiSourceShortestPathsDataset("GAP/GAP-twitter", symmetrize=True, suites=["standard"]),
-            MultiSourceShortestPathsDataset("GAP/GAP-web", symmetrize=True, suites=["standard"]),
-            MultiSourceShortestPathsDataset("GAP/GAP-kron", symmetrize=False, suites=["standard"]),
-            MultiSourceShortestPathsDataset("GAP/GAP-urand", symmetrize=False, suites=["standard"]),
+            MultiSourceShortestPathsDataset("GAP-road", symmetrize=False, suites=["standard"]),
+            MultiSourceShortestPathsDataset("GAP-twitter", symmetrize=True, suites=["standard"]),
+            MultiSourceShortestPathsDataset("GAP-web", symmetrize=True, suites=["standard"]),
+            MultiSourceShortestPathsDataset("GAP-kron", symmetrize=False, suites=["standard"]),
+            MultiSourceShortestPathsDataset("GAP-urand", symmetrize=False, suites=["standard"]),
         ]
         # fmt: on
 
@@ -460,7 +460,7 @@ class MultiSourceShortestPathsGAPGenerator(Generator[MultiSourceShortestPathsDat
         return False
 
     def generate(self, dataset: MultiSourceShortestPathsDataset):
-        raw = fetch_gap_graph(dataset.name.removeprefix("GAP/"))
+        raw = fetch_gap_graph(dataset.name)
         n, m = raw.inputs[0].shape
         if n != m:
             raise ValueError(
@@ -475,11 +475,11 @@ class MultiSourceShortestPathsGAPGenerator(Generator[MultiSourceShortestPathsDat
 class MultiSourceShortestPathsSNAPGenerator(Generator[MultiSourceShortestPathsDataset]):
     @property
     def name(self) -> str:
-        return "multi_source_shortest_paths_snap_inputs"
+        return "multi_source_shortest_paths_snap"
 
     @property
     def pretty_name(self) -> str:
-        return "Multi-Source Shortest Paths SNAP Input Generator"
+        return "Multi-Source Shortest Paths SNAP"
 
     @property
     def description(self) -> str:

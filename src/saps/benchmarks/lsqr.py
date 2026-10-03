@@ -15,7 +15,6 @@ from saps.benchmark import (
 from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     fetch_suitesparse_linear_system,
-    suite_sparse_rhs_dataset_name,
 )
 
 
@@ -28,6 +27,7 @@ class LSQRDataset(SuiteSparseDataset):
         self,
         source_name: str,
         *,
+        pretty_name: str | None = None,
         noise_amt: float = 0.1,
         suites: list[str] | None = None,
         A: np.ndarray | None = None,
@@ -37,11 +37,14 @@ class LSQRDataset(SuiteSparseDataset):
         max_iter: int = 1000,
         rel_tol: float = 1e-6,
     ):
-        dataset_name = suite_sparse_rhs_dataset_name(source_name, rhs_index)
+        name = source_name
+        if rhs_index is not None:
+            name = f"{source_name}_rhs{rhs_index}"
+            pretty_name = f"{source_name} (RHS {rhs_index})"
         super().__init__(
-            dataset_name,
+            name,
             source_name=source_name,
-            pretty_name=f"LSQR {source_name}",
+            pretty_name=pretty_name,
             suites=suites,
             rhs_index=rhs_index,
         )
@@ -65,11 +68,11 @@ class LSQRDataset(SuiteSparseDataset):
 class LSQRTestGenerator(Generator[LSQRDataset]):
     @property
     def name(self) -> str:
-        return "lsqr_test_inputs"
+        return "lsqr_test"
 
     @property
     def pretty_name(self) -> str:
-        return "LSQR Test Data Generator"
+        return "LSQR Test"
 
     @property
     def description(self) -> str:
@@ -107,14 +110,16 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
     def datasets(self) -> list[LSQRDataset]:
         return [
             LSQRDataset(
-                "test_lsqr_underdetermined_3",
+                "underdetermined_3",
+                pretty_name="Underdetermined 3",
                 suites=["test"],
                 A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0]]),
                 b=np.array([4.1, 10.1]),
                 convergence="residual",
             ),
             LSQRDataset(
-                "test_lsqr_overdetermined_3",
+                "overdetermined_3",
+                pretty_name="Overdetermined 3",
                 suites=["test"],
                 A=np.array(
                     [
@@ -128,14 +133,16 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
                 convergence="gradient",
             ),
             LSQRDataset(
-                "test_lsqr_exact_3",
+                "exact_3",
+                pretty_name="Exact 3",
                 suites=["test"],
                 A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]),
                 b=np.array([4.0, 8.0, 16.0]),
                 convergence="residual",
             ),
             LSQRDataset(
-                "test_lsqr_underdetermined_4",
+                "underdetermined_4",
+                pretty_name="Underdetermined 4",
                 suites=["test"],
                 A=np.array(
                     [
@@ -148,7 +155,8 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
                 convergence="residual",
             ),
             LSQRDataset(
-                "test_lsqr_overdetermined_sparse",
+                "overdetermined_sparse",
+                pretty_name="Overdetermined Sparse",
                 suites=["test"],
                 A=np.array(
                     [
@@ -162,7 +170,8 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
                 convergence="gradient",
             ),
             LSQRDataset(
-                "test_lsqr_exact_4",
+                "exact_4",
+                pretty_name="Exact 4",
                 suites=["test"],
                 A=np.array(
                     [
@@ -176,14 +185,16 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
                 convergence="residual",
             ),
             LSQRDataset(
-                "test_lsqr_scaled_underdetermined",
+                "scaled_underdetermined",
+                pretty_name="Scaled Underdetermined",
                 suites=["test"],
                 A=np.array([[120.0, -2.0, 0.0], [-2.0, 120.0, -2.0]]),
                 b=np.array([118.1, 116.1]),
                 convergence="residual",
             ),
             LSQRDataset(
-                "test_lsqr_overdetermined_dense",
+                "overdetermined_dense",
+                pretty_name="Overdetermined Dense",
                 suites=["test"],
                 A=np.array(
                     [[1.0, 2.0, 0.0], [0.0, 3.0, 1.0], [1.0, 0.0, 4.0], [2.0, 1.0, 3.0]]
@@ -192,7 +203,8 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
                 convergence="gradient",
             ),
             LSQRDataset(
-                "test_lsqr_exact_5",
+                "exact_5",
+                pretty_name="Exact 5",
                 suites=["test"],
                 A=np.array(
                     [
@@ -224,11 +236,11 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
 class LSQRGenerator(Generator[LSQRDataset]):
     @property
     def name(self) -> str:
-        return "lsqr_inputs"
+        return "lsqr_suitesparse"
 
     @property
     def pretty_name(self) -> str:
-        return "LSQR SuiteSparse Data Generator"
+        return "LSQR SuiteSparse"
 
     @property
     def description(self) -> str:
@@ -358,7 +370,7 @@ class LSQRBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "LSQR Iterative Solver"
+        return "LSQR"
 
     @property
     def authors(self) -> list[Contributor]:

@@ -107,11 +107,11 @@ def undirected_path_matrix():
 class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]):
     @property
     def name(self) -> str:
-        return "betweenness_centrality_test_inputs"
+        return "betweenness_centrality_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Betweenness Centrality Test Input Generator"
+        return "Betweenness Centrality Test"
 
     @property
     def description(self) -> str:
@@ -164,7 +164,8 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
         )
         return [
             BetweennessCentralityDataset(
-                name="test_joels_case",
+                name="joels_case",
+                pretty_name="Joel's Case",
                 suites=["test"],
                 A=np.array(
                     [
@@ -179,19 +180,22 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
                 expected=np.array([0.0, 1.0, 1.0, 3.0, 0.0]),
             ),
             BetweennessCentralityDataset(
-                name="test_basic_empty",
+                name="empty",
+                pretty_name="Empty",
                 suites=["test"],
                 A=np.zeros((3, 3)),
                 expected=np.array([0.0, 0.0, 0.0]),
             ),
             BetweennessCentralityDataset(
-                name="test_basic_chain",
+                name="chain",
+                pretty_name="Chain",
                 suites=["test"],
                 A=np.array([[0, 1, 0], [0, 0, 1], [0, 0, 0]], dtype=float),
                 expected=np.array([0.0, 1.0, 0.0]),
             ),
             BetweennessCentralityDataset(
-                name="test_basic_two_components",
+                name="two_components",
+                pretty_name="Two Components",
                 suites=["test"],
                 A=np.array(
                     [[0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1], [0, 0, 0, 0]],
@@ -200,25 +204,29 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
                 expected=np.array([0.0, 0.0, 0.0, 0.0]),
             ),
             BetweennessCentralityDataset(
-                name="test_matrix_vertex_algorithm_comparison",
+                name="matrix_vertex_comparison",
+                pretty_name="Matrix Vertex Comparison",
                 suites=["test"],
                 A=random_A,
                 expected=reference_bc_alg_6_4(random_A),
             ),
             BetweennessCentralityDataset(
-                name="test_undirected_graph",
+                name="undirected",
+                pretty_name="Undirected",
                 suites=["test"],
                 A=undirected_A,
                 expected=reference_bc_alg_6_4(undirected_A),
             ),
             BetweennessCentralityDataset(
-                name="test_networkx",
+                name="networkx",
+                pretty_name="NetworkX Comparison",
                 suites=["test"],
                 A=networkx_A,
                 expected=reference_bc_alg_6_4(networkx_A),
             ),
             BetweennessCentralityDataset(
-                name="test_centrality_snap_toy",
+                name="snap_toy",
+                pretty_name="SNAP Toy",
                 suites=["test"],
                 A=np.array(
                     [
@@ -245,11 +253,11 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
 class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralityDataset]):
     @property
     def name(self) -> str:
-        return "betweenness_centrality_snap_inputs"
+        return "betweenness_centrality_snap"
 
     @property
     def pretty_name(self) -> str:
-        return "Betweenness Centrality SNAP Input Generator"
+        return "Betweenness Centrality SNAP"
 
     @property
     def description(self) -> str:
@@ -371,11 +379,11 @@ class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralityDataset]
 class BetweennessCentralityGAPGenerator(Generator[BetweennessCentralityDataset]):
     @property
     def name(self) -> str:
-        return "betweenness_centrality_gap_inputs"
+        return "betweenness_centrality_gap"
 
     @property
     def pretty_name(self) -> str:
-        return "Betweenness Centrality GAP Input Generator"
+        return "Betweenness Centrality GAP"
 
     @property
     def description(self) -> str:
@@ -449,7 +457,7 @@ class BetweennessCentralityBenchmark(Benchmark):
 
     @property
     def pretty_name(self):
-        return "Betweenness Centrality Algorithm"
+        return "Betweenness Centrality"
 
     @property
     def description(self):

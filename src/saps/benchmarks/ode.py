@@ -142,15 +142,15 @@ def _linear_system_derivatives(t, state, data, meta):
 
 def _resolve_derivatives(problem_name):
     match problem_name:
-        case "rc":
+        case "ode_rc":
             return _rc_derivatives
-        case "rlc":
+        case "ode_rlc":
             return _rlc_derivatives
-        case "lotka_volterra":
+        case "ode_lotka_volterra":
             return _lotka_volterra_derivatives
-        case "brusselator":
+        case "ode_brusselator":
             return _brusselator_derivatives
-        case "slicot_ode":
+        case "ode_slicot":
             return _linear_system_derivatives
         case _:
             raise NotImplementedError(f"Unknown ODE problem: {problem_name!r}")
@@ -319,15 +319,16 @@ class BrusselatorDataset(Dataset):
 class SLICOTDataset(Dataset):
     def __init__(
         self,
-        source_name: str,
+        name: str,
         *,
         suites: list[str] | None = None,
         t_max: float = 0.1,
         step: float = 0.01,
         input_value: float = 1.0,
     ):
-        self.source_name = source_name
-        self.problem = slicot_problem_metadata(source_name)
+        self._name = name
+        self.source_name = f"{name}.mat"
+        self.problem = slicot_problem_metadata(self.source_name)
         self._suites = suites or []
         self.t_max = t_max
         self.step = step
@@ -335,11 +336,11 @@ class SLICOTDataset(Dataset):
 
     @property
     def name(self) -> str:
-        return f"slicot_{self.problem.name}".replace("-", "_").lower()
+        return self._name
 
     @property
     def pretty_name(self) -> str:
-        return f"SLICOT {self.problem.title}"
+        return self._name
 
     @property
     def description(self) -> str:
@@ -391,11 +392,11 @@ class RCGenerator(Generator[RCDataset]):
 
     @property
     def name(self) -> str:
-        return "rc"
+        return "ode_rc"
 
     @property
     def pretty_name(self) -> str:
-        return "RC Circuit"
+        return "ODE RC Circuit"
 
     @property
     def description(self) -> str:
@@ -429,8 +430,8 @@ class RCGenerator(Generator[RCDataset]):
     def datasets(self) -> list[RCDataset]:
         return [
             RCDataset(
-                name="rc_small",
-                pretty_name="RC Small",
+                name="small",
+                pretty_name="Small",
                 description="Small RC circuit",
                 suites=["test"],
                 R=1000.0,
@@ -460,11 +461,11 @@ class RLCGenerator(Generator[RLCDataset]):
 
     @property
     def name(self) -> str:
-        return "rlc"
+        return "ode_rlc"
 
     @property
     def pretty_name(self) -> str:
-        return "RLC Circuit"
+        return "ODE RLC Circuit"
 
     @property
     def description(self) -> str:
@@ -498,8 +499,8 @@ class RLCGenerator(Generator[RLCDataset]):
     def datasets(self) -> list[RLCDataset]:
         return [
             RLCDataset(
-                name="rlc_small",
-                pretty_name="RLC Small",
+                name="small",
+                pretty_name="Small",
                 description="Small RLC circuit",
                 suites=["test"],
                 R=100.0,
@@ -531,11 +532,11 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
 
     @property
     def name(self) -> str:
-        return "lotka_volterra"
+        return "ode_lotka_volterra"
 
     @property
     def pretty_name(self) -> str:
-        return "Lotka-Volterra"
+        return "ODE Lotka-Volterra"
 
     @property
     def description(self) -> str:
@@ -569,8 +570,8 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
     def datasets(self) -> list[LotkaVolterraDataset]:
         return [
             LotkaVolterraDataset(
-                name="lotka_volterra_small",
-                pretty_name="Lotka-Volterra Small",
+                name="small",
+                pretty_name="Small",
                 description="Small Lotka-Volterra system",
                 suites=["test"],
                 a=0.1,
@@ -607,11 +608,11 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
 
     @property
     def name(self) -> str:
-        return "brusselator"
+        return "ode_brusselator"
 
     @property
     def pretty_name(self) -> str:
-        return "Brusselator"
+        return "ODE Brusselator"
 
     @property
     def description(self) -> str:
@@ -645,8 +646,8 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
     def datasets(self) -> list[BrusselatorDataset]:
         return [
             BrusselatorDataset(
-                name="brusselator_tiny",
-                pretty_name="Brusselator Tiny",
+                name="2x2",
+                pretty_name="2x2 Grid",
                 description="Tiny 2D Brusselator correctness test",
                 suites=["test"],
                 n=2,
@@ -657,8 +658,8 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
                 step=0.01,
             ),
             BrusselatorDataset(
-                name="brusselator_4",
-                pretty_name="Brusselator 4x4",
+                name="100x100",
+                pretty_name="100x100 Grid",
                 description="2D Brusselator with 100x100 grid",
                 suites=["standard", "trace", "train"]
                 if self.train
@@ -703,11 +704,11 @@ class SLICOTGenerator(Generator[SLICOTDataset]):
 
     @property
     def name(self) -> str:
-        return "slicot_ode"
+        return "ode_slicot"
 
     @property
     def pretty_name(self) -> str:
-        return "SLICOT Model-Reduction ODE"
+        return "ODE SLICOT"
 
     @property
     def description(self) -> str:
@@ -758,28 +759,28 @@ class SLICOTGenerator(Generator[SLICOTDataset]):
         # Base timesteps, scaled by each method's step_multiplier at setup.
         # Validated over t_max=0.1 at the 0.05 absolute-error tolerance.
         datasets = [
-            SLICOTDataset("eady.mat", suites=["standard", "trace"]),
-            SLICOTDataset("CDplayer.mat", suites=["standard"], step=4e-5),
+            SLICOTDataset("eady", suites=["standard", "trace"]),
+            SLICOTDataset("CDplayer", suites=["standard"], step=4e-5),
             SLICOTDataset(
-                "fom.mat",
+                "fom",
                 suites=["standard", "trace", "train"]
-                if self.train_dataset == "slicot_fom"
+                if self.train_dataset == "fom"
                 else ["standard", "trace"],
                 step=0.001,
             ),
-            SLICOTDataset("random.mat", suites=["standard"], step=5e-5),
-            SLICOTDataset("pde.mat", suites=["standard", "trace"], step=0.001),
+            SLICOTDataset("random", suites=["standard"], step=5e-5),
+            SLICOTDataset("pde", suites=["standard", "trace"], step=0.001),
             SLICOTDataset(
-                "heat-cont.mat",
+                "heat-cont",
                 suites=["standard", "trace", "train"]
-                if self.train_dataset == "slicot_heat_cont"
+                if self.train_dataset == "heat-cont"
                 else ["standard", "trace"],
                 step=0.001,
             ),
-            SLICOTDataset("Orr-Som.mat", suites=["standard", "trace"]),
-            SLICOTDataset("iss.mat", suites=["standard", "trace"]),
-            SLICOTDataset("build.mat", suites=["standard", "trace"]),
-            SLICOTDataset("beam.mat", suites=["standard", "trace"], step=0.001),
+            SLICOTDataset("Orr-Som", suites=["standard", "trace"]),
+            SLICOTDataset("iss", suites=["standard", "trace"]),
+            SLICOTDataset("build", suites=["standard", "trace"]),
+            SLICOTDataset("beam", suites=["standard", "trace"], step=0.001),
         ]
         for dataset in datasets:
             if dataset.name in self.trace_datasets and "trace" not in dataset.suites:
@@ -967,8 +968,8 @@ class _OdeBenchmarkBase(Benchmark, ABC):
 
 class ForwardEuler(_OdeBenchmarkBase):
     step_multiplier = 0.01
-    slicot_trace_datasets = ("slicot_beam", "slicot_fom", "slicot_heat_cont")
-    slicot_train_dataset = "slicot_fom"
+    slicot_trace_datasets = ("beam", "fom", "heat-cont")
+    slicot_train_dataset = "fom"
 
     @property
     def name(self):
@@ -1005,7 +1006,7 @@ class ForwardEuler(_OdeBenchmarkBase):
 
 class BackwardEuler(_OdeBenchmarkBase):
     step_multiplier = 0.02
-    slicot_train_dataset = "slicot_heat_cont"
+    slicot_train_dataset = "heat-cont"
 
     @property
     def name(self):
@@ -1050,11 +1051,11 @@ class RungeKutta(_OdeBenchmarkBase):
     step_multiplier = 1.0
     brusselator_train = True
     slicot_trace_datasets = (
-        "slicot_cdplayer",
-        "slicot_random",
-        "slicot_beam",
-        "slicot_fom",
-        "slicot_heat_cont",
+        "CDplayer",
+        "random",
+        "beam",
+        "fom",
+        "heat-cont",
     )
 
     @property

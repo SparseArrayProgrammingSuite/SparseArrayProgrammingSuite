@@ -463,7 +463,7 @@ class SNAPGraphGenerator(Generator[SNAPDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "Stanford Network Analysis Project Graphs"
+        return "SNAP Graphs"
 
     @property
     def description(self) -> str:

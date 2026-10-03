@@ -60,11 +60,11 @@ class TriangleCountDataset(Dataset):
 class TriangleCountTestGenerator(Generator[TriangleCountDataset]):
     @property
     def name(self) -> str:
-        return "triangle_count_test_inputs"
+        return "triangle_counting_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Triangle Count Test Input Generator"
+        return "Triangle Counting Test"
 
     @property
     def description(self) -> str:
@@ -105,7 +105,8 @@ class TriangleCountTestGenerator(Generator[TriangleCountDataset]):
     def datasets(self) -> list[TriangleCountDataset]:
         return [
             TriangleCountDataset(
-                "test_triangle_count_single_triangle",
+                "single_triangle",
+                pretty_name="Single Triangle",
                 suites=["test"],
                 A=np.array(
                     [
@@ -118,7 +119,8 @@ class TriangleCountTestGenerator(Generator[TriangleCountDataset]):
                 expected=np.array(1),
             ),
             TriangleCountDataset(
-                "test_triangle_count_path",
+                "path",
+                pretty_name="Path",
                 suites=["test"],
                 A=np.array(
                     [
@@ -132,7 +134,8 @@ class TriangleCountTestGenerator(Generator[TriangleCountDataset]):
                 expected=np.array(0),
             ),
             TriangleCountDataset(
-                "test_triangle_count_4_clique",
+                "four_clique",
+                pretty_name="4-Clique",
                 suites=["test"],
                 A=np.array(
                     [
@@ -146,7 +149,8 @@ class TriangleCountTestGenerator(Generator[TriangleCountDataset]):
                 expected=np.array(4),
             ),
             TriangleCountDataset(
-                "test_triangle_snap_toy",
+                "snap_toy",
+                pretty_name="SNAP Toy",
                 suites=["test"],
                 A=np.array(
                     [
@@ -173,11 +177,11 @@ class TriangleCountTestGenerator(Generator[TriangleCountDataset]):
 class TriangleCountSNAPGenerator(Generator[TriangleCountDataset]):
     @property
     def name(self) -> str:
-        return "triangle_count_snap_inputs"
+        return "triangle_counting_snap"
 
     @property
     def pretty_name(self) -> str:
-        return "Triangle Count SNAP Input Generator"
+        return "Triangle Counting SNAP"
 
     @property
     def description(self) -> str:
@@ -315,11 +319,11 @@ class TriangleCountSNAPGenerator(Generator[TriangleCountDataset]):
 class TriangleCountGAPGenerator(Generator[TriangleCountDataset]):
     @property
     def name(self) -> str:
-        return "triangle_count_gap_inputs"
+        return "triangle_counting_gap"
 
     @property
     def pretty_name(self) -> str:
-        return "Triangle Count GAP Input Generator"
+        return "Triangle Counting GAP"
 
     @property
     def description(self) -> str:
@@ -389,7 +393,7 @@ class TriangleCountGAPGenerator(Generator[TriangleCountDataset]):
 class TriangleCountBenchmark(Benchmark):
     @property
     def name(self) -> str:
-        return "triangle_count"
+        return "triangle_counting"
 
     @property
     def pretty_name(self) -> str:

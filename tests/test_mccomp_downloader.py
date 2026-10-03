@@ -158,7 +158,7 @@ def test_model_counting_mccomp_track1_generator_parses_downloaded_source(
 
     instance = generator.generate(generator.datasets[0])
 
-    assert calls == [("mccomp", "Track1_MC/random_mc_1.cnf")]
+    assert calls == [("mccomp_instance", "Track1_MC/random_mc_1.cnf")]
     assert instance.meta["expr"] == "s[] += (B[v1] or B[v2])"
     assert instance.meta["expected_result"] == 3
     np.testing.assert_array_equal(to_numpy(instance.inputs[0]), np.array([0, 1]))

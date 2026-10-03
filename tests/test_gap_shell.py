@@ -88,7 +88,7 @@ def test_gap_source_graph_attaches_one_published_source(fetch):
         "sources": road.sources,
         "src": road.sources[3],
     }
-    assert dataset.name == f"GAP/GAP-road_{road.sources[3]}"
+    assert dataset.name == f"GAP-road_src{road.sources[3]}"
     assert dataset.src == road.sources[3]
     assert dataset.source_name == "GAP-road"
 
@@ -119,12 +119,12 @@ def test_gap_consumers_preserve_published_source_cases():
     )
 
     graphs = GAPGraphGenerator().datasets
-    expected = [(f"GAP/{g.name}_{src}", src) for g in graphs for src in g.sources]
+    expected = [(f"{g.name}_src{src}", src) for g in graphs for src in g.sources]
     for generator in (BreadthFirstSearchGAPGenerator(), BellmanFordGAPGenerator()):
         assert [(d.name, d.src) for d in generator.datasets] == expected
     by_name = {d.name: d for d in MultiSourceShortestPathsGAPGenerator().datasets}
     for graph in graphs:
-        assert by_name[graph.source_name].sources is None
+        assert by_name[graph.name].sources is None
 
 
 @pytest.fixture
@@ -144,9 +144,7 @@ def test_floyd_warshall_gap_keeps_weights_and_direction(
     load = Mock(return_value=weighted_graph)
     monkeypatch.setattr(fw, "fetch_gap_graph", load)
     dataset = next(
-        d
-        for d in fw.FloydWarshallGAPGenerator().datasets
-        if d.name == f"GAP/GAP-{name}"
+        d for d in fw.FloydWarshallGAPGenerator().datasets if d.name == f"GAP-{name}"
     )
     problem = fw.FloydWarshallGAPGenerator().generate(dataset)
     expected = np.array([[0, 7, np.inf], [np.inf, 0, -3], [np.inf, np.inf, 0]])
@@ -165,9 +163,7 @@ def test_multi_source_gap_conversion_uses_shell_sources(
 
     load = Mock(return_value=weighted_graph)
     monkeypatch.setattr(mssp, "fetch_gap_graph", load)
-    dataset = mssp.MultiSourceShortestPathsDataset(
-        "GAP/GAP-road", symmetrize=symmetrize
-    )
+    dataset = mssp.MultiSourceShortestPathsDataset("GAP-road", symmetrize=symmetrize)
     problem = mssp.MultiSourceShortestPathsGAPGenerator().generate(dataset)
     expected = np.array([[0, 1, np.inf], [np.inf, 0, 1], [np.inf, np.inf, 0]])
     if symmetrize:
@@ -189,7 +185,7 @@ def test_msbfs_gap_searches_from_every_published_source(monkeypatch, weighted_gr
     monkeypatch.setattr(MSBFS, "fetch_gap_graph", load)
     generator = MSBFS.MultiSourceBreadthFirstSearchGAPGenerator()
     assert [(d.name, d.source_name) for d in generator.datasets] == [
-        (f"GAP/{g.name}", g.name) for g in GAPGraphGenerator().datasets
+        (g.name, g.name) for g in GAPGraphGenerator().datasets
     ]
     problem = generator.generate(generator.datasets[0])
     edges = to_sparse(problem.inputs[0]).todense()

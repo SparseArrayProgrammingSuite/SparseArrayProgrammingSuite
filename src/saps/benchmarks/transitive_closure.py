@@ -63,11 +63,11 @@ class TransitiveClosureDataset(Dataset):
 class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
     @property
     def name(self) -> str:
-        return "transitive_closure_test_inputs"
+        return "transitive_closure_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Transitive Closure Test Input Generator"
+        return "Transitive Closure Test"
 
     @property
     def description(self) -> str:
@@ -107,11 +107,17 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
     @property
     def datasets(self) -> list[TransitiveClosureDataset]:
         return [
-            TransitiveClosureDataset("dag", suites=["test"]),
-            TransitiveClosureDataset("strong-component-count", suites=["test"]),
-            TransitiveClosureDataset("cycle", suites=["test"]),
-            TransitiveClosureDataset("one-node", suites=["test"]),
-            TransitiveClosureDataset("toy", suites=["test"]),
+            TransitiveClosureDataset("dag", pretty_name="DAG", suites=["test"]),
+            TransitiveClosureDataset(
+                "strong_component_count",
+                pretty_name="Strong Component Count",
+                suites=["test"],
+            ),
+            TransitiveClosureDataset("cycle", pretty_name="Cycle", suites=["test"]),
+            TransitiveClosureDataset(
+                "one_node", pretty_name="One Node", suites=["test"]
+            ),
+            TransitiveClosureDataset("toy", pretty_name="Toy", suites=["test"]),
         ]
 
     def generate(self, dataset: TransitiveClosureDataset) -> DataInstance:
@@ -144,7 +150,7 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
                 ref_outputs=[from_numpy(expected)],
             )
 
-        if dataset.name == "strong-component-count":
+        if dataset.name == "strong_component_count":
             A = np.array(
                 [
                     [0, 1, 0, 0, 0, 0, 0, 0],
@@ -167,7 +173,7 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
         if dataset.name == "cycle":
             A = np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]], dtype=bool)
             expected = np.ones((3, 3), dtype=bool)
-        elif dataset.name == "one-node":
+        elif dataset.name == "one_node":
             A = np.array([[0]], dtype=bool)
             expected = np.array([[1]], dtype=bool)
         elif dataset.name == "toy":
@@ -191,11 +197,11 @@ class TransitiveClosureSNAPGenerator(Generator[TransitiveClosureDataset]):
 
     @property
     def name(self) -> str:
-        return "transitive_closure_snap_inputs"
+        return "transitive_closure_snap"
 
     @property
     def pretty_name(self) -> str:
-        return "Transitive Closure SNAP Input Generator"
+        return "Transitive Closure SNAP"
 
     @property
     def description(self) -> str:
@@ -319,11 +325,11 @@ class TransitiveClosureSNAPGenerator(Generator[TransitiveClosureDataset]):
 class TransitiveClosureGAPGenerator(Generator[TransitiveClosureDataset]):
     @property
     def name(self) -> str:
-        return "transitive_closure_gap_inputs"
+        return "transitive_closure_gap"
 
     @property
     def pretty_name(self) -> str:
-        return "Transitive Closure GAP Input Generator"
+        return "Transitive Closure GAP"
 
     @property
     def description(self) -> str:

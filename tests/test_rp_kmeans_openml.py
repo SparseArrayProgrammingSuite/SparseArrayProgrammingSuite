@@ -170,7 +170,9 @@ def test_rp_kmeans_openml_generator_derives_inputs_from_cached_source(monkeypatc
 def test_rp_kmeans_benchmark_uses_one_openml_generator_for_standard_datasets():
     generators = RPKMeansBenchmark().generators
     openml_generator = next(
-        generator for generator in generators if generator.name == "rp_kmeans_openml"
+        generator
+        for generator in generators
+        if generator.name == "rp_kmeans_clustering_openml"
     )
 
     assert [dataset.name for dataset in openml_generator.datasets] == [

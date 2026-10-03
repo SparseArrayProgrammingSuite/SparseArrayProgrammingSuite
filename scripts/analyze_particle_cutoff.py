@@ -132,7 +132,7 @@ def main():
         "datasets": {},
     }
     for dataset in generator.datasets:
-        if not dataset.name.startswith("nemo_plummer_"):
+        if not dataset.name.startswith("plummer_"):
             continue
         instance = generator.generate(dataset)
         arrays = [to_numpy(value) for value in instance.inputs]

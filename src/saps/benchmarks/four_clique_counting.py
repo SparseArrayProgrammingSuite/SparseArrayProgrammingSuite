@@ -60,11 +60,11 @@ class FourCliqueCountDataset(Dataset):
 class FourCliqueCountTestGenerator(Generator[FourCliqueCountDataset]):
     @property
     def name(self) -> str:
-        return "four_clique_count_test_inputs"
+        return "four_clique_counting_test"
 
     @property
     def pretty_name(self) -> str:
-        return "4-Clique Count Test Input Generator"
+        return "4-Clique Counting Test"
 
     @property
     def description(self) -> str:
@@ -105,7 +105,8 @@ class FourCliqueCountTestGenerator(Generator[FourCliqueCountDataset]):
     def datasets(self) -> list[FourCliqueCountDataset]:
         return [
             FourCliqueCountDataset(
-                "test_4clique_count_complete_k3",
+                "complete_k3",
+                pretty_name="Complete K3",
                 suites=["test"],
                 A=np.array(
                     [
@@ -118,7 +119,8 @@ class FourCliqueCountTestGenerator(Generator[FourCliqueCountDataset]):
                 expected=np.array(0),
             ),
             FourCliqueCountDataset(
-                "test_4clique_count_single_k4",
+                "single_k4",
+                pretty_name="Single K4",
                 suites=["test"],
                 A=np.array(
                     [
@@ -132,7 +134,8 @@ class FourCliqueCountTestGenerator(Generator[FourCliqueCountDataset]):
                 expected=np.array(1),
             ),
             FourCliqueCountDataset(
-                "test_4clique_count_overlapping",
+                "overlapping",
+                pretty_name="Overlapping",
                 suites=["test"],
                 A=np.array(
                     [
@@ -147,7 +150,8 @@ class FourCliqueCountTestGenerator(Generator[FourCliqueCountDataset]):
                 expected=np.array(2),
             ),
             FourCliqueCountDataset(
-                "test_4clique_snap_toy",
+                "snap_toy",
+                pretty_name="SNAP Toy",
                 suites=["test"],
                 A=np.array(
                     [
@@ -174,11 +178,11 @@ class FourCliqueCountTestGenerator(Generator[FourCliqueCountDataset]):
 class FourCliqueCountSNAPGenerator(Generator[FourCliqueCountDataset]):
     @property
     def name(self) -> str:
-        return "four_clique_count_snap_inputs"
+        return "four_clique_counting_snap"
 
     @property
     def pretty_name(self) -> str:
-        return "4-Clique Count SNAP Input Generator"
+        return "4-Clique Counting SNAP"
 
     @property
     def description(self) -> str:
@@ -316,11 +320,11 @@ class FourCliqueCountSNAPGenerator(Generator[FourCliqueCountDataset]):
 class FourCliqueCountGAPGenerator(Generator[FourCliqueCountDataset]):
     @property
     def name(self) -> str:
-        return "four_clique_count_gap_inputs"
+        return "four_clique_counting_gap"
 
     @property
     def pretty_name(self) -> str:
-        return "4-Clique Count GAP Input Generator"
+        return "4-Clique Counting GAP"
 
     @property
     def description(self) -> str:
@@ -392,7 +396,7 @@ class FourCliqueCountGAPGenerator(Generator[FourCliqueCountDataset]):
 class FourCliqueCountBenchmark(Benchmark):
     @property
     def name(self) -> str:
-        return "four_clique_count"
+        return "four_clique_counting"
 
     @property
     def pretty_name(self) -> str:

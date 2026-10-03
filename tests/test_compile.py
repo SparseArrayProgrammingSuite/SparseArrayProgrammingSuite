@@ -87,7 +87,7 @@ def test_pytorch_compiled_simhash_matches_eager():
     param = next(
         param
         for param in benchmark.params
-        if str(param) == "simhash_projection_inputs_dense.small"
+        if str(param) == "simhash_approx_nn_random_dense.small"
     )
     xp = PytorchFramework()
     benchmark.setup(param, xp=xp, use_cache=False)
