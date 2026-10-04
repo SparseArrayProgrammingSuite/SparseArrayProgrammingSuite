@@ -447,3 +447,115 @@ def test_upload_chunks_cover_datasets_as_shared_manifest_changes(
         )
         assert runner.main() == 0
     assert set(uploaded) == set(params)
+
+
+@pytest.mark.parametrize(
+    "flags,expected",
+    [
+        ([], ["numpy", "torch"]),
+        (["--device", "cpu"], ["numpy"]),
+        (["--device", "gpu"], ["torch"]),
+    ],
+)
+@pytest.mark.parametrize(
+    "check_suite,outcome",
+    [
+        (False, 0),
+        (False, 3),
+        (True, 0),
+        (True, 3),
+        (False, RuntimeError("installation failed")),
+    ],
+)
+def test_device_selects_framework_environments(
+    runner, monkeypatch, tmp_path, flags, expected, check_suite, outcome, capsys
+):
+    import os
+    import sys
+
+    monkeypatch.setattr(os, "environ", dict(os.environ))
+    monkeypatch.setattr(runner, "_load_saps_config", lambda _: {})
+    environments = [
+        SimpleNamespace(name="numpy", env_vars={}),
+        SimpleNamespace(name="torch", env_vars={"SAPS_DEVICE": "gpu"}),
+    ]
+    monkeypatch.setattr(runner, "get_environments", lambda conf, _: environments)
+    dataset = {"name": "d", "asv_param": "g.d", "file": "x.py", "tags": []}
+    metadata = [
+        {
+            "name": "b",
+            "asv_ids": {"time": "b.time"},
+            "generators": [{"name": "g", "cacheable": False, "datasets": [dataset]}],
+        }
+    ]
+    monkeypatch.setattr(runner, "_load_metadata", lambda _: metadata)
+    monkeypatch.setattr(
+        runner.Benchmarks,
+        "discover",
+        lambda conf, **kwargs: runner.Benchmarks(
+            conf, [{"name": "b.time", "params": [["g.d"]]}]
+        ),
+    )
+    monkeypatch.setattr(
+        runner,
+        "get_repo",
+        lambda conf: SimpleNamespace(
+            get_hash_from_name=lambda name: "abcdef123456", get_date=lambda commit: 0
+        ),
+    )
+    monkeypatch.setattr(
+        runner.Machine, "get_defaults", lambda: {"machine": "host", "cpu": "test"}
+    )
+    selected = []
+
+    def execute(**kwargs):
+        selected.extend(env.name for env in kwargs["environments"])
+        if isinstance(outcome, Exception):
+            raise outcome
+        return outcome
+
+    monkeypatch.setattr(runner, "_run_asv_benchmarks", execute)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "run_benchmark.py",
+            "--saps-dir",
+            str(tmp_path),
+            *flags,
+            *(["--check-suite"] if check_suite else []),
+        ],
+    )
+    if isinstance(outcome, Exception):
+        with pytest.raises(RuntimeError, match="installation failed"):
+            runner.main()
+    else:
+        assert runner.main() == (1 if check_suite and outcome else 0)
+        if not check_suite:
+            assert f"failed_benchmark_entries={outcome}" in capsys.readouterr().out
+    assert selected == expected
+
+
+def test_device_without_matching_environments_succeeds(runner, monkeypatch, tmp_path):
+    import os
+    import sys
+
+    monkeypatch.setattr(os, "environ", dict(os.environ))
+    monkeypatch.setattr(runner, "_load_saps_config", lambda _: {})
+    monkeypatch.setattr(
+        runner,
+        "get_environments",
+        lambda conf, _: [SimpleNamespace(name="numpy", env_vars={})],
+    )
+    monkeypatch.setattr(
+        runner.Machine, "get_defaults", lambda: {"machine": "host", "cpu": "test"}
+    )
+    run = Mock()
+    monkeypatch.setattr(runner, "_run_asv_benchmarks", run)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["run_benchmark.py", "--saps-dir", str(tmp_path), "--device", "gpu"],
+    )
+    assert runner.main() == 0
+    run.assert_not_called()

@@ -132,16 +132,36 @@ poetry run ./bin/run_benchmark.py \
   --metrics time peakmem
 ```
 
-On Slurm, use the wrapper script:
+On Slurm, submit a competition with the launcher. It submits two arrays that
+share one run directory: `scripts/competition-cpu.slurm` runs the CPU frameworks
+on CPU nodes and `scripts/competition-gpu.slurm` runs the GPU frameworks on GPU
+nodes (a whole V100 node, `--gres=gpu:V100:2 --exclusive`). A final job combines both arrays' results. Both wrappers
+source the shared body in `scripts/competition.sh`.
 
 ```bash
-sbatch scripts/run-competition.slurm
-SAPS_COMPETITION_ARGS="--metrics time peakmem" \
-  sbatch scripts/run-competition.slurm
+scripts/submit-competition.sh
+# Training set, as a smaller array:
+SAPS_CHUNK_COUNT=8 scripts/submit-competition.sh --tag suite-train
 ```
 
+Arguments other than `--resume` and `--after` go to `bin/run_benchmark.py` in
+both arrays, so `--tag`, `--no-tag`, `--re`, and `--no-re` override the config's
+dataset selection. `SAPS_COMPETITION_ARGS="--metrics time peakmem"` still adds
+runner arguments as well.
+
+A framework needs a GPU when its `include` entry in `competition.config.json`
+sets `"SAPS_DEVICE": "gpu"` in `env_nobuild`; entries without it run on CPU.
+Each array passes `--device cpu` or `--device gpu` to the runner, which only
+builds the matching environments. The launcher skips the GPU array when no
+framework needs a GPU. On PACE Phoenix the GPU type selects the partition: an
+A100 request lands on `gpu-a100`, an RTX 6000 on `gpu-rtx6000`, and a request
+without a type falls through to `gpu-v100`. To use another GPU type, override
+the request when submitting the GPU wrapper directly:
+`sbatch --gres=gpu:A100:1 scripts/competition-gpu.slurm --resume competition/run_12345`.
+
 Slurm stdout and stderr logs go to the directory where you submit the job:
-`competition-%A_%a.log`, `upload-%A_%a.log`, `trace-%A_%a.log`, or
+`competition-cpu-%A_%a.log`, `competition-gpu-%A_%a.log`,
+`competition-combine-%j.log`, `upload-%A_%a.log`, `trace-%A_%a.log`, or
 `finalize-metadata-%j.log`. The refresh launcher (`scripts/submit-refresh-jobs.sh`)
 also preserves the directory where you invoked it for all three (or four, with
 `--with-competition`) jobs' logs. You can submit the Slurm scripts from the
@@ -153,30 +173,40 @@ for every upload task to succeed.
 
 Pass `--with-competition` to `scripts/submit-refresh-jobs.sh` to also submit a
 competition run once the upload/trace/merge chain finishes successfully
-(`sbatch --dependency=afterok:<merge job>`), instead of submitting
-`scripts/run-competition.slurm` separately:
+(`scripts/submit-competition.sh --after <merge job>`), instead of submitting
+it separately:
 
 ```bash
 scripts/submit-refresh-jobs.sh --with-competition
 ```
 
-The competition script emails `ahrens@gatech.edu` when the array finishes or
+The competition scripts email `ahrens@gatech.edu` when the array finishes or
 fails. Notifications cover the whole array. Override the recipient at submission
-with `sbatch --mail-user=you@example.com scripts/run-competition.slurm`.
+with `sbatch --mail-user=you@example.com scripts/competition-cpu.slurm`, or
+edit the `#SBATCH --mail-user` line in both wrappers.
+
+Normal timing runs exit successfully after saving results even when individual
+benchmarks fail or time out; their failures remain in the saved diagnostics and
+the printed failure count. Harness errors such as environment installation or
+result-writing failures still produce a nonzero exit status. Correctness-check,
+dataset-caching, and tracing modes retain their stricter exit behavior.
 
 The competition config selects the standard datasets and uses one timing round
-per benchmark, with ASV's normal repeated measurements. The wrapper submits a
-128-task array by default, with an eight-hour time limit per task. Each task runs a
-deterministic set of the selected datasets. All competition outputs live in the
-run directory:
+per benchmark, with ASV's normal repeated measurements. The launcher submits
+64-task arrays by default (set `SAPS_CHUNK_COUNT` to change that), with an
+eight-hour time limit per task. Each task runs a deterministic set of the
+selected datasets. All competition outputs live in the run directory, named
+after the CPU array's job ID. GPU tasks write to `task_gpu_<index>/`:
 
 ```text
-competition/run_<slurm-array-job-id>/
+competition/run_<cpu-array-job-id>/
   task_0/
     results/       # ASV measurements and saved diagnostics
     machine_files/
     outputs/       # task-specific reports
   task_1/
+  ...
+  task_gpu_0/
   ...
   results.json     # combined measurements from all tasks and frameworks
   machines.json   # machine descriptions, indexed by ID
@@ -338,7 +368,10 @@ results for each environment. To continue a Slurm run, submit the same array sha
 and configuration with its existing run directory:
 
 ```bash
-sbatch --array=0-255 scripts/run-competition.slurm --resume competition/run_12345
+SAPS_CHUNK_COUNT=64 scripts/submit-competition.sh --resume competition/run_12345
+# Or rerun part of one array; SAPS_CHUNK_COUNT keeps the original chunking:
+SAPS_CHUNK_COUNT=64 sbatch --array=19-23 scripts/competition-cpu.slurm \
+  --resume competition/run_12345
 ```
 
 Only missing or null results run again. Results are saved after each environment;

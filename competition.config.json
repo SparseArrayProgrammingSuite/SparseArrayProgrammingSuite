@@ -1,5 +1,6 @@
 {
   "//": "Competition config using ASV-native include entries. Each include is one competitor environment with its own dependencies.",
+  "// SAPS_DEVICE": "Add \"SAPS_DEVICE\": \"gpu\" to a framework's env_nobuild to run it in the GPU array of scripts/submit-competition.sh (saps_pytorch.py then uses CUDA). Without it, frameworks run in the CPU array.",
   "environment_type": "virtualenv",
   "install_command": ["in-dir={env_dir} python -mpip install {build_dir}"],
   "timeout": 120,
@@ -82,9 +83,7 @@
         "SAPS_FRAMEWORK": "frameworks/saps_smart.py",
         "SAPS_REPO_ROOT": "."
       }
-    }
-  ],
-  "// disabled frameworks (move back into include to re-enable)": [
+    },
     {
       "python": "3.12",
       "req": {
@@ -99,6 +98,7 @@
       },
       "env_nobuild": {
         "SAPS_FRAMEWORK": "frameworks/saps_pytorch.py",
+        "SAPS_DEVICE": "gpu",
         "SAPS_REPO_ROOT": "."
       }
     }
