@@ -185,6 +185,12 @@ fails. Notifications cover the whole array. Override the recipient at submission
 with `sbatch --mail-user=you@example.com scripts/competition-cpu.slurm`, or
 edit the `#SBATCH --mail-user` line in both wrappers.
 
+Normal timing runs exit successfully after saving results even when individual
+benchmarks fail or time out; their failures remain in the saved diagnostics and
+the printed failure count. Harness errors such as environment installation or
+result-writing failures still produce a nonzero exit status. Correctness-check,
+dataset-caching, and tracing modes retain their stricter exit behavior.
+
 The competition config selects the standard datasets and uses one timing round
 per benchmark, with ASV's normal repeated measurements. The launcher submits
 64-task arrays by default (set `SAPS_CHUNK_COUNT` to change that), with an
