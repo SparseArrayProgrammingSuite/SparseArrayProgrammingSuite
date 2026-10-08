@@ -47,6 +47,18 @@ def _parse_memory_limit(value: str) -> int:
     return int(scaled)
 
 
+def _timeout_message(
+    benchmark_timeout: float, process_timeout: float, run_checks: bool
+) -> str:
+    if not run_checks or process_timeout == benchmark_timeout:
+        return f"Using timeout: {benchmark_timeout} seconds"
+    return (
+        f"Using benchmark timeout: {benchmark_timeout} seconds; "
+        f"process timeout: {process_timeout} seconds "
+        "(extra time is only for the correctness check)"
+    )
+
+
 def format_results(results: Results, benchmarks: Benchmarks) -> dict:
     """Return a JSON-serializable snapshot of benchmark results."""
     entries: dict[str, dict] = {}
@@ -448,7 +460,8 @@ def main() -> int:
         default=None,
         help=(
             "Timeout in seconds for each benchmark"
-            " (default: config timeout or 5 seconds)"
+            " (default: config timeout or 5 seconds). Correctness checks"
+            " get this much time again."
         ),
     )
     parser.add_argument(
@@ -646,6 +659,8 @@ def main() -> int:
         timeout = 5000
     else:
         timeout = 5
+    run_checks = os.environ.get("SAPS_CHECK_SUITE") == "1"
+    process_timeout = timeout * 2 if run_checks else timeout
 
     for env_nobuild in [
         conf.matrix.get("env_nobuild", {}),
@@ -828,14 +843,14 @@ def main() -> int:
     benchmarks = _metadata_to_asv_benchmarks(metadata, benchmarks, benchmark_metrics)
     if args.cache_datasets:
         print(f"Discovered {len(benchmarks)} benchmark entries for caching")
-        print(f"Using timeout: {timeout} seconds")
+        print(_timeout_message(timeout, process_timeout, run_checks))
         failed = _run_asv_benchmarks(
             benchmarks=benchmarks,
             environments=environments,
             machine_params=machine_params,
             commit_hash=commit_hash,
             commit_date=commit_date,
-            timeout=timeout,
+            timeout=process_timeout,
             show_stderr=args.show_stderr,
             quick=True,
         )
@@ -849,14 +864,14 @@ def main() -> int:
             stats_path.unlink()
 
         print(f"Discovered {len(benchmarks)} benchmark entries for tagger")
-        print(f"Using timeout: {timeout} seconds")
+        print(_timeout_message(timeout, process_timeout, run_checks))
         failed = _run_asv_benchmarks(
             benchmarks=benchmarks,
             environments=environments,
             machine_params=machine_params,
             commit_hash=commit_hash,
             commit_date=commit_date,
-            timeout=timeout,
+            timeout=process_timeout,
             show_stderr=args.show_stderr,
             quick=True,
             results_dir=results_dir,
@@ -867,14 +882,14 @@ def main() -> int:
 
     if args.check_suite:
         print(f"Discovered {len(benchmarks)} benchmark entries")
-        print(f"Using timeout: {timeout} seconds")
+        print(_timeout_message(timeout, process_timeout, run_checks))
         failed = _run_asv_benchmarks(
             benchmarks=benchmarks,
             environments=environments,
             machine_params=machine_params,
             commit_hash=commit_hash,
             commit_date=commit_date,
-            timeout=timeout,
+            timeout=process_timeout,
             show_stderr=args.show_stderr,
             quick=True,
             install_project=(conf, repo),
@@ -884,7 +899,7 @@ def main() -> int:
         return 0 if failed == 0 else 1
 
     print(f"Discovered {len(benchmarks)} benchmark entries")
-    print(f"Using timeout: {timeout} seconds")
+    print(_timeout_message(timeout, process_timeout, run_checks))
 
     failed = _run_asv_benchmarks(
         benchmarks=benchmarks,
@@ -892,7 +907,7 @@ def main() -> int:
         machine_params=machine_params,
         commit_hash=commit_hash,
         commit_date=commit_date,
-        timeout=timeout,
+        timeout=process_timeout,
         show_stderr=args.show_stderr,
         quick=args.quick,
         install_project=(conf, repo),

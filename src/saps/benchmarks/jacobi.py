@@ -800,9 +800,6 @@ class JacobiBenchmark(Benchmark):
                 "Output must be in binsparse format"
             )
 
-        if not self._ref_meta or not self._ref_meta.get("check_rounded_residual"):
-            return
-
         A_bin, b_bin, _x_bin = self._input
         try:
             A_coo = to_scipy(A_bin).tocoo()
@@ -813,16 +810,29 @@ class JacobiBenchmark(Benchmark):
             data=A_coo.data,
             shape=A_coo.shape,
         )
-        decimals = self._ref_meta["round_decimals"]
-        x_sol = np.round(
-            to_numpy(self._output[0]),
-            decimals=decimals,
-        )
+        if self._ref_meta and self._ref_meta.get("check_rounded_residual"):
+            decimals = self._ref_meta["round_decimals"]
+            x_sol = np.round(
+                to_numpy(self._output[0]),
+                decimals=decimals,
+            )
+            actual_b = from_numpy(np.asarray(A @ x_sol))
+            expected_b = b_bin
+            assert binsparse_equal(expected_b, actual_b), (
+                f"Jacobi residual mismatch for {param.dataset.name}"
+            )
+            return
 
-        actual_b = from_numpy(np.asarray(A @ x_sol))
-        expected_b = b_bin
-        assert binsparse_equal(expected_b, actual_b), (
-            f"Jacobi residual mismatch for {param.dataset.name}"
+        b = to_numpy(b_bin)
+        x_sol = to_numpy(self._output[0])
+        residual = np.linalg.norm(np.asarray(b - A @ x_sol).ravel())
+        # Jacobi returns once ||b - Ax|| drops below rel_tol * ||b||.
+        # Allow 10x that bound because this residual is recomputed here.
+        rel_tol = (self._meta or {}).get("rel_tol", 1e-6)
+        bnorm = np.linalg.norm(np.asarray(b).ravel())
+        limit = 10 * max(rel_tol * bnorm, 1e-20)
+        assert residual <= limit, (
+            f"Jacobi residual too high for {param.dataset.name}: {residual}"
         )
 
     def _norm(self, xp, v):
