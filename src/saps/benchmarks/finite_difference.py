@@ -817,13 +817,9 @@ class FiniteDifference2DBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
                     flux_y = ((1 / 3) * u_n * u_n).reshape(Ny, Nx)
                 case "buckley_leverett":
                     sq = u_n * u_n
-                    flux_x = (sq / (sq + 0.25 * (1 - u_n) * (1 - u_n))).reshape(
-                        Ny, Nx
-                    )
+                    flux_x = (sq / (sq + 0.25 * (1 - u_n) * (1 - u_n))).reshape(Ny, Nx)
                     sq = u_n * u_n
-                    flux_y = (sq / (sq + 0.25 * (1 - u_n) * (1 - u_n))).reshape(
-                        Ny, Nx
-                    )
+                    flux_y = (sq / (sq + 0.25 * (1 - u_n) * (1 - u_n))).reshape(Ny, Nx)
                 case "linear_advection":
                     flux_x = (_LINEAR_ADVECTION_CX * u_n).reshape(Ny, Nx)
                     flux_y = (_LINEAR_ADVECTION_CY * u_n).reshape(Ny, Nx)

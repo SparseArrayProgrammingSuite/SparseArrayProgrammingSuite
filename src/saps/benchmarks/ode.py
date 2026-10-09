@@ -1027,9 +1027,9 @@ class _ODEBenchmarkBase(Benchmark, ABC):
 
         time = to_numpy(self._output[0])
         y_out = to_numpy(self._output[1])
-        assert np.all(
-            np.isfinite(y_out)
-        ), f"Non-finite ODE output at step={self._meta['step']}"
+        assert np.all(np.isfinite(y_out)), (
+            f"Non-finite ODE output at step={self._meta['step']}"
+        )
         data = [_dense_binsparse_array(item) for item in self._input]
         dydt = _resolve_derivatives(self._meta["problem_name"])
         rhs = lambda t, y: dydt(t, list(y), self._meta, *data)  # noqa: E731
