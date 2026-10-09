@@ -230,7 +230,6 @@ class SubgraphMatchingTestGenerator(Generator[SubgraphMatchingTestDataset]):
             inputs=[matrices[name] for name in dataset.matrix_names],
             meta={
                 "expr": dataset.expr,
-                "gt": dataset.gt,
                 "name": dataset.name,
                 "matrix_names": dataset.matrix_names,
             },
@@ -424,7 +423,7 @@ class SubgraphMatchingGCAREGenerator(Generator[SubgraphMatchingGCAREDataset]):
         if "queries" not in graph_meta:
             raise RuntimeError(
                 f"Cached G-CARE graph {dataset.subset_name!r} has no query metadata. "
-                "Refresh it with --cache-datasets --re '^subgraph_gcare_graph$'."
+                "Refresh it with --cache-datasets --re '^gcare_graph$'."
             )
         if dataset.query_name not in graph_meta["queries"]:
             raise ValueError(
@@ -470,10 +469,10 @@ class SubgraphMatchingGCAREGenerator(Generator[SubgraphMatchingGCAREDataset]):
             inputs=inputs,
             meta={
                 "expr": query["expr"],
-                "gt": query["gt"],
                 "name": dataset.query_name,
                 "matrix_names": query["matrix_names"],
             },
+            ref_meta={"gt": query["gt"]} if query.get("gt") is not None else None,
         )
 
 
@@ -2803,7 +2802,9 @@ class SubgraphMatchingBenchmark(Benchmark):
 
     def check(self, param):
         super().check(param)
-        if not self._ref_meta or "gt" not in self._ref_meta:
-            return
-        result = to_numpy(self._output[0])
-        assert int(np.asarray(result).ravel()[0]) == self._ref_meta["gt"]
+        assert self._ref_meta and "gt" in self._ref_meta, "No reference count"
+        result = int(np.asarray(to_numpy(self._output[0])).ravel()[0])
+        expected = self._ref_meta["gt"]
+        assert result == expected, (
+            f"Subgraph count mismatch: expected {expected}, got {result}"
+        )

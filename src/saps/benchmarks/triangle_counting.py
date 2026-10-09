@@ -174,6 +174,85 @@ class TriangleCountingTestGenerator(Generator[TriangleCountingDataset]):
         )
 
 
+# Reference values of sum A[i,j] A[j,k] A[k,i] on each graph's 0-1 adjacency, before the
+# division by 6, computed by scripts/compute_graph_counts.py. Graphs with
+# over a billion edges have none, so their outputs are not checked.
+_TRIANGLE_SUMS: dict[str, int] = {
+    "soc-Epinions1": 2220930,
+    "soc-LiveJournal1": 730982880,
+    "soc-Pokec": 79611987,
+    "soc-Slashdot0811": 4885971,
+    "soc-Slashdot0902": 4970748,
+    "wiki-Vote": 131925,
+    "wiki-RfA": 401466,
+    "soc-sign-bitcoin-otc": 115743,
+    "soc-sign-bitcoin-alpha": 84453,
+    "com-LiveJournal": 1066920780,
+    "com-Orkut": 3765505086,
+    "com-Youtube": 18338316,
+    "com-DBLP": 13346310,
+    "com-Amazon": 4002774,
+    "email-Eu-core": 395667,
+    "wiki-topcats": 27691482,
+    "email-EuAll": 727266,
+    "email-Enron": 4362264,
+    "wiki-Talk": 15416112,
+    "cit-HepPh": 1667,
+    "cit-HepTh": 1716,
+    "cit-Patents": 1,
+    "ca-AstroPh": 8117964,
+    "ca-CondMat": 1048156,
+    "ca-GrQc": 289779,
+    "ca-HepPh": 20154623,
+    "ca-HepTh": 171238,
+    "web-BerkStan": 41421291,
+    "web-Google": 11669313,
+    "web-NotreDame": 42866732,
+    "web-Stanford": 3166875,
+    "amazon0302": 1338180,
+    "amazon0312": 6788373,
+    "amazon0505": 7651068,
+    "amazon0601": 7875786,
+    "p2p-Gnutella04": 99,
+    "p2p-Gnutella05": 102,
+    "p2p-Gnutella06": 120,
+    "p2p-Gnutella08": 159,
+    "p2p-Gnutella09": 135,
+    "p2p-Gnutella24": 90,
+    "p2p-Gnutella25": 48,
+    "p2p-Gnutella30": 177,
+    "p2p-Gnutella31": 171,
+    "roadNet-CA": 724056,
+    "roadNet-PA": 402900,
+    "roadNet-TX": 497214,
+    "as-735": 72096,
+    "as-Skitter": 172619208,
+    "as-caida": 218190,
+    "Oregon-1": 119364,
+    "Oregon-2": 537246,
+    "soc-sign-epinions": 7099728,
+    "soc-sign-Slashdot081106": 765204,
+    "soc-sign-Slashdot090216": 754944,
+    "soc-sign-Slashdot090221": 768540,
+    "loc-Gowalla": 13638828,
+    "loc-Brightkite": 2968368,
+    "sx-stackoverflow": 188501666,
+    "sx-mathoverflow": 2520164,
+    "sx-superuser": 2788107,
+    "sx-askubuntu": 1450657,
+    "wiki-talk-temporal": 14009570,
+    "email-Eu-core-temporal": 347700,
+    "CollegeMsg": 32796,
+    "higgs-twitter": 70278125,
+    "GAP-road": 2632824,
+}
+
+
+def _reference_outputs(name: str) -> list | None:
+    total = _TRIANGLE_SUMS.get(name)
+    return None if total is None else [from_numpy(np.array(total / 6))]
+
+
 class TriangleCountingSNAPGenerator(Generator[TriangleCountingDataset]):
     @property
     def name(self) -> str:
@@ -312,7 +391,9 @@ class TriangleCountingSNAPGenerator(Generator[TriangleCountingDataset]):
     def generate(self, dataset: TriangleCountingDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
         return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0], np.int64)], meta=dict(raw.meta)
+            inputs=[zero_one_adjacency(raw.inputs[0], np.int64)],
+            meta=dict(raw.meta),
+            ref_outputs=_reference_outputs(dataset.name),
         )
 
 
@@ -386,7 +467,9 @@ class TriangleCountingGAPGenerator(Generator[TriangleCountingDataset]):
     def generate(self, dataset: TriangleCountingDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.name)
         return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0], np.int64)], meta=dict(raw.meta)
+            inputs=[zero_one_adjacency(raw.inputs[0], np.int64)],
+            meta=dict(raw.meta),
+            ref_outputs=_reference_outputs(dataset.name),
         )
 
 

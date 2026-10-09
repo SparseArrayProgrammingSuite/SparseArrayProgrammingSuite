@@ -175,6 +175,85 @@ class FourCliqueCountingTestGenerator(Generator[FourCliqueCountingDataset]):
         )
 
 
+# Reference values of sum A[i,j] A[i,k] A[i,l] A[j,k] A[j,l] A[k,l] on each graph's 0-1 adjacency, before the
+# division by 24, computed by scripts/compute_graph_counts.py. Graphs with
+# over a billion edges have none, so their outputs are not checked.
+_FOUR_CLIQUE_SUMS: dict[str, int] = {
+    "soc-Epinions1": 32028002,
+    "soc-LiveJournal1": 68935121462,
+    "soc-Pokec": 345670727,
+    "soc-Slashdot0811": 65939068,
+    "soc-Slashdot0902": 68181867,
+    "wiki-Vote": 3660704,
+    "wiki-RfA": 11941917,
+    "soc-sign-bitcoin-otc": 506933,
+    "soc-sign-bitcoin-alpha": 358619,
+    "com-LiveJournal": 125206042584,
+    "com-Orkut": 77326707288,
+    "com-Youtube": 119687160,
+    "com-DBLP": 401116608,
+    "com-Amazon": 6623064,
+    "email-Eu-core": 6324599,
+    "wiki-topcats": 196507983,
+    "email-EuAll": 8121372,
+    "email-Enron": 56199336,
+    "wiki-Talk": 328861716,
+    "cit-HepPh": 2632057,
+    "cit-HepTh": 4188030,
+    "cit-Patents": 3501076,
+    "ca-AstroPh": 230351516,
+    "ca-CondMat": 7199288,
+    "ca-GrQc": 7904166,
+    "ca-HepPh": 3607221940,
+    "ca-HepTh": 1583455,
+    "web-BerkStan": 6925960533,
+    "web-Google": 217016294,
+    "web-NotreDame": 5253355352,
+    "web-Stanford": 278614425,
+    "amazon0302": 2156279,
+    "amazon0312": 32404696,
+    "amazon0505": 36561475,
+    "amazon0601": 37816651,
+    "p2p-Gnutella04": 3,
+    "p2p-Gnutella05": 55,
+    "p2p-Gnutella06": 44,
+    "p2p-Gnutella08": 143,
+    "p2p-Gnutella09": 133,
+    "p2p-Gnutella24": 10,
+    "p2p-Gnutella25": 7,
+    "p2p-Gnutella30": 11,
+    "p2p-Gnutella31": 15,
+    "roadNet-CA": 1008,
+    "roadNet-PA": 504,
+    "roadNet-TX": 768,
+    "as-735": 304009,
+    "as-Skitter": 3572026536,
+    "as-caida": 1293000,
+    "Oregon-1": 731496,
+    "Oregon-2": 9576312,
+    "soc-sign-epinions": 436029420,
+    "soc-sign-Slashdot081106": 17399666,
+    "soc-sign-Slashdot090216": 17630471,
+    "soc-sign-Slashdot090221": 17821297,
+    "loc-Gowalla": 146084448,
+    "loc-Brightkite": 68431392,
+    "sx-stackoverflow": 4033657894,
+    "sx-mathoverflow": 63284216,
+    "sx-superuser": 40992065,
+    "sx-askubuntu": 17190890,
+    "wiki-talk-temporal": 306906290,
+    "email-Eu-core-temporal": 4383503,
+    "CollegeMsg": 33159,
+    "higgs-twitter": 2167513391,
+    "GAP-road": 2160,
+}
+
+
+def _reference_outputs(name: str) -> list | None:
+    total = _FOUR_CLIQUE_SUMS.get(name)
+    return None if total is None else [from_numpy(np.array(total / 24))]
+
+
 class FourCliqueCountingSNAPGenerator(Generator[FourCliqueCountingDataset]):
     @property
     def name(self) -> str:
@@ -313,7 +392,9 @@ class FourCliqueCountingSNAPGenerator(Generator[FourCliqueCountingDataset]):
     def generate(self, dataset: FourCliqueCountingDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
         return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0], np.int64)], meta=dict(raw.meta)
+            inputs=[zero_one_adjacency(raw.inputs[0], np.int64)],
+            meta=dict(raw.meta),
+            ref_outputs=_reference_outputs(dataset.name),
         )
 
 
@@ -389,7 +470,9 @@ class FourCliqueCountingGAPGenerator(Generator[FourCliqueCountingDataset]):
     def generate(self, dataset: FourCliqueCountingDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.name)
         return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0], np.int64)], meta=dict(raw.meta)
+            inputs=[zero_one_adjacency(raw.inputs[0], np.int64)],
+            meta=dict(raw.meta),
+            ref_outputs=_reference_outputs(dataset.name),
         )
 
 
