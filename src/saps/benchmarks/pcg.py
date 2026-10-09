@@ -1721,9 +1721,6 @@ class _PCGBenchmarkBase(Benchmark, ABC):
                 "Output must be in binsparse format"
             )
 
-        if not self._ref_meta or not self._ref_meta.get("check_residual"):
-            return
-
         A_bin, b_bin, _x0_bin, _M_bin = self._input
         try:
             A_coo = to_scipy(A_bin).tocoo()
@@ -1736,9 +1733,20 @@ class _PCGBenchmarkBase(Benchmark, ABC):
         )
         b = to_numpy(b_bin)
         x_sol = to_numpy(self._output[0])
-        residual = b - A @ x_sol
-        assert np.linalg.norm(residual) < 1e-6 * np.linalg.norm(b) + 1e-6, (
-            f"Preconditioned CG residual too high for {param.dataset.name}"
+        residual = np.linalg.norm(b - A @ x_sol)
+        if self._ref_meta and self._ref_meta.get("check_residual"):
+            assert residual < 1e-6 * np.linalg.norm(b) + 1e-6, (
+                f"Preconditioned CG residual too high for {param.dataset.name}"
+            )
+            return
+
+        # PCG returns once ||b - Ax|| drops below rel_tol * ||b||.
+        # Allow 10x that bound because this residual is recomputed in NumPy.
+        rel_tol = (self._meta or {}).get("rel_tol", 1e-6)
+        bnorm = np.linalg.norm(b)
+        limit = 10 * max(rel_tol * bnorm, 1e-20)
+        assert residual <= limit, (
+            f"Preconditioned CG residual too high for {param.dataset.name}: {residual}"
         )
 
     def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
