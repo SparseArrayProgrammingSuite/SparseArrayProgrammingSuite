@@ -543,7 +543,7 @@ Dimensionality reduction</concept_desc>
             JLKMeansNetflixPrizeGenerator(),
         ]
 
-    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
+    def benchmark(self, xp, meta: dict[str, Any], A, R):
         """
                 Labels points into k clusters.
 
@@ -573,7 +573,6 @@ Dimensionality reduction</concept_desc>
         assert c > 0
         assert eps > 0 and eps < 1 / 3
         assert k > 0
-        A, R = data
         A_prime = xp.matmul(A, R)
 
         n, t = A_prime.shape
@@ -595,7 +594,7 @@ Dimensionality reduction</concept_desc>
             if xp.all(labels == old_labels).item():
                 break
 
-        return [labels]
+        return labels
 
     def check(self, param):
         for item in self._output:

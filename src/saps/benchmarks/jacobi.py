@@ -828,8 +828,7 @@ class JacobiBenchmark(Benchmark):
     def _norm(self, xp, v):
         return xp.sqrt(xp.sum(xp.multiply(v, v)))
 
-    def benchmark(self, xp, data: list, meta: dict):
-        A, b, x = data
+    def benchmark(self, xp, meta: dict, A, b, x):
 
         rel_tol = meta.get("rel_tol", 1e-6)
         abs_tol = meta.get("abs_tol", 1e-20)
@@ -852,7 +851,7 @@ class JacobiBenchmark(Benchmark):
             raise RuntimeError(
                 "Jacobi did not converge within the maximum number of iterations"
             )
-        return [x]
+        return x
 
 
 # Matrices below run extremely slowly on numpy framework (>1 minutes per convergence):

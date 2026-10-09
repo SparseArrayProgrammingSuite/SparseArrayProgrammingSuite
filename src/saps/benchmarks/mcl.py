@@ -494,7 +494,7 @@ class MCLBenchmark(Benchmark):
     def generators(self):
         return [MCLTestGenerator(), MCLSNAPGenerator(), MCLGAPGenerator()]
 
-    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
+    def benchmark(self, xp, meta: dict[str, Any], graph):
         """
                 benchmark(data, meta)
 
@@ -520,7 +520,7 @@ class MCLBenchmark(Benchmark):
         """
         array_api = xp
         # MCL works with transition probabilities, whatever the input's dtype.
-        graph = array_api.astype(data[0], array_api.float64)
+        graph = array_api.astype(graph, array_api.float64)
         expansion = meta.get("expansion", 2)
         inflation = meta.get("inflation", 2)
         loop_value = meta.get("loop_value", 1)
@@ -556,7 +556,7 @@ class MCLBenchmark(Benchmark):
             ) and _sparse_allclose(array_api, current_matrix, previous_matrix):
                 break
 
-        return [current_matrix]
+        return current_matrix
 
     def check(self, param):
         super().check(param)

@@ -39,7 +39,7 @@ def run_lsh(request):
                 else from_numpy(array)
             )
             arrays.append(xp.from_binsparse(tensor))
-        outputs = SimHashANNBenchmark().benchmark(xp, arrays, meta)
+        outputs = SimHashANNBenchmark().benchmark(xp, meta, *arrays)
         return [
             NumpyFramework().from_binsparse(xp.to_binsparse(output))
             for output in outputs

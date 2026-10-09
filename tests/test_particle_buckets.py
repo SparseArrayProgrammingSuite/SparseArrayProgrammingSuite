@@ -53,8 +53,8 @@ def test_bucket_interaction_region(framework, positions, interacts):
     }
     result = ParticleSimulationBenchmark().benchmark(
         xp,
-        [xp.asarray(a.copy()) for a in data],
         {"size": 1.0, "steps": 1, "parameters": parameters},
+        *[xp.asarray(a.copy()) for a in data],
     )
     velocity = np.array([np.asarray(a) for a in result[3:]])
     delta = position[1] - position[0]
@@ -95,8 +95,8 @@ def test_bucket_simulation_matches_scalar_reference(framework):
     xp = framework()
     result = ParticleSimulationBenchmark().benchmark(
         xp,
-        [xp.asarray(a.copy()) for a in data],
         {"size": 1.0, "steps": 5, "parameters": parameters},
+        *[xp.asarray(a.copy()) for a in data],
     )
     np.testing.assert_allclose([np.asarray(a) for a in result], expected, atol=1e-12)
 
@@ -111,8 +111,8 @@ def test_repulsive_test_datasets_match_updated_reference(framework):
         xp = framework()
         result = ParticleSimulationBenchmark().benchmark(
             xp,
-            [xp.from_binsparse(a) for a in problem.inputs],
             problem.meta,
+            *[xp.from_binsparse(a) for a in problem.inputs],
         )
         np.testing.assert_allclose(
             [np.asarray(a) for a in result],

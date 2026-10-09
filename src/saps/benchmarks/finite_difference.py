@@ -433,8 +433,7 @@ class FiniteDifference1DBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
             FiniteDifference1DLinearAdvectionGenerator(),
         ]
 
-    def benchmark(self, xp, data: list, meta: dict):
-        u_0, matrix, dif = data
+    def benchmark(self, xp, meta: dict, u_0, matrix, dif):
         timesteps = meta["timesteps"]
         dt = meta["dt"]
         dx = meta["dx"]
@@ -447,7 +446,7 @@ class FiniteDifference1DBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
             u_n = u[-1]
             f = flux(u_n)
             u.append(matrix @ u_n - alpha * (dif @ f))
-        return [xp.stack(u, axis=0)]
+        return xp.stack(u, axis=0)
 
     def check(self, param):
         super().check(param)
@@ -783,8 +782,7 @@ class FiniteDifference2DBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
             FiniteDifference2DLinearAdvectionGenerator(),
         ]
 
-    def benchmark(self, xp, data: list, meta: dict):
-        u_0, matrix, diff_x, diff_y = data
+    def benchmark(self, xp, meta: dict, u_0, matrix, diff_x, diff_y):
         timesteps = meta["timesteps"]
         dt = meta["dt"]
         dx = meta["dx"]
@@ -803,7 +801,7 @@ class FiniteDifference2DBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
             fl_y = flux_y(u_n)
             u.append(matrix @ u_n - alpha * (diff_x @ fl_x) - beta * (diff_y @ fl_y))
 
-        return [xp.stack(u, axis=0)]
+        return xp.stack(u, axis=0)
 
     def check(self, param):
         super().check(param)
