@@ -1,9 +1,11 @@
 from typing import Any
 
 import numpy as np
+import scipy.sparse as scipy_sparse
 
+import sparse as pydata_sparse
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse.conversions import from_numpy, to_numpy, to_scipy
 
 from saps.benchmark import (
     Benchmark,
@@ -464,21 +466,37 @@ class LSQRBenchmark(Benchmark):
                 "Output must be in binsparse format"
             )
 
-        if not self._ref_meta or "convergence" not in self._ref_meta:
-            return
-
         A_bin, b_bin = self._input
-        A = to_numpy(A_bin)
+        try:
+            A_coo = to_scipy(A_bin).tocoo()
+        except TypeError:
+            A_coo = scipy_sparse.coo_array(to_numpy(A_bin))
+        A = pydata_sparse.COO(
+            coords=np.stack((A_coo.row, A_coo.col)),
+            data=A_coo.data,
+            shape=A_coo.shape,
+        )
         b = to_numpy(b_bin)
         x_sol = to_numpy(self._output[0])
         residual = b - A @ x_sol
+        if self._ref_meta and "convergence" in self._ref_meta:
+            if self._ref_meta["convergence"] == "residual":
+                assert np.linalg.norm(residual) < 1e-5 * np.linalg.norm(b) + 1e-5
+            elif self._ref_meta["convergence"] == "gradient":
+                assert np.linalg.norm(A.T @ residual) < (
+                    1e-5 * np.linalg.norm(A.T @ b) + 1e-5
+                )
+            return
 
-        if self._ref_meta["convergence"] == "residual":
-            assert np.linalg.norm(residual) < 1e-5 * np.linalg.norm(b) + 1e-5
-        elif self._ref_meta["convergence"] == "gradient":
-            assert np.linalg.norm(A.T @ residual) < (
-                1e-5 * np.linalg.norm(A.T @ b) + 1e-5
-            )
+        # Least squares is solved when A.T @ (b - Ax) is small.
+        # Allow 10x rel_tol because this gradient is recomputed in NumPy.
+        rel_tol = (self._meta or {}).get("rel_tol", 1e-6)
+        gradient = np.linalg.norm(A.T @ residual)
+        scale = np.linalg.norm(A.T @ b)
+        limit = 10 * max(rel_tol * scale, 1e-20)
+        assert gradient <= limit, (
+            f"LSQR gradient too high for {param.dataset.name}: {gradient}"
+        )
 
     def benchmark(self, xp, data: list, meta: dict):
         A, b = data

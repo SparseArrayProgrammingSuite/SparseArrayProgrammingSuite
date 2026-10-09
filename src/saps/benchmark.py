@@ -508,10 +508,10 @@ class Benchmark(Tagged, Attributed, Motivated):
 
     def teardown(self, param):
         if hasattr(self, "_output"):
-            if (
-                os.environ.get("SAPS_CHECK_SUITE") == "1"
-                and "test" in param.dataset.suites
-            ):
+            if os.environ.get("SAPS_CHECK_SUITE") == "1":
+                # Flushed before check so a timeout during check still shows
+                # that the timed run had already finished.
+                print("saps: timed run finished", flush=True)
                 self.check(param)
             del self._output
         if hasattr(self, "_meta"):
