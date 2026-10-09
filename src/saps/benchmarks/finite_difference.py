@@ -57,39 +57,12 @@ def _difference_matrix_1d(Nx):
     return matrix
 
 
-#: Flux functions, keyed by name. Functions can't be serialized in
-#: benchmark metadata, so the generator stores this keyword instead and
-#: both the generator and the benchmark look the function up by name.
+#: Pretty names for fluxes, keyed by the name stored in benchmark metadata.
 _FLUX_PRETTY_NAMES = {
     "burgers": "Burgers",
     "buckley_leverett": "Buckley-Leverett",
     "linear_advection": "Linear Advection",
 }
-
-
-def _burgers_flux(u):
-    return 0.5 * u * u
-
-
-def _buckley_leverett_flux(u):
-    sq = u * u
-    return sq / (sq + 0.25 * (1 - u) * (1 - u))
-
-
-def _linear_advection_flux_1d(u):
-    return 1.0 * u
-
-
-def _resolve_flux_1d(flux_name):
-    match flux_name:
-        case "burgers":
-            return _burgers_flux
-        case "buckley_leverett":
-            return _buckley_leverett_flux
-        case "linear_advection":
-            return _linear_advection_flux_1d
-        case _:
-            raise NotImplementedError(f"Unknown flux_name: {flux_name!r}")
 
 
 class FiniteDifference1DDataset(Dataset):
@@ -470,14 +443,21 @@ class FiniteDifference1DBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
         u0 = _from_binsparse(self._input[0])
         dt = self._meta["dt"]
         dx = self._meta["dx"]
-        flux_fn = _resolve_flux_1d(self._meta["flux_name"])
+        flux_name = self._meta["flux_name"]
 
         assert np.allclose(result[0], u0, rtol=1e-12, atol=1e-12)
 
         time_derivative = np.diff(result, axis=0) / dt
         for timestep in range(time_derivative.shape[0]):
             u_n = result[timestep]
-            flux = flux_fn(u_n)
+            match flux_name:
+                case "burgers":
+                    flux = 0.5 * u_n * u_n
+                case "buckley_leverett":
+                    sq = u_n * u_n
+                    flux = sq / (sq + 0.25 * (1 - u_n) * (1 - u_n))
+                case "linear_advection":
+                    flux = 1.0 * u_n
 
             neighbor_average = np.zeros_like(u_n)
             neighbor_average[1:] += 0.5 * u_n[:-1]
@@ -549,30 +529,6 @@ def _difference_matrix_y_direction(number_spatial_x, number_spatial_y):
 
 _LINEAR_ADVECTION_CX = 0.9
 _LINEAR_ADVECTION_CY = 0.9
-
-
-def _burgers_flux_y(u):
-    return (1 / 3) * u * u
-
-
-def _linear_advection_flux_x(u):
-    return _LINEAR_ADVECTION_CX * u
-
-
-def _linear_advection_flux_y(u):
-    return _LINEAR_ADVECTION_CY * u
-
-
-def _resolve_flux_2d(flux_name):
-    match flux_name:
-        case "burgers":
-            return _burgers_flux, _burgers_flux_y
-        case "buckley_leverett":
-            return _buckley_leverett_flux, _buckley_leverett_flux
-        case "linear_advection":
-            return _linear_advection_flux_x, _linear_advection_flux_y
-        case _:
-            raise NotImplementedError(f"Unknown flux_name: {flux_name!r}")
 
 
 class FiniteDifference2DDataset(Dataset):
@@ -847,7 +803,7 @@ class FiniteDifference2DBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
         dy = self._meta["dy"]
         Nx = param.dataset.Nx
         Ny = param.dataset.Ny
-        flux_x_fn, flux_y_fn = _resolve_flux_2d(self._meta["flux_name"])
+        flux_name = self._meta["flux_name"]
 
         assert np.allclose(result[0], u0, rtol=1e-12, atol=1e-12)
 
@@ -855,8 +811,22 @@ class FiniteDifference2DBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):
         for timestep in range(time_derivative.shape[0]):
             u_n = result[timestep]
             u_grid = u_n.reshape(Ny, Nx)
-            flux_x = flux_x_fn(u_n).reshape(Ny, Nx)
-            flux_y = flux_y_fn(u_n).reshape(Ny, Nx)
+            match flux_name:
+                case "burgers":
+                    flux_x = (0.5 * u_n * u_n).reshape(Ny, Nx)
+                    flux_y = ((1 / 3) * u_n * u_n).reshape(Ny, Nx)
+                case "buckley_leverett":
+                    sq = u_n * u_n
+                    flux_x = (sq / (sq + 0.25 * (1 - u_n) * (1 - u_n))).reshape(
+                        Ny, Nx
+                    )
+                    sq = u_n * u_n
+                    flux_y = (sq / (sq + 0.25 * (1 - u_n) * (1 - u_n))).reshape(
+                        Ny, Nx
+                    )
+                case "linear_advection":
+                    flux_x = (_LINEAR_ADVECTION_CX * u_n).reshape(Ny, Nx)
+                    flux_y = (_LINEAR_ADVECTION_CY * u_n).reshape(Ny, Nx)
 
             neighbor_average = np.zeros_like(u_grid)
             neighbor_average[:, 1:] += 0.25 * u_grid[:, :-1]
