@@ -1562,9 +1562,6 @@ class GMRESBenchmark(Benchmark):
                 "Output must be in binsparse format"
             )
 
-        if not self._ref_meta or "residual_tol" not in self._ref_meta:
-            return
-
         A_bin, b_bin, _x0_bin = self._input
         try:
             A_coo = to_scipy(A_bin).tocoo()
@@ -1578,7 +1575,18 @@ class GMRESBenchmark(Benchmark):
         b = to_numpy(b_bin)
         x_sol = to_numpy(self._output[0])
         residual = np.linalg.norm(b - A @ x_sol)
-        assert residual < self._ref_meta["residual_tol"], (
+        if self._ref_meta and "residual_tol" in self._ref_meta:
+            assert residual < self._ref_meta["residual_tol"], (
+                f"GMRES residual too high for {param.dataset.name}: {residual}"
+            )
+            return
+
+        # GMRES returns once ||b - Ax|| / ||b|| drops below rel_tol.
+        # Allow 10x that bound because this residual is recomputed in NumPy.
+        rel_tol = (self._meta or {}).get("rel_tol", 1e-6)
+        bnorm = np.linalg.norm(b)
+        limit = 10 * max(rel_tol * bnorm, 1e-20)
+        assert residual <= limit, (
             f"GMRES residual too high for {param.dataset.name}: {residual}"
         )
 
