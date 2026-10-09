@@ -101212,9 +101212,9 @@
         "Michael Wang <mwang764@gatech.edu>"
       ],
       "concepts": "<ccs2012></ccs2012>",
-      "description": "Benchmarks inference for a sparse CIFAR-10 Conv-2 network derived from the Lottery Ticket Hypothesis workflow. Using OpenLTH's training and pruning infrastructure, and motivated by the original LTH and Uber AI lottery-ticket studies, the CIFAR Conv-2 architecture was trained on CIFAR-10 and subjected to 20 levels of iterative global magnitude pruning. The selected checkpoint and pruning mask were combined and exported as a dense ONNX model whose zero-valued parameters preserve approximately 87.84% sparsity. The model and its external tensor data are archived in Zenodo record 22650920. ONNXPY translated that fixed graph into array-based Python, which the current SAPS runner executes across supported array frameworks.",
+      "description": "Benchmarks inference for a sparse CIFAR-10 Conv-2 network derived from the Lottery Ticket Hypothesis workflow. Using OpenLTH's training and pruning infrastructure, and motivated by the original LTH and Uber AI lottery-ticket studies, the CIFAR Conv-2 architecture was trained on CIFAR-10 and subjected to 20 levels of iterative global magnitude pruning. The selected checkpoint and pruning mask were combined and exported as a dense ONNX model whose zero-valued parameters preserve approximately 87.84% sparsity. The model and its external tensor data are archived in Zenodo record 22650920. ONNXPY translates that graph into inline array-based Python during setup, which the SAPS runner executes across supported array frameworks.",
       "file": "src/saps/benchmarks/lth_conv2.py",
-      "freshness": "5300945c3d97a5b86d078289db012f6ac9edf001a598f7c16fd49ef8289c044c",
+      "freshness": "c2316b0d21ad164914602360e132c7dd0550664c258f2a8979f4d12f8eec9b90",
       "generators": [
         {
           "ai_disclosure": "Generative AI was used to assist with adapting existing benchmark integration code to the current SAPS and ONNXPY APIs. The model training, pruning workflow, benchmark objective, and model artifacts were created by the contributors.",
@@ -101230,7 +101230,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Pruned CIFAR-10 Conv-2 model with approximately 87.84% zero-valued parameters, archived with its ONNX external data in Zenodo record 22650920.",
               "file": "src/saps/benchmarks/lth_conv2.py",
-              "freshness": "5300945c3d97a5b86d078289db012f6ac9edf001a598f7c16fd49ef8289c044c",
+              "freshness": "c2316b0d21ad164914602360e132c7dd0550664c258f2a8979f4d12f8eec9b90",
               "name": "pruned",
               "pretty_name": "Pruned",
               "suites": [
@@ -101245,9 +101245,9 @@
               "topics": []
             }
           ],
-          "description": "Loads the Conv-2 ONNX artifact from the runner's shared SAPS cache, imports its trained parameters and pruning-induced zeros, and generates a deterministic runtime input for SAPS execution.",
+          "description": "Loads the Conv-2 ONNX artifact from the runner's shared SAPS cache, imports its trained parameters and pruning-induced zeros, and generates a deterministic input and inline NumPy benchmark function with ONNXPY during setup.",
           "file": "src/saps/benchmarks/lth_conv2.py",
-          "freshness": "5300945c3d97a5b86d078289db012f6ac9edf001a598f7c16fd49ef8289c044c",
+          "freshness": "c2316b0d21ad164914602360e132c7dd0550664c258f2a8979f4d12f8eec9b90",
           "motivation": "This generator turns a reproducible lottery-ticket training artifact into fixed benchmark inputs. The runner-managed shared cache and locked atomic downloads allow concurrent and chunked SAPS runs to reuse the same ONNX files safely.",
           "name": "lth_conv2_onnx",
           "pretty_name": "Lottery Ticket Hypothesis (LTH) Conv-2 ONNX",
