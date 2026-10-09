@@ -166727,7 +166727,7 @@
       "topics": []
     },
     {
-      "ai_disclosure": "No generative AI was used to construct the benchmark function itself. This statement was written by hand.",
+      "ai_disclosure": "The original benchmark function was written by hand. Generative AI assisted with refactoring the depth traversal into loops and adding regression tests.",
       "asv_ids": {
         "peakmem": "tictactoe_minimax.TicTacToeMinimaxBenchmark.peakmem_tictactoe_minimax",
         "time": "tictactoe_minimax.TicTacToeMinimaxBenchmark.time_tictactoe_minimax"
@@ -166739,7 +166739,7 @@
       "concepts": "\n<ccs2012>\n<concept>\n<concept_id>10010147.10010178.10010205.10010210</concept_id>\n<concept_desc>Computing methodologies~Game tree search</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n</ccs2012>\n",
       "description": "What does this code do: Implement a fully tensorized, non-recursive minimax search over a tic-tac-toe game. Game states are represented as tensors. Game state is represented as S[n, i, j, p] of shape (N, 3, 3, 2) where n indexes boards, i,j are board positions and p is the player channel. Given any board state within the game, it should return the result of the game.",
       "file": "src/saps/benchmarks/tictactoe_minimax.py",
-      "freshness": "5b979baf760a58bddb590404056a4b47e919c4fa5ace6b935e7e949d968a470a",
+      "freshness": "014509cf9bea3d862b017957a7f84a16099f77ce5319a24b4d552684a55ccd56",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to construct the benchmark function itself. This statement was written by hand.",
@@ -166754,7 +166754,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Batch of 1 board(s) at minimax depth 2.",
               "file": "src/saps/benchmarks/tictactoe_minimax.py",
-              "freshness": "5b979baf760a58bddb590404056a4b47e919c4fa5ace6b935e7e949d968a470a",
+              "freshness": "014509cf9bea3d862b017957a7f84a16099f77ce5319a24b4d552684a55ccd56",
               "name": "x_wins_near",
               "pretty_name": "X Wins Near",
               "suites": [
@@ -166780,7 +166780,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Batch of 1 board(s) at minimax depth 2.",
               "file": "src/saps/benchmarks/tictactoe_minimax.py",
-              "freshness": "5b979baf760a58bddb590404056a4b47e919c4fa5ace6b935e7e949d968a470a",
+              "freshness": "014509cf9bea3d862b017957a7f84a16099f77ce5319a24b4d552684a55ccd56",
               "name": "o_wins_near",
               "pretty_name": "O Wins Near",
               "suites": [
@@ -166806,7 +166806,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Batch of 1 board(s) at minimax depth 2.",
               "file": "src/saps/benchmarks/tictactoe_minimax.py",
-              "freshness": "5b979baf760a58bddb590404056a4b47e919c4fa5ace6b935e7e949d968a470a",
+              "freshness": "014509cf9bea3d862b017957a7f84a16099f77ce5319a24b4d552684a55ccd56",
               "name": "draw_near",
               "pretty_name": "Draw Near",
               "suites": [
@@ -166832,7 +166832,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Batch of 3 board(s) at minimax depth 2.",
               "file": "src/saps/benchmarks/tictactoe_minimax.py",
-              "freshness": "5b979baf760a58bddb590404056a4b47e919c4fa5ace6b935e7e949d968a470a",
+              "freshness": "014509cf9bea3d862b017957a7f84a16099f77ce5319a24b4d552684a55ccd56",
               "name": "batch_near",
               "pretty_name": "Batch Near",
               "suites": [
@@ -166858,7 +166858,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Batch of 1 board(s) at minimax depth 3.",
               "file": "src/saps/benchmarks/tictactoe_minimax.py",
-              "freshness": "5b979baf760a58bddb590404056a4b47e919c4fa5ace6b935e7e949d968a470a",
+              "freshness": "014509cf9bea3d862b017957a7f84a16099f77ce5319a24b4d552684a55ccd56",
               "name": "x_wins_mid",
               "pretty_name": "X Wins Mid",
               "suites": [
@@ -166884,7 +166884,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Batch of 1 board(s) at minimax depth 3.",
               "file": "src/saps/benchmarks/tictactoe_minimax.py",
-              "freshness": "5b979baf760a58bddb590404056a4b47e919c4fa5ace6b935e7e949d968a470a",
+              "freshness": "014509cf9bea3d862b017957a7f84a16099f77ce5319a24b4d552684a55ccd56",
               "name": "o_wins_mid",
               "pretty_name": "O Wins Mid",
               "suites": [
@@ -166910,7 +166910,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Batch of 1 board(s) at minimax depth 5.",
               "file": "src/saps/benchmarks/tictactoe_minimax.py",
-              "freshness": "5b979baf760a58bddb590404056a4b47e919c4fa5ace6b935e7e949d968a470a",
+              "freshness": "014509cf9bea3d862b017957a7f84a16099f77ce5319a24b4d552684a55ccd56",
               "name": "x_wins_early",
               "pretty_name": "X Wins Early",
               "suites": [
@@ -166936,7 +166936,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Batch of 1 board(s) at minimax depth 6.",
               "file": "src/saps/benchmarks/tictactoe_minimax.py",
-              "freshness": "5b979baf760a58bddb590404056a4b47e919c4fa5ace6b935e7e949d968a470a",
+              "freshness": "014509cf9bea3d862b017957a7f84a16099f77ce5319a24b4d552684a55ccd56",
               "name": "draw_early",
               "pretty_name": "Draw Early",
               "suites": [
@@ -166968,7 +166968,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Batch of 1 board(s) at minimax depth 9.",
               "file": "src/saps/benchmarks/tictactoe_minimax.py",
-              "freshness": "5b979baf760a58bddb590404056a4b47e919c4fa5ace6b935e7e949d968a470a",
+              "freshness": "014509cf9bea3d862b017957a7f84a16099f77ce5319a24b4d552684a55ccd56",
               "name": "empty_board",
               "pretty_name": "Empty Board",
               "suites": [
@@ -166992,7 +166992,7 @@
           ],
           "description": "These tests covering end-game, mid-game, and early gamethrough using various minimax at different depths.",
           "file": "src/saps/benchmarks/tictactoe_minimax.py",
-          "freshness": "5b979baf760a58bddb590404056a4b47e919c4fa5ace6b935e7e949d968a470a",
+          "freshness": "014509cf9bea3d862b017957a7f84a16099f77ce5319a24b4d552684a55ccd56",
           "motivation": "Boards have range of sparsity so they go from empty to being very dense this helps us measure how sparsity can affect performance at different depths.",
           "name": "tictactoe_minimax_boards",
           "pretty_name": "Tic-Tac-Toe Minimax Boards",
