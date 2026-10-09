@@ -79,17 +79,15 @@ def load_gcare_graph(
                 level=SparseLevel(len(shape), ElementLevel(values), indices),
             )
         bin_mats.append(tensor)
-    ground_truth: dict[str, int] = {}
-    for path in sorted((ground_truth_dir / dataset_name).rglob("*.txt")):
-        ground_truth.setdefault(path.stem, int(path.read_text().strip().split()[0]))
     queries = {}
     query_root = queryset_dir / dataset_name
     for path in sorted(query_root.rglob("*.txt")):
         expr, _, names = _parse_query(path, continous_label=continous_label)
-        queries[path.relative_to(query_root).with_suffix("").as_posix()] = {
+        query_rel_path = path.relative_to(query_root).with_suffix("").as_posix()
+        queries[query_rel_path] = {
             "expr": expr,
             "matrix_names": sorted(names),
-            "gt": ground_truth.get(path.stem, 0),
+            "gt": _read_ground_truth(ground_truth_dir, dataset_name, query_rel_path),
         }
     meta = {
         "matrix_names": matrix_names,
@@ -135,16 +133,10 @@ def load_gcare_query(
         query_path, all_sp_mats, max_vid, continous_label
     )
 
-    query_stem = Path(query_rel_path).name
-    gt_matches = list((ground_truth_dir / dataset_name).rglob(f"{query_stem}.txt"))
-    ground_truth = (
-        int(gt_matches[0].read_text().strip().split()[0]) if gt_matches else 0
-    )
-
     bin_mats = list(sp_mats_needed.values())
     meta: dict[str, Any] = {
         "expr": expr,
-        "gt": ground_truth,
+        "gt": _read_ground_truth(ground_truth_dir, dataset_name, query_rel_path),
         "name": query_rel_path,
         "matrix_names": list(sp_mats_needed.keys()),
     }
@@ -402,6 +394,20 @@ def _build_query_matrices(
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
+
+
+def _read_ground_truth(
+    ground_truth_dir: Path, dataset_name: str, query_rel_path: str
+) -> int | None:
+    """Return the true count for a query, or None if G-CARE gives none.
+
+    Counts are looked up by the full relative path: query names such as
+    ``uf_Q_0_1`` repeat across shape directories with different counts.
+    """
+    path = ground_truth_dir / dataset_name / (query_rel_path + ".txt")
+    if not path.exists():
+        return None
+    return int(path.read_text().split()[0])
 
 
 def _default_data_dir() -> Path:
