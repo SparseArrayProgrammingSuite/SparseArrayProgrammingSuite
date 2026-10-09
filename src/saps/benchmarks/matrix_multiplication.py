@@ -13,23 +13,7 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
-from saps_framework.binsparse_utils import (
-    as_dense,
-    as_scipy,
-    assert_coo_allclose,
-)
-
-
-def product_fingerprint(A, B) -> list:
-    """Return `[X, A @ (B @ X)]` for random probe columns X, the reference for
-    Freivalds' check of C == A @ B as C @ X == A @ (B @ X).
-
-    This costs O(nnz(A) + nnz(B)) and stores n x 8 values, where the product
-    itself can take seconds to form and be nearly dense. A wrong entry of C
-    escapes only if every probe column nearly cancels it.
-    """
-    X = np.random.default_rng(0).standard_normal((B.shape[1], 8))
-    return [from_numpy(X), from_numpy(np.asarray(A @ (B @ X)))]
+from saps_framework.binsparse_utils import assert_coo_allclose
 
 
 class MatrixMultiplicationDenseDataset(Dataset):
@@ -133,7 +117,7 @@ class MatrixMultiplicationDenseGenerator(Generator):
         return DataInstance(
             [from_numpy(A), from_numpy(B)],
             meta={"dataset": dataset.name},
-            ref_outputs=product_fingerprint(A, B),
+            ref_outputs=[from_numpy(np.matmul(A, B))],
         )
 
 
@@ -318,7 +302,7 @@ class MatrixMultiplicationSuiteSparseGenerator(Generator):
         return DataInstance(
             [A_bin, B_bin],
             meta={"dataset": dataset.name},
-            ref_outputs=product_fingerprint(A_coo, B_coo),
+            ref_outputs=[from_scipy((A_coo @ B_coo).tocoo())],
         )
 
 
@@ -458,7 +442,7 @@ class MatrixMultiplicationUniformRandomGenerator(Generator):
         return DataInstance(
             [from_scipy(A), from_scipy(B)],
             meta={"dataset": dataset.name},
-            ref_outputs=product_fingerprint(A, B),
+            ref_outputs=[from_scipy((A @ B).tocoo())],
         )
 
 
@@ -559,11 +543,4 @@ class MatrixMultiplicationBenchmark(Benchmark):
                 "Output must be in binsparse format"
             )
         assert self._ref_outputs is not None, "No reference output"
-        # The reference is a Freivalds fingerprint; see product_fingerprint.
-        X_bin, expected = self._ref_outputs
-        C = as_scipy(self._output[0])
-        expected_shape = (self._input[0].shape[0], self._input[1].shape[1])
-        assert C.shape == expected_shape, (
-            f"Shape mismatch: expected {expected_shape}, got {C.shape}"
-        )
-        assert_coo_allclose(expected, from_numpy(C @ as_dense(X_bin)))
+        assert_coo_allclose(self._ref_outputs[0], self._output[0])

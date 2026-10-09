@@ -45,23 +45,6 @@ def assert_coo_allclose(
     )
 
 
-def as_scipy(tensor: BinsparseTensor) -> Any:
-    """Return a matrix `tensor`, dense or sparse, as a canonical SciPy CSR array."""
-    array = _as_scipy(tensor).tocsr()
-    array.sum_duplicates()
-    return array
-
-
-def as_dense(tensor: BinsparseTensor) -> np.ndarray:
-    """Return `tensor`, of any format or rank, as a NumPy array."""
-    data = tensor_data(tensor)
-    if scipy_sparse.issparse(data):
-        return data.toarray()
-    if isinstance(data, sparse.SparseArray):
-        return data.todense()
-    return np.asarray(data)
-
-
 def tensor_data(tensor: BinsparseTensor):
     for convert in (to_scipy, to_sparse, to_numpy):
         try:
