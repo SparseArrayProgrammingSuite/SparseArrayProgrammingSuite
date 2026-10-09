@@ -151,36 +151,78 @@ def minimax_depth5(xp, S_initial, W):
     return backup(xp, S_initial, val1, v1, t0, val0)
 
 
-def minimax(xp, S_initial, W):
-    c1, v1 = generate_child(xp, S_initial, W)
-    c2, v2 = generate_child(xp, c1, W)
-    c3, v3 = generate_child(xp, c2, W)
-    c4, v4 = generate_child(xp, c3, W)
-    c5, v5 = generate_child(xp, c4, W)
-    c6, v6 = generate_child(xp, c5, W)
-    c7, v7 = generate_child(xp, c6, W)
-    c8, v8 = generate_child(xp, c7, W)
-    c9, v9 = generate_child(xp, c8, W)
-    t0, val0 = is_terminal(xp, S_initial, W)
-    t1, val1 = is_terminal(xp, c1, W)
-    t2, val2 = is_terminal(xp, c2, W)
-    t3, val3 = is_terminal(xp, c3, W)
-    t4, val4 = is_terminal(xp, c4, W)
-    t5, val5 = is_terminal(xp, c5, W)
-    t6, val6 = is_terminal(xp, c6, W)
-    t7, val7 = is_terminal(xp, c7, W)
-    t8, val8 = is_terminal(xp, c8, W)
-    t9, val9 = is_terminal(xp, c9, W)
-    val9 = xp.where(t9, val9, xp.zeros(c9.shape[0]))
-    val8 = backup(xp, c8, val9, v9, t8, val8)
-    val7 = backup(xp, c7, val8, v8, t7, val7)
-    val6 = backup(xp, c6, val7, v7, t6, val6)
-    val5 = backup(xp, c5, val6, v6, t5, val5)
-    val4 = backup(xp, c4, val5, v5, t4, val4)
-    val3 = backup(xp, c3, val4, v4, t3, val3)
-    val2 = backup(xp, c2, val3, v3, t2, val2)
-    val1 = backup(xp, c1, val2, v2, t1, val1)
-    return backup(xp, S_initial, val1, v1, t0, val0)
+_REF_WIN_LINES = (
+    (0, 1, 2),
+    (3, 4, 5),
+    (6, 7, 8),
+    (0, 3, 6),
+    (1, 4, 7),
+    (2, 5, 8),
+    (0, 4, 8),
+    (2, 4, 6),
+)
+
+
+def _ref_board_to_flat(board):
+    board = np.asarray(board, dtype=float)
+    flat = []
+    for i in range(3):
+        for j in range(3):
+            x = board[i, j, 0]
+            o = board[i, j, 1]
+            flat.append(1 if x > 0 else (-1 if o > 0 else 0))
+    return flat
+
+
+def _ref_winner(flat):
+    for a, b, c in _REF_WIN_LINES:
+        s = flat[a] + flat[b] + flat[c]
+        if s == 3:
+            return 1
+        if s == -3:
+            return -1
+    return 0
+
+
+def _ref_minimax(flat, depth):
+    w = _ref_winner(flat)
+    if w != 0:
+        return w
+    if all(cell != 0 for cell in flat):
+        return 0
+    if depth == 0:
+        return 0
+
+    count_x = sum(1 for c in flat if c == 1)
+    count_o = sum(1 for c in flat if c == -1)
+    x_to_move = not (count_x > count_o)
+    mark = 1 if x_to_move else -1
+
+    best = None
+    for idx in range(9):
+        if flat[idx] != 0:
+            continue
+        child = list(flat)
+        child[idx] = mark
+        val = _ref_minimax(child, depth - 1)
+        if best is None:
+            best = val
+        elif x_to_move:
+            best = max(best, val)
+        else:
+            best = min(best, val)
+    return best
+
+
+def reference_minimax(board, depth):
+    board = np.asarray(board, dtype=float)
+    return np.array(
+        [
+            _ref_minimax(_ref_board_to_flat(board[n]), depth)
+            for n in range(board.shape[0])
+        ],
+        dtype=float,
+    )
 
 
 # These are the testing boards, used np.
@@ -212,7 +254,6 @@ BOARD_DRAW_EARLY = np.array(
     [[[[0, 1], [0, 0], [1, 0]], [[0, 0], [1, 0], [0, 0]], [[0, 1], [0, 0], [0, 0]]]],
     dtype=float,
 )
-BOARD_EMPTY = np.zeros((1, 3, 3, 2), dtype=float)
 BOARD_BATCH_NEAR = np.concatenate(
     [BOARD_X_WINS_NEAR, BOARD_O_WINS_NEAR, BOARD_DRAW_NEAR], axis=0
 )
@@ -295,12 +336,12 @@ class TicTacToeGenerator(Generator[TicTacToeDataset]):
             TicTacToeDataset("o_wins_mid", BOARD_O_WINS_MID, depth=3),
             TicTacToeDataset("x_wins_early", BOARD_X_WINS_EARLY, depth=5),
             TicTacToeDataset("draw_early", BOARD_DRAW_EARLY, depth=5),
-            TicTacToeDataset("empty_board", BOARD_EMPTY, depth=9),
         ]
 
     def generate(self, dataset: TicTacToeDataset):
         S_bin = BinsparseFormat.from_numpy(dataset.board)
-        return ([S_bin], {"depth": dataset.depth})
+        expected = reference_minimax(dataset.board, dataset.depth).tolist()
+        return ([S_bin], {"depth": dataset.depth, "expected": expected})
 
 
 class TicTacToeBenchmark(Benchmark):
@@ -320,7 +361,7 @@ class TicTacToeBenchmark(Benchmark):
     def description(self) -> str:
         return (
             "Tensorized minimax search over tic-tac-toe. "
-            "You are able to test at depths 2, 3, 5, and 9"
+            "You are able to test at depths 2, 3, and 5"
         )
 
     @property
@@ -350,8 +391,7 @@ class TicTacToeBenchmark(Benchmark):
         return (
             "This benchmark will do sparse array operations on tic-tac-toe"
             "game trees. Sparsity should increase as you go deeper into the game/tree."
-            "Invalid boards states caused by bad moves are zeroed out. You can test "
-            "empty board all the way to the higher depth starting states"
+            "Invalid boards states caused by bad moves are zeroed out."
         )
 
     @property
@@ -360,7 +400,7 @@ class TicTacToeBenchmark(Benchmark):
 
     def benchmark(self, data: list, meta: dict):
         S_bin = data[0]
-        depth = meta.get("depth", 9)
+        depth = meta.get("depth", 5)
         S = xp.from_binsparse(S_bin)
         W = build_win_masks(xp)
 
@@ -371,6 +411,26 @@ class TicTacToeBenchmark(Benchmark):
         elif depth == 5:
             result = minimax_depth5(xp, S, W)
         else:
-            result = minimax(xp, S, W)
+            raise ValueError(
+                f"Unsupported minimax depth: {depth} (expected 2, 3, or 5)"
+            )
 
         return [xp.to_binsparse(result)]
+
+    def check_correct(self, param):
+        super().check_correct(param)
+        expected = self._meta.get("expected")
+        if expected is None:
+            return
+        expected = np.asarray(expected, dtype=float)
+        out = xp.from_binsparse(self._output[0])
+        if hasattr(out, "todense"):
+            out = out.todense()
+        out = np.asarray(out, dtype=float)
+        assert out.shape == expected.shape, (
+            f"tic-tac-toe minimax: output shape {out.shape} != expected "
+            f"{expected.shape}"
+        )
+        assert np.allclose(out, expected, atol=1e-9), (
+            f"tic-tac-toe minimax output {out} != cached reference {expected}"
+        )
