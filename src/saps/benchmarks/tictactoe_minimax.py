@@ -173,6 +173,79 @@ def minimax(xp, S_initial, W):
     return backup(xp, S_initial, val1, v1, t0, val0)
 
 
+_REF_WIN_LINES = (
+    (0, 1, 2),
+    (3, 4, 5),
+    (6, 7, 8),
+    (0, 3, 6),
+    (1, 4, 7),
+    (2, 5, 8),
+    (0, 4, 8),
+    (2, 4, 6),
+)
+
+
+def _ref_board_to_flat(board):
+    board = np.asarray(board, dtype=float)
+    flat = []
+    for i in range(3):
+        for j in range(3):
+            x = board[i, j, 0]
+            o = board[i, j, 1]
+            flat.append(1 if x > 0 else (-1 if o > 0 else 0))
+    return flat
+
+
+def _ref_winner(flat):
+    for a, b, c in _REF_WIN_LINES:
+        s = flat[a] + flat[b] + flat[c]
+        if s == 3:
+            return 1
+        if s == -3:
+            return -1
+    return 0
+
+
+def _ref_minimax(flat, depth):
+    w = _ref_winner(flat)
+    if w != 0:
+        return w
+    if all(cell != 0 for cell in flat):
+        return 0
+    if depth == 0:
+        return 0
+
+    count_x = sum(1 for c in flat if c == 1)
+    count_o = sum(1 for c in flat if c == -1)
+    x_to_move = not (count_x > count_o)
+    mark = 1 if x_to_move else -1
+
+    best = None
+    for idx in range(9):
+        if flat[idx] != 0:
+            continue
+        child = list(flat)
+        child[idx] = mark
+        val = _ref_minimax(child, depth - 1)
+        if best is None:
+            best = val
+        elif x_to_move:
+            best = max(best, val)
+        else:
+            best = min(best, val)
+    return best
+
+
+def reference_minimax(board, depth):
+    board = np.asarray(board, dtype=float)
+    values = [
+        _ref_minimax(_ref_board_to_flat(board[n]), depth) for n in range(board.shape[0])
+    ]
+    if board.shape[0] == 1:
+        return float(values[0])
+    return np.array(values, dtype=float)
+
+
 # These are the testing boards, used np.
 BOARD_X_WINS_NEAR = np.array(
     [[[[1, 0], [1, 0], [0, 0]], [[0, 1], [0, 1], [0, 0]], [[1, 0], [0, 0], [0, 1]]]],
@@ -375,9 +448,10 @@ class TicTacToeMinimaxBoardsGenerator(Generator[TicTacToeMinimaxDataset]):
 
     def generate(self, dataset: TicTacToeMinimaxDataset):
         S_bin = from_numpy(dataset.board)
-        ref_outputs = None
-        if dataset.expected is not None:
-            ref_outputs = [from_numpy(np.asarray(dataset.expected))]
+        expected = dataset.expected
+        if expected is None:
+            expected = reference_minimax(dataset.board, dataset.depth)
+        ref_outputs = [from_numpy(np.asarray(expected))]
         return DataInstance(
             inputs=[S_bin], meta={"depth": dataset.depth}, ref_outputs=ref_outputs
         )
