@@ -17,6 +17,8 @@ Since we have to use minimal for-loops, only two for loops have been used:
 
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 
 from binsparse import BinsparseTensor
@@ -48,173 +50,6 @@ _STATUS_NAMES = {
     _STATUS_UNBOUNDED: "unbounded",
     _STATUS_ITERATION_LIMIT: "iteration limit",
 }
-
-
-def _unit_vector(xp, size, index):
-    positions = xp.arange(size)
-    return xp.where(positions == index, 1.0, 0.0)
-
-
-def _set_at(xp, arr, index, value):
-    positions = xp.arange(arr.shape[0])
-    return xp.where(positions == index, xp.asarray(value), arr)
-
-
-def _first_true_index(xp, mask):
-    size = mask.shape[0]
-    positions = xp.arange(size)
-    return int(xp.min(xp.where(mask, positions, size)))
-
-
-def _onehot_rows(xp, basis, width):
-    idx = xp.arange(width)
-    return xp.astype(idx[None, :] == basis[:, None], xp.float64)
-
-
-# Keeping the basis inverse as a product of elementary matrices, one per pivot, is
-# the product form of Dantzig and Orchard-Hays (1954): each iteration multiplies the
-# previous inverse by a single elementary matrix rather than inverting again.
-# INSPIRATION: same rank-one Binv update as Simplex.py lines 128-132, except theirs
-# reads Binv[:, l] where a unit vector belongs, so it only holds on the first pivot.
-def _eta_matrix(xp, m, d, leaving_row):
-    e_col = _unit_vector(xp, m, leaving_row)
-    pivot_val = d[leaving_row]
-    eta = xp.where(xp.arange(m) == leaving_row, 1.0 / pivot_val, -d / pivot_val)
-    diff = eta - e_col
-    return xp.eye(m) + xp.reshape(diff, (m, 1)) @ xp.reshape(e_col, (1, m))
-
-
-def _pivot(xp, A, b, c, basis, Binv, tol=1e-9):
-    m = A.shape[0]
-    width = A.shape[1]
-
-    xB = Binv @ b  # Inspiration: one matrix–vector
-    # product, Binv · b, giving the values of the basic variables. Line 47
-
-    onehot = _onehot_rows(xp, basis, width)
-    basic_mask = xp.any(onehot > 0, axis=0)
-    # INSPIRATION: dual vector and reduced costs as in Simplex.py 59-69. Theirs walks
-    # the columns one scalar at a time; this prices all of them in one expression.
-    c_basis = onehot @ c
-    y = Binv.T @ c_basis
-    s = xp.where(basic_mask, xp.inf, c - A.T @ y)
-
-    # INSPIRATION: stop when no reduced cost is negative, as in Simplex.py 70-74.
-    # Theirs compares against an exact 0 and enters on the first negative column;
-    # this enters on the most negative one, which is Dantzig's rule
-    improving = s < -tol
-    if not bool(xp.any(improving)):
-        return basis, Binv, xB, "optimal"
-
-    entering = int(xp.argmin(xp.where(improving, s, xp.inf)))
-
-    # INSPIRATION: direction Binv @ A[:, j] and the unbounded test from Simplex.py
-    # 84-93. Theirs tests u[i] >= 0, which misses a column that is all zeros.
-    d = Binv @ A[:, entering]
-    positive = d > tol
-    if not bool(xp.any(positive)):
-        return basis, Binv, xB, "unbounded"
-
-    # INSPIRATION: minimum-ratio test from Simplex.py 97-105, with xp.inf standing in
-    # for their 1e9+7 sentinel. Note, I added the tie-break.
-    ratios = xp.where(positive, xB / xp.where(positive, d, 1.0), xp.inf)
-    min_ratio = xp.min(ratios)
-
-    # Among the rows that tie for the smallest ratio, leave on the one with the
-    # largest |d|. _eta_matrix divides by that entry, so a near-zero one
-    # multiplies whatever rounding error Binv already carries by 1/d, and since
-    # Binv is only ever updated the error never washes back out. Bartels and Golub
-    # (1969) make the same point about carrying an inverse instead of refactorizing,
-    # and take the other way out of it, which is to keep an LU factorization.
-    tied = xp.abs(ratios - min_ratio) <= tol
-    leaving_row = int(xp.argmax(xp.where(tied, xp.abs(d), -1.0)))
-
-    new_Binv = _eta_matrix(xp, m, d, leaving_row) @ Binv
-    # INSPIRATION: swapping one basis index, which Simplex.py 135 does as C[l] = j.
-    # _set_at returns a new array instead, so the caller's basis is never mutated.
-    new_basis = _set_at(xp, basis, leaving_row, entering)
-
-    return new_basis, new_Binv, xB, "continue"
-
-
-def _run_pivots(xp, A, b, c, basis, Binv, max_iter):
-    status = "continue"
-    it = 0
-    xB = Binv @ b
-    # INSPIRATION: the pivot loop of Simplex.py 52. Bounded by max_iter here, and the
-    # body returns a status rather than breaking, so both phases can reuse it.
-    while status == "continue" and it < max_iter:
-        basis, Binv, xB, status = _pivot(xp, A, b, c, basis, Binv)
-        it += 1
-    return basis, Binv, xB, status, it
-
-
-def _phase1(xp, A, b, max_iter, tol=1e-9):
-    m, n = A.shape
-
-    # INSPIRATION: identity block, zeros-then-ones cost vector and starting basis as in
-    # Simplex.py 222-223, 182-184 and 214, where those columns are real error terms.
-    A_aug = xp.concat([A, xp.eye(m)], axis=1)
-    c_aug = xp.concat([xp.zeros((n,)), xp.ones((m,))])
-    basis = xp.arange(n, n + m)
-    Binv = xp.eye(m)
-
-    basis, Binv, xB, status, _ = _run_pivots(xp, A_aug, b, c_aug, basis, Binv, max_iter)
-    if status == "continue":
-        # Phase 1 ran out of iterations, so nothing has been learned about
-        # feasibility yet. Falling through to the test below would report a
-        # budget that was too small as a property of the problem.
-        return None, None, "iteration_limit"
-
-    onehot_basis = _onehot_rows(xp, basis, n + m)
-    phase1_obj = xp.sum((onehot_basis @ c_aug) * xB)
-    if float(phase1_obj) > 1e-7:
-        return None, None, "infeasible"
-
-    # Bounded cleanup loop (<= m iterations): evict any artificial variable
-    # still sitting in the basis at a zero level, replacing it with an
-    # original variable that has a nonzero coefficient in that row.
-    for row in range(m):
-        if int(basis[row]) >= n:
-            tableau_row = Binv[row] @ A_aug[:, :n]
-            mask = xp.abs(tableau_row) > tol
-            if not bool(xp.any(mask)):
-                continue
-            entering = _first_true_index(xp, mask)
-
-            d_col = Binv @ A_aug[:, entering]
-            Binv = _eta_matrix(xp, m, d_col, row) @ Binv
-            basis = _set_at(xp, basis, row, entering)
-
-    return basis, Binv, "ok"
-
-
-def _solve_standard_form(xp, A, b, c, max_iter=10_000):
-    m, n = A.shape
-
-    # INSPIRATION: forcing b >= 0 by flipping rows, like Simplex.py 171-173. Theirs
-    # flips by class label; this flips wherever b is negative, for any problem.
-    flip = b < 0
-    sign = xp.where(flip, -1.0, 1.0)
-    A = A * xp.reshape(sign, (m, 1))
-    b = b * sign
-
-    basis, Binv, p1status = _phase1(xp, A, b, max_iter)
-    if p1status == "infeasible":
-        return xp.zeros((n,)), _STATUS_INFEASIBLE
-    if p1status == "iteration_limit":
-        return xp.zeros((n,)), _STATUS_ITERATION_LIMIT
-
-    basis, Binv, xB, status, iters = _run_pivots(xp, A, b, c, basis, Binv, max_iter)
-
-    if status == "continue":
-        return xp.zeros((n,)), _STATUS_ITERATION_LIMIT
-    if status == "unbounded":
-        return xp.zeros((n,)), _STATUS_UNBOUNDED
-
-    onehot = _onehot_rows(xp, basis, n)
-    x = xp.reshape(xp.reshape(xB, (1, m)) @ onehot, (n,))
-    return x, _STATUS_OPTIMAL
 
 
 # Data preparation helpers
@@ -920,7 +755,339 @@ class LPSimplexBenchmark(Benchmark):
     def benchmark(self, xp, meta: dict, A, b, c):
         max_iter = meta.get("max_iter", 10_000)
 
-        x, status_code = _solve_standard_form(xp, A, b, c, max_iter=max_iter)
+        m, n = A.shape
+
+        # INSPIRATION: forcing b >= 0 by flipping rows, like Simplex.py 171-173. Theirs
+        # flips by class label; this flips wherever b is negative, for any problem.
+        flip = b < 0
+        sign = xp.where(flip, -1.0, 1.0)
+        A = A * xp.reshape(sign, (m, 1))
+        b = b * sign
+
+        p1_tol = 1e-9
+        p1_m, p1_n = A.shape
+
+        # INSPIRATION: identity block, zeros-then-ones cost vector and starting basis as
+        # in Simplex.py 222-223, 182-184 and 214, where those columns are real error
+        # terms.
+        A_aug = xp.concat([A, xp.eye(p1_m)], axis=1)
+        c_aug = xp.concat([xp.zeros((p1_n,)), xp.ones((p1_m,))])
+        p1_basis = xp.arange(p1_n, p1_n + p1_m)
+        p1_Binv = xp.eye(p1_m)
+
+        rp1_basis = p1_basis
+        rp1_Binv = p1_Binv
+        rp1_status = "continue"
+        rp1_it = 0
+        rp1_xB = rp1_Binv @ b
+        # INSPIRATION: the pivot loop of Simplex.py 52. Bounded by max_iter here, and
+        # the body returns a status rather than breaking, so both phases can reuse it.
+        while rp1_status == "continue" and rp1_it < max_iter:
+            pv1_tol = 1e-9
+            pv1_m = A_aug.shape[0]
+            pv1_width = A_aug.shape[1]
+
+            pv1_xB = rp1_Binv @ b  # Inspiration: one matrix–vector
+            # product, Binv · b, giving the values of the basic variables. Line 47
+
+            oh1_idx = xp.arange(pv1_width)
+            pv1_onehot = xp.astype(oh1_idx[None, :] == rp1_basis[:, None], xp.float64)
+            pv1_basic_mask = xp.any(pv1_onehot > 0, axis=0)
+            # INSPIRATION: dual vector and reduced costs as in Simplex.py 59-69. Theirs
+            # walks the columns one scalar at a time; this prices all of them in one
+            # expression.
+            pv1_c_basis = pv1_onehot @ c_aug
+            pv1_y = rp1_Binv.T @ pv1_c_basis
+            pv1_s = xp.where(pv1_basic_mask, xp.inf, c_aug - A_aug.T @ pv1_y)
+
+            # INSPIRATION: stop when no reduced cost is negative, as in Simplex.py
+            # 70-74. Theirs compares against an exact 0 and enters on the first negative
+            # column; this enters on the most negative one, which is Dantzig's rule
+            pv1_improving = pv1_s < -pv1_tol
+            if not bool(xp.any(pv1_improving)):
+                rp1_basis, rp1_Binv, rp1_xB, rp1_status = (
+                    rp1_basis,
+                    rp1_Binv,
+                    pv1_xB,
+                    "optimal",
+                )
+            else:
+                pv1_entering = int(xp.argmin(xp.where(pv1_improving, pv1_s, xp.inf)))
+
+                # INSPIRATION: direction Binv @ A[:, j] and the unbounded test from
+                # Simplex.py 84-93. Theirs tests u[i] >= 0, which misses a column that
+                # is all zeros.
+                pv1_d = rp1_Binv @ A_aug[:, pv1_entering]
+                pv1_positive = pv1_d > pv1_tol
+                if not bool(xp.any(pv1_positive)):
+                    rp1_basis, rp1_Binv, rp1_xB, rp1_status = (
+                        rp1_basis,
+                        rp1_Binv,
+                        pv1_xB,
+                        "unbounded",
+                    )
+                else:
+                    # INSPIRATION: minimum-ratio test from Simplex.py 97-105, with
+                    # xp.inf standing in for their 1e9+7 sentinel. Note, I added the
+                    # tie-break.
+                    pv1_ratios = xp.where(
+                        pv1_positive,
+                        pv1_xB / xp.where(pv1_positive, pv1_d, 1.0),
+                        xp.inf,
+                    )
+                    pv1_min_ratio = xp.min(pv1_ratios)
+
+                    # Among the rows that tie for the smallest ratio, leave on the one
+                    # with the largest |d|. _eta_matrix divides by that entry, so a
+                    # near-zero one multiplies whatever rounding error Binv already
+                    # carries by 1/d, and since Binv is only ever updated the error
+                    # never washes back out. Bartels and Golub (1969) make the same
+                    # point about carrying an inverse instead of refactorizing, and take
+                    # the other way out of it, which is to keep an LU factorization.
+                    pv1_tied = xp.abs(pv1_ratios - pv1_min_ratio) <= pv1_tol
+                    pv1_leaving_row = int(
+                        xp.argmax(xp.where(pv1_tied, xp.abs(pv1_d), -1.0))
+                    )
+
+                    # Keeping the basis inverse as a product of elementary matrices, one
+                    # per pivot, is the product form of Dantzig and Orchard-Hays (1954):
+                    # each iteration multiplies the previous inverse by a single
+                    # elementary matrix rather than inverting again. INSPIRATION: same
+                    # rank-one Binv update as Simplex.py lines 128-132, except theirs
+                    # reads Binv[:, l] where a unit vector belongs, so it only holds on
+                    # the first pivot.
+                    uv1_positions = xp.arange(pv1_m)
+                    em1_e_col = xp.where(uv1_positions == pv1_leaving_row, 1.0, 0.0)
+                    em1_pivot_val = pv1_d[pv1_leaving_row]
+                    em1_eta = xp.where(
+                        xp.arange(pv1_m) == pv1_leaving_row,
+                        1.0 / em1_pivot_val,
+                        -pv1_d / em1_pivot_val,
+                    )
+                    em1_diff = em1_eta - em1_e_col
+                    em1_eta_matrix = xp.eye(pv1_m) + xp.reshape(
+                        em1_diff, (pv1_m, 1)
+                    ) @ xp.reshape(em1_e_col, (1, pv1_m))
+                    pv1_new_Binv = em1_eta_matrix @ rp1_Binv
+                    # INSPIRATION: swapping one basis index, which Simplex.py 135 does
+                    # as C[l] = j. _set_at returns a new array instead, so the caller's
+                    # basis is never mutated.
+                    sa1_positions = xp.arange(rp1_basis.shape[0])
+                    pv1_new_basis = xp.where(
+                        sa1_positions == pv1_leaving_row,
+                        xp.asarray(pv1_entering),
+                        rp1_basis,
+                    )
+
+                    rp1_basis, rp1_Binv, rp1_xB, rp1_status = (
+                        pv1_new_basis,
+                        pv1_new_Binv,
+                        pv1_xB,
+                        "continue",
+                    )
+            rp1_it += 1
+        p1_basis, p1_Binv, p1_xB, p1_status, _ = (
+            rp1_basis,
+            rp1_Binv,
+            rp1_xB,
+            rp1_status,
+            rp1_it,
+        )
+        basis: Any
+        Binv: Any
+        if p1_status == "continue":
+            # Phase 1 ran out of iterations, so nothing has been learned about
+            # feasibility yet. Falling through to the test below would report a
+            # budget that was too small as a property of the problem.
+            basis, Binv, p1status = None, None, "iteration_limit"
+        else:
+            oh3_idx = xp.arange(p1_n + p1_m)
+            onehot_basis = xp.astype(oh3_idx[None, :] == p1_basis[:, None], xp.float64)
+            phase1_obj = xp.sum((onehot_basis @ c_aug) * p1_xB)
+            if float(phase1_obj) > 1e-7:
+                basis, Binv, p1status = None, None, "infeasible"
+            else:
+                # Bounded cleanup loop (<= m iterations): evict any artificial variable
+                # still sitting in the basis at a zero level, replacing it with an
+                # original variable that has a nonzero coefficient in that row.
+                for row in range(p1_m):
+                    if int(p1_basis[row]) >= p1_n:
+                        tableau_row = p1_Binv[row] @ A_aug[:, :p1_n]
+                        mask = xp.abs(tableau_row) > p1_tol
+                        if not bool(xp.any(mask)):
+                            continue
+                        fti_size = mask.shape[0]
+                        fti_positions = xp.arange(fti_size)
+                        entering = int(xp.min(xp.where(mask, fti_positions, fti_size)))
+
+                        d_col = p1_Binv @ A_aug[:, entering]
+                        # Keeping the basis inverse as a product of elementary matrices,
+                        # one per pivot, is the product form of Dantzig and Orchard-Hays
+                        # (1954): each iteration multiplies the previous inverse by a
+                        # single elementary matrix rather than inverting again.
+                        # INSPIRATION: same rank-one Binv update as Simplex.py lines
+                        # 128-132, except theirs reads Binv[:, l] where a unit vector
+                        # belongs, so it only holds on the first pivot.
+                        uv3_positions = xp.arange(p1_m)
+                        em3_e_col = xp.where(uv3_positions == row, 1.0, 0.0)
+                        em3_pivot_val = d_col[row]
+                        em3_eta = xp.where(
+                            xp.arange(p1_m) == row,
+                            1.0 / em3_pivot_val,
+                            -d_col / em3_pivot_val,
+                        )
+                        em3_diff = em3_eta - em3_e_col
+                        em3_eta_matrix = xp.eye(p1_m) + xp.reshape(
+                            em3_diff, (p1_m, 1)
+                        ) @ xp.reshape(em3_e_col, (1, p1_m))
+                        p1_Binv = em3_eta_matrix @ p1_Binv
+                        sa3_positions = xp.arange(p1_basis.shape[0])
+                        p1_basis = xp.where(
+                            sa3_positions == row, xp.asarray(entering), p1_basis
+                        )
+
+                basis, Binv, p1status = p1_basis, p1_Binv, "ok"
+
+        if p1status == "infeasible":
+            x, status_code = xp.zeros((n,)), _STATUS_INFEASIBLE
+        elif p1status == "iteration_limit":
+            x, status_code = xp.zeros((n,)), _STATUS_ITERATION_LIMIT
+        else:
+            rp2_basis = basis
+            rp2_Binv = Binv
+            rp2_status = "continue"
+            rp2_it = 0
+            rp2_xB = rp2_Binv @ b
+            # INSPIRATION: the pivot loop of Simplex.py 52. Bounded by max_iter here,
+            # and the body returns a status rather than breaking, so both phases can
+            # reuse it.
+            while rp2_status == "continue" and rp2_it < max_iter:
+                pv2_tol = 1e-9
+                pv2_m = A.shape[0]
+                pv2_width = A.shape[1]
+
+                pv2_xB = rp2_Binv @ b  # Inspiration: one matrix–vector
+                # product, Binv · b, giving the values of the basic variables. Line 47
+
+                oh2_idx = xp.arange(pv2_width)
+                pv2_onehot = xp.astype(
+                    oh2_idx[None, :] == rp2_basis[:, None], xp.float64
+                )
+                pv2_basic_mask = xp.any(pv2_onehot > 0, axis=0)
+                # INSPIRATION: dual vector and reduced costs as in Simplex.py 59-69.
+                # Theirs walks the columns one scalar at a time; this prices all of them
+                # in one expression.
+                pv2_c_basis = pv2_onehot @ c
+                pv2_y = rp2_Binv.T @ pv2_c_basis
+                pv2_s = xp.where(pv2_basic_mask, xp.inf, c - A.T @ pv2_y)
+
+                # INSPIRATION: stop when no reduced cost is negative, as in Simplex.py
+                # 70-74. Theirs compares against an exact 0 and enters on the first
+                # negative column; this enters on the most negative one, which is
+                # Dantzig's rule
+                pv2_improving = pv2_s < -pv2_tol
+                if not bool(xp.any(pv2_improving)):
+                    rp2_basis, rp2_Binv, rp2_xB, rp2_status = (
+                        rp2_basis,
+                        rp2_Binv,
+                        pv2_xB,
+                        "optimal",
+                    )
+                else:
+                    pv2_entering = int(
+                        xp.argmin(xp.where(pv2_improving, pv2_s, xp.inf))
+                    )
+
+                    # INSPIRATION: direction Binv @ A[:, j] and the unbounded test from
+                    # Simplex.py 84-93. Theirs tests u[i] >= 0, which misses a column
+                    # that is all zeros.
+                    pv2_d = rp2_Binv @ A[:, pv2_entering]
+                    pv2_positive = pv2_d > pv2_tol
+                    if not bool(xp.any(pv2_positive)):
+                        rp2_basis, rp2_Binv, rp2_xB, rp2_status = (
+                            rp2_basis,
+                            rp2_Binv,
+                            pv2_xB,
+                            "unbounded",
+                        )
+                    else:
+                        # INSPIRATION: minimum-ratio test from Simplex.py 97-105, with
+                        # xp.inf standing in for their 1e9+7 sentinel. Note, I added the
+                        # tie-break.
+                        pv2_ratios = xp.where(
+                            pv2_positive,
+                            pv2_xB / xp.where(pv2_positive, pv2_d, 1.0),
+                            xp.inf,
+                        )
+                        pv2_min_ratio = xp.min(pv2_ratios)
+
+                        # Among the rows that tie for the smallest ratio, leave on the
+                        # one with the largest |d|. _eta_matrix divides by that entry,
+                        # so a near-zero one multiplies whatever rounding error Binv
+                        # already carries by 1/d, and since Binv is only ever updated
+                        # the error never washes back out. Bartels and Golub (1969) make
+                        # the same point about carrying an inverse instead of
+                        # refactorizing, and take the other way out of it, which is to
+                        # keep an LU factorization.
+                        pv2_tied = xp.abs(pv2_ratios - pv2_min_ratio) <= pv2_tol
+                        pv2_leaving_row = int(
+                            xp.argmax(xp.where(pv2_tied, xp.abs(pv2_d), -1.0))
+                        )
+
+                        # Keeping the basis inverse as a product of elementary matrices,
+                        # one per pivot, is the product form of Dantzig and Orchard-Hays
+                        # (1954): each iteration multiplies the previous inverse by a
+                        # single elementary matrix rather than inverting again.
+                        # INSPIRATION: same rank-one Binv update as Simplex.py lines
+                        # 128-132, except theirs reads Binv[:, l] where a unit vector
+                        # belongs, so it only holds on the first pivot.
+                        uv2_positions = xp.arange(pv2_m)
+                        em2_e_col = xp.where(uv2_positions == pv2_leaving_row, 1.0, 0.0)
+                        em2_pivot_val = pv2_d[pv2_leaving_row]
+                        em2_eta = xp.where(
+                            xp.arange(pv2_m) == pv2_leaving_row,
+                            1.0 / em2_pivot_val,
+                            -pv2_d / em2_pivot_val,
+                        )
+                        em2_diff = em2_eta - em2_e_col
+                        em2_eta_matrix = xp.eye(pv2_m) + xp.reshape(
+                            em2_diff, (pv2_m, 1)
+                        ) @ xp.reshape(em2_e_col, (1, pv2_m))
+                        pv2_new_Binv = em2_eta_matrix @ rp2_Binv
+                        # INSPIRATION: swapping one basis index, which Simplex.py 135
+                        # does as C[l] = j. _set_at returns a new array instead, so the
+                        # caller's basis is never mutated.
+                        sa2_positions = xp.arange(rp2_basis.shape[0])
+                        pv2_new_basis = xp.where(
+                            sa2_positions == pv2_leaving_row,
+                            xp.asarray(pv2_entering),
+                            rp2_basis,
+                        )
+
+                        rp2_basis, rp2_Binv, rp2_xB, rp2_status = (
+                            pv2_new_basis,
+                            pv2_new_Binv,
+                            pv2_xB,
+                            "continue",
+                        )
+                rp2_it += 1
+            basis, Binv, xB, status, iters = (  # noqa: F841
+                rp2_basis,
+                rp2_Binv,
+                rp2_xB,
+                rp2_status,
+                rp2_it,
+            )
+
+            if status == "continue":
+                x, status_code = xp.zeros((n,)), _STATUS_ITERATION_LIMIT
+            elif status == "unbounded":
+                x, status_code = xp.zeros((n,)), _STATUS_UNBOUNDED
+            else:
+                oh4_idx = xp.arange(n)
+                onehot = xp.astype(oh4_idx[None, :] == basis[:, None], xp.float64)
+                x = xp.reshape(xp.reshape(xB, (1, m)) @ onehot, (n,))
+                x, status_code = x, _STATUS_OPTIMAL
         status = xp.reshape(xp.asarray(status_code), (1,))
         return x, status
 

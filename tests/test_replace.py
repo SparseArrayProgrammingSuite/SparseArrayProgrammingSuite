@@ -169,8 +169,17 @@ def test_jacobi_keeps_implicit_diagonal_fill_behavior(xp):
     "xp", [NumpyFramework, PyDataSparseFramework, SmartSparseFramework], indirect=True
 )
 def test_jacobi_preconditioning_replaces_nan(xp):
-    matrix = xp.from_binsparse(from_sparse(sp.asarray([0.0, 2.0, 3.0])))
-    residual = xp.from_binsparse(from_sparse(sp.asarray([0.0, 4.0, 0.0])))
+    matrix = xp.from_binsparse(
+        from_sparse(sp.asarray([[0.0, 0.0, 0.0], [0.0, 2.0, 0.0], [0.0, 0.0, 3.0]]))
+    )
+    preconditioner = xp.from_binsparse(from_sparse(sp.asarray([0.0, 2.0, 3.0])))
     with np.errstate(invalid="ignore", divide="ignore"):
-        result = JacobiPCGBenchmark()._solve_cg(xp, matrix, residual)
+        result = JacobiPCGBenchmark().benchmark(
+            xp,
+            {},
+            matrix,
+            xp.asarray([0.0, 4.0, 0.0]),
+            xp.asarray([0.0, 0.0, 0.0]),
+            preconditioner,
+        )
     np.testing.assert_array_equal(dense(result), [0, 2, 0])
