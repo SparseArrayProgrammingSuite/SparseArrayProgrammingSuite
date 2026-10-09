@@ -1,7 +1,9 @@
 from __future__ import annotations
 
-from abc import ABC
-from typing import Any
+from abc import ABC, abstractmethod
+from collections.abc import Callable
+from textwrap import indent
+from typing import Any, TypeVar
 
 import numpy as np
 
@@ -16,6 +18,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.codegen import define_function
 from saps.downloaders.slicot import (
     SLICOT_BENCHMARK_PAGE_URL,
     load_slicot_problem,
@@ -149,6 +152,23 @@ def _linear_system_derivatives(t, state, meta, A, B):
     input_dtype = np.result_type(B.dtype, type(input_value), float)
     input_array = np.full(B.shape[1], input_value, dtype=input_dtype)
     return (A @ state_array + B @ input_array).tolist()
+
+
+def _resolve_derivatives(problem_name):
+    """Select a derivative for the SciPy reference check."""
+    match problem_name:
+        case "ode_rc":
+            return _rc_derivatives
+        case "ode_rlc":
+            return _rlc_derivatives
+        case "ode_lotka_volterra":
+            return _lotka_volterra_derivatives
+        case "ode_brusselator":
+            return _brusselator_derivatives
+        case "ode_slicot":
+            return _linear_system_derivatives
+        case _:
+            raise NotImplementedError(f"Unknown ODE problem: {problem_name!r}")
 
 
 # ---------------------------------------------------------------------------
@@ -364,12 +384,45 @@ class ODESLICOTDataset(Dataset):
 
 _AKARSH = [Contributor("Akarsh Duddu", "aduddu3@gatech.edu")]
 _AI_DISCLOSURE = (
-    "No generative AI was used to write the benchmark function itself."
-    " Generative AI was used for debugging. This statement was written by hand"
+    "The original benchmark algorithms were written without generative AI."
+    " Generative AI was used for debugging, generator-time inlining, and tests."
 )
 
 
-class ODERCGenerator(Generator[ODERCDataset]):
+TDataset = TypeVar("TDataset", bound=Dataset)
+
+
+class _ODEGenerator(Generator[TDataset], ABC):
+    array_parameters: tuple[str, ...] = ()
+    # Each snippet reads t, state, and meta and assigns dydt_vector. Its locals
+    # must not overwrite the solver's inputs, outputs, step, or RK4 stages.
+    derivative_source: str
+
+    def generate_benchmark_function(
+        self,
+        dataset: TDataset,
+        problem: DataInstance,
+        benchmark: Callable[..., Any],
+    ) -> Callable[..., Any]:
+        solver = getattr(benchmark, "__self__", None)
+        if not isinstance(solver, _ODEBenchmarkBase):
+            raise TypeError("ODE generation requires a bound ODE benchmark method")
+        source = solver.benchmark_source(self.array_parameters, self.derivative_source)
+        return define_function(
+            source,
+            f"<saps-generated {type(solver).__qualname__}.{self.name}.{dataset.name}>",
+            {"np": np},
+        )
+
+
+class ODERCGenerator(_ODEGenerator[ODERCDataset]):
+    derivative_source = """\
+R, C = meta["R"], meta["C"]
+tau = R * C
+Vs = 5.0 if t >= 0 else 0.0
+dydt_vector = [(Vs - state[0]) / tau]
+"""
+
     @property
     def cacheable(self) -> bool:
         return False
@@ -438,7 +491,16 @@ class ODERCGenerator(Generator[ODERCDataset]):
         return DataInstance(inputs=[], meta=meta)
 
 
-class ODERLCGenerator(Generator[ODERLCDataset]):
+class ODERLCGenerator(_ODEGenerator[ODERLCDataset]):
+    derivative_source = """\
+R, L, C = meta["R"], meta["L"], meta["C"]
+Vc = state[0]
+dVc = state[1]
+Vs = 5.0 if t >= 0 else 0.0
+d2Vc = (Vs - Vc - R * C * dVc) / (L * C)
+dydt_vector = (dVc, d2Vc)
+"""
+
     @property
     def cacheable(self) -> bool:
         return False
@@ -512,7 +574,15 @@ class ODERLCGenerator(Generator[ODERLCDataset]):
         return DataInstance(inputs=[], meta=meta, ref_meta={"check_components": [0]})
 
 
-class ODELotkaVolterraGenerator(Generator[ODELotkaVolterraDataset]):
+class ODELotkaVolterraGenerator(_ODEGenerator[ODELotkaVolterraDataset]):
+    derivative_source = """\
+a, b, c, d = meta["a"], meta["b"], meta["c"], meta["d"]
+x, y = state
+dxdt = a * x - b * x * y
+dydt = d * x * y - c * y
+dydt_vector = (dxdt, dydt)
+"""
+
     @property
     def cacheable(self) -> bool:
         return False
@@ -585,7 +655,24 @@ class ODELotkaVolterraGenerator(Generator[ODELotkaVolterraDataset]):
         return DataInstance(inputs=[], meta=meta, ref_meta={"error_tolerance": 10.0})
 
 
-class ODEBrusselatorGenerator(Generator[ODEBrusselatorDataset]):
+class ODEBrusselatorGenerator(_ODEGenerator[ODEBrusselatorDataset]):
+    array_parameters = ("C", "brusselator_cb")
+    derivative_source = """\
+a = meta["a"]
+u_arr = np.array(state, dtype=float)
+lin = C @ u_arr
+lin[0::2] += a
+if t >= 1.1:
+    lin += np.array(brusselator_cb)
+u_vals = u_arr[0::2]
+v_vals = u_arr[1::2]
+uv2 = u_vals**2 * v_vals
+non_lin = np.zeros(len(state), dtype=float)
+non_lin[0::2] = uv2
+non_lin[1::2] = -uv2
+dydt_vector = (lin + non_lin).tolist()
+"""
+
     def __init__(self, train: bool = False):
         self.train = train
 
@@ -684,7 +771,16 @@ class ODEBrusselatorGenerator(Generator[ODEBrusselatorDataset]):
         )
 
 
-class ODESLICOTGenerator(Generator[ODESLICOTDataset]):
+class ODESLICOTGenerator(_ODEGenerator[ODESLICOTDataset]):
+    array_parameters = ("A", "B")
+    derivative_source = """\
+input_value = meta["input_value"]
+state_array = np.asarray(state)
+input_dtype = np.result_type(B.dtype, type(input_value), float)
+input_array = np.full(B.shape[1], input_value, dtype=input_dtype)
+dydt_vector = (A @ state_array + B @ input_array).tolist()
+"""
+
     def __init__(
         self,
         trace_datasets: tuple[str, ...] = (),
@@ -858,126 +954,19 @@ class ODESLICOTGenerator(Generator[ODESLICOTDataset]):
 # ---------------------------------------------------------------------------
 
 
-# Solver mixins: method name, description and timestep scaling.
-
-
-class _ForwardEuler:
-    solver_name = "forward_euler"
-    solver_pretty_name = "Forward Euler"
-    solver_description = (
-        "Integrates ODE initial-value problems with the forward Euler method."
-    )
-    step_multiplier = 0.01
-    slicot_trace_datasets: tuple[str, ...] = ("beam", "fom", "heat-cont")
-    slicot_train_dataset: str | None = "fom"
-
-
-class _BackwardEuler:
-    solver_name = "backward_euler"
-    solver_pretty_name = "Backward Euler"
-    solver_description = (
-        "Integrates ODE initial-value problems with backward Euler, "
-        "using ten fixed-point iterations per step."
-    )
-    step_multiplier = 0.02
-    slicot_train_dataset: str | None = "heat-cont"
-
-
-class _RK4:
-    brusselator_train = True
-    solver_name = "rk4"
-    solver_pretty_name = "Fourth-Order Runge-Kutta (RK4)"
-    solver_description = (
-        "Integrates ODE initial-value problems with the classical "
-        "fourth-order Runge-Kutta method."
-    )
-    step_multiplier = 1.0
-    slicot_trace_datasets: tuple[str, ...] = (
-        "CDplayer",
-        "random",
-        "beam",
-        "fom",
-        "heat-cont",
-    )
-
-
-# Problem mixins: generator and derivative function, which takes the problem's
-# inputs as explicit arguments after ``meta``.
-
-
-class _ODERCProblem:
-    generator_cls: type[Generator] = ODERCGenerator
-    derivatives = staticmethod(_rc_derivatives)
-
-
-class _ODERLCProblem:
-    generator_cls: type[Generator] = ODERLCGenerator
-    derivatives = staticmethod(_rlc_derivatives)
-
-
-class _ODELotkaVolterraProblem:
-    generator_cls: type[Generator] = ODELotkaVolterraGenerator
-    derivatives = staticmethod(_lotka_volterra_derivatives)
-
-
-class _ODEBrusselatorProblem:
-    generator_cls: type[Generator] = ODEBrusselatorGenerator
-    derivatives = staticmethod(_brusselator_derivatives)
-    brusselator_train: bool
-
-    def _make_generator(self) -> Generator:
-        return ODEBrusselatorGenerator(train=self.brusselator_train)
-
-
-class _ODESLICOTProblem:
-    generator_cls: type[Generator] = ODESLICOTGenerator
-    derivatives = staticmethod(_linear_system_derivatives)
-    slicot_trace_datasets: tuple[str, ...]
-    slicot_train_dataset: str | None
-
-    def _make_generator(self) -> Generator:
-        return ODESLICOTGenerator(
-            trace_datasets=self.slicot_trace_datasets,
-            train_dataset=self.slicot_train_dataset,
-        )
-
-
 class _ODEBenchmarkBase(Benchmark, ABC):
-    """One ODE solver applied to one problem.
-
-    Concrete classes combine a solver mixin and a problem mixin and define
-    ``benchmark`` with the problem's inputs as explicit parameters.
-    """
-
-    solver_name: str
-    solver_pretty_name: str
-    solver_description: str
-    step_multiplier: float
-    generator_cls: type[Generator]
-    derivatives: Any
-    # SLICOT datasets this solver additionally tags ``trace``.
+    step_multiplier = 1.0
     slicot_trace_datasets: tuple[str, ...] = ()
     slicot_train_dataset: str | None = None
     brusselator_train = False
 
-    def _make_generator(self) -> Generator:
-        return self.generator_cls()
+    def benchmark(self, xp, meta, *data_args):
+        raise NotImplementedError("ODE benchmark functions are generated during setup")
 
-    @property
-    def _generator(self) -> Generator:
-        return self._make_generator()
-
-    @property
-    def name(self):
-        return f"{self.solver_name}_{self._generator.name}"
-
-    @property
-    def pretty_name(self):
-        return f"{self.solver_pretty_name} {self._generator.pretty_name}"
-
-    @property
-    def description(self):
-        return self.solver_description
+    @abstractmethod
+    def benchmark_source(self, parameters: tuple[str, ...], dydt: str) -> str:
+        """Paste a derivative snippet into this solver's source template."""
+        ...
 
     @property
     def suites(self):
@@ -985,7 +974,16 @@ class _ODEBenchmarkBase(Benchmark, ABC):
 
     @property
     def generators(self):
-        return [self._generator]
+        return [
+            ODERCGenerator(),
+            ODERLCGenerator(),
+            ODELotkaVolterraGenerator(),
+            ODEBrusselatorGenerator(train=self.brusselator_train),
+            ODESLICOTGenerator(
+                trace_datasets=self.slicot_trace_datasets,
+                train_dataset=self.slicot_train_dataset,
+            ),
+        ]
 
     @property
     def metadata(self):
@@ -1029,11 +1027,12 @@ class _ODEBenchmarkBase(Benchmark, ABC):
 
         time = to_numpy(self._output[0])
         y_out = to_numpy(self._output[1])
-        assert np.all(np.isfinite(y_out)), (
-            f"Non-finite ODE output at step={self._meta['step']}"
-        )
+        assert np.all(
+            np.isfinite(y_out)
+        ), f"Non-finite ODE output at step={self._meta['step']}"
         data = [_dense_binsparse_array(item) for item in self._input]
-        rhs = lambda t, y: self.derivatives(t, list(y), self._meta, *data)  # noqa: E731
+        dydt = _resolve_derivatives(self._meta["problem_name"])
+        rhs = lambda t, y: dydt(t, list(y), self._meta, *data)  # noqa: E731
         y0 = np.asarray(
             self._meta["y0"],
             dtype=np.result_type(y_out.dtype, *(item.dtype for item in data), float),
@@ -1062,768 +1061,162 @@ class _ODEBenchmarkBase(Benchmark, ABC):
         )
 
 
-# One benchmark per (solver, problem) pair.
+class ForwardEulerBenchmark(_ODEBenchmarkBase):
+    step_multiplier = 0.01
+    slicot_trace_datasets = ("beam", "fom", "heat-cont")
+    slicot_train_dataset = "fom"
+
+    @property
+    def name(self):
+        return "forward_euler"
+
+    @property
+    def pretty_name(self):
+        return "Forward Euler"
+
+    @property
+    def description(self):
+        return "Integrates ODE initial-value problems with the forward Euler method."
+
+    def benchmark_source(self, parameters: tuple[str, ...], dydt: str) -> str:
+        signature = ", ".join(("xp", "meta", *parameters))
+        return f"""\
+def benchmark({signature}):
+    span = meta["span"]
+    y0 = meta["y0"]
+    step = meta["step"]
+    curr = span[0]
+    inputs = []
+    while curr < span[1]:
+        inputs.append(curr)
+        curr += step
+
+    outputs = [None for _ in inputs]
+    outputs[0] = y0
+    for i in range(1, len(inputs)):
+        t = inputs[i - 1]
+        state = outputs[i - 1]
+{indent(dydt, "        ").rstrip()}
+        outputs[i] = [
+            outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
+        ]
+    return (np.asarray(inputs), np.asarray(outputs))
+"""
 
 
-class ForwardEulerODERCBenchmark(_ForwardEuler, _ODERCProblem, _ODEBenchmarkBase):
-    def benchmark(self, xp, meta):
-        # forward_euler: Integrate ``rhs(t, y)`` with the forward Euler method.
-        y0 = meta["y0"]
-        step = meta["step"]
-        # _time_grid(meta)
-        span = meta["span"]
-        grid_step = meta["step"]
-        curr = span[0]
-        inputs = []
-        while curr < span[1]:
-            inputs.append(curr)
-            curr += grid_step
-        outputs = [None for _ in inputs]
-        outputs[0] = y0
-        for i in range(1, len(inputs)):
-            # rhs(inputs[i - 1], outputs[i - 1])
-            t = inputs[i - 1]
-            state = outputs[i - 1]
-            # _rc_derivatives: RC circuit derivatives.
-            R, C = meta["R"], meta["C"]
-            tau = R * C
-            # _step_input(t): A simple 5V step input starting at t=0.
-            Vs = 5.0 if t >= 0 else 0.0
-            dydt_vector = [(Vs - state[0]) / tau]
-            outputs[i] = [
+class BackwardEulerBenchmark(_ODEBenchmarkBase):
+    step_multiplier = 0.02
+    slicot_train_dataset = "heat-cont"
+
+    @property
+    def name(self):
+        return "backward_euler"
+
+    @property
+    def pretty_name(self):
+        return "Backward Euler"
+
+    @property
+    def description(self):
+        return (
+            "Integrates ODE initial-value problems with backward Euler, "
+            "using ten fixed-point iterations per step."
+        )
+
+    def benchmark_source(self, parameters: tuple[str, ...], dydt: str) -> str:
+        signature = ", ".join(("xp", "meta", *parameters))
+        return f"""\
+def benchmark({signature}):
+    span = meta["span"]
+    y0 = meta["y0"]
+    step = meta["step"]
+    curr = span[0]
+    inputs = []
+    while curr < span[1]:
+        inputs.append(curr)
+        curr += step
+
+    outputs = [None for _ in inputs]
+    outputs[0] = y0
+    for i in range(1, len(inputs)):
+        y_guess = outputs[i - 1]
+        for _ in range(10):
+            t = inputs[i]
+            state = y_guess
+{indent(dydt, "            ").rstrip()}
+            y_guess = [
                 outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
             ]
-        return (np.asarray(inputs), np.asarray(outputs))
+        outputs[i] = y_guess
+    return (np.asarray(inputs), np.asarray(outputs))
+"""
 
 
-class ForwardEulerODERLCBenchmark(_ForwardEuler, _ODERLCProblem, _ODEBenchmarkBase):
-    def benchmark(self, xp, meta):
-        # forward_euler: Integrate ``rhs(t, y)`` with the forward Euler method.
-        y0 = meta["y0"]
-        step = meta["step"]
-        # _time_grid(meta)
-        span = meta["span"]
-        grid_step = meta["step"]
-        curr = span[0]
-        inputs = []
-        while curr < span[1]:
-            inputs.append(curr)
-            curr += grid_step
-        outputs = [None for _ in inputs]
-        outputs[0] = y0
-        for i in range(1, len(inputs)):
-            # rhs(inputs[i - 1], outputs[i - 1])
-            t = inputs[i - 1]
-            state = outputs[i - 1]
-            # _rlc_derivatives: RLC circuit derivatives.
-            R, L, C = meta["R"], meta["L"], meta["C"]
-            Vc = state[0]
-            dVc = state[1]
-            # _step_input(t): A simple 5V step input starting at t=0.
-            Vs = 5.0 if t >= 0 else 0.0
-            d2Vc = (Vs - Vc - R * C * dVc) / (L * C)
-            dydt_vector = (dVc, d2Vc)
-            outputs[i] = [
-                outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
-            ]
-        return (np.asarray(inputs), np.asarray(outputs))
+class RK4Benchmark(_ODEBenchmarkBase):
+    step_multiplier = 1.0
+    brusselator_train = True
+    slicot_trace_datasets = (
+        "CDplayer",
+        "random",
+        "beam",
+        "fom",
+        "heat-cont",
+    )
 
+    @property
+    def name(self):
+        return "rk4"
 
-class ForwardEulerODELotkaVolterraBenchmark(
-    _ForwardEuler, _ODELotkaVolterraProblem, _ODEBenchmarkBase
-):
-    def benchmark(self, xp, meta):
-        # forward_euler: Integrate ``rhs(t, y)`` with the forward Euler method.
-        y0 = meta["y0"]
-        step = meta["step"]
-        # _time_grid(meta)
-        span = meta["span"]
-        grid_step = meta["step"]
-        curr = span[0]
-        inputs = []
-        while curr < span[1]:
-            inputs.append(curr)
-            curr += grid_step
-        outputs = [None for _ in inputs]
-        outputs[0] = y0
-        for i in range(1, len(inputs)):
-            # rhs(inputs[i - 1], outputs[i - 1])
-            t = inputs[i - 1]  # noqa: F841
-            state = outputs[i - 1]
-            # _lotka_volterra_derivatives: Lotka-Volterra derivatives.
-            a, b, c, d = meta["a"], meta["b"], meta["c"], meta["d"]
-            x, y = state
-            dxdt = a * x - b * x * y
-            dydt = d * x * y - c * y
-            dydt_vector = (dxdt, dydt)
-            outputs[i] = [
-                outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
-            ]
-        return (np.asarray(inputs), np.asarray(outputs))
+    @property
+    def pretty_name(self):
+        return "Fourth-Order Runge-Kutta (RK4)"
 
+    @property
+    def description(self):
+        return (
+            "Integrates ODE initial-value problems with the classical "
+            "fourth-order Runge-Kutta method."
+        )
 
-class ForwardEulerODEBrusselatorBenchmark(
-    _ForwardEuler, _ODEBrusselatorProblem, _ODEBenchmarkBase
-):
-    def benchmark(self, xp, meta, C, brusselator_cb):
-        # forward_euler: Integrate ``rhs(t, y)`` with the forward Euler method.
-        y0 = meta["y0"]
-        step = meta["step"]
-        # _time_grid(meta)
-        span = meta["span"]
-        grid_step = meta["step"]
-        curr = span[0]
-        inputs = []
-        while curr < span[1]:
-            inputs.append(curr)
-            curr += grid_step
-        outputs = [None for _ in inputs]
-        outputs[0] = y0
-        for i in range(1, len(inputs)):
-            # rhs(inputs[i - 1], outputs[i - 1])
-            t = inputs[i - 1]
-            u_vec = outputs[i - 1]
-            # _brusselator_derivatives: Brusselator derivatives with diffusion on 2D
-            # grid.
-            a = meta["a"]
-            u_arr = np.array(u_vec, dtype=float)
+    def benchmark_source(self, parameters: tuple[str, ...], dydt: str) -> str:
+        signature = ", ".join(("xp", "meta", *parameters))
+        return f"""\
+def benchmark({signature}):
+    span = meta["span"]
+    y0 = meta["y0"]
+    step = meta["step"]
+    curr = span[0]
+    inputs = []
+    while curr < span[1]:
+        inputs.append(curr)
+        curr += step
 
-            lin = C @ u_arr
-            lin[0::2] += a
-
-            if t >= 1.1:
-                lin += np.array(brusselator_cb)
-
-            u_vals = u_arr[0::2]
-            v_vals = u_arr[1::2]
-            uv2 = u_vals**2 * v_vals
-
-            non_lin = np.zeros(len(u_vec), dtype=float)
-            non_lin[0::2] = uv2
-            non_lin[1::2] = -uv2
-
-            dydt_vector = (lin + non_lin).tolist()
-            outputs[i] = [
-                outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
-            ]
-        return (np.asarray(inputs), np.asarray(outputs))
-
-
-class ForwardEulerODESLICOTBenchmark(
-    _ForwardEuler, _ODESLICOTProblem, _ODEBenchmarkBase
-):
-    def benchmark(self, xp, meta, A, B):
-        # forward_euler: Integrate ``rhs(t, y)`` with the forward Euler method.
-        y0 = meta["y0"]
-        step = meta["step"]
-        # _time_grid(meta)
-        span = meta["span"]
-        grid_step = meta["step"]
-        curr = span[0]
-        inputs = []
-        while curr < span[1]:
-            inputs.append(curr)
-            curr += grid_step
-        outputs = [None for _ in inputs]
-        outputs[0] = y0
-        for i in range(1, len(inputs)):
-            # rhs(inputs[i - 1], outputs[i - 1])
-            t = inputs[i - 1]  # noqa: F841
-            state = outputs[i - 1]
-            # _linear_system_derivatives: Linear state-space derivatives for
-            # dx/dt = A x + B u.
-            input_value = meta["input_value"]
-            state_array = np.asarray(state)
-            input_dtype = np.result_type(B.dtype, type(input_value), float)
-            input_array = np.full(B.shape[1], input_value, dtype=input_dtype)
-            dydt_vector = (A @ state_array + B @ input_array).tolist()
-            outputs[i] = [
-                outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
-            ]
-        return (np.asarray(inputs), np.asarray(outputs))
-
-
-class BackwardEulerODERCBenchmark(_BackwardEuler, _ODERCProblem, _ODEBenchmarkBase):
-    def benchmark(self, xp, meta):
-        # backward_euler: Integrate ``rhs(t, y)`` with backward Euler (ten
-        # fixed-point iterations).
-        y0 = meta["y0"]
-        step = meta["step"]
-        # _time_grid(meta)
-        span = meta["span"]
-        grid_step = meta["step"]
-        curr = span[0]
-        inputs = []
-        while curr < span[1]:
-            inputs.append(curr)
-            curr += grid_step
-        outputs = [None for _ in inputs]
-        outputs[0] = y0
-        for i in range(1, len(inputs)):
-            y_guess = outputs[i - 1]
-            for _ in range(10):
-                # rhs(inputs[i], y_guess)
-                t = inputs[i]
-                state = y_guess
-                # _rc_derivatives: RC circuit derivatives.
-                R, C = meta["R"], meta["C"]
-                tau = R * C
-                # _step_input(t): A simple 5V step input starting at t=0.
-                Vs = 5.0 if t >= 0 else 0.0
-                dydt_vector = [(Vs - state[0]) / tau]
-                y_guess = [
-                    outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
-                ]
-            outputs[i] = y_guess
-        return (np.asarray(inputs), np.asarray(outputs))
-
-
-class BackwardEulerODERLCBenchmark(_BackwardEuler, _ODERLCProblem, _ODEBenchmarkBase):
-    def benchmark(self, xp, meta):
-        # backward_euler: Integrate ``rhs(t, y)`` with backward Euler (ten
-        # fixed-point iterations).
-        y0 = meta["y0"]
-        step = meta["step"]
-        # _time_grid(meta)
-        span = meta["span"]
-        grid_step = meta["step"]
-        curr = span[0]
-        inputs = []
-        while curr < span[1]:
-            inputs.append(curr)
-            curr += grid_step
-        outputs = [None for _ in inputs]
-        outputs[0] = y0
-        for i in range(1, len(inputs)):
-            y_guess = outputs[i - 1]
-            for _ in range(10):
-                # rhs(inputs[i], y_guess)
-                t = inputs[i]
-                state = y_guess
-                # _rlc_derivatives: RLC circuit derivatives.
-                R, L, C = meta["R"], meta["L"], meta["C"]
-                Vc = state[0]
-                dVc = state[1]
-                # _step_input(t): A simple 5V step input starting at t=0.
-                Vs = 5.0 if t >= 0 else 0.0
-                d2Vc = (Vs - Vc - R * C * dVc) / (L * C)
-                dydt_vector = (dVc, d2Vc)
-                y_guess = [
-                    outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
-                ]
-            outputs[i] = y_guess
-        return (np.asarray(inputs), np.asarray(outputs))
-
-
-class BackwardEulerODELotkaVolterraBenchmark(
-    _BackwardEuler, _ODELotkaVolterraProblem, _ODEBenchmarkBase
-):
-    def benchmark(self, xp, meta):
-        # backward_euler: Integrate ``rhs(t, y)`` with backward Euler (ten
-        # fixed-point iterations).
-        y0 = meta["y0"]
-        step = meta["step"]
-        # _time_grid(meta)
-        span = meta["span"]
-        grid_step = meta["step"]
-        curr = span[0]
-        inputs = []
-        while curr < span[1]:
-            inputs.append(curr)
-            curr += grid_step
-        outputs = [None for _ in inputs]
-        outputs[0] = y0
-        for i in range(1, len(inputs)):
-            y_guess = outputs[i - 1]
-            for _ in range(10):
-                # rhs(inputs[i], y_guess)
-                t = inputs[i]  # noqa: F841
-                state = y_guess
-                # _lotka_volterra_derivatives: Lotka-Volterra derivatives.
-                a, b, c, d = meta["a"], meta["b"], meta["c"], meta["d"]
-                x, y = state
-                dxdt = a * x - b * x * y
-                dydt = d * x * y - c * y
-                dydt_vector = (dxdt, dydt)
-                y_guess = [
-                    outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
-                ]
-            outputs[i] = y_guess
-        return (np.asarray(inputs), np.asarray(outputs))
-
-
-class BackwardEulerODEBrusselatorBenchmark(
-    _BackwardEuler, _ODEBrusselatorProblem, _ODEBenchmarkBase
-):
-    def benchmark(self, xp, meta, C, brusselator_cb):
-        # backward_euler: Integrate ``rhs(t, y)`` with backward Euler (ten
-        # fixed-point iterations).
-        y0 = meta["y0"]
-        step = meta["step"]
-        # _time_grid(meta)
-        span = meta["span"]
-        grid_step = meta["step"]
-        curr = span[0]
-        inputs = []
-        while curr < span[1]:
-            inputs.append(curr)
-            curr += grid_step
-        outputs = [None for _ in inputs]
-        outputs[0] = y0
-        for i in range(1, len(inputs)):
-            y_guess = outputs[i - 1]
-            for _ in range(10):
-                # rhs(inputs[i], y_guess)
-                t = inputs[i]
-                u_vec = y_guess
-                # _brusselator_derivatives: Brusselator derivatives with diffusion on 2D
-                # grid.
-                a = meta["a"]
-                u_arr = np.array(u_vec, dtype=float)
-
-                lin = C @ u_arr
-                lin[0::2] += a
-
-                if t >= 1.1:
-                    lin += np.array(brusselator_cb)
-
-                u_vals = u_arr[0::2]
-                v_vals = u_arr[1::2]
-                uv2 = u_vals**2 * v_vals
-
-                non_lin = np.zeros(len(u_vec), dtype=float)
-                non_lin[0::2] = uv2
-                non_lin[1::2] = -uv2
-
-                dydt_vector = (lin + non_lin).tolist()
-                y_guess = [
-                    outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
-                ]
-            outputs[i] = y_guess
-        return (np.asarray(inputs), np.asarray(outputs))
-
-
-class BackwardEulerODESLICOTBenchmark(
-    _BackwardEuler, _ODESLICOTProblem, _ODEBenchmarkBase
-):
-    def benchmark(self, xp, meta, A, B):
-        # backward_euler: Integrate ``rhs(t, y)`` with backward Euler (ten
-        # fixed-point iterations).
-        y0 = meta["y0"]
-        step = meta["step"]
-        # _time_grid(meta)
-        span = meta["span"]
-        grid_step = meta["step"]
-        curr = span[0]
-        inputs = []
-        while curr < span[1]:
-            inputs.append(curr)
-            curr += grid_step
-        outputs = [None for _ in inputs]
-        outputs[0] = y0
-        for i in range(1, len(inputs)):
-            y_guess = outputs[i - 1]
-            for _ in range(10):
-                # rhs(inputs[i], y_guess)
-                t = inputs[i]  # noqa: F841
-                state = y_guess
-                # _linear_system_derivatives: Linear state-space derivatives for
-                # dx/dt = A x + B u.
-                input_value = meta["input_value"]
-                state_array = np.asarray(state)
-                input_dtype = np.result_type(B.dtype, type(input_value), float)
-                input_array = np.full(B.shape[1], input_value, dtype=input_dtype)
-                dydt_vector = (A @ state_array + B @ input_array).tolist()
-                y_guess = [
-                    outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
-                ]
-            outputs[i] = y_guess
-        return (np.asarray(inputs), np.asarray(outputs))
-
-
-class RK4ODERCBenchmark(_RK4, _ODERCProblem, _ODEBenchmarkBase):
-    def benchmark(self, xp, meta):
-        # runge_kutta: Integrate ``rhs(t, y)`` with the classical fourth-order
-        # Runge-Kutta method.
-        y0 = meta["y0"]
-        step = meta["step"]
-        # _time_grid(meta)
-        span = meta["span"]
-        grid_step = meta["step"]
-        curr = span[0]
-        inputs = []
-        while curr < span[1]:
-            inputs.append(curr)
-            curr += grid_step
-        outputs = [None for _ in inputs]
-        outputs[0] = y0
-        for i in range(1, len(inputs)):
-            y_prev = outputs[i - 1]
-            # rhs(inputs[i - 1], y_prev)
-            t = inputs[i - 1]
-            state = y_prev
-            # _rc_derivatives: RC circuit derivatives.
-            R, C = meta["R"], meta["C"]
-            tau = R * C
-            # _step_input(t): A simple 5V step input starting at t=0.
-            Vs = 5.0 if t >= 0 else 0.0
-            k1 = [(Vs - state[0]) / tau]
-            k2_state = [y_prev[j] + (step / 2) * k1[j] for j in range(len(y0))]
-            # rhs(inputs[i - 1] + step / 2, k2_state)
-            t = inputs[i - 1] + step / 2
-            state = k2_state
-            # _rc_derivatives: RC circuit derivatives.
-            R, C = meta["R"], meta["C"]
-            tau = R * C
-            # _step_input(t): A simple 5V step input starting at t=0.
-            Vs = 5.0 if t >= 0 else 0.0
-            k2 = [(Vs - state[0]) / tau]
-            k3_state = [y_prev[j] + (step / 2) * k2[j] for j in range(len(y0))]
-            # rhs(inputs[i - 1] + step / 2, k3_state)
-            t = inputs[i - 1] + step / 2
-            state = k3_state
-            # _rc_derivatives: RC circuit derivatives.
-            R, C = meta["R"], meta["C"]
-            tau = R * C
-            # _step_input(t): A simple 5V step input starting at t=0.
-            Vs = 5.0 if t >= 0 else 0.0
-            k3 = [(Vs - state[0]) / tau]
-            k4_state = [y_prev[j] + step * k3[j] for j in range(len(y0))]
-            # rhs(inputs[i - 1] + step, k4_state)
-            t = inputs[i - 1] + step
-            state = k4_state
-            # _rc_derivatives: RC circuit derivatives.
-            R, C = meta["R"], meta["C"]
-            tau = R * C
-            # _step_input(t): A simple 5V step input starting at t=0.
-            Vs = 5.0 if t >= 0 else 0.0
-            k4 = [(Vs - state[0]) / tau]
-            outputs[i] = [
-                y_prev[j] + (step / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j])
-                for j in range(len(y0))
-            ]
-        return (np.asarray(inputs), np.asarray(outputs))
-
-
-class RK4ODERLCBenchmark(_RK4, _ODERLCProblem, _ODEBenchmarkBase):
-    def benchmark(self, xp, meta):
-        # runge_kutta: Integrate ``rhs(t, y)`` with the classical fourth-order
-        # Runge-Kutta method.
-        y0 = meta["y0"]
-        step = meta["step"]
-        # _time_grid(meta)
-        span = meta["span"]
-        grid_step = meta["step"]
-        curr = span[0]
-        inputs = []
-        while curr < span[1]:
-            inputs.append(curr)
-            curr += grid_step
-        outputs = [None for _ in inputs]
-        outputs[0] = y0
-        for i in range(1, len(inputs)):
-            y_prev = outputs[i - 1]
-            # rhs(inputs[i - 1], y_prev)
-            t = inputs[i - 1]
-            state = y_prev
-            # _rlc_derivatives: RLC circuit derivatives.
-            R, L, C = meta["R"], meta["L"], meta["C"]
-            Vc = state[0]
-            dVc = state[1]
-            # _step_input(t): A simple 5V step input starting at t=0.
-            Vs = 5.0 if t >= 0 else 0.0
-            d2Vc = (Vs - Vc - R * C * dVc) / (L * C)
-            k1 = (dVc, d2Vc)
-            k2_state = [y_prev[j] + (step / 2) * k1[j] for j in range(len(y0))]
-            # rhs(inputs[i - 1] + step / 2, k2_state)
-            t = inputs[i - 1] + step / 2
-            state = k2_state
-            # _rlc_derivatives: RLC circuit derivatives.
-            R, L, C = meta["R"], meta["L"], meta["C"]
-            Vc = state[0]
-            dVc = state[1]
-            # _step_input(t): A simple 5V step input starting at t=0.
-            Vs = 5.0 if t >= 0 else 0.0
-            d2Vc = (Vs - Vc - R * C * dVc) / (L * C)
-            k2 = (dVc, d2Vc)
-            k3_state = [y_prev[j] + (step / 2) * k2[j] for j in range(len(y0))]
-            # rhs(inputs[i - 1] + step / 2, k3_state)
-            t = inputs[i - 1] + step / 2
-            state = k3_state
-            # _rlc_derivatives: RLC circuit derivatives.
-            R, L, C = meta["R"], meta["L"], meta["C"]
-            Vc = state[0]
-            dVc = state[1]
-            # _step_input(t): A simple 5V step input starting at t=0.
-            Vs = 5.0 if t >= 0 else 0.0
-            d2Vc = (Vs - Vc - R * C * dVc) / (L * C)
-            k3 = (dVc, d2Vc)
-            k4_state = [y_prev[j] + step * k3[j] for j in range(len(y0))]
-            # rhs(inputs[i - 1] + step, k4_state)
-            t = inputs[i - 1] + step
-            state = k4_state
-            # _rlc_derivatives: RLC circuit derivatives.
-            R, L, C = meta["R"], meta["L"], meta["C"]
-            Vc = state[0]
-            dVc = state[1]
-            # _step_input(t): A simple 5V step input starting at t=0.
-            Vs = 5.0 if t >= 0 else 0.0
-            d2Vc = (Vs - Vc - R * C * dVc) / (L * C)
-            k4 = (dVc, d2Vc)
-            outputs[i] = [
-                y_prev[j] + (step / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j])
-                for j in range(len(y0))
-            ]
-        return (np.asarray(inputs), np.asarray(outputs))
-
-
-class RK4ODELotkaVolterraBenchmark(_RK4, _ODELotkaVolterraProblem, _ODEBenchmarkBase):
-    def benchmark(self, xp, meta):
-        # runge_kutta: Integrate ``rhs(t, y)`` with the classical fourth-order
-        # Runge-Kutta method.
-        y0 = meta["y0"]
-        step = meta["step"]
-        # _time_grid(meta)
-        span = meta["span"]
-        grid_step = meta["step"]
-        curr = span[0]
-        inputs = []
-        while curr < span[1]:
-            inputs.append(curr)
-            curr += grid_step
-        outputs = [None for _ in inputs]
-        outputs[0] = y0
-        for i in range(1, len(inputs)):
-            y_prev = outputs[i - 1]
-            # rhs(inputs[i - 1], y_prev)
-            t = inputs[i - 1]  # noqa: F841
-            state = y_prev
-            # _lotka_volterra_derivatives: Lotka-Volterra derivatives.
-            a, b, c, d = meta["a"], meta["b"], meta["c"], meta["d"]
-            x, y = state
-            dxdt = a * x - b * x * y
-            dydt = d * x * y - c * y
-            k1 = (dxdt, dydt)
-            k2_state = [y_prev[j] + (step / 2) * k1[j] for j in range(len(y0))]
-            # rhs(inputs[i - 1] + step / 2, k2_state)
-            t = inputs[i - 1] + step / 2  # noqa: F841
-            state = k2_state
-            # _lotka_volterra_derivatives: Lotka-Volterra derivatives.
-            a, b, c, d = meta["a"], meta["b"], meta["c"], meta["d"]
-            x, y = state
-            dxdt = a * x - b * x * y
-            dydt = d * x * y - c * y
-            k2 = (dxdt, dydt)
-            k3_state = [y_prev[j] + (step / 2) * k2[j] for j in range(len(y0))]
-            # rhs(inputs[i - 1] + step / 2, k3_state)
-            t = inputs[i - 1] + step / 2  # noqa: F841
-            state = k3_state
-            # _lotka_volterra_derivatives: Lotka-Volterra derivatives.
-            a, b, c, d = meta["a"], meta["b"], meta["c"], meta["d"]
-            x, y = state
-            dxdt = a * x - b * x * y
-            dydt = d * x * y - c * y
-            k3 = (dxdt, dydt)
-            k4_state = [y_prev[j] + step * k3[j] for j in range(len(y0))]
-            # rhs(inputs[i - 1] + step, k4_state)
-            t = inputs[i - 1] + step  # noqa: F841
-            state = k4_state
-            # _lotka_volterra_derivatives: Lotka-Volterra derivatives.
-            a, b, c, d = meta["a"], meta["b"], meta["c"], meta["d"]
-            x, y = state
-            dxdt = a * x - b * x * y
-            dydt = d * x * y - c * y
-            k4 = (dxdt, dydt)
-            outputs[i] = [
-                y_prev[j] + (step / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j])
-                for j in range(len(y0))
-            ]
-        return (np.asarray(inputs), np.asarray(outputs))
-
-
-class RK4ODEBrusselatorBenchmark(_RK4, _ODEBrusselatorProblem, _ODEBenchmarkBase):
-    def benchmark(self, xp, meta, C, brusselator_cb):
-        # runge_kutta: Integrate ``rhs(t, y)`` with the classical fourth-order
-        # Runge-Kutta method.
-        y0 = meta["y0"]
-        step = meta["step"]
-        # _time_grid(meta)
-        span = meta["span"]
-        grid_step = meta["step"]
-        curr = span[0]
-        inputs = []
-        while curr < span[1]:
-            inputs.append(curr)
-            curr += grid_step
-        outputs = [None for _ in inputs]
-        outputs[0] = y0
-        for i in range(1, len(inputs)):
-            y_prev = outputs[i - 1]
-            # rhs(inputs[i - 1], y_prev)
-            t = inputs[i - 1]
-            u_vec = y_prev
-            # _brusselator_derivatives: Brusselator derivatives with diffusion on 2D
-            # grid.
-            a = meta["a"]
-            u_arr = np.array(u_vec, dtype=float)
-
-            lin = C @ u_arr
-            lin[0::2] += a
-
-            if t >= 1.1:
-                lin += np.array(brusselator_cb)
-
-            u_vals = u_arr[0::2]
-            v_vals = u_arr[1::2]
-            uv2 = u_vals**2 * v_vals
-
-            non_lin = np.zeros(len(u_vec), dtype=float)
-            non_lin[0::2] = uv2
-            non_lin[1::2] = -uv2
-
-            k1 = (lin + non_lin).tolist()
-            k2_state = [y_prev[j] + (step / 2) * k1[j] for j in range(len(y0))]
-            # rhs(inputs[i - 1] + step / 2, k2_state)
-            t = inputs[i - 1] + step / 2
-            u_vec = k2_state
-            # _brusselator_derivatives: Brusselator derivatives with diffusion on 2D
-            # grid.
-            a = meta["a"]
-            u_arr = np.array(u_vec, dtype=float)
-
-            lin = C @ u_arr
-            lin[0::2] += a
-
-            if t >= 1.1:
-                lin += np.array(brusselator_cb)
-
-            u_vals = u_arr[0::2]
-            v_vals = u_arr[1::2]
-            uv2 = u_vals**2 * v_vals
-
-            non_lin = np.zeros(len(u_vec), dtype=float)
-            non_lin[0::2] = uv2
-            non_lin[1::2] = -uv2
-
-            k2 = (lin + non_lin).tolist()
-            k3_state = [y_prev[j] + (step / 2) * k2[j] for j in range(len(y0))]
-            # rhs(inputs[i - 1] + step / 2, k3_state)
-            t = inputs[i - 1] + step / 2
-            u_vec = k3_state
-            # _brusselator_derivatives: Brusselator derivatives with diffusion on 2D
-            # grid.
-            a = meta["a"]
-            u_arr = np.array(u_vec, dtype=float)
-
-            lin = C @ u_arr
-            lin[0::2] += a
-
-            if t >= 1.1:
-                lin += np.array(brusselator_cb)
-
-            u_vals = u_arr[0::2]
-            v_vals = u_arr[1::2]
-            uv2 = u_vals**2 * v_vals
-
-            non_lin = np.zeros(len(u_vec), dtype=float)
-            non_lin[0::2] = uv2
-            non_lin[1::2] = -uv2
-
-            k3 = (lin + non_lin).tolist()
-            k4_state = [y_prev[j] + step * k3[j] for j in range(len(y0))]
-            # rhs(inputs[i - 1] + step, k4_state)
-            t = inputs[i - 1] + step
-            u_vec = k4_state
-            # _brusselator_derivatives: Brusselator derivatives with diffusion on 2D
-            # grid.
-            a = meta["a"]
-            u_arr = np.array(u_vec, dtype=float)
-
-            lin = C @ u_arr
-            lin[0::2] += a
-
-            if t >= 1.1:
-                lin += np.array(brusselator_cb)
-
-            u_vals = u_arr[0::2]
-            v_vals = u_arr[1::2]
-            uv2 = u_vals**2 * v_vals
-
-            non_lin = np.zeros(len(u_vec), dtype=float)
-            non_lin[0::2] = uv2
-            non_lin[1::2] = -uv2
-
-            k4 = (lin + non_lin).tolist()
-            outputs[i] = [
-                y_prev[j] + (step / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j])
-                for j in range(len(y0))
-            ]
-        return (np.asarray(inputs), np.asarray(outputs))
-
-
-class RK4ODESLICOTBenchmark(_RK4, _ODESLICOTProblem, _ODEBenchmarkBase):
-    def benchmark(self, xp, meta, A, B):
-        # runge_kutta: Integrate ``rhs(t, y)`` with the classical fourth-order
-        # Runge-Kutta method.
-        y0 = meta["y0"]
-        step = meta["step"]
-        # _time_grid(meta)
-        span = meta["span"]
-        grid_step = meta["step"]
-        curr = span[0]
-        inputs = []
-        while curr < span[1]:
-            inputs.append(curr)
-            curr += grid_step
-        outputs = [None for _ in inputs]
-        outputs[0] = y0
-        for i in range(1, len(inputs)):
-            y_prev = outputs[i - 1]
-            # rhs(inputs[i - 1], y_prev)
-            t = inputs[i - 1]  # noqa: F841
-            state = y_prev
-            # _linear_system_derivatives: Linear state-space derivatives for
-            # dx/dt = A x + B u.
-            input_value = meta["input_value"]
-            state_array = np.asarray(state)
-            input_dtype = np.result_type(B.dtype, type(input_value), float)
-            input_array = np.full(B.shape[1], input_value, dtype=input_dtype)
-            k1 = (A @ state_array + B @ input_array).tolist()
-            k2_state = [y_prev[j] + (step / 2) * k1[j] for j in range(len(y0))]
-            # rhs(inputs[i - 1] + step / 2, k2_state)
-            t = inputs[i - 1] + step / 2  # noqa: F841
-            state = k2_state
-            # _linear_system_derivatives: Linear state-space derivatives for
-            # dx/dt = A x + B u.
-            input_value = meta["input_value"]
-            state_array = np.asarray(state)
-            input_dtype = np.result_type(B.dtype, type(input_value), float)
-            input_array = np.full(B.shape[1], input_value, dtype=input_dtype)
-            k2 = (A @ state_array + B @ input_array).tolist()
-            k3_state = [y_prev[j] + (step / 2) * k2[j] for j in range(len(y0))]
-            # rhs(inputs[i - 1] + step / 2, k3_state)
-            t = inputs[i - 1] + step / 2  # noqa: F841
-            state = k3_state
-            # _linear_system_derivatives: Linear state-space derivatives for
-            # dx/dt = A x + B u.
-            input_value = meta["input_value"]
-            state_array = np.asarray(state)
-            input_dtype = np.result_type(B.dtype, type(input_value), float)
-            input_array = np.full(B.shape[1], input_value, dtype=input_dtype)
-            k3 = (A @ state_array + B @ input_array).tolist()
-            k4_state = [y_prev[j] + step * k3[j] for j in range(len(y0))]
-            # rhs(inputs[i - 1] + step, k4_state)
-            t = inputs[i - 1] + step  # noqa: F841
-            state = k4_state
-            # _linear_system_derivatives: Linear state-space derivatives for
-            # dx/dt = A x + B u.
-            input_value = meta["input_value"]
-            state_array = np.asarray(state)
-            input_dtype = np.result_type(B.dtype, type(input_value), float)
-            input_array = np.full(B.shape[1], input_value, dtype=input_dtype)
-            k4 = (A @ state_array + B @ input_array).tolist()
-            outputs[i] = [
-                y_prev[j] + (step / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j])
-                for j in range(len(y0))
-            ]
-        return (np.asarray(inputs), np.asarray(outputs))
+    outputs = [None for _ in inputs]
+    outputs[0] = y0
+    for i in range(1, len(inputs)):
+        y_prev = outputs[i - 1]
+        t = inputs[i - 1]
+        state = y_prev
+{indent(dydt, "        ").rstrip()}
+        k1 = dydt_vector
+        k2_state = [y_prev[j] + (step / 2) * k1[j] for j in range(len(y0))]
+        t = inputs[i - 1] + step / 2
+        state = k2_state
+{indent(dydt, "        ").rstrip()}
+        k2 = dydt_vector
+        k3_state = [y_prev[j] + (step / 2) * k2[j] for j in range(len(y0))]
+        t = inputs[i - 1] + step / 2
+        state = k3_state
+{indent(dydt, "        ").rstrip()}
+        k3 = dydt_vector
+        k4_state = [y_prev[j] + step * k3[j] for j in range(len(y0))]
+        t = inputs[i - 1] + step
+        state = k4_state
+{indent(dydt, "        ").rstrip()}
+        k4 = dydt_vector
+        outputs[i] = [
+            y_prev[j] + (step / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j])
+            for j in range(len(y0))
+        ]
+    return (np.asarray(inputs), np.asarray(outputs))
+"""

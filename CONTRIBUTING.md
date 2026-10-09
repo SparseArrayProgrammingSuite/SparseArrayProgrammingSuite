@@ -58,8 +58,8 @@ def benchmark(self, xp, meta, A, b, x0):
 
 Every benchmark function has a fixed parameter list. If the inputs differ between datasets, there are two ways to keep it that way:
 
-- **Split the benchmark by hand** when there are only a few distinct signatures. The ODE benchmarks do this, with one class per (solver, problem) pair in `ode.py`.
-- **Generate the function per dataset** when every dataset needs its own signature. Override `Generator.generate_benchmark_function(dataset, problem, benchmark)` to return a function `benchmark(xp, meta, *inputs)` built from the dataset's metadata with `saps.codegen.define_function`. SAPS calls this during setup, so it isn't timed. The default returns the benchmark's own `benchmark` method unchanged. Subgraph matching (one parameter per query matrix), weighted model counting (`B, W1, ..., Wn`) and model counting generate their functions this way, and their benchmark classes' `benchmark` methods only raise.
+- **Split the benchmark by hand** when there are only a few distinct signatures.
+- **Generate the function per dataset** when every dataset needs its own signature. Override `Generator.generate_benchmark_function(dataset, problem, benchmark)` to return a function `benchmark(xp, meta, *inputs)` built from the dataset's metadata with `saps.codegen.define_function`. SAPS calls this during setup, so it isn't timed. The default returns the benchmark's own `benchmark` method unchanged. Subgraph matching (one parameter per query matrix), weighted model counting (`B, W1, ..., Wn`) and model counting generate their functions this way, and their benchmark classes' `benchmark` methods only raise. ODE generators use the same hook: each generator supplies a literal `derivative_source` string, and each solver's `benchmark_source` pastes it into an f-string template at every derivative evaluation.
 
 `*data_args` remains available as a last resort, after any fixed leading inputs: `def benchmark(self, xp, meta, *data_args)`.
 

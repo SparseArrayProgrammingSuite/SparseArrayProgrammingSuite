@@ -13,11 +13,11 @@ from frameworks.saps_numpy import NumpyFramework
 from saps.benchmark import DataInstance, Param
 from saps.benchmarks import ode
 from saps.benchmarks.ode import (
-    BackwardEulerODESLICOTBenchmark,
-    ForwardEulerODESLICOTBenchmark,
+    BackwardEulerBenchmark,
+    ForwardEulerBenchmark,
     ODESLICOTDataset,
     ODESLICOTGenerator,
-    RK4ODESLICOTBenchmark,
+    RK4Benchmark,
 )
 
 
@@ -161,8 +161,17 @@ def test_slicot_generator_rejects_explicit_e(monkeypatch):
         ODESLICOTGenerator().generate(ODESLICOTDataset("eady"))
 
 
+def _run_slicot(benchmark, meta, *data):
+    generator = ODESLICOTGenerator()
+    problem = DataInstance(inputs=[from_numpy(item) for item in data], meta=meta)
+    function = generator.generate_benchmark_function(
+        generator.datasets[0], problem, benchmark.benchmark
+    )
+    return function(None, meta, *data)
+
+
 def test_slicot_forward_euler_runs_linear_system():
-    benchmark = ForwardEulerODESLICOTBenchmark()
+    benchmark = ForwardEulerBenchmark()
     data = [np.array([[0.0]]), np.array([[2.0]])]
     meta = {
         "problem_name": "ode_slicot",
@@ -172,26 +181,24 @@ def test_slicot_forward_euler_runs_linear_system():
         "input_value": 3.0,
     }
 
-    time, states = benchmark.benchmark(None, meta, *data)
+    time, states = _run_slicot(benchmark, meta, *data)
 
     np.testing.assert_allclose(time, np.array([0.0, 0.1, 0.2]))
     np.testing.assert_allclose(states[:, 0], np.array([0.0, 0.6, 1.2]))
 
 
-def test_rk4_slicot_uses_only_slicot_generator():
-    generator_names = [
-        generator.name for generator in RK4ODESLICOTBenchmark().generators
-    ]
+def test_rk4_includes_slicot_generator():
+    generator_names = [generator.name for generator in RK4Benchmark().generators]
 
-    assert generator_names == ["ode_slicot"]
+    assert "ode_slicot" in generator_names
 
 
 @pytest.mark.parametrize(
     ("benchmark_cls", "expected_step"),
     [
-        (ForwardEulerODESLICOTBenchmark, 0.0001),
-        (BackwardEulerODESLICOTBenchmark, 0.0002),
-        (RK4ODESLICOTBenchmark, 0.01),
+        (ForwardEulerBenchmark, 0.0001),
+        (BackwardEulerBenchmark, 0.0002),
+        (RK4Benchmark, 0.01),
     ],
 )
 def test_slicot_setup_uses_method_timestep_with_old_cached_data(
@@ -226,7 +233,7 @@ def test_slicot_setup_uses_method_timestep_with_old_cached_data(
 
 @pytest.mark.parametrize("drop_imaginary", [False, True])
 def test_slicot_check_preserves_complex_reference(drop_imaginary):
-    benchmark = RK4ODESLICOTBenchmark()
+    benchmark = RK4Benchmark()
     data = [np.array([[-1.0 + 2.0j]]), np.array([[1.0]])]
     benchmark._input = [from_numpy(item) for item in data]
     benchmark._ref_meta = None
@@ -237,7 +244,7 @@ def test_slicot_check_preserves_complex_reference(drop_imaginary):
         "step": 0.01,
         "input_value": 1.0,
     }
-    time, states = benchmark.benchmark(None, benchmark._meta, *data)
+    time, states = _run_slicot(benchmark, benchmark._meta, *data)
     if drop_imaginary:
         states = states.real
     benchmark._output = [from_numpy(time), from_numpy(states)]
@@ -250,7 +257,7 @@ def test_slicot_check_preserves_complex_reference(drop_imaginary):
 
 
 def test_slicot_check_still_rejects_unstable_steps():
-    benchmark = ForwardEulerODESLICOTBenchmark()
+    benchmark = ForwardEulerBenchmark()
     data = [np.array([[-1000.0]]), np.array([[1.0]])]
     benchmark._input = [from_numpy(item) for item in data]
     benchmark._ref_meta = None
@@ -262,7 +269,7 @@ def test_slicot_check_still_rejects_unstable_steps():
         "input_value": 1.0,
     }
     benchmark._output = [
-        from_numpy(item) for item in benchmark.benchmark(None, benchmark._meta, *data)
+        from_numpy(item) for item in _run_slicot(benchmark, benchmark._meta, *data)
     ]
 
     with pytest.raises(AssertionError, match="exceeds tolerance 0.05 at step=0.01"):
@@ -270,7 +277,7 @@ def test_slicot_check_still_rejects_unstable_steps():
 
 
 def test_slicot_check_reports_reference_failure(monkeypatch):
-    benchmark = RK4ODESLICOTBenchmark()
+    benchmark = RK4Benchmark()
     benchmark._input = [from_numpy(np.eye(1)), from_numpy(np.ones((1, 1)))]
     benchmark._ref_meta = None
     benchmark._meta = {
