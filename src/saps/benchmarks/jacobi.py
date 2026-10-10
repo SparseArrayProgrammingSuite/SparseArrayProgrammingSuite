@@ -825,17 +825,13 @@ class JacobiBenchmark(Benchmark):
             f"Jacobi residual mismatch for {param.dataset.name}"
         )
 
-    def _norm(self, xp, v):
-        return xp.sqrt(xp.sum(xp.multiply(v, v)))
-
-    def benchmark(self, xp, data: list, meta: dict):
-        A, b, x = data
+    def benchmark(self, xp, meta: dict, A, b, x):
 
         rel_tol = meta.get("rel_tol", 1e-6)
         abs_tol = meta.get("abs_tol", 1e-20)
         max_iter = meta.get("max_iter", 1000)
 
-        tolerance = max(rel_tol * self._norm(xp, b)[()], abs_tol)
+        tolerance = max(rel_tol * xp.sqrt(xp.sum(xp.multiply(b, b)))[()], abs_tol)
         d = xp.replace(xp.diagonal(A), 0, 1)
         if xp.any(d == 0):
             raise ValueError("Jacobi requires nonzero diagonal entries.")
@@ -843,7 +839,7 @@ class JacobiBenchmark(Benchmark):
         r = b - A @ x
         it = 0
 
-        while self._norm(xp, r)[()] >= tolerance and it < max_iter:
+        while xp.sqrt(xp.sum(xp.multiply(r, r)))[()] >= tolerance and it < max_iter:
             x = x + r / d
 
             r = b - A @ x
@@ -852,7 +848,7 @@ class JacobiBenchmark(Benchmark):
             raise RuntimeError(
                 "Jacobi did not converge within the maximum number of iterations"
             )
-        return [x]
+        return x
 
 
 # Matrices below run extremely slowly on numpy framework (>1 minutes per convergence):

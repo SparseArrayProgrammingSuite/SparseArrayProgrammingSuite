@@ -541,9 +541,8 @@ class ElementwiseMultiplicationBenchmark(Benchmark):
             ElementwiseMultiplicationUniformRandomGenerator(),
         ]
 
-    def benchmark(self, xp, data: list, meta: dict):
-        A, B = data[0], data[1]
-        return [xp.multiply(A, B)]
+    def benchmark(self, xp, meta: dict, A, B):
+        return xp.multiply(A, B)
 
     def check(self, param):
         for item in self._output:

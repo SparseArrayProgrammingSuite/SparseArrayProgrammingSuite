@@ -1,4 +1,5 @@
 import textwrap
+from abc import ABC
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,11 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+)
+from saps.codegen import (
+    constant_function_source,
+    define_function,
+    einsum_function_source,
 )
 from saps.downloaders.mccomp import (
     MCCOMP_REPOSITORY_URL,
@@ -183,7 +189,24 @@ class WeightedModelCountingMCCompDataset(Dataset):
         return data
 
 
-class WeightedModelCountingTestGenerator(Generator[WeightedModelCountingTestDataset]):
+class _WMCFunctionGenerator(Generator[Any], ABC):
+    """Builds each formula's benchmark function, with parameters ``B, W1, ..., Wn``."""
+
+    def generate_benchmark_function(self, dataset, problem, benchmark):
+        meta = problem.meta
+        params = ["B", *(f"W{i}" for i in range(1, meta["num_vars"] + 1))]
+        if meta["expr"] is None:
+            source = constant_function_source(meta["default_total"], "float64", params)
+        else:
+            source = einsum_function_source(meta["expr"], params)
+        return define_function(
+            source, f"<saps-generated {self.name}.{dataset.name}>", {"np": np}
+        )
+
+
+class WeightedModelCountingTestGenerator(
+    _WMCFunctionGenerator, Generator[WeightedModelCountingTestDataset]
+):
     @property
     def name(self) -> str:
         return "weighted_model_counting_test"
@@ -403,7 +426,7 @@ class WeightedModelCountingTestGenerator(Generator[WeightedModelCountingTestData
 
 
 class WeightedModelCountingMCCompGenerator(
-    Generator[WeightedModelCountingMCCompDataset]
+    _WMCFunctionGenerator, Generator[WeightedModelCountingMCCompDataset]
 ):
     @property
     def name(self) -> str:
@@ -569,21 +592,11 @@ class WeightedModelCountingBenchmark(Benchmark):
             WeightedModelCountingMCCompGenerator(),
         ]
 
-    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]) -> list[Any]:
-        expr = meta["expr"]
-
-        if expr is None:
-            return [xp.array(meta["default_total"], dtype=np.float64)]
-
-        num_vars = meta["num_vars"]
-
-        args = {"B": data[0]}
-        for i in range(1, num_vars + 1):
-            args[f"W{i}"] = data[i]
-
-        result = xp.einsum(expr, **args)
-
-        return [result]
+    def benchmark(self, xp, meta):
+        raise NotImplementedError(
+            "Weighted model counting functions are generated per formula by the "
+            "generator's generate_benchmark_function."
+        )
 
     def check(self, param):
         for item in self._output:

@@ -382,15 +382,12 @@ class MRIMaskedEdgeDetectionBenchmark(Benchmark):
             MRIMaskedEdgeDetectionKaggleGenerator(),
         ]
 
-    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
-        img, roi, t1, t2 = data
+    def benchmark(self, xp, meta: dict[str, Any], img, roi, t1, t2):
 
         img_t1 = img > t1
         img_t2 = img > t2
 
-        img_post = (img_t2 & roi) ^ (img_t1 & roi)
-
-        return [img_post]
+        return (img_t2 & roi) ^ (img_t1 & roi)
 
     def check(self, param):
         for item in self._output:

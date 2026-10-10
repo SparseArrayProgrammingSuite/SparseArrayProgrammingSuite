@@ -532,10 +532,8 @@ class MatrixMultiplicationBenchmark(Benchmark):
             MatrixMultiplicationUniformRandomGenerator(),
         ]
 
-    def benchmark(self, xp, data: list, meta: dict):
-        A = data[0]
-        B = data[1]
-        return [xp.matmul(A, B)]
+    def benchmark(self, xp, meta: dict, A, B):
+        return xp.matmul(A, B)
 
     def check(self, param):
         for item in self._output:

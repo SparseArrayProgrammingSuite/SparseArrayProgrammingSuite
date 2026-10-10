@@ -1582,8 +1582,7 @@ class GMRESBenchmark(Benchmark):
             f"GMRES residual too high for {param.dataset.name}: {residual}"
         )
 
-    def benchmark(self, xp, data: list, meta: dict):
-        A, b, x0 = data
+    def benchmark(self, xp, meta: dict, A, b, x0):
         restart = meta.get("restart", 50)
         rel_tol = meta.get("rel_tol", 1e-6)
         max_iter = meta.get("max_iter", 100)
@@ -1592,7 +1591,7 @@ class GMRESBenchmark(Benchmark):
         r0 = b - A @ x0
         initial_beta = xp.linalg.norm(r0)[()]
         if initial_beta < rel_tol:
-            return [x0]
+            return x0
 
         rcurr = r0 / initial_beta
         beta = initial_beta
@@ -1622,7 +1621,7 @@ class GMRESBenchmark(Benchmark):
                 r0_norm = xp.linalg.norm(r0)[()]
                 rcurr = r0 / r0_norm
                 if r0_norm / initial_beta < rel_tol:
-                    return [x0]
+                    return x0
 
                 itcount += 1
                 if itcount >= max_iter:
@@ -1630,5 +1629,4 @@ class GMRESBenchmark(Benchmark):
 
             beta = r0_norm
 
-        xsol = x0
-        return [xsol]
+        return x0

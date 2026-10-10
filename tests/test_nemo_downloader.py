@@ -219,7 +219,7 @@ def test_particle_sim_benchmark_runs_newtonian_gravity_with_particle_masses():
         },
     }
 
-    result = ps.ParticleSimulationBenchmark().benchmark(xp, data, meta)
+    result = ps.ParticleSimulationBenchmark().benchmark(xp, meta, *data)
 
     assert len(result) == 6
     assert result[3][0] > 0.0

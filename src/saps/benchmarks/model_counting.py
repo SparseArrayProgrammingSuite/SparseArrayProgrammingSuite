@@ -1,3 +1,4 @@
+from abc import ABC
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,11 @@ from saps.benchmark import (
     Generator,
     Ref,
     ShellBenchmark,
+)
+from saps.codegen import (
+    constant_function_source,
+    define_function,
+    einsum_function_source,
 )
 from saps.downloaders.mccomp import (
     MCCOMP_REPOSITORY_URL,
@@ -90,7 +96,24 @@ class ModelCountingTestDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class ModelCountingTestGenerator(Generator[ModelCountingTestDataset]):
+class _MCFunctionGenerator(Generator[Any], ABC):
+    """Builds each formula's benchmark function, with the parameter ``B``."""
+
+    def generate_benchmark_function(self, dataset, problem, benchmark):
+        meta = problem.meta
+        params = ["B"]
+        if meta["expr"] is None:
+            source = constant_function_source(meta["default_total"], "int64", params)
+        else:
+            source = einsum_function_source(meta["expr"], params)
+        return define_function(
+            source, f"<saps-generated {self.name}.{dataset.name}>", {"np": np}
+        )
+
+
+class ModelCountingTestGenerator(
+    _MCFunctionGenerator, Generator[ModelCountingTestDataset]
+):
     @property
     def name(self) -> str:
         return "model_counting_test"
@@ -369,7 +392,7 @@ class MCCompInstanceShellBenchmark(ShellBenchmark):
         return MCCompInstanceGenerator()
 
 
-class ModelCountingMCCompGenerator(Generator[MCCompDataset]):
+class ModelCountingMCCompGenerator(_MCFunctionGenerator, Generator[MCCompDataset]):
     @property
     def name(self) -> str:
         return "model_counting_mccomp"
@@ -555,15 +578,11 @@ class ModelCountingBenchmark(Benchmark):
     def generators(self) -> list[Generator[Any]]:
         return [ModelCountingTestGenerator(), ModelCountingMCCompGenerator()]
 
-    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]) -> list[Any]:
-        expr = meta["expr"]
-
-        if expr is None:
-            return [xp.array(meta["default_total"], dtype=np.int64)]
-
-        result = xp.einsum(expr, B=data[0])
-
-        return [result]
+    def benchmark(self, xp, meta):
+        raise NotImplementedError(
+            "Model counting functions are generated per formula by the "
+            "generator's generate_benchmark_function."
+        )
 
     def check(self, param):
         for item in self._output:

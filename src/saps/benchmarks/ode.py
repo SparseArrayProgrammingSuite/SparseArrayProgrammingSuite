@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from abc import ABC
+from abc import ABC, abstractmethod
+from collections.abc import Callable
+from textwrap import indent
+from typing import Any, TypeVar
 
 import numpy as np
 
@@ -15,6 +18,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.codegen import define_function
 from saps.downloaders.slicot import (
     SLICOT_BENCHMARK_PAGE_URL,
     load_slicot_problem,
@@ -35,7 +39,7 @@ def _step_input(t):
     return 5.0 if t >= 0 else 0.0
 
 
-def _rc_derivatives(t, state, data, meta):
+def _rc_derivatives(t, state, meta):
     """RC circuit derivatives."""
     R, C = meta["R"], meta["C"]
     tau = R * C
@@ -43,7 +47,7 @@ def _rc_derivatives(t, state, data, meta):
     return [(Vs - state[0]) / tau]
 
 
-def _rlc_derivatives(t, state, data, meta):
+def _rlc_derivatives(t, state, meta):
     """RLC circuit derivatives."""
     R, L, C = meta["R"], meta["L"], meta["C"]
     Vc = state[0]
@@ -53,7 +57,7 @@ def _rlc_derivatives(t, state, data, meta):
     return (dVc, d2Vc)
 
 
-def _lotka_volterra_derivatives(t, state, data, meta):
+def _lotka_volterra_derivatives(t, state, meta):
     """Lotka-Volterra derivatives."""
     a, b, c, d = meta["a"], meta["b"], meta["c"], meta["d"]
     x, y = state
@@ -107,9 +111,20 @@ def _construct_brusselator_matrix(n, alpha, b):
     return C
 
 
-def _brusselator_derivatives(t, u_vec, data, meta):
+def _brusselator_forcing(n):
+    """Forcing term applied inside a disk of the 2D grid once t >= 1.1."""
+    brusselator_cb = [0.0] * (n * n * 2)
+    for i in range(n):
+        for j in range(n):
+            x = i / (n - 1)
+            y = j / (n - 1)
+            if (x - 0.3) ** 2 + (y - 0.6) ** 2 <= 0.1**2:
+                brusselator_cb[(i * n + j) * 2] = 5
+    return brusselator_cb
+
+
+def _brusselator_derivatives(t, u_vec, meta, C, brusselator_cb):
     """Brusselator derivatives with diffusion on 2D grid."""
-    C, brusselator_cb = data
     a = meta["a"]
     u_arr = np.array(u_vec, dtype=float)
 
@@ -130,9 +145,8 @@ def _brusselator_derivatives(t, u_vec, data, meta):
     return (lin + non_lin).tolist()
 
 
-def _linear_system_derivatives(t, state, data, meta):
+def _linear_system_derivatives(t, state, meta, A, B):
     """Linear state-space derivatives for dx/dt = A x + B u."""
-    A, B = data
     input_value = meta["input_value"]
     state_array = np.asarray(state)
     input_dtype = np.result_type(B.dtype, type(input_value), float)
@@ -141,6 +155,7 @@ def _linear_system_derivatives(t, state, data, meta):
 
 
 def _resolve_derivatives(problem_name):
+    """Select a derivative for the SciPy reference check."""
     match problem_name:
         case "ode_rc":
             return _rc_derivatives
@@ -283,17 +298,6 @@ class ODEBrusselatorDataset(Dataset):
         self.alpha = alpha
         self.t_max = t_max
         self.step = step
-        self.y0 = _init_brusselator_2d(n)
-        self.C = _construct_brusselator_matrix(n, alpha, b)
-
-        size = n * n * 2
-        self.brusselator_cb = [0.0] * size
-        for i in range(n):
-            for j in range(n):
-                x = i / (n - 1)
-                y = j / (n - 1)
-                if (x - 0.3) ** 2 + (y - 0.6) ** 2 <= 0.1**2:
-                    self.brusselator_cb[(i * n + j) * 2] = 5
 
     @property
     def name(self) -> str:
@@ -380,12 +384,45 @@ class ODESLICOTDataset(Dataset):
 
 _AKARSH = [Contributor("Akarsh Duddu", "aduddu3@gatech.edu")]
 _AI_DISCLOSURE = (
-    "No generative AI was used to write the benchmark function itself."
-    " Generative AI was used for debugging. This statement was written by hand"
+    "The original benchmark algorithms were written without generative AI."
+    " Generative AI was used for debugging, generator-time inlining, and tests."
 )
 
 
-class ODERCGenerator(Generator[ODERCDataset]):
+TDataset = TypeVar("TDataset", bound=Dataset)
+
+
+class _ODEGenerator(Generator[TDataset], ABC):
+    array_parameters: tuple[str, ...] = ()
+    # Each snippet reads t, state, and meta and assigns dydt_vector. Its locals
+    # must not overwrite the solver's inputs, outputs, step, or RK4 stages.
+    derivative_source: str
+
+    def generate_benchmark_function(
+        self,
+        dataset: TDataset,
+        problem: DataInstance,
+        benchmark: Callable[..., Any],
+    ) -> Callable[..., Any]:
+        solver = getattr(benchmark, "__self__", None)
+        if not isinstance(solver, _ODEBenchmarkBase):
+            raise TypeError("ODE generation requires a bound ODE benchmark method")
+        source = solver.benchmark_source(self.array_parameters, self.derivative_source)
+        return define_function(
+            source,
+            f"<saps-generated {type(solver).__qualname__}.{self.name}.{dataset.name}>",
+            {"np": np},
+        )
+
+
+class ODERCGenerator(_ODEGenerator[ODERCDataset]):
+    derivative_source = """\
+R, C = meta["R"], meta["C"]
+tau = R * C
+Vs = 5.0 if t >= 0 else 0.0
+dydt_vector = [(Vs - state[0]) / tau]
+"""
+
     @property
     def cacheable(self) -> bool:
         return False
@@ -454,7 +491,16 @@ class ODERCGenerator(Generator[ODERCDataset]):
         return DataInstance(inputs=[], meta=meta)
 
 
-class ODERLCGenerator(Generator[ODERLCDataset]):
+class ODERLCGenerator(_ODEGenerator[ODERLCDataset]):
+    derivative_source = """\
+R, L, C = meta["R"], meta["L"], meta["C"]
+Vc = state[0]
+dVc = state[1]
+Vs = 5.0 if t >= 0 else 0.0
+d2Vc = (Vs - Vc - R * C * dVc) / (L * C)
+dydt_vector = (dVc, d2Vc)
+"""
+
     @property
     def cacheable(self) -> bool:
         return False
@@ -528,7 +574,15 @@ class ODERLCGenerator(Generator[ODERLCDataset]):
         return DataInstance(inputs=[], meta=meta, ref_meta={"check_components": [0]})
 
 
-class ODELotkaVolterraGenerator(Generator[ODELotkaVolterraDataset]):
+class ODELotkaVolterraGenerator(_ODEGenerator[ODELotkaVolterraDataset]):
+    derivative_source = """\
+a, b, c, d = meta["a"], meta["b"], meta["c"], meta["d"]
+x, y = state
+dxdt = a * x - b * x * y
+dydt = d * x * y - c * y
+dydt_vector = (dxdt, dydt)
+"""
+
     @property
     def cacheable(self) -> bool:
         return False
@@ -601,7 +655,24 @@ class ODELotkaVolterraGenerator(Generator[ODELotkaVolterraDataset]):
         return DataInstance(inputs=[], meta=meta, ref_meta={"error_tolerance": 10.0})
 
 
-class ODEBrusselatorGenerator(Generator[ODEBrusselatorDataset]):
+class ODEBrusselatorGenerator(_ODEGenerator[ODEBrusselatorDataset]):
+    array_parameters = ("C", "brusselator_cb")
+    derivative_source = """\
+a = meta["a"]
+u_arr = np.array(state, dtype=float)
+lin = C @ u_arr
+lin[0::2] += a
+if t >= 1.1:
+    lin += np.array(brusselator_cb)
+u_vals = u_arr[0::2]
+v_vals = u_arr[1::2]
+uv2 = u_vals**2 * v_vals
+non_lin = np.zeros(len(state), dtype=float)
+non_lin[0::2] = uv2
+non_lin[1::2] = -uv2
+dydt_vector = (lin + non_lin).tolist()
+"""
+
     def __init__(self, train: bool = False):
         self.train = train
 
@@ -677,26 +748,39 @@ class ODEBrusselatorGenerator(Generator[ODEBrusselatorDataset]):
         ]
 
     def generate(self, dataset: ODEBrusselatorDataset):
+        # Built here rather than in the dataset: C is dense (2n^2)^2, about
+        # 3.2 GB for n=100, and datasets are listed far more often than generated.
+        n = dataset.n
+        C = _construct_brusselator_matrix(n, dataset.alpha, dataset.b)
         meta = {
             "problem_name": self.name,
             "span": (0, dataset.t_max),
-            "y0": list(dataset.y0),
+            "y0": list(_init_brusselator_2d(n)),
             "step": dataset.step,
-            "n": dataset.n,
+            "n": n,
             "a": dataset.a,
             "alpha": dataset.alpha,
         }
         return DataInstance(
             inputs=[
-                from_numpy(dataset.C),
-                from_numpy(np.asarray(dataset.brusselator_cb)),
+                from_numpy(C),
+                from_numpy(np.asarray(_brusselator_forcing(n))),
             ],
             meta=meta,
             ref_meta={"error_tolerance": 0.5, "real_output": True},
         )
 
 
-class ODESLICOTGenerator(Generator[ODESLICOTDataset]):
+class ODESLICOTGenerator(_ODEGenerator[ODESLICOTDataset]):
+    array_parameters = ("A", "B")
+    derivative_source = """\
+input_value = meta["input_value"]
+state_array = np.asarray(state)
+input_dtype = np.result_type(B.dtype, type(input_value), float)
+input_array = np.full(B.shape[1], input_value, dtype=input_dtype)
+dydt_vector = (A @ state_array + B @ input_array).tolist()
+"""
+
     def __init__(
         self,
         trace_datasets: tuple[str, ...] = (),
@@ -876,6 +960,14 @@ class _ODEBenchmarkBase(Benchmark, ABC):
     slicot_train_dataset: str | None = None
     brusselator_train = False
 
+    def benchmark(self, xp, meta, *data_args):
+        raise NotImplementedError("ODE benchmark functions are generated during setup")
+
+    @abstractmethod
+    def benchmark_source(self, parameters: tuple[str, ...], dydt: str) -> str:
+        """Paste a derivative snippet into this solver's source template."""
+        ...
+
     @property
     def suites(self):
         return ["standard-timestepping"]
@@ -940,7 +1032,7 @@ class _ODEBenchmarkBase(Benchmark, ABC):
         )
         data = [_dense_binsparse_array(item) for item in self._input]
         dydt = _resolve_derivatives(self._meta["problem_name"])
-        rhs = lambda t, y: dydt(t, list(y), data, self._meta)  # noqa: E731
+        rhs = lambda t, y: dydt(t, list(y), self._meta, *data)  # noqa: E731
         y0 = np.asarray(
             self._meta["y0"],
             dtype=np.result_type(y_out.dtype, *(item.dtype for item in data), float),
@@ -986,25 +1078,30 @@ class ForwardEulerBenchmark(_ODEBenchmarkBase):
     def description(self):
         return "Integrates ODE initial-value problems with the forward Euler method."
 
-    def benchmark(self, xp, data, meta):
-        dydt = _resolve_derivatives(meta["problem_name"])
-        span = meta["span"]
-        y0 = meta["y0"]
-        step = meta["step"]
-        curr = span[0]
-        inputs = []
-        while curr < span[1]:
-            inputs.append(curr)
-            curr += step
+    def benchmark_source(self, parameters: tuple[str, ...], dydt: str) -> str:
+        signature = ", ".join(("xp", "meta", *parameters))
+        return f"""\
+def benchmark({signature}):
+    span = meta["span"]
+    y0 = meta["y0"]
+    step = meta["step"]
+    curr = span[0]
+    inputs = []
+    while curr < span[1]:
+        inputs.append(curr)
+        curr += step
 
-        outputs = [None for _ in inputs]
-        outputs[0] = y0
-        for i in range(1, len(inputs)):
-            dydt_vector = dydt(inputs[i - 1], outputs[i - 1], data, meta)
-            outputs[i] = [
-                outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
-            ]
-        return (np.asarray(inputs), np.asarray(outputs))
+    outputs = [None for _ in inputs]
+    outputs[0] = y0
+    for i in range(1, len(inputs)):
+        t = inputs[i - 1]
+        state = outputs[i - 1]
+{indent(dydt, "        ").rstrip()}
+        outputs[i] = [
+            outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
+        ]
+    return (np.asarray(inputs), np.asarray(outputs))
+"""
 
 
 class BackwardEulerBenchmark(_ODEBenchmarkBase):
@@ -1026,28 +1123,33 @@ class BackwardEulerBenchmark(_ODEBenchmarkBase):
             "using ten fixed-point iterations per step."
         )
 
-    def benchmark(self, xp, data, meta):
-        dydt = _resolve_derivatives(meta["problem_name"])
-        span = meta["span"]
-        y0 = meta["y0"]
-        step = meta["step"]
-        curr = span[0]
-        inputs = []
-        while curr < span[1]:
-            inputs.append(curr)
-            curr += step
+    def benchmark_source(self, parameters: tuple[str, ...], dydt: str) -> str:
+        signature = ", ".join(("xp", "meta", *parameters))
+        return f"""\
+def benchmark({signature}):
+    span = meta["span"]
+    y0 = meta["y0"]
+    step = meta["step"]
+    curr = span[0]
+    inputs = []
+    while curr < span[1]:
+        inputs.append(curr)
+        curr += step
 
-        outputs = [None for _ in inputs]
-        outputs[0] = y0
-        for i in range(1, len(inputs)):
-            y_guess = outputs[i - 1]
-            for _ in range(10):
-                dydt_vector = dydt(inputs[i], y_guess, data, meta)
-                y_guess = [
-                    outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
-                ]
-            outputs[i] = y_guess
-        return (np.asarray(inputs), np.asarray(outputs))
+    outputs = [None for _ in inputs]
+    outputs[0] = y0
+    for i in range(1, len(inputs)):
+        y_guess = outputs[i - 1]
+        for _ in range(10):
+            t = inputs[i]
+            state = y_guess
+{indent(dydt, "            ").rstrip()}
+            y_guess = [
+                outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
+            ]
+        outputs[i] = y_guess
+    return (np.asarray(inputs), np.asarray(outputs))
+"""
 
 
 class RK4Benchmark(_ODEBenchmarkBase):
@@ -1076,30 +1178,45 @@ class RK4Benchmark(_ODEBenchmarkBase):
             "fourth-order Runge-Kutta method."
         )
 
-    def benchmark(self, xp, data, meta):
-        dydt = _resolve_derivatives(meta["problem_name"])
-        span = meta["span"]
-        y0 = meta["y0"]
-        step = meta["step"]
-        curr = span[0]
-        inputs = []
-        while curr < span[1]:
-            inputs.append(curr)
-            curr += step
+    def benchmark_source(self, parameters: tuple[str, ...], dydt: str) -> str:
+        signature = ", ".join(("xp", "meta", *parameters))
+        return f"""\
+def benchmark({signature}):
+    span = meta["span"]
+    y0 = meta["y0"]
+    step = meta["step"]
+    curr = span[0]
+    inputs = []
+    while curr < span[1]:
+        inputs.append(curr)
+        curr += step
 
-        outputs = [None for _ in inputs]
-        outputs[0] = y0
-        for i in range(1, len(inputs)):
-            y_prev = outputs[i - 1]
-            k1 = dydt(inputs[i - 1], y_prev, data, meta)
-            k2_state = [y_prev[j] + (step / 2) * k1[j] for j in range(len(y0))]
-            k2 = dydt(inputs[i - 1] + step / 2, k2_state, data, meta)
-            k3_state = [y_prev[j] + (step / 2) * k2[j] for j in range(len(y0))]
-            k3 = dydt(inputs[i - 1] + step / 2, k3_state, data, meta)
-            k4_state = [y_prev[j] + step * k3[j] for j in range(len(y0))]
-            k4 = dydt(inputs[i - 1] + step, k4_state, data, meta)
-            outputs[i] = [
-                y_prev[j] + (step / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j])
-                for j in range(len(y0))
-            ]
-        return (np.asarray(inputs), np.asarray(outputs))
+    outputs = [None for _ in inputs]
+    outputs[0] = y0
+    for i in range(1, len(inputs)):
+        y_prev = outputs[i - 1]
+        t = inputs[i - 1]
+        state = y_prev
+{indent(dydt, "        ").rstrip()}
+        k1 = dydt_vector
+        k2_state = [y_prev[j] + (step / 2) * k1[j] for j in range(len(y0))]
+        t = inputs[i - 1] + step / 2
+        state = k2_state
+{indent(dydt, "        ").rstrip()}
+        k2 = dydt_vector
+        k3_state = [y_prev[j] + (step / 2) * k2[j] for j in range(len(y0))]
+        t = inputs[i - 1] + step / 2
+        state = k3_state
+{indent(dydt, "        ").rstrip()}
+        k3 = dydt_vector
+        k4_state = [y_prev[j] + step * k3[j] for j in range(len(y0))]
+        t = inputs[i - 1] + step
+        state = k4_state
+{indent(dydt, "        ").rstrip()}
+        k4 = dydt_vector
+        outputs[i] = [
+            y_prev[j] + (step / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j])
+            for j in range(len(y0))
+        ]
+    return (np.asarray(inputs), np.asarray(outputs))
+"""
