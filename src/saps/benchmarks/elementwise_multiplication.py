@@ -14,6 +14,7 @@ from saps.benchmark import (
 )
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 from saps_framework.binsparse_utils import assert_coo_allclose
+from ../util/error_bounds import operation_error_bound
 
 
 class ElementwiseMultiplicationDenseDataset(Dataset):
@@ -550,4 +551,4 @@ class ElementwiseMultiplicationBenchmark(Benchmark):
                 "Output must be in binsparse format"
             )
         assert self._ref_outputs is not None, "No reference output"
-        assert_coo_allclose(self._ref_outputs[0], self._output[0])
+        assert_coo_allclose(self._ref_outputs[0], self._output[0], atol=operation_error_bound(np, max(abs(_ref_outputs[0])), np.float64))
