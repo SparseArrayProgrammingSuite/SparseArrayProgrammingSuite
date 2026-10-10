@@ -13,6 +13,7 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
+from saps.util.error_bounds import summation_error_bound
 from saps_framework.binsparse_utils import assert_coo_allclose
 
 
@@ -114,13 +115,16 @@ class MatrixMultiplicationDenseGenerator(Generator):
         gen = np.random.Generator(np.random.PCG64(42))
         A = gen.random((dataset.dim1, dataset.dim2))
         B = gen.random((dataset.dim2, dataset.dim3))
-        ref_outputs = None
-        if "test" in dataset.suites:
-            ref_outputs = [from_numpy(np.matmul(A, B))]
+        abs_sum = np.abs(A) @ np.abs(B)
+        scale = abs_sum.max() if abs_sum.size else 0
+        bound = summation_error_bound(
+            np, A.shape[1] + 1, scale, np.result_type(A.dtype, B.dtype)
+        )
         return DataInstance(
             [from_numpy(A), from_numpy(B)],
             meta={"dataset": dataset.name},
-            ref_outputs=ref_outputs,
+            ref_outputs=[from_numpy(np.matmul(A, B))],
+            ref_meta={"error_bound": float(bound)},
         )
 
 
@@ -302,15 +306,16 @@ class MatrixMultiplicationSuiteSparseGenerator(Generator):
         A_coo = to_scipy(A_bin).tocoo()
         B_coo = to_scipy(B_bin).tocoo()
 
-        ref_outputs = None
-        if "test" in dataset.suites:
-            output_coo = (A_coo @ B_coo).tocoo()
-            ref_outputs = [from_scipy(output_coo)]
-
+        abs_sum = np.abs(A_coo) @ np.abs(B_coo)
+        scale = abs_sum.max() if abs_sum.size else 0
+        bound = summation_error_bound(
+            np, A_coo.shape[1] + 1, scale, np.result_type(A_coo.dtype, B_coo.dtype)
+        )
         return DataInstance(
             [A_bin, B_bin],
             meta={"dataset": dataset.name},
-            ref_outputs=ref_outputs,
+            ref_outputs=[from_scipy((A_coo @ B_coo).tocoo())],
+            ref_meta={"error_bound": float(bound)},
         )
 
 
@@ -447,14 +452,16 @@ class MatrixMultiplicationUniformRandomGenerator(Generator):
             format="coo",
             rng=rng,
         )
-        ref_outputs = None
-        if "test" in dataset.suites:
-            output_coo = (A @ B).tocoo()
-            ref_outputs = [from_scipy(output_coo)]
+        abs_sum = np.abs(A) @ np.abs(B)
+        scale = abs_sum.max() if abs_sum.size else 0
+        bound = summation_error_bound(
+            np, A.shape[1] + 1, scale, np.result_type(A.dtype, B.dtype)
+        )
         return DataInstance(
             [from_scipy(A), from_scipy(B)],
             meta={"dataset": dataset.name},
-            ref_outputs=ref_outputs,
+            ref_outputs=[from_scipy((A @ B).tocoo())],
+            ref_meta={"error_bound": float(bound)},
         )
 
 
@@ -552,6 +559,11 @@ class MatrixMultiplicationBenchmark(Benchmark):
             assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
-        if self._ref_outputs is None:
-            return
-        assert_coo_allclose(self._ref_outputs[0], self._output[0])
+        assert self._ref_outputs is not None, "No reference output"
+        assert self._ref_meta is not None, "No error bound; regenerate the dataset"
+        assert_coo_allclose(
+            self._ref_outputs[0],
+            self._output[0],
+            rtol=0,
+            atol=self._ref_meta["error_bound"],
+        )

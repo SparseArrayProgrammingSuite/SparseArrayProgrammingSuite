@@ -3,6 +3,7 @@ from unittest.mock import Mock
 import pytest
 
 import numpy as np
+from saps.util import adjacency
 import scipy.sparse as sps
 
 from binsparse import COORMatrix, CustomTensor, ElementLevel, SparseLevel
@@ -11,8 +12,8 @@ from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to
 from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_sparse import PyDataSparseFramework
 from saps.benchmark import DataInstance
-from saps.benchmarks import adjacency, bellman_ford, cp_als
-from saps.benchmarks.adjacency import distance_matrix
+from saps.benchmarks import bellman_ford, cp_als
+from saps.util.adjacency import distance_matrix
 from saps.storage import LocalStorageBackend
 
 

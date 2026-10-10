@@ -14,7 +14,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.adjacency import (
+from saps.util.adjacency import (
     DEFAULT_MAX_DENSITY,
     squaring_count,
     zero_one_adjacency,
