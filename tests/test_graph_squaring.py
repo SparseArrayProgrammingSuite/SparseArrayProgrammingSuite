@@ -10,7 +10,7 @@ from frameworks.saps_smart import SmartSparseFramework
 from saps.benchmark import DataInstance
 from saps.benchmarks import floyd_warshall as fw
 from saps.benchmarks import transitive_closure as tc
-from saps.benchmarks.adjacency import squaring_count
+from saps.util.adjacency import squaring_count
 
 
 @pytest.mark.parametrize(
