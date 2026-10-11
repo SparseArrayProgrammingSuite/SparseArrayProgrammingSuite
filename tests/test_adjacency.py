@@ -68,6 +68,45 @@ def test_zero_one_adjacency_keeps_only_nonzero_edges():
         np.testing.assert_array_equal(actual, _PATTERN)
 
 
+def test_simple_undirected_adjacency_drops_loops_and_unions_edges():
+    graph = _signed_graph()
+    actual = NumpyFramework().from_binsparse(
+        zero_one_adjacency(graph, np.int64, simple_undirected=True)
+    )
+    np.testing.assert_array_equal(actual, [[0, 1, 0], [1, 0, 1], [0, 1, 0]])
+    # Opposite signs at the same coordinate cannot cancel; the input is intact.
+    np.testing.assert_array_equal(graph.values, [2.5, -1, 1, 0, 7])
+
+
+@pytest.mark.parametrize(
+    "module_name,class_prefix",
+    [
+        ("triangle_counting", "TriangleCounting"),
+        ("four_clique_counting", "FourCliqueCounting"),
+    ],
+)
+@pytest.mark.parametrize(
+    "name",
+    ["com-Friendster", "twitter7", "GAP-twitter", "GAP-web", "GAP-kron", "GAP-urand"],
+)
+def test_large_clique_inputs_match_published_convention(
+    monkeypatch, module_name, class_prefix, name
+):
+    module = importlib.import_module(f"saps.benchmarks.{module_name}")
+    group = "GAP" if name.startswith("GAP-") else "SNAP"
+    generator = getattr(module, f"{class_prefix}{group}Generator")()
+    dataset = next(d for d in generator.datasets if d.name == name)
+    monkeypatch.setattr(
+        module,
+        f"fetch_{group.lower()}_graph",
+        lambda _: DataInstance(inputs=[_signed_graph()], meta={}),
+    )
+    actual = NumpyFramework().from_binsparse(generator.generate(dataset).inputs[0])
+    assert actual.dtype == np.int64
+    np.testing.assert_array_equal(actual, [[0, 1, 0], [1, 0, 1], [0, 1, 0]])
+    assert "self-loops removed" in dataset.description
+
+
 def _check_first_input(
     monkeypatch, module_name, generator_name, fetch, expected, dtype
 ):

@@ -28,13 +28,17 @@ class TriangleCountingDataset(Dataset):
         suites: list[str] | None = None,
         A: np.ndarray | None = None,
         expected: np.ndarray | None = None,
+        simple_undirected: bool = False,
     ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Graph counting input {name}."
+        if simple_undirected:
+            self._description += " Symmetrized, with self-loops removed."
         self._suites = list(suites or [])
         self.A = A
         self.expected = expected
+        self.simple_undirected = simple_undirected
 
     @property
     def name(self) -> str:
@@ -175,8 +179,8 @@ class TriangleCountingTestGenerator(Generator[TriangleCountingDataset]):
 
 
 # Reference values of sum A[i,j] A[j,k] A[k,i] on each graph's 0-1 adjacency, before the
-# division by 6, computed by scripts/compute_graph_counts.py. Graphs with
-# over a billion edges have none, so their outputs are not checked.
+# division by 6, computed by scripts/compute_graph_counts.py unless cited below.
+# Published counts use the simple undirected inputs selected in the dataset lists.
 _TRIANGLE_SUMS: dict[str, int] = {
     "soc-Epinions1": 2220930,
     "soc-LiveJournal1": 730982880,
@@ -245,6 +249,19 @@ _TRIANGLE_SUMS: dict[str, int] = {
     "CollegeMsg": 32796,
     "higgs-twitter": 70278125,
     "GAP-road": 2632824,
+    # SNAP / GraphMiner, with matching node and edge counts:
+    # https://snap.stanford.edu/data/com-Friendster.html
+    # https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/clique/README.md
+    "com-Friendster": 6 * 4_173_724_142,
+    "twitter7": 6 * 34_824_916_864,
+    # LAGraph's known counts for the SuiteSparse GAP matrices:
+    # https://github.com/GraphBLAS/LAGraph/blob/7543de1f310371c540c23ff5da82705aa4e94ea0/src/benchmark/tc_demo.c#L22-L27
+    # twitter7 and GAP-twitter agree after removing loops and ignoring weights:
+    # https://sparse.tamu.edu/GAP/GAP-twitter
+    "GAP-twitter": 6 * 34_824_916_864,
+    "GAP-web": 6 * 84_907_041_475,
+    "GAP-kron": 6 * 106_873_365_648,
+    "GAP-urand": 6 * 5_378,
 }
 
 
@@ -295,6 +312,30 @@ class TriangleCountingSNAPGenerator(Generator[TriangleCountingDataset]):
                 year=2016,
                 url="https://snap.stanford.edu/index.html",
             )
+            @article{Pangolin,
+	title={Pangolin: An Efficient and Flexible Graph Mining System on CPU and GPU},
+	author={Xuhao Chen and Roshan Dathathri and Gurbinder Gill and Keshav Pingali},
+	year={2020},
+	journal = {Proc. VLDB Endow.},
+	issue_date = {August 2020},
+	volume = {13},
+	number = {8},
+	month = aug,
+	year = {2020},
+	numpages = {12},
+	publisher = {VLDB Endowment},
+}
+
+@InProceedings{Sandslash,
+	title={{Sandslash: A Two-Level Framework for Efficient Graph Pattern Mining}},
+	author={Xuhao Chen and Roshan Dathathri and Gurbinder Gill and Loc Hoang and Keshav Pingali},
+	year={2021},
+	booktitle = {Proceedings of the 35th ACM International Conference on Supercomputing},
+	series = {ICS '21},
+	year = {2021},
+	numpages = {14},
+}
+
         ]
 
     @property
@@ -327,7 +368,7 @@ class TriangleCountingSNAPGenerator(Generator[TriangleCountingDataset]):
             TriangleCountingDataset("soc-sign-bitcoin-otc", suites=["standard", "trace"]),
             TriangleCountingDataset("soc-sign-bitcoin-alpha", suites=["standard", "trace"]),
             TriangleCountingDataset("com-LiveJournal", suites=["standard"]),
-            TriangleCountingDataset("com-Friendster", suites=["standard"]),
+            TriangleCountingDataset("com-Friendster", suites=["standard"], simple_undirected=True),
             TriangleCountingDataset("com-Orkut", suites=["standard"]),
             TriangleCountingDataset("com-Youtube", suites=["standard"]),
             TriangleCountingDataset("com-DBLP", suites=["standard", "trace"]),
@@ -383,7 +424,7 @@ class TriangleCountingSNAPGenerator(Generator[TriangleCountingDataset]):
             TriangleCountingDataset("wiki-talk-temporal", suites=["standard"]),
             TriangleCountingDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
             TriangleCountingDataset("CollegeMsg", suites=["standard", "trace"]),
-            TriangleCountingDataset("twitter7", suites=["standard"]),
+            TriangleCountingDataset("twitter7", suites=["standard"], simple_undirected=True),
             TriangleCountingDataset("higgs-twitter", suites=["standard"]),
         ]
         # fmt: on
@@ -391,7 +432,11 @@ class TriangleCountingSNAPGenerator(Generator[TriangleCountingDataset]):
     def generate(self, dataset: TriangleCountingDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
         return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0], np.int64)],
+            inputs=[
+                zero_one_adjacency(
+                    raw.inputs[0], np.int64, simple_undirected=dataset.simple_undirected
+                )
+            ],
             meta=dict(raw.meta),
             ref_outputs=_reference_outputs(dataset.name),
         )
@@ -435,6 +480,30 @@ class TriangleCountingGAPGenerator(Generator[TriangleCountingDataset]):
                 url="https://arxiv.org/abs/1508.03619",
                 year=2015,
             ),
+@article{Pangolin,
+	title={Pangolin: An Efficient and Flexible Graph Mining System on CPU and GPU},
+	author={Xuhao Chen and Roshan Dathathri and Gurbinder Gill and Keshav Pingali},
+	year={2020},
+	journal = {Proc. VLDB Endow.},
+	issue_date = {August 2020},
+	volume = {13},
+	number = {8},
+	month = aug,
+	year = {2020},
+	numpages = {12},
+	publisher = {VLDB Endowment},
+}
+
+@InProceedings{Sandslash,
+	title={{Sandslash: A Two-Level Framework for Efficient Graph Pattern Mining}},
+	author={Xuhao Chen and Roshan Dathathri and Gurbinder Gill and Loc Hoang and Keshav Pingali},
+	year={2021},
+	booktitle = {Proceedings of the 35th ACM International Conference on Supercomputing},
+	series = {ICS '21},
+	year = {2021},
+	numpages = {14},
+}
+
         ]
 
     @property
@@ -457,17 +526,21 @@ class TriangleCountingGAPGenerator(Generator[TriangleCountingDataset]):
         # fmt: off
         return [
             TriangleCountingDataset("GAP-road", suites=["standard"]),
-            TriangleCountingDataset("GAP-twitter", suites=["standard"]),
-            TriangleCountingDataset("GAP-web", suites=["standard"]),
-            TriangleCountingDataset("GAP-kron", suites=["standard"]),
-            TriangleCountingDataset("GAP-urand", suites=["standard"]),
+            TriangleCountingDataset("GAP-twitter", suites=["standard"], simple_undirected=True),
+            TriangleCountingDataset("GAP-web", suites=["standard"], simple_undirected=True),
+            TriangleCountingDataset("GAP-kron", suites=["standard"], simple_undirected=True),
+            TriangleCountingDataset("GAP-urand", suites=["standard"], simple_undirected=True),
         ]
         # fmt: on
 
     def generate(self, dataset: TriangleCountingDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.name)
         return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0], np.int64)],
+            inputs=[
+                zero_one_adjacency(
+                    raw.inputs[0], np.int64, simple_undirected=dataset.simple_undirected
+                )
+            ],
             meta=dict(raw.meta),
             ref_outputs=_reference_outputs(dataset.name),
         )

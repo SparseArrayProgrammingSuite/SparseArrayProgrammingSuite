@@ -28,13 +28,17 @@ class FourCliqueCountingDataset(Dataset):
         suites: list[str] | None = None,
         A: np.ndarray | None = None,
         expected: np.ndarray | None = None,
+        simple_undirected: bool = False,
     ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Graph counting input {name}."
+        if simple_undirected:
+            self._description += " Symmetrized, with self-loops removed."
         self._suites = list(suites or [])
         self.A = A
         self.expected = expected
+        self.simple_undirected = simple_undirected
 
     @property
     def name(self) -> str:
@@ -176,8 +180,9 @@ class FourCliqueCountingTestGenerator(Generator[FourCliqueCountingDataset]):
 
 
 # Reference values of sum A[i,j] A[i,k] A[i,l] A[j,k] A[j,l] A[k,l] on each graph's 0-1 adjacency, before the
-# division by 24, computed by scripts/compute_graph_counts.py. Graphs with
-# over a billion edges have none, so their outputs are not checked.
+# division by 24, computed by scripts/compute_graph_counts.py unless cited below.
+# Published counts use the simple undirected inputs selected in the dataset lists.
+# GAP-web, GAP-kron, and GAP-urand still have no verified reference counts.
 _FOUR_CLIQUE_SUMS: dict[str, int] = {
     "soc-Epinions1": 32028002,
     "soc-LiveJournal1": 68935121462,
@@ -246,6 +251,13 @@ _FOUR_CLIQUE_SUMS: dict[str, int] = {
     "CollegeMsg": 33159,
     "higgs-twitter": 2167513391,
     "GAP-road": 2160,
+    # GraphMiner's simple undirected graphs, with matching node and edge counts:
+    # https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/clique/README.md
+    # twitter7 and GAP-twitter agree after removing loops and ignoring weights:
+    # https://sparse.tamu.edu/GAP/GAP-twitter
+    "com-Friendster": 24 * 8_963_503_263,
+    "twitter7": 24 * 6_622_234_180_319,
+    "GAP-twitter": 24 * 6_622_234_180_319,
 }
 
 
@@ -295,6 +307,30 @@ class FourCliqueCountingSNAPGenerator(Generator[FourCliqueCountingDataset]):
                 number=1,
                 year=2016,
                 url="https://snap.stanford.edu/index.html",
+                @article{Pangolin,
+	title={Pangolin: An Efficient and Flexible Graph Mining System on CPU and GPU},
+	author={Xuhao Chen and Roshan Dathathri and Gurbinder Gill and Keshav Pingali},
+	year={2020},
+	journal = {Proc. VLDB Endow.},
+	issue_date = {August 2020},
+	volume = {13},
+	number = {8},
+	month = aug,
+	year = {2020},
+	numpages = {12},
+	publisher = {VLDB Endowment},
+}
+
+@InProceedings{Sandslash,
+	title={{Sandslash: A Two-Level Framework for Efficient Graph Pattern Mining}},
+	author={Xuhao Chen and Roshan Dathathri and Gurbinder Gill and Loc Hoang and Keshav Pingali},
+	year={2021},
+	booktitle = {Proceedings of the 35th ACM International Conference on Supercomputing},
+	series = {ICS '21},
+	year = {2021},
+	numpages = {14},
+}
+
             )
         ]
 
@@ -328,7 +364,7 @@ class FourCliqueCountingSNAPGenerator(Generator[FourCliqueCountingDataset]):
             FourCliqueCountingDataset("soc-sign-bitcoin-otc", suites=["standard"]),
             FourCliqueCountingDataset("soc-sign-bitcoin-alpha", suites=["standard"]),
             FourCliqueCountingDataset("com-LiveJournal", suites=["standard"]),
-            FourCliqueCountingDataset("com-Friendster", suites=["standard"]),
+            FourCliqueCountingDataset("com-Friendster", suites=["standard"], simple_undirected=True),
             FourCliqueCountingDataset("com-Orkut", suites=["standard"]),
             FourCliqueCountingDataset("com-Youtube", suites=["standard"]),
             FourCliqueCountingDataset("com-DBLP", suites=["standard"]),
@@ -384,7 +420,7 @@ class FourCliqueCountingSNAPGenerator(Generator[FourCliqueCountingDataset]):
             FourCliqueCountingDataset("wiki-talk-temporal", suites=["standard"]),
             FourCliqueCountingDataset("email-Eu-core-temporal", suites=["standard"]),
             FourCliqueCountingDataset("CollegeMsg", suites=["standard", "trace", "train"]),
-            FourCliqueCountingDataset("twitter7", suites=["standard"]),
+            FourCliqueCountingDataset("twitter7", suites=["standard"], simple_undirected=True),
             FourCliqueCountingDataset("higgs-twitter", suites=["standard"]),
         ]
         # fmt: on
@@ -392,7 +428,11 @@ class FourCliqueCountingSNAPGenerator(Generator[FourCliqueCountingDataset]):
     def generate(self, dataset: FourCliqueCountingDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
         return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0], np.int64)],
+            inputs=[
+                zero_one_adjacency(
+                    raw.inputs[0], np.int64, simple_undirected=dataset.simple_undirected
+                )
+            ],
             meta=dict(raw.meta),
             ref_outputs=_reference_outputs(dataset.name),
         )
@@ -438,6 +478,30 @@ class FourCliqueCountingGAPGenerator(Generator[FourCliqueCountingDataset]):
                 url="https://arxiv.org/abs/1508.03619",
                 year=2015,
             ),
+            @article{Pangolin,
+	title={Pangolin: An Efficient and Flexible Graph Mining System on CPU and GPU},
+	author={Xuhao Chen and Roshan Dathathri and Gurbinder Gill and Keshav Pingali},
+	year={2020},
+	journal = {Proc. VLDB Endow.},
+	issue_date = {August 2020},
+	volume = {13},
+	number = {8},
+	month = aug,
+	year = {2020},
+	numpages = {12},
+	publisher = {VLDB Endowment},
+}
+
+@InProceedings{Sandslash,
+	title={{Sandslash: A Two-Level Framework for Efficient Graph Pattern Mining}},
+	author={Xuhao Chen and Roshan Dathathri and Gurbinder Gill and Loc Hoang and Keshav Pingali},
+	year={2021},
+	booktitle = {Proceedings of the 35th ACM International Conference on Supercomputing},
+	series = {ICS '21},
+	year = {2021},
+	numpages = {14},
+}
+
         ]
 
     @property
@@ -460,17 +524,21 @@ class FourCliqueCountingGAPGenerator(Generator[FourCliqueCountingDataset]):
         # fmt: off
         return [
             FourCliqueCountingDataset("GAP-road", suites=["standard"]),
-            FourCliqueCountingDataset("GAP-twitter", suites=["standard"]),
-            FourCliqueCountingDataset("GAP-web", suites=["standard"]),
-            FourCliqueCountingDataset("GAP-kron", suites=["standard"]),
-            FourCliqueCountingDataset("GAP-urand", suites=["standard"]),
+            FourCliqueCountingDataset("GAP-twitter", suites=["standard"], simple_undirected=True),
+            FourCliqueCountingDataset("GAP-web", suites=["standard"], simple_undirected=True),
+            FourCliqueCountingDataset("GAP-kron", suites=["standard"], simple_undirected=True),
+            FourCliqueCountingDataset("GAP-urand", suites=["standard"], simple_undirected=True),
         ]
         # fmt: on
 
     def generate(self, dataset: FourCliqueCountingDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.name)
         return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0], np.int64)],
+            inputs=[
+                zero_one_adjacency(
+                    raw.inputs[0], np.int64, simple_undirected=dataset.simple_undirected
+                )
+            ],
             meta=dict(raw.meta),
             ref_outputs=_reference_outputs(dataset.name),
         )

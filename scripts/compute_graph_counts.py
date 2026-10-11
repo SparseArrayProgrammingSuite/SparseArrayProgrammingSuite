@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 """Compute reference sums for the triangle and 4-clique counting benchmarks.
 
-The benchmarks evaluate fixed einsums on the raw 0-1 adjacency A, which keeps
-edge direction and self-loops:
+The benchmarks evaluate fixed einsums on the 0-1 adjacency A. Most datasets keep
+edge direction and self-loops; the six largest use simple undirected graphs to
+match published reference counts:
 
     triangles     = sum A[i,j] A[j,k] A[k,i] / 6                    = trace(A^3) / 6
     four-cliques  = sum A[i,j] A[i,k] A[i,l] A[j,k] A[j,l] A[k,l] / 24
