@@ -14,13 +14,13 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.adjacency import (
+from saps.benchmarks.gap import fetch_gap_graph
+from saps.benchmarks.snap import fetch_snap_graph
+from saps.util.adjacency import (
     DEFAULT_MAX_DENSITY,
     squaring_count,
     zero_one_adjacency,
 )
-from saps.benchmarks.gap import fetch_gap_graph
-from saps.benchmarks.snap import fetch_snap_graph
 from saps_framework.binsparse_utils import binsparse_equal
 
 
@@ -496,8 +496,7 @@ class TransitiveClosureBenchmark(Benchmark):
             TransitiveClosureGAPGenerator(),
         ]
 
-    def benchmark(self, xp, data, meta):
-        edges = data[0]
+    def benchmark(self, xp, meta, edges):
         (n, m) = edges.shape
         assert m == n
 
@@ -514,7 +513,7 @@ class TransitiveClosureBenchmark(Benchmark):
             if xp.all(xp.equal(graph, nextGraph)):
                 break
             graph = nextGraph
-        return [graph]
+        return graph
 
     def check(self, param):
         for item in self._output:

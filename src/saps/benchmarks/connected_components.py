@@ -14,9 +14,9 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.adjacency import zero_one_adjacency
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
+from saps.util.adjacency import zero_one_adjacency
 
 
 class ConnectedComponentsDataset(Dataset):
@@ -480,8 +480,7 @@ class ConnectedComponentsBenchmark(Benchmark):
             ConnectedComponentsGAPGenerator(),
         ]
 
-    def benchmark(self, xp, data, meta):
-        edges = data[0]
+    def benchmark(self, xp, meta, edges):
         (n, m) = edges.shape
         assert m == n
 
@@ -501,7 +500,7 @@ class ConnectedComponentsBenchmark(Benchmark):
             if xp.all(xp.equal(labels, nextLabels)):
                 break
             labels = nextLabels
-        return [labels]
+        return labels
 
     def check(self, param):
         for item in self._output:

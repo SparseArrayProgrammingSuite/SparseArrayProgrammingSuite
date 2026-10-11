@@ -48,14 +48,30 @@ Good benchmarks are adapted from real applications, papers, textbooks, or establ
 
 Benchmark functions should be plain Python functions whose first argument is the framework wrapper, conventionally named `xp`. The wrapper represents the sparse array framework being tested, such as NumPy, SciPy, pydata/sparse, or another implementation.
 
+The benchmark method takes `xp`, then the generator's `meta`, then one named parameter per input array, in the order the generator produces them. It returns a single output directly or several as a tuple:
+
+```python
+def benchmark(self, xp, meta, A, b, x0):
+    ...
+    return x
+```
+
+Every benchmark function has a fixed parameter list. If the inputs differ between datasets, there are two ways to keep it that way:
+
+- **Split the benchmark by hand** when there are only a few distinct signatures.
+- **Generate the function per dataset** when every dataset needs its own signature. Override `Generator.generate_benchmark_function(dataset, problem, benchmark)` to return a function `benchmark(xp, meta, *inputs)` built from the dataset's metadata with `saps.codegen.define_function`. SAPS calls this during setup, so it isn't timed. The default returns the benchmark's own `benchmark` method unchanged. Subgraph matching (one parameter per query matrix), weighted model counting (`B, W1, ..., Wn`) and model counting generate their functions this way, and their benchmark classes' `benchmark` methods only raise. ODE generators use the same hook: each generator supplies a literal `derivative_source` string, and each solver's `benchmark_source` pastes it into an f-string template at every derivative evaluation.
+
+`*data_args` remains available as a last resort, after any fixed leading inputs: `def benchmark(self, xp, meta, *data_args)`.
+
 Benchmark functions should:
 
 - Use Array API style operations through `xp`.
 - Use basic Python syntax, including `for`, `while`, and `if` when needed.
 - Avoid framework-specific shortcuts that only one implementation can support.
 - Avoid file I/O, threads, networking, global mutable state, recursion, and non-determinism.
+- Be self-contained: write helper logic inline in the benchmark body rather than calling module-level functions, `self` methods, nested functions, or lambdas. Source-level compilers only see the benchmark function's own source.
 - Convert input `BinsparseFormat` values to framework arrays during setup, not inside the measured function body.
-- Return framework arrays that SAPS can convert back to `BinsparseFormat`.
+- Return framework arrays that SAPS can convert back to `BinsparseFormat`, as `return x` or `return x, y` rather than a list.
 
 Prefer clear translations over clever rewrites. If the original application uses a sparse matrix expression, preserve that structure unless a small adaptation is needed to fit the Array API style.
 

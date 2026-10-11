@@ -1195,8 +1195,7 @@ class CGBenchmark(Benchmark):
             f"CG residual mismatch for {param.dataset.name}"
         )
 
-    def benchmark(self, xp, data: list, meta: dict):
-        A, b, x = data
+    def benchmark(self, xp, meta: dict, A, b, x):
         rel_tol = meta.get("rel_tol", 1e-6)
         abs_tol = meta.get("abs_tol", 1e-20)
         max_iter = meta.get("max_iter", 100)
@@ -1234,4 +1233,4 @@ class CGBenchmark(Benchmark):
                 "within the maximum number of iterations"
             )
 
-        return [x]
+        return x

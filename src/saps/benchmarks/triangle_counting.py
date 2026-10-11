@@ -14,9 +14,9 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.adjacency import zero_one_adjacency
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
+from saps.util.adjacency import zero_one_adjacency
 
 
 class TriangleCountingDataset(Dataset):
@@ -512,10 +512,9 @@ class TriangleCountingBenchmark(Benchmark):
             TriangleCountingGAPGenerator(),
         ]
 
-    def benchmark(self, xp, data: list, meta: dict):
-        A = data[0]
+    def benchmark(self, xp, meta: dict, A):
         triangles = xp.einsum("S[] += A[i,j] * A[j,k] * A[k,i]", A=A) / 6
-        return [xp.asarray(triangles)]
+        return xp.asarray(triangles)
 
     def check(self, param):
         for item in self._output:

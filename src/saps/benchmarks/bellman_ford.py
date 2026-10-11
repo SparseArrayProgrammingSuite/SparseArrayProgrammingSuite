@@ -14,12 +14,12 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.adjacency import distance_matrix
 from saps.benchmarks.gap import fetch_gap_graph, gap_graph
 from saps.benchmarks.snap import (
     fetch_snap_graph,
     with_source_vertex,
 )
+from saps.util.adjacency import distance_matrix
 
 
 def _from_binsparse(array):
@@ -921,8 +921,7 @@ class BellmanFordBenchmark(Benchmark):
             BellmanFordGAPGenerator(),
         ]
 
-    def benchmark(self, xp, data, meta):
-        edges = data[0]
+    def benchmark(self, xp, meta, edges):
         src = meta["src"]
 
         n = edges.shape[0]
@@ -939,7 +938,7 @@ class BellmanFordBenchmark(Benchmark):
             if stop:
                 break
 
-        return [D]
+        return D
 
     def check(self, param):
         for item in self._output:
