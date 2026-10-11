@@ -5,7 +5,7 @@ import scipy.sparse as scipy_sparse
 
 import sparse as pydata_sparse
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
 
 from saps.benchmark import (
     Benchmark,
@@ -18,6 +18,7 @@ from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     fetch_suitesparse_linear_system,
 )
+from saps.util.error_bounds import operation_error_bound, summation_error_bound
 
 
 class GMRESDataset(SuiteSparseDataset):
@@ -202,7 +203,8 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
                 from_numpy(dataset.x0),
             ],
             meta=dataset.benchmark_meta(),
-            ref_meta=dataset.ref_meta,
+            ref_outputs=[from_scipy(scipy_sparse.coo_array(np.abs(dataset.A)))],
+            ref_meta={**dataset.ref_meta, "bnorm": float(np.linalg.norm(dataset.b))},
         )
 
 
@@ -1456,7 +1458,12 @@ class GMRESSuiteSparseGenerator(Generator[GMRESDataset]):
         )
         x_bin = from_numpy(np.zeros(A_bin.shape[1]))
         b_bin = from_numpy(b)
-        return DataInstance(inputs=[A_bin, b_bin, x_bin], meta=dataset.benchmark_meta())
+        return DataInstance(
+            inputs=[A_bin, b_bin, x_bin],
+            meta=dataset.benchmark_meta(),
+            ref_outputs=[from_scipy(np.abs(to_scipy(A_bin).tocoo()))],
+            ref_meta={"bnorm": float(np.linalg.norm(b))},
+        )
 
 
 class GMRESBenchmark(Benchmark):
@@ -1562,9 +1569,6 @@ class GMRESBenchmark(Benchmark):
                 "Output must be in binsparse format"
             )
 
-        if not self._ref_meta or "residual_tol" not in self._ref_meta:
-            return
-
         A_bin, b_bin, _x0_bin = self._input
         try:
             A_coo = to_scipy(A_bin).tocoo()
@@ -1575,10 +1579,38 @@ class GMRESBenchmark(Benchmark):
             data=A_coo.data,
             shape=A_coo.shape,
         )
+        assert self._ref_outputs is not None, "No cached absolute matrix"
+        assert self._ref_meta is not None, "No cached reference norms"
+        abs_A = to_sparse(self._ref_outputs[0])
         b = to_numpy(b_bin)
         x_sol = to_numpy(self._output[0])
-        residual = np.linalg.norm(b - A @ x_sol)
-        assert residual < self._ref_meta["residual_tol"], (
+        r = np.asarray(b - A @ x_sol).ravel()
+        # Bound the matrix-vector product and the subtraction separately.
+        roundoff = summation_error_bound(
+            np,
+            A.shape[1] + 1,
+            abs_A @ np.abs(x_sol),
+            np.result_type(A.dtype, x_sol.dtype),
+        )
+        roundoff += operation_error_bound(np, r, r.dtype)
+        residual = np.linalg.norm(r)
+        bound = np.linalg.norm(roundoff)
+        # The norm adds a sum of squares and a square root.
+        bound += summation_error_bound(np, r.size + 2, residual + bound, r.dtype)
+        assert np.isfinite(residual) and np.isfinite(bound), (
+            "Non-finite residual or error bound"
+        )
+        if self._ref_meta and "residual_tol" in self._ref_meta:
+            assert residual < self._ref_meta["residual_tol"] + bound, (
+                f"GMRES residual too high for {param.dataset.name}: {residual}"
+            )
+            return
+
+        # GMRES returns once ||b - Ax|| / ||b|| drops below rel_tol.
+        rel_tol = (self._meta or {}).get("rel_tol", 1e-6)
+        bnorm = self._ref_meta["bnorm"]
+        limit = rel_tol * bnorm + bound
+        assert residual <= limit, (
             f"GMRES residual too high for {param.dataset.name}: {residual}"
         )
 

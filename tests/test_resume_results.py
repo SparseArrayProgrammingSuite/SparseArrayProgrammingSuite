@@ -129,7 +129,7 @@ def test_resume_merges_results_per_environment_and_skips_completed_runs(
         "machine_params": SimpleNamespace(machine="node"),
         "commit_hash": old.commit_hash,
         "commit_date": 0,
-        "timeout": 5,
+        "process_timeout": 5,
         "show_stderr": False,
         "quick": True,
         "install_project": (None, None),
@@ -162,8 +162,22 @@ def test_resume_merges_results_per_environment_and_skips_completed_runs(
 
 @pytest.mark.parametrize("chunk_index", range(5))
 @pytest.mark.parametrize("cache_override", ["", "shared-cache"])
+@pytest.mark.parametrize(
+    ("timeout_flags", "expected_process", "expected_measurement"),
+    [
+        ([], 180, "60"),
+        (["--process-timeout", "30", "--measurement-timeout", "1"], 30, "1.0"),
+    ],
+)
 def test_competition_selects_standard_simhash_datasets_without_machine_prompts(
-    runner, monkeypatch, tmp_path, chunk_index, cache_override
+    runner,
+    monkeypatch,
+    tmp_path,
+    chunk_index,
+    cache_override,
+    timeout_flags,
+    expected_process,
+    expected_measurement,
 ):
     import json
     import sys
@@ -192,8 +206,15 @@ def test_competition_selects_standard_simhash_datasets_without_machine_prompts(
 
     def get_environments(conf, *args):
         assert conf.matrix["env_nobuild"]["SAPS_CACHE_DIR"] == [expected_cache]
+        assert conf.matrix["env_nobuild"]["SAPS_MEASUREMENT_TIMEOUT"] == [
+            expected_measurement
+        ]
         for include in conf.include:
             assert include["env_nobuild"]["SAPS_CACHE_DIR"] == expected_cache
+            assert (
+                include["env_nobuild"]["SAPS_MEASUREMENT_TIMEOUT"]
+                == expected_measurement
+            )
             # ASV runs setup in a temporary working directory.
             with monkeypatch.context() as worker:
                 worker.setenv(
@@ -224,6 +245,7 @@ def test_competition_selects_standard_simhash_datasets_without_machine_prompts(
         "argv",
         [
             "run_benchmark.py",
+            *timeout_flags,
             "--config",
             str(root / "competition.config.json"),
             "--re",
@@ -259,6 +281,9 @@ def test_competition_selects_standard_simhash_datasets_without_machine_prompts(
         ][chunk_index::5]
     )
     assert kwargs["machine_params"].machine == "run_12345-task-0"
+    assert kwargs["process_timeout"] == expected_process
+    assert kwargs["results_dir"] == tmp_path / "results" / f"chunk-{chunk_index}"
+    assert kwargs["resume"] is True
     machine_load.assert_not_called()
 
 
@@ -307,27 +332,118 @@ def test_saved_diagnostics_preserve_machines_across_resume(
     assert not list(tmp_path.rglob(".save-*"))
 
 
+def test_timeout_statuses_are_saved_combined_and_preserved_on_resume(
+    runner, setup_resume, tmp_path
+):
+    import json
+
+    from saps.benchmark_status import STATUS_PREFIX
+
+    benchmark, benchmarks, new_results, record = setup_resume
+    name = benchmark["name"]
+    results = new_results()
+    record(results, benchmark, [None, None, None])
+    results.errcode[name] = -256
+    results.stderr[name] = "\n".join(
+        [
+            "For parameters: a",
+            "asv: benchmark timed out (timeout 10s)",
+            "For parameters: b",
+            STATUS_PREFIX
+            + json.dumps(
+                {
+                    "phase": "measurement",
+                    "status": "measurement_timeout",
+                    "elapsed_seconds": 2,
+                    "timeout_seconds": 1,
+                }
+            ),
+            STATUS_PREFIX + json.dumps({"phase": "finished"}),
+            "For parameters: c",
+            STATUS_PREFIX + json.dumps({"phase": "teardown"}),
+            "asv: benchmark timed out (timeout 10s)",
+        ]
+    )
+    expected = ["setup_timeout", "measurement_timeout", "teardown_timeout"]
+    statuses = runner.format_results(results, benchmarks)["results"][name][
+        "parameter_statuses"
+    ]
+    assert [r["status"] for r in statuses] == expected
+    results_dir = tmp_path / "results"
+    runner._save_results(
+        results, results_dir, benchmarks, SimpleNamespace(machine="node")
+    )
+    (path,) = results_dir.rglob("*.json")
+    saved = json.loads(path.read_text())
+    assert saved["saps"]["runs"][0]["parameter_statuses"] == statuses
+
+    spec = importlib.util.spec_from_file_location(
+        "combine_competition_results",
+        Path(__file__).parents[1] / "scripts/combine_competition_results.py",
+    )
+    combiner = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(combiner)
+    metadata = {
+        "benchmarks": [
+            {
+                "name": "example",
+                "asv_ids": {"time": name},
+                "generators": [
+                    {
+                        "name": "generator",
+                        "datasets": [
+                            {"name": p, "asv_param": p} for p in ("a", "b", "c")
+                        ],
+                    }
+                ],
+            }
+        ]
+    }
+    combined, _ = combiner.combine_results(tmp_path, metadata)
+    datasets = combined["benchmarks"][0]["generators"][0]["datasets"]
+    assert [d["results"][0]["status"] for d in datasets] == expected
+    assert datasets[1]["results"][0]["elapsed_seconds"] == 2
+    assert datasets[1]["results"][0]["timeout_source"] == "measurement"
+
+    resumed = new_results()
+    resumed.load_data(results_dir)
+    record(resumed, benchmark, [0.5, None, None], [0])
+    benchmarks._benchmark_selection[name] = [0]
+    runner._save_results(
+        resumed, results_dir, benchmarks, SimpleNamespace(machine="node"), resume=True
+    )
+    combined, _ = combiner.combine_results(tmp_path, metadata)
+    datasets = combined["benchmarks"][0]["generators"][0]["datasets"]
+    assert [d["results"][0]["status"] for d in datasets] == ["ok", *expected[1:]]
+    saved = json.loads(path.read_text())
+    assert [
+        r["parameters"] for r in saved["saps"]["runs"][-1]["parameter_statuses"]
+    ] == [["a"]]
+
+
 @pytest.mark.parametrize(
     ("flags", "expected"),
     [
-        ([], "0"),
-        (["--tag", "suite-test"], "0"),
-        (["--check-suite"], "1"),
+        ([], "60"),
+        (["--tag", "suite-test"], "60"),
+        (["--measurement-timeout", "2"], "2.0"),
         (["--trace-statistics"], "0"),
         (["--cache-datasets"], "0"),
     ],
 )
-def test_runner_propagates_explicit_check_mode(
+def test_runner_propagates_measurement_timeout(
     runner, tmp_path, monkeypatch, flags, expected
 ):
     import os
     import sys
 
-    # Stale parent/config settings must not enable checks for normal timing runs.
-    monkeypatch.setattr(os, "environ", {**os.environ, "SAPS_CHECK_SUITE": "1"})
+    # Stale parent/config settings must not override the runner's limit.
+    monkeypatch.setattr(os, "environ", {**os.environ, "SAPS_MEASUREMENT_TIMEOUT": "5"})
     config = {
-        "matrix": {"env_nobuild": {"SAPS_CHECK_SUITE": ["1"]}},
-        "include": [{"python": "3.12", "env_nobuild": {"SAPS_CHECK_SUITE": "1"}}],
+        "matrix": {"env_nobuild": {"SAPS_MEASUREMENT_TIMEOUT": ["5"]}},
+        "include": [
+            {"python": "3.12", "env_nobuild": {"SAPS_MEASUREMENT_TIMEOUT": "5"}}
+        ],
     }
     monkeypatch.setattr(runner, "_load_saps_config", lambda _: config)
     monkeypatch.setattr(
@@ -345,9 +461,13 @@ def test_runner_propagates_explicit_check_mode(
     monkeypatch.setattr(runner.Config, "from_json", capture)
     with pytest.raises(ConfigCaptured):
         runner.main()
-    assert os.environ["SAPS_CHECK_SUITE"] == expected
-    assert captured[0]["matrix"]["env_nobuild"]["SAPS_CHECK_SUITE"] == [expected]
-    assert captured[0]["include"][0]["env_nobuild"]["SAPS_CHECK_SUITE"] == expected
+    assert os.environ["SAPS_MEASUREMENT_TIMEOUT"] == expected
+    assert captured[0]["matrix"]["env_nobuild"]["SAPS_MEASUREMENT_TIMEOUT"] == [
+        expected
+    ]
+    assert (
+        captured[0]["include"][0]["env_nobuild"]["SAPS_MEASUREMENT_TIMEOUT"] == expected
+    )
 
 
 def test_upload_chunks_cover_datasets_as_shared_manifest_changes(

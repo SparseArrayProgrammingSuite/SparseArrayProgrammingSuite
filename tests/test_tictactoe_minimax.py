@@ -75,6 +75,7 @@ def test_checker_uses_recursive_reference(board):
     benchmark._ref_outputs = None
     with pytest.raises(AssertionError, match="No reference output"):
         benchmark.check(param)
+    del benchmark._output
     benchmark.teardown(param)
 
 

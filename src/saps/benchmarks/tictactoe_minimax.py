@@ -472,7 +472,7 @@ class TicTacToeMinimaxBenchmark(Benchmark):
         assert self._ref_outputs is not None, "No reference output"
         actual = to_numpy(self._output[0])
         expected = to_numpy(self._ref_outputs[0])
-        assert np.issubdtype(
-            actual.dtype, np.integer
-        ), "Minimax output must have an integer dtype"
+        assert np.issubdtype(actual.dtype, np.integer), (
+            "Minimax output must have an integer dtype"
+        )
         np.testing.assert_array_equal(actual, expected)
