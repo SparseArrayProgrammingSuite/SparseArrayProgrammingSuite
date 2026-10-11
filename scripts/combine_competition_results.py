@@ -106,6 +106,7 @@ def combine_results(run_directory: Path, metadata: dict) -> tuple[dict, dict]:
                             "SAPS_LOG_PATH",
                             "SAPS_CACHE_DIR",
                             "SAPS_MANIFEST_PATH",
+                            "SAPS_MEASUREMENT_TIMEOUT",
                             "REMOTE_STORAGE_BACKEND",
                             "REMOTE_STORAGE_BUCKET",
                         }
@@ -134,11 +135,16 @@ def combine_results(run_directory: Path, metadata: dict) -> tuple[dict, dict]:
                 "hostname", fallback_machine.get("machine")
             )
             runs = {}
+            statuses = {}
             for run in details.get("runs", []):
+                run_statuses = {
+                    tuple(record["parameters"]): record
+                    for record in run.get("parameter_statuses", [])
+                }
                 for parameters in run["parameters"]:
-                    runs[(run["benchmark"], run.get("version"), tuple(parameters))] = (
-                        run
-                    )
+                    run_key = (run["benchmark"], run.get("version"), tuple(parameters))
+                    runs[run_key] = run
+                    statuses[run_key] = run_statuses.get(tuple(parameters), {})
 
             for name, raw_row in document["results"].items():
                 row = dict(zip(document["result_columns"], raw_row, strict=False))
@@ -190,10 +196,15 @@ def combine_results(run_directory: Path, metadata: dict) -> tuple[dict, dict]:
                             },
                         )
                     status = (
-                        "skipped" if is_nan else "failed" if value is None else "ok"
+                        "skipped"
+                        if is_nan
+                        else "ok"
+                        if value is not None and math.isfinite(value)
+                        else "failed"
                     )
-                    if isinstance(value, float) and math.isinf(value):
-                        status = "nonfinite"
+                    recorded_status = statuses.get(
+                        (name, row.get("version"), parameter), {}
+                    )
                     result = {
                         "framework": framework,
                         "machine": machine,
@@ -210,7 +221,14 @@ def combine_results(run_directory: Path, metadata: dict) -> tuple[dict, dict]:
                         "samples": _json_value(row["samples"][index])
                         if row.get("samples") is not None
                         else None,
+                        **{
+                            key: val
+                            for key, val in recorded_status.items()
+                            if key != "parameters"
+                        },
                     }
+                    if isinstance(value, float) and math.isinf(value):
+                        result["reason"] = "nonfinite"
                     outputs.setdefault((benchmark, generator, dataset), []).append(
                         result
                     )

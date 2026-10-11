@@ -204,7 +204,7 @@ After changing benchmark code, generator code, metadata, dependency imports, or 
 
 ```bash
 poetry run ./bin/generate_metadata.py
-poetry run ./bin/run_benchmark.py --trace-statistics --tag suite-trace --timeout 30 --show-stderr
+poetry run ./bin/run_benchmark.py --trace-statistics --tag suite-trace --process-timeout 30 --show-stderr
 poetry run ./bin/generate_metadata.py --statistics statistics.json
 poetry run ./bin/run_benchmark.py --cache-datasets
 ```
