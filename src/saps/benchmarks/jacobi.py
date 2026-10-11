@@ -5,7 +5,7 @@ import scipy.sparse as scipy_sparse
 
 import sparse as pydata_sparse
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy, to_scipy
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
 
 from saps.benchmark import (
     Author,
@@ -148,6 +148,8 @@ class JacobiTestGenerator(Generator[JacobiDataset]):
                 from_numpy(dataset.x),
             ],
             meta=dataset.benchmark_meta(),
+            ref_outputs=[from_scipy(scipy_sparse.coo_array(np.abs(dataset.A)))],
+            ref_meta={"bnorm": float(np.linalg.norm(dataset.b))},
         )
 
 
@@ -706,7 +708,12 @@ class JacobiSuiteSparseGenerator(Generator[JacobiDataset]):
         x_bin = from_numpy(np.zeros(A_bin.shape[1]))
         b_bin = from_numpy(b)
 
-        return DataInstance(inputs=[A_bin, b_bin, x_bin], meta=dataset.benchmark_meta())
+        return DataInstance(
+            inputs=[A_bin, b_bin, x_bin],
+            meta=dataset.benchmark_meta(),
+            ref_outputs=[from_scipy(np.abs(to_scipy(A_bin).tocoo()))],
+            ref_meta={"bnorm": float(np.linalg.norm(b))},
+        )
 
 
 class JacobiBenchmark(Benchmark):
@@ -809,6 +816,9 @@ class JacobiBenchmark(Benchmark):
             data=A_coo.data,
             shape=A_coo.shape,
         )
+        assert self._ref_outputs is not None, "No cached absolute matrix"
+        assert self._ref_meta is not None, "No cached reference norms"
+        abs_A = to_sparse(self._ref_outputs[0])
         b = to_numpy(b_bin)
         x_sol = to_numpy(self._output[0])
         r = np.asarray(b - A @ x_sol).ravel()
@@ -816,7 +826,7 @@ class JacobiBenchmark(Benchmark):
         roundoff = summation_error_bound(
             np,
             A.shape[1] + 1,
-            np.abs(A) @ np.abs(x_sol),
+            abs_A @ np.abs(x_sol),
             np.result_type(A.dtype, x_sol.dtype),
         )
         roundoff += operation_error_bound(np, r, r.dtype)
@@ -829,7 +839,7 @@ class JacobiBenchmark(Benchmark):
         )
         # Jacobi returns once ||b - Ax|| drops below rel_tol * ||b||.
         rel_tol = (self._meta or {}).get("rel_tol", 1e-6)
-        bnorm = np.linalg.norm(np.asarray(b).ravel())
+        bnorm = self._ref_meta["bnorm"]
         abs_tol = (self._meta or {}).get("abs_tol", 1e-20)
         limit = max(rel_tol * bnorm, abs_tol) + bound
         assert residual <= limit, (

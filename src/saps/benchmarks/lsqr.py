@@ -5,7 +5,7 @@ import scipy.sparse as scipy_sparse
 
 import sparse as pydata_sparse
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy, to_scipy
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
 
 from saps.benchmark import (
     Benchmark,
@@ -228,7 +228,12 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
                 from_numpy(dataset.b),
             ],
             meta=dataset.benchmark_meta(),
-            ref_meta={"convergence": dataset.convergence},
+            ref_outputs=[from_scipy(scipy_sparse.coo_array(np.abs(dataset.A)))],
+            ref_meta={
+                "convergence": dataset.convergence,
+                "bnorm": float(np.linalg.norm(dataset.b)),
+                "gradient_scale": float(np.linalg.norm(dataset.A.T @ dataset.b)),
+            },
         )
 
 
@@ -359,7 +364,16 @@ class LSQRSuiteSparseGenerator(Generator[LSQRDataset]):
             b = b + noise
 
         b_bin = from_numpy(b)
-        return DataInstance(inputs=[A_bin, b_bin], meta=dataset.benchmark_meta())
+        A = to_scipy(A_bin).tocoo()
+        return DataInstance(
+            inputs=[A_bin, b_bin],
+            meta=dataset.benchmark_meta(),
+            ref_outputs=[from_scipy(np.abs(A))],
+            ref_meta={
+                "bnorm": float(np.linalg.norm(b)),
+                "gradient_scale": float(np.linalg.norm(A.T @ b)),
+            },
+        )
 
 
 class LSQRBenchmark(Benchmark):
@@ -473,10 +487,12 @@ class LSQRBenchmark(Benchmark):
             data=A_coo.data,
             shape=A_coo.shape,
         )
+        assert self._ref_outputs is not None, "No cached absolute matrix"
+        assert self._ref_meta is not None, "No cached reference norms"
+        abs_A = to_sparse(self._ref_outputs[0])
         b = to_numpy(b_bin)
         x_sol = to_numpy(self._output[0])
         residual = b - A @ x_sol
-        abs_A = np.abs(A)
         roundoff = summation_error_bound(
             np,
             A.shape[1] + 1,
@@ -493,7 +509,7 @@ class LSQRBenchmark(Benchmark):
             assert np.isfinite(rnorm) and np.isfinite(bound), (
                 "Non-finite residual or error bound"
             )
-            assert rnorm < 1e-5 * np.linalg.norm(b) + 1e-5 + bound
+            assert rnorm < 1e-5 * self._ref_meta["bnorm"] + 1e-5 + bound
             return
 
         # Least squares is solved when A.T @ (b - Ax) is small.
@@ -508,7 +524,7 @@ class LSQRBenchmark(Benchmark):
         assert np.isfinite(gradient) and np.isfinite(bound), (
             "Non-finite gradient or error bound"
         )
-        scale = np.linalg.norm(A.T @ b)
+        scale = self._ref_meta["gradient_scale"]
         if self._ref_meta and self._ref_meta.get("convergence") == "gradient":
             assert gradient < 1e-5 * scale + 1e-5 + bound
             return
