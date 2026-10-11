@@ -679,14 +679,13 @@ class FloydWarshallBenchmark(Benchmark):
             FloydWarshallGAPGenerator(),
         ]
 
-    def benchmark(self, xp, data, meta):
+    def benchmark(self, xp, meta, G):
         """
         Return shortest paths using at most 2**max_squarings edges.
 
         Inputs have a zero diagonal and no negative cycles. With a sufficient
         squaring budget this computes all-pairs shortest paths.
         """
-        G = data[0]
         n, m = G.shape
         assert n == m
         for _iteration in range(meta["max_squarings"]):
@@ -694,7 +693,7 @@ class FloydWarshallBenchmark(Benchmark):
             if xp.all(xp.equal(G, next_G)):
                 break
             G = next_G
-        return [G]
+        return G
 
     def check(self, param):
         for item in self._output:

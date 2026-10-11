@@ -1,7 +1,7 @@
 {
   "benchmarks": [
     {
-      "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+      "ai_disclosure": "The original benchmark algorithms were written without generative AI. Generative AI was used for debugging, generator-time inlining, and tests.",
       "asv_ids": {
         "peakmem": "ode.BackwardEulerBenchmark.peakmem_backward_euler",
         "time": "ode.BackwardEulerBenchmark.time_backward_euler"
@@ -12,10 +12,10 @@
       "concepts": "<ccs2012></ccs2012>",
       "description": "Integrates ODE initial-value problems with backward Euler, using ten fixed-point iterations per step.",
       "file": "src/saps/benchmarks/ode.py",
-      "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+      "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
       "generators": [
         {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+          "ai_disclosure": "The original benchmark algorithms were written without generative AI. Generative AI was used for debugging, generator-time inlining, and tests.",
           "authors": [
             "Akarsh Duddu <aduddu3@gatech.edu>"
           ],
@@ -27,7 +27,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small RC circuit",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "small",
               "pretty_name": "Small",
               "suites": [
@@ -46,7 +46,7 @@
           ],
           "description": "RC circuit ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+          "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
           "motivation": "",
           "name": "ode_rc",
           "pretty_name": "Ordinary Differential Equation (ODE) Resistor-Capacitor (RC) Circuit",
@@ -62,7 +62,7 @@
           "topics": []
         },
         {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+          "ai_disclosure": "The original benchmark algorithms were written without generative AI. Generative AI was used for debugging, generator-time inlining, and tests.",
           "authors": [
             "Akarsh Duddu <aduddu3@gatech.edu>"
           ],
@@ -74,7 +74,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small RLC circuit",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "small",
               "pretty_name": "Small",
               "suites": [
@@ -93,7 +93,7 @@
           ],
           "description": "RLC circuit ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+          "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
           "motivation": "",
           "name": "ode_rlc",
           "pretty_name": "Ordinary Differential Equation (ODE) Resistor-Inductor-Capacitor (RLC) Circuit",
@@ -109,7 +109,7 @@
           "topics": []
         },
         {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+          "ai_disclosure": "The original benchmark algorithms were written without generative AI. Generative AI was used for debugging, generator-time inlining, and tests.",
           "authors": [
             "Akarsh Duddu <aduddu3@gatech.edu>"
           ],
@@ -121,7 +121,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small Lotka-Volterra system",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "small",
               "pretty_name": "Small",
               "suites": [
@@ -140,7 +140,7 @@
           ],
           "description": "Lotka-Volterra ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+          "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
           "motivation": "",
           "name": "ode_lotka_volterra",
           "pretty_name": "Ordinary Differential Equation (ODE) Lotka-Volterra",
@@ -156,7 +156,7 @@
           "topics": []
         },
         {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+          "ai_disclosure": "The original benchmark algorithms were written without generative AI. Generative AI was used for debugging, generator-time inlining, and tests.",
           "authors": [
             "Akarsh Duddu <aduddu3@gatech.edu>"
           ],
@@ -168,7 +168,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Tiny 2D Brusselator correctness test",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "2x2",
               "pretty_name": "2x2 Grid",
               "suites": [
@@ -189,7 +189,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "2D Brusselator with 100x100 grid",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "100x100",
               "pretty_name": "100x100 Grid",
               "suites": [
@@ -210,7 +210,7 @@
           ],
           "description": "2D Brusselator ODE with diffusion.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+          "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
           "motivation": "",
           "name": "ode_brusselator",
           "pretty_name": "Ordinary Differential Equation (ODE) Brusselator",
@@ -237,7 +237,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: model of an atmospheric storm track.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "eady",
               "pretty_name": "eady",
               "source_inputs": 1,
@@ -267,7 +267,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: classical CD player model.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "CDplayer",
               "pretty_name": "CDplayer",
               "source_inputs": 2,
@@ -295,7 +295,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "fom",
               "pretty_name": "fom",
               "source_inputs": 1,
@@ -325,7 +325,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "random",
               "pretty_name": "random",
               "source_inputs": 1,
@@ -353,7 +353,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: partial differential equation.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "pde",
               "pretty_name": "pde",
               "source_inputs": 1,
@@ -383,7 +383,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: heat equation in a thin rod.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "heat-cont",
               "pretty_name": "heat-cont",
               "source_inputs": 1,
@@ -415,7 +415,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: Orr-Sommerfeld operator for Couette flow.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "Orr-Som",
               "pretty_name": "Orr-Som",
               "source_inputs": 1,
@@ -445,7 +445,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: component 1r of the International Space Station.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "iss",
               "pretty_name": "iss",
               "source_inputs": 3,
@@ -475,7 +475,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: motion problem in a building.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "build",
               "pretty_name": "build",
               "source_inputs": 1,
@@ -505,7 +505,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: Clamped beam model.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "beam",
               "pretty_name": "beam",
               "source_inputs": 1,
@@ -532,7 +532,7 @@
           ],
           "description": "Loads SLICOT model-reduction problems without explicit E matrices, preserving stored sparse matrices, treating E as the identity, and defaulting missing B to a normalized single-input vector.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+          "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
           "motivation": "SLICOT model-reduction examples provide realistic linear dynamical systems for ODE integration benchmarks.",
           "name": "ode_slicot",
           "pretty_name": "Ordinary Differential Equation (ODE) SLICOT",
@@ -76114,7 +76114,7 @@
       ]
     },
     {
-      "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+      "ai_disclosure": "The original benchmark algorithms were written without generative AI. Generative AI was used for debugging, generator-time inlining, and tests.",
       "asv_ids": {
         "peakmem": "ode.ForwardEulerBenchmark.peakmem_forward_euler",
         "time": "ode.ForwardEulerBenchmark.time_forward_euler"
@@ -76125,10 +76125,10 @@
       "concepts": "<ccs2012></ccs2012>",
       "description": "Integrates ODE initial-value problems with the forward Euler method.",
       "file": "src/saps/benchmarks/ode.py",
-      "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+      "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
       "generators": [
         {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+          "ai_disclosure": "The original benchmark algorithms were written without generative AI. Generative AI was used for debugging, generator-time inlining, and tests.",
           "authors": [
             "Akarsh Duddu <aduddu3@gatech.edu>"
           ],
@@ -76140,7 +76140,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small RC circuit",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "small",
               "pretty_name": "Small",
               "suites": [
@@ -76159,7 +76159,7 @@
           ],
           "description": "RC circuit ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+          "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
           "motivation": "",
           "name": "ode_rc",
           "pretty_name": "Ordinary Differential Equation (ODE) Resistor-Capacitor (RC) Circuit",
@@ -76175,7 +76175,7 @@
           "topics": []
         },
         {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+          "ai_disclosure": "The original benchmark algorithms were written without generative AI. Generative AI was used for debugging, generator-time inlining, and tests.",
           "authors": [
             "Akarsh Duddu <aduddu3@gatech.edu>"
           ],
@@ -76187,7 +76187,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small RLC circuit",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "small",
               "pretty_name": "Small",
               "suites": [
@@ -76206,7 +76206,7 @@
           ],
           "description": "RLC circuit ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+          "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
           "motivation": "",
           "name": "ode_rlc",
           "pretty_name": "Ordinary Differential Equation (ODE) Resistor-Inductor-Capacitor (RLC) Circuit",
@@ -76222,7 +76222,7 @@
           "topics": []
         },
         {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+          "ai_disclosure": "The original benchmark algorithms were written without generative AI. Generative AI was used for debugging, generator-time inlining, and tests.",
           "authors": [
             "Akarsh Duddu <aduddu3@gatech.edu>"
           ],
@@ -76234,7 +76234,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small Lotka-Volterra system",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "small",
               "pretty_name": "Small",
               "suites": [
@@ -76253,7 +76253,7 @@
           ],
           "description": "Lotka-Volterra ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+          "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
           "motivation": "",
           "name": "ode_lotka_volterra",
           "pretty_name": "Ordinary Differential Equation (ODE) Lotka-Volterra",
@@ -76269,7 +76269,7 @@
           "topics": []
         },
         {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+          "ai_disclosure": "The original benchmark algorithms were written without generative AI. Generative AI was used for debugging, generator-time inlining, and tests.",
           "authors": [
             "Akarsh Duddu <aduddu3@gatech.edu>"
           ],
@@ -76281,7 +76281,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Tiny 2D Brusselator correctness test",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "2x2",
               "pretty_name": "2x2 Grid",
               "suites": [
@@ -76302,7 +76302,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "2D Brusselator with 100x100 grid",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "100x100",
               "pretty_name": "100x100 Grid",
               "suites": [
@@ -76323,7 +76323,7 @@
           ],
           "description": "2D Brusselator ODE with diffusion.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+          "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
           "motivation": "",
           "name": "ode_brusselator",
           "pretty_name": "Ordinary Differential Equation (ODE) Brusselator",
@@ -76350,7 +76350,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: model of an atmospheric storm track.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "eady",
               "pretty_name": "eady",
               "source_inputs": 1,
@@ -76380,7 +76380,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: classical CD player model.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "CDplayer",
               "pretty_name": "CDplayer",
               "source_inputs": 2,
@@ -76408,7 +76408,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "fom",
               "pretty_name": "fom",
               "source_inputs": 1,
@@ -76440,7 +76440,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "random",
               "pretty_name": "random",
               "source_inputs": 1,
@@ -76468,7 +76468,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: partial differential equation.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "pde",
               "pretty_name": "pde",
               "source_inputs": 1,
@@ -76498,7 +76498,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: heat equation in a thin rod.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "heat-cont",
               "pretty_name": "heat-cont",
               "source_inputs": 1,
@@ -76528,7 +76528,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: Orr-Sommerfeld operator for Couette flow.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "Orr-Som",
               "pretty_name": "Orr-Som",
               "source_inputs": 1,
@@ -76558,7 +76558,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: component 1r of the International Space Station.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "iss",
               "pretty_name": "iss",
               "source_inputs": 3,
@@ -76588,7 +76588,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: motion problem in a building.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "build",
               "pretty_name": "build",
               "source_inputs": 1,
@@ -76618,7 +76618,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: Clamped beam model.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "beam",
               "pretty_name": "beam",
               "source_inputs": 1,
@@ -76645,7 +76645,7 @@
           ],
           "description": "Loads SLICOT model-reduction problems without explicit E matrices, preserving stored sparse matrices, treating E as the identity, and defaulting missing B to a normalized single-input vector.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+          "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
           "motivation": "SLICOT model-reduction examples provide realistic linear dynamical systems for ODE integration benchmarks.",
           "name": "ode_slicot",
           "pretty_name": "Ordinary Differential Equation (ODE) SLICOT",
@@ -101212,9 +101212,9 @@
         "Michael Wang <mwang764@gatech.edu>"
       ],
       "concepts": "<ccs2012></ccs2012>",
-      "description": "Benchmarks inference for a sparse CIFAR-10 Conv-2 network derived from the Lottery Ticket Hypothesis workflow. Using OpenLTH's training and pruning infrastructure, and motivated by the original LTH and Uber AI lottery-ticket studies, the CIFAR Conv-2 architecture was trained on CIFAR-10 and subjected to 20 levels of iterative global magnitude pruning. The selected checkpoint and pruning mask were combined and exported as a dense ONNX model whose zero-valued parameters preserve approximately 87.84% sparsity. The model and its external tensor data are archived in Zenodo record 22650920. ONNXPY translated that fixed graph into array-based Python, which the current SAPS runner executes across supported array frameworks.",
+      "description": "Benchmarks inference for a sparse CIFAR-10 Conv-2 network derived from the Lottery Ticket Hypothesis workflow. Using OpenLTH's training and pruning infrastructure, and motivated by the original LTH and Uber AI lottery-ticket studies, the CIFAR Conv-2 architecture was trained on CIFAR-10 and subjected to 20 levels of iterative global magnitude pruning. The selected checkpoint and pruning mask were combined and exported as a dense ONNX model whose zero-valued parameters preserve approximately 87.84% sparsity. The model and its external tensor data are archived in Zenodo record 22650920. ONNXPY translates that graph into inline array-based Python during setup, which the SAPS runner executes across supported array frameworks.",
       "file": "src/saps/benchmarks/lth_conv2.py",
-      "freshness": "5300945c3d97a5b86d078289db012f6ac9edf001a598f7c16fd49ef8289c044c",
+      "freshness": "c2316b0d21ad164914602360e132c7dd0550664c258f2a8979f4d12f8eec9b90",
       "generators": [
         {
           "ai_disclosure": "Generative AI was used to assist with adapting existing benchmark integration code to the current SAPS and ONNXPY APIs. The model training, pruning workflow, benchmark objective, and model artifacts were created by the contributors.",
@@ -101230,7 +101230,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Pruned CIFAR-10 Conv-2 model with approximately 87.84% zero-valued parameters, archived with its ONNX external data in Zenodo record 22650920.",
               "file": "src/saps/benchmarks/lth_conv2.py",
-              "freshness": "5300945c3d97a5b86d078289db012f6ac9edf001a598f7c16fd49ef8289c044c",
+              "freshness": "c2316b0d21ad164914602360e132c7dd0550664c258f2a8979f4d12f8eec9b90",
               "name": "pruned",
               "pretty_name": "Pruned",
               "suites": [
@@ -101245,9 +101245,9 @@
               "topics": []
             }
           ],
-          "description": "Loads the Conv-2 ONNX artifact from the runner's shared SAPS cache, imports its trained parameters and pruning-induced zeros, and generates a deterministic runtime input for SAPS execution.",
+          "description": "Loads the Conv-2 ONNX artifact from the runner's shared SAPS cache, imports its trained parameters and pruning-induced zeros, and generates a deterministic input and inline NumPy benchmark function with ONNXPY during setup.",
           "file": "src/saps/benchmarks/lth_conv2.py",
-          "freshness": "5300945c3d97a5b86d078289db012f6ac9edf001a598f7c16fd49ef8289c044c",
+          "freshness": "c2316b0d21ad164914602360e132c7dd0550664c258f2a8979f4d12f8eec9b90",
           "motivation": "This generator turns a reproducible lottery-ticket training artifact into fixed benchmark inputs. The runner-managed shared cache and locked atomic downloads allow concurrent and chunked SAPS runs to reuse the same ONNX files safely.",
           "name": "lth_conv2_onnx",
           "pretty_name": "Lottery Ticket Hypothesis (LTH) Conv-2 ONNX",
@@ -114145,7 +114145,7 @@
       ]
     },
     {
-      "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+      "ai_disclosure": "The original benchmark algorithms were written without generative AI. Generative AI was used for debugging, generator-time inlining, and tests.",
       "asv_ids": {
         "peakmem": "ode.RK4Benchmark.peakmem_rk4",
         "time": "ode.RK4Benchmark.time_rk4"
@@ -114156,10 +114156,10 @@
       "concepts": "<ccs2012></ccs2012>",
       "description": "Integrates ODE initial-value problems with the classical fourth-order Runge-Kutta method.",
       "file": "src/saps/benchmarks/ode.py",
-      "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+      "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
       "generators": [
         {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+          "ai_disclosure": "The original benchmark algorithms were written without generative AI. Generative AI was used for debugging, generator-time inlining, and tests.",
           "authors": [
             "Akarsh Duddu <aduddu3@gatech.edu>"
           ],
@@ -114171,7 +114171,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small RC circuit",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "small",
               "pretty_name": "Small",
               "suites": [
@@ -114190,7 +114190,7 @@
           ],
           "description": "RC circuit ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+          "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
           "motivation": "",
           "name": "ode_rc",
           "pretty_name": "Ordinary Differential Equation (ODE) Resistor-Capacitor (RC) Circuit",
@@ -114206,7 +114206,7 @@
           "topics": []
         },
         {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+          "ai_disclosure": "The original benchmark algorithms were written without generative AI. Generative AI was used for debugging, generator-time inlining, and tests.",
           "authors": [
             "Akarsh Duddu <aduddu3@gatech.edu>"
           ],
@@ -114218,7 +114218,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small RLC circuit",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "small",
               "pretty_name": "Small",
               "suites": [
@@ -114237,7 +114237,7 @@
           ],
           "description": "RLC circuit ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+          "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
           "motivation": "",
           "name": "ode_rlc",
           "pretty_name": "Ordinary Differential Equation (ODE) Resistor-Inductor-Capacitor (RLC) Circuit",
@@ -114253,7 +114253,7 @@
           "topics": []
         },
         {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+          "ai_disclosure": "The original benchmark algorithms were written without generative AI. Generative AI was used for debugging, generator-time inlining, and tests.",
           "authors": [
             "Akarsh Duddu <aduddu3@gatech.edu>"
           ],
@@ -114265,7 +114265,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small Lotka-Volterra system",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "small",
               "pretty_name": "Small",
               "suites": [
@@ -114284,7 +114284,7 @@
           ],
           "description": "Lotka-Volterra ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+          "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
           "motivation": "",
           "name": "ode_lotka_volterra",
           "pretty_name": "Ordinary Differential Equation (ODE) Lotka-Volterra",
@@ -114300,7 +114300,7 @@
           "topics": []
         },
         {
-          "ai_disclosure": "No generative AI was used to write the benchmark function itself. Generative AI was used for debugging. This statement was written by hand",
+          "ai_disclosure": "The original benchmark algorithms were written without generative AI. Generative AI was used for debugging, generator-time inlining, and tests.",
           "authors": [
             "Akarsh Duddu <aduddu3@gatech.edu>"
           ],
@@ -114312,7 +114312,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Tiny 2D Brusselator correctness test",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "2x2",
               "pretty_name": "2x2 Grid",
               "suites": [
@@ -114333,7 +114333,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "2D Brusselator with 100x100 grid",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "100x100",
               "pretty_name": "100x100 Grid",
               "suites": [
@@ -114356,7 +114356,7 @@
           ],
           "description": "2D Brusselator ODE with diffusion.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+          "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
           "motivation": "",
           "name": "ode_brusselator",
           "pretty_name": "Ordinary Differential Equation (ODE) Brusselator",
@@ -114383,7 +114383,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: model of an atmospheric storm track.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "eady",
               "pretty_name": "eady",
               "source_inputs": 1,
@@ -114413,7 +114413,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: classical CD player model.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "CDplayer",
               "pretty_name": "CDplayer",
               "source_inputs": 2,
@@ -114443,7 +114443,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "fom",
               "pretty_name": "fom",
               "source_inputs": 1,
@@ -114473,7 +114473,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "random",
               "pretty_name": "random",
               "source_inputs": 1,
@@ -114503,7 +114503,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: partial differential equation.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "pde",
               "pretty_name": "pde",
               "source_inputs": 1,
@@ -114533,7 +114533,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: heat equation in a thin rod.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "heat-cont",
               "pretty_name": "heat-cont",
               "source_inputs": 1,
@@ -114563,7 +114563,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: Orr-Sommerfeld operator for Couette flow.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "Orr-Som",
               "pretty_name": "Orr-Som",
               "source_inputs": 1,
@@ -114593,7 +114593,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: component 1r of the International Space Station.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "iss",
               "pretty_name": "iss",
               "source_inputs": 3,
@@ -114623,7 +114623,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: motion problem in a building.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "build",
               "pretty_name": "build",
               "source_inputs": 1,
@@ -114653,7 +114653,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: Clamped beam model.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+              "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
               "name": "beam",
               "pretty_name": "beam",
               "source_inputs": 1,
@@ -114680,7 +114680,7 @@
           ],
           "description": "Loads SLICOT model-reduction problems without explicit E matrices, preserving stored sparse matrices, treating E as the identity, and defaulting missing B to a normalized single-input vector.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f3e00a2ef1b327423879bc8bd0257e449e1cb416a564205cf954e672480ba955",
+          "freshness": "7d75ef8fbc7e2c73ecdb717ac968ba143f312e2d0f6cef84b229930fdc70febe",
           "motivation": "SLICOT model-reduction examples provide realistic linear dynamical systems for ODE integration benchmarks.",
           "name": "ode_slicot",
           "pretty_name": "Ordinary Differential Equation (ODE) SLICOT",
@@ -166727,7 +166727,7 @@
       "topics": []
     },
     {
-      "ai_disclosure": "No generative AI was used to construct the benchmark function itself. This statement was written by hand.",
+      "ai_disclosure": "The original benchmark function was written by hand. Generative AI assisted with refactoring the depth traversal into loops and adding regression tests.",
       "asv_ids": {
         "peakmem": "tictactoe_minimax.TicTacToeMinimaxBenchmark.peakmem_tictactoe_minimax",
         "time": "tictactoe_minimax.TicTacToeMinimaxBenchmark.time_tictactoe_minimax"
@@ -166739,7 +166739,7 @@
       "concepts": "\n<ccs2012>\n<concept>\n<concept_id>10010147.10010178.10010205.10010210</concept_id>\n<concept_desc>Computing methodologies~Game tree search</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n</ccs2012>\n",
       "description": "What does this code do: Implement a fully tensorized, non-recursive minimax search over a tic-tac-toe game. Game states are represented as tensors. Game state is represented as S[n, i, j, p] of shape (N, 3, 3, 2) where n indexes boards, i,j are board positions and p is the player channel. Given any board state within the game, it should return the result of the game.",
       "file": "src/saps/benchmarks/tictactoe_minimax.py",
-      "freshness": "5b979baf760a58bddb590404056a4b47e919c4fa5ace6b935e7e949d968a470a",
+      "freshness": "014509cf9bea3d862b017957a7f84a16099f77ce5319a24b4d552684a55ccd56",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to construct the benchmark function itself. This statement was written by hand.",
@@ -166754,7 +166754,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Batch of 1 board(s) at minimax depth 2.",
               "file": "src/saps/benchmarks/tictactoe_minimax.py",
-              "freshness": "5b979baf760a58bddb590404056a4b47e919c4fa5ace6b935e7e949d968a470a",
+              "freshness": "014509cf9bea3d862b017957a7f84a16099f77ce5319a24b4d552684a55ccd56",
               "name": "x_wins_near",
               "pretty_name": "X Wins Near",
               "suites": [
@@ -166780,7 +166780,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Batch of 1 board(s) at minimax depth 2.",
               "file": "src/saps/benchmarks/tictactoe_minimax.py",
-              "freshness": "5b979baf760a58bddb590404056a4b47e919c4fa5ace6b935e7e949d968a470a",
+              "freshness": "014509cf9bea3d862b017957a7f84a16099f77ce5319a24b4d552684a55ccd56",
               "name": "o_wins_near",
               "pretty_name": "O Wins Near",
               "suites": [
@@ -166806,7 +166806,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Batch of 1 board(s) at minimax depth 2.",
               "file": "src/saps/benchmarks/tictactoe_minimax.py",
-              "freshness": "5b979baf760a58bddb590404056a4b47e919c4fa5ace6b935e7e949d968a470a",
+              "freshness": "014509cf9bea3d862b017957a7f84a16099f77ce5319a24b4d552684a55ccd56",
               "name": "draw_near",
               "pretty_name": "Draw Near",
               "suites": [
@@ -166832,7 +166832,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Batch of 3 board(s) at minimax depth 2.",
               "file": "src/saps/benchmarks/tictactoe_minimax.py",
-              "freshness": "5b979baf760a58bddb590404056a4b47e919c4fa5ace6b935e7e949d968a470a",
+              "freshness": "014509cf9bea3d862b017957a7f84a16099f77ce5319a24b4d552684a55ccd56",
               "name": "batch_near",
               "pretty_name": "Batch Near",
               "suites": [
@@ -166858,7 +166858,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Batch of 1 board(s) at minimax depth 3.",
               "file": "src/saps/benchmarks/tictactoe_minimax.py",
-              "freshness": "5b979baf760a58bddb590404056a4b47e919c4fa5ace6b935e7e949d968a470a",
+              "freshness": "014509cf9bea3d862b017957a7f84a16099f77ce5319a24b4d552684a55ccd56",
               "name": "x_wins_mid",
               "pretty_name": "X Wins Mid",
               "suites": [
@@ -166884,7 +166884,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Batch of 1 board(s) at minimax depth 3.",
               "file": "src/saps/benchmarks/tictactoe_minimax.py",
-              "freshness": "5b979baf760a58bddb590404056a4b47e919c4fa5ace6b935e7e949d968a470a",
+              "freshness": "014509cf9bea3d862b017957a7f84a16099f77ce5319a24b4d552684a55ccd56",
               "name": "o_wins_mid",
               "pretty_name": "O Wins Mid",
               "suites": [
@@ -166910,7 +166910,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Batch of 1 board(s) at minimax depth 5.",
               "file": "src/saps/benchmarks/tictactoe_minimax.py",
-              "freshness": "5b979baf760a58bddb590404056a4b47e919c4fa5ace6b935e7e949d968a470a",
+              "freshness": "014509cf9bea3d862b017957a7f84a16099f77ce5319a24b4d552684a55ccd56",
               "name": "x_wins_early",
               "pretty_name": "X Wins Early",
               "suites": [
@@ -166936,7 +166936,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Batch of 1 board(s) at minimax depth 6.",
               "file": "src/saps/benchmarks/tictactoe_minimax.py",
-              "freshness": "5b979baf760a58bddb590404056a4b47e919c4fa5ace6b935e7e949d968a470a",
+              "freshness": "014509cf9bea3d862b017957a7f84a16099f77ce5319a24b4d552684a55ccd56",
               "name": "draw_early",
               "pretty_name": "Draw Early",
               "suites": [
@@ -166968,7 +166968,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Batch of 1 board(s) at minimax depth 9.",
               "file": "src/saps/benchmarks/tictactoe_minimax.py",
-              "freshness": "5b979baf760a58bddb590404056a4b47e919c4fa5ace6b935e7e949d968a470a",
+              "freshness": "014509cf9bea3d862b017957a7f84a16099f77ce5319a24b4d552684a55ccd56",
               "name": "empty_board",
               "pretty_name": "Empty Board",
               "suites": [
@@ -166992,7 +166992,7 @@
           ],
           "description": "These tests covering end-game, mid-game, and early gamethrough using various minimax at different depths.",
           "file": "src/saps/benchmarks/tictactoe_minimax.py",
-          "freshness": "5b979baf760a58bddb590404056a4b47e919c4fa5ace6b935e7e949d968a470a",
+          "freshness": "014509cf9bea3d862b017957a7f84a16099f77ce5319a24b4d552684a55ccd56",
           "motivation": "Boards have range of sparsity so they go from empty to being very dense this helps us measure how sparsity can affect performance at different depths.",
           "name": "tictactoe_minimax_boards",
           "pretty_name": "Tic-Tac-Toe Minimax Boards",

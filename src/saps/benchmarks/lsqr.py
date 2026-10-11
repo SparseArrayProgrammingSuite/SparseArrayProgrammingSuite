@@ -20,10 +20,6 @@ from saps.benchmarks.suitesparse import (
 )
 
 
-def normof2(xp, x, y):
-    return xp.sqrt(xp.sum(xp.multiply(x, y)))
-
-
 class LSQRDataset(SuiteSparseDataset):
     def __init__(
         self,
@@ -498,19 +494,18 @@ class LSQRBenchmark(Benchmark):
             f"LSQR gradient too high for {param.dataset.name}: {gradient}"
         )
 
-    def benchmark(self, xp, data: list, meta: dict):
-        A, b = data
+    def benchmark(self, xp, meta: dict, A, b):
         tolerance = meta.get("rel_tol", 1e-6)
         conlim = meta.get("conlim", 1.0e8)
         max_iter = meta.get("max_iter", 1000)
         exit = 0
 
         u = b
-        beta = normof2(xp, u, u)
+        beta = xp.sqrt(xp.sum(xp.multiply(u, u)))
         u = u / beta
 
         v = A.T @ u
-        alpha = normof2(xp, v, v)
+        alpha = xp.sqrt(xp.sum(xp.multiply(v, v)))
         v = v / alpha
 
         solution_is_zero = False
@@ -548,11 +543,11 @@ class LSQRBenchmark(Benchmark):
 
             u = A @ v - alpha * u
 
-            beta = normof2(xp, u, u)
+            beta = xp.sqrt(xp.sum(xp.multiply(u, u)))
             u = u / beta
 
             v = A.T @ u - beta * v
-            alpha = normof2(xp, v, v)
+            alpha = xp.sqrt(xp.sum(xp.multiply(v, v)))
             v = v / alpha
 
             rho = xp.sqrt(rho_bar**2 + beta**2)
@@ -604,4 +599,4 @@ class LSQRBenchmark(Benchmark):
             if exit > 0:
                 break
 
-        return [x]
+        return x

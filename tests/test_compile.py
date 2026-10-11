@@ -20,9 +20,8 @@ def arithmetic_op_eager(x, y, z):
 
 def make_benchmark_cls():
     class ToyFusionBenchmark:
-        def benchmark(self, xp, data, meta):
-            x, y, z = data
-            return [arithmetic_op_eager(x, y, z)]
+        def benchmark(self, xp, meta, x, y, z):
+            return arithmetic_op_eager(x, y, z)
 
     return ToyFusionBenchmark
 
@@ -38,7 +37,7 @@ def test_numpy_passes_through():
 
     rng = np.random.default_rng(0)
     x, y, z = (rng.random(100_000) for _ in range(3))
-    output = cls().benchmark(xp, [x, y, z], {})[0]
+    output = cls().benchmark(xp, {}, x, y, z)
 
     np.testing.assert_allclose(output, arithmetic_op_eager(x, y, z))
 
@@ -53,7 +52,7 @@ def test_pytorch_compiles():
     assert cls.benchmark is not original
 
     x, y, z = (torch.rand(100_000) for _ in range(3))
-    output = cls().benchmark(xp, [x, y, z], {})[0]
+    output = cls().benchmark(xp, {}, x, y, z)
 
     torch.testing.assert_close(output, arithmetic_op_eager(x, y, z))
 
@@ -92,9 +91,9 @@ def test_pytorch_compiled_simhash_matches_eager():
     xp = PytorchFramework()
     benchmark.setup(param, xp=xp, use_cache=False)
     data = [xp.from_binsparse(array) for array in benchmark._input]
-    expected = benchmark.benchmark(xp, data, benchmark._meta)
+    expected = benchmark.benchmark(xp, benchmark._meta, *data)
     with torch._dynamo.config.patch(suppress_errors=False):
-        actual = benchmark._compiled_benchmark(data, benchmark._meta)
+        actual = benchmark._compiled_benchmark(benchmark._meta, *data)
     for output, reference in zip(actual, expected, strict=True):
         torch.testing.assert_close(output, reference)
 
@@ -130,11 +129,11 @@ def test_pytorch_compiled_is_faster():
     data = [x, y, z]
 
     torch.testing.assert_close(
-        compiled.benchmark(xp, data, {})[0], eager.benchmark(xp, data, {})[0]
+        compiled.benchmark(xp, {}, *data), eager.benchmark(xp, {}, *data)
     )
 
-    eager_time = _median_time(lambda: eager.benchmark(xp, data, {}), ())
-    compiled_time = _median_time(lambda: compiled.benchmark(xp, data, {}), ())
+    eager_time = _median_time(lambda: eager.benchmark(xp, {}, *data), ())
+    compiled_time = _median_time(lambda: compiled.benchmark(xp, {}, *data), ())
 
     speedup = eager_time / compiled_time
     print(

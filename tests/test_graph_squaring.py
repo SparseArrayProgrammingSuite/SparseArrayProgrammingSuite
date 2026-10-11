@@ -52,11 +52,11 @@ def test_both_kernels_stop_at_same_hop_limit(framework):
     plan = {"max_squarings": squaring_count(8, 1, 0.5)}
     assert plan["max_squarings"] == 1
     closure = tc.TransitiveClosureBenchmark().benchmark(
-        xp, [xp.from_binsparse(from_numpy(edges))], plan
-    )[0]
+        xp, plan, xp.from_binsparse(from_numpy(edges))
+    )
     shortest = fw.FloydWarshallBenchmark().benchmark(
-        xp, [xp.from_binsparse(from_numpy(distances))], plan
-    )[0]
+        xp, plan, xp.from_binsparse(from_numpy(distances))
+    )
 
     def convert(a):
         return NumpyFramework().from_binsparse(xp.to_binsparse(a))
@@ -81,11 +81,11 @@ def test_zero_budget_does_not_contract():
     plan = {"max_squarings": squaring_count(8, 1)}
     assert plan["max_squarings"] == 0
     np.testing.assert_array_equal(
-        tc.TransitiveClosureBenchmark().benchmark(xp, [edges], plan)[0],
+        tc.TransitiveClosureBenchmark().benchmark(xp, plan, edges),
         edges | np.eye(8, dtype=bool),
     )
     np.testing.assert_array_equal(
-        fw.FloydWarshallBenchmark().benchmark(xp, [distances], plan)[0], distances
+        fw.FloydWarshallBenchmark().benchmark(xp, plan, distances), distances
     )
 
 
