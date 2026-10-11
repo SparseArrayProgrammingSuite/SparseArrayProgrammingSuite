@@ -80,67 +80,112 @@ except ImportError:  # the scipy versions above still work, single threaded
     numba = None
 
 # Nodes are split into interleaved chunks, so hubs spread across threads.
-_CHUNKS = 1024
+# Keep a few chunks per worker without repeatedly allocating large marker arrays.
+_CHUNKS_PER_THREAD = 4
 
 if numba is not None:
     # Each chunk runs serially in its own function; the parallel loops only
     # call them, which keeps numba from treating the counters as reductions.
 
     @numba.njit(cache=True)
-    def _triangle_chunk(c, indptr, indices, t_indptr, t_indices, n):
+    def _triangle_chunk(c, chunks, indptr, indices, t_indptr, t_indices, n):
         in_i = np.zeros(n, np.bool_)
         total = 0
-        for i in range(c, n, _CHUNKS):
-            for p in range(t_indptr[i], t_indptr[i + 1]):
+        for i in range(c, n, chunks):
+            start, stop = t_indptr[i], t_indptr[i + 1]
+            if start == stop:
+                continue
+            for p in range(start, stop):
                 in_i[t_indices[p]] = True
             # Walks i -> j -> k that close with k -> i.
             for p in range(indptr[i], indptr[i + 1]):
                 j = indices[p]
-                for q in range(indptr[j], indptr[j + 1]):
-                    if in_i[indices[q]]:
-                        total += 1
-            for p in range(t_indptr[i], t_indptr[i + 1]):
+                low, high = indptr[j], indptr[j + 1]
+                # For a much larger row, search for the incoming neighbors of i
+                # instead of scanning every outgoing neighbor of j.
+                # The 16:1 crossover is a performance heuristic, also used below.
+                if high - low > 16 * (stop - start):
+                    row = indices[low:high]
+                    for q in range(start, stop):
+                        k = t_indices[q]
+                        pos = np.searchsorted(row, k)
+                        if pos < len(row) and row[pos] == k:
+                            total += 1
+                else:
+                    for q in range(low, high):
+                        if in_i[indices[q]]:
+                            total += 1
+            for p in range(start, stop):
                 in_i[t_indices[p]] = False
         return total
 
     @numba.njit(cache=True)
-    def _four_clique_chunk(c, indptr, indices, n):
+    def _four_clique_chunk(c, chunks, indptr, indices, n):
         in_p = np.zeros(n, np.bool_)
         in_pj = np.zeros(n, np.bool_)
+        max_degree = 0
+        for i in range(c, n, chunks):
+            max_degree = max(max_degree, indptr[i + 1] - indptr[i])
+        common = np.empty(max_degree, dtype=indices.dtype)
         total = 0
-        for i in range(c, n, _CHUNKS):
+        for i in range(c, n, chunks):
             for p in range(indptr[i], indptr[i + 1]):
                 in_p[indices[p]] = True
             for p in range(indptr[i], indptr[i + 1]):
                 j = indices[p]
                 # Mark out(j) within P, then count edges k -> l inside it.
-                for q in range(indptr[j], indptr[j + 1]):
-                    if in_p[indices[q]]:
-                        in_pj[indices[q]] = True
-                for q in range(indptr[j], indptr[j + 1]):
-                    k = indices[q]
-                    if in_pj[k]:
-                        for r in range(indptr[k], indptr[k + 1]):
+                size = 0
+                if indptr[j + 1] - indptr[j] > 16 * (indptr[i + 1] - indptr[i]):
+                    row = indices[indptr[j] : indptr[j + 1]]
+                    for q in range(indptr[i], indptr[i + 1]):
+                        k = indices[q]
+                        pos = np.searchsorted(row, k)
+                        if pos < len(row) and row[pos] == k:
+                            common[size] = k
+                            size += 1
+                            in_pj[k] = True
+                else:
+                    for q in range(indptr[j], indptr[j + 1]):
+                        k = indices[q]
+                        if in_p[k]:
+                            common[size] = k
+                            size += 1
+                            in_pj[k] = True
+                # Reuse the common neighbors for counting and clearing markers.
+                for q in range(size):
+                    k = common[q]
+                    start, stop = indptr[k], indptr[k + 1]
+                    if stop - start > 16 * size:
+                        row = indices[start:stop]
+                        for r in range(size):
+                            neighbor = common[r]
+                            pos = np.searchsorted(row, neighbor)
+                            if pos < len(row) and row[pos] == neighbor:
+                                total += 1
+                    else:
+                        for r in range(start, stop):
                             if in_pj[indices[r]]:
                                 total += 1
-                for q in range(indptr[j], indptr[j + 1]):
-                    in_pj[indices[q]] = False
+                for q in range(size):
+                    in_pj[common[q]] = False
             for p in range(indptr[i], indptr[i + 1]):
                 in_p[indices[p]] = False
         return total
 
     @numba.njit(parallel=True, cache=True)
-    def _triangle_sum_numba(indptr, indices, t_indptr, t_indices, n):
-        totals = np.zeros(_CHUNKS, np.int64)
-        for c in numba.prange(_CHUNKS):
-            totals[c] = _triangle_chunk(c, indptr, indices, t_indptr, t_indices, n)
+    def _triangle_sum_numba(indptr, indices, t_indptr, t_indices, n, chunks):
+        totals = np.zeros(chunks, np.int64)
+        for c in numba.prange(chunks):
+            totals[c] = _triangle_chunk(
+                c, chunks, indptr, indices, t_indptr, t_indices, n
+            )
         return totals.sum()
 
     @numba.njit(parallel=True, cache=True)
-    def _four_clique_sum_numba(indptr, indices, n):
-        totals = np.zeros(_CHUNKS, np.int64)
-        for c in numba.prange(_CHUNKS):
-            totals[c] = _four_clique_chunk(c, indptr, indices, n)
+    def _four_clique_sum_numba(indptr, indices, n, chunks):
+        totals = np.zeros(chunks, np.int64)
+        for c in numba.prange(chunks):
+            totals[c] = _four_clique_chunk(c, chunks, indptr, indices, n)
         return totals.sum()
 
 
@@ -150,10 +195,14 @@ def fast_triangle_sum(A) -> int:
         return triangle_sum(A)
     A = A.tocsr()
     A.sum_duplicates()
+    A.sort_indices()
     T = A.T.tocsr()
     T.sum_duplicates()
+    chunks = min(A.shape[0], _CHUNKS_PER_THREAD * numba.get_num_threads())
     return int(
-        _triangle_sum_numba(A.indptr, A.indices, T.indptr, T.indices, A.shape[0])
+        _triangle_sum_numba(
+            A.indptr, A.indices, T.indptr, T.indices, A.shape[0], chunks
+        )
     )
 
 
@@ -163,7 +212,9 @@ def fast_four_clique_sum(A) -> int:
         return four_clique_sum(A)
     A = A.tocsr()
     A.sum_duplicates()
-    return int(_four_clique_sum_numba(A.indptr, A.indices, A.shape[0]))
+    A.sort_indices()
+    chunks = min(A.shape[0], _CHUNKS_PER_THREAD * numba.get_num_threads())
+    return int(_four_clique_sum_numba(A.indptr, A.indices, A.shape[0], chunks))
 
 
 def self_test(trials: int = 200, seed: int = 0) -> None:
@@ -179,6 +230,9 @@ def self_test(trials: int = 200, seed: int = 0) -> None:
         tri = int(np.einsum("ij,jk,ki->", A, A, A))
         four = int(np.einsum("ij,ik,il,jk,jl,kl->", A, A, A, A, A, A))
         S = sps.csr_array(A)
+        if trial % 2:
+            S.indices = S.indices.astype(np.int64)
+            S.indptr = S.indptr.astype(np.int64)
         for count, expected in (
             (triangle_sum, tri),
             (fast_triangle_sum, tri),
@@ -186,6 +240,16 @@ def self_test(trials: int = 200, seed: int = 0) -> None:
             (fast_four_clique_sum, four),
         ):
             assert count(S) == expected, (trial, count.__name__, count(S), expected)
+    # Skewed rows exercise the binary searches, including loops and direction.
+    star = np.eye(80, dtype=np.int64)
+    star[0, :] = star[:, 0] = 1
+    star[1:5, 1:5] = 1
+    for A in (star, np.triu(star), np.zeros((0, 0), dtype=np.int64)):
+        S = sps.csr_array(A)
+        assert fast_triangle_sum(S) == int(np.einsum("ij,jk,ki->", A, A, A))
+        assert fast_four_clique_sum(S) == int(
+            np.einsum("ij,ik,il,jk,jl,kl->", A, A, A, A, A, A)
+        )
     # A block boundary inside the product must not change the result.
     global _BLOCK_WORK
     saved, _BLOCK_WORK = _BLOCK_WORK, 3
