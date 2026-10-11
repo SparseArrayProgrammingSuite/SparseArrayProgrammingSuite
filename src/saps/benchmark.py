@@ -1,9 +1,9 @@
 import inspect
-import json
 import logging
 import os
 import re
 import sys
+import time
 import xml.etree.ElementTree as ET
 from abc import ABC, abstractmethod
 from collections.abc import Callable
@@ -13,6 +13,7 @@ from typing import Any, Generic, TypeVar
 
 from binsparse import BinsparseTensor as BinsparseTensor
 
+from saps.benchmark_status import MeasurementTimeout, report_status
 from saps.framework import load_framework
 from saps.freshness import repo_root, source_freshness
 from saps.storage import build_storage_backend
@@ -130,88 +131,6 @@ def ccs_xml_to_tags(xml_text: str | None) -> list[str]:
             if tag:
                 tags.add(f"concept-{tag}")
     return sorted(tags)
-
-
-def _get_or_add_record(records: list[dict], key: str, value: str, defaults: dict):
-    for record in records:
-        if record.get(key) == value:
-            return record
-    record = {key: value, **defaults}
-    records.append(record)
-    return record
-
-
-def _write_statistics_tags(
-    statistics_path: Path,
-    benchmark_name: str,
-    generator_name: str,
-    dataset_name: str,
-    dataset_file: str,
-    dataset_freshness: str,
-    tags: list[str],
-):
-    statistics_path.parent.mkdir(parents=True, exist_ok=True)
-    if statistics_path.exists():
-        document = json.loads(statistics_path.read_text(encoding="utf-8"))
-    else:
-        document = {"benchmarks": []}
-
-    benchmark = _get_or_add_record(
-        document.setdefault("benchmarks", []),
-        "name",
-        benchmark_name,
-        {"statistics": [], "generators": []},
-    )
-    benchmark.setdefault("statistics", [])
-
-    generator = _get_or_add_record(
-        benchmark.setdefault("generators", []),
-        "name",
-        generator_name,
-        {"statistics": [], "datasets": []},
-    )
-    generator.setdefault("statistics", [])
-
-    dataset = _get_or_add_record(
-        generator.setdefault("datasets", []),
-        "name",
-        dataset_name,
-        {
-            "file": dataset_file,
-            "freshness": dataset_freshness,
-            "statistics": [],
-        },
-    )
-    dataset["file"] = dataset_file
-    dataset["freshness"] = dataset_freshness
-    dataset["statistics"] = sorted({*dataset.get("statistics", []), *tags})
-
-    document["benchmarks"] = sorted(
-        document.get("benchmarks", []),
-        key=lambda record: record["name"],
-    )
-    for record in document["benchmarks"]:
-        record["generators"] = sorted(
-            record.get("generators", []),
-            key=lambda generator: generator["name"],
-        )
-        for generator in record["generators"]:
-            generator["datasets"] = sorted(
-                generator.get("datasets", []),
-                key=lambda dataset: dataset["name"],
-            )
-
-    statistics_path.write_text(
-        json.dumps(document, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
-    logging.getLogger("saps.work").info(
-        "traced %s.%s.%s: %s",
-        benchmark_name,
-        generator_name,
-        dataset_name,
-        ", ".join(tags),
-    )
 
 
 class Metadata(ABC):
@@ -450,6 +369,10 @@ class Benchmark(Tagged, Attributed, Motivated):
             work_log.setLevel(logging.INFO)
             work_log.propagate = False
             work_log.addHandler(logging.FileHandler(log_path))
+        report_status(self.name, repr(param), "setup")
+        self._measurement_timeout = float(
+            os.environ.get("SAPS_MEASUREMENT_TIMEOUT", "0")
+        )
         _apply_memory_limit()
         if os.environ.get("SAPS_CACHE_DATASETS"):
             if param.generator.cacheable and not param.generator.backend.upload_dataset(
@@ -483,7 +406,22 @@ class Benchmark(Tagged, Attributed, Motivated):
             def benchmark(meta, *data_args):
                 return function(xp, meta, *data_args)
 
+            benchmark.saps_metadata = {  # type: ignore[attr-defined]
+                "benchmark_name": self.name,
+                "generator_name": param.generator.name,
+                "dataset_name": param.dataset.name,
+                "dataset_file": param.dataset.file,
+                "dataset_freshness": param.dataset.freshness,
+            }
             self._compiled_benchmark = xp.compile(benchmark)
+        report_status(self.name, repr(param), "measurement")
+        if self._measurement_timeout:
+            # ASV can repeat setup/teardown between samples of one dataset, so
+            # the budget accumulates until the dataset changes.
+            if getattr(self, "_measurement_param", None) != repr(param):
+                self._measurement_param = repr(param)
+                self._measurement_elapsed = 0.0
+            self._measurement_started = time.perf_counter()
 
     def run(self, param):
         if not hasattr(self, "_xp") or not hasattr(self, "_compiled_benchmark"):
@@ -492,58 +430,34 @@ class Benchmark(Tagged, Attributed, Motivated):
                 "setup or set SAPS_FRAMEWORK."
             )
         xp = self._xp
-        if hasattr(xp, "reset_stats"):
-            xp.reset_stats()
         input = [xp.from_binsparse(d) for d in self._input]
         output = self._compiled_benchmark(self._meta, *input)
         if not isinstance(output, tuple):
             output = (output,)
         output = [xp.to_binsparse(o) for o in output]
         self._output = output
-        self._write_tagger_stats(param, xp)
-
-    def _write_tagger_stats(self, param, xp: Framework):
-        stats_dir = os.environ.get("SAPS_TAGGER_STATS_DIR")
-        statistics_path = os.environ.get("SAPS_STATISTICS_PATH")
-        if not hasattr(xp, "tags"):
-            return
-
-        tags = sorted(getattr(xp, "tags", []))
-        data = {
-            "benchmark_name": self.name,
-            "generator_name": param.generator.name,
-            "dataset_name": param.dataset.name,
-            "tags": tags,
-        }
-        if stats_dir:
-            path = Path(stats_dir)
-            path.mkdir(parents=True, exist_ok=True)
-            record_id = f"{self.name}.{param.generator.name}.{param.dataset.name}"
-            safe_id = "".join(
-                char if char.isalnum() or char in "._-" else "_" for char in record_id
-            )
-            output_path = path / f"{safe_id}.json"
-            output_path.write_text(
-                json.dumps(data, indent=2, default=str) + "\n",
-                encoding="utf-8",
-            )
-        if statistics_path:
-            _write_statistics_tags(
-                Path(statistics_path),
-                self.name,
-                param.generator.name,
-                param.dataset.name,
-                param.dataset.file,
-                param.dataset.freshness,
-                tags,
-            )
 
     def teardown(self, param):
+        measurement_timed_out = False
+        started = self.__dict__.pop("_measurement_started", None)
+        if started is not None:
+            # Exclude each setup and correctness check from the total.
+            self._measurement_elapsed += time.perf_counter() - started
+            measurement_timed_out = (
+                self._measurement_elapsed > self._measurement_timeout
+            )
+            if measurement_timed_out:
+                report_status(
+                    self.name,
+                    repr(param),
+                    "measurement",
+                    status="measurement_timeout",
+                    elapsed_seconds=self._measurement_elapsed,
+                    timeout_seconds=self._measurement_timeout,
+                )
+        report_status(self.name, repr(param), "teardown")
         if hasattr(self, "_output"):
-            if (
-                os.environ.get("SAPS_CHECK_SUITE") == "1"
-                and "test" in param.dataset.suites
-            ):
+            if not measurement_timed_out:
                 self.check(param)
             del self._output
         if hasattr(self, "_meta"):
@@ -558,6 +472,12 @@ class Benchmark(Tagged, Attributed, Motivated):
             del self._xp
         if hasattr(self, "_compiled_benchmark"):
             del self._compiled_benchmark
+        report_status(self.name, repr(param), "finished")
+        if measurement_timed_out:
+            raise MeasurementTimeout(
+                f"measurement_timeout: {self._measurement_elapsed:.6g}s of measurement "
+                f"exceeded {self._measurement_timeout:g}s"
+            )
 
     @abstractmethod
     def check(self, param): ...

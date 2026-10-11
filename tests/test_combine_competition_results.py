@@ -172,6 +172,7 @@ def test_recorded_skip_is_distinct_from_unselected_nan(combiner, metadata, tmp_p
     (dataset,) = combined["benchmarks"][0]["generators"][0]["datasets"]
     assert dataset["name"] == "skipped"
     assert dataset["results"][0]["status"] == "skipped"
+    assert "reason" not in dataset["results"][0]
     assert dataset["results"][0]["result"] is None
 
 
@@ -205,6 +206,16 @@ def test_default_combines_highest_job_number(combiner, metadata, tmp_path, monke
     # Rebuilding does not ingest its own combined output.
     assert combiner.main() == 0
     assert json.loads((run / "results.json").read_text())["result_file_count"] == 1
+
+
+def test_measurement_timeout_does_not_split_frameworks(combiner, metadata, tmp_path):
+    for limit in ("60", "30"):
+        path = tmp_path / f"results/node-a/{limit}.json"
+        document = write_result(path, [float("nan"), 1.0, None])
+        document["env_vars"]["SAPS_MEASUREMENT_TIMEOUT"] = limit
+        path.write_text(json.dumps(document))
+    combined, _ = combiner.combine_results(tmp_path, metadata)
+    assert len(combined["frameworks"]) == 1
 
 
 def test_missing_metadata_match_is_reported(combiner, metadata, tmp_path):
