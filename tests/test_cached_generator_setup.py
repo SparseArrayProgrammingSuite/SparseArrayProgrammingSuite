@@ -3,7 +3,6 @@ from unittest.mock import Mock
 import pytest
 
 import numpy as np
-from saps.util import adjacency
 import scipy.sparse as sps
 
 from binsparse import COORMatrix, CustomTensor, ElementLevel, SparseLevel
@@ -13,8 +12,9 @@ from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_sparse import PyDataSparseFramework
 from saps.benchmark import DataInstance
 from saps.benchmarks import bellman_ford, cp_als
-from saps.util.adjacency import distance_matrix
 from saps.storage import LocalStorageBackend
+from saps.util import adjacency
+from saps.util.adjacency import distance_matrix
 
 
 @pytest.mark.parametrize("keep_weights", [False, True])

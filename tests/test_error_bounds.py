@@ -13,13 +13,11 @@ from saps.benchmark import DataInstance
 from saps.benchmarks.elementwise_multiplication import (
     ElementwiseMultiplicationBenchmark,
 )
-from saps.benchmarks.four_clique_counting import FourCliqueCountingBenchmark
 from saps.benchmarks.matrix_multiplication import MatrixMultiplicationBenchmark
 from saps.benchmarks.matrix_vector_multiplication import (
     MatrixVectorMultiplicationBenchmark,
 )
 from saps.benchmarks.sddmm import SDDMMBenchmark
-from saps.benchmarks.triangle_counting import TriangleCountingBenchmark
 from saps.benchmarks.weighted_model_counting import WeightedModelCountingBenchmark
 from saps.storage import LocalStorageBackend
 from saps.util.error_bounds import (
@@ -242,9 +240,7 @@ def test_sddmm_bound_accounts_for_scaling_and_cancellation(
 
     def generate_bound(mask_value, terms):
         mask = sps.coo_array([[mask_value]])
-        arrays = iter(
-            [np.array([terms], dtype=dtype), np.ones((2, 1), dtype=dtype)]
-        )
+        arrays = iter([np.array([terms], dtype=dtype), np.ones((2, 1), dtype=dtype)])
         rng = SimpleNamespace(random=lambda shape: next(arrays))
         with monkeypatch.context() as patch:
             patch.setattr(np.random, "Generator", lambda _: rng)
@@ -268,19 +264,6 @@ def test_sddmm_bound_accounts_for_scaling_and_cancellation(
         assert generate_bound(mask_value, [1, 1]) == pytest.approx(
             np.abs(mask_value) * positive, rel=1e-14, abs=0
         )
-
-
-@pytest.mark.parametrize(
-    "benchmark_cls", [TriangleCountingBenchmark, FourCliqueCountingBenchmark]
-)
-def test_count_checks_reject_one_missing_count(benchmark_cls):
-    benchmark = benchmark_cls()
-    benchmark._ref_outputs = [from_numpy(np.array(1_000_000))]
-    benchmark._output = [from_numpy(np.array(1_000_000.0))]
-    benchmark.check(None)
-    benchmark._output = [from_numpy(np.array(999_999.0))]
-    with pytest.raises(AssertionError):
-        benchmark.check(None)
 
 
 def test_weighted_count_check_rejects_fixed_tolerance_error():

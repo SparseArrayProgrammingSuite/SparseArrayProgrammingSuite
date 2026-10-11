@@ -6,6 +6,7 @@ Here, n is the number of terms in the summation, abs_sum is the sum of the absol
 values of the terms, and dtype is the data type of the floating-point numbers.
 """
 
+
 def _gamma(xp, n, dtype):
     if n < 0:
         raise ValueError("The number of rounding steps must be nonnegative")

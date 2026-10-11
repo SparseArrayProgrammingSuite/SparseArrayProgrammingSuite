@@ -14,13 +14,13 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.gap import fetch_gap_graph
+from saps.benchmarks.snap import fetch_snap_graph
 from saps.util.adjacency import (
     DEFAULT_MAX_DENSITY,
     squaring_count,
     zero_one_adjacency,
 )
-from saps.benchmarks.gap import fetch_gap_graph
-from saps.benchmarks.snap import fetch_snap_graph
 from saps_framework.binsparse_utils import binsparse_equal
 
 
