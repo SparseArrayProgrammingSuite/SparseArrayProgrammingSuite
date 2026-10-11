@@ -18,6 +18,7 @@ from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     fetch_suitesparse_linear_system,
 )
+from saps.util.error_bounds import operation_error_bound, summation_error_bound
 
 
 class LSQRDataset(SuiteSparseDataset):
@@ -475,21 +476,45 @@ class LSQRBenchmark(Benchmark):
         b = to_numpy(b_bin)
         x_sol = to_numpy(self._output[0])
         residual = b - A @ x_sol
-        if self._ref_meta and "convergence" in self._ref_meta:
-            if self._ref_meta["convergence"] == "residual":
-                assert np.linalg.norm(residual) < 1e-5 * np.linalg.norm(b) + 1e-5
-            elif self._ref_meta["convergence"] == "gradient":
-                assert np.linalg.norm(A.T @ residual) < (
-                    1e-5 * np.linalg.norm(A.T @ b) + 1e-5
-                )
+        abs_A = np.abs(A)
+        roundoff = summation_error_bound(
+            np,
+            A.shape[1] + 1,
+            abs_A @ np.abs(x_sol),
+            np.result_type(A.dtype, x_sol.dtype),
+        )
+        roundoff += operation_error_bound(np, residual, residual.dtype)
+        if self._ref_meta and self._ref_meta.get("convergence") == "residual":
+            rnorm = np.linalg.norm(residual)
+            bound = np.linalg.norm(roundoff)
+            bound += summation_error_bound(
+                np, residual.size + 2, rnorm + bound, residual.dtype
+            )
+            assert np.isfinite(rnorm) and np.isfinite(bound), (
+                "Non-finite residual or error bound"
+            )
+            assert rnorm < 1e-5 * np.linalg.norm(b) + 1e-5 + bound
             return
 
         # Least squares is solved when A.T @ (b - Ax) is small.
-        # Allow 10x rel_tol because this gradient is recomputed in NumPy.
-        rel_tol = (self._meta or {}).get("rel_tol", 1e-6)
-        gradient = np.linalg.norm(A.T @ residual)
+        g = A.T @ residual
+        # Propagate the residual error through A.T, then add the new dot-product error.
+        roundoff = abs_A.T @ roundoff + summation_error_bound(
+            np, A.shape[0] + 1, abs_A.T @ np.abs(residual), g.dtype
+        )
+        gradient = np.linalg.norm(g)
+        bound = np.linalg.norm(roundoff)
+        bound += summation_error_bound(np, g.size + 2, gradient + bound, g.dtype)
+        assert np.isfinite(gradient) and np.isfinite(bound), (
+            "Non-finite gradient or error bound"
+        )
         scale = np.linalg.norm(A.T @ b)
-        limit = 10 * max(rel_tol * scale, 1e-20)
+        if self._ref_meta and self._ref_meta.get("convergence") == "gradient":
+            assert gradient < 1e-5 * scale + 1e-5 + bound
+            return
+
+        rel_tol = (self._meta or {}).get("rel_tol", 1e-6)
+        limit = rel_tol * scale + bound
         assert gradient <= limit, (
             f"LSQR gradient too high for {param.dataset.name}: {gradient}"
         )

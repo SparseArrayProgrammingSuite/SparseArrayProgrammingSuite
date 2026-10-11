@@ -19,6 +19,7 @@ from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     fetch_suitesparse_linear_system,
 )
+from saps.util.error_bounds import operation_error_bound, summation_error_bound
 
 
 class CGDataset(SuiteSparseDataset):
@@ -1180,12 +1181,27 @@ class CGBenchmark(Benchmark):
         )
         b = to_numpy(b_bin)
         x_sol = to_numpy(self._output[0])
-        residual = np.linalg.norm(np.asarray(b - A @ x_sol).ravel())
+        r = np.asarray(b - A @ x_sol).ravel()
+        # Bound the matrix-vector product and the subtraction separately.
+        roundoff = summation_error_bound(
+            np,
+            A.shape[1] + 1,
+            np.abs(A) @ np.abs(x_sol),
+            np.result_type(A.dtype, x_sol.dtype),
+        )
+        roundoff += operation_error_bound(np, r, r.dtype)
+        residual = np.linalg.norm(r)
+        bound = np.linalg.norm(roundoff)
+        # The norm adds a sum of squares and a square root.
+        bound += summation_error_bound(np, r.size + 2, residual + bound, r.dtype)
+        assert np.isfinite(residual) and np.isfinite(bound), (
+            "Non-finite residual or error bound"
+        )
         # CG returns once ||b - Ax|| drops below rel_tol * ||b||.
-        # Allow 10x that bound because this residual is recomputed in NumPy.
         rel_tol = (self._meta or {}).get("rel_tol", 1e-6)
         bnorm = np.linalg.norm(np.asarray(b).ravel())
-        limit = 10 * max(rel_tol * bnorm, 1e-20)
+        abs_tol = (self._meta or {}).get("abs_tol", 1e-20)
+        limit = max(rel_tol * bnorm, abs_tol) + bound
         assert residual <= limit, (
             f"CG residual too high for {param.dataset.name}: {residual}"
         )
