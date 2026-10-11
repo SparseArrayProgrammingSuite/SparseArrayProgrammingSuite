@@ -83,7 +83,7 @@ def test_harness_test_suite_outputs_pass_for_all_test_datasets(tmp_path):
         "--metrics",
         "time",
         "--quick",
-        "--timeout",
+        "--process-timeout",
         "30",
         "--remote-storage-backend",
         "local",
@@ -92,9 +92,9 @@ def test_harness_test_suite_outputs_pass_for_all_test_datasets(tmp_path):
     ]
 
     # Benchmark runs consume prepared inputs, so populate the isolated cache first.
-    for mode in ("--cache-datasets", "--check-suite"):
+    for mode in (["--cache-datasets"], []):
         completed = subprocess.run(
-            [*command, mode],
+            [*command, *mode],
             cwd=tmp_path,
             env=env,
             stdout=subprocess.PIPE,
