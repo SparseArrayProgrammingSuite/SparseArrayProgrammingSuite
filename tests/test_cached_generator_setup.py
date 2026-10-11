@@ -11,9 +11,10 @@ from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to
 from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_sparse import PyDataSparseFramework
 from saps.benchmark import DataInstance
-from saps.benchmarks import adjacency, bellman_ford, cp_als
-from saps.benchmarks.adjacency import distance_matrix
+from saps.benchmarks import bellman_ford, cp_als
 from saps.storage import LocalStorageBackend
+from saps.util import adjacency
+from saps.util.adjacency import distance_matrix
 
 
 @pytest.mark.parametrize("keep_weights", [False, True])

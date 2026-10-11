@@ -14,12 +14,12 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.adjacency import distance_matrix
 from saps.benchmarks.gap import fetch_gap_graph, gap_graph
 from saps.benchmarks.snap import (
     fetch_snap_graph,
     with_source_vertex,
 )
+from saps.util.adjacency import distance_matrix
 
 
 def _from_binsparse(array):
