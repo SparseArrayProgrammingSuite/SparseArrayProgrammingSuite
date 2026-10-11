@@ -87,9 +87,9 @@ def test_simple_undirected_adjacency_drops_loops_and_unions_edges():
 )
 @pytest.mark.parametrize(
     "name",
-    ["com-Friendster", "twitter7", "GAP-twitter", "GAP-web", "GAP-kron", "GAP-urand"],
+    ["twitter7", "GAP-twitter", "GAP-web"],
 )
-def test_large_clique_inputs_match_published_convention(
+def test_directed_clique_inputs_match_published_convention(
     monkeypatch, module_name, class_prefix, name
 ):
     module = importlib.import_module(f"saps.benchmarks.{module_name}")

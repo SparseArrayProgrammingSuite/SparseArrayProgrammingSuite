@@ -307,31 +307,35 @@ class FourCliqueCountingSNAPGenerator(Generator[FourCliqueCountingDataset]):
                 number=1,
                 year=2016,
                 url="https://snap.stanford.edu/index.html",
-                @article{Pangolin,
-	title={Pangolin: An Efficient and Flexible Graph Mining System on CPU and GPU},
-	author={Xuhao Chen and Roshan Dathathri and Gurbinder Gill and Keshav Pingali},
-	year={2020},
-	journal = {Proc. VLDB Endow.},
-	issue_date = {August 2020},
-	volume = {13},
-	number = {8},
-	month = aug,
-	year = {2020},
-	numpages = {12},
-	publisher = {VLDB Endowment},
-}
-
-@InProceedings{Sandslash,
-	title={{Sandslash: A Two-Level Framework for Efficient Graph Pattern Mining}},
-	author={Xuhao Chen and Roshan Dathathri and Gurbinder Gill and Loc Hoang and Keshav Pingali},
-	year={2021},
-	booktitle = {Proceedings of the 35th ACM International Conference on Supercomputing},
-	series = {ICS '21},
-	year = {2021},
-	numpages = {14},
-}
-
-            )
+            ),
+            Ref(
+                title="Pangolin: An Efficient and Flexible Graph Mining System on CPU and GPU",
+                authors=[
+                    Author("Xuhao Chen"),
+                    Author("Roshan Dathathri"),
+                    Author("Gurbinder Gill"),
+                    Author("Keshav Pingali"),
+                ],
+                journal="Proc. VLDB Endow.",
+                volume=13,
+                number=8,
+                year=2020,
+                publisher="VLDB Endowment",
+                url="https://arxiv.org/abs/1911.06969",
+            ),
+            Ref(
+                title="Sandslash: A Two-Level Framework for Efficient Graph Pattern Mining",
+                authors=[
+                    Author("Xuhao Chen"),
+                    Author("Roshan Dathathri"),
+                    Author("Gurbinder Gill"),
+                    Author("Loc Hoang"),
+                    Author("Keshav Pingali"),
+                ],
+                booktitle="Proceedings of the 35th ACM International Conference on Supercomputing",
+                year=2021,
+                url="https://doi.org/10.1145/3447818.3460359",
+            ),
         ]
 
     @property
@@ -364,7 +368,7 @@ class FourCliqueCountingSNAPGenerator(Generator[FourCliqueCountingDataset]):
             FourCliqueCountingDataset("soc-sign-bitcoin-otc", suites=["standard"]),
             FourCliqueCountingDataset("soc-sign-bitcoin-alpha", suites=["standard"]),
             FourCliqueCountingDataset("com-LiveJournal", suites=["standard"]),
-            FourCliqueCountingDataset("com-Friendster", suites=["standard"], simple_undirected=True),
+            FourCliqueCountingDataset("com-Friendster", suites=["standard"]),
             FourCliqueCountingDataset("com-Orkut", suites=["standard"]),
             FourCliqueCountingDataset("com-Youtube", suites=["standard"]),
             FourCliqueCountingDataset("com-DBLP", suites=["standard"]),
@@ -478,30 +482,34 @@ class FourCliqueCountingGAPGenerator(Generator[FourCliqueCountingDataset]):
                 url="https://arxiv.org/abs/1508.03619",
                 year=2015,
             ),
-            @article{Pangolin,
-	title={Pangolin: An Efficient and Flexible Graph Mining System on CPU and GPU},
-	author={Xuhao Chen and Roshan Dathathri and Gurbinder Gill and Keshav Pingali},
-	year={2020},
-	journal = {Proc. VLDB Endow.},
-	issue_date = {August 2020},
-	volume = {13},
-	number = {8},
-	month = aug,
-	year = {2020},
-	numpages = {12},
-	publisher = {VLDB Endowment},
-}
-
-@InProceedings{Sandslash,
-	title={{Sandslash: A Two-Level Framework for Efficient Graph Pattern Mining}},
-	author={Xuhao Chen and Roshan Dathathri and Gurbinder Gill and Loc Hoang and Keshav Pingali},
-	year={2021},
-	booktitle = {Proceedings of the 35th ACM International Conference on Supercomputing},
-	series = {ICS '21},
-	year = {2021},
-	numpages = {14},
-}
-
+            Ref(
+                title="Pangolin: An Efficient and Flexible Graph Mining System on CPU and GPU",
+                authors=[
+                    Author("Xuhao Chen"),
+                    Author("Roshan Dathathri"),
+                    Author("Gurbinder Gill"),
+                    Author("Keshav Pingali"),
+                ],
+                journal="Proc. VLDB Endow.",
+                volume=13,
+                number=8,
+                year=2020,
+                publisher="VLDB Endowment",
+                url="https://arxiv.org/abs/1911.06969",
+            ),
+            Ref(
+                title="Sandslash: A Two-Level Framework for Efficient Graph Pattern Mining",
+                authors=[
+                    Author("Xuhao Chen"),
+                    Author("Roshan Dathathri"),
+                    Author("Gurbinder Gill"),
+                    Author("Loc Hoang"),
+                    Author("Keshav Pingali"),
+                ],
+                booktitle="Proceedings of the 35th ACM International Conference on Supercomputing",
+                year=2021,
+                url="https://doi.org/10.1145/3447818.3460359",
+            ),
         ]
 
     @property
@@ -526,8 +534,8 @@ class FourCliqueCountingGAPGenerator(Generator[FourCliqueCountingDataset]):
             FourCliqueCountingDataset("GAP-road", suites=["standard"]),
             FourCliqueCountingDataset("GAP-twitter", suites=["standard"], simple_undirected=True),
             FourCliqueCountingDataset("GAP-web", suites=["standard"], simple_undirected=True),
-            FourCliqueCountingDataset("GAP-kron", suites=["standard"], simple_undirected=True),
-            FourCliqueCountingDataset("GAP-urand", suites=["standard"], simple_undirected=True),
+            FourCliqueCountingDataset("GAP-kron", suites=["standard"]),
+            FourCliqueCountingDataset("GAP-urand", suites=["standard"]),
         ]
         # fmt: on
 
