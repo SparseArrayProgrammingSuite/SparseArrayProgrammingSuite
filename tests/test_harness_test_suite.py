@@ -100,7 +100,9 @@ def test_harness_test_suite_outputs_pass_for_all_test_datasets(tmp_path):
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
-            timeout=600,
+            # Windows and macOS start a fresh interpreter for each of the
+            # hundreds of test datasets, so allow time for worker startup.
+            timeout=1800,
         )
         assert completed.returncode == 0, completed.stdout
 

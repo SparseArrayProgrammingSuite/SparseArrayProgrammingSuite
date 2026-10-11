@@ -166,22 +166,32 @@ def test_asv_worker_outcomes(tmp_path, scenario, status, source):
     suite = tmp_path / "benchmarks"
     suite.mkdir()
     (suite / "__init__.py").write_text("")
-    run_duration = {"hang": 10, "slow": 0.07}.get(scenario, 0.03)
+    # Control both clocks so worker startup and CI load cannot consume the
+    # measurement budget or change the number of ASV warmup calls.
     (suite / "timing.py").write_text(
         "import time\n"
+        "from types import SimpleNamespace\n"
+        "import asv_runner.benchmarks.time as asv_time\n"
+        "import saps.benchmark as benchmark_module\n"
         "from frameworks.saps_numpy import NumpyFramework\n"
         "from saps.benchmarks.bfs import BFSBenchmark\n"
+        "clock = SimpleNamespace(now=0.0)\n"
+        "benchmark_module.time = SimpleNamespace(perf_counter=lambda: clock.now)\n"
+        "asv_time.wall_timer = lambda: clock.now\n"
         "class TimingBFS(BFSBenchmark):\n"
         "    params = [p for p in BFSBenchmark().params if p.dataset.name == 'basic']\n"
         "    def setup(self, param):\n"
-        f"        time.sleep({10 if scenario == 'setup' else 0.15})\n"
+        f"        time.sleep({60 if scenario == 'setup' else 0})\n"
+        "        clock.now += 2\n"
         "        super().setup(param, use_cache=False, xp=NumpyFramework())\n"
         "    def run(self, param):\n"
-        f"        time.sleep({run_duration})\n"
+        f"        time.sleep({60 if scenario == 'hang' else 0})\n"
+        f"        clock.now += {0.75 if scenario == 'slow' else 0.25}\n"
         "        super().run(param)\n"
         "        print('completed benchmark call', flush=True)\n"
         "    def check(self, param):\n"
-        f"        time.sleep({10 if scenario == 'teardown' else 0.15})\n"
+        f"        time.sleep({60 if scenario == 'teardown' else 0})\n"
+        "        clock.now += 2\n"
         f"        assert {scenario != 'failed'}, 'incorrect output'\n"
         "        super().check(param)\n"
     )
@@ -201,21 +211,22 @@ def test_asv_worker_outcomes(tmp_path, scenario, status, source):
                 ],
                 env={
                     **os.environ,
-                    "SAPS_MEASUREMENT_TIMEOUT": "0.1",
+                    "SAPS_MEASUREMENT_TIMEOUT": "1",
                     "SAPS_LOG_PATH": str(tmp_path / "diagnostics.log"),
                 },
                 capture_output=True,
-                text=True,
+                # Keep timeout output as bytes on Windows as well as POSIX.
+                text=False,
                 timeout=timeout,
             )
-            return completed.stdout + completed.stderr, completed.returncode
+            return (completed.stdout + completed.stderr).decode(), completed.returncode
         except subprocess.TimeoutExpired as exc:
             return (exc.stderr or b"").decode(), TIMEOUT_RETCODE
 
     benchmark = {
         "name": "timing.TimingBFS.time_bfs",
         "params": [["basic"]],
-        "timeout": 3,
+        "timeout": 30,
     }
     result = run_benchmark(
         benchmark,
@@ -233,5 +244,6 @@ def test_asv_worker_outcomes(tmp_path, scenario, status, source):
         assert len(result.samples[0]) == 1  # The warmup is not a timing sample.
     elif scenario == "slow":
         assert result.errcode == 1  # An exception, not a process timeout/signal.
-        assert record["elapsed_seconds"] > 0.1
+        assert record["elapsed_seconds"] == 1.5
+        assert record["timeout_seconds"] == 1
         assert '"phase": "finished"' in result.stderr
