@@ -55,7 +55,12 @@ def test_saps_does_not_export_global_xp():
 def test_benchmark_methods_accept_explicit_xp():
     for cls in _benchmark_classes():
         signature = inspect.signature(cls.benchmark)
-        assert list(signature.parameters)[:4] == ["self", "xp", "data", "meta"]
+        params = list(signature.parameters.values())
+        assert [p.name for p in params[:3]] == ["self", "xp", "meta"], cls
+        # Inputs follow as one positional parameter each, or *data_args.
+        assert all(
+            p.kind in (p.POSITIONAL_OR_KEYWORD, p.VAR_POSITIONAL) for p in params[3:]
+        ), cls
 
 
 def test_benchmark_modules_do_not_define_global_xp():

@@ -6,6 +6,7 @@ import re
 import sys
 import xml.etree.ElementTree as ET
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Generic, TypeVar
@@ -336,6 +337,19 @@ class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
     @abstractmethod
     def generate(self, dataset: TDataset) -> DataInstance: ...
 
+    def generate_benchmark_function(
+        self, dataset: TDataset, problem: DataInstance, benchmark: Callable[..., Any]
+    ) -> Callable[..., Any]:
+        """Return the function that computes ``dataset`` with ``problem``'s inputs.
+
+        The result is called as ``function(xp, meta, *inputs)``. By default it is
+        ``benchmark``, the benchmark's bound ``benchmark`` method. Generators
+        whose datasets each need their own fixed-arity signature (for example,
+        one parameter per matrix of a query) override this to build that
+        function at setup time, typically with ``saps.codegen.define_function``.
+        """
+        return benchmark
+
     @property
     def metadata(self) -> dict[str, Any]:
         return {
@@ -370,7 +384,20 @@ class Benchmark(Tagged, Attributed, Motivated):
     def generators(self) -> list[Generator[Any]]: ...
 
     @abstractmethod
-    def benchmark(self, xp: Framework, data: list[Any], meta: Any) -> Any: ...
+    def benchmark(
+        self, xp: Framework, meta: Any, *data_args: Any, **kwargs: Any
+    ) -> Any:
+        """Run the benchmark on the generator's inputs.
+
+        Declare one positional parameter per input array after ``meta``, in the
+        order the generator produces them (``def benchmark(self, xp, meta, A, b)``),
+        or ``*data_args`` when the number of inputs varies by dataset. Return a
+        single output directly (``return x``) or several as a tuple
+        (``return x, y``).
+
+        The trailing ``*data_args``/``**kwargs`` let type checkers accept either
+        style of override; SAPS itself only passes inputs positionally.
+        """
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -449,9 +476,12 @@ class Benchmark(Tagged, Attributed, Motivated):
                 xp = None
         if xp is not None:
             self._xp = xp
+            function = param.generator.generate_benchmark_function(
+                param.dataset, problem, self.benchmark
+            )
 
-            def benchmark(data, meta):
-                return self.benchmark(xp, data, meta)
+            def benchmark(meta, *data_args):
+                return function(xp, meta, *data_args)
 
             self._compiled_benchmark = xp.compile(benchmark)
 
@@ -465,7 +495,9 @@ class Benchmark(Tagged, Attributed, Motivated):
         if hasattr(xp, "reset_stats"):
             xp.reset_stats()
         input = [xp.from_binsparse(d) for d in self._input]
-        output = self._compiled_benchmark(input, self._meta)
+        output = self._compiled_benchmark(self._meta, *input)
+        if not isinstance(output, tuple):
+            output = (output,)
         output = [xp.to_binsparse(o) for o in output]
         self._output = output
         self._write_tagger_stats(param, xp)
@@ -594,8 +626,8 @@ class ShellBenchmark(Benchmark, ABC):
     def generators(self) -> list[Generator[Any]]:
         return [self.generator]
 
-    def benchmark(self, xp: Framework, data: list[Any], meta: Any) -> Any:
-        return []
+    def benchmark(self, xp: Framework, meta: Any, *data_args: Any) -> Any:
+        return ()
 
     def check(self, param):
         pass

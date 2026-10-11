@@ -161,6 +161,15 @@ def test_slicot_generator_rejects_explicit_e(monkeypatch):
         ODESLICOTGenerator().generate(ODESLICOTDataset("eady"))
 
 
+def _run_slicot(benchmark, meta, *data):
+    generator = ODESLICOTGenerator()
+    problem = DataInstance(inputs=[from_numpy(item) for item in data], meta=meta)
+    function = generator.generate_benchmark_function(
+        generator.datasets[0], problem, benchmark.benchmark
+    )
+    return function(None, meta, *data)
+
+
 def test_slicot_forward_euler_runs_linear_system():
     benchmark = ForwardEulerBenchmark()
     data = [np.array([[0.0]]), np.array([[2.0]])]
@@ -172,13 +181,13 @@ def test_slicot_forward_euler_runs_linear_system():
         "input_value": 3.0,
     }
 
-    time, states = benchmark.benchmark(None, data, meta)
+    time, states = _run_slicot(benchmark, meta, *data)
 
     np.testing.assert_allclose(time, np.array([0.0, 0.1, 0.2]))
     np.testing.assert_allclose(states[:, 0], np.array([0.0, 0.6, 1.2]))
 
 
-def test_runge_kutta_includes_slicot_generator():
+def test_rk4_includes_slicot_generator():
     generator_names = [generator.name for generator in RK4Benchmark().generators]
 
     assert "ode_slicot" in generator_names
@@ -235,7 +244,7 @@ def test_slicot_check_preserves_complex_reference(drop_imaginary):
         "step": 0.01,
         "input_value": 1.0,
     }
-    time, states = benchmark.benchmark(None, data, benchmark._meta)
+    time, states = _run_slicot(benchmark, benchmark._meta, *data)
     if drop_imaginary:
         states = states.real
     benchmark._output = [from_numpy(time), from_numpy(states)]
@@ -260,7 +269,7 @@ def test_slicot_check_still_rejects_unstable_steps():
         "input_value": 1.0,
     }
     benchmark._output = [
-        from_numpy(item) for item in benchmark.benchmark(None, data, benchmark._meta)
+        from_numpy(item) for item in _run_slicot(benchmark, benchmark._meta, *data)
     ]
 
     with pytest.raises(AssertionError, match="exceeds tolerance 0.05 at step=0.01"):

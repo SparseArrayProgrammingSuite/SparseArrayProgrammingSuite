@@ -15,13 +15,13 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.adjacency import zero_one_adjacency
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import (
     NUM_SNAP_SOURCES,
     fetch_snap_graph,
     seeded_source_vertices,
 )
+from saps.util.adjacency import zero_one_adjacency
 from saps_framework.binsparse_utils import binsparse_equal
 
 
@@ -618,13 +618,11 @@ class MSBFSBenchmark(Benchmark):
             MSBFSGAPGenerator(),
         ]
 
-    def benchmark(self, xp, data: list, meta: dict):
+    def benchmark(self, xp, meta: dict, edges, frontier):
         """
         Returns levels, where level[s, v] is one more than the number of hops
         from meta["sources"][s] to v, or 0 if v is unreachable from it.
         """
-        edges = data[0]
-        frontier = data[1]
 
         (n, m) = edges.shape
         assert n == m
@@ -647,7 +645,7 @@ class MSBFSBenchmark(Benchmark):
 
             level_idx += 1
 
-        return [level]
+        return level
 
     def check(self, param):
         for item in self._output:
