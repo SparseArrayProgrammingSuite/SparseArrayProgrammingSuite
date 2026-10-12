@@ -200,3 +200,50 @@ def test_slurm_submission_from_scripts_directory(tmp_path, script_name, commands
         else f"./bin/{name}"
         for name in commands
     ]
+
+
+@pytest.mark.parametrize("build_status", [0, 1])
+def test_graphminer_a100_job_runs_all_graphs_in_one_process(tmp_path, build_status):
+    record = tmp_path / "commands.jsonl"
+    capture = (
+        "import json, os, sys; "
+        'f=open(os.environ["SAPS_TEST_COMMANDS"], "a"); '
+        'f.write(json.dumps(sys.argv[1:])+"\\n"); f.close()'
+    )
+    log_command = shlex.quote(sys.executable) + " -c " + shlex.quote(capture)
+    shell_env = tmp_path / "shell-env"
+    shell_env.write_text(
+        f'make() {{ {log_command} make "$@"; return {build_status}; }}\n'
+        # exec cannot invoke a shell function, so intercept exec as well.
+        f'exec() {{ {log_command} "$@"; }}\n'
+    )
+    env = {
+        **os.environ,
+        "BASH_ENV": str(shell_env),
+        "SAPS_TEST_COMMANDS": str(record),
+        "SAPS_REPO_DIRECTORY": str(ROOT),
+        "GRAPHMINER_GPU_DIR": str(tmp_path / "gpu build"),
+        "SLURM_CPUS_PER_TASK": "24",
+    }
+    env.pop("SLURM_ARRAY_TASK_ID", None)
+    script = ROOT / "scripts/run-graphminer-gap.slurm"
+    completed = subprocess.run(["bash", str(script)], env=env, capture_output=True)
+    assert completed.returncode == build_status, completed.stderr
+    commands = [json.loads(line) for line in record.read_text().splitlines()]
+    assert commands[0] == ["make", "graphminer-gpu-check"]
+    if build_status:
+        assert len(commands) == 1
+        return
+    assert len(commands) == 2
+    command = commands[1]
+    assert command[:4] == ["poetry", "run", "python", "scripts/run_graphminer_gap.py"]
+    index = command.index("--datasets")
+    assert command[index + 1 : index + 4] == ["GAP-web", "GAP-kron", "GAP-urand"]
+    assert command[command.index("--graphminer-bin") + 1] == str(
+        tmp_path / "gpu build/bin/clique_gpu_base"
+    )
+    assert "--resume" in command
+    contents = script.read_text()
+    assert "#SBATCH --ntasks=1" in contents
+    assert "#SBATCH --gres=gpu:a100:1" in contents
+    assert "#SBATCH --array" not in contents
