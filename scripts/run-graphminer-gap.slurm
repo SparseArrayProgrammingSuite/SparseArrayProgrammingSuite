@@ -6,7 +6,7 @@
 #SBATCH --mem=350G
 #SBATCH --cpus-per-task=1
 #SBATCH --qos=embers
-#SBATCH --time=8:00:00
+#SBATCH --time=1:00:00
 #SBATCH --output=graphminer-gap-%j.log
 
 set -euo pipefail
