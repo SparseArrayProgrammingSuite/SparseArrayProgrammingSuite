@@ -264,6 +264,37 @@ prepared SuiteSparse inputs and returns only the matrix, preserving its values
 and dimensions. Bellman-Ford derives its sparse distance representation
 during setup. Source archives share the `suitesparse/SNAP/` cache.
 
+Triangle and four-clique reference counts use simple undirected graphs: ignore
+edge weights and directions, merge duplicate edges, remove self-loops, and store
+only the strict upper triangle. Each clique is counted once. Prefer the published
+[GraphMiner triangle table](https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/triangle/README.md)
+and [clique table](https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/clique/README.md)
+where the input graphs match:
+
+| SAPS dataset | GraphMiner row | Reference counts |
+| --- | --- | --- |
+| `soc-LiveJournal1` | `livej` | Triangles and four-cliques |
+| `com-Orkut` | `com-Orkut` | Triangles and four-cliques |
+| `cit-Patents` | `cit-Patents` | Triangles and four-cliques |
+| `com-Friendster` | `friendster` | Triangles and four-cliques |
+| `twitter7` | `twitter40` | Triangles and four-cliques |
+| `GAP-twitter` | `twitter40` | Triangles |
+
+[SuiteSparse documents the equivalence of GAP-twitter and twitter7](https://sparse.tamu.edu/GAP/GAP-twitter)
+after removing self-loops and weights and disregarding isolated vertices.
+GraphMiner's `youtube`, `patent_citations`, and `uk2007` are different graphs from
+`com-Youtube`, `cit-Patents`, and `GAP-web`; their counts cannot be substituted.
+Likewise, `livej` matches `soc-LiveJournal1`, not `com-LiveJournal`.
+For the other datasets, triangle references come from the SNAP dataset pages,
+[LAGraph's GAP counts](https://github.com/GraphBLAS/LAGraph/blob/7543de1f310371c540c23ff5da82705aa4e94ea0/src/benchmark/tc_demo.c#L22-L27),
+or local computation as marked in `triangle_counting.py`. The remaining
+four-clique references are locally computed with `scripts/compute_graph_counts.py`
+using the benchmark generators. They are not published GraphMiner totals.
+
+Each dataset descriptor carries its integer `expected` count. Generators use
+`int64` adjacency values and reference scalars; correctness checks require an
+integer scalar exactly equal to the reference, with no floating-point tolerance.
+
 Regenerate metadata and prepare the SuiteSparse cache before running these consumers
 with the SuiteSparse sources:
 

@@ -1,7 +1,7 @@
 """Shared adjacency conversions and squaring limits for graph benchmarks."""
 
 import numpy as np
-from scipy.sparse import coo_array
+from scipy.sparse import coo_array, triu
 
 import sparse
 from binsparse import BinsparseTensor
@@ -10,19 +10,33 @@ from binsparse.conversions import from_scipy, from_sparse, to_numpy, to_scipy
 DEFAULT_MAX_DENSITY = 0.01
 
 
-def zero_one_adjacency(adjacency: BinsparseTensor, dtype=bool) -> BinsparseTensor:
+def zero_one_adjacency(
+    adjacency: BinsparseTensor,
+    dtype=bool,
+    *,
+    simple_undirected: bool = False,
+    upper_triangle: bool = False,
+) -> BinsparseTensor:
     """0-1 adjacency with a one wherever ``adjacency`` stores a nonzero.
 
     Connectivity kernels should not see SNAP signs, timestamps, or interaction
     counts, or GAP edge weights. Explicit zeros are dropped and repeated
     coordinates are merged with logical or, so opposite-signed entries cannot
-    cancel. Self-loops are kept.
+    cancel. Self-loops are kept unless ``simple_undirected`` is requested, which
+    also adds the reverse of every edge for published undirected clique counts.
+    ``upper_triangle`` then keeps only entries with row < column, so clique
+    counters visit each set of vertices once.
     """
     edges = to_scipy(adjacency).tocoo()
     pattern = coo_array(
         (edges.data != 0, (edges.row, edges.col)), shape=edges.shape
     ).tocsr()
+    if simple_undirected:
+        pattern = pattern.maximum(pattern.T)
+        pattern.setdiag(False)
     pattern.eliminate_zeros()
+    if upper_triangle:
+        pattern = triu(pattern, k=1)
     return from_scipy(pattern.tocoo().astype(np.dtype(dtype)))
 
 
