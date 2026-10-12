@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import os
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock
@@ -9,7 +10,9 @@ import pytest
 
 
 @pytest.fixture
-def runner():
+def runner(monkeypatch):
+    # main() updates the environment directly; keep its settings local to each test.
+    monkeypatch.setattr(os, "environ", dict(os.environ))
     path = Path(__file__).parents[1] / "bin/run_benchmark.py"
     spec = importlib.util.spec_from_file_location("saps_run_benchmark", path)
     module = importlib.util.module_from_spec(spec)
