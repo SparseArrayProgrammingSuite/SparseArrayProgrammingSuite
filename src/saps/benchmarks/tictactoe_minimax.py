@@ -11,36 +11,109 @@ from saps.benchmark import (
     Ref,
 )
 
+_REF_WIN_LINES = (
+    (0, 1, 2),
+    (3, 4, 5),
+    (6, 7, 8),
+    (0, 3, 6),
+    (1, 4, 7),
+    (2, 5, 8),
+    (0, 4, 8),
+    (2, 4, 6),
+)
+
+
+def _ref_board_to_flat(board):
+    board = np.asarray(board, dtype=np.int64)
+    flat = []
+    for i in range(3):
+        for j in range(3):
+            x = board[i, j, 0]
+            o = board[i, j, 1]
+            flat.append(1 if x > 0 else (-1 if o > 0 else 0))
+    return flat
+
+
+def _ref_winner(flat):
+    for a, b, c in _REF_WIN_LINES:
+        s = flat[a] + flat[b] + flat[c]
+        if s == 3:
+            return 1
+        if s == -3:
+            return -1
+    return 0
+
+
+def _ref_minimax(flat, depth):
+    w = _ref_winner(flat)
+    if w != 0:
+        return w
+    if all(cell != 0 for cell in flat):
+        return 0
+    if depth == 0:
+        return 0
+
+    count_x = sum(1 for c in flat if c == 1)
+    count_o = sum(1 for c in flat if c == -1)
+    x_to_move = not (count_x > count_o)
+    mark = 1 if x_to_move else -1
+
+    best = None
+    for idx in range(9):
+        if flat[idx] != 0:
+            continue
+        child = list(flat)
+        child[idx] = mark
+        val = _ref_minimax(child, depth - 1)
+        if best is None:
+            best = val
+        elif x_to_move:
+            best = max(best, val)
+        else:
+            best = min(best, val)
+    return best
+
+
+def reference_minimax(board, depth):
+    board = np.asarray(board, dtype=np.int64)
+    values = [
+        _ref_minimax(_ref_board_to_flat(board[n]), depth) for n in range(board.shape[0])
+    ]
+    if board.shape[0] == 1:
+        return int(values[0])
+    return np.array(values, dtype=np.int64)
+
+
 # These are the testing boards, used np.
 BOARD_X_WINS_NEAR = np.array(
     [[[[1, 0], [1, 0], [0, 0]], [[0, 1], [0, 1], [0, 0]], [[1, 0], [0, 0], [0, 1]]]],
-    dtype=float,
+    dtype=np.int64,
 )
 BOARD_O_WINS_NEAR = np.array(
     [[[[1, 0], [0, 1], [0, 0]], [[0, 0], [0, 1], [1, 0]], [[0, 1], [1, 0], [1, 0]]]],
-    dtype=float,
+    dtype=np.int64,
 )
 BOARD_DRAW_NEAR = np.array(
     [[[[1, 0], [0, 1], [1, 0]], [[1, 0], [0, 1], [0, 1]], [[0, 1], [1, 0], [0, 0]]]],
-    dtype=float,
+    dtype=np.int64,
 )
 BOARD_X_WINS_MID = np.array(
     [[[[1, 0], [1, 0], [0, 0]], [[0, 1], [0, 0], [0, 0]], [[0, 0], [0, 1], [0, 0]]]],
-    dtype=float,
+    dtype=np.int64,
 )
 BOARD_O_WINS_MID = np.array(
     [[[[1, 0], [0, 1], [0, 0]], [[0, 0], [0, 1], [1, 0]], [[0, 0], [1, 0], [1, 0]]]],
-    dtype=float,
+    dtype=np.int64,
 )
 BOARD_X_WINS_EARLY = np.array(
     [[[[0, 0], [0, 1], [0, 0]], [[0, 0], [1, 0], [0, 0]], [[0, 0], [0, 0], [0, 0]]]],
-    dtype=float,
+    dtype=np.int64,
 )
 BOARD_DRAW_EARLY = np.array(
     [[[[0, 1], [0, 0], [1, 0]], [[0, 0], [1, 0], [0, 0]], [[0, 1], [0, 0], [0, 0]]]],
-    dtype=float,
+    dtype=np.int64,
 )
-BOARD_EMPTY = np.zeros((1, 3, 3, 2), dtype=float)
+BOARD_EMPTY = np.zeros((1, 3, 3, 2), dtype=np.int64)
 BOARD_BATCH_NEAR = np.concatenate(
     [BOARD_X_WINS_NEAR, BOARD_O_WINS_NEAR, BOARD_DRAW_NEAR], axis=0
 )
@@ -52,7 +125,7 @@ class TicTacToeMinimaxDataset(Dataset):
         name: str,
         board: np.ndarray,
         depth: int,
-        expected: np.ndarray | float | None = None,
+        expected: np.ndarray | int | None = None,
         suites: list[str] | None = None,
         pretty_name: str | None = None,
     ):
@@ -142,7 +215,7 @@ class TicTacToeMinimaxBoardsGenerator(Generator[TicTacToeMinimaxDataset]):
                 "x_wins_near",
                 BOARD_X_WINS_NEAR,
                 depth=2,
-                expected=1.0,
+                expected=1,
                 suites=["test"],
                 pretty_name="X Wins Near",
             ),
@@ -150,7 +223,7 @@ class TicTacToeMinimaxBoardsGenerator(Generator[TicTacToeMinimaxDataset]):
                 "o_wins_near",
                 BOARD_O_WINS_NEAR,
                 depth=2,
-                expected=-1.0,
+                expected=-1,
                 suites=["test"],
                 pretty_name="O Wins Near",
             ),
@@ -158,7 +231,7 @@ class TicTacToeMinimaxBoardsGenerator(Generator[TicTacToeMinimaxDataset]):
                 "draw_near",
                 BOARD_DRAW_NEAR,
                 depth=2,
-                expected=0.0,
+                expected=0,
                 suites=["test"],
                 pretty_name="Draw Near",
             ),
@@ -166,7 +239,7 @@ class TicTacToeMinimaxBoardsGenerator(Generator[TicTacToeMinimaxDataset]):
                 "batch_near",
                 BOARD_BATCH_NEAR,
                 depth=2,
-                expected=np.array([1.0, -1.0, 0.0]),
+                expected=np.array([1, -1, 0], dtype=np.int64),
                 suites=["test"],
                 pretty_name="Batch Near",
             ),
@@ -174,7 +247,7 @@ class TicTacToeMinimaxBoardsGenerator(Generator[TicTacToeMinimaxDataset]):
                 "x_wins_mid",
                 BOARD_X_WINS_MID,
                 depth=3,
-                expected=1.0,
+                expected=1,
                 suites=["test"],
                 pretty_name="X Wins Mid",
             ),
@@ -182,7 +255,7 @@ class TicTacToeMinimaxBoardsGenerator(Generator[TicTacToeMinimaxDataset]):
                 "o_wins_mid",
                 BOARD_O_WINS_MID,
                 depth=3,
-                expected=-1.0,
+                expected=-1,
                 suites=["test"],
                 pretty_name="O Wins Mid",
             ),
@@ -190,7 +263,7 @@ class TicTacToeMinimaxBoardsGenerator(Generator[TicTacToeMinimaxDataset]):
                 "x_wins_early",
                 BOARD_X_WINS_EARLY,
                 depth=5,
-                expected=1.0,
+                expected=1,
                 suites=["test"],
                 pretty_name="X Wins Early",
             ),
@@ -198,7 +271,7 @@ class TicTacToeMinimaxBoardsGenerator(Generator[TicTacToeMinimaxDataset]):
                 "draw_early",
                 BOARD_DRAW_EARLY,
                 depth=6,
-                expected=0.0,
+                expected=0,
                 suites=["test", "standard", "trace", "train"],
                 pretty_name="Draw Early",
             ),
@@ -213,9 +286,8 @@ class TicTacToeMinimaxBoardsGenerator(Generator[TicTacToeMinimaxDataset]):
 
     def generate(self, dataset: TicTacToeMinimaxDataset):
         S_bin = from_numpy(dataset.board)
-        ref_outputs = None
-        if dataset.expected is not None:
-            ref_outputs = [from_numpy(np.asarray(dataset.expected))]
+        expected = reference_minimax(dataset.board, dataset.depth)
+        ref_outputs = [from_numpy(np.asarray(expected, dtype=np.int64))]
         return DataInstance(
             inputs=[S_bin], meta={"depth": dataset.depth}, ref_outputs=ref_outputs
         )
@@ -272,8 +344,8 @@ class TicTacToeMinimaxBenchmark(Benchmark):
     def ai_disclosure(self) -> str:
         return (
             "The original benchmark function was written by hand. Generative AI "
-            "assisted with refactoring the depth traversal into loops and adding "
-            "regression tests."
+            "assisted with refactoring the depth traversal into loops, using "
+            "integer arithmetic, and adding regression tests."
         )
 
     @property
@@ -301,7 +373,8 @@ class TicTacToeMinimaxBenchmark(Benchmark):
                 [[0, 0, 1], [0, 0, 1], [0, 0, 1]],
                 [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
                 [[0, 0, 1], [0, 1, 0], [1, 0, 0]],
-            ]
+            ],
+            dtype=xp.int64,
         )
 
         # Expand each level, retaining parent boards and legal-move masks.
@@ -314,8 +387,12 @@ class TicTacToeMinimaxBenchmark(Benchmark):
             empty_flat = xp.reshape(1 - xp.sum(board, axis=3), (N, 9))
             count_X = xp.sum(board[:, :, :, 0], axis=(1, 2))
             count_O = xp.sum(board[:, :, :, 1], axis=(1, 2))
-            turn = xp.where(count_X > count_O, xp.ones(N), xp.zeros(N))
-            pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
+            turn = xp.where(
+                count_X > count_O,
+                xp.ones(N, dtype=xp.int64),
+                xp.zeros(N, dtype=xp.int64),
+            )
+            pos_exp = xp.reshape(xp.eye(9, dtype=xp.int64), (1, 9, 3, 3))
             turn_exp = xp.reshape(turn, (N, 1, 1, 1))
             ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
             ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
@@ -345,14 +422,20 @@ class TicTacToeMinimaxBenchmark(Benchmark):
             full = xp.all(xp.sum(board, axis=3) >= 1, axis=(1, 2))
             terminal = x_wins | o_wins | full
             value = xp.where(
-                x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N))
+                x_wins,
+                xp.ones(N, dtype=xp.int64),
+                xp.where(
+                    o_wins, -xp.ones(N, dtype=xp.int64), xp.zeros(N, dtype=xp.int64)
+                ),
             )
             terminals.append(terminal)
             values.append(value)
             level += 1
 
         # Nonterminal leaves have value zero at the search horizon.
-        result = xp.where(terminals[-1], values[-1], xp.zeros(boards[-1].shape[0]))
+        result = xp.where(
+            terminals[-1], values[-1], xp.zeros(boards[-1].shape[0], dtype=xp.int64)
+        )
         level = depth - 1
         while level >= 0:
             board = boards[level]
@@ -360,15 +443,20 @@ class TicTacToeMinimaxBenchmark(Benchmark):
             N = board.shape[0]
             count_X = xp.sum(board[:, :, :, 0], axis=(1, 2))
             count_O = xp.sum(board[:, :, :, 1], axis=(1, 2))
-            turn = xp.where(count_X > count_O, xp.ones(N), xp.zeros(N))
-            child_val = xp.where(valid > 0, result, xp.zeros(N * 9))
+            turn = xp.where(
+                count_X > count_O,
+                xp.ones(N, dtype=xp.int64),
+                xp.zeros(N, dtype=xp.int64),
+            )
+            child_val = xp.where(valid > 0, result, xp.zeros(N * 9, dtype=xp.int64))
             child_val_grid = xp.reshape(child_val, (N, 9))
             valid_grid = xp.reshape(valid, (N, 9))
             turn_exp = xp.reshape(turn, (N, 1))
+            # Scores are in [-1, 1], so +/-2 excludes invalid moves.
             sentinel = xp.where(
                 turn_exp > 0,
-                float("inf") * xp.ones((N, 9)),
-                float("-inf") * xp.ones((N, 9)),
+                2 * xp.ones((N, 9), dtype=xp.int64),
+                -2 * xp.ones((N, 9), dtype=xp.int64),
             )
             child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
             backed_max = xp.max(child_val_masked, axis=1)
@@ -381,8 +469,10 @@ class TicTacToeMinimaxBenchmark(Benchmark):
 
     def check(self, param):
         super().check(param)
-        if self._ref_outputs is None:
-            return
+        assert self._ref_outputs is not None, "No reference output"
         actual = to_numpy(self._output[0])
         expected = to_numpy(self._ref_outputs[0])
-        assert np.allclose(actual, expected, atol=1e-6)
+        assert np.issubdtype(actual.dtype, np.integer), (
+            "Minimax output must have an integer dtype"
+        )
+        np.testing.assert_array_equal(actual, expected)
