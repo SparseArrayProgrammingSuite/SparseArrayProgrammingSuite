@@ -20,6 +20,7 @@ import argparse
 import json
 import time
 from pathlib import Path
+from types import ModuleType
 
 import numpy as np
 import scipy.sparse as sps
@@ -75,7 +76,9 @@ def four_clique_sum(A) -> int:
 
 
 try:
-    import numba
+    import numba as _numba
+
+    numba: ModuleType | None = _numba
 except ImportError:  # the scipy versions above still work, single threaded
     numba = None
 

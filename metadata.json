@@ -78349,7 +78349,7 @@
             "Xuhao Chen. \"GraphMiner: k-Clique Listing reference counts\", URL: https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/clique/README.md.",
             "Leskovec, Jure, Sosi\u010d, Rok. \"SNAP: A General Purpose Network Analysis and Graph Mining Library\", ACM Transactions on Intelligent Systems and Technology, Vol. 8, No. 1, 2016, URL: https://snap.stanford.edu/index.html.",
             "Xuhao Chen, Roshan Dathathri, Gurbinder Gill, Keshav Pingali. \"Pangolin: An Efficient and Flexible Graph Mining System on CPU and GPU\", Proc. VLDB Endow., VLDB Endowment, Vol. 13, No. 8, 2020, URL: https://www.vldb.org/pvldb/vol13/p1190-chen.pdf.",
-            "Xuhao Chen, Roshan Dathathri, Gurbinder Gill, Loc Hoang, Keshav Pingali. \"Sandslash: A Two-Level Framework for Efficient Graph Pattern Mining\", In Proceedings of the 35th ACM International Conference on Supercomputing, 2021, URL: https://doi.org/10.1145/3447818.3460359."
+            "Xuhao Chen, Roshan Dathathri, Gurbinder Gill, Loc Hoang, Keshav Pingali. \"Sandslash\", In Proceedings of the 35th ACM International Conference on Supercomputing, 2021, URL: https://doi.org/10.1145/3447818.3460359."
           ],
           "suites": [
             "standard"
@@ -173165,7 +173165,7 @@
             "Xuhao Chen. \"GraphMiner: Triangle Counting reference counts\", URL: https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/triangle/README.md.",
             "Leskovec, Jure, Sosi\u010d, Rok. \"SNAP: A General Purpose Network Analysis and Graph Mining Library\", ACM Transactions on Intelligent Systems and Technology, Vol. 8, No. 1, 2016, URL: https://snap.stanford.edu/index.html.",
             "Xuhao Chen, Roshan Dathathri, Gurbinder Gill, Keshav Pingali. \"Pangolin: An Efficient and Flexible Graph Mining System on CPU and GPU\", Proc. VLDB Endow., VLDB Endowment, Vol. 13, No. 8, 2020, URL: https://www.vldb.org/pvldb/vol13/p1190-chen.pdf.",
-            "Xuhao Chen, Roshan Dathathri, Gurbinder Gill, Loc Hoang, Keshav Pingali. \"Sandslash: A Two-Level Framework for Efficient Graph Pattern Mining\", In Proceedings of the 35th ACM International Conference on Supercomputing, 2021, URL: https://doi.org/10.1145/3447818.3460359."
+            "Xuhao Chen, Roshan Dathathri, Gurbinder Gill, Loc Hoang, Keshav Pingali. \"Sandslash\", In Proceedings of the 35th ACM International Conference on Supercomputing, 2021, URL: https://doi.org/10.1145/3447818.3460359."
           ],
           "suites": [
             "standard"
@@ -173321,7 +173321,7 @@
             "Timothy A. Davis. \"LAGraph: Known triangle counts for GAP graphs\", URL: https://github.com/GraphBLAS/LAGraph/blob/7543de1f310371c540c23ff5da82705aa4e94ea0/src/benchmark/tc_demo.c#L22-L27.",
             "Scott Beamer, Krste Asanovi\u0107, David Patterson. \"The GAP Benchmark Suite\", 2015, URL: https://arxiv.org/abs/1508.03619.",
             "Xuhao Chen, Roshan Dathathri, Gurbinder Gill, Keshav Pingali. \"Pangolin: An Efficient and Flexible Graph Mining System on CPU and GPU\", Proc. VLDB Endow., VLDB Endowment, Vol. 13, No. 8, 2020, URL: https://www.vldb.org/pvldb/vol13/p1190-chen.pdf.",
-            "Xuhao Chen, Roshan Dathathri, Gurbinder Gill, Loc Hoang, Keshav Pingali. \"Sandslash: A Two-Level Framework for Efficient Graph Pattern Mining\", In Proceedings of the 35th ACM International Conference on Supercomputing, 2021, URL: https://doi.org/10.1145/3447818.3460359."
+            "Xuhao Chen, Roshan Dathathri, Gurbinder Gill, Loc Hoang, Keshav Pingali. \"Sandslash\", In Proceedings of the 35th ACM International Conference on Supercomputing, 2021, URL: https://doi.org/10.1145/3447818.3460359."
           ],
           "suites": [],
           "tags": [

@@ -241,7 +241,7 @@ class FourCliqueCountingSNAPGenerator(Generator[FourCliqueCountingDataset]):
                 url="https://www.vldb.org/pvldb/vol13/p1190-chen.pdf",
             ),
             Ref(
-                title="Sandslash: A Two-Level Framework for Efficient Graph Pattern Mining",
+                title="Sandslash",
                 authors=[
                     Author("Xuhao Chen"),
                     Author("Roshan Dathathri"),
