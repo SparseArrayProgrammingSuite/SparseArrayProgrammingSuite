@@ -4,6 +4,7 @@ GRAPHMINER_REV := 2a76e3f612e40e46a821d603ca11d10fcbc63ddd
 GRAPHMINER_DIR ?= $(CURDIR)/.saps/tools/GraphMiner-$(GRAPHMINER_REV)
 GRAPHMINER_BIN := $(GRAPHMINER_DIR)/bin/clique_omp_base
 GRAPHMINER_CXX ?= g++
+GRAPHMINER_GCC_MODULE ?= gcc/11.3.1-bbxqwp5
 GRAPHMINER_CUDA_MODULE ?= cuda/11.8.0
 GRAPHMINER_GPU_DIR ?= $(CURDIR)/.saps/tools/GraphMiner-$(GRAPHMINER_REV)-a100
 GRAPHMINER_GPU_BIN := $(GRAPHMINER_GPU_DIR)/bin/clique_gpu_base
@@ -47,11 +48,12 @@ graphminer-gap: graphminer
 		--graphminer-bin "$(GRAPHMINER_BIN)" --threads "$(THREADS)" \
 		--datasets $(DATASETS) --resume $(GRAPHMINER_ARGS)
 
-$(GRAPHMINER_GPU_BIN): $(GRAPHMINER_GPU_DIR)/.saps-ready
+$(GRAPHMINER_GPU_BIN): $(GRAPHMINER_GPU_DIR)/.saps-ready Makefile
 	@test -x "$(GRAPHMINER_CUDA_HOME)/bin/nvcc" || { echo 'Load CUDA or set CUDA_HOME before building GraphMiner GPU' >&2; exit 1; }
+	$(MAKE) -C "$(GRAPHMINER_GPU_DIR)/src/clique" clean
 	$(MAKE) -C "$(GRAPHMINER_GPU_DIR)/src/clique" clique_gpu_base \
 		CXX="$(GRAPHMINER_CXX)" CUDA_HOME="$(GRAPHMINER_CUDA_HOME)" \
-		NVCC="$(GRAPHMINER_CUDA_HOME)/bin/nvcc" \
+		NVCC="$(GRAPHMINER_CUDA_HOME)/bin/nvcc --compiler-bindir=$(GRAPHMINER_CXX)" \
 		CUDA_ARCH='-gencode arch=compute_80,code=sm_80 -gencode arch=compute_80,code=compute_80'
 
 graphminer-gpu: $(GRAPHMINER_GPU_BIN)
@@ -62,5 +64,6 @@ graphminer-gpu-check: graphminer-gpu
 # Build on the allocated node so CUDA and the CPU architecture match the job.
 graphminer-gap-submit:
 	GRAPHMINER_GPU_DIR="$(GRAPHMINER_GPU_DIR)" GRAPHMINER_CXX="$(GRAPHMINER_CXX)" \
+		GRAPHMINER_GCC_MODULE="$(GRAPHMINER_GCC_MODULE)" \
 		GRAPHMINER_CUDA_MODULE="$(GRAPHMINER_CUDA_MODULE)" \
 		sbatch $(SBATCH_ARGS) scripts/run-graphminer-gap.slurm $(GRAPHMINER_ARGS)
