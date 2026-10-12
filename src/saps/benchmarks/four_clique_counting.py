@@ -178,14 +178,21 @@ class FourCliqueCountingTestGenerator(Generator[FourCliqueCountingDataset]):
         )
 
 
-# Reference counts for simple undirected graphs, computed by
-# scripts/compute_graph_counts.py unless cited below. The generators store only
-# the strict upper triangle, so each four-clique is counted once.
+# Reference counts for simple undirected graphs. Prefer GraphMiner wherever its
+# graph matches the stored SuiteSparse input; compute the remaining counts with
+# scripts/compute_graph_counts.py. The generators store only the strict upper
+# triangle, so each four-clique is counted once.
 _FOUR_CLIQUE_COUNTS: dict[str, int] = {
-    "soc-Epinions1": 5_803_397,
-    # GraphMiner (livej): same symmetrized graph and triangle count as SNAP.
+    # GraphMiner: all matching graphs in its published clique table.
     # https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/clique/README.md
-    "soc-LiveJournal1": 9_933_532_019,
+    "soc-LiveJournal1": 9_933_532_019,  # GraphMiner: livej (not com-LiveJournal)
+    "com-Orkut": 3_221_946_137,
+    "cit-Patents": 3_501_071,  # Not GraphMiner's smaller patent_citations graph.
+    "com-Friendster": 8_963_503_263,  # GraphMiner: friendster
+    "twitter7": 6_622_234_180_319,  # GraphMiner: twitter40
+    # GraphMiner's youtube is a different graph from com-Youtube; do not reuse it.
+    # Computed on the benchmark inputs by scripts/compute_graph_counts.py:
+    "soc-Epinions1": 5_803_397,
     "soc-Pokec": 42_947_031,
     "soc-Slashdot0811": 1_989_958,
     "soc-Slashdot0902": 2_260_269,
@@ -194,7 +201,6 @@ _FOUR_CLIQUE_COUNTS: dict[str, int] = {
     "soc-sign-bitcoin-otc": 48_390,
     "soc-sign-bitcoin-alpha": 30_948,
     "com-LiveJournal": 5_216_918_441,
-    "com-Orkut": 3_221_946_137,
     "com-Youtube": 4_986_965,
     "com-DBLP": 16_713_192,
     "com-Amazon": 275_961,
@@ -205,7 +211,6 @@ _FOUR_CLIQUE_COUNTS: dict[str, int] = {
     "wiki-Talk": 64_940_189,
     "cit-HepPh": 2_562_245,
     "cit-HepTh": 4_113_289,
-    "cit-Patents": 3_501_071,
     "ca-AstroPh": 9_580_415,
     "ca-CondMat": 294_008,
     "ca-GrQc": 329_297,
@@ -250,10 +255,6 @@ _FOUR_CLIQUE_COUNTS: dict[str, int] = {
     "email-Eu-core-temporal": 423_750,
     "CollegeMsg": 5_389,
     "higgs-twitter": 429_733_013,
-    # GraphMiner's simple undirected graphs, with matching node and edge counts:
-    # https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/clique/README.md
-    "com-Friendster": 8_963_503_263,
-    "twitter7": 6_622_234_180_319,
 }
 
 
@@ -291,6 +292,11 @@ class FourCliqueCountingSNAPGenerator(Generator[FourCliqueCountingDataset]):
     def references(self) -> list[Ref]:
         return [
             Ref(
+                title="GraphMiner: k-Clique Listing reference counts",
+                authors=[Author("Xuhao Chen")],
+                url="https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/clique/README.md",
+            ),
+            Ref(
                 title=(
                     "SNAP: A General Purpose Network Analysis and Graph Mining Library"
                 ),
@@ -317,7 +323,7 @@ class FourCliqueCountingSNAPGenerator(Generator[FourCliqueCountingDataset]):
                 number=8,
                 year=2020,
                 publisher="VLDB Endowment",
-                url="https://arxiv.org/abs/1911.06969",
+                url="https://www.vldb.org/pvldb/vol13/p1190-chen.pdf",
             ),
             Ref(
                 title="Sandslash: A Two-Level Framework for Efficient Graph Pattern Mining",

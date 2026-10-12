@@ -180,12 +180,25 @@ class TriangleCountingTestGenerator(Generator[TriangleCountingDataset]):
 
 # Reference counts for simple undirected graphs. The generators store only
 # the strict upper triangle, so each triangle is counted once.
-# Published SNAP counts: https://snap.stanford.edu/data/<name>.html
-# Entries marked computed use scripts/compute_graph_counts.py on the stored
-# SuiteSparse graph with the same simple-undirected convention.
+# Prefer GraphMiner wherever its graph matches the stored SuiteSparse input.
+# Otherwise use published SNAP/LAGraph counts or scripts/compute_graph_counts.py
+# with the same simple-undirected convention, as marked below.
 _TRIANGLE_COUNTS: dict[str, int] = {
+    # GraphMiner's triangle and clique tables agree on all five SNAP graphs:
+    # https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/triangle/README.md
+    # https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/clique/README.md
+    "soc-LiveJournal1": 285_730_264,  # GraphMiner: livej (not com-LiveJournal)
+    "com-Orkut": 627_584_181,
+    "cit-Patents": 7_515_023,  # Not GraphMiner's smaller patent_citations graph.
+    "com-Friendster": 4_173_724_142,  # GraphMiner: friendster
+    "twitter7": 34_824_916_864,  # GraphMiner: twitter40
+    # Same graph as twitter7 after removing loops, weights, and isolated nodes:
+    # https://sparse.tamu.edu/GAP/GAP-twitter
+    "GAP-twitter": 34_824_916_864,
+    # GraphMiner's youtube is a different graph from com-Youtube; do not reuse it.
+    # Published SNAP counts unless marked computed:
+    # https://snap.stanford.edu/data/<name>.html
     "soc-Epinions1": 1_624_481,
-    "soc-LiveJournal1": 285_730_264,
     "soc-Pokec": 32_557_458,
     "soc-Slashdot0811": 551_724,
     "soc-Slashdot0902": 602_592,
@@ -197,7 +210,6 @@ _TRIANGLE_COUNTS: dict[str, int] = {
     "soc-sign-bitcoin-otc": 33_493,
     "soc-sign-bitcoin-alpha": 22_153,
     "com-LiveJournal": 177_820_130,
-    "com-Orkut": 627_584_181,
     "com-Youtube": 3_056_386,
     "com-DBLP": 2_224_385,
     "com-Amazon": 667_129,
@@ -208,7 +220,6 @@ _TRIANGLE_COUNTS: dict[str, int] = {
     "wiki-Talk": 9_203_519,
     "cit-HepPh": 1_276_868,
     "cit-HepTh": 1_478_735,
-    "cit-Patents": 7_515_023,
     "ca-AstroPh": 1_351_441,
     "ca-CondMat": 173_361,
     "ca-GrQc": 48_260,
@@ -258,17 +269,9 @@ _TRIANGLE_COUNTS: dict[str, int] = {
     "email-Eu-core-temporal": 105_461,
     "CollegeMsg": 14_319,
     "higgs-twitter": 83_023_401,
-    "GAP-road": 438_804,
-    # SNAP / GraphMiner, with matching node and edge counts:
-    # https://snap.stanford.edu/data/com-Friendster.html
-    # https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/clique/README.md
-    "com-Friendster": 4_173_724_142,
-    "twitter7": 34_824_916_864,
     # LAGraph's known counts for the SuiteSparse GAP matrices:
     # https://github.com/GraphBLAS/LAGraph/blob/7543de1f310371c540c23ff5da82705aa4e94ea0/src/benchmark/tc_demo.c#L22-L27
-    # twitter7 and GAP-twitter agree after removing loops and ignoring weights:
-    # https://sparse.tamu.edu/GAP/GAP-twitter
-    "GAP-twitter": 34_824_916_864,
+    "GAP-road": 438_804,
     "GAP-web": 84_907_041_475,
     "GAP-kron": 106_873_365_648,
     "GAP-urand": 5_378,
@@ -309,6 +312,11 @@ class TriangleCountingSNAPGenerator(Generator[TriangleCountingDataset]):
     def references(self) -> list[Ref]:
         return [
             Ref(
+                title="GraphMiner: Triangle Counting reference counts",
+                authors=[Author("Xuhao Chen")],
+                url="https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/triangle/README.md",
+            ),
+            Ref(
                 title=(
                     "SNAP: A General Purpose Network Analysis and Graph Mining Library"
                 ),
@@ -335,7 +343,7 @@ class TriangleCountingSNAPGenerator(Generator[TriangleCountingDataset]):
                 number=8,
                 year=2020,
                 publisher="VLDB Endowment",
-                url="https://arxiv.org/abs/1911.06969",
+                url="https://www.vldb.org/pvldb/vol13/p1190-chen.pdf",
             ),
             Ref(
                 title="Sandslash: A Two-Level Framework for Efficient Graph Pattern Mining",
@@ -488,6 +496,16 @@ class TriangleCountingGAPGenerator(Generator[TriangleCountingDataset]):
     def references(self) -> list[Ref]:
         return [
             Ref(
+                title="GraphMiner: Triangle Counting reference counts",
+                authors=[Author("Xuhao Chen")],
+                url="https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/triangle/README.md",
+            ),
+            Ref(
+                title="LAGraph: Known triangle counts for GAP graphs",
+                authors=[Author("Timothy A. Davis")],
+                url="https://github.com/GraphBLAS/LAGraph/blob/7543de1f310371c540c23ff5da82705aa4e94ea0/src/benchmark/tc_demo.c#L22-L27",
+            ),
+            Ref(
                 title="The GAP Benchmark Suite",
                 authors=[
                     Author("Scott Beamer"),
@@ -510,7 +528,7 @@ class TriangleCountingGAPGenerator(Generator[TriangleCountingDataset]):
                 number=8,
                 year=2020,
                 publisher="VLDB Endowment",
-                url="https://arxiv.org/abs/1911.06969",
+                url="https://www.vldb.org/pvldb/vol13/p1190-chen.pdf",
             ),
             Ref(
                 title="Sandslash: A Two-Level Framework for Efficient Graph Pattern Mining",
