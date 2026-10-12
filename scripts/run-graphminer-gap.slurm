@@ -21,7 +21,29 @@ export OPENBLAS_NUM_THREADS=1
 export MKL_NUM_THREADS=1
 export PYTHONUNBUFFERED=1
 cd "$repo_directory"
-# Build and validate on the GPU node; the inherited environment must provide CUDA.
+# Load the toolkit in the batch shell, not just on the submission host.
+cuda_module="${GRAPHMINER_CUDA_MODULE-cuda/11.8.0}"
+if [[ -n "$cuda_module" ]]; then
+  if ! type module >/dev/null 2>&1; then
+    for module_init in /etc/profile.d/lmod.sh /etc/profile.d/modules.sh /usr/share/Modules/init/bash; do
+      if [[ -r "$module_init" ]]; then
+        source "$module_init"
+        break
+      fi
+    done
+  fi
+  if ! type module >/dev/null 2>&1; then
+    echo "Cannot initialize environment modules; set GRAPHMINER_CUDA_MODULE='' and provide CUDA_HOME or nvcc on PATH." >&2
+    exit 1
+  fi
+  module load "$cuda_module"
+  # Derive the toolkit root from the newly loaded compiler, avoiding a stale
+  # CUDA_HOME inherited from a different toolkit on the submission host.
+  nvcc_path=$(command -v nvcc)
+  export CUDA_HOME="$(dirname -- "$(dirname -- "$nvcc_path")")"
+  export GRAPHMINER_CUDA_HOME="$CUDA_HOME"
+fi
+# Build and validate on the GPU node.
 make graphminer-gpu-check
 revision=2a76e3f612e40e46a821d603ca11d10fcbc63ddd
 gpu_directory="${GRAPHMINER_GPU_DIR:-$repo_directory/.saps/tools/GraphMiner-$revision-a100}"
