@@ -448,6 +448,8 @@ class SubgraphMatchingGCAREGenerator(
                 f"Query {dataset.name} is not in the cached G-CARE queries."
             )
         query = graph_meta["queries"][dataset.query_name]
+        if query.get("gt") is None:
+            raise ValueError(f"G-CARE query {dataset.name!r} has no reference count")
         graph_matrices = dict(
             zip(graph_meta["matrix_names"], graph_problem.inputs, strict=True)
         )
@@ -490,7 +492,7 @@ class SubgraphMatchingGCAREGenerator(
                 "name": dataset.query_name,
                 "matrix_names": query["matrix_names"],
             },
-            ref_meta={"gt": query["gt"]} if query.get("gt") is not None else None,
+            ref_meta={"gt": query["gt"]},
         )
 
 

@@ -4,6 +4,7 @@ GRAPHMINER_REV := 2a76e3f612e40e46a821d603ca11d10fcbc63ddd
 GRAPHMINER_DIR ?= $(CURDIR)/.saps/tools/GraphMiner-$(GRAPHMINER_REV)
 GRAPHMINER_BIN := $(GRAPHMINER_DIR)/bin/clique_omp_base
 GRAPHMINER_CXX ?= g++
+GRAPHMINER_CUDA_MODULE ?= cuda/11.8.0
 GRAPHMINER_GPU_DIR ?= $(CURDIR)/.saps/tools/GraphMiner-$(GRAPHMINER_REV)-a100
 GRAPHMINER_GPU_BIN := $(GRAPHMINER_GPU_DIR)/bin/clique_gpu_base
 # Set CUDA_HOME explicitly, or load a CUDA module that puts nvcc on PATH.
@@ -61,4 +62,5 @@ graphminer-gpu-check: graphminer-gpu
 # Build on the allocated node so CUDA and the CPU architecture match the job.
 graphminer-gap-submit:
 	GRAPHMINER_GPU_DIR="$(GRAPHMINER_GPU_DIR)" GRAPHMINER_CXX="$(GRAPHMINER_CXX)" \
+		GRAPHMINER_CUDA_MODULE="$(GRAPHMINER_CUDA_MODULE)" \
 		sbatch $(SBATCH_ARGS) scripts/run-graphminer-gap.slurm $(GRAPHMINER_ARGS)

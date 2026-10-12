@@ -33,6 +33,7 @@ def test_gcare_cached_graph_contains_everything_for_query_setup(monkeypatch, tmp
     (query_dir / "uf_Q_2_1.txt").write_text("t # 0\nv 0 0 0\nv 1 1 -1\ne 0 1 2\n")
     (truth_dir / "uf_Q_2_1.txt").write_text("1\n")
     (query_dir / "missing_label.txt").write_text("v 0 99 -1\nv 1 0 -1\ne 0 1 99\n")
+    (truth_dir / "missing_label.txt").write_text("0\n")
     monkeypatch.setenv("SAPS_CACHE_DIR", str(cache))
     # Supply local source fixtures in place of the downloader during preparation.
     download = Mock()
@@ -79,6 +80,7 @@ def test_gcare_cached_graph_contains_everything_for_query_setup(monkeypatch, tmp
     missing = query_generator.generate(
         SubgraphMatchingGCAREDataset("human", "Star_3/missing_label")
     )
+    assert missing.ref_meta == {"gt": 0}
     matrices = dict(zip(missing.meta["matrix_names"], missing.inputs, strict=True))
     assert not np.any(to_sparse(matrices["V99"]).todense())
     assert not np.any(to_sparse(matrices["E99"]).todense())
@@ -153,3 +155,18 @@ def test_gcare_incomplete_cache_fails_without_downloading(
         )
 
     download.assert_not_called()
+
+
+@pytest.mark.parametrize("query", [{}, {"gt": None}])
+def test_gcare_query_requires_reference_before_building_inputs(monkeypatch, query):
+    monkeypatch.setattr(
+        GCAREGraphGenerator,
+        "cached_generate",
+        Mock(
+            return_value=DataInstance(inputs=[], meta={"queries": {"missing": query}})
+        ),
+    )
+    with pytest.raises(ValueError, match="human/missing.*has no reference count"):
+        SubgraphMatchingGCAREHumanGenerator().generate(
+            SubgraphMatchingGCAREDataset("human", "missing")
+        )
