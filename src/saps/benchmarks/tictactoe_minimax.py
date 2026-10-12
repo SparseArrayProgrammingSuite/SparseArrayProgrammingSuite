@@ -11,198 +11,109 @@ from saps.benchmark import (
     Ref,
 )
 
-
-def build_win_masks(xp):
-    return xp.asarray(
-        [
-            [[1, 1, 1], [0, 0, 0], [0, 0, 0]],
-            [[0, 0, 0], [1, 1, 1], [0, 0, 0]],
-            [[0, 0, 0], [0, 0, 0], [1, 1, 1]],
-            [[1, 0, 0], [1, 0, 0], [1, 0, 0]],
-            [[0, 1, 0], [0, 1, 0], [0, 1, 0]],
-            [[0, 0, 1], [0, 0, 1], [0, 0, 1]],
-            [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
-            [[0, 0, 1], [0, 1, 0], [1, 0, 0]],
-        ]
-    )
+_REF_WIN_LINES = (
+    (0, 1, 2),
+    (3, 4, 5),
+    (6, 7, 8),
+    (0, 3, 6),
+    (1, 4, 7),
+    (2, 5, 8),
+    (0, 4, 8),
+    (2, 4, 6),
+)
 
 
-def check_wins(xp, S, W):
-    W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
-    S_exp = xp.reshape(S, (S.shape[0], 1, 3, 3, 2))
-    scores = xp.sum(W_exp * S_exp, axis=(2, 3))
-    return xp.any(scores >= 3, axis=1)
+def _ref_board_to_flat(board):
+    board = np.asarray(board, dtype=np.int64)
+    flat = []
+    for i in range(3):
+        for j in range(3):
+            x = board[i, j, 0]
+            o = board[i, j, 1]
+            flat.append(1 if x > 0 else (-1 if o > 0 else 0))
+    return flat
 
 
-def check_full(xp, S):
-    return xp.all(xp.sum(S, axis=3) >= 1, axis=(1, 2))
+def _ref_winner(flat):
+    for a, b, c in _REF_WIN_LINES:
+        s = flat[a] + flat[b] + flat[c]
+        if s == 3:
+            return 1
+        if s == -3:
+            return -1
+    return 0
 
 
-def is_terminal(xp, S, W):
-    N = S.shape[0]
-    winner = check_wins(xp, S, W)
-    x_wins = winner[:, 0]
-    o_wins = winner[:, 1]
-    full = check_full(xp, S)
-    terminal = x_wins | o_wins | full
-    value = xp.where(x_wins, xp.ones(N), xp.where(o_wins, -xp.ones(N), xp.zeros(N)))
-    return terminal, value
+def _ref_minimax(flat, depth):
+    w = _ref_winner(flat)
+    if w != 0:
+        return w
+    if all(cell != 0 for cell in flat):
+        return 0
+    if depth == 0:
+        return 0
+
+    count_x = sum(1 for c in flat if c == 1)
+    count_o = sum(1 for c in flat if c == -1)
+    x_to_move = not (count_x > count_o)
+    mark = 1 if x_to_move else -1
+
+    best = None
+    for idx in range(9):
+        if flat[idx] != 0:
+            continue
+        child = list(flat)
+        child[idx] = mark
+        val = _ref_minimax(child, depth - 1)
+        if best is None:
+            best = val
+        elif x_to_move:
+            best = max(best, val)
+        else:
+            best = min(best, val)
+    return best
 
 
-def whose_turn(xp, S):
-    count_X = xp.sum(S[:, :, :, 0], axis=(1, 2))
-    count_O = xp.sum(S[:, :, :, 1], axis=(1, 2))
-    return xp.where(count_X > count_O, xp.ones(S.shape[0]), xp.zeros(S.shape[0]))
-
-
-def generate_child(xp, S, W):
-    N = S.shape[0]
-    empty_flat = xp.reshape(1 - xp.sum(S, axis=3), (N, 9))
-    turn = whose_turn(xp, S)
-    pos_exp = xp.reshape(xp.eye(9), (1, 9, 3, 3))
-    turn_exp = xp.reshape(turn, (N, 1, 1, 1))
-    ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
-    ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
-    delta = xp.concat([ch0, ch1], axis=4)
-    valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
-    children = (xp.reshape(S, (N, 1, 3, 3, 2)) + delta * valid_exp) * valid_exp
-    # Above line zeroes out boards
-    return xp.reshape(children, (N * 9, 3, 3, 2)), xp.reshape(empty_flat, (N * 9,))
-
-
-def backup(xp, S, val_children, valid, terminal, leaf_val):
-    N = S.shape[0]
-    turn = whose_turn(xp, S)
-    child_val = xp.where(valid > 0, val_children, xp.zeros(N * 9))
-    child_val_grid = xp.reshape(child_val, (N, 9))
-    valid_grid = xp.reshape(valid, (N, 9))
-    turn_exp = xp.reshape(turn, (N, 1))
-    sentinel = xp.where(
-        turn_exp > 0,
-        float("inf") * xp.ones((N, 9)),
-        float("-inf") * xp.ones((N, 9)),
-    )
-    child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
-    backed_max = xp.max(child_val_masked, axis=1)
-    backed_min = xp.min(child_val_masked, axis=1)
-    backed = xp.where(turn > 0, backed_min, backed_max)
-    return xp.where(terminal, leaf_val, backed)
-
-
-def minimax_depth2(xp, S_initial, W):
-    c1, v1 = generate_child(xp, S_initial, W)
-    c2, v2 = generate_child(xp, c1, W)
-    t0, val0 = is_terminal(xp, S_initial, W)
-    t1, val1 = is_terminal(xp, c1, W)
-    t2, val2 = is_terminal(xp, c2, W)
-    val2 = xp.where(t2, val2, xp.zeros(c2.shape[0]))
-    val1 = backup(xp, c1, val2, v2, t1, val1)
-    return backup(xp, S_initial, val1, v1, t0, val0)
-
-
-def minimax_depth3(xp, S_initial, W):
-    c1, v1 = generate_child(xp, S_initial, W)
-    c2, v2 = generate_child(xp, c1, W)
-    c3, v3 = generate_child(xp, c2, W)
-    t0, val0 = is_terminal(xp, S_initial, W)
-    t1, val1 = is_terminal(xp, c1, W)
-    t2, val2 = is_terminal(xp, c2, W)
-    t3, val3 = is_terminal(xp, c3, W)
-    val3 = xp.where(t3, val3, xp.zeros(c3.shape[0]))
-    val2 = backup(xp, c2, val3, v3, t2, val2)
-    val1 = backup(xp, c1, val2, v2, t1, val1)
-    return backup(xp, S_initial, val1, v1, t0, val0)
-
-
-def minimax_depth5(xp, S_initial, W):
-    c1, v1 = generate_child(xp, S_initial, W)
-    c2, v2 = generate_child(xp, c1, W)
-    c3, v3 = generate_child(xp, c2, W)
-    c4, v4 = generate_child(xp, c3, W)
-    c5, v5 = generate_child(xp, c4, W)
-    t0, val0 = is_terminal(xp, S_initial, W)
-    t1, val1 = is_terminal(xp, c1, W)
-    t2, val2 = is_terminal(xp, c2, W)
-    t3, val3 = is_terminal(xp, c3, W)
-    t4, val4 = is_terminal(xp, c4, W)
-    t5, val5 = is_terminal(xp, c5, W)
-    val5 = xp.where(t5, val5, xp.zeros(c5.shape[0]))
-    val4 = backup(xp, c4, val5, v5, t4, val4)
-    val3 = backup(xp, c3, val4, v4, t3, val3)
-    val2 = backup(xp, c2, val3, v3, t2, val2)
-    val1 = backup(xp, c1, val2, v2, t1, val1)
-    return backup(xp, S_initial, val1, v1, t0, val0)
-
-
-def minimax_depth6(xp, S_initial, W):
-    c1, v1 = generate_child(xp, S_initial, W)
-    val1 = minimax_depth5(xp, c1, W)
-    t0, val0 = is_terminal(xp, S_initial, W)
-    return backup(xp, S_initial, val1, v1, t0, val0)
-
-
-def minimax(xp, S_initial, W):
-    c1, v1 = generate_child(xp, S_initial, W)
-    c2, v2 = generate_child(xp, c1, W)
-    c3, v3 = generate_child(xp, c2, W)
-    c4, v4 = generate_child(xp, c3, W)
-    c5, v5 = generate_child(xp, c4, W)
-    c6, v6 = generate_child(xp, c5, W)
-    c7, v7 = generate_child(xp, c6, W)
-    c8, v8 = generate_child(xp, c7, W)
-    c9, v9 = generate_child(xp, c8, W)
-    t0, val0 = is_terminal(xp, S_initial, W)
-    t1, val1 = is_terminal(xp, c1, W)
-    t2, val2 = is_terminal(xp, c2, W)
-    t3, val3 = is_terminal(xp, c3, W)
-    t4, val4 = is_terminal(xp, c4, W)
-    t5, val5 = is_terminal(xp, c5, W)
-    t6, val6 = is_terminal(xp, c6, W)
-    t7, val7 = is_terminal(xp, c7, W)
-    t8, val8 = is_terminal(xp, c8, W)
-    t9, val9 = is_terminal(xp, c9, W)
-    val9 = xp.where(t9, val9, xp.zeros(c9.shape[0]))
-    val8 = backup(xp, c8, val9, v9, t8, val8)
-    val7 = backup(xp, c7, val8, v8, t7, val7)
-    val6 = backup(xp, c6, val7, v7, t6, val6)
-    val5 = backup(xp, c5, val6, v6, t5, val5)
-    val4 = backup(xp, c4, val5, v5, t4, val4)
-    val3 = backup(xp, c3, val4, v4, t3, val3)
-    val2 = backup(xp, c2, val3, v3, t2, val2)
-    val1 = backup(xp, c1, val2, v2, t1, val1)
-    return backup(xp, S_initial, val1, v1, t0, val0)
+def reference_minimax(board, depth):
+    board = np.asarray(board, dtype=np.int64)
+    values = [
+        _ref_minimax(_ref_board_to_flat(board[n]), depth) for n in range(board.shape[0])
+    ]
+    if board.shape[0] == 1:
+        return int(values[0])
+    return np.array(values, dtype=np.int64)
 
 
 # These are the testing boards, used np.
 BOARD_X_WINS_NEAR = np.array(
     [[[[1, 0], [1, 0], [0, 0]], [[0, 1], [0, 1], [0, 0]], [[1, 0], [0, 0], [0, 1]]]],
-    dtype=float,
+    dtype=np.int64,
 )
 BOARD_O_WINS_NEAR = np.array(
     [[[[1, 0], [0, 1], [0, 0]], [[0, 0], [0, 1], [1, 0]], [[0, 1], [1, 0], [1, 0]]]],
-    dtype=float,
+    dtype=np.int64,
 )
 BOARD_DRAW_NEAR = np.array(
     [[[[1, 0], [0, 1], [1, 0]], [[1, 0], [0, 1], [0, 1]], [[0, 1], [1, 0], [0, 0]]]],
-    dtype=float,
+    dtype=np.int64,
 )
 BOARD_X_WINS_MID = np.array(
     [[[[1, 0], [1, 0], [0, 0]], [[0, 1], [0, 0], [0, 0]], [[0, 0], [0, 1], [0, 0]]]],
-    dtype=float,
+    dtype=np.int64,
 )
 BOARD_O_WINS_MID = np.array(
     [[[[1, 0], [0, 1], [0, 0]], [[0, 0], [0, 1], [1, 0]], [[0, 0], [1, 0], [1, 0]]]],
-    dtype=float,
+    dtype=np.int64,
 )
 BOARD_X_WINS_EARLY = np.array(
     [[[[0, 0], [0, 1], [0, 0]], [[0, 0], [1, 0], [0, 0]], [[0, 0], [0, 0], [0, 0]]]],
-    dtype=float,
+    dtype=np.int64,
 )
 BOARD_DRAW_EARLY = np.array(
     [[[[0, 1], [0, 0], [1, 0]], [[0, 0], [1, 0], [0, 0]], [[0, 1], [0, 0], [0, 0]]]],
-    dtype=float,
+    dtype=np.int64,
 )
-BOARD_EMPTY = np.zeros((1, 3, 3, 2), dtype=float)
+BOARD_EMPTY = np.zeros((1, 3, 3, 2), dtype=np.int64)
 BOARD_BATCH_NEAR = np.concatenate(
     [BOARD_X_WINS_NEAR, BOARD_O_WINS_NEAR, BOARD_DRAW_NEAR], axis=0
 )
@@ -214,7 +125,7 @@ class TicTacToeMinimaxDataset(Dataset):
         name: str,
         board: np.ndarray,
         depth: int,
-        expected: np.ndarray | float | None = None,
+        expected: np.ndarray | int | None = None,
         suites: list[str] | None = None,
         pretty_name: str | None = None,
     ):
@@ -304,7 +215,7 @@ class TicTacToeMinimaxBoardsGenerator(Generator[TicTacToeMinimaxDataset]):
                 "x_wins_near",
                 BOARD_X_WINS_NEAR,
                 depth=2,
-                expected=1.0,
+                expected=1,
                 suites=["test"],
                 pretty_name="X Wins Near",
             ),
@@ -312,7 +223,7 @@ class TicTacToeMinimaxBoardsGenerator(Generator[TicTacToeMinimaxDataset]):
                 "o_wins_near",
                 BOARD_O_WINS_NEAR,
                 depth=2,
-                expected=-1.0,
+                expected=-1,
                 suites=["test"],
                 pretty_name="O Wins Near",
             ),
@@ -320,7 +231,7 @@ class TicTacToeMinimaxBoardsGenerator(Generator[TicTacToeMinimaxDataset]):
                 "draw_near",
                 BOARD_DRAW_NEAR,
                 depth=2,
-                expected=0.0,
+                expected=0,
                 suites=["test"],
                 pretty_name="Draw Near",
             ),
@@ -328,7 +239,7 @@ class TicTacToeMinimaxBoardsGenerator(Generator[TicTacToeMinimaxDataset]):
                 "batch_near",
                 BOARD_BATCH_NEAR,
                 depth=2,
-                expected=np.array([1.0, -1.0, 0.0]),
+                expected=np.array([1, -1, 0], dtype=np.int64),
                 suites=["test"],
                 pretty_name="Batch Near",
             ),
@@ -336,7 +247,7 @@ class TicTacToeMinimaxBoardsGenerator(Generator[TicTacToeMinimaxDataset]):
                 "x_wins_mid",
                 BOARD_X_WINS_MID,
                 depth=3,
-                expected=1.0,
+                expected=1,
                 suites=["test"],
                 pretty_name="X Wins Mid",
             ),
@@ -344,7 +255,7 @@ class TicTacToeMinimaxBoardsGenerator(Generator[TicTacToeMinimaxDataset]):
                 "o_wins_mid",
                 BOARD_O_WINS_MID,
                 depth=3,
-                expected=-1.0,
+                expected=-1,
                 suites=["test"],
                 pretty_name="O Wins Mid",
             ),
@@ -352,7 +263,7 @@ class TicTacToeMinimaxBoardsGenerator(Generator[TicTacToeMinimaxDataset]):
                 "x_wins_early",
                 BOARD_X_WINS_EARLY,
                 depth=5,
-                expected=1.0,
+                expected=1,
                 suites=["test"],
                 pretty_name="X Wins Early",
             ),
@@ -360,7 +271,7 @@ class TicTacToeMinimaxBoardsGenerator(Generator[TicTacToeMinimaxDataset]):
                 "draw_early",
                 BOARD_DRAW_EARLY,
                 depth=6,
-                expected=0.0,
+                expected=0,
                 suites=["test", "standard", "trace", "train"],
                 pretty_name="Draw Early",
             ),
@@ -375,9 +286,8 @@ class TicTacToeMinimaxBoardsGenerator(Generator[TicTacToeMinimaxDataset]):
 
     def generate(self, dataset: TicTacToeMinimaxDataset):
         S_bin = from_numpy(dataset.board)
-        ref_outputs = None
-        if dataset.expected is not None:
-            ref_outputs = [from_numpy(np.asarray(dataset.expected))]
+        expected = reference_minimax(dataset.board, dataset.depth)
+        ref_outputs = [from_numpy(np.asarray(expected, dtype=np.int64))]
         return DataInstance(
             inputs=[S_bin], meta={"depth": dataset.depth}, ref_outputs=ref_outputs
         )
@@ -433,8 +343,9 @@ class TicTacToeMinimaxBenchmark(Benchmark):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to construct the benchmark function itself."
-            " This statement was written by hand."
+            "The original benchmark function was written by hand. Generative AI "
+            "assisted with refactoring the depth traversal into loops, using "
+            "integer arithmetic, and adding regression tests."
         )
 
     @property
@@ -450,28 +361,118 @@ class TicTacToeMinimaxBenchmark(Benchmark):
     def generators(self):
         return [TicTacToeMinimaxBoardsGenerator()]
 
-    def benchmark(self, xp, data: list, meta: dict):
+    def benchmark(self, xp, meta: dict, S):
         depth = meta.get("depth", 9)
-        S = data[0]
-        W = build_win_masks(xp)
+        W = xp.asarray(
+            [
+                [[1, 1, 1], [0, 0, 0], [0, 0, 0]],
+                [[0, 0, 0], [1, 1, 1], [0, 0, 0]],
+                [[0, 0, 0], [0, 0, 0], [1, 1, 1]],
+                [[1, 0, 0], [1, 0, 0], [1, 0, 0]],
+                [[0, 1, 0], [0, 1, 0], [0, 1, 0]],
+                [[0, 0, 1], [0, 0, 1], [0, 0, 1]],
+                [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+                [[0, 0, 1], [0, 1, 0], [1, 0, 0]],
+            ],
+            dtype=xp.int64,
+        )
 
-        if depth == 2:
-            result = minimax_depth2(xp, S, W)
-        elif depth == 3:
-            result = minimax_depth3(xp, S, W)
-        elif depth == 5:
-            result = minimax_depth5(xp, S, W)
-        elif depth == 6:
-            result = minimax_depth6(xp, S, W)
-        else:
-            result = minimax(xp, S, W)
+        # Expand each level, retaining parent boards and legal-move masks.
+        boards = [S]
+        valid_moves = []
+        level = 0
+        while level < depth:
+            board = boards[level]
+            N = board.shape[0]
+            empty_flat = xp.reshape(1 - xp.sum(board, axis=3), (N, 9))
+            count_X = xp.sum(board[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(board[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O,
+                xp.ones(N, dtype=xp.int64),
+                xp.zeros(N, dtype=xp.int64),
+            )
+            pos_exp = xp.reshape(xp.eye(9, dtype=xp.int64), (1, 9, 3, 3))
+            turn_exp = xp.reshape(turn, (N, 1, 1, 1))
+            ch0 = xp.reshape(pos_exp * (1 - turn_exp), (N, 9, 3, 3, 1))
+            ch1 = xp.reshape(pos_exp * turn_exp, (N, 9, 3, 3, 1))
+            delta = xp.concat([ch0, ch1], axis=4)
+            valid_exp = xp.reshape(empty_flat, (N, 9, 1, 1, 1))
+            children = (
+                xp.reshape(board, (N, 1, 3, 3, 2)) + delta * valid_exp
+            ) * valid_exp
+            # Invalid moves produce zeroed-out boards.
+            boards.append(xp.reshape(children, (N * 9, 3, 3, 2)))
+            valid_moves.append(xp.reshape(empty_flat, (N * 9,)))
+            level += 1
 
-        return [result]
+        # Evaluate terminal positions at every level of the tree.
+        terminals = []
+        values = []
+        level = 0
+        while level <= depth:
+            board = boards[level]
+            N = board.shape[0]
+            W_exp = xp.reshape(W, (1, 8, 3, 3, 1))
+            S_exp = xp.reshape(board, (N, 1, 3, 3, 2))
+            scores = xp.sum(W_exp * S_exp, axis=(2, 3))
+            winner = xp.any(scores >= 3, axis=1)
+            x_wins = winner[:, 0]
+            o_wins = winner[:, 1]
+            full = xp.all(xp.sum(board, axis=3) >= 1, axis=(1, 2))
+            terminal = x_wins | o_wins | full
+            value = xp.where(
+                x_wins,
+                xp.ones(N, dtype=xp.int64),
+                xp.where(
+                    o_wins, -xp.ones(N, dtype=xp.int64), xp.zeros(N, dtype=xp.int64)
+                ),
+            )
+            terminals.append(terminal)
+            values.append(value)
+            level += 1
+
+        # Nonterminal leaves have value zero at the search horizon.
+        result = xp.where(
+            terminals[-1], values[-1], xp.zeros(boards[-1].shape[0], dtype=xp.int64)
+        )
+        level = depth - 1
+        while level >= 0:
+            board = boards[level]
+            valid = valid_moves[level]
+            N = board.shape[0]
+            count_X = xp.sum(board[:, :, :, 0], axis=(1, 2))
+            count_O = xp.sum(board[:, :, :, 1], axis=(1, 2))
+            turn = xp.where(
+                count_X > count_O,
+                xp.ones(N, dtype=xp.int64),
+                xp.zeros(N, dtype=xp.int64),
+            )
+            child_val = xp.where(valid > 0, result, xp.zeros(N * 9, dtype=xp.int64))
+            child_val_grid = xp.reshape(child_val, (N, 9))
+            valid_grid = xp.reshape(valid, (N, 9))
+            turn_exp = xp.reshape(turn, (N, 1))
+            # Scores are in [-1, 1], so +/-2 excludes invalid moves.
+            sentinel = xp.where(
+                turn_exp > 0,
+                2 * xp.ones((N, 9), dtype=xp.int64),
+                -2 * xp.ones((N, 9), dtype=xp.int64),
+            )
+            child_val_masked = xp.where(valid_grid > 0, child_val_grid, sentinel)
+            backed_max = xp.max(child_val_masked, axis=1)
+            backed_min = xp.min(child_val_masked, axis=1)
+            backed = xp.where(turn > 0, backed_min, backed_max)
+            result = xp.where(terminals[level], values[level], backed)
+            level -= 1
+
+        return result
 
     def check(self, param):
         super().check(param)
-        if self._ref_outputs is None:
-            return
+        assert self._ref_outputs is not None, "No reference output"
         actual = to_numpy(self._output[0])
         expected = to_numpy(self._ref_outputs[0])
-        assert np.allclose(actual, expected, atol=1e-6)
+        assert np.issubdtype(actual.dtype, np.integer), (
+            "Minimax output must have an integer dtype"
+        )
+        np.testing.assert_array_equal(actual, expected)

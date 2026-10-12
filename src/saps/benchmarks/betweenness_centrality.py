@@ -14,9 +14,9 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.adjacency import zero_one_adjacency
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
+from saps.util.adjacency import zero_one_adjacency
 
 
 class BetweennessCentralityDataset(Dataset):
@@ -562,8 +562,7 @@ class BetweennessCentralityBenchmark(Benchmark):
             BetweennessCentralityGAPGenerator(),
         ]
 
-    def benchmark(self, xp, data, meta):
-        G = data[0]
+    def benchmark(self, xp, meta, G):
         n = G.shape[0]
         bc_scores = xp.zeros((n,), dtype=float)
 
@@ -615,7 +614,7 @@ class BetweennessCentralityBenchmark(Benchmark):
 
             bc_scores = bc_scores + score_update
 
-        return [bc_scores]
+        return bc_scores
 
     def check(self, param):
         for item in self._output:

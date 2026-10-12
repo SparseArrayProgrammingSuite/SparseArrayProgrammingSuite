@@ -1,9 +1,11 @@
 from typing import Any
 
 import numpy as np
+import scipy.sparse as scipy_sparse
 
+import sparse as pydata_sparse
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
 
 from saps.benchmark import (
     Benchmark,
@@ -16,10 +18,7 @@ from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     fetch_suitesparse_linear_system,
 )
-
-
-def normof2(xp, x, y):
-    return xp.sqrt(xp.sum(xp.multiply(x, y)))
+from saps.util.error_bounds import operation_error_bound, summation_error_bound
 
 
 class LSQRDataset(SuiteSparseDataset):
@@ -229,7 +228,12 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
                 from_numpy(dataset.b),
             ],
             meta=dataset.benchmark_meta(),
-            ref_meta={"convergence": dataset.convergence},
+            ref_outputs=[from_scipy(scipy_sparse.coo_array(np.abs(dataset.A)))],
+            ref_meta={
+                "convergence": dataset.convergence,
+                "bnorm": float(np.linalg.norm(dataset.b)),
+                "gradient_scale": float(np.linalg.norm(dataset.A.T @ dataset.b)),
+            },
         )
 
 
@@ -360,7 +364,16 @@ class LSQRSuiteSparseGenerator(Generator[LSQRDataset]):
             b = b + noise
 
         b_bin = from_numpy(b)
-        return DataInstance(inputs=[A_bin, b_bin], meta=dataset.benchmark_meta())
+        A = to_scipy(A_bin).tocoo()
+        return DataInstance(
+            inputs=[A_bin, b_bin],
+            meta=dataset.benchmark_meta(),
+            ref_outputs=[from_scipy(np.abs(A))],
+            ref_meta={
+                "bnorm": float(np.linalg.norm(b)),
+                "gradient_scale": float(np.linalg.norm(A.T @ b)),
+            },
+        )
 
 
 class LSQRBenchmark(Benchmark):
@@ -464,35 +477,76 @@ class LSQRBenchmark(Benchmark):
                 "Output must be in binsparse format"
             )
 
-        if not self._ref_meta or "convergence" not in self._ref_meta:
-            return
-
         A_bin, b_bin = self._input
-        A = to_numpy(A_bin)
+        try:
+            A_coo = to_scipy(A_bin).tocoo()
+        except TypeError:
+            A_coo = scipy_sparse.coo_array(to_numpy(A_bin))
+        A = pydata_sparse.COO(
+            coords=np.stack((A_coo.row, A_coo.col)),
+            data=A_coo.data,
+            shape=A_coo.shape,
+        )
+        assert self._ref_outputs is not None, "No cached absolute matrix"
+        assert self._ref_meta is not None, "No cached reference norms"
+        abs_A = to_sparse(self._ref_outputs[0])
         b = to_numpy(b_bin)
         x_sol = to_numpy(self._output[0])
         residual = b - A @ x_sol
-
-        if self._ref_meta["convergence"] == "residual":
-            assert np.linalg.norm(residual) < 1e-5 * np.linalg.norm(b) + 1e-5
-        elif self._ref_meta["convergence"] == "gradient":
-            assert np.linalg.norm(A.T @ residual) < (
-                1e-5 * np.linalg.norm(A.T @ b) + 1e-5
+        roundoff = summation_error_bound(
+            np,
+            A.shape[1] + 1,
+            abs_A @ np.abs(x_sol),
+            np.result_type(A.dtype, x_sol.dtype),
+        )
+        roundoff += operation_error_bound(np, residual, residual.dtype)
+        if self._ref_meta and self._ref_meta.get("convergence") == "residual":
+            rnorm = np.linalg.norm(residual)
+            bound = np.linalg.norm(roundoff)
+            bound += summation_error_bound(
+                np, residual.size + 2, rnorm + bound, residual.dtype
             )
+            assert np.isfinite(rnorm) and np.isfinite(bound), (
+                "Non-finite residual or error bound"
+            )
+            assert rnorm < 1e-5 * self._ref_meta["bnorm"] + 1e-5 + bound
+            return
 
-    def benchmark(self, xp, data: list, meta: dict):
-        A, b = data
+        # Least squares is solved when A.T @ (b - Ax) is small.
+        g = A.T @ residual
+        # Propagate the residual error through A.T, then add the new dot-product error.
+        roundoff = abs_A.T @ roundoff + summation_error_bound(
+            np, A.shape[0] + 1, abs_A.T @ np.abs(residual), g.dtype
+        )
+        gradient = np.linalg.norm(g)
+        bound = np.linalg.norm(roundoff)
+        bound += summation_error_bound(np, g.size + 2, gradient + bound, g.dtype)
+        assert np.isfinite(gradient) and np.isfinite(bound), (
+            "Non-finite gradient or error bound"
+        )
+        scale = self._ref_meta["gradient_scale"]
+        if self._ref_meta and self._ref_meta.get("convergence") == "gradient":
+            assert gradient < 1e-5 * scale + 1e-5 + bound
+            return
+
+        rel_tol = (self._meta or {}).get("rel_tol", 1e-6)
+        limit = rel_tol * scale + bound
+        assert gradient <= limit, (
+            f"LSQR gradient too high for {param.dataset.name}: {gradient}"
+        )
+
+    def benchmark(self, xp, meta: dict, A, b):
         tolerance = meta.get("rel_tol", 1e-6)
         conlim = meta.get("conlim", 1.0e8)
         max_iter = meta.get("max_iter", 1000)
         exit = 0
 
         u = b
-        beta = normof2(xp, u, u)
+        beta = xp.sqrt(xp.sum(xp.multiply(u, u)))
         u = u / beta
 
         v = A.T @ u
-        alpha = normof2(xp, v, v)
+        alpha = xp.sqrt(xp.sum(xp.multiply(v, v)))
         v = v / alpha
 
         solution_is_zero = False
@@ -530,11 +584,11 @@ class LSQRBenchmark(Benchmark):
 
             u = A @ v - alpha * u
 
-            beta = normof2(xp, u, u)
+            beta = xp.sqrt(xp.sum(xp.multiply(u, u)))
             u = u / beta
 
             v = A.T @ u - beta * v
-            alpha = normof2(xp, v, v)
+            alpha = xp.sqrt(xp.sum(xp.multiply(v, v)))
             v = v / alpha
 
             rho = xp.sqrt(rho_bar**2 + beta**2)
@@ -586,4 +640,4 @@ class LSQRBenchmark(Benchmark):
             if exit > 0:
                 break
 
-        return [x]
+        return x

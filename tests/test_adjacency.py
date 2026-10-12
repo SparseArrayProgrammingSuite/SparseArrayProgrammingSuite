@@ -8,7 +8,7 @@ from binsparse import COORMatrix
 
 from frameworks.saps_numpy import NumpyFramework
 from saps.benchmark import DataInstance
-from saps.benchmarks.adjacency import zero_one_adjacency
+from saps.util.adjacency import zero_one_adjacency
 
 
 def _signed_graph():

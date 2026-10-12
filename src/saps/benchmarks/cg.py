@@ -5,7 +5,7 @@ import scipy.sparse as scipy_sparse
 
 import sparse as pydata_sparse
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy, to_scipy
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
 
 from saps.benchmark import (
     Author,
@@ -19,7 +19,7 @@ from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     fetch_suitesparse_linear_system,
 )
-from saps_framework.binsparse_utils import binsparse_equal
+from saps.util.error_bounds import operation_error_bound, summation_error_bound
 
 
 class CGDataset(SuiteSparseDataset):
@@ -182,7 +182,8 @@ class CGTestGenerator(Generator[CGDataset]):
                 from_numpy(dataset.x),
             ],
             meta=dataset.benchmark_meta(),
-            ref_meta={"check_rounded_residual": True, "round_decimals": 4},
+            ref_outputs=[from_scipy(scipy_sparse.coo_array(np.abs(dataset.A)))],
+            ref_meta={"bnorm": float(np.linalg.norm(dataset.b))},
         )
 
 
@@ -1084,7 +1085,12 @@ class CGSuiteSparseGenerator(Generator[CGDataset]):
         x_bin = from_numpy(np.zeros(A_bin.shape[1]))
         b_bin = from_numpy(b)
 
-        return DataInstance(inputs=[A_bin, b_bin, x_bin], meta=dataset.benchmark_meta())
+        return DataInstance(
+            inputs=[A_bin, b_bin, x_bin],
+            meta=dataset.benchmark_meta(),
+            ref_outputs=[from_scipy(np.abs(to_scipy(A_bin).tocoo()))],
+            ref_meta={"bnorm": float(np.linalg.norm(b))},
+        )
 
 
 class CGBenchmark(Benchmark):
@@ -1170,9 +1176,6 @@ class CGBenchmark(Benchmark):
                 "Output must be in binsparse format"
             )
 
-        if not self._ref_meta or not self._ref_meta.get("check_rounded_residual"):
-            return
-
         A_bin, b_bin, _x_bin = self._input
         try:
             A_coo = to_scipy(A_bin).tocoo()
@@ -1183,20 +1186,37 @@ class CGBenchmark(Benchmark):
             data=A_coo.data,
             shape=A_coo.shape,
         )
-        decimals = self._ref_meta["round_decimals"]
-        x_sol = np.round(
-            to_numpy(self._output[0]),
-            decimals=decimals,
+        assert self._ref_outputs is not None, "No cached absolute matrix"
+        assert self._ref_meta is not None, "No cached reference norms"
+        abs_A = to_sparse(self._ref_outputs[0])
+        b = to_numpy(b_bin)
+        x_sol = to_numpy(self._output[0])
+        r = np.asarray(b - A @ x_sol).ravel()
+        # Bound the matrix-vector product and the subtraction separately.
+        roundoff = summation_error_bound(
+            np,
+            A.shape[1] + 1,
+            abs_A @ np.abs(x_sol),
+            np.result_type(A.dtype, x_sol.dtype),
+        )
+        roundoff += operation_error_bound(np, r, r.dtype)
+        residual = np.linalg.norm(r)
+        bound = np.linalg.norm(roundoff)
+        # The norm adds a sum of squares and a square root.
+        bound += summation_error_bound(np, r.size + 2, residual + bound, r.dtype)
+        assert np.isfinite(residual) and np.isfinite(bound), (
+            "Non-finite residual or error bound"
+        )
+        # CG returns once ||b - Ax|| drops below rel_tol * ||b||.
+        rel_tol = (self._meta or {}).get("rel_tol", 1e-6)
+        bnorm = self._ref_meta["bnorm"]
+        abs_tol = (self._meta or {}).get("abs_tol", 1e-20)
+        limit = max(rel_tol * bnorm, abs_tol) + bound
+        assert residual <= limit, (
+            f"CG residual too high for {param.dataset.name}: {residual}"
         )
 
-        actual_b = from_numpy(np.asarray(A @ x_sol))
-        expected_b = b_bin
-        assert binsparse_equal(expected_b, actual_b), (
-            f"CG residual mismatch for {param.dataset.name}"
-        )
-
-    def benchmark(self, xp, data: list, meta: dict):
-        A, b, x = data
+    def benchmark(self, xp, meta: dict, A, b, x):
         rel_tol = meta.get("rel_tol", 1e-6)
         abs_tol = meta.get("abs_tol", 1e-20)
         max_iter = meta.get("max_iter", 100)
@@ -1234,4 +1254,4 @@ class CGBenchmark(Benchmark):
                 "within the maximum number of iterations"
             )
 
-        return [x]
+        return x

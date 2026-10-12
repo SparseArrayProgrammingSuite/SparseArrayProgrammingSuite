@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import Any
 
 import numpy as np
@@ -6,7 +6,7 @@ import scipy.sparse as scipy_sparse
 
 import sparse as pydata_sparse
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
 
 from saps.benchmark import (
     Author,
@@ -21,6 +21,7 @@ from saps.benchmarks.suitesparse import (
     fetch_suitesparse_linear_system,
 )
 from saps.downloaders.suitesparse import random_rhs_for_matrix
+from saps.util.error_bounds import operation_error_bound, summation_error_bound
 
 BLOCK_JACOBI_BLOCK_SIZE = 16
 
@@ -598,7 +599,8 @@ class BlockJacobiPCGSuiteSparseGenerator(Generator[PCGDataset]):
         return DataInstance(
             inputs=[A_bin, b_bin, x0_bin, M_bin],
             meta=dataset.benchmark_meta(),
-            ref_meta=dataset.ref_meta,
+            ref_outputs=[from_scipy(np.abs(A_csr).tocoo())],
+            ref_meta={**(dataset.ref_meta or {}), "bnorm": float(np.linalg.norm(b))},
         )
 
 
@@ -1535,14 +1537,16 @@ class JacobiPCGSuiteSparseGenerator(Generator[PCGDataset]):
             dataset.A,
             rhs_index=dataset.rhs_index,
         )
-        M = to_scipy(A_bin).diagonal()
+        A = to_scipy(A_bin).tocoo()
+        M = A.diagonal()
         M_bin = from_numpy(M)
         b_bin = from_numpy(b)
         x0_bin = from_numpy(x0)
         return DataInstance(
             inputs=[A_bin, b_bin, x0_bin, M_bin],
             meta=dataset.benchmark_meta(),
-            ref_meta=dataset.ref_meta,
+            ref_outputs=[from_scipy(np.abs(A))],
+            ref_meta={**(dataset.ref_meta or {}), "bnorm": float(np.linalg.norm(b))},
         )
 
 
@@ -1711,18 +1715,11 @@ class _PCGBenchmarkBase(Benchmark, ABC):
         """
         )
 
-    @abstractmethod
-    def _solve_cg(self, xp, M, r):
-        raise NotImplementedError
-
     def check(self, param):
         for item in self._output:
             assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
-
-        if not self._ref_meta or not self._ref_meta.get("check_residual"):
-            return
 
         A_bin, b_bin, _x0_bin, _M_bin = self._input
         try:
@@ -1734,15 +1731,57 @@ class _PCGBenchmarkBase(Benchmark, ABC):
             data=A_coo.data,
             shape=A_coo.shape,
         )
+        assert self._ref_outputs is not None, "No cached absolute matrix"
+        assert self._ref_meta is not None, "No cached reference norms"
+        abs_A = to_sparse(self._ref_outputs[0])
         b = to_numpy(b_bin)
         x_sol = to_numpy(self._output[0])
-        residual = b - A @ x_sol
-        assert np.linalg.norm(residual) < 1e-6 * np.linalg.norm(b) + 1e-6, (
-            f"Preconditioned CG residual too high for {param.dataset.name}"
+        r = np.asarray(b - A @ x_sol).ravel()
+        # Bound the matrix-vector product and the subtraction separately.
+        roundoff = summation_error_bound(
+            np,
+            A.shape[1] + 1,
+            abs_A @ np.abs(x_sol),
+            np.result_type(A.dtype, x_sol.dtype),
+        )
+        roundoff += operation_error_bound(np, r, r.dtype)
+        residual = np.linalg.norm(r)
+        bound = np.linalg.norm(roundoff)
+        # The norm adds a sum of squares and a square root.
+        bound += summation_error_bound(np, r.size + 2, residual + bound, r.dtype)
+        assert np.isfinite(residual) and np.isfinite(bound), (
+            "Non-finite residual or error bound"
+        )
+        if self._ref_meta and self._ref_meta.get("check_residual"):
+            assert residual < 1e-6 * self._ref_meta["bnorm"] + 1e-6 + bound, (
+                f"Preconditioned CG residual too high for {param.dataset.name}"
+            )
+            return
+
+        # PCG returns once ||b - Ax|| drops below rel_tol * ||b||.
+        rel_tol = (self._meta or {}).get("rel_tol", 1e-6)
+        bnorm = self._ref_meta["bnorm"]
+        abs_tol = (self._meta or {}).get("abs_tol", 1e-20)
+        limit = max(rel_tol * bnorm, abs_tol) + bound
+        assert residual <= limit, (
+            f"Preconditioned CG residual too high for {param.dataset.name}: {residual}"
         )
 
-    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]):
-        A, b, x0, M = data
+
+class BlockJacobiPCGBenchmark(_PCGBenchmarkBase):
+    @property
+    def name(self) -> str:
+        return "block_jacobi_pcg"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Block Jacobi Preconditioned Conjugate Gradient (PCG)"
+
+    @property
+    def generators(self):
+        return [BlockJacobiPCGTestGenerator(), BlockJacobiPCGSuiteSparseGenerator()]
+
+    def benchmark(self, xp, meta: dict[str, Any], A, b, x0, M):
         rel_tol = meta.get("rel_tol", 1e-6)
         abs_tol = meta.get("abs_tol", 1e-20)
         max_iter = meta.get("max_iter", 100)
@@ -1753,7 +1792,8 @@ class _PCGBenchmarkBase(Benchmark, ABC):
 
         x = x0
         r = b - A @ x
-        z = self._solve_cg(xp, M, r)
+        y = xp.linalg.solve(M, r)
+        z = xp.linalg.solve(M.T, y)
         rho = xp.vecdot(r, z)
         p = z
         it = 0
@@ -1773,47 +1813,18 @@ class _PCGBenchmarkBase(Benchmark, ABC):
                 if new_rr < tol_sq:
                     break
 
-                z = self._solve_cg(xp, M, r)
+                y = xp.linalg.solve(M, r)
+                z = xp.linalg.solve(M.T, y)
                 new_rho = xp.vecdot(r, z)
                 beta = new_rho / rho
                 p = z + beta * p
                 rho = new_rho
                 rr = new_rr
 
-        x_solution = x
-        return [x_solution]
+        return x
 
 
-class _BlockJacobiPCGMixin:
-    @property
-    def generators(self):
-        return [BlockJacobiPCGTestGenerator(), BlockJacobiPCGSuiteSparseGenerator()]
-
-    def _solve_cg(self, xp, M, r):
-        y = xp.linalg.solve(M, r)
-        return xp.linalg.solve(M.T, y)
-
-
-class _JacobiPCGMixin:
-    @property
-    def generators(self):
-        return [JacobiPCGTestGenerator(), JacobiPCGSuiteSparseGenerator()]
-
-    def _solve_cg(self, xp, M, r):
-        return xp.replace(r / M, xp.nan, 0)
-
-
-class BlockJacobiPCGBenchmark(_BlockJacobiPCGMixin, _PCGBenchmarkBase):
-    @property
-    def name(self) -> str:
-        return "block_jacobi_pcg"
-
-    @property
-    def pretty_name(self) -> str:
-        return "Block Jacobi Preconditioned Conjugate Gradient (PCG)"
-
-
-class JacobiPCGBenchmark(_JacobiPCGMixin, _PCGBenchmarkBase):
+class JacobiPCGBenchmark(_PCGBenchmarkBase):
     @property
     def name(self) -> str:
         return "jacobi_pcg"
@@ -1821,3 +1832,47 @@ class JacobiPCGBenchmark(_JacobiPCGMixin, _PCGBenchmarkBase):
     @property
     def pretty_name(self) -> str:
         return "Jacobi Preconditioned Conjugate Gradient (PCG)"
+
+    @property
+    def generators(self):
+        return [JacobiPCGTestGenerator(), JacobiPCGSuiteSparseGenerator()]
+
+    def benchmark(self, xp, meta: dict[str, Any], A, b, x0, M):
+        rel_tol = meta.get("rel_tol", 1e-6)
+        abs_tol = meta.get("abs_tol", 1e-20)
+        max_iter = meta.get("max_iter", 100)
+
+        tolerance = max(rel_tol * xp.sqrt(xp.vecdot(b, b))[()], abs_tol)
+        # tol_sq used to avoid having to sqrt dot products when checking tolerance
+        tol_sq = tolerance * tolerance
+
+        x = x0
+        r = b - A @ x
+        z = xp.replace(r / M, xp.nan, 0)
+        rho = xp.vecdot(r, z)
+        p = z
+        it = 0
+        rr = xp.vecdot(r, r)[()]
+
+        if rr >= tol_sq:
+            while it < max_iter:
+                Ap = A @ p
+                alpha = rho / xp.vecdot(p, Ap)
+                x = x + alpha * p
+                r = r - alpha * Ap
+
+                new_rr = xp.vecdot(r, r)[()]
+
+                it += 1
+
+                if new_rr < tol_sq:
+                    break
+
+                z = xp.replace(r / M, xp.nan, 0)
+                new_rho = xp.vecdot(r, z)
+                beta = new_rho / rho
+                p = z + beta * p
+                rho = new_rho
+                rr = new_rr
+
+        return x

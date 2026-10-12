@@ -15,9 +15,9 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.adjacency import zero_one_adjacency
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
+from saps.util.adjacency import zero_one_adjacency
 from saps_framework.binsparse_utils import binsparse_equal
 
 
@@ -487,8 +487,7 @@ class FastSVBenchmark(Benchmark):
     def generators(self) -> list[Generator]:
         return [FastSVTestGenerator(), FastSVSNAPGenerator(), FastSVGAPGenerator()]
 
-    def benchmark(self, xp, data, meta):
-        A = data[0]
+    def benchmark(self, xp, meta, A):
         A = A != 0
 
         (n, m) = A.shape
@@ -523,7 +522,7 @@ class FastSVBenchmark(Benchmark):
             if stop:
                 break
 
-        return [f]
+        return f
 
     def check(self, param):
         for item in self._output:

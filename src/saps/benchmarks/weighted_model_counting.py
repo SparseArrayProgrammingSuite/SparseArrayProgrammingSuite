@@ -1,4 +1,5 @@
 import textwrap
+from abc import ABC
 from pathlib import Path
 from typing import Any
 
@@ -15,6 +16,11 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.codegen import (
+    constant_function_source,
+    define_function,
+    einsum_function_source,
+)
 from saps.downloaders.mccomp import (
     MCCOMP_REPOSITORY_URL,
     MCCOMP_TRACKS,
@@ -23,6 +29,7 @@ from saps.downloaders.mccomp import (
     normalize_mccomp_source_path,
     parse_dimacs,
 )
+from saps.util.error_bounds import summation_error_bound
 
 
 def parse_weight(s):
@@ -183,7 +190,24 @@ class WeightedModelCountingMCCompDataset(Dataset):
         return data
 
 
-class WeightedModelCountingTestGenerator(Generator[WeightedModelCountingTestDataset]):
+class _WMCFunctionGenerator(Generator[Any], ABC):
+    """Builds each formula's benchmark function, with parameters ``B, W1, ..., Wn``."""
+
+    def generate_benchmark_function(self, dataset, problem, benchmark):
+        meta = problem.meta
+        params = ["B", *(f"W{i}" for i in range(1, meta["num_vars"] + 1))]
+        if meta["expr"] is None:
+            source = constant_function_source(meta["default_total"], "float64", params)
+        else:
+            source = einsum_function_source(meta["expr"], params)
+        return define_function(
+            source, f"<saps-generated {self.name}.{dataset.name}>", {"np": np}
+        )
+
+
+class WeightedModelCountingTestGenerator(
+    _WMCFunctionGenerator, Generator[WeightedModelCountingTestDataset]
+):
     @property
     def name(self) -> str:
         return "weighted_model_counting_test"
@@ -395,15 +419,22 @@ class WeightedModelCountingTestGenerator(Generator[WeightedModelCountingTestData
             "default_total": default_total,
         }
 
+        # At most 2**num_vars summands, each a product of num_vars weights.
+        steps = (1 << num_vars) - 1 + max(num_vars - 1, 0)
+        abs_sum = np.prod(
+            [np.abs(weights[-i]) + np.abs(weights[i]) for i in range(1, num_vars + 1)]
+        )
+        bound = summation_error_bound(np, steps + 1, abs_sum, np.float64)
         return DataInstance(
             inputs=data_list,
             meta=meta,
             ref_outputs=[from_numpy(np.array(dataset.expected))],
+            ref_meta={"error_bound": float(bound)},
         )
 
 
 class WeightedModelCountingMCCompGenerator(
-    Generator[WeightedModelCountingMCCompDataset]
+    _WMCFunctionGenerator, Generator[WeightedModelCountingMCCompDataset]
 ):
     @property
     def name(self) -> str:
@@ -569,21 +600,11 @@ class WeightedModelCountingBenchmark(Benchmark):
             WeightedModelCountingMCCompGenerator(),
         ]
 
-    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]) -> list[Any]:
-        expr = meta["expr"]
-
-        if expr is None:
-            return [xp.array(meta["default_total"], dtype=np.float64)]
-
-        num_vars = meta["num_vars"]
-
-        args = {"B": data[0]}
-        for i in range(1, num_vars + 1):
-            args[f"W{i}"] = data[i]
-
-        result = xp.einsum(expr, **args)
-
-        return [result]
+    def benchmark(self, xp, meta):
+        raise NotImplementedError(
+            "Weighted model counting functions are generated per formula by the "
+            "generator's generate_benchmark_function."
+        )
 
     def check(self, param):
         for item in self._output:
@@ -594,7 +615,9 @@ class WeightedModelCountingBenchmark(Benchmark):
             return
         result = float(to_numpy(self._output[0]))
         expected = float(to_numpy(self._ref_outputs[0]))
-        assert np.isclose(result, expected, rtol=10e-8), (
+        assert self._ref_meta is not None, "No error bound; regenerate the dataset"
+        bound = self._ref_meta["error_bound"]
+        assert np.isclose(result, expected, rtol=0, atol=bound), (
             f"Test '{param.dataset.name}' failed: expected {expected}, got {result}"
         )
 
