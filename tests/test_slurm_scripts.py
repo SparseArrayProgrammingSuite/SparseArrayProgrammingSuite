@@ -203,7 +203,10 @@ def test_slurm_submission_from_scripts_directory(tmp_path, script_name, commands
 
 
 @pytest.mark.parametrize("build_status", [0, 1])
-def test_graphminer_a100_job_runs_all_graphs_in_one_process(tmp_path, build_status):
+@pytest.mark.parametrize("cuda_module", [None, "cuda/12.1.1"])
+def test_graphminer_a100_job_runs_all_graphs_in_one_process(
+    tmp_path, build_status, cuda_module
+):
     record = tmp_path / "commands.jsonl"
     capture = (
         "import json, os, sys; "
@@ -211,9 +214,22 @@ def test_graphminer_a100_job_runs_all_graphs_in_one_process(tmp_path, build_stat
         'f.write(json.dumps(sys.argv[1:])+"\\n"); f.close()'
     )
     log_command = shlex.quote(sys.executable) + " -c " + shlex.quote(capture)
+    cuda_home = tmp_path / "cuda"
+    (cuda_home / "bin").mkdir(parents=True)
+    nvcc = cuda_home / "bin/nvcc"
+    nvcc.write_text("#!/bin/sh\nexit 0\n")
+    nvcc.chmod(0o755)
+    cxx = cuda_home / "bin/g++"
+    cxx.write_text("#!/bin/sh\necho 'g++ 11.3.1'\n")
+    cxx.chmod(0o755)
     shell_env = tmp_path / "shell-env"
     shell_env.write_text(
-        f'make() {{ {log_command} make "$@"; return {build_status}; }}\n'
+        f'module() {{ {log_command} module "$@"; '
+        f'export PATH={shlex.quote(str(cuda_home / "bin"))}:"$PATH"; }}\n'
+        f'make() {{ [[ "$CUDA_HOME" == {shlex.quote(str(cuda_home))} ]] || return 99; '
+        f'[[ "$GRAPHMINER_CUDA_HOME" == "$CUDA_HOME" ]] || return 99; '
+        f'[[ "$GRAPHMINER_CXX" == {shlex.quote(str(cxx))} ]] || return 99; '
+        f'{log_command} make "$@"; return {build_status}; }}\n'
         # exec cannot invoke a shell function, so intercept exec as well.
         f'exec() {{ {log_command} "$@"; }}\n'
     )
@@ -226,10 +242,18 @@ def test_graphminer_a100_job_runs_all_graphs_in_one_process(tmp_path, build_stat
         "SLURM_CPUS_PER_TASK": "24",
     }
     env.pop("SLURM_ARRAY_TASK_ID", None)
+    env.pop("GRAPHMINER_CUDA_MODULE", None)
+    env.pop("GRAPHMINER_GCC_MODULE", None)
+    env["GRAPHMINER_CXX"] = "g++"
+    env["CUDA_HOME"] = "/stale/toolkit"
+    if cuda_module is not None:
+        env["GRAPHMINER_CUDA_MODULE"] = cuda_module
     script = ROOT / "scripts/run-graphminer-gap.slurm"
     completed = subprocess.run(["bash", str(script)], env=env, capture_output=True)
     assert completed.returncode == build_status, completed.stderr
     commands = [json.loads(line) for line in record.read_text().splitlines()]
+    assert commands.pop(0) == ["module", "load", "gcc/11.3.1-bbxqwp5"]
+    assert commands.pop(0) == ["module", "load", cuda_module or "cuda/11.8.0"]
     assert commands[0] == ["make", "graphminer-gpu-check"]
     if build_status:
         assert len(commands) == 1
@@ -247,3 +271,43 @@ def test_graphminer_a100_job_runs_all_graphs_in_one_process(tmp_path, build_stat
     assert "#SBATCH --ntasks=1" in contents
     assert "#SBATCH --gres=gpu:a100:1" in contents
     assert "#SBATCH --array" not in contents
+
+
+def test_graphminer_gpu_build_uses_same_host_compiler_and_cleans_objects(tmp_path):
+    if not shutil.which("make"):
+        pytest.skip("make is unavailable")
+    source = tmp_path / "graphminer"
+    clique = source / "src/clique"
+    clique.mkdir(parents=True)
+    (source / ".saps-ready").touch()
+    (source / "bin").mkdir()
+    cuda = tmp_path / "cuda"
+    (cuda / "bin").mkdir(parents=True)
+    nvcc = cuda / "bin/nvcc"
+    nvcc.write_text("#!/bin/sh\nexit 0\n")
+    nvcc.chmod(0o755)
+    (clique / "stale.o").touch()
+    (clique / "Makefile").write_text(
+        "clean:\n\trm -f *.o\n"
+        "clique_gpu_base:\n\ttest ! -e stale.o\n"
+        "\tprintf '%s\\n' '$(CXX)' '$(NVCC)' > compiler.txt\n"
+        "\ttouch ../../bin/clique_gpu_base\n"
+    )
+    compiler = "/cluster/gcc11/bin/g++"
+    subprocess.run(
+        [
+            "make",
+            "graphminer-gpu",
+            f"GRAPHMINER_GPU_DIR={source}",
+            f"GRAPHMINER_CUDA_HOME={cuda}",
+            f"GRAPHMINER_CXX={compiler}",
+        ],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert (clique / "compiler.txt").read_text().splitlines() == [
+        compiler,
+        f"{nvcc} --compiler-bindir={compiler}",
+    ]

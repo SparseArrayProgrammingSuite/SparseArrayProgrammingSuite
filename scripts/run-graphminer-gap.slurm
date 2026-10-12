@@ -24,7 +24,8 @@ export PYTHONUNBUFFERED=1
 cd "$repo_directory"
 # Load the toolkit in the batch shell, not just on the submission host.
 cuda_module="${GRAPHMINER_CUDA_MODULE-cuda/11.8.0}"
-if [[ -n "$cuda_module" ]]; then
+gcc_module="${GRAPHMINER_GCC_MODULE-gcc/11.3.1-bbxqwp5}"
+if [[ -n "$cuda_module" || -n "$gcc_module" ]]; then
   if ! type module >/dev/null 2>&1; then
     for module_init in /etc/profile.d/lmod.sh /etc/profile.d/modules.sh /usr/share/Modules/init/bash; do
       if [[ -r "$module_init" ]]; then
@@ -34,9 +35,14 @@ if [[ -n "$cuda_module" ]]; then
     done
   fi
   if ! type module >/dev/null 2>&1; then
-    echo "Cannot initialize environment modules; set GRAPHMINER_CUDA_MODULE='' and provide CUDA_HOME or nvcc on PATH." >&2
+    echo "Cannot initialize environment modules; set GRAPHMINER_GCC_MODULE='' and GRAPHMINER_CUDA_MODULE='' and provide compatible GCC and CUDA explicitly." >&2
     exit 1
   fi
+  if [[ -n "$gcc_module" ]]; then
+    module load "$gcc_module"
+  fi
+fi
+if [[ -n "$cuda_module" ]]; then
   module load "$cuda_module"
   # Derive the toolkit root from the newly loaded compiler, avoiding a stale
   # CUDA_HOME inherited from a different toolkit on the submission host.
@@ -44,6 +50,10 @@ if [[ -n "$cuda_module" ]]; then
   export CUDA_HOME="$(dirname -- "$(dirname -- "$nvcc_path")")"
   export GRAPHMINER_CUDA_HOME="$CUDA_HOME"
 fi
+# Use the same host compiler for ordinary C++ and nvcc, even if another GCC is
+# installed on the node. Print its identity in the job log for diagnosis.
+export GRAPHMINER_CXX="$(command -v "${GRAPHMINER_CXX:-g++}")"
+"$GRAPHMINER_CXX" --version
 # Build and validate on the GPU node.
 make graphminer-gpu-check
 revision=2a76e3f612e40e46a821d603ca11d10fcbc63ddd
