@@ -14,7 +14,6 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
 from saps.util.adjacency import zero_one_adjacency
 
@@ -182,7 +181,6 @@ class FourCliqueCountingTestGenerator(Generator[FourCliqueCountingDataset]):
 # Reference counts for simple undirected graphs, computed by
 # scripts/compute_graph_counts.py unless cited below. The generators store only
 # the strict upper triangle, so each four-clique is counted once.
-# GAP-web, GAP-kron, and GAP-urand still have no verified reference counts.
 _FOUR_CLIQUE_COUNTS: dict[str, int] = {
     "soc-Epinions1": 5_803_397,
     # GraphMiner (livej): same symmetrized graph and triangle count as SNAP.
@@ -252,14 +250,10 @@ _FOUR_CLIQUE_COUNTS: dict[str, int] = {
     "email-Eu-core-temporal": 423_750,
     "CollegeMsg": 5_389,
     "higgs-twitter": 429_733_013,
-    "GAP-road": 90,
     # GraphMiner's simple undirected graphs, with matching node and edge counts:
     # https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/clique/README.md
-    # twitter7 and GAP-twitter agree after removing loops and ignoring weights:
-    # https://sparse.tamu.edu/GAP/GAP-twitter
     "com-Friendster": 8_963_503_263,
     "twitter7": 6_622_234_180_319,
-    "GAP-twitter": 6_622_234_180_319,
 }
 
 
@@ -447,119 +441,6 @@ class FourCliqueCountingSNAPGenerator(Generator[FourCliqueCountingDataset]):
         )
 
 
-class FourCliqueCountingGAPGenerator(Generator[FourCliqueCountingDataset]):
-    @property
-    def name(self) -> str:
-        return "four_clique_counting_gap"
-
-    @property
-    def pretty_name(self) -> str:
-        return "4-Clique Counting GAP"
-
-    @property
-    def description(self) -> str:
-        return "Input GAP generator for 4-clique counting benchmarks."
-
-    @property
-    def suites(self) -> list[str]:
-        return []
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
-    @property
-    def authors(self) -> list[Contributor]:
-        return [
-            Contributor("Willow Ahrens", "ahrens@gatech.edu"),
-        ]
-
-    @property
-    def references(self) -> list[Ref]:
-        return [
-            Ref(
-                title="The GAP Benchmark Suite",
-                authors=[
-                    Author("Scott Beamer"),
-                    Author("Krste Asanović"),
-                    Author("David Patterson"),
-                ],
-                url="https://arxiv.org/abs/1508.03619",
-                year=2015,
-            ),
-            Ref(
-                title="Pangolin: An Efficient and Flexible Graph Mining System on CPU and GPU",
-                authors=[
-                    Author("Xuhao Chen"),
-                    Author("Roshan Dathathri"),
-                    Author("Gurbinder Gill"),
-                    Author("Keshav Pingali"),
-                ],
-                journal="Proc. VLDB Endow.",
-                volume=13,
-                number=8,
-                year=2020,
-                publisher="VLDB Endowment",
-                url="https://arxiv.org/abs/1911.06969",
-            ),
-            Ref(
-                title="Sandslash: A Two-Level Framework for Efficient Graph Pattern Mining",
-                authors=[
-                    Author("Xuhao Chen"),
-                    Author("Roshan Dathathri"),
-                    Author("Gurbinder Gill"),
-                    Author("Loc Hoang"),
-                    Author("Keshav Pingali"),
-                ],
-                booktitle="Proceedings of the 35th ACM International Conference on Supercomputing",
-                year=2021,
-                url="https://doi.org/10.1145/3447818.3460359",
-            ),
-        ]
-
-    @property
-    def ai_disclosure(self) -> str:
-        return (
-            "Generative AI was used to construct the generator and dataset structures."
-            " This statement was written by hand."
-        )
-
-    @property
-    def motivation(self) -> str:
-        return "Generate GAP graph inputs for 4-clique counting."
-
-    @property
-    def cacheable(self) -> bool:
-        return False
-
-    @property
-    def datasets(self) -> list[FourCliqueCountingDataset]:
-        # fmt: off
-        return [
-            FourCliqueCountingDataset("GAP-road", suites=["standard"]),
-            FourCliqueCountingDataset("GAP-twitter", suites=["standard"]),
-            FourCliqueCountingDataset("GAP-web", suites=["standard"]),
-            FourCliqueCountingDataset("GAP-kron", suites=["standard"]),
-            FourCliqueCountingDataset("GAP-urand", suites=["standard"]),
-        ]
-        # fmt: on
-
-    def generate(self, dataset: FourCliqueCountingDataset) -> DataInstance:
-        raw = fetch_gap_graph(dataset.name)
-        return DataInstance(
-            inputs=[
-                zero_one_adjacency(
-                    raw.inputs[0],
-                    np.int64,
-                    simple_undirected=dataset.simple_undirected,
-                    upper_triangle=True,
-                )
-            ],
-            meta=dict(raw.meta),
-            ref_outputs=_reference_outputs(dataset.name),
-        )
-
-
 class FourCliqueCountingBenchmark(Benchmark):
     @property
     def name(self) -> str:
@@ -681,7 +562,6 @@ class FourCliqueCountingBenchmark(Benchmark):
         return [
             FourCliqueCountingTestGenerator(),
             FourCliqueCountingSNAPGenerator(),
-            FourCliqueCountingGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta: dict, A):

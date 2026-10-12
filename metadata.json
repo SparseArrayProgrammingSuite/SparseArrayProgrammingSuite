@@ -76690,9 +76690,9 @@
         "Jeffrey Xu <jxu743@gatech.edu>"
       ],
       "concepts": "\n<ccs2012>\n<concept>\n<concept_id>10002950.10003705</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003705.10011686</concept_id>\n<concept_desc>Mathematics of computing~Mathematical software performance</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003624.10003633.10010917</concept_id>\n<concept_desc>Mathematics of computing~Graph algorithms</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002950.10003624.10003633.10003640</concept_id>\n<concept_desc>Mathematics of computing~Paths and connectivity problems</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n</ccs2012>\n",
-      "description": "4-clique Counting: A 4-clique must contain 6 edges that connect all 4 vertices. The einsum does the following: for a given vertex i, checks for existence of 3 edges to 3 other vertices, then checks for existence of 3 edges between those 3 vertices. This constitutes a 4-clique. Divide by 24 to avoid overcounting. These methods are implemented using the property that multiplying a graph's adjacency matrix by itself n times yields the number of walks of length n that begin at the vertex denoted by the row label and end at the vertex denoted by the column label.",
+      "description": "4-clique Counting: A 4-clique must contain 6 edges that connect all 4 vertices. The einsum does the following: for a given vertex i, checks for existence of 3 edges to 3 other vertices, then checks for existence of 3 edges between those 3 vertices. This constitutes a 4-clique. Only the strict upper triangle of the simple undirected adjacency is stored, so each clique is counted once, with i < j < k < l. These methods are implemented using the property that multiplying a graph's adjacency matrix by itself n times yields the number of walks of length n that begin at the vertex denoted by the row label and end at the vertex denoted by the column label.",
       "file": "src/saps/benchmarks/four_clique_counting.py",
-      "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+      "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
       "generators": [
         {
           "ai_disclosure": "Generative AI might have been used to construct tests. This statement was written by hand.",
@@ -76703,9 +76703,9 @@
             {
               "asv_param": "four_clique_counting_test.complete_k3",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input complete_k3.",
+              "description": "Graph counting input complete_k3. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "complete_k3",
               "pretty_name": "Complete K3",
               "suites": [
@@ -76717,8 +76717,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard-graphs-query",
                 "suite-test"
               ],
@@ -76727,9 +76725,9 @@
             {
               "asv_param": "four_clique_counting_test.single_k4",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input single_k4.",
+              "description": "Graph counting input single_k4. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "single_k4",
               "pretty_name": "Single K4",
               "suites": [
@@ -76741,8 +76739,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard-graphs-query",
                 "suite-test"
               ],
@@ -76751,9 +76747,9 @@
             {
               "asv_param": "four_clique_counting_test.overlapping",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input overlapping.",
+              "description": "Graph counting input overlapping. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "overlapping",
               "pretty_name": "Overlapping",
               "suites": [
@@ -76765,8 +76761,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard-graphs-query",
                 "suite-test"
               ],
@@ -76775,9 +76769,9 @@
             {
               "asv_param": "four_clique_counting_test.snap_toy",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input snap_toy.",
+              "description": "Graph counting input snap_toy. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "snap_toy",
               "pretty_name": "SNAP Toy",
               "suites": [
@@ -76789,8 +76783,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard-graphs-query",
                 "suite-test"
               ],
@@ -76799,7 +76791,7 @@
           ],
           "description": "Small deterministic 4-clique-count examples.",
           "file": "src/saps/benchmarks/four_clique_counting.py",
-          "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+          "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
           "motivation": "Provide small graph examples for 4-clique-count correctness checks.",
           "name": "four_clique_counting_test",
           "pretty_name": "4-Clique Counting Test",
@@ -76813,8 +76805,6 @@
             "concept-mathematical-software-performance",
             "concept-mathematics-of-computing",
             "concept-paths-and-connectivity-problems",
-            "feature-elementary-ops",
-            "feature-hypersparse",
             "suite-standard-graphs-query",
             "suite-test"
           ],
@@ -76831,9 +76821,9 @@
             {
               "asv_param": "four_clique_counting_snap.soc-Epinions1",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input soc-Epinions1.",
+              "description": "Graph counting input soc-Epinions1. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "soc-Epinions1",
               "pretty_name": "soc-Epinions1",
               "suites": [
@@ -76845,8 +76835,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -76855,9 +76843,9 @@
             {
               "asv_param": "four_clique_counting_snap.soc-LiveJournal1",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input soc-LiveJournal1.",
+              "description": "Graph counting input soc-LiveJournal1. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "soc-LiveJournal1",
               "pretty_name": "soc-LiveJournal1",
               "suites": [
@@ -76869,8 +76857,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -76879,9 +76865,9 @@
             {
               "asv_param": "four_clique_counting_snap.soc-Pokec",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input soc-Pokec.",
+              "description": "Graph counting input soc-Pokec. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "soc-Pokec",
               "pretty_name": "soc-Pokec",
               "suites": [
@@ -76893,8 +76879,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -76903,9 +76887,9 @@
             {
               "asv_param": "four_clique_counting_snap.soc-Slashdot0811",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input soc-Slashdot0811.",
+              "description": "Graph counting input soc-Slashdot0811. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "soc-Slashdot0811",
               "pretty_name": "soc-Slashdot0811",
               "suites": [
@@ -76917,8 +76901,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -76927,9 +76909,9 @@
             {
               "asv_param": "four_clique_counting_snap.soc-Slashdot0902",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input soc-Slashdot0902.",
+              "description": "Graph counting input soc-Slashdot0902. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "soc-Slashdot0902",
               "pretty_name": "soc-Slashdot0902",
               "suites": [
@@ -76941,8 +76923,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -76951,9 +76931,9 @@
             {
               "asv_param": "four_clique_counting_snap.wiki-Vote",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input wiki-Vote.",
+              "description": "Graph counting input wiki-Vote. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "wiki-Vote",
               "pretty_name": "wiki-Vote",
               "suites": [
@@ -76965,8 +76945,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -76975,9 +76953,9 @@
             {
               "asv_param": "four_clique_counting_snap.wiki-RfA",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input wiki-RfA.",
+              "description": "Graph counting input wiki-RfA. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "wiki-RfA",
               "pretty_name": "wiki-RfA",
               "suites": [
@@ -76989,8 +76967,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -76999,9 +76975,9 @@
             {
               "asv_param": "four_clique_counting_snap.soc-sign-bitcoin-otc",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input soc-sign-bitcoin-otc.",
+              "description": "Graph counting input soc-sign-bitcoin-otc. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "soc-sign-bitcoin-otc",
               "pretty_name": "soc-sign-bitcoin-otc",
               "suites": [
@@ -77013,8 +76989,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77023,9 +76997,9 @@
             {
               "asv_param": "four_clique_counting_snap.soc-sign-bitcoin-alpha",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input soc-sign-bitcoin-alpha.",
+              "description": "Graph counting input soc-sign-bitcoin-alpha. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "soc-sign-bitcoin-alpha",
               "pretty_name": "soc-sign-bitcoin-alpha",
               "suites": [
@@ -77037,8 +77011,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77047,9 +77019,9 @@
             {
               "asv_param": "four_clique_counting_snap.com-LiveJournal",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input com-LiveJournal.",
+              "description": "Graph counting input com-LiveJournal. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "com-LiveJournal",
               "pretty_name": "com-LiveJournal",
               "suites": [
@@ -77061,8 +77033,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77071,9 +77041,9 @@
             {
               "asv_param": "four_clique_counting_snap.com-Friendster",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input com-Friendster.",
+              "description": "Graph counting input com-Friendster. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "com-Friendster",
               "pretty_name": "com-Friendster",
               "suites": [
@@ -77085,8 +77055,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77095,9 +77063,9 @@
             {
               "asv_param": "four_clique_counting_snap.com-Orkut",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input com-Orkut.",
+              "description": "Graph counting input com-Orkut. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "com-Orkut",
               "pretty_name": "com-Orkut",
               "suites": [
@@ -77109,8 +77077,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77119,9 +77085,9 @@
             {
               "asv_param": "four_clique_counting_snap.com-Youtube",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input com-Youtube.",
+              "description": "Graph counting input com-Youtube. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "com-Youtube",
               "pretty_name": "com-Youtube",
               "suites": [
@@ -77133,8 +77099,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77143,9 +77107,9 @@
             {
               "asv_param": "four_clique_counting_snap.com-DBLP",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input com-DBLP.",
+              "description": "Graph counting input com-DBLP. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "com-DBLP",
               "pretty_name": "com-DBLP",
               "suites": [
@@ -77157,8 +77121,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77167,9 +77129,9 @@
             {
               "asv_param": "four_clique_counting_snap.com-Amazon",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input com-Amazon.",
+              "description": "Graph counting input com-Amazon. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "com-Amazon",
               "pretty_name": "com-Amazon",
               "suites": [
@@ -77181,8 +77143,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77191,9 +77151,9 @@
             {
               "asv_param": "four_clique_counting_snap.email-Eu-core",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input email-Eu-core.",
+              "description": "Graph counting input email-Eu-core. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "email-Eu-core",
               "pretty_name": "email-Eu-core",
               "suites": [
@@ -77205,8 +77165,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77215,9 +77173,9 @@
             {
               "asv_param": "four_clique_counting_snap.wiki-topcats",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input wiki-topcats.",
+              "description": "Graph counting input wiki-topcats. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "wiki-topcats",
               "pretty_name": "wiki-topcats",
               "suites": [
@@ -77229,8 +77187,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77239,9 +77195,9 @@
             {
               "asv_param": "four_clique_counting_snap.email-EuAll",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input email-EuAll.",
+              "description": "Graph counting input email-EuAll. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "email-EuAll",
               "pretty_name": "email-EuAll",
               "suites": [
@@ -77253,8 +77209,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77263,9 +77217,9 @@
             {
               "asv_param": "four_clique_counting_snap.email-Enron",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input email-Enron.",
+              "description": "Graph counting input email-Enron. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "email-Enron",
               "pretty_name": "email-Enron",
               "suites": [
@@ -77277,8 +77231,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77287,9 +77239,9 @@
             {
               "asv_param": "four_clique_counting_snap.wiki-Talk",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input wiki-Talk.",
+              "description": "Graph counting input wiki-Talk. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "wiki-Talk",
               "pretty_name": "wiki-Talk",
               "suites": [
@@ -77301,8 +77253,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77311,9 +77261,9 @@
             {
               "asv_param": "four_clique_counting_snap.cit-HepPh",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input cit-HepPh.",
+              "description": "Graph counting input cit-HepPh. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "cit-HepPh",
               "pretty_name": "cit-HepPh",
               "suites": [
@@ -77325,8 +77275,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77335,9 +77283,9 @@
             {
               "asv_param": "four_clique_counting_snap.cit-HepTh",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input cit-HepTh.",
+              "description": "Graph counting input cit-HepTh. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "cit-HepTh",
               "pretty_name": "cit-HepTh",
               "suites": [
@@ -77349,8 +77297,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77359,9 +77305,9 @@
             {
               "asv_param": "four_clique_counting_snap.cit-Patents",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input cit-Patents.",
+              "description": "Graph counting input cit-Patents. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "cit-Patents",
               "pretty_name": "cit-Patents",
               "suites": [
@@ -77373,8 +77319,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77383,9 +77327,9 @@
             {
               "asv_param": "four_clique_counting_snap.ca-AstroPh",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input ca-AstroPh.",
+              "description": "Graph counting input ca-AstroPh. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "ca-AstroPh",
               "pretty_name": "ca-AstroPh",
               "suites": [
@@ -77397,8 +77341,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77407,9 +77349,9 @@
             {
               "asv_param": "four_clique_counting_snap.ca-CondMat",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input ca-CondMat.",
+              "description": "Graph counting input ca-CondMat. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "ca-CondMat",
               "pretty_name": "ca-CondMat",
               "suites": [
@@ -77421,8 +77363,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77431,9 +77371,9 @@
             {
               "asv_param": "four_clique_counting_snap.ca-GrQc",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input ca-GrQc.",
+              "description": "Graph counting input ca-GrQc. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "ca-GrQc",
               "pretty_name": "ca-GrQc",
               "suites": [
@@ -77446,8 +77386,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query",
                 "suite-trace"
@@ -77457,9 +77395,9 @@
             {
               "asv_param": "four_clique_counting_snap.ca-HepPh",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input ca-HepPh.",
+              "description": "Graph counting input ca-HepPh. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "ca-HepPh",
               "pretty_name": "ca-HepPh",
               "suites": [
@@ -77471,8 +77409,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77481,9 +77417,9 @@
             {
               "asv_param": "four_clique_counting_snap.ca-HepTh",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input ca-HepTh.",
+              "description": "Graph counting input ca-HepTh. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "ca-HepTh",
               "pretty_name": "ca-HepTh",
               "suites": [
@@ -77496,8 +77432,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query",
                 "suite-trace"
@@ -77507,9 +77441,9 @@
             {
               "asv_param": "four_clique_counting_snap.web-BerkStan",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input web-BerkStan.",
+              "description": "Graph counting input web-BerkStan. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "web-BerkStan",
               "pretty_name": "web-BerkStan",
               "suites": [
@@ -77521,8 +77455,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77531,9 +77463,9 @@
             {
               "asv_param": "four_clique_counting_snap.web-Google",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input web-Google.",
+              "description": "Graph counting input web-Google. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "web-Google",
               "pretty_name": "web-Google",
               "suites": [
@@ -77545,8 +77477,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77555,9 +77485,9 @@
             {
               "asv_param": "four_clique_counting_snap.web-NotreDame",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input web-NotreDame.",
+              "description": "Graph counting input web-NotreDame. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "web-NotreDame",
               "pretty_name": "web-NotreDame",
               "suites": [
@@ -77569,8 +77499,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77579,9 +77507,9 @@
             {
               "asv_param": "four_clique_counting_snap.web-Stanford",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input web-Stanford.",
+              "description": "Graph counting input web-Stanford. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "web-Stanford",
               "pretty_name": "web-Stanford",
               "suites": [
@@ -77593,8 +77521,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77603,9 +77529,9 @@
             {
               "asv_param": "four_clique_counting_snap.amazon0302",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input amazon0302.",
+              "description": "Graph counting input amazon0302. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "amazon0302",
               "pretty_name": "amazon0302",
               "suites": [
@@ -77617,8 +77543,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77627,9 +77551,9 @@
             {
               "asv_param": "four_clique_counting_snap.amazon0312",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input amazon0312.",
+              "description": "Graph counting input amazon0312. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "amazon0312",
               "pretty_name": "amazon0312",
               "suites": [
@@ -77641,8 +77565,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77651,9 +77573,9 @@
             {
               "asv_param": "four_clique_counting_snap.amazon0505",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input amazon0505.",
+              "description": "Graph counting input amazon0505. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "amazon0505",
               "pretty_name": "amazon0505",
               "suites": [
@@ -77665,8 +77587,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77675,9 +77595,9 @@
             {
               "asv_param": "four_clique_counting_snap.amazon0601",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input amazon0601.",
+              "description": "Graph counting input amazon0601. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "amazon0601",
               "pretty_name": "amazon0601",
               "suites": [
@@ -77689,8 +77609,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77699,9 +77617,9 @@
             {
               "asv_param": "four_clique_counting_snap.p2p-Gnutella04",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input p2p-Gnutella04.",
+              "description": "Graph counting input p2p-Gnutella04. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "p2p-Gnutella04",
               "pretty_name": "p2p-Gnutella04",
               "suites": [
@@ -77714,8 +77632,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query",
                 "suite-trace"
@@ -77725,9 +77641,9 @@
             {
               "asv_param": "four_clique_counting_snap.p2p-Gnutella05",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input p2p-Gnutella05.",
+              "description": "Graph counting input p2p-Gnutella05. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "p2p-Gnutella05",
               "pretty_name": "p2p-Gnutella05",
               "suites": [
@@ -77740,8 +77656,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query",
                 "suite-trace"
@@ -77751,9 +77665,9 @@
             {
               "asv_param": "four_clique_counting_snap.p2p-Gnutella06",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input p2p-Gnutella06.",
+              "description": "Graph counting input p2p-Gnutella06. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "p2p-Gnutella06",
               "pretty_name": "p2p-Gnutella06",
               "suites": [
@@ -77766,8 +77680,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query",
                 "suite-trace"
@@ -77777,9 +77689,9 @@
             {
               "asv_param": "four_clique_counting_snap.p2p-Gnutella08",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input p2p-Gnutella08.",
+              "description": "Graph counting input p2p-Gnutella08. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "p2p-Gnutella08",
               "pretty_name": "p2p-Gnutella08",
               "suites": [
@@ -77792,8 +77704,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query",
                 "suite-trace"
@@ -77803,9 +77713,9 @@
             {
               "asv_param": "four_clique_counting_snap.p2p-Gnutella09",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input p2p-Gnutella09.",
+              "description": "Graph counting input p2p-Gnutella09. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "p2p-Gnutella09",
               "pretty_name": "p2p-Gnutella09",
               "suites": [
@@ -77818,8 +77728,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query",
                 "suite-trace"
@@ -77829,9 +77737,9 @@
             {
               "asv_param": "four_clique_counting_snap.p2p-Gnutella24",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input p2p-Gnutella24.",
+              "description": "Graph counting input p2p-Gnutella24. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "p2p-Gnutella24",
               "pretty_name": "p2p-Gnutella24",
               "suites": [
@@ -77844,8 +77752,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query",
                 "suite-trace"
@@ -77855,9 +77761,9 @@
             {
               "asv_param": "four_clique_counting_snap.p2p-Gnutella25",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input p2p-Gnutella25.",
+              "description": "Graph counting input p2p-Gnutella25. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "p2p-Gnutella25",
               "pretty_name": "p2p-Gnutella25",
               "suites": [
@@ -77870,8 +77776,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query",
                 "suite-trace"
@@ -77881,9 +77785,9 @@
             {
               "asv_param": "four_clique_counting_snap.p2p-Gnutella30",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input p2p-Gnutella30.",
+              "description": "Graph counting input p2p-Gnutella30. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "p2p-Gnutella30",
               "pretty_name": "p2p-Gnutella30",
               "suites": [
@@ -77896,8 +77800,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query",
                 "suite-trace"
@@ -77907,9 +77809,9 @@
             {
               "asv_param": "four_clique_counting_snap.p2p-Gnutella31",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input p2p-Gnutella31.",
+              "description": "Graph counting input p2p-Gnutella31. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "p2p-Gnutella31",
               "pretty_name": "p2p-Gnutella31",
               "suites": [
@@ -77921,8 +77823,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77931,9 +77831,9 @@
             {
               "asv_param": "four_clique_counting_snap.roadNet-CA",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input roadNet-CA.",
+              "description": "Graph counting input roadNet-CA. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "roadNet-CA",
               "pretty_name": "roadNet-CA",
               "suites": [
@@ -77945,8 +77845,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77955,9 +77853,9 @@
             {
               "asv_param": "four_clique_counting_snap.roadNet-PA",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input roadNet-PA.",
+              "description": "Graph counting input roadNet-PA. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "roadNet-PA",
               "pretty_name": "roadNet-PA",
               "suites": [
@@ -77969,8 +77867,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -77979,9 +77875,9 @@
             {
               "asv_param": "four_clique_counting_snap.roadNet-TX",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input roadNet-TX.",
+              "description": "Graph counting input roadNet-TX. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "roadNet-TX",
               "pretty_name": "roadNet-TX",
               "suites": [
@@ -77993,8 +77889,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -78003,9 +77897,9 @@
             {
               "asv_param": "four_clique_counting_snap.as-735",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input as-735.",
+              "description": "Graph counting input as-735. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "as-735",
               "pretty_name": "as-735",
               "suites": [
@@ -78017,8 +77911,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -78027,9 +77919,9 @@
             {
               "asv_param": "four_clique_counting_snap.as-Skitter",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input as-Skitter.",
+              "description": "Graph counting input as-Skitter. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "as-Skitter",
               "pretty_name": "as-Skitter",
               "suites": [
@@ -78041,8 +77933,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -78051,9 +77941,9 @@
             {
               "asv_param": "four_clique_counting_snap.as-caida",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input as-caida.",
+              "description": "Graph counting input as-caida. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "as-caida",
               "pretty_name": "as-caida",
               "suites": [
@@ -78065,8 +77955,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -78075,9 +77963,9 @@
             {
               "asv_param": "four_clique_counting_snap.Oregon-1",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input Oregon-1.",
+              "description": "Graph counting input Oregon-1. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "Oregon-1",
               "pretty_name": "Oregon-1",
               "suites": [
@@ -78089,8 +77977,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -78099,9 +77985,9 @@
             {
               "asv_param": "four_clique_counting_snap.Oregon-2",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input Oregon-2.",
+              "description": "Graph counting input Oregon-2. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "Oregon-2",
               "pretty_name": "Oregon-2",
               "suites": [
@@ -78113,8 +77999,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -78123,9 +78007,9 @@
             {
               "asv_param": "four_clique_counting_snap.soc-sign-epinions",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input soc-sign-epinions.",
+              "description": "Graph counting input soc-sign-epinions. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "soc-sign-epinions",
               "pretty_name": "soc-sign-epinions",
               "suites": [
@@ -78137,8 +78021,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -78147,9 +78029,9 @@
             {
               "asv_param": "four_clique_counting_snap.soc-sign-Slashdot081106",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input soc-sign-Slashdot081106.",
+              "description": "Graph counting input soc-sign-Slashdot081106. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "soc-sign-Slashdot081106",
               "pretty_name": "soc-sign-Slashdot081106",
               "suites": [
@@ -78161,8 +78043,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -78171,9 +78051,9 @@
             {
               "asv_param": "four_clique_counting_snap.soc-sign-Slashdot090216",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input soc-sign-Slashdot090216.",
+              "description": "Graph counting input soc-sign-Slashdot090216. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "soc-sign-Slashdot090216",
               "pretty_name": "soc-sign-Slashdot090216",
               "suites": [
@@ -78185,8 +78065,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -78195,9 +78073,9 @@
             {
               "asv_param": "four_clique_counting_snap.soc-sign-Slashdot090221",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input soc-sign-Slashdot090221.",
+              "description": "Graph counting input soc-sign-Slashdot090221. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "soc-sign-Slashdot090221",
               "pretty_name": "soc-sign-Slashdot090221",
               "suites": [
@@ -78209,8 +78087,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -78219,9 +78095,9 @@
             {
               "asv_param": "four_clique_counting_snap.loc-Gowalla",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input loc-Gowalla.",
+              "description": "Graph counting input loc-Gowalla. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "loc-Gowalla",
               "pretty_name": "loc-Gowalla",
               "suites": [
@@ -78233,8 +78109,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -78243,9 +78117,9 @@
             {
               "asv_param": "four_clique_counting_snap.loc-Brightkite",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input loc-Brightkite.",
+              "description": "Graph counting input loc-Brightkite. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "loc-Brightkite",
               "pretty_name": "loc-Brightkite",
               "suites": [
@@ -78257,8 +78131,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -78267,9 +78139,9 @@
             {
               "asv_param": "four_clique_counting_snap.sx-stackoverflow",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input sx-stackoverflow.",
+              "description": "Graph counting input sx-stackoverflow. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "sx-stackoverflow",
               "pretty_name": "sx-stackoverflow",
               "suites": [
@@ -78281,8 +78153,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -78291,9 +78161,9 @@
             {
               "asv_param": "four_clique_counting_snap.sx-mathoverflow",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input sx-mathoverflow.",
+              "description": "Graph counting input sx-mathoverflow. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "sx-mathoverflow",
               "pretty_name": "sx-mathoverflow",
               "suites": [
@@ -78305,8 +78175,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -78315,9 +78183,9 @@
             {
               "asv_param": "four_clique_counting_snap.sx-superuser",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input sx-superuser.",
+              "description": "Graph counting input sx-superuser. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "sx-superuser",
               "pretty_name": "sx-superuser",
               "suites": [
@@ -78329,8 +78197,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -78339,9 +78205,9 @@
             {
               "asv_param": "four_clique_counting_snap.sx-askubuntu",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input sx-askubuntu.",
+              "description": "Graph counting input sx-askubuntu. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "sx-askubuntu",
               "pretty_name": "sx-askubuntu",
               "suites": [
@@ -78353,8 +78219,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -78363,9 +78227,9 @@
             {
               "asv_param": "four_clique_counting_snap.wiki-talk-temporal",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input wiki-talk-temporal.",
+              "description": "Graph counting input wiki-talk-temporal. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "wiki-talk-temporal",
               "pretty_name": "wiki-talk-temporal",
               "suites": [
@@ -78377,8 +78241,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -78387,9 +78249,9 @@
             {
               "asv_param": "four_clique_counting_snap.email-Eu-core-temporal",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input email-Eu-core-temporal.",
+              "description": "Graph counting input email-Eu-core-temporal. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "email-Eu-core-temporal",
               "pretty_name": "email-Eu-core-temporal",
               "suites": [
@@ -78401,8 +78263,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -78411,9 +78271,9 @@
             {
               "asv_param": "four_clique_counting_snap.CollegeMsg",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input CollegeMsg.",
+              "description": "Graph counting input CollegeMsg. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "CollegeMsg",
               "pretty_name": "CollegeMsg",
               "suites": [
@@ -78427,8 +78287,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query",
                 "suite-trace",
@@ -78439,9 +78297,9 @@
             {
               "asv_param": "four_clique_counting_snap.twitter7",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input twitter7.",
+              "description": "Graph counting input twitter7. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "twitter7",
               "pretty_name": "twitter7",
               "suites": [
@@ -78453,8 +78311,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -78463,9 +78319,9 @@
             {
               "asv_param": "four_clique_counting_snap.higgs-twitter",
               "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input higgs-twitter.",
+              "description": "Graph counting input higgs-twitter. Symmetrized, with self-loops removed; only the strict upper triangle is stored.",
               "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+              "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
               "name": "higgs-twitter",
               "pretty_name": "higgs-twitter",
               "suites": [
@@ -78477,8 +78333,6 @@
                 "concept-mathematical-software-performance",
                 "concept-mathematics-of-computing",
                 "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
                 "suite-standard",
                 "suite-standard-graphs-query"
               ],
@@ -78487,12 +78341,14 @@
           ],
           "description": "SNAP input generator for 4-clique counting benchmarks.",
           "file": "src/saps/benchmarks/four_clique_counting.py",
-          "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
+          "freshness": "3e152deecd7c192f21a699849e86836f4a5a4565efdb8307be180c06fd917048",
           "motivation": "Generate sparse graph inputs for 4-clique counting.",
           "name": "four_clique_counting_snap",
           "pretty_name": "4-Clique Counting SNAP",
           "references": [
-            "Leskovec, Jure, Sosi\u010d, Rok. \"SNAP: A General Purpose Network Analysis and Graph Mining Library\", ACM Transactions on Intelligent Systems and Technology, Vol. 8, No. 1, 2016, URL: https://snap.stanford.edu/index.html."
+            "Leskovec, Jure, Sosi\u010d, Rok. \"SNAP: A General Purpose Network Analysis and Graph Mining Library\", ACM Transactions on Intelligent Systems and Technology, Vol. 8, No. 1, 2016, URL: https://snap.stanford.edu/index.html.",
+            "Xuhao Chen, Roshan Dathathri, Gurbinder Gill, Keshav Pingali. \"Pangolin: An Efficient and Flexible Graph Mining System on CPU and GPU\", Proc. VLDB Endow., VLDB Endowment, Vol. 13, No. 8, 2020, URL: https://arxiv.org/abs/1911.06969.",
+            "Xuhao Chen, Roshan Dathathri, Gurbinder Gill, Loc Hoang, Keshav Pingali. \"Sandslash: A Two-Level Framework for Efficient Graph Pattern Mining\", In Proceedings of the 35th ACM International Conference on Supercomputing, 2021, URL: https://doi.org/10.1145/3447818.3460359."
           ],
           "suites": [
             "standard"
@@ -78503,160 +78359,7 @@
             "concept-mathematical-software-performance",
             "concept-mathematics-of-computing",
             "concept-paths-and-connectivity-problems",
-            "feature-elementary-ops",
-            "feature-hypersparse",
             "suite-standard",
-            "suite-standard-graphs-query"
-          ],
-          "topics": []
-        },
-        {
-          "ai_disclosure": "Generative AI was used to construct the generator and dataset structures. This statement was written by hand.",
-          "authors": [
-            "Willow Ahrens <ahrens@gatech.edu>"
-          ],
-          "cacheable": false,
-          "concepts": "<ccs2012></ccs2012>",
-          "datasets": [
-            {
-              "asv_param": "four_clique_counting_gap.GAP-road",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input GAP-road.",
-              "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
-              "name": "GAP-road",
-              "pretty_name": "GAP-road",
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "concept-graph-algorithms",
-                "concept-mathematical-software",
-                "concept-mathematical-software-performance",
-                "concept-mathematics-of-computing",
-                "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
-                "suite-standard",
-                "suite-standard-graphs-query"
-              ],
-              "topics": []
-            },
-            {
-              "asv_param": "four_clique_counting_gap.GAP-twitter",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input GAP-twitter.",
-              "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
-              "name": "GAP-twitter",
-              "pretty_name": "GAP-twitter",
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "concept-graph-algorithms",
-                "concept-mathematical-software",
-                "concept-mathematical-software-performance",
-                "concept-mathematics-of-computing",
-                "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
-                "suite-standard",
-                "suite-standard-graphs-query"
-              ],
-              "topics": []
-            },
-            {
-              "asv_param": "four_clique_counting_gap.GAP-web",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input GAP-web.",
-              "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
-              "name": "GAP-web",
-              "pretty_name": "GAP-web",
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "concept-graph-algorithms",
-                "concept-mathematical-software",
-                "concept-mathematical-software-performance",
-                "concept-mathematics-of-computing",
-                "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
-                "suite-standard",
-                "suite-standard-graphs-query"
-              ],
-              "topics": []
-            },
-            {
-              "asv_param": "four_clique_counting_gap.GAP-kron",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input GAP-kron.",
-              "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
-              "name": "GAP-kron",
-              "pretty_name": "GAP-kron",
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "concept-graph-algorithms",
-                "concept-mathematical-software",
-                "concept-mathematical-software-performance",
-                "concept-mathematics-of-computing",
-                "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
-                "suite-standard",
-                "suite-standard-graphs-query"
-              ],
-              "topics": []
-            },
-            {
-              "asv_param": "four_clique_counting_gap.GAP-urand",
-              "concepts": "<ccs2012></ccs2012>",
-              "description": "Graph counting input GAP-urand.",
-              "file": "src/saps/benchmarks/four_clique_counting.py",
-              "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
-              "name": "GAP-urand",
-              "pretty_name": "GAP-urand",
-              "suites": [
-                "standard"
-              ],
-              "tags": [
-                "concept-graph-algorithms",
-                "concept-mathematical-software",
-                "concept-mathematical-software-performance",
-                "concept-mathematics-of-computing",
-                "concept-paths-and-connectivity-problems",
-                "feature-elementary-ops",
-                "feature-hypersparse",
-                "suite-standard",
-                "suite-standard-graphs-query"
-              ],
-              "topics": []
-            }
-          ],
-          "description": "Input GAP generator for 4-clique counting benchmarks.",
-          "file": "src/saps/benchmarks/four_clique_counting.py",
-          "freshness": "c68f24ac3f9bd11393add1fc747787875b839da045702faf12502a1206eb1164",
-          "motivation": "Generate GAP graph inputs for 4-clique counting.",
-          "name": "four_clique_counting_gap",
-          "pretty_name": "4-Clique Counting GAP",
-          "references": [
-            "Scott Beamer, Krste Asanovi\u0107, David Patterson. \"The GAP Benchmark Suite\", 2015, URL: https://arxiv.org/abs/1508.03619."
-          ],
-          "suites": [],
-          "tags": [
-            "concept-graph-algorithms",
-            "concept-mathematical-software",
-            "concept-mathematical-software-performance",
-            "concept-mathematics-of-computing",
-            "concept-paths-and-connectivity-problems",
-            "feature-elementary-ops",
-            "feature-hypersparse",
             "suite-standard-graphs-query"
           ],
           "topics": []
@@ -78678,8 +78381,6 @@
         "concept-mathematical-software-performance",
         "concept-mathematics-of-computing",
         "concept-paths-and-connectivity-problems",
-        "feature-elementary-ops",
-        "feature-hypersparse",
         "suite-standard-graphs-query"
       ],
       "topics": [

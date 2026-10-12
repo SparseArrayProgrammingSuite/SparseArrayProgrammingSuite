@@ -67,6 +67,7 @@ _SNAP_CONSUMERS = [
 _GAP_CONSUMERS = [
     (module, generator.replace("SNAPGenerator", "GAPGenerator"), expected, dtype)
     for module, generator, expected, dtype in _SNAP_CONSUMERS
+    if module != "four_clique_counting"
 ]
 
 
@@ -102,15 +103,13 @@ def test_upper_triangle_unions_both_edge_directions_first():
 
 
 @pytest.mark.parametrize(
-    "module_name,class_prefix",
+    "module_name,class_prefix,name",
     [
-        ("triangle_counting", "TriangleCounting"),
-        ("four_clique_counting", "FourCliqueCounting"),
+        ("triangle_counting", "TriangleCounting", "twitter7"),
+        ("triangle_counting", "TriangleCounting", "GAP-twitter"),
+        ("triangle_counting", "TriangleCounting", "GAP-web"),
+        ("four_clique_counting", "FourCliqueCounting", "twitter7"),
     ],
-)
-@pytest.mark.parametrize(
-    "name",
-    ["twitter7", "GAP-twitter", "GAP-web"],
 )
 def test_directed_clique_inputs_match_published_convention(
     monkeypatch, module_name, class_prefix, name
