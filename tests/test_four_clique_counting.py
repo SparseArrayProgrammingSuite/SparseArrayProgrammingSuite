@@ -3,8 +3,9 @@ import pytest
 import numpy as np
 from scipy import sparse
 
-from binsparse.conversions import from_scipy, to_scipy
+from binsparse.conversions import from_scipy, to_numpy, to_scipy
 
+from frameworks.saps_numpy import NumpyFramework
 from saps.benchmark import DataInstance
 from saps.benchmarks import four_clique_counting as four
 
@@ -14,7 +15,7 @@ from saps.benchmarks import four_clique_counting as four
     [four.FourCliqueCountingSNAPGenerator(), four.FourCliqueCountingGAPGenerator()],
 )
 def test_all_four_clique_sources_are_loadable(monkeypatch, generator):
-    adjacency = from_scipy(sparse.coo_matrix(np.ones((4, 4)) - np.eye(4)))
+    adjacency = from_scipy(sparse.coo_matrix(np.triu(np.ones((4, 4)))))
     calls = []
     metadata = {"source": "stub"}
 
@@ -36,10 +37,31 @@ def test_all_four_clique_sources_are_loadable(monkeypatch, generator):
         assert len(problem.inputs) == 1
         actual = to_scipy(problem.inputs[0])
         assert actual.dtype == np.int64
-        np.testing.assert_array_equal(actual.toarray(), to_scipy(adjacency).toarray())
+        np.testing.assert_array_equal(actual.toarray(), np.triu(np.ones((4, 4)), k=1))
         assert problem.meta == metadata
         assert calls[-1] == (source, dataset.name)
     assert len(calls) == len(generator.datasets)
+
+
+def test_all_snap_four_clique_references_count_whole_cliques():
+    for dataset in four.FourCliqueCountingSNAPGenerator().datasets:
+        reference = four._reference_outputs(dataset.name)
+        assert reference is not None
+        count = to_numpy(reference[0]).item()
+        assert count >= 0 and count == int(count)
+    # GraphMiner publishes this count for the same simple undirected graph.
+    assert to_numpy(four._reference_outputs("cit-Patents")[0]).item() == 3_501_071
+
+
+def test_four_clique_examples_count_each_clique_once():
+    generator = four.FourCliqueCountingTestGenerator()
+    benchmark = four.FourCliqueCountingBenchmark()
+    xp = NumpyFramework()
+    for dataset in generator.datasets:
+        problem = generator.generate(dataset)
+        A = to_numpy(problem.inputs[0])
+        np.testing.assert_array_equal(A, np.triu(A, k=1))
+        assert benchmark.benchmark(xp, {}, A) == to_numpy(problem.ref_outputs[0])
 
 
 def test_four_clique_parameters_include_full_snap_catalog_and_standard_gap():

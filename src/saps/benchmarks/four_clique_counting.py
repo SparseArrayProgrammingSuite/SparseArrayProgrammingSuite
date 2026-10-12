@@ -28,13 +28,13 @@ class FourCliqueCountingDataset(Dataset):
         suites: list[str] | None = None,
         A: np.ndarray | None = None,
         expected: np.ndarray | None = None,
-        simple_undirected: bool = False,
+        simple_undirected: bool = True,
     ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Graph counting input {name}."
         if simple_undirected:
-            self._description += " Symmetrized, with self-loops removed."
+            self._description += " Symmetrized, with self-loops removed; only the strict upper triangle is stored."
         self._suites = list(suites or [])
         self.A = A
         self.expected = expected
@@ -160,8 +160,8 @@ class FourCliqueCountingTestGenerator(Generator[FourCliqueCountingDataset]):
                 A=np.array(
                     [
                         [0, 1, 0],
-                        [0, 0, 1],
-                        [0, 0, 0],
+                        [1, 0, 1],
+                        [0, 1, 0],
                     ],
                     dtype=int,
                 ),
@@ -173,97 +173,99 @@ class FourCliqueCountingTestGenerator(Generator[FourCliqueCountingDataset]):
         if dataset.A is None or dataset.expected is None:
             raise ValueError("4-clique test datasets must define A and expected.")
         return DataInstance(
-            inputs=[from_numpy(dataset.A)],
+            inputs=[from_numpy(np.triu(dataset.A, k=1))],
             meta={},
             ref_outputs=[from_numpy(dataset.expected)],
         )
 
 
-# Reference values of sum A[i,j] A[i,k] A[i,l] A[j,k] A[j,l] A[k,l] on each graph's 0-1 adjacency, before the
-# division by 24, computed by scripts/compute_graph_counts.py unless cited below.
-# Published counts use the simple undirected inputs selected in the dataset lists.
+# Reference counts for simple undirected graphs, computed by
+# scripts/compute_graph_counts.py unless cited below. The generators store only
+# the strict upper triangle, so each four-clique is counted once.
 # GAP-web, GAP-kron, and GAP-urand still have no verified reference counts.
-_FOUR_CLIQUE_SUMS: dict[str, int] = {
-    "soc-Epinions1": 32028002,
-    "soc-LiveJournal1": 68935121462,
-    "soc-Pokec": 345670727,
-    "soc-Slashdot0811": 65939068,
-    "soc-Slashdot0902": 68181867,
-    "wiki-Vote": 3660704,
-    "wiki-RfA": 11941917,
-    "soc-sign-bitcoin-otc": 506933,
-    "soc-sign-bitcoin-alpha": 358619,
-    "com-LiveJournal": 125206042584,
-    "com-Orkut": 77326707288,
-    "com-Youtube": 119687160,
-    "com-DBLP": 401116608,
-    "com-Amazon": 6623064,
-    "email-Eu-core": 6324599,
-    "wiki-topcats": 196507983,
-    "email-EuAll": 8121372,
-    "email-Enron": 56199336,
-    "wiki-Talk": 328861716,
-    "cit-HepPh": 2632057,
-    "cit-HepTh": 4188030,
-    "cit-Patents": 3501076,
-    "ca-AstroPh": 230351516,
-    "ca-CondMat": 7199288,
-    "ca-GrQc": 7904166,
-    "ca-HepPh": 3607221940,
-    "ca-HepTh": 1583455,
-    "web-BerkStan": 6925960533,
-    "web-Google": 217016294,
-    "web-NotreDame": 5253355352,
-    "web-Stanford": 278614425,
-    "amazon0302": 2156279,
-    "amazon0312": 32404696,
-    "amazon0505": 36561475,
-    "amazon0601": 37816651,
+_FOUR_CLIQUE_COUNTS: dict[str, int] = {
+    "soc-Epinions1": 5_803_397,
+    # GraphMiner (livej): same symmetrized graph and triangle count as SNAP.
+    # https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/clique/README.md
+    "soc-LiveJournal1": 9_933_532_019,
+    "soc-Pokec": 42_947_031,
+    "soc-Slashdot0811": 1_989_958,
+    "soc-Slashdot0902": 2_260_269,
+    "wiki-Vote": 2_077_903,
+    "wiki-RfA": 6_305_134,
+    "soc-sign-bitcoin-otc": 48_390,
+    "soc-sign-bitcoin-alpha": 30_948,
+    "com-LiveJournal": 5_216_918_441,
+    "com-Orkut": 3_221_946_137,
+    "com-Youtube": 4_986_965,
+    "com-DBLP": 16_713_192,
+    "com-Amazon": 275_961,
+    "email-Eu-core": 423_750,
+    "wiki-topcats": 65_479_271,
+    "email-EuAll": 581_032,
+    "email-Enron": 2_341_639,
+    "wiki-Talk": 64_940_189,
+    "cit-HepPh": 2_562_245,
+    "cit-HepTh": 4_113_289,
+    "cit-Patents": 3_501_071,
+    "ca-AstroPh": 9_580_415,
+    "ca-CondMat": 294_008,
+    "ca-GrQc": 329_297,
+    "ca-HepPh": 150_281_372,
+    "ca-HepTh": 65_592,
+    "web-BerkStan": 1_065_796_916,
+    "web-Google": 39_881_472,
+    "web-NotreDame": 231_911_102,
+    "web-Stanford": 78_757_781,
+    "amazon0302": 304_441,
+    "amazon0312": 3_975_712,
+    "amazon0505": 4_361_282,
+    "amazon0601": 4_420_994,
     "p2p-Gnutella04": 3,
     "p2p-Gnutella05": 55,
-    "p2p-Gnutella06": 44,
-    "p2p-Gnutella08": 143,
-    "p2p-Gnutella09": 133,
-    "p2p-Gnutella24": 10,
+    "p2p-Gnutella06": 45,
+    "p2p-Gnutella08": 175,
+    "p2p-Gnutella09": 160,
+    "p2p-Gnutella24": 11,
     "p2p-Gnutella25": 7,
-    "p2p-Gnutella30": 11,
-    "p2p-Gnutella31": 15,
-    "roadNet-CA": 1008,
-    "roadNet-PA": 504,
-    "roadNet-TX": 768,
-    "as-735": 304009,
-    "as-Skitter": 3572026536,
-    "as-caida": 1293000,
-    "Oregon-1": 731496,
-    "Oregon-2": 9576312,
-    "soc-sign-epinions": 436029420,
-    "soc-sign-Slashdot081106": 17399666,
-    "soc-sign-Slashdot090216": 17630471,
-    "soc-sign-Slashdot090221": 17821297,
-    "loc-Gowalla": 146084448,
-    "loc-Brightkite": 68431392,
-    "sx-stackoverflow": 4033657894,
-    "sx-mathoverflow": 63284216,
-    "sx-superuser": 40992065,
-    "sx-askubuntu": 17190890,
-    "wiki-talk-temporal": 306906290,
-    "email-Eu-core-temporal": 4383503,
-    "CollegeMsg": 33159,
-    "higgs-twitter": 2167513391,
-    "GAP-road": 2160,
+    "p2p-Gnutella30": 13,
+    "p2p-Gnutella31": 16,
+    "roadNet-CA": 42,
+    "roadNet-PA": 21,
+    "roadNet-TX": 32,
+    "as-735": 5_636,
+    "as-Skitter": 148_834_439,
+    "as-caida": 53_875,
+    "Oregon-1": 30_479,
+    "Oregon-2": 399_013,
+    "soc-sign-epinions": 58_567_924,
+    "soc-sign-Slashdot081106": 1_968_248,
+    "soc-sign-Slashdot090216": 2_078_864,
+    "soc-sign-Slashdot090221": 2_109_090,
+    "loc-Gowalla": 6_086_852,
+    "loc-Brightkite": 2_851_308,
+    "sx-stackoverflow": 787_147_026,
+    "sx-mathoverflow": 10_714_812,
+    "sx-superuser": 6_399_900,
+    "sx-askubuntu": 2_260_000,
+    "wiki-talk-temporal": 53_439_733,
+    "email-Eu-core-temporal": 423_750,
+    "CollegeMsg": 5_389,
+    "higgs-twitter": 429_733_013,
+    "GAP-road": 90,
     # GraphMiner's simple undirected graphs, with matching node and edge counts:
     # https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/clique/README.md
     # twitter7 and GAP-twitter agree after removing loops and ignoring weights:
     # https://sparse.tamu.edu/GAP/GAP-twitter
-    "com-Friendster": 24 * 8_963_503_263,
-    "twitter7": 24 * 6_622_234_180_319,
-    "GAP-twitter": 24 * 6_622_234_180_319,
+    "com-Friendster": 8_963_503_263,
+    "twitter7": 6_622_234_180_319,
+    "GAP-twitter": 6_622_234_180_319,
 }
 
 
 def _reference_outputs(name: str) -> list | None:
-    total = _FOUR_CLIQUE_SUMS.get(name)
-    return None if total is None else [from_numpy(np.array(total / 24))]
+    total = _FOUR_CLIQUE_COUNTS.get(name)
+    return None if total is None else [from_numpy(np.array(total, dtype=np.int64))]
 
 
 class FourCliqueCountingSNAPGenerator(Generator[FourCliqueCountingDataset]):
@@ -424,7 +426,7 @@ class FourCliqueCountingSNAPGenerator(Generator[FourCliqueCountingDataset]):
             FourCliqueCountingDataset("wiki-talk-temporal", suites=["standard"]),
             FourCliqueCountingDataset("email-Eu-core-temporal", suites=["standard"]),
             FourCliqueCountingDataset("CollegeMsg", suites=["standard", "trace", "train"]),
-            FourCliqueCountingDataset("twitter7", suites=["standard"], simple_undirected=True),
+            FourCliqueCountingDataset("twitter7", suites=["standard"]),
             FourCliqueCountingDataset("higgs-twitter", suites=["standard"]),
         ]
         # fmt: on
@@ -434,7 +436,10 @@ class FourCliqueCountingSNAPGenerator(Generator[FourCliqueCountingDataset]):
         return DataInstance(
             inputs=[
                 zero_one_adjacency(
-                    raw.inputs[0], np.int64, simple_undirected=dataset.simple_undirected
+                    raw.inputs[0],
+                    np.int64,
+                    simple_undirected=dataset.simple_undirected,
+                    upper_triangle=True,
                 )
             ],
             meta=dict(raw.meta),
@@ -532,8 +537,8 @@ class FourCliqueCountingGAPGenerator(Generator[FourCliqueCountingDataset]):
         # fmt: off
         return [
             FourCliqueCountingDataset("GAP-road", suites=["standard"]),
-            FourCliqueCountingDataset("GAP-twitter", suites=["standard"], simple_undirected=True),
-            FourCliqueCountingDataset("GAP-web", suites=["standard"], simple_undirected=True),
+            FourCliqueCountingDataset("GAP-twitter", suites=["standard"]),
+            FourCliqueCountingDataset("GAP-web", suites=["standard"]),
             FourCliqueCountingDataset("GAP-kron", suites=["standard"]),
             FourCliqueCountingDataset("GAP-urand", suites=["standard"]),
         ]
@@ -544,7 +549,10 @@ class FourCliqueCountingGAPGenerator(Generator[FourCliqueCountingDataset]):
         return DataInstance(
             inputs=[
                 zero_one_adjacency(
-                    raw.inputs[0], np.int64, simple_undirected=dataset.simple_undirected
+                    raw.inputs[0],
+                    np.int64,
+                    simple_undirected=dataset.simple_undirected,
+                    upper_triangle=True,
                 )
             ],
             meta=dict(raw.meta),
@@ -586,8 +594,9 @@ class FourCliqueCountingBenchmark(Benchmark):
             "4-clique Counting: A 4-clique must contain 6 edges that connect all 4"
             " vertices. The einsum does the following: for a given vertex i, checks for"
             " existence of 3 edges to 3 other vertices, then checks for existence of 3"
-            " edges between those 3 vertices. This constitutes a 4-clique. Divide by 24"
-            " to avoid overcounting. These methods are implemented using the property"
+            " edges between those 3 vertices. This constitutes a 4-clique. Only the strict"
+            " upper triangle of the simple undirected adjacency is stored, so each"
+            " clique is counted once, with i < j < k < l. These methods are implemented using the property"
             " that multiplying a graph's adjacency matrix by itself n times yields the"
             " number of walks of length n that begin at the vertex denoted by the row"
             " label and end at the vertex denoted by the column label."
@@ -676,12 +685,9 @@ class FourCliqueCountingBenchmark(Benchmark):
         ]
 
     def benchmark(self, xp, meta: dict, A):
-        cliq_4 = (
-            xp.einsum(
-                "S[] += A[i,j] * A[i,k] * A[i,l] * A[j,k] * A[j,l] * A[k,l]",
-                A=A,
-            )
-            / 24
+        cliq_4 = xp.einsum(
+            "S[] += A[i,j] * A[i,k] * A[i,l] * A[j,k] * A[j,l] * A[k,l]",
+            A=A,
         )
         return xp.asarray(cliq_4)
 

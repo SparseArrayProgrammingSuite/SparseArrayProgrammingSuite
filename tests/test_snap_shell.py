@@ -221,6 +221,10 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
         )
         np.testing.assert_array_equal(to_sparse(problem.inputs[0]).todense(), expected)
         assert problem.inputs[0].number_of_stored_values == 2
+    elif getattr(dataset, "simple_undirected", False):
+        np.testing.assert_array_equal(
+            to_scipy(problem.inputs[0]).toarray(), [[0, 1, 0], [0, 0, 1], [0, 0, 0]]
+        )
     else:
         np.testing.assert_array_equal(
             to_scipy(problem.inputs[0]).toarray(), [[0, 1, 0], [0, 0, 1], [0, 0, 1]]

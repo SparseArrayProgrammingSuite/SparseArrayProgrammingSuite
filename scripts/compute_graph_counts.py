@@ -1,17 +1,16 @@
 #!/usr/bin/env python
-"""Compute reference sums for the triangle and 4-clique counting benchmarks.
+"""Compute reference counts for the triangle and 4-clique counting benchmarks.
 
-The benchmarks evaluate fixed einsums on the 0-1 adjacency A. Most datasets keep
-edge direction and self-loops; the six largest use simple undirected graphs to
-match published reference counts:
+The benchmarks use the strict upper triangle of the simple undirected 0-1
+adjacency A. Each triangle or four-clique is counted once, without division:
 
-    triangles     = sum A[i,j] A[j,k] A[k,i] / 6                    = trace(A^3) / 6
-    four-cliques  = sum A[i,j] A[i,k] A[i,l] A[j,k] A[j,l] A[k,l] / 24
+    triangles     = sum A[i,j] A[j,k] A[i,k]
+    four-cliques  = sum A[i,j] A[i,k] A[i,l] A[j,k] A[j,l] A[k,l]
 
-This script computes the two integer sums (before the division) without the
-einsum, loading each graph through the benchmark's own generator so that the
-input is identical. Results are written to a JSON file, one entry per dataset,
-and existing entries are kept so that an interrupted run can resume.
+This script computes these counts without the einsums, loading each graph
+through the benchmark's own generator so that the input is identical. Results
+are written to a JSON file, one entry per dataset. Only entries marked with
+this input convention are reused when resuming; older results are recomputed.
 
     python scripts/compute_graph_counts.py --self-test
     python scripts/compute_graph_counts.py --output counts.json --max-edges 2e8
@@ -51,9 +50,9 @@ def masked_product_sum(L, R, M) -> int:
 
 
 def triangle_sum(A) -> int:
-    """sum_{i,j,k} A[i,j] A[j,k] A[k,i], which is trace(A^3)."""
+    """sum_{i,j,k} A[i,j] A[j,k] A[i,k], counting triangles once for upper A."""
     A = A.tocsr()
-    return masked_product_sum(A, A, A.T)
+    return masked_product_sum(A, A, A)
 
 
 def four_clique_sum(A) -> int:
@@ -89,26 +88,26 @@ if numba is not None:
     # call them, which keeps numba from treating the counters as reductions.
 
     @numba.njit(cache=True)
-    def _triangle_chunk(c, chunks, indptr, indices, t_indptr, t_indices, n):
+    def _triangle_chunk(c, chunks, indptr, indices, n):
         in_i = np.zeros(n, np.bool_)
         total = 0
         for i in range(c, n, chunks):
-            start, stop = t_indptr[i], t_indptr[i + 1]
+            start, stop = indptr[i], indptr[i + 1]
             if start == stop:
                 continue
             for p in range(start, stop):
-                in_i[t_indices[p]] = True
-            # Walks i -> j -> k that close with k -> i.
+                in_i[indices[p]] = True
+            # Edges i -> j -> k together with i -> k.
             for p in range(indptr[i], indptr[i + 1]):
                 j = indices[p]
                 low, high = indptr[j], indptr[j + 1]
-                # For a much larger row, search for the incoming neighbors of i
+                # For a much larger row, search for the outgoing neighbors of i
                 # instead of scanning every outgoing neighbor of j.
                 # The 16:1 crossover is a performance heuristic, also used below.
                 if high - low > 16 * (stop - start):
                     row = indices[low:high]
                     for q in range(start, stop):
-                        k = t_indices[q]
+                        k = indices[q]
                         pos = np.searchsorted(row, k)
                         if pos < len(row) and row[pos] == k:
                             total += 1
@@ -117,7 +116,7 @@ if numba is not None:
                         if in_i[indices[q]]:
                             total += 1
             for p in range(start, stop):
-                in_i[t_indices[p]] = False
+                in_i[indices[p]] = False
         return total
 
     @numba.njit(cache=True)
@@ -174,12 +173,10 @@ if numba is not None:
         return total
 
     @numba.njit(parallel=True, cache=True)
-    def _triangle_sum_numba(indptr, indices, t_indptr, t_indices, n, chunks):
+    def _triangle_sum_numba(indptr, indices, n, chunks):
         totals = np.zeros(chunks, np.int64)
         for c in numba.prange(chunks):
-            totals[c] = _triangle_chunk(
-                c, chunks, indptr, indices, t_indptr, t_indices, n
-            )
+            totals[c] = _triangle_chunk(c, chunks, indptr, indices, n)
         return totals.sum()
 
     @numba.njit(parallel=True, cache=True)
@@ -197,14 +194,8 @@ def fast_triangle_sum(A) -> int:
     A = A.tocsr()
     A.sum_duplicates()
     A.sort_indices()
-    T = A.T.tocsr()
-    T.sum_duplicates()
     chunks = min(A.shape[0], _CHUNKS_PER_THREAD * numba.get_num_threads())
-    return int(
-        _triangle_sum_numba(
-            A.indptr, A.indices, T.indptr, T.indices, A.shape[0], chunks
-        )
-    )
+    return int(_triangle_sum_numba(A.indptr, A.indices, A.shape[0], chunks))
 
 
 def fast_four_clique_sum(A) -> int:
@@ -228,7 +219,7 @@ def self_test(trials: int = 200, seed: int = 0) -> None:
             A = A | A.T  # symmetric graphs, with and without self-loops
         if trial % 3 == 0:
             np.fill_diagonal(A, 0)
-        tri = int(np.einsum("ij,jk,ki->", A, A, A))
+        tri = int(np.einsum("ij,jk,ik->", A, A, A))
         four = int(np.einsum("ij,ik,il,jk,jl,kl->", A, A, A, A, A, A))
         S = sps.csr_array(A)
         if trial % 2:
@@ -247,7 +238,7 @@ def self_test(trials: int = 200, seed: int = 0) -> None:
     star[1:5, 1:5] = 1
     for A in (star, np.triu(star), np.zeros((0, 0), dtype=np.int64)):
         S = sps.csr_array(A)
-        assert fast_triangle_sum(S) == int(np.einsum("ij,jk,ki->", A, A, A))
+        assert fast_triangle_sum(S) == int(np.einsum("ij,jk,ik->", A, A, A))
         assert fast_four_clique_sum(S) == int(
             np.einsum("ij,ik,il,jk,jl,kl->", A, A, A, A, A, A)
         )
@@ -257,7 +248,7 @@ def self_test(trials: int = 200, seed: int = 0) -> None:
     try:
         A = (rng.random((40, 40)) < 0.2).astype(np.int64)
         S = sps.csr_array(A)
-        assert triangle_sum(S) == int(np.einsum("ij,jk,ki->", A, A, A))
+        assert triangle_sum(S) == int(np.einsum("ij,jk,ik->", A, A, A))
         assert four_clique_sum(S) == int(
             np.einsum("ij,ik,il,jk,jl,kl->", A, A, A, A, A, A)
         )
@@ -272,7 +263,7 @@ def _datasets():
         TriangleCountingSNAPGenerator,
     )
 
-    # The 4-clique generators load the same graphs in the same way.
+    # The 4-clique generators use the same strict upper-triangular inputs.
     for generator in (TriangleCountingSNAPGenerator(), TriangleCountingGAPGenerator()):
         for dataset in generator.datasets:
             yield generator, dataset
@@ -318,7 +309,7 @@ def main() -> None:
     for generator, dataset in _datasets():
         if args.only and dataset.name not in args.only:
             continue
-        if dataset.name in results:
+        if results.get(dataset.name, {}).get("adjacency") == "simple_undirected_upper":
             continue
         # Checked before loading, so large graphs are never downloaded.
         edges = declared_edges(dataset.name)
@@ -335,8 +326,9 @@ def main() -> None:
         done = time.perf_counter()
         results[dataset.name] = {
             "nnz": int(A.nnz),
-            "triangle_sum": tri,
-            "four_clique_sum": four,
+            "adjacency": "simple_undirected_upper",
+            "triangles": tri,
+            "four_cliques": four,
             "seconds": {
                 "load": round(loaded - start, 1),
                 "triangle": round(tri_done - loaded, 1),
@@ -345,8 +337,8 @@ def main() -> None:
         }
         args.output.write_text(json.dumps(results, indent=2, sort_keys=True) + "\n")
         print(
-            f"{dataset.name}: nnz {A.nnz:,} triangles {tri / 6:g} "
-            f"4-cliques {four / 24:g} ({done - start:.1f}s)",
+            f"{dataset.name}: nnz {A.nnz:,} triangles {tri:,} "
+            f"4-cliques {four:,} ({done - start:.1f}s)",
             flush=True,
         )
 

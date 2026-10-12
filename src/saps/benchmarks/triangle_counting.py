@@ -28,13 +28,13 @@ class TriangleCountingDataset(Dataset):
         suites: list[str] | None = None,
         A: np.ndarray | None = None,
         expected: np.ndarray | None = None,
-        simple_undirected: bool = False,
+        simple_undirected: bool = True,
     ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Graph counting input {name}."
         if simple_undirected:
-            self._description += " Symmetrized, with self-loops removed."
+            self._description += " Symmetrized, with self-loops removed; only the strict upper triangle is stored."
         self._suites = list(suites or [])
         self.A = A
         self.expected = expected
@@ -159,8 +159,8 @@ class TriangleCountingTestGenerator(Generator[TriangleCountingDataset]):
                 A=np.array(
                     [
                         [0, 1, 0],
-                        [0, 0, 1],
-                        [0, 0, 0],
+                        [1, 0, 1],
+                        [0, 1, 0],
                     ],
                     dtype=int,
                 ),
@@ -172,102 +172,112 @@ class TriangleCountingTestGenerator(Generator[TriangleCountingDataset]):
         if dataset.A is None or dataset.expected is None:
             raise ValueError("Triangle-count test datasets must define A and expected.")
         return DataInstance(
-            inputs=[from_numpy(dataset.A)],
+            inputs=[from_numpy(np.triu(dataset.A, k=1))],
             meta={},
             ref_outputs=[from_numpy(dataset.expected)],
         )
 
 
-# Reference values of sum A[i,j] A[j,k] A[k,i] on each graph's 0-1 adjacency, before the
-# division by 6, computed by scripts/compute_graph_counts.py unless cited below.
-# Published counts use the simple undirected inputs selected in the dataset lists.
-_TRIANGLE_SUMS: dict[str, int] = {
-    "soc-Epinions1": 2220930,
-    "soc-LiveJournal1": 730982880,
-    "soc-Pokec": 79611987,
-    "soc-Slashdot0811": 4885971,
-    "soc-Slashdot0902": 4970748,
-    "wiki-Vote": 131925,
-    "wiki-RfA": 401466,
-    "soc-sign-bitcoin-otc": 115743,
-    "soc-sign-bitcoin-alpha": 84453,
-    "com-LiveJournal": 1066920780,
-    "com-Orkut": 3765505086,
-    "com-Youtube": 18338316,
-    "com-DBLP": 13346310,
-    "com-Amazon": 4002774,
-    "email-Eu-core": 395667,
-    "wiki-topcats": 27691482,
-    "email-EuAll": 727266,
-    "email-Enron": 4362264,
-    "wiki-Talk": 15416112,
-    "cit-HepPh": 1667,
-    "cit-HepTh": 1716,
-    "cit-Patents": 1,
-    "ca-AstroPh": 8117964,
-    "ca-CondMat": 1048156,
-    "ca-GrQc": 289779,
-    "ca-HepPh": 20154623,
-    "ca-HepTh": 171238,
-    "web-BerkStan": 41421291,
-    "web-Google": 11669313,
-    "web-NotreDame": 42866732,
-    "web-Stanford": 3166875,
-    "amazon0302": 1338180,
-    "amazon0312": 6788373,
-    "amazon0505": 7651068,
-    "amazon0601": 7875786,
-    "p2p-Gnutella04": 99,
-    "p2p-Gnutella05": 102,
-    "p2p-Gnutella06": 120,
-    "p2p-Gnutella08": 159,
-    "p2p-Gnutella09": 135,
-    "p2p-Gnutella24": 90,
-    "p2p-Gnutella25": 48,
-    "p2p-Gnutella30": 177,
-    "p2p-Gnutella31": 171,
-    "roadNet-CA": 724056,
-    "roadNet-PA": 402900,
-    "roadNet-TX": 497214,
-    "as-735": 72096,
-    "as-Skitter": 172619208,
-    "as-caida": 218190,
-    "Oregon-1": 119364,
-    "Oregon-2": 537246,
-    "soc-sign-epinions": 7099728,
-    "soc-sign-Slashdot081106": 765204,
-    "soc-sign-Slashdot090216": 754944,
-    "soc-sign-Slashdot090221": 768540,
-    "loc-Gowalla": 13638828,
-    "loc-Brightkite": 2968368,
-    "sx-stackoverflow": 188501666,
-    "sx-mathoverflow": 2520164,
-    "sx-superuser": 2788107,
-    "sx-askubuntu": 1450657,
-    "wiki-talk-temporal": 14009570,
-    "email-Eu-core-temporal": 347700,
-    "CollegeMsg": 32796,
-    "higgs-twitter": 70278125,
-    "GAP-road": 2632824,
+# Reference counts for simple undirected graphs. The generators store only
+# the strict upper triangle, so each triangle is counted once.
+# Published SNAP counts: https://snap.stanford.edu/data/<name>.html
+# Entries marked computed use scripts/compute_graph_counts.py on the stored
+# SuiteSparse graph with the same simple-undirected convention.
+_TRIANGLE_COUNTS: dict[str, int] = {
+    "soc-Epinions1": 1_624_481,
+    "soc-LiveJournal1": 285_730_264,
+    "soc-Pokec": 32_557_458,
+    "soc-Slashdot0811": 551_724,
+    "soc-Slashdot0902": 602_592,
+    "wiki-Vote": 608_389,
+    # Computed: SuiteSparse includes neutral votes, unlike SNAP's published total.
+    # https://sparse.tamu.edu/SNAP/wiki-RfA
+    "wiki-RfA": 1_416_059,
+    # Computed: these SNAP pages do not publish triangle totals.
+    "soc-sign-bitcoin-otc": 33_493,
+    "soc-sign-bitcoin-alpha": 22_153,
+    "com-LiveJournal": 177_820_130,
+    "com-Orkut": 627_584_181,
+    "com-Youtube": 3_056_386,
+    "com-DBLP": 2_224_385,
+    "com-Amazon": 667_129,
+    "email-Eu-core": 105_461,
+    "wiki-topcats": 52_106_893,
+    "email-EuAll": 267_313,
+    "email-Enron": 727_044,
+    "wiki-Talk": 9_203_519,
+    "cit-HepPh": 1_276_868,
+    "cit-HepTh": 1_478_735,
+    "cit-Patents": 7_515_023,
+    "ca-AstroPh": 1_351_441,
+    "ca-CondMat": 173_361,
+    "ca-GrQc": 48_260,
+    "ca-HepPh": 3_358_499,
+    "ca-HepTh": 28_339,
+    "web-BerkStan": 64_690_980,
+    "web-Google": 13_391_903,
+    "web-NotreDame": 8_910_005,
+    "web-Stanford": 11_329_473,
+    "amazon0302": 717_719,
+    "amazon0312": 3_686_467,
+    "amazon0505": 3_951_063,
+    "amazon0601": 3_986_507,
+    "p2p-Gnutella04": 934,
+    "p2p-Gnutella05": 1_112,
+    "p2p-Gnutella06": 1_142,
+    "p2p-Gnutella08": 2_383,
+    "p2p-Gnutella09": 2_354,
+    "p2p-Gnutella24": 986,
+    "p2p-Gnutella25": 806,
+    "p2p-Gnutella30": 1_590,
+    "p2p-Gnutella31": 2_024,
+    "roadNet-CA": 120_676,
+    "roadNet-PA": 67_150,
+    "roadNet-TX": 82_869,
+    # https://snap.stanford.edu/data/as-733.html (January 02 2000)
+    "as-735": 6_584,
+    "as-Skitter": 28_769_868,
+    # https://snap.stanford.edu/data/as-Caida.html (November 05 2007)
+    "as-caida": 36_365,
+    # https://snap.stanford.edu/data/oregon1.html (May 26 2001)
+    "Oregon-1": 19_894,
+    # https://snap.stanford.edu/data/oregon2.html (May 26 2001)
+    "Oregon-2": 89_541,
+    "soc-sign-epinions": 4_910_076,
+    "soc-sign-Slashdot081106": 548_054,
+    "soc-sign-Slashdot090216": 570_569,
+    "soc-sign-Slashdot090221": 579_565,
+    "loc-Gowalla": 2_273_138,
+    "loc-Brightkite": 494_728,
+    # Computed: these SNAP pages do not publish triangle totals.
+    "sx-stackoverflow": 114_206_974,
+    "sx-mathoverflow": 1_403_919,
+    "sx-superuser": 1_543_161,
+    "sx-askubuntu": 680_407,
+    "wiki-talk-temporal": 8_113_676,
+    "email-Eu-core-temporal": 105_461,
+    "CollegeMsg": 14_319,
+    "higgs-twitter": 83_023_401,
+    "GAP-road": 438_804,
     # SNAP / GraphMiner, with matching node and edge counts:
     # https://snap.stanford.edu/data/com-Friendster.html
     # https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/clique/README.md
-    "com-Friendster": 6 * 4_173_724_142,
-    "twitter7": 6 * 34_824_916_864,
+    "com-Friendster": 4_173_724_142,
+    "twitter7": 34_824_916_864,
     # LAGraph's known counts for the SuiteSparse GAP matrices:
     # https://github.com/GraphBLAS/LAGraph/blob/7543de1f310371c540c23ff5da82705aa4e94ea0/src/benchmark/tc_demo.c#L22-L27
     # twitter7 and GAP-twitter agree after removing loops and ignoring weights:
     # https://sparse.tamu.edu/GAP/GAP-twitter
-    "GAP-twitter": 6 * 34_824_916_864,
-    "GAP-web": 6 * 84_907_041_475,
-    "GAP-kron": 6 * 106_873_365_648,
-    "GAP-urand": 6 * 5_378,
+    "GAP-twitter": 34_824_916_864,
+    "GAP-web": 84_907_041_475,
+    "GAP-kron": 106_873_365_648,
+    "GAP-urand": 5_378,
 }
 
 
 def _reference_outputs(name: str) -> list | None:
-    total = _TRIANGLE_SUMS.get(name)
-    return None if total is None else [from_numpy(np.array(total / 6))]
+    total = _TRIANGLE_COUNTS.get(name)
+    return None if total is None else [from_numpy(np.array(total, dtype=np.int64))]
 
 
 class TriangleCountingSNAPGenerator(Generator[TriangleCountingDataset]):
@@ -281,7 +291,7 @@ class TriangleCountingSNAPGenerator(Generator[TriangleCountingDataset]):
 
     @property
     def description(self) -> str:
-        return "SNAP input generator for triangle counting benchmarks."
+        return "Simple undirected SNAP input generator for triangle counting benchmarks."
 
     @property
     def suites(self) -> list[str]:
@@ -428,7 +438,7 @@ class TriangleCountingSNAPGenerator(Generator[TriangleCountingDataset]):
             TriangleCountingDataset("wiki-talk-temporal", suites=["standard"]),
             TriangleCountingDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
             TriangleCountingDataset("CollegeMsg", suites=["standard", "trace"]),
-            TriangleCountingDataset("twitter7", suites=["standard"], simple_undirected=True),
+            TriangleCountingDataset("twitter7", suites=["standard"]),
             TriangleCountingDataset("higgs-twitter", suites=["standard"]),
         ]
         # fmt: on
@@ -438,7 +448,10 @@ class TriangleCountingSNAPGenerator(Generator[TriangleCountingDataset]):
         return DataInstance(
             inputs=[
                 zero_one_adjacency(
-                    raw.inputs[0], np.int64, simple_undirected=dataset.simple_undirected
+                    raw.inputs[0],
+                    np.int64,
+                    simple_undirected=dataset.simple_undirected,
+                    upper_triangle=True,
                 )
             ],
             meta=dict(raw.meta),
@@ -534,8 +547,8 @@ class TriangleCountingGAPGenerator(Generator[TriangleCountingDataset]):
         # fmt: off
         return [
             TriangleCountingDataset("GAP-road", suites=["standard"]),
-            TriangleCountingDataset("GAP-twitter", suites=["standard"], simple_undirected=True),
-            TriangleCountingDataset("GAP-web", suites=["standard"], simple_undirected=True),
+            TriangleCountingDataset("GAP-twitter", suites=["standard"]),
+            TriangleCountingDataset("GAP-web", suites=["standard"]),
             TriangleCountingDataset("GAP-kron", suites=["standard"]),
             TriangleCountingDataset("GAP-urand", suites=["standard"]),
         ]
@@ -546,7 +559,10 @@ class TriangleCountingGAPGenerator(Generator[TriangleCountingDataset]):
         return DataInstance(
             inputs=[
                 zero_one_adjacency(
-                    raw.inputs[0], np.int64, simple_undirected=dataset.simple_undirected
+                    raw.inputs[0],
+                    np.int64,
+                    simple_undirected=dataset.simple_undirected,
+                    upper_triangle=True,
                 )
             ],
             meta=dict(raw.meta),
@@ -585,13 +601,9 @@ class TriangleCountingBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "Triangle Counting: Given adjacency matrix A, # triangles = trace(A^3) //"
-            " 6. This counts the number of walks of length 3 that start at vertex i and"
-            " end at vertex i, which is exactly a triangle. Divide by 6 to avoid"
-            " overcounting. These methods are implemented using the property that"
-            " multiplying a graph's adjacency matrix by itself n times yields the"
-            " number of walks of length n that begin at the vertex denoted by the row"
-            " label and end at the vertex denoted by the column label."
+            "Triangle Counting: Given the strict upper triangle A of a simple"
+            " undirected adjacency matrix, sum A[i,j] A[j,k] A[i,k]. Each triangle"
+            " has exactly one ordering i < j < k, so it is counted once."
         )
 
     @property
@@ -677,7 +689,7 @@ class TriangleCountingBenchmark(Benchmark):
         ]
 
     def benchmark(self, xp, meta: dict, A):
-        triangles = xp.einsum("S[] += A[i,j] * A[j,k] * A[k,i]", A=A) / 6
+        triangles = xp.einsum("S[] += A[i,j] * A[j,k] * A[i,k]", A=A)
         return xp.asarray(triangles)
 
     def check(self, param):

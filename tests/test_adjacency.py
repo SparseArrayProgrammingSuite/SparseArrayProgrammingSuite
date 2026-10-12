@@ -27,6 +27,7 @@ def _signed_graph():
 
 
 _PATTERN = [[0, 1, 0], [0, 0, 1], [0, 0, 1]]
+_UPPER_PATTERN = [[0, 1, 0], [0, 0, 1], [0, 0, 0]]
 inf = np.inf
 
 # (module, generator, expected first input, expected dtype)
@@ -41,11 +42,21 @@ _SNAP_CONSUMERS = [
     ),
     ("connected_components", "ConnectedComponentsSNAPGenerator", _PATTERN, bool),
     ("fastsv", "FastSVSNAPGenerator", _PATTERN, bool),
-    ("four_clique_counting", "FourCliqueCountingSNAPGenerator", _PATTERN, np.int64),
+    (
+        "four_clique_counting",
+        "FourCliqueCountingSNAPGenerator",
+        _UPPER_PATTERN,
+        np.int64,
+    ),
     ("mcl", "MCLSNAPGenerator", _PATTERN, np.float32),
     ("pagerank", "PageRankSNAPGenerator", _PATTERN, np.float64),
     ("transitive_closure", "TransitiveClosureSNAPGenerator", _PATTERN, bool),
-    ("triangle_counting", "TriangleCountingSNAPGenerator", _PATTERN, np.int64),
+    (
+        "triangle_counting",
+        "TriangleCountingSNAPGenerator",
+        _UPPER_PATTERN,
+        np.int64,
+    ),
     (
         "transitive_reduction",
         "TransitiveReductionSNAPGenerator",
@@ -78,6 +89,18 @@ def test_simple_undirected_adjacency_drops_loops_and_unions_edges():
     np.testing.assert_array_equal(graph.values, [2.5, -1, 1, 0, 7])
 
 
+def test_upper_triangle_unions_both_edge_directions_first():
+    from scipy.sparse import coo_array
+
+    from binsparse.conversions import from_scipy, to_scipy
+
+    graph = from_scipy(coo_array([[9, -1, 0], [0, 0, 0], [0, 2, 0]]))
+    actual = zero_one_adjacency(
+        graph, np.int64, simple_undirected=True, upper_triangle=True
+    )
+    np.testing.assert_array_equal(to_scipy(actual).toarray(), _UPPER_PATTERN)
+
+
 @pytest.mark.parametrize(
     "module_name,class_prefix",
     [
@@ -103,7 +126,7 @@ def test_directed_clique_inputs_match_published_convention(
     )
     actual = NumpyFramework().from_binsparse(generator.generate(dataset).inputs[0])
     assert actual.dtype == np.int64
-    np.testing.assert_array_equal(actual, [[0, 1, 0], [1, 0, 1], [0, 1, 0]])
+    np.testing.assert_array_equal(actual, _UPPER_PATTERN)
     assert "self-loops removed" in dataset.description
 
 
