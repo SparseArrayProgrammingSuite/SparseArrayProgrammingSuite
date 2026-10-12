@@ -291,6 +291,10 @@ or local computation as marked in `triangle_counting.py`. The remaining
 four-clique references are locally computed with `scripts/compute_graph_counts.py`
 using the benchmark generators. They are not published GraphMiner totals.
 
+Each dataset descriptor carries its integer `expected` count. Generators use
+`int64` adjacency values and reference scalars; correctness checks require an
+integer scalar exactly equal to the reference, with no floating-point tolerance.
+
 Regenerate metadata and prepare the SuiteSparse cache before running these consumers
 with the SuiteSparse sources:
 

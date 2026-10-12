@@ -289,7 +289,8 @@ def test_each_gap_graph_problem_has_an_explicit_snap_generator():
         assert "SNAP" in snap[0].pretty_name
         assert snap[0].name.endswith("_snap")
         assert not snap[0].cacheable
-    assert len(problems) == 14
+    assert "four_clique_counting" not in problems
+    assert len(problems) == 13
 
 
 def test_snap_transitive_reduction_removes_redundant_edge(monkeypatch):

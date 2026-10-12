@@ -22,11 +22,11 @@ class FourCliqueCountingDataset(Dataset):
     def __init__(
         self,
         name: str,
+        expected: int,
         pretty_name: str | None = None,
         description: str | None = None,
         suites: list[str] | None = None,
         A: np.ndarray | None = None,
-        expected: np.ndarray | None = None,
         simple_undirected: bool = True,
     ):
         self._name = name
@@ -117,9 +117,9 @@ class FourCliqueCountingTestGenerator(Generator[FourCliqueCountingDataset]):
                         [1, 0, 1],
                         [1, 1, 0],
                     ],
-                    dtype=int,
+                    dtype=np.int64,
                 ),
-                expected=np.array(0),
+                expected=0,
             ),
             FourCliqueCountingDataset(
                 "single_k4",
@@ -132,9 +132,9 @@ class FourCliqueCountingTestGenerator(Generator[FourCliqueCountingDataset]):
                         [1, 1, 0, 1],
                         [1, 1, 1, 0],
                     ],
-                    dtype=int,
+                    dtype=np.int64,
                 ),
-                expected=np.array(1),
+                expected=1,
             ),
             FourCliqueCountingDataset(
                 "overlapping",
@@ -148,9 +148,9 @@ class FourCliqueCountingTestGenerator(Generator[FourCliqueCountingDataset]):
                         [1, 1, 1, 0, 1],
                         [0, 1, 1, 1, 0],
                     ],
-                    dtype=int,
+                    dtype=np.int64,
                 ),
-                expected=np.array(2),
+                expected=2,
             ),
             FourCliqueCountingDataset(
                 "snap_toy",
@@ -162,105 +162,20 @@ class FourCliqueCountingTestGenerator(Generator[FourCliqueCountingDataset]):
                         [1, 0, 1],
                         [0, 1, 0],
                     ],
-                    dtype=int,
+                    dtype=np.int64,
                 ),
-                expected=np.array(0),
+                expected=0,
             ),
         ]
 
     def generate(self, dataset: FourCliqueCountingDataset) -> DataInstance:
-        if dataset.A is None or dataset.expected is None:
-            raise ValueError("4-clique test datasets must define A and expected.")
+        if dataset.A is None:
+            raise ValueError("4-clique test datasets must define A.")
         return DataInstance(
-            inputs=[from_numpy(np.triu(dataset.A, k=1))],
+            inputs=[from_numpy(np.triu(dataset.A, k=1).astype(np.int64))],
             meta={},
-            ref_outputs=[from_numpy(dataset.expected)],
+            ref_outputs=[from_numpy(np.asarray(dataset.expected, dtype=np.int64))],
         )
-
-
-# Reference counts for simple undirected graphs. Prefer GraphMiner wherever its
-# graph matches the stored SuiteSparse input; compute the remaining counts with
-# scripts/compute_graph_counts.py. The generators store only the strict upper
-# triangle, so each four-clique is counted once.
-_FOUR_CLIQUE_COUNTS: dict[str, int] = {
-    # GraphMiner: all matching graphs in its published clique table.
-    # https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/clique/README.md
-    "soc-LiveJournal1": 9_933_532_019,  # GraphMiner: livej (not com-LiveJournal)
-    "com-Orkut": 3_221_946_137,
-    "cit-Patents": 3_501_071,  # Not GraphMiner's smaller patent_citations graph.
-    "com-Friendster": 8_963_503_263,  # GraphMiner: friendster
-    "twitter7": 6_622_234_180_319,  # GraphMiner: twitter40
-    # GraphMiner's youtube is a different graph from com-Youtube; do not reuse it.
-    # Computed on the benchmark inputs by scripts/compute_graph_counts.py:
-    "soc-Epinions1": 5_803_397,
-    "soc-Pokec": 42_947_031,
-    "soc-Slashdot0811": 1_989_958,
-    "soc-Slashdot0902": 2_260_269,
-    "wiki-Vote": 2_077_903,
-    "wiki-RfA": 6_305_134,
-    "soc-sign-bitcoin-otc": 48_390,
-    "soc-sign-bitcoin-alpha": 30_948,
-    "com-LiveJournal": 5_216_918_441,
-    "com-Youtube": 4_986_965,
-    "com-DBLP": 16_713_192,
-    "com-Amazon": 275_961,
-    "email-Eu-core": 423_750,
-    "wiki-topcats": 65_479_271,
-    "email-EuAll": 581_032,
-    "email-Enron": 2_341_639,
-    "wiki-Talk": 64_940_189,
-    "cit-HepPh": 2_562_245,
-    "cit-HepTh": 4_113_289,
-    "ca-AstroPh": 9_580_415,
-    "ca-CondMat": 294_008,
-    "ca-GrQc": 329_297,
-    "ca-HepPh": 150_281_372,
-    "ca-HepTh": 65_592,
-    "web-BerkStan": 1_065_796_916,
-    "web-Google": 39_881_472,
-    "web-NotreDame": 231_911_102,
-    "web-Stanford": 78_757_781,
-    "amazon0302": 304_441,
-    "amazon0312": 3_975_712,
-    "amazon0505": 4_361_282,
-    "amazon0601": 4_420_994,
-    "p2p-Gnutella04": 3,
-    "p2p-Gnutella05": 55,
-    "p2p-Gnutella06": 45,
-    "p2p-Gnutella08": 175,
-    "p2p-Gnutella09": 160,
-    "p2p-Gnutella24": 11,
-    "p2p-Gnutella25": 7,
-    "p2p-Gnutella30": 13,
-    "p2p-Gnutella31": 16,
-    "roadNet-CA": 42,
-    "roadNet-PA": 21,
-    "roadNet-TX": 32,
-    "as-735": 5_636,
-    "as-Skitter": 148_834_439,
-    "as-caida": 53_875,
-    "Oregon-1": 30_479,
-    "Oregon-2": 399_013,
-    "soc-sign-epinions": 58_567_924,
-    "soc-sign-Slashdot081106": 1_968_248,
-    "soc-sign-Slashdot090216": 2_078_864,
-    "soc-sign-Slashdot090221": 2_109_090,
-    "loc-Gowalla": 6_086_852,
-    "loc-Brightkite": 2_851_308,
-    "sx-stackoverflow": 787_147_026,
-    "sx-mathoverflow": 10_714_812,
-    "sx-superuser": 6_399_900,
-    "sx-askubuntu": 2_260_000,
-    "wiki-talk-temporal": 53_439_733,
-    "email-Eu-core-temporal": 423_750,
-    "CollegeMsg": 5_389,
-    "higgs-twitter": 429_733_013,
-}
-
-
-def _reference_outputs(name: str) -> list | None:
-    total = _FOUR_CLIQUE_COUNTS.get(name)
-    return None if total is None else [from_numpy(np.array(total, dtype=np.int64))]
 
 
 class FourCliqueCountingSNAPGenerator(Generator[FourCliqueCountingDataset]):
@@ -358,76 +273,85 @@ class FourCliqueCountingSNAPGenerator(Generator[FourCliqueCountingDataset]):
     @property
     def datasets(self) -> list[FourCliqueCountingDataset]:
         # Trace selects successful Smart runs < 60s in competition/run_13803684.
+        # Simple undirected counts: prefer GraphMiner for matching graphs.
+        # GraphMiner source and aliases are documented in references and README.md.
+        # All other counts were computed with scripts/compute_graph_counts.py.
         # fmt: off
         return [
-            FourCliqueCountingDataset("soc-Epinions1", suites=["standard"]),
-            FourCliqueCountingDataset("soc-LiveJournal1", suites=["standard"]),
-            FourCliqueCountingDataset("soc-Pokec", suites=["standard"]),
-            FourCliqueCountingDataset("soc-Slashdot0811", suites=["standard"]),
-            FourCliqueCountingDataset("soc-Slashdot0902", suites=["standard"]),
-            FourCliqueCountingDataset("wiki-Vote", suites=["standard"]),
-            FourCliqueCountingDataset("wiki-RfA", suites=["standard"]),
-            FourCliqueCountingDataset("soc-sign-bitcoin-otc", suites=["standard"]),
-            FourCliqueCountingDataset("soc-sign-bitcoin-alpha", suites=["standard"]),
-            FourCliqueCountingDataset("com-LiveJournal", suites=["standard"]),
-            FourCliqueCountingDataset("com-Friendster", suites=["standard"]),
-            FourCliqueCountingDataset("com-Orkut", suites=["standard"]),
-            FourCliqueCountingDataset("com-Youtube", suites=["standard"]),
-            FourCliqueCountingDataset("com-DBLP", suites=["standard"]),
-            FourCliqueCountingDataset("com-Amazon", suites=["standard"]),
-            FourCliqueCountingDataset("email-Eu-core", suites=["standard"]),
-            FourCliqueCountingDataset("wiki-topcats", suites=["standard"]),
-            FourCliqueCountingDataset("email-EuAll", suites=["standard"]),
-            FourCliqueCountingDataset("email-Enron", suites=["standard"]),
-            FourCliqueCountingDataset("wiki-Talk", suites=["standard"]),
-            FourCliqueCountingDataset("cit-HepPh", suites=["standard"]),
-            FourCliqueCountingDataset("cit-HepTh", suites=["standard"]),
-            FourCliqueCountingDataset("cit-Patents", suites=["standard"]),
-            FourCliqueCountingDataset("ca-AstroPh", suites=["standard"]),
-            FourCliqueCountingDataset("ca-CondMat", suites=["standard"]),
-            FourCliqueCountingDataset("ca-GrQc", suites=["standard", "trace"]),
-            FourCliqueCountingDataset("ca-HepPh", suites=["standard"]),
-            FourCliqueCountingDataset("ca-HepTh", suites=["standard", "trace"]),
-            FourCliqueCountingDataset("web-BerkStan", suites=["standard"]),
-            FourCliqueCountingDataset("web-Google", suites=["standard"]),
-            FourCliqueCountingDataset("web-NotreDame", suites=["standard"]),
-            FourCliqueCountingDataset("web-Stanford", suites=["standard"]),
-            FourCliqueCountingDataset("amazon0302", suites=["standard"]),
-            FourCliqueCountingDataset("amazon0312", suites=["standard"]),
-            FourCliqueCountingDataset("amazon0505", suites=["standard"]),
-            FourCliqueCountingDataset("amazon0601", suites=["standard"]),
-            FourCliqueCountingDataset("p2p-Gnutella04", suites=["standard", "trace"]),
-            FourCliqueCountingDataset("p2p-Gnutella05", suites=["standard", "trace"]),
-            FourCliqueCountingDataset("p2p-Gnutella06", suites=["standard", "trace"]),
-            FourCliqueCountingDataset("p2p-Gnutella08", suites=["standard", "trace"]),
-            FourCliqueCountingDataset("p2p-Gnutella09", suites=["standard", "trace"]),
-            FourCliqueCountingDataset("p2p-Gnutella24", suites=["standard", "trace"]),
-            FourCliqueCountingDataset("p2p-Gnutella25", suites=["standard", "trace"]),
-            FourCliqueCountingDataset("p2p-Gnutella30", suites=["standard", "trace"]),
-            FourCliqueCountingDataset("p2p-Gnutella31", suites=["standard"]),
-            FourCliqueCountingDataset("roadNet-CA", suites=["standard"]),
-            FourCliqueCountingDataset("roadNet-PA", suites=["standard"]),
-            FourCliqueCountingDataset("roadNet-TX", suites=["standard"]),
-            FourCliqueCountingDataset("as-735", suites=["standard"]),
-            FourCliqueCountingDataset("as-Skitter", suites=["standard"]),
-            FourCliqueCountingDataset("as-caida", suites=["standard"]),
-            FourCliqueCountingDataset("Oregon-1", suites=["standard"]),
-            FourCliqueCountingDataset("Oregon-2", suites=["standard"]),
-            FourCliqueCountingDataset("soc-sign-epinions", suites=["standard"]),
-            FourCliqueCountingDataset("soc-sign-Slashdot081106", suites=["standard"]),
-            FourCliqueCountingDataset("soc-sign-Slashdot090216", suites=["standard"]),
-            FourCliqueCountingDataset("soc-sign-Slashdot090221", suites=["standard"]),
-            FourCliqueCountingDataset("loc-Gowalla", suites=["standard"]),
-            FourCliqueCountingDataset("loc-Brightkite", suites=["standard"]),
-            FourCliqueCountingDataset("sx-stackoverflow", suites=["standard"]),
-            FourCliqueCountingDataset("sx-mathoverflow", suites=["standard"]),
-            FourCliqueCountingDataset("sx-superuser", suites=["standard"]),
-            FourCliqueCountingDataset("sx-askubuntu", suites=["standard"]),
-            FourCliqueCountingDataset("wiki-talk-temporal", suites=["standard"]),
-            FourCliqueCountingDataset("email-Eu-core-temporal", suites=["standard"]),
-            FourCliqueCountingDataset("CollegeMsg", suites=["standard", "trace", "train"]),
-            FourCliqueCountingDataset("twitter7", suites=["standard"]),
-            FourCliqueCountingDataset("higgs-twitter", suites=["standard"]),
+            FourCliqueCountingDataset("soc-Epinions1", expected=5_803_397, suites=["standard"]),
+            # GraphMiner: livej (not com-LiveJournal).
+            FourCliqueCountingDataset("soc-LiveJournal1", expected=9_933_532_019, suites=["standard"]),
+            FourCliqueCountingDataset("soc-Pokec", expected=42_947_031, suites=["standard"]),
+            FourCliqueCountingDataset("soc-Slashdot0811", expected=1_989_958, suites=["standard"]),
+            FourCliqueCountingDataset("soc-Slashdot0902", expected=2_260_269, suites=["standard"]),
+            FourCliqueCountingDataset("wiki-Vote", expected=2_077_903, suites=["standard"]),
+            FourCliqueCountingDataset("wiki-RfA", expected=6_305_134, suites=["standard"]),
+            FourCliqueCountingDataset("soc-sign-bitcoin-otc", expected=48_390, suites=["standard"]),
+            FourCliqueCountingDataset("soc-sign-bitcoin-alpha", expected=30_948, suites=["standard"]),
+            FourCliqueCountingDataset("com-LiveJournal", expected=5_216_918_441, suites=["standard"]),
+            # GraphMiner: friendster.
+            FourCliqueCountingDataset("com-Friendster", expected=8_963_503_263, suites=["standard"]),
+            # GraphMiner: com-Orkut.
+            FourCliqueCountingDataset("com-Orkut", expected=3_221_946_137, suites=["standard"]),
+            # GraphMiner's youtube is a different graph.
+            FourCliqueCountingDataset("com-Youtube", expected=4_986_965, suites=["standard"]),
+            FourCliqueCountingDataset("com-DBLP", expected=16_713_192, suites=["standard"]),
+            FourCliqueCountingDataset("com-Amazon", expected=275_961, suites=["standard"]),
+            FourCliqueCountingDataset("email-Eu-core", expected=423_750, suites=["standard"]),
+            FourCliqueCountingDataset("wiki-topcats", expected=65_479_271, suites=["standard"]),
+            FourCliqueCountingDataset("email-EuAll", expected=581_032, suites=["standard"]),
+            FourCliqueCountingDataset("email-Enron", expected=2_341_639, suites=["standard"]),
+            FourCliqueCountingDataset("wiki-Talk", expected=64_940_189, suites=["standard"]),
+            FourCliqueCountingDataset("cit-HepPh", expected=2_562_245, suites=["standard"]),
+            FourCliqueCountingDataset("cit-HepTh", expected=4_113_289, suites=["standard"]),
+            # GraphMiner: cit-Patents (not patent_citations).
+            FourCliqueCountingDataset("cit-Patents", expected=3_501_071, suites=["standard"]),
+            FourCliqueCountingDataset("ca-AstroPh", expected=9_580_415, suites=["standard"]),
+            FourCliqueCountingDataset("ca-CondMat", expected=294_008, suites=["standard"]),
+            FourCliqueCountingDataset("ca-GrQc", expected=329_297, suites=["standard", "trace"]),
+            FourCliqueCountingDataset("ca-HepPh", expected=150_281_372, suites=["standard"]),
+            FourCliqueCountingDataset("ca-HepTh", expected=65_592, suites=["standard", "trace"]),
+            FourCliqueCountingDataset("web-BerkStan", expected=1_065_796_916, suites=["standard"]),
+            FourCliqueCountingDataset("web-Google", expected=39_881_472, suites=["standard"]),
+            FourCliqueCountingDataset("web-NotreDame", expected=231_911_102, suites=["standard"]),
+            FourCliqueCountingDataset("web-Stanford", expected=78_757_781, suites=["standard"]),
+            FourCliqueCountingDataset("amazon0302", expected=304_441, suites=["standard"]),
+            FourCliqueCountingDataset("amazon0312", expected=3_975_712, suites=["standard"]),
+            FourCliqueCountingDataset("amazon0505", expected=4_361_282, suites=["standard"]),
+            FourCliqueCountingDataset("amazon0601", expected=4_420_994, suites=["standard"]),
+            FourCliqueCountingDataset("p2p-Gnutella04", expected=3, suites=["standard", "trace"]),
+            FourCliqueCountingDataset("p2p-Gnutella05", expected=55, suites=["standard", "trace"]),
+            FourCliqueCountingDataset("p2p-Gnutella06", expected=45, suites=["standard", "trace"]),
+            FourCliqueCountingDataset("p2p-Gnutella08", expected=175, suites=["standard", "trace"]),
+            FourCliqueCountingDataset("p2p-Gnutella09", expected=160, suites=["standard", "trace"]),
+            FourCliqueCountingDataset("p2p-Gnutella24", expected=11, suites=["standard", "trace"]),
+            FourCliqueCountingDataset("p2p-Gnutella25", expected=7, suites=["standard", "trace"]),
+            FourCliqueCountingDataset("p2p-Gnutella30", expected=13, suites=["standard", "trace"]),
+            FourCliqueCountingDataset("p2p-Gnutella31", expected=16, suites=["standard"]),
+            FourCliqueCountingDataset("roadNet-CA", expected=42, suites=["standard"]),
+            FourCliqueCountingDataset("roadNet-PA", expected=21, suites=["standard"]),
+            FourCliqueCountingDataset("roadNet-TX", expected=32, suites=["standard"]),
+            FourCliqueCountingDataset("as-735", expected=5_636, suites=["standard"]),
+            FourCliqueCountingDataset("as-Skitter", expected=148_834_439, suites=["standard"]),
+            FourCliqueCountingDataset("as-caida", expected=53_875, suites=["standard"]),
+            FourCliqueCountingDataset("Oregon-1", expected=30_479, suites=["standard"]),
+            FourCliqueCountingDataset("Oregon-2", expected=399_013, suites=["standard"]),
+            FourCliqueCountingDataset("soc-sign-epinions", expected=58_567_924, suites=["standard"]),
+            FourCliqueCountingDataset("soc-sign-Slashdot081106", expected=1_968_248, suites=["standard"]),
+            FourCliqueCountingDataset("soc-sign-Slashdot090216", expected=2_078_864, suites=["standard"]),
+            FourCliqueCountingDataset("soc-sign-Slashdot090221", expected=2_109_090, suites=["standard"]),
+            FourCliqueCountingDataset("loc-Gowalla", expected=6_086_852, suites=["standard"]),
+            FourCliqueCountingDataset("loc-Brightkite", expected=2_851_308, suites=["standard"]),
+            FourCliqueCountingDataset("sx-stackoverflow", expected=787_147_026, suites=["standard"]),
+            FourCliqueCountingDataset("sx-mathoverflow", expected=10_714_812, suites=["standard"]),
+            FourCliqueCountingDataset("sx-superuser", expected=6_399_900, suites=["standard"]),
+            FourCliqueCountingDataset("sx-askubuntu", expected=2_260_000, suites=["standard"]),
+            FourCliqueCountingDataset("wiki-talk-temporal", expected=53_439_733, suites=["standard"]),
+            FourCliqueCountingDataset("email-Eu-core-temporal", expected=423_750, suites=["standard"]),
+            FourCliqueCountingDataset("CollegeMsg", expected=5_389, suites=["standard", "trace", "train"]),
+            # GraphMiner: twitter40.
+            FourCliqueCountingDataset("twitter7", expected=6_622_234_180_319, suites=["standard"]),
+            FourCliqueCountingDataset("higgs-twitter", expected=429_733_013, suites=["standard"]),
         ]
         # fmt: on
 
@@ -443,7 +367,7 @@ class FourCliqueCountingSNAPGenerator(Generator[FourCliqueCountingDataset]):
                 )
             ],
             meta=dict(raw.meta),
-            ref_outputs=_reference_outputs(dataset.name),
+            ref_outputs=[from_numpy(np.asarray(dataset.expected, dtype=np.int64))],
         )
 
 
@@ -582,8 +506,13 @@ class FourCliqueCountingBenchmark(Benchmark):
             assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
-        if self._ref_outputs is None:
-            return
+        assert self._ref_outputs is not None, "No reference output"
         result = to_numpy(self._output[0])
         expected = to_numpy(self._ref_outputs[0])
-        assert np.allclose(result, expected)
+        assert result.shape == expected.shape == (), "Count must be a scalar"
+        assert np.issubdtype(result.dtype, np.integer), (
+            "Count must have an integer dtype"
+        )
+        assert result.item() == expected.item(), (
+            f"Count mismatch: got {result.item()}, expected {expected.item()}"
+        )

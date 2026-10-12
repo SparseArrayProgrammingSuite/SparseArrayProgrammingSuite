@@ -24,6 +24,9 @@ def test_all_four_clique_sources_are_loadable(monkeypatch):
         assert len(problem.inputs) == 1
         actual = to_scipy(problem.inputs[0])
         assert actual.dtype == np.int64
+        reference = to_numpy(problem.ref_outputs[0])
+        assert reference.dtype == np.int64
+        assert reference.item() == dataset.expected
         np.testing.assert_array_equal(actual.toarray(), np.triu(np.ones((4, 4)), k=1))
         assert problem.meta == metadata
         assert calls[-1] == ("snap", dataset.name)
@@ -31,13 +34,11 @@ def test_all_four_clique_sources_are_loadable(monkeypatch):
 
 
 def test_all_snap_four_clique_references_count_whole_cliques():
-    for dataset in four.FourCliqueCountingSNAPGenerator().datasets:
-        reference = four._reference_outputs(dataset.name)
-        assert reference is not None
-        count = to_numpy(reference[0]).item()
-        assert count >= 0 and count == int(count)
+    datasets = four.FourCliqueCountingSNAPGenerator().datasets
+    for dataset in datasets:
+        assert isinstance(dataset.expected, int) and dataset.expected >= 0
     # GraphMiner publishes this count for the same simple undirected graph.
-    assert to_numpy(four._reference_outputs("cit-Patents")[0]).item() == 3_501_071
+    assert next(d.expected for d in datasets if d.name == "cit-Patents") == 3_501_071
 
 
 def test_four_clique_examples_count_each_clique_once():
@@ -47,6 +48,8 @@ def test_four_clique_examples_count_each_clique_once():
     for dataset in generator.datasets:
         problem = generator.generate(dataset)
         A = to_numpy(problem.inputs[0])
+        assert A.dtype == np.int64
+        assert to_numpy(problem.ref_outputs[0]).dtype == np.int64
         np.testing.assert_array_equal(A, np.triu(A, k=1))
         assert benchmark.benchmark(xp, {}, A) == to_numpy(problem.ref_outputs[0])
 

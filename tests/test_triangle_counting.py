@@ -37,8 +37,10 @@ def test_triangle_sources_are_upper_triangles_of_simple_undirected_graphs(
         assert "self-loops removed" in dataset.description
         assert problem.meta == metadata
         assert problem.ref_outputs is not None
-        count = to_numpy(problem.ref_outputs[0]).item()
-        assert count >= 0 and count == int(count)
+        reference = to_numpy(problem.ref_outputs[0])
+        assert reference.dtype == np.int64
+        assert reference.item() == dataset.expected
+        assert isinstance(dataset.expected, int) and dataset.expected >= 0
 
 
 @pytest.mark.parametrize(
@@ -52,7 +54,10 @@ def test_triangle_sources_are_upper_triangles_of_simple_undirected_graphs(
 )
 def test_references_match_published_snap_triangle_counts(name, count):
     # https://snap.stanford.edu/data/{wiki-Vote,cit-Patents,ca-GrQc,as-733}.html
-    assert to_numpy(triangle._reference_outputs(name)[0]).item() == count
+    dataset = next(
+        d for d in triangle.TriangleCountingSNAPGenerator().datasets if d.name == name
+    )
+    assert dataset.expected == count
 
 
 def test_triangle_examples_follow_the_same_convention():
@@ -62,6 +67,8 @@ def test_triangle_examples_follow_the_same_convention():
     for dataset in generator.datasets:
         problem = generator.generate(dataset)
         A = to_numpy(problem.inputs[0])
+        assert A.dtype == np.int64
+        assert to_numpy(problem.ref_outputs[0]).dtype == np.int64
         np.testing.assert_array_equal(A, np.triu(A, k=1))
         assert not np.any(np.diag(A))
         assert np.einsum("ij,jk,ik->", A, A, A) == to_numpy(problem.ref_outputs[0])
