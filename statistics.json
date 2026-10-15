@@ -6631,8 +6631,8 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/betweenness_centrality.py",
-              "freshness": "73e431c4788eabaa68d5f22c7d48d0ca9109d5b94f3c2065027336e98bd5a050",
-              "name": "email-Eu-core",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core-temporal_trial0",
               "statistics": [
                 "feature-dynamic-sparsity",
                 "feature-fancy-ops",
@@ -6644,8 +6644,398 @@
             },
             {
               "file": "src/saps/benchmarks/betweenness_centrality.py",
-              "freshness": "73e431c4788eabaa68d5f22c7d48d0ca9109d5b94f3c2065027336e98bd5a050",
-              "name": "email-Eu-core-temporal",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core-temporal_trial1",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core-temporal_trial10",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core-temporal_trial11",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core-temporal_trial12",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core-temporal_trial13",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core-temporal_trial14",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core-temporal_trial15",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core-temporal_trial2",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core-temporal_trial3",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core-temporal_trial4",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core-temporal_trial5",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core-temporal_trial6",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core-temporal_trial7",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core-temporal_trial8",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core-temporal_trial9",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core_trial0",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core_trial1",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core_trial10",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core_trial11",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core_trial12",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core_trial13",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core_trial14",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core_trial15",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core_trial2",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core_trial3",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core_trial4",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core_trial5",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core_trial6",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core_trial7",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core_trial8",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/betweenness_centrality.py",
+              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "name": "email-Eu-core_trial9",
               "statistics": [
                 "feature-dynamic-sparsity",
                 "feature-fancy-ops",

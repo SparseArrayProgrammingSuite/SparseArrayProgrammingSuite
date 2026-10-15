@@ -14,8 +14,8 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.gap import fetch_gap_graph
-from saps.benchmarks.snap import fetch_snap_graph
+from saps.benchmarks.gap import fetch_gap_graph, gap_graph
+from saps.benchmarks.snap import fetch_snap_graph, snap_graph
 from saps.util.adjacency import zero_one_adjacency
 
 
@@ -28,6 +28,7 @@ class BetweennessCentralityDataset(Dataset):
         suites: list[str] | None = None,
         A: np.ndarray | None = None,
         expected: np.ndarray | None = None,
+        meta: dict | None = None,
     ):
         self._name = name
         self._pretty_name = pretty_name or name
@@ -35,6 +36,7 @@ class BetweennessCentralityDataset(Dataset):
         self._suites = list(suites or [])
         self.A = A
         self.expected = expected
+        self.meta = dict(meta or {})
 
     @property
     def name(self) -> str:
@@ -55,6 +57,74 @@ class BetweennessCentralityDataset(Dataset):
     @property
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
+
+
+class BetweennessCentralityGAPDataset(BetweennessCentralityDataset):
+    def __init__(
+        self, source_name: str, trial: int, *, suites: list[str] | None = None
+    ):
+        if not 0 <= trial < 16:
+            raise ValueError("GAP betweenness trial must be between 0 and 15.")
+        graph = gap_graph(source_name)
+        self.source_name = graph.name
+        self.trial = trial
+        self.sources = graph.sources[4 * trial : 4 * (trial + 1)]
+        super().__init__(
+            name=f"{graph.name}_trial{trial}",
+            pretty_name=f"{graph.name} (Trial {trial})",
+            description=(
+                f"GAP betweenness trial {trial} on {graph.name}, using the four"
+                " published sources in order, including source dependencies and"
+                " normalizing by the maximum score."
+            ),
+            suites=suites,
+            meta={
+                "bc_sources": list(self.sources),
+                "include_source": True,
+                "normalize": True,
+            },
+        )
+
+    @property
+    def metadata(self):
+        return {
+            **super().metadata,
+            "source_name": self.source_name,
+            "trial": self.trial,
+            "sources": list(self.sources),
+        }
+
+
+class BetweennessCentralitySNAPDataset(BetweennessCentralityDataset):
+    def __init__(
+        self, source_name: str, trial: int, *, suites: list[str] | None = None
+    ):
+        if not 0 <= trial < 16:
+            raise ValueError("SNAP betweenness trial must be between 0 and 15.")
+        graph = snap_graph(source_name)
+        self.source_name = graph.name
+        self.trial = trial
+        self.source_seeds = list(range(4 * trial, 4 * (trial + 1)))
+        super().__init__(
+            name=f"{graph.name}_trial{trial}",
+            pretty_name=f"{graph.name} (Trial {trial})",
+            description=(
+                f"GAP-style betweenness trial {trial} on {graph.name}, using four"
+                " seeded SNAP sources in order, including source dependencies and"
+                " normalizing by the maximum score."
+            ),
+            suites=suites,
+            meta={"include_source": True, "normalize": True},
+        )
+
+    @property
+    def metadata(self):
+        return {
+            **super().metadata,
+            "source_name": self.source_name,
+            "trial": self.trial,
+            "source_seeds": list(self.source_seeds),
+        }
 
 
 def reference_bc_alg_6_4(A):
@@ -238,6 +308,18 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
                 ),
                 expected=np.array([0.0, 1.0, 0.0]),
             ),
+            BetweennessCentralityDataset(
+                name="gap_four_sources",
+                pretty_name="GAP Four Sources",
+                suites=["test"],
+                A=np.diag(np.ones(4), k=1),
+                meta={
+                    "bc_sources": [0, 1, 3, 4],
+                    "include_source": True,
+                    "normalize": True,
+                },
+                expected=np.array([4.0, 6.0, 4.0, 3.0, 0.0]) / 6,
+            ),
         ]
 
     def generate(self, dataset: BetweennessCentralityDataset) -> DataInstance:
@@ -245,12 +327,12 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
             raise ValueError("Centrality test datasets must define A and expected.")
         return DataInstance(
             inputs=[from_numpy(dataset.A)],
-            meta={},
+            meta=dict(dataset.meta),
             ref_outputs=[from_numpy(dataset.expected)],
         )
 
 
-class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralityDataset]):
+class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralitySNAPDataset]):
     @property
     def name(self) -> str:
         return "betweenness_centrality_snap"
@@ -261,7 +343,12 @@ class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralityDataset]
 
     @property
     def description(self) -> str:
-        return "SNAP input generator for betweenness centrality benchmarks."
+        return (
+            "GAP-style betweenness centrality on SNAP graphs: 16 trials per graph,"
+            " each using four consecutive entries from the shell's 64 seeded"
+            " sources, preserving repeated vertices. Scores include source"
+            " dependencies and are normalized by their maximum."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -295,88 +382,103 @@ class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralityDataset]
         return False
 
     @property
-    def datasets(self) -> list[BetweennessCentralityDataset]:
+    def datasets(self) -> list[BetweennessCentralitySNAPDataset]:
         # fmt: off
-        return [
-            BetweennessCentralityDataset("soc-Epinions1", suites=["standard"]),
-            BetweennessCentralityDataset("soc-LiveJournal1", suites=["standard"]),
-            BetweennessCentralityDataset("soc-Pokec", suites=["standard"]),
-            BetweennessCentralityDataset("soc-Slashdot0811", suites=["standard"]),
-            BetweennessCentralityDataset("soc-Slashdot0902", suites=["standard"]),
-            BetweennessCentralityDataset("wiki-Vote", suites=["standard"]),
-            BetweennessCentralityDataset("wiki-RfA", suites=["standard"]),
-            BetweennessCentralityDataset("soc-sign-bitcoin-otc", suites=["standard"]),
-            BetweennessCentralityDataset("soc-sign-bitcoin-alpha", suites=["standard"]),
-            BetweennessCentralityDataset("com-LiveJournal", suites=["standard"]),
-            BetweennessCentralityDataset("com-Friendster", suites=["standard"]),
-            BetweennessCentralityDataset("com-Orkut", suites=["standard"]),
-            BetweennessCentralityDataset("com-Youtube", suites=["standard"]),
-            BetweennessCentralityDataset("com-DBLP", suites=["standard"]),
-            BetweennessCentralityDataset("com-Amazon", suites=["standard"]),
-            BetweennessCentralityDataset("email-Eu-core", suites=["standard", "trace"]),
-            BetweennessCentralityDataset("wiki-topcats", suites=["standard"]),
-            BetweennessCentralityDataset("email-EuAll", suites=["standard"]),
-            BetweennessCentralityDataset("email-Enron", suites=["standard"]),
-            BetweennessCentralityDataset("wiki-Talk", suites=["standard"]),
-            BetweennessCentralityDataset("cit-HepPh", suites=["standard"]),
-            BetweennessCentralityDataset("cit-HepTh", suites=["standard"]),
-            BetweennessCentralityDataset("cit-Patents", suites=["standard"]),
-            BetweennessCentralityDataset("ca-AstroPh", suites=["standard"]),
-            BetweennessCentralityDataset("ca-CondMat", suites=["standard"]),
-            BetweennessCentralityDataset("ca-GrQc", suites=["standard"]),
-            BetweennessCentralityDataset("ca-HepPh", suites=["standard"]),
-            BetweennessCentralityDataset("ca-HepTh", suites=["standard"]),
-            BetweennessCentralityDataset("web-BerkStan", suites=["standard"]),
-            BetweennessCentralityDataset("web-Google", suites=["standard"]),
-            BetweennessCentralityDataset("web-NotreDame", suites=["standard"]),
-            BetweennessCentralityDataset("web-Stanford", suites=["standard"]),
-            BetweennessCentralityDataset("amazon0302", suites=["standard"]),
-            BetweennessCentralityDataset("amazon0312", suites=["standard"]),
-            BetweennessCentralityDataset("amazon0505", suites=["standard"]),
-            BetweennessCentralityDataset("amazon0601", suites=["standard"]),
-            BetweennessCentralityDataset("p2p-Gnutella04", suites=["standard"]),
-            BetweennessCentralityDataset("p2p-Gnutella05", suites=["standard"]),
-            BetweennessCentralityDataset("p2p-Gnutella06", suites=["standard"]),
-            BetweennessCentralityDataset("p2p-Gnutella08", suites=["standard"]),
-            BetweennessCentralityDataset("p2p-Gnutella09", suites=["standard"]),
-            BetweennessCentralityDataset("p2p-Gnutella24", suites=["standard"]),
-            BetweennessCentralityDataset("p2p-Gnutella25", suites=["standard"]),
-            BetweennessCentralityDataset("p2p-Gnutella30", suites=["standard"]),
-            BetweennessCentralityDataset("p2p-Gnutella31", suites=["standard"]),
-            BetweennessCentralityDataset("roadNet-CA", suites=["standard"]),
-            BetweennessCentralityDataset("roadNet-PA", suites=["standard"]),
-            BetweennessCentralityDataset("roadNet-TX", suites=["standard"]),
-            BetweennessCentralityDataset("as-735", suites=["standard"]),
-            BetweennessCentralityDataset("as-Skitter", suites=["standard"]),
-            BetweennessCentralityDataset("as-caida", suites=["standard"]),
-            BetweennessCentralityDataset("Oregon-1", suites=["standard"]),
-            BetweennessCentralityDataset("Oregon-2", suites=["standard"]),
-            BetweennessCentralityDataset("soc-sign-epinions", suites=["standard"]),
-            BetweennessCentralityDataset("soc-sign-Slashdot081106", suites=["standard"]),
-            BetweennessCentralityDataset("soc-sign-Slashdot090216", suites=["standard"]),
-            BetweennessCentralityDataset("soc-sign-Slashdot090221", suites=["standard"]),
-            BetweennessCentralityDataset("loc-Gowalla", suites=["standard"]),
-            BetweennessCentralityDataset("loc-Brightkite", suites=["standard"]),
-            BetweennessCentralityDataset("sx-stackoverflow", suites=["standard"]),
-            BetweennessCentralityDataset("sx-mathoverflow", suites=["standard"]),
-            BetweennessCentralityDataset("sx-superuser", suites=["standard"]),
-            BetweennessCentralityDataset("sx-askubuntu", suites=["standard"]),
-            BetweennessCentralityDataset("wiki-talk-temporal", suites=["standard"]),
-            BetweennessCentralityDataset("email-Eu-core-temporal", suites=["standard", "trace", "train"]),
-            BetweennessCentralityDataset("CollegeMsg", suites=["standard"]),
-            BetweennessCentralityDataset("twitter7", suites=["standard"]),
-            BetweennessCentralityDataset("higgs-twitter", suites=["standard"]),
+        graphs = [
+            ("soc-Epinions1", ["standard"]),
+            ("soc-LiveJournal1", ["standard"]),
+            ("soc-Pokec", ["standard"]),
+            ("soc-Slashdot0811", ["standard"]),
+            ("soc-Slashdot0902", ["standard"]),
+            ("wiki-Vote", ["standard"]),
+            ("wiki-RfA", ["standard"]),
+            ("soc-sign-bitcoin-otc", ["standard"]),
+            ("soc-sign-bitcoin-alpha", ["standard"]),
+            ("com-LiveJournal", ["standard"]),
+            ("com-Friendster", ["standard"]),
+            ("com-Orkut", ["standard"]),
+            ("com-Youtube", ["standard"]),
+            ("com-DBLP", ["standard"]),
+            ("com-Amazon", ["standard"]),
+            ("email-Eu-core", ["standard", "trace"]),
+            ("wiki-topcats", ["standard"]),
+            ("email-EuAll", ["standard"]),
+            ("email-Enron", ["standard"]),
+            ("wiki-Talk", ["standard"]),
+            ("cit-HepPh", ["standard"]),
+            ("cit-HepTh", ["standard"]),
+            ("cit-Patents", ["standard"]),
+            ("ca-AstroPh", ["standard"]),
+            ("ca-CondMat", ["standard"]),
+            ("ca-GrQc", ["standard"]),
+            ("ca-HepPh", ["standard"]),
+            ("ca-HepTh", ["standard"]),
+            ("web-BerkStan", ["standard"]),
+            ("web-Google", ["standard"]),
+            ("web-NotreDame", ["standard"]),
+            ("web-Stanford", ["standard"]),
+            ("amazon0302", ["standard"]),
+            ("amazon0312", ["standard"]),
+            ("amazon0505", ["standard"]),
+            ("amazon0601", ["standard"]),
+            ("p2p-Gnutella04", ["standard"]),
+            ("p2p-Gnutella05", ["standard"]),
+            ("p2p-Gnutella06", ["standard"]),
+            ("p2p-Gnutella08", ["standard"]),
+            ("p2p-Gnutella09", ["standard"]),
+            ("p2p-Gnutella24", ["standard"]),
+            ("p2p-Gnutella25", ["standard"]),
+            ("p2p-Gnutella30", ["standard"]),
+            ("p2p-Gnutella31", ["standard"]),
+            ("roadNet-CA", ["standard"]),
+            ("roadNet-PA", ["standard"]),
+            ("roadNet-TX", ["standard"]),
+            ("as-735", ["standard"]),
+            ("as-Skitter", ["standard"]),
+            ("as-caida", ["standard"]),
+            ("Oregon-1", ["standard"]),
+            ("Oregon-2", ["standard"]),
+            ("soc-sign-epinions", ["standard"]),
+            ("soc-sign-Slashdot081106", ["standard"]),
+            ("soc-sign-Slashdot090216", ["standard"]),
+            ("soc-sign-Slashdot090221", ["standard"]),
+            ("loc-Gowalla", ["standard"]),
+            ("loc-Brightkite", ["standard"]),
+            ("sx-stackoverflow", ["standard"]),
+            ("sx-mathoverflow", ["standard"]),
+            ("sx-superuser", ["standard"]),
+            ("sx-askubuntu", ["standard"]),
+            ("wiki-talk-temporal", ["standard"]),
+            ("email-Eu-core-temporal", ["standard", "trace", "train"]),
+            ("CollegeMsg", ["standard"]),
+            ("twitter7", ["standard"]),
+            ("higgs-twitter", ["standard"]),
         ]
         # fmt: on
+        return [
+            BetweennessCentralitySNAPDataset(name, trial, suites=suites)
+            for name, suites in graphs
+            for trial in range(16)
+        ]
 
-    def generate(self, dataset: BetweennessCentralityDataset) -> DataInstance:
-        raw = fetch_snap_graph(dataset.name)
+    def generate(self, dataset: BetweennessCentralitySNAPDataset) -> DataInstance:
+        raw = fetch_snap_graph(dataset.source_name)
+        start = 4 * dataset.trial
+        sources = list(raw.meta["sources"][start : start + 4])
+        if len(sources) != 4:
+            raise ValueError("SNAP betweenness trials require four source vertices.")
         return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0], np.float64)], meta=dict(raw.meta)
+            inputs=[zero_one_adjacency(raw.inputs[0], np.float64)],
+            meta={
+                **raw.meta,
+                **dataset.meta,
+                "bc_sources": sources,
+                "trial": dataset.trial,
+            },
         )
 
 
-class BetweennessCentralityGAPGenerator(Generator[BetweennessCentralityDataset]):
+class BetweennessCentralityGAPGenerator(Generator[BetweennessCentralityGAPDataset]):
     @property
     def name(self) -> str:
         return "betweenness_centrality_gap"
@@ -387,7 +489,11 @@ class BetweennessCentralityGAPGenerator(Generator[BetweennessCentralityDataset])
 
     @property
     def description(self) -> str:
-        return "Input GAP generator for betweenness centrality benchmarks."
+        return (
+            "GAP betweenness centrality: 16 trials per graph, with four published"
+            " sources per trial. Scores include source dependencies and are"
+            " normalized by their maximum, as in the GAP reference implementation."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -432,21 +538,23 @@ class BetweennessCentralityGAPGenerator(Generator[BetweennessCentralityDataset])
         return False
 
     @property
-    def datasets(self) -> list[BetweennessCentralityDataset]:
-        # fmt: off
+    def datasets(self) -> list[BetweennessCentralityGAPDataset]:
         return [
-            BetweennessCentralityDataset("GAP-road", suites=["standard"]),
-            BetweennessCentralityDataset("GAP-twitter", suites=["standard"]),
-            BetweennessCentralityDataset("GAP-web", suites=["standard"]),
-            BetweennessCentralityDataset("GAP-kron", suites=["standard"]),
-            BetweennessCentralityDataset("GAP-urand", suites=["standard"]),
+            BetweennessCentralityGAPDataset(name, trial, suites=["standard"])
+            for name in ["GAP-road", "GAP-twitter", "GAP-web", "GAP-kron", "GAP-urand"]
+            for trial in range(16)
         ]
-        # fmt: on
 
-    def generate(self, dataset: BetweennessCentralityDataset) -> DataInstance:
-        raw = fetch_gap_graph(dataset.name)
+    def generate(self, dataset: BetweennessCentralityGAPDataset) -> DataInstance:
+        raw = fetch_gap_graph(dataset.source_name)
         return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0], np.float64)], meta=dict(raw.meta)
+            inputs=[zero_one_adjacency(raw.inputs[0], np.float64)],
+            meta={
+                **raw.meta,
+                **dataset.meta,
+                "bc_sources": list(dataset.sources),
+                "trial": dataset.trial,
+            },
         )
 
 
@@ -464,13 +572,16 @@ class BetweennessCentralityBenchmark(Benchmark):
         return (
             "This code is based on the Brandes betweenness centrality algorithm. The "
             "current code for the benchmark takes a two step approach. The first step "
-            "involves going layer by layer from each potential starting node to find "
+            "involves going layer by layer from each selected starting node to find "
             "the total amount of shortest paths that lead to a node. So for example "
             "4 -> 6 could have 3 diff shortest paths and 4 -> 2 could have only 1 "
             "shortest path. The second step is for tracing backwards to see how many "
             "times a node appears in other shortest paths. The number of times this "
             "node is in one of the shortest path divided by total shortest paths "
-            "between the two edge nodes gets added to the intermediate nodes bc score."
+            "between the two edge nodes gets added to the intermediate nodes bc score. "
+            "GAP and SNAP cases use four sources per trial, include source "
+            "dependencies, and normalize by the maximum score. Small test cases "
+            "use all sources unless bc_sources is supplied."
         )
 
     @property
@@ -546,8 +657,9 @@ class BetweennessCentralityBenchmark(Benchmark):
     @property
     def ai_disclosure(self):
         return (
-            "No generative AI was used to construct the benchmark function. This"
-            " statement is written by hand."
+            "The original benchmark function was written without generative AI. "
+            "Generative AI assisted with GAP and SNAP source sampling, source "
+            "dependencies, normalization, self-loop handling, and tests."
         )
 
     @property
@@ -566,7 +678,7 @@ class BetweennessCentralityBenchmark(Benchmark):
         n = G.shape[0]
         bc_scores = xp.zeros((n,), dtype=float)
 
-        for v in range(n):
+        for v in meta.get("bc_sources", range(n)):
             number_of_paths = xp.zeros((n,), dtype=float)
             self_dist = xp.zeros((n,), dtype=float)
             self_dist = self_dist + xp.asarray(
@@ -574,7 +686,8 @@ class BetweennessCentralityBenchmark(Benchmark):
             )
             number_of_paths = number_of_paths + self_dist
 
-            neighbors = xp.asarray(G[v], dtype=float)
+            # A self-loop is not part of a shortest path to another vertex.
+            neighbors = xp.asarray(G[v], dtype=float) * (1 - self_dist)
             layer_traversal = []
             depth = 0
 
@@ -612,7 +725,18 @@ class BetweennessCentralityBenchmark(Benchmark):
 
                 depth -= 1
 
+            if meta.get("include_source", False):
+                # GAP includes the source's dependency: one per reachable target.
+                score_update = score_update + self_dist * (
+                    xp.sum(number_of_paths != 0) - 1
+                )
+
             bc_scores = bc_scores + score_update
+
+        if meta.get("normalize", False):
+            biggest_score = xp.max(bc_scores)
+            if biggest_score > 0:
+                bc_scores = bc_scores / biggest_score
 
         return bc_scores
 

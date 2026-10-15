@@ -209,6 +209,13 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
         }
         if module_name in {"transitive_closure", "floyd_warshall"}:
             expected_meta["max_squarings"] = 0
+        if module_name == "betweenness_centrality":
+            expected_meta.update(
+                bc_sources=expected_meta["sources"][:4],
+                trial=0,
+                include_source=True,
+                normalize=True,
+            )
         assert problem.meta == expected_meta
     if module_name in {"bellman_ford", "mssp", "floyd_warshall"}:
         expected = np.array([[0, 1, np.inf], [np.inf, 0, 1], [np.inf, np.inf, 0]])
