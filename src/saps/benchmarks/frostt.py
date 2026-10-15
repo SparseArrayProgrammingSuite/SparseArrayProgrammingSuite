@@ -10,7 +10,7 @@ from saps.benchmark import (
     ShellBenchmark,
 )
 from saps.downloaders.frostt import load_frostt_tensor
-
+from saps.util.tensor_checks import input_norms
 
 class FROSTTDataset(Dataset):
     """Base Dataset for benchmarks backed by a FROSTT sparse tensor."""
@@ -402,7 +402,11 @@ class FROSTTTensorGenerator(Generator[FROSTTDataset]):
             len(values),
             level=SparseLevel(len(meta["shape"]), ElementLevel(values), indices),
         )
-        return DataInstance(inputs=[tensor_bin], meta=meta)
+        return DataInstance(
+            inputs=[tensor_bin],
+            meta=meta,
+            ref_meta=input_norms(tensor_bin),
+        )
 
 
 class FROSTTTensorShellBenchmark(ShellBenchmark):

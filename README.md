@@ -550,6 +550,30 @@ poetry run pytest
 Every benchmark run checks its output for correctness in teardown, after each
 timing sample, unless the measurement budget was exceeded.
 
+CP-ALS and HOSVD checks use exact, parallel Numba loops to compute
+`||X - Y||² = ||X||² + ||Y||² - 2<X,Y>` without expanding the reconstructed
+tensor or unfolding the input. The sparse cross term streams stored entries
+once, evaluating CP components or nested Tucker scalar reductions at each
+coordinate. The arithmetic lives directly in compiled loops in the benchmark
+modules, with `prange` over stored entries. There is no batching, `nnz`-sized
+cross-term workspace, or per-worker core buffer. Small Gram/core loops account
+for the model's implicit-zero error. Kernels are cached after compilation;
+`NUMBA_NUM_THREADS` controls the worker count.
+FROSTT's input squared norm is computed once in the shared raw-data generator
+and cached for both benchmarks. Duplicate coordinates are coalesced for that
+norm; subsequent checks can stream the original coordinates without sorting.
+
+Checks accumulate in float64 without fast-math or compensated summation, and
+use the shared Higham summation bounds to
+allow cancellation in nearly exact reconstructions. This roundoff allowance is
+bounded using Cauchy-Schwarz to avoid a second sparse cross-term contraction and is
+separate from approximation tolerance: synthetic CP cases retain a 0.1 relative
+residual limit and synthetic Tucker cases retain 1e-5. Real FROSTT cases require
+valid shapes, finite values, and a nonzero model with relative residual at most
+1 (unless the input is zero). This is an approximation sanity check, not a proof
+of global optimality. Exact checks still require a pass over the nonzeros;
+sampling would change the guarantee to a probabilistic one.
+
 For a quick runner smoke test over CI-sized datasets:
 
 ```bash

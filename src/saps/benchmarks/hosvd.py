@@ -1,9 +1,11 @@
+import math
 from typing import Any
 
 import numpy as np
 
 from binsparse import BinsparseTensor, CustomTensor, ElementLevel, SparseLevel
 from binsparse.conversions import from_numpy, to_numpy
+from numba import njit, prange
 
 from saps.benchmark import (
     Author,
@@ -15,6 +17,38 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.frostt import fetch_frostt_tensor, frostt_tensor_shape
+from saps.util.tensor_checks import (
+    assert_residual,
+    decomposition_outputs,
+    stored_entries,
+)
+
+@njit(cache=True, parallel=True)
+def _sparse_tucker_inner(values, modes, n_modes, core):
+    # Leading singleton modes pad 3D/4D cores to one fixed five-loop kernel.
+    (i0, f0), (i1, f1), (i2, f2), (i3, f3), (i4, f4) = modes
+    inner = 0.0
+    for entry in prange(len(values)):
+        j0 = i0[entry] if n_modes == 5 else 0
+        j1 = i1[entry] if n_modes >= 4 else 0
+        j2, j3, j4 = i2[entry], i3[entry], i4[entry]
+        fitted = 0.0
+        for a in range(core.shape[0]):
+            sum_b = 0.0
+            for b in range(core.shape[1]):
+                sum_c = 0.0
+                for c in range(core.shape[2]):
+                    sum_d = 0.0
+                    for d in range(core.shape[3]):
+                        sum_e = 0.0
+                        for e in range(core.shape[4]):
+                            sum_e += core[a, b, c, d, e] * f4[j4, e]
+                        sum_d += sum_e * f3[j3, d]
+                    sum_c += sum_d * f2[j2, c]
+                sum_b += sum_c * f1[j1, b]
+            fitted += sum_b * f0[j0, a]
+        inner += values[entry] * fitted
+    return inner
 
 
 def _random_initial_factors(shape, ranks, seed=0):
@@ -205,6 +239,7 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
         return DataInstance(
             inputs=[X_bin, ranks_bin, *initial_factors],
             meta={"n": dataset.n, "max_iter": 50, "tolerance": 1e-8},
+            ref_meta={"rel_error_tol": 1e-5},
         )
 
 
@@ -379,6 +414,7 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
         return DataInstance(
             inputs=[X_bin, ranks_bin, *initial_factors],
             meta={"n": dataset.n, "max_iter": 50, "tolerance": 1e-8},
+            ref_meta={"rel_error_tol": 1e-5},
         )
 
 
@@ -418,9 +454,9 @@ def _hosvd_frostt_dataset(tensor_name, ranks, suites):
         f"HOSVD ranks {ranks} do not match shape {shape} for "
         f"FROSTT tensor {tensor_name}"
     )
-    assert all(r <= s for r, s in zip(ranks, shape, strict=True)), (
-        f"HOSVD ranks {ranks} exceed shape {shape} for FROSTT tensor {tensor_name}"
-    )
+    assert all(
+        r <= s for r, s in zip(ranks, shape, strict=True)
+    ), f"HOSVD ranks {ranks} exceed shape {shape} for FROSTT tensor {tensor_name}"
     n = len(shape)
     return HOSVDFROSTTDataset(
         name=tensor_name,
@@ -557,6 +593,7 @@ class HOSVDFROSTTGenerator(Generator[HOSVDFROSTTDataset]):
         return DataInstance(
             inputs=[X_bin, ranks_bin, *initial_factors],
             meta={"n": dataset.n, "max_iter": 50, "tolerance": 1e-8},
+            ref_meta={**(raw.ref_meta or {}), "rel_error_tol": 1.0},
         )
 
 
@@ -684,6 +721,38 @@ class HOSVDBenchmark(Benchmark):
             HOSVDFROSTTGenerator(self.n),
         ]
 
+    def check(self, param):
+        """Check the Frobenius residual without expanding the model."""
+        tensor = self._input[0]
+        ranks = tuple(int(rank) for rank in to_numpy(self._input[1]))
+        shapes = [ranks, *zip(tensor.shape, ranks, strict=True)]
+        core, *factors = decomposition_outputs(self._output, shapes)
+        # ||Y||² = <C, C x_1 G_1 ... x_n G_n> with factor Grams G_m. Bound the sum
+        # of |Y|'s summands with column norms via Cauchy-Schwarz. Contracting
+        # the leading axis each time cycles the core's axes back into order.
+        transformed, model_absolute = core, np.abs(core)
+        for factor in factors:
+            gram = factor.T @ factor
+            transformed = np.tensordot(transformed, gram, axes=(0, 0))
+            norms = np.sqrt(np.diag(gram))
+            model_absolute = np.tensordot(norms, model_absolute, axes=(0, 0))
+        model_norm = float(np.vdot(core, transformed))
+        indices, values = stored_entries(tensor)
+        n = len(factors)
+        # Singleton leading axes make the same scalar loop handle 3-5 modes.
+        modes = ((indices[0], np.ones((1, 1))),) * (5 - n)
+        modes += tuple(zip(indices, factors, strict=True))
+        padded_core = core.reshape((1,) * (5 - n) + core.shape)
+        inner = float(_sparse_tucker_inner(values, modes, n, padded_core))
+        assert_residual(
+            tensor,
+            self._ref_meta,
+            model_norm,
+            float(model_absolute),
+            inner,
+            terms=math.prod(ranks),
+        )
+
 
 class HOSVD3DBenchmark(HOSVDBenchmark):
     n = 3
@@ -755,26 +824,6 @@ class HOSVD3DBenchmark(HOSVDBenchmark):
             initial_factors[1],
             initial_factors[2],
         )
-
-    def check(self, param):
-        for item in self._output:
-            assert isinstance(item, BinsparseTensor), (
-                "Output must be in binsparse format"
-            )
-
-        X = to_numpy(self._input[0])
-        rank1, rank2, rank3 = to_numpy(self._input[1])
-        core, A, B, C = [to_numpy(output) for output in self._output]
-        dim1, dim2, dim3 = X.shape
-
-        assert core.shape == (rank1, rank2, rank3)
-        assert A.shape == (dim1, rank1)
-        assert B.shape == (dim2, rank2)
-        assert C.shape == (dim3, rank3)
-
-        X_rec = np.einsum("pqr,ip,jq,kr->ijk", core, A, B, C)
-        error = np.linalg.norm(X - X_rec) / np.linalg.norm(X)
-        assert error < 1e-5, f"HOSVD3 reconstruction error too high: {error:.6f}"
 
 
 class HOSVD4DBenchmark(HOSVDBenchmark):
@@ -865,27 +914,6 @@ class HOSVD4DBenchmark(HOSVDBenchmark):
             initial_factors[2],
             initial_factors[3],
         )
-
-    def check(self, param):
-        for item in self._output:
-            assert isinstance(item, BinsparseTensor), (
-                "Output must be in binsparse format"
-            )
-
-        X = to_numpy(self._input[0])
-        rank1, rank2, rank3, rank4 = to_numpy(self._input[1])
-        core, A, B, C, D = [to_numpy(output) for output in self._output]
-        dim1, dim2, dim3, dim4 = X.shape
-
-        assert core.shape == (rank1, rank2, rank3, rank4)
-        assert A.shape == (dim1, rank1)
-        assert B.shape == (dim2, rank2)
-        assert C.shape == (dim3, rank3)
-        assert D.shape == (dim4, rank4)
-
-        X_rec = np.einsum("pqrs,ip,jq,kr,ls->ijkl", core, A, B, C, D)
-        error = np.linalg.norm(X - X_rec) / np.linalg.norm(X)
-        assert error < 1e-5, f"HOSVD4 reconstruction error too high: {error:.6f}"
 
 
 class HOSVD5DBenchmark(HOSVDBenchmark):
@@ -996,25 +1024,3 @@ class HOSVD5DBenchmark(HOSVDBenchmark):
             initial_factors[3],
             initial_factors[4],
         )
-
-    def check(self, param):
-        for item in self._output:
-            assert isinstance(item, BinsparseTensor), (
-                "Output must be in binsparse format"
-            )
-
-        X = to_numpy(self._input[0])
-        rank1, rank2, rank3, rank4, rank5 = to_numpy(self._input[1])
-        core, A, B, C, D, E = [to_numpy(output) for output in self._output]
-        dim1, dim2, dim3, dim4, dim5 = X.shape
-
-        assert core.shape == (rank1, rank2, rank3, rank4, rank5)
-        assert A.shape == (dim1, rank1)
-        assert B.shape == (dim2, rank2)
-        assert C.shape == (dim3, rank3)
-        assert D.shape == (dim4, rank4)
-        assert E.shape == (dim5, rank5)
-
-        X_rec = np.einsum("pqrst,ip,jq,kr,ls,mt->ijklm", core, A, B, C, D, E)
-        error = np.linalg.norm(X - X_rec) / np.linalg.norm(X)
-        assert error < 1e-5, f"HOSVD5 reconstruction error too high: {error:.6f}"

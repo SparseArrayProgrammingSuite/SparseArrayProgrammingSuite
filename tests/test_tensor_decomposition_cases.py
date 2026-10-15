@@ -92,23 +92,6 @@ def test_decomposition_check_rejects_invalid_output(benchmark_cls, corruption):
         benchmark.check(param)
 
 
-@pytest.mark.parametrize(
-    "benchmark_cls",
-    [cp_als.CPALS3DBenchmark, cp_als.CPALS4DBenchmark, cp_als.CPALS5DBenchmark],
-)
-@pytest.mark.parametrize("ref_meta", [None, {}, {"check_reconstruction": False}])
-def test_cp_check_skips_dense_reconstruction(benchmark_cls, ref_meta, monkeypatch):
-    benchmark = benchmark_cls()
-    benchmark._ref_meta = ref_meta
-    benchmark._output = [from_numpy(np.ones(1)) for _ in range(benchmark.n + 1)]
-
-    def fail_to_numpy(_):
-        pytest.fail("reconstruction-disabled checks must not densify tensors")
-
-    monkeypatch.setattr(f"{benchmark_cls.__module__}.to_numpy", fail_to_numpy)
-    benchmark.check(None)
-
-
 @pytest.mark.parametrize("n", [3, 4, 5])
 @pytest.mark.parametrize("framework_cls", [NumpyFramework, SmartSparseFramework])
 def test_hosvd_random_initialization_only_decomposes_projections(
