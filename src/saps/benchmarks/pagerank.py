@@ -1,6 +1,7 @@
 # ruff: noqa: E501
 
 import numpy as np
+import scipy.sparse as scipy_sparse
 
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
@@ -16,7 +17,7 @@ from saps.benchmark import (
 )
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
-from saps.util.adjacency import zero_one_adjacency
+from saps.util.adjacency import graph_csr, zero_one_adjacency
 
 
 class PageRankDataset(Dataset):
@@ -193,12 +194,41 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
         ref_outputs = None
         if dataset.expected is not None:
             ref_outputs = [from_numpy(dataset.expected)]
-        return DataInstance(
+        problem = DataInstance(
             inputs=[from_numpy(dataset.A)],
             meta={},
             ref_outputs=ref_outputs,
             ref_meta=dataset.ref_meta,
         )
+        if problem.ref_outputs is None:
+            meta = problem.meta
+            graph = graph_csr(problem.inputs[0])
+            # Column-source convention; distribute dangling mass without a dense matrix.
+            n = graph.shape[0]
+            degree = np.asarray(graph.sum(axis=0)).ravel()
+            dangling = degree == 0
+            transition = graph @ scipy_sparse.diags_array(
+                1 / np.where(dangling, 1, degree)
+            )
+            rank = np.full(n, 1 / n)
+            alpha = meta.get("alpha", 0.85)
+            for _ in range(meta.get("max_iter", 100)):
+                updated = (
+                    alpha * (transition @ rank + rank[dangling].sum() / n)
+                    + (1 - alpha) / n
+                )
+                # The benchmark returns the preceding iterate when its stopping test fires.
+                if np.linalg.norm(updated - rank) < meta.get("tol", 1e-8):
+                    break
+                rank = updated
+            expected = from_numpy(rank)
+            problem.ref_outputs = [expected]
+            problem.ref_meta = {
+                **(problem.ref_meta or {}),
+                "reference_backend": "scipy",
+                "reference_algorithm": "pagerank",
+            }
+        return problem
 
 
 class PageRankSNAPGenerator(Generator[PageRankDataset]):
@@ -323,9 +353,35 @@ class PageRankSNAPGenerator(Generator[PageRankDataset]):
 
     def generate(self, dataset: PageRankDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
-        return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0], np.float64)], meta=dict(raw.meta)
+        problem = DataInstance(
+            inputs=[zero_one_adjacency(raw.inputs[0])],
+            meta=dict(raw.meta),
         )
+        meta = problem.meta
+        graph = graph_csr(problem.inputs[0])
+        # Column-source convention; distribute dangling mass without a dense matrix.
+        n = graph.shape[0]
+        degree = np.asarray(graph.sum(axis=0)).ravel()
+        dangling = degree == 0
+        transition = graph @ scipy_sparse.diags_array(1 / np.where(dangling, 1, degree))
+        rank = np.full(n, 1 / n)
+        alpha = meta.get("alpha", 0.85)
+        for _ in range(meta.get("max_iter", 100)):
+            updated = (
+                alpha * (transition @ rank + rank[dangling].sum() / n) + (1 - alpha) / n
+            )
+            # The benchmark returns the preceding iterate when its stopping test fires.
+            if np.linalg.norm(updated - rank) < meta.get("tol", 1e-8):
+                break
+            rank = updated
+        expected = from_numpy(rank)
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "scipy",
+            "reference_algorithm": "pagerank",
+        }
+        return problem
 
 
 class PageRankGAPGenerator(Generator[PageRankDataset]):
@@ -397,9 +453,35 @@ class PageRankGAPGenerator(Generator[PageRankDataset]):
 
     def generate(self, dataset: PageRankDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.name)
-        return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0], np.float64)], meta=dict(raw.meta)
+        problem = DataInstance(
+            inputs=[zero_one_adjacency(raw.inputs[0])],
+            meta=dict(raw.meta),
         )
+        meta = problem.meta
+        graph = graph_csr(problem.inputs[0])
+        # Column-source convention; distribute dangling mass without a dense matrix.
+        n = graph.shape[0]
+        degree = np.asarray(graph.sum(axis=0)).ravel()
+        dangling = degree == 0
+        transition = graph @ scipy_sparse.diags_array(1 / np.where(dangling, 1, degree))
+        rank = np.full(n, 1 / n)
+        alpha = meta.get("alpha", 0.85)
+        for _ in range(meta.get("max_iter", 100)):
+            updated = (
+                alpha * (transition @ rank + rank[dangling].sum() / n) + (1 - alpha) / n
+            )
+            # The benchmark returns the preceding iterate when its stopping test fires.
+            if np.linalg.norm(updated - rank) < meta.get("tol", 1e-8):
+                break
+            rank = updated
+        expected = from_numpy(rank)
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "scipy",
+            "reference_algorithm": "pagerank",
+        }
+        return problem
 
 
 class PageRankBenchmark(Benchmark):
@@ -545,7 +627,13 @@ class PageRankBenchmark(Benchmark):
 
         if self._ref_outputs is not None:
             expected = to_numpy(self._ref_outputs[0])
-            assert np.allclose(result, expected, atol=1e-2), (
+            atol = (
+                1e-12
+                if self._ref_meta and self._ref_meta.get("reference_backend") == "scipy"
+                else 1e-2
+            )
+            assert result.shape == expected.shape
+            assert np.allclose(result, expected, atol=atol), (
                 f"PageRank output mismatch for {param.dataset.name}"
             )
 

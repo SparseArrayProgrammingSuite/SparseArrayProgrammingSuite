@@ -228,6 +228,10 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
         )
         np.testing.assert_array_equal(to_sparse(problem.inputs[0]).todense(), expected)
         assert problem.inputs[0].number_of_stored_values == 2
+    elif module_name == "fastsv":
+        np.testing.assert_array_equal(
+            to_scipy(problem.inputs[0]).toarray(), [[0, 1, 0], [1, 0, 1], [0, 1, 0]]
+        )
     elif getattr(dataset, "simple_undirected", False):
         np.testing.assert_array_equal(
             to_scipy(problem.inputs[0]).toarray(), [[0, 1, 0], [0, 0, 1], [0, 0, 0]]
@@ -523,7 +527,7 @@ def test_snap_source_graph_picks_source_from_shell_sources(monkeypatch):
     from saps.benchmarks import bfs
 
     sources = list(range(100, 100 + NUM_SNAP_SOURCES))
-    adjacency = from_scipy(coo_array([[0, 1], [0, 0]]))
+    adjacency = from_scipy(coo_array(([1], ([0], [1])), shape=(200, 200)))
     raw = DataInstance(inputs=[adjacency], meta={"max_degree": 3, "sources": sources})
     monkeypatch.setattr(bfs, "fetch_snap_graph", lambda _: raw)
     dataset = BFSDataset("seed-seven", source_name="soc-Epinions1", source_seed=7)

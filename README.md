@@ -264,6 +264,32 @@ prepared SuiteSparse inputs and returns only the matrix, preserving its values
 and dimensions. Bellman-Ford derives its sparse distance representation
 during setup. Source archives share the `suitesparse/SNAP/` cache.
 
+The GAP and SNAP algorithm generators compute SciPy references during setup and
+store them in `DataInstance.ref_outputs` and `ref_meta`. Checks only compare those
+stored results; reference computation is outside the timed benchmark and the
+existing dataset serialization preserves it for future caching. Consumer
+generators remain uncached for now, so setup recomputes these references.
+
+`scipy.sparse.csgraph` supplies BFS/shortest-path distances and weak connected
+components (also used to check FastSV). BC, PageRank, MCL, and weighted transitive
+reduction use independent SciPy sparse calculations in their generators,
+since SciPy has no native routines for these
+algorithms. BC uses the same four sources per GAP/SNAP trial, including repeats,
+source dependencies, and maximum-score normalization. FastSV inputs are
+symmetrized and stripped of self-loops to compute weak components.
+Unit-edge GAP/SNAP inputs use boolean storage wherever the kernel supports it,
+including BC, PageRank, and MCL; numeric work arrays are created as needed.
+
+Bounded transitive closure and Floyd–Warshall references respect the generator's
+`max_squarings` hop limit and generate the complete result for every graph.
+Closure uses boolean sparse matrices; unit-weight shortest paths also use
+boolean frontiers, recording the first hop that reaches each pair. Weighted
+shortest paths retain numeric distances. Generation and checking preserve
+sparse storage and compare every entry. BFS checks hop-distance levels, which
+are deterministic even when different parent trees are valid. Single- and
+multi-source searches check all requested sources. Existing hand-checked fixtures, exact
+clique counts, and subgraph-matching ground truth remain in use.
+
 Triangle and four-clique reference counts use simple undirected graphs: ignore
 edge weights and directions, merge duplicate edges, remove self-loops, and store
 only the strict upper triangle. Each clique is counted once. Prefer the published

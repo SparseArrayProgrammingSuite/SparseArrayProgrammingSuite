@@ -121,6 +121,8 @@ def test_gap_generator_selects_trial_and_discards_weights(monkeypatch):
     fetch = Mock(return_value=raw)
     monkeypatch.setattr(bc, "fetch_gap_graph", fetch)
     dataset = bc.BetweennessCentralityGAPDataset("GAP-road", 3)
+    # Published IDs are tested separately; numerical checks need local vertices.
+    dataset.sources = [0, 1, 2, 0]
     problem = bc.BetweennessCentralityGAPGenerator().generate(dataset)
     fetch.assert_called_once_with("GAP-road")
     assert problem.meta["bc_sources"] == dataset.sources

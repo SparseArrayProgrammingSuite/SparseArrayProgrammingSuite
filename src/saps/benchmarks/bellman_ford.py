@@ -1,9 +1,10 @@
 # ruff: noqa: E501
 import numpy as np
 import scipy.sparse as sps
+from scipy.sparse import csgraph
 
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_sparse
+from binsparse.conversions import from_numpy, from_scipy
 
 from saps.benchmark import (
     Author,
@@ -19,14 +20,8 @@ from saps.benchmarks.snap import (
     fetch_snap_graph,
     with_source_vertex,
 )
-from saps.util.adjacency import distance_matrix
-
-
-def _from_binsparse(array):
-    try:
-        return to_numpy(array)
-    except TypeError:
-        return to_sparse(array).todense()
+from saps.util.adjacency import distance_matrix, graph_csr
+from saps_framework.binsparse_utils import assert_binsparse_allclose
 
 
 class BellmanFordDataset(Dataset):
@@ -724,10 +719,25 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
             raise ValueError(
                 f"Source seed is outside the graph's available sources: {seed}"
             )
-        return DataInstance(
+        problem = DataInstance(
             inputs=[distance_matrix(raw.inputs[0])],
             meta={**raw.meta, "src": raw.meta["sources"][seed], "seed": seed},
         )
+        meta = problem.meta
+        graph = graph_csr(problem.inputs[0], distances=True)
+        method = "BF" if np.any(graph.data < 0) else "D"
+        expected = from_numpy(
+            csgraph.shortest_path(
+                graph, directed=True, indices=meta["src"], method=method
+            )
+        )
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "scipy",
+            "reference_algorithm": "bellman_ford",
+        }
+        return problem
 
 
 class BellmanFordGAPGenerator(Generator[BellmanFordDataset]):
@@ -818,10 +828,25 @@ class BellmanFordGAPGenerator(Generator[BellmanFordDataset]):
             raise ValueError(
                 f"{dataset.src} is not a published source of {dataset.source_name}"
             )
-        return DataInstance(
+        problem = DataInstance(
             inputs=[distance_matrix(raw.inputs[0], keep_weights=True)],
             meta={**raw.meta, "src": dataset.src},
         )
+        meta = problem.meta
+        graph = graph_csr(problem.inputs[0], distances=True)
+        method = "BF" if np.any(graph.data < 0) else "D"
+        expected = from_numpy(
+            csgraph.shortest_path(
+                graph, directed=True, indices=meta["src"], method=method
+            )
+        )
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "scipy",
+            "reference_algorithm": "bellman_ford",
+        }
+        return problem
 
 
 class BellmanFordBenchmark(Benchmark):
@@ -945,11 +970,5 @@ class BellmanFordBenchmark(Benchmark):
             assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
-        if self._ref_outputs is None:
-            return
-
-        result = _from_binsparse(self._output[0])
-        expected = _from_binsparse(self._ref_outputs[0])
-        assert np.allclose(result, expected, equal_nan=True), (
-            f"Bellman-Ford output mismatch for {param.dataset.name}"
-        )
+        if self._ref_outputs is not None:
+            assert_binsparse_allclose(self._ref_outputs[0], self._output[0])

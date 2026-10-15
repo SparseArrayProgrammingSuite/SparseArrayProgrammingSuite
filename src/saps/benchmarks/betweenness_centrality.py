@@ -1,9 +1,12 @@
 # ruff: noqa: E501
 
 import numpy as np
+import scipy.sparse as scipy_sparse
+from scipy.sparse import csgraph
+from scipy.sparse.linalg import spsolve_triangular
 
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse.conversions import from_numpy
 
 from saps.benchmark import (
     Author,
@@ -16,7 +19,8 @@ from saps.benchmark import (
 )
 from saps.benchmarks.gap import fetch_gap_graph, gap_graph
 from saps.benchmarks.snap import fetch_snap_graph, snap_graph
-from saps.util.adjacency import zero_one_adjacency
+from saps.util.adjacency import graph_csr, zero_one_adjacency
+from saps_framework.binsparse_utils import assert_binsparse_allclose
 
 
 class BetweennessCentralityDataset(Dataset):
@@ -467,8 +471,8 @@ class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralitySNAPData
         sources = list(raw.meta["sources"][start : start + 4])
         if len(sources) != 4:
             raise ValueError("SNAP betweenness trials require four source vertices.")
-        return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0], np.float64)],
+        problem = DataInstance(
+            inputs=[zero_one_adjacency(raw.inputs[0])],
             meta={
                 **raw.meta,
                 **dataset.meta,
@@ -476,6 +480,50 @@ class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralitySNAPData
                 "trial": dataset.trial,
             },
         )
+        meta = problem.meta
+        graph = graph_csr(problem.inputs[0], boolean=True)
+        # Two triangular solves on each shortest-path DAG count paths and
+        # propagate Brandes dependencies, independently of the benchmark's BFS layers.
+        sources = meta.get("bc_sources", range(graph.shape[0]))
+        include_source = meta.get("include_source", False)
+        normalize = meta.get("normalize", False)
+        scores = np.zeros(graph.shape[0])
+        for source in sources:
+            distance = csgraph.shortest_path(
+                graph, indices=int(source), unweighted=True, method="D"
+            )
+            order = np.flatnonzero(np.isfinite(distance))
+            order = order[np.argsort(distance[order], kind="stable")]
+            edges = graph[order, :][:, order].tocoo()
+            depth = distance[order]
+            keep = depth[edges.col] == depth[edges.row] + 1
+            dag = scipy_sparse.coo_array(
+                (np.ones(np.count_nonzero(keep)), (edges.row[keep], edges.col[keep])),
+                shape=edges.shape,
+            ).tocsr()
+            system = scipy_sparse.eye(len(order), format="csr") - dag
+            rhs = np.zeros(len(order))
+            rhs[0] = 1
+            paths = spsolve_triangular(
+                system.T.tocsr(), rhs, lower=True, unit_diagonal=True
+            )
+            dependency = (
+                paths
+                * spsolve_triangular(system, 1 / paths, lower=False, unit_diagonal=True)
+                - 1
+            )
+            dependency[0] = len(order) - 1 if include_source else 0
+            scores[order] += dependency
+        if normalize and scores.max(initial=0) > 0:
+            scores /= scores.max()
+        expected = from_numpy(scores)
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "scipy",
+            "reference_algorithm": "betweenness_centrality",
+        }
+        return problem
 
 
 class BetweennessCentralityGAPGenerator(Generator[BetweennessCentralityGAPDataset]):
@@ -547,8 +595,8 @@ class BetweennessCentralityGAPGenerator(Generator[BetweennessCentralityGAPDatase
 
     def generate(self, dataset: BetweennessCentralityGAPDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.source_name)
-        return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0], np.float64)],
+        problem = DataInstance(
+            inputs=[zero_one_adjacency(raw.inputs[0])],
             meta={
                 **raw.meta,
                 **dataset.meta,
@@ -556,6 +604,50 @@ class BetweennessCentralityGAPGenerator(Generator[BetweennessCentralityGAPDatase
                 "trial": dataset.trial,
             },
         )
+        meta = problem.meta
+        graph = graph_csr(problem.inputs[0], boolean=True)
+        # Two triangular solves on each shortest-path DAG count paths and
+        # propagate Brandes dependencies, independently of the benchmark's BFS layers.
+        sources = meta.get("bc_sources", range(graph.shape[0]))
+        include_source = meta.get("include_source", False)
+        normalize = meta.get("normalize", False)
+        scores = np.zeros(graph.shape[0])
+        for source in sources:
+            distance = csgraph.shortest_path(
+                graph, indices=int(source), unweighted=True, method="D"
+            )
+            order = np.flatnonzero(np.isfinite(distance))
+            order = order[np.argsort(distance[order], kind="stable")]
+            edges = graph[order, :][:, order].tocoo()
+            depth = distance[order]
+            keep = depth[edges.col] == depth[edges.row] + 1
+            dag = scipy_sparse.coo_array(
+                (np.ones(np.count_nonzero(keep)), (edges.row[keep], edges.col[keep])),
+                shape=edges.shape,
+            ).tocsr()
+            system = scipy_sparse.eye(len(order), format="csr") - dag
+            rhs = np.zeros(len(order))
+            rhs[0] = 1
+            paths = spsolve_triangular(
+                system.T.tocsr(), rhs, lower=True, unit_diagonal=True
+            )
+            dependency = (
+                paths
+                * spsolve_triangular(system, 1 / paths, lower=False, unit_diagonal=True)
+                - 1
+            )
+            dependency[0] = len(order) - 1 if include_source else 0
+            scores[order] += dependency
+        if normalize and scores.max(initial=0) > 0:
+            scores /= scores.max()
+        expected = from_numpy(scores)
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "scipy",
+            "reference_algorithm": "betweenness_centrality",
+        }
+        return problem
 
 
 class BetweennessCentralityBenchmark(Benchmark):
@@ -745,11 +837,7 @@ class BetweennessCentralityBenchmark(Benchmark):
             assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
-        if self._ref_outputs is None:
-            return
-
-        result = to_numpy(self._output[0])
-        expected = to_numpy(self._ref_outputs[0])
-        assert np.allclose(result, expected, atol=1e-6), (
-            f"Betweenness centrality output mismatch for {param.dataset.name}"
-        )
+        if self._ref_outputs is not None:
+            assert_binsparse_allclose(
+                self._ref_outputs[0], self._output[0], rtol=1e-5, atol=1e-12
+            )

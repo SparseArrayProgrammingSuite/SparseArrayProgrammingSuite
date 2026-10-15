@@ -75,7 +75,10 @@ def test_gap_shell_returns_matrix_max_degree_and_sources(fetch):
     assert -1 not in road.sources
 
 
-def test_gap_source_graph_attaches_one_published_source(fetch):
+def test_gap_source_graph_attaches_one_published_source(fetch, monkeypatch):
+    # This plumbing fixture has three vertices, but deliberately uses GAP IDs.
+    reference = Mock(return_value=np.zeros(3, dtype=int))
+    monkeypatch.setattr("saps.benchmarks.bfs.csgraph.shortest_path", reference)
     road = GAPGraphGenerator().datasets[0]
     generator = BFSGAPGenerator()
     datasets = [d for d in generator.datasets if d.source_name == road.name]
@@ -83,6 +86,7 @@ def test_gap_source_graph_attaches_one_published_source(fetch):
     assert len({d.name for d in datasets}) == len(datasets)
     dataset = datasets[3]
     problem = generator.generate(dataset)
+    assert reference.call_args.kwargs["indices"] == dataset.src
     assert problem.meta == {
         "max_degree": 9,
         "sources": road.sources,

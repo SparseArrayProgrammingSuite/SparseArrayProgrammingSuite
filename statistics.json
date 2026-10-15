@@ -2743,7 +2743,7 @@
             },
             {
               "file": "src/saps/benchmarks/bellman_ford.py",
-              "freshness": "16b3ef0d6e8142c6c5f134659fe511cfd27780d13452495dde0680aedde8bf64",
+              "freshness": "2241771824080ec55f507546cf0da36e0261170721a3d061300d3d5459211167",
               "name": "email-Eu-core_seed0",
               "statistics": [
                 "feature-fancy-ops",
@@ -6839,7 +6839,7 @@
             },
             {
               "file": "src/saps/benchmarks/betweenness_centrality.py",
-              "freshness": "c44968aaabd77075340a15e618a407e978e75fb707d28145cf450db2d4d6c900",
+              "freshness": "22f1ff133fca04f54da9e4472be8131203f7b5c907963707e983bbf1969a0e97",
               "name": "email-Eu-core_trial0",
               "statistics": [
                 "feature-dynamic-sparsity",
@@ -9289,7 +9289,7 @@
             },
             {
               "file": "src/saps/benchmarks/bfs.py",
-              "freshness": "6fef2ac268688c089e52c454774936df0121ad93ec52802fb7843a7fcc7618b7",
+              "freshness": "bf76b84d4fe32008f27b279455ac902aa64c9186b0bc7e610a5dbfea7330f51e",
               "name": "email-Eu-core_seed0",
               "statistics": [
                 "feature-fancy-ops",
@@ -15962,7 +15962,7 @@
             },
             {
               "file": "src/saps/benchmarks/connected_components.py",
-              "freshness": "43ee143ae02d93f70e2d130728ae3e16032c13fd2f833bfda34eebeb752f1b2c",
+              "freshness": "a0d0acfa3f48c821bd036843847e7fb1446d5c447fbc596fc6a7f072f9905b4a",
               "name": "email-Eu-core",
               "statistics": [
                 "feature-dynamic-sparsity",
@@ -16873,7 +16873,7 @@
             },
             {
               "file": "src/saps/benchmarks/fastsv.py",
-              "freshness": "2e4f95b746938cf8cbb30206a770128d3298288f4f505cabec0b3900c68c82ec",
+              "freshness": "a0aafb46c79da144c3dbe0f5fda82d2554c9ece62e280d1623bca5cdf163473b",
               "name": "email-Eu-core",
               "statistics": [
                 "feature-dynamic-sparsity",
@@ -17634,7 +17634,7 @@
             },
             {
               "file": "src/saps/benchmarks/floyd_warshall.py",
-              "freshness": "61d7fc16f2db287784caf560fbce68cee87b4371c4504db8fb56e197aac79d8e",
+              "freshness": "f92a8fffb55d22b4f9d57c0286d05e7110dd52f91f60b2f179bdfa615fd87146",
               "name": "email-Eu-core",
               "statistics": [
                 "feature-nonzero-fill"
@@ -18107,6 +18107,12 @@
                 "feature-elementary-ops",
                 "feature-hypersparse"
               ]
+            },
+            {
+              "file": "src/saps/benchmarks/four_clique_counting.py",
+              "freshness": "8826b290830badeac994ae8628d05a86735be824baf01aa9405f11350f89c165",
+              "name": "email-Eu-core",
+              "statistics": []
             },
             {
               "file": "src/saps/benchmarks/four_clique_counting.py",
@@ -24025,7 +24031,7 @@
             },
             {
               "file": "src/saps/benchmarks/mcl.py",
-              "freshness": "23d7b3a8c2351926596b893619d287d06a256b763780b19544c44748ab8bab68",
+              "freshness": "d9c96e063d25b44648b487cc96f4283b78131a683eed918ae7bb6865722dbf76",
               "name": "email-Eu-core",
               "statistics": [
                 "feature-dynamic-sparsity",
@@ -24398,7 +24404,7 @@
             },
             {
               "file": "src/saps/benchmarks/msbfs.py",
-              "freshness": "98ad054c45fdbeb0fd23c1342a7e9c719094a94f42ed8f866012a533a582bacc",
+              "freshness": "8ca0cca97b1d591f5a43b2b97981bf82bc0fe0d4a29eca91ae87c5469d85713d",
               "name": "email-Eu-core",
               "statistics": [
                 "feature-dynamic-sparsity",
@@ -24729,7 +24735,7 @@
             },
             {
               "file": "src/saps/benchmarks/mssp.py",
-              "freshness": "692c9912f8011be3aebe6ede36e769425f0c36be7db7a83a79c1aa7d9dc2732d",
+              "freshness": "09a987e45ace26e12b8031226f658c4a0973453cbddb72031f70ac7976979eda",
               "name": "email-Eu-core",
               "statistics": [
                 "feature-dynamic-sparsity",
@@ -24823,7 +24829,7 @@
             },
             {
               "file": "src/saps/benchmarks/pagerank.py",
-              "freshness": "44018765c33d02ea9027f02fc807c4e4be096ba8a1416d09021cbc1ad7619088",
+              "freshness": "c89a687d44fc6f06cd13716a93158c2439bcee5159a8978215a6f9c56e85268d",
               "name": "email-Eu-core",
               "statistics": [
                 "feature-dynamic-sparsity",
@@ -28966,6 +28972,18 @@
           ],
           "name": "subgraph_matching_gcare_lubm80",
           "statistics": []
+        },
+        {
+          "datasets": [
+            {
+              "file": "src/saps/benchmarks/subgraph_matching.py",
+              "freshness": "277740393bd9bbc5ad227d1ed0fa91f9ec831d0fb07816d7d5468c81714d12e6",
+              "name": "all_edges",
+              "statistics": []
+            }
+          ],
+          "name": "subgraph_matching_test",
+          "statistics": []
         }
       ],
       "name": "subgraph_matching",
@@ -29227,7 +29245,7 @@
             },
             {
               "file": "src/saps/benchmarks/transitive_closure.py",
-              "freshness": "6aac5f5cf0a922b617978c3bf09cd10a069082ab9566838e3884e6cacd55d724",
+              "freshness": "8c2e7287c954ec4e1dbcff501dbf3fadfb9d8a08da79990dabc8ac6ae472905c",
               "name": "email-Eu-core",
               "statistics": [
                 "feature-dynamic-sparsity",
@@ -29654,7 +29672,7 @@
             },
             {
               "file": "src/saps/benchmarks/transitive_reduction.py",
-              "freshness": "a938dd4d7427b83d239dbcbf6fb5f38211f343ea9f9e9aefc89518d34787c030",
+              "freshness": "2212eab703239e82e95a139772d5a0a70360116d7c178f39101aa8dab9634b99",
               "name": "email-Eu-core",
               "statistics": [
                 "feature-dynamic-sparsity",
@@ -29863,7 +29881,7 @@
             },
             {
               "file": "src/saps/benchmarks/triangle_counting.py",
-              "freshness": "1d1703c3fb107eca198791e7a2241f4838839aee4af1451c61b35500f705935c",
+              "freshness": "70ab85b2433724cad7bca59092b3644def177f9370d1d3d3eb9aea409fe9c587",
               "name": "email-Eu-core",
               "statistics": [
                 "feature-elementary-ops"

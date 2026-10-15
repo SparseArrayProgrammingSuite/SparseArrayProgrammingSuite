@@ -1,9 +1,10 @@
 # ruff: noqa: E501
 import numpy as np
+from scipy.sparse import csgraph
 
 import sparse as sp
 from binsparse import BinsparseTensor, COORMatrix
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse.conversions import from_numpy
 
 from saps.benchmark import (
     Author,
@@ -16,7 +17,8 @@ from saps.benchmark import (
 )
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
-from saps.util.adjacency import distance_matrix
+from saps.util.adjacency import distance_matrix, graph_csr
+from saps_framework.binsparse_utils import assert_binsparse_allclose
 
 
 class MSSPDataset(Dataset):
@@ -467,9 +469,32 @@ class MSSPGAPGenerator(Generator[MSSPDataset]):
                 f"Multi-Source Shortest Paths requires a square matrix, got {(n, m)}"
             )
 
-        return multi_source_instance(
+        problem = multi_source_instance(
             raw.inputs[0], raw.meta["sources"], symmetrize=dataset.symmetrize
         )
+        meta = problem.meta
+        graph = graph_csr(problem.inputs[0], distances=True)
+        sources = meta["sources"]
+        levels = np.empty((len(sources), graph.shape[0]), dtype=float)
+        # One source at a time avoids another full sources-by-vertices allocation.
+        method = "BF" if np.any(graph.data < 0) else "D"
+        for row, source in enumerate(sources):
+            distances = csgraph.shortest_path(
+                graph,
+                directed=True,
+                indices=int(source),
+                unweighted=False,
+                method=method,
+            )
+            levels[row] = distances
+        expected = from_numpy(levels)
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "scipy",
+            "reference_algorithm": "mssp",
+        }
+        return problem
 
 
 class MSSPSNAPGenerator(Generator[MSSPDataset]):
@@ -597,7 +622,30 @@ class MSSPSNAPGenerator(Generator[MSSPDataset]):
     def generate(self, dataset: MSSPDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
         sources = np.unique(raw.meta["sources"]).tolist()
-        return multi_source_instance(raw.inputs[0], sources)
+        problem = multi_source_instance(raw.inputs[0], sources)
+        meta = problem.meta
+        graph = graph_csr(problem.inputs[0], distances=True)
+        sources = meta["sources"]
+        levels = np.empty((len(sources), graph.shape[0]), dtype=float)
+        # One source at a time avoids another full sources-by-vertices allocation.
+        method = "BF" if np.any(graph.data < 0) else "D"
+        for row, source in enumerate(sources):
+            distances = csgraph.shortest_path(
+                graph,
+                directed=True,
+                indices=int(source),
+                unweighted=False,
+                method=method,
+            )
+            levels[row] = distances
+        expected = from_numpy(levels)
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "scipy",
+            "reference_algorithm": "mssp",
+        }
+        return problem
 
 
 class MSSPBenchmark(Benchmark):
@@ -715,11 +763,5 @@ class MSSPBenchmark(Benchmark):
             assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
-        output = to_numpy(self._output[0])
         if self._ref_outputs is not None:
-            expected = to_numpy(self._ref_outputs[0])
-            both_inf = np.isinf(output) & np.isinf(expected)
-            both_finite = np.isfinite(output) & np.isfinite(expected)
-            assert np.all(both_inf | (both_finite & (output == expected))), (
-                f"Multi-Source Shortest Paths output mismatch for {param.dataset.name}"
-            )
+            assert_binsparse_allclose(self._ref_outputs[0], self._output[0])

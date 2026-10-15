@@ -1,11 +1,14 @@
 """Shared adjacency conversions and squaring limits for graph benchmarks."""
 
 import numpy as np
+import scipy.sparse as scipy_sparse
 from scipy.sparse import coo_array, triu
 
 import sparse
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_scipy, from_sparse, to_numpy, to_scipy
+
+from saps_framework.binsparse_utils import tensor_data
 
 DEFAULT_MAX_DENSITY = 0.01
 
@@ -78,3 +81,34 @@ def squaring_count(
     ):
         row_bound, steps = min(n, row_bound**2), steps + 1
     return steps
+
+
+def graph_csr(
+    tensor: BinsparseTensor, *, distances: bool = False, boolean: bool = False
+):
+    """Keep absent edges sparse, including infinity-filled distance inputs.
+
+    Explicit zero-length edges in distance matrices must survive the conversion.
+    """
+    data = tensor_data(tensor)
+    if scipy_sparse.issparse(data):
+        result = scipy_sparse.csr_array(data, copy=True)
+    elif isinstance(data, sparse.SparseArray):
+        coo = data.asformat("coo")
+        keep = np.isfinite(coo.data) if distances else coo.data != 0
+        result = scipy_sparse.coo_array(
+            (coo.data[keep], tuple(coo.coords[:, keep])), shape=coo.shape
+        ).tocsr()
+    else:
+        keep = np.isfinite(data) if distances else data != 0
+        row, col = np.nonzero(keep)
+        result = scipy_sparse.coo_array(
+            (data[row, col], (row, col)), shape=data.shape
+        ).tocsr()
+    if not distances:
+        result.eliminate_zeros()
+    # csgraph requires C-int indices on several supported SciPy versions.
+    if max(*result.shape, result.nnz) <= np.iinfo(np.int32).max:
+        result.indices = result.indices.astype(np.int32, copy=False)
+        result.indptr = result.indptr.astype(np.int32, copy=False)
+    return result.astype(bool, copy=False) if boolean else result

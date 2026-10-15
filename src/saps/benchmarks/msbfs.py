@@ -1,6 +1,6 @@
 # ruff: noqa: E501
 import numpy as np
-from scipy.sparse import coo_array
+from scipy.sparse import coo_array, csgraph
 from scipy.sparse.csgraph import shortest_path
 
 from binsparse import BinsparseTensor, COORMatrix
@@ -21,7 +21,7 @@ from saps.benchmarks.snap import (
     fetch_snap_graph,
     seeded_source_vertices,
 )
-from saps.util.adjacency import zero_one_adjacency
+from saps.util.adjacency import graph_csr, zero_one_adjacency
 from saps_framework.binsparse_utils import binsparse_equal
 
 
@@ -425,7 +425,30 @@ class MSBFSSNAPGenerator(Generator[MSBFSDataset]):
     def generate(self, dataset: MSBFSDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.source_name)
         sources = np.unique(raw.meta["sources"]).tolist()
-        return multi_source_bfs_instance(raw.inputs[0], sources)
+        problem = multi_source_bfs_instance(raw.inputs[0], sources)
+        meta = problem.meta
+        graph = graph_csr(problem.inputs[0], boolean=True)
+        sources = meta["sources"]
+        levels = np.empty((len(sources), graph.shape[0]), dtype=np.int64)
+        # One source at a time avoids another full sources-by-vertices allocation.
+        method = "BF" if np.any(graph.data < 0) else "D"
+        for row, source in enumerate(sources):
+            distances = csgraph.shortest_path(
+                graph,
+                directed=True,
+                indices=int(source),
+                unweighted=True,
+                method=method,
+            )
+            levels[row] = np.where(np.isfinite(distances), distances + 1, 0)
+        expected = from_numpy(levels)
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "scipy",
+            "reference_algorithm": "msbfs",
+        }
+        return problem
 
 
 class MSBFSGAPGenerator(Generator[MSBFSDataset]):
@@ -497,7 +520,30 @@ class MSBFSGAPGenerator(Generator[MSBFSDataset]):
 
     def generate(self, dataset: MSBFSDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.source_name)
-        return multi_source_bfs_instance(raw.inputs[0], raw.meta["sources"])
+        problem = multi_source_bfs_instance(raw.inputs[0], raw.meta["sources"])
+        meta = problem.meta
+        graph = graph_csr(problem.inputs[0], boolean=True)
+        sources = meta["sources"]
+        levels = np.empty((len(sources), graph.shape[0]), dtype=np.int64)
+        # One source at a time avoids another full sources-by-vertices allocation.
+        method = "BF" if np.any(graph.data < 0) else "D"
+        for row, source in enumerate(sources):
+            distances = csgraph.shortest_path(
+                graph,
+                directed=True,
+                indices=int(source),
+                unweighted=True,
+                method=method,
+            )
+            levels[row] = np.where(np.isfinite(distances), distances + 1, 0)
+        expected = from_numpy(levels)
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "scipy",
+            "reference_algorithm": "msbfs",
+        }
+        return problem
 
 
 class MSBFSBenchmark(Benchmark):
