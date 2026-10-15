@@ -4,6 +4,7 @@ from array import array
 import numpy as np
 import scipy.sparse as scipy_sparse
 
+import igraph as ig
 import sparse
 import sparse as sp
 from binsparse import BinsparseTensor
@@ -70,19 +71,6 @@ class FloydWarshallDataset(Dataset):
     @property
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
-
-
-def floyd_warshall_reference(A):
-    if isinstance(A, sp.SparseArray):
-        A = A.todense()
-    expected = A.copy()
-    for k in range(expected.shape[0]):
-        expected = np.minimum(
-            expected,
-            np.expand_dims(expected[:, k], axis=1)
-            + np.expand_dims(expected[k, :], axis=0),
-        )
-    return expected
 
 
 def floyd_warshall_input_from_edges(
@@ -343,7 +331,13 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
         )
         expected = dataset.expected
         if expected is None:
-            expected = floyd_warshall_reference(inputs)
+            adjacency = graph_csr(from_numpy(inputs), distances=True).tocoo()
+            graph = ig.Graph(
+                n=adjacency.shape[0],
+                edges=np.column_stack((adjacency.row, adjacency.col)),
+                directed=True,
+            )
+            expected = np.asarray(graph.distances(weights=adjacency.data, mode="out"))
         return DataInstance(
             inputs=[from_numpy(inputs)],
             # Correctness fixtures exercise full shortest paths, even when dense.

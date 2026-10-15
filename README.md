@@ -264,19 +264,21 @@ prepared SuiteSparse inputs and returns only the matrix, preserving its values
 and dimensions. Bellman-Ford derives its sparse distance representation
 during setup. Source archives share the `suitesparse/SNAP/` cache.
 
-The GAP and SNAP algorithm generators compute SciPy references during setup and
+The GAP and SNAP algorithm generators compute references during setup and
 store them in `DataInstance.ref_outputs` and `ref_meta`. Checks only compare those
 stored results; reference computation is outside the timed benchmark and the
 existing dataset serialization preserves it for future caching. Consumer
 generators remain uncached for now, so setup recomputes these references.
 
-`scipy.sparse.csgraph` supplies BFS/shortest-path distances and weak connected
-components (also used to check FastSV). BC, PageRank, MCL, and weighted transitive
-reduction use independent SciPy sparse calculations in their generators,
-since SciPy has no native routines for these
-algorithms. BC uses the same four sources per GAP/SNAP trial, including repeats,
-source dependencies, and maximum-score normalization. FastSV inputs are
-symmetrized and stripped of self-loops to compute weak components.
+igraph supplies BFS/shortest-path distances, weak connected components (also
+used to check FastSV), betweenness centrality, and PageRank. The calls live in
+the generators. BC uses the same four sources per GAP/SNAP trial, including
+repeats, source dependencies, and maximum-score normalization. PageRank reverses
+the edges to match the benchmark's column-source convention; checks allow the
+L1 error bound from its stopping tolerance or finite iteration budget. FastSV
+inputs are symmetrized and stripped of self-loops to compute weak components.
+MCL and weighted two-hop transitive reduction retain their SciPy references;
+these computations do not have equivalent igraph routines.
 Unit-edge GAP/SNAP inputs use boolean storage wherever the kernel supports it,
 including BC, PageRank, and MCL; numeric work arrays are created as needed.
 

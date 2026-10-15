@@ -2,8 +2,8 @@
 from typing import Any
 
 import numpy as np
-from scipy.sparse import csgraph
 
+import igraph as ig
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy
 
@@ -322,17 +322,21 @@ class FastSVSNAPGenerator(Generator[FastSVDataset]):
             inputs=[zero_one_adjacency(raw.inputs[0], simple_undirected=True)],
             meta=dict(raw.meta),
         )
-        graph = graph_csr(problem.inputs[0], boolean=True)
-        count, labels = csgraph.connected_components(
-            graph, directed=True, connection="weak"
+        adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.row, adjacency.col)),
+            directed=True,
         )
-        smallest = np.full(count, graph.shape[0], dtype=np.int64)
-        np.minimum.at(smallest, labels, np.arange(graph.shape[0]))
+        components = graph.connected_components(mode="weak")
+        labels = np.asarray(components.membership, dtype=np.int64)
+        smallest = np.full(len(components), graph.vcount(), dtype=np.int64)
+        np.minimum.at(smallest, labels, np.arange(graph.vcount()))
         expected = from_numpy(smallest[labels])
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
-            "reference_backend": "scipy",
+            "reference_backend": "igraph",
             "reference_algorithm": "fastsv",
         }
         return problem
@@ -414,17 +418,21 @@ class FastSVGAPGenerator(Generator[FastSVDataset]):
             inputs=[zero_one_adjacency(raw.inputs[0], simple_undirected=True)],
             meta=dict(raw.meta),
         )
-        graph = graph_csr(problem.inputs[0], boolean=True)
-        count, labels = csgraph.connected_components(
-            graph, directed=True, connection="weak"
+        adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.row, adjacency.col)),
+            directed=True,
         )
-        smallest = np.full(count, graph.shape[0], dtype=np.int64)
-        np.minimum.at(smallest, labels, np.arange(graph.shape[0]))
+        components = graph.connected_components(mode="weak")
+        labels = np.asarray(components.membership, dtype=np.int64)
+        smallest = np.full(len(components), graph.vcount(), dtype=np.int64)
+        np.minimum.at(smallest, labels, np.arange(graph.vcount()))
         expected = from_numpy(smallest[labels])
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
-            "reference_backend": "scipy",
+            "reference_backend": "igraph",
             "reference_algorithm": "fastsv",
         }
         return problem

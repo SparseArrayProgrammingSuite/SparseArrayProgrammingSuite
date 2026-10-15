@@ -1,8 +1,8 @@
 # ruff: noqa: E501
 
 import numpy as np
-import scipy.sparse as scipy_sparse
 
+import igraph as ig
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
 
@@ -58,14 +58,6 @@ class PageRankDataset(Dataset):
     @property
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
-
-
-def pagerank_networkx_reference(A: np.ndarray) -> np.ndarray:
-    import networkx as nx
-
-    graph = nx.from_numpy_array(A, create_using=nx.DiGraph)
-    expected_dict = nx.pagerank(graph, alpha=0.85, max_iter=100, tol=1e-6)
-    return np.array([expected_dict[i] for i in range(len(graph))])
 
 
 class PageRankTestGenerator(Generator[PageRankDataset]):
@@ -137,8 +129,8 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
                 ref_meta={"rank_order": [0, 1]},
             ),
             PageRankDataset(
-                name="networkx",
-                pretty_name="NetworkX Comparison",
+                name="igraph",
+                pretty_name="igraph Comparison",
                 suites=["test"],
                 A=np.array(
                     [
@@ -149,18 +141,6 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
                         [0, 0, 1, 0, 0],
                     ],
                     dtype=float,
-                ),
-                expected=pagerank_networkx_reference(
-                    np.array(
-                        [
-                            [0, 1, 0, 0, 0],
-                            [0, 0, 1, 0, 0],
-                            [1, 0, 0, 1, 0],
-                            [0, 0, 0, 0, 1],
-                            [0, 0, 1, 0, 0],
-                        ],
-                        dtype=float,
-                    )
                 ),
             ),
             PageRankDataset(
@@ -174,16 +154,6 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
                         [0, 0, 0],
                     ],
                     dtype=float,
-                ),
-                expected=pagerank_networkx_reference(
-                    np.array(
-                        [
-                            [0, 0, 0],
-                            [1, 0, 0],
-                            [0, 1, 0],
-                        ],
-                        dtype=float,
-                    )
                 ),
             ),
         ]
@@ -202,31 +172,34 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
         )
         if problem.ref_outputs is None:
             meta = problem.meta
-            graph = graph_csr(problem.inputs[0])
-            # Column-source convention; distribute dangling mass without a dense matrix.
-            n = graph.shape[0]
-            degree = np.asarray(graph.sum(axis=0)).ravel()
-            dangling = degree == 0
-            transition = graph @ scipy_sparse.diags_array(
-                1 / np.where(dangling, 1, degree)
+            adjacency = graph_csr(problem.inputs[0]).tocoo()
+            graph = ig.Graph(
+                n=adjacency.shape[0],
+                edges=np.column_stack((adjacency.col, adjacency.row)),
+                directed=True,
             )
-            rank = np.full(n, 1 / n)
+            # The benchmark stores outgoing edges in columns.
             alpha = meta.get("alpha", 0.85)
-            for _ in range(meta.get("max_iter", 100)):
-                updated = (
-                    alpha * (transition @ rank + rank[dangling].sum() / n)
-                    + (1 - alpha) / n
+            expected = from_numpy(
+                np.asarray(
+                    graph.pagerank(
+                        damping=alpha,
+                        weights=None
+                        if adjacency.dtype == bool
+                        else adjacency.data.tolist(),
+                    )
                 )
-                # The benchmark returns the preceding iterate when its stopping test fires.
-                if np.linalg.norm(updated - rank) < meta.get("tol", 1e-8):
-                    break
-                rank = updated
-            expected = from_numpy(rank)
+            )
             problem.ref_outputs = [expected]
             problem.ref_meta = {
                 **(problem.ref_meta or {}),
-                "reference_backend": "scipy",
+                "reference_backend": "igraph",
                 "reference_algorithm": "pagerank",
+                # L1 error bound for the benchmark's finite power iteration.
+                "reference_l1_tolerance": max(
+                    2 * alpha ** meta.get("max_iter", 100),
+                    np.sqrt(graph.vcount()) * meta.get("tol", 1e-8) / (1 - alpha),
+                ),
             }
         return problem
 
@@ -358,28 +331,34 @@ class PageRankSNAPGenerator(Generator[PageRankDataset]):
             meta=dict(raw.meta),
         )
         meta = problem.meta
-        graph = graph_csr(problem.inputs[0])
-        # Column-source convention; distribute dangling mass without a dense matrix.
-        n = graph.shape[0]
-        degree = np.asarray(graph.sum(axis=0)).ravel()
-        dangling = degree == 0
-        transition = graph @ scipy_sparse.diags_array(1 / np.where(dangling, 1, degree))
-        rank = np.full(n, 1 / n)
+        adjacency = graph_csr(problem.inputs[0]).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.col, adjacency.row)),
+            directed=True,
+        )
+        # The benchmark stores outgoing edges in columns.
         alpha = meta.get("alpha", 0.85)
-        for _ in range(meta.get("max_iter", 100)):
-            updated = (
-                alpha * (transition @ rank + rank[dangling].sum() / n) + (1 - alpha) / n
+        expected = from_numpy(
+            np.asarray(
+                graph.pagerank(
+                    damping=alpha,
+                    weights=None
+                    if adjacency.dtype == bool
+                    else adjacency.data.tolist(),
+                )
             )
-            # The benchmark returns the preceding iterate when its stopping test fires.
-            if np.linalg.norm(updated - rank) < meta.get("tol", 1e-8):
-                break
-            rank = updated
-        expected = from_numpy(rank)
+        )
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
-            "reference_backend": "scipy",
+            "reference_backend": "igraph",
             "reference_algorithm": "pagerank",
+            # L1 error bound for the benchmark's finite power iteration.
+            "reference_l1_tolerance": max(
+                2 * alpha ** meta.get("max_iter", 100),
+                np.sqrt(graph.vcount()) * meta.get("tol", 1e-8) / (1 - alpha),
+            ),
         }
         return problem
 
@@ -458,28 +437,34 @@ class PageRankGAPGenerator(Generator[PageRankDataset]):
             meta=dict(raw.meta),
         )
         meta = problem.meta
-        graph = graph_csr(problem.inputs[0])
-        # Column-source convention; distribute dangling mass without a dense matrix.
-        n = graph.shape[0]
-        degree = np.asarray(graph.sum(axis=0)).ravel()
-        dangling = degree == 0
-        transition = graph @ scipy_sparse.diags_array(1 / np.where(dangling, 1, degree))
-        rank = np.full(n, 1 / n)
+        adjacency = graph_csr(problem.inputs[0]).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.col, adjacency.row)),
+            directed=True,
+        )
+        # The benchmark stores outgoing edges in columns.
         alpha = meta.get("alpha", 0.85)
-        for _ in range(meta.get("max_iter", 100)):
-            updated = (
-                alpha * (transition @ rank + rank[dangling].sum() / n) + (1 - alpha) / n
+        expected = from_numpy(
+            np.asarray(
+                graph.pagerank(
+                    damping=alpha,
+                    weights=None
+                    if adjacency.dtype == bool
+                    else adjacency.data.tolist(),
+                )
             )
-            # The benchmark returns the preceding iterate when its stopping test fires.
-            if np.linalg.norm(updated - rank) < meta.get("tol", 1e-8):
-                break
-            rank = updated
-        expected = from_numpy(rank)
+        )
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
-            "reference_backend": "scipy",
+            "reference_backend": "igraph",
             "reference_algorithm": "pagerank",
+            # L1 error bound for the benchmark's finite power iteration.
+            "reference_l1_tolerance": max(
+                2 * alpha ** meta.get("max_iter", 100),
+                np.sqrt(graph.vcount()) * meta.get("tol", 1e-8) / (1 - alpha),
+            ),
         }
         return problem
 
@@ -627,15 +612,16 @@ class PageRankBenchmark(Benchmark):
 
         if self._ref_outputs is not None:
             expected = to_numpy(self._ref_outputs[0])
-            atol = (
-                1e-12
-                if self._ref_meta and self._ref_meta.get("reference_backend") == "scipy"
-                else 1e-2
-            )
             assert result.shape == expected.shape
-            assert np.allclose(result, expected, atol=atol), (
-                f"PageRank output mismatch for {param.dataset.name}"
-            )
+            if self._ref_meta and "reference_l1_tolerance" in self._ref_meta:
+                error = np.sum(np.abs(result - expected))
+                assert error <= self._ref_meta["reference_l1_tolerance"] + 1e-12, (
+                    f"PageRank output mismatch for {param.dataset.name}"
+                )
+            else:
+                assert np.allclose(result, expected, atol=1e-2), (
+                    f"PageRank output mismatch for {param.dataset.name}"
+                )
 
         if self._ref_meta is None:
             return

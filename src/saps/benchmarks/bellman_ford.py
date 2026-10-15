@@ -1,8 +1,8 @@
 # ruff: noqa: E501
 import numpy as np
 import scipy.sparse as sps
-from scipy.sparse import csgraph
 
+import igraph as ig
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy
 
@@ -74,18 +74,6 @@ class BellmanFordDataset(Dataset):
     @property
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
-
-
-def bellman_ford_reference(A, src):
-    n = A.shape[0]
-    D = np.full((n,), np.inf)
-    D[src] = 0
-    for _ in range(n):
-        for v in range(n):
-            for u in range(n):
-                if A[u, v] + D[u] < D[v]:
-                    D[v] = A[u, v] + D[u]
-    return D
 
 
 def bellman_ford_matrix(n, edges, *, symmetric=False):
@@ -359,33 +347,37 @@ class BellmanFordTestGenerator(Generator[BellmanFordDataset]):
         ]
 
     def generate(self, dataset: BellmanFordDataset) -> DataInstance:
+        if dataset.A is None:
+            raise ValueError("Bellman-Ford test datasets must define A.")
         if dataset.source_seed is not None:
-            if dataset.A is None:
-                raise ValueError(
-                    "Seeded Bellman-Ford tests require an adjacency matrix."
-                )
             adjacency = np.isfinite(dataset.A) & (dataset.A != 0)
             raw = with_source_vertex(
                 DataInstance(inputs=[from_scipy(sps.coo_array(adjacency))], meta={}),
                 seed=dataset.source_seed,
             )
-            return DataInstance(
-                inputs=[distance_matrix(raw.inputs[0])],
-                meta=raw.meta,
-                ref_outputs=[
-                    from_numpy(bellman_ford_reference(dataset.A, raw.meta["src"]))
-                ],
+            problem = DataInstance(
+                inputs=[distance_matrix(raw.inputs[0])], meta=raw.meta
             )
-        if dataset.A is None:
-            raise ValueError("Bellman-Ford test datasets must define A.")
+        else:
+            problem = DataInstance(
+                inputs=[from_numpy(dataset.A)], meta={"src": dataset.src}
+            )
         expected = dataset.expected
         if expected is None:
-            expected = bellman_ford_reference(dataset.A, dataset.src)
-        return DataInstance(
-            inputs=[from_numpy(dataset.A)],
-            meta={"src": dataset.src},
-            ref_outputs=[from_numpy(expected)],
-        )
+            adjacency = graph_csr(problem.inputs[0], distances=True).tocoo()
+            graph = ig.Graph(
+                n=adjacency.shape[0],
+                edges=np.column_stack((adjacency.row, adjacency.col)),
+                directed=True,
+            )
+            expected = np.asarray(
+                graph.distances(
+                    source=[problem.meta["src"]], weights=adjacency.data, mode="out"
+                )[0],
+                dtype=float,
+            )
+        problem.ref_outputs = [from_numpy(expected)]
+        return problem
 
 
 class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
@@ -724,17 +716,24 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
             meta={**raw.meta, "src": raw.meta["sources"][seed], "seed": seed},
         )
         meta = problem.meta
-        graph = graph_csr(problem.inputs[0], distances=True)
-        method = "BF" if np.any(graph.data < 0) else "D"
+        adjacency = graph_csr(problem.inputs[0], distances=True).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.row, adjacency.col)),
+            directed=True,
+        )
         expected = from_numpy(
-            csgraph.shortest_path(
-                graph, directed=True, indices=meta["src"], method=method
+            np.asarray(
+                graph.distances(
+                    source=[meta["src"]], weights=adjacency.data, mode="out"
+                )[0],
+                dtype=float,
             )
         )
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
-            "reference_backend": "scipy",
+            "reference_backend": "igraph",
             "reference_algorithm": "bellman_ford",
         }
         return problem
@@ -833,17 +832,24 @@ class BellmanFordGAPGenerator(Generator[BellmanFordDataset]):
             meta={**raw.meta, "src": dataset.src},
         )
         meta = problem.meta
-        graph = graph_csr(problem.inputs[0], distances=True)
-        method = "BF" if np.any(graph.data < 0) else "D"
+        adjacency = graph_csr(problem.inputs[0], distances=True).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.row, adjacency.col)),
+            directed=True,
+        )
         expected = from_numpy(
-            csgraph.shortest_path(
-                graph, directed=True, indices=meta["src"], method=method
+            np.asarray(
+                graph.distances(
+                    source=[meta["src"]], weights=adjacency.data, mode="out"
+                )[0],
+                dtype=float,
             )
         )
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
-            "reference_backend": "scipy",
+            "reference_backend": "igraph",
             "reference_algorithm": "bellman_ford",
         }
         return problem

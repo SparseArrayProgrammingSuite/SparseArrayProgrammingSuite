@@ -180,4 +180,6 @@ def test_shared_graph_sources_do_not_change_all_source_cases():
     output = bc.BetweennessCentralityBenchmark().benchmark(
         NumpyFramework(), {"sources": [0]}, adjacency
     )
-    np.testing.assert_allclose(output, bc.reference_bc_alg_6_4(adjacency))
+    graph = nx.from_numpy_array(adjacency, create_using=nx.DiGraph)
+    expected = nx.betweenness_centrality(graph, normalized=False)
+    np.testing.assert_allclose(output, list(expected.values()))

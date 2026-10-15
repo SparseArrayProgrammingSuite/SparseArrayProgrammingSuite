@@ -1,6 +1,7 @@
 import pytest
 
 import numpy as np
+from scipy.sparse.csgraph import shortest_path
 
 from binsparse.conversions import to_numpy
 
@@ -9,7 +10,6 @@ from frameworks.saps_sparse import PyDataSparseFramework
 from saps.benchmarks.msbfs import (
     MSBFSBenchmark,
     MSBFSTestGenerator,
-    reference_levels,
 )
 
 _DATASETS = MSBFSTestGenerator().datasets
@@ -21,7 +21,11 @@ def test_msbfs_test_expectations_match_scipy_reference(dataset):
     sources = problem.meta["sources"]
     expected = to_numpy(problem.ref_outputs[0])
     assert expected.shape == (len(sources), dataset.A.shape[0])
-    np.testing.assert_array_equal(reference_levels(dataset.A != 0, sources), expected)
+    distances = shortest_path(
+        dataset.A != 0, directed=True, unweighted=True, indices=sources
+    )
+    levels = np.where(np.isfinite(distances), distances + 1, 0).astype(int)
+    np.testing.assert_array_equal(levels, expected)
 
 
 @pytest.mark.parametrize("framework", [NumpyFramework, PyDataSparseFramework])

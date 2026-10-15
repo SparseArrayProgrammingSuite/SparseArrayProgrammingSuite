@@ -1,7 +1,7 @@
 # ruff: noqa: E501
 import numpy as np
-from scipy.sparse import csgraph
 
+import igraph as ig
 import sparse as sp
 from binsparse import BinsparseTensor, COORMatrix
 from binsparse.conversions import from_numpy
@@ -89,19 +89,6 @@ def multi_source_instance(
         ],
         meta={"sources": list(sources)},
     )
-
-
-def all_pairs_reference(A):
-    if isinstance(A, sp.SparseArray):
-        A = A.todense()
-    expected = A.copy()
-    for k in range(expected.shape[0]):
-        expected = np.minimum(
-            expected,
-            np.expand_dims(expected[:, k], axis=1)
-            + np.expand_dims(expected[k, :], axis=0),
-        )
-    return expected
 
 
 def shortest_paths_input_from_edges(
@@ -364,7 +351,15 @@ class MSSPTestGenerator(Generator[MSSPDataset]):
         sources = dataset.sources if dataset.sources is not None else list(range(n))
         expected = dataset.expected
         if expected is None:
-            expected = all_pairs_reference(inputs)[sources, :]
+            adjacency = graph_csr(from_numpy(inputs), distances=True).tocoo()
+            graph = ig.Graph(
+                n=adjacency.shape[0],
+                edges=np.column_stack((adjacency.row, adjacency.col)),
+                directed=True,
+            )
+            expected = np.asarray(
+                graph.distances(source=sources, weights=adjacency.data, mode="out")
+            )
         return DataInstance(
             inputs=[from_numpy(inputs), initial_distances(n, sources)],
             meta={"sources": list(sources)},
@@ -473,25 +468,23 @@ class MSSPGAPGenerator(Generator[MSSPDataset]):
             raw.inputs[0], raw.meta["sources"], symmetrize=dataset.symmetrize
         )
         meta = problem.meta
-        graph = graph_csr(problem.inputs[0], distances=True)
+        adjacency = graph_csr(problem.inputs[0], distances=True).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.row, adjacency.col)),
+            directed=True,
+        )
         sources = meta["sources"]
-        levels = np.empty((len(sources), graph.shape[0]), dtype=float)
-        # One source at a time avoids another full sources-by-vertices allocation.
-        method = "BF" if np.any(graph.data < 0) else "D"
+        distances = np.empty((len(sources), graph.vcount()), dtype=float)
         for row, source in enumerate(sources):
-            distances = csgraph.shortest_path(
-                graph,
-                directed=True,
-                indices=int(source),
-                unweighted=False,
-                method=method,
-            )
-            levels[row] = distances
-        expected = from_numpy(levels)
+            distances[row] = graph.distances(
+                source=[int(source)], weights=adjacency.data, mode="out"
+            )[0]
+        expected = from_numpy(distances)
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
-            "reference_backend": "scipy",
+            "reference_backend": "igraph",
             "reference_algorithm": "mssp",
         }
         return problem
@@ -624,25 +617,23 @@ class MSSPSNAPGenerator(Generator[MSSPDataset]):
         sources = np.unique(raw.meta["sources"]).tolist()
         problem = multi_source_instance(raw.inputs[0], sources)
         meta = problem.meta
-        graph = graph_csr(problem.inputs[0], distances=True)
+        adjacency = graph_csr(problem.inputs[0], distances=True).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.row, adjacency.col)),
+            directed=True,
+        )
         sources = meta["sources"]
-        levels = np.empty((len(sources), graph.shape[0]), dtype=float)
-        # One source at a time avoids another full sources-by-vertices allocation.
-        method = "BF" if np.any(graph.data < 0) else "D"
+        distances = np.empty((len(sources), graph.vcount()), dtype=float)
         for row, source in enumerate(sources):
-            distances = csgraph.shortest_path(
-                graph,
-                directed=True,
-                indices=int(source),
-                unweighted=False,
-                method=method,
-            )
-            levels[row] = distances
-        expected = from_numpy(levels)
+            distances[row] = graph.distances(
+                source=[int(source)], weights=adjacency.data, mode="out"
+            )[0]
+        expected = from_numpy(distances)
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
-            "reference_backend": "scipy",
+            "reference_backend": "igraph",
             "reference_algorithm": "mssp",
         }
         return problem

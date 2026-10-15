@@ -1,8 +1,8 @@
 # ruff: noqa: E501
 import numpy as np
-from scipy.sparse import coo_array, csgraph
-from scipy.sparse.csgraph import shortest_path
+from scipy.sparse import coo_array
 
+import igraph as ig
 from binsparse import BinsparseTensor, COORMatrix
 from binsparse.conversions import from_numpy, from_scipy
 
@@ -90,12 +90,6 @@ def multi_source_bfs_instance(adjacency: BinsparseTensor, sources) -> DataInstan
         inputs=[zero_one_adjacency(adjacency), initial_frontier(n, sources)],
         meta={"sources": list(sources)},
     )
-
-
-def reference_levels(A, sources) -> np.ndarray:
-    """levels[s, v] is one more than the hops from sources[s] to v, or 0 if unreachable."""
-    distances = shortest_path(A, directed=True, unweighted=True, indices=list(sources))
-    return np.where(np.isfinite(distances), distances + 1, 0).astype(int)
 
 
 class MSBFSTestGenerator(Generator[MSBFSDataset]):
@@ -297,7 +291,15 @@ class MSBFSTestGenerator(Generator[MSBFSDataset]):
             ).tolist()
         expected = dataset.expected
         if expected is None:
-            expected = reference_levels(dataset.A, sources)
+            graph = ig.Graph(
+                n=len(dataset.A),
+                edges=np.column_stack(np.nonzero(dataset.A)),
+                directed=True,
+            )
+            distances = np.asarray(graph.distances(source=sources, mode="out"))
+            expected = np.where(np.isfinite(distances), distances + 1, 0).astype(
+                np.int64
+            )
         problem = multi_source_bfs_instance(adjacency, sources)
         problem.ref_outputs = [from_numpy(expected)]
         return problem
@@ -427,25 +429,22 @@ class MSBFSSNAPGenerator(Generator[MSBFSDataset]):
         sources = np.unique(raw.meta["sources"]).tolist()
         problem = multi_source_bfs_instance(raw.inputs[0], sources)
         meta = problem.meta
-        graph = graph_csr(problem.inputs[0], boolean=True)
+        adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.row, adjacency.col)),
+            directed=True,
+        )
         sources = meta["sources"]
-        levels = np.empty((len(sources), graph.shape[0]), dtype=np.int64)
-        # One source at a time avoids another full sources-by-vertices allocation.
-        method = "BF" if np.any(graph.data < 0) else "D"
+        levels = np.empty((len(sources), graph.vcount()), dtype=np.int64)
         for row, source in enumerate(sources):
-            distances = csgraph.shortest_path(
-                graph,
-                directed=True,
-                indices=int(source),
-                unweighted=True,
-                method=method,
-            )
+            distances = np.asarray(graph.distances(source=[int(source)], mode="out")[0])
             levels[row] = np.where(np.isfinite(distances), distances + 1, 0)
         expected = from_numpy(levels)
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
-            "reference_backend": "scipy",
+            "reference_backend": "igraph",
             "reference_algorithm": "msbfs",
         }
         return problem
@@ -522,25 +521,22 @@ class MSBFSGAPGenerator(Generator[MSBFSDataset]):
         raw = fetch_gap_graph(dataset.source_name)
         problem = multi_source_bfs_instance(raw.inputs[0], raw.meta["sources"])
         meta = problem.meta
-        graph = graph_csr(problem.inputs[0], boolean=True)
+        adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.row, adjacency.col)),
+            directed=True,
+        )
         sources = meta["sources"]
-        levels = np.empty((len(sources), graph.shape[0]), dtype=np.int64)
-        # One source at a time avoids another full sources-by-vertices allocation.
-        method = "BF" if np.any(graph.data < 0) else "D"
+        levels = np.empty((len(sources), graph.vcount()), dtype=np.int64)
         for row, source in enumerate(sources):
-            distances = csgraph.shortest_path(
-                graph,
-                directed=True,
-                indices=int(source),
-                unweighted=True,
-                method=method,
-            )
+            distances = np.asarray(graph.distances(source=[int(source)], mode="out")[0])
             levels[row] = np.where(np.isfinite(distances), distances + 1, 0)
         expected = from_numpy(levels)
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
-            "reference_backend": "scipy",
+            "reference_backend": "igraph",
             "reference_algorithm": "msbfs",
         }
         return problem

@@ -7,6 +7,7 @@ import numpy as np
 import scipy.sparse as sp
 from scipy.sparse import csgraph
 
+import igraph as ig
 import networkx as nx
 from binsparse.conversions import from_numpy, from_scipy, to_numpy
 
@@ -101,7 +102,13 @@ def test_collection_references_are_cached_and_reject_wrong_results(
         dataset.sources = [0, 0, 2, 5]
     problem = generator.generate(dataset)
     assert problem.ref_outputs is not None
-    assert problem.ref_meta["reference_backend"] == "scipy"
+    backend = (
+        "scipy"
+        if name
+        in {"floyd_warshall", "transitive_closure", "transitive_reduction", "mcl"}
+        else "igraph"
+    )
+    assert problem.ref_meta["reference_backend"] == backend
     assert problem.ref_meta["reference_algorithm"] == name
 
     storage = LocalStorageBackend(
@@ -119,6 +126,8 @@ def test_collection_references_are_cached_and_reject_wrong_results(
     monkeypatch.setattr(csgraph, "shortest_path", no_reference)
     monkeypatch.setattr(csgraph, "connected_components", no_reference)
     monkeypatch.setattr(csgraph, "dijkstra", no_reference)
+    for method in ["distances", "betweenness", "connected_components", "pagerank"]:
+        monkeypatch.setattr(ig.Graph, method, no_reference)
     benchmark = getattr(module, f"{prefix}Benchmark")()
     xp = framework()
     output = benchmark.benchmark(
@@ -141,7 +150,7 @@ def test_collection_references_are_cached_and_reject_wrong_results(
 
 @pytest.mark.parametrize("include_source", [False, True])
 @pytest.mark.parametrize("normalize", [False, True])
-def test_scipy_bc_matches_networkx_with_repeated_sources(
+def test_igraph_bc_matches_networkx_with_repeated_sources(
     monkeypatch, include_source, normalize
 ):
     rng = np.random.default_rng(3)
@@ -177,7 +186,7 @@ def test_scipy_bc_matches_networkx_with_repeated_sources(
     )
 
 
-def test_scipy_pagerank_preserves_column_orientation_and_dangling_nodes(monkeypatch):
+def test_igraph_pagerank_preserves_column_orientation_and_dangling_nodes(monkeypatch):
     graph = sp.csr_array([[0, 0, 0, 0], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 0]])
     expected = nx.pagerank(
         nx.from_scipy_sparse_array(graph.T, create_using=nx.DiGraph), tol=1e-14
@@ -350,3 +359,33 @@ def test_boolean_frontiers_do_not_overflow_on_many_paths(monkeypatch, algorithm)
     distances = csgraph.shortest_path(sp.csr_array(graph), unweighted=True, method="D")
     expected = distances if algorithm == "floyd_warshall" else np.isfinite(distances)
     check_reference(algorithm, problem, from_numpy(expected))
+
+
+@pytest.mark.parametrize(
+    "iterations,tolerance", [(0, 1e-8), (1, 1e-8), (4, 1e-8), (100, 1e-8), (100, 1e-3)]
+)
+def test_igraph_pagerank_check_allows_finite_iteration_error(
+    monkeypatch, iterations, tolerance
+):
+    from saps.benchmarks.pagerank import PageRankBenchmark
+
+    # Unequal weights, a dangling column, and asymmetric edge orientation.
+    graph = np.array([[0, 0, 2, 0], [3, 0, 0, 0], [1, 2, 0, 0], [0, 1, 0, 0]])
+    problem = reference_problem(
+        monkeypatch,
+        "pagerank",
+        from_numpy(graph),
+        {"alpha": 0.9, "max_iter": iterations, "tol": tolerance},
+    )
+    output = PageRankBenchmark().benchmark(NumpyFramework(), problem.meta, graph)
+    check_reference("pagerank", problem, from_numpy(output))
+
+
+def test_igraph_pagerank_check_rejects_wrong_distribution(monkeypatch):
+    graph = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0]])
+    problem = reference_problem(monkeypatch, "pagerank", from_numpy(graph), {})
+    wrong = to_numpy(problem.ref_outputs[0]).copy()
+    wrong[0] += 1e-4
+    wrong[1] -= 1e-4
+    with pytest.raises(AssertionError):
+        check_reference("pagerank", problem, from_numpy(wrong))

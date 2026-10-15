@@ -1,10 +1,8 @@
 # ruff: noqa: E501
 
 import numpy as np
-import scipy.sparse as scipy_sparse
-from scipy.sparse import csgraph
-from scipy.sparse.linalg import spsolve_triangular
 
+import igraph as ig
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy
 
@@ -131,37 +129,6 @@ class BetweennessCentralitySNAPDataset(BetweennessCentralityDataset):
         }
 
 
-def reference_bc_alg_6_4(A):
-    n = A.shape[0]
-    BC = np.zeros(n)
-    for s in range(n):
-        stack = []
-        P = [[] for _ in range(n)]
-        sigma = np.zeros(n)
-        sigma[s] = 1
-        d = -np.ones(n)
-        d[s] = 0
-        Q = [s]
-        while Q:
-            v = Q.pop(0)
-            stack.append(v)
-            for w in np.where(A[v, :] > 0)[0]:
-                if d[w] < 0:
-                    Q.append(w)
-                    d[w] = d[v] + 1
-                if d[w] == d[v] + 1:
-                    sigma[w] += sigma[v]
-                    P[w].append(v)
-        delta = np.zeros(n)
-        while stack:
-            w = stack.pop()
-            for v in P[w]:
-                delta[v] += (sigma[v] / sigma[w]) * (1 + delta[w])
-            if w != s:
-                BC[w] += delta[w]
-    return BC
-
-
 def random_centrality_matrix():
     rng = np.random.default_rng(42)
     n = 10
@@ -226,7 +193,7 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
     def datasets(self) -> list[BetweennessCentralityDataset]:
         random_A = random_centrality_matrix()
         undirected_A = undirected_path_matrix()
-        networkx_A = np.array(
+        igraph_A = np.array(
             [
                 [0, 1, 0, 0, 0],
                 [0, 0, 1, 0, 0],
@@ -282,21 +249,18 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
                 pretty_name="Matrix Vertex Comparison",
                 suites=["test"],
                 A=random_A,
-                expected=reference_bc_alg_6_4(random_A),
             ),
             BetweennessCentralityDataset(
                 name="undirected",
                 pretty_name="Undirected",
                 suites=["test"],
                 A=undirected_A,
-                expected=reference_bc_alg_6_4(undirected_A),
             ),
             BetweennessCentralityDataset(
-                name="networkx",
-                pretty_name="NetworkX Comparison",
+                name="igraph",
+                pretty_name="igraph Comparison",
                 suites=["test"],
-                A=networkx_A,
-                expected=reference_bc_alg_6_4(networkx_A),
+                A=igraph_A,
             ),
             BetweennessCentralityDataset(
                 name="snap_toy",
@@ -327,12 +291,20 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
         ]
 
     def generate(self, dataset: BetweennessCentralityDataset) -> DataInstance:
-        if dataset.A is None or dataset.expected is None:
-            raise ValueError("Centrality test datasets must define A and expected.")
+        if dataset.A is None:
+            raise ValueError("Centrality test datasets must define A.")
+        expected = dataset.expected
+        if expected is None:
+            graph = ig.Graph(
+                n=len(dataset.A),
+                edges=np.column_stack(np.nonzero(dataset.A)),
+                directed=True,
+            )
+            expected = np.asarray(graph.betweenness(directed=True))
         return DataInstance(
             inputs=[from_numpy(dataset.A)],
             meta=dict(dataset.meta),
-            ref_outputs=[from_numpy(dataset.expected)],
+            ref_outputs=[from_numpy(expected)],
         )
 
 
@@ -481,46 +453,29 @@ class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralitySNAPData
             },
         )
         meta = problem.meta
-        graph = graph_csr(problem.inputs[0], boolean=True)
-        # Two triangular solves on each shortest-path DAG count paths and
-        # propagate Brandes dependencies, independently of the benchmark's BFS layers.
-        sources = meta.get("bc_sources", range(graph.shape[0]))
-        include_source = meta.get("include_source", False)
-        normalize = meta.get("normalize", False)
-        scores = np.zeros(graph.shape[0])
-        for source in sources:
-            distance = csgraph.shortest_path(
-                graph, indices=int(source), unweighted=True, method="D"
-            )
-            order = np.flatnonzero(np.isfinite(distance))
-            order = order[np.argsort(distance[order], kind="stable")]
-            edges = graph[order, :][:, order].tocoo()
-            depth = distance[order]
-            keep = depth[edges.col] == depth[edges.row] + 1
-            dag = scipy_sparse.coo_array(
-                (np.ones(np.count_nonzero(keep)), (edges.row[keep], edges.col[keep])),
-                shape=edges.shape,
-            ).tocsr()
-            system = scipy_sparse.eye(len(order), format="csr") - dag
-            rhs = np.zeros(len(order))
-            rhs[0] = 1
-            paths = spsolve_triangular(
-                system.T.tocsr(), rhs, lower=True, unit_diagonal=True
-            )
-            dependency = (
-                paths
-                * spsolve_triangular(system, 1 / paths, lower=False, unit_diagonal=True)
-                - 1
-            )
-            dependency[0] = len(order) - 1 if include_source else 0
-            scores[order] += dependency
-        if normalize and scores.max(initial=0) > 0:
+        adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.row, adjacency.col)),
+            directed=True,
+        )
+        sources = meta.get("bc_sources", range(graph.vcount()))
+        scores = np.asarray(graph.betweenness(sources=sources, directed=True))
+        if meta.get("include_source", False):
+            for source in sources:
+                scores[source] += (
+                    graph.neighborhood_size(
+                        int(source), order=graph.vcount(), mode="out"
+                    )
+                    - 1
+                )
+        if meta.get("normalize", False) and scores.max(initial=0) > 0:
             scores /= scores.max()
         expected = from_numpy(scores)
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
-            "reference_backend": "scipy",
+            "reference_backend": "igraph",
             "reference_algorithm": "betweenness_centrality",
         }
         return problem
@@ -605,46 +560,29 @@ class BetweennessCentralityGAPGenerator(Generator[BetweennessCentralityGAPDatase
             },
         )
         meta = problem.meta
-        graph = graph_csr(problem.inputs[0], boolean=True)
-        # Two triangular solves on each shortest-path DAG count paths and
-        # propagate Brandes dependencies, independently of the benchmark's BFS layers.
-        sources = meta.get("bc_sources", range(graph.shape[0]))
-        include_source = meta.get("include_source", False)
-        normalize = meta.get("normalize", False)
-        scores = np.zeros(graph.shape[0])
-        for source in sources:
-            distance = csgraph.shortest_path(
-                graph, indices=int(source), unweighted=True, method="D"
-            )
-            order = np.flatnonzero(np.isfinite(distance))
-            order = order[np.argsort(distance[order], kind="stable")]
-            edges = graph[order, :][:, order].tocoo()
-            depth = distance[order]
-            keep = depth[edges.col] == depth[edges.row] + 1
-            dag = scipy_sparse.coo_array(
-                (np.ones(np.count_nonzero(keep)), (edges.row[keep], edges.col[keep])),
-                shape=edges.shape,
-            ).tocsr()
-            system = scipy_sparse.eye(len(order), format="csr") - dag
-            rhs = np.zeros(len(order))
-            rhs[0] = 1
-            paths = spsolve_triangular(
-                system.T.tocsr(), rhs, lower=True, unit_diagonal=True
-            )
-            dependency = (
-                paths
-                * spsolve_triangular(system, 1 / paths, lower=False, unit_diagonal=True)
-                - 1
-            )
-            dependency[0] = len(order) - 1 if include_source else 0
-            scores[order] += dependency
-        if normalize and scores.max(initial=0) > 0:
+        adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.row, adjacency.col)),
+            directed=True,
+        )
+        sources = meta.get("bc_sources", range(graph.vcount()))
+        scores = np.asarray(graph.betweenness(sources=sources, directed=True))
+        if meta.get("include_source", False):
+            for source in sources:
+                scores[source] += (
+                    graph.neighborhood_size(
+                        int(source), order=graph.vcount(), mode="out"
+                    )
+                    - 1
+                )
+        if meta.get("normalize", False) and scores.max(initial=0) > 0:
             scores /= scores.max()
         expected = from_numpy(scores)
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
-            "reference_backend": "scipy",
+            "reference_backend": "igraph",
             "reference_algorithm": "betweenness_centrality",
         }
         return problem
