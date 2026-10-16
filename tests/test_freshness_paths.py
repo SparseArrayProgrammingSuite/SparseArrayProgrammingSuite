@@ -1,3 +1,4 @@
+import sys
 from importlib.machinery import ModuleSpec
 from pathlib import Path
 
@@ -20,6 +21,35 @@ def test_non_python_origins_do_not_resolve_filesystem_paths(monkeypatch, origin)
 
     monkeypatch.setattr(Path, "resolve", unavailable_cwd)
     assert freshness._module_path("example") is None
+
+
+@pytest.mark.parametrize("external", [False, True])
+@pytest.mark.parametrize("namespace", [False, True])
+def test_module_lookup_does_not_execute_package_initializers(
+    monkeypatch, tmp_path, external, namespace
+):
+    repo = tmp_path / "repo"
+    root = tmp_path / "external" if external else repo
+    package = root / "freshness_no_import"
+    subpackage = package / "nested"
+    subpackage.mkdir(parents=True)
+    if not namespace:
+        (package / "__init__.py").write_text(
+            "raise AssertionError('Package initializer executed')\n", encoding="utf-8"
+        )
+    (subpackage / "__init__.py").write_text(
+        "raise AssertionError('Nested package initializer executed')\n",
+        encoding="utf-8",
+    )
+    source = subpackage / "module.py"
+    source.write_text("value = 1\n", encoding="utf-8")
+    monkeypatch.setenv("SAPS_REPO_ROOT", str(repo))
+    monkeypatch.syspath_prepend(str(root))
+
+    assert freshness._module_path("freshness_no_import.nested.module") == (
+        None if external else source
+    )
+    assert not any(name.startswith("freshness_no_import") for name in sys.modules)
 
 
 @pytest.mark.parametrize(
