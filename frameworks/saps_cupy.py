@@ -380,8 +380,22 @@ class CuPyFramework(Framework):
         xp = self._array_namespace(x1, x2)
         return xp.logical_and(x1, x2, **kwargs)
 
-    def with_fill_value(self, array, value):
-        return array
+    def replace(self, arr, old, new):
+        if cusp.issparse(arr):
+            if old == 0 and new != 0:
+                # Every implicit zero changes, so the result is dense.
+                arr = cupy.asarray(arr.toarray())
+            else:
+                result = arr.tocoo(copy=True)
+                result.sum_duplicates()
+                values = result.data
+                result.data = cupy.where(
+                    cupy.isnan(values) if old != old else values == old, new, values
+                )
+                result.eliminate_zeros()
+                return result.asformat(arr.format)
+        arr = cupy.asarray(arr)
+        return cupy.where(cupy.isnan(arr) if old != old else arr == old, new, arr)
 
     def __getattr__(self, name):
         for module in self._modules:

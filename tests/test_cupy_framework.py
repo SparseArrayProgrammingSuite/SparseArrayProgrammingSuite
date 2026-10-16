@@ -21,7 +21,9 @@ if not hasattr(cusp, "csr_array"):  # pragma: no cover - depends on the host
     )
 
 from frameworks.saps_cupy import CuPyFramework  # noqa: E402
-from saps.benchmarks.elementwise import ElementwiseBenchmark  # noqa: E402
+from saps.benchmarks.elementwise_multiplication import (  # noqa: E402
+    ElementwiseMultiplicationBenchmark,
+)
 
 
 @pytest.fixture
@@ -263,6 +265,60 @@ def test_any_and_all_over_sparse(xp):
     assert bool(xp.all(full))
 
 
+# ----------------------------------------------------------------------- replace
+
+
+@pytest.mark.parametrize(
+    "old,new,expected",
+    [
+        (0, 7, [7, 2, np.nan, 2]),
+        (2, 0, [0, 0, np.nan, 0]),
+        (np.nan, 0, [0, 2, 0, 2]),
+        (9, 1, [0, 2, np.nan, 2]),
+    ],
+)
+def test_replace_dense_without_mutating_input(xp, old, new, expected):
+    values = np.array([0.0, 2.0, np.nan, 2.0])
+    array = xp.from_binsparse(from_numpy(values.copy()))
+
+    result = xp.replace(array, old, new)
+
+    np.testing.assert_array_equal(host(result), expected)
+    np.testing.assert_array_equal(host(array), values)
+
+
+def test_replace_promotes_integer_values(xp):
+    array = xp.from_binsparse(from_numpy(np.array([0, 2], dtype=np.int64)))
+
+    np.testing.assert_array_equal(host(xp.replace(array, 2, 1.5)), [0, 1.5])
+
+
+@pytest.mark.parametrize("format", ["coo", "csr", "csc"])
+def test_replace_sparse_formats(xp, format):
+    values = np.array([[0.0, 2.0, np.nan], [2.0, 0.0, 4.0]])
+    array = getattr(cusp, f"{format}_array")(getattr(sps, f"{format}_array")(values))
+
+    changed = xp.replace(array, 2, 0)
+
+    assert cusp.issparse(changed)
+    assert changed.format == format
+    np.testing.assert_array_equal(host(changed), [[0, 0, np.nan], [0, 0, 4]])
+    np.testing.assert_array_equal(
+        host(xp.replace(array, 0, 3)), [[3, 2, np.nan], [2, 3, 4]]
+    )
+    np.testing.assert_array_equal(
+        host(xp.replace(array, np.nan, 0)), [[0, 2, 0], [2, 0, 4]]
+    )
+    np.testing.assert_array_equal(host(array), values)
+
+
+def test_replace_combines_duplicate_sparse_coordinates_first(xp):
+    array = cusp.coo_array(sps.coo_array(([2.0, 3.0], ([0, 0], [1, 1])), shape=(2, 3)))
+
+    np.testing.assert_array_equal(host(xp.replace(array, 5, 0)), np.zeros((2, 3)))
+    assert host(array)[0, 1] == 5
+
+
 # ------------------------------------------------------------------ integration
 
 
@@ -288,7 +344,9 @@ def test_elementwise_benchmark_matches_reference(xp, matrix):
     left_device = xp.from_binsparse(from_scipy(matrix))
     right_device = xp.from_binsparse(from_scipy(other))
 
-    result = ElementwiseBenchmark().benchmark(xp, [left_device, right_device], {})[0]
+    result = ElementwiseMultiplicationBenchmark().benchmark(
+        xp, {}, left_device, right_device
+    )
 
     expected = matrix.multiply(other).toarray()
     np.testing.assert_array_equal(dense_binsparse(xp.to_binsparse(result)), expected)
