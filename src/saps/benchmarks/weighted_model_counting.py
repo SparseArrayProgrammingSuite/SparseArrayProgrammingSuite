@@ -91,6 +91,31 @@ def clauses_to_einsum(clauses, num_vars):
     return f"s[] += {mask_str} * {weights_str}"
 
 
+def referenceWeightedModelCount(num_vars, clauses, weights):
+    num_rows = 1 << num_vars
+    bit_index = np.arange(num_rows, dtype=np.int64)[:, None]
+    positions = np.arange(num_vars, dtype=np.int64)[None, :]
+    assignments = ((bit_index >> positions) & 1).astype(bool)
+
+    satisfied = np.ones(num_rows, dtype=bool)
+    for clause in clauses:
+        if not clause:
+            satisfied[:] = False
+            break
+        clause_mask = np.zeros(num_rows, dtype=bool)
+        for lit in clause:
+            column = assignments[:, abs(lit) - 1]
+            clause_mask |= column if lit > 0 else ~column
+        satisfied &= clause_mask
+
+    products = np.ones(num_rows, dtype=np.float64)
+    for i in range(1, num_vars + 1):
+        column = assignments[:, i - 1]
+        products *= np.where(column, np.float64(weights[i]), np.float64(weights[-i]))
+
+    return np.float64(np.sum(np.where(satisfied, products, np.float64(0.0))))
+
+
 class WeightedModelCountingTestDataset(Dataset):
     def __init__(
         self,
@@ -425,11 +450,16 @@ class WeightedModelCountingTestGenerator(
             [np.abs(weights[-i]) + np.abs(weights[i]) for i in range(1, num_vars + 1)]
         )
         bound = summation_error_bound(np, steps + 1, abs_sum, np.float64)
+        reference = (
+            default_total
+            if expr is None
+            else float(referenceWeightedModelCount(num_vars, clauses, weights))
+        )
         return DataInstance(
             inputs=data_list,
             meta=meta,
             ref_outputs=[from_numpy(np.array(dataset.expected))],
-            ref_meta={"error_bound": float(bound)},
+            ref_meta={"error_bound": float(bound), "reference_count": reference},
         )
 
 
@@ -617,6 +647,16 @@ class WeightedModelCountingBenchmark(Benchmark):
         expected = float(to_numpy(self._ref_outputs[0]))
         assert self._ref_meta is not None, "No error bound; regenerate the dataset"
         bound = self._ref_meta["error_bound"]
+        # The stored answer is typed in or parsed from the instance file, so check
+        # it against an independent brute-force count before trusting it.
+        assert "reference_count" in self._ref_meta, (
+            "No NumPy reference count; regenerate the cached dataset"
+        )
+        reference = self._ref_meta["reference_count"]
+        assert np.isclose(expected, reference, rtol=0, atol=bound), (
+            f"Test '{param.dataset.name}' has stored count {expected}, but the "
+            f"NumPy brute-force reference counts {reference}"
+        )
         assert np.isclose(result, expected, rtol=0, atol=bound), (
             f"Test '{param.dataset.name}' failed: expected {expected}, got {result}"
         )
