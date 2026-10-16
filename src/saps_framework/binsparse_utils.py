@@ -49,9 +49,38 @@ def tensor_data(tensor: BinsparseTensor):
     for convert in (to_scipy, to_sparse, to_numpy):
         try:
             return convert(tensor)
-        except TypeError:
+        except (TypeError, ValueError):
             pass
     raise TypeError(f"Cannot convert {type(tensor).__name__} to a supported array")
+
+
+def assert_binsparse_allclose(
+    expected: BinsparseTensor,
+    actual: BinsparseTensor,
+    *,
+    rtol: float = 1e-7,
+    atol: float = 1e-10,
+) -> None:
+    """Compare every entry, preserving sparse storage and nonzero fill values."""
+    assert expected.shape == actual.shape, "Output shape mismatch"
+    left, right = tensor_data(expected), tensor_data(actual)
+    if scipy_sparse.issparse(left):
+        left = sparse.COO.from_scipy_sparse(left)
+    if scipy_sparse.issparse(right):
+        right = sparse.COO.from_scipy_sparse(right)
+    if isinstance(left, sparse.SparseArray) and isinstance(right, np.ndarray):
+        right = sparse.COO.from_numpy(right, fill_value=left.fill_value)
+    if isinstance(right, sparse.SparseArray) and isinstance(left, np.ndarray):
+        left = sparse.COO.from_numpy(left, fill_value=right.fill_value)
+    # Equal infinities are valid; opposite infinities and finite/infinite pairs
+    # must fail even when their numerical difference or tolerance is infinite.
+    with np.errstate(invalid="ignore"):
+        close = (left == right) | (
+            np.isfinite(left)
+            & np.isfinite(right)
+            & (abs(left - right) <= atol + rtol * abs(left))
+        )
+    assert bool(np.all(close)), "Values differ beyond tolerance"
 
 
 def binsparse_equal(left: BinsparseTensor, right: BinsparseTensor) -> bool:

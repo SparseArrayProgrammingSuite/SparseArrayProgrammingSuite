@@ -2,6 +2,7 @@
 
 import numpy as np
 
+import igraph as ig
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
 
@@ -16,7 +17,7 @@ from saps.benchmark import (
 )
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
-from saps.util.adjacency import zero_one_adjacency
+from saps.util.adjacency import graph_csr, zero_one_adjacency
 
 
 class PageRankDataset(Dataset):
@@ -57,14 +58,6 @@ class PageRankDataset(Dataset):
     @property
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
-
-
-def pagerank_networkx_reference(A: np.ndarray) -> np.ndarray:
-    import networkx as nx
-
-    graph = nx.from_numpy_array(A, create_using=nx.DiGraph)
-    expected_dict = nx.pagerank(graph, alpha=0.85, max_iter=100, tol=1e-6)
-    return np.array([expected_dict[i] for i in range(len(graph))])
 
 
 class PageRankTestGenerator(Generator[PageRankDataset]):
@@ -136,8 +129,8 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
                 ref_meta={"rank_order": [0, 1]},
             ),
             PageRankDataset(
-                name="networkx",
-                pretty_name="NetworkX Comparison",
+                name="igraph",
+                pretty_name="igraph Comparison",
                 suites=["test"],
                 A=np.array(
                     [
@@ -148,18 +141,6 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
                         [0, 0, 1, 0, 0],
                     ],
                     dtype=float,
-                ),
-                expected=pagerank_networkx_reference(
-                    np.array(
-                        [
-                            [0, 1, 0, 0, 0],
-                            [0, 0, 1, 0, 0],
-                            [1, 0, 0, 1, 0],
-                            [0, 0, 0, 0, 1],
-                            [0, 0, 1, 0, 0],
-                        ],
-                        dtype=float,
-                    )
                 ),
             ),
             PageRankDataset(
@@ -174,16 +155,6 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
                     ],
                     dtype=float,
                 ),
-                expected=pagerank_networkx_reference(
-                    np.array(
-                        [
-                            [0, 0, 0],
-                            [1, 0, 0],
-                            [0, 1, 0],
-                        ],
-                        dtype=float,
-                    )
-                ),
             ),
         ]
 
@@ -193,12 +164,44 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
         ref_outputs = None
         if dataset.expected is not None:
             ref_outputs = [from_numpy(dataset.expected)]
-        return DataInstance(
+        problem = DataInstance(
             inputs=[from_numpy(dataset.A)],
             meta={},
             ref_outputs=ref_outputs,
             ref_meta=dataset.ref_meta,
         )
+        if problem.ref_outputs is None:
+            meta = problem.meta
+            adjacency = graph_csr(problem.inputs[0]).tocoo()
+            graph = ig.Graph(
+                n=adjacency.shape[0],
+                edges=np.column_stack((adjacency.col, adjacency.row)),
+                directed=True,
+            )
+            # The benchmark stores outgoing edges in columns.
+            alpha = meta.get("alpha", 0.85)
+            expected = from_numpy(
+                np.asarray(
+                    graph.pagerank(
+                        damping=alpha,
+                        weights=None
+                        if adjacency.dtype == bool
+                        else adjacency.data.tolist(),
+                    )
+                )
+            )
+            problem.ref_outputs = [expected]
+            problem.ref_meta = {
+                **(problem.ref_meta or {}),
+                "reference_backend": "igraph",
+                "reference_algorithm": "pagerank",
+                # L1 error bound for the benchmark's finite power iteration.
+                "reference_l1_tolerance": max(
+                    2 * alpha ** meta.get("max_iter", 100),
+                    meta.get("tol", 1e-8) / (1 - alpha),
+                ),
+            }
+        return problem
 
 
 class PageRankSNAPGenerator(Generator[PageRankDataset]):
@@ -323,9 +326,41 @@ class PageRankSNAPGenerator(Generator[PageRankDataset]):
 
     def generate(self, dataset: PageRankDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
-        return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0], np.float64)], meta=dict(raw.meta)
+        problem = DataInstance(
+            inputs=[zero_one_adjacency(raw.inputs[0])],
+            meta=dict(raw.meta),
         )
+        meta = problem.meta
+        adjacency = graph_csr(problem.inputs[0]).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.col, adjacency.row)),
+            directed=True,
+        )
+        # The benchmark stores outgoing edges in columns.
+        alpha = meta.get("alpha", 0.85)
+        expected = from_numpy(
+            np.asarray(
+                graph.pagerank(
+                    damping=alpha,
+                    weights=None
+                    if adjacency.dtype == bool
+                    else adjacency.data.tolist(),
+                )
+            )
+        )
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "igraph",
+            "reference_algorithm": "pagerank",
+            # L1 error bound for the benchmark's finite power iteration.
+            "reference_l1_tolerance": max(
+                2 * alpha ** meta.get("max_iter", 100),
+                meta.get("tol", 1e-8) / (1 - alpha),
+            ),
+        }
+        return problem
 
 
 class PageRankGAPGenerator(Generator[PageRankDataset]):
@@ -397,9 +432,41 @@ class PageRankGAPGenerator(Generator[PageRankDataset]):
 
     def generate(self, dataset: PageRankDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.name)
-        return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0], np.float64)], meta=dict(raw.meta)
+        problem = DataInstance(
+            inputs=[zero_one_adjacency(raw.inputs[0])],
+            meta=dict(raw.meta),
         )
+        meta = problem.meta
+        adjacency = graph_csr(problem.inputs[0]).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.col, adjacency.row)),
+            directed=True,
+        )
+        # The benchmark stores outgoing edges in columns.
+        alpha = meta.get("alpha", 0.85)
+        expected = from_numpy(
+            np.asarray(
+                graph.pagerank(
+                    damping=alpha,
+                    weights=None
+                    if adjacency.dtype == bool
+                    else adjacency.data.tolist(),
+                )
+            )
+        )
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "igraph",
+            "reference_algorithm": "pagerank",
+            # L1 error bound for the benchmark's finite power iteration.
+            "reference_l1_tolerance": max(
+                2 * alpha ** meta.get("max_iter", 100),
+                meta.get("tol", 1e-8) / (1 - alpha),
+            ),
+        }
+        return problem
 
 
 class PageRankBenchmark(Benchmark):
@@ -529,7 +596,7 @@ class PageRankBenchmark(Benchmark):
         u = xp.full((N,), 1.0 / N)
         for _ in range(max_iter):
             x_new = alpha * xp.matmul(M, x) + (1 - alpha) * u
-            diff = xp.sqrt(xp.sum(xp.multiply(x_new - x, x_new - x)))
+            diff = xp.sum(xp.abs(x_new - x))
             if diff < tol:
                 break
             x = x_new
@@ -545,9 +612,16 @@ class PageRankBenchmark(Benchmark):
 
         if self._ref_outputs is not None:
             expected = to_numpy(self._ref_outputs[0])
-            assert np.allclose(result, expected, atol=1e-2), (
-                f"PageRank output mismatch for {param.dataset.name}"
-            )
+            assert result.shape == expected.shape
+            if self._ref_meta and "reference_l1_tolerance" in self._ref_meta:
+                error = np.sum(np.abs(result - expected))
+                assert error <= self._ref_meta["reference_l1_tolerance"] + 1e-12, (
+                    f"PageRank output mismatch for {param.dataset.name}"
+                )
+            else:
+                assert np.allclose(result, expected, atol=1e-2), (
+                    f"PageRank output mismatch for {param.dataset.name}"
+                )
 
         if self._ref_meta is None:
             return

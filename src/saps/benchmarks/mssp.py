@@ -1,9 +1,10 @@
 # ruff: noqa: E501
 import numpy as np
 
+import igraph as ig
 import sparse as sp
 from binsparse import BinsparseTensor, COORMatrix
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse.conversions import from_numpy
 
 from saps.benchmark import (
     Author,
@@ -16,7 +17,8 @@ from saps.benchmark import (
 )
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
-from saps.util.adjacency import distance_matrix
+from saps.util.adjacency import distance_matrix, graph_csr
+from saps_framework.binsparse_utils import assert_binsparse_allclose
 
 
 class MSSPDataset(Dataset):
@@ -87,19 +89,6 @@ def multi_source_instance(
         ],
         meta={"sources": list(sources)},
     )
-
-
-def all_pairs_reference(A):
-    if isinstance(A, sp.SparseArray):
-        A = A.todense()
-    expected = A.copy()
-    for k in range(expected.shape[0]):
-        expected = np.minimum(
-            expected,
-            np.expand_dims(expected[:, k], axis=1)
-            + np.expand_dims(expected[k, :], axis=0),
-        )
-    return expected
 
 
 def shortest_paths_input_from_edges(
@@ -362,7 +351,15 @@ class MSSPTestGenerator(Generator[MSSPDataset]):
         sources = dataset.sources if dataset.sources is not None else list(range(n))
         expected = dataset.expected
         if expected is None:
-            expected = all_pairs_reference(inputs)[sources, :]
+            adjacency = graph_csr(from_numpy(inputs), distances=True).tocoo()
+            graph = ig.Graph(
+                n=adjacency.shape[0],
+                edges=np.column_stack((adjacency.row, adjacency.col)),
+                directed=True,
+            )
+            expected = np.asarray(
+                graph.distances(source=sources, weights=adjacency.data, mode="out")
+            )
         return DataInstance(
             inputs=[from_numpy(inputs), initial_distances(n, sources)],
             meta={"sources": list(sources)},
@@ -467,9 +464,30 @@ class MSSPGAPGenerator(Generator[MSSPDataset]):
                 f"Multi-Source Shortest Paths requires a square matrix, got {(n, m)}"
             )
 
-        return multi_source_instance(
+        problem = multi_source_instance(
             raw.inputs[0], raw.meta["sources"], symmetrize=dataset.symmetrize
         )
+        meta = problem.meta
+        adjacency = graph_csr(problem.inputs[0], distances=True).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.row, adjacency.col)),
+            directed=True,
+        )
+        sources = meta["sources"]
+        distances = np.empty((len(sources), graph.vcount()), dtype=float)
+        for row, source in enumerate(sources):
+            distances[row] = graph.distances(
+                source=[int(source)], weights=adjacency.data, mode="out"
+            )[0]
+        expected = from_numpy(distances)
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "igraph",
+            "reference_algorithm": "mssp",
+        }
+        return problem
 
 
 class MSSPSNAPGenerator(Generator[MSSPDataset]):
@@ -597,7 +615,28 @@ class MSSPSNAPGenerator(Generator[MSSPDataset]):
     def generate(self, dataset: MSSPDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
         sources = np.unique(raw.meta["sources"]).tolist()
-        return multi_source_instance(raw.inputs[0], sources)
+        problem = multi_source_instance(raw.inputs[0], sources)
+        meta = problem.meta
+        adjacency = graph_csr(problem.inputs[0], distances=True).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.row, adjacency.col)),
+            directed=True,
+        )
+        sources = meta["sources"]
+        distances = np.empty((len(sources), graph.vcount()), dtype=float)
+        for row, source in enumerate(sources):
+            distances[row] = graph.distances(
+                source=[int(source)], weights=adjacency.data, mode="out"
+            )[0]
+        expected = from_numpy(distances)
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "igraph",
+            "reference_algorithm": "mssp",
+        }
+        return problem
 
 
 class MSSPBenchmark(Benchmark):
@@ -715,11 +754,5 @@ class MSSPBenchmark(Benchmark):
             assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
-        output = to_numpy(self._output[0])
         if self._ref_outputs is not None:
-            expected = to_numpy(self._ref_outputs[0])
-            both_inf = np.isinf(output) & np.isinf(expected)
-            both_finite = np.isfinite(output) & np.isfinite(expected)
-            assert np.all(both_inf | (both_finite & (output == expected))), (
-                f"Multi-Source Shortest Paths output mismatch for {param.dataset.name}"
-            )
+            assert_binsparse_allclose(self._ref_outputs[0], self._output[0])

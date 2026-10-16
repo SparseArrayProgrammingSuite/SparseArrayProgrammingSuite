@@ -1,9 +1,49 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
+import textwrap
 from pathlib import Path
 
 from saps.metadata import metadata_document
+
+
+def test_metadata_generation_does_not_import_suitesparse():
+    # A fresh interpreter avoids hiding an eager import behind the module cache.
+    # Downloader tests supply fakes; normal CI metadata must not import ssgetpy,
+    # whose package initialization can download the SuiteSparse index.
+    script = textwrap.dedent(
+        """
+        import builtins
+        import sys
+
+        original_import = builtins.__import__
+
+        def no_suitesparse_import(name, *args, **kwargs):
+            if name == "ssgetpy" or name.startswith("ssgetpy."):
+                raise AssertionError("Metadata attempted a SuiteSparse import: " + name)
+            return original_import(name, *args, **kwargs)
+
+        builtins.__import__ = no_suitesparse_import
+        from saps.metadata import metadata_document
+        from saps.freshness import _freshness_inputs
+
+        document = metadata_document()
+        assert document["benchmarks"]
+        _, dependencies = _freshness_inputs("saps.benchmarks.cg")
+        assert "ssgetpy.matrix" in dependencies
+        assert "ssgetpy" not in sys.modules
+        """
+    )
+    completed = subprocess.run(
+        [sys.executable, "-c", script],
+        cwd=Path(__file__).parents[1],
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert completed.returncode == 0, completed.stdout + completed.stderr
 
 
 def test_statistics_tags_apply_to_whole_benchmark(tmp_path: Path):
