@@ -15,6 +15,12 @@ from filelock import FileLock
 from saps.downloaders import suitesparse
 
 
+@pytest.fixture(autouse=True)
+def _fake_ssgetpy_patch(monkeypatch):
+    # The real patch imports ssgetpy, which these tests replace with fakes.
+    monkeypatch.setitem(sys.modules, "saps.ssgetpy_patch", SimpleNamespace())
+
+
 class _FakeSuiteSparseMatrix(SimpleNamespace):
     def download(self, *, destpath, extract):
         self.download_args = {"destpath": destpath, "extract": extract}

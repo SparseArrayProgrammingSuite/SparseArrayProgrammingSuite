@@ -206,7 +206,7 @@ class FastSVSNAPGenerator(Generator[FastSVDataset]):
     def description(self) -> str:
         return (
             "SNAP graphs symmetrized with self-loops removed for FastSV weak "
-            "connected components, checked against SciPy."
+            "connected components, checked against igraph."
         )
 
     @property
@@ -355,7 +355,7 @@ class FastSVGAPGenerator(Generator[FastSVDataset]):
     def description(self) -> str:
         return (
             "GAP graphs symmetrized with self-loops removed for FastSV weak "
-            "connected components, checked against SciPy."
+            "connected components, checked against igraph."
         )
 
     @property

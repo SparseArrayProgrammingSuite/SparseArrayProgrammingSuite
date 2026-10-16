@@ -389,3 +389,17 @@ def test_igraph_pagerank_check_rejects_wrong_distribution(monkeypatch):
     wrong[1] -= 1e-4
     with pytest.raises(AssertionError):
         check_reference("pagerank", problem, from_numpy(wrong))
+
+
+def test_igraph_pagerank_tolerance_does_not_grow_with_graph_size(monkeypatch):
+    # A sqrt(n) * tol / (1 - alpha) bound would accept this error at n = 10_000.
+    n = 10_000
+    graph = sp.coo_array(
+        (np.ones(n), (np.roll(np.arange(n), 1), np.arange(n))), shape=(n, n)
+    )
+    problem = reference_problem(monkeypatch, "pagerank", from_scipy(graph), {})
+    wrong = to_numpy(problem.ref_outputs[0]).copy()
+    wrong[0] += 1e-6
+    wrong[1] -= 1e-6
+    with pytest.raises(AssertionError):
+        check_reference("pagerank", problem, from_numpy(wrong))

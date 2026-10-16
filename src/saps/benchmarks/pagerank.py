@@ -198,7 +198,7 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
                 # L1 error bound for the benchmark's finite power iteration.
                 "reference_l1_tolerance": max(
                     2 * alpha ** meta.get("max_iter", 100),
-                    np.sqrt(graph.vcount()) * meta.get("tol", 1e-8) / (1 - alpha),
+                    meta.get("tol", 1e-8) / (1 - alpha),
                 ),
             }
         return problem
@@ -357,7 +357,7 @@ class PageRankSNAPGenerator(Generator[PageRankDataset]):
             # L1 error bound for the benchmark's finite power iteration.
             "reference_l1_tolerance": max(
                 2 * alpha ** meta.get("max_iter", 100),
-                np.sqrt(graph.vcount()) * meta.get("tol", 1e-8) / (1 - alpha),
+                meta.get("tol", 1e-8) / (1 - alpha),
             ),
         }
         return problem
@@ -463,7 +463,7 @@ class PageRankGAPGenerator(Generator[PageRankDataset]):
             # L1 error bound for the benchmark's finite power iteration.
             "reference_l1_tolerance": max(
                 2 * alpha ** meta.get("max_iter", 100),
-                np.sqrt(graph.vcount()) * meta.get("tol", 1e-8) / (1 - alpha),
+                meta.get("tol", 1e-8) / (1 - alpha),
             ),
         }
         return problem
@@ -596,7 +596,7 @@ class PageRankBenchmark(Benchmark):
         u = xp.full((N,), 1.0 / N)
         for _ in range(max_iter):
             x_new = alpha * xp.matmul(M, x) + (1 - alpha) * u
-            diff = xp.sqrt(xp.sum(xp.multiply(x_new - x, x_new - x)))
+            diff = xp.sum(xp.abs(x_new - x))
             if diff < tol:
                 break
             x = x_new
