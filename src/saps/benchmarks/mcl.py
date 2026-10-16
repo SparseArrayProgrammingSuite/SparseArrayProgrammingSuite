@@ -4,8 +4,8 @@ from typing import Any
 import numpy as np
 import scipy.sparse as scipy_sparse
 
-from binsparse import COORMatrix
-from binsparse.conversions import to_numpy, to_scipy
+from binsparse import BinsparseTensor, COORMatrix
+from binsparse.conversions import from_scipy, to_numpy, to_scipy
 
 from saps.benchmark import (
     Author,
@@ -18,7 +18,8 @@ from saps.benchmark import (
 )
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
-from saps.util.adjacency import zero_one_adjacency
+from saps.util.adjacency import graph_csr, zero_one_adjacency
+from saps_framework.binsparse_utils import assert_coo_allclose
 
 
 class MCLDataset(Dataset):
@@ -184,11 +185,58 @@ class MCLTestGenerator(Generator[MCLDataset]):
             indices_1=cols,
             values=A[rows, cols],
         )
-        return DataInstance(
+        problem = DataInstance(
             inputs=[A_bin],
             meta={"expansion": 2, "inflation": 2, "loop_value": 1},
             ref_meta={"expected_count": dataset.expected_count},
         )
+        meta = problem.meta
+        graph = graph_csr(problem.inputs[0])
+        graph = graph.astype(float)
+        current = (
+            graph + meta.get("loop_value", 1) * scipy_sparse.eye(graph.shape[0])
+        ).tocsc()
+
+        sums = np.maximum(np.asarray(current.sum(axis=0)).ravel(), np.finfo(float).eps)
+        current = (current @ scipy_sparse.diags_array(1 / sums)).tocsc()
+        for iteration in range(meta.get("iterations", 100)):
+            previous = current
+            expanded = current.copy()
+            for _ in range(meta.get("expansion", 2) - 1):
+                expanded = (expanded @ current).tocsc()
+            threshold = meta.get("pruning_threshold", 1e-4)
+            frequency = meta.get("pruning_frequency", 1)
+            if threshold > 0 and (iteration + 1) % frequency == 0:
+                maxima = expanded.max(axis=0).toarray().ravel()
+                columns = np.repeat(
+                    np.arange(expanded.shape[1]), np.diff(expanded.indptr)
+                )
+                keep = (expanded.data >= threshold) | (expanded.data == maxima[columns])
+                expanded.data[~keep] = 0
+                expanded.eliminate_zeros()
+            expanded.data **= meta.get("inflation", 2)
+            sums = np.maximum(
+                np.asarray(expanded.sum(axis=0)).ravel(), np.finfo(float).eps
+            )
+            current = (expanded @ scipy_sparse.diags_array(1 / sums)).tocsc()
+            if (iteration + 1) % meta.get("convergence_check_frequency", 1) == 0:
+                delta = abs(current - previous).tocoo()
+                if delta.nnz == 0:
+                    break
+                old_values = abs(previous)[delta.row, delta.col]
+                if scipy_sparse.issparse(old_values):
+                    old_values = old_values.toarray()
+                tolerance = 1e-8 + 1e-5 * np.asarray(old_values).ravel()
+                if np.all(delta.data <= tolerance):
+                    break
+        expected = from_scipy(current.tocoo())
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "scipy",
+            "reference_algorithm": "mcl",
+        }
+        return problem
 
 
 class MCLSNAPGenerator(Generator[MCLDataset]):
@@ -312,9 +360,54 @@ class MCLSNAPGenerator(Generator[MCLDataset]):
 
     def generate(self, dataset: MCLDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
-        return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0], np.float32)], meta={}
-        )
+        problem = DataInstance(inputs=[zero_one_adjacency(raw.inputs[0])], meta={})
+        meta = problem.meta
+        graph = graph_csr(problem.inputs[0])
+        graph = graph.astype(float)
+        current = (
+            graph + meta.get("loop_value", 1) * scipy_sparse.eye(graph.shape[0])
+        ).tocsc()
+
+        sums = np.maximum(np.asarray(current.sum(axis=0)).ravel(), np.finfo(float).eps)
+        current = (current @ scipy_sparse.diags_array(1 / sums)).tocsc()
+        for iteration in range(meta.get("iterations", 100)):
+            previous = current
+            expanded = current.copy()
+            for _ in range(meta.get("expansion", 2) - 1):
+                expanded = (expanded @ current).tocsc()
+            threshold = meta.get("pruning_threshold", 1e-4)
+            frequency = meta.get("pruning_frequency", 1)
+            if threshold > 0 and (iteration + 1) % frequency == 0:
+                maxima = expanded.max(axis=0).toarray().ravel()
+                columns = np.repeat(
+                    np.arange(expanded.shape[1]), np.diff(expanded.indptr)
+                )
+                keep = (expanded.data >= threshold) | (expanded.data == maxima[columns])
+                expanded.data[~keep] = 0
+                expanded.eliminate_zeros()
+            expanded.data **= meta.get("inflation", 2)
+            sums = np.maximum(
+                np.asarray(expanded.sum(axis=0)).ravel(), np.finfo(float).eps
+            )
+            current = (expanded @ scipy_sparse.diags_array(1 / sums)).tocsc()
+            if (iteration + 1) % meta.get("convergence_check_frequency", 1) == 0:
+                delta = abs(current - previous).tocoo()
+                if delta.nnz == 0:
+                    break
+                old_values = abs(previous)[delta.row, delta.col]
+                if scipy_sparse.issparse(old_values):
+                    old_values = old_values.toarray()
+                tolerance = 1e-8 + 1e-5 * np.asarray(old_values).ravel()
+                if np.all(delta.data <= tolerance):
+                    break
+        expected = from_scipy(current.tocoo())
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "scipy",
+            "reference_algorithm": "mcl",
+        }
+        return problem
 
 
 class MCLGAPGenerator(Generator[MCLDataset]):
@@ -376,9 +469,54 @@ class MCLGAPGenerator(Generator[MCLDataset]):
 
     def generate(self, dataset: MCLDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.name)
-        return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0], np.float32)], meta={}
-        )
+        problem = DataInstance(inputs=[zero_one_adjacency(raw.inputs[0])], meta={})
+        meta = problem.meta
+        graph = graph_csr(problem.inputs[0])
+        graph = graph.astype(float)
+        current = (
+            graph + meta.get("loop_value", 1) * scipy_sparse.eye(graph.shape[0])
+        ).tocsc()
+
+        sums = np.maximum(np.asarray(current.sum(axis=0)).ravel(), np.finfo(float).eps)
+        current = (current @ scipy_sparse.diags_array(1 / sums)).tocsc()
+        for iteration in range(meta.get("iterations", 100)):
+            previous = current
+            expanded = current.copy()
+            for _ in range(meta.get("expansion", 2) - 1):
+                expanded = (expanded @ current).tocsc()
+            threshold = meta.get("pruning_threshold", 1e-4)
+            frequency = meta.get("pruning_frequency", 1)
+            if threshold > 0 and (iteration + 1) % frequency == 0:
+                maxima = expanded.max(axis=0).toarray().ravel()
+                columns = np.repeat(
+                    np.arange(expanded.shape[1]), np.diff(expanded.indptr)
+                )
+                keep = (expanded.data >= threshold) | (expanded.data == maxima[columns])
+                expanded.data[~keep] = 0
+                expanded.eliminate_zeros()
+            expanded.data **= meta.get("inflation", 2)
+            sums = np.maximum(
+                np.asarray(expanded.sum(axis=0)).ravel(), np.finfo(float).eps
+            )
+            current = (expanded @ scipy_sparse.diags_array(1 / sums)).tocsc()
+            if (iteration + 1) % meta.get("convergence_check_frequency", 1) == 0:
+                delta = abs(current - previous).tocoo()
+                if delta.nnz == 0:
+                    break
+                old_values = abs(previous)[delta.row, delta.col]
+                if scipy_sparse.issparse(old_values):
+                    old_values = old_values.toarray()
+                tolerance = 1e-8 + 1e-5 * np.asarray(old_values).ravel()
+                if np.all(delta.data <= tolerance):
+                    break
+        expected = from_scipy(current.tocoo())
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "scipy",
+            "reference_algorithm": "mcl",
+        }
+        return problem
 
 
 class MCLBenchmark(Benchmark):
@@ -554,7 +692,12 @@ class MCLBenchmark(Benchmark):
         return current_matrix
 
     def check(self, param):
-        super().check(param)
+        for item in self._output:
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
+        if self._ref_outputs is not None:
+            assert_coo_allclose(self._ref_outputs[0], self._output[0])
         if not self._ref_meta or "expected_count" not in self._ref_meta:
             return
         expected_count = self._ref_meta["expected_count"]

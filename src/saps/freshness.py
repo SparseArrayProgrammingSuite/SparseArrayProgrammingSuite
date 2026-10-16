@@ -1,5 +1,6 @@
 import ast
 import hashlib
+import importlib.machinery
 import importlib.util
 import os
 import sys
@@ -31,7 +32,17 @@ def _is_under_venv(path: Path) -> bool:
 
 def _module_path(module_name: str) -> Path | None:
     try:
-        spec = importlib.util.find_spec(module_name)
+        parts = module_name.split(".")
+        spec = importlib.util.find_spec(parts[0])
+        # find_spec("package.module") imports package to obtain its __path__.
+        # Walk search locations instead: dependency inspection must not execute
+        # package initializers (ssgetpy's initializer downloads its index).
+        for index in range(1, len(parts)):
+            if spec is None or spec.submodule_search_locations is None:
+                return None
+            spec = importlib.machinery.PathFinder.find_spec(
+                ".".join(parts[: index + 1]), spec.submodule_search_locations
+            )
     except (ImportError, ModuleNotFoundError, ValueError):
         return None
     if spec is None or spec.origin is None:

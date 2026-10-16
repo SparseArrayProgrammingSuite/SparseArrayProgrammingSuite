@@ -3,7 +3,13 @@ from typing import Any
 
 import numpy as np
 
-from binsparse import COORMatrix, CustomTensor, ElementLevel, SparseLevel
+from binsparse import (
+    BinsparseTensor,
+    COORMatrix,
+    CustomTensor,
+    ElementLevel,
+    SparseLevel,
+)
 from binsparse.conversions import to_numpy
 
 from saps.benchmark import (
@@ -2823,7 +2829,10 @@ class SubgraphMatchingBenchmark(Benchmark):
         )
 
     def check(self, param):
-        super().check(param)
+        for item in self._output:
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
         assert self._ref_meta and "gt" in self._ref_meta, "No reference count"
         result = int(np.asarray(to_numpy(self._output[0])).ravel()[0])
         expected = self._ref_meta["gt"]

@@ -46,11 +46,12 @@ jobs:
       - uses: codecov/codecov-action@v5
 
 on:
-  # Trigger the workflow on push or pull request,
-  # but only for the main branch
+  # Trigger the workflow on push or pull request for the main branch,
+  # and for merge queue entries (required checks must report there too).
   push:
     branches:
       - main
   pull_request:
     branches:
       - main
+  merge_group:
