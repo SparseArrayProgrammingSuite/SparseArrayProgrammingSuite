@@ -1,7 +1,6 @@
 import numpy as np
 
-from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse.conversions import from_numpy
 from numba import njit, prange
 
 from saps.benchmark import (
@@ -19,6 +18,7 @@ from saps.util.tensor_checks import (
     decomposition_outputs,
     stored_entries,
 )
+
 
 @njit(cache=True, parallel=True)
 def _sparse_cp_inner(values, modes, n_modes, weights):

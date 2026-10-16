@@ -12,6 +12,7 @@ from saps.benchmark import (
 from saps.downloaders.frostt import load_frostt_tensor
 from saps.util.tensor_checks import input_norms
 
+
 class FROSTTDataset(Dataset):
     """Base Dataset for benchmarks backed by a FROSTT sparse tensor."""
 

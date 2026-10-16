@@ -3,7 +3,7 @@ from typing import Any
 
 import numpy as np
 
-from binsparse import BinsparseTensor, CustomTensor, ElementLevel, SparseLevel
+from binsparse import CustomTensor, ElementLevel, SparseLevel
 from binsparse.conversions import from_numpy, to_numpy
 from numba import njit, prange
 
@@ -22,6 +22,7 @@ from saps.util.tensor_checks import (
     decomposition_outputs,
     stored_entries,
 )
+
 
 @njit(cache=True, parallel=True)
 def _sparse_tucker_inner(values, modes, n_modes, core):
@@ -454,9 +455,9 @@ def _hosvd_frostt_dataset(tensor_name, ranks, suites):
         f"HOSVD ranks {ranks} do not match shape {shape} for "
         f"FROSTT tensor {tensor_name}"
     )
-    assert all(
-        r <= s for r, s in zip(ranks, shape, strict=True)
-    ), f"HOSVD ranks {ranks} exceed shape {shape} for FROSTT tensor {tensor_name}"
+    assert all(r <= s for r, s in zip(ranks, shape, strict=True)), (
+        f"HOSVD ranks {ranks} exceed shape {shape} for FROSTT tensor {tensor_name}"
+    )
     n = len(shape)
     return HOSVDFROSTTDataset(
         name=tensor_name,

@@ -21,7 +21,9 @@ def decomposition_outputs(outputs, shapes):
     arrays = []
     for output, shape in zip(outputs, shapes, strict=True):
         assert isinstance(output, BinsparseTensor), "Output must be in binsparse format"
-        assert output.shape == shape, f"Expected output shape {shape}, got {output.shape}"
+        assert output.shape == shape, (
+            f"Expected output shape {shape}, got {output.shape}"
+        )
         arrays.append(_finite(np.asarray(to_numpy(output), dtype=np.float64)))
     return arrays
 
