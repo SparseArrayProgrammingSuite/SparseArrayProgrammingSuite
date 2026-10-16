@@ -1,12 +1,99 @@
+import json
+import logging
 import operator
+import os
 from functools import wraps
+from pathlib import Path
 from typing import Any
 
 import numpy as np
 
-from saps_sparse import PyDataSparseFramework
+from saps_smart import SmartSparseFramework, WrappedArray
 
 from saps_framework import Framework
+
+
+def _get_or_add_record(records: list[dict], key: str, value: str, defaults: dict):
+    for record in records:
+        if record.get(key) == value:
+            return record
+    record = {key: value, **defaults}
+    records.append(record)
+    return record
+
+
+def _write_statistics_tags(
+    statistics_path: Path,
+    benchmark_name: str,
+    generator_name: str,
+    dataset_name: str,
+    dataset_file: str,
+    dataset_freshness: str,
+    tags: list[str],
+):
+    statistics_path.parent.mkdir(parents=True, exist_ok=True)
+    if statistics_path.exists():
+        document = json.loads(statistics_path.read_text(encoding="utf-8"))
+    else:
+        document = {"benchmarks": []}
+
+    benchmark = _get_or_add_record(
+        document.setdefault("benchmarks", []),
+        "name",
+        benchmark_name,
+        {"statistics": [], "generators": []},
+    )
+    benchmark.setdefault("statistics", [])
+
+    generator = _get_or_add_record(
+        benchmark.setdefault("generators", []),
+        "name",
+        generator_name,
+        {"statistics": [], "datasets": []},
+    )
+    generator.setdefault("statistics", [])
+
+    dataset = _get_or_add_record(
+        generator.setdefault("datasets", []),
+        "name",
+        dataset_name,
+        {
+            "file": dataset_file,
+            "freshness": dataset_freshness,
+            "statistics": [],
+        },
+    )
+    dataset["file"] = dataset_file
+    dataset["freshness"] = dataset_freshness
+    dataset["statistics"] = sorted({*dataset.get("statistics", []), *tags})
+
+    document["benchmarks"] = sorted(
+        document.get("benchmarks", []),
+        key=lambda record: record["name"],
+    )
+    for record in document["benchmarks"]:
+        record["generators"] = sorted(
+            record.get("generators", []),
+            key=lambda generator: generator["name"],
+        )
+        for generator in record["generators"]:
+            generator["datasets"] = sorted(
+                generator.get("datasets", []),
+                key=lambda dataset: dataset["name"],
+            )
+
+    statistics_path.write_text(
+        json.dumps(document, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    logging.getLogger("saps.work").info(
+        "traced %s.%s.%s: %s",
+        benchmark_name,
+        generator_name,
+        dataset_name,
+        ", ".join(tags),
+    )
+
 
 _ELEMENTWISE_OPERATORS = {
     "abs",
@@ -48,6 +135,7 @@ _ELEMENTWISE_OPERATORS = {
     "positive",
     "power",
     "remainder",
+    "replace",
     "sin",
     "sinh",
     "sqrt",
@@ -211,6 +299,7 @@ def tags_from_stats(stats: dict) -> list[str]:
         "min",
         "minimum",
         "not_equal",
+        "replace",
         "sort",
         "where",
     }
@@ -284,7 +373,7 @@ def tags_from_stats(stats: dict) -> list[str]:
     ):
         tags.add("dynamic-sparsity")
 
-    return sorted(tags)
+    return sorted(f"feature-{tag}" for tag in tags)
 
 
 class TaggedArray:
@@ -337,7 +426,7 @@ class TaggedArray:
 
     def __setitem__(self, key, value):
         self.framework._record_operation("array", "setitem", (self, key, value), {})
-        self.array[key] = self.framework._unwrap(value)
+        self.array[self.framework._unwrap(key)] = self.framework._unwrap(value)
 
     def __array__(self, dtype=None):
         data = np.asarray(self.array)
@@ -633,7 +722,7 @@ class TaggedLinalg:
 
 class TaggerFramework(Framework):
     def __init__(self, wrapped: Framework | None = None):
-        self.wrapped = wrapped or PyDataSparseFramework()
+        self.wrapped = wrapped or SmartSparseFramework()
         self.stats: dict[str, Any] = {
             "operators": {},
             "operator_arg_counts": {},
@@ -662,6 +751,10 @@ class TaggerFramework(Framework):
         )
 
     def _tensor_stats(self, array, elementwise_ops_since_reduction=0):
+        # Describe a wrapped tensor by its storage: a dense array's remembered
+        # fill value isn't a sparse format feature.
+        if isinstance(array, WrappedArray):
+            array = array.array
         shape = array.shape
         if shape is not None:
             shape = tuple(int(dim) for dim in shape)
@@ -827,8 +920,57 @@ class TaggerFramework(Framework):
         )
 
     def compile(self, func):
-        self._record_operation("", "compile", (func,), {})
-        return self.wrapped.compile(func)
+        compiled = self.wrapped.compile(func)
+        metadata = getattr(func, "saps_metadata", None)
+
+        @wraps(func)
+        def tagged(*args, **kwargs):
+            self.reset_stats()
+            # Conversion happens before this callable. Include input tensors
+            # even when the benchmark returns them without doing any operations.
+            self.stats["tensors"].extend(self._operand_stats(args, kwargs))
+            output = compiled(*args, **kwargs)
+            if metadata is not None:
+                self._write_tagger_stats(metadata)
+            return output
+
+        return tagged
+
+    def _write_tagger_stats(self, metadata):
+        stats_dir = os.environ.get("SAPS_TAGGER_STATS_DIR")
+        statistics_path = os.environ.get("SAPS_STATISTICS_PATH")
+        tags = self.tags
+        data = {
+            "benchmark_name": metadata["benchmark_name"],
+            "generator_name": metadata["generator_name"],
+            "dataset_name": metadata["dataset_name"],
+            "tags": tags,
+        }
+        if stats_dir:
+            path = Path(stats_dir)
+            path.mkdir(parents=True, exist_ok=True)
+            record_id = ".".join(
+                metadata[key]
+                for key in ("benchmark_name", "generator_name", "dataset_name")
+            )
+            safe_id = "".join(
+                char if char.isalnum() or char in "._-" else "_" for char in record_id
+            )
+            output_path = path / f"{safe_id}.json"
+            output_path.write_text(
+                json.dumps(data, indent=2, default=str) + "\n",
+                encoding="utf-8",
+            )
+        if statistics_path:
+            _write_statistics_tags(
+                Path(statistics_path),
+                metadata["benchmark_name"],
+                metadata["generator_name"],
+                metadata["dataset_name"],
+                metadata["dataset_file"],
+                metadata["dataset_freshness"],
+                tags,
+            )
 
     def einsum(self, prgm, **kwargs):
         self._record_operation("", "einsum", (prgm,), kwargs)
@@ -883,14 +1025,13 @@ class TaggerFramework(Framework):
             elementwise_ops_since_reduction=result_lineage,
         )
 
-    def with_fill_value(self, array, value):
-        self._record_operation("", "with_fill_value", (array, value), {})
+    def replace(self, arr, old, new):
+        self._record_operation("", "replace", (arr, old, new), {})
         result_lineage = self._result_elementwise_count(
-            "", "with_fill_value", (array, value), {}
+            "", "replace", (arr, old, new), {}
         )
-        array = self._unwrap(array)
         return self._wrap(
-            self.wrapped.with_fill_value(array, value),
+            self.wrapped.replace(*(self._unwrap(value) for value in (arr, old, new))),
             elementwise_ops_since_reduction=result_lineage,
         )
 

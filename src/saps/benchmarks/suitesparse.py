@@ -21,12 +21,6 @@ from saps.downloaders.suitesparse import (
 )
 
 
-def suite_sparse_rhs_dataset_name(source_name: str, rhs_index: int | None) -> str:
-    if rhs_index is None:
-        return source_name
-    return f"{source_name}__rhs{rhs_index}"
-
-
 class SuiteSparseDataset(Dataset):
     """Base Dataset for benchmarks backed by a SuiteSparse Matrix Collection matrix."""
 
@@ -500,6 +494,69 @@ _MATRICES: list[SuiteSparseDataset] = [
         "SNAP/CollegeMsg",
         "SNAP/email-Eu-core",
         "SNAP/wiki-Vote",
+        "SNAP/Oregon-1",
+        "SNAP/Oregon-2",
+        "SNAP/amazon0302",
+        "SNAP/amazon0312",
+        "SNAP/amazon0505",
+        "SNAP/amazon0601",
+        "SNAP/as-735",
+        "SNAP/as-Skitter",
+        "SNAP/as-caida",
+        "SNAP/ca-AstroPh",
+        "SNAP/ca-CondMat",
+        "SNAP/ca-HepTh",
+        "SNAP/cit-HepPh",
+        "SNAP/cit-HepTh",
+        "SNAP/cit-Patents",
+        "SNAP/com-Amazon",
+        "SNAP/com-DBLP",
+        "SNAP/com-Friendster",
+        "SNAP/com-LiveJournal",
+        "SNAP/com-Orkut",
+        "SNAP/com-Youtube",
+        "SNAP/email-Enron",
+        "SNAP/email-Eu-core-temporal",
+        "SNAP/email-EuAll",
+        "SNAP/higgs-twitter",
+        "SNAP/loc-Brightkite",
+        "SNAP/loc-Gowalla",
+        "SNAP/p2p-Gnutella04",
+        "SNAP/p2p-Gnutella05",
+        "SNAP/p2p-Gnutella06",
+        "SNAP/p2p-Gnutella08",
+        "SNAP/p2p-Gnutella09",
+        "SNAP/p2p-Gnutella24",
+        "SNAP/p2p-Gnutella25",
+        "SNAP/p2p-Gnutella30",
+        "SNAP/p2p-Gnutella31",
+        "SNAP/roadNet-CA",
+        "SNAP/roadNet-PA",
+        "SNAP/roadNet-TX",
+        "SNAP/soc-Epinions1",
+        "SNAP/soc-LiveJournal1",
+        "SNAP/soc-Pokec",
+        "SNAP/soc-Slashdot0811",
+        "SNAP/soc-Slashdot0902",
+        "SNAP/soc-sign-Slashdot081106",
+        "SNAP/soc-sign-Slashdot090216",
+        "SNAP/soc-sign-Slashdot090221",
+        "SNAP/soc-sign-bitcoin-alpha",
+        "SNAP/soc-sign-bitcoin-otc",
+        "SNAP/soc-sign-epinions",
+        "SNAP/sx-askubuntu",
+        "SNAP/sx-mathoverflow",
+        "SNAP/sx-stackoverflow",
+        "SNAP/sx-superuser",
+        "SNAP/twitter7",
+        "SNAP/web-BerkStan",
+        "SNAP/web-Google",
+        "SNAP/web-NotreDame",
+        "SNAP/web-Stanford",
+        "SNAP/wiki-RfA",
+        "SNAP/wiki-Talk",
+        "SNAP/wiki-talk-temporal",
+        "SNAP/wiki-topcats",
         "Simon/olafu",
         "Simon/raefsky3",
         "Simon/raefsky4",
@@ -507,404 +564,41 @@ _MATRICES: list[SuiteSparseDataset] = [
         "UTEP/Dubcova1",
         "Wang/wang4",
         "Zitney/rdist1",
-    ]
-] + [
-    SuiteSparseDataset(
-        suite_sparse_rhs_dataset_name(source_name, rhs_index),
-        source_name=source_name,
-        rhs_index=rhs_index,
-    )
-    for source_name, rhs_index in [
-        ("Bomhof/circuit_1", 0),
-        ("Bourchtein/atmosmodd", 1),
-        ("Bourchtein/atmosmodj", 1),
-        ("Bourchtein/atmosmodl", 0),
-        ("Bourchtein/atmosmodl", 1),
-        ("Bourchtein/atmosmodm", 0),
-        ("Bourchtein/atmosmodm", 1),
-        ("FEMLAB/poisson2D", 0),
-        ("GHS_indef/boyd1", 0),
-        ("GHS_indef/boyd2", 0),
-        ("Grund/b1_ss", 0),
-        ("Grund/poli", 0),
-        ("HB/orani678", 1),
-        ("HB/orani678", 2),
-        ("HB/orani678", 3),
-        ("HB/orani678", 4),
-        ("HB/orani678", 5),
-        ("HB/orani678", 6),
-        ("HB/orani678", 7),
-        ("HB/orani678", 8),
-        ("HB/orani678", 10),
-        ("HB/orani678", 11),
-        ("HB/orani678", 12),
-        ("HB/orani678", 14),
-        ("HB/orani678", 15),
-        ("HB/orani678", 16),
-        ("HB/orani678", 17),
-        ("HB/orani678", 18),
-        ("HB/orani678", 19),
-        ("HB/orani678", 62),
-        ("Hamm/add32", 0),
-        ("Hamrle/Hamrle1", 0),
-        ("NYPA/Maragal_1", 0),
-        ("NYPA/Maragal_2", 0),
-        ("NYPA/Maragal_3", 0),
-        ("NYPA/Maragal_4", 0),
-        ("NYPA/Maragal_5", 0),
-        ("NYPA/Maragal_6", 0),
-        ("Nasa/nasa2146", 0),
-        ("Sandia/mult_dcop_02", 0),
-        ("Schenk_AFE/af_shell3", 0),
-        ("Schenk_AFE/af_shell4", 0),
-        ("Schenk_AFE/af_shell7", 0),
-        ("Schenk_AFE/af_shell8", 0),
-        ("Simon/raefsky5", 0),
-        ("Simon/raefsky6", 0),
-        ("TOKAMAK/utm1700b", 0),
-        ("TOKAMAK/utm3060", 0),
-        ("Um/2cubes_sphere", 0),
-        ("VDOL/hangGlider_1", 0),
-        ("VDOL/tumorAntiAngiogenesis_1", 0),
-        ("VDOL/tumorAntiAngiogenesis_2", 0),
+        "Bomhof/circuit_1",
+        "Bourchtein/atmosmodd",
+        "Bourchtein/atmosmodj",
+        "Bourchtein/atmosmodl",
+        "Bourchtein/atmosmodm",
+        "FEMLAB/poisson2D",
+        "GHS_indef/boyd1",
+        "GHS_indef/boyd2",
+        "Grund/b1_ss",
+        "Grund/poli",
+        "Hamm/add32",
+        "Hamrle/Hamrle1",
+        "NYPA/Maragal_1",
+        "NYPA/Maragal_2",
+        "NYPA/Maragal_3",
+        "NYPA/Maragal_4",
+        "NYPA/Maragal_5",
+        "NYPA/Maragal_6",
+        "Nasa/nasa2146",
+        "Sandia/mult_dcop_02",
+        "Schenk_AFE/af_shell3",
+        "Schenk_AFE/af_shell4",
+        "Schenk_AFE/af_shell7",
+        "Schenk_AFE/af_shell8",
+        "Simon/raefsky5",
+        "Simon/raefsky6",
+        "TOKAMAK/utm1700b",
+        "TOKAMAK/utm3060",
+        "Um/2cubes_sphere",
+        "VDOL/hangGlider_1",
+        "VDOL/tumorAntiAngiogenesis_1",
+        "VDOL/tumorAntiAngiogenesis_2",
     ]
 ]
 _MATRICES += [SuiteSparseDataset(f"LPnetlib/{name}") for name in _LPNETLIB_PROBLEMS]
-
-_GAP_ROAD_SOURCES: list[int] = [
-    4795720,
-    21003853,
-    417968,
-    6496511,
-    6648699,
-    9811073,
-    22247478,
-    5720252,
-    12366459,
-    20413729,
-    4217374,
-    2674749,
-    22085557,
-    19445040,
-    2360788,
-    19115968,
-    7758767,
-    13468234,
-    30367,
-    18599547,
-    7526108,
-    16836280,
-    12742067,
-    7697995,
-    5876443,
-    9616340,
-    2497673,
-    10052290,
-    12493057,
-    1670855,
-    2760679,
-    2460941,
-    8489650,
-    5005225,
-    8744645,
-    8512023,
-    21912165,
-    1105390,
-    15432163,
-    1600177,
-    19079469,
-    16516637,
-    20202566,
-    21372803,
-    2898009,
-    8491277,
-    18798317,
-    23757560,
-    17161819,
-    23180739,
-    10997085,
-    3730630,
-    1079068,
-    15426822,
-    12190925,
-    1155218,
-    10693488,
-    14434835,
-    19963339,
-    3486185,
-    18383269,
-    20269908,
-    12370764,
-    7843140,
-]
-
-_GAP_TWITTER_SOURCES: list[int] = [
-    12441072,
-    54488257,
-    25451915,
-    57714473,
-    14839494,
-    32081104,
-    52957357,
-    50444380,
-    49590701,
-    20127816,
-    34939333,
-    48251001,
-    19524253,
-    43676726,
-    33055508,
-    15244687,
-    24946738,
-    6479472,
-    26077682,
-    22023875,
-    22081915,
-    40034162,
-    49496014,
-    42847507,
-    52409557,
-    55445388,
-    22028097,
-    48766648,
-    44521241,
-    60135542,
-    28528671,
-    9678012,
-    40020306,
-    31625735,
-    37446892,
-    51788952,
-    52584255,
-    20346696,
-    48387909,
-    37337427,
-    50501084,
-    30130061,
-    41185893,
-    56495703,
-    45663305,
-    33359460,
-    48143058,
-    33291513,
-    53461445,
-    29340610,
-    34148498,
-    49171806,
-    35550696,
-    14521507,
-    51633218,
-    46823382,
-    19396273,
-    19871750,
-    36862677,
-    49539126,
-    34016452,
-    36567395,
-    55487793,
-    14391370,
-]
-
-_GAP_WEB_SOURCES: list[int] = [
-    10219452,
-    44758211,
-    890671,
-    13843756,
-    14168062,
-    20906930,
-    12189584,
-    26352335,
-    43500686,
-    8987024,
-    5699762,
-    41436455,
-    5030727,
-    40735218,
-    16533563,
-    28700166,
-    64711,
-    39634750,
-    16037779,
-    27152739,
-    16404061,
-    20491963,
-    5322423,
-    21420953,
-    26622109,
-    5882875,
-    18091040,
-    10665896,
-    18634422,
-    18138715,
-    2355535,
-    32885205,
-    40657440,
-    35196167,
-    45544426,
-    6175519,
-    40058318,
-    50626230,
-    36571019,
-    49397052,
-    23434265,
-    2299444,
-    32873823,
-    25978282,
-    2461715,
-    22787314,
-    30759947,
-    7428894,
-    39173870,
-    43194209,
-    26361509,
-    39747211,
-    30670029,
-    41483033,
-    9358666,
-    9945008,
-    3355244,
-    33831269,
-    45124744,
-    16137877,
-    11235448,
-    37509144,
-    27402414,
-    39546083,
-]
-
-_GAP_KRON_SOURCES: list[int] = [
-    2338012,
-    31997659,
-    23590940,
-    43400604,
-    75337937,
-    169867,
-    104041220,
-    94177942,
-    32871357,
-    56230002,
-    69883037,
-    9346345,
-    48915358,
-    122571173,
-    6183279,
-    86323663,
-    106725780,
-    92389938,
-    16210738,
-    59816700,
-    111669929,
-    102831411,
-    113384800,
-    43872564,
-    80508827,
-    26105648,
-    8807516,
-    118452455,
-    121818859,
-    42361928,
-    29493053,
-    98461503,
-    71931337,
-    103808468,
-    4092345,
-    115276241,
-    4649343,
-    76656189,
-    31312001,
-    111334127,
-    100962918,
-    41823215,
-    22631240,
-    42848461,
-    79485148,
-    106818742,
-    73347974,
-    78848445,
-    109920510,
-    121492133,
-    101037296,
-    15438600,
-    4584784,
-    124503845,
-    87241743,
-    108297008,
-    33955082,
-    79934823,
-    8608481,
-    82435063,
-    46579271,
-    515421,
-    121530467,
-    127978736,
-]
-
-_GAP_URAND_SOURCES: list[int] = [
-    27691419,
-    121280314,
-    2413431,
-    37512113,
-    38390877,
-    56651037,
-    128461248,
-    33029842,
-    71406328,
-    117872827,
-    24351938,
-    15444519,
-    127526281,
-    112279428,
-    13631649,
-    110379302,
-    44800623,
-    77768193,
-    175347,
-    107397389,
-    43457209,
-    97215940,
-    73575165,
-    44449715,
-    33931724,
-    55526610,
-    14422051,
-    58043873,
-    72137329,
-    9647840,
-    15940695,
-    14209952,
-    49020883,
-    28901138,
-    50493273,
-    49150069,
-    126525082,
-    6382740,
-    89108297,
-    9239735,
-    110168548,
-    95370259,
-    116653530,
-    123410703,
-    16733665,
-    49030282,
-    108545121,
-    99095665,
-    133850077,
-    63499301,
-    21541382,
-    6230751,
-    89077456,
-    70392765,
-    6670455,
-    61746271,
-    83349535,
-    115272184,
-    20129908,
-    106148553,
-    117042375,
-    71431187,
-    45287808,
-    107702120,
-]
 
 
 class SuiteSparseMatrixGenerator(Generator[SuiteSparseDataset]):
@@ -916,7 +610,7 @@ class SuiteSparseMatrixGenerator(Generator[SuiteSparseDataset]):
 
     @property
     def pretty_name(self) -> str:
-        return "SuiteSparse Matrix Collection"
+        return "SuiteSparse Matrices"
 
     @property
     def description(self) -> str:
@@ -985,47 +679,37 @@ class SuiteSparseMatrixGenerator(Generator[SuiteSparseDataset]):
             inputs = [from_scipy(A)]
             inputs.extend(from_numpy(vector) for vector in (rhs, c, lo, hi))
             return DataInstance(inputs=inputs, meta=meta)
-        A, b, meta = load_suitesparse_matrix(
-            dataset.source_name,
-            rhs_index=dataset.rhs_index,
-        )
+        A, b, meta = load_suitesparse_matrix(dataset.source_name)
         inputs = [from_scipy(A)]
         if b is not None:
             inputs.append(from_numpy(b))
         return DataInstance(inputs=inputs, meta=meta)
 
 
-class SuiteSparseMatrixBenchmark(ShellBenchmark):
+class SuiteSparseMatrixShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
         return SuiteSparseMatrixGenerator()
 
 
-def fetch_suitesparse_matrix(
-    source_name: str,
-    *,
-    rhs_index: int | None = None,
-) -> DataInstance:
+def fetch_suitesparse_matrix(source_name: str) -> DataInstance:
     """Fetch a listed raw matrix via the shared `SuiteSparseMatrixGenerator`.
 
-    `.inputs[0]` is the matrix; `.inputs[1]` is its real RHS vector when the
-    SuiteSparse collection entry ships one (see `.meta["has_b_file"]`).
+    `.inputs[0]` is the matrix; `.inputs[1]` contains all compatible real RHSs
+    when available (see `.meta["has_b_file"]`): a vector for one RHS, or a matrix
+    with one RHS per column. Consumers select RHSs after fetching this shared data.
     `.meta["shape"]` and `.meta["nnz"]` give the matrix shape/nnz. LPnetlib
     entries always carry `b`, followed by the objective `c` and the bounds `lo`
     and `hi` as `.inputs[2:5]`, with the objective offset in `.meta["z0"]`.
     """
     raw_generator = SuiteSparseMatrixGenerator()
     raw_dataset = next(
-        (
-            d
-            for d in raw_generator.datasets
-            if (d.source_name, d.rhs_index) == (source_name, rhs_index)
-        ),
+        (d for d in raw_generator.datasets if d.source_name == source_name),
         None,
     )
     if raw_dataset is None:
         raise ValueError(
-            f"Dataset {suite_sparse_rhs_dataset_name(source_name, rhs_index)!r} "
+            f"Dataset {source_name!r} "
             "is not listed in SuiteSparseMatrixGenerator.datasets. "
             "Add it to the shell dataset list before using it."
         )
@@ -1039,21 +723,31 @@ def fetch_suitesparse_linear_system(
 ) -> tuple[BinsparseTensor, np.ndarray, bool]:
     """Fetch a matrix paired with a right-hand-side vector `b` to solve against.
 
-    Returns `(A, b, has_real_rhs)`. Every CG/Jacobi/GMRES/LSQR/PreconditionedCG
-    generator synthesizes `b` from the matrix the same deterministic way (`b = A @ x`
-    for a random sparse `x`, via `random_rhs_for_matrix`'s defaults) unless the raw
-    fetch actually included a real RHS file, so this is shared in one place rather
-    than re-derived per benchmark. If a matrix has multiple RHS vectors, callers
-    should pass *rhs_index* and treat each index as a separate dataset.
-    `has_real_rhs` tells the caller which happened, since that's the raw fetch's
-    own ground truth, not something the caller tracks.
+    Returns `(A, b, has_real_rhs)`. This helper runs in the uncached solver
+    generators: it fetches the shared matrix and all RHS vectors, then selects
+    *rhs_index*. With no index, it uses a sole real RHS if available; otherwise
+    it synthesizes `b = A @ x` using `random_rhs_for_matrix`'s defaults. The
+    boolean reports whether the returned vector came from the real RHS data.
     """
-    raw = fetch_suitesparse_matrix(source_name, rhs_index=rhs_index)
+    if rhs_index is not None and rhs_index < 0:
+        raise ValueError(f"rhs_index must be nonnegative, got {rhs_index}")
+    raw = fetch_suitesparse_matrix(source_name)
     A_bin = raw.inputs[0]
-    has_real_rhs = len(raw.inputs) > 1
-    if has_real_rhs:
-        rhs_bin = raw.inputs[1]
-        b = to_numpy(rhs_bin)
-    else:
-        b = random_rhs_for_matrix(to_scipy(A_bin).tocoo())
-    return A_bin, b, has_real_rhs
+    if len(raw.inputs) > 1:
+        rhs = to_numpy(raw.inputs[1])
+        rhs_count = 1 if rhs.ndim == 1 else rhs.shape[1]
+        if rhs_index is not None and rhs_index >= rhs_count:
+            raise ValueError(
+                f"SuiteSparse matrix '{source_name}' contains {rhs_count} RHS "
+                f"vectors, got rhs_index={rhs_index}"
+            )
+        if rhs_index is not None or rhs_count == 1:
+            index = 0 if rhs_index is None else rhs_index
+            b = rhs if rhs.ndim == 1 else rhs[:, index]
+            return A_bin, b, True
+    elif rhs_index is not None:
+        raise ValueError(
+            f"SuiteSparse matrix '{source_name}' has no compatible RHS file"
+        )
+    b = random_rhs_for_matrix(to_scipy(A_bin).tocoo())
+    return A_bin, b, False

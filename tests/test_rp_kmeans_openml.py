@@ -10,17 +10,17 @@ import scipy.sparse
 from binsparse.conversions import from_numpy, to_numpy
 
 from saps.benchmark import DataInstance
+from saps.benchmarks.jl_kmeans import (
+    JLKMeansBenchmark,
+    JLKMeansDataset,
+    JLKMeansNetflixPrizeGenerator,
+    JLKMeansOpenMLGenerator,
+)
 from saps.benchmarks.openml import (
-    OpenMLDatasetBenchmark,
     OpenMLDatasetGenerator,
+    OpenMLDatasetShellBenchmark,
     _fetch_openml,
     fetch_openml_features,
-)
-from saps.benchmarks.rp_kmeans_clustering import (
-    RPKMeansBenchmark,
-    RPKMeansDataset,
-    RPKMeansNetflixGenerator,
-    RPKMeansOpenMLGenerator,
 )
 
 
@@ -32,6 +32,10 @@ def test_openml_shell_generator_scales_features_and_records_shape(monkeypatch):
         )
 
     monkeypatch.setattr("saps.benchmarks.openml._fetch_openml", fake_fetch_openml)
+    monkeypatch.setattr(
+        "saps.benchmarks.openml._fetch_openml_task_split",
+        lambda dataset, num_rows: (np.array([1]), np.array([0])),
+    )
     generator = OpenMLDatasetGenerator()
     dataset = generator.datasets[0]
 
@@ -39,7 +43,7 @@ def test_openml_shell_generator_scales_features_and_records_shape(monkeypatch):
 
     assert generator.cacheable
     assert dataset.suites == []
-    assert OpenMLDatasetBenchmark().generator.name == "openml_dataset"
+    assert OpenMLDatasetShellBenchmark().generator.name == "openml_dataset"
     np.testing.assert_allclose(
         to_numpy(instance.inputs[0]),
         np.array([[0.0, 1.0], [128.0 / 255.0, 64.0 / 255.0]], dtype=np.float32),
@@ -51,6 +55,10 @@ def test_openml_shell_generator_scales_features_and_records_shape(monkeypatch):
     assert instance.meta["fetched_version"] == 1
     assert instance.meta["num_rows"] == 2
     assert instance.meta["num_features"] == 2
+    np.testing.assert_array_equal(to_numpy(instance.inputs[1]), [1])
+    np.testing.assert_array_equal(to_numpy(instance.inputs[2]), [0])
+    assert instance.meta["task_id"] == 3573
+    assert instance.meta["fold"] == 0
 
 
 @pytest.mark.parametrize("cache_override", ["", "shared-cache"])
@@ -140,11 +148,11 @@ def test_rp_kmeans_openml_generator_derives_inputs_from_cached_source(monkeypatc
         }
 
     monkeypatch.setattr(
-        "saps.benchmarks.rp_kmeans_clustering.fetch_openml_features",
+        "saps.benchmarks.jl_kmeans.fetch_openml_features",
         fake_fetch_openml_features,
     )
-    generator = RPKMeansOpenMLGenerator()
-    dataset = RPKMeansDataset("mnist", k=2, eps=0.3, c=0.5, max_iter=5)
+    generator = JLKMeansOpenMLGenerator()
+    dataset = JLKMeansDataset("mnist", k=2, eps=0.3, c=0.5, max_iter=5)
 
     instance = generator.generate(dataset)
 
@@ -160,16 +168,19 @@ def test_rp_kmeans_openml_generator_derives_inputs_from_cached_source(monkeypatc
 
 
 def test_rp_kmeans_benchmark_uses_one_openml_generator_for_standard_datasets():
-    generators = RPKMeansBenchmark().generators
+    generators = JLKMeansBenchmark().generators
     openml_generator = next(
-        generator for generator in generators if generator.name == "rp_kmeans_openml"
+        generator for generator in generators if generator.name == "jl_kmeans_openml"
     )
 
     assert [dataset.name for dataset in openml_generator.datasets] == [
         "mnist",
         "cifar10",
     ]
-    assert all(dataset.suites == ["standard"] for dataset in openml_generator.datasets)
+    assert {dataset.name: dataset.suites for dataset in openml_generator.datasets} == {
+        "mnist": ["standard", "trace"],
+        "cifar10": ["standard", "trace", "train"],
+    }
     assert "rp_kmeans_mnist" not in {generator.name for generator in generators}
     assert "rp_kmeans_cifar10" not in {generator.name for generator in generators}
 
@@ -185,10 +196,10 @@ def test_rp_kmeans_netflix_generator_uses_shared_shell(monkeypatch):
         }
 
     monkeypatch.setattr(
-        "saps.benchmarks.rp_kmeans_clustering.fetch_netflixprize_matrix",
+        "saps.benchmarks.jl_kmeans.fetch_netflixprize_matrix",
         fake_fetch_netflixprize_matrix,
     )
-    generator = RPKMeansNetflixGenerator()
+    generator = JLKMeansNetflixPrizeGenerator()
     dataset = generator.datasets[0]
 
     instance = generator.generate(dataset)

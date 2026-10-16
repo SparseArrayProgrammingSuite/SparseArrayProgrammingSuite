@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.sparse as sps
 
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_scipy
@@ -13,7 +14,26 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
+from saps.util.error_bounds import operation_error_bound, summation_error_bound
 from saps_framework.binsparse_utils import assert_coo_allclose
+
+
+def sampled_product(S, A: np.ndarray, B: np.ndarray):
+    """Return S * (A @ B) as a COO array, computed only at the nonzeros of S.
+
+    This costs O(nnz(S) * r) for embedding width r and never forms the dense
+    n**2 product, which for the larger graphs would not fit in memory.
+    """
+    S = sps.coo_array(S)
+    S.sum_duplicates()
+    values = np.empty(S.nnz, dtype=np.result_type(S.dtype, A.dtype, B.dtype))
+    # Chunked so the gathered rows of A and columns of B stay small.
+    chunk = 1 << 14
+    for start in range(0, S.nnz, chunk):
+        rows = S.row[start : start + chunk]
+        cols = S.col[start : start + chunk]
+        values[start : start + chunk] = np.einsum("ij,ji->i", A[rows], B[:, cols])
+    return sps.coo_array((S.data * values, (S.row, S.col)), shape=S.shape)
 
 
 class SDDMMSuiteSparseDataset(Dataset):
@@ -64,9 +84,9 @@ SDDMM_EMBEDDING_WIDTH = 128
 # modest because the benchmark forms the dense A @ B product, which costs n**2.
 # (matrix name, include in the correctness test suite)
 _SDDMM_GRAPHS: list[tuple[str, bool]] = [
-    ("SNAP/email-Eu-core", True),
-    ("Arenas/email", True),
-    ("SNAP/ca-GrQc", True),
+    ("SNAP/email-Eu-core", False),
+    ("Arenas/email", False),
+    ("SNAP/ca-GrQc", False),
     ("SNAP/wiki-Vote", False),
     ("SNAP/ca-HepPh", False),
 ]
@@ -75,7 +95,7 @@ _SDDMM_GRAPHS: list[tuple[str, bool]] = [
 class SDDMMSuiteSparseGenerator(Generator):
     @property
     def name(self) -> str:
-        return "suitesparse_sddmm_generator"
+        return "sddmm_suitesparse"
 
     @property
     def cacheable(self) -> bool:
@@ -83,7 +103,7 @@ class SDDMMSuiteSparseGenerator(Generator):
 
     @property
     def pretty_name(self) -> str:
-        return "SuiteSparse SDDMM Generator"
+        return "Sampled Dense-Dense Matrix Multiplication (SDDMM) SuiteSparse"
 
     @property
     def description(self) -> str:
@@ -157,7 +177,7 @@ class SDDMMSuiteSparseGenerator(Generator):
     def datasets(self) -> list[Dataset]:
         return [
             SDDMMSuiteSparseDataset(
-                f"{matrix.split('/')[-1]}-{SDDMM_EMBEDDING_WIDTH}",
+                matrix,
                 SDDMM_EMBEDDING_WIDTH,
                 matrix,
                 suites=["sparse", "test"] if in_test_suite else ["sparse"],
@@ -176,14 +196,21 @@ class SDDMMSuiteSparseGenerator(Generator):
         gen = np.random.Generator(np.random.PCG64(42))
         A = gen.random((sample_matrix.shape[0], dataset.middle_dim))
         B = gen.random((dataset.middle_dim, sample_matrix.shape[1]))
-        ref_outputs = None
-        if "test" in dataset.suites:
-            ref = sample_matrix.multiply(np.matmul(A, B)).tocoo()
-            ref_outputs = [from_scipy(ref)]
+        expected = sampled_product(sample_matrix, A, B)
+        abs_sum = sampled_product(np.abs(sample_matrix), np.abs(A), np.abs(B))
+        scale = abs_sum.max() if abs_sum.size else 0
+        # The dot-product error is scaled by |S| in abs_sum.
+        bound = summation_error_bound(
+            np, A.shape[1] + 1, scale, np.result_type(A.dtype, B.dtype)
+        )
+        scale = np.abs(expected).max() if expected.size else 0
+        # Include propagated error in the scale for the final multiplication.
+        bound += operation_error_bound(np, scale + bound, expected.dtype)
         return DataInstance(
             [S_bin, from_numpy(A), from_numpy(B)],
             meta={"dataset": dataset.name},
-            ref_outputs=ref_outputs,
+            ref_outputs=[from_scipy(expected)],
+            ref_meta={"error_bound": float(bound)},
         )
 
 
@@ -194,7 +221,7 @@ class SDDMMSuiteSparseGenerator(Generator):
 _SDDMM_NONZEROS_PER_ROW = [21, 43, 65, 85, 107, 128, 149]
 
 
-class UniformRandomSDDMMDataset(Dataset):
+class SDDMMUniformRandomDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -238,14 +265,14 @@ class UniformRandomSDDMMDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class UniformRandomSDDMMGenerator(Generator):
+class SDDMMUniformRandomGenerator(Generator):
     @property
     def name(self) -> str:
-        return "uniform_random_sddmm_generator"
+        return "sddmm_uniform_random"
 
     @property
     def pretty_name(self) -> str:
-        return "Uniform Random SDDMM Generator"
+        return "Sampled Dense-Dense Matrix Multiplication (SDDMM) Uniform Random"
 
     @property
     def description(self) -> str:
@@ -307,10 +334,11 @@ class UniformRandomSDDMMGenerator(Generator):
         # dim**2 regardless of how sparse the sampling matrix is.
         dim = 5000
         return [
-            UniformRandomSDDMMDataset(
+            SDDMMUniformRandomDataset(
                 # No dots in the name: the framework parses params as
                 # "generator.dataset" by splitting on ".".
-                f"uniform-{nonzeros_per_row}-per-row",
+                f"{nonzeros_per_row}_nonzeros_per_row",
+                pretty_name=f"{nonzeros_per_row} Nonzeros per Row",
                 dim=dim,
                 middle_dim=SDDMM_EMBEDDING_WIDTH,
                 density=nonzeros_per_row / dim,
@@ -321,9 +349,7 @@ class UniformRandomSDDMMGenerator(Generator):
             for nonzeros_per_row in _SDDMM_NONZEROS_PER_ROW
         ]
 
-    def generate(self, dataset: UniformRandomSDDMMDataset) -> DataInstance:
-        import scipy.sparse as sps
-
+    def generate(self, dataset: SDDMMUniformRandomDataset) -> DataInstance:
         rng = np.random.default_rng(dataset.seed)
         S = sps.random_array(
             (dataset.dim, dataset.dim),
@@ -333,10 +359,16 @@ class UniformRandomSDDMMGenerator(Generator):
         )
         A = rng.random((dataset.dim, dataset.middle_dim))
         B = rng.random((dataset.middle_dim, dataset.dim))
-        ref_outputs = None
-        if "test" in dataset.suites:
-            ref = S.multiply(np.matmul(A, B)).tocoo()
-            ref_outputs = [from_scipy(ref)]
+        expected = sampled_product(S, A, B)
+        abs_sum = sampled_product(np.abs(S), np.abs(A), np.abs(B))
+        scale = abs_sum.max() if abs_sum.size else 0
+        # The dot-product error is scaled by |S| in abs_sum.
+        bound = summation_error_bound(
+            np, A.shape[1] + 1, scale, np.result_type(A.dtype, B.dtype)
+        )
+        scale = np.abs(expected).max() if expected.size else 0
+        # Include propagated error in the scale for the final multiplication.
+        bound += operation_error_bound(np, scale + bound, expected.dtype)
         return DataInstance(
             [
                 from_scipy(S),
@@ -344,7 +376,8 @@ class UniformRandomSDDMMGenerator(Generator):
                 from_numpy(B),
             ],
             meta={"dataset": dataset.name},
-            ref_outputs=ref_outputs,
+            ref_outputs=[from_scipy(expected)],
+            ref_meta={"error_bound": float(bound)},
         )
 
 
@@ -355,7 +388,7 @@ class SDDMMBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "Sampled Dense-Dense Matrix Multiplication"
+        return "Sampled Dense-Dense Matrix Multiplication (SDDMM)"
 
     @property
     def motivation(self) -> str:
@@ -371,7 +404,7 @@ class SDDMMBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["micro-benchmark"]
+        return ["microkernel"]
 
     @property
     def concepts(self) -> str:
@@ -429,19 +462,21 @@ class SDDMMBenchmark(Benchmark):
 
     @property
     def generators(self) -> list[Generator]:
-        return [SDDMMSuiteSparseGenerator(), UniformRandomSDDMMGenerator()]
+        return [SDDMMSuiteSparseGenerator(), SDDMMUniformRandomGenerator()]
 
-    def benchmark(self, xp, data: list, meta: dict):
-        S = data[0]
-        A = data[1]
-        B = data[2]
-        return [xp.multiply(S, A @ B)]
+    def benchmark(self, xp, meta: dict, S, A, B):
+        return xp.multiply(S, A @ B)
 
     def check(self, param):
         for item in self._output:
             assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
-        if self._ref_outputs is None:
-            return
-        assert_coo_allclose(self._ref_outputs[0], self._output[0])
+        assert self._ref_outputs is not None, "No reference output"
+        assert self._ref_meta is not None, "No error bound; regenerate the dataset"
+        assert_coo_allclose(
+            self._ref_outputs[0],
+            self._output[0],
+            rtol=0,
+            atol=self._ref_meta["error_bound"],
+        )

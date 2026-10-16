@@ -5,7 +5,7 @@ import scipy.sparse as scipy_sparse
 
 import sparse as pydata_sparse
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy, to_scipy
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
 
 from saps.benchmark import (
     Author,
@@ -18,9 +18,8 @@ from saps.benchmark import (
 from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     fetch_suitesparse_linear_system,
-    suite_sparse_rhs_dataset_name,
 )
-from saps_framework.binsparse_utils import binsparse_equal
+from saps.util.error_bounds import operation_error_bound, summation_error_bound
 
 
 class JacobiDataset(SuiteSparseDataset):
@@ -28,6 +27,7 @@ class JacobiDataset(SuiteSparseDataset):
         self,
         source_name: str,
         *,
+        pretty_name: str | None = None,
         suites: list[str] | None = None,
         A: np.ndarray | None = None,
         b: np.ndarray | None = None,
@@ -36,11 +36,14 @@ class JacobiDataset(SuiteSparseDataset):
         max_iter: int = 1000,
         rel_tol: float = 1e-6,
     ):
-        dataset_name = suite_sparse_rhs_dataset_name(source_name, rhs_index)
+        name = source_name
+        if rhs_index is not None:
+            name = f"{source_name}_rhs{rhs_index}"
+            pretty_name = f"{source_name} (Right-Hand Side (RHS) {rhs_index})"
         super().__init__(
-            dataset_name,
+            name,
             source_name=source_name,
-            pretty_name=f"Jacobi {source_name}",
+            pretty_name=pretty_name,
             suites=suites,
             rhs_index=rhs_index,
         )
@@ -57,11 +60,11 @@ class JacobiDataset(SuiteSparseDataset):
 class JacobiTestGenerator(Generator[JacobiDataset]):
     @property
     def name(self) -> str:
-        return "jacobi_test_inputs"
+        return "jacobi_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Jacobi Test Data Generator"
+        return "Jacobi Test"
 
     @property
     def description(self) -> str:
@@ -69,7 +72,7 @@ class JacobiTestGenerator(Generator[JacobiDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -102,15 +105,17 @@ class JacobiTestGenerator(Generator[JacobiDataset]):
     def datasets(self) -> list[JacobiDataset]:
         return [
             JacobiDataset(
-                "test_3x3",
-                suites=["test", "trace"],
+                "3x3",
+                pretty_name="3x3",
+                suites=["test"],
                 A=np.array([[4.0, 1.0, 0.0], [1.0, 5.0, 2.0], [0.0, 2.0, 6.0]]),
                 b=np.array([5.0, 8.0, 8.0]),
                 x=np.zeros((3,)),
             ),
             JacobiDataset(
-                "test_4x4",
-                suites=["test", "trace"],
+                "4x4",
+                pretty_name="4x4",
+                suites=["test"],
                 A=np.array(
                     [
                         [10.0, 1.0, 0.0, 2.0],
@@ -123,8 +128,9 @@ class JacobiTestGenerator(Generator[JacobiDataset]):
                 x=np.zeros((4,)),
             ),
             JacobiDataset(
-                "test_3x3_dominant",
-                suites=["test", "trace"],
+                "3x3_dominant",
+                pretty_name="3x3 Dominant",
+                suites=["test"],
                 A=np.array([[20.0, 3.0, 1.0], [2.0, 15.0, 4.0], [1.0, 2.0, 18.0]]),
                 b=np.array([24.0, 21.0, 21.0]),
                 x=np.zeros((3,)),
@@ -142,18 +148,19 @@ class JacobiTestGenerator(Generator[JacobiDataset]):
                 from_numpy(dataset.x),
             ],
             meta=dataset.benchmark_meta(),
-            ref_meta={"check_rounded_residual": True, "round_decimals": 4},
+            ref_outputs=[from_scipy(scipy_sparse.coo_array(np.abs(dataset.A)))],
+            ref_meta={"bnorm": float(np.linalg.norm(dataset.b))},
         )
 
 
-class JacobiGenerator(Generator[JacobiDataset]):
+class JacobiSuiteSparseGenerator(Generator[JacobiDataset]):
     @property
     def name(self) -> str:
-        return "jacobi_inputs"
+        return "jacobi_suitesparse"
 
     @property
     def pretty_name(self) -> str:
-        return "Jacobi SuiteSparse Data Generator"
+        return "Jacobi SuiteSparse"
 
     @property
     def description(self) -> str:
@@ -201,68 +208,80 @@ class JacobiGenerator(Generator[JacobiDataset]):
     def datasets(self) -> list[JacobiDataset]:
         return [
             JacobiDataset(
-                "Andrews/Andrews", suites=["standard"], max_iter=1000, rel_tol=1e-06
-            ),
-            JacobiDataset(
-                "Bai/cdde2", suites=["standard"], max_iter=1000, rel_tol=1e-06
-            ),
-            JacobiDataset(
-                "Bai/cdde4", suites=["standard"], max_iter=1000, rel_tol=1e-06
-            ),
-            JacobiDataset(
-                "Bai/cdde6", suites=["standard"], max_iter=1000, rel_tol=1e-06
-            ),
-            JacobiDataset(
-                "Bai/dw256B", suites=["standard"], max_iter=1000, rel_tol=1e-06
-            ),
-            JacobiDataset(
-                "Bai/dwb512", suites=["standard"], max_iter=1000, rel_tol=1e-06
-            ),
-            JacobiDataset(
-                "Bai/pde900", suites=["standard"], max_iter=1000, rel_tol=1e-06
-            ),
-            JacobiDataset(
-                "Bindel/ted_B_unscaled",
-                suites=["standard"],
+                "Andrews/Andrews",
+                suites=["standard", "trace"],
                 max_iter=1000,
                 rel_tol=1e-06,
             ),
             JacobiDataset(
-                "Boeing/bcsstm39", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Bai/cdde2", suites=["standard", "trace"], max_iter=1000, rel_tol=1e-06
+            ),
+            JacobiDataset(
+                "Bai/cdde4", suites=["standard", "trace"], max_iter=1000, rel_tol=1e-06
+            ),
+            JacobiDataset(
+                "Bai/cdde6", suites=["standard", "trace"], max_iter=1000, rel_tol=1e-06
+            ),
+            JacobiDataset(
+                "Bai/dw256B", suites=["standard", "trace"], max_iter=1000, rel_tol=1e-06
+            ),
+            JacobiDataset(
+                "Bai/dwb512", suites=["standard", "trace"], max_iter=1000, rel_tol=1e-06
+            ),
+            JacobiDataset(
+                "Bai/pde900", suites=["standard", "trace"], max_iter=1000, rel_tol=1e-06
+            ),
+            JacobiDataset(
+                "Bindel/ted_B_unscaled",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
+            ),
+            JacobiDataset(
+                "Boeing/bcsstm39",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
                 "Bourchtein/atmosmodd",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=1000,
                 rel_tol=1e-06,
                 rhs_index=1,
             ),
             JacobiDataset(
                 "Bourchtein/atmosmodj",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=1000,
                 rel_tol=1e-06,
                 rhs_index=1,
             ),
             JacobiDataset(
                 "Bourchtein/atmosmodl",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=1000,
                 rel_tol=1e-06,
                 rhs_index=1,
             ),
             JacobiDataset(
                 "Bourchtein/atmosmodm",
-                suites=["standard"],
+                suites=["standard", "trace", "train"],
                 max_iter=1000,
                 rel_tol=1e-06,
                 rhs_index=1,
             ),
             JacobiDataset(
-                "Cunningham/qa8fk", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Cunningham/qa8fk",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "FEMLAB/problem1", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "FEMLAB/problem1",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
                 "Freescale/circuit5M_dc",
@@ -271,251 +290,413 @@ class JacobiGenerator(Generator[JacobiDataset]):
                 rel_tol=1e-06,
             ),
             JacobiDataset(
-                "GHS_psdef/jnlbrng1", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "GHS_psdef/jnlbrng1",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "GHS_psdef/minsurfo", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "GHS_psdef/minsurfo",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "GHS_psdef/obstclae", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "GHS_psdef/obstclae",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
                 "Grund/poli",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=1000,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             JacobiDataset(
-                "Grund/poli3", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Grund/poli3",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "Grund/poli4", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Grund/poli4",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "Grund/poli_large", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Grund/poli_large",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/arc130", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/arc130", suites=["standard", "trace"], max_iter=1000, rel_tol=1e-06
             ),
             JacobiDataset(
-                "HB/bcsstm02", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/bcsstm02",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/bcsstm05", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/bcsstm05",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/bcsstm06", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/bcsstm06",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/bcsstm08", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/bcsstm08",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/bcsstm09", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/bcsstm09",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/bcsstm11", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/bcsstm11",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/bcsstm19", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/bcsstm19",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/bcsstm20", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/bcsstm20",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/bcsstm21", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/bcsstm21",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/bcsstm22", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/bcsstm22",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/bcsstm23", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/bcsstm23",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/bcsstm24", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/bcsstm24",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/bcsstm25", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/bcsstm25",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/bcsstm26", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/bcsstm26",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/fs_183_1", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/fs_183_1",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/fs_183_3", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/fs_183_3",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/fs_183_4", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/fs_183_4",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/fs_183_6", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/fs_183_6",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/fs_541_1", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/fs_541_1",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/fs_680_1", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/fs_680_1",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/fs_680_2", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/fs_680_2",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/fs_760_1", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/fs_760_1",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/gr_30_30", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/gr_30_30",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/jpwh_991", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/jpwh_991",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "HB/steam3", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/steam3", suites=["standard", "trace"], max_iter=1000, rel_tol=1e-06
             ),
             JacobiDataset(
-                "HB/watt_1", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "HB/watt_1", suites=["standard", "trace"], max_iter=1000, rel_tol=1e-06
             ),
             JacobiDataset(
                 "Hamm/add32",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=1000,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             JacobiDataset(
                 "MathWorks/tomography",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=1000,
                 rel_tol=1e-06,
             ),
             JacobiDataset(
                 "MaxPlanck/shallow_water1",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=1000,
                 rel_tol=1e-06,
             ),
             JacobiDataset(
                 "MaxPlanck/shallow_water2",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=1000,
                 rel_tol=1e-06,
             ),
             JacobiDataset(
-                "Mulvey/finan512", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Mulvey/finan512",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
                 "Nasa/nasa2146",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=1000,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             JacobiDataset(
-                "Nemeth/nemeth02", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Nemeth/nemeth02",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "Nemeth/nemeth03", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Nemeth/nemeth03",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "Nemeth/nemeth04", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Nemeth/nemeth04",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "Nemeth/nemeth05", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Nemeth/nemeth05",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "Nemeth/nemeth06", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Nemeth/nemeth06",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "Nemeth/nemeth07", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Nemeth/nemeth07",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "Nemeth/nemeth08", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Nemeth/nemeth08",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "Nemeth/nemeth09", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Nemeth/nemeth09",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "Nemeth/nemeth10", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Nemeth/nemeth10",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "Nemeth/nemeth11", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Nemeth/nemeth11",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "Nemeth/nemeth12", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Nemeth/nemeth12",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "Nemeth/nemeth13", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Nemeth/nemeth13",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "Norris/fv1", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Norris/fv1", suites=["standard", "trace"], max_iter=1000, rel_tol=1e-06
             ),
             JacobiDataset(
-                "Norris/fv2", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Norris/fv2", suites=["standard", "trace"], max_iter=1000, rel_tol=1e-06
             ),
             JacobiDataset(
-                "Norris/torso2", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Norris/torso2",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "Pothen/mesh1e1", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Pothen/mesh1e1",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "Pothen/mesh1em1", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Pothen/mesh1em1",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "Pothen/mesh1em6", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Pothen/mesh1em6",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "Pothen/mesh2e1", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Pothen/mesh2e1",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "Pothen/mesh2em5", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Pothen/mesh2em5",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "Pothen/mesh3e1", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Pothen/mesh3e1",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "Pothen/mesh3em5", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Pothen/mesh3em5",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "QLi/majorbasis", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "QLi/majorbasis",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
                 "Simon/raefsky5",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=1000,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             JacobiDataset(
                 "Simon/raefsky6",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=1000,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             JacobiDataset(
                 "TOKAMAK/utm1700b",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=1000,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             JacobiDataset(
                 "TOKAMAK/utm3060",
-                suites=["standard"],
+                suites=["standard", "trace"],
                 max_iter=1000,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
             JacobiDataset(
-                "VLSI/ss1", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "VLSI/ss1", suites=["standard", "trace"], max_iter=1000, rel_tol=1e-06
             ),
             JacobiDataset(
-                "Wang/swang1", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Wang/swang1",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
             JacobiDataset(
-                "Wang/swang2", suites=["standard"], max_iter=1000, rel_tol=1e-06
+                "Wang/swang2",
+                suites=["standard", "trace"],
+                max_iter=1000,
+                rel_tol=1e-06,
             ),
         ]
 
@@ -527,21 +708,22 @@ class JacobiGenerator(Generator[JacobiDataset]):
         x_bin = from_numpy(np.zeros(A_bin.shape[1]))
         b_bin = from_numpy(b)
 
-        return DataInstance(inputs=[A_bin, b_bin, x_bin], meta=dataset.benchmark_meta())
+        return DataInstance(
+            inputs=[A_bin, b_bin, x_bin],
+            meta=dataset.benchmark_meta(),
+            ref_outputs=[from_scipy(np.abs(to_scipy(A_bin).tocoo()))],
+            ref_meta={"bnorm": float(np.linalg.norm(b))},
+        )
 
 
 class JacobiBenchmark(Benchmark):
     @property
-    def tag(self) -> str:
-        return "jacobi_solver"
-
-    @property
     def name(self) -> str:
-        return "jacobi_solver"
+        return "jacobi"
 
     @property
     def pretty_name(self) -> str:
-        return "Jacobi Iterative Solver"
+        return "Jacobi"
 
     @property
     def description(self) -> str:
@@ -549,7 +731,7 @@ class JacobiBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return ["standard-solvers"]
 
     @property
     def concepts(self) -> str:
@@ -616,16 +798,13 @@ class JacobiBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [JacobiTestGenerator(), JacobiGenerator()]
+        return [JacobiTestGenerator(), JacobiSuiteSparseGenerator()]
 
     def check(self, param):
         for item in self._output:
             assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
-
-        if not self._ref_meta or not self._ref_meta.get("check_rounded_residual"):
-            return
 
         A_bin, b_bin, _x_bin = self._input
         try:
@@ -637,37 +816,51 @@ class JacobiBenchmark(Benchmark):
             data=A_coo.data,
             shape=A_coo.shape,
         )
-        decimals = self._ref_meta["round_decimals"]
-        x_sol = np.round(
-            to_numpy(self._output[0]),
-            decimals=decimals,
+        assert self._ref_outputs is not None, "No cached absolute matrix"
+        assert self._ref_meta is not None, "No cached reference norms"
+        abs_A = to_sparse(self._ref_outputs[0])
+        b = to_numpy(b_bin)
+        x_sol = to_numpy(self._output[0])
+        r = np.asarray(b - A @ x_sol).ravel()
+        # Bound the matrix-vector product and the subtraction separately.
+        roundoff = summation_error_bound(
+            np,
+            A.shape[1] + 1,
+            abs_A @ np.abs(x_sol),
+            np.result_type(A.dtype, x_sol.dtype),
+        )
+        roundoff += operation_error_bound(np, r, r.dtype)
+        residual = np.linalg.norm(r)
+        bound = np.linalg.norm(roundoff)
+        # The norm adds a sum of squares and a square root.
+        bound += summation_error_bound(np, r.size + 2, residual + bound, r.dtype)
+        assert np.isfinite(residual) and np.isfinite(bound), (
+            "Non-finite residual or error bound"
+        )
+        # Jacobi returns once ||b - Ax|| drops below rel_tol * ||b||.
+        rel_tol = (self._meta or {}).get("rel_tol", 1e-6)
+        bnorm = self._ref_meta["bnorm"]
+        abs_tol = (self._meta or {}).get("abs_tol", 1e-20)
+        limit = max(rel_tol * bnorm, abs_tol) + bound
+        assert residual <= limit, (
+            f"Jacobi residual too high for {param.dataset.name}: {residual}"
         )
 
-        actual_b = from_numpy(np.asarray(A @ x_sol))
-        expected_b = b_bin
-        assert binsparse_equal(expected_b, actual_b), (
-            f"Jacobi residual mismatch for {param.dataset.name}"
-        )
-
-    def _norm(self, xp, v):
-        return xp.sqrt(xp.sum(xp.multiply(v, v)))
-
-    def benchmark(self, xp, data: list, meta: dict):
-        A, b, x = data
+    def benchmark(self, xp, meta: dict, A, b, x):
 
         rel_tol = meta.get("rel_tol", 1e-6)
         abs_tol = meta.get("abs_tol", 1e-20)
         max_iter = meta.get("max_iter", 1000)
 
-        tolerance = max(rel_tol * self._norm(xp, b)[()], abs_tol)
-        d = xp.with_fill_value(xp.diagonal(A), 1)
+        tolerance = max(rel_tol * xp.sqrt(xp.sum(xp.multiply(b, b)))[()], abs_tol)
+        d = xp.replace(xp.diagonal(A), 0, 1)
         if xp.any(d == 0):
             raise ValueError("Jacobi requires nonzero diagonal entries.")
 
         r = b - A @ x
         it = 0
 
-        while self._norm(xp, r)[()] >= tolerance and it < max_iter:
+        while xp.sqrt(xp.sum(xp.multiply(r, r)))[()] >= tolerance and it < max_iter:
             x = x + r / d
 
             r = b - A @ x
@@ -676,7 +869,7 @@ class JacobiBenchmark(Benchmark):
             raise RuntimeError(
                 "Jacobi did not converge within the maximum number of iterations"
             )
-        return [x]
+        return x
 
 
 # Matrices below run extremely slowly on numpy framework (>1 minutes per convergence):

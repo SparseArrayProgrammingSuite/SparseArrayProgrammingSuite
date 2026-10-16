@@ -1,3 +1,4 @@
+from abc import ABC
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,11 @@ from saps.benchmark import (
     Generator,
     Ref,
     ShellBenchmark,
+)
+from saps.codegen import (
+    constant_function_source,
+    define_function,
+    einsum_function_source,
 )
 from saps.downloaders.mccomp import (
     MCCOMP_REPOSITORY_URL,
@@ -52,7 +58,7 @@ def clauses_to_einsum(clauses):
     return f"s[] += {full_str}"
 
 
-class MCDataset(Dataset):
+class ModelCountingTestDataset(Dataset):
     def __init__(
         self,
         name: str,
@@ -90,14 +96,31 @@ class MCDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class MCGenerator(Generator[MCDataset]):
+class _MCFunctionGenerator(Generator[Any], ABC):
+    """Builds each formula's benchmark function, with the parameter ``B``."""
+
+    def generate_benchmark_function(self, dataset, problem, benchmark):
+        meta = problem.meta
+        params = ["B"]
+        if meta["expr"] is None:
+            source = constant_function_source(meta["default_total"], "int64", params)
+        else:
+            source = einsum_function_source(meta["expr"], params)
+        return define_function(
+            source, f"<saps-generated {self.name}.{dataset.name}>", {"np": np}
+        )
+
+
+class ModelCountingTestGenerator(
+    _MCFunctionGenerator, Generator[ModelCountingTestDataset]
+):
     @property
     def name(self) -> str:
-        return "mc_generator"
+        return "model_counting_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Model Counting Generator"
+        return "Model Counting Test"
 
     @property
     def description(self) -> str:
@@ -108,7 +131,7 @@ class MCGenerator(Generator[MCDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -136,13 +159,13 @@ class MCGenerator(Generator[MCDataset]):
         return False
 
     @property
-    def datasets(self) -> list[MCDataset]:
+    def datasets(self) -> list[ModelCountingTestDataset]:
         return [
-            MCDataset(
-                name="test_1",
-                pretty_name="Test 1: Standard SAT",
+            ModelCountingTestDataset(
+                name="standard_sat",
+                pretty_name="Standard Satisfiable (SAT)",
                 description="3 variables, 2 clauses",
-                suites=["test", "trace"],
+                suites=["test"],
                 cnf_text="""
                     p cnf 3 2
                     1 -3 0
@@ -150,11 +173,11 @@ class MCGenerator(Generator[MCDataset]):
                 """,
                 expected=5,
             ),
-            MCDataset(
-                name="test_2",
-                pretty_name="Test 2: Contradiction",
+            ModelCountingTestDataset(
+                name="contradiction",
+                pretty_name="Contradiction",
                 description="V1 and not V1",
-                suites=["test", "trace"],
+                suites=["test"],
                 cnf_text="""
                     c contradiction
                     p cnf 1 2
@@ -163,11 +186,11 @@ class MCGenerator(Generator[MCDataset]):
                 """,
                 expected=0,
             ),
-            MCDataset(
-                name="test_3",
-                pretty_name="Test 3: Single Solution",
+            ModelCountingTestDataset(
+                name="single_solution",
+                pretty_name="Single Solution",
                 description="Forces all 3 variables to be true",
-                suites=["test", "trace"],
+                suites=["test"],
                 cnf_text="""
                     c single_solution
                     p cnf 3 3
@@ -177,11 +200,11 @@ class MCGenerator(Generator[MCDataset]):
                 """,
                 expected=1,
             ),
-            MCDataset(
-                name="test_4",
-                pretty_name="Test 4: Empty Formula",
+            ModelCountingTestDataset(
+                name="empty_formula",
+                pretty_name="Empty Formula",
                 description="No clauses, 2 variables",
-                suites=["test", "trace"],
+                suites=["test"],
                 cnf_text="""
                     c empty_formula
                     p cnf 2 0
@@ -190,7 +213,7 @@ class MCGenerator(Generator[MCDataset]):
             ),
         ]
 
-    def generate(self, dataset: MCDataset):
+    def generate(self, dataset: ModelCountingTestDataset):
         num_vars, clauses = parse_dimacs(dataset.cnf_text)
         expr = clauses_to_einsum(clauses)
 
@@ -213,18 +236,19 @@ class MCGenerator(Generator[MCDataset]):
 
 
 class MCCompDataset(Dataset):
-    def __init__(self, source_path: str, *, suites: list[str] | None = None):
-        self.source_path = source_path
-        self.track = source_path.split("/", 1)[0]
+    def __init__(self, name: str, *, suites: list[str] | None = None):
+        self._name = name
+        self.source_path = f"{name}.cnf"
+        self.track = name.split("/", 1)[0]
         self._suites = suites or []
 
     @property
     def name(self) -> str:
-        return self.source_path.removesuffix(".cnf").replace("/", "_").lower()
+        return self._name
 
     @property
     def pretty_name(self) -> str:
-        return f"MCComp {self.source_path.removesuffix('.cnf')}"
+        return self._name
 
     @property
     def description(self) -> str:
@@ -252,14 +276,14 @@ class MCCompDataset(Dataset):
         return data
 
 
-class MCCompGenerator(Generator[MCCompDataset]):
+class MCCompInstanceGenerator(Generator[MCCompDataset]):
     @property
     def name(self) -> str:
-        return "mccomp"
+        return "mccomp_instance"
 
     @property
     def pretty_name(self) -> str:
-        return "Model Counting Competition Test Instances"
+        return "MCComp Instances"
 
     @property
     def description(self) -> str:
@@ -304,7 +328,48 @@ class MCCompGenerator(Generator[MCCompDataset]):
 
     @property
     def datasets(self) -> list[MCCompDataset]:
-        return [MCCompDataset(source_path) for source_path in list_mccomp_instances()]
+        return [
+            MCCompDataset("Track1_MC/random_mc_1", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_2", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_3", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_4", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_5", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_6", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_7", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_8", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_9", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_10", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_1", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_2", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_3", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_4", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_5", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_6", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_7", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_8", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_9", suites=[]),
+            MCCompDataset("Track3_PMC/random_pmc_10", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_1", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_2", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_3", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_4", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_5", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_6", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_7", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_8", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_9", suites=[]),
+            MCCompDataset("Track4_PWMC/random_pwmc_10", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_1", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_2", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_3", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_4", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_5", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_6", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_7", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_8", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_9", suites=[]),
+            MCCompDataset("Track5B_AMC/random_amc_10", suites=[]),
+        ]
 
     def generate(self, dataset: MCCompDataset):
         source_path = normalize_mccomp_source_path(dataset.source_path)
@@ -321,20 +386,20 @@ class MCCompGenerator(Generator[MCCompDataset]):
         )
 
 
-class MCCompBenchmark(ShellBenchmark):
+class MCCompInstanceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return MCCompGenerator()
+        return MCCompInstanceGenerator()
 
 
-class MCCompMCGenerator(Generator[MCCompDataset]):
+class ModelCountingMCCompGenerator(_MCFunctionGenerator, Generator[MCCompDataset]):
     @property
     def name(self) -> str:
-        return "mccomp_mc"
+        return "model_counting_mccomp"
 
     @property
     def pretty_name(self) -> str:
-        return "Model Counting Competition Track1 Generator"
+        return "Model Counting MCComp"
 
     @property
     def description(self) -> str:
@@ -354,7 +419,7 @@ class MCCompMCGenerator(Generator[MCCompDataset]):
 
     @property
     def references(self) -> list[Ref]:
-        return MCCompGenerator().references
+        return MCCompInstanceGenerator().references
 
     @property
     def ai_disclosure(self) -> str:
@@ -370,8 +435,18 @@ class MCCompMCGenerator(Generator[MCCompDataset]):
     @property
     def datasets(self) -> list[MCCompDataset]:
         return [
-            MCCompDataset(source_path, suites=["standard"])
-            for source_path in list_mccomp_instances("Track1_MC")
+            MCCompDataset("Track1_MC/random_mc_1", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_2", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_3", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_4", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_5", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_6", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_7", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_8", suites=["standard", "trace"]),
+            MCCompDataset(
+                "Track1_MC/random_mc_9", suites=["standard", "trace", "train"]
+            ),
+            MCCompDataset("Track1_MC/random_mc_10", suites=["standard", "trace"]),
         ]
 
     def generate(self, dataset: MCCompDataset):
@@ -392,7 +467,7 @@ class MCCompMCGenerator(Generator[MCCompDataset]):
                 "num_vars": num_vars,
                 "expected_result": int(exact_value),
                 "default_total": 2**num_vars,
-                "source_generator": MCCompGenerator().name,
+                "source_generator": MCCompInstanceGenerator().name,
                 "source_path": dataset.source_path,
                 "source_problem_type": parse_mccomp_problem_type(cnf_text),
                 "source_num_clauses": len(clauses),
@@ -415,7 +490,7 @@ def fetch_mccomp_instance(source_name: str) -> DataInstance:
         raise ValueError(message)
 
     source_path = matches[0]
-    raw_generator = MCCompGenerator()
+    raw_generator = MCCompInstanceGenerator()
     raw_dataset = next(
         dataset
         for dataset in raw_generator.datasets
@@ -440,18 +515,14 @@ def parse_mccomp_exact(cnf_text: str) -> tuple[str | None, str | None]:
     return None, None
 
 
-class ModelCounting(Benchmark):
+class ModelCountingBenchmark(Benchmark):
     @property
-    def tag(self):
+    def name(self):
         return "model_counting"
 
     @property
-    def name(self):
-        return "Model Counting using einsum"
-
-    @property
     def pretty_name(self):
-        return "Model Counting using einsum"
+        return "Model Counting"
 
     @property
     def description(self):
@@ -459,7 +530,7 @@ class ModelCounting(Benchmark):
 
     @property
     def suites(self):
-        return []
+        return ["standard-logic"]
 
     @property
     def concepts(self) -> str:
@@ -505,17 +576,13 @@ class ModelCounting(Benchmark):
 
     @property
     def generators(self) -> list[Generator[Any]]:
-        return [MCGenerator(), MCCompMCGenerator()]
+        return [ModelCountingTestGenerator(), ModelCountingMCCompGenerator()]
 
-    def benchmark(self, xp, data: list[Any], meta: dict[str, Any]) -> list[Any]:
-        expr = meta["expr"]
-
-        if expr is None:
-            return [xp.array(meta["default_total"], dtype=np.int64)]
-
-        result = xp.einsum(expr, B=data[0])
-
-        return [result]
+    def benchmark(self, xp, meta):
+        raise NotImplementedError(
+            "Model counting functions are generated per formula by the "
+            "generator's generate_benchmark_function."
+        )
 
     def check(self, param):
         for item in self._output:

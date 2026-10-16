@@ -48,14 +48,30 @@ Good benchmarks are adapted from real applications, papers, textbooks, or establ
 
 Benchmark functions should be plain Python functions whose first argument is the framework wrapper, conventionally named `xp`. The wrapper represents the sparse array framework being tested, such as NumPy, SciPy, pydata/sparse, or another implementation.
 
+The benchmark method takes `xp`, then the generator's `meta`, then one named parameter per input array, in the order the generator produces them. It returns a single output directly or several as a tuple:
+
+```python
+def benchmark(self, xp, meta, A, b, x0):
+    ...
+    return x
+```
+
+Every benchmark function has a fixed parameter list. If the inputs differ between datasets, there are two ways to keep it that way:
+
+- **Split the benchmark by hand** when there are only a few distinct signatures.
+- **Generate the function per dataset** when every dataset needs its own signature. Override `Generator.generate_benchmark_function(dataset, problem, benchmark)` to return a function `benchmark(xp, meta, *inputs)` built from the dataset's metadata with `saps.codegen.define_function`. SAPS calls this during setup, so it isn't timed. The default returns the benchmark's own `benchmark` method unchanged. Subgraph matching (one parameter per query matrix), weighted model counting (`B, W1, ..., Wn`) and model counting generate their functions this way, and their benchmark classes' `benchmark` methods only raise. ODE generators use the same hook: each generator supplies a literal `derivative_source` string, and each solver's `benchmark_source` pastes it into an f-string template at every derivative evaluation.
+
+`*data_args` remains available as a last resort, after any fixed leading inputs: `def benchmark(self, xp, meta, *data_args)`.
+
 Benchmark functions should:
 
 - Use Array API style operations through `xp`.
 - Use basic Python syntax, including `for`, `while`, and `if` when needed.
 - Avoid framework-specific shortcuts that only one implementation can support.
 - Avoid file I/O, threads, networking, global mutable state, recursion, and non-determinism.
+- Be self-contained: write helper logic inline in the benchmark body rather than calling module-level functions, `self` methods, nested functions, or lambdas. Source-level compilers only see the benchmark function's own source.
 - Convert input `BinsparseFormat` values to framework arrays during setup, not inside the measured function body.
-- Return framework arrays that SAPS can convert back to `BinsparseFormat`.
+- Return framework arrays that SAPS can convert back to `BinsparseFormat`, as `return x` or `return x, y` rather than a list.
 
 Prefer clear translations over clever rewrites. If the original application uses a sparse matrix expression, preserve that structure unless a small adaptation is needed to fit the Array API style.
 
@@ -72,7 +88,43 @@ Generators should be deterministic. If random data is needed, use fixed seeds an
 
 Concrete generators must be reachable from a benchmark so metadata, freshness checks, and dataset caching can discover them. If a generator is intentionally standalone data plumbing rather than part of a runnable benchmark, wrap it in a small `ShellBenchmark`: implement only the `generator` property and let the shell expose the generator under a `{generator.name}_shell` benchmark record.
 
-Each shell generator's `datasets` list is its complete, manually maintained inventory. Fetch functions must look up the requested dataset in that list and raise an error if it is absent; they must never construct an unlisted dataset on demand. Add new source datasets (including each selected SuiteSparse RHS column) to the shell list before referencing them from another benchmark, then regenerate metadata and prepare the cache.
+Each shell generator's `datasets` list is its complete, manually maintained inventory. Fetch functions must look up the requested dataset in that list and raise an error if it is absent; they must never construct an unlisted dataset on demand. Add new source datasets to the shell list before referencing them from another benchmark, then regenerate metadata and prepare the cache. SuiteSparse shell datasets store each matrix with all its RHS vectors once; select RHS columns in uncached benchmark generators.
+
+## Style Guide
+
+These conventions keep benchmark code, metadata, and filenames predictable.
+
+### Code
+
+- Prefer repetitive literals over helpers or clever enumeration. Write each dataset's name and pretty name where the dataset is constructed. A dataset class may derive them from its own fields (for example `source_name` and `source_seed`) when every instance follows the same pattern.
+- Renames do not need to stay backward compatible. Update every reference instead of keeping aliases or old-name shims.
+
+### Abbreviations
+
+Use an acronym in a name only when the field uses it on its own as the method's name: `bfs`, `msbfs`, `mssp`, `cg`, `pcg`, `gmres`, `lsqr`, `ccsd`, `cp_als`, `hosvd`, `dae_bdf`, `gcn`, `lp`, `lth`, `mcl`, `mri`, `rqc`, `sddmm`, `ann`, `jl`, `rk4`. Spell everything else out (`connected_components`, `particle_simulation`, `matrix_multiplication`), and never truncate words. Proper names stay as written: `pagerank`, `fastsv`, `simhash`, and data collections such as SNAP, GAP, FROSTT, OGB, SuiteSparse, and OpenML.
+
+### Names
+
+- Benchmark: the method in snake_case, such as `bellman_ford`, `jacobi_pcg`, or `cp_als_3d`.
+- Generator: `<benchmark>_<source>`, such as `bfs_test`, `bfs_snap`, or `cg_suitesparse`. A generator shared by several benchmarks uses their family prefix (`ode_rc`, `cp_als_frostt`, `hosvd_dense`).
+- Shell generator: `<collection>_<kind>`, such as `snap_graph` or `suitesparse_matrix`; its benchmark is `<generator>_shell`. Don't use the bare collection name: prepared datasets are cached under `<cache>/<generator>/`, and downloaders keep raw files under `<cache>/<collection>/`.
+- Dataset from a collection: the collection's own ID (`soc-Epinions1`, `HB/ash219`, `GAP-road`, `ogbn-arxiv`, `Track1_MC/random_mc_1`). Variants add a suffix: `_seed3`, `_src4795720`, `_rhs1`.
+- Synthetic or test dataset: a short snake_case description with no `test_` or benchmark prefix (`two_node_cycle`, `3x3_tridiagonal`).
+- Dataset names must not contain `.`, which separates the generator and dataset in ASV parameters.
+
+### Pretty Names
+
+Pretty names spell out each acronym in the name and follow it with the acronym in parentheses: `bfs` is "Breadth-First Search (BFS)" and `jacobi_pcg` is "Jacobi Preconditioned Conjugate Gradient (PCG)". Collection names stay as written.
+
+- Benchmark: the method, with no "Algorithm" or "Benchmark" suffix.
+- Generator: the benchmark's pretty name followed by the source ("Breadth-First Search (BFS) SNAP", "Conjugate Gradient (CG) Test"), with no "Generator" or "Inputs" suffix.
+- Dataset: a label for the instance alone. Collection datasets use their ID with any variant in parentheses ("soc-Epinions1 (Seed 3)", "HB/orani678 (Right-Hand Side (RHS) 1)"). Synthetic datasets use title case ("Two Node Cycle").
+
+### Classes And Files
+
+- A class is its CamelCase name plus a suffix, with acronyms capitalized: `bfs` becomes `BFSBenchmark`, `bfs_snap` becomes `BFSSNAPGenerator`, and `snap_graph_shell` becomes `SNAPGraphShellBenchmark`.
+- A dataset class is named for its benchmark (`BFSDataset`), adding the source when a module has several (`MatrixMultiplicationDenseDataset`). Collection datasets are named for the collection (`SNAPDataset`, `SuiteSparseDataset`).
+- A module is named for its benchmark (`src/saps/benchmarks/bfs.py`). A module with several benchmarks takes their family name (`cp_als.py`, `ode.py`, `pcg.py`), and a shell module takes its generator's name (`snap_graph.py`).
 
 ## Correctness Tests
 
@@ -90,15 +142,13 @@ Datasets represent one run of a benchmark. Generators group similar data-generat
 
 Tags can be applied to datasets, generators, or benchmarks. If a generator or benchmark is tagged, its datasets inherit that tag.
 
-Common suite tags include:
+Suites are listed by name in `suites`, and each one becomes a `suite-<name>` tag (for example, the `test` suite is selected with `--tag suite-test`). Common suites include:
 
 - `test`: datasets that run in CI and cover dense/sparse cases, different sizes, and code paths.
 - `standard`: canonical datasets in the suite.
 - `trace`: datasets whose operation behavior should be traced into `statistics.json`.
-- `dynamic`: datasets with random seeds or generated kernels.
-- `AI`: AI-generated datasets.
 
-Use ACM CCS XML to describe problem domains. Paste the XML into `concepts`, and SAPS generates lowercase hyphenated topic tags such as `applied-computing`, `physical-sciences-and-engineering`, or `aerospace`.
+Use ACM CCS XML to describe problem domains. Paste the XML into `concepts`, and SAPS generates lowercase hyphenated topic tags prefixed with `concept-`, such as `concept-applied-computing`, `concept-physical-sciences-and-engineering`, or `concept-aerospace`.
 
 Every benchmark, generator, and dataset provides `concepts`. Use `"<ccs2012></ccs2012>"` as a stub until you have a classification. You can use the [ACM CCS 2012 generator](https://dl.acm.org/ccs/ccs.cfm), copy its XML output, and paste it in as `concepts`:
 
@@ -114,26 +164,25 @@ def concepts(self) -> str:
     """
 ```
 
-Manual suite tags are written to `metadata.json` under `suites`. Topic tags generated from ACM CCS XML are written under `topics`. Generated `tags` combine suites, topics, inherited parent tags, and any fresh trace-derived statistics tags folded in during metadata generation.
+Manual suite tags are written to `metadata.json` under `suites`. Topic tags generated from ACM CCS XML are written under `topics`. Generated `tags` combine suites, topics, inherited parent tags, and any fresh trace-derived statistics tags folded in during metadata generation. Statistics tags always describe the whole benchmark: a fresh trace of any one of its datasets tags the benchmark, and therefore every generator and dataset under it.
 
 ## Problem Quality Tags
 
 These tags describe the general character of a problem, and are generated programatically by running --trace-statistics:
 
-- `high-dimensional`: 5 or more dimensions in a tensor.
-- `tensor`: 3 or more dimensions in a tensor.
-- `large-query`: 5 or more operands on one line.
-- `elementary-ops`: PEMDAS-only.
-- `transcendental-ops`: contains sin, cos, pow, exp, or related operations.
-- `shape-ops`: reshape, concat, transpose, squeeze, or similar operations.
-- `linalg-ops`: contains `xp.linalg` or solver-like operations. `dot` is okay.
-- `fancy-ops`: min, max, and, or, shift, or similar operations.
-- `index-ops`: contains indexing.
-- `nonzero-fill`: uses a fill value other than zero.
-- `iterative`: loops over a matrix or repeats until convergence.
-- `dense`: exclusively dense problems.
-- `hypersparse`: contains hypersparsity, such as `nnz << n` for a dimension.
-- `dynamic-sparsity`: sparse-sparse interactions may change the sparsity pattern.
+- `feature-high-dimensional`: 5 or more dimensions in a tensor.
+- `feature-tensor`: 3 or more dimensions in a tensor.
+- `feature-large-query`: 5 or more operands on one line.
+- `feature-elementary-ops`: PEMDAS-only.
+- `feature-transcendental-ops`: contains sin, cos, pow, exp, or related operations.
+- `feature-shape-ops`: reshape, concat, transpose, squeeze, or similar operations.
+- `feature-linalg-ops`: contains `xp.linalg` or solver-like operations. `dot` is okay.
+- `feature-fancy-ops`: min, max, and, or, shift, or similar operations.
+- `feature-index-ops`: contains indexing.
+- `feature-nonzero-fill`: uses a fill value other than zero.
+- `feature-dense`: exclusively dense problems.
+- `feature-hypersparse`: contains hypersparsity, such as `nnz << n` for a dimension.
+- `feature-dynamic-sparsity`: sparse-sparse interactions may change the sparsity pattern.
 
 ## Freshness
 
@@ -147,7 +196,7 @@ SAPS records freshness so generated artifacts can be checked against the code th
 Freshness is checked for:
 
 - `metadata.json`: benchmark, generator, and dataset metadata.
-- `statistics.json`: trace-derived tags for datasets selected by the `trace` suite.
+- `statistics.json`: trace-derived tags for datasets selected by the `suite-trace` tag.
 - `manifest.json`: cached dataset digests and freshness records.
 - Remote storage: every manifest record must point to an object that exists in the configured backend.
 
@@ -155,7 +204,7 @@ After changing benchmark code, generator code, metadata, dependency imports, or 
 
 ```bash
 poetry run ./bin/generate_metadata.py
-poetry run ./bin/run_benchmark.py --trace-statistics --tag trace --timeout 30 --show-stderr
+poetry run ./bin/run_benchmark.py --trace-statistics --tag suite-trace --process-timeout 30 --show-stderr
 poetry run ./bin/generate_metadata.py --statistics statistics.json
 poetry run ./bin/run_benchmark.py --cache-datasets
 ```
@@ -208,7 +257,7 @@ Dataset digests should be content hashes of serialized data. Freshness records b
 
 Tracing runs selected benchmark cases with `frameworks/saps_tagger.py`. The tagger records observed array operations and sparsity-relevant behavior, then writes those derived tags to `statistics.json`.
 
-A dataset is selected for tracing when the benchmark, generator, or dataset has the `trace` suite tag. Use `trace` for representative datasets that should describe the benchmark's operation mix. Avoid tracing huge datasets unless their scale is necessary for the behavior being observed.
+A dataset is selected for tracing when the benchmark, generator, or dataset is in the `trace` suite (tagged `suite-trace`). Use `trace` for representative datasets that should describe the benchmark's operation mix. Avoid tracing huge datasets unless their scale is necessary for the behavior being observed.
 
 Tracing should not change the semantics of a benchmark. It is a metadata pass over selected benchmark executions.
 

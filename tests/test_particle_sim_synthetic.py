@@ -6,17 +6,17 @@ import numpy as np
 
 from binsparse.conversions import to_numpy
 
-from saps.benchmarks.particle_sim import (
-    ParticleSimBenchmark,
-    SyntheticBerkeleyCS267ParticleGenerator,
+from saps.benchmarks.particle_simulation import (
+    ParticleSimulationBenchmark,
+    ParticleSimulationCS267Generator,
     particle_density_box_size,
 )
 
 
 def test_synthetic_berkeley_cs267_particle_generator_has_one_dataset():
-    generator = SyntheticBerkeleyCS267ParticleGenerator()
+    generator = ParticleSimulationCS267Generator()
 
-    assert [dataset.name for dataset in generator.datasets] == ["cs267_hw2_n1000_seed1"]
+    assert [dataset.name for dataset in generator.datasets] == ["hw2_n1000_seed1"]
 
     dataset = generator.datasets[0]
     assert dataset.n_particles == 1000
@@ -35,7 +35,7 @@ def test_synthetic_berkeley_cs267_particle_generator_has_one_dataset():
 
 
 def test_synthetic_generator_matches_assignment_layout():
-    generator = SyntheticBerkeleyCS267ParticleGenerator()
+    generator = ParticleSimulationCS267Generator()
     dataset = generator.datasets[0]
     instance = generator.generate(dataset)
     n = dataset.n_particles
@@ -85,7 +85,7 @@ def test_synthetic_generator_matches_assignment_layout():
 
 
 def test_synthetic_generator_outputs_cs267_metadata():
-    generator = SyntheticBerkeleyCS267ParticleGenerator()
+    generator = ParticleSimulationCS267Generator()
     dataset = generator.datasets[0]
     instance = generator.generate(dataset)
 
@@ -104,9 +104,11 @@ def test_synthetic_generator_outputs_cs267_metadata():
 
 
 def test_particle_sim_benchmark_registers_synthetic_generator():
-    assert [generator.name for generator in ParticleSimBenchmark().generators] == [
-        "particle_sim_test_inputs",
-        "synthetic_berkeley_cs267_particle",
-        "ewap_particle_sim",
-        "particle_sim",
+    assert [
+        generator.name for generator in ParticleSimulationBenchmark().generators
+    ] == [
+        "particle_simulation_test",
+        "particle_simulation_cs267",
+        "particle_simulation_ewap",
+        "particle_simulation_nemo",
     ]

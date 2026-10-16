@@ -26,26 +26,102 @@ poetry run ./bin/run_benchmark.py
 
 Useful runner options:
 
-- `--tag test`: run datasets tagged for CI-sized correctness/performance checks.
-- `--tag standard`: run canonical suite datasets.
+- `--tag suite-test`: run datasets tagged for CI-sized correctness/performance checks.
+- `--tag suite-standard`: run canonical suite datasets.
 - `--re REGEX`: include benchmark, generator, or dataset names matching a regex.
 - `--no-re REGEX`: exclude matching benchmark, generator, or dataset names.
 - `--metrics time peakmem`: collect one or both metrics.
 - `--quick`: run each selected benchmark once.
 - `--rounds 1`: use one timing round, retaining repeated measurements within it.
-- `--timeout 30`: set a per-benchmark timeout in seconds.
+- `--measurement-timeout 60`: allow 60 seconds total for warmup and measurements,
+  excluding setup and correctness checks.
+- `--process-timeout 180`: give the ASV worker 180 seconds for setup, warmup,
+  measurements, and teardown/checks.
 - `--chunk-count N --chunk-index I`: split the selected parameter cases across
   multiple processes and isolate transient output under `chunk-I` directories.
 
 For example:
 
 ```bash
-poetry run ./bin/run_benchmark.py --tag test --quick --timeout 30
-poetry run ./bin/run_benchmark.py --tag standard --metrics time peakmem
+poetry run ./bin/run_benchmark.py --tag suite-test --quick --process-timeout 30
+poetry run ./bin/run_benchmark.py --tag suite-standard --metrics time peakmem
 poetry run ./bin/run_benchmark.py --re bfs --no-re toy
 ```
 
 Runner outputs are written under `.saps/outputs/`, including ASV result files and cached datasets.
+
+## Measuring Structural Fill-In
+
+Bound how many Boolean squarings each prepared GAP and SNAP matrix can take before
+it reaches 1% density:
+
+```bash
+poetry run python scripts/measure_fill_in.py --output .saps/outputs/fill-in.json
+```
+
+The script bounds the fill-in of `I OR (A != 0)` under repeated squaring,
+preserving edge direction; after `s` squarings it covers paths of up to `2**s`
+edges. It makes one streaming pass over each matrix to count every row's
+off-diagonal nonzeros, then derives the bounds from those degrees. It never forms
+a squared matrix or traverses the graph. With maximum degree `d`, at most
+`1 + d + ... + d**k` vertices lie within `k` edges of any vertex. A row with `k0`
+nonzeros therefore has at most `1 + k0 * (1 + d + ... + d**(h - 1))` nonzeros in
+the `h`-th power, capped at `n`. Summing these row bounds bounds the nonzero
+count, density, and growth factor relative to `I OR (A != 0)`.
+
+The JSON leads with `steps`, one entry per matrix. `squarings` is the fewest
+squarings whose density bound reaches `--target-density` (default 0.01), and every
+earlier squaring is guaranteed to stay below that density. These are worst-case
+bounds for the given degrees, so a matrix usually stays sparse longer than its
+step count. Power-law graphs give especially loose bounds, because a single
+high-degree row dominates `d`. When the bound stops growing below the target,
+`squarings` is null and `stop_reason` is `never`: the matrix provably never
+reaches that density. The same list is printed at the end of the run, followed
+by a dictionary mapping each measured matrix to its maximum off-diagonal degree.
+
+`--datasets` takes matrix names such as `GAP/GAP-road` or whole SuiteSparse groups
+such as `SNAP`; the default is `GAP SNAP`, and `--list-datasets` prints the
+selection. Prepared inputs must be row-ordered COO Binsparse files whose columns
+are sorted within each row, in the shared cache. Use `--cache-dir PATH` and
+`--manifest PATH` to select another prepared cache. Missing datasets are reported
+without downloading them, and missing or invalid inputs give a nonzero exit code.
+Reported CSR storage bounds assume one-byte Boolean values and 64-bit indices and
+exclude temporary workspaces.
+
+Run the measurement on Slurm with one array task per GAP and SNAP matrix:
+
+```bash
+sbatch scripts/measure-fill-in.slurm
+```
+
+Each task requests one CPU, 16 GB of memory, and a one-hour wall time. The job
+uses the existing Poetry environment and prepared shared cache; `SAPS_CACHE_DIR`
+and `SAPS_MANIFEST_PATH` select alternate inputs. Task indices follow
+`scripts/measure_fill_in.py --list-datasets`; the array covers the 73 GAP and SNAP
+manifest entries, so update `--array` if that count changes. Results go to
+`.saps/outputs/fill-in/run_<array-job-id>/<group>/<name>.json`, and logs go to
+`fill-in-<array-job-id>_<task-index>.log` in the submission directory. Set
+`SAPS_FILL_IN_OUTPUT_DIR` to change the output directory. Options after the script
+name, such as `--target-density 0.05`, are passed to every task.
+
+Combine the per-task results into one step list once the array finishes:
+
+```bash
+poetry run python scripts/measure_fill_in.py \
+  --merge .saps/outputs/fill-in/run_<array-job-id>/*/*.json \
+  --output .saps/outputs/fill-in/run_<array-job-id>.json
+```
+
+To extract the recorded step counts from a combined log instead:
+
+```bash
+python3 scripts/extract_fill_steps.py scripts/fill-log
+```
+
+This prints one tab-separated `matrix` and `steps` pair per line, sorted by matrix
+name. It defaults to `scripts/fill-log`, accepts multiple log paths, and removes
+duplicate results. Counts retain the density-bound meaning above; `never` means
+the bound stays below the target, and `-` marks missing or failed measurements.
 
 ## Competition Runs
 
@@ -68,10 +144,24 @@ SAPS_COMPETITION_ARGS="--metrics time peakmem" \
 ```
 
 Slurm stdout and stderr logs go to the directory where you submit the job:
-`competition-%A_%a.log`, `upload-%j.log`, `trace-%A_%a.log`, or
+`competition-%A_%a.log`, `upload-%A_%a.log`, `trace-%A_%a.log`, or
 `finalize-metadata-%j.log`. The refresh launcher (`scripts/submit-refresh-jobs.sh`)
-also preserves the directory where you invoked it for all three jobs' logs.
-You can submit the Slurm scripts from the repository root or any subdirectory.
+also preserves the directory where you invoked it for all three (or four, with
+`--with-competition`) jobs' logs. You can submit the Slurm scripts from the
+repository root or any subdirectory.
+
+Dataset uploads run as an eight-task array. Set `SAPS_UPLOAD_CHUNK_COUNT` when
+using the refresh launcher to change the number of upload tasks. Tracing waits
+for every upload task to succeed.
+
+Pass `--with-competition` to `scripts/submit-refresh-jobs.sh` to also submit a
+competition run once the upload/trace/merge chain finishes successfully
+(`sbatch --dependency=afterok:<merge job>`), instead of submitting
+`scripts/run-competition.slurm` separately:
+
+```bash
+scripts/submit-refresh-jobs.sh --with-competition
+```
 
 The competition script emails `ahrens@gatech.edu` when the array finishes or
 fails. Notifications cover the whole array. Override the recipient at submission
@@ -79,7 +169,7 @@ with `sbatch --mail-user=you@example.com scripts/run-competition.slurm`.
 
 The competition config selects the standard datasets and uses one timing round
 per benchmark, with ASV's normal repeated measurements. The wrapper submits a
-256-task array by default, with a 90-minute time limit per task. Each task runs a
+128-task array by default, with an eight-hour time limit per task. Each task runs a
 deterministic set of the selected datasets. All competition outputs live in the
 run directory:
 
@@ -123,6 +213,19 @@ verified before entering the shared cache. Missing manifest entries or unavailab
 prepared data fail setup with an instruction to run `--cache-datasets`; normal
 runs never regenerate cacheable inputs or write manifest metadata.
 
+Prune unused manifest entries using `metadata.json` as the source of truth:
+
+```bash
+poetry run ./bin/prune_manifest.py --dry-run
+poetry run ./bin/prune_manifest.py
+```
+
+The script removes entries absent from metadata or belonging only to generators
+with `cacheable: false`, preserving retained records regardless of freshness.
+Regenerate metadata first if benchmark definitions have changed. Use `--metadata`
+and `--manifest` for alternate files; the manifest also honors `SAPS_MANIFEST_PATH`.
+Pruning does not delete local cache files or remote objects.
+
 Generators marked `cacheable = False` still assemble benchmark inputs during
 setup from their shared source datasets. Those transformations must preserve
 sparsity and use prepared data. The G-CARE downloader reads graph matrices,
@@ -133,7 +236,7 @@ the downloader or reading source files.
 Older G-CARE caches need a one-time refresh from the repository root:
 
 ```bash
-poetry run ./bin/run_benchmark.py --cache-datasets --re '^subgraph_gcare_graph$'
+poetry run ./bin/run_benchmark.py --cache-datasets --re '^gcare_graph$'
 ```
 
 Run this in the dataset-upload environment with its configured storage backend.
@@ -142,7 +245,89 @@ in `gcare/`.
 
 SuiteSparse source downloads used during cache preparation also share this cache,
 under `suitesparse/<group>/<name>`. A lock and atomic publication let workers reuse
-one completed source download across its RHS selections.
+one completed source download across its RHS selections. The `suitesparse_matrix_shell`
+cache stores each matrix with all compatible RHS vectors once. Uncached solver
+generators select individual RHS columns after fetching that shared entry.
+Older caches that stored one entry per RHS need a one-time refresh in the
+dataset-upload environment:
+
+```bash
+poetry run ./bin/generate_metadata.py
+poetry run ./bin/run_benchmark.py --cache-datasets --re '^suitesparse_matrix_shell$'
+```
+
+SNAP graphs are prepared by `suitesparse_matrix_shell` and stored once under
+`suitesparse_matrix/SNAP/<name>/<digest>.bsp.h5`. BFS, Bellman-Ford, centrality, connected
+components, FastSV, PageRank, transitive closure/reduction, triangle counting, and four-clique
+counting reuse those graphs. The uncached `snap_graph` generator reads these
+prepared SuiteSparse inputs and returns only the matrix, preserving its values
+and dimensions. Bellman-Ford derives its sparse distance representation
+during setup. Source archives share the `suitesparse/SNAP/` cache.
+
+Triangle and four-clique reference counts use simple undirected graphs: ignore
+edge weights and directions, merge duplicate edges, remove self-loops, and store
+only the strict upper triangle. Each clique is counted once. Prefer the published
+[GraphMiner triangle table](https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/triangle/README.md)
+and [clique table](https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/clique/README.md)
+where the input graphs match:
+
+| SAPS dataset | GraphMiner row | Reference counts |
+| --- | --- | --- |
+| `soc-LiveJournal1` | `livej` | Triangles and four-cliques |
+| `com-Orkut` | `com-Orkut` | Triangles and four-cliques |
+| `cit-Patents` | `cit-Patents` | Triangles and four-cliques |
+| `com-Friendster` | `friendster` | Triangles and four-cliques |
+| `twitter7` | `twitter40` | Triangles and four-cliques |
+| `GAP-twitter` | `twitter40` | Triangles |
+
+[SuiteSparse documents the equivalence of GAP-twitter and twitter7](https://sparse.tamu.edu/GAP/GAP-twitter)
+after removing self-loops and weights and disregarding isolated vertices.
+GraphMiner's `youtube`, `patent_citations`, and `uk2007` are different graphs from
+`com-Youtube`, `cit-Patents`, and `GAP-web`; their counts cannot be substituted.
+Likewise, `livej` matches `soc-LiveJournal1`, not `com-LiveJournal`.
+For the other datasets, triangle references come from the SNAP dataset pages,
+[LAGraph's GAP counts](https://github.com/GraphBLAS/LAGraph/blob/7543de1f310371c540c23ff5da82705aa4e94ea0/src/benchmark/tc_demo.c#L22-L27),
+or local computation as marked in `triangle_counting.py`. The remaining
+four-clique references are locally computed with `scripts/compute_graph_counts.py`
+using the benchmark generators. They are not published GraphMiner totals.
+
+Each dataset descriptor carries its integer `expected` count. Generators use
+`int64` adjacency values and reference scalars; correctness checks require an
+integer scalar exactly equal to the reference, with no floating-point tolerance.
+
+Regenerate metadata and prepare the SuiteSparse cache before running these consumers
+with the SuiteSparse sources:
+
+```bash
+poetry run ./bin/generate_metadata.py
+poetry run ./bin/run_benchmark.py --cache-datasets --re '^suitesparse_matrix_shell$'
+```
+
+The 68 SuiteSparse SNAP sources are explicitly listed in
+`src/saps/benchmarks/snap.py` and the shared inventory in
+`src/saps/benchmarks/suitesparse.py`. Add new sources to both inventories, then
+regenerate metadata and prepare the SuiteSparse cache. Entries without SuiteSparse
+matrices remain commented out with their original metadata and are not exposed
+by SNAP generators.
+
+The OpenML shell caches the feature matrix together with train/test row indices
+from a pinned task, repeat, fold, and sample. MNIST uses task 3573 and CIFAR-10 uses
+task 167124, both at repeat 0, fold 0, sample 0. ANN generators consume these splits;
+clustering generators can still consume the complete feature matrix. Refresh old
+OpenML caches that contain only the feature matrix with:
+
+```bash
+poetry run ./bin/run_benchmark.py --cache-datasets --re '^openml_dataset$'
+```
+
+All source downloaders honor `SAPS_CACHE_DIR` (default `.saps/outputs/cache`)
+and lock the cache check, download, and extraction so concurrent jobs reuse
+completed files. Source subdirectories are `suitesparse`, `frostt`,
+`gcare`, `nemo`, `ewap`, `slicot`, `mccomp`, `ogb`, and `kaggle`; LTH model files
+use `artifacts/lth`. An explicit downloader `data_dir` takes precedence.
+These source caches persist independently of job-local environments and `$TMPDIR`.
+G-CARE records completed extraction so later loads reuse the extracted files.
+
 
 Each finishing task refreshes the combined files with the results saved so far.
 To rebuild the highest-numbered Slurm run, run from the repository root:
@@ -175,8 +360,41 @@ multiple datasets; those results share a diagnostic reference. Resume preserves
 the diagnostics and machine attribution for retained measurements. Older ASV
 files can still be combined, but their missing diagnostics cannot be recovered;
 the machine listing uses whatever machine identity those files recorded.
-Unselected parameters are omitted; recorded skips appear with `status: "skipped"`.
+Unselected parameters are omitted. Recorded skips have `status: "skipped"`;
+nonfinite results have `status: "failed"` with `reason: "nonfinite"`.
 Non-finite values become JSON `null` rather than nonstandard `NaN` literals.
+
+The runner saves each dataset's status in `saps.runs[].parameter_statuses`;
+the combined results expose the status and phase directly:
+
+- `ok`: a finite result with no reported failure.
+- `skipped`: the framework or benchmark skipped this dataset.
+- `failed`: an exception, failed correctness check, or nonfinite result.
+- `measurement_timeout`: warmup and measurements exceeded `measurement_timeout`,
+  or the ASV process timed out during the measurement phase.
+- `setup_timeout`: the ASV process timed out before measurements started.
+- `teardown_timeout`: the ASV process timed out during checks, cleanup, or result
+  finalization.
+
+`measurement_timeout` covers warmup and measurements together, not each call.
+Timing starts at the end of setup and stops at the beginning of teardown. ASV
+can repeat setup/teardown between samples, so elapsed measurement time accumulates
+across those intervals within each worker. Setup and correctness checks do not
+count against it. There is no extra clock read or timeout wrapper around `run`.
+Normal ASV timing includes warmup and at least one subsequent measured call;
+`--quick` and peak-memory runs retain ASV's single-call behavior.
+
+When teardown detects an overrun, it skips correctness checks, cleans up, and
+raises `MeasurementTimeout`, preserving the `measurement_timeout` result status.
+A call that never returns is stopped by ASV's `process_timeout`. Timeout records
+include `timeout_source` (`measurement` or `process`); measurement overruns also
+record `elapsed_seconds` and `timeout_seconds`.
+
+Both limits can be set independently in the CLI or config. Defaults are 60 seconds
+for measurement and 180 seconds per worker (5000 for dataset caching); checks do
+not automatically double the process allowance. Measurement limits are disabled
+for caching and statistics tracing. To give setup or checks more time, increase
+`--process-timeout` while keeping `--measurement-timeout` unchanged.
 
 Direct runs using `competition.config.json` write beneath
 `competition/run_local/task_0/`; combine those with
@@ -307,7 +525,7 @@ To benchmark your own sparse framework, create a Python file that defines an `xp
 Then run:
 
 ```bash
-poetry run ./bin/run_benchmark.py --config saps.conf.json --tag test --quick
+poetry run ./bin/run_benchmark.py --config saps.conf.json --tag suite-test --quick
 ```
 
 A framework wrapper is responsible for:
@@ -315,6 +533,7 @@ A framework wrapper is responsible for:
 - `from_binsparse(array)`: convert SAPS `BinsparseFormat` inputs into framework arrays.
 - `to_binsparse(array)`: convert framework outputs back into `BinsparseFormat`.
 - `compute(array)` and `lazy(array)`: force or preserve evaluation as appropriate for the framework.
+- `replace(arr, old, new)`: return an array with matching values replaced, including implicit sparse values; NaN matches NaN. Leave the input unchanged.
 - `einsum(...)` and Array API operations used by benchmarks.
 - `__getattr__`: commonly used to forward Array API calls to the wrapped module.
 
@@ -328,21 +547,23 @@ Run the full test suite with:
 poetry run pytest
 ```
 
+Every benchmark run checks its output for correctness in teardown, after each
+timing sample, unless the measurement budget was exceeded.
+
 For a quick runner smoke test over CI-sized datasets:
 
 ```bash
 poetry run ./bin/run_benchmark.py \
-  --tag test \
-  --check-suite \
+  --tag suite-test \
   --metrics time \
   --quick \
-  --timeout 30
+  --process-timeout 30
 ```
 
 Freshness tests check that generated artifacts still match the source code and metadata in the repository:
 
 - `metadata.json` matches benchmark, generator, and dataset metadata.
-- `statistics.json` contains current trace-derived tags for datasets selected by the `trace` tag.
+- `statistics.json` contains current trace-derived tags for datasets selected by the `suite-trace` tag.
 - `manifest.json` records current dataset freshness.
 - Every concrete generator is reachable through a benchmark, including shell benchmarks for intentionally standalone generators.
 - Every manifest record points to a dataset object that exists in the configured remote storage backend.
@@ -393,12 +614,12 @@ Trace statistics are generated by running selected benchmarks with the tagger fr
 ```bash
 poetry run ./bin/run_benchmark.py \
   --trace-statistics \
-  --tag trace \
-  --timeout 30 \
+  --tag suite-trace \
+  --process-timeout 30 \
   --show-stderr
 ```
 
-Datasets get traced when their generated metadata has the `trace` tag. Tracing executes the benchmark with `frameworks/saps_tagger.py`, records which array operations and sparsity-relevant behaviors were observed, and writes those derived tags to `statistics.json`. Fold fresh trace-derived tags into `metadata.json` with:
+Datasets get traced when their generated metadata has the `suite-trace` tag. Tracing executes the benchmark with `frameworks/saps_tagger.py`, records which array operations and sparsity-relevant behaviors were observed, and writes those derived tags with a `feature-` prefix to `statistics.json`. Fold fresh trace-derived tags into `metadata.json` with:
 
 ```bash
 poetry run ./bin/generate_metadata.py --statistics statistics.json

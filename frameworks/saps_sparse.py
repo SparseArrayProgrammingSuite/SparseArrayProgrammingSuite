@@ -8,6 +8,7 @@ import array_api_compat
 import array_api_compat.numpy as compat_np
 import sparse as sp
 from binsparse import (
+    CSRMatrix,
     CustomTensor,
     DenseLevel,
     DMATCMatrix,
@@ -15,14 +16,14 @@ from binsparse import (
     DVECVector,
     ElementLevel,
 )
-from binsparse.conversions import from_numpy, from_sparse, to_numpy, to_sparse
+from binsparse.conversions import from_numpy, from_sparse, to_numpy, to_scipy, to_sparse
 
 from saps_framework import (
     Framework,
-    einsum,
     normalize_unfold_args,
     unfold_output_shape,
 )
+from saps_framework.einsum import native_einsum
 
 
 class PyDataSparseLinalg:
@@ -237,6 +238,62 @@ def _sparse_unfold_with_diagonals(
     return sp.COO(output_coords, output_data, shape=output_shape)
 
 
+class _MutableCOO(sp.COO):
+    """COO arithmetic with indexed assignment through a temporary DOK builder."""
+
+    def __setitem__(self, key, value):
+        if isinstance(key, tuple):
+            key = tuple(
+                PyDataSparseFramework._dense(index)
+                if isinstance(index, sp.SparseArray)
+                else index
+                for index in key
+            )
+        elif isinstance(key, sp.SparseArray):
+            key = PyDataSparseFramework._dense(key)
+        if isinstance(value, sp.SparseArray):
+            value = PyDataSparseFramework._dense(value)
+        # Scattering into an empty array with no repeated coordinates is
+        # exactly building a COO from these coordinates -- construct it
+        # directly (vectorized) instead of going through DOK, whose own
+        # __setitem__ is a pure-Python loop over every index (see
+        # sparse.numba_backend._dok.DOK._fancy_setitem), which dominates
+        # runtime at realistic sizes regardless of how few entries are
+        # actually being set. COO sums duplicate coordinates instead of
+        # this class's (and DOK's) last-write-wins, so this only applies
+        # once verified duplicate-free -- itself a cheap vectorized check,
+        # unlike the Python loop it's replacing.
+        if (
+            self.nnz == 0
+            and isinstance(key, tuple)
+            and len(key) == self.ndim
+            and all(isinstance(index, np.ndarray) and index.ndim == 1 for index in key)
+        ):
+            flat = np.ravel_multi_index(key, self.shape)
+            if len(np.unique(flat)) == len(flat):
+                coords = np.stack(key)
+                data = np.broadcast_to(
+                    np.asarray(value, dtype=self.dtype), (coords.shape[1],)
+                )
+                updated = sp.COO(
+                    coords,
+                    data,
+                    shape=self.shape,
+                    fill_value=self.fill_value,
+                    has_duplicates=False,
+                )
+                self.coords = updated.coords
+                self.data = updated.data
+                self._cache = None
+                return
+        builder = sp.DOK.from_coo(self)
+        builder[key] = value
+        updated = builder.to_coo()
+        self.coords = updated.coords
+        self.data = updated.data
+        self._cache = None
+
+
 class PyDataSparseFramework(Framework):
     _sparse_first: set[str] = set()
     _dtype_attrs = {
@@ -257,9 +314,18 @@ class PyDataSparseFramework(Framework):
         self._modules = [sp, compat_np, np]
 
     @staticmethod
-    def _has_sparse_arg(*args, **kwargs):
-        return any(isinstance(arg, sp.SparseArray) for arg in args) or any(
-            isinstance(value, sp.SparseArray) for value in kwargs.values()
+    def _is_sparse(arg):
+        # Sequence arguments (e.g. concat's array list) count too, or a mixed
+        # list would dispatch to NumPy and reach pydata/sparse's concatenate
+        # through __array_function__ with its dense members unconverted.
+        if isinstance(arg, list | tuple):
+            return any(isinstance(item, sp.SparseArray) for item in arg)
+        return isinstance(arg, sp.SparseArray)
+
+    @classmethod
+    def _has_sparse_arg(cls, *args, **kwargs):
+        return any(cls._is_sparse(arg) for arg in args) or any(
+            cls._is_sparse(value) for value in kwargs.values()
         )
 
     @staticmethod
@@ -283,6 +349,11 @@ class PyDataSparseFramework(Framework):
     def _sparse_compatible_arg(arg):
         if isinstance(arg, np.ndarray):
             return sp.asarray(arg)
+        if isinstance(arg, list | tuple):
+            return type(arg)(
+                sp.asarray(item) if isinstance(item, np.ndarray) else item
+                for item in arg
+            )
         return arg
 
     def from_binsparse(self, array):
@@ -297,6 +368,10 @@ class PyDataSparseFramework(Framework):
                 level=DenseLevel(rank=rank, level=ElementLevel()),
             ) if rank == len(shape):
                 return to_numpy(array)
+            case CSRMatrix():  # also matches CSCMatrix, a CSRMatrix subclass
+                # to_sparse only reads COO; go through SciPy (which reads
+                # CSR/CSC/COO) and into GCXS instead of densifying via COO.
+                return sp.GCXS.from_scipy_sparse(to_scipy(array))
             case _:
                 return to_sparse(array)
 
@@ -324,8 +399,11 @@ class PyDataSparseFramework(Framework):
     def einsum(self, prgm, **kwargs):
         if all(not isinstance(value, sp.SparseArray) for value in kwargs.values()):
             xp = self._array_namespace(*kwargs.values())
-            return einsum(xp, prgm, **kwargs)
-        return einsum(sp, prgm, **kwargs)
+            return native_einsum(xp, prgm, **kwargs)
+        kwargs = {
+            key: self._sparse_compatible_arg(value) for key, value in kwargs.items()
+        }
+        return native_einsum(sp, prgm, **kwargs)
 
     def unfold(
         self,
@@ -406,14 +484,43 @@ class PyDataSparseFramework(Framework):
         xp = self._array_namespace(a)
         return xp.diagonal(a, *args, **kwargs)
 
+    def add(self, x1, x2, /, **kwargs):
+        # Sparse + dense-array has no constant fill value, so pydata/sparse
+        # refuses it; the result is dense anyway, so densify the sparse side.
+        sparse1 = isinstance(x1, sp.SparseArray)
+        sparse2 = isinstance(x2, sp.SparseArray)
+        if sparse1 != sparse2:
+            dense = x2 if sparse1 else x1
+            if isinstance(dense, np.ndarray) and dense.ndim > 0:
+                return compat_np.add(self._dense(x1), self._dense(x2), **kwargs)
+        if sparse1 or sparse2:
+            x1, x2 = self._sparse_compatible_arg(x1), self._sparse_compatible_arg(x2)
+            return sp.add(x1, x2, **kwargs)
+        return compat_np.add(x1, x2, **kwargs)
+
     def matmul(self, x1, x2, /, **kwargs):
         if isinstance(x1, sp.SparseArray) or isinstance(x2, sp.SparseArray):
-            return x1 @ x2
+            # sparse.matmul (unlike the array-api namespace below) takes no
+            # kwargs at all, so a caller-requested dtype has to be applied
+            # as a cast afterward instead of steering the contraction
+            # itself -- unlike the dense path, this can't avoid computing
+            # in whatever wider dtype the contraction naturally uses first.
+            dtype = kwargs.pop("dtype", None)
+            if kwargs:
+                raise TypeError(
+                    f"PyDataSparseFramework.matmul doesn't support {sorted(kwargs)} "
+                    "for sparse operands"
+                )
+            result = x1 @ x2
+            return result if dtype is None else result.astype(dtype)
         xp = self._array_namespace(x1, x2)
         return xp.matmul(x1, x2, **kwargs)
 
     def zeros(self, shape, *args, **kwargs):
-        return compat_np.zeros(shape, *args, **kwargs)
+        # Vectors also serve as dense index and scalar buffers in the suite.
+        if not isinstance(shape, tuple | list) or len(shape) < 2:
+            return compat_np.zeros(shape, *args, **kwargs)
+        return _MutableCOO(sp.zeros(shape, *args, **kwargs))
 
     def arange(self, *args, **kwargs):
         return compat_np.arange(*args, **kwargs)
@@ -429,7 +536,8 @@ class PyDataSparseFramework(Framework):
         return np.array(obj, *args, **kwargs)
 
     def eye(self, *args, **kwargs):
-        return compat_np.eye(*args, **kwargs)
+        dtype = kwargs.pop("dtype", None)
+        return sp.eye(*args, dtype=float if dtype is None else dtype, **kwargs)
 
     def ones(self, *args, **kwargs):
         return compat_np.ones(*args, **kwargs)
@@ -445,6 +553,12 @@ class PyDataSparseFramework(Framework):
             return sp.stack([sp.asarray(array) for array in arrays], axis=axis)
         return compat_np.stack(arrays, axis=axis)
 
+    def argsort(self, x, /, *args, **kwargs):
+        if isinstance(x, sp.SparseArray):
+            x = self._dense(x)
+        xp = self._array_namespace(x)
+        return xp.argsort(x, *args, **kwargs)
+
     def take(self, x, indices, /, *args, **kwargs):
         if isinstance(indices, sp.SparseArray):
             indices = self._dense(indices)
@@ -453,17 +567,44 @@ class PyDataSparseFramework(Framework):
         xp = self._array_namespace(x)
         return xp.take(x, indices, *args, **kwargs)
 
+    def take_along_axis(self, x, indices, /, *, axis=-1):
+        if isinstance(indices, sp.SparseArray):
+            indices = self._dense(indices)
+        if not isinstance(x, sp.SparseArray):
+            xp = self._array_namespace(x)
+            return xp.take_along_axis(x, indices, axis=axis)
+
+        if not -x.ndim <= axis < x.ndim:
+            raise IndexError("axis is out of bounds")
+        axis %= x.ndim
+        if indices.ndim != x.ndim:
+            raise ValueError(
+                "indices and input must have the same number of dimensions"
+            )
+        if indices.dtype.kind not in "iu":
+            raise IndexError("indices must be integers")
+
+        # COO accepts paired 1D index arrays. Broadcast only the output indices,
+        # gather those entries, and restore the output shape without densifying x.
+        indexers = []
+        for dim, size in enumerate(x.shape):
+            shape = [1] * x.ndim
+            shape[dim] = size
+            indexers.append(indices if dim == axis else np.arange(size).reshape(shape))
+        indexers = np.broadcast_arrays(*indexers)
+        result = x.asformat("coo")[tuple(index.ravel() for index in indexers)]
+        return result.reshape(indexers[0].shape)
+
     def item(self, array):
         if isinstance(array, sp.SparseArray):
             return self._dense(array).item()
         return array.item()
 
-    def with_fill_value(self, array, value):
-        if isinstance(array, sp.SparseArray):
-            res = array.copy(deep=False)
-            res.fill_value = array.dtype.type(value)
-            return res
-        return array
+    def replace(self, arr, old, new):
+        if isinstance(arr, sp.DOK):
+            arr = arr.asformat("coo")
+        xp = sp if isinstance(arr, sp.SparseArray) else np
+        return xp.where(xp.isnan(arr) if old != old else arr == old, new, arr)
 
     @property
     def linalg(self):

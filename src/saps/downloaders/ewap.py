@@ -8,6 +8,8 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy
 
+from saps.downloaders.cache import download_lock, source_cache_dir
+
 _OPENTRAJ_BASE = (
     "https://raw.githubusercontent.com/crowdbotp/OpenTraj/master/datasets/ETH"
 )
@@ -132,25 +134,26 @@ def load_toy_ewap_dataset(
 
 
 def _default_data_dir() -> Path:
-    return Path(__file__).resolve().parents[3] / "data" / "ewap"
+    return source_cache_dir("ewap")
 
 
 def _ensure_downloaded(dataset_dir: Path, scene: str) -> Path:
     obsmat_path = dataset_dir / scene / "obsmat.txt"
-    if obsmat_path.exists():
+    with download_lock(obsmat_path):
+        if obsmat_path.exists():
+            return obsmat_path
+
+        url = f"{_OPENTRAJ_BASE}/{scene}/obsmat.txt"
+        obsmat_path.parent.mkdir(parents=True, exist_ok=True)
+        tmp_path = obsmat_path.with_suffix(".txt.tmp")
+        try:
+            urllib.request.urlretrieve(url, tmp_path)
+            tmp_path.replace(obsmat_path)
+        except Exception:
+            tmp_path.unlink(missing_ok=True)
+            raise
+
         return obsmat_path
-
-    url = f"{_OPENTRAJ_BASE}/{scene}/obsmat.txt"
-    obsmat_path.parent.mkdir(parents=True, exist_ok=True)
-    tmp_path = obsmat_path.with_suffix(".txt.tmp")
-    try:
-        urllib.request.urlretrieve(url, tmp_path)
-        tmp_path.replace(obsmat_path)
-    except Exception:
-        tmp_path.unlink(missing_ok=True)
-        raise
-
-    return obsmat_path
 
 
 def _parse_obsmat(

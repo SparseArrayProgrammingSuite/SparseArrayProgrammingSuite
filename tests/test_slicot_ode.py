@@ -13,11 +13,11 @@ from frameworks.saps_numpy import NumpyFramework
 from saps.benchmark import DataInstance, Param
 from saps.benchmarks import ode
 from saps.benchmarks.ode import (
-    SLICOTRK4,
-    SLICOTBackwardEuler,
-    SLICOTDataset,
-    SLICOTForwardEuler,
-    SLICOTGenerator,
+    BackwardEulerBenchmark,
+    ForwardEulerBenchmark,
+    ODESLICOTDataset,
+    ODESLICOTGenerator,
+    RK4Benchmark,
 )
 
 
@@ -30,7 +30,7 @@ def _source_meta(source_name: str) -> dict:
 
 
 def test_slicot_generator_uses_all_identity_e_problems():
-    generator = SLICOTGenerator()
+    generator = ODESLICOTGenerator()
 
     assert [dataset.source_name for dataset in generator.datasets] == [
         "eady.mat",
@@ -44,7 +44,7 @@ def test_slicot_generator_uses_all_identity_e_problems():
         "build.mat",
         "beam.mat",
     ]
-    assert all(dataset.suites == ["standard"] for dataset in generator.datasets)
+    assert all("standard" in dataset.suites for dataset in generator.datasets)
 
 
 def test_slicot_generator_loads_a_and_b_and_ignores_c_d(monkeypatch):
@@ -61,7 +61,7 @@ def test_slicot_generator_loads_a_and_b_and_ignores_c_d(monkeypatch):
 
     monkeypatch.setattr(ode, "load_slicot_problem", fake_load_slicot_problem)
 
-    instance = SLICOTGenerator().generate(SLICOTDataset("build"))
+    instance = ODESLICOTGenerator().generate(ODESLICOTDataset("build"))
 
     np.testing.assert_array_equal(
         to_numpy(instance.inputs[0]), np.array([[0.0, 1.0], [-2.0, -3.0]])
@@ -70,6 +70,7 @@ def test_slicot_generator_loads_a_and_b_and_ignores_c_d(monkeypatch):
         to_numpy(instance.inputs[1]), np.array([[0.0], [1.0]])
     )
     assert instance.meta["source_name"] == "build.mat"
+    assert instance.meta["problem_name"] == "ode_slicot"
     assert instance.meta["assumed_E"] == "identity"
     assert instance.meta["assumed_B"] is None
     assert instance.meta["A_storage"] == "dense"
@@ -87,7 +88,7 @@ def test_slicot_generator_preserves_stored_sparse_matrices(monkeypatch):
 
     monkeypatch.setattr(ode, "load_slicot_problem", fake_load_slicot_problem)
 
-    instance = SLICOTGenerator().generate(SLICOTDataset("heat-cont"))
+    instance = ODESLICOTGenerator().generate(ODESLICOTDataset("heat-cont"))
 
     assert instance.meta["A_storage"] == "sparse"
     assert instance.meta["B_storage"] == "sparse"
@@ -112,7 +113,7 @@ def test_slicot_generator_keeps_stored_dense_matrices_dense(monkeypatch):
 
     monkeypatch.setattr(ode, "load_slicot_problem", fake_load_slicot_problem)
 
-    instance = SLICOTGenerator().generate(SLICOTDataset("beam"))
+    instance = ODESLICOTGenerator().generate(ODESLICOTDataset("beam"))
 
     assert instance.meta["A_storage"] == "dense"
     assert instance.meta["B_storage"] == "dense"
@@ -131,7 +132,7 @@ def test_slicot_generator_defaults_missing_b_to_normalized_input(monkeypatch):
 
     monkeypatch.setattr(ode, "load_slicot_problem", fake_load_slicot_problem)
 
-    instance = SLICOTGenerator().generate(SLICOTDataset("Orr-Som"))
+    instance = ODESLICOTGenerator().generate(ODESLICOTDataset("Orr-Som"))
 
     np.testing.assert_allclose(
         to_numpy(instance.inputs[1]), np.ones((2, 1)) / np.sqrt(2)
@@ -157,40 +158,54 @@ def test_slicot_generator_rejects_explicit_e(monkeypatch):
     monkeypatch.setattr(ode, "load_slicot_problem", fake_load_slicot_problem)
 
     with pytest.raises(ValueError, match="explicit E matrix"):
-        SLICOTGenerator().generate(SLICOTDataset("eady"))
+        ODESLICOTGenerator().generate(ODESLICOTDataset("eady"))
+
+
+def _run_slicot(benchmark, meta, *data):
+    generator = ODESLICOTGenerator()
+    problem = DataInstance(inputs=[from_numpy(item) for item in data], meta=meta)
+    function = generator.generate_benchmark_function(
+        generator.datasets[0], problem, benchmark.benchmark
+    )
+    return function(None, meta, *data)
 
 
 def test_slicot_forward_euler_runs_linear_system():
-    benchmark = SLICOTForwardEuler()
+    benchmark = ForwardEulerBenchmark()
     data = [np.array([[0.0]]), np.array([[2.0]])]
     meta = {
+        "problem_name": "ode_slicot",
         "span": (0.0, 0.3),
         "y0": [0.0],
         "step": 0.1,
         "input_value": 3.0,
     }
 
-    time, states = benchmark.benchmark(None, data, meta)
+    time, states = _run_slicot(benchmark, meta, *data)
 
     np.testing.assert_allclose(time, np.array([0.0, 0.1, 0.2]))
     np.testing.assert_allclose(states[:, 0], np.array([0.0, 0.6, 1.2]))
 
 
-def test_slicot_rk4_is_parented_benchmark():
-    generator_names = [generator.name for generator in SLICOTRK4().generators]
+def test_rk4_includes_slicot_generator():
+    generator_names = [generator.name for generator in RK4Benchmark().generators]
 
-    assert generator_names == ["slicot_ode"]
+    assert "ode_slicot" in generator_names
 
 
 @pytest.mark.parametrize(
     ("benchmark_cls", "expected_step"),
-    [(SLICOTForwardEuler, 0.0001), (SLICOTBackwardEuler, 0.0002), (SLICOTRK4, 0.01)],
+    [
+        (ForwardEulerBenchmark, 0.0001),
+        (BackwardEulerBenchmark, 0.0002),
+        (RK4Benchmark, 0.01),
+    ],
 )
 def test_slicot_setup_uses_method_timestep_with_old_cached_data(
     monkeypatch, benchmark_cls, expected_step
 ):
-    dataset = SLICOTDataset("CDplayer", step=0.01)
-    generator = SLICOTGenerator()
+    dataset = ODESLICOTDataset("CDplayer", step=0.01)
+    generator = ODESLICOTGenerator()
     problem = DataInstance(
         inputs=[from_numpy(np.array([[-10.0]])), from_numpy(np.ones((1, 1)))],
         meta={"span": (0, 0.1), "y0": [0.0], "step": 0.02, "input_value": 1.0},
@@ -208,6 +223,8 @@ def test_slicot_setup_uses_method_timestep_with_old_cached_data(
 
     assert benchmark._input is problem.inputs
     assert benchmark._meta["step"] == expected_step
+    assert benchmark._meta["problem_name"] == "ode_slicot"
+    assert "problem_name" not in problem.meta
     assert problem.meta["step"] == 0.02
     assert dataset.metadata["step"] == 0.01
     assert benchmark.metadata["step_multiplier"] * dataset.step == expected_step
@@ -216,16 +233,18 @@ def test_slicot_setup_uses_method_timestep_with_old_cached_data(
 
 @pytest.mark.parametrize("drop_imaginary", [False, True])
 def test_slicot_check_preserves_complex_reference(drop_imaginary):
-    benchmark = SLICOTRK4()
+    benchmark = RK4Benchmark()
     data = [np.array([[-1.0 + 2.0j]]), np.array([[1.0]])]
     benchmark._input = [from_numpy(item) for item in data]
+    benchmark._ref_meta = None
     benchmark._meta = {
+        "problem_name": "ode_slicot",
         "span": (0.0, 1.0),
         "y0": [0.0],
         "step": 0.01,
         "input_value": 1.0,
     }
-    time, states = benchmark.benchmark(None, data, benchmark._meta)
+    time, states = _run_slicot(benchmark, benchmark._meta, *data)
     if drop_imaginary:
         states = states.real
     benchmark._output = [from_numpy(time), from_numpy(states)]
@@ -238,17 +257,19 @@ def test_slicot_check_preserves_complex_reference(drop_imaginary):
 
 
 def test_slicot_check_still_rejects_unstable_steps():
-    benchmark = SLICOTForwardEuler()
+    benchmark = ForwardEulerBenchmark()
     data = [np.array([[-1000.0]]), np.array([[1.0]])]
     benchmark._input = [from_numpy(item) for item in data]
+    benchmark._ref_meta = None
     benchmark._meta = {
+        "problem_name": "ode_slicot",
         "span": (0.0, 0.1),
         "y0": [0.0],
         "step": 0.01,
         "input_value": 1.0,
     }
     benchmark._output = [
-        from_numpy(item) for item in benchmark.benchmark(None, data, benchmark._meta)
+        from_numpy(item) for item in _run_slicot(benchmark, benchmark._meta, *data)
     ]
 
     with pytest.raises(AssertionError, match="exceeds tolerance 0.05 at step=0.01"):
@@ -256,9 +277,11 @@ def test_slicot_check_still_rejects_unstable_steps():
 
 
 def test_slicot_check_reports_reference_failure(monkeypatch):
-    benchmark = SLICOTRK4()
+    benchmark = RK4Benchmark()
     benchmark._input = [from_numpy(np.eye(1)), from_numpy(np.ones((1, 1)))]
+    benchmark._ref_meta = None
     benchmark._meta = {
+        "problem_name": "ode_slicot",
         "span": (0.0, 0.1),
         "y0": [0.0],
         "step": 0.01,

@@ -62,10 +62,10 @@ jobs:
         run: |
           poetry run ./bin/run_benchmark.py \
             --trace-statistics \
-            --tag trace \
+            --tag suite-trace \
             --chunk-count 4 \
             --chunk-index ${{ matrix.chunk }} \
-            --timeout 30 \
+            --process-timeout 30 \
             --show-stderr \
             --remote-storage-backend "$REMOTE_STORAGE_BACKEND" \
             --remote-storage-bucket "$REMOTE_STORAGE_BUCKET"

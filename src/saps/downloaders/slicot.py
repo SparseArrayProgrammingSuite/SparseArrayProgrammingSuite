@@ -9,6 +9,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from saps.downloaders.cache import download_lock, source_cache_dir
+
 SLICOT_BENCHMARK_PAGE_URL = (
     "https://www.slicot.org/20-site/126-benchmark-examples-for-model-reduction"
 )
@@ -202,25 +204,26 @@ def slicot_collection_url() -> str:
 
 
 def _default_data_dir() -> Path:
-    return Path(__file__).resolve().parents[3] / "data" / "slicot"
+    return source_cache_dir("slicot")
 
 
 def download_slicot_collection(*, data_dir: str | Path | None = None) -> Path:
     """Download the full SLICOT model-reduction archive and return its path."""
     root = Path(data_dir) if data_dir is not None else _default_data_dir()
     archive_path = root / SLICOT_ALL_DATA_ARCHIVE
-    if archive_path.exists():
-        return archive_path
+    with download_lock(archive_path):
+        if archive_path.exists():
+            return archive_path
 
-    archive_path.parent.mkdir(parents=True, exist_ok=True)
-    tmp_path = archive_path.with_suffix(archive_path.suffix + ".tmp")
-    try:
-        urllib.request.urlretrieve(slicot_collection_url(), tmp_path)  # noqa: S310
-        tmp_path.replace(archive_path)
-    except Exception:
-        tmp_path.unlink(missing_ok=True)
-        raise
-    return archive_path
+        archive_path.parent.mkdir(parents=True, exist_ok=True)
+        tmp_path = archive_path.with_suffix(archive_path.suffix + ".tmp")
+        try:
+            urllib.request.urlretrieve(slicot_collection_url(), tmp_path)  # noqa: S310
+            tmp_path.replace(archive_path)
+        except Exception:
+            tmp_path.unlink(missing_ok=True)
+            raise
+        return archive_path
 
 
 def download_slicot_problem(
@@ -231,30 +234,31 @@ def download_slicot_problem(
     """Download and extract one SLICOT model-reduction MAT file.
 
     The SLICOT page publishes individual examples as zip archives containing
-    MATLAB MAT-files. Files are cached under ``data/slicot`` unless *data_dir*
-    is provided.
+    MATLAB MAT-files. Files are cached under ``$SAPS_CACHE_DIR/slicot`` unless
+    *data_dir* is provided.
     """
     problem = slicot_problem_metadata(source_name)
     root = Path(data_dir) if data_dir is not None else _default_data_dir()
     mat_path = root / problem.mat_filename
-    if mat_path.exists():
+    with download_lock(mat_path):
+        if mat_path.exists():
+            return mat_path
+
+        archive_path = root / problem.archive_filename
+        if not archive_path.exists():
+            archive_path.parent.mkdir(parents=True, exist_ok=True)
+            tmp_path = archive_path.with_suffix(archive_path.suffix + ".tmp")
+            try:
+                urllib.request.urlretrieve(  # noqa: S310
+                    slicot_source_url(source_name), tmp_path
+                )
+                tmp_path.replace(archive_path)
+            except Exception:
+                tmp_path.unlink(missing_ok=True)
+                raise
+
+        _extract_slicot_mat_archive(archive_path, root, problem.mat_filename)
         return mat_path
-
-    archive_path = root / problem.archive_filename
-    if not archive_path.exists():
-        archive_path.parent.mkdir(parents=True, exist_ok=True)
-        tmp_path = archive_path.with_suffix(archive_path.suffix + ".tmp")
-        try:
-            urllib.request.urlretrieve(  # noqa: S310
-                slicot_source_url(source_name), tmp_path
-            )
-            tmp_path.replace(archive_path)
-        except Exception:
-            tmp_path.unlink(missing_ok=True)
-            raise
-
-    _extract_slicot_mat_archive(archive_path, root, problem.mat_filename)
-    return mat_path
 
 
 def load_slicot_problem(

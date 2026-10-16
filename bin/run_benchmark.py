@@ -6,6 +6,7 @@ import hashlib
 import itertools
 import json
 import logging
+import math
 import os
 import re
 import tempfile
@@ -21,6 +22,7 @@ from asv.repo import get_repo
 from asv.results import Results, get_filename
 from asv.runner import run_benchmarks
 
+from saps.benchmark_status import parameter_statuses
 from saps.storage import (
     DEFAULT_CACHE_DIR,
     DEFAULT_REMOTE_STORAGE_BACKEND,
@@ -47,6 +49,16 @@ def _parse_memory_limit(value: str) -> int:
     return int(scaled)
 
 
+def _timeout_message(process_timeout: float, measurement_timeout: float | None) -> str:
+    message = f"Using process timeout: {process_timeout} seconds"
+    if measurement_timeout is not None:
+        message += (
+            f"; measurement timeout: {measurement_timeout} seconds "
+            "for warmup and measurements"
+        )
+    return message
+
+
 def format_results(results: Results, benchmarks: Benchmarks) -> dict:
     """Return a JSON-serializable snapshot of benchmark results."""
     entries: dict[str, dict] = {}
@@ -61,6 +73,12 @@ def format_results(results: Results, benchmarks: Benchmarks) -> dict:
             "started_at": results.started_at.get(name),
             "errcode": results.errcode.get(name),
             "stderr": results.stderr.get(name),
+            "parameter_statuses": parameter_statuses(
+                params,
+                results.get_result_value(name, params),
+                results.stderr.get(name),
+                benchmarks.benchmark_selection.get(name),
+            ),
         }
 
     return {
@@ -80,17 +98,16 @@ def _run_asv_benchmarks(
     machine_params,
     commit_hash,
     commit_date,
-    timeout,
+    process_timeout,
     show_stderr,
     quick,
     install_project=None,
     results_dir=None,
     print_results=False,
-    launch_method=None,
     resume=False,
     rounds=None,
 ):
-    extra_params = {"timeout": timeout}
+    extra_params = {"timeout": process_timeout}
     if rounds is not None:
         extra_params["rounds"] = rounds
     failed = 0
@@ -128,7 +145,6 @@ def _run_asv_benchmarks(
             show_stderr=show_stderr,
             quick=quick,
             extra_params=extra_params,
-            launch_method=launch_method,
         )
         failed += sum(
             1 for errcode in results.errcode.values() if errcode not in (None, 0)
@@ -179,6 +195,12 @@ def _save_results(results, results_dir, benchmarks, machine_params, *, resume=Fa
                 "stderr": results.stderr.get(name),
                 "started_at": results.started_at.get(name),
                 "duration_seconds": results.duration.get(name),
+                "parameter_statuses": parameter_statuses(
+                    benchmark["params"],
+                    results.get_result_value(name, benchmark["params"]),
+                    results.stderr.get(name),
+                    selected,
+                ),
             }
         )
     # Publish the ASV data and diagnostics together, so concurrent combiners never
@@ -395,14 +417,6 @@ def main() -> int:
         ),
     )
     parser.add_argument(
-        "--check-suite",
-        action="store_true",
-        help=(
-            "Run selected benchmark cases once through ASV and print result JSON. "
-            "Honors --re/--no-re/--tag/--no-tag filters."
-        ),
-    )
-    parser.add_argument(
         "--no-tag",
         action="append",
         default=[],
@@ -443,12 +457,21 @@ def main() -> int:
         help="Enable verbose logging",
     )
     parser.add_argument(
-        "--timeout",
+        "--process-timeout",
         type=float,
         default=None,
         help=(
-            "Timeout in seconds for each benchmark"
-            " (default: config timeout or 5 seconds)"
+            "ASV worker timeout in seconds, including setup, warmup, measurements, "
+            "and teardown/checks (default: 180 seconds, or 5000 for caching)."
+        ),
+    )
+    parser.add_argument(
+        "--measurement-timeout",
+        type=float,
+        default=None,
+        help=(
+            "Total warmup and measurement time in seconds, excluding setup "
+            "and checks (default: 60)."
         ),
     )
     parser.add_argument(
@@ -482,6 +505,21 @@ def main() -> int:
 
     saps_config_data = _load_saps_config(args.config)
     _apply_config_args(parser, args, saps_config_data)
+
+    process_timeout = args.process_timeout
+    if process_timeout is None:
+        process_timeout = 5000 if args.cache_datasets else 180
+    measurement_timeout = (
+        args.measurement_timeout if args.measurement_timeout is not None else 60
+    )
+    for name, value in (
+        ("process-timeout", process_timeout),
+        ("measurement-timeout", measurement_timeout),
+    ):
+        if type(value) not in (int, float) or not math.isfinite(value) or value <= 0:
+            parser.error(f"--{name} must be a positive finite number")
+    if args.cache_datasets or args.trace_statistics:
+        measurement_timeout = None
 
     if args.rounds is not None and (type(args.rounds) is not int or args.rounds < 1):
         parser.error("--rounds must be a positive integer")
@@ -572,6 +610,7 @@ def main() -> int:
         "REMOTE_STORAGE_BUCKET": storage_bucket,
         "SAPS_CACHE_DIR": cache_dir,
         "SAPS_MANIFEST_PATH": manifest_path,
+        "SAPS_MEASUREMENT_TIMEOUT": str(measurement_timeout or 0),
     }
     if args.memory_limit is not None:
         saps_env_nobuild["SAPS_MEMORY_LIMIT_BYTES"] = str(args.memory_limit)
@@ -635,16 +674,6 @@ def main() -> int:
     log.info(f"Using SAPS outputs directory: {outputs_dir}")
     log.info(f"Using SAPS dataset cache: {cache_dir}")
     log.info(f"Using SAPS machine files directory: {machine_files_dir}")
-
-    # Determine timeout with hierarchy: CLI arg > config > 5 seconds default
-    if args.timeout is not None:
-        timeout = args.timeout
-    elif hasattr(conf, "timeout") and conf.timeout is not None:
-        timeout = conf.timeout
-    elif args.cache_datasets:
-        timeout = 5000
-    else:
-        timeout = 5
 
     for env_nobuild in [
         conf.matrix.get("env_nobuild", {}),
@@ -806,24 +835,35 @@ def main() -> int:
         def in_chunk(
             _benchmark: dict,
             _generator: dict,
-            _dataset: dict,
+            dataset: dict,
             dataset_number: int,
         ) -> bool:
+            if args.cache_datasets:
+                # Other upload workers can make entries fresh before we start.
+                # Assign by cache key so filtering those entries cannot shift chunks.
+                dataset_number = int.from_bytes(
+                    hashlib.sha256(dataset["asv_param"].encode()).digest()[:8], "big"
+                )
             return dataset_number % args.chunk_count == args.chunk_index
 
         metadata = _filter_metadata(metadata, in_chunk)
+        chunk_kept = sum(
+            len(generator["datasets"])
+            for benchmark in metadata
+            for generator in benchmark["generators"]
+        )
 
     benchmarks = _metadata_to_asv_benchmarks(metadata, benchmarks, benchmark_metrics)
     if args.cache_datasets:
         print(f"Discovered {len(benchmarks)} benchmark entries for caching")
-        print(f"Using timeout: {timeout} seconds")
+        print(_timeout_message(process_timeout, measurement_timeout))
         failed = _run_asv_benchmarks(
             benchmarks=benchmarks,
             environments=environments,
             machine_params=machine_params,
             commit_hash=commit_hash,
             commit_date=commit_date,
-            timeout=timeout,
+            process_timeout=process_timeout,
             show_stderr=args.show_stderr,
             quick=True,
         )
@@ -837,14 +877,14 @@ def main() -> int:
             stats_path.unlink()
 
         print(f"Discovered {len(benchmarks)} benchmark entries for tagger")
-        print(f"Using timeout: {timeout} seconds")
+        print(_timeout_message(process_timeout, measurement_timeout))
         failed = _run_asv_benchmarks(
             benchmarks=benchmarks,
             environments=environments,
             machine_params=machine_params,
             commit_hash=commit_hash,
             commit_date=commit_date,
-            timeout=timeout,
+            process_timeout=process_timeout,
             show_stderr=args.show_stderr,
             quick=True,
             results_dir=results_dir,
@@ -853,26 +893,8 @@ def main() -> int:
         print(f"tag summary: tagged_records={tagged} failed_benchmark_entries={failed}")
         return 0 if failed == 0 and (tagged > 0 or trace_had_selected_datasets) else 1
 
-    if args.check_suite:
-        print(f"Discovered {len(benchmarks)} benchmark entries")
-        print(f"Using timeout: {timeout} seconds")
-        failed = _run_asv_benchmarks(
-            benchmarks=benchmarks,
-            environments=environments,
-            machine_params=machine_params,
-            commit_hash=commit_hash,
-            commit_date=commit_date,
-            timeout=timeout,
-            show_stderr=args.show_stderr,
-            quick=True,
-            install_project=(conf, repo),
-            print_results=True,
-            launch_method=None if os.name == "nt" else "forkserver",
-        )
-        return 0 if failed == 0 else 1
-
     print(f"Discovered {len(benchmarks)} benchmark entries")
-    print(f"Using timeout: {timeout} seconds")
+    print(_timeout_message(process_timeout, measurement_timeout))
 
     failed = _run_asv_benchmarks(
         benchmarks=benchmarks,
@@ -880,7 +902,7 @@ def main() -> int:
         machine_params=machine_params,
         commit_hash=commit_hash,
         commit_date=commit_date,
-        timeout=timeout,
+        process_timeout=process_timeout,
         show_stderr=args.show_stderr,
         quick=args.quick,
         install_project=(conf, repo),

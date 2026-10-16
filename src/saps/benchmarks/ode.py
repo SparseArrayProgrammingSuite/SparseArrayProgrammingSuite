@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable
+from textwrap import indent
+from typing import Any, TypeVar
 
 import numpy as np
 
@@ -15,6 +18,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.codegen import define_function
 from saps.downloaders.slicot import (
     SLICOT_BENCHMARK_PAGE_URL,
     load_slicot_problem,
@@ -35,24 +39,27 @@ def _step_input(t):
     return 5.0 if t >= 0 else 0.0
 
 
-def _rc_derivatives(t, state, R, C, source_voltage):
+def _rc_derivatives(t, state, meta):
     """RC circuit derivatives."""
+    R, C = meta["R"], meta["C"]
     tau = R * C
-    Vs = source_voltage(t)
+    Vs = _step_input(t)
     return [(Vs - state[0]) / tau]
 
 
-def _rlc_derivatives(t, state, R, L, C, source_voltage):
+def _rlc_derivatives(t, state, meta):
     """RLC circuit derivatives."""
+    R, L, C = meta["R"], meta["L"], meta["C"]
     Vc = state[0]
     dVc = state[1]
-    Vs = source_voltage(t)
+    Vs = _step_input(t)
     d2Vc = (Vs - Vc - R * C * dVc) / (L * C)
     return (dVc, d2Vc)
 
 
-def _lotka_volterra_derivatives(t, state, a, b, c, d):
+def _lotka_volterra_derivatives(t, state, meta):
     """Lotka-Volterra derivatives."""
+    a, b, c, d = meta["a"], meta["b"], meta["c"], meta["d"]
     x, y = state
     dxdt = a * x - b * x * y
     dydt = d * x * y - c * y
@@ -104,8 +111,21 @@ def _construct_brusselator_matrix(n, alpha, b):
     return C
 
 
-def _brusselator_derivatives(t, u_vec, n, a, alpha, C, brusselator_cb):
+def _brusselator_forcing(n):
+    """Forcing term applied inside a disk of the 2D grid once t >= 1.1."""
+    brusselator_cb = [0.0] * (n * n * 2)
+    for i in range(n):
+        for j in range(n):
+            x = i / (n - 1)
+            y = j / (n - 1)
+            if (x - 0.3) ** 2 + (y - 0.6) ** 2 <= 0.1**2:
+                brusselator_cb[(i * n + j) * 2] = 5
+    return brusselator_cb
+
+
+def _brusselator_derivatives(t, u_vec, meta, C, brusselator_cb):
     """Brusselator derivatives with diffusion on 2D grid."""
+    a = meta["a"]
     u_arr = np.array(u_vec, dtype=float)
 
     lin = C @ u_arr
@@ -125,12 +145,30 @@ def _brusselator_derivatives(t, u_vec, n, a, alpha, C, brusselator_cb):
     return (lin + non_lin).tolist()
 
 
-def _linear_system_derivatives(t, state, A, B, input_value):
+def _linear_system_derivatives(t, state, meta, A, B):
     """Linear state-space derivatives for dx/dt = A x + B u."""
+    input_value = meta["input_value"]
     state_array = np.asarray(state)
     input_dtype = np.result_type(B.dtype, type(input_value), float)
     input_array = np.full(B.shape[1], input_value, dtype=input_dtype)
     return (A @ state_array + B @ input_array).tolist()
+
+
+def _resolve_derivatives(problem_name):
+    """Select a derivative for the SciPy reference check."""
+    match problem_name:
+        case "ode_rc":
+            return _rc_derivatives
+        case "ode_rlc":
+            return _rlc_derivatives
+        case "ode_lotka_volterra":
+            return _lotka_volterra_derivatives
+        case "ode_brusselator":
+            return _brusselator_derivatives
+        case "ode_slicot":
+            return _linear_system_derivatives
+        case _:
+            raise NotImplementedError(f"Unknown ODE problem: {problem_name!r}")
 
 
 # ---------------------------------------------------------------------------
@@ -138,7 +176,7 @@ def _linear_system_derivatives(t, state, A, B, input_value):
 # ---------------------------------------------------------------------------
 
 
-class RCDataset(Dataset):
+class ODERCDataset(Dataset):
     def __init__(
         self, name, pretty_name, description, suites, R, C, t_max, V_C_initial, step
     ):
@@ -173,7 +211,7 @@ class RCDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class RLCDataset(Dataset):
+class ODERLCDataset(Dataset):
     def __init__(
         self, name, pretty_name, description, suites, R, L, C, t_max, y0, step
     ):
@@ -209,7 +247,7 @@ class RLCDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class LotkaVolterraDataset(Dataset):
+class ODELotkaVolterraDataset(Dataset):
     def __init__(
         self, name, pretty_name, description, suites, a, b, c, d, t_max, y0, step
     ):
@@ -246,7 +284,7 @@ class LotkaVolterraDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class BrusselatorDataset(Dataset):
+class ODEBrusselatorDataset(Dataset):
     def __init__(
         self, name, pretty_name, description, suites, n, a, b, alpha, t_max, step
     ):
@@ -260,17 +298,6 @@ class BrusselatorDataset(Dataset):
         self.alpha = alpha
         self.t_max = t_max
         self.step = step
-        self.y0 = _init_brusselator_2d(n)
-        self.C = _construct_brusselator_matrix(n, alpha, b)
-
-        size = n * n * 2
-        self.brusselator_cb = [0.0] * size
-        for i in range(n):
-            for j in range(n):
-                x = i / (n - 1)
-                y = j / (n - 1)
-                if (x - 0.3) ** 2 + (y - 0.6) ** 2 <= 0.1**2:
-                    self.brusselator_cb[(i * n + j) * 2] = 5
 
     @property
     def name(self) -> str:
@@ -293,18 +320,19 @@ class BrusselatorDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
-class SLICOTDataset(Dataset):
+class ODESLICOTDataset(Dataset):
     def __init__(
         self,
-        source_name: str,
+        name: str,
         *,
         suites: list[str] | None = None,
         t_max: float = 0.1,
         step: float = 0.01,
         input_value: float = 1.0,
     ):
-        self.source_name = source_name
-        self.problem = slicot_problem_metadata(source_name)
+        self._name = name
+        self.source_name = f"{name}.mat"
+        self.problem = slicot_problem_metadata(self.source_name)
         self._suites = suites or []
         self.t_max = t_max
         self.step = step
@@ -312,11 +340,11 @@ class SLICOTDataset(Dataset):
 
     @property
     def name(self) -> str:
-        return f"slicot_{self.problem.name}".replace("-", "_").lower()
+        return self._name
 
     @property
     def pretty_name(self) -> str:
-        return f"SLICOT {self.problem.title}"
+        return self._name
 
     @property
     def description(self) -> str:
@@ -356,23 +384,56 @@ class SLICOTDataset(Dataset):
 
 _AKARSH = [Contributor("Akarsh Duddu", "aduddu3@gatech.edu")]
 _AI_DISCLOSURE = (
-    "No generative AI was used to write the benchmark function itself."
-    " Generative AI was used for debugging. This statement was written by hand"
+    "The original benchmark algorithms were written without generative AI."
+    " Generative AI was used for debugging, generator-time inlining, and tests."
 )
 
 
-class RCGenerator(Generator[RCDataset]):
+TDataset = TypeVar("TDataset", bound=Dataset)
+
+
+class _ODEGenerator(Generator[TDataset], ABC):
+    array_parameters: tuple[str, ...] = ()
+    # Each snippet reads t, state, and meta and assigns dydt_vector. Its locals
+    # must not overwrite the solver's inputs, outputs, step, or RK4 stages.
+    derivative_source: str
+
+    def generate_benchmark_function(
+        self,
+        dataset: TDataset,
+        problem: DataInstance,
+        benchmark: Callable[..., Any],
+    ) -> Callable[..., Any]:
+        solver = getattr(benchmark, "__self__", None)
+        if not isinstance(solver, _ODEBenchmarkBase):
+            raise TypeError("ODE generation requires a bound ODE benchmark method")
+        source = solver.benchmark_source(self.array_parameters, self.derivative_source)
+        return define_function(
+            source,
+            f"<saps-generated {type(solver).__qualname__}.{self.name}.{dataset.name}>",
+            {"np": np},
+        )
+
+
+class ODERCGenerator(_ODEGenerator[ODERCDataset]):
+    derivative_source = """\
+R, C = meta["R"], meta["C"]
+tau = R * C
+Vs = 5.0 if t >= 0 else 0.0
+dydt_vector = [(Vs - state[0]) / tau]
+"""
+
     @property
     def cacheable(self) -> bool:
         return False
 
     @property
     def name(self) -> str:
-        return "rc"
+        return "ode_rc"
 
     @property
     def pretty_name(self) -> str:
-        return "RC Circuit"
+        return "Ordinary Differential Equation (ODE) Resistor-Capacitor (RC) Circuit"
 
     @property
     def description(self) -> str:
@@ -403,11 +464,11 @@ class RCGenerator(Generator[RCDataset]):
         return ""
 
     @property
-    def datasets(self) -> list[RCDataset]:
+    def datasets(self) -> list[ODERCDataset]:
         return [
-            RCDataset(
-                name="rc_small",
-                pretty_name="RC Small",
+            ODERCDataset(
+                name="small",
+                pretty_name="Small",
                 description="Small RC circuit",
                 suites=["test"],
                 R=1000.0,
@@ -418,8 +479,9 @@ class RCGenerator(Generator[RCDataset]):
             ),
         ]
 
-    def generate(self, dataset: RCDataset):
+    def generate(self, dataset: ODERCDataset):
         meta = {
+            "problem_name": self.name,
             "span": (0, dataset.t_max),
             "y0": [dataset.V_C_initial],
             "step": dataset.step,
@@ -429,18 +491,30 @@ class RCGenerator(Generator[RCDataset]):
         return DataInstance(inputs=[], meta=meta)
 
 
-class RLCGenerator(Generator[RLCDataset]):
+class ODERLCGenerator(_ODEGenerator[ODERLCDataset]):
+    derivative_source = """\
+R, L, C = meta["R"], meta["L"], meta["C"]
+Vc = state[0]
+dVc = state[1]
+Vs = 5.0 if t >= 0 else 0.0
+d2Vc = (Vs - Vc - R * C * dVc) / (L * C)
+dydt_vector = (dVc, d2Vc)
+"""
+
     @property
     def cacheable(self) -> bool:
         return False
 
     @property
     def name(self) -> str:
-        return "rlc"
+        return "ode_rlc"
 
     @property
     def pretty_name(self) -> str:
-        return "RLC Circuit"
+        return (
+            "Ordinary Differential Equation (ODE) Resistor-Inductor-Capacitor (RLC)"
+            " Circuit"
+        )
 
     @property
     def description(self) -> str:
@@ -471,11 +545,11 @@ class RLCGenerator(Generator[RLCDataset]):
         return ""
 
     @property
-    def datasets(self) -> list[RLCDataset]:
+    def datasets(self) -> list[ODERLCDataset]:
         return [
-            RLCDataset(
-                name="rlc_small",
-                pretty_name="RLC Small",
+            ODERLCDataset(
+                name="small",
+                pretty_name="Small",
                 description="Small RLC circuit",
                 suites=["test"],
                 R=100.0,
@@ -487,8 +561,9 @@ class RLCGenerator(Generator[RLCDataset]):
             ),
         ]
 
-    def generate(self, dataset: RLCDataset):
+    def generate(self, dataset: ODERLCDataset):
         meta = {
+            "problem_name": self.name,
             "span": (0, dataset.t_max),
             "y0": list(dataset.y0),
             "step": dataset.step,
@@ -496,21 +571,29 @@ class RLCGenerator(Generator[RLCDataset]):
             "L": dataset.L,
             "C": dataset.C,
         }
-        return DataInstance(inputs=[], meta=meta)
+        return DataInstance(inputs=[], meta=meta, ref_meta={"check_components": [0]})
 
 
-class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
+class ODELotkaVolterraGenerator(_ODEGenerator[ODELotkaVolterraDataset]):
+    derivative_source = """\
+a, b, c, d = meta["a"], meta["b"], meta["c"], meta["d"]
+x, y = state
+dxdt = a * x - b * x * y
+dydt = d * x * y - c * y
+dydt_vector = (dxdt, dydt)
+"""
+
     @property
     def cacheable(self) -> bool:
         return False
 
     @property
     def name(self) -> str:
-        return "lotka_volterra"
+        return "ode_lotka_volterra"
 
     @property
     def pretty_name(self) -> str:
-        return "Lotka-Volterra"
+        return "Ordinary Differential Equation (ODE) Lotka-Volterra"
 
     @property
     def description(self) -> str:
@@ -541,11 +624,11 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
         return ""
 
     @property
-    def datasets(self) -> list[LotkaVolterraDataset]:
+    def datasets(self) -> list[ODELotkaVolterraDataset]:
         return [
-            LotkaVolterraDataset(
-                name="lotka_volterra_small",
-                pretty_name="Lotka-Volterra Small",
+            ODELotkaVolterraDataset(
+                name="small",
+                pretty_name="Small",
                 description="Small Lotka-Volterra system",
                 suites=["test"],
                 a=0.1,
@@ -558,8 +641,9 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
             ),
         ]
 
-    def generate(self, dataset: LotkaVolterraDataset):
+    def generate(self, dataset: ODELotkaVolterraDataset):
         meta = {
+            "problem_name": self.name,
             "span": (0, dataset.t_max),
             "y0": list(dataset.y0),
             "step": dataset.step,
@@ -568,21 +652,41 @@ class LotkaVolterraGenerator(Generator[LotkaVolterraDataset]):
             "c": dataset.c,
             "d": dataset.d,
         }
-        return DataInstance(inputs=[], meta=meta)
+        return DataInstance(inputs=[], meta=meta, ref_meta={"error_tolerance": 10.0})
 
 
-class BrusselatorGenerator(Generator[BrusselatorDataset]):
+class ODEBrusselatorGenerator(_ODEGenerator[ODEBrusselatorDataset]):
+    array_parameters = ("C", "brusselator_cb")
+    derivative_source = """\
+a = meta["a"]
+u_arr = np.array(state, dtype=float)
+lin = C @ u_arr
+lin[0::2] += a
+if t >= 1.1:
+    lin += np.array(brusselator_cb)
+u_vals = u_arr[0::2]
+v_vals = u_arr[1::2]
+uv2 = u_vals**2 * v_vals
+non_lin = np.zeros(len(state), dtype=float)
+non_lin[0::2] = uv2
+non_lin[1::2] = -uv2
+dydt_vector = (lin + non_lin).tolist()
+"""
+
+    def __init__(self, train: bool = False):
+        self.train = train
+
     @property
     def cacheable(self) -> bool:
         return False
 
     @property
     def name(self) -> str:
-        return "brusselator"
+        return "ode_brusselator"
 
     @property
     def pretty_name(self) -> str:
-        return "Brusselator"
+        return "Ordinary Differential Equation (ODE) Brusselator"
 
     @property
     def description(self) -> str:
@@ -613,13 +717,13 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
         return ""
 
     @property
-    def datasets(self) -> list[BrusselatorDataset]:
+    def datasets(self) -> list[ODEBrusselatorDataset]:
         return [
-            BrusselatorDataset(
-                name="brusselator_tiny",
-                pretty_name="Brusselator Tiny",
+            ODEBrusselatorDataset(
+                name="2x2",
+                pretty_name="2x2 Grid",
                 description="Tiny 2D Brusselator correctness test",
-                suites=["test", "trace"],
+                suites=["test"],
                 n=2,
                 a=3.4,
                 b=1.0,
@@ -627,11 +731,13 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
                 t_max=0.1,
                 step=0.01,
             ),
-            BrusselatorDataset(
-                name="brusselator_4",
-                pretty_name="Brusselator 4x4",
+            ODEBrusselatorDataset(
+                name="100x100",
+                pretty_name="100x100 Grid",
                 description="2D Brusselator with 100x100 grid",
-                suites=["standard"],
+                suites=["standard", "trace", "train"]
+                if self.train
+                else ["standard", "trace"],
                 n=100,
                 a=3.4,
                 b=1.0,
@@ -641,32 +747,55 @@ class BrusselatorGenerator(Generator[BrusselatorDataset]):
             ),
         ]
 
-    def generate(self, dataset: BrusselatorDataset):
+    def generate(self, dataset: ODEBrusselatorDataset):
+        # Built here rather than in the dataset: C is dense (2n^2)^2, about
+        # 3.2 GB for n=100, and datasets are listed far more often than generated.
+        n = dataset.n
+        C = _construct_brusselator_matrix(n, dataset.alpha, dataset.b)
         meta = {
+            "problem_name": self.name,
             "span": (0, dataset.t_max),
-            "y0": list(dataset.y0),
+            "y0": list(_init_brusselator_2d(n)),
             "step": dataset.step,
-            "n": dataset.n,
+            "n": n,
             "a": dataset.a,
             "alpha": dataset.alpha,
         }
         return DataInstance(
             inputs=[
-                from_numpy(dataset.C),
-                from_numpy(np.asarray(dataset.brusselator_cb)),
+                from_numpy(C),
+                from_numpy(np.asarray(_brusselator_forcing(n))),
             ],
             meta=meta,
+            ref_meta={"error_tolerance": 0.5, "real_output": True},
         )
 
 
-class SLICOTGenerator(Generator[SLICOTDataset]):
+class ODESLICOTGenerator(_ODEGenerator[ODESLICOTDataset]):
+    array_parameters = ("A", "B")
+    derivative_source = """\
+input_value = meta["input_value"]
+state_array = np.asarray(state)
+input_dtype = np.result_type(B.dtype, type(input_value), float)
+input_array = np.full(B.shape[1], input_value, dtype=input_dtype)
+dydt_vector = (A @ state_array + B @ input_array).tolist()
+"""
+
+    def __init__(
+        self,
+        trace_datasets: tuple[str, ...] = (),
+        train_dataset: str | None = None,
+    ):
+        self.trace_datasets = trace_datasets
+        self.train_dataset = train_dataset
+
     @property
     def name(self) -> str:
-        return "slicot_ode"
+        return "ode_slicot"
 
     @property
     def pretty_name(self) -> str:
-        return "SLICOT Model-Reduction ODE"
+        return "Ordinary Differential Equation (ODE) SLICOT"
 
     @property
     def description(self) -> str:
@@ -713,30 +842,46 @@ class SLICOTGenerator(Generator[SLICOTDataset]):
         )
 
     @property
-    def datasets(self) -> list[SLICOTDataset]:
+    def datasets(self) -> list[ODESLICOTDataset]:
         # Base timesteps, scaled by each method's step_multiplier at setup.
         # Validated over t_max=0.1 at the 0.05 absolute-error tolerance.
-        return [
-            SLICOTDataset("eady.mat", suites=["standard"]),
-            SLICOTDataset("CDplayer.mat", suites=["standard"], step=4e-5),
-            SLICOTDataset("fom.mat", suites=["standard"], step=0.001),
-            SLICOTDataset("random.mat", suites=["standard"], step=5e-5),
-            SLICOTDataset("pde.mat", suites=["standard"], step=0.001),
-            SLICOTDataset("heat-cont.mat", suites=["standard"], step=0.001),
-            SLICOTDataset("Orr-Som.mat", suites=["standard"]),
-            SLICOTDataset("iss.mat", suites=["standard"]),
-            SLICOTDataset("build.mat", suites=["standard"]),
-            SLICOTDataset("beam.mat", suites=["standard"], step=0.001),
+        datasets = [
+            ODESLICOTDataset("eady", suites=["standard", "trace"]),
+            ODESLICOTDataset("CDplayer", suites=["standard"], step=4e-5),
+            ODESLICOTDataset(
+                "fom",
+                suites=["standard", "trace", "train"]
+                if self.train_dataset == "fom"
+                else ["standard", "trace"],
+                step=0.001,
+            ),
+            ODESLICOTDataset("random", suites=["standard"], step=5e-5),
+            ODESLICOTDataset("pde", suites=["standard", "trace"], step=0.001),
+            ODESLICOTDataset(
+                "heat-cont",
+                suites=["standard", "trace", "train"]
+                if self.train_dataset == "heat-cont"
+                else ["standard", "trace"],
+                step=0.001,
+            ),
+            ODESLICOTDataset("Orr-Som", suites=["standard", "trace"]),
+            ODESLICOTDataset("iss", suites=["standard", "trace"]),
+            ODESLICOTDataset("build", suites=["standard", "trace"]),
+            ODESLICOTDataset("beam", suites=["standard", "trace"], step=0.001),
         ]
+        for dataset in datasets:
+            if dataset.name in self.trace_datasets and "trace" not in dataset.suites:
+                dataset.suites.append("trace")
+        return datasets
 
-    def generate(self, dataset: SLICOTDataset):
+    def generate(self, dataset: ODESLICOTDataset):
         from scipy import sparse as scipy_sparse
 
         variables, source_meta = load_slicot_problem(dataset.source_name)
         if "E" in variables:
             raise ValueError(
                 f"SLICOT {dataset.source_name} has an explicit E matrix; "
-                "SLICOTGenerator only supports identity-E systems"
+                "ODESLICOTGenerator only supports identity-E systems"
             )
         if "A" not in variables:
             raise ValueError(f"SLICOT {dataset.source_name} must define A")
@@ -776,6 +921,7 @@ class SLICOTGenerator(Generator[SLICOTDataset]):
             )
 
         meta = {
+            "problem_name": self.name,
             "span": (0, dataset.t_max),
             "y0": [0.0] * A.shape[0],
             "step": dataset.step,
@@ -804,11 +950,57 @@ class SLICOTGenerator(Generator[SLICOTDataset]):
 
 
 # ---------------------------------------------------------------------------
-# Integration-scheme abstract bases
+# Integration-method benchmarks
 # ---------------------------------------------------------------------------
 
 
-class _OdeBenchmarkBase(Benchmark, ABC):
+class _ODEBenchmarkBase(Benchmark, ABC):
+    step_multiplier = 1.0
+    slicot_trace_datasets: tuple[str, ...] = ()
+    slicot_train_dataset: str | None = None
+    brusselator_train = False
+
+    def benchmark(self, xp, meta, *data_args):
+        raise NotImplementedError("ODE benchmark functions are generated during setup")
+
+    @abstractmethod
+    def benchmark_source(self, parameters: tuple[str, ...], dydt: str) -> str:
+        """Paste a derivative snippet into this solver's source template."""
+        ...
+
+    @property
+    def suites(self):
+        return ["standard-timestepping"]
+
+    @property
+    def generators(self):
+        return [
+            ODERCGenerator(),
+            ODERLCGenerator(),
+            ODELotkaVolterraGenerator(),
+            ODEBrusselatorGenerator(train=self.brusselator_train),
+            ODESLICOTGenerator(
+                trace_datasets=self.slicot_trace_datasets,
+                train_dataset=self.slicot_train_dataset,
+            ),
+        ]
+
+    @property
+    def metadata(self):
+        return {
+            **super().metadata,
+            "step_multiplier": self.step_multiplier,
+        }
+
+    def setup(self, param, **kwargs):
+        super().setup(param, **kwargs)
+        # Older cached inputs do not identify their problem. Use the selected
+        # generator and preserve the cached matrices without modifying its metadata.
+        self._meta = {"problem_name": param.generator.name, **self._meta}
+        if isinstance(param.dataset, ODESLICOTDataset):
+            # Apply current method settings even when the cached timestep is stale.
+            self._meta["step"] = param.dataset.step * self.step_multiplier
+
     @property
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
@@ -829,19 +1021,6 @@ class _OdeBenchmarkBase(Benchmark, ABC):
     def motivation(self):
         return ""
 
-    def _error_tolerance(self):
-        return 0.05
-
-    def _comparison_output(self, y, ref):
-        return y, ref
-
-    def _check_data(self):
-        return [_dense_binsparse_array(item) for item in self._input]
-
-    @abstractmethod
-    def _dydt(self, t, y, data, meta):
-        raise NotImplementedError
-
     def check(self, param):
         super().check(param)
         from scipy.integrate import solve_ivp
@@ -851,8 +1030,9 @@ class _OdeBenchmarkBase(Benchmark, ABC):
         assert np.all(np.isfinite(y_out)), (
             f"Non-finite ODE output at step={self._meta['step']}"
         )
-        data = self._check_data()
-        rhs = lambda t, y: self._dydt(t, list(y), data, self._meta)  # noqa: E731
+        data = [_dense_binsparse_array(item) for item in self._input]
+        dydt = _resolve_derivatives(self._meta["problem_name"])
+        rhs = lambda t, y: dydt(t, list(y), self._meta, *data)  # noqa: E731
         y0 = np.asarray(
             self._meta["y0"],
             dtype=np.result_type(y_out.dtype, *(item.dtype for item in data), float),
@@ -866,388 +1046,177 @@ class _OdeBenchmarkBase(Benchmark, ABC):
             atol=1e-10,
         )
         assert solution.success, f"ODE reference integration failed: {solution.message}"
-        actual_y, ref_y = self._comparison_output(np.asarray(y_out), solution.y.T)
+        ref_meta = self._ref_meta or {}
+        actual_y, ref_y = np.asarray(y_out), solution.y.T
+        if ref_meta.get("real_output"):
+            actual_y = actual_y.real
+        if "check_components" in ref_meta:
+            components = ref_meta["check_components"]
+            actual_y, ref_y = actual_y[:, components], ref_y[:, components]
+        tolerance = ref_meta.get("error_tolerance", 0.05)
         error = np.max(np.abs(actual_y - ref_y))
-        assert error < self._error_tolerance(), (
+        assert error < tolerance, (
             f"ODE maximum absolute error {error:.6g} exceeds "
-            f"tolerance {self._error_tolerance()} at step={self._meta['step']}"
+            f"tolerance {tolerance} at step={self._meta['step']}"
         )
 
 
-class _ForwardEulerBase(_OdeBenchmarkBase):
+class ForwardEulerBenchmark(_ODEBenchmarkBase):
+    step_multiplier = 0.01
+    slicot_trace_datasets = ("beam", "fom", "heat-cont")
+    slicot_train_dataset = "fom"
+
     @property
-    def suites(self):
-        return []
+    def name(self):
+        return "forward_euler"
 
-    def benchmark(self, xp, data, meta):
-        span = meta["span"]
-        y0 = meta["y0"]
-        step = meta["step"]
-        curr = span[0]
-        inputs = []
-        while curr < span[1]:
-            inputs.append(curr)
-            curr += step
+    @property
+    def pretty_name(self):
+        return "Forward Euler"
 
-        outputs = [None for _ in inputs]
-        outputs[0] = y0
-        for i in range(1, len(inputs)):
-            dydt_vector = self._dydt(inputs[i - 1], outputs[i - 1], data, meta)
-            outputs[i] = [
+    @property
+    def description(self):
+        return "Integrates ODE initial-value problems with the forward Euler method."
+
+    def benchmark_source(self, parameters: tuple[str, ...], dydt: str) -> str:
+        signature = ", ".join(("xp", "meta", *parameters))
+        return f"""\
+def benchmark({signature}):
+    span = meta["span"]
+    y0 = meta["y0"]
+    step = meta["step"]
+    curr = span[0]
+    inputs = []
+    while curr < span[1]:
+        inputs.append(curr)
+        curr += step
+
+    outputs = [None for _ in inputs]
+    outputs[0] = y0
+    for i in range(1, len(inputs)):
+        t = inputs[i - 1]
+        state = outputs[i - 1]
+{indent(dydt, "        ").rstrip()}
+        outputs[i] = [
+            outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
+        ]
+    return (np.asarray(inputs), np.asarray(outputs))
+"""
+
+
+class BackwardEulerBenchmark(_ODEBenchmarkBase):
+    step_multiplier = 0.02
+    slicot_train_dataset = "heat-cont"
+
+    @property
+    def name(self):
+        return "backward_euler"
+
+    @property
+    def pretty_name(self):
+        return "Backward Euler"
+
+    @property
+    def description(self):
+        return (
+            "Integrates ODE initial-value problems with backward Euler, "
+            "using ten fixed-point iterations per step."
+        )
+
+    def benchmark_source(self, parameters: tuple[str, ...], dydt: str) -> str:
+        signature = ", ".join(("xp", "meta", *parameters))
+        return f"""\
+def benchmark({signature}):
+    span = meta["span"]
+    y0 = meta["y0"]
+    step = meta["step"]
+    curr = span[0]
+    inputs = []
+    while curr < span[1]:
+        inputs.append(curr)
+        curr += step
+
+    outputs = [None for _ in inputs]
+    outputs[0] = y0
+    for i in range(1, len(inputs)):
+        y_guess = outputs[i - 1]
+        for _ in range(10):
+            t = inputs[i]
+            state = y_guess
+{indent(dydt, "            ").rstrip()}
+            y_guess = [
                 outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
             ]
-        return (np.asarray(inputs), np.asarray(outputs))
+        outputs[i] = y_guess
+    return (np.asarray(inputs), np.asarray(outputs))
+"""
 
 
-class _BackwardEulerBase(_OdeBenchmarkBase):
-    @property
-    def suites(self):
-        return []
-
-    def benchmark(self, xp, data, meta):
-        span = meta["span"]
-        y0 = meta["y0"]
-        step = meta["step"]
-        curr = span[0]
-        inputs = []
-        while curr < span[1]:
-            inputs.append(curr)
-            curr += step
-
-        outputs = [None for _ in inputs]
-        outputs[0] = y0
-        for i in range(1, len(inputs)):
-            y_guess = outputs[i - 1]
-            for _ in range(10):
-                dydt_vector = self._dydt(inputs[i], y_guess, data, meta)
-                y_guess = [
-                    outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
-                ]
-            outputs[i] = y_guess
-        return (np.asarray(inputs), np.asarray(outputs))
-
-
-class _RK4Base(_OdeBenchmarkBase):
-    @property
-    def suites(self):
-        return []
-
-    def benchmark(self, xp, data, meta):
-        span = meta["span"]
-        y0 = meta["y0"]
-        step = meta["step"]
-        curr = span[0]
-        inputs = []
-        while curr < span[1]:
-            inputs.append(curr)
-            curr += step
-
-        outputs = [None for _ in inputs]
-        outputs[0] = y0
-        for i in range(1, len(inputs)):
-            y_prev = outputs[i - 1]
-            k1 = self._dydt(inputs[i - 1], y_prev, data, meta)
-            k2_state = [y_prev[j] + (step / 2) * k1[j] for j in range(len(y0))]
-            k2 = self._dydt(inputs[i - 1] + step / 2, k2_state, data, meta)
-            k3_state = [y_prev[j] + (step / 2) * k2[j] for j in range(len(y0))]
-            k3 = self._dydt(inputs[i - 1] + step / 2, k3_state, data, meta)
-            k4_state = [y_prev[j] + step * k3[j] for j in range(len(y0))]
-            k4 = self._dydt(inputs[i - 1] + step, k4_state, data, meta)
-            outputs[i] = [
-                y_prev[j] + (step / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j])
-                for j in range(len(y0))
-            ]
-        return (np.asarray(inputs), np.asarray(outputs))
-
-
-# ---------------------------------------------------------------------------
-# RC concrete benchmarks
-# ---------------------------------------------------------------------------
-
-
-class _RCMixin:
-    @property
-    def description(self):
-        return "RC circuit ODE."
-
-    @property
-    def generators(self):
-        return [RCGenerator()]
-
-    def _dydt(self, t, y, data, meta):
-        return _rc_derivatives(t, y, meta["R"], meta["C"], _step_input)
-
-
-class RCForwardEuler(_RCMixin, _ForwardEulerBase):
-    @property
-    def name(self):
-        return "rc_forward_euler"
-
-    @property
-    def pretty_name(self):
-        return "RC Circuit — Forward Euler"
-
-
-class RCBackwardEuler(_RCMixin, _BackwardEulerBase):
-    @property
-    def name(self):
-        return "rc_backward_euler"
-
-    @property
-    def pretty_name(self):
-        return "RC Circuit — Backward Euler"
-
-
-class RCRK4(_RCMixin, _RK4Base):
-    @property
-    def name(self):
-        return "rc_rk4"
-
-    @property
-    def pretty_name(self):
-        return "RC Circuit — RK4"
-
-
-# ---------------------------------------------------------------------------
-# RLC concrete benchmarks
-# ---------------------------------------------------------------------------
-
-
-class _RLCMixin:
-    @property
-    def description(self):
-        return "RLC circuit ODE."
-
-    @property
-    def generators(self):
-        return [RLCGenerator()]
-
-    def _dydt(self, t, y, data, meta):
-        return _rlc_derivatives(t, y, meta["R"], meta["L"], meta["C"], _step_input)
-
-    def _comparison_output(self, y, ref):
-        return y[:, 0], ref[:, 0]
-
-
-class RLCForwardEuler(_RLCMixin, _ForwardEulerBase):
-    @property
-    def name(self):
-        return "rlc_forward_euler"
-
-    @property
-    def pretty_name(self):
-        return "RLC Circuit — Forward Euler"
-
-
-class RLCBackwardEuler(_RLCMixin, _BackwardEulerBase):
-    @property
-    def name(self):
-        return "rlc_backward_euler"
-
-    @property
-    def pretty_name(self):
-        return "RLC Circuit — Backward Euler"
-
-
-class RLCRK4(_RLCMixin, _RK4Base):
-    @property
-    def name(self):
-        return "rlc_rk4"
-
-    @property
-    def pretty_name(self):
-        return "RLC Circuit — RK4"
-
-
-# ---------------------------------------------------------------------------
-# Lotka-Volterra concrete benchmarks
-# ---------------------------------------------------------------------------
-
-
-class _LotkaVolterraMixin:
-    @property
-    def description(self):
-        return "Lotka-Volterra ODE."
-
-    @property
-    def generators(self):
-        return [LotkaVolterraGenerator()]
-
-    def _dydt(self, t, y, data, meta):
-        return _lotka_volterra_derivatives(
-            t, y, meta["a"], meta["b"], meta["c"], meta["d"]
-        )
-
-    def _error_tolerance(self):
-        return 10.0
-
-
-class LotkaVolterraForwardEuler(_LotkaVolterraMixin, _ForwardEulerBase):
-    @property
-    def name(self):
-        return "lotka_volterra_forward_euler"
-
-    @property
-    def pretty_name(self):
-        return "Lotka-Volterra — Forward Euler"
-
-
-class LotkaVolterraBackwardEuler(_LotkaVolterraMixin, _BackwardEulerBase):
-    @property
-    def name(self):
-        return "lotka_volterra_backward_euler"
-
-    @property
-    def pretty_name(self):
-        return "Lotka-Volterra — Backward Euler"
-
-
-class LotkaVolterraRK4(_LotkaVolterraMixin, _RK4Base):
-    @property
-    def name(self):
-        return "lotka_volterra_rk4"
-
-    @property
-    def pretty_name(self):
-        return "Lotka-Volterra — RK4"
-
-
-# ---------------------------------------------------------------------------
-# Brusselator concrete benchmarks
-# ---------------------------------------------------------------------------
-
-
-class _BrusselatorMixin:
-    @property
-    def description(self):
-        return "2D Brusselator ODE with diffusion."
-
-    @property
-    def generators(self):
-        return [BrusselatorGenerator()]
-
-    def _dydt(self, t, y, data, meta):
-        C, brusselator_cb = data
-        return _brusselator_derivatives(
-            t,
-            y,
-            meta["n"],
-            meta["a"],
-            meta["alpha"],
-            C,
-            brusselator_cb,
-        )
-
-    def _error_tolerance(self):
-        return 0.5
-
-    def _comparison_output(self, y, ref):
-        return y.real, ref
-
-
-class BrusselatorForwardEuler(_BrusselatorMixin, _ForwardEulerBase):
-    @property
-    def name(self):
-        return "brusselator_forward_euler"
-
-    @property
-    def pretty_name(self):
-        return "Brusselator — Forward Euler"
-
-
-class BrusselatorBackwardEuler(_BrusselatorMixin, _BackwardEulerBase):
-    @property
-    def name(self):
-        return "brusselator_backward_euler"
-
-    @property
-    def pretty_name(self):
-        return "Brusselator — Backward Euler"
-
-
-class BrusselatorRK4(_BrusselatorMixin, _RK4Base):
-    @property
-    def name(self):
-        return "brusselator_rk4"
-
-    @property
-    def pretty_name(self):
-        return "Brusselator — RK4"
-
-
-# ---------------------------------------------------------------------------
-# SLICOT concrete benchmarks
-# ---------------------------------------------------------------------------
-
-
-class _SLICOTMixin:
+class RK4Benchmark(_ODEBenchmarkBase):
     step_multiplier = 1.0
+    brusselator_train = True
+    slicot_trace_datasets = (
+        "CDplayer",
+        "random",
+        "beam",
+        "fom",
+        "heat-cont",
+    )
 
     @property
-    def metadata(self):
-        return {**super().metadata, "step_multiplier": self.step_multiplier}
+    def name(self):
+        return "rk4"
 
-    def setup(self, param, **kwargs):
-        super().setup(param, **kwargs)
-        # Integration settings come from the current dataset definition, including
-        # when the matrices were cached with an older timestep.
-        self._meta = {**self._meta, "step": param.dataset.step * self.step_multiplier}
+    @property
+    def pretty_name(self):
+        return "Fourth-Order Runge-Kutta (RK4)"
 
     @property
     def description(self):
-        return "SLICOT identity-E linear model-reduction ODE."
+        return (
+            "Integrates ODE initial-value problems with the classical "
+            "fourth-order Runge-Kutta method."
+        )
 
-    @property
-    def generators(self):
-        return [SLICOTGenerator()]
+    def benchmark_source(self, parameters: tuple[str, ...], dydt: str) -> str:
+        signature = ", ".join(("xp", "meta", *parameters))
+        return f"""\
+def benchmark({signature}):
+    span = meta["span"]
+    y0 = meta["y0"]
+    step = meta["step"]
+    curr = span[0]
+    inputs = []
+    while curr < span[1]:
+        inputs.append(curr)
+        curr += step
 
-    @property
-    def references(self):
-        return [
-            Ref(
-                title=(
-                    "Benchmark examples for model reduction of linear time "
-                    "invariant dynamical systems"
-                ),
-                authors=[],
-                url=SLICOT_BENCHMARK_PAGE_URL,
-            )
+    outputs = [None for _ in inputs]
+    outputs[0] = y0
+    for i in range(1, len(inputs)):
+        y_prev = outputs[i - 1]
+        t = inputs[i - 1]
+        state = y_prev
+{indent(dydt, "        ").rstrip()}
+        k1 = dydt_vector
+        k2_state = [y_prev[j] + (step / 2) * k1[j] for j in range(len(y0))]
+        t = inputs[i - 1] + step / 2
+        state = k2_state
+{indent(dydt, "        ").rstrip()}
+        k2 = dydt_vector
+        k3_state = [y_prev[j] + (step / 2) * k2[j] for j in range(len(y0))]
+        t = inputs[i - 1] + step / 2
+        state = k3_state
+{indent(dydt, "        ").rstrip()}
+        k3 = dydt_vector
+        k4_state = [y_prev[j] + step * k3[j] for j in range(len(y0))]
+        t = inputs[i - 1] + step
+        state = k4_state
+{indent(dydt, "        ").rstrip()}
+        k4 = dydt_vector
+        outputs[i] = [
+            y_prev[j] + (step / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j])
+            for j in range(len(y0))
         ]
-
-    def _dydt(self, t, y, data, meta):
-        A, B = data
-        return _linear_system_derivatives(t, y, A, B, meta["input_value"])
-
-
-class SLICOTForwardEuler(_SLICOTMixin, _ForwardEulerBase):
-    step_multiplier = 0.01
-
-    @property
-    def name(self):
-        return "slicot_forward_euler"
-
-    @property
-    def pretty_name(self):
-        return "SLICOT Linear Systems — Forward Euler"
-
-
-class SLICOTBackwardEuler(_SLICOTMixin, _BackwardEulerBase):
-    step_multiplier = 0.02
-
-    @property
-    def name(self):
-        return "slicot_backward_euler"
-
-    @property
-    def pretty_name(self):
-        return "SLICOT Linear Systems — Backward Euler"
-
-
-class SLICOTRK4(_SLICOTMixin, _RK4Base):
-    @property
-    def name(self):
-        return "slicot_rk4"
-
-    @property
-    def pretty_name(self):
-        return "SLICOT Linear Systems — RK4"
+    return (np.asarray(inputs), np.asarray(outputs))
+"""

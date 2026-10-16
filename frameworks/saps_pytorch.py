@@ -5,12 +5,35 @@ import torch.nn.functional as F
 from binsparse.conversions import from_torch, to_torch
 
 from saps_framework import Framework, normalize_unfold_args
-from saps_framework.einsum import parse_einsum
+from saps_framework.einsum import Access, parse_einsum
 
 torch._dynamo.config.suppress_errors = True
 torch_xp.power = torch.pow  # type: ignore[attr-defined]
-# Keep the Lark parser outside Dynamo; the parsed tensor operations remain traceable.
-_parse_einsum = torch.compiler.disable(parse_einsum)
+
+
+# Keep parsing and subscript translation outside Dynamo; tensor operations remain
+# traceable, including the native torch.einsum call.
+@torch.compiler.disable
+def _parse_einsum(prgm):
+    parsed = parse_einsum(prgm)
+    return parsed, parsed.native_contraction()
+
+
+# torch can't promote these with bool (or run matmul on them), so bool operands
+# are cast to the unsigned dtype first.
+_WIDE_UNSIGNED = frozenset({torch.uint16, torch.uint32, torch.uint64})
+_BOOL_PROMOTED_OPS = frozenset(
+    {"add", "subtract", "multiply", "bitwise_and", "bitwise_or", "bitwise_xor"}
+)
+
+
+def _cast_bool_to_wide_unsigned(x1, x2):
+    if torch.is_tensor(x1) and torch.is_tensor(x2):
+        if x1.dtype == torch.bool and x2.dtype in _WIDE_UNSIGNED:
+            x1 = x1.to(x2.dtype)
+        elif x2.dtype == torch.bool and x1.dtype in _WIDE_UNSIGNED:
+            x2 = x2.to(x1.dtype)
+    return x1, x2
 
 
 def _is_sparse_tensor(array):
@@ -69,7 +92,48 @@ class PytorchFramework(Framework):
         return torch.compile(func)
 
     def einsum(self, prgm, **kwargs):
-        return _parse_einsum(prgm).run(torch_xp, kwargs)
+        parsed, contraction = _parse_einsum(prgm)
+        if contraction is not NotImplemented:
+            result = self._native_einsum(parsed.op, contraction, kwargs)
+            if result is not NotImplemented:
+                return result
+        return parsed.run(self, kwargs)
+
+    @staticmethod
+    def _native_einsum(reduction, contraction, kwargs):
+        equation, leaves, bitwise = contraction
+        arrays = [kwargs[leaf.tns] for leaf in leaves if isinstance(leaf, Access)]
+        # Torch's einsum does not support sparse layouts. Keep their existing
+        # evaluator rather than densifying the tensor to enter the fast path.
+        if any(array.layout != torch.strided for array in arrays):
+            return NotImplemented
+        device = arrays[0].device if arrays else None
+        operands = [
+            kwargs[leaf.tns]
+            if isinstance(leaf, Access)
+            else torch.tensor(leaf.value, device=device)
+            for leaf in leaves
+        ]
+        boolean = all(operand.dtype == torch.bool for operand in operands)
+        logical_reduction = reduction in {"|", "or"}
+        if (bitwise or logical_reduction) and not boolean:
+            return NotImplemented
+        dtype = operands[0].dtype
+        for operand in operands[1:]:
+            if dtype in _WIDE_UNSIGNED or operand.dtype in _WIDE_UNSIGNED:
+                return NotImplemented
+            dtype = torch.promote_types(dtype, operand.dtype)
+        if dtype in _WIDE_UNSIGNED:
+            return NotImplemented
+        if not dtype.is_floating_point and not dtype.is_complex:
+            if not boolean and len(operands) > 1 and dtype != torch.int64:
+                # Preserve overflow in narrow integer products before summing.
+                return NotImplemented
+            dtype = torch.int64
+        # Boolean bmm is unsupported; integer contraction counts matches, and
+        # comparison with zero implements an OR reduction without changing +=.
+        result = torch.einsum(equation, *(operand.to(dtype) for operand in operands))
+        return result != 0 if logical_reduction else result
 
     def unfold(
         self,
@@ -145,8 +209,38 @@ class PytorchFramework(Framework):
             fill_value = fill_value.detach().cpu().item()
         return F.pad(x, tuple(pad), mode="constant", value=float(fill_value))
 
-    def with_fill_value(self, array, value):
-        return array
+    def replace(self, arr, old, new):
+        if _is_sparse_tensor(arr):
+            if old == 0 and new != 0:
+                arr = arr.to_dense()
+            else:
+                coo = arr.to_sparse_coo().coalesce()
+                values = coo.values()
+                values = torch.where(
+                    torch.isnan(values) if old != old else values == old, new, values
+                )
+                result = torch.sparse_coo_tensor(
+                    coo.indices(),
+                    values,
+                    coo.shape,
+                    device=arr.device,
+                    is_coalesced=True,
+                )
+                if arr.layout == torch.sparse_csr:
+                    return result.to_sparse_csr()
+                if arr.layout == torch.sparse_csc:
+                    return result.to_sparse_csc()
+                return result
+        return torch.where(torch.isnan(arr) if old != old else arr == old, new, arr)
+
+    def matmul(self, x1, x2, /, **kwargs):
+        x1, x2 = _cast_bool_to_wide_unsigned(x1, x2)
+        if x1.dtype in _WIDE_UNSIGNED or x2.dtype in _WIDE_UNSIGNED:
+            out_dtype = torch.result_type(x1, x2)
+            return torch_xp.matmul(x1.to(torch.int64), x2.to(torch.int64), **kwargs).to(
+                out_dtype
+            )
+        return torch_xp.matmul(x1, x2, **kwargs)
 
     def maximum(self, x, y):
         if not torch.is_tensor(y):
@@ -159,9 +253,16 @@ class PytorchFramework(Framework):
         return torch.minimum(x, y)
 
     def __getattr__(self, name):
-        if hasattr(torch_xp, name):
-            return getattr(torch_xp, name)
-        return getattr(torch, name)
+        attr = (
+            getattr(torch_xp, name) if hasattr(torch_xp, name) else getattr(torch, name)
+        )
+        if name in _BOOL_PROMOTED_OPS:
+
+            def op(x1, x2, /, **kwargs):
+                return attr(*_cast_bool_to_wide_unsigned(x1, x2), **kwargs)
+
+            return op
+        return attr
 
 
 xp = PytorchFramework()

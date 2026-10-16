@@ -5,8 +5,9 @@ import scipy.sparse as sps
 
 from binsparse.conversions import from_scipy, to_numpy
 
+from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_scipy import SciPyFramework
-from saps.benchmarks.BFS import BreadthFirstSearchBenchmark
+from saps.benchmarks.bfs import BFSBenchmark
 
 
 @pytest.mark.parametrize(
@@ -63,13 +64,14 @@ def test_scipy_expand_sparse_vector(axis):
 
 def test_scipy_sparse_bfs_checks_all_test_datasets():
     xp = SciPyFramework()
-    benchmark = BreadthFirstSearchBenchmark()
+    benchmark = BFSBenchmark()
     params = [param for param in benchmark.params if "test" in param.dataset.suites]
     assert params
     for param in params:
         benchmark.setup(param, use_cache=False, xp=xp)
         benchmark._input = [
-            from_scipy(sps.csr_array(to_numpy(item))) for item in benchmark._input
+            from_scipy(sps.csr_array(NumpyFramework().from_binsparse(item)))
+            for item in benchmark._input
         ]
         benchmark.run(param)
         benchmark.teardown(param)

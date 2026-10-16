@@ -13,9 +13,9 @@ from binsparse.conversions import to_sparse
 from saps.benchmark import DataInstance, Generator
 from saps.benchmarks import subgraph_matching
 from saps.benchmarks.subgraph_matching import (
-    GCareDataset,
-    GCareGraphGenerator,
-    GCareHumanGenerator,
+    GCAREGraphGenerator,
+    SubgraphMatchingGCAREDataset,
+    SubgraphMatchingGCAREHumanGenerator,
 )
 from saps.downloaders import gcare
 from saps.storage import LocalStorageBackend
@@ -33,6 +33,7 @@ def test_gcare_cached_graph_contains_everything_for_query_setup(monkeypatch, tmp
     (query_dir / "uf_Q_2_1.txt").write_text("t # 0\nv 0 0 0\nv 1 1 -1\ne 0 1 2\n")
     (truth_dir / "uf_Q_2_1.txt").write_text("1\n")
     (query_dir / "missing_label.txt").write_text("v 0 99 -1\nv 1 0 -1\ne 0 1 99\n")
+    (truth_dir / "missing_label.txt").write_text("0\n")
     monkeypatch.setenv("SAPS_CACHE_DIR", str(cache))
     # Supply local source fixtures in place of the downloader during preparation.
     download = Mock()
@@ -42,7 +43,7 @@ def test_gcare_cached_graph_contains_everything_for_query_setup(monkeypatch, tmp
         tmp_path / "remote", tmp_path / "manifest.json", cache
     )
     monkeypatch.setattr(Generator, "backend", property(lambda _: backend))
-    raw_generator = GCareGraphGenerator()
+    raw_generator = GCAREGraphGenerator()
     dataset = raw_generator.datasets[0]
     assert backend.upload_dataset(raw_generator, dataset)
     download.assert_called_once_with(root)
@@ -50,7 +51,7 @@ def test_gcare_cached_graph_contains_everything_for_query_setup(monkeypatch, tmp
     shutil.rmtree(root)
     download.side_effect = AssertionError("download")
     monkeypatch.setattr(
-        GCareGraphGenerator,
+        GCAREGraphGenerator,
         "generate",
         Mock(side_effect=AssertionError("regeneration")),
     )
@@ -63,10 +64,11 @@ def test_gcare_cached_graph_contains_everything_for_query_setup(monkeypatch, tmp
     monkeypatch.setattr(
         gcare, "_parse_query", Mock(side_effect=AssertionError("parse"))
     )
-    query_generator = GCareHumanGenerator()
+    query_generator = SubgraphMatchingGCAREHumanGenerator()
     problem = query_generator.generate(query_generator.datasets[0])
 
-    assert problem.meta["gt"] == 1
+    assert problem.ref_meta == {"gt": 1}
+    assert "gt" not in problem.meta
     assert (
         problem.meta["expr"]
         == "S[] += V0[v_0] * P0[v_0] * V1[v_1] * C[v_1] * E2[v_0,v_1]"
@@ -75,11 +77,40 @@ def test_gcare_cached_graph_contains_everything_for_query_setup(monkeypatch, tmp
     np.testing.assert_array_equal(to_sparse(matrices["P0"]).todense(), [1, 0, 0])
     np.testing.assert_array_equal(to_sparse(matrices["C"]).todense(), [1, 0, 1])
     assert to_sparse(matrices["E2"])[0, 2] == 1
-    missing = query_generator.generate(GCareDataset("human", "Star_3/missing_label"))
+    missing = query_generator.generate(
+        SubgraphMatchingGCAREDataset("human", "Star_3/missing_label")
+    )
+    assert missing.ref_meta == {"gt": 0}
     matrices = dict(zip(missing.meta["matrix_names"], missing.inputs, strict=True))
     assert not np.any(to_sparse(matrices["V99"]).todense())
     assert not np.any(to_sparse(matrices["E99"]).todense())
     assert not root.exists()
+
+
+def test_gcare_ground_truth_is_matched_by_full_query_path(monkeypatch, tmp_path):
+    # Query names repeat across shape directories with different counts.
+    monkeypatch.setattr(gcare, "_ensure_downloaded", Mock())
+    (tmp_path / "dataset" / "human").mkdir(parents=True)
+    (tmp_path / "dataset" / "human" / "human.txt").write_text("v 0 0\nv 1 0\ne 0 1 0\n")
+    for shape, count in (("Chain_3", 5), ("Star_3", 7), ("Tree_3", None)):
+        query_dir = tmp_path / "queryset" / "human" / shape
+        query_dir.mkdir(parents=True)
+        (query_dir / "uf_Q_0_1.txt").write_text("v 0 0 -1\nv 1 0 -1\ne 0 1 0\n")
+        if count is not None:
+            truth_dir = tmp_path / "ground_truth" / "human" / shape
+            truth_dir.mkdir(parents=True)
+            (truth_dir / "uf_Q_0_1.txt").write_text(f"{count}\n")
+
+    bin_mats, meta = gcare.load_gcare_graph("human", data_dir=tmp_path)
+
+    queries = meta["queries"]
+    assert queries["Chain_3/uf_Q_0_1"]["gt"] == 5
+    assert queries["Star_3/uf_Q_0_1"]["gt"] == 7
+    assert queries["Tree_3/uf_Q_0_1"]["gt"] is None
+    _, query_meta = gcare.load_gcare_query(
+        "human", "Star_3/uf_Q_0_1", bin_mats, meta, data_dir=tmp_path
+    )
+    assert query_meta["gt"] == 7
 
 
 def test_gcare_shell_passes_loader_metadata_through_without_file_io(
@@ -89,7 +120,7 @@ def test_gcare_shell_passes_loader_metadata_through_without_file_io(
     monkeypatch.setattr(
         subgraph_matching, "load_gcare_graph", Mock(return_value=([], metadata))
     )
-    generator = GCareGraphGenerator()
+    generator = GCAREGraphGenerator()
     generator._backend = SimpleNamespace(cache_dir=tmp_path / "cache")
     for name in ("rglob", "open", "read_text"):
         monkeypatch.setattr(Path, name, Mock(side_effect=AssertionError("file I/O")))
@@ -113,12 +144,29 @@ def test_gcare_incomplete_cache_fails_without_downloading(
     download = Mock(side_effect=AssertionError("download"))
     monkeypatch.setattr(subgraph_matching, "load_gcare_graph", download)
     monkeypatch.setattr(
-        GCareGraphGenerator,
+        GCAREGraphGenerator,
         "cached_generate",
         Mock(return_value=DataInstance(inputs=[], meta=metadata)),
     )
 
     with pytest.raises(exception, match=message):
-        GCareHumanGenerator().generate(GCareDataset("human", "missing"))
+        SubgraphMatchingGCAREHumanGenerator().generate(
+            SubgraphMatchingGCAREDataset("human", "missing")
+        )
 
     download.assert_not_called()
+
+
+@pytest.mark.parametrize("query", [{}, {"gt": None}])
+def test_gcare_query_requires_reference_before_building_inputs(monkeypatch, query):
+    monkeypatch.setattr(
+        GCAREGraphGenerator,
+        "cached_generate",
+        Mock(
+            return_value=DataInstance(inputs=[], meta={"queries": {"missing": query}})
+        ),
+    )
+    with pytest.raises(ValueError, match="human/missing.*has no reference count"):
+        SubgraphMatchingGCAREHumanGenerator().generate(
+            SubgraphMatchingGCAREDataset("human", "missing")
+        )

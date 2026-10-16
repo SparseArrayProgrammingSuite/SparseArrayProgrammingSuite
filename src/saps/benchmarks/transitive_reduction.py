@@ -1,6 +1,8 @@
+# ruff: noqa: E501
 import numpy as np
 
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse import BinsparseTensor, COORMatrix
+from binsparse.conversions import from_numpy, to_numpy, to_scipy
 
 from saps.benchmark import (
     Author,
@@ -11,7 +13,9 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
-from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
+from saps.benchmarks.gap import fetch_gap_graph
+from saps.benchmarks.snap import fetch_snap_graph
+from saps.util.adjacency import zero_one_adjacency
 
 
 class TransitiveReductionDataset(Dataset):
@@ -27,8 +31,8 @@ class TransitiveReductionDataset(Dataset):
         self._name = name
         self.edges = edges
         self.expected_edges = expected_edges
-        self._suites = suites or []
-        self._pretty_name = pretty_name or f"Transitive Reduction {name}"
+        self._suites = list(suites or [])
+        self._pretty_name = pretty_name or name
         self._description = (
             description
             or "Small overlap graph with expected transitive reduction output."
@@ -62,11 +66,11 @@ class TransitiveReductionTestGenerator(Generator[TransitiveReductionDataset]):
 
     @property
     def name(self) -> str:
-        return "transitive_reduction_test_inputs"
+        return "transitive_reduction_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Transitive Reduction Test Inputs"
+        return "Transitive Reduction Test"
 
     @property
     def description(self) -> str:
@@ -74,7 +78,7 @@ class TransitiveReductionTestGenerator(Generator[TransitiveReductionDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["test", "trace"]
+        return ["test"]
 
     @property
     def concepts(self) -> str:
@@ -101,27 +105,31 @@ class TransitiveReductionTestGenerator(Generator[TransitiveReductionDataset]):
         return [
             TransitiveReductionDataset(
                 "remove_long_direct_edge",
+                pretty_name="Remove Long Direct Edge",
                 edges=[(0, 1, 10.0), (1, 2, 10.0), (0, 2, 30.0)],
                 expected_edges=[(0, 1, 10.0), (1, 2, 10.0)],
-                suites=["test", "trace"],
+                suites=["test"],
             ),
             TransitiveReductionDataset(
                 "keep_short_direct_edge",
+                pretty_name="Keep Short Direct Edge",
                 edges=[(0, 1, 10.0), (1, 2, 10.0), (0, 2, 15.0)],
                 expected_edges=[(0, 1, 10.0), (1, 2, 10.0), (0, 2, 15.0)],
-                suites=["test", "trace"],
+                suites=["test"],
             ),
             TransitiveReductionDataset(
                 "keep_when_indirect_is_long",
+                pretty_name="Keep When Indirect Is Long",
                 edges=[(0, 1, 40.0), (1, 2, 40.0), (0, 2, 30.0)],
                 expected_edges=[(0, 1, 40.0), (1, 2, 40.0), (0, 2, 30.0)],
-                suites=["test", "trace"],
+                suites=["test"],
             ),
             TransitiveReductionDataset(
                 "remove_equal_direct_edge",
+                pretty_name="Remove Equal Direct Edge",
                 edges=[(0, 1, 10.0), (1, 2, 10.0), (0, 2, 20.0)],
                 expected_edges=[(0, 1, 10.0), (1, 2, 10.0)],
-                suites=["test", "trace"],
+                suites=["test"],
             ),
         ]
 
@@ -139,14 +147,159 @@ class TransitiveReductionTestGenerator(Generator[TransitiveReductionDataset]):
         )
 
 
-class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
+def _unweighted_distances(adjacency: BinsparseTensor) -> COORMatrix:
+    """Distance 1 along each edge of the 0-1 adjacency, infinite elsewhere.
+
+    Self-loops are dropped, since a vertex is never its own transitive edge.
+    """
+    edges = to_scipy(zero_one_adjacency(adjacency)).tocoo()
+    keep = edges.row != edges.col
+    values = np.ones(np.count_nonzero(keep), dtype=float)
+    return COORMatrix(
+        edges.shape,
+        values.size,
+        fill=True,
+        fill_value=np.inf,
+        indices_0=edges.row[keep],
+        indices_1=edges.col[keep],
+        values=values,
+    )
+
+
+class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
     @property
     def name(self) -> str:
-        return "transitive_reduction_gap_inputs"
+        return "transitive_reduction_snap"
 
     @property
     def pretty_name(self) -> str:
-        return "Transitive Reduction GAP Input Generator"
+        return "Transitive Reduction SNAP"
+
+    @property
+    def description(self) -> str:
+        return "SNAP input generator for transitive reduction benchmarks."
+
+    @property
+    def suites(self) -> list[str]:
+        return ["standard"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Generate sparse directed graph inputs for transitive reduction."
+
+    @property
+    def datasets(self) -> list[TransitiveReductionDataset]:
+        # fmt: off
+        return [
+            TransitiveReductionDataset("soc-Epinions1", suites=["standard"]),
+            TransitiveReductionDataset("soc-LiveJournal1", suites=["standard"]),
+            TransitiveReductionDataset("soc-Pokec", suites=["standard"]),
+            TransitiveReductionDataset("soc-Slashdot0811", suites=["standard"]),
+            TransitiveReductionDataset("soc-Slashdot0902", suites=["standard"]),
+            TransitiveReductionDataset("wiki-Vote", suites=["standard"]),
+            TransitiveReductionDataset("wiki-RfA", suites=["standard"]),
+            TransitiveReductionDataset("soc-sign-bitcoin-otc", suites=["standard"]),
+            TransitiveReductionDataset("soc-sign-bitcoin-alpha", suites=["standard"]),
+            TransitiveReductionDataset("com-LiveJournal", suites=["standard"]),
+            TransitiveReductionDataset("com-Friendster", suites=["standard"]),
+            TransitiveReductionDataset("com-Orkut", suites=["standard"]),
+            TransitiveReductionDataset("com-Youtube", suites=["standard"]),
+            TransitiveReductionDataset("com-DBLP", suites=["standard"]),
+            TransitiveReductionDataset("com-Amazon", suites=["standard"]),
+            TransitiveReductionDataset("email-Eu-core", suites=["standard", "trace"]),
+            TransitiveReductionDataset("wiki-topcats", suites=["standard"]),
+            TransitiveReductionDataset("email-EuAll", suites=["standard"]),
+            TransitiveReductionDataset("email-Enron", suites=["standard"]),
+            TransitiveReductionDataset("wiki-Talk", suites=["standard"]),
+            TransitiveReductionDataset("cit-HepPh", suites=["standard"]),
+            TransitiveReductionDataset("cit-HepTh", suites=["standard"]),
+            TransitiveReductionDataset("cit-Patents", suites=["standard"]),
+            TransitiveReductionDataset("ca-AstroPh", suites=["standard"]),
+            TransitiveReductionDataset("ca-CondMat", suites=["standard"]),
+            TransitiveReductionDataset("ca-GrQc", suites=["standard"]),
+            TransitiveReductionDataset("ca-HepPh", suites=["standard"]),
+            TransitiveReductionDataset("ca-HepTh", suites=["standard"]),
+            TransitiveReductionDataset("web-BerkStan", suites=["standard"]),
+            TransitiveReductionDataset("web-Google", suites=["standard"]),
+            TransitiveReductionDataset("web-NotreDame", suites=["standard"]),
+            TransitiveReductionDataset("web-Stanford", suites=["standard"]),
+            TransitiveReductionDataset("amazon0302", suites=["standard"]),
+            TransitiveReductionDataset("amazon0312", suites=["standard"]),
+            TransitiveReductionDataset("amazon0505", suites=["standard"]),
+            TransitiveReductionDataset("amazon0601", suites=["standard"]),
+            TransitiveReductionDataset("p2p-Gnutella04", suites=["standard"]),
+            TransitiveReductionDataset("p2p-Gnutella05", suites=["standard"]),
+            TransitiveReductionDataset("p2p-Gnutella06", suites=["standard"]),
+            TransitiveReductionDataset("p2p-Gnutella08", suites=["standard"]),
+            TransitiveReductionDataset("p2p-Gnutella09", suites=["standard"]),
+            TransitiveReductionDataset("p2p-Gnutella24", suites=["standard"]),
+            TransitiveReductionDataset("p2p-Gnutella25", suites=["standard"]),
+            TransitiveReductionDataset("p2p-Gnutella30", suites=["standard"]),
+            TransitiveReductionDataset("p2p-Gnutella31", suites=["standard"]),
+            TransitiveReductionDataset("roadNet-CA", suites=["standard"]),
+            TransitiveReductionDataset("roadNet-PA", suites=["standard"]),
+            TransitiveReductionDataset("roadNet-TX", suites=["standard"]),
+            TransitiveReductionDataset("as-735", suites=["standard"]),
+            TransitiveReductionDataset("as-Skitter", suites=["standard"]),
+            TransitiveReductionDataset("as-caida", suites=["standard"]),
+            TransitiveReductionDataset("Oregon-1", suites=["standard"]),
+            TransitiveReductionDataset("Oregon-2", suites=["standard"]),
+            TransitiveReductionDataset("soc-sign-epinions", suites=["standard"]),
+            TransitiveReductionDataset("soc-sign-Slashdot081106", suites=["standard"]),
+            TransitiveReductionDataset("soc-sign-Slashdot090216", suites=["standard"]),
+            TransitiveReductionDataset("soc-sign-Slashdot090221", suites=["standard"]),
+            TransitiveReductionDataset("loc-Gowalla", suites=["standard"]),
+            TransitiveReductionDataset("loc-Brightkite", suites=["standard"]),
+            TransitiveReductionDataset("sx-stackoverflow", suites=["standard"]),
+            TransitiveReductionDataset("sx-mathoverflow", suites=["standard"]),
+            TransitiveReductionDataset("sx-superuser", suites=["standard"]),
+            TransitiveReductionDataset("sx-askubuntu", suites=["standard"]),
+            TransitiveReductionDataset("wiki-talk-temporal", suites=["standard"]),
+            TransitiveReductionDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
+            TransitiveReductionDataset("CollegeMsg", suites=["standard", "trace", "train"]),
+            TransitiveReductionDataset("twitter7", suites=["standard"]),
+            TransitiveReductionDataset("higgs-twitter", suites=["standard"]),
+        ]
+        # fmt: on
+
+    def generate(self, dataset: TransitiveReductionDataset) -> DataInstance:
+        raw = fetch_snap_graph(dataset.name)
+        return DataInstance(
+            inputs=[_unweighted_distances(raw.inputs[0])], meta=dict(raw.meta)
+        )
+
+
+class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
+    @property
+    def name(self) -> str:
+        return "transitive_reduction_gap"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Transitive Reduction GAP"
 
     @property
     def description(self) -> str:
@@ -198,8 +351,7 @@ class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
     def datasets(self) -> list[TransitiveReductionDataset]:
         return [
             TransitiveReductionDataset(
-                name="GAP/GAP-road",
-                pretty_name="GAP Road",
+                name="GAP-road",
                 description=(
                     "Directed roads with weights in the US, with 23.9M nodes and"
                     " 58.3M edges."
@@ -207,8 +359,7 @@ class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
                 suites=["standard"],
             ),
             TransitiveReductionDataset(
-                name="GAP/GAP-twitter",
-                pretty_name="GAP Twitter",
+                name="GAP-twitter",
                 description=(
                     "Directed weighted social network topology of Twitter, with 61.6M"
                     " nodes and 1,468.4M edges."
@@ -216,8 +367,7 @@ class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
                 suites=["standard"],
             ),
             TransitiveReductionDataset(
-                name="GAP/GAP-web",
-                pretty_name="GAP Web",
+                name="GAP-web",
                 description=(
                     "A web-crawl of the .sk domain, directed and weighted, with 50.6M"
                     " nodes and 1,949.4M edges."
@@ -225,8 +375,7 @@ class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
                 suites=["standard"],
             ),
             TransitiveReductionDataset(
-                name="GAP/GAP-kron",
-                pretty_name="GAP Kron",
+                name="GAP-kron",
                 description=(
                     "Symmetric random undirected weighted graph generated by"
                     " Kronecker synthetic graph generator with parameters"
@@ -236,8 +385,7 @@ class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
                 suites=["standard"],
             ),
             TransitiveReductionDataset(
-                name="GAP/GAP-urand",
-                pretty_name="GAP Urand",
+                name="GAP-urand",
                 description=(
                     "Symmetric random undirected weighted graph generated by"
                     " Erdos–Reyni model (Uniform Random) with 134.2M nodes and"
@@ -248,10 +396,10 @@ class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
         ]
 
     def generate(self, dataset: TransitiveReductionDataset) -> DataInstance:
-        if dataset.name.startswith("GAP/"):
-            raw = fetch_suitesparse_matrix(dataset.name)
-            return DataInstance(inputs=[raw.inputs[0]], meta=raw.meta)
-        raise ValueError(f"Unsupported transitive reduction dataset: {dataset.name}")
+        raw = fetch_gap_graph(dataset.name)
+        return DataInstance(
+            inputs=[_unweighted_distances(raw.inputs[0])], meta=dict(raw.meta)
+        )
 
 
 class TransitiveReductionBenchmark(Benchmark):
@@ -261,7 +409,7 @@ class TransitiveReductionBenchmark(Benchmark):
 
     @property
     def pretty_name(self) -> str:
-        return "diBELLA Transitive Reduction Algorithm"
+        return "Transitive Reduction"
 
     @property
     def description(self) -> str:
@@ -272,7 +420,7 @@ class TransitiveReductionBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return ["standard-graphs-iterative"]
 
     @property
     def concepts(self) -> str:
@@ -350,10 +498,13 @@ class TransitiveReductionBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [TransitiveReductionTestGenerator(), TransitiveReductionGAPGenerator()]
+        return [
+            TransitiveReductionTestGenerator(),
+            TransitiveReductionSNAPGenerator(),
+            TransitiveReductionGAPGenerator(),
+        ]
 
-    def benchmark(self, xp, data, meta):
-        R = data[0]
+    def benchmark(self, xp, meta, R):
         x = meta.get("x", 1)
         max_iters = meta.get("max_iters", 10)
 
@@ -383,7 +534,7 @@ class TransitiveReductionBenchmark(Benchmark):
 
             R_nnz_prev = R_nnz_new
 
-        return [R]
+        return R
 
     def check(self, param):
         super().check(param)

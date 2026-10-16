@@ -9,8 +9,8 @@ from binsparse.conversions import to_numpy
 from saps.benchmark import DataInstance
 from saps.benchmarks import weighted_model_counting
 from saps.benchmarks.model_counting import (
-    MCCompGenerator,
-    MCCompMCGenerator,
+    MCCompInstanceGenerator,
+    ModelCountingMCCompGenerator,
     fetch_mccomp_instance,
     parse_mccomp_exact,
 )
@@ -18,7 +18,7 @@ from saps.benchmarks.model_counting import (
     clauses_to_einsum as mc_clauses_to_einsum,
 )
 from saps.benchmarks.weighted_model_counting import (
-    MCCompPWMCGenerator,
+    WeightedModelCountingMCCompGenerator,
     parse_format,
 )
 from saps.benchmarks.weighted_model_counting import (
@@ -153,12 +153,14 @@ def test_model_counting_mccomp_track1_generator_parses_downloaded_source(
             },
         )
 
-    monkeypatch.setattr(MCCompGenerator, "cached_generate", fake_cached_generate)
-    generator = MCCompMCGenerator()
+    monkeypatch.setattr(
+        MCCompInstanceGenerator, "cached_generate", fake_cached_generate
+    )
+    generator = ModelCountingMCCompGenerator()
 
     instance = generator.generate(generator.datasets[0])
 
-    assert calls == [("mccomp", "Track1_MC/random_mc_1.cnf")]
+    assert calls == [("mccomp_instance", "Track1_MC/random_mc_1.cnf")]
     assert instance.meta["expr"] == "s[] += (B[v1] or B[v2])"
     assert instance.meta["expected_result"] == 3
     np.testing.assert_array_equal(to_numpy(instance.inputs[0]), np.array([0, 1]))
@@ -191,7 +193,7 @@ def test_weighted_mccomp_track4_generator_parses_downloaded_source(
         "download_mccomp_instance",
         fake_download_mccomp_instance,
     )
-    generator = MCCompPWMCGenerator()
+    generator = WeightedModelCountingMCCompGenerator()
 
     instance = generator.generate(generator.datasets[0])
 
@@ -229,7 +231,9 @@ def test_fetch_mccomp_instance_accepts_basename(monkeypatch):
             },
         )
 
-    monkeypatch.setattr(MCCompGenerator, "cached_generate", fake_cached_generate)
+    monkeypatch.setattr(
+        MCCompInstanceGenerator, "cached_generate", fake_cached_generate
+    )
 
     instance = fetch_mccomp_instance("random_mc_2.cnf")
 
@@ -250,7 +254,9 @@ def test_fetch_mccomp_instance_accepts_suffixless_basename(monkeypatch):
             },
         )
 
-    monkeypatch.setattr(MCCompGenerator, "cached_generate", fake_cached_generate)
+    monkeypatch.setattr(
+        MCCompInstanceGenerator, "cached_generate", fake_cached_generate
+    )
 
     instance = fetch_mccomp_instance("random_mc_2")
 

@@ -11,6 +11,8 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy
 
+from saps.downloaders.cache import download_lock, source_cache_dir
+
 NEMO_ARCHIVE_BASE_URL = "https://carma.astro.umd.edu/nemo/archive"
 
 
@@ -143,23 +145,24 @@ def _parse_nemo_rows(
 def _ensure_downloaded(archive_path: str, data_dir: str | Path | None) -> Path:
     root = Path(data_dir) if data_dir is not None else _default_data_dir()
     dest_path = root / archive_path
-    if dest_path.exists():
-        return dest_path
+    with download_lock(dest_path):
+        if dest_path.exists():
+            return dest_path
 
-    dest_path.parent.mkdir(parents=True, exist_ok=True)
-    download_url = f"{NEMO_ARCHIVE_BASE_URL}/{archive_path}"
-    tmp_path = dest_path.with_name(dest_path.name + ".tmp")
-    try:
-        urllib.request.urlretrieve(download_url, tmp_path)  # noqa: S310
-        tmp_path.replace(dest_path)
-    except Exception:
-        tmp_path.unlink(missing_ok=True)
-        raise
-    return dest_path
+        dest_path.parent.mkdir(parents=True, exist_ok=True)
+        download_url = f"{NEMO_ARCHIVE_BASE_URL}/{archive_path}"
+        tmp_path = dest_path.with_name(dest_path.name + ".tmp")
+        try:
+            urllib.request.urlretrieve(download_url, tmp_path)  # noqa: S310
+            tmp_path.replace(dest_path)
+        except Exception:
+            tmp_path.unlink(missing_ok=True)
+            raise
+        return dest_path
 
 
 def _default_data_dir() -> Path:
-    return Path(__file__).resolve().parents[3] / "data" / "nemo"
+    return source_cache_dir("nemo")
 
 
 def _iter_floats(path: str | Path) -> Iterator[float]:

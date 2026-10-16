@@ -309,7 +309,20 @@ class SciPyFramework(Framework):
 
     def matmul(self, x1, x2, /, **kwargs):
         if sps.issparse(x1) or sps.issparse(x2):
-            return x1 @ x2
+            # scipy.sparse's @ (unlike the array-api namespace below) takes
+            # no kwargs at all, so a caller-requested dtype has to be
+            # applied as a cast afterward instead of steering the
+            # contraction itself -- unlike the dense path, this can't
+            # avoid computing in whatever wider dtype the contraction
+            # naturally uses first.
+            dtype = kwargs.pop("dtype", None)
+            if kwargs:
+                raise TypeError(
+                    f"SciPyFramework.matmul doesn't support {sorted(kwargs)} "
+                    "for sparse operands"
+                )
+            result = x1 @ x2
+            return result if dtype is None else result.astype(dtype)
         xp = self._array_namespace(x1, x2)
         return xp.matmul(x1, x2, **kwargs)
 
@@ -360,8 +373,23 @@ class SciPyFramework(Framework):
         xp = self._array_namespace(x1, x2)
         return xp.power(x1, x2, **kwargs)
 
-    def with_fill_value(self, array, value):
-        return array
+    def replace(self, arr, old, new):
+        if sps.issparse(arr):
+            if old == 0 and new != 0:
+                arr = arr.toarray()
+            else:
+                result = arr.tocoo(copy=True)
+                result.sum_duplicates()
+                values = result.data
+                result.data = np.where(
+                    np.isnan(values) if old != old else values == old, new, values
+                )
+                result.eliminate_zeros()
+                return result.asformat(arr.format)
+        if isinstance(arr, pydata_sparse.DOK):
+            arr = arr.asformat("coo")
+        xp = pydata_sparse if isinstance(arr, pydata_sparse.SparseArray) else np
+        return xp.where(xp.isnan(arr) if old != old else arr == old, new, arr)
 
     def __getattr__(self, name):
         for module in self._modules:
