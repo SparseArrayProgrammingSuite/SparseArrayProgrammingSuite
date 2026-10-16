@@ -129,6 +129,14 @@ def test_power_on_sparse_accepts_zero_dimensional_cupy_exponent(xp, matrix):
     np.testing.assert_array_equal(host(result), matrix.toarray() ** 2)
 
 
+def test_power_on_spmatrix_is_elementwise(xp):
+    # xp.tril resolves to cupyx and returns a coo_matrix, where ** is matrix power.
+    lower = xp.tril(cupy.asarray([[1.0, 0.0], [2.0, 3.0]]))
+
+    assert isinstance(lower, cusp.spmatrix)
+    np.testing.assert_array_equal(host(xp.power(lower, 2)), [[1, 0], [4, 9]])
+
+
 def test_permute_dims_without_axes_argument(xp, matrix):
     # cupyx rejects transpose(axes=...), which the SciPy wrapper passes through.
     device = xp.from_binsparse(from_scipy(matrix))
@@ -172,6 +180,48 @@ def test_eye_returns_a_sparse_array_not_a_matrix(xp):
     assert cusp.issparse(result)
     assert not isinstance(result, cusp.spmatrix)
     np.testing.assert_array_equal(host(result), np.eye(3))
+
+
+@pytest.mark.parametrize("dtype", [np.uint8, np.int64])
+def test_eye_with_integer_dtype_is_dense(xp, dtype):
+    # cupyx sparse has no integer dtypes.
+    result = xp.eye(3, k=1, dtype=dtype)
+
+    assert isinstance(result, cupy.ndarray)
+    assert result.dtype == dtype
+    np.testing.assert_array_equal(host(result), np.eye(3, k=1, dtype=dtype))
+
+
+def test_sparse_matmul_applies_dtype(xp, matrix):
+    device = xp.from_binsparse(from_scipy(matrix))
+
+    result = xp.matmul(device, xp.permute_dims(device, (1, 0)), dtype=cupy.float32)
+
+    assert result.dtype == np.float32
+    np.testing.assert_array_equal(host(result), matrix.toarray() @ matrix.toarray().T)
+
+
+def test_sparse_matmul_rejects_unsupported_kwargs(xp, matrix):
+    device = xp.from_binsparse(from_scipy(matrix))
+
+    with pytest.raises(TypeError, match="doesn't support"):
+        xp.matmul(device, xp.permute_dims(device, (1, 0)), out=None)
+
+
+def test_divide_with_one_sparse_operand_matches_dense(xp, matrix):
+    # cupyx turns 0 / 0 into 0 for sparse / dense, and rejects dense / sparse.
+    device = xp.from_binsparse(from_scipy(matrix))
+    other = np.array([[2.0, 0.0, 1.0], [0.0, 3.0, 4.0]])
+
+    with np.errstate(divide="ignore", invalid="ignore"):
+        expected_left = matrix.toarray() / other
+        expected_right = other / matrix.toarray()
+    np.testing.assert_array_equal(
+        host(xp.divide(device, cupy.asarray(other))), expected_left
+    )
+    np.testing.assert_array_equal(
+        host(xp.divide(cupy.asarray(other), device)), expected_right
+    )
 
 
 # ----------------------------------------- operations CuPy ufuncs reject outright

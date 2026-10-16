@@ -212,7 +212,15 @@ class CuPyFramework(Framework):
 
     def matmul(self, x1, x2, /, **kwargs):
         if cusp.issparse(x1) or cusp.issparse(x2):
-            return x1 @ x2
+            # cupyx's @ takes no kwargs, so a requested dtype is applied as a cast.
+            dtype = kwargs.pop("dtype", None)
+            if kwargs:
+                raise TypeError(
+                    f"CuPyFramework.matmul doesn't support {sorted(kwargs)} "
+                    "for sparse operands"
+                )
+            result = x1 @ x2
+            return result if dtype is None else result.astype(dtype)
         xp = self._array_namespace(x1, x2)
         return xp.matmul(x1, x2, **kwargs)
 
@@ -232,7 +240,14 @@ class CuPyFramework(Framework):
         return xp.subtract(x1, x2, **kwargs)
 
     def divide(self, x1, x2, /, **kwargs):
-        if cusp.issparse(x1) or cusp.issparse(x2):
+        sparse1, sparse2 = cusp.issparse(x1), cusp.issparse(x2)
+        if sparse1 or sparse2:
+            # cupyx keeps sparse / dense sparse, turning 0 / 0 into 0 instead of
+            # NaN, and rejects dense / sparse. Both results are dense, as in SciPy.
+            if sparse2 and not sparse1:
+                return x1 / cupy.asarray(x2.toarray())
+            if not sparse2 and getattr(x2, "ndim", 0) > 0:
+                return cupy.asarray(x1.toarray()) / x2
             return x1 / x2
         xp = self._array_namespace(x1, x2)
         return xp.divide(x1, x2, **kwargs)
@@ -254,11 +269,12 @@ class CuPyFramework(Framework):
         return xp.minimum(x1, x2, **kwargs)
 
     def power(self, x1, x2, /, **kwargs):
-        # cupyx sparse exponentiation supports only scalar exponents.
+        # cupyx sparse exponentiation supports only scalar exponents. Use the
+        # elementwise power method: ** is matrix power on an spmatrix.
         if cusp.issparse(x1) and np.isscalar(x2):
-            return x1**x2
+            return x1.power(x2)
         if cusp.issparse(x1) and getattr(x2, "ndim", None) == 0:
-            return x1 ** cupy.asarray(x2).item()
+            return x1.power(cupy.asarray(x2).item())
         xp = self._array_namespace(x1, x2)
         return xp.power(x1, x2, **kwargs)
 
@@ -275,6 +291,10 @@ class CuPyFramework(Framework):
         return xp.reshape(x, shape, **kwargs)
 
     def eye(self, *args, **kwargs):
+        # cupyx sparse lacks integer dtypes, so build those identities dense.
+        if np.dtype(kwargs.get("dtype", float)) not in _SPARSE_DTYPES:
+            kwargs.pop("format", None)
+            return cupy.eye(*args, **kwargs)
         # eye_array preserves sparse-array semantics; eye returns a spmatrix.
         kwargs.setdefault("format", "csr")
         return cusp.eye_array(*args, **kwargs)
