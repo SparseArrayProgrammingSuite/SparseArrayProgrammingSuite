@@ -2,6 +2,7 @@
 import numpy as np
 from scipy.sparse import coo_array
 
+import igraph as ig
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy
 
@@ -19,7 +20,7 @@ from saps.benchmarks.snap import (
     fetch_snap_graph,
     with_source_vertex,
 )
-from saps.util.adjacency import zero_one_adjacency
+from saps.util.adjacency import graph_csr, zero_one_adjacency
 from saps_framework.binsparse_utils import binsparse_equal
 
 
@@ -228,16 +229,19 @@ class BFSTestGenerator(Generator[BFSDataset]):
 
     def generate(self, dataset: BFSDataset) -> DataInstance:
         if dataset.source_seed is not None:
-            from scipy.sparse.csgraph import shortest_path
-
             if dataset.A is None:
                 raise ValueError("Seeded BFS tests require an adjacency matrix.")
             raw = with_source_vertex(
                 DataInstance(inputs=[from_scipy(coo_array(dataset.A))], meta={}),
                 seed=dataset.source_seed,
             )
-            distances = shortest_path(
-                dataset.A, directed=True, unweighted=True, indices=raw.meta["src"]
+            graph = ig.Graph(
+                n=len(dataset.A),
+                edges=np.column_stack(np.nonzero(dataset.A)),
+                directed=True,
+            )
+            distances = np.asarray(
+                graph.distances(source=[raw.meta["src"]], mode="out")[0]
             )
             levels = np.where(np.isfinite(distances), distances + 1, 0).astype(int)
             raw.ref_outputs = [from_numpy(levels)]
@@ -582,10 +586,29 @@ class BFSSNAPGenerator(Generator[BFSDataset]):
             raise ValueError(
                 f"Source seed is outside the graph's available sources: {seed}"
             )
-        return DataInstance(
+        problem = DataInstance(
             inputs=[zero_one_adjacency(raw.inputs[0])],
             meta={**raw.meta, "src": raw.meta["sources"][seed], "seed": seed},
         )
+        meta = problem.meta
+        adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.row, adjacency.col)),
+            directed=True,
+        )
+        # Levels are deterministic even when BFS parent trees differ.
+        distances = np.asarray(graph.distances(source=[meta["src"]], mode="out")[0])
+        expected = from_numpy(
+            np.where(np.isfinite(distances), distances + 1, 0).astype(np.int64)
+        )
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "igraph",
+            "reference_algorithm": "bfs",
+        }
+        return problem
 
 
 class BFSGAPGenerator(Generator[BFSDataset]):
@@ -676,10 +699,29 @@ class BFSGAPGenerator(Generator[BFSDataset]):
             raise ValueError(
                 f"{dataset.src} is not a published source of {dataset.source_name}"
             )
-        return DataInstance(
+        problem = DataInstance(
             inputs=[zero_one_adjacency(raw.inputs[0])],
             meta={**raw.meta, "src": dataset.src},
         )
+        meta = problem.meta
+        adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.row, adjacency.col)),
+            directed=True,
+        )
+        # Levels are deterministic even when BFS parent trees differ.
+        distances = np.asarray(graph.distances(source=[meta["src"]], mode="out")[0])
+        expected = from_numpy(
+            np.where(np.isfinite(distances), distances + 1, 0).astype(np.int64)
+        )
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "igraph",
+            "reference_algorithm": "bfs",
+        }
+        return problem
 
 
 class BFSBenchmark(Benchmark):
