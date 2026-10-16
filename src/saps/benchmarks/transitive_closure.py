@@ -1,9 +1,10 @@
 # ruff: noqa: E501
 
 import numpy as np
+import scipy.sparse as scipy_sparse
 
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse.conversions import from_numpy, from_scipy, to_numpy
 
 from saps.benchmark import (
     Author,
@@ -18,6 +19,7 @@ from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
 from saps.util.adjacency import (
     DEFAULT_MAX_DENSITY,
+    graph_csr,
     squaring_count,
     zero_one_adjacency,
 )
@@ -166,11 +168,30 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
                 ],
                 dtype=bool,
             )
-            return DataInstance(
+            problem = DataInstance(
                 inputs=[from_numpy(A)],
                 meta={"max_squarings": max(0, len(A) - 2).bit_length()},
                 ref_meta={"strong_component_count": 4},
             )
+            meta = problem.meta
+            graph = graph_csr(problem.inputs[0], boolean=True)
+            # Boolean sparse multiplication preserves reachability without path counts.
+            closure = graph.maximum(
+                scipy_sparse.eye(graph.shape[0], dtype=bool, format="csr")
+            )
+            for _ in range(meta["max_squarings"]):
+                updated = closure @ closure
+                if (updated != closure).nnz == 0:
+                    break
+                closure = updated
+            expected = from_scipy(closure.tocoo())
+            problem.ref_outputs = [expected]
+            problem.ref_meta = {
+                **(problem.ref_meta or {}),
+                "reference_backend": "scipy",
+                "reference_algorithm": "transitive_closure",
+            }
+            return problem
 
         if dataset.name == "cycle":
             A = np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]], dtype=bool)
@@ -313,15 +334,36 @@ class TransitiveClosureSNAPGenerator(Generator[TransitiveClosureDataset]):
 
     def generate(self, dataset: TransitiveClosureDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
-        return DataInstance(
+        problem = DataInstance(
             inputs=[zero_one_adjacency(raw.inputs[0])],
             meta={
                 **raw.meta,
                 "max_squarings": squaring_count(
-                    raw.inputs[0].shape[0], raw.meta["max_degree"], dataset.max_density
+                    raw.inputs[0].shape[0],
+                    raw.meta["max_degree"],
+                    dataset.max_density,
                 ),
             },
         )
+        meta = problem.meta
+        graph = graph_csr(problem.inputs[0], boolean=True)
+        # Boolean sparse multiplication preserves reachability without path counts.
+        closure = graph.maximum(
+            scipy_sparse.eye(graph.shape[0], dtype=bool, format="csr")
+        )
+        for _ in range(meta["max_squarings"]):
+            updated = closure @ closure
+            if (updated != closure).nnz == 0:
+                break
+            closure = updated
+        expected = from_scipy(closure.tocoo())
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "scipy",
+            "reference_algorithm": "transitive_closure",
+        }
+        return problem
 
 
 class TransitiveClosureGAPGenerator(Generator[TransitiveClosureDataset]):
@@ -393,15 +435,36 @@ class TransitiveClosureGAPGenerator(Generator[TransitiveClosureDataset]):
 
     def generate(self, dataset: TransitiveClosureDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.name)
-        return DataInstance(
+        problem = DataInstance(
             inputs=[zero_one_adjacency(raw.inputs[0])],
             meta={
                 **raw.meta,
                 "max_squarings": squaring_count(
-                    raw.inputs[0].shape[0], raw.meta["max_degree"], dataset.max_density
+                    raw.inputs[0].shape[0],
+                    raw.meta["max_degree"],
+                    dataset.max_density,
                 ),
             },
         )
+        meta = problem.meta
+        graph = graph_csr(problem.inputs[0], boolean=True)
+        # Boolean sparse multiplication preserves reachability without path counts.
+        closure = graph.maximum(
+            scipy_sparse.eye(graph.shape[0], dtype=bool, format="csr")
+        )
+        for _ in range(meta["max_squarings"]):
+            updated = closure @ closure
+            if (updated != closure).nnz == 0:
+                break
+            closure = updated
+        expected = from_scipy(closure.tocoo())
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "scipy",
+            "reference_algorithm": "transitive_closure",
+        }
+        return problem
 
 
 class TransitiveClosureBenchmark(Benchmark):

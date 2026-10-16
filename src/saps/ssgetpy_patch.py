@@ -1,6 +1,7 @@
 import os
 
 import requests  # type: ignore[import-untyped]
+import ssgetpy.matrix as ssm
 from ssgetpy import bundle
 from tqdm.auto import tqdm
 
@@ -40,3 +41,6 @@ def _patched_ssget_download(self, format="MM", destpath=None, extract=False):
             bundle.extract(localdest)
 
     return localdestpath, localdest
+
+
+ssm.Matrix.download = _patched_ssget_download

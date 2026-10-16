@@ -3,6 +3,7 @@ from typing import Any
 
 import numpy as np
 
+import igraph as ig
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy
 
@@ -17,7 +18,7 @@ from saps.benchmark import (
 )
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
-from saps.util.adjacency import zero_one_adjacency
+from saps.util.adjacency import graph_csr, zero_one_adjacency
 from saps_framework.binsparse_utils import binsparse_equal
 
 
@@ -203,7 +204,10 @@ class FastSVSNAPGenerator(Generator[FastSVDataset]):
 
     @property
     def description(self) -> str:
-        return "SNAP input generator for FastSV connected-components benchmarks."
+        return (
+            "SNAP graphs symmetrized with self-loops removed for FastSV weak "
+            "connected components, checked against igraph."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -314,9 +318,28 @@ class FastSVSNAPGenerator(Generator[FastSVDataset]):
 
     def generate(self, dataset: FastSVDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
-        return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0])], meta=dict(raw.meta)
+        problem = DataInstance(
+            inputs=[zero_one_adjacency(raw.inputs[0], simple_undirected=True)],
+            meta=dict(raw.meta),
         )
+        adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.row, adjacency.col)),
+            directed=True,
+        )
+        components = graph.connected_components(mode="weak")
+        labels = np.asarray(components.membership, dtype=np.int64)
+        smallest = np.full(len(components), graph.vcount(), dtype=np.int64)
+        np.minimum.at(smallest, labels, np.arange(graph.vcount()))
+        expected = from_numpy(smallest[labels])
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "igraph",
+            "reference_algorithm": "fastsv",
+        }
+        return problem
 
 
 class FastSVGAPGenerator(Generator[FastSVDataset]):
@@ -330,7 +353,10 @@ class FastSVGAPGenerator(Generator[FastSVDataset]):
 
     @property
     def description(self) -> str:
-        return "Input GAP generator for FastSV connected-components benchmarks."
+        return (
+            "GAP graphs symmetrized with self-loops removed for FastSV weak "
+            "connected components, checked against igraph."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -388,9 +414,28 @@ class FastSVGAPGenerator(Generator[FastSVDataset]):
 
     def generate(self, dataset: FastSVDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.name)
-        return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0])], meta=dict(raw.meta)
+        problem = DataInstance(
+            inputs=[zero_one_adjacency(raw.inputs[0], simple_undirected=True)],
+            meta=dict(raw.meta),
         )
+        adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.row, adjacency.col)),
+            directed=True,
+        )
+        components = graph.connected_components(mode="weak")
+        labels = np.asarray(components.membership, dtype=np.int64)
+        smallest = np.full(len(components), graph.vcount(), dtype=np.int64)
+        np.minimum.at(smallest, labels, np.arange(graph.vcount()))
+        expected = from_numpy(smallest[labels])
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "igraph",
+            "reference_algorithm": "fastsv",
+        }
+        return problem
 
 
 class FastSVBenchmark(Benchmark):

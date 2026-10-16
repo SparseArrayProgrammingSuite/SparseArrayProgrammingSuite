@@ -1,9 +1,14 @@
 # ruff: noqa: E501
-import numpy as np
+from array import array
 
+import numpy as np
+import scipy.sparse as scipy_sparse
+
+import igraph as ig
+import sparse
 import sparse as sp
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse.conversions import from_numpy, from_sparse, to_numpy
 
 from saps.benchmark import (
     Author,
@@ -19,9 +24,11 @@ from saps.benchmarks.snap import fetch_snap_graph
 from saps.util.adjacency import (
     DEFAULT_MAX_DENSITY,
     distance_matrix,
+    graph_csr,
     squaring_count,
     zero_one_adjacency,
 )
+from saps_framework.binsparse_utils import assert_binsparse_allclose
 
 
 class FloydWarshallDataset(Dataset):
@@ -64,19 +71,6 @@ class FloydWarshallDataset(Dataset):
     @property
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
-
-
-def floyd_warshall_reference(A):
-    if isinstance(A, sp.SparseArray):
-        A = A.todense()
-    expected = A.copy()
-    for k in range(expected.shape[0]):
-        expected = np.minimum(
-            expected,
-            np.expand_dims(expected[:, k], axis=1)
-            + np.expand_dims(expected[k, :], axis=0),
-        )
-    return expected
 
 
 def floyd_warshall_input_from_edges(
@@ -337,7 +331,13 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
         )
         expected = dataset.expected
         if expected is None:
-            expected = floyd_warshall_reference(inputs)
+            adjacency = graph_csr(from_numpy(inputs), distances=True).tocoo()
+            graph = ig.Graph(
+                n=adjacency.shape[0],
+                edges=np.column_stack((adjacency.row, adjacency.col)),
+                directed=True,
+            )
+            expected = np.asarray(graph.distances(weights=adjacency.data, mode="out"))
         return DataInstance(
             inputs=[from_numpy(inputs)],
             # Correctness fixtures exercise full shortest paths, even when dense.
@@ -467,15 +467,102 @@ class FloydWarshallSNAPGenerator(Generator[FloydWarshallDataset]):
 
     def generate(self, dataset: FloydWarshallDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
-        return DataInstance(
+        problem = DataInstance(
             inputs=[distance_matrix(zero_one_adjacency(raw.inputs[0]))],
             meta={
                 **raw.meta,
                 "max_squarings": squaring_count(
-                    raw.inputs[0].shape[0], raw.meta["max_degree"], dataset.max_density
+                    raw.inputs[0].shape[0],
+                    raw.meta["max_degree"],
+                    dataset.max_density,
                 ),
             },
         )
+        meta = problem.meta
+        graph = graph_csr(problem.inputs[0], distances=True)
+        n = graph.shape[0]
+        steps = meta["max_squarings"]
+        if steps == 0:
+            # The input already is the complete one-hop reference.
+            distances = graph
+        else:
+            edges = graph.tocoo()
+            off_diagonal = edges.row != edges.col
+            if np.all(edges.data[off_diagonal] == 1) and np.all(graph.diagonal() == 0):
+                # Unit edges: boolean frontiers find every pair's first reachable hop.
+                adjacency = graph.astype(bool)
+                adjacency.eliminate_zeros()
+                reached = scipy_sparse.eye(n, dtype=bool, format="csr")
+                frontier = reached
+                distances = scipy_sparse.csr_array((n, n), dtype=float)
+                for hop in range(1, 2**steps + 1):
+                    frontier = (frontier @ adjacency) > reached
+                    frontier.eliminate_zeros()
+                    if frontier.nnz == 0:
+                        break
+                    distances = distances + frontier.astype(float) * hop
+                    reached = reached.maximum(frontier)
+                distances.setdiag(0)
+            else:
+                # Weighted min-plus products over SciPy CSR rows. Accumulate only
+                # reachable columns; neither the input nor a result is made dense.
+                distances = graph
+                for _ in range(steps):
+                    columns, values = array("q"), array("d")
+                    indptr = np.empty(n + 1, dtype=np.int64)
+                    indptr[0] = 0
+                    for row in range(n):
+                        best: dict[int, float] = {}
+                        for edge in range(
+                            distances.indptr[row], distances.indptr[row + 1]
+                        ):
+                            middle = distances.indices[edge]
+                            prefix = distances.data[edge]
+                            start, stop = distances.indptr[middle : middle + 2]
+                            for column, weight in zip(
+                                distances.indices[start:stop],
+                                distances.data[start:stop],
+                                strict=True,
+                            ):
+                                candidate = prefix + weight
+                                if candidate < best.get(column, np.inf):
+                                    best[column] = candidate
+                        ordered = sorted(best)
+                        columns.extend(ordered)
+                        values.extend(best[column] for column in ordered)
+                        indptr[row + 1] = len(columns)
+                    updated = scipy_sparse.csr_array(
+                        (
+                            np.asarray(values, dtype=float),
+                            np.asarray(columns, dtype=np.int64),
+                            indptr,
+                        ),
+                        shape=graph.shape,
+                    )
+                    stable = (
+                        np.array_equal(updated.indptr, distances.indptr)
+                        and np.array_equal(updated.indices, distances.indices)
+                        and np.array_equal(updated.data, distances.data)
+                    )
+                    distances = updated
+                    if stable:
+                        break
+        coo = distances.tocoo()
+        expected = from_sparse(
+            sparse.COO(
+                np.stack([coo.row, coo.col]),
+                coo.data,
+                shape=coo.shape,
+                fill_value=np.inf,
+            )
+        )
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "scipy",
+            "reference_algorithm": "floyd_warshall",
+        }
+        return problem
 
 
 class FloydWarshallGAPGenerator(Generator[FloydWarshallDataset]):
@@ -571,7 +658,7 @@ class FloydWarshallGAPGenerator(Generator[FloydWarshallDataset]):
         # GAP graphs are weighted, so edges keep their lengths.
         G = distance_matrix(raw.inputs[0], keep_weights=True)
         degree = raw.meta["max_degree"]
-        return DataInstance(
+        problem = DataInstance(
             inputs=[G],
             meta={
                 **raw.meta,
@@ -580,6 +667,91 @@ class FloydWarshallGAPGenerator(Generator[FloydWarshallDataset]):
                 ),
             },
         )
+        meta = problem.meta
+        graph = graph_csr(problem.inputs[0], distances=True)
+        n = graph.shape[0]
+        steps = meta["max_squarings"]
+        if steps == 0:
+            # The input already is the complete one-hop reference.
+            distances = graph
+        else:
+            edges = graph.tocoo()
+            off_diagonal = edges.row != edges.col
+            if np.all(edges.data[off_diagonal] == 1) and np.all(graph.diagonal() == 0):
+                # Unit edges: boolean frontiers find every pair's first reachable hop.
+                adjacency = graph.astype(bool)
+                adjacency.eliminate_zeros()
+                reached = scipy_sparse.eye(n, dtype=bool, format="csr")
+                frontier = reached
+                distances = scipy_sparse.csr_array((n, n), dtype=float)
+                for hop in range(1, 2**steps + 1):
+                    frontier = (frontier @ adjacency) > reached
+                    frontier.eliminate_zeros()
+                    if frontier.nnz == 0:
+                        break
+                    distances = distances + frontier.astype(float) * hop
+                    reached = reached.maximum(frontier)
+                distances.setdiag(0)
+            else:
+                # Weighted min-plus products over SciPy CSR rows. Accumulate only
+                # reachable columns; neither the input nor a result is made dense.
+                distances = graph
+                for _ in range(steps):
+                    columns, values = array("q"), array("d")
+                    indptr = np.empty(n + 1, dtype=np.int64)
+                    indptr[0] = 0
+                    for row in range(n):
+                        best: dict[int, float] = {}
+                        for edge in range(
+                            distances.indptr[row], distances.indptr[row + 1]
+                        ):
+                            middle = distances.indices[edge]
+                            prefix = distances.data[edge]
+                            start, stop = distances.indptr[middle : middle + 2]
+                            for column, weight in zip(
+                                distances.indices[start:stop],
+                                distances.data[start:stop],
+                                strict=True,
+                            ):
+                                candidate = prefix + weight
+                                if candidate < best.get(column, np.inf):
+                                    best[column] = candidate
+                        ordered = sorted(best)
+                        columns.extend(ordered)
+                        values.extend(best[column] for column in ordered)
+                        indptr[row + 1] = len(columns)
+                    updated = scipy_sparse.csr_array(
+                        (
+                            np.asarray(values, dtype=float),
+                            np.asarray(columns, dtype=np.int64),
+                            indptr,
+                        ),
+                        shape=graph.shape,
+                    )
+                    stable = (
+                        np.array_equal(updated.indptr, distances.indptr)
+                        and np.array_equal(updated.indices, distances.indices)
+                        and np.array_equal(updated.data, distances.data)
+                    )
+                    distances = updated
+                    if stable:
+                        break
+        coo = distances.tocoo()
+        expected = from_sparse(
+            sparse.COO(
+                np.stack([coo.row, coo.col]),
+                coo.data,
+                shape=coo.shape,
+                fill_value=np.inf,
+            )
+        )
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "scipy",
+            "reference_algorithm": "floyd_warshall",
+        }
+        return problem
 
 
 class FloydWarshallBenchmark(Benchmark):
@@ -700,15 +872,10 @@ class FloydWarshallBenchmark(Benchmark):
             assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
-        output = to_numpy(self._output[0])
         if self._ref_outputs is not None:
-            expected = to_numpy(self._ref_outputs[0])
-            both_inf = np.isinf(output) & np.isinf(expected)
-            both_finite = np.isfinite(output) & np.isfinite(expected)
-            assert np.all(both_inf | (both_finite & (output == expected))), (
-                f"Floyd-Warshall output mismatch for {param.dataset.name}"
-            )
+            assert_binsparse_allclose(self._ref_outputs[0], self._output[0])
         if self._ref_meta and self._ref_meta.get("large_symmetric"):
+            output = to_numpy(self._output[0])
             assert output.shape[0] == output.shape[1]
             assert np.all(np.diag(output) == 0.0)
             assert np.all(output >= 0.0)

@@ -38,18 +38,18 @@ _SNAP_CONSUMERS = [
         "betweenness_centrality",
         "BetweennessCentralitySNAPGenerator",
         _PATTERN,
-        np.float64,
+        bool,
     ),
     ("connected_components", "ConnectedComponentsSNAPGenerator", _PATTERN, bool),
-    ("fastsv", "FastSVSNAPGenerator", _PATTERN, bool),
+    ("fastsv", "FastSVSNAPGenerator", [[0, 1, 0], [1, 0, 1], [0, 1, 0]], bool),
     (
         "four_clique_counting",
         "FourCliqueCountingSNAPGenerator",
         _UPPER_PATTERN,
         np.int64,
     ),
-    ("mcl", "MCLSNAPGenerator", _PATTERN, np.float32),
-    ("pagerank", "PageRankSNAPGenerator", _PATTERN, np.float64),
+    ("mcl", "MCLSNAPGenerator", _PATTERN, bool),
+    ("pagerank", "PageRankSNAPGenerator", _PATTERN, bool),
     ("transitive_closure", "TransitiveClosureSNAPGenerator", _PATTERN, bool),
     (
         "triangle_counting",
@@ -135,6 +135,10 @@ def _check_first_input(
     module = importlib.import_module(f"saps.benchmarks.{module_name}")
     generator = getattr(module, generator_name)()
     dataset = generator.datasets[0]
+    if fetch == "fetch_gap_graph" and module_name == "bfs":
+        dataset.src = 0
+    if fetch == "fetch_gap_graph" and module_name == "betweenness_centrality":
+        dataset.sources = [0, 1, 2, 0]
     src = getattr(dataset, "src", None)
     raw = DataInstance(
         inputs=[_signed_graph()],
