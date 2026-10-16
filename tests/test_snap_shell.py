@@ -209,6 +209,13 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
         }
         if module_name in {"transitive_closure", "floyd_warshall"}:
             expected_meta["max_squarings"] = 0
+        if module_name == "betweenness_centrality":
+            expected_meta.update(
+                bc_sources=expected_meta["sources"][:4],
+                trial=0,
+                include_source=True,
+                normalize=True,
+            )
         assert problem.meta == expected_meta
     if module_name in {"bellman_ford", "mssp", "floyd_warshall"}:
         expected = np.array([[0, 1, np.inf], [np.inf, 0, 1], [np.inf, np.inf, 0]])
@@ -221,6 +228,14 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
         )
         np.testing.assert_array_equal(to_sparse(problem.inputs[0]).todense(), expected)
         assert problem.inputs[0].number_of_stored_values == 2
+    elif module_name == "fastsv":
+        np.testing.assert_array_equal(
+            to_scipy(problem.inputs[0]).toarray(), [[0, 1, 0], [1, 0, 1], [0, 1, 0]]
+        )
+    elif getattr(dataset, "simple_undirected", False):
+        np.testing.assert_array_equal(
+            to_scipy(problem.inputs[0]).toarray(), [[0, 1, 0], [0, 0, 1], [0, 0, 0]]
+        )
     else:
         np.testing.assert_array_equal(
             to_scipy(problem.inputs[0]).toarray(), [[0, 1, 0], [0, 0, 1], [0, 0, 1]]
@@ -285,7 +300,8 @@ def test_each_gap_graph_problem_has_an_explicit_snap_generator():
         assert "SNAP" in snap[0].pretty_name
         assert snap[0].name.endswith("_snap")
         assert not snap[0].cacheable
-    assert len(problems) == 14
+    assert "four_clique_counting" not in problems
+    assert len(problems) == 13
 
 
 def test_snap_transitive_reduction_removes_redundant_edge(monkeypatch):
@@ -511,7 +527,7 @@ def test_snap_source_graph_picks_source_from_shell_sources(monkeypatch):
     from saps.benchmarks import bfs
 
     sources = list(range(100, 100 + NUM_SNAP_SOURCES))
-    adjacency = from_scipy(coo_array([[0, 1], [0, 0]]))
+    adjacency = from_scipy(coo_array(([1], ([0], [1])), shape=(200, 200)))
     raw = DataInstance(inputs=[adjacency], meta={"max_degree": 3, "sources": sources})
     monkeypatch.setattr(bfs, "fetch_snap_graph", lambda _: raw)
     dataset = BFSDataset("seed-seven", source_name="soc-Epinions1", source_seed=7)

@@ -294,6 +294,65 @@ prepared SuiteSparse inputs and returns only the matrix, preserving its values
 and dimensions. Bellman-Ford derives its sparse distance representation
 during setup. Source archives share the `suitesparse/SNAP/` cache.
 
+The GAP and SNAP algorithm generators compute references during setup and
+store them in `DataInstance.ref_outputs` and `ref_meta`. Checks only compare those
+stored results; reference computation is outside the timed benchmark and the
+existing dataset serialization preserves it for future caching. Consumer
+generators remain uncached for now, so setup recomputes these references.
+
+igraph supplies BFS/shortest-path distances, weak connected components (also
+used to check FastSV), betweenness centrality, and PageRank. The calls live in
+the generators. BC uses the same four sources per GAP/SNAP trial, including
+repeats, source dependencies, and maximum-score normalization. PageRank reverses
+the edges to match the benchmark's column-source convention; checks allow the
+L1 error bound from its stopping tolerance or finite iteration budget. FastSV
+inputs are symmetrized and stripped of self-loops to compute weak components.
+MCL and weighted two-hop transitive reduction retain their SciPy references;
+these computations do not have equivalent igraph routines.
+Unit-edge GAP/SNAP inputs use boolean storage wherever the kernel supports it,
+including BC, PageRank, and MCL; numeric work arrays are created as needed.
+
+Bounded transitive closure and Floyd–Warshall references respect the generator's
+`max_squarings` hop limit and generate the complete result for every graph.
+Closure uses boolean sparse matrices; unit-weight shortest paths also use
+boolean frontiers, recording the first hop that reaches each pair. Weighted
+shortest paths retain numeric distances. Generation and checking preserve
+sparse storage and compare every entry. BFS checks hop-distance levels, which
+are deterministic even when different parent trees are valid. Single- and
+multi-source searches check all requested sources. Existing hand-checked fixtures, exact
+clique counts, and subgraph-matching ground truth remain in use.
+
+Triangle and four-clique reference counts use simple undirected graphs: ignore
+edge weights and directions, merge duplicate edges, remove self-loops, and store
+only the strict upper triangle. Each clique is counted once. Prefer the published
+[GraphMiner triangle table](https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/triangle/README.md)
+and [clique table](https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/clique/README.md)
+where the input graphs match:
+
+| SAPS dataset | GraphMiner row | Reference counts |
+| --- | --- | --- |
+| `soc-LiveJournal1` | `livej` | Triangles and four-cliques |
+| `com-Orkut` | `com-Orkut` | Triangles and four-cliques |
+| `cit-Patents` | `cit-Patents` | Triangles and four-cliques |
+| `com-Friendster` | `friendster` | Triangles and four-cliques |
+| `twitter7` | `twitter40` | Triangles and four-cliques |
+| `GAP-twitter` | `twitter40` | Triangles |
+
+[SuiteSparse documents the equivalence of GAP-twitter and twitter7](https://sparse.tamu.edu/GAP/GAP-twitter)
+after removing self-loops and weights and disregarding isolated vertices.
+GraphMiner's `youtube`, `patent_citations`, and `uk2007` are different graphs from
+`com-Youtube`, `cit-Patents`, and `GAP-web`; their counts cannot be substituted.
+Likewise, `livej` matches `soc-LiveJournal1`, not `com-LiveJournal`.
+For the other datasets, triangle references come from the SNAP dataset pages,
+[LAGraph's GAP counts](https://github.com/GraphBLAS/LAGraph/blob/7543de1f310371c540c23ff5da82705aa4e94ea0/src/benchmark/tc_demo.c#L22-L27),
+or local computation as marked in `triangle_counting.py`. The remaining
+four-clique references are locally computed with `scripts/compute_graph_counts.py`
+using the benchmark generators. They are not published GraphMiner totals.
+
+Each dataset descriptor carries its integer `expected` count. Generators use
+`int64` adjacency values and reference scalars; correctness checks require an
+integer scalar exactly equal to the reference, with no floating-point tolerance.
+
 Regenerate metadata and prepare the SuiteSparse cache before running these consumers
 with the SuiteSparse sources:
 

@@ -2,6 +2,7 @@
 
 import numpy as np
 
+import igraph as ig
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
 
@@ -16,7 +17,8 @@ from saps.benchmark import (
 )
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
-from saps.util.adjacency import zero_one_adjacency
+from saps.util.adjacency import graph_csr, zero_one_adjacency
+from saps_framework.binsparse_utils import binsparse_equal
 
 
 class ConnectedComponentsDataset(Dataset):
@@ -168,11 +170,29 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
         if dataset.A is None:
             raise ValueError("Connected-components test datasets must define A.")
 
-        return DataInstance(
+        problem = DataInstance(
             inputs=[from_numpy(dataset.A)],
             meta={},
             ref_meta=dataset.ref_meta,
         )
+        adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.row, adjacency.col)),
+            directed=True,
+        )
+        components = graph.connected_components(mode="weak")
+        labels = np.asarray(components.membership, dtype=np.int64)
+        smallest = np.full(len(components), graph.vcount(), dtype=np.int64)
+        np.minimum.at(smallest, labels, np.arange(graph.vcount()))
+        expected = from_numpy(smallest[labels])
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "igraph",
+            "reference_algorithm": "connected_components",
+        }
+        return problem
 
 
 class ConnectedComponentsSNAPGenerator(Generator[ConnectedComponentsDataset]):
@@ -312,9 +332,27 @@ class ConnectedComponentsSNAPGenerator(Generator[ConnectedComponentsDataset]):
 
     def generate(self, dataset: ConnectedComponentsDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
-        return DataInstance(
+        problem = DataInstance(
             inputs=[zero_one_adjacency(raw.inputs[0])], meta=dict(raw.meta)
         )
+        adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.row, adjacency.col)),
+            directed=True,
+        )
+        components = graph.connected_components(mode="weak")
+        labels = np.asarray(components.membership, dtype=np.int64)
+        smallest = np.full(len(components), graph.vcount(), dtype=np.int64)
+        np.minimum.at(smallest, labels, np.arange(graph.vcount()))
+        expected = from_numpy(smallest[labels])
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "igraph",
+            "reference_algorithm": "connected_components",
+        }
+        return problem
 
 
 class ConnectedComponentsGAPGenerator(Generator[ConnectedComponentsDataset]):
@@ -386,9 +424,27 @@ class ConnectedComponentsGAPGenerator(Generator[ConnectedComponentsDataset]):
 
     def generate(self, dataset: ConnectedComponentsDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.name)
-        return DataInstance(
+        problem = DataInstance(
             inputs=[zero_one_adjacency(raw.inputs[0])], meta=dict(raw.meta)
         )
+        adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.row, adjacency.col)),
+            directed=True,
+        )
+        components = graph.connected_components(mode="weak")
+        labels = np.asarray(components.membership, dtype=np.int64)
+        smallest = np.full(len(components), graph.vcount(), dtype=np.int64)
+        np.minimum.at(smallest, labels, np.arange(graph.vcount()))
+        expected = from_numpy(smallest[labels])
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "igraph",
+            "reference_algorithm": "connected_components",
+        }
+        return problem
 
 
 class ConnectedComponentsBenchmark(Benchmark):
@@ -507,6 +563,11 @@ class ConnectedComponentsBenchmark(Benchmark):
             assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
+        if self._ref_outputs is not None:
+            assert binsparse_equal(self._output[0], self._ref_outputs[0]), (
+                "Component labels mismatch"
+            )
+            return
         if not self._ref_meta:
             return
         labels = to_numpy(self._output[0])

@@ -5,7 +5,7 @@ import numpy as np
 from binsparse import COORMatrix, DMATRMatrix
 from binsparse.conversions import from_numpy, to_numpy
 
-from saps_framework.binsparse_utils import binsparse_equal
+from saps_framework.binsparse_utils import assert_binsparse_allclose, binsparse_equal
 
 
 @pytest.mark.parametrize("array", [np.array([1, 2, 3]), np.array([[1, 2], [3, 4]])])
@@ -62,3 +62,19 @@ def test_binsparse_equal_compares_sparse_and_dense_formats_by_value():
 
     assert binsparse_equal(sparse_tensor, dense_tensor)
     assert binsparse_equal(dense_tensor, sparse_tensor)
+
+
+@pytest.mark.parametrize("replacement", [0.0, -np.inf, np.nan])
+def test_sparse_distance_comparison_rejects_wrong_unreachable_entries(replacement):
+    expected = COORMatrix(
+        (2, 2),
+        2,
+        fill=True,
+        fill_value=np.inf,
+        indices_0=np.array([0, 1]),
+        indices_1=np.array([0, 1]),
+        values=np.array([0.0, 0.0]),
+    )
+    actual = np.array([[0.0, replacement], [np.inf, 0.0]])
+    with pytest.raises(AssertionError):
+        assert_binsparse_allclose(expected, from_numpy(actual))

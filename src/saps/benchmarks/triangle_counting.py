@@ -23,18 +23,22 @@ class TriangleCountingDataset(Dataset):
     def __init__(
         self,
         name: str,
+        expected: int,
         pretty_name: str | None = None,
         description: str | None = None,
         suites: list[str] | None = None,
         A: np.ndarray | None = None,
-        expected: np.ndarray | None = None,
+        simple_undirected: bool = True,
     ):
         self._name = name
         self._pretty_name = pretty_name or name
         self._description = description or f"Graph counting input {name}."
+        if simple_undirected:
+            self._description += " Symmetrized, with self-loops removed; only the strict upper triangle is stored."
         self._suites = list(suites or [])
         self.A = A
         self.expected = expected
+        self.simple_undirected = simple_undirected
 
     @property
     def name(self) -> str:
@@ -114,9 +118,9 @@ class TriangleCountingTestGenerator(Generator[TriangleCountingDataset]):
                         [1, 0, 1],
                         [1, 1, 0],
                     ],
-                    dtype=int,
+                    dtype=np.int64,
                 ),
-                expected=np.array(1),
+                expected=1,
             ),
             TriangleCountingDataset(
                 "path",
@@ -129,9 +133,9 @@ class TriangleCountingTestGenerator(Generator[TriangleCountingDataset]):
                         [0, 1, 0, 1],
                         [0, 0, 1, 0],
                     ],
-                    dtype=int,
+                    dtype=np.int64,
                 ),
-                expected=np.array(0),
+                expected=0,
             ),
             TriangleCountingDataset(
                 "four_clique",
@@ -144,9 +148,9 @@ class TriangleCountingTestGenerator(Generator[TriangleCountingDataset]):
                         [1, 1, 0, 1],
                         [1, 1, 1, 0],
                     ],
-                    dtype=int,
+                    dtype=np.int64,
                 ),
-                expected=np.array(4),
+                expected=4,
             ),
             TriangleCountingDataset(
                 "snap_toy",
@@ -155,22 +159,22 @@ class TriangleCountingTestGenerator(Generator[TriangleCountingDataset]):
                 A=np.array(
                     [
                         [0, 1, 0],
-                        [0, 0, 1],
-                        [0, 0, 0],
+                        [1, 0, 1],
+                        [0, 1, 0],
                     ],
-                    dtype=int,
+                    dtype=np.int64,
                 ),
-                expected=np.array(0),
+                expected=0,
             ),
         ]
 
     def generate(self, dataset: TriangleCountingDataset) -> DataInstance:
-        if dataset.A is None or dataset.expected is None:
-            raise ValueError("Triangle-count test datasets must define A and expected.")
+        if dataset.A is None:
+            raise ValueError("Triangle-count test datasets must define A.")
         return DataInstance(
-            inputs=[from_numpy(dataset.A)],
+            inputs=[from_numpy(np.triu(dataset.A, k=1).astype(np.int64))],
             meta={},
-            ref_outputs=[from_numpy(dataset.expected)],
+            ref_outputs=[from_numpy(np.asarray(dataset.expected, dtype=np.int64))],
         )
 
 
@@ -185,7 +189,9 @@ class TriangleCountingSNAPGenerator(Generator[TriangleCountingDataset]):
 
     @property
     def description(self) -> str:
-        return "SNAP input generator for triangle counting benchmarks."
+        return (
+            "Simple undirected SNAP input generator for triangle counting benchmarks."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -203,6 +209,11 @@ class TriangleCountingSNAPGenerator(Generator[TriangleCountingDataset]):
     def references(self) -> list[Ref]:
         return [
             Ref(
+                title="GraphMiner: Triangle Counting reference counts",
+                authors=[Author("Xuhao Chen")],
+                url="https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/triangle/README.md",
+            ),
+            Ref(
                 title=(
                     "SNAP: A General Purpose Network Analysis and Graph Mining Library"
                 ),
@@ -215,7 +226,35 @@ class TriangleCountingSNAPGenerator(Generator[TriangleCountingDataset]):
                 number=1,
                 year=2016,
                 url="https://snap.stanford.edu/index.html",
-            )
+            ),
+            Ref(
+                title="Pangolin: An Efficient and Flexible Graph Mining System on CPU and GPU",
+                authors=[
+                    Author("Xuhao Chen"),
+                    Author("Roshan Dathathri"),
+                    Author("Gurbinder Gill"),
+                    Author("Keshav Pingali"),
+                ],
+                journal="Proc. VLDB Endow.",
+                volume=13,
+                number=8,
+                year=2020,
+                publisher="VLDB Endowment",
+                url="https://www.vldb.org/pvldb/vol13/p1190-chen.pdf",
+            ),
+            Ref(
+                title="Sandslash",
+                authors=[
+                    Author("Xuhao Chen"),
+                    Author("Roshan Dathathri"),
+                    Author("Gurbinder Gill"),
+                    Author("Loc Hoang"),
+                    Author("Keshav Pingali"),
+                ],
+                booktitle="Proceedings of the 35th ACM International Conference on Supercomputing",
+                year=2021,
+                url="https://doi.org/10.1145/3447818.3460359",
+            ),
         ]
 
     @property
@@ -236,83 +275,111 @@ class TriangleCountingSNAPGenerator(Generator[TriangleCountingDataset]):
     @property
     def datasets(self) -> list[TriangleCountingDataset]:
         # Trace selects successful Smart runs < 60s in competition/run_13803684.
+        # Simple undirected counts: prefer GraphMiner for matching graphs.
+        # GraphMiner source and aliases are documented in references and README.md.
+        # Other counts are from https://snap.stanford.edu/data/<name>.html,
+        # except the local computations marked below.
         # fmt: off
         return [
-            TriangleCountingDataset("soc-Epinions1", suites=["standard", "trace"]),
-            TriangleCountingDataset("soc-LiveJournal1", suites=["standard"]),
-            TriangleCountingDataset("soc-Pokec", suites=["standard"]),
-            TriangleCountingDataset("soc-Slashdot0811", suites=["standard", "trace"]),
-            TriangleCountingDataset("soc-Slashdot0902", suites=["standard", "trace"]),
-            TriangleCountingDataset("wiki-Vote", suites=["standard", "trace"]),
-            TriangleCountingDataset("wiki-RfA", suites=["standard", "trace"]),
-            TriangleCountingDataset("soc-sign-bitcoin-otc", suites=["standard", "trace"]),
-            TriangleCountingDataset("soc-sign-bitcoin-alpha", suites=["standard", "trace"]),
-            TriangleCountingDataset("com-LiveJournal", suites=["standard"]),
-            TriangleCountingDataset("com-Friendster", suites=["standard"]),
-            TriangleCountingDataset("com-Orkut", suites=["standard"]),
-            TriangleCountingDataset("com-Youtube", suites=["standard"]),
-            TriangleCountingDataset("com-DBLP", suites=["standard", "trace"]),
-            TriangleCountingDataset("com-Amazon", suites=["standard", "trace"]),
-            TriangleCountingDataset("email-Eu-core", suites=["standard", "trace"]),
-            TriangleCountingDataset("wiki-topcats", suites=["standard"]),
-            TriangleCountingDataset("email-EuAll", suites=["standard", "trace"]),
-            TriangleCountingDataset("email-Enron", suites=["standard", "trace"]),
-            TriangleCountingDataset("wiki-Talk", suites=["standard"]),
-            TriangleCountingDataset("cit-HepPh", suites=["standard", "trace"]),
-            TriangleCountingDataset("cit-HepTh", suites=["standard", "trace"]),
-            TriangleCountingDataset("cit-Patents", suites=["standard"]),
-            TriangleCountingDataset("ca-AstroPh", suites=["standard", "trace"]),
-            TriangleCountingDataset("ca-CondMat", suites=["standard", "trace"]),
-            TriangleCountingDataset("ca-GrQc", suites=["standard", "trace"]),
-            TriangleCountingDataset("ca-HepPh", suites=["standard", "trace"]),
-            TriangleCountingDataset("ca-HepTh", suites=["standard", "trace"]),
-            TriangleCountingDataset("web-BerkStan", suites=["standard"]),
-            TriangleCountingDataset("web-Google", suites=["standard", "trace"]),
-            TriangleCountingDataset("web-NotreDame", suites=["standard", "trace", "train"]),
-            TriangleCountingDataset("web-Stanford", suites=["standard", "trace"]),
-            TriangleCountingDataset("amazon0302", suites=["standard", "trace"]),
-            TriangleCountingDataset("amazon0312", suites=["standard", "trace"]),
-            TriangleCountingDataset("amazon0505", suites=["standard", "trace"]),
-            TriangleCountingDataset("amazon0601", suites=["standard", "trace"]),
-            TriangleCountingDataset("p2p-Gnutella04", suites=["standard", "trace"]),
-            TriangleCountingDataset("p2p-Gnutella05", suites=["standard", "trace"]),
-            TriangleCountingDataset("p2p-Gnutella06", suites=["standard", "trace"]),
-            TriangleCountingDataset("p2p-Gnutella08", suites=["standard", "trace"]),
-            TriangleCountingDataset("p2p-Gnutella09", suites=["standard", "trace"]),
-            TriangleCountingDataset("p2p-Gnutella24", suites=["standard", "trace"]),
-            TriangleCountingDataset("p2p-Gnutella25", suites=["standard", "trace"]),
-            TriangleCountingDataset("p2p-Gnutella30", suites=["standard", "trace"]),
-            TriangleCountingDataset("p2p-Gnutella31", suites=["standard", "trace"]),
-            TriangleCountingDataset("roadNet-CA", suites=["standard", "trace"]),
-            TriangleCountingDataset("roadNet-PA", suites=["standard", "trace"]),
-            TriangleCountingDataset("roadNet-TX", suites=["standard", "trace"]),
-            TriangleCountingDataset("as-735", suites=["standard", "trace"]),
-            TriangleCountingDataset("as-Skitter", suites=["standard"]),
-            TriangleCountingDataset("as-caida", suites=["standard", "trace"]),
-            TriangleCountingDataset("Oregon-1", suites=["standard", "trace"]),
-            TriangleCountingDataset("Oregon-2", suites=["standard", "trace"]),
-            TriangleCountingDataset("soc-sign-epinions", suites=["standard", "trace"]),
-            TriangleCountingDataset("soc-sign-Slashdot081106", suites=["standard", "trace"]),
-            TriangleCountingDataset("soc-sign-Slashdot090216", suites=["standard", "trace"]),
-            TriangleCountingDataset("soc-sign-Slashdot090221", suites=["standard", "trace"]),
-            TriangleCountingDataset("loc-Gowalla", suites=["standard"]),
-            TriangleCountingDataset("loc-Brightkite", suites=["standard", "trace"]),
-            TriangleCountingDataset("sx-stackoverflow", suites=["standard"]),
-            TriangleCountingDataset("sx-mathoverflow", suites=["standard", "trace"]),
-            TriangleCountingDataset("sx-superuser", suites=["standard", "trace"]),
-            TriangleCountingDataset("sx-askubuntu", suites=["standard", "trace"]),
-            TriangleCountingDataset("wiki-talk-temporal", suites=["standard"]),
-            TriangleCountingDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
-            TriangleCountingDataset("CollegeMsg", suites=["standard", "trace"]),
-            TriangleCountingDataset("twitter7", suites=["standard"]),
-            TriangleCountingDataset("higgs-twitter", suites=["standard"]),
+            TriangleCountingDataset("soc-Epinions1", expected=1_624_481, suites=["standard", "trace"]),
+            # GraphMiner: livej (not com-LiveJournal).
+            TriangleCountingDataset("soc-LiveJournal1", expected=285_730_264, suites=["standard"]),
+            TriangleCountingDataset("soc-Pokec", expected=32_557_458, suites=["standard"]),
+            TriangleCountingDataset("soc-Slashdot0811", expected=551_724, suites=["standard", "trace"]),
+            TriangleCountingDataset("soc-Slashdot0902", expected=602_592, suites=["standard", "trace"]),
+            TriangleCountingDataset("wiki-Vote", expected=608_389, suites=["standard", "trace"]),
+            # Computed: SuiteSparse includes neutral votes; SNAP's total excludes them.
+            # https://sparse.tamu.edu/SNAP/wiki-RfA
+            TriangleCountingDataset("wiki-RfA", expected=1_416_059, suites=["standard", "trace"]),
+            # Computed with scripts/compute_graph_counts.py (both Bitcoin graphs).
+            TriangleCountingDataset("soc-sign-bitcoin-otc", expected=33_493, suites=["standard", "trace"]),
+            TriangleCountingDataset("soc-sign-bitcoin-alpha", expected=22_153, suites=["standard", "trace"]),
+            TriangleCountingDataset("com-LiveJournal", expected=177_820_130, suites=["standard"]),
+            # GraphMiner: friendster.
+            TriangleCountingDataset("com-Friendster", expected=4_173_724_142, suites=["standard"]),
+            # GraphMiner: com-Orkut.
+            TriangleCountingDataset("com-Orkut", expected=627_584_181, suites=["standard"]),
+            # GraphMiner's youtube is a different graph.
+            TriangleCountingDataset("com-Youtube", expected=3_056_386, suites=["standard"]),
+            TriangleCountingDataset("com-DBLP", expected=2_224_385, suites=["standard", "trace"]),
+            TriangleCountingDataset("com-Amazon", expected=667_129, suites=["standard", "trace"]),
+            TriangleCountingDataset("email-Eu-core", expected=105_461, suites=["standard", "trace"]),
+            TriangleCountingDataset("wiki-topcats", expected=52_106_893, suites=["standard"]),
+            TriangleCountingDataset("email-EuAll", expected=267_313, suites=["standard", "trace"]),
+            TriangleCountingDataset("email-Enron", expected=727_044, suites=["standard", "trace"]),
+            TriangleCountingDataset("wiki-Talk", expected=9_203_519, suites=["standard"]),
+            TriangleCountingDataset("cit-HepPh", expected=1_276_868, suites=["standard", "trace"]),
+            TriangleCountingDataset("cit-HepTh", expected=1_478_735, suites=["standard", "trace"]),
+            # GraphMiner: cit-Patents (not patent_citations).
+            TriangleCountingDataset("cit-Patents", expected=7_515_023, suites=["standard"]),
+            TriangleCountingDataset("ca-AstroPh", expected=1_351_441, suites=["standard", "trace"]),
+            TriangleCountingDataset("ca-CondMat", expected=173_361, suites=["standard", "trace"]),
+            TriangleCountingDataset("ca-GrQc", expected=48_260, suites=["standard", "trace"]),
+            TriangleCountingDataset("ca-HepPh", expected=3_358_499, suites=["standard", "trace"]),
+            TriangleCountingDataset("ca-HepTh", expected=28_339, suites=["standard", "trace"]),
+            TriangleCountingDataset("web-BerkStan", expected=64_690_980, suites=["standard"]),
+            TriangleCountingDataset("web-Google", expected=13_391_903, suites=["standard", "trace"]),
+            TriangleCountingDataset("web-NotreDame", expected=8_910_005, suites=["standard", "trace", "train"]),
+            TriangleCountingDataset("web-Stanford", expected=11_329_473, suites=["standard", "trace"]),
+            TriangleCountingDataset("amazon0302", expected=717_719, suites=["standard", "trace"]),
+            TriangleCountingDataset("amazon0312", expected=3_686_467, suites=["standard", "trace"]),
+            TriangleCountingDataset("amazon0505", expected=3_951_063, suites=["standard", "trace"]),
+            TriangleCountingDataset("amazon0601", expected=3_986_507, suites=["standard", "trace"]),
+            TriangleCountingDataset("p2p-Gnutella04", expected=934, suites=["standard", "trace"]),
+            TriangleCountingDataset("p2p-Gnutella05", expected=1_112, suites=["standard", "trace"]),
+            TriangleCountingDataset("p2p-Gnutella06", expected=1_142, suites=["standard", "trace"]),
+            TriangleCountingDataset("p2p-Gnutella08", expected=2_383, suites=["standard", "trace"]),
+            TriangleCountingDataset("p2p-Gnutella09", expected=2_354, suites=["standard", "trace"]),
+            TriangleCountingDataset("p2p-Gnutella24", expected=986, suites=["standard", "trace"]),
+            TriangleCountingDataset("p2p-Gnutella25", expected=806, suites=["standard", "trace"]),
+            TriangleCountingDataset("p2p-Gnutella30", expected=1_590, suites=["standard", "trace"]),
+            TriangleCountingDataset("p2p-Gnutella31", expected=2_024, suites=["standard", "trace"]),
+            TriangleCountingDataset("roadNet-CA", expected=120_676, suites=["standard", "trace"]),
+            TriangleCountingDataset("roadNet-PA", expected=67_150, suites=["standard", "trace"]),
+            TriangleCountingDataset("roadNet-TX", expected=82_869, suites=["standard", "trace"]),
+            # https://snap.stanford.edu/data/as-733.html (January 02 2000)
+            TriangleCountingDataset("as-735", expected=6_584, suites=["standard", "trace"]),
+            TriangleCountingDataset("as-Skitter", expected=28_769_868, suites=["standard"]),
+            # https://snap.stanford.edu/data/as-Caida.html (November 05 2007)
+            TriangleCountingDataset("as-caida", expected=36_365, suites=["standard", "trace"]),
+            # https://snap.stanford.edu/data/oregon1.html (May 26 2001)
+            TriangleCountingDataset("Oregon-1", expected=19_894, suites=["standard", "trace"]),
+            # https://snap.stanford.edu/data/oregon2.html (May 26 2001)
+            TriangleCountingDataset("Oregon-2", expected=89_541, suites=["standard", "trace"]),
+            TriangleCountingDataset("soc-sign-epinions", expected=4_910_076, suites=["standard", "trace"]),
+            TriangleCountingDataset("soc-sign-Slashdot081106", expected=548_054, suites=["standard", "trace"]),
+            TriangleCountingDataset("soc-sign-Slashdot090216", expected=570_569, suites=["standard", "trace"]),
+            TriangleCountingDataset("soc-sign-Slashdot090221", expected=579_565, suites=["standard", "trace"]),
+            TriangleCountingDataset("loc-Gowalla", expected=2_273_138, suites=["standard"]),
+            TriangleCountingDataset("loc-Brightkite", expected=494_728, suites=["standard", "trace"]),
+            # Remaining SNAP counts computed with scripts/compute_graph_counts.py,
+            # except twitter7, which uses GraphMiner.
+            TriangleCountingDataset("sx-stackoverflow", expected=114_206_974, suites=["standard"]),
+            TriangleCountingDataset("sx-mathoverflow", expected=1_403_919, suites=["standard", "trace"]),
+            TriangleCountingDataset("sx-superuser", expected=1_543_161, suites=["standard", "trace"]),
+            TriangleCountingDataset("sx-askubuntu", expected=680_407, suites=["standard", "trace"]),
+            TriangleCountingDataset("wiki-talk-temporal", expected=8_113_676, suites=["standard"]),
+            TriangleCountingDataset("email-Eu-core-temporal", expected=105_461, suites=["standard", "trace"]),
+            TriangleCountingDataset("CollegeMsg", expected=14_319, suites=["standard", "trace"]),
+            # GraphMiner: twitter40.
+            TriangleCountingDataset("twitter7", expected=34_824_916_864, suites=["standard"]),
+            TriangleCountingDataset("higgs-twitter", expected=83_023_401, suites=["standard"]),
         ]
         # fmt: on
 
     def generate(self, dataset: TriangleCountingDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
         return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0], np.int64)], meta=dict(raw.meta)
+            inputs=[
+                zero_one_adjacency(
+                    raw.inputs[0],
+                    np.int64,
+                    simple_undirected=dataset.simple_undirected,
+                    upper_triangle=True,
+                )
+            ],
+            meta=dict(raw.meta),
+            ref_outputs=[from_numpy(np.asarray(dataset.expected, dtype=np.int64))],
         )
 
 
@@ -345,6 +412,16 @@ class TriangleCountingGAPGenerator(Generator[TriangleCountingDataset]):
     def references(self) -> list[Ref]:
         return [
             Ref(
+                title="GraphMiner: Triangle Counting reference counts",
+                authors=[Author("Xuhao Chen")],
+                url="https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/triangle/README.md",
+            ),
+            Ref(
+                title="LAGraph: Known triangle counts for GAP graphs",
+                authors=[Author("Timothy A. Davis")],
+                url="https://github.com/GraphBLAS/LAGraph/blob/7543de1f310371c540c23ff5da82705aa4e94ea0/src/benchmark/tc_demo.c#L22-L27",
+            ),
+            Ref(
                 title="The GAP Benchmark Suite",
                 authors=[
                     Author("Scott Beamer"),
@@ -353,6 +430,34 @@ class TriangleCountingGAPGenerator(Generator[TriangleCountingDataset]):
                 ],
                 url="https://arxiv.org/abs/1508.03619",
                 year=2015,
+            ),
+            Ref(
+                title="Pangolin: An Efficient and Flexible Graph Mining System on CPU and GPU",
+                authors=[
+                    Author("Xuhao Chen"),
+                    Author("Roshan Dathathri"),
+                    Author("Gurbinder Gill"),
+                    Author("Keshav Pingali"),
+                ],
+                journal="Proc. VLDB Endow.",
+                volume=13,
+                number=8,
+                year=2020,
+                publisher="VLDB Endowment",
+                url="https://www.vldb.org/pvldb/vol13/p1190-chen.pdf",
+            ),
+            Ref(
+                title="Sandslash",
+                authors=[
+                    Author("Xuhao Chen"),
+                    Author("Roshan Dathathri"),
+                    Author("Gurbinder Gill"),
+                    Author("Loc Hoang"),
+                    Author("Keshav Pingali"),
+                ],
+                booktitle="Proceedings of the 35th ACM International Conference on Supercomputing",
+                year=2021,
+                url="https://doi.org/10.1145/3447818.3460359",
             ),
         ]
 
@@ -373,20 +478,33 @@ class TriangleCountingGAPGenerator(Generator[TriangleCountingDataset]):
 
     @property
     def datasets(self) -> list[TriangleCountingDataset]:
+        # LAGraph counts except GAP-twitter, sourced from GraphMiner below:
+        # https://github.com/GraphBLAS/LAGraph/blob/7543de1f310371c540c23ff5da82705aa4e94ea0/src/benchmark/tc_demo.c#L22-L27
         # fmt: off
         return [
-            TriangleCountingDataset("GAP-road", suites=["standard"]),
-            TriangleCountingDataset("GAP-twitter", suites=["standard"]),
-            TriangleCountingDataset("GAP-web", suites=["standard"]),
-            TriangleCountingDataset("GAP-kron", suites=["standard"]),
-            TriangleCountingDataset("GAP-urand", suites=["standard"]),
+            TriangleCountingDataset("GAP-road", expected=438_804, suites=["standard"]),
+            # GraphMiner: twitter40, equivalent after normalization:
+            # https://sparse.tamu.edu/GAP/GAP-twitter
+            TriangleCountingDataset("GAP-twitter", expected=34_824_916_864, suites=["standard"]),
+            TriangleCountingDataset("GAP-web", expected=84_907_041_475, suites=["standard"]),
+            TriangleCountingDataset("GAP-kron", expected=106_873_365_648, suites=["standard"]),
+            TriangleCountingDataset("GAP-urand", expected=5_378, suites=["standard"]),
         ]
         # fmt: on
 
     def generate(self, dataset: TriangleCountingDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.name)
         return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0], np.int64)], meta=dict(raw.meta)
+            inputs=[
+                zero_one_adjacency(
+                    raw.inputs[0],
+                    np.int64,
+                    simple_undirected=dataset.simple_undirected,
+                    upper_triangle=True,
+                )
+            ],
+            meta=dict(raw.meta),
+            ref_outputs=[from_numpy(np.asarray(dataset.expected, dtype=np.int64))],
         )
 
 
@@ -421,13 +539,9 @@ class TriangleCountingBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "Triangle Counting: Given adjacency matrix A, # triangles = trace(A^3) //"
-            " 6. This counts the number of walks of length 3 that start at vertex i and"
-            " end at vertex i, which is exactly a triangle. Divide by 6 to avoid"
-            " overcounting. These methods are implemented using the property that"
-            " multiplying a graph's adjacency matrix by itself n times yields the"
-            " number of walks of length n that begin at the vertex denoted by the row"
-            " label and end at the vertex denoted by the column label."
+            "Triangle Counting: Given the strict upper triangle A of a simple"
+            " undirected adjacency matrix, sum A[i,j] A[j,k] A[i,k]. Each triangle"
+            " has exactly one ordering i < j < k, so it is counted once."
         )
 
     @property
@@ -513,7 +627,7 @@ class TriangleCountingBenchmark(Benchmark):
         ]
 
     def benchmark(self, xp, meta: dict, A):
-        triangles = xp.einsum("S[] += A[i,j] * A[j,k] * A[k,i]", A=A) / 6
+        triangles = xp.einsum("S[] += A[i,j] * A[j,k] * A[i,k]", A=A)
         return xp.asarray(triangles)
 
     def check(self, param):
@@ -521,8 +635,13 @@ class TriangleCountingBenchmark(Benchmark):
             assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
-        if self._ref_outputs is None:
-            return
+        assert self._ref_outputs is not None, "No reference output"
         result = to_numpy(self._output[0])
         expected = to_numpy(self._ref_outputs[0])
-        assert np.allclose(result, expected)
+        assert result.shape == expected.shape == (), "Count must be a scalar"
+        assert np.issubdtype(result.dtype, np.integer), (
+            "Count must have an integer dtype"
+        )
+        assert result.item() == expected.item(), (
+            f"Count mismatch: got {result.item()}, expected {expected.item()}"
+        )

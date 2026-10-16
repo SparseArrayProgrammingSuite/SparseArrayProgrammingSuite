@@ -22,7 +22,10 @@ def download_suitesparse_matrix(
     result. Matrices are cached under ``$SAPS_CACHE_DIR/suitesparse/group/name``
     unless *data_dir* overrides the SuiteSparse cache root.
     """
+    # Imported lazily: importing ssgetpy fetches the SuiteSparse index.
     import ssgetpy
+
+    import saps.ssgetpy_patch  # noqa: F401
 
     matrix = _find_suitesparse_matrix(ssgetpy, source_name)
     root = Path(data_dir) if data_dir is not None else source_cache_dir("suitesparse")
