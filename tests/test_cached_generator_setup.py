@@ -7,6 +7,7 @@ import scipy.sparse as sps
 
 from binsparse import COORMatrix, CustomTensor, ElementLevel, SparseLevel
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
+from sparse import COO
 
 from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_sparse import PyDataSparseFramework
@@ -136,8 +137,9 @@ def test_cp_frostt_setup_reads_sparse_values_and_builds_float_factors(
         "fetch_frostt_tensor",
         lambda _: DataInstance(inputs=[tensor], meta={"shape": shape}),
     )
+    # Guard densification itself, independently of the generator's imports.
     monkeypatch.setattr(
-        cp_als, "to_numpy", Mock(side_effect=AssertionError("densification"))
+        COO, "todense", Mock(side_effect=AssertionError("densification"))
     )
     dataset = cp_als.CPALSFROSTTDataset("example", "Example", "example", order, rank=2)
     generator = cp_als.CPALSFROSTTGenerator()
