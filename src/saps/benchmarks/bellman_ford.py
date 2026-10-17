@@ -2,8 +2,9 @@
 import numpy as np
 import scipy.sparse as sps
 
+import igraph as ig
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_sparse
+from binsparse.conversions import from_numpy, from_scipy
 
 from saps.benchmark import (
     Author,
@@ -19,14 +20,8 @@ from saps.benchmarks.snap import (
     fetch_snap_graph,
     with_source_vertex,
 )
-from saps.util.adjacency import distance_matrix
-
-
-def _from_binsparse(array):
-    try:
-        return to_numpy(array)
-    except TypeError:
-        return to_sparse(array).todense()
+from saps.util.adjacency import distance_matrix, graph_csr
+from saps_framework.binsparse_utils import assert_binsparse_allclose
 
 
 class BellmanFordDataset(Dataset):
@@ -79,18 +74,6 @@ class BellmanFordDataset(Dataset):
     @property
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
-
-
-def bellman_ford_reference(A, src):
-    n = A.shape[0]
-    D = np.full((n,), np.inf)
-    D[src] = 0
-    for _ in range(n):
-        for v in range(n):
-            for u in range(n):
-                if A[u, v] + D[u] < D[v]:
-                    D[v] = A[u, v] + D[u]
-    return D
 
 
 def bellman_ford_matrix(n, edges, *, symmetric=False):
@@ -364,33 +347,37 @@ class BellmanFordTestGenerator(Generator[BellmanFordDataset]):
         ]
 
     def generate(self, dataset: BellmanFordDataset) -> DataInstance:
+        if dataset.A is None:
+            raise ValueError("Bellman-Ford test datasets must define A.")
         if dataset.source_seed is not None:
-            if dataset.A is None:
-                raise ValueError(
-                    "Seeded Bellman-Ford tests require an adjacency matrix."
-                )
             adjacency = np.isfinite(dataset.A) & (dataset.A != 0)
             raw = with_source_vertex(
                 DataInstance(inputs=[from_scipy(sps.coo_array(adjacency))], meta={}),
                 seed=dataset.source_seed,
             )
-            return DataInstance(
-                inputs=[distance_matrix(raw.inputs[0])],
-                meta=raw.meta,
-                ref_outputs=[
-                    from_numpy(bellman_ford_reference(dataset.A, raw.meta["src"]))
-                ],
+            problem = DataInstance(
+                inputs=[distance_matrix(raw.inputs[0])], meta=raw.meta
             )
-        if dataset.A is None:
-            raise ValueError("Bellman-Ford test datasets must define A.")
+        else:
+            problem = DataInstance(
+                inputs=[from_numpy(dataset.A)], meta={"src": dataset.src}
+            )
         expected = dataset.expected
         if expected is None:
-            expected = bellman_ford_reference(dataset.A, dataset.src)
-        return DataInstance(
-            inputs=[from_numpy(dataset.A)],
-            meta={"src": dataset.src},
-            ref_outputs=[from_numpy(expected)],
-        )
+            adjacency = graph_csr(problem.inputs[0], distances=True).tocoo()
+            graph = ig.Graph(
+                n=adjacency.shape[0],
+                edges=np.column_stack((adjacency.row, adjacency.col)),
+                directed=True,
+            )
+            expected = np.asarray(
+                graph.distances(
+                    source=[problem.meta["src"]], weights=adjacency.data, mode="out"
+                )[0],
+                dtype=float,
+            )
+        problem.ref_outputs = [from_numpy(expected)]
+        return problem
 
 
 class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
@@ -724,10 +711,32 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
             raise ValueError(
                 f"Source seed is outside the graph's available sources: {seed}"
             )
-        return DataInstance(
+        problem = DataInstance(
             inputs=[distance_matrix(raw.inputs[0])],
             meta={**raw.meta, "src": raw.meta["sources"][seed], "seed": seed},
         )
+        meta = problem.meta
+        adjacency = graph_csr(problem.inputs[0], distances=True).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.row, adjacency.col)),
+            directed=True,
+        )
+        expected = from_numpy(
+            np.asarray(
+                graph.distances(
+                    source=[meta["src"]], weights=adjacency.data, mode="out"
+                )[0],
+                dtype=float,
+            )
+        )
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "igraph",
+            "reference_algorithm": "bellman_ford",
+        }
+        return problem
 
 
 class BellmanFordGAPGenerator(Generator[BellmanFordDataset]):
@@ -818,10 +827,32 @@ class BellmanFordGAPGenerator(Generator[BellmanFordDataset]):
             raise ValueError(
                 f"{dataset.src} is not a published source of {dataset.source_name}"
             )
-        return DataInstance(
+        problem = DataInstance(
             inputs=[distance_matrix(raw.inputs[0], keep_weights=True)],
             meta={**raw.meta, "src": dataset.src},
         )
+        meta = problem.meta
+        adjacency = graph_csr(problem.inputs[0], distances=True).tocoo()
+        graph = ig.Graph(
+            n=adjacency.shape[0],
+            edges=np.column_stack((adjacency.row, adjacency.col)),
+            directed=True,
+        )
+        expected = from_numpy(
+            np.asarray(
+                graph.distances(
+                    source=[meta["src"]], weights=adjacency.data, mode="out"
+                )[0],
+                dtype=float,
+            )
+        )
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "igraph",
+            "reference_algorithm": "bellman_ford",
+        }
+        return problem
 
 
 class BellmanFordBenchmark(Benchmark):
@@ -945,11 +976,5 @@ class BellmanFordBenchmark(Benchmark):
             assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
-        if self._ref_outputs is None:
-            return
-
-        result = _from_binsparse(self._output[0])
-        expected = _from_binsparse(self._ref_outputs[0])
-        assert np.allclose(result, expected, equal_nan=True), (
-            f"Bellman-Ford output mismatch for {param.dataset.name}"
-        )
+        if self._ref_outputs is not None:
+            assert_binsparse_allclose(self._ref_outputs[0], self._output[0])

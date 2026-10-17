@@ -1,8 +1,14 @@
 # ruff: noqa: E501
 import numpy as np
+import scipy.sparse as scipy_sparse
 
+import sparse
 from binsparse import BinsparseTensor, COORMatrix
-from binsparse.conversions import from_numpy, to_numpy, to_scipy
+from binsparse.conversions import (
+    from_numpy,
+    from_sparse,
+    to_scipy,
+)
 
 from saps.benchmark import (
     Author,
@@ -15,7 +21,8 @@ from saps.benchmark import (
 )
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
-from saps.util.adjacency import zero_one_adjacency
+from saps.util.adjacency import graph_csr, zero_one_adjacency
+from saps_framework.binsparse_utils import assert_binsparse_allclose
 
 
 class TransitiveReductionDataset(Dataset):
@@ -287,9 +294,62 @@ class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
 
     def generate(self, dataset: TransitiveReductionDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
-        return DataInstance(
+        problem = DataInstance(
             inputs=[_unweighted_distances(raw.inputs[0])], meta=dict(raw.meta)
         )
+        meta = problem.meta
+        graph = graph_csr(problem.inputs[0], distances=True)
+        # Existing-edge two-hop witnesses implement the suite's weighted pruning rule.
+        current = graph.copy()
+        for _ in range(meta.get("max_iters", 10)):
+            incoming = current.tocsc()
+            remove = np.zeros(current.nnz, dtype=bool)
+            for row in range(current.shape[0]):
+                start, end = current.indptr[row : row + 2]
+                neighbors = current.indices[start:end]
+                weights = current.data[start:end]
+                if start == end:
+                    continue
+                maximum = weights.max()
+                if len(weights) < current.shape[1]:
+                    maximum = max(maximum, -1.0)
+                threshold = maximum + meta.get("x", 1)
+                for edge in range(start, end):
+                    col = current.indices[edge]
+                    left, right = incoming.indptr[col : col + 2]
+                    _, outgoing_idx, incoming_idx = np.intersect1d(
+                        neighbors,
+                        incoming.indices[left:right],
+                        assume_unique=True,
+                        return_indices=True,
+                    )
+                    lengths = (
+                        weights[outgoing_idx] + incoming.data[left:right][incoming_idx]
+                    )
+                    remove[edge] = np.any(lengths <= threshold)
+            if not remove.any():
+                break
+            coo = current.tocoo()
+            current = scipy_sparse.coo_array(
+                (coo.data[~remove], (coo.row[~remove], coo.col[~remove])),
+                shape=current.shape,
+            ).tocsr()
+        coo = current.tocoo()
+        expected = from_sparse(
+            sparse.COO(
+                np.stack([coo.row, coo.col]),
+                coo.data,
+                shape=coo.shape,
+                fill_value=np.inf,
+            )
+        )
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "scipy",
+            "reference_algorithm": "transitive_reduction",
+        }
+        return problem
 
 
 class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
@@ -397,9 +457,62 @@ class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
 
     def generate(self, dataset: TransitiveReductionDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.name)
-        return DataInstance(
+        problem = DataInstance(
             inputs=[_unweighted_distances(raw.inputs[0])], meta=dict(raw.meta)
         )
+        meta = problem.meta
+        graph = graph_csr(problem.inputs[0], distances=True)
+        # Existing-edge two-hop witnesses implement the suite's weighted pruning rule.
+        current = graph.copy()
+        for _ in range(meta.get("max_iters", 10)):
+            incoming = current.tocsc()
+            remove = np.zeros(current.nnz, dtype=bool)
+            for row in range(current.shape[0]):
+                start, end = current.indptr[row : row + 2]
+                neighbors = current.indices[start:end]
+                weights = current.data[start:end]
+                if start == end:
+                    continue
+                maximum = weights.max()
+                if len(weights) < current.shape[1]:
+                    maximum = max(maximum, -1.0)
+                threshold = maximum + meta.get("x", 1)
+                for edge in range(start, end):
+                    col = current.indices[edge]
+                    left, right = incoming.indptr[col : col + 2]
+                    _, outgoing_idx, incoming_idx = np.intersect1d(
+                        neighbors,
+                        incoming.indices[left:right],
+                        assume_unique=True,
+                        return_indices=True,
+                    )
+                    lengths = (
+                        weights[outgoing_idx] + incoming.data[left:right][incoming_idx]
+                    )
+                    remove[edge] = np.any(lengths <= threshold)
+            if not remove.any():
+                break
+            coo = current.tocoo()
+            current = scipy_sparse.coo_array(
+                (coo.data[~remove], (coo.row[~remove], coo.col[~remove])),
+                shape=current.shape,
+            ).tocsr()
+        coo = current.tocoo()
+        expected = from_sparse(
+            sparse.COO(
+                np.stack([coo.row, coo.col]),
+                coo.data,
+                shape=coo.shape,
+                fill_value=np.inf,
+            )
+        )
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "scipy",
+            "reference_algorithm": "transitive_reduction",
+        }
+        return problem
 
 
 class TransitiveReductionBenchmark(Benchmark):
@@ -537,9 +650,9 @@ class TransitiveReductionBenchmark(Benchmark):
         return R
 
     def check(self, param):
-        super().check(param)
-        if self._ref_outputs is None:
-            return
-        expected = to_numpy(self._ref_outputs[0])
-        actual = to_numpy(self._output[0])
-        assert np.array_equal(actual, expected)
+        for item in self._output:
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
+        if self._ref_outputs is not None:
+            assert_binsparse_allclose(self._ref_outputs[0], self._output[0])

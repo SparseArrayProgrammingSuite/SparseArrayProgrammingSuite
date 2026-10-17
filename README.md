@@ -264,6 +264,34 @@ prepared SuiteSparse inputs and returns only the matrix, preserving its values
 and dimensions. Bellman-Ford derives its sparse distance representation
 during setup. Source archives share the `suitesparse/SNAP/` cache.
 
+The GAP and SNAP algorithm generators compute references during setup and
+store them in `DataInstance.ref_outputs` and `ref_meta`. Checks only compare those
+stored results; reference computation is outside the timed benchmark and the
+existing dataset serialization preserves it for future caching. Consumer
+generators remain uncached for now, so setup recomputes these references.
+
+igraph supplies BFS/shortest-path distances, weak connected components (also
+used to check FastSV), betweenness centrality, and PageRank. The calls live in
+the generators. BC uses the same four sources per GAP/SNAP trial, including
+repeats, source dependencies, and maximum-score normalization. PageRank reverses
+the edges to match the benchmark's column-source convention; checks allow the
+L1 error bound from its stopping tolerance or finite iteration budget. FastSV
+inputs are symmetrized and stripped of self-loops to compute weak components.
+MCL and weighted two-hop transitive reduction retain their SciPy references;
+these computations do not have equivalent igraph routines.
+Unit-edge GAP/SNAP inputs use boolean storage wherever the kernel supports it,
+including BC, PageRank, and MCL; numeric work arrays are created as needed.
+
+Bounded transitive closure and Floyd–Warshall references respect the generator's
+`max_squarings` hop limit and generate the complete result for every graph.
+Closure uses boolean sparse matrices; unit-weight shortest paths also use
+boolean frontiers, recording the first hop that reaches each pair. Weighted
+shortest paths retain numeric distances. Generation and checking preserve
+sparse storage and compare every entry. BFS checks hop-distance levels, which
+are deterministic even when different parent trees are valid. Single- and
+multi-source searches check all requested sources. Existing hand-checked fixtures, exact
+clique counts, and subgraph-matching ground truth remain in use.
+
 Triangle and four-clique reference counts use simple undirected graphs: ignore
 edge weights and directions, merge duplicate edges, remove self-loops, and store
 only the strict upper triangle. Each clique is counted once. Prefer the published
@@ -549,6 +577,30 @@ poetry run pytest
 
 Every benchmark run checks its output for correctness in teardown, after each
 timing sample, unless the measurement budget was exceeded.
+
+CP-ALS and HOSVD checks use exact, parallel Numba loops to compute
+`||X - Y||² = ||X||² + ||Y||² - 2<X,Y>` without expanding the reconstructed
+tensor or unfolding the input. The sparse cross term streams stored entries
+once, evaluating CP components or nested Tucker scalar reductions at each
+coordinate. The arithmetic lives directly in compiled loops in the benchmark
+modules, with `prange` over stored entries. There is no batching, `nnz`-sized
+cross-term workspace, or per-worker core buffer. Small Gram/core loops account
+for the model's implicit-zero error. Kernels are cached after compilation;
+`NUMBA_NUM_THREADS` controls the worker count.
+FROSTT's input squared norm is computed once in the shared raw-data generator
+and cached for both benchmarks. Duplicate coordinates are coalesced for that
+norm; subsequent checks can stream the original coordinates without sorting.
+
+Checks accumulate in float64 without fast-math or compensated summation, and
+use the shared Higham summation bounds to
+allow cancellation in nearly exact reconstructions. This roundoff allowance is
+bounded using Cauchy-Schwarz to avoid a second sparse cross-term contraction and is
+separate from approximation tolerance: synthetic CP cases retain a 0.1 relative
+residual limit and synthetic Tucker cases retain 1e-5. Real FROSTT cases require
+valid shapes, finite values, and a nonzero model with relative residual at most
+1 (unless the input is zero). This is an approximation sanity check, not a proof
+of global optimality. Exact checks still require a pass over the nonzeros;
+sampling would change the guarantee to a probabilistic one.
 
 For a quick runner smoke test over CI-sized datasets:
 

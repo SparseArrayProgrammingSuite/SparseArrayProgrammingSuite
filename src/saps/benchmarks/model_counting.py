@@ -58,6 +58,21 @@ def clauses_to_einsum(clauses):
     return f"s[] += {full_str}"
 
 
+def referenceModelCount(num_vars: int, clauses: list[list[int]]) -> int:
+    """Count satisfying assignments by enumerating all ``2**num_vars`` of them.
+
+    Row ``i`` of ``assignments`` sets variable ``v`` to bit ``v - 1`` of ``i``.
+    An empty clause is unsatisfiable, and no clauses leaves every row satisfied.
+    """
+    assignments = (np.arange(2**num_vars)[:, None] >> np.arange(num_vars)) & 1
+    satisfied = np.ones(2**num_vars, dtype=bool)
+    for clause in clauses:
+        literals = np.asarray(clause, dtype=np.int64)
+        values = assignments[:, np.abs(literals) - 1].astype(bool) ^ (literals < 0)
+        satisfied &= values.any(axis=1)
+    return int(satisfied.sum())
+
+
 class ModelCountingTestDataset(Dataset):
     def __init__(
         self,
@@ -232,6 +247,7 @@ class ModelCountingTestGenerator(
             inputs=data_list,
             meta=meta,
             ref_outputs=[from_numpy(np.array(dataset.expected))],
+            ref_meta={"reference_count": referenceModelCount(num_vars, clauses)},
         )
 
 
@@ -473,6 +489,7 @@ class ModelCountingMCCompGenerator(_MCFunctionGenerator, Generator[MCCompDataset
                 "source_num_clauses": len(clauses),
             },
             ref_outputs=[from_numpy(np.asarray(int(exact_value), dtype=np.int64))],
+            ref_meta={"reference_count": referenceModelCount(num_vars, clauses)},
         )
 
 
@@ -593,6 +610,16 @@ class ModelCountingBenchmark(Benchmark):
             return
         result = int(to_numpy(self._output[0]))
         expected = int(to_numpy(self._ref_outputs[0]))
+        # The stored count is typed in or parsed from the instance file, so check
+        # it against an independent brute-force count before trusting it.
+        assert self._ref_meta is not None, (
+            "No NumPy reference count; regenerate the cached dataset"
+        )
+        reference = self._ref_meta["reference_count"]
+        assert expected == reference, (
+            f"Test '{param.dataset.name}' has stored count {expected}, but the "
+            f"NumPy brute-force reference counts {reference}"
+        )
         assert result == expected, (
             f"Test '{param.dataset.name}' failed: expected {expected}, got {result}"
         )

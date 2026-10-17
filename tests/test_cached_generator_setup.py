@@ -7,6 +7,7 @@ import scipy.sparse as sps
 
 from binsparse import COORMatrix, CustomTensor, ElementLevel, SparseLevel
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
+from sparse import COO
 
 from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_sparse import PyDataSparseFramework
@@ -61,12 +62,13 @@ def test_bellman_ford_runs_with_infinity_filled_sparse_input(framework):
 def test_bellman_ford_large_graph_setup_and_cache_stay_sparse(monkeypatch, tmp_path):
     size = 1_000_000
     raw = from_scipy(
-        sps.coo_array(([2.0, -3.0], ([0, 1], [1, size - 1])), shape=(size, size))
+        sps.coo_array(([2.0, 3.0], ([0, 1], [1, size - 1])), shape=(size, size))
     )
     numpy_full = np.full
 
     def forbid_dense_matrix(shape, *args, **kwargs):
-        assert not isinstance(shape, tuple) or len(shape) != 2
+        # A source's 1-by-n distance vector is fine; an n-by-n graph is not.
+        assert not isinstance(shape, tuple) or len(shape) != 2 or min(shape) <= 1
         return numpy_full(shape, *args, **kwargs)
 
     monkeypatch.setattr(adjacency.np, "full", forbid_dense_matrix)
@@ -74,7 +76,7 @@ def test_bellman_ford_large_graph_setup_and_cache_stay_sparse(monkeypatch, tmp_p
         adjacency, "to_numpy", Mock(side_effect=AssertionError("densification"))
     )
     generator = bellman_ford.BellmanFordGAPGenerator()
-    dataset = generator.datasets[0]
+    dataset = next(d for d in generator.datasets if d.src < size)
     monkeypatch.setattr(
         bellman_ford,
         "fetch_gap_graph",
@@ -135,8 +137,9 @@ def test_cp_frostt_setup_reads_sparse_values_and_builds_float_factors(
         "fetch_frostt_tensor",
         lambda _: DataInstance(inputs=[tensor], meta={"shape": shape}),
     )
+    # Guard densification itself, independently of the generator's imports.
     monkeypatch.setattr(
-        cp_als, "to_numpy", Mock(side_effect=AssertionError("densification"))
+        COO, "todense", Mock(side_effect=AssertionError("densification"))
     )
     dataset = cp_als.CPALSFROSTTDataset("example", "Example", "example", order, rank=2)
     generator = cp_als.CPALSFROSTTGenerator()

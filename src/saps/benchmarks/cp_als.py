@@ -1,7 +1,7 @@
 import numpy as np
 
-from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse.conversions import from_numpy
+from numba import njit, prange
 
 from saps.benchmark import (
     Author,
@@ -13,6 +13,29 @@ from saps.benchmark import (
     Ref,
 )
 from saps.benchmarks.frostt import fetch_frostt_tensor
+from saps.util.tensor_checks import (
+    assert_residual,
+    decomposition_outputs,
+    stored_entries,
+)
+
+
+@njit(cache=True, parallel=True)
+def _sparse_cp_inner(values, modes, n_modes, weights):
+    # Unpack outside prange so workers receive arrays, not nested tuples.
+    (i0, f0), (i1, f1), (i2, f2), (i3, f3), (i4, f4) = modes
+    inner = 0.0
+    for entry in prange(len(values)):
+        fitted = 0.0
+        for r in range(len(weights)):
+            term = weights[r] * f0[i0[entry], r] * f1[i1[entry], r] * f2[i2[entry], r]
+            if n_modes > 3:
+                term *= f3[i3[entry], r]
+            if n_modes > 4:
+                term *= f4[i4[entry], r]
+            fitted += term
+        inner += values[entry] * fitted
+    return inner
 
 
 class CPALSFactorizableDataset(Dataset):
@@ -191,7 +214,7 @@ class CPALSFactorizableGenerator(Generator[CPALSFactorizableDataset]):
                 return DataInstance(
                     inputs=[X, initial_A, initial_B, initial_C],
                     meta={"n": dataset.n, "rank": rank, "max_iter": max_iter},
-                    ref_meta={"check_reconstruction": True, "rel_error_tol": 0.1},
+                    ref_meta={"rel_error_tol": 0.1},
                 )
 
             case 4:
@@ -231,7 +254,7 @@ class CPALSFactorizableGenerator(Generator[CPALSFactorizableDataset]):
                 return DataInstance(
                     inputs=[X, initial_A, initial_B, initial_C, initial_D],
                     meta={"n": dataset.n, "rank": rank, "max_iter": max_iter},
-                    ref_meta={"check_reconstruction": True, "rel_error_tol": 0.1},
+                    ref_meta={"rel_error_tol": 0.1},
                 )
 
             case 5:
@@ -276,7 +299,7 @@ class CPALSFactorizableGenerator(Generator[CPALSFactorizableDataset]):
                 return DataInstance(
                     inputs=[X, initial_A, initial_B, initial_C, initial_D, initial_E],
                     meta={"n": dataset.n, "rank": rank, "max_iter": max_iter},
-                    ref_meta={"check_reconstruction": True, "rel_error_tol": 0.1},
+                    ref_meta={"rel_error_tol": 0.1},
                 )
 
             case _:
@@ -336,8 +359,8 @@ class CPALSFROSTTGenerator(Generator[CPALSFROSTTDataset]):
     def description(self):
         return (
             "Real sparse tensors downloaded from FROSTT (frostt.io), factorized"
-            " directly. No dense reconstruction check is performed since these"
-            " tensors are stored in genuinely sparse (COO) form."
+            " directly. Sparse residual checks validate the approximation without"
+            " constructing the full dense tensor."
         )
 
     @property
@@ -441,6 +464,7 @@ class CPALSFROSTTGenerator(Generator[CPALSFROSTTDataset]):
     def generate(self, dataset: CPALSFROSTTDataset):
         raw = fetch_frostt_tensor(dataset.tensor_name)
         X = raw.inputs[0]
+        check_meta = {**(raw.ref_meta or {}), "rel_error_tol": 1.0}
         rank = dataset.rank
         dtype = np.result_type(X.level.level.values.dtype, np.float32)
         rng = np.random.default_rng(0)
@@ -455,6 +479,7 @@ class CPALSFROSTTGenerator(Generator[CPALSFROSTTDataset]):
                 return DataInstance(
                     inputs=[X, initial_A, initial_B, initial_C],
                     meta={"n": dataset.n, "rank": rank, "max_iter": dataset.max_iter},
+                    ref_meta=check_meta,
                 )
 
             case 4:
@@ -467,6 +492,7 @@ class CPALSFROSTTGenerator(Generator[CPALSFROSTTDataset]):
                 return DataInstance(
                     inputs=[X, initial_A, initial_B, initial_C, initial_D],
                     meta={"n": dataset.n, "rank": rank, "max_iter": dataset.max_iter},
+                    ref_meta=check_meta,
                 )
 
             case 5:
@@ -480,6 +506,7 @@ class CPALSFROSTTGenerator(Generator[CPALSFROSTTDataset]):
                 return DataInstance(
                     inputs=[X, initial_A, initial_B, initial_C, initial_D, initial_E],
                     meta={"n": dataset.n, "rank": rank, "max_iter": dataset.max_iter},
+                    ref_meta=check_meta,
                 )
 
             case _:
@@ -624,6 +651,27 @@ class CPALSBenchmark(Benchmark):
     - lambda are the component weights
     """
 
+    def check(self, param):
+        """Check the Frobenius residual without expanding the model."""
+        tensor = self._input[0]
+        rank = self._meta["rank"]
+        shapes = [(size, rank) for size in tensor.shape] + [(rank,)]
+        *factors, weights = decomposition_outputs(self._output, shapes)
+        grams = [factor.T @ factor for factor in factors]
+        # ||Y||² = w^T (G_1 * ... * G_n) w with factor Grams G_m. Bound the sum
+        # of |Y|'s summands with column norms via Cauchy-Schwarz.
+        model_norm = float(weights @ np.prod(grams, axis=0) @ weights)
+        column_norms = np.prod([np.sqrt(np.diag(gram)) for gram in grams], axis=0)
+        model_absolute = float(np.abs(weights) @ column_norms)
+        indices, values = stored_entries(tensor)
+        modes = tuple(zip(indices, factors, strict=True))
+        # Padding aliases an existing mode; inactive modes are never evaluated.
+        modes += (modes[0],) * (5 - len(modes))
+        inner = float(_sparse_cp_inner(values, modes, len(factors), weights))
+        assert_residual(
+            tensor, self._ref_meta, model_norm, model_absolute, inner, terms=rank
+        )
+
 
 class CPALS3DBenchmark(CPALSBenchmark):
     n = 3
@@ -696,35 +744,6 @@ class CPALS3DBenchmark(CPALSBenchmark):
         C = xp.divide(C, C_norms_safe)
 
         return A, B, C, lambda_vals
-
-    def check(self, param):
-        for item in self._output:
-            assert isinstance(item, BinsparseTensor), (
-                "Output must be in binsparse format"
-            )
-
-        if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
-            return
-
-        X = to_numpy(self._input[0])
-        factors = [to_numpy(output) for output in self._output[:-1]]
-        lambda_vals = to_numpy(self._output[-1])
-        rank = self._meta["rank"]
-
-        A, B, C = factors
-        dim1, dim2, dim3 = X.shape
-
-        assert A.shape == (dim1, rank)
-        assert B.shape == (dim2, rank)
-        assert C.shape == (dim3, rank)
-        assert lambda_vals.shape == (rank,)
-
-        Y = np.einsum("r,ir,jr,kr->ijk", lambda_vals, A, B, C)
-
-        rel_error = np.linalg.norm(Y - X) / np.linalg.norm(X)
-        assert rel_error < self._ref_meta["rel_error_tol"], (
-            f"CP3 reconstruction error too high: {rel_error:.6f}"
-        )
 
 
 class CPALS4DBenchmark(CPALSBenchmark):
@@ -827,36 +846,6 @@ class CPALS4DBenchmark(CPALSBenchmark):
         D = xp.divide(D, D_norms_safe)
 
         return A, B, C, D, lambda_vals
-
-    def check(self, param):
-        for item in self._output:
-            assert isinstance(item, BinsparseTensor), (
-                "Output must be in binsparse format"
-            )
-
-        if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
-            return
-
-        X = to_numpy(self._input[0])
-        factors = [to_numpy(output) for output in self._output[:-1]]
-        lambda_vals = to_numpy(self._output[-1])
-        rank = self._meta["rank"]
-
-        A, B, C, D = factors
-        dim1, dim2, dim3, dim4 = X.shape
-
-        assert A.shape == (dim1, rank)
-        assert B.shape == (dim2, rank)
-        assert C.shape == (dim3, rank)
-        assert D.shape == (dim4, rank)
-        assert lambda_vals.shape == (rank,)
-
-        Y = np.einsum("r,ir,jr,kr,lr->ijkl", lambda_vals, A, B, C, D)
-
-        rel_error = np.linalg.norm(Y - X) / np.linalg.norm(X)
-        assert rel_error < self._ref_meta["rel_error_tol"], (
-            f"CP4 reconstruction error too high: {rel_error:.6f}"
-        )
 
 
 class CPALS5DBenchmark(CPALSBenchmark):
@@ -990,34 +979,3 @@ class CPALS5DBenchmark(CPALSBenchmark):
         E = xp.divide(E, E_norms_safe)
 
         return A, B, C, D, E, lambda_vals
-
-    def check(self, param):
-        for item in self._output:
-            assert isinstance(item, BinsparseTensor), (
-                "Output must be in binsparse format"
-            )
-
-        if not self._ref_meta or not self._ref_meta.get("check_reconstruction"):
-            return
-
-        X = to_numpy(self._input[0])
-        factors = [to_numpy(output) for output in self._output[:-1]]
-        lambda_vals = to_numpy(self._output[-1])
-        rank = self._meta["rank"]
-
-        A, B, C, D, E = factors
-        dim1, dim2, dim3, dim4, dim5 = X.shape
-
-        assert A.shape == (dim1, rank)
-        assert B.shape == (dim2, rank)
-        assert C.shape == (dim3, rank)
-        assert D.shape == (dim4, rank)
-        assert E.shape == (dim5, rank)
-        assert lambda_vals.shape == (rank,)
-
-        Y = np.einsum("r,ir,jr,kr,lr,mr->ijklm", lambda_vals, A, B, C, D, E)
-
-        rel_error = np.linalg.norm(Y - X) / np.linalg.norm(X)
-        assert rel_error < self._ref_meta["rel_error_tol"], (
-            f"CP5 reconstruction error too high: {rel_error:.6f}"
-        )
