@@ -1,3 +1,5 @@
+import os
+
 import array_api_compat.torch as torch_xp
 import torch
 import torch._dynamo
@@ -63,9 +65,22 @@ class PytorchLinalg:
         return result.solution, result.residuals, result.rank, result.singular_values
 
 
+def _device() -> str:
+    # The competition config marks GPU frameworks with SAPS_DEVICE=gpu.
+    if os.environ.get("SAPS_DEVICE", "cpu") != "gpu":
+        return "cpu"
+    if not torch.cuda.is_available():
+        raise RuntimeError("SAPS_DEVICE=gpu, but PyTorch cannot see a CUDA device")
+    return "cuda"
+
+
 class PytorchFramework(Framework):
     def __init__(self, sparse_layout: str = "COO"):
         self.sparse_layout = sparse_layout
+        # Inputs from to_torch and arrays created by benchmarks both follow the
+        # default device, so this alone moves the whole benchmark to the GPU.
+        self.device = _device()
+        torch.set_default_device(self.device)
 
     @property
     def linalg(self):

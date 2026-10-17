@@ -88,19 +88,6 @@ merge_job_id=$(
     "$script_directory/finalize-metadata.slurm"
 )
 
-competition_job_id=""
-if $with_competition; then
-  competition_job_id=$(
-    submit_job \
-      -A "$account" \
-      --dependency="afterok:$merge_job_id" \
-      --output "$log_directory/competition-%A_%a.log" \
-      --chdir "$repo_directory" \
-      --export=ALL,SAPS_REPO_DIRECTORY="$repo_directory" \
-      "$script_directory/run-competition.slurm"
-  )
-fi
-
 cat <<EOF
 submitted SAPS data refresh:
   upload array:     $upload_job_id
@@ -108,8 +95,6 @@ submitted SAPS data refresh:
   merge + metadata: $merge_job_id
 EOF
 
-if [[ -n "$competition_job_id" ]]; then
-  cat <<EOF
-  competition:      $competition_job_id
-EOF
+if $with_competition; then
+  "$script_directory/submit-competition.sh" --after "$merge_job_id"
 fi

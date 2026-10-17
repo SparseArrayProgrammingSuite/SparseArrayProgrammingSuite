@@ -71,7 +71,14 @@ def test_refresh_logs_use_invocation_directory(tmp_path, upload_chunks):
         assert args[args.index("--chdir") + 1] == str(scripts.parent.resolve())
 
 
-def test_competition_resume_uses_original_task_directory(tmp_path):
+COMPETITION_SCRIPTS = {"competition-cpu.slurm": "cpu", "competition-gpu.slurm": "gpu"}
+
+
+@pytest.mark.parametrize("script_name,device", COMPETITION_SCRIPTS.items())
+@pytest.mark.parametrize("forwarded", [[], ["--tag", "suite-train", "--re", "hosvd"]])
+def test_competition_resume_uses_original_task_directory(
+    tmp_path, script_name, device, forwarded
+):
     run_root = tmp_path / "old run" / "run_12345"
     run_root.mkdir(parents=True)
     record = tmp_path / "commands.jsonl"
@@ -105,9 +112,11 @@ def test_competition_resume_uses_original_task_directory(tmp_path):
     subprocess.run(
         [
             "bash",
-            str(ROOT / "scripts/run-competition.slurm"),
+            str(ROOT / "scripts" / script_name),
+            *forwarded[:2],
             "--resume",
             str(run_root),
+            *forwarded[2:],
         ],
         cwd=tmp_path,
         env=env,
@@ -123,11 +132,16 @@ def test_competition_resume_uses_original_task_directory(tmp_path):
     for call in calls:
         assert call["pip_cache"] == str(task_scratch / "pip-cache")
         assert call["virtualenv_cache"] == str(task_scratch / "virtualenv-cache")
-    task_directory = str(run_root.resolve() / "task_2")
+    # CPU tasks keep the original task_<index> layout of older runs.
+    task_label = "2" if device == "cpu" else f"{device}_2"
+    task_directory = str(run_root.resolve() / f"task_{task_label}")
     assert "--resume" in run
     assert run[run.index("--saps-dir") + 1] == task_directory
     assert run[run.index("--results-dir") + 1] == task_directory + "/results"
-    assert run[run.index("--machine") + 1] == "run_12345-task-2"
+    assert run[run.index("--machine") + 1] == f"run_12345-task-{task_label}"
+    assert run[run.index("--device") + 1] == device
+    # Wrapper arguments other than --resume reach the runner unchanged.
+    assert run[len(run) - len(forwarded) :] == forwarded
     assert combine[:2] == ["run", "./scripts/combine_competition_results.py"]
     assert combine[combine.index("--run-directory") + 1] == str(run_root.resolve())
     assert "--output" not in combine
@@ -141,9 +155,9 @@ def test_competition_resume_uses_original_task_directory(tmp_path):
 @pytest.mark.parametrize(
     "script_name,commands",
     [
-        (
-            "run-competition.slurm",
-            ["run_benchmark.py", "combine_competition_results.py"],
+        *(
+            (script_name, ["run_benchmark.py", "combine_competition_results.py"])
+            for script_name in COMPETITION_SCRIPTS
         ),
         ("upload-dataset.slurm", ["run_benchmark.py"]),
         ("trace-statistics.slurm", ["run_benchmark.py"]),
@@ -200,3 +214,108 @@ def test_slurm_submission_from_scripts_directory(tmp_path, script_name, commands
         else f"./bin/{name}"
         for name in commands
     ]
+
+
+@pytest.mark.parametrize("gpu_frameworks", [False, True])
+def test_submit_competition_shares_run_between_cpu_and_gpu_arrays(
+    tmp_path, gpu_frameworks
+):
+    scripts = tmp_path / "repo" / "scripts"
+    scripts.mkdir(parents=True)
+    shutil.copy(ROOT / "scripts/submit-competition.sh", scripts)
+    include = [{"env_nobuild": {"SAPS_FRAMEWORK": "frameworks/saps_numpy.py"}}]
+    if gpu_frameworks:
+        include.append({"env_nobuild": {"SAPS_DEVICE": "gpu"}})
+    config = tmp_path / "competition.config.json"
+    config.write_text(json.dumps({"include": include}))
+    record = tmp_path / "submissions.jsonl"
+    # Each fake submission prints the next job id: 100, 101, ...
+    capture = (
+        "import json, os, sys; "
+        'path=os.environ["SAPS_TEST_SUBMISSIONS"]; '
+        "n=len(open(path).readlines()) if os.path.exists(path) else 0; "
+        'f=open(path, "a"); f.write(json.dumps(sys.argv[1:])+"\\n"); f.close(); '
+        "print(100 + n)"
+    )
+    shell_env = tmp_path / "shell-env"
+    shell_env.write_text(
+        "sbatch() { "
+        + shlex.quote(sys.executable)
+        + " -c "
+        + shlex.quote(capture)
+        + ' "$@"; }\n'
+    )
+    env = {
+        **os.environ,
+        "BASH_ENV": str(shell_env),
+        "SAPS_TEST_SUBMISSIONS": str(record),
+        "SAPS_COMPETITION_CONFIG": str(config),
+        "SAPS_CHUNK_COUNT": "8",
+    }
+    subprocess.run(
+        [
+            "bash",
+            str(scripts / "submit-competition.sh"),
+            "--tag",
+            "suite-train",
+            "--after",
+            "42",
+        ],
+        cwd=tmp_path,
+        env=env,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    *arrays, combine = [json.loads(line) for line in record.read_text().splitlines()]
+    devices = ["cpu", "gpu"] if gpu_frameworks else ["cpu"]
+    run_directory = scripts.parent.resolve() / "competition" / "run_100"
+    assert run_directory.is_dir()
+    assert len(arrays) == len(devices)
+    for device, args in zip(devices, arrays, strict=True):
+        wrapper = args.index(str(scripts / f"competition-{device}.slurm"))
+        assert "--array=0-7" in args
+        assert "--dependency=afterok:42" in args
+        assert args[-2:] == ["--tag", "suite-train"]
+        # The GPU array joins the run directory named after the CPU array.
+        if device == "gpu":
+            assert args[wrapper + 1 : wrapper + 3] == ["--resume", str(run_directory)]
+        else:
+            assert "--resume" not in args
+    job_ids = ":".join(str(100 + i) for i in range(len(arrays)))
+    assert f"--dependency=afterany:{job_ids}" in combine
+    assert str(run_directory) in combine[combine.index("--wrap") + 1]
+
+
+def test_submit_competition_cancels_earlier_arrays_when_a_submission_fails(tmp_path):
+    scripts = tmp_path / "repo" / "scripts"
+    scripts.mkdir(parents=True)
+    shutil.copy(ROOT / "scripts/submit-competition.sh", scripts)
+    config = tmp_path / "competition.config.json"
+    config.write_text(
+        json.dumps({"include": [{"env_nobuild": {"SAPS_DEVICE": "gpu"}}]})
+    )
+    cancelled = tmp_path / "cancelled"
+    # The CPU array submits as job 100; the GPU array is rejected.
+    shell_env = tmp_path / "shell-env"
+    shell_env.write_text(
+        'sbatch() { if [[ -e "$SAPS_TEST_SUBMITTED" ]]; then return 1; fi; '
+        'touch "$SAPS_TEST_SUBMITTED"; echo 100; }\n'
+        'scancel() { echo "$@" >> "$SAPS_TEST_CANCELLED"; }\n'
+    )
+    env = {
+        **os.environ,
+        "BASH_ENV": str(shell_env),
+        "SAPS_TEST_SUBMITTED": str(tmp_path / "submitted"),
+        "SAPS_TEST_CANCELLED": str(cancelled),
+        "SAPS_COMPETITION_CONFIG": str(config),
+    }
+    result = subprocess.run(
+        ["bash", str(scripts / "submit-competition.sh")],
+        cwd=tmp_path,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode != 0
+    assert cancelled.read_text().split() == ["100"]

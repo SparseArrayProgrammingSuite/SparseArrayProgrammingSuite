@@ -17,11 +17,10 @@ def _extract_result_json(output: str) -> dict[str, Any]:
         if char != "{":
             continue
         try:
-            document, end = decoder.raw_decode(output[index:])
+            document, _ = decoder.raw_decode(output, index)
         except json.JSONDecodeError:
             continue
-        if output[index + end :].strip():
-            continue
+        # The runner prints a benchmark summary after the result JSON.
         if isinstance(document, dict) and "results" in document:
             return document
     raise AssertionError(f"No result JSON found in harness output:\n{output}")
