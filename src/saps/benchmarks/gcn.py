@@ -124,13 +124,11 @@ def gcn_reference_np(adjacency, features, weights1, bias1, weights2, bias2):
 
 
 def gcn_reference_with_error(adjacency, features, weights1, bias1, weights2, bias2):
-    """Return float64 scores and elementwise absolute roundoff bounds.
+    """Compute reference scores and a rounding-error tolerance for each score.
 
-    Propagate errors through actual absolute coefficients, preserving node and
-    channel information. Each operation uses its own promoted input dtype;
-    later promotion cannot undo earlier rounding. The shared bound helpers use
-    eps rather than eps/2 to cover both execution and reference rounding.
-    ReLU is 1-Lipschitz and does not enlarge the error.
+    Track how rounding errors accumulate through both GCN layers, using
+    the precision of each operation. Account for rounding in both the
+    benchmark and reference calculations. ReLU cannot increase the error.
     """
     adjacency_dtype = adjacency.dtype
     dtype = features.dtype
