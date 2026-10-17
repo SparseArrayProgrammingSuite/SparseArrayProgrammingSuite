@@ -11,7 +11,7 @@ from binsparse import (
 )
 from binsparse.conversions import from_numpy, to_numpy, to_scipy, to_sparse
 
-from saps_framework import Framework, normalize_unfold_args
+from saps_framework import Framework, normalize_pad_args, normalize_unfold_args
 from saps_framework.einsum import native_einsum
 
 
@@ -50,42 +50,32 @@ class NumpyFramework(Framework):
     def einsum(self, prgm, **kwargs):
         return native_einsum(np, prgm, **kwargs)
 
-    def unfold(
-        self,
-        x,
-        kernel_shape,
-        *,
-        axes=None,
-        strides=None,
-        dilations=None,
-        padding=None,
-        fill_value=0,
-    ):
+    def pad_constant(self, x, padding, *, axes=None, fill_value=0):
+        return _pad(x, padding, axes, mode="constant", constant_values=fill_value)
+
+    def pad_reflect(self, x, padding, *, axes=None):
+        return _pad(x, padding, axes, mode="reflect")
+
+    def pad_edge(self, x, padding, *, axes=None):
+        return _pad(x, padding, axes, mode="edge")
+
+    def pad_wrap(self, x, padding, *, axes=None):
+        return _pad(x, padding, axes, mode="wrap")
+
+    def unfold(self, x, kernel_shape, *, axes=None, strides=None, dilations=None):
         array = np.asarray(x)
         kernel_t = tuple(int(size) for size in kernel_shape)
-        axes_t, strides_t, dilations_t, padding_t = normalize_unfold_args(
+        axes_t, strides_t, dilations_t = normalize_unfold_args(
             array.ndim,
             kernel_t,
             axes,
             strides,
             dilations,
-            padding,
         )
         effective_kernel = tuple(
             (kernel - 1) * dilation + 1
             for kernel, dilation in zip(kernel_t, dilations_t, strict=True)
         )
-
-        pad_width = [(0, 0)] * array.ndim
-        for axis, pad_pair in zip(axes_t, padding_t, strict=True):
-            pad_width[axis] = pad_pair
-        if any(pair != (0, 0) for pair in pad_width):
-            array = np.pad(
-                array,
-                pad_width,
-                mode="constant",
-                constant_values=fill_value,
-            )
 
         windows = np.lib.stride_tricks.sliding_window_view(  # type: ignore[call-overload]
             array,
@@ -104,6 +94,15 @@ class NumpyFramework(Framework):
 
     def __getattr__(self, name):
         return getattr(np, name)
+
+
+def _pad(x, padding, axes, **kwargs):
+    array = np.asarray(x)
+    axes_t, padding_t = normalize_pad_args(array.ndim, padding, axes)
+    pad_width = [(0, 0)] * array.ndim
+    for axis, pad_pair in zip(axes_t, padding_t, strict=True):
+        pad_width[axis] = pad_pair
+    return np.pad(array, pad_width, **kwargs)
 
 
 xp = NumpyFramework()

@@ -20,7 +20,9 @@ from binsparse.conversions import from_numpy, from_sparse, to_numpy, to_scipy, t
 
 from saps_framework import (
     Framework,
+    normalize_pad_args,
     normalize_unfold_args,
+    padding_source_indices,
     unfold_output_shape,
 )
 from saps_framework.einsum import native_einsum
@@ -133,25 +135,24 @@ def _value_is_zero(value) -> bool:
 
 
 def _axis_unfold_map(
+    source,
     input_size,
     output_size,
     kernel_index,
     stride,
     dilation,
-    pad_pair,
     dtype,
 ):
-    padded_size = input_size + pad_pair[0] + pad_pair[1]
-    padded_input = sp.eye(
-        padded_size,
-        input_size,
-        k=-pad_pair[0],
-        dtype=dtype,
-        format="coo",
-    )
     positions = np.arange(output_size) * stride + kernel_index * dilation
-    window_positions = sp.eye(padded_size, dtype=dtype, format="coo")[positions, :]
-    return window_positions @ padded_input
+    columns = source[positions]
+    rows = np.flatnonzero(columns >= 0)
+    return sp.COO(
+        np.stack([rows, columns[rows]]),
+        np.ones(len(rows), dtype=dtype),
+        shape=(output_size, input_size),
+        has_duplicates=False,
+        sorted=True,
+    )
 
 
 def _kron_all(arrays):
@@ -180,15 +181,22 @@ def _sparse_unfold_with_diagonals(
     strides,
     dilations,
     padding,
+    padding_mode,
 ):
     input_shape = tuple(int(dim) for dim in array.shape)
+    padded_shape = list(input_shape)
+    sources = {}
+    for axis, (before, after) in zip(axes, padding, strict=True):
+        padded_shape[axis] += before + after
+        sources[axis] = padding_source_indices(
+            input_shape[axis], before, after, padding_mode
+        )
     output_shape = unfold_output_shape(
-        input_shape,
+        padded_shape,
         kernel_shape,
         axes,
         strides,
         dilations,
-        padding,
     )
     output_core_shape = output_shape[: array.ndim]
     axis_positions = {axis: i for i, axis in enumerate(axes)}
@@ -203,12 +211,12 @@ def _sparse_unfold_with_diagonals(
                 position = axis_positions[axis]
                 axis_maps.append(
                     _axis_unfold_map(
+                        sources[axis],
                         input_size,
                         output_core_shape[axis],
                         kernel_index[position],
                         strides[position],
                         dilations[position],
-                        padding[position],
                         array.dtype,
                     )
                 )
