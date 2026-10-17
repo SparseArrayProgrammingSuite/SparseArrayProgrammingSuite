@@ -167,7 +167,7 @@ def _run_slicot(benchmark, meta, *data):
     function = generator.generate_benchmark_function(
         generator.datasets[0], problem, benchmark.benchmark
     )
-    return function(None, meta, *data)
+    return function(NumpyFramework(), meta, *data)
 
 
 def test_slicot_forward_euler_runs_linear_system():

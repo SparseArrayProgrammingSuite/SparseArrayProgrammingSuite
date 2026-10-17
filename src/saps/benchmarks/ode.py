@@ -659,15 +659,15 @@ class ODEBrusselatorGenerator(_ODEGenerator[ODEBrusselatorDataset]):
     array_parameters = ("C", "brusselator_cb")
     derivative_source = """\
 a = meta["a"]
-u_arr = np.array(state, dtype=float)
+u_arr = xp.asarray(state, dtype=xp.float64)
 lin = C @ u_arr
 lin[0::2] += a
 if t >= 1.1:
-    lin += np.array(brusselator_cb)
+    lin += brusselator_cb
 u_vals = u_arr[0::2]
 v_vals = u_arr[1::2]
 uv2 = u_vals**2 * v_vals
-non_lin = np.zeros(len(state), dtype=float)
+non_lin = xp.zeros(len(state), dtype=xp.float64)
 non_lin[0::2] = uv2
 non_lin[1::2] = -uv2
 dydt_vector = (lin + non_lin).tolist()
@@ -775,9 +775,9 @@ class ODESLICOTGenerator(_ODEGenerator[ODESLICOTDataset]):
     array_parameters = ("A", "B")
     derivative_source = """\
 input_value = meta["input_value"]
-state_array = np.asarray(state)
+state_array = xp.asarray(state)
 input_dtype = np.result_type(B.dtype, type(input_value), float)
-input_array = np.full(B.shape[1], input_value, dtype=input_dtype)
+input_array = xp.asarray([input_value] * B.shape[1], dtype=input_dtype)
 dydt_vector = (A @ state_array + B @ input_array).tolist()
 """
 
