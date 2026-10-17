@@ -157,6 +157,7 @@ def test_ogb_generator_runs_through_gcn_with_sparse_framework(monkeypatch):
     arrays = [to_numpy(value) for value in instance.inputs[1:]]
     expected = gcn_reference_np(dense_adjacency, *arrays)
     np.testing.assert_allclose(output, expected, rtol=1e-5)
+    benchmark.teardown(param)
 
 
 def test_ogb_shell_generator_round_trips_prepared_nodeprop_data(monkeypatch):

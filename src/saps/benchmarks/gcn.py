@@ -1,6 +1,7 @@
 from typing import Any, cast
 
 import numpy as np
+import scipy.sparse as sps
 
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
@@ -16,6 +17,7 @@ from saps.benchmark import (
 )
 from saps.benchmarks.ogb import fetch_ogb_nodeprop_dataset
 from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
+from saps.util.error_bounds import operation_error_bound, summation_error_bound
 
 
 class GCNDataset(SuiteSparseDataset):
@@ -119,6 +121,62 @@ def gcn_reference_np(adjacency, features, weights1, bias1, weights2, bias2):
     h1 = np.maximum(h1, 0)
     h2 = adjacency @ h1
     return h2 @ weights2 + bias2
+
+
+def gcn_reference_with_error(adjacency, features, weights1, bias1, weights2, bias2):
+    """Compute reference scores and a rounding-error tolerance for each score.
+
+    Track how rounding errors accumulate through both GCN layers, using
+    the precision of each operation. Account for rounding in both the
+    benchmark and reference calculations. ReLU cannot increase the error.
+    """
+    adjacency_dtype = adjacency.dtype
+    dtype = features.dtype
+    adjacency = sps.csr_array(adjacency, dtype=np.float64)
+    abs_adjacency = abs(adjacency)
+    # Zero terms do not introduce rounding, including in dense backends.
+    degrees, rows = np.unique(np.diff(adjacency.indptr), return_inverse=True)
+    value = features.astype(np.float64)
+    error = np.zeros_like(value)
+
+    for layer, (weights, bias) in enumerate(((weights1, bias1), (weights2, bias2))):
+        dtype = np.result_type(adjacency_dtype, dtype)
+        rounding = np.array(
+            [
+                summation_error_bound(np, int(degree) + 1, 1.0, dtype)
+                for degree in degrees
+            ]
+        )[rows, None]
+        scale = abs_adjacency @ np.abs(value)
+        error = abs_adjacency @ error
+        error += rounding * (scale + error)
+        # Allow gradual underflow in products/additions, including reference
+        # rounding, then propagate that absolute error through later layers.
+        tiny = float(np.finfo(dtype).smallest_subnormal)
+        error += (1 + rounding) * (2 * degrees[rows, None] * tiny)
+        value = adjacency @ value
+
+        dtype = np.result_type(dtype, weights.dtype)
+        weights = weights.astype(np.float64)
+        scale = np.abs(value) @ np.abs(weights)
+        error = error @ np.abs(weights)
+        error += summation_error_bound(np, weights.shape[0] + 1, scale + error, dtype)
+        rounding = summation_error_bound(np, weights.shape[0] + 1, 1.0, dtype)
+        tiny = float(np.finfo(dtype).smallest_subnormal)
+        error += (1 + rounding) * (2 * weights.shape[0] * tiny)
+        value = value @ weights
+
+        dtype = np.result_type(dtype, bias.dtype)
+        scale = np.abs(value) + np.abs(bias) + error
+        error += operation_error_bound(np, scale, dtype)
+        error += float(np.finfo(dtype).smallest_subnormal)
+        value += bias
+        if layer == 0:
+            np.maximum(value, 0, out=value)
+
+    assert np.all(np.isfinite(value)), "Nonfinite GCN reference output"
+    assert np.all(np.isfinite(error)), "Nonfinite GCN error bound"
+    return value, error
 
 
 class GCNTestGenerator(Generator[GCNDataset]):
@@ -229,15 +287,17 @@ class GCNTestGenerator(Generator[GCNDataset]):
             raise ValueError("GCN test datasets must define all input arrays.")
 
         arrays = tuple(cast(np.ndarray, item) for item in required)
-        expected = dataset.expected
-        expected = gcn_reference_np(*arrays) if expected is None else expected
+        expected, bound = gcn_reference_with_error(*arrays)
+        if dataset.expected is not None:
+            assert expected.shape == dataset.expected.shape and np.all(
+                np.abs(expected - dataset.expected) <= bound
+            ), f"GCN reference disagrees with fixture {dataset.name}"
 
         inputs = [from_numpy(item) for item in arrays]
         return DataInstance(
             inputs=inputs,
             meta={},
-            ref_outputs=[from_numpy(expected)],
-            ref_meta={"rtol": 1e-10},
+            ref_outputs=[from_numpy(expected), from_numpy(bound)],
         )
 
 
@@ -414,9 +474,13 @@ class GCNSuiteSparseGenerator(Generator[GCNDataset]):
         bias1_b = from_numpy(bias1)
         weights2_b = from_numpy(weights2)
         bias2_b = from_numpy(bias2)
+        expected, bound = gcn_reference_with_error(
+            coo, features, weights1, bias1, weights2, bias2
+        )
         return DataInstance(
             inputs=[A_bin, features_b, weights1_b, bias1_b, weights2_b, bias2_b],
             meta={},
+            ref_outputs=[from_numpy(expected), from_numpy(bound)],
         )
 
 
@@ -511,14 +575,19 @@ class GCNOGBGenerator(Generator[GCNOGBDataset]):
             (feature_dim, dataset.hidden_dim), dtype=np.float32
         )
         weights2 = rng.standard_normal((dataset.hidden_dim, out_dim), dtype=np.float32)
+        bias1 = np.zeros(dataset.hidden_dim, dtype=np.float32)
+        bias2 = np.zeros(out_dim, dtype=np.float32)
+        expected, bound = gcn_reference_with_error(
+            to_scipy(graph.adjacency), graph.features, weights1, bias1, weights2, bias2
+        )
         return DataInstance(
             inputs=[
                 graph.adjacency,
                 from_numpy(graph.features),
                 from_numpy(weights1),
-                from_numpy(np.zeros(dataset.hidden_dim, dtype=np.float32)),
+                from_numpy(bias1),
                 from_numpy(weights2),
-                from_numpy(np.zeros(out_dim, dtype=np.float32)),
+                from_numpy(bias2),
             ],
             meta={
                 **graph.metadata,
@@ -526,6 +595,7 @@ class GCNOGBGenerator(Generator[GCNOGBDataset]):
                 "num_outputs": out_dim,
                 "hidden_dim": dataset.hidden_dim,
             },
+            ref_outputs=[from_numpy(expected), from_numpy(bound)],
         )
 
 
@@ -653,16 +723,20 @@ class GCNBenchmark(Benchmark):
                 "Output must be in binsparse format"
             )
 
-        if self._ref_outputs is None:
-            return
+        assert self._ref_outputs is not None, "No reference output"
+        assert len(self._ref_outputs) == 2, "No error bound; regenerate the dataset"
 
         result = to_numpy(self._output[0])
         expected = to_numpy(self._ref_outputs[0])
-        np.testing.assert_allclose(
-            result,
-            expected,
-            rtol=self._ref_meta["rtol"],
-            err_msg=f"GCN output mismatch for {param.dataset.name}",
+        assert result.shape == expected.shape, "GCN output shape mismatch"
+        assert np.all(np.isfinite(result)), "GCN output contains nonfinite values"
+        bound = to_numpy(self._ref_outputs[1])
+        assert bound.shape == expected.shape, "GCN error bound shape mismatch"
+        assert np.all(np.isfinite(bound)) and np.all(bound >= 0), (
+            "Invalid GCN error bound"
+        )
+        assert np.all(np.abs(result - expected) <= bound), (
+            f"GCN output mismatch for {param.dataset.name}"
         )
 
     """
