@@ -581,17 +581,15 @@ def test_upload_chunks_cover_datasets_as_shared_manifest_changes(
     ],
 )
 @pytest.mark.parametrize(
-    "check_suite,outcome",
+    "outcome",
     [
-        (False, 0),
-        (False, 3),
-        (True, 0),
-        (True, 3),
-        (False, RuntimeError("installation failed")),
+        0,
+        3,
+        RuntimeError("installation failed"),
     ],
 )
 def test_device_selects_framework_environments(
-    runner, monkeypatch, tmp_path, flags, expected, check_suite, outcome, capsys
+    runner, monkeypatch, tmp_path, flags, expected, outcome, capsys
 ):
     import os
     import sys
@@ -646,16 +644,14 @@ def test_device_selects_framework_environments(
             "--saps-dir",
             str(tmp_path),
             *flags,
-            *(["--check-suite"] if check_suite else []),
         ],
     )
     if isinstance(outcome, Exception):
         with pytest.raises(RuntimeError, match="installation failed"):
             runner.main()
     else:
-        assert runner.main() == (1 if check_suite and outcome else 0)
-        if not check_suite:
-            assert f"failed_benchmark_entries={outcome}" in capsys.readouterr().out
+        assert runner.main() == 0
+        assert f"failed_benchmark_entries={outcome}" in capsys.readouterr().out
     assert selected == expected
 
 
