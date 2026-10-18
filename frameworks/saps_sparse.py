@@ -20,9 +20,8 @@ from binsparse.conversions import from_numpy, from_sparse, to_numpy, to_scipy, t
 
 from saps_framework import (
     Framework,
-    normalize_pad_args,
+    normalize_pad_width,
     normalize_unfold_args,
-    padding_source_indices,
     unfold_output_shape,
 )
 from saps_framework.einsum import native_einsum
@@ -134,25 +133,9 @@ def _value_is_zero(value) -> bool:
     return array.shape == () and array.item() == 0
 
 
-def _axis_unfold_map(
-    source,
-    input_size,
-    output_size,
-    kernel_index,
-    stride,
-    dilation,
-    dtype,
-):
+def _axis_unfold_map(input_size, output_size, kernel_index, stride, dilation, dtype):
     positions = np.arange(output_size) * stride + kernel_index * dilation
-    columns = source[positions]
-    rows = np.flatnonzero(columns >= 0)
-    return sp.COO(
-        np.stack([rows, columns[rows]]),
-        np.ones(len(rows), dtype=dtype),
-        shape=(output_size, input_size),
-        has_duplicates=False,
-        sorted=True,
-    )
+    return sp.eye(input_size, dtype=dtype, format="coo")[positions]
 
 
 def _kron_all(arrays):
@@ -180,19 +163,10 @@ def _sparse_unfold_with_diagonals(
     axes,
     strides,
     dilations,
-    padding,
-    padding_mode,
 ):
     input_shape = tuple(int(dim) for dim in array.shape)
-    padded_shape = list(input_shape)
-    sources = {}
-    for axis, (before, after) in zip(axes, padding, strict=True):
-        padded_shape[axis] += before + after
-        sources[axis] = padding_source_indices(
-            input_shape[axis], before, after, padding_mode
-        )
     output_shape = unfold_output_shape(
-        padded_shape,
+        input_shape,
         kernel_shape,
         axes,
         strides,
@@ -211,7 +185,6 @@ def _sparse_unfold_with_diagonals(
                 position = axis_positions[axis]
                 axis_maps.append(
                     _axis_unfold_map(
-                        sources[axis],
                         input_size,
                         output_core_shape[axis],
                         kernel_index[position],
@@ -413,63 +386,55 @@ class PyDataSparseFramework(Framework):
         }
         return native_einsum(sp, prgm, **kwargs)
 
-    def unfold(
-        self,
-        x,
-        kernel_shape,
-        *,
-        axes=None,
-        strides=None,
-        dilations=None,
-        padding=None,
-        fill_value=0,
-    ):
-        if isinstance(x, sp.SparseArray) and _value_is_zero(fill_value):
-            coo = x.asformat("coo")
-            kernel_t = tuple(int(size) for size in kernel_shape)
-            axes_t, strides_t, dilations_t, padding_t = normalize_unfold_args(
-                coo.ndim,
-                kernel_t,
-                axes,
-                strides,
-                dilations,
-                padding,
+    def pad_constant(self, x, padding, *, axes=None, fill_value=0):
+        pad_width = normalize_pad_width(np.ndim(x), padding, axes)
+        if not isinstance(x, sp.SparseArray):
+            return np.pad(x, pad_width, mode="constant", constant_values=fill_value)
+        # pydata/sparse only pads with the array's fill value.
+        if np.asarray(fill_value) == x.fill_value:
+            return sp.pad(x.asformat("coo"), pad_width, constant_values=fill_value)
+        return super().pad_constant(x, padding, axes=axes, fill_value=fill_value)
+
+    # pydata/sparse.pad only supports constant mode, so sparse arrays fall back
+    # to concatenating slices.
+
+    def pad_reflect(self, x, padding, *, axes=None):
+        if isinstance(x, sp.SparseArray):
+            return super().pad_reflect(x, padding, axes=axes)
+        return np.pad(x, normalize_pad_width(np.ndim(x), padding, axes), mode="reflect")
+
+    def pad_edge(self, x, padding, *, axes=None):
+        if isinstance(x, sp.SparseArray):
+            return super().pad_edge(x, padding, axes=axes)
+        return np.pad(x, normalize_pad_width(np.ndim(x), padding, axes), mode="edge")
+
+    def pad_wrap(self, x, padding, *, axes=None):
+        if isinstance(x, sp.SparseArray):
+            return super().pad_wrap(x, padding, axes=axes)
+        return np.pad(x, normalize_pad_width(np.ndim(x), padding, axes), mode="wrap")
+
+    def unfold(self, x, kernel_shape, *, axes=None, strides=None, dilations=None):
+        kernel_t = tuple(int(size) for size in kernel_shape)
+        if isinstance(x, sp.SparseArray):
+            axes_t, strides_t, dilations_t = normalize_unfold_args(
+                x.ndim, kernel_t, axes, strides, dilations
             )
             return _sparse_unfold_with_diagonals(
-                coo,
-                kernel_t,
-                axes_t,
-                strides_t,
-                dilations_t,
-                padding_t,
+                x.asformat("coo"), kernel_t, axes_t, strides_t, dilations_t
             )
 
-        array = self._dense(x) if isinstance(x, sp.SparseArray) else x
-        array = np.asarray(array)
-        kernel_t = tuple(int(size) for size in kernel_shape)
-        axes_t, strides_t, dilations_t, padding_t = normalize_unfold_args(
+        array = np.asarray(x)
+        axes_t, strides_t, dilations_t = normalize_unfold_args(
             array.ndim,
             kernel_t,
             axes,
             strides,
             dilations,
-            padding,
         )
         effective_kernel = tuple(
             (kernel - 1) * dilation + 1
             for kernel, dilation in zip(kernel_t, dilations_t, strict=True)
         )
-
-        pad_width = [(0, 0)] * array.ndim
-        for axis, pad_pair in zip(axes_t, padding_t, strict=True):
-            pad_width[axis] = pad_pair
-        if any(pair != (0, 0) for pair in pad_width):
-            array = np.pad(
-                array,
-                pad_width,
-                mode="constant",
-                constant_values=fill_value,
-            )
 
         windows = np.lib.stride_tricks.sliding_window_view(  # type: ignore[call-overload]
             array,
@@ -481,10 +446,7 @@ class PyDataSparseFramework(Framework):
             slices[axis] = slice(None, None, step)
         for window_axis, dilation in enumerate(dilations_t, start=array.ndim):
             slices[window_axis] = slice(None, None, dilation)
-        windows = windows[tuple(slices)]
-        if isinstance(x, sp.SparseArray):
-            return sp.asarray(windows)
-        return windows
+        return windows[tuple(slices)]
 
     def diagonal(self, a, *args, **kwargs):
         if isinstance(a, sp.SparseArray):

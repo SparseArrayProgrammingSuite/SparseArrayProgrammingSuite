@@ -11,7 +11,7 @@ from binsparse import (
 )
 from binsparse.conversions import from_numpy, to_numpy, to_scipy, to_sparse
 
-from saps_framework import Framework, normalize_pad_args, normalize_unfold_args
+from saps_framework import Framework, normalize_pad_width, normalize_unfold_args
 from saps_framework.einsum import native_einsum
 
 
@@ -51,16 +51,17 @@ class NumpyFramework(Framework):
         return native_einsum(np, prgm, **kwargs)
 
     def pad_constant(self, x, padding, *, axes=None, fill_value=0):
-        return _pad(x, padding, axes, mode="constant", constant_values=fill_value)
+        pad_width = normalize_pad_width(np.ndim(x), padding, axes)
+        return np.pad(x, pad_width, mode="constant", constant_values=fill_value)
 
     def pad_reflect(self, x, padding, *, axes=None):
-        return _pad(x, padding, axes, mode="reflect")
+        return np.pad(x, normalize_pad_width(np.ndim(x), padding, axes), mode="reflect")
 
     def pad_edge(self, x, padding, *, axes=None):
-        return _pad(x, padding, axes, mode="edge")
+        return np.pad(x, normalize_pad_width(np.ndim(x), padding, axes), mode="edge")
 
     def pad_wrap(self, x, padding, *, axes=None):
-        return _pad(x, padding, axes, mode="wrap")
+        return np.pad(x, normalize_pad_width(np.ndim(x), padding, axes), mode="wrap")
 
     def unfold(self, x, kernel_shape, *, axes=None, strides=None, dilations=None):
         array = np.asarray(x)
@@ -94,15 +95,6 @@ class NumpyFramework(Framework):
 
     def __getattr__(self, name):
         return getattr(np, name)
-
-
-def _pad(x, padding, axes, **kwargs):
-    array = np.asarray(x)
-    axes_t, padding_t = normalize_pad_args(array.ndim, padding, axes)
-    pad_width = [(0, 0)] * array.ndim
-    for axis, pad_pair in zip(axes_t, padding_t, strict=True):
-        pad_width[axis] = pad_pair
-    return np.pad(array, pad_width, **kwargs)
 
 
 xp = NumpyFramework()

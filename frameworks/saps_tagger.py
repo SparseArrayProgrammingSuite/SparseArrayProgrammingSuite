@@ -150,12 +150,14 @@ _REDUCTION_OPERATORS = {
     "any",
     "argmax",
     "argmin",
+    "conv",
     "count_nonzero",
     "dot",
     "einsum",
     "max",
     "mean",
     "min",
+    "pool",
     "prod",
     "std",
     "sum",
@@ -987,7 +989,38 @@ class TaggerFramework(Framework):
             elementwise_ops_since_reduction=result_lineage,
         )
 
-    def unfold(
+    def _call_wrapped(self, name, args, kwargs):
+        self._record_operation("", name, args, kwargs)
+        result_lineage = self._result_elementwise_count("", name, args, kwargs)
+        return self._wrap(
+            getattr(self.wrapped, name)(
+                *self._unwrap(args), **self._unwrap_kwargs(kwargs)
+            ),
+            elementwise_ops_since_reduction=result_lineage,
+        )
+
+    def pad_constant(self, x, padding, *, axes=None, fill_value=0):
+        return self._call_wrapped(
+            "pad_constant", (x, padding), {"axes": axes, "fill_value": fill_value}
+        )
+
+    def pad_reflect(self, x, padding, *, axes=None):
+        return self._call_wrapped("pad_reflect", (x, padding), {"axes": axes})
+
+    def pad_edge(self, x, padding, *, axes=None):
+        return self._call_wrapped("pad_edge", (x, padding), {"axes": axes})
+
+    def pad_wrap(self, x, padding, *, axes=None):
+        return self._call_wrapped("pad_wrap", (x, padding), {"axes": axes})
+
+    def unfold(self, x, kernel_shape, *, axes=None, strides=None, dilations=None):
+        return self._call_wrapped(
+            "unfold",
+            (x, kernel_shape),
+            {"axes": axes, "strides": strides, "dilations": dilations},
+        )
+
+    def padded_unfold(
         self,
         x,
         kernel_shape,
@@ -996,33 +1029,74 @@ class TaggerFramework(Framework):
         strides=None,
         dilations=None,
         padding=None,
+        padding_mode="constant",
         fill_value=0,
     ):
-        kwargs = {
-            "axes": axes,
-            "strides": strides,
-            "dilations": dilations,
-            "padding": padding,
-            "fill_value": fill_value,
-        }
-        self._record_operation("", "unfold", (x, kernel_shape), kwargs)
-        result_lineage = self._result_elementwise_count(
-            "",
-            "unfold",
+        return self._call_wrapped(
+            "padded_unfold",
             (x, kernel_shape),
-            kwargs,
+            {
+                "axes": axes,
+                "strides": strides,
+                "dilations": dilations,
+                "padding": padding,
+                "padding_mode": padding_mode,
+                "fill_value": fill_value,
+            },
         )
-        return self._wrap(
-            self.wrapped.unfold(
-                self._unwrap(x),
-                kernel_shape,
-                axes=axes,
-                strides=strides,
-                dilations=dilations,
-                padding=padding,
-                fill_value=fill_value,
-            ),
-            elementwise_ops_since_reduction=result_lineage,
+
+    def conv(
+        self,
+        x,
+        w,
+        *,
+        strides=None,
+        dilations=None,
+        padding=None,
+        padding_mode="constant",
+        fill_value=0,
+        group=1,
+        combine="*",
+        reduce="+",
+    ):
+        return self._call_wrapped(
+            "conv",
+            (x, w),
+            {
+                "strides": strides,
+                "dilations": dilations,
+                "padding": padding,
+                "padding_mode": padding_mode,
+                "fill_value": fill_value,
+                "group": group,
+                "combine": combine,
+                "reduce": reduce,
+            },
+        )
+
+    def pool(
+        self,
+        x,
+        kernel_shape,
+        *,
+        reduce,
+        strides=None,
+        dilations=None,
+        padding=None,
+        padding_mode="constant",
+        fill_value=0,
+    ):
+        return self._call_wrapped(
+            "pool",
+            (x, kernel_shape),
+            {
+                "reduce": reduce,
+                "strides": strides,
+                "dilations": dilations,
+                "padding": padding,
+                "padding_mode": padding_mode,
+                "fill_value": fill_value,
+            },
         )
 
     def replace(self, arr, old, new):

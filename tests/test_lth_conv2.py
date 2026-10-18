@@ -127,8 +127,8 @@ def test_generated_function_is_inline_fixed_arity_and_inspectable(conv_model):
     nodes = list(ast.walk(ast.parse(source)))
     assert sum(isinstance(node, ast.FunctionDef) for node in nodes) == 1
     assert not any(isinstance(node, ast.For | ast.While | ast.Lambda) for node in nodes)
-    assert "xp.unfold(" in source
-    assert "xp.tensordot(" in source
+    assert "xp.conv(" in source
+    assert "xp.pool(" in source
     result = function(NumpyFramework(), problem.meta, *map(to_numpy, problem.inputs))
     np.testing.assert_allclose(
         result, to_numpy(problem.ref_outputs[0]), rtol=1e-4, atol=1e-4

@@ -4,8 +4,6 @@ from collections.abc import Sequence
 from numbers import Integral
 from typing import cast
 
-import numpy as np
-
 
 def normalize_unfold_args(
     ndim: int,
@@ -37,48 +35,23 @@ def normalize_unfold_args(
     return axes_t, strides_t, dilations_t
 
 
-def normalize_pad_args(
+def normalize_pad_width(
     ndim: int,
     padding: Sequence[int | Sequence[int]] | int | None,
     axes: Sequence[int] | int | None,
-) -> tuple[tuple[int, ...], tuple[tuple[int, int], ...]]:
-    """Return the padded axes (default: all of them) and a pair for each."""
+) -> list[tuple[int, int]]:
+    """Return a (before, after) pair for every axis, like numpy.pad's pad_width.
+
+    ``padding`` applies to ``axes`` (default: all axes).
+    """
     axes_t = _normalize_axes(ndim, range(ndim) if axes is None else axes)
     padding_t = _normalize_padding(padding, len(axes_t))
     if any(before < 0 or after < 0 for before, after in padding_t):
         raise ValueError("padding values must be non-negative")
-    return axes_t, padding_t
-
-
-def padding_source_indices(
-    size: int, before: int, after: int, padding_mode: str
-) -> np.ndarray:
-    """Return the input index read by each position of a padded axis.
-
-    Positions that ``"constant"`` padding fills are -1. The other modes follow
-    ``numpy.pad``, so padding wider than the axis repeats the pattern.
-    """
-    if padding_mode not in ("constant", "reflect", "edge", "wrap"):
-        raise ValueError(
-            "padding_mode must be 'constant', 'reflect', 'edge' or 'wrap', "
-            f"got {padding_mode!r}"
-        )
-    positions = np.arange(-before, size + after)
-    if padding_mode == "constant":
-        return np.where((positions >= 0) & (positions < size), positions, -1)
-    if size == 0:
-        if before or after:
-            raise ValueError(f"cannot pad an empty axis with {padding_mode!r} mode")
-        return positions
-    if padding_mode == "edge":
-        return np.clip(positions, 0, size - 1)
-    if padding_mode == "wrap":
-        return positions % size
-    if size == 1:
-        return np.zeros_like(positions)
-    period = 2 * (size - 1)
-    positions %= period
-    return np.where(positions < size, positions, period - positions)
+    pad_width = [(0, 0)] * ndim
+    for axis, pad_pair in zip(axes_t, padding_t, strict=True):
+        pad_width[axis] = pad_pair
+    return pad_width
 
 
 def unfold_output_shape(
